@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
@@ -44,7 +45,7 @@ import java.util.stream.Collectors;
  * implements {@link IPath}.
  *
  * <p>Animations will be searched in the default asset directory. Normally, this is "game/assets",
- * but you can change it in the gradle.build file if you like.
+ * but you can change it in the "gradle.build" file if you like.
  *
  * <p>Note: Each entity needs at least a {@link CoreAnimations#IDLE} Animation.
  *
@@ -54,12 +55,14 @@ import java.util.stream.Collectors;
 public final class DrawComponent implements Component {
   private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
 
-  /** allows only one Element from a certain priority and orders them */
+  /** Allows only one Element from a certain priority and orders them. */
   private final Map<IPath, Integer> animationQueue =
       new TreeMap<>(Comparator.comparingInt(IPath::priority));
 
   private Map<String, Animation> animationMap = null;
   private Animation currentAnimation;
+  private int tintColor = -1; // -1 means no tinting
+  private boolean isVisible = true;
 
   /**
    * Create a new DrawComponent.
@@ -109,7 +112,7 @@ public final class DrawComponent implements Component {
    *
    * <p>The given animation will be used as the idle animation.
    *
-   * <p>This constructor is for a special case only. Use {@link DrawComponent(String)} if possible.
+   * <p>This constructor is for a special case only. Use {@link DrawComponent} if possible.
    *
    * @param idle Animation to use as the idle animation.
    */
@@ -173,45 +176,67 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Queue up an Animation to be considered as the next played Animation.
+   * Enqueue the first existing animation in the queue of animations to be played next.
    *
-   * <p>Animations are given as an {@link IPath} Array or multiple variables. Animation length is
-   * set to one frame. If you need to queue longer Animations, use {@link #queueAnimation(int,
-   * IPath...)}. The First existing Animation * will be added to the queue.
+   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
+   * actually existing animation will be added to the queue. The duration of this animation (i.e.
+   * how many frames should the animation be displayed) is specified by the given parameter.
    *
-   * @param next Array of IPaths representing the Animation.
+   * @param forFrames Number of frames the animation is to be displayed for
+   * @param next List of potential next animations (represented via <code>IPath</code> objects)
    */
-  public void queueAnimation(final IPath... next) {
-    queueAnimation(1, next);
+  public void queueAnimation(int forFrames, final IPath... next) {
+    Consumer<IPath> fn = path -> animationQueue.put(path, duration(path, forFrames));
+
+    queueAnimation(fn, next);
   }
 
   /**
-   * Queue up an Animation to be considered as the next played Animation.
+   * Enqueue the first existing animation in the queue of animations to be played next.
    *
-   * <p>Animations are given as an {@link IPath} Array or multiple variables. The First existing
-   * Animation will be added to the queue. If the Animation is already added, the remaining Frames
-   * are set to the highest of remaining or new.
+   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
+   * actually existing animation will be added to the queue. The number of steps in this animation
+   * is used as the duration of the animation (i.e. how many frames the animation should be
+   * displayed).
    *
-   * <p>Animation length is set to the given parameter.
-   *
-   * @param forFrames Number of frames to play the Animation for.
-   * @param next Array of IPaths representing the Animation.
+   * @param next List of potential next animations (represented via <code>IPath</code> objects)
    */
-  public void queueAnimation(int forFrames, final IPath... next) {
-    for (IPath path : next) {
-      // is an existing animation of the component
-      if (animationMap.containsKey(path.pathString())) {
-        // check if the path is already queued
-        if (animationQueue.containsKey(path)) {
-          // update time of the animation
-          animationQueue.put(path, Math.max(animationQueue.get(path), forFrames));
-        } else {
-          // add animation
-          animationQueue.put(path, forFrames);
-        }
-        return;
-      }
-    }
+  public void queueAnimation(final IPath... next) {
+    Consumer<IPath> fn =
+        path -> animationQueue.put(path, duration(path, animation(path).orElseThrow().duration()));
+
+    queueAnimation(fn, next);
+  }
+
+  /**
+   * Enqueue the first existing animation in the queue of animations to be played next.
+   *
+   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
+   * actually existing animation will be added to the queue. The duration of the animation (i.e. how
+   * many frames should the animation be displayed) is specified in the given consumer function.
+   *
+   * <p>This is an internal auxiliary function.
+   *
+   * @param fn Function to perform the actual enqueuing
+   * @param next List of potential next animations (represented via <code>IPath</code> objects)
+   */
+  private void queueAnimation(final Consumer<IPath> fn, final IPath... next) {
+    Arrays.stream(next).filter(this::hasAnimation).findFirst().ifPresent(fn);
+  }
+
+  /**
+   * Calculate the duration (in frames) for a given animation.
+   *
+   * <p>If the animation is already enqueued, the new duration will be the maximum of the old value
+   * (in the queue) and the value specified by the parameter. Otherwise, it's just the value
+   * specified by the parameter.
+   *
+   * @param path IPath representing the animation
+   * @param forFrames Number of frames the animation is to be shown for
+   * @return max(forFrames, current value) if already enqueued; forFrames otherwise
+   */
+  private int duration(IPath path, int forFrames) {
+    return Math.max(animationQueue.getOrDefault(path, 0), forFrames);
   }
 
   /**
@@ -296,6 +321,7 @@ public final class DrawComponent implements Component {
   /**
    * Check if the Animation is queued up.
    *
+   * @param requestedAnimation The path of the animation to check.
    * @return true if the Animation is in the queue.
    */
   public boolean isAnimationQueued(final IPath requestedAnimation) {
@@ -348,6 +374,8 @@ public final class DrawComponent implements Component {
    *
    * <p>TODO: This is only a quick fix! We need to implement a proper way of loading assets. (See <a
    * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
+   *
+   * @param path The path of the animation assets.
    */
   private void loadAnimationAssets(final IPath path) throws IOException {
 
@@ -383,10 +411,10 @@ public final class DrawComponent implements Component {
   /**
    * Load the animation assets if the game is running in a JAR.
    *
-   * <p>This function will create a map of directories (String) and the files (LinkedList<String>)
-   * inside these directories. The map will be filled with the directories inside the given path
-   * (e.g., "character/knight"). Ultimately, this function will manually create an Animation for
-   * each entry within this map.
+   * <p>This function will create a map of directories ({@link String}) and the files ({@link
+   * LinkedList}) inside these directories. The map will be filled with the directories inside the
+   * given path (e.g., "character/knight"). Ultimately, this function will manually create an
+   * Animation for each entry within this map.
    *
    * @param path Path to the assets.
    * @param jarFile Path to the JAR files.
@@ -425,9 +453,7 @@ public final class DrawComponent implements Component {
         // (character/knight/idle_down/idle_down_knight_1.png).
         if (lastSlashIndex != fileName.length() - 1) {
           // Get the index of the second-to-last part of the string.
-          // For example, in "character/knight/idle_down/idle_down_knight_1.png", this
-          // would
-          // be the
+          // For example, in "character/knight/idle_down/idle_down_knight_1.png", this would be the
           // index of the slash in "/idle".
 
           int secondLastSlashIndex = fileName.lastIndexOf("/", lastSlashIndex - 1);
@@ -461,6 +487,26 @@ public final class DrawComponent implements Component {
   }
 
   /**
+   * Check if the component is visible. If the component is visible, it will be drawn by the {@link
+   * core.systems.DrawSystem}.
+   *
+   * @return true if the component is visible, false if not.
+   */
+  public boolean isVisible() {
+    return isVisible;
+  }
+
+  /**
+   * Set the visibility of the component. If the component is visible, it will be drawn by the
+   * {@link core.systems.DrawSystem}.
+   *
+   * @param visible The new visibility status to set. True for visible, false for hidden.
+   */
+  public void setVisible(boolean visible) {
+    isVisible = visible;
+  }
+
+  /**
    * Load animations if the game is running in the IDE (or over the shell).
    *
    * @param path Path to the animations.
@@ -483,5 +529,23 @@ public final class DrawComponent implements Component {
         LOGGER.log(CustomLogLevel.ERROR, "Could not load animations from directory", e);
       }
     }
+  }
+
+  /**
+   * Returns the tint color of the DrawComponent.
+   *
+   * @return The tint color of the DrawComponent. If the tint color is -1, no tint is applied.
+   */
+  public int tintColor() {
+    return this.tintColor;
+  }
+
+  /**
+   * Sets the tint color of the DrawComponent. Set it to -1 to remove the tint.
+   *
+   * @param tintColor The new tint color to set.
+   */
+  public void tintColor(int tintColor) {
+    this.tintColor = tintColor;
   }
 }

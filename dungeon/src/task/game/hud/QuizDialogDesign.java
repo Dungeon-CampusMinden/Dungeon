@@ -3,7 +3,9 @@ package task.game.hud;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import contrib.hud.dialogs.DialogDesign;
@@ -12,10 +14,12 @@ import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
 
+/** WTF? . */
 public class QuizDialogDesign {
-
+  /** The name of the answers group. */
   public static final String ANSWERS_GROUP_NAME = "Answers";
-  private static final String QUIZ_MESSAGE_TASK = "Aufgabestellung";
+
+  private static final String QUIZ_MESSAGE_TASK = "Aufgabenstellung";
   private static final String QUIZ_MESSAGE_SOLUTION = "Lösung";
 
   /**
@@ -25,6 +29,7 @@ public class QuizDialogDesign {
    *
    * @param skin Skin for the dialogue (resources that can be used by UI widgets)
    * @param quizQuestion Various question configurations
+   * @return foo
    */
   public static VerticalGroup createAnswerButtons(Skin skin, Quiz quizQuestion) {
     VerticalGroup answerButtons = new VerticalGroup();
@@ -61,11 +66,12 @@ public class QuizDialogDesign {
   }
 
   /**
-   * Creates a UI for a {@link Quiz}
+   * Creates a UI for a {@link Quiz}.
    *
    * @param quizQuestion Various question configurations
    * @param skin Skin for the dialogue (resources that can be used by UI widgets)
    * @param outputMsg Content displayed in the scrollable label
+   * @return foo
    */
   public static Group createQuizQuestion(Quiz quizQuestion, Skin skin, String outputMsg) {
     Label labelExercise = new Label(QUIZ_MESSAGE_TASK, skin);
@@ -89,6 +95,7 @@ public class QuizDialogDesign {
    *
    * @param questionContent the {@link Quiz.Content} to show on the hud.
    * @param skin Skin for the dialogue (resources that can be used by UI widgets)
+   * @return foo
    */
   private static Group visualizeQuestionSection(Quiz.Content questionContent, Skin skin) {
 
@@ -124,17 +131,28 @@ public class QuizDialogDesign {
   }
 
   /**
-   * Representation of all possible answer options as Single-Choice, Multiple-Choice or as Freetext
+   * Representation of all possible answer options as Single-Choice, Multiple-Choice or as Freetext.
    *
    * @param quizQuestion Various question configurations
    * @param skin Skin for the dialogue (resources that can be used by UI widgets)
+   * @return foo
    */
   private static Group visualizeAnswerSection(Quiz quizQuestion, Skin skin) {
 
     VerticalGroup vg = new VerticalGroup();
 
     if (quizQuestion instanceof FreeText) {
-      ScrollPane scroller = new ScrollPane(DialogDesign.createEditableText(skin), skin);
+      TextArea editableText = DialogDesign.createEditableText(skin);
+      // Make the text field empty on each click
+      editableText.addListener(
+          new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+              super.clicked(event, x, y);
+              editableText.setText("");
+            }
+          });
+      ScrollPane scroller = new ScrollPane(editableText, skin);
       scroller.setFadeScrollBars(false);
       scroller.setScrollbarsVisible(true);
       vg.addActor(scroller);

@@ -1,0 +1,39 @@
+@startuml UML_Klassendiagramm7.png
+' Abstrakte Klassen
+abstract class DocumentPart {
+    accept(v : DocumentWorker) : void
+}
+
+' Konkrete Klassen
+class Text extends DocumentPart {
+    +accept(v : DocumentWorker) : void
+}
+class Image extends DocumentPart {
+    +accept(v : DocumentWorker) : void
+}
+class Table extends DocumentPart {
+    +accept(v : DocumentWorker) : void
+}
+
+' Interface Klassen
+interface DocumentWorker {
+    +workWith(element : Text) : void
+    +workWith(element : Image) : void
+    +workWith(element : Table) : void
+}
+
+' Konkrete Klassen
+class Renderer implements DocumentWorker {
+    +workWith(element : Text) : void
+    +workWith(element : Image) : void
+    +workWith(element : Table) : void
+}
+class Saver implements DocumentWorker {
+    +workWith(element : Text) : void
+    +workWith(element : Image) : void
+    +workWith(element : Table) : void
+}
+
+' Assoziationen
+DocumentPart --> DocumentWorker
+@enduml

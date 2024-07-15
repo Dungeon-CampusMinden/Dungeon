@@ -1,0 +1,35 @@
+@startuml UML_Klassendiagramm6.png
+' Interface Klassen
+interface Subject {
+    + attach(Shikoku)
+    + detach(Shikoku)
+    + notify()
+}
+
+interface Shikoku {
+    + update()
+}
+
+' Konkrete Klassen
+class ConcreteSubject {
+    - subjectState : int
+    + getState() : int
+    + setState(int)
+}
+
+class ConcreteShikoku {
+    - shikokuState : int
+    - subject : Subject
+    + ConcreteShikoku(subject : Subject)
+    + update()
+}
+
+' Vererbungen
+ConcreteShikoku ..|> Shikoku
+Subject <|.. ConcreteSubject
+
+' Assoziationen
+Shikoku <-- Subject
+Shikoku -[hidden]- Subject
+Shikoku --> Subject
+@enduml

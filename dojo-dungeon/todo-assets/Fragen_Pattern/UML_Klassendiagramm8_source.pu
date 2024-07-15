@@ -1,0 +1,34 @@
+@startuml UML_Klassendiagramm8.png
+interface Payment {
+    +pay(amount: double): void
+}
+
+class CreditCard implements Payment {
+    -cardNumber: String
+    -expiryDate: String
+    -cvv: String
+    +CreditCard(cardNumber: String, expiryDate: String, cvv: String)
+    +pay(amount: double): void
+}
+
+class PayPal implements Payment {
+    -email: String
+    -password: String
+    +PayPal(email: String, password: String)
+    +pay(amount: double): void
+}
+
+class Bitcoin implements Payment {
+    -walletAddress: String
+    +Bitcoin(walletAddress: String)
+    +pay(amount: double): void
+}
+
+class PaymentContext {
+    -how: Payment
+    +setHow(how: Payment): void
+    +executePayment(amount: double): void
+}
+
+PaymentContext --> Payment
+@enduml

@@ -13,11 +13,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/** WTF? . */
 public interface IEnvironment {
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   TypeBuilder getTypeBuilder();
 
   /**
+   * WTF? .
+   *
    * @return all available types of the environment
    */
   default IType[] getTypes() {
@@ -34,6 +42,8 @@ public interface IEnvironment {
   // default Symbol lookupType(String name) { return Symbol.NULL; }
 
   /**
+   * WTF? .
+   *
    * @return all available function definitions
    */
   default Symbol[] getFunctions() {
@@ -42,39 +52,62 @@ public interface IEnvironment {
 
   // default Symbol lookupFunction(String name) { return Symbol.NULL; }
   /**
+   * WTF? .
+   *
    * @param types AggregateTypes to load into the environment
    */
   default void loadTypes(IType... types) {}
 
   /**
+   * WTF? .
+   *
    * @param types AggregateTypes to load into the environment
    */
   default void loadTypes(List<IType> types) {}
 
   /**
+   * WTF? .
+   *
    * @param functionDefinitions FunctionSymbols to load into the environment
    */
   default void loadFunctions(ScopedSymbol... functionDefinitions) {}
 
   /**
+   * WTF? .
+   *
    * @param functionDefinitions FunctionSymbols to load into the environment
    */
   default void loadFunctions(List<ScopedSymbol> functionDefinitions) {}
 
   /**
+   * WTF? .
+   *
    * @return symbol table of this environment
    */
   SymbolTable getSymbolTable();
 
   /**
+   * WTF? .
+   *
    * @return global scope of this environment
    */
   IScope getGlobalScope();
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   default HashMap<Type, IType> javaTypeToDSLTypeMap() {
     return new HashMap<>();
   }
 
+  /**
+   * WTF? .
+   *
+   * @param clazz foo
+   * @return foo
+   */
   default IType getDSLTypeForClass(Class<?> clazz) {
     IType dslType = BuiltInType.noType;
     String dslTypeName = TypeBuilder.getDSLTypeName(clazz);
@@ -85,9 +118,20 @@ public interface IEnvironment {
     return dslType;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param name foo
+   * @return foo
+   */
   default Symbol resolveInGlobalScope(String name) {
     return this.getGlobalScope().resolve(name);
   }
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   RuntimeObjectTranslator getRuntimeObjectTranslator();
 }

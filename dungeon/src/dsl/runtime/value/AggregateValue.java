@@ -6,9 +6,12 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import java.util.Map;
 import java.util.Set;
 
+/** WTF? . */
 public class AggregateValue extends Value {
 
   /**
+   * WTF? .
+   *
    * @return {@link IMemorySpace} holding the values of this AggregateValue
    */
   @Override
@@ -17,7 +20,7 @@ public class AggregateValue extends Value {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param datatype {@link IType} representing the datatype of the new AggregateValue
    * @param parentSpace the {@link IMemorySpace} in which the new AggregateValue was defined
@@ -28,7 +31,7 @@ public class AggregateValue extends Value {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param datatype {@link IType} representing the datatype of the new AggregateValue
    * @param parentSpace the {@link IMemorySpace} in which the new AggregateValue was defined
@@ -45,6 +48,8 @@ public class AggregateValue extends Value {
   }
 
   /**
+   * WTF? .
+   *
    * @param ms the {@link IMemorySpace} to set as the memory space of this AggregateValue
    */
   public void setMemorySpace(IMemorySpace ms) {
@@ -54,6 +59,8 @@ public class AggregateValue extends Value {
   }
 
   /**
+   * WTF? .
+   *
    * @return set of entries of values in the AggregateValues {@link IMemorySpace} (combination of
    *     value-name and {@link Value})
    */
@@ -68,7 +75,7 @@ public class AggregateValue extends Value {
 
   /**
    * Is this {@link AggregateValue} empty, e.g. is the internal value null and has it no other
-   * member-Values than the {@link Value#THIS_NAME}-Value
+   * member-Values than the {@link Value#THIS_NAME}-Value.
    *
    * @return true, if this {@link AggregateValue} is empty, false otherwise
    */

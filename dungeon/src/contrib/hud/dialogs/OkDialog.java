@@ -18,10 +18,11 @@ import java.util.function.BiFunction;
  */
 public final class OkDialog {
 
+  /** WTF? . */
   public static final String DEFAULT_OK_BUTTON = "Ok";
 
   /**
-   * Show an Ok-Dialog
+   * Show an Ok-Dialog.
    *
    * <p>Entity will already be added to the game.
    *

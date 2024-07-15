@@ -44,7 +44,7 @@ public final class HealthBarSystem extends System {
   /** Mapping from actual entity and health bar of this entity. */
   private final Map<Integer, ProgressBar> healthBarMapping = new HashMap<>();
 
-  /** Create a new HealthBarSystem */
+  /** Create a new HealthBarSystem. */
   public HealthBarSystem() {
     super(HealthComponent.class, PositionComponent.class);
     this.onEntityAdd =
@@ -72,7 +72,9 @@ public final class HealthBarSystem extends System {
 
   @Override
   public void execute() {
-    entityStream().map(this::buildDataObject).forEach(this::update);
+    filteredEntityStream(HealthComponent.class, PositionComponent.class)
+        .map(this::buildDataObject)
+        .forEach(this::update);
   }
 
   private void update(final EnemyData ed) {
@@ -102,7 +104,12 @@ public final class HealthBarSystem extends System {
     return progressBar;
   }
 
-  /** Moves the Progressbar to follow the Entity. */
+  /**
+   * Moves the Progressbar to follow the Entity.
+   *
+   * @param pb WTF? .
+   * @param pc WTF? .
+   */
   private void updatePosition(ProgressBar pb, PositionComponent pc) {
     Point position = pc.position();
     Vector3 conveered = new Vector3(position.x, position.y, 0);

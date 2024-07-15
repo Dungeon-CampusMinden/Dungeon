@@ -40,7 +40,9 @@ public final class CollisionSystem extends System {
    */
   @Override
   public void execute() {
-    entityStream().flatMap(this::createDataPairs).forEach(this::onEnterLeaveCheck);
+    filteredEntityStream(CollideComponent.class)
+        .flatMap(this::createDataPairs)
+        .forEach(this::onEnterLeaveCheck);
   }
 
   /**
@@ -52,7 +54,7 @@ public final class CollisionSystem extends System {
    * @return The stream which contains every valid pair of Entities.
    */
   private Stream<CollisionData> createDataPairs(final Entity a) {
-    return entityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
+    return filteredEntityStream().filter(b -> isSmallerThen(a, b)).map(b -> newDataPair(a, b));
   }
 
   /**
@@ -138,7 +140,9 @@ public final class CollisionSystem extends System {
   /**
    * Check if two hitBoxes intersect.
    *
+   * @param h1 WTF? .
    * @param hitBox1 First hitBox.
+   * @param h2 WTF? .
    * @param hitBox2 Second hitBox.
    * @return true if intersection exists, otherwise false.
    */
@@ -156,7 +160,9 @@ public final class CollisionSystem extends System {
   /**
    * Calculates the direction based on a square, can be broken once the hitBoxes are rectangular.
    *
+   * @param h1 WTF? .
    * @param hitBox1 The first hitBox.
+   * @param h2 WTF? .
    * @param hitBox2 The second hitBox.
    * @return Tile direction for where hitBox2 is compared to hitBox1.
    */

@@ -107,6 +107,11 @@ public class Starter {
         // show list for task: reached points
       };
 
+  /**
+   * A method to start the main game loop and handle exceptions.
+   *
+   * @param args array of file names supplied on the command line
+   */
   public static void main(String[] args) {
     try {
       // if file names have been supplied on CLI, let's use these
@@ -232,11 +237,11 @@ public class Starter {
           .flatMap(
               fetch ->
                   fetch.registerCallback(
-                      KeyboardConfig.QUESTLOG.value(), showQuestLog, false, true));
+                      KeyboardConfig.QUESTLOG.value(), showQuestLog, false, false));
       hero.fetch(PlayerComponent.class)
           .flatMap(
               fetch ->
-                  fetch.registerCallback(KeyboardConfig.INFOS.value(), showInfos, false, true));
+                  fetch.registerCallback(KeyboardConfig.INFOS.value(), showInfos, false, false));
       hero.fetch(HealthComponent.class)
           .orElseThrow(() -> MissingComponentException.build(hero, HealthComponent.class))
           .godMode(true);

@@ -13,6 +13,7 @@ import dsl.annotation.DSLTypeMember;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -27,15 +28,16 @@ import java.util.logging.Logger;
  * <p>To calculate the damage received, the {@link HealthSystem} calls the {@link
  * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
  * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
- * calls {@link #clearDamage()} to clear the internal list afterwards. When the health points drop
- * to 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
+ * calls {@link #clearDamage()} to clear the internal list afterward. When the health points drop to
+ * 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 @DSLType(name = "health_component")
 public final class HealthComponent implements Component {
   private final List<Damage> damageToGet;
-  private @DSLCallback(name = "on_death") final Consumer<Entity> onDeath;
+  private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
+  private @DSLCallback(name = "on_death") Consumer<Entity> onDeath;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private @DSLTypeMember(name = "max_health") int maximalHealthpoints;
   private @DSLTypeMember(name = "start_health") int currentHealthpoints;
@@ -74,12 +76,13 @@ public final class HealthComponent implements Component {
    * @param damage Damage that should be inflicted
    */
   public void receiveHit(Damage damage) {
+    this.onHit.accept(damage.cause(), damage);
     damageToGet.add(damage);
     this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
   }
 
   /**
-   * Trigger the onDeath function
+   * Trigger the onDeath function.
    *
    * @param entity associated entity of this component.
    */
@@ -88,7 +91,30 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Calculate the amount of damage of a certain type
+   * Set the onDeath function.
+   *
+   * <p>This function will be called when the associated entity dies.
+   *
+   * @param onDeath A Consumer function that takes an Entity as input.
+   */
+  public void onDeath(Consumer<Entity> onDeath) {
+    this.onDeath = onDeath;
+  }
+
+  /**
+   * Set the onHit function.
+   *
+   * <p>This function will be called when the associated entity receives damage.
+   *
+   * @param onHit A BiConsumer function that takes an Entity that caused the damage (can be null)
+   *     and the Damage object.
+   */
+  public void onHit(BiConsumer<Entity, Damage> onHit) {
+    this.onHit = onHit;
+  }
+
+  /**
+   * Calculate the amount of damage to a certain type.
    *
    * @param dt Type of damage object that still need to be accounted for
    * @return Sum of all damage objects of type dt (default: 0)

@@ -39,38 +39,45 @@ public final class VelocityComponent implements Component {
   private float previousXVelocity;
   private float previousYVelocity;
   private Consumer<Entity> onWallHit;
+  private boolean canEnterOpenPits;
 
   /**
    * Create a new VelocityComponent with the given configuration.
    *
    * @param xVelocity Speed with which the entity can move on the x-axis.
    * @param yVelocity Speed with which the entity can move on the y-axis.
+   * @param onWallHit Callback that will be executed if the entity runs against a wall.
+   * @param canEnterOpenPits Whether the entity enter open pit tiles.
    */
-  public VelocityComponent(float xVelocity, float yVelocity, Consumer<Entity> onWallHit) {
+  public VelocityComponent(
+      float xVelocity, float yVelocity, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
     this.currentXVelocity = 0;
     this.currentYVelocity = 0;
     this.xVelocity = xVelocity;
     this.yVelocity = yVelocity;
     this.onWallHit = onWallHit;
+    this.canEnterOpenPits = canEnterOpenPits;
   }
 
   /**
-   * Create a new VelocityComponent with the given configuration.
+   * Create a new VelocityComponent with the given configuration. By default, the entity will not be
+   * able to enter open pit tiles.
    *
    * @param xVelocity Speed with which the entity can move on the x-axis.
    * @param yVelocity Speed with which the entity can move on the y-axis.
    */
   public VelocityComponent(float xVelocity, float yVelocity) {
-    this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT);
+    this(xVelocity, yVelocity, DEFAULT_ON_WALL_HIT, false);
   }
 
   /**
    * Create a new VelocityComponent with the default configuration.
    *
    * <p>In the default configuration, the movement speed is set to 0, so the entity will not move.
+   * And the entity will not be able to enter open pit tiles.
    */
   public VelocityComponent() {
-    this(0, 0, DEFAULT_ON_WALL_HIT);
+    this(0, 0);
   }
 
   /**
@@ -229,5 +236,23 @@ public final class VelocityComponent implements Component {
    */
   public Consumer<Entity> onWallHit() {
     return onWallHit;
+  }
+
+  /**
+   * Set whether the entity can enter open pit tiles.
+   *
+   * @param canEnterOpenPits Whether the entity can enter open pit tiles.
+   */
+  public void canEnterOpenPits(boolean canEnterOpenPits) {
+    this.canEnterOpenPits = canEnterOpenPits;
+  }
+
+  /**
+   * Get whether the entity can enter open pit tiles.
+   *
+   * @return Whether the entity can enter open pit tiles.
+   */
+  public boolean canEnterOpenPits() {
+    return this.canEnterOpenPits;
   }
 }

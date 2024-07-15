@@ -9,7 +9,11 @@ import core.level.utils.Coordinate;
  */
 public final class Point {
   private static final float EPSILON = 0.000001f;
+
+  /** WTF? . */
   public float x;
+
+  /** WTF? . */
   public float y;
 
   /**
@@ -23,7 +27,11 @@ public final class Point {
     this.y = y;
   }
 
-  /** Copies the point. */
+  /**
+   * Copies the point.
+   *
+   * @param p foo
+   */
   public Point(final Point p) {
     x = p.x;
     y = p.y;
@@ -42,7 +50,7 @@ public final class Point {
   }
 
   /**
-   * Creates the unit vector between point a and b
+   * Creates the unit vector between point a and b.
    *
    * @param a Point A
    * @param b Point B
@@ -60,7 +68,7 @@ public final class Point {
   }
 
   /**
-   * calculates the distance between two points
+   * calculates the distance between two points.
    *
    * @param p1 Point A
    * @param p2 Point B
@@ -73,7 +81,7 @@ public final class Point {
   }
 
   /**
-   * Convert Point to Coordinate by parsing float to int
+   * Convert Point to Coordinate by parsing float to int.
    *
    * @return the converted point
    */
@@ -82,7 +90,7 @@ public final class Point {
   }
 
   /**
-   * Creates a new Point which has the sum of the Points
+   * Creates a new Point which has the sum of the Points.
    *
    * @param other which point to add
    * @return Point where the values for x and y are added
@@ -99,5 +107,20 @@ public final class Point {
    */
   public boolean equals(final Point other) {
     return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON;
+  }
+
+  @Override
+  public String toString() {
+    return "Point{" + "x=" + x + ", y=" + y + '}';
+  }
+
+  /**
+   * Calculates the Euclidean distance between this point and the given point.
+   *
+   * @param otherPos The point to which the distance is calculated.
+   * @return The Euclidean distance between this point and the given point.
+   */
+  public double distance(Point otherPos) {
+    return Math.sqrt(Math.pow(otherPos.x - x, 2) + Math.pow(otherPos.y - y, 2));
   }
 }

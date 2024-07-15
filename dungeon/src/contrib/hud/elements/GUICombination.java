@@ -23,7 +23,9 @@ import java.util.Arrays;
  */
 public final class GUICombination extends Group {
 
+  /** WTF? . */
   public static final int GAP = 10;
+
   private final DragAndDrop dragAndDrop;
   private final ArrayList<CombinableGUI> combinableGuis;
   private final int guisPerRow;
@@ -101,5 +103,22 @@ public final class GUICombination extends Group {
     this.combinableGuis.forEach(CombinableGUI::drawDebug);
   }
 
+  /**
+   * Returns the list of CombinableGUI elements that are part of this GUICombination.
+   *
+   * @return An ArrayList of CombinableGUI elements.
+   */
+  public ArrayList<CombinableGUI> combinableGuis() {
+    return this.combinableGuis;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @param x foo
+   * @param y foo
+   * @param width foo
+   * @param height foo
+   */
   public record AvailableSpace(int x, int y, int width, int height) {}
 }

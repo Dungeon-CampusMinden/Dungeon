@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * This class performs conversions from "runtime objects", meaning Java-objects from the dungeon
- * context (Entity, Components) to DSL Values
+ * context (Entity, Components) to DSL Values.
  */
 public class RuntimeObjectTranslator {
   // used to store specific IObjectToValueTranslator instances for classes, which
@@ -21,7 +21,7 @@ public class RuntimeObjectTranslator {
   private final HashMap<Class<?>, IObjectToValueTranslator> translators = new HashMap<>();
 
   /**
-   * Register an IObjectToValueTranslator instance for a specific class
+   * Register an IObjectToValueTranslator instance for a specific class.
    *
    * @param clazz The Class to register the IObjectToValueTranslator for
    * @param translator The translator to use for specified Class
@@ -49,6 +49,7 @@ public class RuntimeObjectTranslator {
    * @param object the object to translate into an DSL Value
    * @param parentMemorySpace the memory space in which to add the value
    * @param environment the IEnvironment containing all runtime type information
+   * @param targetType the type to which the object should be translated
    * @return the translated Value
    */
   protected Value translateRuntimeObjectDefault(
@@ -167,6 +168,14 @@ public class RuntimeObjectTranslator {
     return returnValue;
   }
 
+  /**
+   * WTF. ?
+   *
+   * @param object foo
+   * @param parentMemorySpace foo
+   * @param environment foo
+   * @return foo
+   */
   public Value translateRuntimeObject(
       Object object, IMemorySpace parentMemorySpace, IEnvironment environment) {
     return translateRuntimeObject(object, parentMemorySpace, environment, null);
@@ -174,11 +183,12 @@ public class RuntimeObjectTranslator {
 
   /**
    * Translate a given Object into a DSL Value. Performs the translation from a registered
-   * IObjectToValueTranslator or performs the default translation
+   * IObjectToValueTranslator or performs the default translation.
    *
    * @param object The Object to translate
    * @param parentMemorySpace The IMemorySpace in which to create the Value
    * @param environment The IEnvironment containing all type information
+   * @param targetType The target IType of the translation
    * @return The translated Value
    */
   public Value translateRuntimeObject(

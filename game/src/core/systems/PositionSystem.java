@@ -24,14 +24,14 @@ import core.utils.components.MissingComponentException;
  */
 public final class PositionSystem extends System {
 
-  /** Create a new PositionSystem */
+  /** Create a new PositionSystem. */
   public PositionSystem() {
     super(PositionComponent.class);
   }
 
   @Override
   public void execute() {
-    entityStream()
+    filteredEntityStream(PositionComponent.class)
         .map(this::buildDataObject)
         .filter(data -> data.pc.position().equals(PositionComponent.ILLEGAL_POSITION))
         .forEach(this::randomPosition);
@@ -47,7 +47,7 @@ public final class PositionSystem extends System {
     if (Game.currentLevel() != null) {
       Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
       boolean otherEntityIsOnThisCoordinate =
-          entityStream()
+          filteredEntityStream()
               .map(this::buildDataObject)
               .anyMatch(psData -> psData.pc().position().toCoordinate().equals(randomPosition));
       if (!otherEntityIsOnThisCoordinate) {

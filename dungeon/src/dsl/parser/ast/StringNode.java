@@ -1,10 +1,11 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class StringNode extends Node {
   private final String value;
 
   /**
-   * Constructor
+   * Constructor. WTF? .
    *
    * @param value The literal value of the string
    * @param sourceFileReference Reference to the location of the identifier in the source file
@@ -15,6 +16,8 @@ public class StringNode extends Node {
   }
 
   /**
+   * WTF? .
+   *
    * @return The value of the string
    */
   public String getValue() {

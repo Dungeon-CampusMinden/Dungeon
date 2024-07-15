@@ -2,6 +2,7 @@ package contrib.crafting;
 
 import static org.junit.Assert.*;
 
+import contrib.item.HealthPotionType;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
@@ -9,8 +10,10 @@ import contrib.item.concreteItem.ItemResourceMushroomRed;
 import java.util.Optional;
 import org.junit.Test;
 
+/** Tests for the {@link Crafting} class. */
 public class CraftingTest {
 
+  /** WTF? . */
   @Test
   public void testFindRecipeWithNoInputs() {
     assertTrue(
@@ -18,13 +21,14 @@ public class CraftingTest {
         Crafting.recipeByIngredients(new Item[0]).isEmpty());
   }
 
+  /** WTF? . */
   @Test
   public void testRecipeFoundUnordered() {
     // Prepare Recipe
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipe = new Recipe(false, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipe);
 
@@ -43,13 +47,14 @@ public class CraftingTest {
     Crafting.clearRecipes();
   }
 
+  /** WTF? . */
   @Test
   public void testRecipeOrdered_CorrectOrder() {
     // Prepare Recipe
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipe);
 
@@ -68,13 +73,14 @@ public class CraftingTest {
     Crafting.clearRecipes();
   }
 
+  /** WTF? . */
   @Test
   public void testRecipeOrdered_IncorrectOrder() {
     // Prepare Recipe
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipe = new Recipe(true, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipe);
 
@@ -92,13 +98,14 @@ public class CraftingTest {
     Crafting.clearRecipes();
   }
 
+  /** WTF? . */
   @Test
   public void testPrioritizeOrderedRecipes() {
     // Prepare Recipe
     CraftingIngredient[] recipeIngredient = {
       new ItemPotionWater(), new ItemResourceMushroomRed(), new ItemResourceMushroomRed(),
     };
-    CraftingResult[] recipeResults = {new ItemPotionHealth()};
+    CraftingResult[] recipeResults = {new ItemPotionHealth(HealthPotionType.NORMAL)};
     Recipe recipeOrdered = new Recipe(true, recipeIngredient, recipeResults);
     Recipe recipeUnordered = new Recipe(false, recipeIngredient, recipeResults);
     Crafting.addRecipe(recipeUnordered);

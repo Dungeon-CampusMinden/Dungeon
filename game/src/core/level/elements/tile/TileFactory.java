@@ -10,7 +10,7 @@ import core.utils.components.path.IPath;
 public class TileFactory {
 
   /**
-   * creates a new Tile which can then be added to the level
+   * Creates a new Tile which can then be added to the level.
    *
    * @param texturePath the path to the texture
    * @param coordinate the position of the newly created Tile
@@ -30,6 +30,7 @@ public class TileFactory {
       case DOOR -> new DoorTile(texturePath, coordinate, designLabel);
       case EXIT -> new ExitTile(texturePath, coordinate, designLabel);
       case SKIP -> new SkipTile(texturePath, coordinate, designLabel);
+      case PIT -> new PitTile(texturePath, coordinate, designLabel);
     };
   }
 }

@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
+  private int openDialogs = 0;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent() {
@@ -38,7 +39,7 @@ public final class PlayerComponent implements Component {
    * @param key The integer value of the key on which the callback should be executed.
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
    *     pressed.
-   * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    * @see com.badlogic.gdx.Gdx#input
    */
   public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
@@ -60,7 +61,7 @@ public final class PlayerComponent implements Component {
    *     pressed.
    * @param repeat If the callback should be executed repeatedly while the key is pressed.
    * @param pauseable If the callback should be executed while the game is paused.
-   * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<Consumer<Entity>> registerCallback(
       int key, final Consumer<Entity> callback, boolean repeat, boolean pauseable) {
@@ -84,11 +85,11 @@ public final class PlayerComponent implements Component {
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
    *     pressed.
    * @param repeat If the callback should be executed repeatedly while the key is pressed.
-   * @return Optional<Consumer < Entity>> The old callback, if one was existing. Can be null.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<Consumer<Entity>> registerCallback(
       int key, final Consumer<Entity> callback, boolean repeat) {
-    return this.registerCallback(key, callback, repeat, true);
+    return this.registerCallback(key, callback, repeat, false);
   }
 
   /**
@@ -110,6 +111,25 @@ public final class PlayerComponent implements Component {
     return new HashMap<>(callbacks);
   }
 
+  /** Increases the dialogue counter by 1. */
+  public void incrementOpenDialogs() {
+    openDialogs++;
+  }
+
+  /** Decreases the dialogue counter by 1. */
+  public void decrementOpenDialogs() {
+    openDialogs--;
+  }
+
+  /**
+   * Indicates whether dialogs are currently open.
+   *
+   * @return true if dialogs are currently open, otherwise false
+   */
+  public boolean openDialogs() {
+    return openDialogs > 0;
+  }
+
   /**
    * Stores information for a Key Press Callback.
    *
@@ -119,8 +139,14 @@ public final class PlayerComponent implements Component {
    * @param pauseable If the callback should be executed while the game is paused.
    */
   public record InputData(boolean repeat, Consumer<Entity> callback, boolean pauseable) {
+    /**
+     * WTF? .
+     *
+     * @param repeat foo
+     * @param callback foo
+     */
     public InputData(boolean repeat, Consumer<Entity> callback) {
-      this(repeat, callback, true);
+      this(repeat, callback, false);
     }
   }
 }

@@ -1,7 +1,11 @@
 package contrib.systems;
 
 import contrib.components.IdleSoundComponent;
+import core.Entity;
+import core.Game;
 import core.System;
+import core.components.PositionComponent;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.sound.SoundPlayer;
@@ -18,15 +22,34 @@ import java.util.Random;
 public final class IdleSoundSystem extends System {
 
   private static final Random RANDOM = new Random();
+  private static final float DISTANCE_THRESHOLD = 10.0f;
 
   /** Create a new {@link IdleSoundSystem}. */
   public IdleSoundSystem() {
     super(IdleSoundComponent.class);
   }
 
+  private static boolean isEntityNearby(Point heroPos, Entity entity) {
+    Point entityPosition =
+        entity.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
+
+    if (heroPos == null || entityPosition == null) {
+      return false;
+    }
+
+    double distance = heroPos.distance(entityPosition);
+
+    return distance < DISTANCE_THRESHOLD;
+  }
+
   @Override
   public void execute() {
-    entityStream()
+    Point heroPos =
+        Game.hero()
+            .flatMap(e -> e.fetch(PositionComponent.class).map(PositionComponent::position))
+            .orElse(null);
+    filteredEntityStream(IdleSoundComponent.class)
+        .filter(e -> isEntityNearby(heroPos, e))
         .forEach(
             e ->
                 playSound(

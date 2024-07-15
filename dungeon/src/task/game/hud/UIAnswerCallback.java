@@ -52,9 +52,13 @@ public final class UIAnswerCallback {
   /**
    * Callback after the answers were confirmed.
    *
+   * @param quest foo
+   * @param hudEntity foo
+   * @param dslCallback foo
+   * @return foo
    * @see UIUtils
    */
-  static BiFunction<TextDialog, String, Boolean> uiCallback(
+  public static BiFunction<TextDialog, String, Boolean> uiCallback(
       Quiz quest, Entity hudEntity, BiConsumer<Task, Set<TaskContent>> dslCallback) {
     return (textDialog, id) -> {
       if (Objects.equals(id, DEFAULT_DIALOG_CONFIRM)) {

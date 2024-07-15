@@ -1,0 +1,34 @@
+@startuml UML_Klassendiagramm2.png
+interface Tier {
+  +akzeptiere(besucher: Besucher)
+}
+
+interface Besucher {
+  +besuche(löwe: Löwe)
+  +besuche(tiger: Tiger)
+}
+
+class Löwe {
+  +akzeptiere(besucher: Besucher)
+}
+
+class Tiger {
+  +akzeptiere(besucher: Besucher)
+}
+
+class Tierarzt {
+  +besuche(löwe: Löwe)
+  +besuche(tiger: Tiger)
+}
+
+class TierPfleger {
+  +besuche(löwe: Löwe)
+  +besuche(tiger: Tiger)
+}
+
+Tier <|.. Löwe
+Tier <|.. Tiger
+
+Tierarzt ..|> Besucher
+TierPfleger ..|> Besucher
+@enduml

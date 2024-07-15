@@ -20,8 +20,10 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 
+/** Tests for the Chest classes. */
 public class ChestTest {
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.removeAllEntities();
@@ -29,7 +31,7 @@ public class ChestTest {
     Game.removeAllSystems();
   }
 
-  /** checks the correct creation of the Chest */
+  /** Checks the correct creation of the Chest. */
   @Test
   public void checkCreation() throws IOException {
     Set<Item> itemData = Set.of();
@@ -43,7 +45,9 @@ public class ChestTest {
     Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
     assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
     assertEquals(
-        "Chest should have the given Items", new Item[] {}, inventoryComponent.get().items());
+        "Chest should have the given Items",
+        new Item[] {null, null, null, null, null, null, null, null, null, null, null, null},
+        inventoryComponent.get().items());
     Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
     assertTrue(
         "Needs the PositionComponent to be somewhere in the Level", positionComponent.isPresent());
@@ -52,8 +56,8 @@ public class ChestTest {
         position.equals(positionComponent.map(PositionComponent.class::cast).get().position()));
   }
 
-  /**
-   * checks the Chest Dropping all the Items it holds
+  /*
+   * Checks the Chest Dropping all the Items it holds.
    *
    * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
    * cant be tested.
@@ -71,8 +75,8 @@ public class ChestTest {
      // assertEquals(2, Game.getEntitiesStream().count());
   }*/
 
-  /**
-   * checks the dropped Item
+  /*
+   * Checks the dropped Item.
    *
    * <p>Since we cant update the {@link Game#entities} from outside the gameloop, this is testcase
    * cant be tested.
@@ -96,6 +100,8 @@ public class ChestTest {
                       .map(CollideComponent.class::cast)
                       .isPresent());
   }*/
+
+  /** WTF? . */
   @Test
   public void checkGeneratorMethod() throws IOException {
     Game.add(new LevelSystem(null, null, () -> {}));

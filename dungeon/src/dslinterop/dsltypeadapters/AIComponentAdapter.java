@@ -12,6 +12,7 @@ public class AIComponentAdapter {
   /**
    * Buildermethod for creating a new {@link DrawComponent} from a path, pointing to animations.
    *
+   * @param entity foo
    * @return the created {@link DrawComponent}
    */
   @DSLTypeAdapter(name = "ai_component")

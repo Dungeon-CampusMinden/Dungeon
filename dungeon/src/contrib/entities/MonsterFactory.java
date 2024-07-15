@@ -10,10 +10,13 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import core.utils.sound.SoundPlayer;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
 
@@ -25,7 +28,7 @@ public final class MonsterFactory {
   private static final IPath[] MONSTER_FILE_PATHS = {
     new SimpleIPath("character/monster/chort"),
     new SimpleIPath("character/monster/imp"),
-    new SimpleIPath("character/monster/big_deamon"),
+    new SimpleIPath("character/monster/big_daemon"),
     new SimpleIPath("character/monster/big_zombie"),
     new SimpleIPath("character/monster/doc"),
     new SimpleIPath("character/monster/goblin"),
@@ -38,14 +41,13 @@ public final class MonsterFactory {
   };
 
   private static final int MIN_MONSTER_HEALTH = 10;
-
-  // NOTE: +1 for health as nextInt() is exclusive
-  private static final int MAX_MONSTER_HEALTH = 50 + 1;
+  private static final int MAX_MONSTER_HEALTH = 50;
   private static final float MIN_MONSTER_SPEED = 5.0f;
   private static final float MAX_MONSTER_SPEED = 8.5f;
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
   private static final int MONSTER_COLLIDE_DAMAGE = 10;
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
+  private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   /**
    * Get an Entity that can be used as a monster.
@@ -70,40 +72,114 @@ public final class MonsterFactory {
    *
    * <p>The Entity is not added to the game yet. *
    *
-   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} *
-   * with random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set *
+   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} with
+   * random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
    * Animation, {@link VelocityComponent}, {@link CollideComponent}, {@link IdleSoundComponent} and
-   * a 10% chance for an {@link * InventoryComponent}. If it has an Inventory it will use the {@link
-   * DropItemsInteraction} on * death.
+   * a 10% chance for an {@link InventoryComponent}. If it has an Inventory it will use the {@link
+   * DropItemsInteraction} on death.
    *
    * @param pathToTexture Textures to use for the monster.
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity randomMonster(IPath pathToTexture) throws IOException {
-    int health = RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH);
-    float speed = RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED);
+    return buildMonster(
+        "monster",
+        pathToTexture,
+        RANDOM.nextInt(MIN_MONSTER_HEALTH, MAX_MONSTER_HEALTH + 1),
+        RANDOM.nextFloat(MIN_MONSTER_SPEED, MAX_MONSTER_SPEED),
+        RANDOM.nextFloat(),
+        randomMonsterDeathSound(),
+        null,
+        MONSTER_COLLIDE_DAMAGE,
+        MONSTER_COLLIDE_COOL_DOWN,
+        randomMonsterIdleSound());
+  }
 
-    Entity monster = new Entity("monster");
-    int itemRoll = RANDOM.nextInt(0, 10);
-    BiConsumer<Entity, Entity> onDeath;
-    if (itemRoll == 0) {
-      Item item = ItemGenerator.generateItemData();
-      InventoryComponent ic = new InventoryComponent(1);
-      monster.add(ic);
-      ic.add(item);
-      onDeath =
-          (e, who) -> {
-            playMonsterDieSound();
-            new DropItemsInteraction().accept(e, who);
-          };
-    } else {
-      onDeath = (e, who) -> playMonsterDieSound();
+  private static Sound randomMonsterDeathSound() {
+    if (Gdx.files == null)
+      return null; // This is a workaround for the Gdx.files being null in tests
+
+    List<String> deathSoundsPaths =
+        Arrays.asList(
+            "sounds/die_01.wav", "sounds/die_02.wav", "sounds/die_03.wav", "sounds/die_04.wav");
+
+    return Gdx.audio.newSound(
+        Gdx.files.internal(deathSoundsPaths.get(RANDOM.nextInt(deathSoundsPaths.size()))));
+  }
+
+  private static void playMonsterDieSound(Sound sound) {
+    if (sound == null) {
+      return;
     }
+    long soundID = sound.play();
+    sound.setLooping(soundID, false);
+    sound.setVolume(soundID, 0.35f);
+  }
+
+  private static IPath randomMonsterIdleSound() {
+    List<String> idleSoundsPaths =
+        Arrays.asList(
+            "sounds/monster1.wav",
+            "sounds/monster2.wav",
+            "sounds/monster3.wav",
+            "sounds/monster4.wav");
+
+    return new SimpleIPath(idleSoundsPaths.get(RANDOM.nextInt(idleSoundsPaths.size())));
+  }
+
+  /**
+   * Builds a monster entity with the given parameters.
+   *
+   * @param name The name of the monster.
+   * @param texture The path to the texture to use for the monster.
+   * @param health The health of the monster.
+   * @param speed The speed of the monster.
+   * @param itemChance The chance that the monster will drop an item upon death. If 0, no item will
+   *     be dropped. If 1, an item will always be dropped.
+   * @param deathSound The sound to play when the monster dies. If null, no sound will be played.
+   * @param ai The AI component of the monster. If null, a random AI will be used.
+   * @param collideDamage The damage the monster inflicts upon collision.
+   * @param collideCooldown The cooldown time between monster's collision damage.
+   * @param idleSoundPath The sound component for the monster's idle sound. If empty, no sound will
+   *     be played.
+   * @return A new Entity representing the monster.
+   * @throws IOException if the animation could not be loaded.
+   */
+  public static Entity buildMonster(
+      String name,
+      IPath texture,
+      int health,
+      float speed,
+      float itemChance,
+      Sound deathSound,
+      AIComponent ai,
+      int collideDamage,
+      int collideCooldown,
+      IPath idleSoundPath)
+      throws IOException {
+    Entity monster = new Entity(name);
+
+    InventoryComponent ic = new InventoryComponent(1);
+    monster.add(ic);
+    // rolls a dice for item chance (itemChance == 0  no item, 1.0 always)
+    if (RANDOM.nextFloat() < itemChance) {
+      Item item = ItemGenerator.generateItemData();
+      ic.add(item);
+    }
+    BiConsumer<Entity, Entity> onDeath =
+        (e, who) -> {
+          playDeathSoundIfNearby(deathSound, e);
+          new DropItemsInteraction().accept(e, who);
+        };
     monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
+
     monster.add(new PositionComponent());
-    monster.add(AIFactory.randomAI(monster));
-    monster.add(new DrawComponent(pathToTexture));
+    if (ai == null) {
+      ai = AIFactory.randomAI(monster);
+    }
+    monster.add(ai);
+    monster.add(new DrawComponent(texture));
     monster.add(new VelocityComponent(speed, speed));
     monster.add(new CollideComponent());
     monster.add(
@@ -125,20 +201,17 @@ public final class MonsterFactory {
     SoundPlayer.playSound(new SimpleIPath(dieSoundEffect), false, 0.35f);
   }
 
-  private static IPath randomMonsterIdleSound() {
-    switch (RANDOM.nextInt(4)) {
-      case 0 -> {
-        return new SimpleIPath("sounds/monster1.wav");
-      }
-      case 1 -> {
-        return new SimpleIPath("sounds/monster2.wav");
-      }
-      case 2 -> {
-        return new SimpleIPath("sounds/monster3.wav");
-      }
-      default -> {
-        return new SimpleIPath("sounds/monster4.wav");
-      }
+  private static void playDeathSoundIfNearby(Sound deathSound, Entity e) {
+    if (Game.hero().isEmpty()) return;
+    Entity hero = Game.hero().get();
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent monsterPc =
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+    if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
+      playMonsterDieSound(deathSound);
     }
   }
 }

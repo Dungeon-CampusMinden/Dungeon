@@ -71,7 +71,7 @@ public class AnswerPickingFunctions {
 
   /**
    * This Callback will check all containers of the given {@link Task} and will return a single
-   * wrapper {@link Element} that stores a {@link Map<TaskContent, Set<TaskContent>>}.
+   * wrapper {@link Element} that stores a {@link Map TaskContent, Set TaskContent}.
    *
    * <p>Use the wrapper Element's content to get the answer map.
    *

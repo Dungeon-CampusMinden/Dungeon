@@ -8,6 +8,8 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
@@ -41,15 +43,17 @@ public final class VelocitySystem extends System {
   // default time an Animation should be enqueued
   private static final int DEFAULT_FRAME_TIME = 1;
 
-  /** Create a new VelocitySystem */
+  /** Create a new VelocitySystem. */
   public VelocitySystem() {
     super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
   }
 
-  /** Updates the position of all entities based on their velocity */
+  /** Updates the position of all entities based on their velocity. */
   @Override
   public void execute() {
-    entityStream().map(this::buildDataObject).forEach(this::updatePosition);
+    filteredEntityStream(VelocityComponent.class, PositionComponent.class, DrawComponent.class)
+        .map(this::buildDataObject)
+        .forEach(this::updatePosition);
   }
 
   private void updatePosition(VSData vsd) {
@@ -67,18 +71,22 @@ public final class VelocitySystem extends System {
     float newX = vsd.pc.position().x + velocity.x;
     float newY = vsd.pc.position().y + velocity.y;
     boolean hitWall = false;
+    boolean canEnterOpenPits =
+        vsd.e.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
     try {
-      if (Game.tileAT(new Point(newX, newY)).isAccessible()) {
+      if (this.isAccessible(Game.tileAT(new Point(newX, newY)), canEnterOpenPits)) {
         // no change in direction
         vsd.pc.position(new Point(newX, newY));
         this.movementAnimation(vsd);
-      } else if (Game.tileAT(new Point(newX, vsd.pc.position().y)).isAccessible()) {
+      } else if (this.isAccessible(
+          Game.tileAT(new Point(newX, vsd.pc.position().y)), canEnterOpenPits)) {
         // redirect not moving along y
         hitWall = true;
         vsd.pc.position(new Point(newX, vsd.pc.position().y));
         this.movementAnimation(vsd);
         vsd.vc.currentYVelocity(0.0f);
-      } else if (Game.tileAT(new Point(vsd.pc.position().x, newY)).isAccessible()) {
+      } else if (this.isAccessible(
+          Game.tileAT(new Point(vsd.pc.position().x, newY)), canEnterOpenPits)) {
         // redirect not moving along x
         hitWall = true;
         vsd.pc.position(new Point(vsd.pc.position().x, newY));
@@ -103,6 +111,19 @@ public final class VelocitySystem extends System {
       vsd.pc().position(PositionComponent.ILLEGAL_POSITION);
       LOGGER.warning("Entity " + e + " is out of bound");
     }
+  }
+
+  /**
+   * Small helper function to check if a tile is accessible and also considers if the entity can
+   * enter empty tiles.
+   *
+   * @param tile The tile to check.
+   * @param canEnterPitTiles If the entity can enter PIT tiles.
+   * @return true if the tile is accessible, false if not.
+   */
+  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
+    return tile.isAccessible()
+        || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT));
   }
 
   private void movementAnimation(VSData vsd) {

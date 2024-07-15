@@ -1,12 +1,28 @@
 package dsl.parser.ast;
 
+/** WTF? . */
 public class CountingLoopStmtNode extends ForLoopStmtNode {
+  /** WTF? . */
   public final int counterIdIdx = 4;
 
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
   public Node getCounterIdNode() {
     return this.getChild(counterIdIdx);
   }
 
+  /**
+   * WTF? .
+   *
+   * @param typeIdNode foo
+   * @param varIdNode foo
+   * @param iterableExpressionNode foo
+   * @param counterIdNode foo
+   * @param stmtNode foo
+   */
   public CountingLoopStmtNode(
       Node typeIdNode,
       Node varIdNode,

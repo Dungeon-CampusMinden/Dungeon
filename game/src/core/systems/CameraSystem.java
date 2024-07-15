@@ -9,6 +9,7 @@ import core.Game;
 import core.System;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
+import core.game.PreRunConfiguration;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
@@ -25,7 +26,9 @@ import core.utils.components.MissingComponentException;
  * @see CameraComponent
  */
 public final class CameraSystem extends System {
+  /** WTF? . */
   public static final float DEFAULT_ZOOM_FACTOR = 0.35f;
+
   private static final float FIELD_WIDTH_AND_HEIGHT_IN_PIXEL = 16f;
   private static final OrthographicCamera CAMERA =
       new OrthographicCamera(viewportWidth(), viewportHeight());
@@ -34,22 +37,28 @@ public final class CameraSystem extends System {
     camera().zoom = DEFAULT_ZOOM_FACTOR;
   }
 
-  /** Creat a new {@link CameraSystem} */
+  /** Create a new {@link CameraSystem}. */
   public CameraSystem() {
     super(CameraComponent.class, PositionComponent.class);
   }
 
   private static float viewportWidth() {
-    return Game.windowWidth() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    return PreRunConfiguration.windowWidth()
+        / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL; // Using PreRun to keep the same zoom
   }
 
   private static float viewportHeight() {
-    return Game.windowHeight() / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL;
+    return PreRunConfiguration.windowHeight()
+        / FIELD_WIDTH_AND_HEIGHT_IN_PIXEL; // Using PreRun to keep the same zoom
   }
 
   /**
    * Checks if point (x,y) is probably visible on screen. Points that are not visible should not be
    * rendered.
+   *
+   * @param x WTF? .
+   * @param y WTF? .
+   * @return WTF? .
    */
   public static boolean isPointInFrustum(float x, float y) {
     final float OFFSET = 1f;
@@ -60,7 +69,7 @@ public final class CameraSystem extends System {
   }
 
   /**
-   * Getter for the camera
+   * Getter for the camera.
    *
    * @return Orthographic Camera from the libGDX Framework
    */
@@ -70,8 +79,10 @@ public final class CameraSystem extends System {
 
   @Override
   public void execute() {
-    if (entityStream().findAny().isEmpty()) focus();
-    else entityStream().forEach(this::focus);
+    filteredEntityStream(CameraComponent.class, PositionComponent.class)
+        .findAny()
+        .ifPresentOrElse(this::focus, this::focus);
+
     // Check if Gdx.graphics is null which happens when the game is run in headless mode (e.g.
     // in tests)
     if (Gdx.graphics != null) {

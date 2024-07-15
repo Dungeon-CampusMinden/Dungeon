@@ -12,14 +12,14 @@ import core.utils.components.MissingComponentException;
  */
 public final class AISystem extends System {
 
-  /** Create a new AISystem */
+  /** Create a new AISystem. */
   public AISystem() {
     super(AIComponent.class);
   }
 
   @Override
   public void execute() {
-    entityStream().forEach(this::executeAI);
+    filteredEntityStream(AIComponent.class).forEach(this::executeAI);
   }
 
   private void executeAI(Entity entity) {

@@ -11,6 +11,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.elements.ILevel;
+import core.level.elements.tile.ExitTile;
 import core.level.generator.IGenerator;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -32,6 +33,7 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+/** WTF? . */
 public class TileLevelAPITest {
 
   private LevelSystem api;
@@ -42,6 +44,7 @@ public class TileLevelAPITest {
 
   private MockedConstruction<Texture> textureMockedConstruction;
 
+  /** WTF? . */
   @Before
   public void setup() {
     Texture texture = Mockito.mock(Texture.class);
@@ -61,6 +64,7 @@ public class TileLevelAPITest {
     Game.add(api);
   }
 
+  /** WTF? . */
   @After
   public void cleanup() {
     Game.currentLevel(null);
@@ -69,6 +73,7 @@ public class TileLevelAPITest {
     textureMockedConstruction.close();
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel() {
     when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
@@ -82,6 +87,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel_noParameter() {
     when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
@@ -93,6 +99,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel_withDesign_noSize() {
     when(generator.level(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
@@ -104,6 +111,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_loadLevel_noDesign_WithSize() {
     when(generator.level(any(), eq(LevelSize.SMALL))).thenReturn(level);
@@ -115,6 +123,7 @@ public class TileLevelAPITest {
     assertEquals(level, LevelSystem.level());
   }
 
+  /** WTF? . */
   @Test
   public void test_execute_draw() {
     IPath textureT1 = new SimpleIPath("dummyPath1");
@@ -132,18 +141,29 @@ public class TileLevelAPITest {
     Tile[][] layout = new Tile[2][2];
     layout[0][0] = Mockito.mock(Tile.class);
     when(layout[0][0].levelElement()).thenReturn(elementT1);
+    when(layout[0][0].visible()).thenReturn(true);
+    when(layout[0][0].tintColor()).thenReturn(-1);
     when(layout[0][0].texturePath()).thenReturn(textureT1);
     when(layout[0][0].position()).thenReturn(coordinateT1.toPoint());
     layout[0][1] = Mockito.mock(Tile.class);
     when(layout[0][1].levelElement()).thenReturn(elementT2);
+    when(layout[0][1].visible()).thenReturn(true);
+    when(layout[0][1].tintColor()).thenReturn(-1);
+
     when(layout[0][1].texturePath()).thenReturn(textureT2);
     when(layout[0][1].position()).thenReturn(coordinateT2.toPoint());
     layout[1][0] = Mockito.mock(Tile.class);
     when(layout[1][0].levelElement()).thenReturn(elementT3);
+    when(layout[1][0].visible()).thenReturn(true);
+    when(layout[1][0].tintColor()).thenReturn(-1);
+
     when(layout[1][0].texturePath()).thenReturn(textureT3);
     when(layout[1][0].position()).thenReturn(coordinateT3.toPoint());
     layout[1][1] = Mockito.mock(Tile.class);
     when(layout[1][1].levelElement()).thenReturn(elementT4);
+    when(layout[1][1].visible()).thenReturn(false);
+    when(layout[1][1].tintColor()).thenReturn(-1);
+
     when(layout[1][1].texturePath()).thenReturn(textureT4);
     when(layout[1][1].position()).thenReturn(coordinateT4.toPoint());
 
@@ -156,20 +176,26 @@ public class TileLevelAPITest {
     verifyNoMoreInteractions(level);
 
     verify(layout[0][0]).levelElement();
+    verify(layout[0][0]).visible();
     verify(layout[0][0]).texturePath();
+    verify(layout[0][0]).tintColor();
     verify(layout[0][0]).position();
     // for some reason mockito.verify can't compare the points of the tile correctly
     verify(painter, times(3)).draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
     verifyNoMoreInteractions(layout[0][0]);
 
     verify(layout[0][1]).levelElement();
+    verify(layout[0][1]).visible();
     verify(layout[0][1]).texturePath();
+    verify(layout[0][1]).tintColor();
     verify(layout[0][1]).position();
     // for some reason mockito.verify can't compare the points of the tile correctly
     verify(painter, times(3)).draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
     verifyNoMoreInteractions(layout[0][1]);
     verify(layout[1][0]).levelElement();
+    verify(layout[1][0]).visible();
     verify(layout[1][0]).texturePath();
+    verify(layout[1][0]).tintColor();
     verify(layout[1][0]).position();
     // for some reason mockito.verify can't compare the points of the tile correctly
     verify(painter, times(3)).draw(any(Point.class), any(IPath.class), any(PainterConfig.class));
@@ -181,6 +207,7 @@ public class TileLevelAPITest {
     verifyNoMoreInteractions(painter);
   }
 
+  /** WTF? . */
   @Test
   public void test_execute_noLevel() {
     assertNull(LevelSystem.level());
@@ -192,6 +219,7 @@ public class TileLevelAPITest {
     verify(onLevelLoader, times(1)).execute();
   }
 
+  /** WTF? . */
   @Test
   public void test_execute_heroOnEndTile() throws IOException {
     when(generator.level(any(), Mockito.any())).thenReturn(level);
@@ -201,9 +229,10 @@ public class TileLevelAPITest {
     hero.add(new PlayerComponent());
     Game.add(hero);
 
-    Tile end = Mockito.mock(Tile.class);
+    ExitTile end = Mockito.mock(ExitTile.class);
     Point p = new Point(3, 3);
     when(end.position()).thenReturn(p);
+    when(end.isOpen()).thenReturn(true);
     when(level.tileAt((Point) any())).thenReturn(end);
     Mockito.when(level.endTile()).thenReturn(end);
 
@@ -216,6 +245,7 @@ public class TileLevelAPITest {
     verify(onLevelLoader, times(2)).execute();
   }
 
+  /** WTF? . */
   @Test
   public void test_setLevel() {
     api.loadLevel(level);

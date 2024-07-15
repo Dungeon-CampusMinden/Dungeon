@@ -8,22 +8,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+/** Tests for the {@link Entity} class. */
 public class EntityTest {
 
   private final Component testComponent = Mockito.mock(Component.class);
   private Entity entity;
 
+  /** WTF? . */
   @Before
   public void setup() {
     entity = new Entity();
     entity.add(testComponent);
   }
 
+  /** WTF? . */
   @Test
   public void addComponent() {
     assertEquals(testComponent, entity.fetch(testComponent.getClass()).get());
   }
 
+  /** WTF? . */
   @Test
   public void addAlreadyExistingComponent() {
     Component newComponent = Mockito.mock(Component.class);
@@ -31,18 +35,21 @@ public class EntityTest {
     assertEquals(newComponent, entity.fetch(testComponent.getClass()).get());
   }
 
+  /** WTF? . */
   @Test
   public void removeComponent() {
     entity.remove(testComponent.getClass());
     assertTrue(entity.fetch(testComponent.getClass()).isEmpty());
   }
 
+  /** WTF? . */
   @Test
   public void compareToSameID() {
     assertEquals(entity.id(), entity.id());
     assertEquals("Entity with the same id should return a 0. ", 0, entity.compareTo(entity));
   }
 
+  /** WTF? . */
   @Test
   public void compareToLowerID() {
     Entity entity1 = new Entity();
@@ -54,6 +61,7 @@ public class EntityTest {
         entity1.compareTo(entity2) < 0);
   }
 
+  /** WTF? . */
   @Test
   public void compareToHigherID() {
     Entity entity1 = new Entity();

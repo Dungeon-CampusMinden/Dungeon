@@ -8,14 +8,19 @@ import dsl.semanticanalysis.typesystem.typebuilding.type.BuiltInType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.IType;
 import graph.taskdependencygraph.TaskDependencyGraph;
 
-// TODO: should this be able to be undefined?
+// TODO: should this be able to be undefined? WTF?!
 
 /**
- * This class is used to represent a value in a {@link MemorySpace}, that is a combination of actual
- * value and a dataType (defined by {@link IType}
+ * WTF? (KURZER Satz).
+ *
+ * <p>This class is used to represent a value in a {@link MemorySpace}, that is a combination of
+ * actual value and a dataType (defined by {@link IType}
  */
 public class Value implements IClonable {
+  /** WTF? . */
   public static Value NONE = new Value(BuiltInType.noType, null, false);
+
+  /** WTF? . */
   public static String THIS_NAME = "$THIS$";
 
   protected IType dataType;
@@ -34,13 +39,13 @@ public class Value implements IClonable {
     return this.dirty;
   }
 
-  /** Set the dirty flag to true */
+  /** Set the dirty flag to true. */
   public void setDirty() {
     this.dirty = true;
   }
 
   /**
-   * Getter for the internal, underlying value
+   * Getter for the internal, underlying value.
    *
    * @return internal, underlying value
    */
@@ -49,7 +54,7 @@ public class Value implements IClonable {
   }
 
   /**
-   * Getter for the datatype of this value
+   * Getter for the datatype of this value.
    *
    * @return the datatype of this value
    */
@@ -57,13 +62,20 @@ public class Value implements IClonable {
     return dataType;
   }
 
+  /**
+   * WTF? .
+   *
+   * @param type foo
+   */
   public void setDataType(IType type) {
     this.dataType = type;
   }
 
   /**
-   * Return the {@link IMemorySpace} associated with this Value. Basic Values only store a reference
-   * to themselves in this IMemorySpace. Therefore, it is only created on demand.
+   * WTF? (KURZER erster Satz!) .
+   *
+   * <p>Return the {@link IMemorySpace} associated with this Value. Basic Values only store a
+   * reference to themselves in this IMemorySpace. Therefore, it is only created on demand.
    *
    * @return the IMemorySpace associated with this Value
    */
@@ -76,9 +88,10 @@ public class Value implements IClonable {
   }
 
   /**
-   * Setter for the internal, underlying value
+   * Setter for the internal, underlying value.
    *
    * @param internalValue The value to set this {@link Value} to.
+   * @return foo
    */
   public boolean setInternalValue(Object internalValue) {
     // TODO: should this check for datatype compatibility?
@@ -93,11 +106,11 @@ public class Value implements IClonable {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param dataType The datatype of this value
-   * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
-   *     the {@link Symbol} this Value corresponds to
+   * @param internalValue The actual value stored in this value //* param symbolIdx The index of the
+   *     {@link Symbol} this Value corresponds to WTF?!
    */
   public Value(IType dataType, Object internalValue) {
     this.object = internalValue;
@@ -108,11 +121,12 @@ public class Value implements IClonable {
   }
 
   /**
-   * Constructor
+   * Constructor.
    *
    * @param dataType The datatype of this value
-   * @param internalValue The actual value stored in this value //* @param symbolIdx The index of
-   *     the {@link Symbol} this Value corresponds to
+   * @param internalValue The actual value stored in this value //* param symbolIdx The index of the
+   *     {@link Symbol} this Value corresponds to WTF?!
+   * @param isMutable foo
    */
   public Value(IType dataType, Object internalValue, boolean isMutable) {
     this.object = internalValue;
@@ -123,7 +137,7 @@ public class Value implements IClonable {
   }
 
   /**
-   * Get default value for different builtin data types
+   * Get default value for different builtin data types.
    *
    * @param type The datatype
    * @return Object set to the default value for passed datatype, or null, if datatype is no builtin

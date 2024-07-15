@@ -1,6 +1,7 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
@@ -19,13 +20,14 @@ public final class PlayerSystem extends System {
 
   private boolean running = true;
 
+  /** WTF? . */
   public PlayerSystem() {
     super(PlayerComponent.class);
   }
 
   @Override
   public void execute() {
-    entityStream().forEach(this::execute);
+    filteredEntityStream(PlayerComponent.class).forEach(this::execute);
   }
 
   private void execute(final Entity entity) {
@@ -54,6 +56,7 @@ public final class PlayerSystem extends System {
    * <p>The callbacks are executed only if the game is not paused or if the callback is not
    * pauseable.
    *
+   * @param callbacks WTF? .
    * @param entity associated entity of this component.
    * @param paused if the game is paused or not.
    */
@@ -63,15 +66,21 @@ public final class PlayerSystem extends System {
       boolean paused) {
     callbacks.forEach(
         (key, value) -> {
-          if (!paused || !value.pauseable()) {
+          if (!paused || value.pauseable()) {
             execute(entity, key, value);
           }
         });
   }
 
   private void execute(final Entity entity, int key, final PlayerComponent.InputData data) {
-    if ((!data.repeat() && (Gdx.input.isKeyJustPressed(key) || Gdx.input.isButtonJustPressed(key)))
-        || (data.repeat() && (Gdx.input.isKeyPressed(key) || Gdx.input.isButtonJustPressed(key)))) {
+    boolean isMouseButton =
+        key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT || key == Input.Buttons.MIDDLE;
+    boolean isPressed =
+        isMouseButton ? Gdx.input.isButtonPressed(key) : Gdx.input.isKeyPressed(key);
+    boolean isJustPressed =
+        isMouseButton ? Gdx.input.isButtonJustPressed(key) : Gdx.input.isKeyJustPressed(key);
+
+    if ((isJustPressed && !data.repeat()) || (isPressed && data.repeat())) {
       data.callback().accept(entity);
     }
   }

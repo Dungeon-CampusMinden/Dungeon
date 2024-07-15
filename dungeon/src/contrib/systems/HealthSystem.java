@@ -7,10 +7,10 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
-import java.util.Optional;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -29,20 +29,47 @@ public final class HealthSystem extends System {
 
   @Override
   public void execute() {
-    entityStream()
-        // Consider only entities that have a HealthComponent
-        // Form triples (e, hc, dc)
-        .map(this::buildDataObject)
-        // Apply damage
-        .map(this::applyDamage)
-        // Filter all dead entities
-        .filter(hsd -> hsd.hc.isDead())
-        // Set DeathAnimation if possible and not yet set
+    // filter entities for components and partition into alive and dead
+    Map<Boolean, List<HSData>> deadOrAlive =
+        filteredEntityStream(HealthComponent.class, DrawComponent.class)
+            .map(
+                e ->
+                    new HSData(
+                        e,
+                        e.fetch(HealthComponent.class).orElseThrow(),
+                        e.fetch(DrawComponent.class).orElseThrow()))
+            .collect(Collectors.partitioningBy(hsd -> hsd.hc.isDead()));
+
+    // apply damage to all entities which are still alive
+    deadOrAlive.get(false).forEach(this::applyDamage);
+
+    // handle dead entities
+    deadOrAlive.get(true).stream()
         .map(this::activateDeathAnimation)
-        // Filter by state of animation
-        .filter(this::testDeathAnimationStatus)
-        // Remove all dead entities
+        .filter(this::isDeathAnimationFinished)
         .forEach(this::removeDeadEntities);
+  }
+
+  private HSData applyDamage(final HSData hsd) {
+    int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
+
+    // if we have some damage, let's show a little dance
+    if (dmgAmount > 0) hsd.dc.queueAnimation(AdditionalAnimations.HIT);
+
+    // reset all damage objects in health component and apply damage
+    hsd.hc.clearDamage();
+    hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
+
+    // return data object to enable method chaining/streaming
+    return hsd;
+  }
+
+  private HSData activateDeathAnimation(final HSData hsd) {
+    // set DeathAnimation as active animation
+    hsd.dc.queueAnimation(AdditionalAnimations.DIE);
+
+    // return data object to enable method chaining/streaming
+    return hsd;
   }
 
   /**
@@ -56,8 +83,7 @@ public final class HealthSystem extends System {
    * @param hsd HSData to check Animations in.
    * @return true if Entity can be removed from the game.
    */
-  private boolean testDeathAnimationStatus(final HSData hsd) {
-    DrawComponent dc = hsd.dc;
+  private boolean isDeathAnimationFinished(final HSData hsd) {
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
         (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
@@ -66,49 +92,9 @@ public final class HealthSystem extends System {
     // test if Animation has finished playing
     Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
 
-    return !hasDeathAnimation.test(dc)
-        || isAnimationLooping.test(dc)
-        || isAnimationFinished.test(dc);
-  }
-
-  private HSData activateDeathAnimation(final HSData hsd) {
-    // set DeathAnimation as active animation
-    Optional<Animation> deathAnimation = hsd.dc.animation(AdditionalAnimations.DIE);
-    deathAnimation.ifPresent(
-        animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.DIE));
-    return hsd;
-  }
-
-  private HSData buildDataObject(final Entity entity) {
-
-    HealthComponent hc =
-        entity
-            .fetch(HealthComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, HealthComponent.class));
-    DrawComponent ac =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    return new HSData(entity, hc, ac);
-  }
-
-  private HSData applyDamage(final HSData hsd) {
-
-    doDamageAndAnimation(
-        hsd, Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum());
-    return hsd;
-  }
-
-  private void doDamageAndAnimation(final HSData hsd, final int dmgAmount) {
-    if (dmgAmount > 0) {
-      Optional<Animation> hitAnimation = hsd.dc.animation(AdditionalAnimations.HIT);
-      // we have some damage - let's show a little dance
-      hitAnimation.ifPresent(
-          animation -> hsd.dc.queueAnimation(animation.duration(), AdditionalAnimations.HIT));
-    }
-    // reset all damage objects in health component and apply damage
-    hsd.hc.clearDamage();
-    hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
+    return !hasDeathAnimation.test(hsd.dc)
+        || isAnimationLooping.test(hsd.dc)
+        || isAnimationFinished.test(hsd.dc);
   }
 
   private void removeDeadEntities(final HSData hsd) {

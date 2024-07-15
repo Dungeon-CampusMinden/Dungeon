@@ -1,5 +1,6 @@
 package core;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.components.PositionComponent;
@@ -58,12 +59,12 @@ public final class Game {
   }
 
   /**
-   * Retrieves the window width from the pre-run configuration.
+   * Retrieves the window width from Gdx.
    *
    * @return The window width.
    */
   public static int windowWidth() {
-    return PreRunConfiguration.windowWidth();
+    return Gdx.graphics.getWidth();
   }
 
   /**
@@ -76,12 +77,12 @@ public final class Game {
   }
 
   /**
-   * Retrieves the window height from the pre-run configuration.
+   * Retrieves the window height from Gdx.
    *
    * @return The window height.
    */
   public static int windowHeight() {
-    return PreRunConfiguration.windowHeight();
+    return Gdx.graphics.getHeight();
   }
 
   /**
@@ -292,6 +293,7 @@ public final class Game {
    * Use this stream if you want to iterate over all entities that contain the necessary Components
    * to be processed by the given system.
    *
+   * @param system the system to check.
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
@@ -302,6 +304,7 @@ public final class Game {
   /**
    * Use this stream if you want to iterate over all entities that contain the given components.
    *
+   * @param filter the components to check.
    * @return a stream of all entities currently in the game that contains the given components.
    */
   public static Stream<Entity> entityStream(final Set<Class<? extends Component>> filter) {
@@ -368,7 +371,7 @@ public final class Game {
   }
 
   /**
-   * Get the tile at the given point in the level
+   * Get the tile at the given point in the level.
    *
    * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
    *
@@ -380,7 +383,7 @@ public final class Game {
   }
 
   /**
-   * Get the tile at the given coordinate in the level
+   * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
    * @return the tile at the given coordinate.
@@ -427,23 +430,24 @@ public final class Game {
   }
 
   /**
-   * Returns the entities on the given tile.
+   * Returns the entities on the given tile. If the tile is null, an empty stream will be returned.
    *
    * @param check Tile to check for.
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
     Tile tile = Game.tileAT(check.position());
+    if (tile == null) return Stream.empty();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
         .filter(
             e ->
-                tileAT(
+                tile.equals(
+                    tileAT(
                         e.fetch(PositionComponent.class)
                             .orElseThrow(
                                 () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())
-                    .equals(tile));
+                            .position())));
   }
 
   /**
@@ -531,5 +535,10 @@ public final class Game {
    */
   public static void levelSize(final LevelSize levelSize) {
     LevelSystem.levelSize(levelSize);
+  }
+
+  /** Exits the GDX application. */
+  public static void exit() {
+    Gdx.app.exit();
   }
 }
