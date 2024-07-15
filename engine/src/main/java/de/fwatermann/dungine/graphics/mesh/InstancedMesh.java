@@ -5,7 +5,6 @@ import de.fwatermann.dungine.utils.GLUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
@@ -20,10 +19,25 @@ public abstract class InstancedMesh extends Mesh {
 
   private static final Logger LOGGER = LogManager.getLogger(InstancedMesh.class);
 
-  protected List<Integer> glIBOs = new ArrayList<>();
   protected InstanceAttributeList instanceAttributes;
-  protected List<InstanceDataBuffer> instanceData = new ArrayList<>();
+  protected ArrayList<InstanceDataBuffer> instanceData = new ArrayList<>();
   protected int instanceCount = 0;
+
+  protected InstancedMesh(
+    FloatBuffer vertices,
+    ArrayList<ByteBuffer> instanceData,
+    int instanceCount,
+    GLUsageHint usageHint,
+    VertexAttributeList attributes,
+    InstanceAttributeList instanceAttributes) {
+    super(vertices, usageHint, attributes);
+    for (ByteBuffer buffer : instanceData) {
+      GLUtils.checkBuffer(buffer);
+      this.instanceData.add(new InstanceDataBuffer(GL33.glGenBuffers(), buffer, buffer != null));
+    }
+    this.instanceAttributes = instanceAttributes;
+    this.instanceCount = instanceCount;
+  }
 
   /**
    * Constructs a new InstancedMesh with the specified vertex buffer, instance data buffer, instance

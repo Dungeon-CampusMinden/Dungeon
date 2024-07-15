@@ -8,6 +8,8 @@ import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
@@ -41,6 +43,32 @@ public class InstancedIndexedMesh extends InstancedMesh {
    * @param attributes the attributes of the mesh
    * @param instanceAttributes the instance attributes of the mesh
    */
+  public InstancedIndexedMesh(FloatBuffer vertices,
+                              IntBuffer indices,
+                              ArrayList<ByteBuffer> instanceData,
+                              int instanceCount,
+                              GLUsageHint usageHint,
+                              VertexAttributeList attributes,
+                              InstanceAttributeList instanceAttributes) {
+    super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
+    GLUtils.checkBuffer(indices);
+    this.indices = indices;
+    this.indicesDirty = indices != null;
+    this.initGL();
+  }
+
+  /**
+   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data,
+   * instance count, usage hint, attributes, and instance attributes.
+   *
+   * @param vertices the vertex buffer of the mesh
+   * @param indices the index buffer of the mesh
+   * @param instanceData the instance data buffer of the mesh
+   * @param instanceCount the number of instances of the mesh
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
   public InstancedIndexedMesh(
       FloatBuffer vertices,
       IntBuffer indices,
@@ -49,11 +77,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
-    GLUtils.checkBuffer(indices);
-    this.indices = indices;
-    this.indicesDirty = indices != null;
-    this.initGL();
+    this(vertices, indices, new ArrayList<>(instanceData != null ? List.of(instanceData) : List.of()), instanceCount, usageHint, attributes, instanceAttributes);
   }
 
   /**
@@ -96,7 +120,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    this(null, null, null, 0, usageHint, attributes, instanceAttributes);
+    this(null, null, new ArrayList<>(), 0, usageHint, attributes, instanceAttributes);
   }
 
   public InstancedIndexedMesh(
