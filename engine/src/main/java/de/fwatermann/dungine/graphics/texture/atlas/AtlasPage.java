@@ -16,7 +16,7 @@ import org.lwjgl.stb.STBImageWrite;
  * Represents a texture atlas, a large image containing a collection of smaller images. This class
  * provides functionality to add textures to the atlas and save the atlas to a file.
  */
-public class AtlasTexture {
+public class AtlasPage {
 
   protected Texture texture;
   protected final AtlasNode rootNode;
@@ -28,7 +28,7 @@ public class AtlasTexture {
    * @param width The width of the atlas in pixels.
    * @param height The height of the atlas in pixels.
    */
-  protected AtlasTexture(int width, int height) {
+  protected AtlasPage(int width, int height) {
     this.width = width;
     this.height = height;
     this.rootNode = new AtlasNode(0, 0, width, height);
