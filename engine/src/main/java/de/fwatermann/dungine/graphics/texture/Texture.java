@@ -127,11 +127,12 @@ public class Texture implements Disposable {
     this.unit = textureUnit;
     GL33.glActiveTexture(textureUnit);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
-    LOGGER.trace(
-        "Bound texture {} to unit {} ({})",
-        this.glTextureId,
-        textureUnit,
-        (textureUnit - GL33.GL_TEXTURE0));
+    if (this.unit != textureUnit)
+      LOGGER.trace(
+          "Bound texture {} to unit {} ({})",
+          this.glTextureId,
+          textureUnit,
+          (textureUnit - GL33.GL_TEXTURE0));
   }
 
   /** Unbinds this texture from the current texture unit. */
