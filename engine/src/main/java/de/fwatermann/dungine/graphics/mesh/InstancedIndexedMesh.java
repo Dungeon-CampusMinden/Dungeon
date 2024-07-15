@@ -187,7 +187,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
   public void dispose() {
     GL33.glDeleteBuffers(this.glVBO);
     GL33.glDeleteBuffers(this.glEBO);
-    GL33.glDeleteBuffers(this.glIBO);
+    this.instanceData.forEach(buffer -> GL33.glDeleteBuffers(buffer.glIBO));
     GL33.glDeleteVertexArrays(this.glVAO);
   }
 }

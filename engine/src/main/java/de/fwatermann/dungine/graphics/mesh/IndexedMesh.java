@@ -192,7 +192,7 @@ public class IndexedMesh extends UnInstancedMesh {
     if (bindShader) shaderProgram.bind();
 
     shaderProgram.setUniformMatrix4f(
-        shaderProgram.configuration().uniformModelMatrix(), this.transformMatrix);
+        shaderProgram.configuration().uniformModelMatrix, this.transformMatrix);
 
     GL33.glBindVertexArray(this.glVAO);
     GL33.glDrawElements(primitiveType, count, GL33.GL_UNSIGNED_INT, offset);
