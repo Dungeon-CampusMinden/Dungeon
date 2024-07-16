@@ -247,7 +247,7 @@ public abstract class GameWindow implements Disposable {
     LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));
     LOGGER.debug("CullFace: {}", GL33.glGetInteger(GL33.GL_FRONT_FACE));
 
-    if (GLUtils.checkVersion(4, 3)) {
+    if (GLUtils.checkVersion(4, 3) && this.debug) {
       LOGGER.info("OpenGL Version >= 4.3 -> Enabling Debugging");
       GLUtil.setupDebugMessageCallback(new PrintStream(new Log4jOutputStream(Level.DEBUG)));
     }
