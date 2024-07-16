@@ -54,26 +54,6 @@ public class ArrayMesh extends UnInstancedMesh {
     this(vertices, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
   }
 
-  /**
-   * Constructs a new ArrayMesh with the specified usage hint and attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   */
-  public ArrayMesh(GLUsageHint usageHint, VertexAttributeList attributes) {
-    this(null, usageHint, attributes);
-  }
-
-  /**
-   * Constructs a new ArrayMesh with the specified usage hint and attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   */
-  public ArrayMesh(GLUsageHint usageHint, VertexAttribute... attributes) {
-    this(null, usageHint, new VertexAttributeList(attributes));
-  }
-
   @Override
   public void render(
       ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {

@@ -5,6 +5,7 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.List;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -13,6 +14,26 @@ import org.lwjgl.opengl.GL33;
  * position, rotation, and scale, as well as methods for rendering the mesh.
  */
 public class InstancedArrayMesh extends InstancedMesh {
+
+  /**
+   * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, instance
+   *
+   * @param vertices the vertex buffer of the mesh
+   * @param instanceData the instance data buffer of the mesh
+   * @param instanceCount the number of instances to render
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
+  public InstancedArrayMesh(
+      FloatBuffer vertices,
+      List<ByteBuffer> instanceData,
+      int instanceCount,
+      GLUsageHint usageHint,
+      VertexAttributeList attributes,
+      InstanceAttributeList instanceAttributes) {
+    super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
+  }
 
   /**
    * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, instance
@@ -57,31 +78,6 @@ public class InstancedArrayMesh extends InstancedMesh {
         GLUsageHint.DRAW_STATIC,
         attributes,
         instanceAttributes);
-  }
-
-  /**
-   * Constructs a new InstancedArrayMesh with the specified instance data and instance
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   * @param instanceAttributes the instance attributes of the mesh
-   */
-  public InstancedArrayMesh(
-      GLUsageHint usageHint,
-      VertexAttributeList attributes,
-      InstanceAttributeList instanceAttributes) {
-    this(null, null, 0, usageHint, attributes, instanceAttributes);
-  }
-
-  /**
-   * Constructs a new InstancedArrayMesh with the specified instance data and instance
-   *
-   * @param attributes the attributes of the mesh
-   * @param instanceAttributes the instance attributes of the mesh
-   */
-  public InstancedArrayMesh(
-      VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
-    this(GLUsageHint.DRAW_STATIC, attributes, instanceAttributes);
   }
 
   @Override

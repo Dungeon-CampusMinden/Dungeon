@@ -8,7 +8,6 @@ import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,13 +42,14 @@ public class InstancedIndexedMesh extends InstancedMesh {
    * @param attributes the attributes of the mesh
    * @param instanceAttributes the instance attributes of the mesh
    */
-  public InstancedIndexedMesh(FloatBuffer vertices,
-                              IntBuffer indices,
-                              ArrayList<ByteBuffer> instanceData,
-                              int instanceCount,
-                              GLUsageHint usageHint,
-                              VertexAttributeList attributes,
-                              InstanceAttributeList instanceAttributes) {
+  public InstancedIndexedMesh(
+      FloatBuffer vertices,
+      IntBuffer indices,
+      List<ByteBuffer> instanceData,
+      int instanceCount,
+      GLUsageHint usageHint,
+      VertexAttributeList attributes,
+      InstanceAttributeList instanceAttributes) {
     super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
     GLUtils.checkBuffer(indices);
     this.indices = indices;
@@ -77,7 +77,14 @@ public class InstancedIndexedMesh extends InstancedMesh {
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    this(vertices, indices, new ArrayList<>(instanceData != null ? List.of(instanceData) : List.of()), instanceCount, usageHint, attributes, instanceAttributes);
+    this(
+        vertices,
+        indices,
+        instanceData != null ? List.of(instanceData) : List.of(),
+        instanceCount,
+        usageHint,
+        attributes,
+        instanceAttributes);
   }
 
   /**
@@ -106,26 +113,6 @@ public class InstancedIndexedMesh extends InstancedMesh {
         GLUsageHint.DRAW_STATIC,
         attributes,
         instanceAttributes);
-  }
-
-  /**
-   * Constructs a new InstancedIndexedMesh with the specified usage hint, attributes, and instance
-   * attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   * @param instanceAttributes the instance attributes of the mesh
-   */
-  public InstancedIndexedMesh(
-      GLUsageHint usageHint,
-      VertexAttributeList attributes,
-      InstanceAttributeList instanceAttributes) {
-    this(null, null, new ArrayList<>(), 0, usageHint, attributes, instanceAttributes);
-  }
-
-  public InstancedIndexedMesh(
-      VertexAttributeList attributes, InstanceAttributeList instanceAttributes) {
-    this(GLUsageHint.DRAW_STATIC, attributes, instanceAttributes);
   }
 
   private void initGL() {

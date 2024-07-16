@@ -50,26 +50,6 @@ public abstract class UnInstancedMesh extends Mesh {
   }
 
   /**
-   * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   */
-  protected UnInstancedMesh(GLUsageHint usageHint, VertexAttributeList attributes) {
-    this(null, usageHint, attributes);
-  }
-
-  /**
-   * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   */
-  protected UnInstancedMesh(GLUsageHint usageHint, VertexAttribute... attributes) {
-    this(null, usageHint, new VertexAttributeList(attributes));
-  }
-
-  /**
    * Returns the bounding box of the mesh.
    *
    * @return the bounding box of the mesh
