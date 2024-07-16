@@ -116,7 +116,7 @@ public class TextureAtlas {
           "TextureAtlas is full! The maximum number of entries is reached: " + MAX_ENTRIES);
     }
     for (int i = 0; i < this.pages.size(); i++) {
-      AtlasNode node = this.pages.get(i).add(resource, 1);
+      AtlasNode node = this.pages.get(i).add(resource, 0);
       if (node != null) {
         return this.addEntry(resource, i, node);
       }
@@ -129,7 +129,7 @@ public class TextureAtlas {
     }
 
     AtlasPage newTexture = this.addPage();
-    AtlasNode node = newTexture.add(resource, 1);
+    AtlasNode node = newTexture.add(resource, 0);
     if (node != null) {
       return this.addEntry(resource, this.pages.size() - 1, node);
     }
