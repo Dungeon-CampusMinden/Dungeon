@@ -65,13 +65,13 @@ public abstract class InstancedMesh extends Mesh {
   }
 
   protected void updateInstanceBuffer() {
-    for (InstanceDataBuffer buffers : this.instanceData) {
-      if (buffers.dirty) {
-        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, buffers.glIBO);
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, buffers.instanceData, this.usageHint.getGLConstant());
+    for (InstanceDataBuffer buffer : this.instanceData) {
+      if (buffer.dirty) {
+        GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, buffer.glIBO);
+        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, buffer.instanceData, this.usageHint.getGLConstant());
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
-        buffers.dirty = false;
-        LOGGER.debug("Updated IBO {}", buffers.glIBO);
+        buffer.dirty = false;
+        LOGGER.debug("Updated IBO {}", buffer.glIBO);
       }
     }
   }
