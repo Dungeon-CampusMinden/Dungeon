@@ -110,14 +110,24 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
             while (remaining > 0) {
               GL33.glEnableVertexAttribArray(loc);
               LOGGER.debug("Binding vertex attribute '%s' at location %d", attrib.name, loc);
-              GL33.glVertexAttribPointer(
+              if(isInteger(attrib)) {
+                GL33.glVertexAttribIPointer(
+                  loc,
+                  Math.min(remaining, 4),
+                  attrib.glType,
+                  this.sizeInBytes(),
+                  attrib.offset
+                    + (long) (attrib.numComponents - remaining) * attrib.getSizeInBytes());
+              } else {
+                GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
                   attrib.glType,
                   false,
                   this.sizeInBytes(),
                   attrib.offset
-                      + (long) (attrib.numComponents - remaining) * attrib.getSizeInBytes());
+                    + (long) (attrib.numComponents - remaining) * attrib.getSizeInBytes());
+              }
               remaining -= Math.min(remaining, 4);
               loc++;
             }
@@ -126,4 +136,14 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
     GL33.glBindVertexArray(0);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
   }
+
+  private static boolean isInteger(VertexAttribute attribute) {
+    return attribute.glType == GL33.GL_BYTE
+      || attribute.glType == GL33.GL_UNSIGNED_BYTE
+      || attribute.glType == GL33.GL_SHORT
+      || attribute.glType == GL33.GL_UNSIGNED_SHORT
+      || attribute.glType == GL33.GL_INT
+      || attribute.glType == GL33.GL_UNSIGNED_INT;
+  }
+
 }

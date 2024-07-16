@@ -23,7 +23,7 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
   private final InstanceAttribute[] attributes;
 
   /** An iterator for the InstanceAttributes in the list. */
-  private Iterator<InstanceAttribute> iterator;
+  private ReadOnlyIterator<InstanceAttribute> iterator;
 
   /** The size of the list in bytes. */
   private int sizeInBytes;
@@ -86,9 +86,17 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
    * @param vao the vertex array object to bind the attribute pointers to
    * @param buffers the instance data buffers to bind the attribute pointers to
    */
-  public void bindAttribPointers(ShaderProgram shaderProgram, int vao, List<InstancedMesh.InstanceDataBuffer> buffers) {
+  public void bindAttribPointers(
+      ShaderProgram shaderProgram, int vao, List<InstancedMesh.InstanceDataBuffer> buffers) {
     ThreadUtils.checkMainThread();
     Map<Integer, Integer> offsets = new HashMap<>();
+    Map<Integer, Integer> strides = new HashMap<>();
+    this.forEach(
+        attrib ->
+            strides.compute(
+                attrib.bufferIndex,
+                (k, v) -> v == null ? attrib.getSizeInBytes() : v + attrib.getSizeInBytes()));
+    this.iterator.reset();
     GL33.glBindVertexArray(vao);
     this.forEach(
         attrib -> {
@@ -103,13 +111,22 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
               LOGGER.debug(
                   "Binding instance attribute '%s' (%d) in buffer %d at location %d",
                   attrib.name, attrib.numComponents - remaining, attrib.bufferIndex, loc);
-              GL33.glVertexAttribPointer(
+              if(isInteger(attrib)) {
+                GL33.glVertexAttribIPointer(
+                  loc,
+                  Math.min(remaining, 4),
+                  attrib.glType,
+                  strides.get(attrib.bufferIndex),
+                  offset + (long) (attrib.numComponents - remaining) * 4);
+              } else {
+                GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
                   attrib.glType,
                   false,
-                  this.sizeInBytes(),
+                  strides.get(attrib.bufferIndex),
                   offset + (long) (attrib.numComponents - remaining) * 4);
+              }
               remaining -= Math.min(remaining, 4);
               loc++;
             }
@@ -118,5 +135,14 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
         });
     GL33.glBindVertexArray(0);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+  }
+
+  private static boolean isInteger(InstanceAttribute attribute) {
+    return attribute.glType == GL33.GL_BYTE
+        || attribute.glType == GL33.GL_UNSIGNED_BYTE
+        || attribute.glType == GL33.GL_SHORT
+        || attribute.glType == GL33.GL_UNSIGNED_SHORT
+        || attribute.glType == GL33.GL_INT
+        || attribute.glType == GL33.GL_UNSIGNED_INT;
   }
 }
