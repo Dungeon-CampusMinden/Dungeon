@@ -71,7 +71,7 @@ public abstract class InstancedMesh extends Mesh {
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, buffer.instanceData, this.usageHint.getGLConstant());
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
         buffer.dirty = false;
-        LOGGER.debug("Updated IBO {}", buffer.glIBO);
+        LOGGER.trace("Updated IBO {}", buffer.glIBO);
       }
     }
   }

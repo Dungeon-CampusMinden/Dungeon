@@ -155,7 +155,7 @@ public class IndexedMesh extends UnInstancedMesh {
   private void initGL() {
     ThreadUtils.checkMainThread();
     this.glEBO = GL33.glGenBuffers();
-    LOGGER.debug("Generated EBO: {}", this.glEBO);
+    LOGGER.trace("Generated EBO: {}", this.glEBO);
     this.updateIndexBuffer();
   }
 
@@ -169,7 +169,7 @@ public class IndexedMesh extends UnInstancedMesh {
       GL33.glBindVertexArray(0);
       GL33.glBindBuffer(GL33.GL_ELEMENT_ARRAY_BUFFER, 0);
       this.indicesDirty = false;
-      LOGGER.debug("Updated EBO {}", this.glEBO);
+      LOGGER.trace("Updated EBO {}", this.glEBO);
     }
   }
 
