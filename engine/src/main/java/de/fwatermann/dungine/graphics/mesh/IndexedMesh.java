@@ -85,46 +85,6 @@ public class IndexedMesh extends UnInstancedMesh {
   }
 
   /**
-   * Constructs an IndexedMesh with specified usage hint and vertex attributes.
-   *
-   * @param usageHint Hint indicating how the mesh will be used, which affects performance
-   *     optimizations.
-   * @param attributes The vertex attributes of the mesh.
-   */
-  public IndexedMesh(GLUsageHint usageHint, VertexAttributeList attributes) {
-    this(null, null, usageHint, attributes);
-  }
-
-  /**
-   * Constructs an IndexedMesh with specified usage hint and vertex attributes.
-   *
-   * @param usageHint Hint indicating how the mesh will be used, which affects performance
-   *     optimizations.
-   * @param attributes The vertex attributes of the mesh.
-   */
-  public IndexedMesh(GLUsageHint usageHint, VertexAttribute... attributes) {
-    this(null, null, usageHint, new VertexAttributeList(attributes));
-  }
-
-  /**
-   * Constructs an IndexedMesh with specified vertex attributes.
-   *
-   * @param attributes The vertex attributes of the mesh.
-   */
-  public IndexedMesh(VertexAttributeList attributes) {
-    this(null, null, GLUsageHint.DRAW_STATIC, attributes);
-  }
-
-  /**
-   * Constructs an IndexedMesh with specified vertex attributes.
-   *
-   * @param attributes The vertex attributes of the mesh.
-   */
-  public IndexedMesh(VertexAttribute... attributes) {
-    this(null, null, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
-  }
-
-  /**
    * Sets the indices of this mesh.
    *
    * @param buffer the new indices of this mesh

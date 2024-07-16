@@ -45,27 +45,6 @@ public abstract class Mesh implements Disposable {
     this.initGL();
   }
 
-  /**
-   * Constructs a new Mesh with the specified vertex buffer and attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   */
-  protected Mesh(GLUsageHint usageHint, VertexAttribute... attributes) {
-    this(null, usageHint, new VertexAttributeList(attributes));
-  }
-
-  /**
-   * Constructs a new Mesh with the specified attributes.
-   *
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   */
-  protected Mesh(GLUsageHint usageHint, VertexAttributeList attributes) {
-    this.attributes = attributes;
-    this.usageHint = usageHint;
-  }
-
   private void initGL() {
     this.glVAO = GL33.glGenVertexArrays();
     LOGGER.trace("Generated VAO: {}", this.glVAO);
