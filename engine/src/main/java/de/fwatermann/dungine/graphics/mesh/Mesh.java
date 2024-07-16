@@ -68,9 +68,9 @@ public abstract class Mesh implements Disposable {
 
   private void initGL() {
     this.glVAO = GL33.glGenVertexArrays();
-    LOGGER.debug("Generated VAO: {}", this.glVAO);
+    LOGGER.trace("Generated VAO: {}", this.glVAO);
     this.glVBO = GL33.glGenBuffers();
-    LOGGER.debug("Generated VBO: {}", this.glVBO);
+    LOGGER.trace("Generated VBO: {}", this.glVBO);
     this.updateVertexBuffer();
   }
 
@@ -81,7 +81,7 @@ public abstract class Mesh implements Disposable {
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.vertices, this.usageHint.getGLConstant());
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
       this.verticesDirty = false;
-      LOGGER.debug("Updated VBO {}", this.glVBO);
+      LOGGER.trace("Updated VBO {}", this.glVBO);
     }
   }
 

@@ -65,7 +65,7 @@ public class Texture implements Disposable {
     GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
     GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
-    LOGGER.debug("Created texture {}", this.glTextureId);
+    LOGGER.trace("Created texture {}", this.glTextureId);
   }
 
   /**
