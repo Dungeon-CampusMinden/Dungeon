@@ -34,11 +34,13 @@ public class InstanceAttribute {
         && this.glType != GL33.GL_UNSIGNED_BYTE
         && this.glType != GL33.GL_BYTE
         && this.glType != GL33.GL_UNSIGNED_SHORT
-        && this.glType != GL33.GL_SHORT) {
+        && this.glType != GL33.GL_SHORT
+        && this.glType != GL33.GL_INT
+        && this.glType != GL33.GL_UNSIGNED_INT) {
       throw new IllegalArgumentException(
           "Invalid GL type: "
               + this.glType
-              + ". Must be one of GL_FLOAT, GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, or GL_SHORT.");
+              + ". Must be one of GL_FLOAT, GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT or GL_INT.");
     }
   }
 
@@ -61,7 +63,7 @@ public class InstanceAttribute {
    */
   public int getSizeInBytes() {
     return switch (this.glType) {
-      case GL33.GL_FLOAT -> this.numComponents * 4;
+      case GL33.GL_FLOAT, GL33.GL_INT, GL33.GL_UNSIGNED_INT -> this.numComponents * 4;
       case GL33.GL_UNSIGNED_BYTE, GL33.GL_BYTE -> this.numComponents;
       case GL33.GL_UNSIGNED_SHORT, GL33.GL_SHORT -> this.numComponents * 2;
       default -> throw new IllegalArgumentException("Invalid GL type: " + this.glType);
