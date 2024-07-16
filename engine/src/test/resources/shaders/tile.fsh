@@ -3,7 +3,6 @@
 
 in vec2 texCoord;
 flat in int textureIndex;
-in vec3 test;
 
 uniform sampler2D uTextureAtlasPages[MAX_ATLASPAGES];
 

@@ -13,7 +13,6 @@ uniform mat4 uModel;
 
 out vec2 texCoord;
 flat out int textureIndex;
-out vec3 test;
 
 void main() {
     gl_Position = uProjection * uView * uModel * vec4(a_Position, 1.0);
