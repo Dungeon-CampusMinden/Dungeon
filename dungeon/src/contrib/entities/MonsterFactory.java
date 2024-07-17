@@ -15,6 +15,7 @@ import core.components.VelocityComponent;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -183,11 +184,23 @@ public final class MonsterFactory {
     monster.add(new DrawComponent(texture));
     monster.add(new VelocityComponent(speed, speed));
     monster.add(new CollideComponent());
-    if (collideDamage > 0) {
-      monster.add(new SpikyComponent(collideDamage, MONSTER_COLLIDE_DAMAGE_TYPE, collideCooldown));
-    }
-    if (!idleSoundPath.pathString().isEmpty()) monster.add(new IdleSoundComponent(idleSoundPath));
+    monster.add(
+        new SpikyComponent(
+            MONSTER_COLLIDE_DAMAGE, MONSTER_COLLIDE_DAMAGE_TYPE, MONSTER_COLLIDE_COOL_DOWN));
+    monster.add(new IdleSoundComponent(randomMonsterIdleSound()));
     return monster;
+  }
+
+  private static void playMonsterDieSound() {
+    String dieSoundEffect =
+        switch (RANDOM.nextInt(4)) {
+          case 0 -> "sounds/die_01.wav";
+          case 1 -> "sounds/die_02.wav";
+          case 2 -> "sounds/die_03.wav";
+          default -> "sounds/die_04.wav";
+        };
+
+    SoundPlayer.playSound(new SimpleIPath(dieSoundEffect), false, 0.35f);
   }
 
   private static void playDeathSoundIfNearby(Sound deathSound, Entity e) {

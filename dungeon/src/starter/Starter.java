@@ -1,7 +1,5 @@
 package starter;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import contrib.components.HealthComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
@@ -13,6 +11,7 @@ import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import dsl.interpreter.DSLEntryPointFinder;
 import dsl.interpreter.DSLInterpreter;
 import entrypoint.DSLEntryPoint;
@@ -276,9 +275,6 @@ public class Starter {
   }
 
   private static void setupMusic() {
-    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
-    backgroundMusic.setLooping(true);
-    backgroundMusic.play();
-    backgroundMusic.setVolume(.1f);
+    SoundPlayer.playSound(new SimpleIPath(BACKGROUND_MUSIC), true);
   }
 }

@@ -1,7 +1,5 @@
 package contrib.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import contrib.components.IdleSoundComponent;
 import core.Entity;
 import core.Game;
@@ -9,6 +7,8 @@ import core.System;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.util.Random;
 
 /**
@@ -61,11 +61,7 @@ public final class IdleSoundSystem extends System {
   private void playSound(final IdleSoundComponent component) {
     float chanceToPlaySound = 0.001f;
     if (RANDOM.nextFloat(0f, 1f) < chanceToPlaySound) {
-      Sound soundEffect =
-          Gdx.audio.newSound(Gdx.files.internal(component.soundEffect().pathString()));
-      long soundID = soundEffect.play();
-      soundEffect.setLooping(soundID, false);
-      soundEffect.setVolume(soundID, 0.35f);
+      SoundPlayer.playSound(new SimpleIPath(component.soundEffect().pathString()), false, 0.35f);
     }
   }
 }

@@ -1,7 +1,5 @@
 package starter;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
@@ -12,6 +10,7 @@ import core.Game;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
+import core.utils.sound.SoundPlayer;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -107,10 +106,7 @@ public class RoomBasedDungeon {
   }
 
   private static void setupMusic() {
-    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
-    backgroundMusic.setLooping(true);
-    backgroundMusic.play();
-    backgroundMusic.setVolume(.1f);
+    SoundPlayer.playSound(new SimpleIPath(BACKGROUND_MUSIC), true);
   }
 
   private static void configGame() throws IOException {
