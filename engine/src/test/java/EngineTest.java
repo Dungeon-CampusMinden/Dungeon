@@ -28,7 +28,8 @@ public class EngineTest extends GameWindow implements EventListener {
     EventManager.getInstance().registerListener(this);
 
     //this.setStateTransition(new LoadingScreenTransition(this));
-    this.setState(new TestState(this));
+    this.setState(new ChunkTest(this));
+    this.vsync(false);
   }
 
   @Override

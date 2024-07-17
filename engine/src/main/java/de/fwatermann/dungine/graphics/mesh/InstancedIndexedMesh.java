@@ -6,7 +6,6 @@ import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +42,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   public InstancedIndexedMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       IntBuffer indices,
       List<ByteBuffer> instanceData,
       int instanceCount,
@@ -70,7 +69,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   public InstancedIndexedMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       IntBuffer indices,
       ByteBuffer instanceData,
       int instanceCount,
@@ -99,7 +98,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   public InstancedIndexedMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       IntBuffer indices,
       ByteBuffer instanceData,
       int instanceCount,

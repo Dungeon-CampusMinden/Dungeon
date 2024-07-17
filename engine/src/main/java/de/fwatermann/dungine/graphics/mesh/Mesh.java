@@ -5,7 +5,7 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
@@ -23,7 +23,7 @@ public abstract class Mesh implements Disposable {
   protected int glVBO;
 
   protected VertexAttributeList attributes;
-  protected @Null FloatBuffer vertices;
+  protected @Null ByteBuffer vertices;
   protected boolean verticesDirty = false;
 
   protected GLUsageHint usageHint = GLUsageHint.DRAW_STATIC;
@@ -36,7 +36,7 @@ public abstract class Mesh implements Disposable {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  protected Mesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
+  protected Mesh(ByteBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
     GLUtils.checkBuffer(vertices);
     this.vertices = vertices;
     this.attributes = attributes;
@@ -82,7 +82,7 @@ public abstract class Mesh implements Disposable {
    * @return the vertex buffer of the mesh
    */
   @Null
-  public FloatBuffer getVertexBuffer() {
+  public ByteBuffer getVertexBuffer() {
     return this.vertices;
   }
 
@@ -91,7 +91,7 @@ public abstract class Mesh implements Disposable {
    *
    * @param buffer the new vertex buffer of the mesh
    */
-  public void setVertexBuffer(FloatBuffer buffer) {
+  public void setVertexBuffer(ByteBuffer buffer) {
     GLUtils.checkBuffer(buffer);
     this.vertices = buffer;
     this.verticesDirty = true;
