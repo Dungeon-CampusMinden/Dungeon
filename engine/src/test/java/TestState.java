@@ -121,15 +121,17 @@ public class TestState extends GameState implements EventListener {
           InstanceAttributeList instanceAttributes =
               new InstanceAttributeList(new InstanceAttribute(1, 1, GL33.GL_INT, "i_AtlasEntry"),
                 new InstanceAttribute(0, 3, GL33.GL_INT, "i_TilePosition"));
-          FloatBuffer vertices = BufferUtils.createFloatBuffer(5 * 4);
+          ByteBuffer verticesB = BufferUtils.createByteBuffer(4 * 5 * 4);
+          FloatBuffer vertices = verticesB.asFloatBuffer();
           vertices.put(new float[] {
             0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
             0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
             1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
             1.0f, 0.0f, 0.0f, 0.0f, 0.0f
           });
-
           vertices.flip();
+          verticesB.position(0);
+
           IntBuffer indices = BufferUtils.createIntBuffer(6);
           indices.put(new int[] {0, 1, 2, 2, 3, 0});
           indices.flip();
@@ -150,7 +152,7 @@ public class TestState extends GameState implements EventListener {
           }
           instance2.flip();
 
-          this.mesh = new InstancedIndexedMesh(vertices, indices, new ArrayList<>(List.of(instance1, instance2)), 16*16, GLUsageHint.DRAW_STATIC, vertexAttributes, instanceAttributes);
+          this.mesh = new InstancedIndexedMesh(verticesB, indices, new ArrayList<>(List.of(instance1, instance2)), 16*16, GLUsageHint.DRAW_STATIC, vertexAttributes, instanceAttributes);
         });
     stepper.done(
         true,
