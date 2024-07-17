@@ -95,7 +95,7 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
         attrib ->
             strides.compute(
                 attrib.bufferIndex,
-                (k, v) -> v == null ? attrib.getSizeInBytes() : v + attrib.getSizeInBytes()));
+                (k, v) -> v == null ? attrib.sizeInBytes() : v + attrib.sizeInBytes()));
     this.iterator.reset();
     GL33.glBindVertexArray(vao);
     this.forEach(
@@ -111,18 +111,18 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
               LOGGER.trace(
                   "Binding instance attribute '%s' (%d) in buffer %d at location %d",
                   attrib.name, attrib.numComponents - remaining, attrib.bufferIndex, loc);
-              if(isInteger(attrib)) {
+              if(attrib.dataType.isInteger()) {
                 GL33.glVertexAttribIPointer(
                   loc,
                   Math.min(remaining, 4),
-                  attrib.glType,
+                  attrib.dataType.glType,
                   strides.get(attrib.bufferIndex),
                   offset + (long) (attrib.numComponents - remaining) * 4);
               } else {
                 GL33.glVertexAttribPointer(
                   loc,
                   Math.min(remaining, 4),
-                  attrib.glType,
+                  attrib.dataType.glType,
                   false,
                   strides.get(attrib.bufferIndex),
                   offset + (long) (attrib.numComponents - remaining) * 4);
@@ -130,19 +130,10 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
               remaining -= Math.min(remaining, 4);
               loc++;
             }
-            offsets.put(attrib.bufferIndex, offset + attrib.getSizeInBytes());
+            offsets.put(attrib.bufferIndex, offset + attrib.sizeInBytes());
           }
         });
     GL33.glBindVertexArray(0);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
-  }
-
-  private static boolean isInteger(InstanceAttribute attribute) {
-    return attribute.glType == GL33.GL_BYTE
-        || attribute.glType == GL33.GL_UNSIGNED_BYTE
-        || attribute.glType == GL33.GL_SHORT
-        || attribute.glType == GL33.GL_UNSIGNED_SHORT
-        || attribute.glType == GL33.GL_INT
-        || attribute.glType == GL33.GL_UNSIGNED_INT;
   }
 }

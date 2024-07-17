@@ -69,6 +69,14 @@ public class ShaderProgram implements Disposable {
   }
 
   /**
+   * Checks if this shader program is currently bound.
+   * @return true if this shader program is currently bound, false otherwise
+   */
+  public boolean bound() {
+    return GL33.glGetInteger(GL33.GL_CURRENT_PROGRAM) == this.glHandle;
+  }
+
+  /**
    * Returns the OpenGL handle of this shader program.
    *
    * @return the OpenGL handle of this shader program

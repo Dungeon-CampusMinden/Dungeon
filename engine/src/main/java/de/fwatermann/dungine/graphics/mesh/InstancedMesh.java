@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL33;
  * for rendering the mesh. This class is abstract and should be extended by specific types of
  * instanced meshes.
  */
-public abstract class InstancedMesh extends Mesh {
+public abstract class InstancedMesh<T extends InstancedMesh<?>> extends Mesh<InstancedMesh<T>> {
 
   private static final Logger LOGGER = LogManager.getLogger(InstancedMesh.class);
 
@@ -25,12 +25,13 @@ public abstract class InstancedMesh extends Mesh {
 
   protected InstancedMesh(
       ByteBuffer vertices,
+      PrimitiveType primitiveType,
       List<ByteBuffer> instanceData,
       int instanceCount,
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    super(vertices, usageHint, attributes);
+    super(vertices, primitiveType, usageHint, attributes);
     instanceData.forEach(
         buffer -> {
           GLUtils.checkBuffer(buffer);
@@ -54,12 +55,13 @@ public abstract class InstancedMesh extends Mesh {
    */
   protected InstancedMesh(
       ByteBuffer vertices,
+      PrimitiveType primitiveType,
       ByteBuffer instanceData,
       int instanceCount,
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    super(vertices, usageHint, attributes);
+    super(vertices, primitiveType, usageHint, attributes);
     GLUtils.checkBuffer(instanceData);
     this.instanceAttributes = instanceAttributes;
     this.instanceData.add(
@@ -139,6 +141,12 @@ public abstract class InstancedMesh extends Mesh {
     this.instanceData.forEach(buffer -> buffer.dirty = true);
   }
 
+  /**
+   * Mark the instance data buffer at the specified index as dirty. This will cause the instance
+   * data buffer to be updated the next time the mesh is rendered.
+   *
+   * @param index the index of the instance data buffer to mark as dirty
+   */
   public void markInstanceDataDirty(int index) {
     InstanceDataBuffer buffers = this.instanceData.get(index);
     if (buffers != null) {

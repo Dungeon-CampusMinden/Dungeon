@@ -1,6 +1,8 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
+import de.fwatermann.dungine.graphics.IRenderable;
+import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
@@ -15,7 +17,7 @@ import org.lwjgl.opengl.GL33;
  * manipulating the mesh's position, rotation, and scale, as well as methods for rendering the mesh.
  * This class is abstract, and should be extended by specific types of meshes.
  */
-public abstract class Mesh implements Disposable {
+public abstract class Mesh<T extends Mesh<?>> implements Disposable, IRenderable {
 
   private static final Logger LOGGER = LogManager.getLogger(Mesh.class);
 
@@ -27,7 +29,10 @@ public abstract class Mesh implements Disposable {
   protected boolean verticesDirty = false;
 
   protected GLUsageHint usageHint = GLUsageHint.DRAW_STATIC;
-  protected ShaderProgram lastShaderProgram;
+  protected ShaderProgram shaderProgram;
+  protected ShaderProgram lastShader; // Used to avoid unnecessary shader binding
+  protected PrimitiveType primitiveType;
+
 
   /**
    * Constructs a new Mesh with the specified vertex buffer, usage hint, and attributes.
@@ -36,11 +41,12 @@ public abstract class Mesh implements Disposable {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  protected Mesh(ByteBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
+  protected Mesh(ByteBuffer vertices, PrimitiveType primitiveType, GLUsageHint usageHint, VertexAttributeList attributes) {
     GLUtils.checkBuffer(vertices);
     this.vertices = vertices;
-    this.attributes = attributes;
+    this.primitiveType = primitiveType;
     this.usageHint = usageHint;
+    this.attributes = attributes;
     this.verticesDirty = this.vertices != null;
     this.initGL();
   }
@@ -69,7 +75,7 @@ public abstract class Mesh implements Disposable {
    *
    * @return the number of vertices in the mesh
    */
-  public int getVertexCount() {
+  public int vertexCount() {
     if (this.vertices == null) {
       return 0;
     }
@@ -82,7 +88,7 @@ public abstract class Mesh implements Disposable {
    * @return the vertex buffer of the mesh
    */
   @Null
-  public ByteBuffer getVertexBuffer() {
+  public ByteBuffer vertexBuffer() {
     return this.vertices;
   }
 
@@ -91,15 +97,25 @@ public abstract class Mesh implements Disposable {
    *
    * @param buffer the new vertex buffer of the mesh
    */
-  public void setVertexBuffer(ByteBuffer buffer) {
+  public T vertexBuffer(ByteBuffer buffer) {
     GLUtils.checkBuffer(buffer);
     this.vertices = buffer;
     this.verticesDirty = true;
+    return (T) this;
   }
 
   /** Marks the vertices of the mesh as dirty, causing them to be updated before rendering. */
   public void markVerticesDirty() {
     this.verticesDirty = true;
+  }
+
+  public ShaderProgram shaderProgram() {
+    return this.shaderProgram;
+  }
+
+  public T shaderProgram(ShaderProgram shaderProgram) {
+    this.shaderProgram = shaderProgram;
+    return (T) this;
   }
 
   @Override
@@ -117,38 +133,8 @@ public abstract class Mesh implements Disposable {
     return this.usageHint;
   }
 
-  /**
-   * Renders the mesh using the specified shader program and primitive type.
-   *
-   * @param shaderProgram the shader program to use for rendering
-   * @param primitiveType the primitive type to use for rendering
-   */
-  public void render(ShaderProgram shaderProgram, int primitiveType) {
-    this.render(shaderProgram, primitiveType, 0, this.getVertexCount(), true);
+  @Override
+  public void render(Camera<?> camera) {
+    this.render(camera, this.shaderProgram);
   }
-
-  /**
-   * Renders a portion of the mesh using the specified shader program and primitive type.
-   *
-   * @param shaderProgram the shader program to use for rendering
-   * @param primitiveType the primitive type to use for rendering
-   * @param offset the index of the first vertex to render
-   * @param count the number of vertices to render
-   */
-  public void render(ShaderProgram shaderProgram, int primitiveType, int offset, int count) {
-    this.render(shaderProgram, primitiveType, offset, count, true);
-  }
-
-  /**
-   * Renders a portion of the mesh using the specified shader program and primitive type, with an
-   * option to bind the shader.
-   *
-   * @param shaderProgram the shader program to use for rendering
-   * @param primitiveType the primitive type to use for rendering
-   * @param offset the index of the first vertex to render
-   * @param count the number of vertices to render
-   * @param bindShader whether to bind the shader before rendering
-   */
-  public abstract void render(
-      ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader);
 }

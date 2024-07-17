@@ -14,7 +14,7 @@ import org.joml.Vector3f;
  * translation, rotation, and scaling. This abstract class serves as a foundation for meshes that
  * are manipulated individually rather than as part of an instanced group.
  */
-public abstract class UnInstancedMesh extends Mesh {
+public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>> extends Mesh<UnInstancedMesh<T>> {
 
   protected Vector3f translation = new Vector3f(0, 0, 0);
   protected Vector3f scale = new Vector3f(1, 1, 1);
@@ -31,10 +31,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(
-    ByteBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
-    super(vertices, usageHint, attributes);
+      ByteBuffer vertices, PrimitiveType primitiveType, GLUsageHint usageHint, VertexAttributeList attributes) {
+    super(vertices, primitiveType, usageHint, attributes);
     this.calcTransformMatrix();
-    //this.calcBoundingBox(); //TODO: Fix Buffer Undeflow
+    // this.calcBoundingBox(); //TODO: Fix Buffer Undeflow
   }
 
   /**
@@ -45,8 +45,8 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(
-      ByteBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
-    this(vertices, usageHint, new VertexAttributeList(attributes));
+      ByteBuffer vertices, PrimitiveType primitiveType, GLUsageHint usageHint, VertexAttribute... attributes) {
+    this(vertices, primitiveType, usageHint, new VertexAttributeList(attributes));
   }
 
   /**
@@ -92,9 +92,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param y the amount to translate along the y axis
    * @param z the amount to translate along the z axis
    */
-  public void translate(float x, float y, float z) {
+  public T translate(float x, float y, float z) {
     this.translation.add(x, y, z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -104,9 +105,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param y the y coordinate of the new position
    * @param z the z coordinate of the new position
    */
-  public void setTranslation(float x, float y, float z) {
-    this.translation = new Vector3f(x, y, z);
+  public T translation(float x, float y, float z) {
+    this.translation.set(x, y, z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -117,9 +119,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param z the z coordinate of the axis of rotation
    * @param angle the angle of rotation, in degrees
    */
-  public void rotate(float x, float y, float z, float angle) {
+  public T rotate(float x, float y, float z, float angle) {
     this.rotation.rotateAxis(Math.toRadians(angle), x, y, z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -129,9 +132,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param y the scaling factor along the y axis
    * @param z the scaling factor along the z axis
    */
-  public void scale(float x, float y, float z) {
+  public T scale(float x, float y, float z) {
     this.scale.mul(x, y, z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -141,9 +145,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param y the new scale along the y axis
    * @param z the new scale along the z axis
    */
-  public void setScale(float x, float y, float z) {
-    this.scale = new Vector3f(x, y, z);
+  public T setScale(float x, float y, float z) {
+    this.scale.set(x, y, z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -151,9 +156,10 @@ public abstract class UnInstancedMesh extends Mesh {
    *
    * @param translation the vector by which to translate the mesh
    */
-  public void translate(Vector3f translation) {
+  public T translate(Vector3f translation) {
     this.translate(translation.x, translation.y, translation.z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -161,9 +167,10 @@ public abstract class UnInstancedMesh extends Mesh {
    *
    * @param translation the new position of the mesh
    */
-  public void setTranslation(Vector3f translation) {
-    this.setTranslation(translation.x, translation.y, translation.z);
+  public T translation(Vector3f translation) {
+    this.translation(translation.x, translation.y, translation.z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -172,9 +179,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param axis the axis of rotation
    * @param angle the angle of rotation, in degrees
    */
-  public void rotate(Vector3f axis, float angle) {
+  public T rotate(Vector3f axis, float angle) {
     this.rotate(axis.x, axis.y, axis.z, angle);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -182,9 +190,10 @@ public abstract class UnInstancedMesh extends Mesh {
    *
    * @param scale the scaling factors along the x, y, and z axes
    */
-  public void scale(Vector3f scale) {
+  public T scale(Vector3f scale) {
     this.scale(scale.x, scale.y, scale.z);
     this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
@@ -192,8 +201,8 @@ public abstract class UnInstancedMesh extends Mesh {
    *
    * @param scale the new scale along the x, y, and z axes
    */
-  public void setScale(Vector3f scale) {
-    this.setScale(scale.x, scale.y, scale.z);
+  public T setScale(Vector3f scale) {
+    return this.setScale(scale.x, scale.y, scale.z);
   }
 
   /**
@@ -201,8 +210,9 @@ public abstract class UnInstancedMesh extends Mesh {
    *
    * @param matrix the new transformation matrix of the mesh
    */
-  public void transformMatrix(Matrix4f matrix) {
+  public T transformMatrix(Matrix4f matrix) {
     this.transformMatrix = matrix;
+    return (T) this;
   }
 
   /**
@@ -212,6 +222,33 @@ public abstract class UnInstancedMesh extends Mesh {
    */
   public Matrix4f transformMatrix() {
     return this.transformMatrix;
+  }
+
+  /**
+   * Returns the translation of the mesh.
+   *
+   * @return the translation of the mesh
+   */
+  public Vector3f translation() {
+    return new Vector3f(this.translation);
+  }
+
+  /**
+   * Returns the scale of the mesh.
+   *
+   * @return the scale of the mesh
+   */
+  public Vector3f scale() {
+    return new Vector3f(this.scale);
+  }
+
+  /**
+   * Returns the rotation of the mesh.
+   *
+   * @return the rotation of the mesh
+   */
+  public Quaternionf rotation() {
+    return new Quaternionf(this.rotation);
   }
 
   /**

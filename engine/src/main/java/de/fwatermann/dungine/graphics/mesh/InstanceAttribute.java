@@ -1,7 +1,6 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.utils.annotations.NotNull;
-import org.lwjgl.opengl.GL33;
 
 /**
  * The InstanceAttribute class represents an attribute of an instance in a 3D mesh. It provides
@@ -12,7 +11,7 @@ public class InstanceAttribute {
 
   public final int bufferIndex;
   public final int numComponents;
-  public final int glType;
+  public final DataType dataType;
   public final String name;
 
   /**
@@ -24,24 +23,11 @@ public class InstanceAttribute {
    * @param glType the GL type of the instance attribute
    * @param name the name of the instance attribute
    */
-  public InstanceAttribute(int bufferIndex, int numComponents, int glType, @NotNull String name) {
+  public InstanceAttribute(int bufferIndex, int numComponents, DataType dataType, @NotNull String name) {
     this.bufferIndex = bufferIndex;
     this.numComponents = numComponents;
-    this.glType = glType;
+    this.dataType = dataType;
     this.name = name;
-
-    if (this.glType != GL33.GL_FLOAT
-        && this.glType != GL33.GL_UNSIGNED_BYTE
-        && this.glType != GL33.GL_BYTE
-        && this.glType != GL33.GL_UNSIGNED_SHORT
-        && this.glType != GL33.GL_SHORT
-        && this.glType != GL33.GL_INT
-        && this.glType != GL33.GL_UNSIGNED_INT) {
-      throw new IllegalArgumentException(
-          "Invalid GL type: "
-              + this.glType
-              + ". Must be one of GL_FLOAT, GL_UNSIGNED_BYTE, GL_BYTE, GL_UNSIGNED_SHORT, GL_SHORT, GL_UNSIGNED_INT or GL_INT.");
-    }
   }
 
   /**
@@ -52,8 +38,8 @@ public class InstanceAttribute {
    * @param glType the GL type of the instance attribute
    * @param name the name of the instance attribute
    */
-  public InstanceAttribute(int numComponents, int glType, @NotNull String name) {
-    this(0, numComponents, glType, name);
+  public InstanceAttribute(int numComponents, DataType dataType, @NotNull String name) {
+    this(0, numComponents, dataType, name);
   }
 
   /**
@@ -61,13 +47,8 @@ public class InstanceAttribute {
    *
    * @return the size of the attribute in bytes
    */
-  public int getSizeInBytes() {
-    return switch (this.glType) {
-      case GL33.GL_FLOAT, GL33.GL_INT, GL33.GL_UNSIGNED_INT -> this.numComponents * 4;
-      case GL33.GL_UNSIGNED_BYTE, GL33.GL_BYTE -> this.numComponents;
-      case GL33.GL_UNSIGNED_SHORT, GL33.GL_SHORT -> this.numComponents * 2;
-      default -> throw new IllegalArgumentException("Invalid GL type: " + this.glType);
-    };
+  public int sizeInBytes() {
+    return this.dataType.bytes * this.numComponents;
   }
 
   /**
@@ -84,7 +65,7 @@ public class InstanceAttribute {
     }
     return this.numComponents == other.numComponents
         && this.bufferIndex == other.bufferIndex
-        && this.glType == other.glType
+        && this.dataType == other.dataType
         && this.name.equals(other.name);
   }
 
@@ -92,7 +73,7 @@ public class InstanceAttribute {
   public int hashCode() {
     int result = 43;
     result = 31 * result + this.numComponents;
-    result = 31 * result + this.glType;
+    result = 31 * result + this.dataType.hashCode();
     result = 31 * result + (this.name != null ? this.name.hashCode() : 0);
     return result;
   }
@@ -100,7 +81,7 @@ public class InstanceAttribute {
   @Override
   public String toString() {
     return String.format(
-        "InstanceAttribute [NumComponents: %d, GLType: %d, Buffer: %d, Name: %s]",
-        this.numComponents, this.glType, this.bufferIndex, this.name);
+        "InstanceAttribute [NumComponents: %d, DataType: %s, Buffer: %d, Name: %s]",
+        this.numComponents, this.dataType.name(), this.bufferIndex, this.name);
   }
 }
