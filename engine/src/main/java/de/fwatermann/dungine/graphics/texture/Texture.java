@@ -346,6 +346,7 @@ public class Texture implements Disposable {
   @Override
   public void dispose() {
     GL33.glDeleteTextures(this.glTextureId);
+    TextureManager.instance().removeFromCache(this);
   }
 
   public int glHandle() {

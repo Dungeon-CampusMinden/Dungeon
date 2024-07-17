@@ -16,6 +16,8 @@ import org.lwjgl.stb.STBImage;
  */
 public class TextureManager {
 
+  //TODO: Use WeakHashMap to prevent memory leaks
+
   private static TextureManager instance;
 
   /**
@@ -35,7 +37,9 @@ public class TextureManager {
   private final HashMap<String, Texture> classPathCache = new HashMap<>();
   private final HashMap<String, Texture> fileCache = new HashMap<>();
 
-  private TextureManager() {}
+  private TextureManager() {
+    //TODO: Implement TextureManager using WeakHashMap/WeakReference/PhantomReference
+  }
 
   /**
    * Loads a texture from a resource and caches it. If the texture has already been loaded, the
@@ -173,4 +177,15 @@ public class TextureManager {
   public Texture removeFromResourceCache(Resource resource) {
     return this.resourceCache.remove(resource);
   }
+
+  /**
+   * Removes the texture from the cache.
+   * @param texture the texture to remove
+   */
+  protected void removeFromCache(Texture texture) {
+    this.resourceCache.values().removeIf(t -> t == texture);
+    this.classPathCache.values().removeIf(t -> t == texture);
+    this.fileCache.values().removeIf(t -> t == texture);
+  }
+
 }
