@@ -156,7 +156,7 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
     this.updateIndexBuffer();
   }
 
-  private void updateIndexBuffer() {
+  protected void updateIndexBuffer() {
     ThreadUtils.checkMainThread();
     if (this.indices != null && this.indicesDirty) {
       this.indices.position(0);
