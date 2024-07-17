@@ -15,7 +15,7 @@ void main() {
     return;
   }
   fragColor = texture(uTextureAtlasPages[gs_TextureIndex], gs_TexCoord);
-  fragColor.r = gs_Debug.x / 255.0f;
-  fragColor.g = gs_Debug.y / 255.0f;
-  fragColor.b = gs_Debug.z / 255.0f;
+  //fragColor.r = gs_Debug.x;
+  //fragColor.g = gs_Debug.y;
+  //fragColor.b = gs_Debug.z / 255.0f;
 }
