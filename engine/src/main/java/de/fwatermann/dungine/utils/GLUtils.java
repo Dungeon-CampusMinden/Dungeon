@@ -42,6 +42,17 @@ public class GLUtils {
   }
 
   /**
+   * Checks if the provided buffer is direct.
+   * @param buffer The buffer to check.
+   */
+  public static void checkBuffer(Buffer buffer) {
+    if(buffer == null) return;
+    if(!buffer.isDirect()) {
+      throw new IllegalArgumentException("Buffer must be direct!");
+    }
+  }
+
+  /**
    * Checks if the provided FloatBuffer is direct and in native byte order.
    * Direct buffers are memory areas outside the normal garbage-collected heap.
    * Native byte order refers to the byte order used by the underlying hardware,

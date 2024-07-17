@@ -2,7 +2,7 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL33;
 
 /**
@@ -19,7 +19,7 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
+  public ArrayMesh(ByteBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
     super(vertices, usageHint, attributes);
   }
 
@@ -30,7 +30,7 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(FloatBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
+  public ArrayMesh(ByteBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
     this(vertices, usageHint, new VertexAttributeList(attributes));
   }
 
@@ -40,7 +40,7 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param vertices the vertex buffer of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(FloatBuffer vertices, VertexAttributeList attributes) {
+  public ArrayMesh(ByteBuffer vertices, VertexAttributeList attributes) {
     this(vertices, GLUsageHint.DRAW_STATIC, attributes);
   }
 
@@ -50,7 +50,7 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param vertices the vertex buffer of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(FloatBuffer vertices, VertexAttribute... attributes) {
+  public ArrayMesh(ByteBuffer vertices, VertexAttribute... attributes) {
     this(vertices, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
   }
 

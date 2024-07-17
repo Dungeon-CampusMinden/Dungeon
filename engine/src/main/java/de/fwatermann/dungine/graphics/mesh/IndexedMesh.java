@@ -5,7 +5,7 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +34,7 @@ public class IndexedMesh extends UnInstancedMesh {
    * @param attributes The vertex attributes of the mesh.
    */
   public IndexedMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       IntBuffer indices,
       GLUsageHint usageHint,
       VertexAttributeList attributes) {
@@ -55,7 +55,7 @@ public class IndexedMesh extends UnInstancedMesh {
    * @param attributes The vertex attributes of the mesh.
    */
   public IndexedMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       IntBuffer indices,
       GLUsageHint usageHint,
       VertexAttribute... attributes) {
@@ -69,7 +69,7 @@ public class IndexedMesh extends UnInstancedMesh {
    * @param indices The buffer containing the mesh's indices.
    * @param attributes The vertex attributes of the mesh.
    */
-  public IndexedMesh(FloatBuffer vertices, IntBuffer indices, VertexAttributeList attributes) {
+  public IndexedMesh(ByteBuffer vertices, IntBuffer indices, VertexAttributeList attributes) {
     this(vertices, indices, GLUsageHint.DRAW_STATIC, attributes);
   }
 
@@ -80,7 +80,7 @@ public class IndexedMesh extends UnInstancedMesh {
    * @param indices The buffer containing the mesh's indices.
    * @param attributes The vertex attributes of the mesh.
    */
-  public IndexedMesh(FloatBuffer vertices, IntBuffer indices, VertexAttribute... attributes) {
+  public IndexedMesh(ByteBuffer vertices, IntBuffer indices, VertexAttribute... attributes) {
     this(vertices, indices, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
   }
 
