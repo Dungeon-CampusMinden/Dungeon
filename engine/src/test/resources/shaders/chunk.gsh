@@ -89,15 +89,15 @@ void vertex(int pX, int pY, int pZ, int u, int v, int index) {
   int width = (texelY >> 16) & 0xFFFF;
   int height = texelY & 0xFFFF;
   int eTextureIndex = (texelZ >> 16) & 0xFFFF;
-  float tx = (x + u * width) / uTextureAtlasSize.x;
-  float ty = (y + v * height) / uTextureAtlasSize.y;
+  float tx = (x + float(u) * width) / uTextureAtlasSize.x;
+  float ty = (y + float(v) * height) / uTextureAtlasSize.y;
 
   gs_TexCoord = vec2(tx, ty);
   gs_TextureIndex = eTextureIndex;
 
-  gs_Debug.x = index;
-  gs_Debug.y = eTextureIndex;
-  gs_Debug.z = width;
+  gs_Debug.x = int(tx * 255.0f);
+  gs_Debug.y = int(ty * 255.0f);
+  gs_Debug.z = eTextureIndex;
 
   EmitVertex();
 }

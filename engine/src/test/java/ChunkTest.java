@@ -18,9 +18,8 @@ import de.fwatermann.dungine.utils.CoordinateAxis;
 import de.fwatermann.dungine.window.GameWindow;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Math;
@@ -41,7 +40,7 @@ public class ChunkTest extends GameState implements EventListener {
   private ArrayMesh mesh;
   private ShaderProgram shaderProgram;
   private CameraPerspective camera;
-  private List<CoordinateAxis> axis = new ArrayList<>();
+  private CoordinateAxis axis;
 
   private TextureAtlas textureAtlas;
 
@@ -66,10 +65,7 @@ public class ChunkTest extends GameState implements EventListener {
     this.camera = new CameraPerspective();
     this.camera.position(0.0f, 2.0f, 0.0f);
 
-    for (int x = 0; x < 16; x++) {
-      this.axis.add(new CoordinateAxis(new Vector3f(x, 0, 0), 1.0f, true));
-      this.axis.add(new CoordinateAxis(new Vector3f(0, 0, x), 1.0f, true));
-    }
+    this.axis = new CoordinateAxis(new Vector3f(0, 0, 0), 16.0f, true);
 
     this.textureAtlas = new TextureAtlas();
     this.textureAtlas.add(Resource.load("/textures/tiles/tile_00.png"));
@@ -102,13 +98,43 @@ public class ChunkTest extends GameState implements EventListener {
       for (int y = 0; y < 16; y++) {
         for (int z = 0; z < 16; z++) {
           vertices.put((byte) x).put((byte) y).put((byte) z);
-          vertices.put((byte) 0b00111111); // All Faces (0b00UDFBLR)
-          vertices.putShort((short) 0); // Up
-          vertices.putShort((short) 1); // Down
-          vertices.putShort((short) 2); // Front
-          vertices.putShort((short) 3); // Back
-          vertices.putShort((short) 4); // Left
-          vertices.putShort((short) 5); // Right
+
+          byte faces = 0b00000000;
+          if(x == 0) {
+            faces |= 0b00001000; // Front
+          }
+          if(x == 15) {
+            faces |= 0b00000100; // Back
+          }
+          if(y == 0) {
+            faces |= 0b00010000; // Down
+          }
+          if(y == 15) {
+            faces |= 0b00100000; // Up
+          }
+          if(z == 0) {
+            faces |= 0b00000010; // Left
+          }
+          if(z == 15) {
+            faces |= 0b00000001; // Right
+          }
+          vertices.put(faces); // All Faces (0b00UDFBLR)
+
+          if (ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN) {
+            vertices.putShort((short) 0); // Up
+            vertices.putShort((short) 1); // Down
+            vertices.putShort((short) 2); // Front
+            vertices.putShort((short) 3); // Back
+            vertices.putShort((short) 4); // Left
+            vertices.putShort((short) 5); // Right
+          } else {
+            vertices.putShort((short) 1); // Down
+            vertices.putShort((short) 0); // Up
+            vertices.putShort((short) 3); // Back
+            vertices.putShort((short) 2); // Front
+            vertices.putShort((short) 5); // Right
+            vertices.putShort((short) 4); // Left
+          }
         }
       }
     }
@@ -164,11 +190,11 @@ public class ChunkTest extends GameState implements EventListener {
       this.textureAtlas.use(this.shaderProgram);
       this.shaderProgram.setUniform3iv("uChunkPosition", 0, 0, 0);
       this.shaderProgram.setUniform3iv("uChunkSize", 16, 16, 16);
-      this.mesh.render(this.shaderProgram, GL33.GL_POINTS, 0, 16 * 16 * 16, false);
+      this.mesh.render(this.shaderProgram, GL33.GL_POINTS, 0, 16*16*16, false);
       this.shaderProgram.unbind();
     }
     if (this.axis != null) {
-      this.axis.forEach(axis -> axis.render(this.camera));
+      this.axis.render(this.camera);
     }
   }
 
