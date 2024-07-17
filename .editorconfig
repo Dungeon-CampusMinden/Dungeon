@@ -12,6 +12,9 @@ insert_final_newline = true
 [*.java]
 indent_size = 2
 
+[{*.fsh,*.gsh,*.vsh}]
+indent_size = 2
+
 [Makefile]
 indent_style = tab
 
