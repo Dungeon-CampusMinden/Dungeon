@@ -3,7 +3,6 @@ package de.fwatermann.dungine.graphics.mesh;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -25,17 +24,19 @@ public abstract class InstancedMesh extends Mesh {
   protected int instanceCount = 0;
 
   protected InstancedMesh(
-    FloatBuffer vertices,
-    List<ByteBuffer> instanceData,
-    int instanceCount,
-    GLUsageHint usageHint,
-    VertexAttributeList attributes,
-    InstanceAttributeList instanceAttributes) {
+      ByteBuffer vertices,
+      List<ByteBuffer> instanceData,
+      int instanceCount,
+      GLUsageHint usageHint,
+      VertexAttributeList attributes,
+      InstanceAttributeList instanceAttributes) {
     super(vertices, usageHint, attributes);
-    instanceData.forEach(buffer -> {
-      GLUtils.checkBuffer(buffer);
-      this.instanceData.add(new InstanceDataBuffer(GL33.glGenBuffers(), buffer, buffer != null));
-    });
+    instanceData.forEach(
+        buffer -> {
+          GLUtils.checkBuffer(buffer);
+          this.instanceData.add(
+              new InstanceDataBuffer(GL33.glGenBuffers(), buffer, buffer != null));
+        });
     this.instanceAttributes = instanceAttributes;
     this.instanceCount = instanceCount;
   }
@@ -52,7 +53,7 @@ public abstract class InstancedMesh extends Mesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   protected InstancedMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       ByteBuffer instanceData,
       int instanceCount,
       GLUsageHint usageHint,
@@ -61,7 +62,8 @@ public abstract class InstancedMesh extends Mesh {
     super(vertices, usageHint, attributes);
     GLUtils.checkBuffer(instanceData);
     this.instanceAttributes = instanceAttributes;
-    this.instanceData.add(new InstanceDataBuffer(GL33.glGenBuffers(), instanceData, instanceData != null));
+    this.instanceData.add(
+        new InstanceDataBuffer(GL33.glGenBuffers(), instanceData, instanceData != null));
     this.instanceCount = instanceCount;
   }
 
@@ -69,7 +71,8 @@ public abstract class InstancedMesh extends Mesh {
     for (InstanceDataBuffer buffer : this.instanceData) {
       if (buffer.dirty) {
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, buffer.glIBO);
-        GL33.glBufferData(GL33.GL_ARRAY_BUFFER, buffer.instanceData, this.usageHint.getGLConstant());
+        GL33.glBufferData(
+            GL33.GL_ARRAY_BUFFER, buffer.instanceData, this.usageHint.getGLConstant());
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
         buffer.dirty = false;
         LOGGER.trace("Updated IBO {}", buffer.glIBO);
@@ -85,7 +88,7 @@ public abstract class InstancedMesh extends Mesh {
    */
   public ByteBuffer getInstanceData(int index) {
     InstanceDataBuffer buffers = this.instanceData.get(index);
-    if(buffers != null) {
+    if (buffers != null) {
       return buffers.instanceData;
     }
     return null;
@@ -100,7 +103,7 @@ public abstract class InstancedMesh extends Mesh {
   public void setInstanceData(ByteBuffer buffer, int index) {
     GLUtils.checkBuffer(buffer);
     InstanceDataBuffer buffers = this.instanceData.get(index);
-    if(buffers != null) {
+    if (buffers != null) {
       buffers.instanceData = buffer;
       buffers.dirty = true;
     } else {
@@ -138,7 +141,7 @@ public abstract class InstancedMesh extends Mesh {
 
   public void markInstanceDataDirty(int index) {
     InstanceDataBuffer buffers = this.instanceData.get(index);
-    if(buffers != null) {
+    if (buffers != null) {
       buffers.dirty = true;
     }
   }
@@ -158,7 +161,5 @@ public abstract class InstancedMesh extends Mesh {
     public InstanceDataBuffer(int glIBO, ByteBuffer instanceData) {
       this(glIBO, instanceData, instanceData != null);
     }
-
   }
-
 }

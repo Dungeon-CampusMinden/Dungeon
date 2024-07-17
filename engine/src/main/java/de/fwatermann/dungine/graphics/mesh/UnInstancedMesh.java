@@ -3,7 +3,7 @@ package de.fwatermann.dungine.graphics.mesh;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.utils.BoundingBox;
 import de.fwatermann.dungine.utils.annotations.Nullable;
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -31,10 +31,10 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(
-      FloatBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
+    ByteBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
     super(vertices, usageHint, attributes);
     this.calcTransformMatrix();
-    this.calcBoundingBox();
+    //this.calcBoundingBox(); //TODO: Fix Buffer Undeflow
   }
 
   /**
@@ -45,7 +45,7 @@ public abstract class UnInstancedMesh extends Mesh {
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(
-      FloatBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
+      ByteBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
     this(vertices, usageHint, new VertexAttributeList(attributes));
   }
 
@@ -194,7 +194,6 @@ public abstract class UnInstancedMesh extends Mesh {
    */
   public void setScale(Vector3f scale) {
     this.setScale(scale.x, scale.y, scale.z);
-    this.calcTransformMatrix();
   }
 
   /**

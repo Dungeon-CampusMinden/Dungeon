@@ -4,7 +4,6 @@ import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.util.List;
 import org.lwjgl.opengl.GL33;
 
@@ -26,7 +25,7 @@ public class InstancedArrayMesh extends InstancedMesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   public InstancedArrayMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       List<ByteBuffer> instanceData,
       int instanceCount,
       GLUsageHint usageHint,
@@ -46,7 +45,7 @@ public class InstancedArrayMesh extends InstancedMesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   public InstancedArrayMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       ByteBuffer instanceData,
       int instanceCount,
       GLUsageHint usageHint,
@@ -66,7 +65,7 @@ public class InstancedArrayMesh extends InstancedMesh {
    * @param instanceAttributes the instance attributes of the mesh
    */
   public InstancedArrayMesh(
-      FloatBuffer vertices,
+      ByteBuffer vertices,
       ByteBuffer instanceData,
       int instanceCount,
       VertexAttributeList attributes,

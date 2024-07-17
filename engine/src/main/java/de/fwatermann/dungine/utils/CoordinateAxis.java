@@ -8,6 +8,7 @@ import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
@@ -17,7 +18,7 @@ public class CoordinateAxis {
 
   private ArrayMesh mesh;
   private ShaderProgram shaderProgram;
-  private boolean ignoreDepth = false;
+  private boolean ignoreDepth;
   private Vector3f position;
   private float size;
 
@@ -29,7 +30,8 @@ public class CoordinateAxis {
   }
 
   private void initGL() {
-    FloatBuffer vertices = BufferUtils.createFloatBuffer(6 * 6);
+    ByteBuffer verticesB = BufferUtils.createByteBuffer(6 * 6 * 4);
+    FloatBuffer vertices = verticesB.asFloatBuffer();
     vertices.position(0);
     vertices.put(
         new float[] {
@@ -41,13 +43,16 @@ public class CoordinateAxis {
           0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f
         });
     vertices.flip();
+    verticesB.position(0);
 
     this.mesh =
         new ArrayMesh(
-            vertices,
+            verticesB,
             GLUsageHint.DRAW_STATIC,
             new VertexAttribute(VertexAttribute.Usage.POSITION, 3, GL33.GL_FLOAT),
             new VertexAttribute(VertexAttribute.Usage.COLOR, 3, GL33.GL_FLOAT));
+    this.mesh.setTranslation(this.position);
+    this.mesh.setScale(this.size, this.size, this.size);
 
     try {
       Shader vertexShader = Shader.loadShader(Resource.load("/shaders/CoordinateAxis.vsh"), Shader.ShaderType.VERTEX_SHADER);
