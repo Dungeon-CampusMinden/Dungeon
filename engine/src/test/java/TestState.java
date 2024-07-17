@@ -5,9 +5,12 @@ import de.fwatermann.dungine.event.input.MouseMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
+import de.fwatermann.dungine.graphics.mesh.DataType;
+import de.fwatermann.dungine.graphics.mesh.IndexDataType;
 import de.fwatermann.dungine.graphics.mesh.InstanceAttribute;
 import de.fwatermann.dungine.graphics.mesh.InstanceAttributeList;
 import de.fwatermann.dungine.graphics.mesh.InstancedIndexedMesh;
+import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.mesh.VertexAttributeList;
 import de.fwatermann.dungine.graphics.shader.Shader;
@@ -21,8 +24,6 @@ import de.fwatermann.dungine.utils.CoordinateAxis;
 import de.fwatermann.dungine.window.GameWindow;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -114,31 +115,31 @@ public class TestState extends GameState implements EventListener {
         (results) -> {
           VertexAttributeList vertexAttributes =
               new VertexAttributeList(
-                  new VertexAttribute(
-                      VertexAttribute.Usage.POSITION, 3, GL33.GL_FLOAT, "a_Position"),
-                  new VertexAttribute(
-                      VertexAttribute.Usage.POSITION, 2, GL33.GL_FLOAT, "a_TextureCoords"));
+                  new VertexAttribute(3, DataType.FLOAT, "a_Position"),
+                  new VertexAttribute(2, DataType.FLOAT, "a_TextureCoords"));
           InstanceAttributeList instanceAttributes =
-              new InstanceAttributeList(new InstanceAttribute(1, 1, GL33.GL_INT, "i_AtlasEntry"),
-                new InstanceAttribute(0, 3, GL33.GL_INT, "i_TilePosition"));
-          ByteBuffer verticesB = BufferUtils.createByteBuffer(4 * 5 * 4);
-          FloatBuffer vertices = verticesB.asFloatBuffer();
-          vertices.put(new float[] {
-            0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-            1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-            1.0f, 0.0f, 0.0f, 0.0f, 0.0f
-          });
+              new InstanceAttributeList(
+                  new InstanceAttribute(1, 1, DataType.INT, "i_AtlasEntry"),
+                  new InstanceAttribute(0, 3, DataType.INT, "i_TilePosition"));
+          ByteBuffer vertices = BufferUtils.createByteBuffer(4 * 5 * 4);
+          vertices
+              .asFloatBuffer()
+              .put(
+                  new float[] {
+                    0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+                    0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+                    1.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+                    1.0f, 0.0f, 0.0f, 0.0f, 0.0f
+                  });
           vertices.flip();
-          verticesB.position(0);
 
-          IntBuffer indices = BufferUtils.createIntBuffer(6);
-          indices.put(new int[] {0, 1, 2, 2, 3, 0});
+          ByteBuffer indices = BufferUtils.createByteBuffer(6 * 4);
+          indices.asIntBuffer().put(new int[] {0, 1, 2, 2, 3, 0});
           indices.flip();
 
-          ByteBuffer instance1 = BufferUtils.createByteBuffer(3 * 4 * 16*16);
-          for(int x = 0; x < 16; x ++) {
-            for(int z = 0; z < 16; z++) {
+          ByteBuffer instance1 = BufferUtils.createByteBuffer(3 * 4 * 16 * 16);
+          for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
               instance1.putInt(x);
               instance1.putInt(0);
               instance1.putInt(z);
@@ -146,13 +147,23 @@ public class TestState extends GameState implements EventListener {
           }
           instance1.flip();
 
-          ByteBuffer instance2 = BufferUtils.createByteBuffer(4 * 16*16);
-          for(int i = 0; i < 16*16; i++) {
+          ByteBuffer instance2 = BufferUtils.createByteBuffer(4 * 16 * 16);
+          for (int i = 0; i < 16 * 16; i++) {
             instance2.putInt(193);
           }
           instance2.flip();
 
-          this.mesh = new InstancedIndexedMesh(verticesB, indices, new ArrayList<>(List.of(instance1, instance2)), 16*16, GLUsageHint.DRAW_STATIC, vertexAttributes, instanceAttributes);
+          this.mesh =
+              new InstancedIndexedMesh(
+                  vertices,
+                  PrimitiveType.TRIANGLES,
+                  indices,
+                  IndexDataType.UNSIGNED_INT,
+                  new ArrayList<>(List.of(instance1, instance2)),
+                  16 * 16,
+                  GLUsageHint.DRAW_STATIC,
+                  vertexAttributes,
+                  instanceAttributes);
         });
     stepper.done(
         true,
@@ -208,11 +219,10 @@ public class TestState extends GameState implements EventListener {
 
     if (this.mesh != null) {
       this.shaderProgram.bind();
-      this.shaderProgram.useCamera(this.camera);
       this.textureAtlas.use(this.shaderProgram);
       this.shaderProgram.setUniform3iv("uChunkPosition", 0, 0, 0);
       this.shaderProgram.setUniform3iv("uChunkSize", 16, 1, 16);
-      this.mesh.render(this.shaderProgram, GL33.GL_TRIANGLES, 0, 6, false);
+      this.mesh.render(this.camera, this.shaderProgram);
       this.shaderProgram.unbind();
     }
     if (this.axis != null) {
@@ -222,10 +232,10 @@ public class TestState extends GameState implements EventListener {
 
   @Override
   public void update(float deltaTime) {
-    if(this.mesh != null) {
-      int index = (int) Math.floor(Math.random() * 16*16);
+    if (this.mesh != null) {
+      int index = (int) Math.floor(Math.random() * 16 * 16);
       int entry = (int) Math.floor(Math.random() * 664);
-      this.mesh.getInstanceData(1).putInt(index*4, entry);
+      this.mesh.getInstanceData(1).putInt(index * 4, entry);
       this.mesh.markInstanceDataDirty(1);
     }
   }

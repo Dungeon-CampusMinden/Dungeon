@@ -6,6 +6,8 @@ import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
+import de.fwatermann.dungine.graphics.mesh.DataType;
+import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.mesh.VertexAttributeList;
 import de.fwatermann.dungine.graphics.shader.Shader;
@@ -77,12 +79,9 @@ public class ChunkTest extends GameState implements EventListener {
 
     VertexAttributeList vertexAttributes =
         new VertexAttributeList(
-            new VertexAttribute(
-                VertexAttribute.Usage.POSITION, 3, GL33.GL_UNSIGNED_BYTE, "a_Position"),
-            new VertexAttribute(
-                VertexAttribute.Usage.POSITION, 1, GL33.GL_UNSIGNED_BYTE, "a_Faces"),
-            new VertexAttribute(
-                VertexAttribute.Usage.POSITION, 3, GL33.GL_UNSIGNED_INT, "a_FaceAtlasEntries"));
+            new VertexAttribute(3, DataType.UNSIGNED_BYTE, "a_Position"),
+            new VertexAttribute(1, DataType.UNSIGNED_BYTE, "a_Faces"),
+            new VertexAttribute(3, DataType.UNSIGNED_INT, "a_FaceAtlasEntries"));
 
     // |  0 - 7  | 8 - 15 | 16 - 23 | 24 - 31 |
     //    PosX     PosY      PosZ      Faces
@@ -100,22 +99,22 @@ public class ChunkTest extends GameState implements EventListener {
           vertices.put((byte) x).put((byte) y).put((byte) z);
 
           byte faces = 0b00000000;
-          if(x == 0) {
+          if (x == 0) {
             faces |= 0b00001000; // Front
           }
-          if(x == 15) {
+          if (x == 15) {
             faces |= 0b00000100; // Back
           }
-          if(y == 0) {
+          if (y == 0) {
             faces |= 0b00010000; // Down
           }
-          if(y == 15) {
+          if (y == 15) {
             faces |= 0b00100000; // Up
           }
-          if(z == 0) {
+          if (z == 0) {
             faces |= 0b00000010; // Left
           }
-          if(z == 15) {
+          if (z == 15) {
             faces |= 0b00000001; // Right
           }
           vertices.put(faces); // All Faces (0b00UDFBLR)
@@ -139,7 +138,7 @@ public class ChunkTest extends GameState implements EventListener {
       }
     }
     vertices.flip();
-    this.mesh = new ArrayMesh(vertices, GLUsageHint.DRAW_STATIC, vertexAttributes);
+    this.mesh = new ArrayMesh(vertices, PrimitiveType.POINTS, GLUsageHint.DRAW_STATIC, vertexAttributes);
 
     this.done = true;
     EventManager.getInstance().registerListener(this);
@@ -186,11 +185,10 @@ public class ChunkTest extends GameState implements EventListener {
 
     if (this.mesh != null) {
       this.shaderProgram.bind();
-      this.shaderProgram.useCamera(this.camera);
       this.textureAtlas.use(this.shaderProgram);
       this.shaderProgram.setUniform3iv("uChunkPosition", 0, 0, 0);
       this.shaderProgram.setUniform3iv("uChunkSize", 16, 16, 16);
-      this.mesh.render(this.shaderProgram, GL33.GL_POINTS, 0, 16*16*16, false);
+      this.mesh.render(this.camera, this.shaderProgram);
       this.shaderProgram.unbind();
     }
     if (this.axis != null) {
