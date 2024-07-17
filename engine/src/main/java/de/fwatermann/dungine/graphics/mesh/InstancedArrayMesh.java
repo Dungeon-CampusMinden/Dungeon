@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
+import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
@@ -12,7 +13,7 @@ import org.lwjgl.opengl.GL33;
  * using an array of vertices and instance data. It provides methods for manipulating the mesh's
  * position, rotation, and scale, as well as methods for rendering the mesh.
  */
-public class InstancedArrayMesh extends InstancedMesh {
+public class InstancedArrayMesh extends InstancedMesh<InstancedArrayMesh> {
 
   /**
    * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, instance
@@ -26,12 +27,20 @@ public class InstancedArrayMesh extends InstancedMesh {
    */
   public InstancedArrayMesh(
       ByteBuffer vertices,
+      PrimitiveType primitiveType,
       List<ByteBuffer> instanceData,
       int instanceCount,
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
+    super(
+        vertices,
+        primitiveType,
+        instanceData,
+        instanceCount,
+        usageHint,
+        attributes,
+        instanceAttributes);
   }
 
   /**
@@ -46,12 +55,20 @@ public class InstancedArrayMesh extends InstancedMesh {
    */
   public InstancedArrayMesh(
       ByteBuffer vertices,
+      PrimitiveType primitiveType,
       ByteBuffer instanceData,
       int instanceCount,
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
+    this(
+        vertices,
+        primitiveType,
+        List.of(instanceData),
+        instanceCount,
+        usageHint,
+        attributes,
+        instanceAttributes);
   }
 
   /**
@@ -66,12 +83,14 @@ public class InstancedArrayMesh extends InstancedMesh {
    */
   public InstancedArrayMesh(
       ByteBuffer vertices,
+      PrimitiveType primitiveType,
       ByteBuffer instanceData,
       int instanceCount,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
     this(
         vertices,
+        primitiveType,
         instanceData,
         instanceCount,
         GLUsageHint.DRAW_STATIC,
@@ -80,31 +99,35 @@ public class InstancedArrayMesh extends InstancedMesh {
   }
 
   @Override
-  public void render(
-      ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
+  public void render(Camera<?> camera, ShaderProgram shader) {
+    this.render(camera, shader, 0, this.vertexCount());
+  }
+
+  public void render(Camera<?> camera, ShaderProgram shader, int offset, int count) {
+    if (shader == null) return;
+    if (this.vertices == null || this.instanceCount <= 0) return;
+    if (offset < 0) throw new IllegalArgumentException("Offset must be greater than or equal to 0");
+    if (count < 0) throw new IllegalArgumentException("Count must be greater than or equal to 0");
     ThreadUtils.checkMainThread();
 
-    if (this.vertices == null || this.instanceCount <= 0) return;
     this.updateVertexBuffer();
     this.updateInstanceBuffer();
 
-    if (this.lastShaderProgram != shaderProgram) {
-      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
-      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.instanceData);
-      this.lastShaderProgram = shaderProgram;
+    if (this.lastShader != shader) {
+      this.attributes.bindAttribPointers(shader, this.glVAO, this.glVBO);
+      this.instanceAttributes.bindAttribPointers(shader, this.glVAO, this.instanceData);
+      this.lastShader = shader;
     }
 
-    if (bindShader) {
-      shaderProgram.bind();
-    }
+    boolean wasBound = shader.bound();
+    if (!wasBound) shader.bind();
 
+    shader.useCamera(camera);
     GL33.glBindVertexArray(this.glVAO);
-    GL33.glDrawArraysInstanced(primitiveType, offset, count, this.instanceCount);
+    GL33.glDrawArraysInstanced(this.primitiveType.glType, offset, count, this.instanceCount);
     GL33.glBindVertexArray(0);
 
-    if (bindShader) {
-      shaderProgram.unbind();
-    }
+    if (!wasBound) shader.unbind();
   }
 
   @Override

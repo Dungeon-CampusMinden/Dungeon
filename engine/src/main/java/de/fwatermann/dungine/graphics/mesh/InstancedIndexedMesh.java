@@ -1,12 +1,12 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
+import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,13 +19,14 @@ import org.lwjgl.opengl.GL33;
  * (VAOs), vertex buffer objects (VBOs), element buffer objects (EBOs), and instance buffer objects
  * (IBOs) based on the provided data.
  */
-public class InstancedIndexedMesh extends InstancedMesh {
+public class InstancedIndexedMesh extends InstancedMesh<InstancedIndexedMesh> {
 
   private static final Logger LOGGER = LogManager.getLogger(InstancedArrayMesh.class);
 
   private int glEBO;
 
-  private @Null IntBuffer indices;
+  private IndexDataType indexDataType;
+  private @Null ByteBuffer indices;
   private boolean indicesDirty = false;
   private ShaderProgram lastShaderProgram = null;
 
@@ -43,75 +44,27 @@ public class InstancedIndexedMesh extends InstancedMesh {
    */
   public InstancedIndexedMesh(
       ByteBuffer vertices,
-      IntBuffer indices,
+      PrimitiveType primitiveType,
+      ByteBuffer indices,
+      IndexDataType indexDataType,
       List<ByteBuffer> instanceData,
       int instanceCount,
       GLUsageHint usageHint,
       VertexAttributeList attributes,
       InstanceAttributeList instanceAttributes) {
-    super(vertices, instanceData, instanceCount, usageHint, attributes, instanceAttributes);
-    GLUtils.checkBuffer(indices);
-    this.indices = indices;
-    this.indicesDirty = indices != null;
-    this.initGL();
-  }
-
-  /**
-   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data,
-   * instance count, usage hint, attributes, and instance attributes.
-   *
-   * @param vertices the vertex buffer of the mesh
-   * @param indices the index buffer of the mesh
-   * @param instanceData the instance data buffer of the mesh
-   * @param instanceCount the number of instances of the mesh
-   * @param usageHint the usage hint of the mesh
-   * @param attributes the attributes of the mesh
-   * @param instanceAttributes the instance attributes of the mesh
-   */
-  public InstancedIndexedMesh(
-      ByteBuffer vertices,
-      IntBuffer indices,
-      ByteBuffer instanceData,
-      int instanceCount,
-      GLUsageHint usageHint,
-      VertexAttributeList attributes,
-      InstanceAttributeList instanceAttributes) {
-    this(
+    super(
         vertices,
-        indices,
-        instanceData != null ? List.of(instanceData) : List.of(),
+        primitiveType,
+        instanceData,
         instanceCount,
         usageHint,
         attributes,
         instanceAttributes);
-  }
-
-  /**
-   * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data,
-   * instance count, attributes, and instance attributes.
-   *
-   * @param vertices the vertex buffer of the mesh
-   * @param indices the index buffer of the mesh
-   * @param instanceData the instance data buffer of the mesh
-   * @param instanceCount the number of instances of the mesh
-   * @param attributes the attributes of the mesh
-   * @param instanceAttributes the instance attributes of the mesh
-   */
-  public InstancedIndexedMesh(
-      ByteBuffer vertices,
-      IntBuffer indices,
-      ByteBuffer instanceData,
-      int instanceCount,
-      VertexAttributeList attributes,
-      InstanceAttributeList instanceAttributes) {
-    this(
-        vertices,
-        indices,
-        instanceData,
-        instanceCount,
-        GLUsageHint.DRAW_STATIC,
-        attributes,
-        instanceAttributes);
+    GLUtils.checkBuffer(indices);
+    this.indices = indices;
+    this.indexDataType = indexDataType;
+    this.indicesDirty = indices != null;
+    this.initGL();
   }
 
   private void initGL() {
@@ -140,7 +93,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
    *
    * @param buffer the new indices of this mesh
    */
-  public void setIndexBuffer(IntBuffer buffer) {
+  public void setIndexBuffer(ByteBuffer buffer) {
     GLUtils.checkBuffer(buffer);
     this.indices = buffer;
     this.indicesDirty = true;
@@ -151,7 +104,7 @@ public class InstancedIndexedMesh extends InstancedMesh {
    *
    * @return the indices of this mesh
    */
-  public IntBuffer getIndexBuffer() {
+  public ByteBuffer getIndexBuffer() {
     return this.indices;
   }
 
@@ -163,34 +116,47 @@ public class InstancedIndexedMesh extends InstancedMesh {
     this.indicesDirty = true;
   }
 
+  /**
+   * Returns the number of indices in this mesh.
+   *
+   * @return the number of indices in this mesh
+   */
+  public int indexCount() {
+    return this.indices.limit() / this.indexDataType.bytes;
+  }
+
   @Override
-  public void render(
-      ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
+  public void render(Camera<?> camera, ShaderProgram shader) {
+    this.render(camera, shader, 0, this.indexCount());
+  }
+
+  public void render(Camera<?> camera, ShaderProgram shader, int offset, int count) {
+    if (shader == null) return;
+    if (this.vertices == null || this.instanceCount <= 0) return;
+    if (offset < 0) throw new IllegalArgumentException("Offset must be greater than or equal to 0");
+    if (count < 0) throw new IllegalArgumentException("Count must be greater than or equal to 0");
     ThreadUtils.checkMainThread();
 
-    if (this.vertices == null || this.instanceCount <= 0) return;
     this.updateVertexBuffer();
     this.updateIndexBuffer();
     this.updateInstanceBuffer();
 
-    if (this.lastShaderProgram != shaderProgram) {
-      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
-      this.instanceAttributes.bindAttribPointers(shaderProgram, this.glVAO, this.instanceData);
-      this.lastShaderProgram = shaderProgram;
+    if (this.lastShader != shader) {
+      this.attributes.bindAttribPointers(shader, this.glVAO, this.glVBO);
+      this.instanceAttributes.bindAttribPointers(shader, this.glVAO, this.instanceData);
+      this.lastShader = shader;
     }
 
-    if (bindShader) {
-      shaderProgram.bind();
-    }
+    boolean wasBound = shader.bound();
+    if (!wasBound) shader.bind();
 
+    shader.useCamera(camera);
     GL33.glBindVertexArray(this.glVAO);
     GL33.glDrawElementsInstanced(
-        primitiveType, count, GL33.GL_UNSIGNED_INT, offset, this.instanceCount);
+        this.primitiveType.glType, count, this.indexDataType.glType, offset, this.instanceCount);
     GL33.glBindVertexArray(0);
 
-    if (bindShader) {
-      shaderProgram.unbind();
-    }
+    if (!wasBound) shader.unbind();
   }
 
   @Override

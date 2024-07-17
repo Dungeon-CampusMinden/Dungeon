@@ -1,7 +1,9 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
+import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
 import org.lwjgl.opengl.GL33;
 
@@ -10,7 +12,7 @@ import org.lwjgl.opengl.GL33;
  * array of vertices. It provides methods for manipulating the mesh's position, rotation, and scale,
  * as well as methods for rendering the mesh.
  */
-public class ArrayMesh extends UnInstancedMesh {
+public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
 
   /**
    * Constructs a new ArrayMesh with the specified vertex buffer, usage hint, and attributes.
@@ -19,8 +21,12 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(ByteBuffer vertices, GLUsageHint usageHint, VertexAttributeList attributes) {
-    super(vertices, usageHint, attributes);
+  public ArrayMesh(
+      ByteBuffer vertices,
+      PrimitiveType primitiveType,
+      GLUsageHint usageHint,
+      VertexAttributeList attributes) {
+    super(vertices, primitiveType, usageHint, attributes);
   }
 
   /**
@@ -30,8 +36,12 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(ByteBuffer vertices, GLUsageHint usageHint, VertexAttribute... attributes) {
-    this(vertices, usageHint, new VertexAttributeList(attributes));
+  public ArrayMesh(
+      ByteBuffer vertices,
+      PrimitiveType primitiveType,
+      GLUsageHint usageHint,
+      VertexAttribute... attributes) {
+    this(vertices, primitiveType, usageHint, new VertexAttributeList(attributes));
   }
 
   /**
@@ -40,8 +50,9 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param vertices the vertex buffer of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(ByteBuffer vertices, VertexAttributeList attributes) {
-    this(vertices, GLUsageHint.DRAW_STATIC, attributes);
+  public ArrayMesh(
+      ByteBuffer vertices, PrimitiveType primitiveType, VertexAttributeList attributes) {
+    this(vertices, primitiveType, GLUsageHint.DRAW_STATIC, attributes);
   }
 
   /**
@@ -50,38 +61,41 @@ public class ArrayMesh extends UnInstancedMesh {
    * @param vertices the vertex buffer of the mesh
    * @param attributes the attributes of the mesh
    */
-  public ArrayMesh(ByteBuffer vertices, VertexAttribute... attributes) {
-    this(vertices, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
+  public ArrayMesh(
+      ByteBuffer vertices, PrimitiveType primitiveType, VertexAttribute... attributes) {
+    this(vertices, primitiveType, GLUsageHint.DRAW_STATIC, new VertexAttributeList(attributes));
   }
 
   @Override
-  public void render(
-      ShaderProgram shaderProgram, int primitiveType, int offset, int count, boolean bindShader) {
+  public void render(Camera<?> camera, ShaderProgram shader) {
+    if (shader == null) return;
+    this.render(camera, shader, 0, this.vertexCount());
+  }
 
-    if (this.vertices == null) {
-      return;
-    }
+  public void render(Camera<?> camera, ShaderProgram shader, int offset, int count) {
+    if (shader == null) return;
+    if (this.vertices == null) return;
+    if (offset < 0) throw new IllegalArgumentException("Offset must be greater than or equal to 0");
+    if (count < 0) throw new IllegalArgumentException("Count must be greater than or equal to 0");
+    ThreadUtils.checkMainThread();
+
     this.updateVertexBuffer();
 
-    if (bindShader) {
-      shaderProgram.bind();
+    if (this.lastShader != shader) {
+      this.attributes.bindAttribPointers(shader, this.glVAO, this.glVBO);
+      this.lastShader = shader;
     }
-    shaderProgram.setUniformMatrix4f(
-        shaderProgram.configuration().uniformModelMatrix, this.transformMatrix);
 
+    boolean wasBound = shader.bound();
+    if (!wasBound) shader.bind();
+
+    shader.setUniformMatrix4f(shader.configuration().uniformModelMatrix, this.transformMatrix);
+    shader.useCamera(camera);
     GL33.glBindVertexArray(this.glVAO);
-
-    if (this.lastShaderProgram != shaderProgram) {
-      this.attributes.bindAttribPointers(shaderProgram, this.glVAO, this.glVBO);
-      this.lastShaderProgram = shaderProgram;
-    }
-
-    GL33.glDrawArrays(primitiveType, offset, count);
+    GL33.glDrawArrays(this.primitiveType.glType, offset, count);
     GL33.glBindVertexArray(0);
 
-    if (bindShader) {
-      shaderProgram.unbind();
-    }
+    if (!wasBound) shader.unbind();
   }
 
   @Override
