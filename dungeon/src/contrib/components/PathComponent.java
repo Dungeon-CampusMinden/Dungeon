@@ -27,6 +27,9 @@ public class PathComponent implements Component {
    * @param path The path to be represented by this component.
    */
   public PathComponent(GraphPath<Tile> path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Path cannot be null.");
+    }
     this.path = path;
   }
 
@@ -45,6 +48,9 @@ public class PathComponent implements Component {
    * @param path The new path to be represented by this component.
    */
   public void path(GraphPath<Tile> path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Path cannot be null.");
+    }
     this.path = path;
   }
 
