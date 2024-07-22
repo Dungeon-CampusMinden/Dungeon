@@ -43,6 +43,15 @@ public class PathComponent implements Component {
   }
 
   /**
+   * A PathComponent is valid, if it holds a path with more than zero steps.
+   *
+   * @return <code>true</code> iff valid; <code>false</code> otherwise
+   */
+  public boolean isValid() {
+    return (path != null) && (path.getCount() > 0);
+  }
+
+  /**
    * Setter for the path.
    *
    * @param path The new path to be represented by this component.
