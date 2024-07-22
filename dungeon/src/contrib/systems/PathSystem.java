@@ -50,7 +50,7 @@ public class PathSystem extends System {
             .fetch(PathComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PathComponent.class));
 
-    if (path.path() == null || path.path().getCount() == 0) {
+    if (path.path().getCount() == 0) {
       return;
     }
 
