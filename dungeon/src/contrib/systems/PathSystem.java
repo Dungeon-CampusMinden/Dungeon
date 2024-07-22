@@ -4,7 +4,6 @@ import contrib.components.PathComponent;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.System;
-import core.utils.components.MissingComponentException;
 
 /**
  * The PathSystem is responsible for moving entities along a path. It fetches the {@link
@@ -28,32 +27,18 @@ public class PathSystem extends System {
   }
 
   /**
-   * The execute method is overridden from the System class. It applies the executePath method to
-   * each entity in the entity stream.
-   */
-  @Override
-  public void execute() {
-    filteredEntityStream().forEach(this::executePath);
-  }
-
-  /**
-   * The executePath method is responsible for moving the entity along the path. It fetches the
+   * The execute method is responsible for moving the entity along the path. It fetches the
    * PathComponent of the entity and throws an exception if it is missing. If the path is null or
    * has no elements, the method returns without doing anything. Otherwise, it moves the entity
    * along the path and updates the time since the last update.
-   *
-   * @param entity The entity to be moved.
    */
-  private void executePath(Entity entity) {
-    PathComponent path =
-        entity
-            .fetch(PathComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PathComponent.class));
-
-    if (path.path().getCount() == 0) {
-      return;
-    }
-
-    AIUtils.move(entity, path.path());
+  @Override
+  public void execute() {
+    filteredEntityStream(PathComponent.class)
+        .map(e -> new PSData(e, e.fetch(PathComponent.class).orElseThrow()))
+        .filter(psd -> psd.pathComponent.isValid())
+        .forEach(psd -> AIUtils.move(psd.entity, psd.pathComponent.path()));
   }
+
+  private record PSData(Entity entity, PathComponent pathComponent) {}
 }
