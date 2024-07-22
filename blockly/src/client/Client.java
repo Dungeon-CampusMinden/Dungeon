@@ -145,6 +145,7 @@ public class Client {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new HealthSystem());
+    Game.add(new PathSystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());
     Game.add(new HudSystem());
