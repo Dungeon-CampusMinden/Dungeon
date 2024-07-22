@@ -1,9 +1,11 @@
 package contrib.configuration;
 
 import com.badlogic.gdx.Input;
+import core.components.PlayerComponent;
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
 import core.configuration.values.ConfigIntValue;
+import core.utils.Point;
 
 /** WTF? . */
 @ConfigMap(path = {"keyboard"})
@@ -20,7 +22,11 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> INTERACT_WORLD =
       new ConfigKey<>(new String[] {"interact", "world"}, new ConfigIntValue(Input.Keys.E));
 
-  /** WTF? . */
+  /**
+   * If Mouse Movement is enabled. This key is used to interact with the world.
+   *
+   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
+   */
   public static final ConfigKey<Integer> MOUSE_INTERACT_WORLD =
       new ConfigKey<>(new String[] {"interact", "mouse"}, new ConfigIntValue(Input.Buttons.LEFT));
 
@@ -39,6 +45,29 @@ public class KeyboardConfig {
   /** WTF? . */
   public static final ConfigKey<Integer> FIRST_SKILL =
       new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
+
+  /**
+   * If Mouse Movement is enabled. This key is used shoot the first skill.
+   *
+   * <p>If {@link #MOUSE_INTERACT_WORLD} is set to the same value as this key, the hero will only
+   * shoot if nothing interactable is under the cursor.
+   *
+   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
+   * @see contrib.entities.HeroFactory#checkIfClickOnInteractable(Point)
+   * @see contrib.entities.HeroFactory#registerMouseLeftClick(PlayerComponent)
+   */
+  public static final ConfigKey<Integer> MOUSE_FIRST_SKILL =
+      new ConfigKey<>(
+          new String[] {"skill", "mouse_fireball"}, new ConfigIntValue(Input.Buttons.LEFT));
+
+  /**
+   * If Mouse Movement is enabled. This key is used to move the hero.
+   *
+   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
+   */
+  public static final ConfigKey<Integer> MOUSE_MOVE =
+      new ConfigKey<>(
+          new String[] {"movement", "mouse_move"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
   /** WTF? . */
   public static final ConfigKey<Integer> DEBUG_ZOOM_IN =
