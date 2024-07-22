@@ -27,9 +27,9 @@ public class PathSystem extends System {
   }
 
   /**
-   * The execute method is responsible for moving the entity along the path. It fetches the *
-   * PathComponent of the entity and throws an exception if it is missing. If the path is null or *
-   * has no elements, the method returns without doing anything. Otherwise, it moves the entity *
+   * The execute method is responsible for moving the entity along the path. It fetches the
+   * PathComponent of the entity and throws an exception if it is missing. If the path is null or
+   * has no elements, the method returns without doing anything. Otherwise, it moves the entity
    * along the path and updates the time since the last update.
    */
   @Override
