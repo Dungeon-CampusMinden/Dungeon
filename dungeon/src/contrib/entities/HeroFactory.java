@@ -50,7 +50,11 @@ public final class HeroFactory {
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
-  /** Gets the current skill of the hero. */
+  /**
+   * Gets the current skill of the hero.
+   *
+   * @return The current skill of the hero.
+   */
   public static Skill getHeroSkill() {
     return HERO_SKILL;
   }
