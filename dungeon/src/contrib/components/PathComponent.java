@@ -48,7 +48,7 @@ public class PathComponent implements Component {
    * @return <code>true</code> iff valid; <code>false</code> otherwise
    */
   public boolean isValid() {
-    return (path != null) && (path.getCount() > 0);
+    return path.getCount() > 0;
   }
 
   /**
