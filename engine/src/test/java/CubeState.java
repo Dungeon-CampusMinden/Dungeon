@@ -5,6 +5,7 @@ import de.fwatermann.dungine.event.input.MouseMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.mesh.simple.Cube;
+import de.fwatermann.dungine.graphics.mesh.simple.CubeColored;
 import de.fwatermann.dungine.input.Keyboard;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.utils.CoordinateAxis;
@@ -19,7 +20,7 @@ import java.text.NumberFormat;
 public class CubeState extends GameState implements EventListener {
 
   private CameraPerspective camera;
-  private Cube cube;
+  private CubeColored cube;
   private CoordinateAxis axis;
   private boolean done = false;
 
@@ -33,7 +34,7 @@ public class CubeState extends GameState implements EventListener {
     this.camera = new CameraPerspective();
     this.camera.position(0, 0, 5);
     this.camera.lookAt(0, 0, 0);
-    this.cube = new Cube(new Vector3f(0, 0, 0), 0xFF0000FF);
+    this.cube = new CubeColored(new Vector3f(0, 0, 0), 0xFF0000FF);
     this.axis = new CoordinateAxis(new Vector3f(), 1.0f, true);
     this.done = true;
     EventManager.getInstance().registerListener(this);
@@ -45,7 +46,7 @@ public class CubeState extends GameState implements EventListener {
   }
 
   @Override
-  public void render(float deltaTime) {
+  public void renderState(float deltaTime) {
     this.camera.update();
     this.keyboard(deltaTime);
     if(this.cube != null) this.cube.render(this.camera);
