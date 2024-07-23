@@ -10,6 +10,5 @@ public class RenderableSystem extends System<RenderableSystem> {
 
   @Override
   public void update() {
-    this.attachedGameState().entities().filter(e -> e.com)
   }
 }
