@@ -274,7 +274,7 @@ public class DojoStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          createSystems();
+          Game.add(StandardSystems.standardSystems());
           try {
             Game.add(EntityFactory.newHero());
           } catch (IOException e) {
@@ -306,18 +306,6 @@ public class DojoStarter {
     backgroundMusic.setLooping(true);
     backgroundMusic.play();
     backgroundMusic.setVolume(.1f);
-  }
-
-  private static void createSystems() {
-    Game.add(new CollisionSystem());
-    Game.add(new AISystem());
-    Game.add(new HealthSystem());
-    Game.add(new PathSystem());
-    Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
-    Game.add(new SpikeSystem());
-    Game.add(new IdleSoundSystem());
   }
 
   private static Room buildFindKeyRoom(

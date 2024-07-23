@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -260,6 +261,27 @@ public final class Game {
    */
   public static Optional<System> add(final System system) {
     return ECSManagment.add(system);
+  }
+
+  /**
+   * Add {@link System}s to the game.
+   *
+   * <p>If a System is added to the game, the {@link System#execute} method will be called every
+   * frame.
+   *
+   * <p>Additionally, the systems will be informed about all new, changed, and removed entities.
+   *
+   * <p>The game can only store one system of each system type.
+   *
+   * @param systems the Systems to add
+   * @return an optional set that contains the previous existing systems of the given systems
+   *     classes, if exists
+   * @see Set
+   * @see Optional
+   * @see System
+   */
+  public static Set<Optional<System>> add(final Set<System> systems) {
+    return systems.stream().map(Game::add).collect(Collectors.toSet());
   }
 
   /**

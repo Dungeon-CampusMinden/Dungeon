@@ -46,7 +46,7 @@ public class RoomBasedDungeon {
   private static void onSetup(int roomcount, int monstercount, int chestcount) {
     Game.userOnSetup(
         () -> {
-          createSystems();
+          Game.add(StandardSystems.standardSystems());
           try {
             createHero();
           } catch (IOException e) {
@@ -93,18 +93,6 @@ public class RoomBasedDungeon {
   private static void createHero() throws IOException {
     Entity hero = EntityFactory.newHero();
     Game.add(hero);
-  }
-
-  private static void createSystems() {
-    Game.add(new CollisionSystem());
-    Game.add(new AISystem());
-    Game.add(new HealthSystem());
-    Game.add(new PathSystem());
-    Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
-    Game.add(new SpikeSystem());
-    Game.add(new IdleSoundSystem());
   }
 
   private static void setupMusic() {

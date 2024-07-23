@@ -193,7 +193,7 @@ public class Starter {
     Game.userOnSetup(
         () -> {
           createHero();
-          createSystems();
+          Game.add(StandardSystems.standardSystems());
           Game.currentLevel(TaskSelector.taskSelectorLevel());
           setupMusic();
           Crafting.loadRecipes();
@@ -262,18 +262,6 @@ public class Starter {
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class,
         starter.KeyboardConfig.class);
-  }
-
-  private static void createSystems() {
-    Game.add(new AISystem());
-    Game.add(new CollisionSystem());
-    Game.add(new HealthSystem());
-    Game.add(new PathSystem());
-    Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
-    Game.add(new SpikeSystem());
-    Game.add(new IdleSoundSystem());
   }
 
   private static void setupMusic() {

@@ -59,7 +59,7 @@ public class RandomDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          createSystems();
+          Game.add(StandardSystems.standardSystems());
           try {
             createHero();
           } catch (IOException e) {
@@ -90,17 +90,5 @@ public class RandomDungeon {
     Game.frameRate(30);
     Game.disableAudio(false);
     Game.windowTitle("My Dungeon");
-  }
-
-  private static void createSystems() {
-    Game.add(new CollisionSystem());
-    Game.add(new AISystem());
-    Game.add(new HealthSystem());
-    Game.add(new PathSystem());
-    Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
-    Game.add(new SpikeSystem());
-    Game.add(new IdleSoundSystem());
   }
 }
