@@ -1,7 +1,6 @@
 package contrib.utils.components.health;
 
-import contrib.components.HealthComponent;
-import core.Entity;
+import contrib.systems.HealthSystem;
 
 /**
  * This interface is specifically designed to observe health events in the game. It defines a single
@@ -17,11 +16,10 @@ public interface IHealthObserver {
   /**
    * Called to notify the observer of health-related changes in the entity it is observing.
    *
-   * @param entity The entity that the health event is related to.
-   * @param healthComponent The health component of the entity.
+   * @param hsData The data of the entity with HealthComponent and DrawComponent.
    * @param healthEvent The type of health event (DAMAGE or DEATH).
    */
-  void onHealthEvent(Entity entity, HealthComponent healthComponent, HealthEvent healthEvent);
+  void onHealthEvent(HealthSystem.HSData hsData, HealthEvent healthEvent);
 
   /**
    * HealthEvent is an enumeration that represents the type of health event.

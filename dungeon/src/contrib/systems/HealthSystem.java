@@ -62,8 +62,7 @@ public final class HealthSystem extends System {
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
     hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
-    observers.forEach(
-        observer -> observer.onHealthEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DAMAGE));
+    observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DAMAGE));
 
     // return data object to enable method chaining/streaming
     return hsd;
@@ -131,12 +130,17 @@ public final class HealthSystem extends System {
   private void removeDeadEntities(final HSData hsd) {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
-    observers.forEach(
-        observer -> observer.onHealthEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DEATH));
+    observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
 
     Game.remove(hsd.e);
   }
 
-  // private record to hold all data during streaming
-  private record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
+  /**
+   * Record class to store the data of an entity with HealthComponent and DrawComponent.
+   *
+   * @param e The entity that owns the components
+   * @param hc The HealthComponent of the entity
+   * @param dc The DrawComponent of the entity
+   */
+  public record HSData(Entity e, HealthComponent hc, DrawComponent dc) {}
 }
