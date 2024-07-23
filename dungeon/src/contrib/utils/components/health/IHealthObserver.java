@@ -21,7 +21,7 @@ public interface IHealthObserver {
    * @param healthComponent The health component of the entity.
    * @param healthEvent The type of health event (DAMAGE or DEATH).
    */
-  void onHeathEvent(Entity entity, HealthComponent healthComponent, HealthEvent healthEvent);
+  void onHealthEvent(Entity entity, HealthComponent healthComponent, HealthEvent healthEvent);
 
   /**
    * HealthEvent is an enumeration that represents the type of health event.
