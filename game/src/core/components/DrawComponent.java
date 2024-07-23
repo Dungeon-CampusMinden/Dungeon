@@ -185,9 +185,8 @@ public final class DrawComponent implements Component {
    * @param animationName The name of the animation to set as the current animation.
    */
   public void currentAnimation(final String animationName) {
-    Animation animation = animationMap.get(animationName);
-    if (animation != null) {
-      currentAnimation = animation;
+    if (animationMap.containsKey(animationName)) {
+      currentAnimation = animationMap.get(animationName);
     } else {
       LOGGER.warning(
           "Animation "
