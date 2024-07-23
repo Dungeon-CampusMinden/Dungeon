@@ -136,7 +136,7 @@ public final class Entity implements Comparable<Entity> {
   }
 
   /**
-   * Get the name of this entity
+   * Get the name of this entity.
    *
    * @return the name of this entity
    */
