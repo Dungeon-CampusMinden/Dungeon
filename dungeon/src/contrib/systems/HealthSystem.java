@@ -63,7 +63,7 @@ public final class HealthSystem extends System {
     hsd.hc.clearDamage();
     hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
     observers.forEach(
-        observer -> observer.onHeathEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DAMAGE));
+        observer -> observer.onHealthEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DAMAGE));
 
     // return data object to enable method chaining/streaming
     return hsd;
@@ -132,7 +132,7 @@ public final class HealthSystem extends System {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
     observers.forEach(
-        observer -> observer.onHeathEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DEATH));
+        observer -> observer.onHealthEvent(hsd.e, hsd.hc, IHealthObserver.HealthEvent.DEATH));
 
     Game.remove(hsd.e);
   }
