@@ -276,8 +276,6 @@ public final class Game {
    * @param systems the Systems to add
    * @return an optional set that contains the previous existing systems of the given systems
    *     classes, if exists
-   * @see Set
-   * @see Optional
    * @see System
    */
   public static Set<Optional<System>> add(final Set<System> systems) {
