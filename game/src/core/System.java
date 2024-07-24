@@ -274,7 +274,7 @@ public abstract class System {
 
   // (3) produce a stream w/ the components itself
   // This would work for one component only!
-  public final <T extends Component> Stream<T> filteredEntityStreamZ(Class<T> c) {
+  public final <T extends Component> Stream<T> filteredEntityStreamV3(Class<T> c) {
     return filteredEntityStream(Set.of(c)).map(e -> e.fetch(c).orElseThrow());
   }
 

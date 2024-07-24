@@ -36,7 +36,7 @@ public final class SpikeSystem extends System {
     filteredEntityStreamV2a(SpikyComponent.class).forEach(this::reduceCoolDown);
 
     // (3) use streams containing the components we are looking for
-    filteredEntityStreamZ(SpikyComponent.class).forEach(SpikyComponent::reduceCoolDown);
+    filteredEntityStreamV3(SpikyComponent.class).forEach(SpikyComponent::reduceCoolDown);
   }
 
   // (2a) using pattern matching - this turns out quite nasty thanks to Java
