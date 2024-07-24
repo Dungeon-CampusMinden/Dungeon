@@ -2,6 +2,7 @@ package contrib.utils.components.ai.fight;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
+import contrib.utils.components.skill.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
@@ -12,11 +13,13 @@ import java.util.function.Consumer;
 /**
  * Implements a fight AI. The entity attacks the player if he is in a given range. When the entity
  * is not in range but in fight mode, the entity will be moving to ward the player.
+ *
+ * @see ISkillUser
  */
-public class MeleeAI implements Consumer<Entity> {
+public class MeleeAI implements Consumer<Entity>, ISkillUser {
   private final float attackRange;
   private final int delay = Game.frameRate();
-  private final Skill fightSkill;
+  private Skill fightSkill;
   private int timeSinceLastUpdate = 0;
   private GraphPath<Tile> path;
 
@@ -34,7 +37,7 @@ public class MeleeAI implements Consumer<Entity> {
   @Override
   public void accept(final Entity entity) {
     if (LevelUtils.playerInRange(entity, attackRange)) {
-      fightSkill.execute(entity);
+      useSkill(fightSkill, entity);
     } else {
       if (path == null || timeSinceLastUpdate >= delay) {
         path = LevelUtils.calculatePathToHero(entity);
@@ -43,5 +46,23 @@ public class MeleeAI implements Consumer<Entity> {
       timeSinceLastUpdate++;
       AIUtils.move(entity, path);
     }
+  }
+
+  @Override
+  public void useSkill(Skill fightSkill, Entity skillUser) {
+    if (fightSkill == null) {
+      return;
+    }
+    fightSkill.execute(skillUser);
+  }
+
+  @Override
+  public Skill getSkill() {
+    return fightSkill;
+  }
+
+  @Override
+  public void setSkill(Skill skill) {
+    this.fightSkill = skill;
   }
 }
