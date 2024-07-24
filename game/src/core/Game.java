@@ -281,7 +281,7 @@ public final class Game {
    * @see System
    */
   public static Set<Optional<System>> add(final Set<System> systems) {
-    return systems.stream().map(Game::add).collect(Collectors.toSet());
+    return systems.stream().map(ECSManagment::add).collect(Collectors.toSet());
   }
 
   /**
