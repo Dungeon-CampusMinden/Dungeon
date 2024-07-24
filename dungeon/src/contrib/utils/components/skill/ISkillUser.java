@@ -24,12 +24,12 @@ public interface ISkillUser {
    *
    * @return The skill of the skill user.
    */
-  Skill getSkill();
+  Skill skill();
 
   /**
    * Sets the skill of the skill user.
    *
    * @param skill The skill to be set.
    */
-  void setSkill(Skill skill);
+  void skill(Skill skill);
 }

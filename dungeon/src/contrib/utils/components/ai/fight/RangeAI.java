@@ -87,12 +87,12 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
   }
 
   @Override
-  public Skill getSkill() {
+  public Skill skill() {
     return this.skill;
   }
 
   @Override
-  public void setSkill(Skill skill) {
+  public void skill(Skill skill) {
     this.skill = skill;
   }
 }

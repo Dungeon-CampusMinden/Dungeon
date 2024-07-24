@@ -57,12 +57,12 @@ public class MeleeAI implements Consumer<Entity>, ISkillUser {
   }
 
   @Override
-  public Skill getSkill() {
+  public Skill skill() {
     return fightSkill;
   }
 
   @Override
-  public void setSkill(Skill skill) {
+  public void skill(Skill skill) {
     this.fightSkill = skill;
   }
 }
