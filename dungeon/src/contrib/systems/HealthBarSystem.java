@@ -73,7 +73,7 @@ public final class HealthBarSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream(HealthComponent.class, PositionComponent.class)
+    filteredEntityStream(DrawComponent.class, HealthComponent.class, PositionComponent.class)
         .map(this::buildDataObject)
         .forEach(this::update);
   }
