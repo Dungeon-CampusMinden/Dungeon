@@ -17,11 +17,25 @@ import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * Represents a sprite that can be rendered. Implements the IRenderable interface to provide
+ * rendering functionality.
+ */
 public class Sprite implements IRenderable {
 
+  /** Enum representing the different billboard modes for the sprite. */
   public enum BillboardMode {
+
+    /** No billboarding. The sprite is rendered as a plane in the world. */
     NONE(0),
+
+    /** Sphere billboarding. The sprite is always facing the camera. */
     SPHERICAL(1),
+
+    /**
+     * Cylinder billboarding. The sprite is always facing the camera, but only rotates around the
+     * y-axis.
+     */
     CYLINDRICAL(2);
     public final int value;
 
@@ -33,10 +47,18 @@ public class Sprite implements IRenderable {
   private static ShaderProgram SHADER;
   private static ArrayMesh MESH;
 
-  public BillboardMode billboardMode;
+  private BillboardMode billboardMode;
   private float width, height;
   private Texture texture;
 
+  /**
+   * Constructs a new Sprite with the specified texture, dimensions, and billboard mode.
+   *
+   * @param textureResource The resource representing the texture to be used.
+   * @param width The width of the sprite.
+   * @param height The height of the sprite.
+   * @param billboardMode The billboard mode for the sprite.
+   */
   public Sprite(Resource textureResource, float width, float height, BillboardMode billboardMode) {
     this.texture = TextureManager.instance().load(textureResource);
     this.width = width;
@@ -44,6 +66,12 @@ public class Sprite implements IRenderable {
     this.billboardMode = billboardMode;
   }
 
+  /**
+   * Renders the sprite using the specified camera. Initializes the shader if it is not already
+   * initialized.
+   *
+   * @param camera The camera to be used for rendering.
+   */
   @Override
   public void render(Camera<?> camera) {
     if (SHADER == null) {
@@ -54,6 +82,13 @@ public class Sprite implements IRenderable {
     this.render(camera, SHADER);
   }
 
+  /**
+   * Renders the sprite using the specified camera and shader program. Initializes the mesh if it is
+   * not already initialized.
+   *
+   * @param camera The camera to be used for rendering.
+   * @param shader The shader program to be used for rendering.
+   */
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
     if (MESH == null) {
@@ -68,25 +103,72 @@ public class Sprite implements IRenderable {
     shader.unbind();
   }
 
+  /**
+   * Sets the texture of the sprite.
+   *
+   * @param resource The resource representing the new texture.
+   */
   public void texture(Resource resource) {
     this.texture = TextureManager.instance().load(resource);
   }
 
+  /**
+   * Returns the width of the sprite.
+   *
+   * @return The width of the sprite.
+   */
   public float width() {
     return this.width;
   }
 
+  /**
+   * Sets the width of the sprite.
+   *
+   * @param width The new width of the sprite.
+   * @return The current instance of the sprite.
+   */
   public Sprite width(float width) {
     this.width = width;
     return this;
   }
 
+  /**
+   * Returns the height of the sprite.
+   *
+   * @return The height of the sprite.
+   */
   public float height() {
     return this.height;
   }
 
+  /**
+   * Sets the height of the sprite.
+   *
+   * @param height The new height of the sprite.
+   * @return The current instance of the sprite.
+   */
   public Sprite height(float height) {
     this.height = height;
+    return this;
+  }
+
+  /**
+   * Returns the billboard mode of the sprite.
+   *
+   * @return The billboard mode of the sprite.
+   */
+  public BillboardMode billboardMode() {
+    return this.billboardMode;
+  }
+
+  /**
+   * Sets the billboard mode of the sprite.
+   *
+   * @param billboardMode The new billboard mode of the sprite.
+   * @return The current instance of the sprite.
+   */
+  public Sprite billboardMode(BillboardMode billboardMode) {
+    this.billboardMode = billboardMode;
     return this;
   }
 
