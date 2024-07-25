@@ -5,7 +5,7 @@ import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.window.GameWindow;
 
-/** Represents a state of the game. */
+/** Represents a state of the game. It extents the ECS class. */
 public abstract class GameState extends ECS implements Disposable {
 
   protected GameWindow window;

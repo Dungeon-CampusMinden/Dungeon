@@ -1,39 +1,45 @@
-package de.fwatermann.dungine.graphics.mesh.simple;
+package de.fwatermann.dungine.graphics.simple;
 
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import org.joml.Vector3f;
 
-public class PlaneColored extends Plane {
+public class CubeColored extends Cube {
 
   private static ShaderProgram SHADER;
 
   private int color;
 
-  public PlaneColored(Vector3f position, Vector3f size, int rgba) {
-    super(position, size);
+  /**
+   * Constructs a new Cube with the specified position and color.
+   *
+   * @param position the position of the cube
+   * @param rgba     the color of the cube in RGBA format.
+   */
+  public CubeColored(Vector3f position, int rgba) {
+    super(position);
     this.color = rgba;
   }
 
   /**
-   * Get the color of the plane.
-   * @return the color of the plane
+   * Get the color of the cube.
+   * @return the color of the cube
    */
   public int color() {
     return this.color;
   }
 
   /**
-   * Set the color of the plane.
-   * @param rgba the new color of the plane in RGBA format.
+   * Set the color of the cube.
+   * @param rgba the new color of the cube in RGBA format.
    */
   public void color(int rgba) {
     this.color = rgba;
   }
 
   /**
-   * Set the color of the plane.
+   * Set the color of the cube.
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color
@@ -44,7 +50,7 @@ public class PlaneColored extends Plane {
   }
 
   /**
-   * Set the color of the plane.
+   * Set the color of the cube.
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color
@@ -55,22 +61,29 @@ public class PlaneColored extends Plane {
   }
 
   @Override
+  public void render(Camera<?> camera, ShaderProgram shader) {
+    if (shader == null) {
+      return;
+    }
+    shader.bind();
+    shader.setUniform4fv(
+      "uColor",
+      ((this.color >> 24) & 0xFF) / 255.0f,
+      ((this.color >> 16) & 0xFF) / 255.0f,
+      ((this.color >> 8) & 0xFF) / 255.0f,
+      ((this.color) & 0xFF) / 255.0f);
+    this.mesh.render(camera, shader);
+    shader.unbind();
+  }
+
+  @Override
   public void render(Camera<?> camera) {
-    if(SHADER == null) {
+    if (SHADER == null) {
       Shader vertexShader = new Shader(VERTEX_SHADER, Shader.ShaderType.VERTEX_SHADER);
       Shader fragmentShader = new Shader(FRAGMENT_SHADER, Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, fragmentShader);
     }
     this.render(camera, SHADER);
-  }
-
-  @Override
-  public void render(Camera<?> camera, ShaderProgram shader) {
-    if(shader == null) return;
-    shader.bind();
-    shader.setUniform4fv("uColor", ((this.color >> 24) & 0xFF) / 255.0f, ((this.color >> 16) & 0xFF) / 255.0f, ((this.color >> 8) & 0xFF) / 255.0f, ((this.color) & 0xFF) / 255.0f);
-    this.mesh.render(camera, shader);
-    shader.unbind();
   }
 
   private static final String VERTEX_SHADER =

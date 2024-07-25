@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.graphics.mesh.simple;
+package de.fwatermann.dungine.graphics.simple;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.IRenderable;
