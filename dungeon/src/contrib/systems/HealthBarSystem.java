@@ -90,9 +90,9 @@ public final class HealthBarSystem extends System {
 
   private EnemyData buildDataObject(final Entity entity) {
     return new EnemyData(
+        entity.fetch(DrawComponent.class).orElseThrow(),
         entity.fetch(HealthComponent.class).orElseThrow(),
         entity.fetch(PositionComponent.class).orElseThrow(),
-        entity.fetch(DrawComponent.class).orElseThrow(),
         healthBarMapping.get(entity.id()));
   }
 
