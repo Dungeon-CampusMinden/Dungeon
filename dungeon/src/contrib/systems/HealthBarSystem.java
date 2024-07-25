@@ -47,7 +47,7 @@ public final class HealthBarSystem extends System {
 
   /** Create a new HealthBarSystem. */
   public HealthBarSystem() {
-    super(HealthComponent.class, PositionComponent.class);
+    super(DrawComponent.class, HealthComponent.class, PositionComponent.class);
     this.onEntityAdd =
         (x) -> {
           LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem got send a new Entity");
@@ -126,5 +126,5 @@ public final class HealthBarSystem extends System {
   }
 
   private record EnemyData(
-      HealthComponent hc, PositionComponent pc, DrawComponent dc, ProgressBar pb) {}
+      DrawComponent dc, HealthComponent hc, PositionComponent pc, ProgressBar pb) {}
 }
