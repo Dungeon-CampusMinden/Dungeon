@@ -11,6 +11,7 @@ import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
@@ -78,9 +79,9 @@ public final class HealthBarSystem extends System {
   }
 
   private void update(final EnemyData ed) {
-    if (ed.hc.currentHealthpoints() <= 0) ed.pb.remove();
-    // set visible only if entity lost health
-    ed.pb.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
+    // set visible only if entity lost health and if entity is visible
+    ed.pb.setVisible(
+        ed.dc.isVisible() && ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
     updatePosition(ed.pb, ed.pc);
 
     // set value to health percent
@@ -91,6 +92,7 @@ public final class HealthBarSystem extends System {
     return new EnemyData(
         entity.fetch(HealthComponent.class).orElseThrow(),
         entity.fetch(PositionComponent.class).orElseThrow(),
+        entity.fetch(DrawComponent.class).orElseThrow(),
         healthBarMapping.get(entity.id()));
   }
 
@@ -123,5 +125,6 @@ public final class HealthBarSystem extends System {
     pb.setPosition(screenPosition.x, screenPosition.y);
   }
 
-  private record EnemyData(HealthComponent hc, PositionComponent pc, ProgressBar pb) {}
+  private record EnemyData(
+      HealthComponent hc, PositionComponent pc, DrawComponent dc, ProgressBar pb) {}
 }
