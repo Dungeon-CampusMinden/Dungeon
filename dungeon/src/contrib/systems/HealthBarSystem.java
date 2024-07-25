@@ -11,6 +11,7 @@ import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
@@ -46,7 +47,7 @@ public final class HealthBarSystem extends System {
 
   /** Create a new HealthBarSystem. */
   public HealthBarSystem() {
-    super(HealthComponent.class, PositionComponent.class);
+    super(DrawComponent.class, HealthComponent.class, PositionComponent.class);
     this.onEntityAdd =
         (x) -> {
           LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem got send a new Entity");
@@ -72,15 +73,15 @@ public final class HealthBarSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream(HealthComponent.class, PositionComponent.class)
+    filteredEntityStream(DrawComponent.class, HealthComponent.class, PositionComponent.class)
         .map(this::buildDataObject)
         .forEach(this::update);
   }
 
   private void update(final EnemyData ed) {
-    if (ed.hc.currentHealthpoints() <= 0) ed.pb.remove();
-    // set visible only if entity lost health
-    ed.pb.setVisible(ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
+    // set visible only if entity lost health and if entity is visible
+    ed.pb.setVisible(
+        ed.dc.isVisible() && ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
     updatePosition(ed.pb, ed.pc);
 
     // set value to health percent
@@ -89,6 +90,7 @@ public final class HealthBarSystem extends System {
 
   private EnemyData buildDataObject(final Entity entity) {
     return new EnemyData(
+        entity.fetch(DrawComponent.class).orElseThrow(),
         entity.fetch(HealthComponent.class).orElseThrow(),
         entity.fetch(PositionComponent.class).orElseThrow(),
         healthBarMapping.get(entity.id()));
@@ -123,5 +125,6 @@ public final class HealthBarSystem extends System {
     pb.setPosition(screenPosition.x, screenPosition.y);
   }
 
-  private record EnemyData(HealthComponent hc, PositionComponent pc, ProgressBar pb) {}
+  private record EnemyData(
+      DrawComponent dc, HealthComponent hc, PositionComponent pc, ProgressBar pb) {}
 }
