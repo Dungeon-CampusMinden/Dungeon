@@ -285,6 +285,10 @@ public final class HeroFactory {
           if (direction.y != 0) {
             vc.currentYVelocity(direction.y * vc.yVelocity());
           }
+          // Abort any path finding on own movement
+          if (ENABLE_MOUSE_MOVEMENT) {
+            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
+          }
         });
   }
 
