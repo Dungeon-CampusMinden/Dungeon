@@ -1,0 +1,5 @@
+* text=auto eol=lf # all text files (no NUL in first 8000 bytes) are converted to lf on commit and and checkout
+
+# windows native file formats that are converted to crlf on commit and checkout
+*.cmd text eol=crlf
+*.bat text eol=crlf
