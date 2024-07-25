@@ -60,6 +60,23 @@ public class Mouse implements EventListener {
     return new Vector2i((int) x[0], (int) y[0]);
   }
 
+  /**
+   * Set the mouse position.
+   * @param x the x coordinate
+   * @param y the y coordinate
+   */
+  public static void setMousePosition(int x, int y) {
+    glfwSetCursorPos(glfwGetCurrentContext(), x, y);
+  }
+
+  /**
+   * Set the mouse position.
+   * @param pos the position as a Vector2i
+   */
+  public static void setMousePosition(Vector2i pos) {
+    setMousePosition(pos.x, pos.y);
+  }
+
   @EventHandler
   private static void onMouseButton(MouseButtonEvent event) {
     if(event.action == MouseButtonEvent.MouseButtonAction.RELEASE) {
