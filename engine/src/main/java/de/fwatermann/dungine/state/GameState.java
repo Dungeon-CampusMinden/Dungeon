@@ -9,6 +9,8 @@ import de.fwatermann.dungine.window.GameWindow;
 public abstract class GameState extends ECS implements Disposable {
 
   protected GameWindow window;
+  protected float lastFrameDeltaTime = 0.0f;
+  protected float lastTickDeltaTime = 0.0f;
 
   /**
    * Create a new game state.
@@ -49,6 +51,7 @@ public abstract class GameState extends ECS implements Disposable {
    * @param deltaTime the time since the last frame in seconds
    */
   public final void render(float deltaTime) {
+    this.lastFrameDeltaTime = deltaTime;
     this.executeSystems(this, true);
     this.renderState(deltaTime);
   }
@@ -66,6 +69,7 @@ public abstract class GameState extends ECS implements Disposable {
    * @param deltaTime the time since the last update in seconds
    */
   public final void update(float deltaTime) {
+    this.lastTickDeltaTime = deltaTime;
     this.executeSystems(this, false);
     this.updateState(deltaTime);
   }
@@ -76,4 +80,28 @@ public abstract class GameState extends ECS implements Disposable {
    * @param deltaTime the time since the last update in seconds
    */
   public void updateState(float deltaTime) {}
+
+  /**
+   * Get the last delta time of the last frame.
+   * @return the last delta time of the last frame in seconds
+   */
+  public float lastFrameDeltaTime() {
+    return this.lastFrameDeltaTime;
+  }
+
+  /**
+   * Get the last delta time of the last tick.
+   * @return the last delta time of the last tick in seconds
+   */
+  public float lastTickDeltaTime() {
+    return this.lastTickDeltaTime;
+  }
+
+  /**
+   * Get the game window.
+   * @return the game window
+   */
+  public GameWindow window() {
+    return this.window;
+  }
 }
