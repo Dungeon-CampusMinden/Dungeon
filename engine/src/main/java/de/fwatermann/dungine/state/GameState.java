@@ -49,7 +49,7 @@ public abstract class GameState extends ECS implements Disposable {
    * @param deltaTime the time since the last frame in seconds
    */
   public final void render(float deltaTime) {
-    this.executeSystems(true);
+    this.executeSystems(this, true);
     this.renderState(deltaTime);
   }
 
@@ -66,7 +66,7 @@ public abstract class GameState extends ECS implements Disposable {
    * @param deltaTime the time since the last update in seconds
    */
   public final void update(float deltaTime) {
-    this.executeSystems(false);
+    this.executeSystems(this, false);
     this.updateState(deltaTime);
   }
 
