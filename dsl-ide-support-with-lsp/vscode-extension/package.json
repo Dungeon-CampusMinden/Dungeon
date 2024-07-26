@@ -1,0 +1,71 @@
+{
+  "name": "dungeon-dsl-lsp",
+  "displayName": "Dungeon DSL LSP",
+  "description": "This extension provides language support following the Language Server Protocol (LSP) for the domain specific language (DSL) used in the Dungeon Project of the University of Applied Sciences and Arts Bielefeld (HSBI).",
+  "version": "0.0.1",
+  "publisher": "University of Applied Sciences and Arts Bielefeld (HSBI), Maximilian Kias",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dungeon-CampusMinden/dsl-ide-support-with-lsp"
+  },
+  "license": "MIT",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:dungeon-dsl"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "dungeon-dsl",
+        "aliases": [
+          "Dungeon-DSL",
+          "dungeon-dsl",
+          "dungeon-DSL"
+        ],
+        "extensions": [
+          ".dng"
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "dungeon-dsl-lsp.helloWorld",
+        "title": "Hello World"
+      }
+    ]
+  },
+  "configurationDefaults": {
+    "dungeon-dsl": {
+      "editor.semanticHighlighting.enabled": true
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.88.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "@vscode/test-cli": "^0.0.8",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.57.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  }
+}

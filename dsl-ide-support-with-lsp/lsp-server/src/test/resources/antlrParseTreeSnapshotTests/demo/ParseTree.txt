@@ -1,0 +1,537 @@
+Start: single_choice_tasksauerstoff{description:"Was ist die Hauptkomponente der Luft, die wir atmen?",answers:["Sauerstoff","Stickstoff","Kohlendioxid","Wasserstoff"],correct_answer_index:1}multiple_choice_taskkatzen{description:"Welche der folgenden Aussagen über Katzen sind wahr? (Mehrere Antworten möglich)",answers:["Katzen sind nachtaktive Tiere.","Katzen können Farben wie Rot und Grün erkennen.","Katzen haben eine hochentwickelte Geschmackssinn.","Katzen sind von Natur aus Allesfresser.","Katzen sind in der Lage zu schnurren."],correct_answer_indices:[0,1,4]}single_choice_taskplaneten{description:"Welcher Planet ist auch als roter Planet bekannt?",answers:["Erde","Neptun","Merkur","Mars"],correct_answer_index:3}multiple_choice_tasknumbers{description:"Welche der folgenden Zahlen sind Primzahlen? (Mehrere Antworten möglich)",answers:["7","12","15","23","30"],correct_answer_indices:[0,3]}single_choice_taskbit{description:"Aus wie vielen Megabyte besteht ein Gigabyte?",answers:["500","1200","1024","1000"],correct_answer_index:3}multiple_choice_taskgermany{description:"Welches sind Bundesländer von Deutschland? (Mehrere Antworten möglich)",answers:["Nordrhein-Westfalen","Mallorca","Berlin","Düsseldorf","Die Niederlande"],correct_answer_indices:[0,2]}assign_taskhardware{description:"Ordne die Komponenten der richtigen Kategorie zu",solution:<["Hardware","Central Processing Unit (CPU)"],["Hardware","Graphics Processing Unit (GPU)"],["Hardware","Random Access Memory (RAM)"],["Software","Betriebssystem"],["Software","Windows"],["Software","Powerpoint"],["Software","Mac OS"],["Peripherie","Maus"],["Peripherie","Bildschirm"],["Peripherie","Tastatur"]>}assign_taskanimals{description:"Ordne die Tiere den richtigen Kategorien zu.",solution:<["Saeugetiere","Elefant"],["Saeugetiere","Wolf"],["Saeugetiere","Giraffe"],["Reptilien","Leguan"],["Reptilien","Alligator"],["Reptilien","Schildkroete"],["Amphibien","Axolotl"],["Amphibien","Salamander"],[_,"Vogelspinne"]>}assign_taskcity{description:"Ordne die Städte den richtigen Ländern zu.",solution:<["Frankreich","Paris"],["Frankreich","Marseille"],["Frankreich","Lyon"],["Deutschland","Berlin"],["Deutschland","Muenchen"],["Deutschland","Hamburg"],["Italien","Rom"],["Italien","Mailand"],[_,"Valencia"]>}graphdemo_graph{sauerstoff->animals->planeten->hardware->numbers->city[type=seq];city->germany[type=c_f];animals->katzen[type=c_f];hardware->bit[type=c_f];}dungeon_configdemo{dependency_graph:demo_graph}<EOF>
+|- Task: single_choice_tasksauerstoff{description:"Was ist die Hauptkomponente der Luft, die wir atmen?",answers:["Sauerstoff","Stickstoff","Kohlendioxid","Wasserstoff"],correct_answer_index:1}
+|  L  Single_choice_task: single_choice_tasksauerstoff{description:"Was ist die Hauptkomponente der Luft, die wir atmen?",answers:["Sauerstoff","Stickstoff","Kohlendioxid","Wasserstoff"],correct_answer_index:1}
+|     |- single_choice_task
+|     |- Id_definition: sauerstoff
+|     |  L  sauerstoff
+|     |- {
+|     |- Single_choice_task_attribute: description:"Was ist die Hauptkomponente der Luft, die wir atmen?"
+|     |  L  Shared_task_attribute: description:"Was ist die Hauptkomponente der Luft, die wir atmen?"
+|     |     |- description
+|     |     |- :
+|     |     L  "Was ist die Hauptkomponente der Luft, die wir atmen?"
+|     |- ,
+|     |- Single_choice_task_attribute: answers:["Sauerstoff","Stickstoff","Kohlendioxid","Wasserstoff"]
+|     |  L  Shared_choice_tasks_attributes: answers:["Sauerstoff","Stickstoff","Kohlendioxid","Wasserstoff"]
+|     |     |- answers
+|     |     |- :
+|     |     L  String_list: ["Sauerstoff","Stickstoff","Kohlendioxid","Wasserstoff"]
+|     |        |- [
+|     |        |- "Sauerstoff"
+|     |        |- ,
+|     |        |- "Stickstoff"
+|     |        |- ,
+|     |        |- "Kohlendioxid"
+|     |        |- ,
+|     |        |- "Wasserstoff"
+|     |        L  ]
+|     |- ,
+|     |- Single_choice_task_attribute: correct_answer_index:1
+|     |  |- correct_answer_index
+|     |  |- :
+|     |  L  1
+|     L  }
+|- Task: multiple_choice_taskkatzen{description:"Welche der folgenden Aussagen über Katzen sind wahr? (Mehrere Antworten möglich)",answers:["Katzen sind nachtaktive Tiere.","Katzen können Farben wie Rot und Grün erkennen.","Katzen haben eine hochentwickelte Geschmackssinn.","Katzen sind von Natur aus Allesfresser.","Katzen sind in der Lage zu schnurren."],correct_answer_indices:[0,1,4]}
+|  L  Multiple_choice_task: multiple_choice_taskkatzen{description:"Welche der folgenden Aussagen über Katzen sind wahr? (Mehrere Antworten möglich)",answers:["Katzen sind nachtaktive Tiere.","Katzen können Farben wie Rot und Grün erkennen.","Katzen haben eine hochentwickelte Geschmackssinn.","Katzen sind von Natur aus Allesfresser.","Katzen sind in der Lage zu schnurren."],correct_answer_indices:[0,1,4]}
+|     |- multiple_choice_task
+|     |- Id_definition: katzen
+|     |  L  katzen
+|     |- {
+|     |- Multiple_choice_task_attribute: description:"Welche der folgenden Aussagen über Katzen sind wahr? (Mehrere Antworten möglich)"
+|     |  L  Shared_task_attribute: description:"Welche der folgenden Aussagen über Katzen sind wahr? (Mehrere Antworten möglich)"
+|     |     |- description
+|     |     |- :
+|     |     L  "Welche der folgenden Aussagen über Katzen sind wahr? (Mehrere Antworten möglich)"
+|     |- ,
+|     |- Multiple_choice_task_attribute: answers:["Katzen sind nachtaktive Tiere.","Katzen können Farben wie Rot und Grün erkennen.","Katzen haben eine hochentwickelte Geschmackssinn.","Katzen sind von Natur aus Allesfresser.","Katzen sind in der Lage zu schnurren."]
+|     |  L  Shared_choice_tasks_attributes: answers:["Katzen sind nachtaktive Tiere.","Katzen können Farben wie Rot und Grün erkennen.","Katzen haben eine hochentwickelte Geschmackssinn.","Katzen sind von Natur aus Allesfresser.","Katzen sind in der Lage zu schnurren."]
+|     |     |- answers
+|     |     |- :
+|     |     L  String_list: ["Katzen sind nachtaktive Tiere.","Katzen können Farben wie Rot und Grün erkennen.","Katzen haben eine hochentwickelte Geschmackssinn.","Katzen sind von Natur aus Allesfresser.","Katzen sind in der Lage zu schnurren."]
+|     |        |- [
+|     |        |- "Katzen sind nachtaktive Tiere."
+|     |        |- ,
+|     |        |- "Katzen können Farben wie Rot und Grün erkennen."
+|     |        |- ,
+|     |        |- "Katzen haben eine hochentwickelte Geschmackssinn."
+|     |        |- ,
+|     |        |- "Katzen sind von Natur aus Allesfresser."
+|     |        |- ,
+|     |        |- "Katzen sind in der Lage zu schnurren."
+|     |        L  ]
+|     |- ,
+|     |- Multiple_choice_task_attribute: correct_answer_indices:[0,1,4]
+|     |  |- correct_answer_indices
+|     |  |- :
+|     |  L  Int_list: [0,1,4]
+|     |     |- [
+|     |     |- 0
+|     |     |- ,
+|     |     |- 1
+|     |     |- ,
+|     |     |- 4
+|     |     L  ]
+|     L  }
+|- Task: single_choice_taskplaneten{description:"Welcher Planet ist auch als roter Planet bekannt?",answers:["Erde","Neptun","Merkur","Mars"],correct_answer_index:3}
+|  L  Single_choice_task: single_choice_taskplaneten{description:"Welcher Planet ist auch als roter Planet bekannt?",answers:["Erde","Neptun","Merkur","Mars"],correct_answer_index:3}
+|     |- single_choice_task
+|     |- Id_definition: planeten
+|     |  L  planeten
+|     |- {
+|     |- Single_choice_task_attribute: description:"Welcher Planet ist auch als roter Planet bekannt?"
+|     |  L  Shared_task_attribute: description:"Welcher Planet ist auch als roter Planet bekannt?"
+|     |     |- description
+|     |     |- :
+|     |     L  "Welcher Planet ist auch als roter Planet bekannt?"
+|     |- ,
+|     |- Single_choice_task_attribute: answers:["Erde","Neptun","Merkur","Mars"]
+|     |  L  Shared_choice_tasks_attributes: answers:["Erde","Neptun","Merkur","Mars"]
+|     |     |- answers
+|     |     |- :
+|     |     L  String_list: ["Erde","Neptun","Merkur","Mars"]
+|     |        |- [
+|     |        |- "Erde"
+|     |        |- ,
+|     |        |- "Neptun"
+|     |        |- ,
+|     |        |- "Merkur"
+|     |        |- ,
+|     |        |- "Mars"
+|     |        L  ]
+|     |- ,
+|     |- Single_choice_task_attribute: correct_answer_index:3
+|     |  |- correct_answer_index
+|     |  |- :
+|     |  L  3
+|     L  }
+|- Task: multiple_choice_tasknumbers{description:"Welche der folgenden Zahlen sind Primzahlen? (Mehrere Antworten möglich)",answers:["7","12","15","23","30"],correct_answer_indices:[0,3]}
+|  L  Multiple_choice_task: multiple_choice_tasknumbers{description:"Welche der folgenden Zahlen sind Primzahlen? (Mehrere Antworten möglich)",answers:["7","12","15","23","30"],correct_answer_indices:[0,3]}
+|     |- multiple_choice_task
+|     |- Id_definition: numbers
+|     |  L  numbers
+|     |- {
+|     |- Multiple_choice_task_attribute: description:"Welche der folgenden Zahlen sind Primzahlen? (Mehrere Antworten möglich)"
+|     |  L  Shared_task_attribute: description:"Welche der folgenden Zahlen sind Primzahlen? (Mehrere Antworten möglich)"
+|     |     |- description
+|     |     |- :
+|     |     L  "Welche der folgenden Zahlen sind Primzahlen? (Mehrere Antworten möglich)"
+|     |- ,
+|     |- Multiple_choice_task_attribute: answers:["7","12","15","23","30"]
+|     |  L  Shared_choice_tasks_attributes: answers:["7","12","15","23","30"]
+|     |     |- answers
+|     |     |- :
+|     |     L  String_list: ["7","12","15","23","30"]
+|     |        |- [
+|     |        |- "7"
+|     |        |- ,
+|     |        |- "12"
+|     |        |- ,
+|     |        |- "15"
+|     |        |- ,
+|     |        |- "23"
+|     |        |- ,
+|     |        |- "30"
+|     |        L  ]
+|     |- ,
+|     |- Multiple_choice_task_attribute: correct_answer_indices:[0,3]
+|     |  |- correct_answer_indices
+|     |  |- :
+|     |  L  Int_list: [0,3]
+|     |     |- [
+|     |     |- 0
+|     |     |- ,
+|     |     |- 3
+|     |     L  ]
+|     L  }
+|- Task: single_choice_taskbit{description:"Aus wie vielen Megabyte besteht ein Gigabyte?",answers:["500","1200","1024","1000"],correct_answer_index:3}
+|  L  Single_choice_task: single_choice_taskbit{description:"Aus wie vielen Megabyte besteht ein Gigabyte?",answers:["500","1200","1024","1000"],correct_answer_index:3}
+|     |- single_choice_task
+|     |- Id_definition: bit
+|     |  L  bit
+|     |- {
+|     |- Single_choice_task_attribute: description:"Aus wie vielen Megabyte besteht ein Gigabyte?"
+|     |  L  Shared_task_attribute: description:"Aus wie vielen Megabyte besteht ein Gigabyte?"
+|     |     |- description
+|     |     |- :
+|     |     L  "Aus wie vielen Megabyte besteht ein Gigabyte?"
+|     |- ,
+|     |- Single_choice_task_attribute: answers:["500","1200","1024","1000"]
+|     |  L  Shared_choice_tasks_attributes: answers:["500","1200","1024","1000"]
+|     |     |- answers
+|     |     |- :
+|     |     L  String_list: ["500","1200","1024","1000"]
+|     |        |- [
+|     |        |- "500"
+|     |        |- ,
+|     |        |- "1200"
+|     |        |- ,
+|     |        |- "1024"
+|     |        |- ,
+|     |        |- "1000"
+|     |        L  ]
+|     |- ,
+|     |- Single_choice_task_attribute: correct_answer_index:3
+|     |  |- correct_answer_index
+|     |  |- :
+|     |  L  3
+|     L  }
+|- Task: multiple_choice_taskgermany{description:"Welches sind Bundesländer von Deutschland? (Mehrere Antworten möglich)",answers:["Nordrhein-Westfalen","Mallorca","Berlin","Düsseldorf","Die Niederlande"],correct_answer_indices:[0,2]}
+|  L  Multiple_choice_task: multiple_choice_taskgermany{description:"Welches sind Bundesländer von Deutschland? (Mehrere Antworten möglich)",answers:["Nordrhein-Westfalen","Mallorca","Berlin","Düsseldorf","Die Niederlande"],correct_answer_indices:[0,2]}
+|     |- multiple_choice_task
+|     |- Id_definition: germany
+|     |  L  germany
+|     |- {
+|     |- Multiple_choice_task_attribute: description:"Welches sind Bundesländer von Deutschland? (Mehrere Antworten möglich)"
+|     |  L  Shared_task_attribute: description:"Welches sind Bundesländer von Deutschland? (Mehrere Antworten möglich)"
+|     |     |- description
+|     |     |- :
+|     |     L  "Welches sind Bundesländer von Deutschland? (Mehrere Antworten möglich)"
+|     |- ,
+|     |- Multiple_choice_task_attribute: answers:["Nordrhein-Westfalen","Mallorca","Berlin","Düsseldorf","Die Niederlande"]
+|     |  L  Shared_choice_tasks_attributes: answers:["Nordrhein-Westfalen","Mallorca","Berlin","Düsseldorf","Die Niederlande"]
+|     |     |- answers
+|     |     |- :
+|     |     L  String_list: ["Nordrhein-Westfalen","Mallorca","Berlin","Düsseldorf","Die Niederlande"]
+|     |        |- [
+|     |        |- "Nordrhein-Westfalen"
+|     |        |- ,
+|     |        |- "Mallorca"
+|     |        |- ,
+|     |        |- "Berlin"
+|     |        |- ,
+|     |        |- "Düsseldorf"
+|     |        |- ,
+|     |        |- "Die Niederlande"
+|     |        L  ]
+|     |- ,
+|     |- Multiple_choice_task_attribute: correct_answer_indices:[0,2]
+|     |  |- correct_answer_indices
+|     |  |- :
+|     |  L  Int_list: [0,2]
+|     |     |- [
+|     |     |- 0
+|     |     |- ,
+|     |     |- 2
+|     |     L  ]
+|     L  }
+|- Task: assign_taskhardware{description:"Ordne die Komponenten der richtigen Kategorie zu",solution:<["Hardware","Central Processing Unit (CPU)"],["Hardware","Graphics Processing Unit (GPU)"],["Hardware","Random Access Memory (RAM)"],["Software","Betriebssystem"],["Software","Windows"],["Software","Powerpoint"],["Software","Mac OS"],["Peripherie","Maus"],["Peripherie","Bildschirm"],["Peripherie","Tastatur"]>}
+|  L  Assign_task: assign_taskhardware{description:"Ordne die Komponenten der richtigen Kategorie zu",solution:<["Hardware","Central Processing Unit (CPU)"],["Hardware","Graphics Processing Unit (GPU)"],["Hardware","Random Access Memory (RAM)"],["Software","Betriebssystem"],["Software","Windows"],["Software","Powerpoint"],["Software","Mac OS"],["Peripherie","Maus"],["Peripherie","Bildschirm"],["Peripherie","Tastatur"]>}
+|     |- assign_task
+|     |- Id_definition: hardware
+|     |  L  hardware
+|     |- {
+|     |- Assign_task_attribute: description:"Ordne die Komponenten der richtigen Kategorie zu"
+|     |  L  Shared_task_attribute: description:"Ordne die Komponenten der richtigen Kategorie zu"
+|     |     |- description
+|     |     |- :
+|     |     L  "Ordne die Komponenten der richtigen Kategorie zu"
+|     |- ,
+|     |- Assign_task_attribute: solution:<["Hardware","Central Processing Unit (CPU)"],["Hardware","Graphics Processing Unit (GPU)"],["Hardware","Random Access Memory (RAM)"],["Software","Betriebssystem"],["Software","Windows"],["Software","Powerpoint"],["Software","Mac OS"],["Peripherie","Maus"],["Peripherie","Bildschirm"],["Peripherie","Tastatur"]>
+|     |  |- solution
+|     |  |- :
+|     |  L  Set: <["Hardware","Central Processing Unit (CPU)"],["Hardware","Graphics Processing Unit (GPU)"],["Hardware","Random Access Memory (RAM)"],["Software","Betriebssystem"],["Software","Windows"],["Software","Powerpoint"],["Software","Mac OS"],["Peripherie","Maus"],["Peripherie","Bildschirm"],["Peripherie","Tastatur"]>
+|     |     |- <
+|     |     |- Set_element: ["Hardware","Central Processing Unit (CPU)"]
+|     |     |  |- [
+|     |     |  |- "Hardware"
+|     |     |  |- ,
+|     |     |  |- "Central Processing Unit (CPU)"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Hardware","Graphics Processing Unit (GPU)"]
+|     |     |  |- [
+|     |     |  |- "Hardware"
+|     |     |  |- ,
+|     |     |  |- "Graphics Processing Unit (GPU)"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Hardware","Random Access Memory (RAM)"]
+|     |     |  |- [
+|     |     |  |- "Hardware"
+|     |     |  |- ,
+|     |     |  |- "Random Access Memory (RAM)"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Software","Betriebssystem"]
+|     |     |  |- [
+|     |     |  |- "Software"
+|     |     |  |- ,
+|     |     |  |- "Betriebssystem"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Software","Windows"]
+|     |     |  |- [
+|     |     |  |- "Software"
+|     |     |  |- ,
+|     |     |  |- "Windows"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Software","Powerpoint"]
+|     |     |  |- [
+|     |     |  |- "Software"
+|     |     |  |- ,
+|     |     |  |- "Powerpoint"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Software","Mac OS"]
+|     |     |  |- [
+|     |     |  |- "Software"
+|     |     |  |- ,
+|     |     |  |- "Mac OS"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Peripherie","Maus"]
+|     |     |  |- [
+|     |     |  |- "Peripherie"
+|     |     |  |- ,
+|     |     |  |- "Maus"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Peripherie","Bildschirm"]
+|     |     |  |- [
+|     |     |  |- "Peripherie"
+|     |     |  |- ,
+|     |     |  |- "Bildschirm"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Peripherie","Tastatur"]
+|     |     |  |- [
+|     |     |  |- "Peripherie"
+|     |     |  |- ,
+|     |     |  |- "Tastatur"
+|     |     |  L  ]
+|     |     L  >
+|     L  }
+|- Task: assign_taskanimals{description:"Ordne die Tiere den richtigen Kategorien zu.",solution:<["Saeugetiere","Elefant"],["Saeugetiere","Wolf"],["Saeugetiere","Giraffe"],["Reptilien","Leguan"],["Reptilien","Alligator"],["Reptilien","Schildkroete"],["Amphibien","Axolotl"],["Amphibien","Salamander"],[_,"Vogelspinne"]>}
+|  L  Assign_task: assign_taskanimals{description:"Ordne die Tiere den richtigen Kategorien zu.",solution:<["Saeugetiere","Elefant"],["Saeugetiere","Wolf"],["Saeugetiere","Giraffe"],["Reptilien","Leguan"],["Reptilien","Alligator"],["Reptilien","Schildkroete"],["Amphibien","Axolotl"],["Amphibien","Salamander"],[_,"Vogelspinne"]>}
+|     |- assign_task
+|     |- Id_definition: animals
+|     |  L  animals
+|     |- {
+|     |- Assign_task_attribute: description:"Ordne die Tiere den richtigen Kategorien zu."
+|     |  L  Shared_task_attribute: description:"Ordne die Tiere den richtigen Kategorien zu."
+|     |     |- description
+|     |     |- :
+|     |     L  "Ordne die Tiere den richtigen Kategorien zu."
+|     |- ,
+|     |- Assign_task_attribute: solution:<["Saeugetiere","Elefant"],["Saeugetiere","Wolf"],["Saeugetiere","Giraffe"],["Reptilien","Leguan"],["Reptilien","Alligator"],["Reptilien","Schildkroete"],["Amphibien","Axolotl"],["Amphibien","Salamander"],[_,"Vogelspinne"]>
+|     |  |- solution
+|     |  |- :
+|     |  L  Set: <["Saeugetiere","Elefant"],["Saeugetiere","Wolf"],["Saeugetiere","Giraffe"],["Reptilien","Leguan"],["Reptilien","Alligator"],["Reptilien","Schildkroete"],["Amphibien","Axolotl"],["Amphibien","Salamander"],[_,"Vogelspinne"]>
+|     |     |- <
+|     |     |- Set_element: ["Saeugetiere","Elefant"]
+|     |     |  |- [
+|     |     |  |- "Saeugetiere"
+|     |     |  |- ,
+|     |     |  |- "Elefant"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Saeugetiere","Wolf"]
+|     |     |  |- [
+|     |     |  |- "Saeugetiere"
+|     |     |  |- ,
+|     |     |  |- "Wolf"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Saeugetiere","Giraffe"]
+|     |     |  |- [
+|     |     |  |- "Saeugetiere"
+|     |     |  |- ,
+|     |     |  |- "Giraffe"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Reptilien","Leguan"]
+|     |     |  |- [
+|     |     |  |- "Reptilien"
+|     |     |  |- ,
+|     |     |  |- "Leguan"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Reptilien","Alligator"]
+|     |     |  |- [
+|     |     |  |- "Reptilien"
+|     |     |  |- ,
+|     |     |  |- "Alligator"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Reptilien","Schildkroete"]
+|     |     |  |- [
+|     |     |  |- "Reptilien"
+|     |     |  |- ,
+|     |     |  |- "Schildkroete"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Amphibien","Axolotl"]
+|     |     |  |- [
+|     |     |  |- "Amphibien"
+|     |     |  |- ,
+|     |     |  |- "Axolotl"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Amphibien","Salamander"]
+|     |     |  |- [
+|     |     |  |- "Amphibien"
+|     |     |  |- ,
+|     |     |  |- "Salamander"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: [_,"Vogelspinne"]
+|     |     |  |- [
+|     |     |  |- _
+|     |     |  |- ,
+|     |     |  |- "Vogelspinne"
+|     |     |  L  ]
+|     |     L  >
+|     L  }
+|- Task: assign_taskcity{description:"Ordne die Städte den richtigen Ländern zu.",solution:<["Frankreich","Paris"],["Frankreich","Marseille"],["Frankreich","Lyon"],["Deutschland","Berlin"],["Deutschland","Muenchen"],["Deutschland","Hamburg"],["Italien","Rom"],["Italien","Mailand"],[_,"Valencia"]>}
+|  L  Assign_task: assign_taskcity{description:"Ordne die Städte den richtigen Ländern zu.",solution:<["Frankreich","Paris"],["Frankreich","Marseille"],["Frankreich","Lyon"],["Deutschland","Berlin"],["Deutschland","Muenchen"],["Deutschland","Hamburg"],["Italien","Rom"],["Italien","Mailand"],[_,"Valencia"]>}
+|     |- assign_task
+|     |- Id_definition: city
+|     |  L  city
+|     |- {
+|     |- Assign_task_attribute: description:"Ordne die Städte den richtigen Ländern zu."
+|     |  L  Shared_task_attribute: description:"Ordne die Städte den richtigen Ländern zu."
+|     |     |- description
+|     |     |- :
+|     |     L  "Ordne die Städte den richtigen Ländern zu."
+|     |- ,
+|     |- Assign_task_attribute: solution:<["Frankreich","Paris"],["Frankreich","Marseille"],["Frankreich","Lyon"],["Deutschland","Berlin"],["Deutschland","Muenchen"],["Deutschland","Hamburg"],["Italien","Rom"],["Italien","Mailand"],[_,"Valencia"]>
+|     |  |- solution
+|     |  |- :
+|     |  L  Set: <["Frankreich","Paris"],["Frankreich","Marseille"],["Frankreich","Lyon"],["Deutschland","Berlin"],["Deutschland","Muenchen"],["Deutschland","Hamburg"],["Italien","Rom"],["Italien","Mailand"],[_,"Valencia"]>
+|     |     |- <
+|     |     |- Set_element: ["Frankreich","Paris"]
+|     |     |  |- [
+|     |     |  |- "Frankreich"
+|     |     |  |- ,
+|     |     |  |- "Paris"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Frankreich","Marseille"]
+|     |     |  |- [
+|     |     |  |- "Frankreich"
+|     |     |  |- ,
+|     |     |  |- "Marseille"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Frankreich","Lyon"]
+|     |     |  |- [
+|     |     |  |- "Frankreich"
+|     |     |  |- ,
+|     |     |  |- "Lyon"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Deutschland","Berlin"]
+|     |     |  |- [
+|     |     |  |- "Deutschland"
+|     |     |  |- ,
+|     |     |  |- "Berlin"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Deutschland","Muenchen"]
+|     |     |  |- [
+|     |     |  |- "Deutschland"
+|     |     |  |- ,
+|     |     |  |- "Muenchen"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Deutschland","Hamburg"]
+|     |     |  |- [
+|     |     |  |- "Deutschland"
+|     |     |  |- ,
+|     |     |  |- "Hamburg"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Italien","Rom"]
+|     |     |  |- [
+|     |     |  |- "Italien"
+|     |     |  |- ,
+|     |     |  |- "Rom"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: ["Italien","Mailand"]
+|     |     |  |- [
+|     |     |  |- "Italien"
+|     |     |  |- ,
+|     |     |  |- "Mailand"
+|     |     |  L  ]
+|     |     |- ,
+|     |     |- Set_element: [_,"Valencia"]
+|     |     |  |- [
+|     |     |  |- _
+|     |     |  |- ,
+|     |     |  |- "Valencia"
+|     |     |  L  ]
+|     |     L  >
+|     L  }
+|- Task: graphdemo_graph{sauerstoff->animals->planeten->hardware->numbers->city[type=seq];city->germany[type=c_f];animals->katzen[type=c_f];hardware->bit[type=c_f];}
+|  L  Graph: graphdemo_graph{sauerstoff->animals->planeten->hardware->numbers->city[type=seq];city->germany[type=c_f];animals->katzen[type=c_f];hardware->bit[type=c_f];}
+|     |- graph
+|     |- Id_definition: demo_graph
+|     |  L  demo_graph
+|     |- {
+|     |- Task_dependency: sauerstoff->animals->planeten->hardware->numbers->city[type=seq];
+|     |  |- Id_usage: sauerstoff
+|     |  |  L  sauerstoff
+|     |  |- ->
+|     |  |- Id_usage: animals
+|     |  |  L  animals
+|     |  |- ->
+|     |  |- Id_usage: planeten
+|     |  |  L  planeten
+|     |  |- ->
+|     |  |- Id_usage: hardware
+|     |  |  L  hardware
+|     |  |- ->
+|     |  |- Id_usage: numbers
+|     |  |  L  numbers
+|     |  |- ->
+|     |  |- Id_usage: city
+|     |  |  L  city
+|     |  |- [type=
+|     |  |- Task_dependency_type: seq
+|     |  |  L  seq
+|     |  L  ];
+|     |- Task_dependency: city->germany[type=c_f];
+|     |  |- Id_usage: city
+|     |  |  L  city
+|     |  |- ->
+|     |  |- Id_usage: germany
+|     |  |  L  germany
+|     |  |- [type=
+|     |  |- Task_dependency_type: c_f
+|     |  |  L  c_f
+|     |  L  ];
+|     |- Task_dependency: animals->katzen[type=c_f];
+|     |  |- Id_usage: animals
+|     |  |  L  animals
+|     |  |- ->
+|     |  |- Id_usage: katzen
+|     |  |  L  katzen
+|     |  |- [type=
+|     |  |- Task_dependency_type: c_f
+|     |  |  L  c_f
+|     |  L  ];
+|     |- Task_dependency: hardware->bit[type=c_f];
+|     |  |- Id_usage: hardware
+|     |  |  L  hardware
+|     |  |- ->
+|     |  |- Id_usage: bit
+|     |  |  L  bit
+|     |  |- [type=
+|     |  |- Task_dependency_type: c_f
+|     |  |  L  c_f
+|     |  L  ];
+|     L  }
+|- Task: dungeon_configdemo{dependency_graph:demo_graph}
+|  L  Dungeon_config: dungeon_configdemo{dependency_graph:demo_graph}
+|     |- dungeon_config
+|     |- Id_definition_only_used_by_dungeon_system: demo
+|     |  L  demo
+|     |- {
+|     |- dependency_graph
+|     |- :
+|     |- Id_usage: demo_graph
+|     |  L  demo_graph
+|     L  }
+L  <EOF>
