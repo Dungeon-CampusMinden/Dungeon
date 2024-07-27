@@ -47,15 +47,15 @@ public class Item implements CraftingIngredient, CraftingResult {
    * <p>The keys in the map are the simple names of the classes (e.g. "ItemBookRed"), and the values
    * are the corresponding class objects.
    */
-  private static final Map<String, Class<? extends Item>> ITEMS = new HashMap<>();
+  private static final Map<String, Class<? extends Item>> REGISTERED_ITEMS = new HashMap<>();
 
   static {
-    ITEMS.put(ItemDefault.class.getSimpleName(), ItemDefault.class);
-    ITEMS.put(ItemPotionHealth.class.getSimpleName(), ItemPotionHealth.class);
-    ITEMS.put(ItemPotionWater.class.getSimpleName(), ItemPotionWater.class);
-    ITEMS.put(ItemResourceBerry.class.getSimpleName(), ItemResourceBerry.class);
-    ITEMS.put(ItemResourceEgg.class.getSimpleName(), ItemResourceEgg.class);
-    ITEMS.put(ItemResourceMushroomRed.class.getSimpleName(), ItemResourceMushroomRed.class);
+    registerItem(ItemDefault.class);
+    registerItem(ItemPotionHealth.class);
+    registerItem(ItemPotionWater.class);
+    registerItem(ItemResourceBerry.class);
+    registerItem(ItemResourceEgg.class);
+    registerItem(ItemResourceMushroomRed.class);
   }
 
   private String displayName;
@@ -132,17 +132,45 @@ public class Item implements CraftingIngredient, CraftingResult {
   }
 
   /**
-   * Get the class name of the specific item.
+   * Register an item. This is used to associate the simple name of the class with the class object
+   * in the {@link #REGISTERED_ITEMS} map.
    *
-   * @param id WTF? .
-   * @return The class name of the specific item.
+   * <p>When a new item is created, it should be registered using this method.
+   *
+   * @param clazz The class of the item to register.
    */
-  public static Class<? extends Item> getItem(final String id) {
-    return ITEMS.get(id);
+  public static void registerItem(final Class<? extends Item> clazz) {
+    REGISTERED_ITEMS.put(clazz.getSimpleName(), clazz);
   }
 
-  protected static boolean isRegistered(final Class<? extends Item> clazz) {
-    return ITEMS.containsValue(clazz);
+  /**
+   * Get all registered items.
+   *
+   * <p>This method is used to get all registered items. It returns a map where the keys are the
+   * simple names of the classes (e.g. {@link ItemResourceBerry}), and the values are the
+   * corresponding class objects.
+   *
+   * @return A map of all registered items.
+   */
+  public static Map<String, Class<? extends Item>> registeredItems() {
+    return REGISTERED_ITEMS;
+  }
+
+  /**
+   * Get an item by its identifier.
+   *
+   * <p>This method is used to get an item by its identifier. The identifier is the simple name of
+   * the class (e.g. "ItemResourceBerry").
+   *
+   * @param id The identifier of the item.
+   * @return The class of the item with the given identifier.
+   */
+  public static Class<? extends Item> getItem(final String id) {
+    return REGISTERED_ITEMS.get(id);
+  }
+
+  private static boolean isRegistered(final Class<? extends Item> clazz) {
+    return REGISTERED_ITEMS.containsValue(clazz);
   }
 
   /**

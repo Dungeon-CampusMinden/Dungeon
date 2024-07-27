@@ -51,6 +51,14 @@ public final class MonsterFactory {
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   /**
+   * The {@link ItemGenerator} used to generate random items for monsters upon death.
+   *
+   * @see ItemGenerator
+   * @see ItemGenerator#defaultItemGenerator()
+   */
+  public static ItemGenerator randomItemGenerator = ItemGenerator.defaultItemGenerator();
+
+  /**
    * Get an Entity that can be used as a monster.
    *
    * <p>The Entity is not added to the game yet.
@@ -165,7 +173,7 @@ public final class MonsterFactory {
     monster.add(ic);
     // rolls a dice for item chance (itemChance == 0  no item, 1.0 always)
     if (RANDOM.nextFloat() < itemChance) {
-      Item item = ItemGenerator.generateItemData();
+      Item item = randomItemGenerator.generateItemData();
       ic.add(item);
     }
     BiConsumer<Entity, Entity> onDeath =

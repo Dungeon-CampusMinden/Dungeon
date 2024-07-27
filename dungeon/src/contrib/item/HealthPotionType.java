@@ -40,4 +40,30 @@ public enum HealthPotionType {
     String name = this.name();
     return name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
   }
+
+  /**
+   * Generates a random health potion type based on the following weights.
+   *
+   * <ul>
+   *   <li>75%: HealthPotionType.WEAK
+   *   <li>20%: HealthPotionType.NORMAL
+   *   <li>5%: HealthPotionType.GREATER
+   * </ul>
+   *
+   * @return A randomly selected health potion type
+   */
+  public static HealthPotionType randomType() {
+    HealthPotionType[] types = HealthPotionType.values();
+    float[] chances = {0.75f, 0.20f, 0.05f}; // 75%, 20%, 5%
+    float randomValue = Item.RANDOM.nextFloat();
+
+    for (int i = 0; i < chances.length; i++) {
+      if (randomValue < chances[i]) {
+        return types[i];
+      }
+      randomValue -= chances[i];
+    }
+
+    return types[types.length - 1];
+  }
 }
