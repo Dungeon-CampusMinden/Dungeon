@@ -50,13 +50,7 @@ public final class MonsterFactory {
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
-  /**
-   * The {@link ItemGenerator} used to generate random items for monsters upon death.
-   *
-   * @see ItemGenerator
-   * @see ItemGenerator#defaultItemGenerator()
-   */
-  public static ItemGenerator randomItemGenerator = ItemGenerator.defaultItemGenerator();
+  private static ItemGenerator randomItemGenerator = ItemGenerator.defaultItemGenerator();
 
   /**
    * Get an Entity that can be used as a monster.
@@ -103,6 +97,28 @@ public final class MonsterFactory {
         MONSTER_COLLIDE_DAMAGE,
         MONSTER_COLLIDE_COOL_DOWN,
         randomMonsterIdleSound());
+  }
+
+  /**
+   * Sets the ItemGenerator used to generate random items for monsters upon death.
+   *
+   * @param randomItemGenerator The ItemGenerator to use for generating random items.
+   * @see ItemGenerator
+   */
+  public static void randomItemGenerator(ItemGenerator randomItemGenerator) {
+    MonsterFactory.randomItemGenerator = randomItemGenerator;
+  }
+
+  /**
+   * Gets the ItemGenerator used to generate random items for monsters upon death.
+   *
+   * <p>The default ItemGenerator is {@link ItemGenerator#defaultItemGenerator()}.
+   *
+   * @return The current ItemGenerator used for generating random items.
+   * @see ItemGenerator
+   */
+  public static ItemGenerator randomItemGenerator() {
+    return randomItemGenerator;
   }
 
   private static Sound randomMonsterDeathSound() {
