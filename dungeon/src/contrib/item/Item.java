@@ -144,16 +144,16 @@ public class Item implements CraftingIngredient, CraftingResult {
   }
 
   /**
-   * Get all registered items.
+   * Get a copy of the registered items.
    *
-   * <p>This method is used to get all registered items. It returns a map where the keys are the
+   * <p>This method is used a copy of all registered items. It returns a map where the keys are the
    * simple names of the classes (e.g. {@link ItemResourceBerry}), and the values are the
    * corresponding class objects.
    *
-   * @return A map of all registered items.
+   * @return A copy of the registered items.
    */
   public static Map<String, Class<? extends Item>> registeredItems() {
-    return REGISTERED_ITEMS;
+    return new HashMap<>(REGISTERED_ITEMS);
   }
 
   /**
