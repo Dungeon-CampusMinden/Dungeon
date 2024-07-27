@@ -53,17 +53,9 @@ public enum HealthPotionType {
    * @return A randomly selected health potion type
    */
   public static HealthPotionType randomType() {
-    HealthPotionType[] types = HealthPotionType.values();
-    float[] chances = {0.75f, 0.20f, 0.05f}; // 75%, 20%, 5%
     float randomValue = Item.RANDOM.nextFloat();
-
-    for (int i = 0; i < chances.length; i++) {
-      if (randomValue < chances[i]) {
-        return types[i];
-      }
-      randomValue -= chances[i];
-    }
-
-    return types[types.length - 1];
+    if (randomValue < 0.75f) return WEAK;
+    if (randomValue < 0.95f) return NORMAL;
+    return GREATER;
   }
 }
