@@ -91,7 +91,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    * </ul>
    */
   public CameraPerspective() {
-    this(80.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+    this(80.0f, 16.0f / 9.0f, 0.01f, 100.0f);
   }
 
   @Override
