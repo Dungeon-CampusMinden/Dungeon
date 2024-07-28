@@ -50,6 +50,8 @@ public final class MonsterFactory {
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
+  private static ItemGenerator randomItemGenerator = ItemGenerator.defaultItemGenerator();
+
   /**
    * Get an Entity that can be used as a monster.
    *
@@ -95,6 +97,28 @@ public final class MonsterFactory {
         MONSTER_COLLIDE_DAMAGE,
         MONSTER_COLLIDE_COOL_DOWN,
         randomMonsterIdleSound());
+  }
+
+  /**
+   * Sets the ItemGenerator used to generate random items for monsters upon death.
+   *
+   * @param randomItemGenerator The ItemGenerator to use for generating random items.
+   * @see ItemGenerator
+   */
+  public static void randomItemGenerator(ItemGenerator randomItemGenerator) {
+    MonsterFactory.randomItemGenerator = randomItemGenerator;
+  }
+
+  /**
+   * Gets the ItemGenerator used to generate random items for monsters upon death.
+   *
+   * <p>The default ItemGenerator is {@link ItemGenerator#defaultItemGenerator()}.
+   *
+   * @return The current ItemGenerator used for generating random items.
+   * @see ItemGenerator
+   */
+  public static ItemGenerator randomItemGenerator() {
+    return randomItemGenerator;
   }
 
   private static Sound randomMonsterDeathSound() {
@@ -165,7 +189,7 @@ public final class MonsterFactory {
     monster.add(ic);
     // rolls a dice for item chance (itemChance == 0  no item, 1.0 always)
     if (RANDOM.nextFloat() < itemChance) {
-      Item item = ItemGenerator.generateItemData();
+      Item item = randomItemGenerator.generateItemData();
       ic.add(item);
     }
     BiConsumer<Entity, Entity> onDeath =
