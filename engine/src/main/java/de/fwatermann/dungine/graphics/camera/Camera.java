@@ -18,32 +18,27 @@ public abstract class Camera<T extends Camera<T>> {
 
   protected Matrix4f viewMatrix = new Matrix4f();
   protected Matrix4f projectionMatrix = new Matrix4f();
-  protected Vector3f up, position, right, front;
+  protected Vector3f up, right, front;
+  protected Vector3f position;
+  protected Quaternionf rotation = new Quaternionf();
 
-  protected final Vector3f initFront;
-  protected final Vector3f initUp;
-  protected final Vector3f initRight;
-
-  protected boolean updateOnChange = false;
+  protected boolean updateOnChange;
 
   /**
    * Constructs a new Camera instance.
    *
    * @param position The initial position of the camera.
-   * @param front The initial front vector of the camera, indicating the direction it is facing.
-   * @param up The initial up vector of the camera.
    * @param updateOnChange If true, the camera will automatically update its view matrix when its
    *     state changes.
    */
   public Camera(Vector3f position, boolean updateOnChange) {
     this.position = position;
     this.front = new Vector3f(0, 0, -1);
-    this.initFront = new Vector3f(this.front).normalize();
-    this.up = new Vector3f(0, 1.0f, 0.0f);
-    this.initUp = new Vector3f(this.up).normalize();
+    this.up = new Vector3f(0, 1, 0);
     this.right = this.front.cross(this.up, new Vector3f()).normalize();
-    this.initRight = new Vector3f(this.right).normalize();
     this.updateOnChange = updateOnChange;
+    this.updateVectors();
+    this.updateMatrices(false);
   }
 
   /**
@@ -72,10 +67,15 @@ public abstract class Camera<T extends Camera<T>> {
    */
   protected void updateMatrices(boolean force) {
     if (!force && !this.updateOnChange) return;
-    this.viewMatrix.setLookAt(
-        this.position, this.position.add(this.front, new Vector3f()), this.up);
+    this.viewMatrix.setLookAt(this.position, this.position.add(this.front, new Vector3f()), this.up);
     this.projectionMatrix = this.calcProjectionMatrix(this.projectionMatrix);
     this.onUpdate();
+  }
+
+  protected void updateVectors() {
+    this.front.set(0, 0, -1).rotate(this.rotation);
+    this.up.set(0, 1, 0).rotate(this.rotation);
+    this.right.set(this.front).cross(this.up);
   }
 
   /**
@@ -204,15 +204,14 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T lookAt(Vector3f target) {
-    Quaternionf quat = new Quaternionf();
-    quat.rotateTo(this.front, target.sub(this.position, new Vector3f()));
-    quat.normalize();
+    this.front.set(target).sub(this.position).normalize();
+    this.right.set(this.front).cross(new Vector3f(0, 1, 0)).normalize();
+    this.up.set(this.right).cross(this.front).normalize();
 
-    this.initFront.rotate(quat, this.front);
-    this.initUp.rotate(quat, this.up);
-    this.initRight.rotate(quat, this.right);
+    this.rotation = new Quaternionf().lookAlong(this.front, this.up);
 
     this.updateMatrices(false);
+    LOGGER.debug("Front: {} Up: {} Right: {}", this.front, this.up, this.right);
     return (T) this;
   }
 
@@ -237,11 +236,8 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T rotate(Quaternionf rotation) {
-    Quaternionf quat = rotation.normalize(new Quaternionf());
-    this.front.rotate(quat);
-    this.up.rotate(quat);
-    this.right.rotate(quat);
-
+    this.rotation.mul(rotation).normalize();
+    this.updateVectors();
     this.updateMatrices(false);
     return (T) this;
   }
@@ -255,14 +251,9 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T rotate(float angle, Vector3f axis) {
-    Quaternionf quat = new Quaternionf();
-    quat.setAngleAxis(angle, axis.x, axis.y, axis.z);
-    quat.normalize();
-
-    this.front.rotate(quat);
-    this.up.rotate(quat);
-    this.right.rotate(quat);
-
+    axis.normalize();
+    this.rotation.mul(new Quaternionf().setAngleAxis(angle, axis.x, axis.y, axis.z)).normalize();
+    this.updateVectors();
     this.updateMatrices(false);
     return (T) this;
   }
@@ -275,13 +266,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T rotation(Quaternionf rotation) {
-    Quaternionf quat = new Quaternionf(rotation);
-    quat.normalize();
-
-    this.initFront.rotate(quat, this.front);
-    this.initUp.rotate(quat, this.up);
-    this.initRight.rotate(quat, this.right);
-
+    this.rotation = rotation.normalize(new Quaternionf());
     this.updateMatrices(false);
     return (T) this;
   }
@@ -295,14 +280,8 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T rotation(float angle, Vector3f axis) {
-    Quaternionf quat = new Quaternionf();
-    quat.setAngleAxis(angle, axis.x, axis.y, axis.z);
-    quat.normalize();
-
-    this.initFront.rotate(quat, this.front);
-    this.initUp.rotate(quat, this.up);
-    this.initRight.rotate(quat, this.right);
-
+    axis.normalize();
+    this.rotation = this.rotation.setAngleAxis(angle, axis.x, axis.y, axis.z);
     this.updateMatrices(false);
     return (T) this;
   }
@@ -314,9 +293,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return A new {@link Quaternionf} instance representing the rotation of the camera.
    */
   public Quaternionf rotation() {
-    Quaternionf quat = new Quaternionf();
-    quat.lookAlong(this.front, this.up);
-    return quat;
+    return new Quaternionf(this.rotation);
   }
 
   /**
@@ -327,7 +304,8 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T pitch(float angle) {
-    this.rotate(angle, this.right);
+    this.rotation.mul(new Quaternionf().rotationX(angle));
+    this.updateVectors();
     return (T) this;
   }
 
@@ -349,10 +327,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The pitch angle in radians.
    */
   public float pitch() {
-    Quaternionf quat = new Quaternionf();
-    quat.lookAlong(this.front, this.up);
-    quat.normalize();
-    return quat.getEulerAnglesXYZ(new Vector3f()).x;
+    return this.rotation.getEulerAnglesXYZ(new Vector3f()).x;
   }
 
   /**
@@ -363,7 +338,8 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T yaw(float angle) {
-    this.rotate(angle, new Vector3f(0.0f, 1.0f, 0.0f));
+    this.rotation.premul(new Quaternionf().rotationY(angle));
+    this.updateVectors();
     return (T) this;
   }
 
@@ -385,10 +361,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The yaw angle in radians.
    */
   public float yaw() {
-    Quaternionf quat = new Quaternionf();
-    quat.lookAlong(this.front, this.up);
-    quat.normalize();
-    return quat.getEulerAnglesXYZ(new Vector3f()).y;
+    return this.rotation.getEulerAnglesXYZ(new Vector3f()).y;
   }
 
   /**
@@ -399,7 +372,8 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T roll(float angle) {
-    this.rotate(angle, this.front);
+    this.rotation.mul(new Quaternionf().rotationZ(angle));
+    this.updateVectors();
     return (T) this;
   }
 
@@ -421,10 +395,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The roll angle in radians.
    */
   public float roll() {
-    Quaternionf quat = new Quaternionf();
-    quat.lookAlong(this.front, this.up);
-    quat.normalize();
-    return quat.getEulerAnglesXYZ(new Vector3f()).z;
+    return this.rotation.getEulerAnglesXYZ(new Vector3f()).z;
   }
 
   /**
