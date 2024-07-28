@@ -11,6 +11,10 @@ public class ShaderProgramConfiguration {
   /** Uniform name of the mat4 that contains the Projection matrix. */
   public String uniformProjectionMatrix = "uProjection";
 
+  public String uniformCameraPerspectiveNearPlane = "uNear";
+
+  public String uniformCameraPerspectiveFarPlane = "uFar";
+
   /** Uniform name of the mat4 that contains the Model/Transform matrix. */
   public String uniformModelMatrix = "uModel";
 
