@@ -68,7 +68,6 @@ public class FreeCamSystem extends System<FreeCamSystem> {
       movement.mul(2f);
     }
     this.camera.move(movement);
-    LOGGER.debug("Camera position {}", this.camera.position());
   }
 
   private void mouse() {
@@ -92,8 +91,6 @@ public class FreeCamSystem extends System<FreeCamSystem> {
     } else {
       this.lastMousePos = new Vector2i(current);
     }
-
-    LOGGER.debug("Camera rotation {}", this.camera.rotation());
   }
 
 }
