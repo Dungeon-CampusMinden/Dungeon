@@ -42,7 +42,7 @@ public final class MonsterFactory {
   };
 
   private static final int MIN_MONSTER_HEALTH = 10;
-  private static final int MAX_MONSTER_HEALTH = 50;
+  private static final int MAX_MONSTER_HEALTH = 20;
   private static final float MIN_MONSTER_SPEED = 5.0f;
   private static final float MAX_MONSTER_SPEED = 8.5f;
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
