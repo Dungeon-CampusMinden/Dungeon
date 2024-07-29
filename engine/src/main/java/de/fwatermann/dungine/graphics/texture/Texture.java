@@ -147,7 +147,6 @@ public class Texture implements Disposable {
     } else {
       GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
     }
-    LOGGER.trace("Unbound texture {}", this.glTextureId);
   }
 
   /**
