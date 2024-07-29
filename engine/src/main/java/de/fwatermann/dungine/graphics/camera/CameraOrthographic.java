@@ -56,13 +56,11 @@ public class CameraOrthographic extends Camera<CameraOrthographic> {
 
   @Override
   protected Matrix4f calcProjectionMatrix(Matrix4f projectionMatrix) {
-    return projectionMatrix.setOrtho(
-        this.zoom * -this.viewport.width() / 2,
-        this.zoom * this.viewport.width() / 2,
-        this.zoom * -this.viewport.height() / 2,
-        this.zoom * this.viewport.height() / 2,
-        -1,
-        1);
+    float left = (this.viewport.width() / 2) - (this.viewport.width() / 2) * (1 / this.zoom);
+    float right = (this.viewport.width() / 2) + (this.viewport.width() / 2) * (1 / this.zoom);
+    float bottom = (this.viewport.height() / 2) - (this.viewport.height() / 2) * (1 / this.zoom);
+    float top = (this.viewport.height() / 2) + (this.viewport.height() / 2) * (1 / this.zoom);
+    return projectionMatrix.setOrtho(left, right, bottom, top, -1, 1);
   }
 
   @Override
