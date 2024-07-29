@@ -1,5 +1,8 @@
 package de.fwatermann.dungine.event;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -10,6 +13,8 @@ import java.util.*;
  * register and unregister event listeners, and to fire events.
  */
 public class EventManager {
+
+  private static final Logger LOGGER = LogManager.getLogger(EventManager.class);
 
   private static EventManager instance;
 
@@ -70,6 +75,7 @@ public class EventManager {
               this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
                   .add(new EventHandlerPair(listener, listener.getClass(), m));
+              LOGGER.debug("Registered event handler for event type {} by {}", eventType.getName(), listener.getClass().getName());
             });
   }
 
@@ -116,6 +122,7 @@ public class EventManager {
               this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
                   .add(new EventHandlerPair(null, clazz, m));
+              LOGGER.debug("Registered static event handler for event type {} by {}", eventType.getName(), clazz.getName());
             });
   }
 
