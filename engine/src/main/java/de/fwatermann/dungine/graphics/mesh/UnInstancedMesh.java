@@ -14,7 +14,8 @@ import org.joml.Vector3f;
  * translation, rotation, and scaling. This abstract class serves as a foundation for meshes that
  * are manipulated individually rather than as part of an instanced group.
  */
-public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>> extends Mesh<UnInstancedMesh<T>> {
+public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>>
+    extends Mesh<UnInstancedMesh<T>> {
 
   protected Vector3f translation = new Vector3f(0, 0, 0);
   protected Vector3f scale = new Vector3f(1, 1, 1);
@@ -31,7 +32,10 @@ public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>> extends Mesh
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(
-      ByteBuffer vertices, PrimitiveType primitiveType, GLUsageHint usageHint, VertexAttributeList attributes) {
+      ByteBuffer vertices,
+      PrimitiveType primitiveType,
+      GLUsageHint usageHint,
+      VertexAttributeList attributes) {
     super(vertices, primitiveType, usageHint, attributes);
     this.calcTransformMatrix();
     // this.calcBoundingBox(); //TODO: Fix Buffer Undeflow
@@ -45,7 +49,10 @@ public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>> extends Mesh
    * @param attributes the attributes of the mesh
    */
   protected UnInstancedMesh(
-      ByteBuffer vertices, PrimitiveType primitiveType, GLUsageHint usageHint, VertexAttribute... attributes) {
+      ByteBuffer vertices,
+      PrimitiveType primitiveType,
+      GLUsageHint usageHint,
+      VertexAttribute... attributes) {
     this(vertices, primitiveType, usageHint, new VertexAttributeList(attributes));
   }
 
@@ -83,6 +90,28 @@ public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>> extends Mesh
       maxZ = Math.max(maxZ, z);
     }
     this.boundingBox = new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+  }
+
+  /**
+   * Sets the transformation of the mesh to the specified translation, rotation, and scale.
+   *
+   * <p>If any of the parameters are null, the corresponding transformation will not be changed.
+   *
+   * <p>This method only calculates the transformation matrix only once after all parameters are
+   * set.
+   *
+   * @param translation the translation of the mesh
+   * @param rotation the rotation of the mesh
+   * @param scale the scale of the mesh
+   * @return the mesh
+   */
+  public T transformation(Vector3f translation, Quaternionf rotation, Vector3f scale) {
+    if (translation != null) this.translation.set(translation);
+    if (rotation != null) this.rotation.set(rotation);
+    if (scale != null) this.scale.set(scale);
+
+    this.calcTransformMatrix();
+    return (T) this;
   }
 
   /**
