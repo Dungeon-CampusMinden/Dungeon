@@ -12,7 +12,6 @@ import org.joml.Vector3f;
 public class CameraPerspective extends Camera<CameraPerspective> {
 
   private float fov;
-  private float aspectRatio;
   private float near;
   private float far;
 
@@ -23,7 +22,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    *
    * @param position The position of the camera.
    * @param fov The field of view angle in degrees.
-   * @param aspectRatio The aspect ratio (width / height) of the camera.
+   * @param viewport The viewport of the camera.
    * @param near The distance to the near clipping plane.
    * @param far The distance to the far clipping plane.
    * @param updateOnChange Whether the camera should update its view and projection matrices when
@@ -31,13 +30,12 @@ public class CameraPerspective extends Camera<CameraPerspective> {
   public CameraPerspective(
       Vector3f position,
       float fov,
-      float aspectRatio,
+      CameraViewport viewport,
       float near,
       float far,
       boolean updateOnChange) {
-    super(position, updateOnChange);
+    super(position, viewport, updateOnChange);
     this.fov = fov;
-    this.aspectRatio = aspectRatio;
     this.near = near;
     this.far = far;
     this.frustum = new CameraFrustum();
@@ -49,29 +47,29 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    *
    * @param position The position of the camera.
    * @param fov The field of view angle in degrees.
-   * @param aspectRatio The aspect ratio (width / height) of the camera.
+   * @param viewport The viewport of the camera.
    * @param near The distance to the near clipping plane.
    * @param far The distance to the far clipping plane.
    */
   public CameraPerspective(
       Vector3f position,
       float fov,
-      float aspectRatio,
+      CameraViewport viewport,
       float near,
       float far) {
-    this(position, fov, aspectRatio, near, far, false);
+    this(position, fov, viewport, near, far, false);
   }
 
   /**
    * Constructs a Camera with specified perspective settings.
    *
    * @param fov The field of view angle in degrees.
-   * @param aspectRatio The aspect ratio (width / height) of the camera.
+   * @param viewport The viewport of the camera.
    * @param near The distance to the near clipping plane.
    * @param far The distance to the far clipping plane.
    */
-  public CameraPerspective(float fov, float aspectRatio, float near, float far) {
-    this(new Vector3f(0.0f, 0.0f, 0.0f), fov, aspectRatio, near, far);
+  public CameraPerspective(float fov, CameraViewport viewport, float near, float far) {
+    this(new Vector3f(0.0f, 0.0f, 0.0f), fov, viewport, near, far);
   }
 
   /**
@@ -84,20 +82,19 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    *   <li>Front: (0.0, 0.0, -1.0)
    *   <li>Up: (0.0, 1.0, 0.0)
    *   <li>Field of View: 80.0 degrees
-   *   <li>Aspect Ratio: 16:9
    *   <li>Near Clipping Plane: 0.1
    *   <li>Far Clipping Plane: 100.0
    *   <li>Update on Change: false
    * </ul>
    */
-  public CameraPerspective() {
-    this(80.0f, 16.0f / 9.0f, 0.01f, 100.0f);
+  public CameraPerspective(CameraViewport viewport) {
+    this(80.0f, viewport, 0.01f, 100.0f);
   }
 
   @Override
   protected Matrix4f calcProjectionMatrix(Matrix4f projectionMatrix) {
     return projectionMatrix.setPerspective(
-        Math.toRadians(this.fov), this.aspectRatio, this.near, this.far);
+        Math.toRadians(this.fov), (this.viewport.width() / this.viewport.height()), this.near, this.far);
   }
 
   @Override
@@ -125,28 +122,6 @@ public class CameraPerspective extends Camera<CameraPerspective> {
     this.updateMatrices(false);
     return this;
   }
-
-  /**
-   * Get the aspect ratio of the camera.
-   *
-   * @return the aspect ratio
-   */
-  public float aspectRatio() {
-    return this.aspectRatio;
-  }
-
-  /**
-   * Set the aspect ratio of the camera.
-   *
-   * @param aspectRatio the new aspect ratio
-   * @return this camera
-   */
-  public CameraPerspective aspectRatio(float aspectRatio) {
-    this.aspectRatio = aspectRatio;
-    this.updateMatrices(false);
-    return this;
-  }
-
   /**
    * Get the distance to the near clipping plane of the camera.
    *

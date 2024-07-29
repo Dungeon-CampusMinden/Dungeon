@@ -2,8 +2,10 @@ package de.fwatermann.dungine.graphics.camera;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 /**
@@ -20,8 +22,12 @@ public abstract class Camera<T extends Camera<T>> {
 
   protected Matrix4f viewMatrix = new Matrix4f();
   protected Matrix4f projectionMatrix = new Matrix4f();
+  protected Matrix4f viewProjectionMatrix = new Matrix4f();
+  protected Matrix4f viewProjectionMatrixInv = new Matrix4f();
   protected Vector3f up, right, front;
   protected Vector3f position;
+
+  protected CameraViewport viewport;
 
   protected boolean updateOnChange;
 
@@ -32,8 +38,9 @@ public abstract class Camera<T extends Camera<T>> {
    * @param updateOnChange If true, the camera will automatically update its view matrix when its
    *     state changes.
    */
-  public Camera(Vector3f position, boolean updateOnChange) {
+  public Camera(Vector3f position, CameraViewport viewport, boolean updateOnChange) {
     this.position = position;
+    this.viewport = viewport;
     this.front = new Vector3f(0, 0, -1);
     this.up = new Vector3f(0, 1, 0);
     this.right = this.front.cross(this.up, new Vector3f()).normalize();
@@ -70,6 +77,8 @@ public abstract class Camera<T extends Camera<T>> {
     this.viewMatrix.setLookAt(
         this.position, this.position.add(this.front, new Vector3f()), this.up);
     this.projectionMatrix = this.calcProjectionMatrix(this.projectionMatrix);
+    this.viewProjectionMatrix.set(this.projectionMatrix).mul(this.viewMatrix);
+    this.viewProjectionMatrixInv.set(this.viewProjectionMatrix).invert();
     this.onUpdate();
   }
 
@@ -423,5 +432,104 @@ public abstract class Camera<T extends Camera<T>> {
   public T updateOnChange(boolean updateOnChange) {
     this.updateOnChange = updateOnChange;
     return (T) this;
+  }
+
+  /**
+   * Returns the current viewport of the camera.
+   *
+   * @return The current {@link CameraViewport} instance.
+   */
+  public CameraViewport viewport() {
+    return this.viewport;
+  }
+
+  /**
+   * Sets the viewport of the camera.
+   *
+   * @param viewport The new {@link CameraViewport} to be set.
+   * @return The camera instance for method chaining.
+   */
+  public T viewport(CameraViewport viewport) {
+    this.viewport = viewport;
+    this.updateOnChange(false);
+    return (T) this;
+  }
+
+  /**
+   * Updates the viewport dimensions and offsets.
+   *
+   * @param width The new width of the viewport.
+   * @param height The new height of the viewport.
+   * @param offsetX The new X offset of the viewport.
+   * @param offsetY The new Y offset of the viewport.
+   * @return The camera instance for method chaining.
+   */
+  public T updateViewport(int width, int height, int offsetX, int offsetY) {
+    this.viewport.set(width, height, offsetX, offsetY);
+    this.updateOnChange(false);
+    return (T) this;
+  }
+
+  /**
+   * Projects 3D world coordinates to 2D screen coordinates.
+   *
+   * @param x The X coordinate in the world space.
+   * @param y The Y coordinate in the world space.
+   * @param z The Z coordinate in the world space.
+   * @return A new {@link Vector3f} instance representing the projected 2D screen coordinates.
+   */
+  public Vector3f project(float x, float y, float z) {
+    return this.viewProjectionMatrix.project(
+        x,
+        y,
+        z,
+        new int[] {
+          (int) Math.floor(this.viewport.width()),
+          (int) Math.floor(this.viewport.height()),
+          (int) Math.floor(this.viewport.offsetX()),
+          (int) Math.floor(this.viewport.offsetY())
+        },
+        new Vector3f());
+  }
+
+  /**
+   * Projects 3D world coordinates to 2D screen coordinates.
+   *
+   * @param worldCoords The {@link Vector3f} instance representing the world coordinates.
+   * @return A new {@link Vector3f} instance representing the projected 2D screen coordinates.
+   */
+  public Vector3f project(Vector3f worldCoords) {
+    return this.project(worldCoords.x, worldCoords.y, worldCoords.z);
+  }
+
+  /**
+   * Unprojects 2D screen coordinates to 3D world coordinates.
+   *
+   * @param x The X coordinate on the screen.
+   * @param y The Y coordinate on the screen.
+   * @return A new {@link Vector3f} instance representing the unprojected 3D world coordinates.
+   */
+  public Vector3f unproject(int x, int y) {
+    return this.viewProjectionMatrixInv.unprojectInv(
+        x,
+        y,
+        0,
+        new int[] {
+          (int) Math.floor(this.viewport.width()),
+          (int) Math.floor(this.viewport.height()),
+          (int) Math.floor(this.viewport.offsetX()),
+          (int) Math.floor(this.viewport.offsetY())
+        },
+        new Vector3f());
+  }
+
+  /**
+   * Unprojects 2D screen coordinates to 3D world coordinates.
+   *
+   * @param screenCoords The {@link Vector2i} instance representing the screen coordinates.
+   * @return A new {@link Vector3f} instance representing the unprojected 3D world coordinates.
+   */
+  public Vector3f unproject(Vector2i screenCoords) {
+    return this.unproject(screenCoords.x, screenCoords.y);
   }
 }
