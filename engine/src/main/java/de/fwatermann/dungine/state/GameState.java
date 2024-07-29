@@ -1,6 +1,9 @@
 package de.fwatermann.dungine.state;
 
 import de.fwatermann.dungine.ecs.ECS;
+import de.fwatermann.dungine.graphics.camera.CameraOrthographic;
+import de.fwatermann.dungine.graphics.camera.CameraViewport;
+import de.fwatermann.dungine.ui.UIContainer;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.window.GameWindow;
@@ -12,6 +15,9 @@ public abstract class GameState extends ECS implements Disposable {
   protected float lastFrameDeltaTime = 0.0f;
   protected float lastTickDeltaTime = 0.0f;
 
+  protected UIContainer ui;
+  protected CameraOrthographic uiCamera;
+
   /**
    * Create a new game state.
    *
@@ -19,6 +25,9 @@ public abstract class GameState extends ECS implements Disposable {
    */
   protected GameState(GameWindow window) {
     this.window = window;
+    this.ui = new UIContainer();
+    this.uiCamera =
+        new CameraOrthographic(new CameraViewport(window.size().x, window.size().y, 0, 0));
   }
 
   /**
@@ -54,6 +63,8 @@ public abstract class GameState extends ECS implements Disposable {
     this.lastFrameDeltaTime = deltaTime;
     this.executeSystems(this, true);
     this.renderState(deltaTime);
+    this.uiCamera.update();
+    this.ui.render(this.uiCamera);
   }
 
   /**
@@ -83,6 +94,7 @@ public abstract class GameState extends ECS implements Disposable {
 
   /**
    * Get the last delta time of the last frame.
+   *
    * @return the last delta time of the last frame in seconds
    */
   public float lastFrameDeltaTime() {
@@ -91,6 +103,7 @@ public abstract class GameState extends ECS implements Disposable {
 
   /**
    * Get the last delta time of the last tick.
+   *
    * @return the last delta time of the last tick in seconds
    */
   public float lastTickDeltaTime() {
@@ -99,6 +112,7 @@ public abstract class GameState extends ECS implements Disposable {
 
   /**
    * Get the game window.
+   *
    * @return the game window
    */
   public GameWindow window() {
