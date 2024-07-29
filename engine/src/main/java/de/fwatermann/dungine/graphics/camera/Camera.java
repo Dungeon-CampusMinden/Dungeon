@@ -358,7 +358,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T yawDeg(float angle) {
-    return this.yaw((float) Math.toRadians(angle));
+    return this.yaw(Math.toRadians(angle));
   }
 
   /**
@@ -368,7 +368,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The yaw angle in radians.
    */
   public float yaw() {
-    return (float) Math.atan2(this.front.x, this.front.z);
+    return Math.atan2(this.front.x, this.front.z);
   }
 
   /**
@@ -391,7 +391,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T rollDeg(float angle) {
-    return this.roll((float) Math.toRadians(angle));
+    return this.roll(Math.toRadians(angle));
   }
 
   /**
@@ -401,7 +401,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The roll angle in radians.
    */
   public float roll() {
-    return (float) Math.atan2(this.right.y, this.up.y);
+    return Math.atan2(this.right.y, this.up.y);
   }
 
   /**
