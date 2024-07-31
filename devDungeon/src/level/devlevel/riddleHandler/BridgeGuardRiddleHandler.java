@@ -30,7 +30,6 @@ import entities.levercommands.BridgeControlCommand;
 import item.concreteItem.ItemPotionAttackSpeed;
 import java.util.ArrayList;
 import java.util.List;
-import level.utils.ITickable;
 import level.utils.LevelUtils;
 import systems.DevHealthSystem;
 import task.game.hud.QuizUI;
@@ -46,7 +45,7 @@ import utils.RegexRiddle;
  * player. The player must answer the riddles correctly to pass the bridge guard and receive a
  * reward.
  */
-public class BridgeGuardRiddleHandler implements ITickable, IHealthObserver {
+public class BridgeGuardRiddleHandler implements IHealthObserver {
   private final TileLevel level;
 
   // Spawn Points / Locations
@@ -87,25 +86,22 @@ public class BridgeGuardRiddleHandler implements ITickable, IHealthObserver {
     this.setupRiddles();
   }
 
-  @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      this.handleFirstTick();
-    }
+  /** Handles the first tick of the riddle handler. */
+  public void onFirstTick() {
+    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
+    this.prepareBridge();
+    this.spawnChestAndCauldron();
+    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22AAFFFF);
+  }
 
+  /** Handles the ticks of the riddle handler. */
+  public void onTick() {
     Coordinate heroPos = EntityUtils.getHeroCoordinate();
     if (heroPos == null) return;
 
     if (!this.rewardGiven && this.riddleRewardSpawn.equals(heroPos)) {
       this.giveReward();
     }
-  }
-
-  private void handleFirstTick() {
-    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
-    this.prepareBridge();
-    this.spawnChestAndCauldron();
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22AAFFFF);
   }
 
   private void prepareBridge() {

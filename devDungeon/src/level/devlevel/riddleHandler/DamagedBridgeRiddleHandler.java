@@ -18,7 +18,6 @@ import core.utils.components.MissingComponentException;
 import item.concreteItem.ItemPotionRegeneration;
 import item.concreteItem.ItemPotionSpeed;
 import java.util.List;
-import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.EntityUtils;
 
@@ -28,7 +27,7 @@ import utils.EntityUtils;
  * bridge if they are fast enough. The riddle room contains a chest with a speed potion that the
  * hero can use to cross the bridge. If the hero crosses the bridge, they will receive a reward.
  */
-public class DamagedBridgeRiddleHandler implements ITickable {
+public class DamagedBridgeRiddleHandler {
 
   // The reward for solving the riddle (max health points)
   private static final int RIDDLE_REWARD = 5;
@@ -67,12 +66,17 @@ public class DamagedBridgeRiddleHandler implements ITickable {
     this.level = level;
   }
 
-  @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      this.handleFirstTick();
-    }
+  /** Handles the first tick of the riddle room. */
+  public void onFirstTick() {
+    this.riddleEntrance.open();
+    this.spawnSigns();
+    this.spawnChest();
+    this.preparePits();
+    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
+  }
 
+  /** Handles the tick of the riddle room. */
+  public void onTick() {
     if (this.isHeroInRiddleRoom()) {
       LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
       this.riddleExit.open();
@@ -127,14 +131,6 @@ public class DamagedBridgeRiddleHandler implements ITickable {
     return LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
         || this.level.tileAt(heroPos).equals(this.riddleEntrance)
         || this.level.tileAt(heroPos).equals(this.riddleExit);
-  }
-
-  private void handleFirstTick() {
-    this.riddleEntrance.open();
-    this.spawnSigns();
-    this.spawnChest();
-    this.preparePits();
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
   }
 
   /**

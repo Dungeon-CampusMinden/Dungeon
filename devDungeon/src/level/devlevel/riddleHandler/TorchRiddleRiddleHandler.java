@@ -16,7 +16,6 @@ import entities.BurningFireballSkill;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import level.utils.ITickable;
 import level.utils.LevelUtils;
 import utils.ArrayUtils;
 
@@ -25,7 +24,7 @@ import utils.ArrayUtils;
  * consists of a series of torches that the hero has to light up. The hero can light up a certain
  * torches to receive a reward.
  */
-public class TorchRiddleRiddleHandler implements ITickable {
+public class TorchRiddleRiddleHandler {
 
   /** Maximum value a riddle torch can have. */
   public static final int UPPER_RIDDLE_BOUND = 15;
@@ -78,17 +77,8 @@ public class TorchRiddleRiddleHandler implements ITickable {
             });
   }
 
-  @Override
-  public void onTick(boolean firstTick) {
-    if (firstTick) {
-      this.handleFirstTick();
-    }
-    if (!this.broken) {
-      this.riddle();
-    }
-  }
-
-  private void handleFirstTick() {
+  /** Handles the first tick of the riddle. */
+  public void onFirstTick() {
     Game.add(this.riddleSign);
     this.level.tileAt(this.riddleCenter).tintColor(0x22FF22FF);
     try {
@@ -96,6 +86,13 @@ public class TorchRiddleRiddleHandler implements ITickable {
     } catch (UnsupportedOperationException e) {
       this.broken = true;
     }
+  }
+
+  /** Handles the tick of the riddle, if it is not broken. */
+  public void onTick() {
+    if (broken) return;
+
+    riddle();
   }
 
   /**

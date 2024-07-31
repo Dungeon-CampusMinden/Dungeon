@@ -11,12 +11,10 @@ import entities.MonsterType;
 import java.util.List;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
-import level.utils.ITickable;
-import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Bridge Guard Riddle Level. */
-public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable {
+public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 15;
@@ -41,7 +39,12 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
    */
   public BridgeGuardRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints);
+    super(
+        layout,
+        designLabel,
+        customPoints,
+        "The Bridge Guard",
+        "Let's try to not get lost, the entire area is brimming with orcs. Let's try to find someone who may be able to help us! The bridge should be a start.");
     this.riddleHandler = new BridgeGuardRiddleHandler(customPoints, this);
 
     this.campSpawns = this.getCoordinates(13, 24);
@@ -50,27 +53,15 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
   }
 
   @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      DialogUtils.showTextPopup(
-          "Let's try to not get lost, the entire area is brimming with orcs. Let's try to find someone who may be able to help us! The bridge should be a start.",
-          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Bridge Guard");
-      ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-      this.doorTiles().forEach(DoorTile::close);
-      this.pitTiles()
-          .forEach(
-              pit -> {
-                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
-                pit.close();
-              });
-      this.handleFirstTick();
-    }
-
-    this.riddleHandler.onTick(isFirstTick);
-  }
-
-  private void handleFirstTick() {
-    // Spawn all entities and it's content
+  protected void onFirstTick() {
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
+    this.doorTiles().forEach(DoorTile::close);
+    this.pitTiles()
+        .forEach(
+            pit -> {
+              pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
+              pit.close();
+            });
     this.spawnCamps();
 
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
@@ -82,6 +73,12 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel implements ITickable
               "The next level is the final boss. You probably want to prepare for that. It's going to be tough.",
               "No Point of Return!");
         });
+    riddleHandler.onFirstTick();
+  }
+
+  @Override
+  protected void onTick() {
+    this.riddleHandler.onTick();
   }
 
   private void spawnCamps() {

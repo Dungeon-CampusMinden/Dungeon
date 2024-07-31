@@ -1,5 +1,6 @@
 package level;
 
+import contrib.hud.DialogUtils;
 import core.level.Tile;
 import core.level.TileLevel;
 import core.level.utils.Coordinate;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import level.devlevel.*;
+import level.utils.ITickable;
 import level.utils.MissingLevelException;
 import starter.DevDungeon;
 
@@ -21,11 +23,14 @@ import starter.DevDungeon;
  * adds functionality for handling custom points. These points are used to add spawn points, door
  * logic or any other custom logic to the level.
  */
-public class DevDungeonLevel extends TileLevel {
+public abstract class DevDungeonLevel extends TileLevel implements ITickable {
 
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> customPoints = new ArrayList<>();
   private final List<Coordinate> tpTargets = new ArrayList<>();
+
+  private final String levelName;
+  private final String description;
 
   /**
    * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
@@ -33,12 +38,46 @@ public class DevDungeonLevel extends TileLevel {
    * @param layout The layout of the level, represented as a 2D array of LevelElements.
    * @param designLabel The design label of the level.
    * @param customPoints A list of custom points to be added to the level.
+   * @param levelName The name of the level. (can be empty)
+   * @param description The description of the level. (only set if levelName is not empty)
    */
   public DevDungeonLevel(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      List<Coordinate> customPoints,
+      String levelName,
+      String description) {
     super(layout, designLabel);
     this.customPoints.addAll(customPoints);
+    this.levelName = levelName;
+    this.description = description;
   }
+
+  @Override
+  public final void onTick(boolean isFirstTick) {
+    if (isFirstTick) {
+      DialogUtils.showTextPopup(
+          description, "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": " + levelName);
+      onFirstTick();
+    }
+    onTick();
+  }
+
+  /**
+   * Called when the level is first ticked.
+   *
+   * @see #onTick()
+   * @see ITickable
+   */
+  protected abstract void onFirstTick();
+
+  /**
+   * Called when the level is ticked.
+   *
+   * @see #onFirstTick()
+   * @see ITickable
+   */
+  protected abstract void onTick();
 
   /**
    * Loads a DevDungeonLevel from the given path.
@@ -81,15 +120,8 @@ public class DevDungeonLevel extends TileLevel {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DevDungeonLevel newLevel;
-      try {
-        newLevel =
-            getDevLevel(
-                DevDungeon.DUNGEON_LOADER.currentLevel(), layout, designLabel, customPoints);
-      } catch (IndexOutOfBoundsException e) {
-        // only a workaround for creating new levels
-        newLevel = new DevDungeonLevel(layout, designLabel, customPoints);
-        e.printStackTrace();
-      }
+      newLevel =
+          getDevLevel(DevDungeon.DUNGEON_LOADER.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -227,7 +259,7 @@ public class DevDungeonLevel extends TileLevel {
    */
   protected Coordinate[] getCoordinates(int start, int end) {
     return IntStream.rangeClosed(start, end)
-        .mapToObj(this.customPoints()::get)
+        .mapToObj(customPoints()::get)
         .toArray(Coordinate[]::new);
   }
 
@@ -237,7 +269,7 @@ public class DevDungeonLevel extends TileLevel {
    * @return A list of custom points.
    */
   public List<Coordinate> customPoints() {
-    return this.customPoints;
+    return customPoints;
   }
 
   /**
@@ -246,7 +278,7 @@ public class DevDungeonLevel extends TileLevel {
    * @param point The custom point to be added.
    */
   public void addCustomPoint(Coordinate point) {
-    this.customPoints.add(point);
+    customPoints.add(point);
   }
 
   /**
@@ -255,7 +287,7 @@ public class DevDungeonLevel extends TileLevel {
    * @param point The custom point to be removed.
    */
   public void removeCustomPoint(Coordinate point) {
-    this.customPoints.remove(point);
+    customPoints.remove(point);
   }
 
   /**
@@ -265,7 +297,7 @@ public class DevDungeonLevel extends TileLevel {
    * @return True if the custom point is in the list, false otherwise.
    */
   public boolean hasCustomPoint(Coordinate point) {
-    return this.customPoints.contains(point);
+    return customPoints.contains(point);
   }
 
   /**
@@ -278,7 +310,7 @@ public class DevDungeonLevel extends TileLevel {
    * @see entities.TPBallSkill TPBallSkill
    */
   public void addTPTarget(Coordinate... points) {
-    this.tpTargets.addAll(List.of(points));
+    tpTargets.addAll(List.of(points));
   }
 
   /**
@@ -291,7 +323,7 @@ public class DevDungeonLevel extends TileLevel {
    * @see entities.TPBallSkill TPBallSkill
    */
   public void removeTPTarget(Coordinate... point) {
-    this.tpTargets.removeAll(List.of(point));
+    tpTargets.removeAll(List.of(point));
   }
 
   /**
@@ -303,7 +335,7 @@ public class DevDungeonLevel extends TileLevel {
    * @return A random teleport target from the list. If the list is empty, null is returned.
    */
   public Coordinate randomTPTarget() {
-    if (this.tpTargets.isEmpty()) return null;
-    return this.tpTargets.get(RANDOM.nextInt(this.tpTargets.size()));
+    if (tpTargets.isEmpty()) return null;
+    return tpTargets.get(RANDOM.nextInt(tpTargets.size()));
   }
 }

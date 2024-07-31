@@ -2,7 +2,6 @@ package level.devlevel;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
@@ -20,12 +19,10 @@ import entities.MonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
-import level.utils.ITickable;
-import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level. */
-public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickable {
+public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;
@@ -50,7 +47,12 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
    */
   public DamagedBridgeRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints);
+    super(
+        layout,
+        designLabel,
+        customPoints,
+        "The Damaged Bridge",
+        "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.");
     this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.bridgeMobSpawn = customPoints.get(8);
 
@@ -61,27 +63,15 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
   }
 
   @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      DialogUtils.showTextPopup(
-          "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.",
-          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Damaged Bridge");
-      ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-      this.doorTiles().forEach(DoorTile::close);
-      this.pitTiles()
-          .forEach(
-              pit -> {
-                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
-                pit.close();
-              });
-      this.handleFirstTick();
-    }
-
-    this.riddleHandler.onTick(isFirstTick);
-  }
-
-  private void handleFirstTick() {
-
+  protected void onFirstTick() {
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
+    this.doorTiles().forEach(DoorTile::close);
+    this.pitTiles()
+        .forEach(
+            pit -> {
+              pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
+              pit.close();
+            });
     this.prepareBridge();
 
     // Prepare the secret way
@@ -95,6 +85,12 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel implements ITickab
 
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
     EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
+    riddleHandler.onFirstTick();
+  }
+
+  @Override
+  public void onTick() {
+    this.riddleHandler.onTick();
   }
 
   private void prepareBridge() {

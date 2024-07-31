@@ -3,7 +3,6 @@ package level.devlevel;
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
-import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
@@ -21,13 +20,11 @@ import item.concreteItem.ItemResourceBerry;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.TorchRiddleRiddleHandler;
-import level.utils.ITickable;
 import level.utils.LevelUtils;
-import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Torch Riddle Level. */
-public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
+public class TorchRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 12;
@@ -53,7 +50,12 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
    */
   public TorchRiddleLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints);
+    super(
+        layout,
+        designLabel,
+        customPoints,
+        "The Torch Riddle",
+        "Welcome to the Torch Riddle! This is an ancient test, rewarding rewards to those who look closer. You may find the Riddle Door to proceed. Best of luck!");
     this.riddleHandler = new TorchRiddleRiddleHandler(customPoints, this);
 
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(1), customPoints.get(2)};
@@ -65,25 +67,22 @@ public class TorchRiddleLevel extends DevDungeonLevel implements ITickable {
   }
 
   @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      DialogUtils.showTextPopup(
-          "Welcome to the Torch Riddle! This is an ancient test, rewarding rewards to those who look closer. You may find the Riddle Door "
-              + "to proceed. Best of luck!",
-          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Torch Riddle");
+  protected void onFirstTick() {
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
+    this.pitTiles()
+        .forEach(
+            pit -> {
+              pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
+              pit.close();
+            });
+    this.handleFirstTick();
+    this.doorTiles().forEach(DoorTile::close);
+    riddleHandler.onFirstTick();
+  }
 
-      ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-      this.pitTiles()
-          .forEach(
-              pit -> {
-                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
-                pit.close();
-              });
-      this.handleFirstTick();
-      this.doorTiles().forEach(DoorTile::close);
-    }
-
-    this.riddleHandler.onTick(isFirstTick);
+  @Override
+  protected void onTick() {
+    riddleHandler.onTick();
   }
 
   private void handleFirstTick() {

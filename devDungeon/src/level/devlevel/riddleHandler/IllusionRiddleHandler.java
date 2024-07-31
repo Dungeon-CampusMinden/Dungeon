@@ -13,7 +13,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
 import java.util.List;
-import level.utils.ITickable;
 import utils.EntityUtils;
 
 /**
@@ -21,7 +20,7 @@ import utils.EntityUtils;
  * a series of rooms that the hero has to navigate through. The hero can run a certain amount of
  * laps inside a special room to receive a reward.
  */
-public class IllusionRiddleHandler implements ITickable {
+public class IllusionRiddleHandler {
 
   private static final int LAP_REWARD = 3;
   private final TileLevel level;
@@ -67,19 +66,16 @@ public class IllusionRiddleHandler implements ITickable {
     this.level = level;
   }
 
-  @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      this.handleFirstTick();
-    }
-
-    this.handleLapRoomLogic();
-    this.handleRewardLogic();
-  }
-
-  private void handleFirstTick() {
+  /** Handles the first tick of the riddle room. */
+  public void onFirstTick() {
     if (this.level.tileAt(this.riddleRewardSpawn) != null)
       this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
+  }
+
+  /** Handles the tick logic of the riddle room. */
+  public void onTick() {
+    this.handleLapRoomLogic();
+    this.handleRewardLogic();
   }
 
   private void handleRewardLogic() {

@@ -30,13 +30,12 @@ import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
 import level.DevDungeonLevel;
-import level.utils.ITickable;
 import starter.DevDungeon;
 import systems.DevHealthSystem;
 import utils.EntityUtils;
 
 /** The Final Boss Level. */
-public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObserver {
+public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   private static final MonsterType BOSS_TYPE = MonsterType.FINAL_BOSS;
   private static final int MIN_MOB_COUNT = 5;
@@ -63,7 +62,12 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
    */
   public BossLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints);
+    super(
+        layout,
+        designLabel,
+        customPoints,
+        "The Final Boss",
+        "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.");
 
     this.levelBossSpawn = this.customPoints().getFirst();
     this.pillars = this.getCoordinates(1, 4); // Top left corner (each 2x2)
@@ -73,21 +77,24 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
   }
 
   @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      DialogUtils.showTextPopup(
-          "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.",
-          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Final Boss");
-      ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-      this.doorTiles().forEach(DoorTile::close);
-      this.pitTiles()
-          .forEach(
-              pit -> {
-                pit.timeToOpen(50);
-                pit.close();
-              });
-      this.handleFirstTick();
-    }
+  protected void onFirstTick() {
+    DialogUtils.showTextPopup(
+        "", "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Final Boss");
+    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
+    this.doorTiles().forEach(DoorTile::close);
+    this.pitTiles()
+        .forEach(
+            pit -> {
+              pit.timeToOpen(50);
+              pit.close();
+            });
+    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn, this::handleBossDeath);
+    ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
+    this.spawnChestsAndCauldrons();
+  }
+
+  @Override
+  protected void onTick() {
     Coordinate heroCoord = EntityUtils.getHeroCoordinate();
     if (heroCoord == null) return;
     if (heroCoord.y > this.entrance.y) {
@@ -96,12 +103,6 @@ public class BossLevel extends DevDungeonLevel implements ITickable, IHealthObse
       this.changeTileElementType(this.tileAt(this.entrance), LevelElement.FLOOR);
     }
     this.handleBossAttacks();
-  }
-
-  private void handleFirstTick() {
-    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn, this::handleBossDeath);
-    ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
-    this.spawnChestsAndCauldrons();
   }
 
   /**

@@ -23,14 +23,13 @@ import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
+import java.io.IOException;
 import java.util.List;
 import level.DevDungeonLevel;
-import level.utils.ITickable;
-import starter.DevDungeon;
 import utils.EntityUtils;
 
 /** The Tutorial Level. */
-public class TutorialLevel extends DevDungeonLevel implements ITickable {
+public class TutorialLevel extends DevDungeonLevel {
 
   // Entity spawn points
   private final Coordinate mobSpawn;
@@ -47,7 +46,12 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
    */
   public TutorialLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints);
+    super(
+        layout,
+        designLabel,
+        customPoints,
+        "Tutorial",
+        "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen.");
     this.mobSpawn = customPoints.get(0);
 
     this.chestSpawn = customPoints.get(1).toCenteredPoint();
@@ -55,32 +59,17 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
   }
 
   @Override
-  public void onTick(boolean isFirstTick) {
-    if (isFirstTick) {
-      DialogUtils.showTextPopup(
-          "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen. ",
-          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": Tutorial",
-          () -> {
-            this.handleFirstTick();
-            this.doorTiles().forEach(DoorTile::close);
-            this.buildBridge();
-          });
-    }
-    if (this.lastHeroCoords != null && !this.lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
-      // Only handle text popups if the hero has moved
-      this.handleTextPopups();
-    }
-    this.handleDoors();
-    this.lastHeroCoords = EntityUtils.getHeroCoords();
-  }
+  protected void onFirstTick() {
+    String movementKeys =
+        Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_UP.value())
+            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value())
+            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_DOWN.value())
+            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
+    DialogUtils.showTextPopup(
+        "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
-  /**
-   * Handles the spawning of the tutorial entities e.g. monsters It also fills the chest with the
-   * necessary items for the tutorial.
-   *
-   * @throws RuntimeException if any of the entities could not be created
-   */
-  private void handleFirstTick() {
+    this.doorTiles().forEach(DoorTile::close);
+    this.buildBridge();
     Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, this.mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
@@ -92,25 +81,27 @@ public class TutorialLevel extends DevDungeonLevel implements ITickable {
     try {
       chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
       chest2 = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new RuntimeException("Failed to create tutorial chest");
     }
     this.setupChest(chest, chest2);
     Entity cauldron;
     try {
       cauldron = MiscFactory.newCraftingCauldron();
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new RuntimeException("Failed to create tutorial cauldron");
     }
     this.setupCauldron(cauldron);
+  }
 
-    String movementKeys =
-        Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_UP.value())
-            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value())
-            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_DOWN.value())
-            + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
-    DialogUtils.showTextPopup(
-        "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
+  @Override
+  protected void onTick() {
+    if (this.lastHeroCoords != null && !this.lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
+      // Only handle text popups if the hero has moved
+      this.handleTextPopups();
+    }
+    this.handleDoors();
+    this.lastHeroCoords = EntityUtils.getHeroCoords();
   }
 
   private void handleTextPopups() {
