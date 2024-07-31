@@ -13,7 +13,7 @@ public class ItemReward extends Item {
   private static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/resource/stone.png");
 
   static {
-    Item.ITEMS.put(ItemReward.class.getSimpleName(), ItemReward.class);
+    Item.registerItem(ItemReward.class);
   }
 
   /** Constructs the final reward item. */

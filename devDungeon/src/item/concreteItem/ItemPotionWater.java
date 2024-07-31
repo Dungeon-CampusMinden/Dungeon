@@ -17,7 +17,7 @@ public class ItemPotionWater extends contrib.item.concreteItem.ItemPotionWater {
   private static final int HEAL_AMOUNT = 4;
 
   static {
-    Item.ITEMS.put(ItemPotionWater.class.getSimpleName(), ItemPotionWater.class);
+    Item.registerItem(ItemPotionWater.class);
   }
 
   /** Create a new Water-Potion. */

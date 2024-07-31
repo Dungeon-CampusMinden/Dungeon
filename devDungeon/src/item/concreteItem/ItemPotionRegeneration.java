@@ -24,7 +24,7 @@ public class ItemPotionRegeneration extends Item {
   private static final int HEAL_PER_SECOND = 1;
 
   static {
-    Item.ITEMS.put(ItemPotionRegeneration.class.getSimpleName(), ItemPotionRegeneration.class);
+    Item.registerItem(ItemPotionRegeneration.class);
   }
 
   private final RegenerationEffect regenerationEffect;

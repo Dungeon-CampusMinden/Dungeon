@@ -17,7 +17,7 @@ public class ItemResourceBerry extends contrib.item.concreteItem.ItemResourceBer
   private static final int DamageAmount = 2;
 
   static {
-    Item.ITEMS.put(ItemResourceBerry.class.getSimpleName(), ItemResourceBerry.class);
+    Item.registerItem(ItemResourceBerry.class);
   }
 
   /** Create a new Berry. */

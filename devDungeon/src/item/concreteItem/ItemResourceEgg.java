@@ -17,7 +17,7 @@ import java.io.IOException;
 public class ItemResourceEgg extends contrib.item.concreteItem.ItemResourceEgg {
 
   static {
-    Item.ITEMS.put(ItemResourceEgg.class.getSimpleName(), ItemResourceEgg.class);
+    Item.registerItem(ItemResourceEgg.class);
   }
 
   /** Create a new Egg. */

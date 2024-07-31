@@ -25,7 +25,7 @@ public class ItemPotionAttackSpeed extends Item {
   private static final int EFFECT_DURATION = 15;
 
   static {
-    Item.ITEMS.put(ItemPotionAttackSpeed.class.getSimpleName(), ItemPotionAttackSpeed.class);
+    Item.registerItem(ItemPotionAttackSpeed.class);
   }
 
   private final AttackSpeedEffect attackSpeedEffect;

@@ -23,7 +23,7 @@ public class ItemPotionSpeed extends Item {
   private static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/potion/speed_potion.png");
 
   static {
-    Item.ITEMS.put(ItemPotionSpeed.class.getSimpleName(), ItemPotionSpeed.class);
+    Item.registerItem(ItemPotionSpeed.class);
   }
 
   private final SpeedEffect speedEffect;

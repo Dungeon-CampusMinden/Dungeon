@@ -15,7 +15,7 @@ import core.Entity;
 public class ItemResourceMushroomRed extends contrib.item.concreteItem.ItemResourceMushroomRed {
 
   static {
-    Item.ITEMS.put(ItemResourceMushroomRed.class.getSimpleName(), ItemResourceMushroomRed.class);
+    Item.registerItem(ItemResourceMushroomRed.class);
   }
 
   /** Create a new Mushroom. */
