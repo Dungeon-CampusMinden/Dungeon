@@ -33,6 +33,6 @@ public enum MonsterIdleSound {
    * @return The path to the sound of the monster's idle sound. If the monster has no sound, returns
    */
   public IPath getPath() {
-    return this.path;
+    return path;
   }
 }

@@ -53,10 +53,10 @@ public class FogOfWarSystem extends System {
    * @param revert If true, the FogOfWarSystem will also revert to its initial state.
    */
   public void reset(boolean revert) {
-    this.darkenedTiles.clear();
-    this.hiddenEntities.clear();
+    darkenedTiles.clear();
+    hiddenEntities.clear();
     if (revert) {
-      this.revert();
+      revert();
     }
   }
 
@@ -70,13 +70,13 @@ public class FogOfWarSystem extends System {
    * @see #revert()
    */
   public void reset() {
-    this.reset(true);
+    reset(true);
   }
 
   /** Reverts the FogOfWarSystem. This reveals all darkened tiles and hidden entities. */
   public void revert() {
-    this.revertTilesBackToLight(this.darkenedTiles.keySet().stream().toList());
-    this.revealHiddenEntities();
+    revertTilesBackToLight(darkenedTiles.keySet().stream().toList());
+    revealHiddenEntities();
   }
 
   /**
@@ -85,7 +85,7 @@ public class FogOfWarSystem extends System {
    * @return true if the FogOfWarSystem is active, false otherwise.
    */
   public boolean active() {
-    return this.active;
+    return active;
   }
 
   /**
@@ -100,8 +100,8 @@ public class FogOfWarSystem extends System {
     this.active = active;
 
     if (!active) {
-      this.revert();
-      this.reset();
+      revert();
+      reset();
     }
   }
 
@@ -151,8 +151,7 @@ public class FogOfWarSystem extends System {
           } else {
             if (!tile.canSeeThrough() && i < radius) { // this step is a blocking square
               blocked = true;
-              visibleTiles.addAll(
-                  this.castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+              visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
               newStart = rSlope;
             }
           }
@@ -164,11 +163,11 @@ public class FogOfWarSystem extends System {
   }
 
   private void darkenTile(Tile tile, int maxDistance, float scale, Point heroPos) {
-    int newTint = this.getTintColor(tile.coordinate().toPoint(), maxDistance, scale, heroPos);
+    int newTint = getTintColor(tile.coordinate().toPoint(), maxDistance, scale, heroPos);
     int orgTint = tile.tintColor();
     int mixedTint = orgTint == -1 ? newTint : (orgTint & 0xFFFFFF00) | (newTint & 0x000000FF);
-    if (!this.darkenedTiles.containsKey(tile)) {
-      this.darkenedTiles.put(tile, orgTint);
+    if (!darkenedTiles.containsKey(tile)) {
+      darkenedTiles.put(tile, orgTint);
     }
     tile.tintColor(mixedTint);
   }
@@ -204,10 +203,10 @@ public class FogOfWarSystem extends System {
   }
 
   private void revertTilesBackToLight(List<Tile> visibleTiles) {
-    Iterator<Tile> iterator = this.darkenedTiles.keySet().iterator();
+    Iterator<Tile> iterator = darkenedTiles.keySet().iterator();
     while (iterator.hasNext()) {
       Tile darkenTile = iterator.next();
-      Integer originalTint = this.darkenedTiles.get(darkenTile);
+      Integer originalTint = darkenedTiles.get(darkenTile);
       // match non-current tile or tile that are far away
       if (visibleTiles.contains(darkenTile)) {
         darkenTile.tintColor(originalTint);
@@ -217,11 +216,11 @@ public class FogOfWarSystem extends System {
   }
 
   private void hideAllHiddenEntities() {
-    this.darkenedTiles.keySet().stream()
+    darkenedTiles.keySet().stream()
         .filter(tile -> tile.tintColor() < HIDE_ENTITY_THRESHOLD)
         .flatMap(Game::entityAtTile)
         .filter(entity -> entity.isPresent(DrawComponent.class))
-        .filter(entity -> !this.isAntiTorchAndLit(entity)) // Ignore anti-torches
+        .filter(entity -> !isAntiTorchAndLit(entity)) // Ignore anti-torches
         .filter(entity -> !entity.name().contains("tpball")) // Ignore tpballs
         .forEach(
             entity -> {
@@ -231,7 +230,7 @@ public class FogOfWarSystem extends System {
                       .orElseThrow(
                           () -> MissingComponentException.build(entity, DrawComponent.class));
               dc.setVisible(false);
-              this.hiddenEntities.add(entity);
+              hiddenEntities.add(entity);
             });
   }
 
@@ -244,13 +243,13 @@ public class FogOfWarSystem extends System {
   }
 
   private void revealHiddenEntities() {
-    for (Entity entity : this.hiddenEntities) {
+    for (Entity entity : hiddenEntities) {
       PositionComponent pc =
           entity
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
       Tile tile = Game.tileAT(pc.position());
-      if (!this.darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
+      if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
         DrawComponent dc =
             entity
                 .fetch(DrawComponent.class)
@@ -262,23 +261,23 @@ public class FogOfWarSystem extends System {
 
   @Override
   public void execute() {
-    if (!this.active) return;
+    if (!active) return;
 
     Point heroPos = EntityUtils.getHeroPosition();
     if (heroPos == null) return; // no hero, no fog of war
 
     List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
     // Revert all darkened tiles back to light that are not in view
-    List<Tile> tilesOutsideView = new ArrayList<>(this.darkenedTiles.keySet());
+    List<Tile> tilesOutsideView = new ArrayList<>(darkenedTiles.keySet());
     tilesOutsideView.removeAll(allTilesInView);
-    this.revertTilesBackToLight(tilesOutsideView);
+    revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
     visibleTiles.add(Game.tileAT(heroPos));
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(
-          this.castLight(
+          castLight(
               1,
               1.0f,
               0.0f,
@@ -295,7 +294,7 @@ public class FogOfWarSystem extends System {
     distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE));
     distancedTiles.forEach(
         (tile) ->
-            this.darkenTile(
+            darkenTile(
                 tile,
                 VIEW_DISTANCE + DISTANCE_TRANSITION_SIZE,
                 TINT_COLOR_DISTANCE_SCALE,
@@ -307,16 +306,16 @@ public class FogOfWarSystem extends System {
 
     // Darken tiles that are behind walls
     allTilesInView.forEach(
-        (tile) -> this.darkenTile(tile, VIEW_DISTANCE, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
+        (tile) -> darkenTile(tile, VIEW_DISTANCE, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
 
     // Revert all visible tiles back to light
-    this.revertTilesBackToLight(visibleTiles);
+    revertTilesBackToLight(visibleTiles);
 
     // Hide entities in the fog of war
-    this.hideAllHiddenEntities();
+    hideAllHiddenEntities();
 
     // Reveal entities in the visible area
-    this.revealHiddenEntities();
+    revealHiddenEntities();
   }
 
   /**
@@ -331,9 +330,9 @@ public class FogOfWarSystem extends System {
    * @param newTile The new tile.
    */
   public void updateTile(Tile oldTile, Tile newTile) {
-    if (this.darkenedTiles.containsKey(oldTile)) {
-      int tint = this.darkenedTiles.remove(oldTile);
-      this.darkenedTiles.put(newTile, tint);
+    if (darkenedTiles.containsKey(oldTile)) {
+      int tint = darkenedTiles.remove(oldTile);
+      darkenedTiles.put(newTile, tint);
     }
   }
 }

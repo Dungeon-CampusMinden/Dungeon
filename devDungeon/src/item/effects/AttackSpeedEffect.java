@@ -49,11 +49,9 @@ public class AttackSpeedEffect {
     }
 
     this.originalFireballCoolDown = HeroFactory.getHeroSkill().cooldown();
-    HeroFactory.getHeroSkill()
-        .cooldown((long) (this.originalFireballCoolDown / this.speedMultiplier));
+    HeroFactory.getHeroSkill().cooldown((long) (originalFireballCoolDown / speedMultiplier));
 
     EVENT_SCHEDULER.scheduleAction(
-        () -> HeroFactory.getHeroSkill().cooldown(this.originalFireballCoolDown),
-        this.duration * 1000L);
+        () -> HeroFactory.getHeroSkill().cooldown(originalFireballCoolDown), duration * 1000L);
   }
 }

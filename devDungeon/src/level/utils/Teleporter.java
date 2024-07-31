@@ -49,7 +49,7 @@ public class Teleporter {
    * @return The 'from' location of the teleporter.
    */
   public Coordinate from() {
-    return this.from;
+    return from;
   }
 
   /**
@@ -58,7 +58,7 @@ public class Teleporter {
    * @return The 'to' location of the teleporter.
    */
   public Coordinate to() {
-    return this.to;
+    return to;
   }
 
   /**
@@ -67,7 +67,7 @@ public class Teleporter {
    * @return True if the teleporter is one-way, false otherwise.
    */
   public boolean isOneWay() {
-    return this.isOneWay;
+    return isOneWay;
   }
 
   /**
@@ -81,10 +81,10 @@ public class Teleporter {
    * @return The current destination of the teleporter, or null if there is no valid destination.
    */
   public Coordinate getCurrentDestination(Coordinate currentPos) {
-    if (currentPos.equals(this.from)) {
-      return this.to;
-    } else if (currentPos.equals(this.to) && !this.isOneWay) {
-      return this.from;
+    if (currentPos.equals(from)) {
+      return to;
+    } else if (currentPos.equals(to) && !isOneWay) {
+      return from;
     }
     return null;
   }
@@ -106,8 +106,6 @@ public class Teleporter {
     if (!(obj instanceof Teleporter other)) {
       return false;
     }
-    return this.from.equals(other.from)
-        && this.to.equals(other.to)
-        && this.isOneWay == other.isOneWay;
+    return from.equals(other.from) && to.equals(other.to) && isOneWay == other.isOneWay;
   }
 }

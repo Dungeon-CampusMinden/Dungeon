@@ -36,18 +36,18 @@ public class TeleporterSystem extends System {
    */
   @Override
   public void execute() {
-    if (this.teleporters.isEmpty()) {
+    if (teleporters.isEmpty()) {
       return;
     }
 
-    if (!this.heroMoved()) return; // Only consider teleporting if the hero has moved
+    if (!heroMoved()) return; // Only consider teleporting if the hero has moved
     this.lastHeroPos = EntityUtils.getHeroCoordinate();
-    if (this.lastHeroPos == null) {
+    if (lastHeroPos == null) {
       return;
     }
     Coordinate destination = null;
-    for (Teleporter teleporter : this.teleporters) {
-      destination = teleporter.getCurrentDestination(this.lastHeroPos);
+    for (Teleporter teleporter : teleporters) {
+      destination = teleporter.getCurrentDestination(lastHeroPos);
       if (destination != null) {
         break;
       }
@@ -57,8 +57,8 @@ public class TeleporterSystem extends System {
       return;
     }
 
-    if (!this.justTeleported) { // Prevent teleporting back and forth
-      this.teleportHero(destination);
+    if (!justTeleported) { // Prevent teleporting back and forth
+      teleportHero(destination);
     }
   }
 
@@ -68,7 +68,7 @@ public class TeleporterSystem extends System {
    * @return True if the hero has moved, false otherwise.
    */
   private boolean heroMoved() {
-    return this.lastHeroPos != null && !this.lastHeroPos.equals(getHeroCoordinate());
+    return lastHeroPos != null && !lastHeroPos.equals(getHeroCoordinate());
   }
 
   /**
@@ -95,7 +95,7 @@ public class TeleporterSystem extends System {
    * @param teleporter The teleporter(s) to register.
    */
   public void registerTeleporter(Teleporter... teleporter) {
-    Collections.addAll(this.teleporters, teleporter);
+    Collections.addAll(teleporters, teleporter);
   }
 
   /**
@@ -104,7 +104,7 @@ public class TeleporterSystem extends System {
    * @param teleporter The teleporter to remove.
    */
   public void removeTeleporter(Teleporter teleporter) {
-    this.teleporters.remove(teleporter);
+    teleporters.remove(teleporter);
   }
 
   /**
@@ -113,11 +113,11 @@ public class TeleporterSystem extends System {
    * @return A collection of all registered teleporters.
    */
   public Collection<Teleporter> teleporter() {
-    return this.teleporters;
+    return teleporters;
   }
 
   /** Removes all teleporters from the system. */
   public void clearTeleporters() {
-    this.teleporters.clear();
+    teleporters.clear();
   }
 }

@@ -56,49 +56,46 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
     this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.bridgeMobSpawn = customPoints.get(8);
 
-    this.secretWay =
-        Arrays.stream(this.getCoordinates(11, 17)).map(this::tileAt).toArray(Tile[]::new);
-    this.mobSpawns = this.getCoordinates(18, this.customPoints().size() - 2);
-    this.levelBossSpawn = this.customPoints().getLast();
+    this.secretWay = Arrays.stream(getCoordinates(11, 17)).map(this::tileAt).toArray(Tile[]::new);
+    this.mobSpawns = getCoordinates(18, customPoints().size() - 2);
+    this.levelBossSpawn = customPoints().getLast();
   }
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-    this.doorTiles().forEach(DoorTile::close);
-    this.pitTiles()
+    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+    doorTiles().forEach(DoorTile::close);
+    pitTiles()
         .forEach(
             pit -> {
               pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
               pit.close();
             });
-    this.prepareBridge();
+    prepareBridge();
 
     // Prepare the secret way
-    for (int i = 0; i < this.secretWay.length - 1; i++) {
-      PitTile pitTile = (PitTile) this.secretWay[i];
+    for (int i = 0; i < secretWay.length - 1; i++) {
+      PitTile pitTile = (PitTile) secretWay[i];
       pitTile.timeToOpen(15 * 1000);
     }
 
     // Spawn all entities and it's content
-    this.spawnChestsAndCauldrons();
+    spawnChestsAndCauldrons();
 
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
-    EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
+    EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn);
     riddleHandler.onFirstTick();
   }
 
   @Override
   public void onTick() {
-    this.riddleHandler.onTick();
+    riddleHandler.onTick();
   }
 
   private void prepareBridge() {
-    EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, this.bridgeMobSpawn);
+    EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, bridgeMobSpawn);
     List<PitTile> bridge =
-        this.pitTiles().stream()
-            .filter(pit -> pit.coordinate().y == this.bridgeMobSpawn.y)
-            .toList();
+        pitTiles().stream().filter(pit -> pit.coordinate().y == bridgeMobSpawn.y).toList();
     int timeToOpen = 500;
     for (PitTile pitTile : bridge) {
       pitTile.timeToOpen(timeToOpen);
@@ -126,7 +123,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
         chest
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(this.secretWay[this.secretWay.length - 1].coordinate().toCenteredPoint());
+    pc.position(secretWay[secretWay.length - 1].coordinate().toCenteredPoint());
     InventoryComponent ic =
         chest
             .fetch(InventoryComponent.class)

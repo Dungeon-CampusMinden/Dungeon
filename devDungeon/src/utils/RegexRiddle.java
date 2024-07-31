@@ -82,8 +82,8 @@ public enum RegexRiddle {
 
   RegexRiddle(String question, List<String> answers, int correctAnswerIndex) {
     this.riddle = new SingleChoice(question);
-    this.riddle.addAnswer(answers.stream().map(Quiz.Content::new).toArray(Quiz.Content[]::new));
-    this.riddle.addCorrectAnswerIndex(correctAnswerIndex);
+    riddle.addAnswer(answers.stream().map(Quiz.Content::new).toArray(Quiz.Content[]::new));
+    riddle.addCorrectAnswerIndex(correctAnswerIndex);
   }
 
   /**

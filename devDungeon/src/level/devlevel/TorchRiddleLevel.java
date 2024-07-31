@@ -59,24 +59,24 @@ public class TorchRiddleLevel extends DevDungeonLevel {
     this.riddleHandler = new TorchRiddleRiddleHandler(customPoints, this);
 
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(1), customPoints.get(2)};
-    this.torchPositions = this.getCoordinates(3, 8);
-    this.riddleRoomTorches = this.getCoordinates(9, 14);
-    this.riddleRoomContent = this.getCoordinates(15, 16);
-    this.mobSpawns = this.getCoordinates(18, customPoints.size() - 2);
+    this.torchPositions = getCoordinates(3, 8);
+    this.riddleRoomTorches = getCoordinates(9, 14);
+    this.riddleRoomContent = getCoordinates(15, 16);
+    this.mobSpawns = getCoordinates(18, customPoints.size() - 2);
     this.levelBossSpawn = customPoints.getLast();
   }
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-    this.pitTiles()
+    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+    pitTiles()
         .forEach(
             pit -> {
               pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
               pit.close();
             });
-    this.handleFirstTick();
-    this.doorTiles().forEach(DoorTile::close);
+    handleFirstTick();
+    doorTiles().forEach(DoorTile::close);
     riddleHandler.onFirstTick();
   }
 
@@ -87,18 +87,18 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
   private void handleFirstTick() {
     // Hide Riddle Room at start
-    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
+    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], false);
 
     // Spawn all entities and it's content
-    this.spawnTorches();
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
-    EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn);
-    this.spawnChestsAndCauldrons();
+    spawnTorches();
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
+    EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn);
+    spawnChestsAndCauldrons();
   }
 
   private void spawnTorches() {
-    this.spawnRiddleRoomTorches();
-    this.spawnOutsideTorches();
+    spawnRiddleRoomTorches();
+    spawnOutsideTorches();
   }
 
   /**
@@ -106,7 +106,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    * interactable or have any values.
    */
   private void spawnRiddleRoomTorches() {
-    for (Coordinate riddleRoomTorch : this.riddleRoomTorches) {
+    for (Coordinate riddleRoomTorch : riddleRoomTorches) {
       Point torchPos = new Point(riddleRoomTorch.x + 0.5f, riddleRoomTorch.y + 0.25f);
       EntityUtils.spawnTorch(torchPos, true, false, 0);
     }
@@ -121,7 +121,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    */
   private void spawnOutsideTorches() {
     List<Integer> torchNumbers = new ArrayList<>();
-    Coordinate[] positions = this.torchPositions;
+    Coordinate[] positions = torchPositions;
     for (int i = 0; i < positions.length; i++) {
       Coordinate torchPosition = positions[i];
       Point torchPos = torchPosition.toCenteredPoint();
@@ -142,7 +142,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
       torchNumbers.add(torchNumber);
     }
 
-    this.riddleHandler.setRiddleSolution(torchNumbers);
+    riddleHandler.setRiddleSolution(torchNumbers);
   }
 
   /**
@@ -163,7 +163,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
 
-    pc.position(this.riddleRoomContent[0].toCenteredPoint());
+    pc.position(riddleRoomContent[0].toCenteredPoint());
 
     InventoryComponent ic =
         chest
@@ -185,7 +185,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(this.riddleRoomContent[1].toCenteredPoint());
+    pc.position(riddleRoomContent[1].toCenteredPoint());
     Game.add(cauldron);
   }
 }

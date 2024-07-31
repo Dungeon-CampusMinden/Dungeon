@@ -68,24 +68,24 @@ public class IllusionRiddleHandler {
 
   /** Handles the first tick of the riddle room. */
   public void onFirstTick() {
-    if (this.level.tileAt(this.riddleRewardSpawn) != null)
-      this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
+    if (level.tileAt(riddleRewardSpawn) != null)
+      level.tileAt(riddleRewardSpawn).tintColor(0x22FF22FF);
   }
 
   /** Handles the tick logic of the riddle room. */
   public void onTick() {
-    this.handleLapRoomLogic();
-    this.handleRewardLogic();
+    handleLapRoomLogic();
+    handleRewardLogic();
   }
 
   private void handleRewardLogic() {
-    if (this.rewardGiven) {
+    if (rewardGiven) {
       return;
     }
 
     Coordinate heroPos = EntityUtils.getHeroCoordinate();
-    if (this.riddleRewardSpawn.equals(heroPos)) {
-      this.giveReward();
+    if (riddleRewardSpawn.equals(heroPos)) {
+      giveReward();
     }
   }
 
@@ -102,7 +102,7 @@ public class IllusionRiddleHandler {
         new BurningFireballSkill(
             SkillTools::cursorPositionAsPoint)); // Update the current hero skill
     this.rewardGiven = true;
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
+    level.tileAt(riddleRewardSpawn).tintColor(-1);
   }
 
   /**
@@ -129,25 +129,25 @@ public class IllusionRiddleHandler {
   private void handleLapRoomLogic() {
     Coordinate heroPos = EntityUtils.getHeroCoordinate();
     // Check if the hero has moved
-    if (this.lastHeroPos == null || heroPos == null || this.lastHeroPos.equals(heroPos)) return;
+    if (lastHeroPos == null || heroPos == null || lastHeroPos.equals(heroPos)) return;
     this.lastHeroPos = heroPos;
 
-    this.handleLapProgressLogic(heroPos);
+    handleLapProgressLogic(heroPos);
 
-    if (this.thirdRoom && this.lapProgress == 0) {
+    if (thirdRoom && lapProgress == 0) {
       this.thirdRoom = false;
     }
 
-    if (this.lapCounter == -1 && this.lapProgress == 3) {
-      this.offsetHero(new Coordinate(-27, 0));
+    if (lapCounter == -1 && lapProgress == 3) {
+      offsetHero(new Coordinate(-27, 0));
       this.lapCounter = 0;
       this.lapProgress = 0;
       this.lastCheckpoint = -2;
-    } else if (!this.thirdRoom && this.lapCounter == LAP_REWARD && this.lapProgress == 1) {
-      this.offsetHero(new Coordinate(24, 0));
+    } else if (!thirdRoom && lapCounter == LAP_REWARD && lapProgress == 1) {
+      offsetHero(new Coordinate(24, 0));
       this.thirdRoom = true;
     } else {
-      this.handleHiddenTeleporter(heroPos);
+      handleHiddenTeleporter(heroPos);
     }
   }
 
@@ -158,27 +158,27 @@ public class IllusionRiddleHandler {
    * @param heroPos The current position of the hero.
    */
   public void handleLapProgressLogic(Coordinate heroPos) {
-    int currentCheckpoint = this.getCurrentCheckpoint(heroPos);
+    int currentCheckpoint = getCurrentCheckpoint(heroPos);
     // Check if the hero is not on a checkpoint or is on the same checkpoint as the last update
-    if (currentCheckpoint == -1 || currentCheckpoint == this.lastCheckpoint) {
+    if (currentCheckpoint == -1 || currentCheckpoint == lastCheckpoint) {
       return; // No update required
     }
 
     // Calculate the difference between the current and the last checkpoint
-    int checkpointDifference = currentCheckpoint - this.lastCheckpoint;
+    int checkpointDifference = currentCheckpoint - lastCheckpoint;
 
     // Update lastCheckpoint for the next call
     this.lastCheckpoint = currentCheckpoint;
 
     // If this is the first checkpoint the hero reaches, just return
-    if (this.lastCheckpoint == -2) {
+    if (lastCheckpoint == -2) {
       return;
     }
 
     // Moving forward through checkpoints
     if (checkpointDifference == 1 || checkpointDifference == -3) {
       this.lapProgress++;
-      if (this.lapProgress > 3) {
+      if (lapProgress > 3) {
         this.lapCounter++;
         this.lapProgress = 0;
       }
@@ -186,7 +186,7 @@ public class IllusionRiddleHandler {
     // Moving backward through checkpoints
     else if (checkpointDifference == -1 || checkpointDifference == 3) {
       this.lapProgress--;
-      if (this.lapProgress < 0) {
+      if (lapProgress < 0) {
         this.lapCounter--;
         this.lapProgress = 3;
       }
@@ -201,8 +201,8 @@ public class IllusionRiddleHandler {
    *     a checkpoint.
    */
   private int getCurrentCheckpoint(Coordinate heroPos) {
-    for (int i = 0; i < this.lapCheckpoints.length; i++) {
-      Coordinate[] lapCheckpoint = this.lapCheckpoints[i];
+    for (int i = 0; i < lapCheckpoints.length; i++) {
+      Coordinate[] lapCheckpoint = lapCheckpoints[i];
       for (Coordinate coordinate : lapCheckpoint) {
         if (heroPos.equals(coordinate)) {
           return i;
@@ -218,15 +218,15 @@ public class IllusionRiddleHandler {
    * @param heroPos The current position of the hero.
    */
   private void handleHiddenTeleporter(Coordinate heroPos) {
-    for (Coordinate initTeleporterCoords : this.initTeleporterSpawns[0]) { // start teleporter -> in
+    for (Coordinate initTeleporterCoords : initTeleporterSpawns[0]) { // start teleporter -> in
       if (heroPos.equals(initTeleporterCoords)) {
-        this.offsetHero(new Coordinate(27, 0));
+        offsetHero(new Coordinate(27, 0));
         return;
       }
     }
-    for (Coordinate lastTeleporterCoords : this.lastTeleporterSpawns[1]) { // end teleporter -> out
+    for (Coordinate lastTeleporterCoords : lastTeleporterSpawns[1]) { // end teleporter -> out
       if (heroPos.equals(lastTeleporterCoords)) {
-        this.offsetHero(new Coordinate(-24, 0));
+        offsetHero(new Coordinate(-24, 0));
         this.lastCheckpoint = 0;
         this.lapProgress = 0;
         this.thirdRoom = false;

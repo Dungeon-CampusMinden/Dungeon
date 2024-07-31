@@ -42,7 +42,7 @@ public class LeverComponent implements Component {
    * @return The command that will be executed when the lever is toggled.
    */
   public ICommand command() {
-    return this.command;
+    return command;
   }
 
   /**
@@ -52,7 +52,7 @@ public class LeverComponent implements Component {
    *     otherwise.
    */
   public boolean isOn() {
-    return this.isOn;
+    return isOn;
   }
 
   /**
@@ -60,11 +60,11 @@ public class LeverComponent implements Component {
    * it turns it on.
    */
   public void toggle() {
-    this.isOn = !this.isOn;
-    if (this.isOn) {
-      this.command.execute();
+    this.isOn = !isOn;
+    if (isOn) {
+      command.execute();
     } else {
-      this.command.undo();
+      command.undo();
     }
   }
 
@@ -72,9 +72,9 @@ public class LeverComponent implements Component {
   public String toString() {
     return "LeverComponent{"
         + "isOn="
-        + this.isOn
+        + isOn
         + ", Command="
-        + this.command.getClass().getSimpleName()
+        + command.getClass().getSimpleName()
         + '}';
   }
 }

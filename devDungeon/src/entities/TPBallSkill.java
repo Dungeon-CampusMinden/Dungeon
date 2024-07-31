@@ -63,7 +63,7 @@ public final class TPBallSkill extends DamageProjectile {
           }
           EntityUtils.teleportEntityTo(entity, targetPos);
         });
-    this.tintColor(0xFF00FFFF);
+    tintColor(0xFF00FFFF);
   }
 
   @Override

@@ -83,15 +83,15 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     this.riddleRewardSpawn = customPoints.get(11);
     this.riddleRoomExit = customPoints.get(12);
 
-    this.setupRiddles();
+    setupRiddles();
   }
 
   /** Handles the first tick of the riddle handler. */
   public void onFirstTick() {
-    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
-    this.prepareBridge();
-    this.spawnChestAndCauldron();
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22AAFFFF);
+    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], false);
+    prepareBridge();
+    spawnChestAndCauldron();
+    level.tileAt(riddleRewardSpawn).tintColor(0x22AAFFFF);
   }
 
   /** Handles the ticks of the riddle handler. */
@@ -99,29 +99,29 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     Coordinate heroPos = EntityUtils.getHeroCoordinate();
     if (heroPos == null) return;
 
-    if (!this.rewardGiven && this.riddleRewardSpawn.equals(heroPos)) {
-      this.giveReward();
+    if (!rewardGiven && riddleRewardSpawn.equals(heroPos)) {
+      giveReward();
     }
   }
 
   private void prepareBridge() {
-    LevelUtils.tilesInArea(this.bridgePitsBounds[0], this.bridgePitsBounds[1]).stream()
+    LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof PitTile || tile instanceof FloorTile)
         .map(
             tile -> {
-              this.level.changeTileElementType(tile, LevelElement.PIT);
-              return (PitTile) this.level.tileAt(tile.coordinate());
+              level.changeTileElementType(tile, LevelElement.PIT);
+              return (PitTile) level.tileAt(tile.coordinate());
             })
         .forEach(PitTile::open);
-    LevelUtils.tilesInArea(this.bridgePitsBounds[0], this.bridgePitsBounds[1]).stream()
+    LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof WallTile)
-        .peek(wallTile -> this.level.changeTileElementType(wallTile, LevelElement.FLOOR))
+        .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
         .forEach(
             tile -> {
               EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
             });
 
-    LevelUtils.tilesInArea(this.bridgeBounds[0], this.bridgeBounds[1]).stream()
+    LevelUtils.tilesInArea(bridgeBounds[0], bridgeBounds[1]).stream()
         .map(tile -> (PitTile) tile)
         .forEach(
             pitTile -> {
@@ -129,21 +129,19 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
               pitTile.close();
             });
 
-    this.prepareBridgeEntities();
+    prepareBridgeEntities();
   }
 
   private void prepareBridgeEntities() {
     EntityUtils.spawnLever(
-        this.bridgeLever.toCenteredPoint(),
-        new BridgeControlCommand(this.bridgeBounds[0], this.bridgeBounds[1]));
+        bridgeLever.toCenteredPoint(), new BridgeControlCommand(bridgeBounds[0], bridgeBounds[1]));
     EntityUtils.spawnSign(
         "Pull the lever to raise and lower the bridge",
         "Bridge Control",
-        this.bridgeLeverSign.toCenteredPoint());
+        bridgeLeverSign.toCenteredPoint());
     this.bridgeGuard =
-        EntityUtils.spawnBridgeGuard(
-            this.bridgeGuardSpawn.toCenteredPoint(), this.riddles, this.lastTask());
-    this.bridgeGuard
+        EntityUtils.spawnBridgeGuard(bridgeGuardSpawn.toCenteredPoint(), riddles, lastTask());
+    bridgeGuard
         .fetch(HealthComponent.class)
         .ifPresent(
             hc ->
@@ -152,7 +150,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                       if (damage.damageType() == DamageType.HEAL
                           || damage.damageType() == DamageType.FALL) return;
                       hc.receiveHit(
-                          new Damage(-damage.damageAmount(), DamageType.HEAL, this.bridgeGuard));
+                          new Damage(-damage.damageAmount(), DamageType.HEAL, bridgeGuard));
                       if (entity.isPresent(PlayerComponent.class)) {
                         OkDialog.showOkDialog(
                             "Haha, you cannot harm me! I am invincible!",
@@ -187,8 +185,8 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
                         output,
                         "Result",
                         () -> {
-                          this.bridgeGuard.remove(InteractionComponent.class);
-                          this.bridgeGuard.add(
+                          bridgeGuard.remove(InteractionComponent.class);
+                          bridgeGuard.add(
                               new InteractionComponent(
                                   2.5f,
                                   true,
@@ -205,10 +203,10 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
 
   @Override
   public void onHealthEvent(HealthSystem.HSData hsData, HealthEvent healthEvent) {
-    if (healthEvent == HealthEvent.DEATH && hsData.e().equals(this.bridgeGuard)) {
-      LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
-      ((DoorTile) this.level.tileAt(this.riddleRoomEntrance)).open();
-      ((DoorTile) this.level.tileAt(this.riddleRoomExit)).open();
+    if (healthEvent == HealthEvent.DEATH && hsData.e().equals(bridgeGuard)) {
+      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
+      ((DoorTile) level.tileAt(riddleRoomEntrance)).open();
+      ((DoorTile) level.tileAt(riddleRoomExit)).open();
     }
   }
 
@@ -220,7 +218,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     if (hero == null) return;
     hero.add(new MagicShieldComponent());
     this.rewardGiven = true;
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
+    level.tileAt(riddleRewardSpawn).tintColor(-1);
   }
 
   // Riddle Methods
@@ -246,7 +244,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
 
-    pc.position(this.riddleRoomChest.toCenteredPoint());
+    pc.position(riddleRoomChest.toCenteredPoint());
 
     InventoryComponent ic =
         chest
@@ -266,8 +264,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(
-        new Coordinate(this.riddleRoomChest.x + 1, this.riddleRoomChest.y).toCenteredPoint());
+    pc.position(new Coordinate(riddleRoomChest.x + 1, riddleRoomChest.y).toCenteredPoint());
     Game.add(cauldron);
   }
 }

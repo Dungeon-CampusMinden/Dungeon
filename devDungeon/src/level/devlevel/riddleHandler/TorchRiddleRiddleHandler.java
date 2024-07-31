@@ -62,11 +62,11 @@ public class TorchRiddleRiddleHandler {
         SignFactory.createSign(
             "",
             "Riddle: The Torch Riddle",
-            new Point(this.riddleDoor.x - 1 + 0.5f, this.riddleDoor.y - 1 + 0.5f),
+            new Point(riddleDoor.x - 1 + 0.5f, riddleDoor.y - 1 + 0.5f),
             (sign, hero) -> {
               try {
                 // Updates content based on random riddle values
-                this.updateRiddleSign(this.getSumOfLitTorches());
+                updateRiddleSign(getSumOfLitTorches());
               } catch (UnsupportedOperationException e) {
                 sign.fetch(SignComponent.class)
                     .ifPresent(
@@ -79,10 +79,10 @@ public class TorchRiddleRiddleHandler {
 
   /** Handles the first tick of the riddle. */
   public void onFirstTick() {
-    Game.add(this.riddleSign);
-    this.level.tileAt(this.riddleCenter).tintColor(0x22FF22FF);
+    Game.add(riddleSign);
+    level.tileAt(riddleCenter).tintColor(0x22FF22FF);
     try {
-      this.updateRiddleSign(this.getSumOfLitTorches());
+      updateRiddleSign(getSumOfLitTorches());
     } catch (UnsupportedOperationException e) {
       this.broken = true;
     }
@@ -100,14 +100,14 @@ public class TorchRiddleRiddleHandler {
    * riddle is solved.
    */
   private void riddle() {
-    int sum = this.getSumOfLitTorches();
+    int sum = getSumOfLitTorches();
 
-    this.testSum(sum);
+    testSum(sum);
 
-    if (sum == this.riddleSearchedSum) {
-      this.solveRiddle();
-      if (!this.rewardGiven && this.checkIfHeroIsInCenter()) {
-        this.giveReward();
+    if (sum == riddleSearchedSum) {
+      solveRiddle();
+      if (!rewardGiven && checkIfHeroIsInCenter()) {
+        giveReward();
       }
     }
   }
@@ -147,7 +147,7 @@ public class TorchRiddleRiddleHandler {
               e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
             });
 
-    this.level.tileAt(this.riddleCenter).tintColor(-1);
+    level.tileAt(riddleCenter).tintColor(-1);
   }
 
   /**
@@ -157,8 +157,7 @@ public class TorchRiddleRiddleHandler {
    */
   private boolean checkIfHeroIsInCenter() {
     Optional<Entity> hero = Game.hero();
-    return hero.filter(
-            entity -> this.level.tileAtEntity(entity).equals(this.level.tileAt(this.riddleCenter)))
+    return hero.filter(entity -> level.tileAtEntity(entity).equals(level.tileAt(riddleCenter)))
         .isPresent();
   }
 
@@ -168,9 +167,9 @@ public class TorchRiddleRiddleHandler {
    * @see LevelUtils#changeVisibilityForArea(Coordinate, Coordinate, boolean)
    */
   private void solveRiddle() {
-    DoorTile door = (DoorTile) this.level.tileAt(this.riddleDoor);
+    DoorTile door = (DoorTile) level.tileAt(riddleDoor);
     door.open();
-    LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
+    LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
   }
 
   /**
@@ -180,12 +179,12 @@ public class TorchRiddleRiddleHandler {
    * @param currentSum The current sum of the values of all lit torches.
    */
   private void updateRiddleSign(int currentSum) {
-    this.riddleSign
+    riddleSign
         .fetch(SignComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(this.riddleSign, SignComponent.class))
+        .orElseThrow(() -> MissingComponentException.build(riddleSign, SignComponent.class))
         .text(
             "\n\nAll torches combined should sum up to: \n'"
-                + this.riddleSearchedSum
+                + riddleSearchedSum
                 + "' You already have: '"
                 + currentSum
                 + "'");
@@ -198,7 +197,7 @@ public class TorchRiddleRiddleHandler {
    * @return the sum of the random elements
    */
   private int getRandomSumOfNElements(List<Integer> numbers) {
-    int amount = this.level.RANDOM.nextInt(2, numbers.size());
+    int amount = level.RANDOM.nextInt(2, numbers.size());
     List<Integer> randomNumbers =
         ArrayUtils.getRandomElements(numbers.toArray(new Integer[0]), amount);
     return randomNumbers.stream().mapToInt(Integer::intValue).sum();
@@ -211,7 +210,7 @@ public class TorchRiddleRiddleHandler {
    * @see #getRandomSumOfNElements(List)
    */
   public void setRiddleSolution(List<Integer> torchNumbers) {
-    this.riddleSearchedSum = this.getRandomSumOfNElements(torchNumbers);
+    this.riddleSearchedSum = getRandomSumOfNElements(torchNumbers);
   }
 
   /**

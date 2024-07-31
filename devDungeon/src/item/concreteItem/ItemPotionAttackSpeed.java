@@ -45,7 +45,7 @@ public class ItemPotionAttackSpeed extends Item {
         .ifPresent(
             component -> {
               component.remove(this);
-              this.attackSpeedEffect.applyAttackSpeed(e);
+              attackSpeedEffect.applyAttackSpeed(e);
             });
   }
 }

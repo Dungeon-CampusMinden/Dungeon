@@ -51,7 +51,7 @@ public class MobSpawnerComponent implements Component {
     this.maxSpawnDelay = maxSpawnDelay;
     this.minSpawnRadius = minSpawnRadius;
     this.maxSpawnRadius = maxSpawnRadius;
-    this.setNextSpawnDelay();
+    setNextSpawnDelay();
   }
 
   /**
@@ -60,15 +60,14 @@ public class MobSpawnerComponent implements Component {
    * @param position The position where the monster should be spawned.
    */
   public void spawnRandomMonster(Point position) {
-    MonsterType monsterType = this.getRandomMonsterType();
+    MonsterType monsterType = getRandomMonsterType();
     EntityUtils.spawnMonster(monsterType, position);
-    this.setNextSpawnDelay();
+    setNextSpawnDelay();
   }
 
   private void setNextSpawnDelay() {
     this.currentSpawnDelay =
-        Game.currentLevel().RANDOM.nextInt(this.maxSpawnDelay - this.minSpawnDelay)
-            + this.minSpawnDelay;
+        Game.currentLevel().RANDOM.nextInt(maxSpawnDelay - minSpawnDelay) + minSpawnDelay;
   }
 
   /**
@@ -80,7 +79,7 @@ public class MobSpawnerComponent implements Component {
    * @return A random MonsterType from the array of monster types.
    */
   private MonsterType getRandomMonsterType() {
-    return this.monsterTypes[Game.currentLevel().RANDOM.nextInt(this.monsterTypes.length)];
+    return monsterTypes[Game.currentLevel().RANDOM.nextInt(monsterTypes.length)];
   }
 
   /**
@@ -89,7 +88,7 @@ public class MobSpawnerComponent implements Component {
    * @return The array of MonsterTypes that the mob spawner can spawn.
    */
   public MonsterType[] monsterTypes() {
-    return this.monsterTypes;
+    return monsterTypes;
   }
 
   /**
@@ -98,7 +97,7 @@ public class MobSpawnerComponent implements Component {
    * @return The maximum number of monsters that can be around the mob spawner.
    */
   public int maxMobCount() {
-    return this.maxMobCount;
+    return maxMobCount;
   }
 
   /**
@@ -107,7 +106,7 @@ public class MobSpawnerComponent implements Component {
    * @return The current delay between monster spawns.
    */
   public int spawnDelay() {
-    return this.currentSpawnDelay;
+    return currentSpawnDelay;
   }
 
   /**
@@ -116,7 +115,7 @@ public class MobSpawnerComponent implements Component {
    * @return The maximum radius around the mob spawner where monsters can spawn.
    */
   public int maxSpawnRadius() {
-    return this.maxSpawnRadius;
+    return maxSpawnRadius;
   }
 
   /**
@@ -125,6 +124,6 @@ public class MobSpawnerComponent implements Component {
    * @return The minimum radius around the mob spawner where monsters can spawn.
    */
   public int minSpawnRadius() {
-    return this.minSpawnRadius;
+    return minSpawnRadius;
   }
 }

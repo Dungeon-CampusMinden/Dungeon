@@ -47,27 +47,27 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
         "Let's try to not get lost, the entire area is brimming with orcs. Let's try to find someone who may be able to help us! The bridge should be a start.");
     this.riddleHandler = new BridgeGuardRiddleHandler(customPoints, this);
 
-    this.campSpawns = this.getCoordinates(13, 24);
-    this.mobSpawns = this.getCoordinates(25, 53);
-    this.levelBossSpawn = this.customPoints().get(54);
+    this.campSpawns = getCoordinates(13, 24);
+    this.mobSpawns = getCoordinates(25, 53);
+    this.levelBossSpawn = customPoints().get(54);
   }
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-    this.doorTiles().forEach(DoorTile::close);
-    this.pitTiles()
+    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+    doorTiles().forEach(DoorTile::close);
+    pitTiles()
         .forEach(
             pit -> {
               pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
               pit.close();
             });
-    this.spawnCamps();
+    spawnCamps();
 
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, this.mobSpawns);
+    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
     EntityUtils.spawnBoss(
         BOSS_TYPE,
-        this.levelBossSpawn,
+        levelBossSpawn,
         (boss) -> {
           DialogUtils.showTextPopup(
               "The next level is the final boss. You probably want to prepare for that. It's going to be tough.",
@@ -78,11 +78,11 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   @Override
   protected void onTick() {
-    this.riddleHandler.onTick();
+    riddleHandler.onTick();
   }
 
   private void spawnCamps() {
-    for (Coordinate campSpawn : this.campSpawns) {
+    for (Coordinate campSpawn : campSpawns) {
       EntityUtils.spawnMobSpawner(campSpawn, MONSTER_TYPES, MOB_COUNT_PER_CAMP);
     }
   }

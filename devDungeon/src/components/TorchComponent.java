@@ -35,7 +35,7 @@ public class TorchComponent implements Component {
    * will be turned on.
    */
   public void toggle() {
-    this.lit(!this.lit);
+    lit(!lit);
   }
 
   /**
@@ -44,7 +44,7 @@ public class TorchComponent implements Component {
    * @return True if the torch is lit, false otherwise.
    */
   public boolean lit() {
-    return this.lit;
+    return lit;
   }
 
   /**
@@ -62,7 +62,7 @@ public class TorchComponent implements Component {
    * @return The value of the torch.
    */
   public int value() {
-    return this.value;
+    return value;
   }
 
   /**

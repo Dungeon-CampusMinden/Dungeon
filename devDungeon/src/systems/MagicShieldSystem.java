@@ -32,7 +32,7 @@ public class MagicShieldSystem extends System {
   /** Overridden execute method from the System class. It processes each entity in the system. */
   @Override
   public void execute() {
-    this.filteredEntityStream().forEach(this::processEntity);
+    filteredEntityStream().forEach(this::processEntity);
   }
 
   /**
@@ -42,9 +42,7 @@ public class MagicShieldSystem extends System {
    * @param entity The entity to be processed.
    */
   private void processEntity(Entity entity) {
-    entity
-        .fetch(MagicShieldComponent.class)
-        .ifPresent(shield -> this.processShield(entity, shield));
+    entity.fetch(MagicShieldComponent.class).ifPresent(shield -> processShield(entity, shield));
   }
 
   /**
@@ -56,13 +54,13 @@ public class MagicShieldSystem extends System {
    */
   private void processShield(Entity entity, MagicShieldComponent shield) {
     if (!shield.isDepleted()) {
-      this.setTintColor(entity, DEFAULT_SHIELD_ENTITY_TINT);
+      setTintColor(entity, DEFAULT_SHIELD_ENTITY_TINT);
       return;
     }
     if (shield.canBeRecharged()) {
       shield.recharge();
     } else {
-      this.setTintColor(entity, -1);
+      setTintColor(entity, -1);
     }
   }
 

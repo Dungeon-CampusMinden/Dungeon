@@ -58,28 +58,28 @@ public class LevelEditorSystem extends System {
       return;
     }
     if (Gdx.input.isKeyPressed(SKIP_BUTTON)) {
-      this.setTile(LevelElement.SKIP);
+      setTile(LevelElement.SKIP);
     }
     if (Gdx.input.isKeyPressed(PIT_BUTTON)) {
-      this.setTile(LevelElement.PIT);
+      setTile(LevelElement.PIT);
     }
     if (Gdx.input.isKeyPressed(FLOOR_BUTTON)) {
-      this.setTile(LevelElement.FLOOR);
+      setTile(LevelElement.FLOOR);
     }
     if (Gdx.input.isKeyPressed(WALL_BUTTON)) {
-      this.setTile(LevelElement.WALL);
+      setTile(LevelElement.WALL);
     }
     if (Gdx.input.isKeyPressed(HOLE_BUTTON)) {
-      this.setTile(LevelElement.HOLE);
+      setTile(LevelElement.HOLE);
     }
     if (Gdx.input.isKeyJustPressed(EXIT_BUTTON)) {
-      this.setTile(LevelElement.EXIT);
+      setTile(LevelElement.EXIT);
     }
     if (Gdx.input.isKeyJustPressed(DOOR_BUTTON)) {
-      this.setTile(LevelElement.DOOR);
+      setTile(LevelElement.DOOR);
     }
     if (Gdx.input.isKeyJustPressed(CUSTOM_POINT)) {
-      this.setCustomPoint();
+      setCustomPoint();
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
       if (Game.currentLevel() instanceof DevDungeonLevel) {
@@ -89,7 +89,7 @@ public class LevelEditorSystem extends System {
       }
     }
     if (Gdx.input.isKeyJustPressed(FILL_WITH_FLOOR)) {
-      this.fillWithFloor();
+      fillWithFloor();
     }
   }
 

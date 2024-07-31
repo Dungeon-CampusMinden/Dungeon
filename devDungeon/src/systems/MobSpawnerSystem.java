@@ -48,7 +48,7 @@ public class MobSpawnerSystem extends System {
 
   @Override
   public void execute() {
-    this.filteredEntityStream().forEach(this::spawnMonsterIfPossible);
+    filteredEntityStream().forEach(this::spawnMonsterIfPossible);
   }
 
   /**
@@ -78,8 +78,8 @@ public class MobSpawnerSystem extends System {
             .fetch(MobSpawnerComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, MobSpawnerComponent.class));
 
-    if (this.canSpawnMonster(position.position(), mobSpawner)) {
-      this.spawnMonster(position, mobSpawner);
+    if (canSpawnMonster(position.position(), mobSpawner)) {
+      spawnMonster(position, mobSpawner);
     }
   }
 
@@ -94,7 +94,7 @@ public class MobSpawnerSystem extends System {
     List<Tile> possibleSpawns =
         LevelUtils.accessibleTilesInRange(position.position(), mobSpawner.maxSpawnRadius());
     possibleSpawns =
-        this.filterTilesWithinMinRadius(
+        filterTilesWithinMinRadius(
             position.position().toCoordinate(), mobSpawner.minSpawnRadius(), possibleSpawns);
 
     if (possibleSpawns.isEmpty()) {
@@ -103,7 +103,7 @@ public class MobSpawnerSystem extends System {
 
     Tile spawnTile = possibleSpawns.get(Game.currentLevel().RANDOM.nextInt(possibleSpawns.size()));
     mobSpawner.spawnRandomMonster(spawnTile.coordinate().toCenteredPoint());
-    this.lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
+    lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
   }
 
   /**
@@ -135,11 +135,11 @@ public class MobSpawnerSystem extends System {
    * @see MobSpawnerComponent
    */
   private boolean canSpawnMonster(Point position, MobSpawnerComponent mobSpawner) {
-    if (!this.lastSpawnTimes.containsKey(mobSpawner)) {
-      this.lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
+    if (!lastSpawnTimes.containsKey(mobSpawner)) {
+      lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
     }
 
-    long lastSpawnTime = this.lastSpawnTimes.get(mobSpawner);
+    long lastSpawnTime = lastSpawnTimes.get(mobSpawner);
     long currentTime = java.lang.System.currentTimeMillis();
     long timeSinceLastSpawn = currentTime - lastSpawnTime;
 
@@ -147,9 +147,9 @@ public class MobSpawnerSystem extends System {
       return false;
     }
 
-    List<Entity> entitiesAround = this.getEntitiesAround(position, mobSpawner.maxSpawnRadius() * 2);
+    List<Entity> entitiesAround = getEntitiesAround(position, mobSpawner.maxSpawnRadius() * 2);
     if (entitiesAround.size() >= mobSpawner.maxMobCount()) {
-      this.lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
+      lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
       return false;
     }
 

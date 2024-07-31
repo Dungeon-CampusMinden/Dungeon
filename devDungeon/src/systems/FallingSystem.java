@@ -43,7 +43,7 @@ public class FallingSystem extends System {
 
   @Override
   public void execute() {
-    this.filteredEntityStream().filter(this::filterFalling).forEach(this::handleFalling);
+    filteredEntityStream().filter(this::filterFalling).forEach(this::handleFalling);
   }
 
   private boolean filterFalling(Entity entity) {
@@ -66,7 +66,7 @@ public class FallingSystem extends System {
         .ifPresent(
             hc -> {
               if (DEBUG_DONT_KILL && entity.isPresent(PlayerComponent.class)) {
-                this.teleportPlayerIfPossible();
+                teleportPlayerIfPossible();
                 return;
               }
               hc.receiveHit(new Damage(hc.currentHealthpoints(), DamageType.FALL, entity));
@@ -76,7 +76,7 @@ public class FallingSystem extends System {
   private void teleportPlayerIfPossible() {
     Point heroCoords = EntityUtils.getHeroPosition();
     if (heroCoords != null) {
-      Tile tile = this.getSafeTile(heroCoords);
+      Tile tile = getSafeTile(heroCoords);
       Debugger.TELEPORT(tile);
     }
   }

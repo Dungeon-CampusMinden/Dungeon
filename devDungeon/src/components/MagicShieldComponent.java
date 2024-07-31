@@ -51,7 +51,7 @@ public class MagicShieldComponent implements Component {
    * @return True if the shield is depleted, false otherwise.
    */
   public boolean isDepleted() {
-    return this.currentStrength <= 0;
+    return currentStrength <= 0;
   }
 
   /**
@@ -63,7 +63,7 @@ public class MagicShieldComponent implements Component {
    * @throws IllegalArgumentException If the damage is negative.
    */
   public void hit(int damage) {
-    if (this.isDepleted()) {
+    if (isDepleted()) {
       return;
     }
     if (damage < 0) {
@@ -71,7 +71,7 @@ public class MagicShieldComponent implements Component {
     }
 
     this.currentStrength -= damage;
-    if (this.isDepleted()) {
+    if (isDepleted()) {
       this.depletionAt = System.currentTimeMillis();
     }
   }
@@ -83,7 +83,7 @@ public class MagicShieldComponent implements Component {
    * @return True if the shield can be recharged, false otherwise.
    */
   public boolean canBeRecharged() {
-    return this.isDepleted() && System.currentTimeMillis() - this.depletionAt >= this.cooldown;
+    return isDepleted() && System.currentTimeMillis() - depletionAt >= cooldown;
   }
 
   /**
@@ -91,8 +91,8 @@ public class MagicShieldComponent implements Component {
    * strength.
    */
   public void recharge() {
-    if (this.canBeRecharged()) {
-      this.currentStrength = this.shieldStrength;
+    if (canBeRecharged()) {
+      this.currentStrength = shieldStrength;
     }
   }
 }

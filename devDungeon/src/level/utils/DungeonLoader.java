@@ -116,7 +116,7 @@ public class DungeonLoader {
    * @return The current level order.
    */
   public String[] levelOrder() {
-    return this.levelOrder;
+    return levelOrder;
   }
 
   /**
@@ -125,7 +125,7 @@ public class DungeonLoader {
    * @return The name of the current level.
    */
   public String currentLevel() {
-    return this.levelOrder()[this.currentLevel];
+    return levelOrder()[currentLevel];
   }
 
   private ILevel getRandomVariant(String levelName) {
@@ -151,10 +151,10 @@ public class DungeonLoader {
   public void loadNextLevel() {
     this.currentLevel++;
     try {
-      Game.currentLevel(this.getRandomVariant(this.levelOrder[this.currentLevel]));
+      Game.currentLevel(getRandomVariant(levelOrder[currentLevel]));
     } catch (MissingLevelException | ArrayIndexOutOfBoundsException e) {
       System.out.println("Game Over!");
-      System.out.println("You have passed all " + this.currentLevel + " levels!");
+      System.out.println("You have passed all " + currentLevel + " levels!");
       Game.exit();
     }
   }
@@ -165,8 +165,8 @@ public class DungeonLoader {
    * @param levelName The name of the level.
    */
   public void loadLevel(String levelName) {
-    this.setCurrentLevelByLevelName(levelName);
-    Game.currentLevel(this.getRandomVariant(levelName));
+    setCurrentLevelByLevelName(levelName);
+    Game.currentLevel(getRandomVariant(levelName));
   }
 
   /**
@@ -176,7 +176,7 @@ public class DungeonLoader {
    * @param variant The index of the level variant.
    */
   public void loadLevel(String levelName, int variant) {
-    this.setCurrentLevelByLevelName(levelName);
+    setCurrentLevelByLevelName(levelName);
     List<String> levelVariants = LEVELS.get(levelName);
     if (levelVariants == null || levelVariants.isEmpty() || variant >= levelVariants.size()) {
       throw new MissingLevelException(levelName);
@@ -187,14 +187,14 @@ public class DungeonLoader {
 
   private void setCurrentLevelByLevelName(String levelName) {
     this.currentLevel = -1;
-    for (int i = 0; i < this.levelOrder.length; i++) {
-      if (this.levelOrder[i].equals(levelName)) {
+    for (int i = 0; i < levelOrder.length; i++) {
+      if (levelOrder[i].equals(levelName)) {
         this.currentLevel = i;
         break;
       }
     }
 
-    if (this.currentLevel == -1) {
+    if (currentLevel == -1) {
       throw new MissingLevelException(levelName);
     }
   }
@@ -205,6 +205,6 @@ public class DungeonLoader {
    * @return The index of the current level.
    */
   public int currentLevelIndex() {
-    return this.currentLevel;
+    return currentLevel;
   }
 }

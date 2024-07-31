@@ -69,40 +69,40 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         "The Final Boss",
         "Woah! What is this place? This place is scorching, and I'm getting uneasy. We should prepare ourselves just in case.");
 
-    this.levelBossSpawn = this.customPoints().getFirst();
-    this.pillars = this.getCoordinates(1, 4); // Top left corner (each 2x2)
-    this.entrance = this.customPoints().get(5); // Entrance into the arena
-    this.chestSpawn = this.customPoints().get(6);
-    this.cauldronSpawn = this.customPoints().get(7);
+    this.levelBossSpawn = customPoints().getFirst();
+    this.pillars = getCoordinates(1, 4); // Top left corner (each 2x2)
+    this.entrance = customPoints().get(5); // Entrance into the arena
+    this.chestSpawn = customPoints().get(6);
+    this.cauldronSpawn = customPoints().get(7);
   }
 
   @Override
   protected void onFirstTick() {
     DialogUtils.showTextPopup(
         "", "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Final Boss");
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-    this.doorTiles().forEach(DoorTile::close);
-    this.pitTiles()
+    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+    doorTiles().forEach(DoorTile::close);
+    pitTiles()
         .forEach(
             pit -> {
               pit.timeToOpen(50);
               pit.close();
             });
-    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, this.levelBossSpawn, this::handleBossDeath);
+    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn, this::handleBossDeath);
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
-    this.spawnChestsAndCauldrons();
+    spawnChestsAndCauldrons();
   }
 
   @Override
   protected void onTick() {
     Coordinate heroCoord = EntityUtils.getHeroCoordinate();
     if (heroCoord == null) return;
-    if (heroCoord.y > this.entrance.y) {
-      this.changeTileElementType(this.tileAt(this.entrance), LevelElement.WALL);
+    if (heroCoord.y > entrance.y) {
+      changeTileElementType(tileAt(entrance), LevelElement.WALL);
     } else {
-      this.changeTileElementType(this.tileAt(this.entrance), LevelElement.FLOOR);
+      changeTileElementType(tileAt(entrance), LevelElement.FLOOR);
     }
-    this.handleBossAttacks();
+    handleBossAttacks();
   }
 
   /**
@@ -115,13 +115,13 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     try {
       chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create chest entity at " + this.chestSpawn, e);
+      throw new RuntimeException("Failed to create chest entity at " + chestSpawn, e);
     }
     PositionComponent pc =
         chest
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(this.chestSpawn.toCenteredPoint());
+    pc.position(chestSpawn.toCenteredPoint());
     InventoryComponent ic =
         chest
             .fetch(InventoryComponent.class)
@@ -136,13 +136,13 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     try {
       cauldon = MiscFactory.newCraftingCauldron();
     } catch (Exception e) {
-      throw new RuntimeException("Failed to create cauldron entity at " + this.cauldronSpawn, e);
+      throw new RuntimeException("Failed to create cauldron entity at " + cauldronSpawn, e);
     }
     pc =
         cauldon
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldon, PositionComponent.class));
-    pc.position(this.cauldronSpawn.toCenteredPoint());
+    pc.position(cauldronSpawn.toCenteredPoint());
     Game.add(cauldon);
   }
 
@@ -159,28 +159,27 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    */
   private void handleBossAttacks() {
     AIComponent aiComp =
-        this.boss
-            .fetch(AIComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(this.boss, AIComponent.class));
+        boss.fetch(AIComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(boss, AIComponent.class));
     if (!(aiComp.fightBehavior() instanceof RangeAI rangeAI)) return;
 
-    if (this.isBoss2ndPhase) {
-      if (this.anyOtherMobsAlive()) {
+    if (isBoss2ndPhase) {
+      if (anyOtherMobsAlive()) {
         rangeAI.skill(BossAttackSkills.SKILL_NONE());
         return;
       } else {
-        this.boss.remove(MagicShieldComponent.class);
+        boss.remove(MagicShieldComponent.class);
         // workaround to remove the tint color, as no callback is provided
-        this.boss.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(-1));
+        boss.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(-1));
       }
     }
 
-    if (System.currentTimeMillis() - this.lastAttackChange > this.getBossAttackChangeDelay()
-        && this.isBossNormalAttacking) {
+    if (System.currentTimeMillis() - lastAttackChange > getBossAttackChangeDelay()
+        && isBossNormalAttacking) {
       this.lastAttackChange = System.currentTimeMillis();
       rangeAI.skill(BossAttackSkills.getFinalBossSkill(boss));
       this.isBossNormalAttacking = false;
-    } else if (!this.isBossNormalAttacking) {
+    } else if (!isBossNormalAttacking) {
       rangeAI.skill(BossAttackSkills.normalAttack(AIFactory.FIREBALL_COOL_DOWN));
       this.isBossNormalAttacking = true;
     }
@@ -213,12 +212,12 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
   private void triggerBoss2ndPhase() {
     this.isBoss2ndPhase = true;
 
-    this.boss.add(new MagicShieldComponent(Integer.MAX_VALUE, 0));
+    boss.add(new MagicShieldComponent(Integer.MAX_VALUE, 0));
 
     Coordinate[] tilesAroundBoss =
-        LevelUtils.accessibleTilesInRange(this.levelBossSpawn.toPoint(), 6).stream()
+        LevelUtils.accessibleTilesInRange(levelBossSpawn.toPoint(), 6).stream()
             .map(Tile::coordinate)
-            .filter(c -> c.distance(this.levelBossSpawn) > 3)
+            .filter(c -> c.distance(levelBossSpawn) > 3)
             .toArray(Coordinate[]::new);
     EntityUtils.spawnMobs(
         Game.currentLevel().RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT),
@@ -226,16 +225,16 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         tilesAroundBoss);
 
     // Destroy pillars
-    for (Coordinate pillarTopLeftCoord : this.pillars) {
-      this.changeTileElementType(this.tileAt(pillarTopLeftCoord), LevelElement.FLOOR);
-      this.changeTileElementType(
-          this.tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y)),
+    for (Coordinate pillarTopLeftCoord : pillars) {
+      changeTileElementType(tileAt(pillarTopLeftCoord), LevelElement.FLOOR);
+      changeTileElementType(
+          tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y)),
           LevelElement.FLOOR);
-      this.changeTileElementType(
-          this.tileAt(new Coordinate(pillarTopLeftCoord.x, pillarTopLeftCoord.y - 1)),
+      changeTileElementType(
+          tileAt(new Coordinate(pillarTopLeftCoord.x, pillarTopLeftCoord.y - 1)),
           LevelElement.FLOOR);
-      this.changeTileElementType(
-          this.tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y - 1)),
+      changeTileElementType(
+          tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y - 1)),
           LevelElement.FLOOR);
     }
   }
@@ -252,7 +251,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    * @return The delay for changing the boss attack in milliseconds.
    */
   private int getBossAttackChangeDelay() {
-    double currentPercentage = BossAttackSkills.calculateBossHealthPercentage(this.boss);
+    double currentPercentage = BossAttackSkills.calculateBossHealthPercentage(boss);
 
     double delayAtFullHealth = 5000;
     double delayAtZeroHealth = 750;
@@ -280,12 +279,12 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   @Override
   public void onHealthEvent(HealthSystem.HSData hsData, HealthEvent healthEvent) {
-    if (hsData.e() != this.boss || healthEvent != HealthEvent.DAMAGE) return;
+    if (hsData.e() != boss || healthEvent != HealthEvent.DAMAGE) return;
 
     // on first time 50% trigger sub phase
-    if (!this.isBoss2ndPhase
+    if (!isBoss2ndPhase
         && hsData.hc().currentHealthpoints() <= hsData.hc().maximalHealthpoints() / 2) {
-      this.triggerBoss2ndPhase();
+      triggerBoss2ndPhase();
     }
   }
 }

@@ -35,8 +35,8 @@ public class ItemPotionSpeed extends Item {
         "A potion that increases your speed",
         Animation.fromSingleImage(DEFAULT_TEXTURE));
     this.speedEffect = new SpeedEffect(3, 5);
-    if (!this.testEffect()) {
-      this.description("It looks like this potion is broken...");
+    if (!testEffect()) {
+      description("It looks like this potion is broken...");
     }
   }
 
@@ -46,7 +46,7 @@ public class ItemPotionSpeed extends Item {
         .ifPresent(
             component -> {
               try {
-                this.speedEffect.applySpeedEffect(e);
+                speedEffect.applySpeedEffect(e);
                 component.remove(this);
               } catch (UnsupportedOperationException ignored) {
               }
@@ -69,7 +69,7 @@ public class ItemPotionSpeed extends Item {
     VelocityComponent vc = new VelocityComponent(1, 1);
     e.add(vc);
     try {
-      this.speedEffect.applySpeedEffect(e);
+      speedEffect.applySpeedEffect(e);
     } catch (UnsupportedOperationException ex) {
       return false;
     }

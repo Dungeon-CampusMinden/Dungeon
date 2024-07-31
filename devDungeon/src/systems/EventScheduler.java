@@ -50,15 +50,15 @@ public class EventScheduler extends System {
    */
   public void update() {
     long currentTime = TimeUtils.millis();
-    this.scheduledActions.begin();
-    for (int i = 0; i < this.scheduledActions.size; i++) {
-      ScheduledAction scheduledAction = this.scheduledActions.get(i);
+    scheduledActions.begin();
+    for (int i = 0; i < scheduledActions.size; i++) {
+      ScheduledAction scheduledAction = scheduledActions.get(i);
       if (currentTime >= scheduledAction.executeAt) {
         scheduledAction.action.applyEffect();
-        this.scheduledActions.removeIndex(i);
+        scheduledActions.removeIndex(i);
       }
     }
-    this.scheduledActions.end();
+    scheduledActions.end();
   }
 
   /**
@@ -73,7 +73,7 @@ public class EventScheduler extends System {
    */
   public void scheduleAction(TimedEffect action, long delayMillis) {
     long executeAt = TimeUtils.millis() + delayMillis;
-    this.scheduledActions.add(new ScheduledAction(action, executeAt));
+    scheduledActions.add(new ScheduledAction(action, executeAt));
   }
 
   /**
@@ -83,7 +83,7 @@ public class EventScheduler extends System {
    * called, the list of scheduled actions will be empty.
    */
   public void clear() {
-    this.scheduledActions.clear();
+    scheduledActions.clear();
   }
 
   /**
@@ -94,7 +94,7 @@ public class EventScheduler extends System {
    */
   @Override
   public void execute() {
-    this.update();
+    update();
   }
 
   private static class ScheduledAction {

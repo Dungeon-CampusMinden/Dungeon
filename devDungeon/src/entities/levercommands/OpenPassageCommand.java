@@ -47,15 +47,14 @@ public class OpenPassageCommand implements ICommand {
 
   @Override
   public void execute() {
-    if (!this.isOpen) {
+    if (!isOpen) {
       this.originalTiles =
-          new LevelElement[this.bottomRight.x - this.topLeft.x + 1]
-              [this.topLeft.y - this.bottomRight.y + 1];
-      for (int x = this.topLeft.x; x <= this.bottomRight.x; x++) {
-        for (int y = this.bottomRight.y; y <= this.topLeft.y; y++) {
+          new LevelElement[bottomRight.x - topLeft.x + 1][topLeft.y - bottomRight.y + 1];
+      for (int x = topLeft.x; x <= bottomRight.x; x++) {
+        for (int y = bottomRight.y; y <= topLeft.y; y++) {
           Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
           if (tile == null) return;
-          this.originalTiles[x - this.topLeft.x][this.topLeft.y - y] = tile.levelElement();
+          originalTiles[x - topLeft.x][topLeft.y - y] = tile.levelElement();
           Game.currentLevel().changeTileElementType(tile, LevelElement.FLOOR);
           Tile newTile = Game.currentLevel().tileAt(new Coordinate(x, y));
           ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).updateTile(tile, newTile);
@@ -63,25 +62,25 @@ public class OpenPassageCommand implements ICommand {
       }
       this.isOpen = true;
     }
-    this.playSound();
+    playSound();
   }
 
   @Override
   public void undo() {
-    if (this.isOpen) {
-      for (int x = this.topLeft.x; x <= this.bottomRight.x; x++) {
-        for (int y = this.bottomRight.y; y <= this.topLeft.y; y++) {
+    if (isOpen) {
+      for (int x = topLeft.x; x <= bottomRight.x; x++) {
+        for (int y = bottomRight.y; y <= topLeft.y; y++) {
           Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
           if (tile == null) return;
-          LevelElement oldElement = this.originalTiles[x - this.topLeft.x][this.topLeft.y - y];
+          LevelElement oldElement = originalTiles[x - topLeft.x][topLeft.y - y];
           Game.currentLevel().changeTileElementType(tile, oldElement);
           Tile newTile = Game.currentLevel().tileAt(new Coordinate(x, y));
           ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).updateTile(tile, newTile);
         }
       }
       // Workaround to fix wall textures
-      for (int x = this.topLeft.x; x <= this.bottomRight.x; x++) {
-        for (int y = this.bottomRight.y; y <= this.topLeft.y; y++) {
+      for (int x = topLeft.x; x <= bottomRight.x; x++) {
+        for (int y = bottomRight.y; y <= topLeft.y; y++) {
           Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
           if (tile == null) return;
           Game.currentLevel().changeTileElementType(tile, tile.levelElement());

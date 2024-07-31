@@ -36,6 +36,6 @@ public enum MonsterDeathSound {
    * @return The sound of the monster's death. If the monster has no sound, returns null.
    */
   public Sound getSound() {
-    return this.sound;
+    return sound;
   }
 }

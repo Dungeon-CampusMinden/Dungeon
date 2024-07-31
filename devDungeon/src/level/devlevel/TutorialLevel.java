@@ -68,13 +68,13 @@ public class TutorialLevel extends DevDungeonLevel {
     DialogUtils.showTextPopup(
         "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
-    this.doorTiles().forEach(DoorTile::close);
-    this.buildBridge();
-    Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, this.mobSpawn);
+    doorTiles().forEach(DoorTile::close);
+    buildBridge();
+    Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
-    DoorTile mobDoor = (DoorTile) this.tileAt(this.customPoints().get(5));
+    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
     mob.fetch(HealthComponent.class).ifPresent(hc -> hc.onDeath((e) -> mobDoor.open()));
     Entity chest;
     Entity chest2;
@@ -84,32 +84,32 @@ public class TutorialLevel extends DevDungeonLevel {
     } catch (IOException e) {
       throw new RuntimeException("Failed to create tutorial chest");
     }
-    this.setupChest(chest, chest2);
+    setupChest(chest, chest2);
     Entity cauldron;
     try {
       cauldron = MiscFactory.newCraftingCauldron();
     } catch (IOException e) {
       throw new RuntimeException("Failed to create tutorial cauldron");
     }
-    this.setupCauldron(cauldron);
+    setupCauldron(cauldron);
   }
 
   @Override
   protected void onTick() {
-    if (this.lastHeroCoords != null && !this.lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
+    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
       // Only handle text popups if the hero has moved
-      this.handleTextPopups();
+      handleTextPopups();
     }
-    this.handleDoors();
+    handleDoors();
     this.lastHeroCoords = EntityUtils.getHeroCoords();
   }
 
   private void handleTextPopups() {
-    DoorTile frontDoor = (DoorTile) this.tileAt(this.customPoints().get(4));
-    DoorTile mobDoor = (DoorTile) this.tileAt(this.customPoints().get(5));
-    DoorTile CraftingDoor = (DoorTile) this.tileAt(this.customPoints().get(6));
+    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4));
+    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
+    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6));
     if (EntityUtils.getHeroCoords() == null) return;
-    Tile heroTile = this.tileAt(EntityUtils.getHeroCoords());
+    Tile heroTile = tileAt(EntityUtils.getHeroCoords());
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
@@ -154,8 +154,8 @@ public class TutorialLevel extends DevDungeonLevel {
    * mob.
    */
   private void handleDoors() {
-    DoorTile frontDoor = (DoorTile) this.tileAt(this.customPoints().get(4));
-    DoorTile CraftingDoor = (DoorTile) this.tileAt(this.customPoints().get(6));
+    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4));
+    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6));
     Point heroPos;
     try {
       heroPos = SkillTools.heroPositionAsPoint();
@@ -191,7 +191,7 @@ public class TutorialLevel extends DevDungeonLevel {
             .fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, InventoryComponent.class));
 
-    pc.position(this.chestSpawn);
+    pc.position(chestSpawn);
     ic.add(
         new ItemPotionWater() {
           @Override
@@ -221,7 +221,7 @@ public class TutorialLevel extends DevDungeonLevel {
     ic =
         b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
-    pc.position(this.customPoints().get(3).toCenteredPoint());
+    pc.position(customPoints().get(3).toCenteredPoint());
     ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }
@@ -236,7 +236,7 @@ public class TutorialLevel extends DevDungeonLevel {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(this.cauldronSpawn);
+    pc.position(cauldronSpawn);
     Game.add(cauldron);
   }
 

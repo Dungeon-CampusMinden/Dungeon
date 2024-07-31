@@ -45,13 +45,13 @@ public class DevDungeonRoom {
     this.topLeft = topLeft;
     this.bottomRight = bottomRight;
     for (Coordinate torchSpawn : torchSpawns) {
-      if (!this.contains(torchSpawn)) {
+      if (!contains(torchSpawn)) {
         throw new IllegalArgumentException("Torch spawn must be within room bounds");
       }
     }
     this.torchSpawns = torchSpawns;
     for (Coordinate mobSpawn : mobSpawns) {
-      if (!this.contains(mobSpawn)) {
+      if (!contains(mobSpawn)) {
         throw new IllegalArgumentException("Mob spawn must be within room bounds");
       }
     }
@@ -76,7 +76,7 @@ public class DevDungeonRoom {
    * @return true if any torch is active, false otherwise.
    */
   public boolean isAnyTorchActive() {
-    for (Entity torch : this.torches) {
+    for (Entity torch : torches) {
       if (torch.fetch(TorchComponent.class).map(TorchComponent::lit).orElse(false)) {
         return true;
       }
@@ -86,8 +86,8 @@ public class DevDungeonRoom {
 
   /** Spawns the torches and mobs in the room at their respective spawn points. */
   public void spawnEntities() {
-    this.torches = this.spawnTorches(this.torchSpawns);
-    this.mobs = this.spawnMobs(this.mobSpawns);
+    this.torches = spawnTorches(torchSpawns);
+    this.mobs = spawnMobs(mobSpawns);
   }
 
   private Entity[] spawnTorches(Coordinate[] torchSpawns) {
@@ -122,7 +122,7 @@ public class DevDungeonRoom {
    * @return the top left coordinate of the room.
    */
   public Coordinate topLeft() {
-    return this.topLeft;
+    return topLeft;
   }
 
   /**
@@ -131,7 +131,7 @@ public class DevDungeonRoom {
    * @return the bottom right coordinate of the room.
    */
   public Coordinate bottomRight() {
-    return this.bottomRight;
+    return bottomRight;
   }
 
   /**
@@ -140,7 +140,7 @@ public class DevDungeonRoom {
    * @return the array of torch entities in the room.
    */
   public Entity[] torches() {
-    return this.torches;
+    return torches;
   }
 
   /**
@@ -149,7 +149,7 @@ public class DevDungeonRoom {
    * @return the array of mob entities in the room.
    */
   public Entity[] mobs() {
-    return this.mobs;
+    return mobs;
   }
 
   /**
@@ -159,10 +159,10 @@ public class DevDungeonRoom {
    * @return true if the coordinate is within the room, false otherwise.
    */
   public boolean contains(Coordinate coordinate) {
-    return coordinate.x >= this.topLeft.x
-        && coordinate.x <= this.bottomRight.x
-        && coordinate.y <= this.topLeft.y
-        && coordinate.y >= this.bottomRight.y;
+    return coordinate.x >= topLeft.x
+        && coordinate.x <= bottomRight.x
+        && coordinate.y <= topLeft.y
+        && coordinate.y >= bottomRight.y;
   }
 
   /**
@@ -171,15 +171,15 @@ public class DevDungeonRoom {
    * @return a list of tiles within the room.
    */
   public List<Tile> tiles() {
-    return LevelUtils.tilesInArea(this.topLeft, this.bottomRight);
+    return LevelUtils.tilesInArea(topLeft, bottomRight);
   }
 
   @Override
   public boolean equals(Object other) {
     if (this == other) return true;
-    if (other == null || this.getClass() != other.getClass()) return false;
+    if (other == null || getClass() != other.getClass()) return false;
     DevDungeonRoom otherRoom = (DevDungeonRoom) other;
-    return this.topLeft.equals(otherRoom.topLeft) && this.bottomRight.equals(otherRoom.bottomRight);
+    return topLeft.equals(otherRoom.topLeft) && bottomRight.equals(otherRoom.bottomRight);
   }
 
   /**
@@ -188,7 +188,7 @@ public class DevDungeonRoom {
    * @param active if true, activates the mobs' AI; if false, deactivates the mobs' AI.
    */
   public void mobAI(boolean active) {
-    for (Entity mob : this.mobs) {
+    for (Entity mob : mobs) {
       mob.fetch(AIComponent.class).ifPresent(ai -> ai.active(active));
     }
   }

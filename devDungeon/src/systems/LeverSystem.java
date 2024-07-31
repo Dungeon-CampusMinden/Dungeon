@@ -40,12 +40,12 @@ public class LeverSystem extends System {
    * @see core.Game#userOnLevelLoad(Consumer) onLevelLoad
    */
   public void clear() {
-    this.leverStates.clear();
+    leverStates.clear();
   }
 
   @Override
   public void execute() {
-    this.filteredEntityStream()
+    filteredEntityStream()
         .forEach(
             entity -> {
               LeverComponent lever =
@@ -53,17 +53,17 @@ public class LeverSystem extends System {
                       .fetch(LeverComponent.class)
                       .orElseThrow(
                           () -> MissingComponentException.build(entity, LeverComponent.class));
-              if (this.leverStates.containsKey(entity)) {
-                if (this.leverStates.get(entity) != lever.isOn()) {
+              if (leverStates.containsKey(entity)) {
+                if (leverStates.get(entity) != lever.isOn()) {
                   if (lever.isOn()) {
                     lever.command().execute();
                   } else {
                     lever.command().undo();
                   }
-                  this.leverStates.put(entity, lever.isOn());
+                  leverStates.put(entity, lever.isOn());
                 }
               } else {
-                this.leverStates.put(entity, lever.isOn());
+                leverStates.put(entity, lever.isOn());
               }
             });
   }

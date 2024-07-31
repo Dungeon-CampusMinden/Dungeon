@@ -68,18 +68,18 @@ public class DamagedBridgeRiddleHandler {
 
   /** Handles the first tick of the riddle room. */
   public void onFirstTick() {
-    this.riddleEntrance.open();
-    this.spawnSigns();
-    this.spawnChest();
-    this.preparePits();
-    this.level.tileAt(this.riddleRewardSpawn).tintColor(0x22FF22FF);
+    riddleEntrance.open();
+    spawnSigns();
+    spawnChest();
+    preparePits();
+    level.tileAt(riddleRewardSpawn).tintColor(0x22FF22FF);
   }
 
   /** Handles the tick of the riddle room. */
   public void onTick() {
-    if (this.isHeroInRiddleRoom()) {
-      LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], true);
-      this.riddleExit.open();
+    if (isHeroInRiddleRoom()) {
+      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
+      riddleExit.open();
 
       Entity hero = Game.hero().orElse(null);
       if (hero == null) return;
@@ -87,12 +87,12 @@ public class DamagedBridgeRiddleHandler {
           hero.fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-      if (!this.rewardGiven && this.riddleRewardSpawn.equals(pc.position().toCoordinate())) {
-        this.giveReward();
+      if (!rewardGiven && riddleRewardSpawn.equals(pc.position().toCoordinate())) {
+        giveReward();
       }
     } else {
-      LevelUtils.changeVisibilityForArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1], false);
-      this.riddleExit.close();
+      LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], false);
+      riddleExit.close();
     }
   }
 
@@ -109,7 +109,7 @@ public class DamagedBridgeRiddleHandler {
               hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
               hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
               this.rewardGiven = true;
-              this.level.tileAt(this.riddleRewardSpawn).tintColor(-1);
+              level.tileAt(riddleRewardSpawn).tintColor(-1);
             });
   }
 
@@ -128,9 +128,9 @@ public class DamagedBridgeRiddleHandler {
     if (heroPos == null) {
       return true; // if hero dies due to pit, still show riddle room
     }
-    return LevelUtils.isHeroInArea(this.riddleRoomBounds[0], this.riddleRoomBounds[1])
-        || this.level.tileAt(heroPos).equals(this.riddleEntrance)
-        || this.level.tileAt(heroPos).equals(this.riddleExit);
+    return LevelUtils.isHeroInArea(riddleRoomBounds[0], riddleRoomBounds[1])
+        || level.tileAt(heroPos).equals(riddleEntrance)
+        || level.tileAt(heroPos).equals(riddleExit);
   }
 
   /**
@@ -142,13 +142,13 @@ public class DamagedBridgeRiddleHandler {
    * forced to be 50. (After testing a hero can still cross at about (65ms))
    */
   private void preparePits() {
-    Coordinate topLeft = this.riddlePitBounds[0];
-    Coordinate bottomRight = this.riddlePitBounds[1];
+    Coordinate topLeft = riddlePitBounds[0];
+    Coordinate bottomRight = riddlePitBounds[1];
     int timeToOpen = 500;
 
     for (int x = bottomRight.x; x >= topLeft.x; x--) {
       for (int y = bottomRight.y + 1; y <= topLeft.y - 1; y++) {
-        PitTile pitTile = (PitTile) this.level.tileAt(new Coordinate(x, y));
+        PitTile pitTile = (PitTile) level.tileAt(new Coordinate(x, y));
         pitTile.timeToOpen(timeToOpen);
       }
       timeToOpen = Math.max(50, timeToOpen - 100); // force after 5 pits to be 50
@@ -157,7 +157,7 @@ public class DamagedBridgeRiddleHandler {
     int[] bordersYs = new int[] {topLeft.y, bottomRight.y};
     for (int y : bordersYs) {
       for (int x = topLeft.x; x <= bottomRight.x; x++) {
-        PitTile pitTile = (PitTile) this.level.tileAt(new Coordinate(x, y));
+        PitTile pitTile = (PitTile) level.tileAt(new Coordinate(x, y));
         pitTile.open();
       }
     }
@@ -171,13 +171,13 @@ public class DamagedBridgeRiddleHandler {
                     If you were faster, you could cross it.
                     Maybe theres a Speed Potion somewhere nearby?""",
         "Riddle: The damaged Bridge",
-        this.riddleEntranceSign.toCenteredPoint());
+        riddleEntranceSign.toCenteredPoint());
     EntityUtils.spawnSign(
         """
                     This looks interesting. Maybe there is
                     something hidden behind those sculptures?""",
         "Riddle: The damaged Bridge",
-        this.speedPotionChestHint.toCenteredPoint());
+        speedPotionChestHint.toCenteredPoint());
   }
 
   private void spawnChest() {
@@ -215,7 +215,7 @@ public class DamagedBridgeRiddleHandler {
             .orElseThrow(
                 () -> MissingComponentException.build(riddleChest, PositionComponent.class));
 
-    pc.position(this.riddleChestSpawn.toCenteredPoint());
+    pc.position(riddleChestSpawn.toCenteredPoint());
 
     ic =
         riddleChest

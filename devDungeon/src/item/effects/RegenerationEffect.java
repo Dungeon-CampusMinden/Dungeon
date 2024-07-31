@@ -37,7 +37,7 @@ public class RegenerationEffect {
    * @param target The entity to apply the regeneration effect to.
    */
   public void applyRegeneration(Entity target) {
-    for (int i = 1; i < this.duration + 1; i++) { // apply Regeneration every second for durationSec
+    for (int i = 1; i < duration + 1; i++) { // apply Regeneration every second for durationSec
       EVENT_SCHEDULER.scheduleAction(
           () -> {
             HealthComponent healthComponent =
@@ -48,7 +48,7 @@ public class RegenerationEffect {
             if (healthComponent.isDead()) {
               return;
             }
-            healthComponent.receiveHit(new Damage(-this.amountPerSecond, DamageType.HEAL, target));
+            healthComponent.receiveHit(new Damage(-amountPerSecond, DamageType.HEAL, target));
           },
           1000L * i);
     }

@@ -40,8 +40,8 @@ public class BurningEffect {
    * @param target The target entity to apply the burning effect to.
    */
   public void applyBurning(Entity target) {
-    int damageInterval = (int) (1 / this.amountPerSecond);
-    int totalDamageEvents = (int) (this.duration * this.amountPerSecond);
+    int damageInterval = (int) (1 / amountPerSecond);
+    int totalDamageEvents = (int) (duration * amountPerSecond);
 
     for (int i = 1; i <= totalDamageEvents; i++) {
       EVENT_SCHEDULER.scheduleAction(

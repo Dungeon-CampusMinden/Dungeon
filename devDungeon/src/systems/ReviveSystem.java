@@ -50,7 +50,7 @@ public class ReviveSystem extends System {
 
               if (healthComponent.isDead() && reviveComponent.reviveCount() > 0) {
                 if (deadEntities.containsKey(entity)) {
-                  if (java.lang.System.currentTimeMillis() - this.deadEntities.get(entity)
+                  if (java.lang.System.currentTimeMillis() - deadEntities.get(entity)
                       >= REVIVE_DELAY) {
                     reviveEntity(entity, healthComponent, reviveComponent);
                   }

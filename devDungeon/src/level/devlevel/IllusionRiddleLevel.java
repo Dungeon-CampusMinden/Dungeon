@@ -83,118 +83,118 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
     this.rooms =
         List.of(
             new DevDungeonRoom(
-                this.customPoints().get(0), // TopLeft
-                this.customPoints().get(1), // BottomRight
+                customPoints().get(0), // TopLeft
+                customPoints().get(1), // BottomRight
                 new Coordinate[] {}, // Torch Spawns
                 new Coordinate[] {} // Mob Spawns
                 ),
             new DevDungeonRoom(
-                this.customPoints().get(2),
-                this.customPoints().get(3),
-                new Coordinate[] {this.customPoints().get(4)},
-                new Coordinate[] {this.customPoints().get(5), this.customPoints().get(6)}),
+                customPoints().get(2),
+                customPoints().get(3),
+                new Coordinate[] {customPoints().get(4)},
+                new Coordinate[] {customPoints().get(5), customPoints().get(6)}),
             new DevDungeonRoom(
-                this.customPoints().get(7),
-                this.customPoints().get(8),
-                new Coordinate[] {this.customPoints().get(9)}),
+                customPoints().get(7),
+                customPoints().get(8),
+                new Coordinate[] {customPoints().get(9)}),
             new DevDungeonRoom(
-                this.customPoints().get(10),
-                this.customPoints().get(11),
-                new Coordinate[] {this.customPoints().get(12), this.customPoints().get(13)}),
+                customPoints().get(10),
+                customPoints().get(11),
+                new Coordinate[] {customPoints().get(12), customPoints().get(13)}),
             new DevDungeonRoom(
-                this.customPoints().get(14),
-                this.customPoints().get(15),
-                new Coordinate[] {this.customPoints().get(16)},
+                customPoints().get(14),
+                customPoints().get(15),
+                new Coordinate[] {customPoints().get(16)},
                 new Coordinate[] {}),
             new DevDungeonRoom(
-                this.customPoints().get(17),
-                this.customPoints().get(18),
-                new Coordinate[] {this.customPoints().get(19)},
+                customPoints().get(17),
+                customPoints().get(18),
+                new Coordinate[] {customPoints().get(19)},
                 new Coordinate[] {}),
             new DevDungeonRoom(
-                this.customPoints().get(20),
-                this.customPoints().get(21),
-                new Coordinate[] {this.customPoints().get(22), this.customPoints().get(23)},
-                new Coordinate[] {this.customPoints().get(24)}),
+                customPoints().get(20),
+                customPoints().get(21),
+                new Coordinate[] {customPoints().get(22), customPoints().get(23)},
+                new Coordinate[] {customPoints().get(24)}),
             new DevDungeonRoom(
-                this.customPoints().get(25),
-                this.customPoints().get(26),
-                new Coordinate[] {this.customPoints().get(27)},
-                this.getCoordinates(28, 32)),
+                customPoints().get(25),
+                customPoints().get(26),
+                new Coordinate[] {customPoints().get(27)},
+                getCoordinates(28, 32)),
             new DevDungeonRoom(
-                this.customPoints().get(33),
-                this.customPoints().get(34),
-                new Coordinate[] {this.customPoints().get(35), this.customPoints().get(36)}),
+                customPoints().get(33),
+                customPoints().get(34),
+                new Coordinate[] {customPoints().get(35), customPoints().get(36)}),
             new DevDungeonRoom(
-                this.customPoints().get(37),
-                this.customPoints().get(38),
-                new Coordinate[] {this.customPoints().get(39), this.customPoints().get(40)},
-                this.getCoordinates(41, 46)),
+                customPoints().get(37),
+                customPoints().get(38),
+                new Coordinate[] {customPoints().get(39), customPoints().get(40)},
+                getCoordinates(41, 46)),
             new DevDungeonRoom(
-                this.customPoints().get(47),
-                this.customPoints().get(48),
-                new Coordinate[] {this.customPoints().get(49)}),
+                customPoints().get(47),
+                customPoints().get(48),
+                new Coordinate[] {customPoints().get(49)}),
             new DevDungeonRoom(
-                this.customPoints().get(50),
-                this.customPoints().get(51),
-                new Coordinate[] {this.customPoints().get(52), this.customPoints().get(53)}),
+                customPoints().get(50),
+                customPoints().get(51),
+                new Coordinate[] {customPoints().get(52), customPoints().get(53)}),
             new DevDungeonRoom(
-                this.customPoints().get(54),
-                this.customPoints().get(55),
-                new Coordinate[] {this.customPoints().get(56)},
-                this.getCoordinates(57, 59)),
+                customPoints().get(54),
+                customPoints().get(55),
+                new Coordinate[] {customPoints().get(56)},
+                getCoordinates(57, 59)),
             new DevDungeonRoom(
-                this.customPoints().get(60),
-                this.customPoints().get(61),
-                new Coordinate[] {this.customPoints().get(62), this.customPoints().get(63)},
+                customPoints().get(60),
+                customPoints().get(61),
+                new Coordinate[] {customPoints().get(62), customPoints().get(63)},
                 new Coordinate[] {}));
-    this.levelBossSpawn = this.customPoints().get(64);
+    this.levelBossSpawn = customPoints().get(64);
 
     this.secretPassages =
         new Coordinate[][] {
-          new Coordinate[] {this.customPoints().get(127), this.customPoints().get(128)},
-          new Coordinate[] {this.customPoints().get(129), this.customPoints().get(130)},
-          new Coordinate[] {this.customPoints().get(131), this.customPoints().get(132)}
+          new Coordinate[] {customPoints().get(127), customPoints().get(128)},
+          new Coordinate[] {customPoints().get(129), customPoints().get(130)},
+          new Coordinate[] {customPoints().get(131), customPoints().get(132)}
         };
-    this.leverSpawns = this.getCoordinates(133, 135);
+    this.leverSpawns = getCoordinates(133, 135);
 
-    this.chestSpawns = new Coordinate[] {this.customPoints().get(161)};
+    this.chestSpawns = new Coordinate[] {customPoints().get(161)};
   }
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) this.endTile()).close(); // close exit at start (to force defeating the boss)
-    this.doorTiles().forEach(DoorTile::close);
-    this.pitTiles()
+    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+    doorTiles().forEach(DoorTile::close);
+    pitTiles()
         .forEach(
             pit -> {
               pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
               pit.close();
             });
-    this.rooms.forEach(DevDungeonRoom::spawnEntities);
+    rooms.forEach(DevDungeonRoom::spawnEntities);
 
     // Create teleporters
     for (int i = 65; i < 127; i += 2) {
       teleporterSystem.registerTeleporter(
-          new Teleporter(this.customPoints().get(i), this.customPoints().get(i + 1)));
+          new Teleporter(customPoints().get(i), customPoints().get(i + 1)));
     }
 
     // Setup TP Targets for TPBallSkill
     int[] roomIndices = {0, 1, 2, 3, 7};
     for (int ri : roomIndices) {
-      this.addTPTarget(
-          this.rooms.get(ri).tiles().stream()
+      addTPTarget(
+          rooms.get(ri).tiles().stream()
               .filter(tile -> tile.levelElement() == LevelElement.FLOOR)
               .map(Tile::coordinate)
               .toArray(Coordinate[]::new));
     }
 
     // Open Pits for last room (boss room) and extinguish torches
-    this.rooms.getLast().tiles().stream()
+    rooms.getLast().tiles().stream()
         .filter(t -> t.levelElement() == LevelElement.PIT)
         .map(t -> (PitTile) t)
         .forEach(PitTile::open);
-    for (Entity torch : this.rooms.getLast().torches()) {
+    for (Entity torch : rooms.getLast().torches()) {
       torch
           .fetch(InteractionComponent.class)
           .orElseThrow(() -> MissingComponentException.build(torch, InteractionComponent.class))
@@ -204,26 +204,26 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
     // Draw teleporter connections
     teleporterSystem.teleporter().stream()
         .map(Teleporter::from)
-        .forEach((tp) -> this.tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
+        .forEach((tp) -> tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
     teleporterSystem.teleporter().stream()
         .map(Teleporter::to)
-        .forEach((tp) -> this.tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
+        .forEach((tp) -> tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
 
     Entity b =
         EntityUtils.spawnBoss(
             BOSS_TYPE,
-            this.levelBossSpawn,
+            levelBossSpawn,
             (e) -> {
               ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).active(false);
               // turn of all torches on death
-              DevDungeonRoom devDungeonRoom = this.getCurrentRoom();
-              if (devDungeonRoom == null || devDungeonRoom != this.rooms.getLast()) {
+              DevDungeonRoom devDungeonRoom = getCurrentRoom();
+              if (devDungeonRoom == null || devDungeonRoom != rooms.getLast()) {
                 return; // should not happen, just if boss dies while not in boss room
               }
-              this.lightTorch(devDungeonRoom, 0, false);
-              this.lightTorch(devDungeonRoom, 1, false);
+              lightTorch(devDungeonRoom, 0, false);
+              lightTorch(devDungeonRoom, 1, false);
 
-              this.exitTiles().forEach(tile -> tile.tintColor(-1)); // Workaround due to FogOfWar
+              exitTiles().forEach(tile -> tile.tintColor(-1)); // Workaround due to FogOfWar
             });
     HealthComponent bhc =
         b.fetch(HealthComponent.class)
@@ -233,45 +233,45 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
           int currentHealth = bhc.currentHealthpoints() - dmg.damageAmount();
           int maxHealth = bhc.maximalHealthpoints();
 
-          DevDungeonRoom devDungeonRoom = this.getCurrentRoom();
-          if (devDungeonRoom == null || devDungeonRoom != this.rooms.getLast()) {
+          DevDungeonRoom devDungeonRoom = getCurrentRoom();
+          if (devDungeonRoom == null || devDungeonRoom != rooms.getLast()) {
             return;
           }
 
           double healthPercentage = (double) currentHealth / maxHealth;
           if (healthPercentage <= 0.5) {
-            this.lightTorch(devDungeonRoom, 0, true);
-            this.lightTorch(devDungeonRoom, 1, true);
+            lightTorch(devDungeonRoom, 0, true);
+            lightTorch(devDungeonRoom, 1, true);
           }
         });
 
     // Secret Passages
     EntityUtils.spawnLever(
-        this.leverSpawns[0].toCenteredPoint(),
-        new OpenPassageCommand(this.secretPassages[0][0], this.secretPassages[0][1]));
+        leverSpawns[0].toCenteredPoint(),
+        new OpenPassageCommand(secretPassages[0][0], secretPassages[0][1]));
     EntityUtils.spawnLever(
-        this.leverSpawns[1].toCenteredPoint(),
-        new OpenPassageCommand(this.secretPassages[1][0], this.secretPassages[1][1]));
+        leverSpawns[1].toCenteredPoint(),
+        new OpenPassageCommand(secretPassages[1][0], secretPassages[1][1]));
     EntityUtils.spawnLever(
-        this.leverSpawns[2].toCenteredPoint(),
-        new OpenPassageCommand(this.secretPassages[2][0], this.secretPassages[2][1]));
-    this.spawnChestsAndCauldrons();
+        leverSpawns[2].toCenteredPoint(),
+        new OpenPassageCommand(secretPassages[2][0], secretPassages[2][1]));
+    spawnChestsAndCauldrons();
     riddleHandler.onFirstTick();
   }
 
   @Override
   public void onTick() {
-    if (this.lastRoom != this.getCurrentRoom()) {
+    if (lastRoom != getCurrentRoom()) {
       // Handle Mob AI (disable AI for mobs in other rooms, enable for mobs in current room)
-      if (this.lastRoom != null) {
-        this.lastRoom.mobAI(false);
+      if (lastRoom != null) {
+        lastRoom.mobAI(false);
       }
-      if (this.getCurrentRoom() != null) {
-        this.getCurrentRoom().mobAI(true);
+      if (getCurrentRoom() != null) {
+        getCurrentRoom().mobAI(true);
       }
 
-      if (this.getCurrentRoom() != null) {
-        for (Entity mob : this.getCurrentRoom().mobs()) {
+      if (getCurrentRoom() != null) {
+        for (Entity mob : getCurrentRoom().mobs()) {
           Consumer<Entity> fightAI =
               mob.fetch(AIComponent.class)
                   .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
@@ -282,23 +282,23 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
         }
       }
 
-      this.lastRoom = this.getCurrentRoom();
+      this.lastRoom = getCurrentRoom();
     }
 
     // Anti Torch Logic
-    if (this.lastRoom != null && this.lastTorchState != this.lastRoom.isAnyTorchActive()) {
-      this.lastTorchState = this.lastRoom.isAnyTorchActive();
-      if (this.lastRoom.isAnyTorchActive()) {
+    if (lastRoom != null && lastTorchState != lastRoom.isAnyTorchActive()) {
+      this.lastTorchState = lastRoom.isAnyTorchActive();
+      if (lastRoom.isAnyTorchActive()) {
         FogOfWarSystem.VIEW_DISTANCE = 3;
         ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).revert();
       } else {
-        FogOfWarSystem.VIEW_DISTANCE = this.originalFogOfWarDistance;
+        FogOfWarSystem.VIEW_DISTANCE = originalFogOfWarDistance;
         // no revert, is needed as the fog of war should only increase
         // revert is only needed if the fog of war decreases in distance
       }
     }
 
-    this.riddleHandler.onTick();
+    riddleHandler.onTick();
   }
 
   /**
@@ -332,7 +332,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
         .flatMap(hero -> hero.fetch(PositionComponent.class))
         .flatMap(
             heroPc ->
-                this.rooms.stream()
+                rooms.stream()
                     .filter(room -> room.contains(heroPc.position().toCoordinate()))
                     .findFirst())
         .orElse(null);
@@ -344,7 +344,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
    * @throws RuntimeException if any of the entities could not be created
    */
   private void spawnChestsAndCauldrons() {
-    for (Coordinate chestSpawnTileCoordinate : this.chestSpawns) {
+    for (Coordinate chestSpawnTileCoordinate : chestSpawns) {
       Entity newIllusionRiddleLevelChestEntity;
       try {
         newIllusionRiddleLevelChestEntity = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
