@@ -5,7 +5,6 @@ import contrib.components.AIComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.MiscFactory;
-import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
@@ -16,8 +15,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -30,7 +27,6 @@ import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
 import level.DevDungeonLevel;
-import starter.DevDungeon;
 import systems.DevHealthSystem;
 import utils.EntityUtils;
 
@@ -78,16 +74,6 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   @Override
   protected void onFirstTick() {
-    DialogUtils.showTextPopup(
-        "", "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": The Final Boss");
-    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
-    doorTiles().forEach(DoorTile::close);
-    pitTiles()
-        .forEach(
-            pit -> {
-              pit.timeToOpen(50);
-              pit.close();
-            });
     this.boss = EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn, this::handleBossDeath);
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
     spawnChestsAndCauldrons();
@@ -189,7 +175,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    * Gets called when the boss dies.
    *
    * @param boss The boss entity.
-   * @see #handleFirstTick()
+   * @see #onFirstTick()
    * @see EntityUtils#spawnBoss(MonsterType, Coordinate, Consumer)
    */
   private void handleBossDeath(Entity boss) {

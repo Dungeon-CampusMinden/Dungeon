@@ -8,8 +8,6 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -63,14 +61,6 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
-    doorTiles().forEach(DoorTile::close);
-    pitTiles()
-        .forEach(
-            pit -> {
-              pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
-              pit.close();
-            });
     prepareBridge();
 
     // Prepare the secret way

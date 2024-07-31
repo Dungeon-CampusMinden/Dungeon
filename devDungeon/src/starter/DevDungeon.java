@@ -104,7 +104,7 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[1]); // First Level
           } else {
-            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[3]); // Tutorial
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[0]); // Tutorial
           }
         });
   }

@@ -1,9 +1,6 @@
 package level.devlevel;
 
 import contrib.hud.DialogUtils;
-import core.Game;
-import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -54,14 +51,6 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
-    doorTiles().forEach(DoorTile::close);
-    pitTiles()
-        .forEach(
-            pit -> {
-              pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
-              pit.close();
-            });
     spawnCamps();
 
     EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);

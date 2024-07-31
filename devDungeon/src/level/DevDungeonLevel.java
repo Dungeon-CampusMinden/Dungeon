@@ -1,8 +1,11 @@
 package level;
 
 import contrib.hud.DialogUtils;
+import core.Game;
 import core.level.Tile;
 import core.level.TileLevel;
+import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -57,8 +60,26 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
   public final void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       DialogUtils.showTextPopup(
-          description, "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": " + levelName);
-      onFirstTick();
+          description,
+          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": " + levelName,
+          () -> {
+            // Workaround for tutorial popup
+            if (levelName.equalsIgnoreCase("tutorial")) {
+              onFirstTick();
+            }
+          });
+      ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+      doorTiles().forEach(DoorTile::close);
+      pitTiles()
+          .forEach(
+              pit -> {
+                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
+                pit.close();
+              });
+
+      if (!levelName.equalsIgnoreCase("tutorial")) {
+        onFirstTick();
+      }
     }
     onTick();
   }

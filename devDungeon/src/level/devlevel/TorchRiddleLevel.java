@@ -8,8 +8,6 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -68,15 +66,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
-    pitTiles()
-        .forEach(
-            pit -> {
-              pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
-              pit.close();
-            });
     handleFirstTick();
-    doorTiles().forEach(DoorTile::close);
     riddleHandler.onFirstTick();
   }
 

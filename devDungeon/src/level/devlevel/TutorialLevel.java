@@ -14,6 +14,8 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
+import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -60,6 +62,9 @@ public class TutorialLevel extends DevDungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    ((ExitTile) endTile()).open();
+    pitTiles().forEach(PitTile::open);
+
     String movementKeys =
         Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_UP.value())
             + Input.Keys.toString(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value())
@@ -68,7 +73,6 @@ public class TutorialLevel extends DevDungeonLevel {
     DialogUtils.showTextPopup(
         "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
-    doorTiles().forEach(DoorTile::close);
     buildBridge();
     Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
     if (mob == null) {
