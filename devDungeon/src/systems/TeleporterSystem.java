@@ -18,13 +18,8 @@ import utils.EntityUtils;
 /**
  * This class represents a system that handles teleportation in the game. It keeps track of all
  * teleporters in the game, the last position of the hero, and whether the hero has just teleported.
- * The system is implemented as a singleton, meaning there can only be one instance of it in the
- * game.
  */
 public class TeleporterSystem extends System {
-
-  // The single instance of the TeleporterSystem.
-  private static TeleporterSystem INSTANCE;
 
   // A set of all teleporters in the game.
   private final Set<Teleporter> teleporters = new HashSet<>();
@@ -33,22 +28,6 @@ public class TeleporterSystem extends System {
 
   // A flag indicating whether the hero has just teleported.
   private boolean justTeleported = false;
-
-  // Private constructor to enforce the singleton pattern.
-  private TeleporterSystem() {}
-
-  /**
-   * Returns the single instance of the TeleporterSystem. If the instance does not exist, it is
-   * created.
-   *
-   * @return The single instance of the TeleporterSystem.
-   */
-  public static TeleporterSystem getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new TeleporterSystem();
-    }
-    return INSTANCE;
-  }
 
   /**
    * Executes the teleportation logic. If the hero has moved and is on a teleporter, they are

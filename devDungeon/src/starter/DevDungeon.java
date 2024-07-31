@@ -11,9 +11,6 @@ import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.item.concreteItem.ItemPotionWater;
-import contrib.item.concreteItem.ItemResourceBerry;
-import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
@@ -25,6 +22,9 @@ import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.utils.components.path.SimpleIPath;
 import entities.BurningFireballSkill;
+import item.concreteItem.ItemPotionWater;
+import item.concreteItem.ItemResourceBerry;
+import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.utils.DungeonLoader;
@@ -48,6 +48,7 @@ public class DevDungeon {
 
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
+  private static final boolean ENABLE_CHEATS = false;
 
   /**
    * Main method to start the game.
@@ -70,7 +71,9 @@ public class DevDungeon {
           LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
           leverSystem.clear();
           // Remove all teleporters
-          TeleporterSystem.getInstance().clearTeleporters();
+          TeleporterSystem teleporterSystem =
+              (TeleporterSystem) Game.systems().get(TeleporterSystem.class);
+          teleporterSystem.clearTeleporters();
         });
 
     // build and start game
@@ -101,7 +104,7 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[1]); // First Level
           } else {
-            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[4]); // Tutorial
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[0]); // Tutorial
           }
         });
   }
@@ -129,13 +132,13 @@ public class DevDungeon {
 
     // Set up random item generator for chests and monsters
     ItemGenerator ig = new ItemGenerator();
-    ig.addItem(new ItemPotionHealth(ig.getWeightedRandomHealthPotionType()), 1);
-    ig.addItem(new ItemPotionWater(), 3);
-    ig.addItem(new ItemResourceBerry(), 2);
-    ig.addItem(new ItemResourceMushroomRed(), 2);
+    ig.addItem(() -> new ItemPotionHealth(HealthPotionType.randomType()), 1);
+    ig.addItem(ItemPotionWater::new, 1);
+    ig.addItem(ItemResourceBerry::new, 2);
+    ig.addItem(ItemResourceMushroomRed::new, 2);
 
-    MiscFactory.randomItemGenerator = ig;
-    MonsterFactory.randomItemGenerator = ig;
+    MiscFactory.randomItemGenerator(ig);
+    MonsterFactory.randomItemGenerator(ig);
   }
 
   private static void createSystems() {
@@ -152,13 +155,20 @@ public class DevDungeon {
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
-    Game.add(TeleporterSystem.getInstance());
+    Game.add(new TeleporterSystem());
     Game.add(EventScheduler.getInstance());
     Game.add(new FogOfWarSystem());
     Game.add(new LeverSystem());
     Game.add(new MobSpawnerSystem());
     Game.add(new MagicShieldSystem());
 
+    /* Cheats */
+    if (ENABLE_CHEATS) {
+      enableCheats();
+    }
+  }
+
+  private static void enableCheats() {
     Game.add(
         new System() {
           @Override
