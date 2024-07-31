@@ -1,0 +1,200 @@
+package starter;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import contrib.components.InventoryComponent;
+import contrib.crafting.Crafting;
+import contrib.entities.HeroFactory;
+import contrib.entities.MiscFactory;
+import contrib.entities.MonsterFactory;
+import contrib.hud.DialogUtils;
+import contrib.item.HealthPotionType;
+import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemPotionWater;
+import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
+import contrib.systems.*;
+import contrib.utils.components.Debugger;
+import contrib.utils.components.item.ItemGenerator;
+import contrib.utils.components.skill.SkillTools;
+import core.Entity;
+import core.Game;
+import core.System;
+import core.game.ECSManagment;
+import core.systems.LevelSystem;
+import core.utils.components.path.SimpleIPath;
+import entities.BurningFireballSkill;
+import java.io.IOException;
+import java.util.logging.Level;
+import level.utils.DungeonLoader;
+import systems.*;
+import systems.DevHealthSystem;
+import systems.EventScheduler;
+
+/** Starter class for the DevDungeon game. */
+public class DevDungeon {
+
+  /**
+   * The {@link DungeonLoader} that loads the levels of the game.
+   *
+   * <p>It defines the order of the levels and the levels themselves.
+   */
+  public static final DungeonLoader DUNGEON_LOADER =
+      new DungeonLoader(
+          new String[] {
+            "tutorial", "damagedBridge", "torchRiddle", "illusionRiddle", "bridgeGuard", "finalBoss"
+          });
+
+  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final boolean SKIP_TUTORIAL = false;
+
+  /**
+   * Main method to start the game.
+   *
+   * @param args The arguments passed to the game.
+   * @throws IOException If an I/O error occurs.
+   */
+  public static void main(String[] args) throws IOException {
+    Game.initBaseLogger(Level.WARNING);
+    configGame();
+    onSetup();
+
+    Game.userOnLevelLoad(
+        (firstTime) -> {
+          // Resets FogOfWar on level change (prevent artifacts)
+          FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
+          fogOfWarSystem.reset();
+          EventScheduler.getInstance().clear(); // Clear all scheduled actions
+          // Reset all levers
+          LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
+          leverSystem.clear();
+          // Remove all teleporters
+          TeleporterSystem.getInstance().clearTeleporters();
+        });
+
+    // build and start game
+    Game.run();
+    Game.windowTitle("Dev Dungeon");
+  }
+
+  private static void onSetup() {
+    Game.userOnSetup(
+        () -> {
+          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
+          levelSystem.onEndTile(DUNGEON_LOADER::loadNextLevel);
+
+          createSystems();
+          FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
+          fogOfWarSystem.active(false); // Default: Fog of War is disabled
+
+          HeroFactory.setHeroSkillCallback(
+              new BurningFireballSkill(
+                  SkillTools::cursorPositionAsPoint)); // Override default skill
+          try {
+            createHero();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          setupMusic();
+          Crafting.loadRecipes();
+          if (SKIP_TUTORIAL) {
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[1]); // First Level
+          } else {
+            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[4]); // Tutorial
+          }
+        });
+  }
+
+  private static void createHero() throws IOException {
+    Entity hero = HeroFactory.newHero();
+    Game.add(hero);
+  }
+
+  private static void setupMusic() {
+    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
+    backgroundMusic.setLooping(true);
+    backgroundMusic.play();
+    backgroundMusic.setVolume(.05f);
+  }
+
+  private static void configGame() throws IOException {
+    Game.loadConfig(
+        new SimpleIPath("dungeon_config.json"),
+        contrib.configuration.KeyboardConfig.class,
+        core.configuration.KeyboardConfig.class);
+    Game.frameRate(30);
+    Game.disableAudio(false);
+    Game.windowTitle("DevDungeon");
+
+    // Set up random item generator for chests and monsters
+    ItemGenerator ig = new ItemGenerator();
+    ig.addItem(new ItemPotionHealth(ig.getWeightedRandomHealthPotionType()), 1);
+    ig.addItem(new ItemPotionWater(), 3);
+    ig.addItem(new ItemResourceBerry(), 2);
+    ig.addItem(new ItemResourceMushroomRed(), 2);
+
+    MiscFactory.randomItemGenerator = ig;
+    MonsterFactory.randomItemGenerator = ig;
+  }
+
+  private static void createSystems() {
+    Game.add(new CollisionSystem());
+    Game.add(new AISystem());
+    Game.add(new ReviveSystem());
+    Game.add(new DevHealthSystem());
+    Game.add(new ProjectileSystem());
+    Game.add(new HealthBarSystem());
+    Game.add(new HudSystem());
+    Game.add(new SpikeSystem());
+    Game.add(new IdleSoundSystem());
+    Game.add(new FallingSystem());
+    Game.add(new PathSystem());
+    Game.add(new LevelTickSystem());
+    Game.add(new PitSystem());
+    Game.add(TeleporterSystem.getInstance());
+    Game.add(EventScheduler.getInstance());
+    Game.add(new FogOfWarSystem());
+    Game.add(new LeverSystem());
+    Game.add(new MobSpawnerSystem());
+    Game.add(new MagicShieldSystem());
+
+    Game.add(
+        new System() {
+          @Override
+          public void execute() {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_1)) {
+              Game.hero()
+                  .orElseThrow()
+                  .fetch(InventoryComponent.class)
+                  .orElseThrow()
+                  .add(new ItemPotionHealth(HealthPotionType.GREATER));
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
+              if (BurningFireballSkill.DAMAGE_AMOUNT == 2) {
+                BurningFireballSkill.DAMAGE_AMOUNT = 6;
+              } else {
+                BurningFireballSkill.DAMAGE_AMOUNT = 2;
+              }
+              HeroFactory.setHeroSkillCallback(
+                  new BurningFireballSkill(
+                      SkillTools::cursorPositionAsPoint)); // Update the current hero skill
+              DialogUtils.showTextPopup(
+                  "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
+                  "Cheat: Fireball Damage");
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_3)) {
+              Debugger.TELEPORT_TO_END();
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_4)) {
+              FallingSystem.DEBUG_DONT_KILL = !FallingSystem.DEBUG_DONT_KILL;
+              DialogUtils.showTextPopup(
+                  "Falling damage is now "
+                      + (FallingSystem.DEBUG_DONT_KILL ? "disabled" : "enabled"),
+                  "Cheat: Falling Damage");
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
+              Debugger.TELEPORT_TO_CURSOR();
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
+              BurningFireballSkill.UNLOCKED = !BurningFireballSkill.UNLOCKED;
+            }
+          }
+        });
+  }
+}

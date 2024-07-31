@@ -22,8 +22,8 @@ import java.util.stream.Stream;
  * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
  * system.
  */
-public final class HealthSystem extends System {
-  private final List<IHealthObserver> observers = new ArrayList<>();
+public class HealthSystem extends System {
+  protected final List<IHealthObserver> observers = new ArrayList<>();
 
   /** Create a new HealthSystem. */
   public HealthSystem() {
@@ -53,8 +53,8 @@ public final class HealthSystem extends System {
         .forEach(this::removeDeadEntities);
   }
 
-  private HSData applyDamage(final HSData hsd) {
-    int dmgAmount = Stream.of(DamageType.values()).mapToInt(hsd.hc::calculateDamageOf).sum();
+  protected HSData applyDamage(final HSData hsd) {
+    int dmgAmount = calculateDamage(hsd);
 
     // if we have some damage, let's show a little dance
     if (dmgAmount > 0) hsd.dc.queueAnimation(AdditionalAnimations.HIT);
@@ -68,7 +68,11 @@ public final class HealthSystem extends System {
     return hsd;
   }
 
-  private HSData activateDeathAnimation(final HSData hsd) {
+  protected int calculateDamage(final HSData hsd) {
+    return Stream.of(DamageType.values()).mapToInt(hsd.hc()::calculateDamageOf).sum();
+  }
+
+  protected HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
     hsd.dc.queueAnimation(AdditionalAnimations.DIE);
 
@@ -87,7 +91,7 @@ public final class HealthSystem extends System {
    * @param hsd HSData to check Animations in.
    * @return true if Entity can be removed from the game.
    */
-  private boolean isDeathAnimationFinished(final HSData hsd) {
+  protected boolean isDeathAnimationFinished(final HSData hsd) {
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
         (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
@@ -127,7 +131,7 @@ public final class HealthSystem extends System {
     observers.remove(observer);
   }
 
-  private void removeDeadEntities(final HSData hsd) {
+  protected void removeDeadEntities(final HSData hsd) {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
     observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
