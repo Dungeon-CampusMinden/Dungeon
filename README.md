@@ -92,12 +92,12 @@ The assets in [`game/assets/`], [`dungeon/assets/`] and [`devDungeon/assets/`] a
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
     -   https://freesound.org/s/578488/ (CC0 1.0)
 -   Adapted and modified by [\@Flamtky][]:
-    -   Files (except Health Potion) in [`dungeon/assets/items/potion/`](dungeon/assets/items/potion/) (originating from @dkirshner)
+    -   Files (except [Health Potion]) in [`dungeon/assets/items/potion/`] (originating from @dkirshner)
     -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
         [\@dkirshner])
     -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
--    Self created by @Flamtky:  
-    -   Files in [`devDungeon/assets/objects/spawner/`](devDungeon/assets/objects/spawner/)
+- Self created by [\@Flamtky][]:
+    - Files in [`devDungeon/assets/objects/spawner/`]
 
 ## Licenses
 
@@ -109,42 +109,46 @@ All files in [`game/assets/`](game/assets/), [`dungeon/assets/`](dungeon/assets/
 
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
-  ["Game"]: #game-dungeon-platform
-  ["Dungeon"]: #dungeon-learning-by-questing
-  ["Blockly"]: #blockly-low-code-dungeon
-  [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
-  [`game`]: game
-  [libGDX]: https://github.com/libgdx/libgdx
-  [rogue-like 2D role-playing games]: https://en.wikipedia.org/wiki/Roguelike
-  [Java]: https://jdk.java.net/
-  [ECS architecture pattern]: https://en.wikipedia.org/wiki/Entity_component_system
-  [Quickstart]: game/doc/quickstart.md
-  [Documentation]: game/doc/
-  [1]: game/doc/img/monster.gif
-  [`dungeon`]: dungeon
-  [2]: dungeon/doc/quickstart.md
-  [3]: dungeon/doc/
-  [Dungeon: StarterKit]: https://github.com/Dungeon-CampusMinden/Dungeon-StarterKit
-  [4]: dungeon/doc/dsl/img/quickstart_select_config_level.png
-  [5]: dungeon/doc/dsl/img/quickstart_answer_menu.png
-  [`blockly`]: blockly
-  [Google's Blockly]: https://github.com/google/blockly
-  [6]: blockly/doc/
-  [7]: blockly/doc/img/examples/komplexes_beispiel.png
-  [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
-  [Stiftung für Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de
-  ["Freiraum 2022"]: https://stiftung-hochschullehre.de/foerderung/freiraum2022/
-  [`game/assets/`]: game/assets/
-  [`dungeon/assets/`]: dungeon/assets/
-  [\@Flamtky]: https://github.com/Flamtky
-  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
-  [\@dkirshner]: https://github.com/dkirshner
-  [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
-  [work]: https://github.com/Dungeon-CampusMinden/Dungeon
-  [André Matutat]: https://github.com/AMatutat
-  [Malte Reinsch]: https://github.com/malt-r
-  [contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
-  [MIT]: LICENSE.md
-  [`doc/publication/`]: doc/publication/
-  [CC BY-SA 4.0]: LICENSE-PAPER.md
-  [CC0 1.0]: LICENSE-ASSETS.md
+["Game"]: #game-dungeon-platform
+["Dungeon"]: #dungeon-learning-by-questing
+["Blockly"]: #blockly-low-code-dungeon
+[interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
+[`game`]: game
+[libGDX]: https://github.com/libgdx/libgdx
+[rogue-like 2D role-playing games]: https://en.wikipedia.org/wiki/Roguelike
+[Java]: https://jdk.java.net/
+[ECS architecture pattern]: https://en.wikipedia.org/wiki/Entity_component_system
+[Quickstart]: game/doc/quickstart.md
+[Documentation]: game/doc/
+[1]: game/doc/img/monster.gif
+[`dungeon`]: dungeon
+[2]: dungeon/doc/quickstart.md
+[3]: dungeon/doc/
+[Dungeon: StarterKit]: https://github.com/Dungeon-CampusMinden/Dungeon-StarterKit
+[4]: dungeon/doc/dsl/img/quickstart_select_config_level.png
+[5]: dungeon/doc/dsl/img/quickstart_answer_menu.png
+[`blockly`]: blockly
+[Google's Blockly]: https://github.com/google/blockly
+[6]: blockly/doc/
+[7]: blockly/doc/img/examples/komplexes_beispiel.png
+[Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
+[Stiftung für Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de
+["Freiraum 2022"]: https://stiftung-hochschullehre.de/foerderung/freiraum2022/
+[`game/assets/`]: game/assets/
+[`dungeon/assets/`]: dungeon/assets/
+[`devDungeon/assets/`]: devDungeon/assets/
+[\@Flamtky]: https://github.com/Flamtky
+[Health Potion]: dungeon/assets/items/potion/health_potion.png
+[`dungeon/assets/items/potion/`]: dungeon/assets/items/potion/
+[`game/assets/dungeon/*/floor`]: game/assets/dungeon/
+[\@dkirshner]: https://github.com/dkirshner
+[`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
+[`devDungeon/assets/objects/spawner/`]: devDungeon/assets/objects/spawner/
+[work]: https://github.com/Dungeon-CampusMinden/Dungeon
+[André Matutat]: https://github.com/AMatutat
+[Malte Reinsch]: https://github.com/malt-r
+[contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
+[MIT]: LICENSE.md
+[`doc/publication/`]: doc/publication/
+[CC BY-SA 4.0]: LICENSE-PAPER.md
+[CC0 1.0]: LICENSE-ASSETS.md
