@@ -42,7 +42,7 @@ public final class AIFactory {
   private static final float RUSH_RANGE_LOW = 0.5f;
   private static final float RUSH_RANGE_HIGH = 2.0f;
 
-  /** Cool down for the fireball skill that the monster uses. (in milliseconds) */
+  /** Cool down for the fireball skill that the monster uses (in milliseconds). */
   public static final int FIREBALL_COOL_DOWN = 750;
 
   // RangeAI
