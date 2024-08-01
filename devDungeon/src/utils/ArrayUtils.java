@@ -14,9 +14,14 @@ public class ArrayUtils {
    * @param <T> the type of elements in the array
    * @param array the array from which to get random elements
    * @param n the number of random elements to get
+   * @throws IllegalArgumentException if 'n' is greater than the length of the array or less than 0
    * @return a list containing 'n' random elements from the array
    */
   public static <T> List<T> getRandomElements(T[] array, int n) {
+    if (n > array.length || n < 0) {
+      throw new IllegalArgumentException(
+          "Invalid number of elements to get. It must be between 0 and the length of the array.");
+    }
     List<T> list = Arrays.asList(array);
     Collections.shuffle(list);
     return list.subList(0, n);
