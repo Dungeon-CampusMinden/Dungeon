@@ -14,7 +14,7 @@ import core.utils.components.path.SimpleIPath;
  *
  * <p>Can be used for crafting.
  */
-public final class ItemResourceBerry extends Item {
+public class ItemResourceBerry extends Item {
 
   private static final int HEAL_AMOUNT = 5;
 
