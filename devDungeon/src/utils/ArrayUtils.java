@@ -14,8 +14,8 @@ public class ArrayUtils {
    * @param <T> the type of elements in the array
    * @param array the array from which to get random elements
    * @param n the number of random elements to get
-   * @throws IllegalArgumentException if 'n' is greater than the length of the array or less than 0
    * @return a list containing 'n' random elements from the array
+   * @throws IllegalArgumentException if 'n' is greater than the length of the array or less than 0
    */
   public static <T> List<T> getRandomElements(T[] array, int n) {
     if (n > array.length || n < 0) {
