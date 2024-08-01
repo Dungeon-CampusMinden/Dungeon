@@ -39,16 +39,16 @@ import utils.EntityUtils;
 public class BossAttackSkills {
 
   /** Damage for the fire shock wave skill that the boss uses. (default: 1) */
-  public static final int FIRE_SHOCKWAVE_DAMAGE = 1;
+  private static final int FIRE_SHOCKWAVE_DAMAGE = 1;
 
   /** Damage for the fireball skill that the boss uses. (default: 2) */
-  public static final int FIREBALL_DAMAGE = 2;
+  private static final int FIREBALL_DAMAGE = 2;
 
   /** Speed for the fireball skill that the boss uses. (default: 5.00f) */
-  public static final float FIREBALL_SPEED = 5.00f;
+  private static final float FIREBALL_SPEED = 5.00f;
 
   /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
-  public static final float FIREBALL_MAX_RANGE = 25f;
+  private static final float FIREBALL_MAX_RANGE = 25f;
 
   /**
    * A skill that does nothing.
@@ -203,16 +203,15 @@ public class BossAttackSkills {
               };
 
           Consumer<Integer> launchFireBallWithDegree =
-              (degreeValue) -> {
-                launchFireBall(
-                    bossPos,
-                    calculateFireballTarget.apply(degreeValue),
-                    bossPos,
-                    skillUser,
-                    FIREBALL_MAX_RANGE,
-                    fireballSpeed,
-                    fireballDamage);
-              };
+              (degreeValue) ->
+                  launchFireBall(
+                      bossPos,
+                      calculateFireballTarget.apply(degreeValue),
+                      bossPos,
+                      skillUser,
+                      FIREBALL_MAX_RANGE,
+                      fireballSpeed,
+                      fireballDamage);
 
           // Launch fireballs
           launchFireBallWithDegree.accept(degree);
@@ -277,7 +276,7 @@ public class BossAttackSkills {
    * @param bossPos The position of the boss.
    * @param skillUser The entity that uses the skill.
    */
-  public static void launchFireBall(Point start, Point target, Point bossPos, Entity skillUser) {
+  private static void launchFireBall(Point start, Point target, Point bossPos, Entity skillUser) {
     BossAttackSkills.launchFireBall(
         start, target, bossPos, skillUser, FIREBALL_MAX_RANGE, FIREBALL_SPEED, FIREBALL_DAMAGE);
   }
@@ -295,7 +294,7 @@ public class BossAttackSkills {
    * @param speed The speed of the fireball.
    * @param damage The damage of the fireball.
    */
-  public static void launchFireBall(
+  private static void launchFireBall(
       Point start,
       Point target,
       Point bossPos,
@@ -361,7 +360,7 @@ public class BossAttackSkills {
    * @param boss The boss entity.
    * @return random boolean
    */
-  public static boolean getBossAttackChance(Entity boss) {
+  private static boolean getBossAttackChance(Entity boss) {
     double healthPercentage = calculateBossHealthPercentage(boss);
     Random random = Game.currentLevel().RANDOM;
 

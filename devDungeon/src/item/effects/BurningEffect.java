@@ -13,9 +13,7 @@ import systems.EventScheduler;
  */
 public class BurningEffect {
   private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
-
   private final float amountPerSecond;
-
   private final int duration;
 
   /**

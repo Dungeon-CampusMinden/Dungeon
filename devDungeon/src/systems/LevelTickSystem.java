@@ -16,11 +16,10 @@ import level.utils.ITickable;
 public class LevelTickSystem extends System {
 
   /** The current level of the game. */
-  ILevel currentLevel = null;
+  private ILevel currentLevel = null;
 
   @Override
   public void execute() {
-
     if (Game.currentLevel() instanceof ITickable tickable) {
       tickable.onTick(currentLevel != Game.currentLevel());
     }

@@ -52,7 +52,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
   private final Coordinate[] leverSpawns;
 
   private final IllusionRiddleHandler riddleHandler;
-  private final int originalFogOfWarDistance = FogOfWarSystem.VIEW_DISTANCE;
+  private final int originalFogOfWarDistance = FogOfWarSystem.currentViewDistance();
   private final Coordinate[] chestSpawns;
   private DevDungeonRoom lastRoom = null;
   private boolean lastTorchState = false;
@@ -279,10 +279,10 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
     if (lastRoom != null && lastTorchState != lastRoom.isAnyTorchActive()) {
       this.lastTorchState = lastRoom.isAnyTorchActive();
       if (lastRoom.isAnyTorchActive()) {
-        FogOfWarSystem.VIEW_DISTANCE = 3;
+        FogOfWarSystem.currentViewDistance(3);
         ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).revert();
       } else {
-        FogOfWarSystem.VIEW_DISTANCE = originalFogOfWarDistance;
+        FogOfWarSystem.currentViewDistance(originalFogOfWarDistance);
         // no revert, is needed as the fog of war should only increase
         // revert is only needed if the fog of war decreases in distance
       }
@@ -298,7 +298,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
    * @param i Foo
    * @param lit Foo
    */
-  public void lightTorch(DevDungeonRoom r, int i, boolean lit) {
+  private void lightTorch(DevDungeonRoom r, int i, boolean lit) {
     if (r.torches()[i]
             .fetch(TorchComponent.class)
             .orElseThrow(

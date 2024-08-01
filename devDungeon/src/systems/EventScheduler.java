@@ -39,29 +39,6 @@ public class EventScheduler extends System {
   }
 
   /**
-   * Updates the state of scheduled actions.
-   *
-   * <p>This method iterates over the list of scheduled actions and checks if the current time is
-   * greater than or equal to the execution time of each action. If it is, the action's effect is
-   * applied and the action is removed from the list. The method uses the begin() and end() methods
-   * of the DelayedRemovalArray class to safely modify the array during iteration.
-   *
-   * <p>This method should be called once per frame to ensure that scheduled actions are executed
-   */
-  public void update() {
-    long currentTime = TimeUtils.millis();
-    scheduledActions.begin();
-    for (int i = 0; i < scheduledActions.size; i++) {
-      ScheduledAction scheduledAction = scheduledActions.get(i);
-      if (currentTime >= scheduledAction.executeAt) {
-        scheduledAction.action.applyEffect();
-        scheduledActions.removeIndex(i);
-      }
-    }
-    scheduledActions.end();
-  }
-
-  /**
    * Schedules a new action to be executed after a specified delay.
    *
    * <p>This method creates a new ScheduledAction with the provided action and execution time, and
@@ -87,14 +64,26 @@ public class EventScheduler extends System {
   }
 
   /**
-   * Executes the update method.
+   * Executes the scheduled actions.
    *
-   * <p>This method is an override of the execute method in the parent class. When called, it
-   * executes the update method of this class.
+   * <p>This method is called to process all the scheduled actions. It first gets the current time,
+   * then it starts iterating over the scheduled actions. For each scheduled action, it checks if
+   * the current time is greater than or equal to the execution time of the action. If it is, it
+   * applies the effect of the action and removes the action from the list of scheduled actions.
+   * After all actions have been processed, it ends the iteration over the scheduled actions.
    */
   @Override
   public void execute() {
-    update();
+    long currentTime = TimeUtils.millis();
+    scheduledActions.begin();
+    for (int i = 0; i < scheduledActions.size; i++) {
+      ScheduledAction scheduledAction = scheduledActions.get(i);
+      if (currentTime >= scheduledAction.executeAt) {
+        scheduledAction.action.applyEffect();
+        scheduledActions.removeIndex(i);
+      }
+    }
+    scheduledActions.end();
   }
 
   private static class ScheduledAction {

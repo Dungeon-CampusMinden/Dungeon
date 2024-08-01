@@ -90,7 +90,7 @@ public class OpenPassageCommand implements ICommand {
     }
   }
 
-  protected void playSound() {
+  private void playSound() {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(OPEN_PASSAGE.pathString()));
 
     // Play the sound with the adjusted pitch

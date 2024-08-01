@@ -36,21 +36,23 @@ public class FogOfWarSystem extends System {
   private static final float TINT_COLOR_DISTANCE_SCALE = .5f; // scale factor for distance fog
 
   /** The view distance (range for tiles that are fully visible). */
-  public static int VIEW_DISTANCE = 7;
+  private static int currentViewDistance = 7;
 
   /** The maximum view distance (all tiles to consider for calculation). */
-  public static int MAX_VIEW_DISTANCE = 25;
+  private static final int MAX_VIEW_DISTANCE = 25;
 
   private final Map<Tile, Integer> darkenedTiles = new HashMap<>();
   private final List<Entity> hiddenEntities = new ArrayList<>();
   private boolean active = true;
 
   /**
-   * Resets the FogOfWarSystem to its initial state.
+   * Resets the FogOfWarSystem.
    *
    * <p>This method clears the sets of darkened tiles and hidden entities.
    *
    * @param revert If true, the FogOfWarSystem will also revert to its initial state.
+   * @see #reset()
+   * @see #revert()
    */
   public void reset(boolean revert) {
     darkenedTiles.clear();
@@ -77,6 +79,35 @@ public class FogOfWarSystem extends System {
   public void revert() {
     revertTilesBackToLight(darkenedTiles.keySet().stream().toList());
     revealHiddenEntities();
+  }
+
+  /**
+   * Sets the view distance of the FogOfWarSystem.
+   *
+   * <p>The view distance is the range of tiles that are fully visible to the player. The view
+   * distance is used to calculate the tint color of tiles that are beyond the view distance.
+   *
+   * <p>NOTE: it can't be greater than the {@link #MAX_VIEW_DISTANCE maximum view distance}.
+   *
+   * @param newViewDistance The new view distance of the FogOfWarSystem.
+   * @throws IllegalArgumentException if the view distance is greater than the maximum view distance
+   *     or less than 0.
+   */
+  public static void currentViewDistance(int newViewDistance) {
+    if (newViewDistance > MAX_VIEW_DISTANCE || newViewDistance < 0) {
+      throw new IllegalArgumentException(
+          "View distance must be between 0 and " + MAX_VIEW_DISTANCE);
+    }
+    currentViewDistance = newViewDistance;
+  }
+
+  /**
+   * Returns the current view distance of the FogOfWarSystem.
+   *
+   * @return The current view distance of the FogOfWarSystem.
+   */
+  public static int currentViewDistance() {
+    return currentViewDistance;
   }
 
   /**
@@ -291,12 +322,12 @@ public class FogOfWarSystem extends System {
     List<Tile> distancedTiles = new ArrayList<>(visibleTiles.stream().toList()); // copy
 
     // Handle tiles that are beyond the view distance
-    distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, VIEW_DISTANCE));
+    distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, currentViewDistance));
     distancedTiles.forEach(
         (tile) ->
             darkenTile(
                 tile,
-                VIEW_DISTANCE + DISTANCE_TRANSITION_SIZE,
+                currentViewDistance + DISTANCE_TRANSITION_SIZE,
                 TINT_COLOR_DISTANCE_SCALE,
                 heroPos));
     visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
@@ -306,7 +337,7 @@ public class FogOfWarSystem extends System {
 
     // Darken tiles that are behind walls
     allTilesInView.forEach(
-        (tile) -> darkenTile(tile, VIEW_DISTANCE, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
+        (tile) -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
 
     // Revert all visible tiles back to light
     revertTilesBackToLight(visibleTiles);

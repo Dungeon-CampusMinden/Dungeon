@@ -157,7 +157,7 @@ public class IllusionRiddleHandler {
    *
    * @param heroPos The current position of the hero.
    */
-  public void handleLapProgressLogic(Coordinate heroPos) {
+  private void handleLapProgressLogic(Coordinate heroPos) {
     int currentCheckpoint = getCurrentCheckpoint(heroPos);
     // Check if the hero is not on a checkpoint or is on the same checkpoint as the last update
     if (currentCheckpoint == -1 || currentCheckpoint == lastCheckpoint) {
