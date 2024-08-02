@@ -274,9 +274,7 @@ public class DojoStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          Game.add(
-              StandardSystems.standardSystems(
-                  Set.of(IdleSoundSystem.class, SpikeSystem.class), Set.of()));
+          Game.add(StandardSystems.constructStandardSystems());
           try {
             Game.add(EntityFactory.newHero());
           } catch (IOException e) {

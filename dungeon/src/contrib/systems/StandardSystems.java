@@ -7,45 +7,64 @@ import java.util.stream.Collectors;
 
 /** This class manages a collection of standard systems. */
 public class StandardSystems {
-  private static final Set<Class<? extends System>> DEFAULT_SYSTEMS =
-      Set.of(
-          AISystem.class,
-          CollisionSystem.class,
-          HealthBarSystem.class,
-          HealthSystem.class,
-          HudSystem.class,
-          PathSystem.class,
-          ProjectileSystem.class);
+  /**
+   * Gets a mutable set of all base systems classes, without the systems in the {@code toExclude}
+   * set.
+   *
+   * @param toExclude set of system classes to exclude, can be empty or null
+   * @return set of base systems classes
+   */
+  public static Set<Class<? extends System>> mutableSetOfBaseSystems(
+      Set<Class<? extends System>> toExclude) {
+    Set<Class<? extends System>> set =
+        new HashSet<>(
+            Set.of(
+                AISystem.class,
+                CollisionSystem.class,
+                HealthBarSystem.class,
+                HealthSystem.class,
+                HudSystem.class,
+                IdleSoundSystem.class,
+                PathSystem.class,
+                ProjectileSystem.class,
+                SpikeSystem.class));
+    if (toExclude != null) {
+      set.removeAll(toExclude);
+    }
+    return set;
+  }
 
   /**
-   * Creates a set of standard systems.
+   * Instantiates all standard systems in a new, unmodifiable set.
    *
-   * <p>The standard systems are: {@link StandardSystems#DEFAULT_SYSTEMS}.
-   *
-   * <p>Can be passed to {@link core.Game#add(Set)} to add them to the game.
-   *
-   * @param toInclude set of system classes to include from the standard set, null is not allowed,
-   *     could be empty
-   * @param toExclude set of system classes to exclude from the standard set, null is not allowed,
-   *     could be empty
-   * @return set of standard systems
-   * @see System
-   * @see core.Game
-   * @see Set
+   * @return set of all standard systems
    */
-  public static Set<System> standardSystems(
-      Set<Class<? extends System>> toInclude, Set<Class<? extends System>> toExclude) {
-    Set<Class<? extends System>> set = new HashSet<>(DEFAULT_SYSTEMS);
-    set.addAll(toInclude);
-    set.removeAll(toExclude);
-    return set.stream()
+  public static Set<System> constructStandardSystems() {
+    return mutableSetOfBaseSystems(Set.of()).stream()
         .map(
             sc -> {
               try {
-                return (System) sc.getConstructor().newInstance();
+                return sc.getDeclaredConstructor().newInstance();
               } catch (Exception e) {
-                // Exception during system construction.
-                // This should never happen.
+                throw new RuntimeException(e);
+              }
+            })
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Instantiates all given systems in a new, unmodifiable set.
+   *
+   * @param systemClasses set of system classes
+   * @return set of all given systems
+   */
+  public static Set<System> constructStandardSystems(Set<Class<? extends System>> systemClasses) {
+    return systemClasses.stream()
+        .map(
+            sc -> {
+              try {
+                return sc.getDeclaredConstructor().newInstance();
+              } catch (Exception e) {
                 throw new RuntimeException(e);
               }
             })

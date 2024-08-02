@@ -142,7 +142,7 @@ public class Client {
   }
 
   private static void createSystems() {
-    Game.add(StandardSystems.standardSystems(Set.of(), Set.of()));
+    Game.add(StandardSystems.constructStandardSystems());
   }
 
   private static void startServer() {

@@ -46,9 +46,7 @@ public class RoomBasedDungeon {
   private static void onSetup(int roomcount, int monstercount, int chestcount) {
     Game.userOnSetup(
         () -> {
-          Game.add(
-              StandardSystems.standardSystems(
-                  Set.of(IdleSoundSystem.class, SpikeSystem.class), Set.of()));
+          Game.add(StandardSystems.constructStandardSystems());
           try {
             createHero();
           } catch (IOException e) {

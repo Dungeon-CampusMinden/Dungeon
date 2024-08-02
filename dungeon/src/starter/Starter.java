@@ -193,9 +193,7 @@ public class Starter {
     Game.userOnSetup(
         () -> {
           createHero();
-          Game.add(
-              StandardSystems.standardSystems(
-                  Set.of(IdleSoundSystem.class, SpikeSystem.class), Set.of()));
+          Game.add(StandardSystems.constructStandardSystems());
           Game.currentLevel(TaskSelector.taskSelectorLevel());
           setupMusic();
           Crafting.loadRecipes();

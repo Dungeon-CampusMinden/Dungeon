@@ -11,7 +11,6 @@ import core.Game;
 import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.Set;
 import java.util.logging.Level;
 
 /** WTF? . */
@@ -60,9 +59,7 @@ public class RandomDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          Game.add(
-              StandardSystems.standardSystems(
-                  Set.of(IdleSoundSystem.class, SpikeSystem.class), Set.of()));
+          Game.add(StandardSystems.constructStandardSystems());
           try {
             createHero();
           } catch (IOException e) {
