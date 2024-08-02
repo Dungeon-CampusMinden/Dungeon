@@ -46,7 +46,7 @@ public final class HeroFactory {
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
-  private static final int HERO_HP = 100;
+  private static final int HERO_HP = 25;
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -284,6 +284,10 @@ public final class HeroFactory {
           }
           if (direction.y != 0) {
             vc.currentYVelocity(direction.y * vc.yVelocity());
+          }
+          // Abort any path finding on own movement
+          if (ENABLE_MOUSE_MOVEMENT) {
+            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
           }
         });
   }

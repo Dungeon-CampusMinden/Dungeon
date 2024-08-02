@@ -12,4 +12,6 @@ public enum DamageType {
   HEAL,
   /** WTF? . */
   POISON,
+  /** Fall damage. */
+  FALL
 }
