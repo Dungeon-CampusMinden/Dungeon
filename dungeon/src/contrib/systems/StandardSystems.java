@@ -40,16 +40,7 @@ public class StandardSystems {
    * @return set of all standard systems
    */
   public static Set<System> constructStandardSystems() {
-    return mutableSetOfBaseSystems(Set.of()).stream()
-        .map(
-            sc -> {
-              try {
-                return sc.getDeclaredConstructor().newInstance();
-              } catch (Exception e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .collect(Collectors.toSet());
+    return constructStandardSystems(mutableSetOfBaseSystems(null));
   }
 
   /**
