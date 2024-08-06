@@ -1,4 +1,4 @@
 rootProject.name = 'Dungeon Projekt'
 
 // Include the projects in game, dungeon, dojo-dungeon and blockly
-include 'engine', 'game', 'dungeon', 'blockly', 'dojo-dungeon', 'devDungeon'
+include 'engine', 'game'//, 'dungeon', 'blockly', 'dojo-dungeon', 'devDungeon'
