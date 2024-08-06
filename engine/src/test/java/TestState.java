@@ -5,6 +5,7 @@ import de.fwatermann.dungine.event.input.MouseMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
+import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.IndexDataType;
 import de.fwatermann.dungine.graphics.mesh.InstanceAttribute;
@@ -80,7 +81,7 @@ public class TestState extends GameState implements EventListener {
         "camera",
         false,
         () -> {
-          this.camera = new CameraPerspective();
+          this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0, 0));
         });
     stepper.step(
         "axis",
@@ -179,7 +180,7 @@ public class TestState extends GameState implements EventListener {
   }
 
   @Override
-  public void render(float deltaTime) {
+  public void renderState(float deltaTime) {
     this.camera.update();
 
     if (Keyboard.keyPressed(GLFW.GLFW_KEY_I)) {
@@ -231,7 +232,7 @@ public class TestState extends GameState implements EventListener {
   }
 
   @Override
-  public void update(float deltaTime) {
+  public void updateState(float deltaTime) {
     if (this.mesh != null) {
       int index = (int) Math.floor(Math.random() * 16 * 16);
       int entry = (int) Math.floor(Math.random() * 664);
@@ -242,7 +243,7 @@ public class TestState extends GameState implements EventListener {
 
   @EventHandler
   private void onResize(WindowResizeEvent event) {
-    this.camera.aspectRatio((float) event.to.x / (float) event.to.y);
+    this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
   }
 
   @EventHandler

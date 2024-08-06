@@ -5,6 +5,7 @@ import de.fwatermann.dungine.event.input.MouseMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
+import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
@@ -64,7 +65,7 @@ public class ChunkTest extends GameState implements EventListener {
       throw new RuntimeException(e);
     }
 
-    this.camera = new CameraPerspective();
+    this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0, 0));
     this.camera.position(0.0f, 2.0f, 0.0f);
 
     this.axis = new CoordinateAxis(new Vector3f(0, 0, 0), 16.0f, true);
@@ -145,7 +146,7 @@ public class ChunkTest extends GameState implements EventListener {
   }
 
   @Override
-  public void render(float deltaTime) {
+  public void renderState(float deltaTime) {
     this.camera.update();
 
     if (Keyboard.keyPressed(GLFW.GLFW_KEY_I)) {
@@ -197,7 +198,7 @@ public class ChunkTest extends GameState implements EventListener {
   }
 
   @Override
-  public void update(float deltaTime) {
+  public void updateState(float deltaTime) {
     if (this.mesh != null) {
       int index = (int) Math.floor(Math.random() * 16 * 16);
       int entry = (int) Math.floor(Math.random() * 664);
@@ -206,7 +207,7 @@ public class ChunkTest extends GameState implements EventListener {
 
   @EventHandler
   private void onResize(WindowResizeEvent event) {
-    this.camera.aspectRatio((float) event.to.x / (float) event.to.y);
+    this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
   }
 
   @EventHandler
