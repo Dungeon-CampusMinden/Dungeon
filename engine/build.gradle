@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 plugins {
     id 'application'
     id 'java-library'
@@ -8,11 +7,6 @@ project.ext.lwjglVersion = "3.3.3"
 project.ext.jomlVersion = "1.10.5"
 project.ext.joml_primitivesVersion = "1.10.0"
 project.ext.log4jVersion = "2.23.1"
-=======
-project.ext.lwjglVersion = "3.3.3"
-project.ext.jomlVersion = "1.10.5"
-project.ext.joml_primitivesVersion = "1.10.0"
->>>>>>> 5fe00b96 (Add Engine Project)
 project.ext.natives = ["natives-linux", "natives-linux-arm32", "natives-linux-arm64",
                        "natives-macos", "natives-macos-arm64",
                        "natives-windows-x86", "natives-windows", "natives-windows-arm64"]
@@ -36,15 +30,10 @@ dependencies {
     implementation "org.lwjgl:lwjgl-opus"
     implementation "org.lwjgl:lwjgl-stb"
 
-<<<<<<< HEAD
     api "org.apache.logging.log4j:log4j-api:$project.ext.log4jVersion"
     api "org.apache.logging.log4j:log4j-core:$project.ext.log4jVersion"
 
     for (nat in project.ext.natives) {
-=======
-    //Linux
-    for(nat in project.ext.natives) {
->>>>>>> 5fe00b96 (Add Engine Project)
         runtimeOnly "org.lwjgl:lwjgl::$nat"
         runtimeOnly "org.lwjgl:lwjgl-assimp::$nat"
         runtimeOnly "org.lwjgl:lwjgl-freetype::$nat"
@@ -57,7 +46,6 @@ dependencies {
         runtimeOnly "org.lwjgl:lwjgl-stb::$nat"
     }
 
-<<<<<<< HEAD
     api "org.joml:joml:${jomlVersion}"
     api "org.joml:joml-primitives:${joml_primitivesVersion}"
 }
@@ -83,8 +71,4 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-=======
-    implementation "org.joml:joml:${jomlVersion}"
-    implementation "org.joml:joml-primitives:${joml_primitivesVersion}"
->>>>>>> 5fe00b96 (Add Engine Project)
 }
