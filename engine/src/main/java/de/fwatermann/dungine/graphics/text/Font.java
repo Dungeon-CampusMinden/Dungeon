@@ -80,6 +80,13 @@ public class Font {
       }
       FT_Glyph glyph = FT_Glyph.create(glyphPtr.get(0));
 
+      if(face.glyph().format() != FT_GLYPH_FORMAT_BITMAP) {
+        error = FT_Render_Glyph(face.glyph(), FT_RENDER_MODE_NORMAL);
+        if(error != 0) {
+          throw new RuntimeException("Failed to render glyph for character '" + c + "': " + error);
+        }
+      }
+
       FT_BBox bbox = FT_BBox.create();
       FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_PIXELS, bbox);
 
