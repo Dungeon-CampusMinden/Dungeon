@@ -1,0 +1,49 @@
+single_choice_task my_task {
+    description: "Dies ist der Aufgabentext",
+    answers: ["Antwort1", "Antwort2", "Antwort3", "Antwort4"],
+    correct_answer_index: 1,
+    points: 1,
+    points_to_pass: 1,
+    explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
+    grading_function: grade_single_choice_task,
+    scenario_builder: my_scenario_builder
+}
+/*
+Multiline Comment on root
+*/
+multiple_choice_task my_task {
+    /*
+    Multiline Comment on parameters
+    */
+    description: "Dies ist der Aufgabentext",
+    answers: ["Antwort1", "Antwort2", "Antwort3"], // Single Line Comment on parameter
+    correct_answer_indices: [1,2],
+    points: 1,
+    points_to_pass: 1,
+    explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
+    grading_function: grade_multiple_choice_task,
+    scenario_builder: my_scenario_builder
+}
+// Single Line Comment on root
+assign_task my_task {
+    description: "Dies ist der Aufgabentext",
+    solution: <
+        ["Term1", "Definition1"],
+        ["Term1", "Definition2"],
+        ["Term2", "Definition3"],
+        [_, "Definition4"],
+        ["Term3", _],
+        ["Elementaroperation", "anzahl = 0"],
+        ["Elementaroperation", "sinus(30)"],
+        ["Kontrollstruktur", "if"],
+        ["Kontrollstruktur", "if - else"],
+        ["Kontrollstruktur", "while"],
+        ["Basisanweisung", _],
+        [_, "Öffne die Tür."]
+        >,
+    points: 1,
+    points_to_pass: 1,
+    explanation: "Dieser Text wird angezeigt, falls die Aufgabe falsch beantwortet wird",
+    grading_function: grade_assign_task_easy,
+    scenario_builder: my_scenario_builder
+}

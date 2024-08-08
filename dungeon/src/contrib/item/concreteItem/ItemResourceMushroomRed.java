@@ -14,7 +14,7 @@ import core.utils.components.path.SimpleIPath;
  *
  * <p>Can be used for crafting.
  */
-public final class ItemResourceMushroomRed extends Item {
+public class ItemResourceMushroomRed extends Item {
 
   private static final int DAMAGE_AMOUNT = 20;
 

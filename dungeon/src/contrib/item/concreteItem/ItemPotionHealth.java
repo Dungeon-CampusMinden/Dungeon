@@ -18,7 +18,7 @@ import core.utils.components.path.SimpleIPath;
  * heal_amount attribute. The health potion has a default texture that is used for its visual
  * representation in the game.
  */
-public final class ItemPotionHealth extends Item {
+public class ItemPotionHealth extends Item {
 
   /** The default texture for all health potions. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/potion/health_potion.png");
