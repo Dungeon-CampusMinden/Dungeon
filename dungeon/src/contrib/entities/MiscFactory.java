@@ -31,6 +31,14 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
 
   /**
+   * The {@link ItemGenerator} used to generate random items for chests.
+   *
+   * @see ItemGenerator
+   * @see ItemGenerator#defaultItemGenerator()
+   */
+  private static ItemGenerator randomItemGenerator = ItemGenerator.defaultItemGenerator();
+
+  /**
    * This method is used to create a new chest entity. The chest will be filled with random items.
    *
    * <p>The Entity is not added to the game yet.
@@ -76,8 +84,30 @@ public final class MiscFactory {
 
   private static Set<Item> generateRandomItems(int min, int max) {
     return IntStream.range(0, RANDOM.nextInt(min, max))
-        .mapToObj(i -> ItemGenerator.generateItemData())
+        .mapToObj(i -> randomItemGenerator.generateItemData())
         .collect(Collectors.toSet());
+  }
+
+  /**
+   * Sets the ItemGenerator used to generate random items for monsters upon death.
+   *
+   * @param randomItemGenerator The ItemGenerator to use for generating random items.
+   * @see ItemGenerator
+   */
+  public static void randomItemGenerator(ItemGenerator randomItemGenerator) {
+    MiscFactory.randomItemGenerator = randomItemGenerator;
+  }
+
+  /**
+   * Gets the ItemGenerator used to generate random items for randomly filled chests.
+   *
+   * <p>The default ItemGenerator is {@link ItemGenerator#defaultItemGenerator()}.
+   *
+   * @return The current ItemGenerator used for generating random items.
+   * @see ItemGenerator
+   */
+  public static ItemGenerator randomItemGenerator() {
+    return randomItemGenerator;
   }
 
   /**

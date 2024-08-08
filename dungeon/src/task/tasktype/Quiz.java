@@ -3,10 +3,7 @@ package task.tasktype;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import task.Task;
 import task.TaskContent;
 import task.game.hud.QuizUI;
@@ -118,6 +115,22 @@ public abstract class Quiz extends Task {
       }
     }
     return added;
+  }
+
+  /**
+   * Shuffle the order of the answers.
+   *
+   * <p>Shuffles the order of the answers in the content list. The correct answer will be shuffled
+   * with the other answers. The indices of the correct answers will be updated accordingly.
+   */
+  public void shuffleAnswers() {
+    List<TaskContent> answers = new ArrayList<>(content);
+    TaskContent correctAnswer = contentByIndex(correctAnswerIndices.iterator().next());
+    Collections.shuffle(answers);
+    content.clear();
+    answers.forEach(this::addContent);
+    correctAnswerIndices.clear();
+    correctAnswerIndices.add(answers.indexOf(correctAnswer));
   }
 
   /**

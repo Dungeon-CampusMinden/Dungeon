@@ -31,8 +31,20 @@ import java.util.logging.Logger;
  */
 public abstract class DamageProjectile implements Consumer<Entity> {
 
-  private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
-  private static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
+  /**
+   * The default behavior when a wall is hit by the projectile.
+   *
+   * <p>The default behavior is to remove the projectile from the game.
+   */
+  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
+
+  /**
+   * The default behavior when an entity is hit by the projectile.
+   *
+   * <p>The default behavior is to do nothing.
+   */
+  public static final BiConsumer<Entity, Entity> DEFAULT_ON_ENTITY_HIT = (a, b) -> {};
+
   private static final Logger LOGGER = Logger.getLogger(DamageProjectile.class.getSimpleName());
   private final IPath pathToTexturesOfProjectile;
   private final float projectileSpeed;

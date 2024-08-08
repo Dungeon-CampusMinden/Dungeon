@@ -176,6 +176,26 @@ public final class DrawComponent implements Component {
   }
 
   /**
+   * Sets the current animation displayed on the entity.
+   *
+   * <p>This method attempts to set the current animation to the animation specified by the provided
+   * name. If the animation exists in the animation map, it is set as the current animation. If the
+   * animation does not exist, a warning is logged and the current animation remains unchanged.
+   *
+   * @param animationName The name of the animation to set as the current animation.
+   */
+  public void currentAnimation(final String animationName) {
+    if (animationMap.containsKey(animationName)) {
+      currentAnimation = animationMap.get(animationName);
+    } else {
+      LOGGER.warning(
+          "Animation "
+              + animationName
+              + " can not be set, because the given Animation could not be found.");
+    }
+  }
+
+  /**
    * Enqueue the first existing animation in the queue of animations to be played next.
    *
    * <p>Animations to be considered are given as a number of {@link IPath} objects. The first

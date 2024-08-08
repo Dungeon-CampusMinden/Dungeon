@@ -69,22 +69,7 @@ public final class AIUtils {
    * @return true if the entity is on the end of the path or has left the path, otherwise false.
    */
   public static boolean pathFinishedOrLeft(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    boolean finished = LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
-
-    boolean onPath = false;
-    Tile currentTile = Game.tileAT(pc.position());
-    for (Tile tile : path) {
-      if (currentTile == tile) {
-        onPath = true;
-        break;
-      }
-    }
-
-    return !onPath || finished;
+    return pathFinished(entity, path) || pathLeft(entity, path);
   }
 
   /**
@@ -99,7 +84,7 @@ public final class AIUtils {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
+    return path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
   }
 
   /**

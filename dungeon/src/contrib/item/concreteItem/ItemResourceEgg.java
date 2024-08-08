@@ -15,7 +15,7 @@ import java.io.IOException;
  *
  * <p>Can be used for crafting.
  */
-public final class ItemResourceEgg extends Item {
+public class ItemResourceEgg extends Item {
 
   /** Create a new Egg. */
   public ItemResourceEgg() {

@@ -11,6 +11,20 @@ import java.util.function.Function;
 public final class RangeTransition implements Function<Entity, Boolean> {
 
   private final float range;
+  private final boolean stayInFightMode;
+  private boolean hasBeenInFightMode = false;
+
+  /**
+   * Switches to combat mode when the player is within range of the entity.
+   *
+   * @param range Range of the entity.
+   * @param stayInFightMode Whether the entity should stay in fight mode after the player has left
+   *     the range.
+   */
+  public RangeTransition(float range, boolean stayInFightMode) {
+    this.range = range;
+    this.stayInFightMode = stayInFightMode;
+  }
 
   /**
    * Switches to combat mode when the player is within range of the entity.
@@ -18,11 +32,17 @@ public final class RangeTransition implements Function<Entity, Boolean> {
    * @param range Range of the entity.
    */
   public RangeTransition(float range) {
-    this.range = range;
+    this(range, false);
   }
 
   @Override
   public Boolean apply(final Entity entity) {
-    return LevelUtils.playerInRange(entity, range);
+    if (LevelUtils.playerInRange(entity, range)) {
+      hasBeenInFightMode = true;
+      return true;
+    } else {
+      return stayInFightMode
+          && hasBeenInFightMode; // Stay in fight mode if player has been in range
+    }
   }
 }
