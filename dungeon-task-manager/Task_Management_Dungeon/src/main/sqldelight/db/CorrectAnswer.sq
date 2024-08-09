@@ -1,0 +1,18 @@
+CREATE TABLE CorrectAnswer (
+    questionID INTEGER NOT NULL,
+    answerID INTEGER NOT NULL
+);
+
+getCorrectAnswerByQuestionId:
+SELECT Answer.id,Answer.questionID, Answer.answer
+FROM Answer JOIN CorrectAnswer
+WHERE CorrectAnswer.questionID = :questionID AND Answer.id = answerID;
+
+insertCorrectAnswer:
+INSERT OR REPLACE
+INTO CorrectAnswer
+VALUES (?,?);
+
+deleteCorrectAnswerByAnswerId:
+DELETE FROM CorrectAnswer
+WHERE answerID = :answerId AND questionID = :questionId;

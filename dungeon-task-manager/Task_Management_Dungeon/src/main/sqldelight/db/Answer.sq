@@ -1,0 +1,40 @@
+CREATE TABLE Answer (
+    id INTEGER NOT NULL PRIMARY KEY,
+    questionID INTEGER NOT NULL,
+    answer TEXT NOT NULL,
+    correct INTEGER DEFAULT 0
+);
+
+getAnswerById:
+SELECT *
+FROM Answer
+WHERE id = :id;
+
+getAnswerId:
+SELECT id
+FROM Answer
+WHERE questionID = :questionId AND answer = :answer;
+
+getCorrectAnswersByQuestionId:
+SELECT *
+FROM Answer
+WHERE questionID = :questionId AND correct = 1;
+
+getAnswersByQuestionId:
+SELECT *
+FROM Answer
+WHERE questionID = :id;
+
+insertAnswer:
+INSERT OR REPLACE
+INTO Answer
+VALUES (?,?,?,?);
+
+setCorrectAnswer:
+UPDATE Answer
+SET correct = 1
+WHERE id = :id;
+
+deleteAnswerById:
+DELETE FROM Answer
+WHERE id = :id;

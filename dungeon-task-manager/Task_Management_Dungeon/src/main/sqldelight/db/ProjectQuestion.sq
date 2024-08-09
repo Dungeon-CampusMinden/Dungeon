@@ -1,0 +1,18 @@
+CREATE TABLE ProjectQuestion (
+    projectID INTEGER,
+    questionID INTEGER
+);
+
+getAllQuestionsByProjectId:
+SELECT Question.id,Question.description, Question.explanation, Question.points, Question.pointsToPass, Question.type
+FROM Question JOIN ProjectQuestion
+WHERE ProjectQuestion.projectID = :projectID AND Question.id = questionID;
+
+insertProjectQuestion:
+INSERT OR REPLACE
+INTO ProjectQuestion
+VALUES (?,?);
+
+deleteProjectQuestionByQuestionId:
+DELETE FROM ProjectQuestion
+WHERE questionID = :id AND ProjectQuestion.projectID = :projectId;
