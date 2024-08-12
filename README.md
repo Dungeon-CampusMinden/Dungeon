@@ -97,7 +97,7 @@ self created resources:
     -   https://www.composables.com/icons (Apache 2.0)
 -   Adapted and modified by [\@Flamtky][]:
     -   Files (except [Health Potion]) in [`dungeon/assets/items/potion/`] (originating from
-        @dkirshner)
+        [\@dkirshner])
     -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
         [\@dkirshner])
     -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
