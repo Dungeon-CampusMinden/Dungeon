@@ -7,6 +7,7 @@ import de.fwatermann.dungine.ui.UIContainer;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.window.GameWindow;
+import org.lwjgl.opengl.GL33;
 
 /** Represents a state of the game. It extents the ECS class. */
 public abstract class GameState extends ECS implements Disposable {
@@ -64,6 +65,7 @@ public abstract class GameState extends ECS implements Disposable {
     this.executeSystems(this, true);
     this.renderState(deltaTime);
     this.uiCamera.update();
+    GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
     this.ui.render(this.uiCamera);
   }
 
