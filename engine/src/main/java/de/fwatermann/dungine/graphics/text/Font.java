@@ -45,6 +45,9 @@ public class Font {
   private static final ByteBuffer EMPTY;
   private static long FT_LIBRARY = 0;
 
+  private static Font defaultFont;
+  private static Font monoFont;
+
   static {
     EMPTY = BufferUtils.createByteBuffer(PAGE_SIZE_X * PAGE_SIZE_Y * 4);
     EMPTY.position(0);
@@ -64,6 +67,34 @@ public class Font {
     WHITESPACE_CHARS.put(Character.toChars(0x2006)[0], 0.166f);
     WHITESPACE_CHARS.put(Character.toChars(0x2009)[0], 0.166f);
     WHITESPACE_CHARS.put(Character.toChars(0x200A)[0], 0.125f);
+  }
+
+  /**
+   * Retrieves the default font.
+   * @return the default font
+   */
+  public static Font defaultFont() {
+    if(defaultFont != null) return defaultFont;
+    try {
+      defaultFont = Font.load(Resource.load("/fonts/default.ttf"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return defaultFont;
+  }
+
+  /**
+   * Retrieves the default monospace font.
+   * @return the default monospace font
+   */
+  public static Font defaultMonoFont() {
+    if(monoFont != null) return monoFont;
+    try {
+      monoFont = Font.load(Resource.load("/fonts/mono.ttf"));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return monoFont;
   }
 
   private final Map<Integer, Map<Character, GlyphInfo>> glyphs = new HashMap<>();
