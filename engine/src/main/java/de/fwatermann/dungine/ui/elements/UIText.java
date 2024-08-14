@@ -11,47 +11,86 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIElement;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL33;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL33;
 
+/** Represents a UI element for rendering text. */
 public class UIText extends UIElement<UIText> {
 
   private static ShaderProgram SHADER;
 
   private Font font;
   private String text;
-  private int fontSize = 16;
+  private int fontSize = 24;
 
   private Font.TextLayoutElement[] layoutElements;
   private ArrayMesh mesh;
   private final List<RenderStep> renderSteps = new ArrayList<>();
 
+  /**
+   * Constructs a new UIText object.
+   *
+   * @param font the font to use for rendering the text
+   * @param text the text to render
+   */
   public UIText(Font font, String text) {
     this.font = font;
     this.text = text;
   }
 
+  /**
+   * Constructs a new UIText object.
+   *
+   * @param font the font to use for rendering the text
+   * @param text the text to render
+   * @param fontSize the font size to use for rendering the text
+   */
+  public UIText(Font font, String text, int fontSize) {
+    this.font = font;
+    this.text = text;
+    this.fontSize = fontSize;
+  }
+
+  /**
+   * Initializes the shader program for rendering UIText elements.
+   *
+   * <p>This method loads the vertex, geometry, and fragment shaders from the specified resources
+   * and creates a ShaderProgram object. If the shader program is already initialized, it does
+   * nothing.
+   *
+   * @throws RuntimeException if there is an error loading the shaders
+   */
   private static void initShader() {
-    if(SHADER != null) return;
+    if (SHADER != null) return;
     try {
-      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/UIText.vsh"), Shader.ShaderType.VERTEX_SHADER);
-      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/UIText.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/UIText.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+      Shader vertexShader =
+          Shader.loadShader(Resource.load("/shaders/UIText.vsh"), Shader.ShaderType.VERTEX_SHADER);
+      Shader geometryShader =
+          Shader.loadShader(
+              Resource.load("/shaders/UIText.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+      Shader fragmentShader =
+          Shader.loadShader(
+              Resource.load("/shaders/UIText.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
+  /**
+   * Initializes the mesh for rendering UIText elements.
+   *
+   * <p>This method creates a new ArrayMesh object with the specified vertex attributes and updates
+   * the mesh with the current text layout. If the mesh is already initialized, it does nothing.
+   */
   private void initMesh() {
-    if(this.mesh != null) return;
+    if (this.mesh != null) return;
     this.mesh =
         new ArrayMesh(
             null,
@@ -63,6 +102,14 @@ public class UIText extends UIElement<UIText> {
     this.update();
   }
 
+  /**
+   * Renders the UIText element using the specified camera.
+   *
+   * <p>This method binds the shader program, sets the necessary uniforms, and renders the mesh for
+   * each render step. It ensures that the shader program and mesh are initialized before rendering.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   protected void render(Camera<?> camera) {
     initShader();
@@ -82,8 +129,15 @@ public class UIText extends UIElement<UIText> {
     SHADER.unbind();
   }
 
+  /**
+   * Updates the mesh with the current text layout.
+   *
+   * <p>This method lays out the text using the specified font and font size, sorts the layout
+   * elements by page, and updates the vertex buffer with the layout data. It also updates the
+   * render steps for each page.
+   */
   private void update() {
-    if(this.mesh == null) return;
+    if (this.mesh == null) return;
 
     this.layoutElements = this.font.layoutText(this.text, this.fontSize, (int) this.size.x);
     this.renderSteps.clear();
@@ -93,12 +147,12 @@ public class UIText extends UIElement<UIText> {
     int count = 0;
     int offset = 0;
     int page = 0;
-    for(int i = 0; i < this.layoutElements.length; i++) {
+    for (int i = 0; i < this.layoutElements.length; i++) {
       Font.TextLayoutElement element = this.layoutElements[i];
-      if(element == null) {
+      if (element == null) {
         continue;
       }
-      if(element.glyph.page != page) {
+      if (element.glyph.page != page) {
         this.renderSteps.add(new RenderStep(this.font.getPage(page).glHandle(), count, offset));
         offset = count;
         count = 0;
@@ -120,35 +174,67 @@ public class UIText extends UIElement<UIText> {
     this.mesh.vertexBuffer(buffer);
   }
 
+  /**
+   * Sets the text to display.
+   *
+   * @param text the new text
+   */
   public void text(String text) {
     this.text = text;
     this.update();
   }
 
+  /**
+   * Returns the text displayed by this element.
+   *
+   * @return the text displayed by this element
+   */
   public String text() {
     return this.text;
   }
 
+  /**
+   * Returns the font used by this element.
+   *
+   * @return the font used by this element
+   */
   public Font font() {
     return this.font;
   }
 
+  /**
+   * Sets the font used by this element.
+   *
+   * @param font the new font
+   * @return this element
+   */
   public UIText font(Font font) {
     this.font = font;
     this.update();
     return this;
   }
 
+  /**
+   * Returns the font size used by this element.
+   *
+   * @return the font size used by this element
+   */
   public int fontSize() {
     return this.fontSize;
   }
 
+  /**
+   * Sets the font size used by this element.
+   *
+   * @param fontSize the new font size
+   * @return this element
+   */
   public UIText fontSize(int fontSize) {
     this.fontSize = fontSize;
     this.update();
     return this;
   }
 
+  /** Represents a render step for a specific texture page. */
   private record RenderStep(int pageGLHandle, int count, int offset) {}
-
 }
