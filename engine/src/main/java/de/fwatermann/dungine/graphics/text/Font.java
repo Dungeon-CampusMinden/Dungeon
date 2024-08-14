@@ -6,10 +6,10 @@ import de.fwatermann.dungine.graphics.texture.Texture;
 import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
@@ -19,6 +19,11 @@ import org.lwjgl.stb.STBImageWrite;
 import org.lwjgl.util.freetype.*;
 
 public class Font {
+
+  /* Default charset. These chars are loaded by default */
+  private static final String DEFAULT_CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;:?!-_~#\"'&()[]{}<>|/@\\^$€%*+=`´";
+  private static final int[] DEFAULT_SIZES = {8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64};
+  private static final int DEFAULT_RENDER_MODE = FT_RENDER_MODE_NORMAL;
 
   private static final Logger LOGGER = LogManager.getLogger(Font.class);
   private static final int PAGE_SIZE_X = 1024;
@@ -35,8 +40,9 @@ public class Font {
     BLACK.flip();
   }
 
-  private final Map<Character, GlyphInfo> glyphs = new HashMap<>();
+  private final Map<Integer, Map<Character, GlyphInfo>> glyphs = new HashMap<>();
   private final ArrayList<Texture> pages = new ArrayList<Texture>();
+  private boolean color = false;
 
   private static void initFT() {
     if (FT_LIBRARY == 0) {
@@ -49,12 +55,8 @@ public class Font {
     }
   }
 
-  public static Font load(Resource resource, int fontSize) throws IOException {
-    initFT();
-
+  private static FT_Face loadFace(Resource resource) throws IOException {
     ByteBuffer fontFile = resource.readBytes();
-    Font font = new Font(fontSize);
-
     PointerBuffer facePtr = BufferUtils.createPointerBuffer(1);
     int error = FT_New_Memory_Face(FT_LIBRARY, fontFile, 0, facePtr);
     if (error == FT_Err_Unknown_File_Format) {
@@ -62,7 +64,62 @@ public class Font {
     } else if (error != 0) {
       throw new RuntimeException("Failed to load font face: " + error);
     }
-    FT_Face face = FT_Face.create(facePtr.get(0));
+    return FT_Face.create(facePtr.get(0));
+  }
+
+  private static void selectSize(FT_Face face, int preferredSize) {
+    int error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
+    if (error != 0) {
+      throw new RuntimeException("Failed to select Unicode charmap: " + error);
+    }
+
+    if((face.face_flags() & FT_FACE_FLAG_SCALABLE) != 0) { //Face is scalable
+      if(face.num_fixed_sizes() > 0) {
+        //Check if the preferred size is available
+        FT_Bitmap_Size.Buffer buffer = face.available_sizes();
+        if(buffer != null) {
+          for (int i = 0; i < face.num_fixed_sizes(); i++) {
+            if(buffer.get(i).height() == preferredSize) {
+              FT_Select_Size(face, i);
+              return;
+            }
+          }
+        }
+      }
+    }
+    FT_Set_Char_Size(face, 0, (long) preferredSize * 64, 96, 0); //TODO: Check DPI
+  }
+
+  /**
+   * Loads a font from the specified resource.
+   *
+   * <p>The {@link #DEFAULT_CHARSET default charset} and {@link #DEFAULT_SIZES sizes} are used.
+   *
+   * @param resource
+   * @return the font object representing the loaded font
+   * @throws IOException
+   */
+  public static Font load(Resource resource) throws IOException {
+    return load(resource, DEFAULT_CHARSET, DEFAULT_SIZES, DEFAULT_RENDER_MODE);
+  }
+
+  /**
+   * Loads a font from the specified resource.
+   * @param resource the resource to load the font from
+   * @param charset the chars to load initially
+   * @param sizes the sizes to load initially
+   * @param ftRenderMode the render mode to use (e.g. {@link FreeType#FT_RENDER_MODE_NORMAL})
+   * @return the font object representing the loaded font
+   * @throws IOException if an I/O error occurs
+   */
+  public static Font load(Resource resource, String charset, int[] sizes, int ftRenderMode) throws IOException {
+
+    long start = System.currentTimeMillis();
+
+    initFT();
+    Font font = new Font();
+
+    FT_Face face = loadFace(resource);
 
     // Check if the font is a color font
     if (FT_HAS_COLOR(face)) {
@@ -73,195 +130,154 @@ public class Font {
       font.color = false;
     }
 
-    error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
-    if (error != 0) {
-      throw new RuntimeException("Failed to select Unicode charmap: " + error);
-    }
-    if (font.color) {
-      if(face.num_fixed_sizes() > 0) {
-        int best = 0;
-        int diff = Integer.MAX_VALUE;
-        for (int i = 0; i < face.num_fixed_sizes(); i++) {
-          int newDiff = Math.abs(font.pixelSize - face.available_sizes().get(i).height());
-          if (newDiff < diff) {
-            best = i;
-            diff = newDiff;
-          }
-          LOGGER.debug(
-            "Available size: {}x{}",
-            face.available_sizes().get(i).width(),
-            face.available_sizes().get(i).height());
-        }
-        error = FT_Select_Size(face, best);
-      } else {
-        //error = FT_Set_Pixel_Sizes(face, 0, font.pixelSize);
-        FT_Set_Char_Size(face, (long) fontSize * 64, 0, 96, 0);
-      }
-    } else {
-      //error = FT_Set_Pixel_Sizes(face, 0, font.pixelSize);
-      FT_Set_Char_Size(face, (long) fontSize * 64, 0, 96, 0);
-    }
-
     LOGGER.debug(
         "FontFace loaded: \"{}\" with {} faces [color: {}]",
         face.family_nameString(),
         face.num_faces(),
         font.color);
 
-    StringBuilder chars = new StringBuilder();
-    IntBuffer charIndex = BufferUtils.createIntBuffer(1);
-    long charCode = FT_Get_First_Char(face, charIndex);
-    while (charIndex.get(0) != 0) {
-      chars.append(Character.toChars((int) charCode));
-      charCode = FT_Get_Next_Char(face, charCode, charIndex);
-    }
-
     font.pages.add(createPage());
-
-    int c_color = 0;
-    int c_mono = 0;
-    int c_skip_size = 0;
-    int c_skip_no_bitmap_c = 0;
-    int c_skip_no_bitmap_m = 0;
 
     int currentX = 0;
     int currentY = 0;
     int rowMaxHeight = 0;
 
-    for (int i = 0; i < chars.length(); i++) {
-      char c = chars.charAt(i);
-      int glyphIndex = FT_Get_Char_Index(face, c);
-      error = FT_Load_Glyph(face, glyphIndex, font.color ? FT_LOAD_COLOR : FT_LOAD_DEFAULT);
-      if (error != 0) {
-        throw new RuntimeException("Failed to load glyph for character '" + c + "': " + error);
-      }
+    for(int si = 0; si < sizes.length; si++) {
+      selectSize(face, sizes[si]);
 
-      PointerBuffer glyphPtr = BufferUtils.createPointerBuffer(1);
-      error = FT_Get_Glyph(face.glyph(), glyphPtr);
-      if (error != 0) {
-        throw new RuntimeException("Failed to get glyph for character '" + c + "': " + error);
-      }
-      FT_Glyph glyph = FT_Glyph.create(glyphPtr.get(0));
+      for (int i = 0; i < charset.length(); i++) {
+        char c = charset.charAt(i);
 
-      if (face.glyph().format() != FT_GLYPH_FORMAT_BITMAP) {
-        error = FT_Render_Glyph(face.glyph(), FT_RENDER_MODE_NORMAL);
-        if (error != 0) {
-          throw new RuntimeException("Failed to render glyph for character '" + c + "': " + error);
-        }
-      }
+        FT_Glyph glyph = loadGlyph(face, font.color, ftRenderMode, c);
 
-      if(face.glyph().format() == FT_GLYPH_FORMAT_SVG) {
-        throw new RuntimeException("SVG fonts are not supported");
-      }
+        FT_BBox bbox = FT_BBox.create();
+        FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_PIXELS, bbox);
 
-      FT_BBox bbox = FT_BBox.create();
-      FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_PIXELS, bbox);
+        float width = (bbox.xMax() - bbox.xMin());
+        float height = (bbox.yMax() - bbox.yMin());
 
-      float width = (bbox.xMax() - bbox.xMin());
-      float height = (bbox.yMax() - bbox.yMin());
-
-      if (width == 0 || height == 0) {
-        c_skip_size ++;
-        continue;
-      }
-
-      error = FT_Glyph_To_Bitmap(glyphPtr, FT_RENDER_MODE_NORMAL, null, false);
-      if (error != 0) {
-        throw new RuntimeException("Failed to render glyph for character '" + c + "': " + error);
-      }
-
-      FT_Bitmap bitmap = face.glyph().bitmap();
-      FT_Glyph_Metrics metrics = face.glyph().metrics();
-
-      // check if fits on current page
-      if (currentX + bitmap.width() >= PAGE_SIZE_X) {
-        currentX = 0;
-        currentY += rowMaxHeight;
-        rowMaxHeight = 0;
-      }
-      if (currentY + bitmap.rows() >= PAGE_SIZE_Y) {
-        currentX = 0;
-        currentY = 0;
-        rowMaxHeight = 0;
-        font.pages.add(createPage());
-      }
-
-      GL33.glBindTexture(GL33.GL_TEXTURE_2D, font.pages.getLast().glHandle());
-      boolean colored = false;
-      if (bitmap.pixel_mode() == FT_PIXEL_MODE_BGRA) { // Colored font
-        ByteBuffer bitmapPixels = bitmap.buffer(bitmap.width() * bitmap.rows() * 4);
-        if (bitmapPixels == null) {
-          c_skip_no_bitmap_c ++;
+        if (width == 0 || height == 0) {
           continue;
         }
-        for (int j = 0; j < bitmap.width() * bitmap.rows(); j += 4) {
-          byte b = bitmapPixels.get(j);
-          byte g = bitmapPixels.get(j + 1);
-          byte r = bitmapPixels.get(j + 2);
-          byte a = bitmapPixels.get(j + 3);
-          bitmapPixels.put(j, r);
-          bitmapPixels.put(j + 1, g);
-          bitmapPixels.put(j + 2, b);
-          bitmapPixels.put(j + 3, a);
+
+        FT_Bitmap bitmap = face.glyph().bitmap();
+        FT_Glyph_Metrics metrics = face.glyph().metrics();
+
+        int pixelWidth = (int) metrics.width() / 64;
+        int pixelHeight = (int) metrics.height() / 64;
+
+        switch(bitmap.pixel_mode()) {
+          case FT_PIXEL_MODE_LCD:
+            pixelWidth = Objects.requireNonNull(bitmap, "Bitmap is null!").width() / 3;
+            pixelHeight = bitmap.rows();
+            break;
+          case FT_PIXEL_MODE_BGRA:
+            pixelWidth = Objects.requireNonNull(bitmap, "Bitmap is null!").width() / 4;
+            pixelHeight = bitmap.rows();
+            break;
+          case FT_PIXEL_MODE_GRAY:
+            pixelWidth = Objects.requireNonNull(bitmap, "Bitmap is null!").width();
+            pixelHeight = bitmap.rows();
+            break;
+          default:
+            throw new RuntimeException("Unsupported pixel mode: " + bitmap.pixel_mode());
         }
-        GL33.glPixelStorei(GL33.GL_UNPACK_ALIGNMENT, 4);
+
+        // check if fits on current page
+        if (currentX + pixelWidth >= PAGE_SIZE_X) {
+          currentX = 0;
+          currentY += rowMaxHeight;
+          rowMaxHeight = 0;
+        }
+        if (currentY + pixelHeight >= PAGE_SIZE_Y) {
+          currentX = 0;
+          currentY = 0;
+          rowMaxHeight = 0;
+          font.pages.add(createPage());
+        }
+
+        GL33.glBindTexture(GL33.GL_TEXTURE_2D, font.pages.getLast().glHandle());
+
+        ByteBuffer targetBuffer = BufferUtils.createByteBuffer(pixelWidth * pixelHeight * 4);
+
+        if(bitmap.pixel_mode() == FT_PIXEL_MODE_LCD) { //RGB //TODO: Fix alignment issues
+          ByteBuffer bmpBuffer = bitmap.buffer(bitmap.width() * bitmap.rows());
+          if(bmpBuffer != null) {
+            LOGGER.debug("Glyph '{}' Mode: LCD", c);
+            for(int p = 0; p < bmpBuffer.limit(); p += 3) {
+              byte r = bmpBuffer.get(p);
+              byte g = bmpBuffer.get(p + 1);
+              byte b = bmpBuffer.get(p + 2);
+              targetBuffer.put(r);
+              targetBuffer.put(g);
+              targetBuffer.put(b);
+              targetBuffer.put((byte) (r | g | b));
+            }
+            targetBuffer.flip();
+          }
+        } else if(bitmap.pixel_mode() == FT_PIXEL_MODE_BGRA) { //BGRA
+          ByteBuffer bmpBuffer = bitmap.buffer(bitmap.width() * bitmap.rows());
+          if(bmpBuffer != null) {
+            LOGGER.debug("Glyph '{}' Mode: BGRA", c);
+            for(int p = 0; p < bmpBuffer.limit(); p += 4) {
+              byte b = bmpBuffer.get(p);
+              byte g = bmpBuffer.get(p + 1);
+              byte r = bmpBuffer.get(p + 2);
+              byte a = bmpBuffer.get(p + 3);
+              targetBuffer.put(r);
+              targetBuffer.put(g);
+              targetBuffer.put(b);
+              targetBuffer.put(a);
+            }
+            targetBuffer.flip();
+          }
+        } else if(bitmap.pixel_mode() == FT_PIXEL_MODE_GRAY) { //A
+          ByteBuffer bmpBuffer = bitmap.buffer(bitmap.width() * bitmap.rows());
+          if(bmpBuffer != null) {
+            LOGGER.debug("Glyph '{}' Mode: GRAY", c);
+            for(int p = 0; p < bmpBuffer.limit(); p++) {
+              byte a = bmpBuffer.get(p);
+              targetBuffer.put((byte)255);
+              targetBuffer.put((byte)255);
+              targetBuffer.put((byte)255);
+              targetBuffer.put(a);
+            }
+            targetBuffer.flip();
+          }
+        } else {
+          throw new RuntimeException("Unsupported pixel mode: " + bitmap.pixel_mode());
+        }
+
         GL33.glTexSubImage2D(
-            GL33.GL_TEXTURE_2D,
-            0,
-            currentX,
-            currentY,
-            bitmap.width(),
-            bitmap.rows(),
-            GL33.GL_RGBA,
-            GL33.GL_UNSIGNED_BYTE,
-            bitmapPixels);
-        colored = true;
-        c_color ++;
-      } else {
-        ByteBuffer bitmapPixels = bitmap.buffer(bitmap.width() * bitmap.rows());
-        ByteBuffer pixels = BufferUtils.createByteBuffer(bitmap.width() * bitmap.rows() * 4);
-        if (bitmapPixels == null) {
-          c_skip_no_bitmap_m ++;
-          continue;
-        }
-        for (int j = 0; j < bitmap.width() * bitmap.rows(); j++) {
-          byte b = bitmapPixels.get(j);
-          pixels.put((byte) 255);
-          pixels.put((byte) 255);
-          pixels.put((byte) 255);
-          pixels.put(b);
-        }
-        pixels.flip();
-        GL33.glPixelStorei(GL33.GL_UNPACK_ALIGNMENT, 4);
-        GL33.glTexSubImage2D(
-            GL33.GL_TEXTURE_2D,
-            0,
-            currentX,
-            currentY,
-            bitmap.width(),
-            bitmap.rows(),
-            GL33.GL_RGBA,
-            GL33.GL_UNSIGNED_BYTE,
-            pixels);
-        c_mono ++;
+          GL33.GL_TEXTURE_2D,
+          0,
+          currentX,
+          currentY,
+          pixelWidth,
+          pixelHeight,
+          GL33.GL_RGBA,
+          GL33.GL_UNSIGNED_BYTE,
+          targetBuffer);
+
+        GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
+
+        GlyphInfo glyphInfo =
+            new GlyphInfo(
+                c,
+                metrics.horiAdvance() / 64.0f,
+                metrics.vertAdvance() / 64.0f,
+                font.pages.size() - 1,
+                currentX,
+                currentY,
+                pixelWidth,
+                pixelHeight,
+                false);
+
+        font.glyphs.computeIfAbsent(DEFAULT_SIZES[si], k -> new HashMap<>()).put(c, glyphInfo);
+
+        currentX += pixelWidth;
+        rowMaxHeight = Math.max(rowMaxHeight, pixelHeight);
       }
-      GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
-
-      GlyphInfo glyphInfo =
-          new GlyphInfo(
-              c,
-              metrics.horiAdvance() / 64.0f,
-              metrics.vertAdvance() / 64.0f,
-              font.pages.size() - 1,
-              currentX,
-              currentY,
-              bitmap.width(),
-              bitmap.rows(),
-              colored);
-      font.glyphs.put(c, glyphInfo);
-
-      currentX += bitmap.width();
-      rowMaxHeight = Math.max(rowMaxHeight, bitmap.rows());
     }
 
     int c = 0;
@@ -279,17 +295,48 @@ public class Font {
           PAGE_SIZE_X * 4);
     }
 
-    LOGGER.debug("Font has [c: {} m: {}, c_ss: {}, c_sbc: {} c_sbm: {}] [{}] characters", c_color, c_mono, c_skip_size, c_skip_no_bitmap_c, c_skip_no_bitmap_m, chars.length());
+    long end = System.currentTimeMillis();
+    LOGGER.debug("Font loaded in {}ms", end - start);
 
     return font;
   }
 
-  private static Font loadSVGFont(Resource resource, FT_Face face) {
+  private static FT_Glyph loadGlyph(FT_Face face, boolean loadColor, int ftRenderMode, char c) {
+    int glyphIndex = FT_Get_Char_Index(face, c);
+    int error = FT_Load_Glyph(face, glyphIndex, loadColor ? FT_LOAD_COLOR : FT_LOAD_DEFAULT);
+    if (error != 0) {
+      throw new RuntimeException("Failed to load glyph for character '" + c + "': " + error);
+    }
+    if(face.glyph() == null) {
+      throw new RuntimeException("Failed to load glyph for character '" + c + "': Glyph is null");
+    }
 
+    PointerBuffer glyphPtr = BufferUtils.createPointerBuffer(1);
+    error = FT_Get_Glyph(Objects.requireNonNull(face.glyph(), "GlyphSlot is null!"), glyphPtr);
+    if (error != 0) {
+      throw new RuntimeException("Failed to get glyph for character '" + c + "': " + error);
+    }
+    FT_Glyph glyph = FT_Glyph.create(glyphPtr.get(0));
 
+    if(glyph.format() == FT_GLYPH_FORMAT_SVG) {
+      throw new RuntimeException("SVG glyphs are currently not supported!"); //TODO: Implement SVG support
+    }
 
-    return null;
+    if(glyph.format() != FT_GLYPH_FORMAT_BITMAP) {
+      error = FT_Glyph_To_Bitmap(glyphPtr, ftRenderMode, null, false);
+      if (error != 0) {
+        throw new RuntimeException("Failed to render glyph for character '" + c + "': " + error);
+      }
+    }
+
+    error = FT_Render_Glyph(face.glyph(), ftRenderMode);
+    if (error != 0) {
+      throw new RuntimeException("Failed to render glyph for character '" + c + "': " + error);
+    }
+
+    return glyph;
   }
+
 
   private static Texture createPage() {
     Texture page =
@@ -306,12 +353,7 @@ public class Font {
     return page;
   }
 
-  private boolean color = false;
-  private int pixelSize = 0;
-
-  private Font(int pixelSize) {
-    this.pixelSize = pixelSize;
-  }
+  private Font() {}
 
   public GlyphInfo[] shapeText(String text) {
     return new GlyphInfo[0];
