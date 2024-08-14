@@ -36,6 +36,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
+import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.GLUtil;
 
 public abstract class GameWindow implements Disposable {
@@ -443,8 +444,16 @@ public abstract class GameWindow implements Disposable {
     checkMainThread();
     if (!this.debug && debug) {
       glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+      if (GLUtils.checkVersion(4, 3)) {
+        LOGGER.info("OpenGL Version >= 4.3 -> Enabling Debugging");
+        GLUtil.setupDebugMessageCallback(new PrintStream(new Log4jOutputStream(Level.DEBUG)));
+      }
     } else if (this.debug && !debug) {
       glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
+      if (GLUtils.checkVersion(4, 3)) {
+        LOGGER.info("Disabling Debugging");
+        GL43.glDebugMessageCallback(null, 0);
+      }
     }
     this.debug = debug;
     return this;
