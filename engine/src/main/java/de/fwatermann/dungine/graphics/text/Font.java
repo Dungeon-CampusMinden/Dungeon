@@ -22,7 +22,7 @@ import org.lwjgl.util.freetype.*;
 
 public class Font {
 
-  public static boolean WRITE_GLYPHS_TO_PNG = true;
+  public static boolean WRITE_GLYPHS_TO_PNG = false;
   public static final int PAGE_SIZE_X = 1024;
   public static final int PAGE_SIZE_Y = 1024;
 
