@@ -22,7 +22,9 @@ import org.lwjgl.util.freetype.*;
 
 public class Font {
 
-  public static boolean WRITE_GLYPHS_TO_PNG = false;
+  public static boolean WRITE_GLYPHS_TO_PNG = true;
+  public static final int PAGE_SIZE_X = 1024;
+  public static final int PAGE_SIZE_Y = 1024;
 
   /* Default charset. These chars are loaded by default */
   private static final String DEFAULT_CHARSET =
@@ -39,8 +41,6 @@ public class Font {
   private static final Map<Character, Float> WHITESPACE_CHARS = new HashMap<>();
 
   private static final Logger LOGGER = LogManager.getLogger(Font.class);
-  private static final int PAGE_SIZE_X = 1024;
-  private static final int PAGE_SIZE_Y = 1024;
   private static final ByteBuffer EMPTY;
   private static long FT_LIBRARY = 0;
 
@@ -74,9 +74,7 @@ public class Font {
   private int currentY = 0;
   private int rowMaxHeight = 0;
 
-  /**
-   * Initializes the FreeType library.
-   */
+  /** Initializes the FreeType library. */
   private static void initFT() {
     if (FT_LIBRARY == 0) {
       PointerBuffer libPtr = BufferUtils.createPointerBuffer(1);
@@ -213,7 +211,7 @@ public class Font {
    * @param ftRenderMode the render mode to use for the glyphs
    */
   private static void loadGlyphs(
-    Font font, FT_Face face, String charset, int size, int ftRenderMode) {
+      Font font, FT_Face face, String charset, int size, int ftRenderMode) {
     selectSize(face, size);
     if (font.pages.isEmpty()) font.pages.add(createPage());
     for (int i = 0; i < charset.length(); i++) {
@@ -440,17 +438,13 @@ public class Font {
   /**
    * Creates a new texture page.
    *
-   * This method initializes a new texture with predefined dimensions and settings.
-   * The texture is created with the following properties:
-   * - Width: PAGE_SIZE_X
-   * - Height: PAGE_SIZE_Y
-   * - Internal format: GL33.GL_RGBA
-   * - Minification filter: GL33.GL_LINEAR
-   * - Magnification filter: GL33.GL_LINEAR
-   * - Wrap mode for S coordinate: GL33.GL_CLAMP_TO_EDGE
-   * - Wrap mode for T coordinate: GL33.GL_CLAMP_TO_EDGE
+   * <p>This method initializes a new texture with predefined dimensions and settings. The texture
+   * is created with the following properties: - Width: PAGE_SIZE_X - Height: PAGE_SIZE_Y - Internal
+   * format: GL33.GL_RGBA - Minification filter: GL33.GL_LINEAR - Magnification filter:
+   * GL33.GL_LINEAR - Wrap mode for S coordinate: GL33.GL_CLAMP_TO_EDGE - Wrap mode for T
+   * coordinate: GL33.GL_CLAMP_TO_EDGE
    *
-   * The texture is filled with the contents of the EMPTY ByteBuffer.
+   * <p>The texture is filled with the contents of the EMPTY ByteBuffer.
    *
    * @return a new Texture object representing the created texture page
    */
@@ -473,11 +467,11 @@ public class Font {
 
   /**
    * Lays out the text into an array of TextLayoutElement objects.
-   * <p>
-   * This method processes the input text and arranges it into lines and positions
-   * based on the specified font size, line padding, and maximum line width.
-   * It handles wrapping characters, newline characters, and whitespace characters
-   * appropriately to ensure the text fits within the given constraints.
+   *
+   * <p>This method processes the input text and arranges it into lines and positions based on the
+   * specified font size, line padding, and maximum line width. It handles wrapping characters,
+   * newline characters, and whitespace characters appropriately to ensure the text fits within the
+   * given constraints.
    *
    * @param text the text to layout
    * @param fontSize the size of the font to use
@@ -493,6 +487,7 @@ public class Font {
     int currentY = 0;
     int rowMaxHeight = 0;
     int lastWrapIndex = 0;
+    int lastWrapAt = 0;
 
     TextLayoutElement[] elements = new TextLayoutElement[text.length()];
 
@@ -523,13 +518,21 @@ public class Font {
       }
 
       if (currentX + glyph.width >= maxLineWidth) {
-        i = lastWrapIndex;
+        if(lastWrapAt == lastWrapIndex) {
+          lastWrapAt = i;
+          lastWrapIndex = i;
+        } else {
+          i = lastWrapIndex;
+          lastWrapAt = lastWrapIndex;
+        }
         currentX = 0;
         currentY += fontSize + linePadding;
+        continue;
       }
 
+
       elements[i] =
-          new TextLayoutElement(this, glyph, currentX, currentY, glyph.width, glyph.height);
+          new TextLayoutElement(this, glyph, currentX, -currentY, glyph.width, glyph.height);
 
       currentX += Math.round(glyph.xAdvance);
       rowMaxHeight = Math.max(rowMaxHeight, glyph.height);
@@ -539,11 +542,15 @@ public class Font {
     return elements;
   }
 
+  public TextLayoutElement[] layoutText(String text, int fontSize, int maxLineWidth) {
+    return this.layoutText(text, fontSize, DEFAULT_LINE_PADDING, maxLineWidth);
+  }
+
   /**
    * Calculates the bounding box for an array of TextLayoutElement objects.
    *
-   * This method iterates through the provided elements and determines the maximum width and height
-   * to create a bounding box that encompasses all the elements.
+   * <p>This method iterates through the provided elements and determines the maximum width and
+   * height to create a bounding box that encompasses all the elements.
    *
    * @param elements an array of TextLayoutElement objects to calculate the bounding box for
    * @return a BoundingBox2D object representing the calculated bounding box
@@ -561,9 +568,11 @@ public class Font {
   }
 
   /**
-   * Calculates the bounding box for a given text with specified font size, line padding, and maximum line width.
+   * Calculates the bounding box for a given text with specified font size, line padding, and
+   * maximum line width.
    *
-   * This method lays out the text and then calculates the bounding box based on the laid out text.
+   * <p>This method lays out the text and then calculates the bounding box based on the laid out
+   * text.
    *
    * @param text the text to calculate the bounding box for
    * @param fontSize the size of the font to use
@@ -579,7 +588,7 @@ public class Font {
   /**
    * Calculates the bounding box for a given text with specified font size and maximum line width.
    *
-   * This method uses the default line padding.
+   * <p>This method uses the default line padding.
    *
    * @param text the text to calculate the bounding box for
    * @param fontSize the size of the font to use
@@ -593,7 +602,7 @@ public class Font {
   /**
    * Calculates the bounding box for a given text with specified font size.
    *
-   * This method uses the default line padding and assumes no maximum line width.
+   * <p>This method uses the default line padding and assumes no maximum line width.
    *
    * @param text the text to calculate the bounding box for
    * @param fontSize the size of the font to use
@@ -627,7 +636,7 @@ public class Font {
   /**
    * Retrieves or loads a glyph for the specified character and size.
    *
-   * If the glyph is not already loaded, it will be loaded from the FreeType face.
+   * <p>If the glyph is not already loaded, it will be loaded from the FreeType face.
    *
    * @param c the character to retrieve or load the glyph for
    * @param size the size of the glyph to retrieve or load
@@ -666,8 +675,15 @@ public class Font {
   }
 
   /**
-   * Represents information about a glyph.
+   * Retrieves a texture page by index.
+   * @param pageIndex the index of the texture page to retrieve
+   * @return the Texture object representing the texture page
    */
+  public Texture getPage(int pageIndex) {
+    return this.pages.get(pageIndex);
+  }
+
+  /** Represents information about a glyph. */
   public static class GlyphInfo {
 
     public final int codepoint;
@@ -716,9 +732,7 @@ public class Font {
     }
   }
 
-  /**
-   * Represents an element of text layout.
-   */
+  /** Represents an element of text layout. */
   public static class TextLayoutElement {
 
     public final Font font;
