@@ -1,0 +1,18 @@
+CREATE TABLE CorrectAssignment (
+    questionID INTEGER NOT NULL,
+    assignmentID INTEGER NOT NULL
+);
+
+getCorrectAssignmentByQuestionId:
+SELECT Assignment.id, Assignment.questionID,Assignment.termA, Assignment.termB
+FROM Assignment JOIN CorrectAssignment
+WHERE CorrectAssignment.questionID = :questionID AND Assignment.id = assignmentID;
+
+insertCorrectAssignment:
+INSERT OR REPLACE
+INTO CorrectAssignment
+VALUES (?,?);
+
+deleteCorrectAssignmentByAssignmentId:
+DELETE FROM CorrectAssignment
+WHERE assignmentID = :assignmentId AND questionID = :questionId;
