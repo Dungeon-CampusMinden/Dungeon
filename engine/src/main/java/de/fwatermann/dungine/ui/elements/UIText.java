@@ -98,7 +98,7 @@ public class UIText extends UIElement<UIText> {
       if(element == null) {
         continue;
       }
-      if(i > 0 && element.glyph.page != page) {
+      if(element.glyph.page != page) {
         this.renderSteps.add(new RenderStep(this.font.getPage(page).glHandle(), count, offset));
         offset = count;
         count = 0;
