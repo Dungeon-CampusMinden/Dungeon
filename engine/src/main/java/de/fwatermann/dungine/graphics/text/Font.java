@@ -36,7 +36,7 @@ public class Font {
   private static final int DEFAULT_RENDER_MODE = FT_RENDER_MODE_NORMAL;
   private static final Map<Resource, Font> CACHE = new HashMap<>();
   private static final List<Character> WRAPPING_CHARS =
-      new ArrayList<>(List.of('.', ',', ':', ';', '!', '?', '-'));
+      new ArrayList<>(List.of('.', ',', ':', ';', '!', '?', '-', ' ', '\t'));
   private static final List<Character> NEWLINE_CHARS = new ArrayList<>(List.of('\n'));
   private static final Map<Character, Float> WHITESPACE_CHARS = new HashMap<>();
 
@@ -219,7 +219,6 @@ public class Font {
 
       FT_Glyph glyph = loadGlyph(face, font.color, ftRenderMode, c);
       if (glyph == null) {
-        LOGGER.debug("Glyph for character '{}' not found, skip.", c);
         continue;
       }
 
@@ -329,6 +328,9 @@ public class Font {
 
         GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
 
+        int offsetX = (int) metrics.horiBearingX() / 64;
+        int offsetY = (int) metrics.horiBearingY() / 64 - pixelHeight;
+
         GlyphInfo glyphInfo =
             new GlyphInfo(
                 font,
@@ -340,6 +342,8 @@ public class Font {
                 font.currentY,
                 pixelWidth,
                 pixelHeight,
+                offsetX,
+                offsetY,
                 false);
         font.glyphs.computeIfAbsent(size, k -> new HashMap<>()).put(c, glyphInfo);
 
@@ -358,7 +362,7 @@ public class Font {
                 0,
                 0,
                 0,
-                false);
+                0, 0, false);
         font.glyphs.computeIfAbsent(size, k -> new HashMap<>()).put(c, glyphInfo);
       }
 
@@ -516,8 +520,9 @@ public class Font {
       if (glyph == null) {
         glyph = this.getOrLoadGlyph('?', fontSize); // Replace unknown glyph with ?
       }
+      if(glyph == null) continue;
 
-      if (currentX + glyph.width >= maxLineWidth) {
+      if (currentX + glyph.width > maxLineWidth) {
         if(lastWrapAt == lastWrapIndex) {
           lastWrapAt = i;
           lastWrapIndex = i;
@@ -530,9 +535,9 @@ public class Font {
         continue;
       }
 
-
       elements[i] =
-          new TextLayoutElement(this, glyph, currentX, -currentY, glyph.width, glyph.height);
+          new TextLayoutElement(
+              this, glyph, currentX + glyph.offsetX, -currentY + glyph.offsetY, glyph.width, glyph.height);
 
       currentX += Math.round(glyph.xAdvance);
       rowMaxHeight = Math.max(rowMaxHeight, glyph.height);
@@ -691,6 +696,7 @@ public class Font {
     public final int page;
     public final int pageX, pageY;
     public final int width, height;
+    public final int offsetX, offsetY;
     public final boolean colored;
     public final Font font;
 
@@ -718,16 +724,20 @@ public class Font {
         int y,
         int width,
         int height,
+        int offsetX,
+        int offsetY,
         boolean colored) {
       this.font = font;
       this.codepoint = codepoint;
+      this.page = page;
       this.xAdvance = xAdvance;
       this.yAdvance = yAdvance;
       this.pageX = x;
       this.pageY = y;
       this.width = width;
       this.height = height;
-      this.page = page;
+      this.offsetX = offsetX;
+      this.offsetY = offsetY;
       this.colored = colored;
     }
   }
