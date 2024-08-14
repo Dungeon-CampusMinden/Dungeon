@@ -33,6 +33,7 @@ public class Font {
     8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64
   };
   private static final int DEFAULT_LINE_PADDING = 2;
+  private static final int ATLAS_PADDING = 1;
   private static final int DEFAULT_RENDER_MODE = FT_RENDER_MODE_NORMAL;
   private static final Map<Resource, Font> CACHE = new HashMap<>();
   private static final List<Character> WRAPPING_CHARS =
@@ -256,7 +257,7 @@ public class Font {
         // check if fits on current page
         if (font.currentX + pixelWidth >= PAGE_SIZE_X) {
           font.currentX = 0;
-          font.currentY += font.rowMaxHeight;
+          font.currentY += font.rowMaxHeight + ATLAS_PADDING;
           font.rowMaxHeight = 0;
         }
         if (font.currentY + pixelHeight >= PAGE_SIZE_Y) {
@@ -347,7 +348,7 @@ public class Font {
                 false);
         font.glyphs.computeIfAbsent(size, k -> new HashMap<>()).put(c, glyphInfo);
 
-        font.currentX += pixelWidth;
+        font.currentX += pixelWidth + ATLAS_PADDING;
         font.rowMaxHeight = Math.max(font.rowMaxHeight, pixelHeight);
 
       } else {
