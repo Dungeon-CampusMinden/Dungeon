@@ -16,24 +16,24 @@ void main() {
 
   vec4 pos = gl_in[0].gl_Position;
 
-  //Top Right
-  gl_Position = uProjection * uView * vec4(pos.x + vs_Size[0].x, pos.y, pos.z, 1.0f);
-  gs_TexCoord = vec2((vs_TexCoord[0].x + vs_Size[0].x) / float(uPageSize.x), (vs_TexCoord[0].y + vs_Size[0].y) / float(uPageSize.y));
-  EmitVertex();
-
   //Top Left
   gl_Position = uProjection * uView * vec4(pos.x, pos.y, pos.z, 1.0f);
   gs_TexCoord = vec2(vs_TexCoord[0].x / float(uPageSize.x), (vs_TexCoord[0].y + vs_Size[0].y) / float(uPageSize.y));
   EmitVertex();
 
-  //Bottom Right
-  gl_Position = uProjection * uView * vec4(pos.x + vs_Size[0].x, pos.y + vs_Size[0].y, pos.z, 1.0f);
-  gs_TexCoord = vec2((vs_TexCoord[0].x + vs_Size[0].x) / float(uPageSize.x), vs_TexCoord[0].y / float(uPageSize.y));
+  //Top Right
+  gl_Position = uProjection * uView * vec4(pos.x + vs_Size[0].x, pos.y, pos.z, 1.0f);
+  gs_TexCoord = vec2((vs_TexCoord[0].x + vs_Size[0].x) / float(uPageSize.x), (vs_TexCoord[0].y + vs_Size[0].y) / float(uPageSize.y));
   EmitVertex();
 
   //Bottom Left
   gl_Position = uProjection * uView * vec4(pos.x, pos.y + vs_Size[0].y, pos.z, 1.0f);
   gs_TexCoord = vec2(vs_TexCoord[0].x / float(uPageSize.x), vs_TexCoord[0].y / float(uPageSize.y));
+  EmitVertex();
+
+  //Bottom Right
+  gl_Position = uProjection * uView * vec4(pos.x + vs_Size[0].x, pos.y + vs_Size[0].y, pos.z, 1.0f);
+  gs_TexCoord = vec2((vs_TexCoord[0].x + vs_Size[0].x) / float(uPageSize.x), vs_TexCoord[0].y / float(uPageSize.y));
   EmitVertex();
 
   EndPrimitive();
