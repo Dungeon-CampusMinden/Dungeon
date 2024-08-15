@@ -1,13 +1,13 @@
 package contrib.level.generator.graphBased.levelGraph;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Entity;
 import java.util.*;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class LevelGraphTest {
@@ -15,7 +15,7 @@ public class LevelGraphTest {
   private LevelGraph graph;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     // create a graph with 5 nodes where each node has 4 Neighbours
     graph = generateFullGraph();
@@ -70,7 +70,7 @@ public class LevelGraphTest {
 
   /** WTF? . */
   @Test
-  @Ignore
+  @Disabled
   public void connect_graphs_avoid_random_success() {
     // use this to check manual to avoid random success.
     List<LevelGraph> graphs = new ArrayList<>();

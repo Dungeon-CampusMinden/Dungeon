@@ -11,8 +11,9 @@ dependencies {
     api supportDependencies.gdx_lwjgl3_glfw_awt_macos
     api supportDependencies.gdx_ai
 
-    // JUnit 4 and Mockito for testing
+    // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
 }
 
@@ -33,4 +34,9 @@ tasks.register('debugBasicStarter', JavaExec) {
     mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
     debug = true
+}
+
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }

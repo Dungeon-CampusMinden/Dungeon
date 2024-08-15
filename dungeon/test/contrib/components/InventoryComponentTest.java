@@ -1,6 +1,6 @@
 package contrib.components;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.item.Item;
 import core.Entity;
@@ -8,8 +8,8 @@ import core.Game;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** Tests for the {@link InventoryComponent}. */
@@ -20,7 +20,7 @@ public class InventoryComponentTest {
       new SimpleIPath("animation/missing_texture.png");
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
   }
@@ -125,7 +125,7 @@ public class InventoryComponentTest {
     Entity e = new Entity();
     InventoryComponent ic = new InventoryComponent(0);
     e.add(ic);
-    assertEquals("should have no Items", 0, ic.count());
+    assertEquals(0, ic.count());
   }
 
   /** An inventory with one Item should return a List with this Item. */
@@ -138,8 +138,8 @@ public class InventoryComponentTest {
         new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
     ic.add(itemData);
     Item[] list = ic.items();
-    assertEquals("should have one Item", 1, list.length);
-    assertTrue("Item should be in returned List", Arrays.asList(list).contains(itemData));
+    assertEquals(1, list.length);
+    assertTrue(Arrays.asList(list).contains(itemData));
   }
 
   /** An inventory with one Item should return a List with this Item. */
@@ -155,9 +155,9 @@ public class InventoryComponentTest {
         new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
     ic.add(itemData2);
     Item[] list = ic.items();
-    assertEquals("should have two Items", 2, list.length);
-    assertTrue("Item 1 should be in returned List", Arrays.asList(list).contains(itemData1));
-    assertTrue("Item 2 should be in returned List", Arrays.asList(list).contains(itemData2));
+    assertEquals(2, list.length);
+    assertTrue(Arrays.asList(list).contains(itemData1));
+    assertTrue(Arrays.asList(list).contains(itemData2));
   }
 
   /** An inventory should only be able to return Items it contains. */
@@ -169,8 +169,8 @@ public class InventoryComponentTest {
     Item itemData =
         new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
     Item[] list = ic.items();
-    assertEquals("should have no Items", 0, ic.count());
-    assertFalse("Item should not be in returned List", Arrays.asList(list).contains(itemData));
+    assertEquals(0, ic.count());
+    assertFalse(Arrays.asList(list).contains(itemData));
   }
 
   /** WTF? . */
@@ -180,12 +180,10 @@ public class InventoryComponentTest {
     InventoryComponent other = new InventoryComponent(1);
     Item item = Mockito.mock(Item.class);
     ic.add(item);
-    assertTrue("Item should be in the inventory.", Arrays.asList(ic.items()).contains(item));
-    assertTrue("Transfer should be successfully.", ic.transfer(item, other));
-    assertTrue(
-        "Item should now be in the other inventory.", Arrays.asList(other.items()).contains(item));
-    assertFalse(
-        "Item should be removed from this inventroy.", Arrays.asList(ic.items()).contains(item));
+    assertTrue(Arrays.asList(ic.items()).contains(item));
+    assertTrue(ic.transfer(item, other));
+    assertTrue(Arrays.asList(other.items()).contains(item));
+    assertFalse(Arrays.asList(ic.items()).contains(item));
   }
 
   /** WTF? . */
@@ -195,10 +193,10 @@ public class InventoryComponentTest {
     InventoryComponent other = new InventoryComponent(0);
     Item item = Mockito.mock(Item.class);
     ic.add(item);
-    assertTrue("Item should be in the inventory.", Arrays.asList(ic.items()).contains(item));
-    assertFalse("Other inventory is full, no transfer possible", ic.transfer(item, other));
-    assertFalse("Item should not be transfered", Arrays.asList(other.items()).contains(item));
-    assertTrue("Item should still be in tis inventroy.", Arrays.asList(ic.items()).contains(item));
+    assertTrue(Arrays.asList(ic.items()).contains(item));
+    assertFalse(ic.transfer(item, other));
+    assertFalse(Arrays.asList(other.items()).contains(item));
+    assertTrue(Arrays.asList(ic.items()).contains(item));
   }
 
   /** WTF? . */
@@ -207,7 +205,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     InventoryComponent other = new InventoryComponent(1);
     Item item = Mockito.mock(Item.class);
-    assertFalse("No item, no transfer", ic.transfer(item, other));
+    assertFalse(ic.transfer(item, other));
   }
 
   /** WTF? . */
@@ -216,8 +214,8 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     Item item = Mockito.mock(Item.class);
     ic.add(item);
-    assertTrue("Item should be in the inventory.", Arrays.asList(ic.items()).contains(item));
-    assertFalse("Can not transfer item to itself.", ic.transfer(item, ic));
-    assertTrue("Item should still be in tis inventroy.", Arrays.asList(ic.items()).contains(item));
+    assertTrue(Arrays.asList(ic.items()).contains(item));
+    assertFalse(ic.transfer(item, ic));
+    assertTrue(Arrays.asList(ic.items()).contains(item));
   }
 }

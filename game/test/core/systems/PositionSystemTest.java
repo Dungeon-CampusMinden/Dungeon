@@ -1,7 +1,7 @@
 package core.systems;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Entity;
 import core.Game;
@@ -12,23 +12,23 @@ import core.level.elements.tile.FloorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** Tests for the {@link PositionSystem} class. */
 public class PositionSystemTest {
 
-  private PositionSystem system;
   private final Tile mock = Mockito.mock(FloorTile.class);
   private final Point point = new Point(3, 3);
   private final ILevel level = Mockito.mock(ILevel.class);
+  private PositionSystem system;
   private Entity entity;
   private PositionComponent pc;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     pc = new PositionComponent();
     Game.add(new LevelSystem(null, null, () -> {}));
@@ -46,7 +46,7 @@ public class PositionSystemTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllSystems();
     Game.removeAllEntities();
@@ -68,6 +68,6 @@ public class PositionSystemTest {
   public void test_legalPosition() {
     pc.position(new Point(2, 2));
     system.execute();
-    assertFalse("Nothing should have changed", pc.position().equals(point));
+    assertFalse(pc.position().equals(point));
   }
 }

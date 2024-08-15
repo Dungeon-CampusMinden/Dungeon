@@ -1,6 +1,6 @@
 package contrib.entities;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
@@ -15,20 +15,20 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import java.io.IOException;
 import java.util.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class MonsterTest {
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     Game.add(new LevelSystem(null, null, () -> {}));
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);
@@ -51,20 +51,19 @@ public class MonsterTest {
     Entity m = EntityFactory.randomMonster();
 
     Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
-    assertTrue("Entity needs the DrawComponent.", drawComponent.isPresent());
+    assertTrue(drawComponent.isPresent());
 
     Optional<PositionComponent> positionComponent = m.fetch(PositionComponent.class);
-    assertTrue("Entity needs the PositionComponent.", positionComponent.isPresent());
+    assertTrue(positionComponent.isPresent());
     PositionComponent pc = positionComponent.get();
 
     Optional<HealthComponent> HealthComponent = m.fetch(HealthComponent.class);
-    assertTrue("Entity needs the HealthComponent to take damage", HealthComponent.isPresent());
+    assertTrue(HealthComponent.isPresent());
 
     Optional<AIComponent> AiComponent = m.fetch(AIComponent.class);
-    assertTrue("Entity needs the AIComponent to collide with things", AiComponent.isPresent());
+    assertTrue(AiComponent.isPresent());
 
     Optional<CollideComponent> collideComponent = m.fetch(CollideComponent.class);
-    assertTrue(
-        "Entity needs the CollideComponent to collide with things", collideComponent.isPresent());
+    assertTrue(collideComponent.isPresent());
   }
 }

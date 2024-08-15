@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.draw.AdditionalAnimations;
@@ -13,8 +13,8 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.function.Consumer;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** WTF? . */
@@ -22,7 +22,7 @@ public class HealthSystemTest {
   private static final IPath ANIMATION_PATH = new SimpleIPath("textures/test_hero");
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);
@@ -65,10 +65,8 @@ public class HealthSystemTest {
     Game.add(system);
     component.currentHealthpoints(0);
     system.execute();
-    assertFalse(
-        "Entity can not die, so dont show die animation",
-        ac.isCurrentAnimation(AdditionalAnimations.DIE));
-    assertTrue("Entity should still be in game.", Game.entityStream().anyMatch(e -> e == entity));
+    assertFalse(ac.isCurrentAnimation(AdditionalAnimations.DIE));
+    assertTrue(Game.entityStream().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */

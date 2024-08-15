@@ -8,17 +8,7 @@ import dsl.annotation.DSLType;
 /** WTF? . */
 @DSLType
 public class TestComponentWithTriConsumerCallback extends Component {
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
+  private final Entity entity;
   @DSLCallback private TriConsumer<Entity, Entity, Boolean> onInteraction;
 
   /**
@@ -29,5 +19,14 @@ public class TestComponentWithTriConsumerCallback extends Component {
   public TestComponentWithTriConsumerCallback(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
   }
 }

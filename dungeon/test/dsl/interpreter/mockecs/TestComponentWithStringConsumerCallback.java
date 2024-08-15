@@ -8,17 +8,7 @@ import java.util.function.Consumer;
 /** WTF? . */
 @DSLType
 public class TestComponentWithStringConsumerCallback extends Component {
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
+  private final Entity entity;
   @DSLCallback private Consumer<String> onInteraction;
 
   /**
@@ -29,6 +19,15 @@ public class TestComponentWithStringConsumerCallback extends Component {
   public TestComponentWithStringConsumerCallback(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
   }
 
   /**

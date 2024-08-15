@@ -8,7 +8,20 @@ import java.util.function.Function;
 /** WTF? . */
 @DSLType
 public class TestComponentWithFunctionCallback extends Component {
-  private Entity entity;
+  private final Entity entity;
+  @DSLCallback private Function<Entity, Boolean> onInteraction;
+  @DSLCallback private Function<Entity, MyEnum> getEnum;
+  @DSLCallback private Function<MyEnum, Boolean> functionWithEnumParam;
+
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
+  public TestComponentWithFunctionCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 
   /**
    * WTF? .
@@ -18,10 +31,6 @@ public class TestComponentWithFunctionCallback extends Component {
   public Entity getEntity() {
     return entity;
   }
-
-  @DSLCallback private Function<Entity, Boolean> onInteraction;
-  @DSLCallback private Function<Entity, MyEnum> getEnum;
-  @DSLCallback private Function<MyEnum, Boolean> functionWithEnumParam;
 
   /**
    * WTF? .
@@ -48,15 +57,5 @@ public class TestComponentWithFunctionCallback extends Component {
    */
   public Function<MyEnum, Boolean> getFunctionWithEnumParam() {
     return functionWithEnumParam;
-  }
-
-  /**
-   * WTF? .
-   *
-   * @param entity foo
-   */
-  public TestComponentWithFunctionCallback(@DSLContextMember(name = "entity") Entity entity) {
-    super(entity);
-    this.entity = entity;
   }
 }

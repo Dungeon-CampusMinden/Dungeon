@@ -1,17 +1,17 @@
 package core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.level.elements.ILevel;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** Tests for the {@link Game} class. */
 public class GameTest {
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.removeAllSystems();

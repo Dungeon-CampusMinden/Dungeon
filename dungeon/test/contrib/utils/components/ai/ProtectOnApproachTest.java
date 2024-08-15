@@ -9,7 +9,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 /** WTF? . */
 public class ProtectOnApproachTest {
@@ -20,7 +20,7 @@ public class ProtectOnApproachTest {
   private Entity hero;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
 
     // Protected Entity

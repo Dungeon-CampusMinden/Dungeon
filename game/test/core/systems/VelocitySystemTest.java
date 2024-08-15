@@ -1,7 +1,7 @@
 package core.systems;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.badlogic.gdx.math.Vector2;
 import core.Entity;
@@ -15,9 +15,9 @@ import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** Tests for the {@link VelocitySystem} class. */
@@ -37,7 +37,7 @@ public class VelocitySystemTest {
   private Entity entity;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     Game.add(new LevelSystem(null, null, () -> {}));
     Game.currentLevel(level);
@@ -56,7 +56,7 @@ public class VelocitySystemTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);

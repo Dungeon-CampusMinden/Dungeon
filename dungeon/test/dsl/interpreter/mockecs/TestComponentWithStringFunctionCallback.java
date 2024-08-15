@@ -8,17 +8,7 @@ import java.util.function.Function;
 /** WTF? . */
 @DSLType
 public class TestComponentWithStringFunctionCallback extends Component {
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
+  private final Entity entity;
   @DSLCallback private Function<String, String> onInteraction;
 
   /**
@@ -29,6 +19,15 @@ public class TestComponentWithStringFunctionCallback extends Component {
   public TestComponentWithStringFunctionCallback(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
   }
 
   /**

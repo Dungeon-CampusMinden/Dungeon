@@ -1,7 +1,7 @@
 package core.level;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -26,9 +26,9 @@ import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -45,7 +45,7 @@ public class TileLevelAPITest {
   private MockedConstruction<Texture> textureMockedConstruction;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     Texture texture = Mockito.mock(Texture.class);
     TextureMap textureMap = Mockito.mock(TextureMap.class);
@@ -65,7 +65,7 @@ public class TileLevelAPITest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.currentLevel(null);
     Game.removeAllEntities();

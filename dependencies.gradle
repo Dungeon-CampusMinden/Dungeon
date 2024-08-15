@@ -5,7 +5,8 @@ ext {
     // -- DEPENDENCIES
     gdxVersion = '1.12.1'
     aiVersion = '1.8.2'
-    junitVersion = '4.13.2'
+    junitVersion = '5.11.0'
+    junitLauncherVersion = '1.11.0'
     mockitoVersion = '5.12.0'
     antlrVersion = '4.13.2'
 
@@ -19,8 +20,9 @@ ext {
         gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
         gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
 
-        // JUnit 4 and Mockito for testing
-        junit                     : "junit:junit:$junitVersion",
+        // JUnit and Mockito for testing
+        junit                     : "org.junit.jupiter:junit-jupiter:$junitVersion",
+        junitLauncher             : "org.junit.platform:junit-platform-launcher:$junitLauncherVersion",
         mockito_core              : "org.mockito:mockito-core:$mockitoVersion",
 
         // ANTLR version 4 for DSL Grammar

@@ -1,6 +1,6 @@
 package reporting;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.entities.EntityFactory;
 import core.Game;
@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import task.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import task.Task;
 import task.reporting.GradingFunctions;
 import task.tasktype.AssignTask;
 import task.tasktype.Element;
@@ -24,7 +24,7 @@ import task.tasktype.quizquestion.SingleChoice;
 /** WTF? . */
 public class GradingFunctionsTest {
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     try {
       Game.add(EntityFactory.newHero());
@@ -34,7 +34,7 @@ public class GradingFunctionsTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Task.cleanupAllTask();
   }

@@ -1,12 +1,12 @@
 package core.components;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Entity;
 import java.util.function.Consumer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link PlayerComponent} class. */
 public class PlayerComponentTest {
@@ -15,7 +15,7 @@ public class PlayerComponentTest {
   private PlayerComponent playableComponent;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     playableComponent = new PlayerComponent();
   }

@@ -1,13 +1,13 @@
 package core.level;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link TileTextureFactory} class. */
 public class TileTextureFactoryTest {
@@ -17,7 +17,7 @@ public class TileTextureFactoryTest {
   private LevelElement[][] layout;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     design = DesignLabel.DEFAULT;
     targetTexture = "dungeon/default/";

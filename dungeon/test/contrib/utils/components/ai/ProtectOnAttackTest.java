@@ -1,6 +1,6 @@
 package contrib.utils.components.ai;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
@@ -13,9 +13,9 @@ import core.Game;
 import core.components.PlayerComponent;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class ProtectOnAttackTest {
@@ -30,7 +30,7 @@ public class ProtectOnAttackTest {
   private int updateCounter;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     // Get a protector
     protector = new Entity();
@@ -59,7 +59,7 @@ public class ProtectOnAttackTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllSystems();
     Game.removeAllEntities();
