@@ -1,7 +1,6 @@
 package contrib.entities;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the Chest classes. */
@@ -33,7 +31,6 @@ public class ChestTest {
   }
 
   /** Checks the correct creation of the Chest. */
-  @Disabled
   @Test
   public void checkCreation() throws IOException {
     Set<Item> itemData = Set.of();
@@ -44,7 +41,7 @@ public class ChestTest {
     assertTrue(c.fetch(DrawComponent.class).isPresent());
     Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
     assertTrue(inventoryComponent.isPresent());
-    assertEquals(
+    assertArrayEquals(
         new Item[] {null, null, null, null, null, null, null, null, null, null, null, null},
         inventoryComponent.get().items());
     Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
