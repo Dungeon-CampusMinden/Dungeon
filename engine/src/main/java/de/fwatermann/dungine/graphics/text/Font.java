@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImageWrite;
 import org.lwjgl.util.freetype.*;
 
+/** Represents a font and provides methods for loading and rendering glyphs. */
 public class Font {
 
   public static boolean WRITE_GLYPHS_TO_PNG = false;
@@ -71,10 +72,11 @@ public class Font {
 
   /**
    * Retrieves the default font.
+   *
    * @return the default font
    */
   public static Font defaultFont() {
-    if(defaultFont != null) return defaultFont;
+    if (defaultFont != null) return defaultFont;
     try {
       defaultFont = Font.load(Resource.load("/fonts/default.ttf"));
     } catch (IOException e) {
@@ -85,10 +87,11 @@ public class Font {
 
   /**
    * Retrieves the default monospace font.
+   *
    * @return the default monospace font
    */
   public static Font defaultMonoFont() {
-    if(monoFont != null) return monoFont;
+    if (monoFont != null) return monoFont;
     try {
       monoFont = Font.load(Resource.load("/fonts/mono.ttf"));
     } catch (IOException e) {
@@ -394,7 +397,9 @@ public class Font {
                 0,
                 0,
                 0,
-                0, 0, false);
+                0,
+                0,
+                false);
         font.glyphs.computeIfAbsent(size, k -> new HashMap<>()).put(c, glyphInfo);
       }
 
@@ -552,10 +557,10 @@ public class Font {
       if (glyph == null) {
         glyph = this.getOrLoadGlyph('?', fontSize); // Replace unknown glyph with ?
       }
-      if(glyph == null) continue;
+      if (glyph == null) continue;
 
       if (currentX + glyph.width > maxLineWidth) {
-        if(lastWrapAt == lastWrapIndex) {
+        if (lastWrapAt == lastWrapIndex) {
           lastWrapAt = i;
           lastWrapIndex = i;
         } else {
@@ -569,7 +574,12 @@ public class Font {
 
       elements[i] =
           new TextLayoutElement(
-              this, glyph, currentX + glyph.offsetX, -currentY + glyph.offsetY, glyph.width, glyph.height);
+              this,
+              glyph,
+              currentX + glyph.offsetX,
+              -currentY + glyph.offsetY,
+              glyph.width,
+              glyph.height);
 
       currentX += Math.round(glyph.xAdvance);
       rowMaxHeight = Math.max(rowMaxHeight, glyph.height);
@@ -701,7 +711,8 @@ public class Font {
    *
    * @param c the character to retrieve the glyph for
    * @param size the size of the glyph to retrieve
-   * @return the GlyphInfo object representing the glyph, or null if the glyph does not exist
+   * @return the GlyphInfo object representing the glyph, or null if the glyph does not exist/has
+   *     not been loaded
    */
   private GlyphInfo getGlyph(char c, int size) {
     if (this.glyphs.containsKey(size)) {
@@ -713,6 +724,7 @@ public class Font {
 
   /**
    * Retrieves a texture page by index.
+   *
    * @param pageIndex the index of the texture page to retrieve
    * @return the Texture object representing the texture page
    */
