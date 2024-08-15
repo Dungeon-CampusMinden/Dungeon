@@ -20,7 +20,6 @@ import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.utils.Then;
-import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Null;
 import de.fwatermann.dungine.utils.annotations.Nullable;
@@ -243,13 +242,14 @@ public abstract class GameWindow implements Disposable {
 
     GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
     GL33.glEnable(GL33.GL_DEPTH_TEST);
+    GL33.glEnable(GL33.GL_BLEND);
+    GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
     GL33.glEnable(GL33.GL_CULL_FACE);
 
     LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));
-    LOGGER.debug("CullFace: {}", GL33.glGetInteger(GL33.GL_FRONT_FACE));
 
     if (GLUtils.checkVersion(4, 3) && this.debug) {
-      LOGGER.info("OpenGL Version >= 4.3 -> Enabling Debugging");
+      LOGGER.info("OpenGL Version is greater than 4.3 -> Enabling Debugging");
       GLUtil.setupDebugMessageCallback(new PrintStream(new Log4jOutputStream(Level.DEBUG)));
     }
 
@@ -294,16 +294,16 @@ public abstract class GameWindow implements Disposable {
         lastTime = currentTime;
 
         long start = System.nanoTime();
-        GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-        if (this.currentState != null) {
-          if(this.currentState.loaded()) {
-            this.currentState.render(deltaTime);
-          } else {
-            if(this.transition != null) {
-              this.transition.render(deltaTime, this.currentState);
-            }
-          }
+
+        if((this.currentState != null && this.currentState.loaded()) || this.transition != null) {
+          GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
         }
+        if(this.currentState != null && this.currentState.loaded()) {
+          this.currentState.render(deltaTime);
+        } else if(this.transition != null) {
+          this.transition.render(deltaTime, this.currentState);
+        }
+
         glfwSwapBuffers(this.glfwWindow);
         glfwPollEvents();
 
@@ -675,24 +675,35 @@ public abstract class GameWindow implements Disposable {
     return this;
   }
 
+  /**
+   * Sets the current game state.
+   * <p>
+   *   This game state will be rendered when it is loaded. Meanwhile, the transition is rendered.
+   *
+   * @param state the new game state
+   */
   public void setState(@NotNull GameState state) {
-    if (this.currentState != null) {
-      this.currentState.dispose();
-    }
-    this.currentState = state;
-    if (this.currentState != null) {
-      this.currentState.init();
-    }
+    this.runOnMainThread(() -> {
+      if (this.currentState != null) {
+        this.currentState.dispose();
+      }
+      this.currentState = state;
+      if (this.currentState != null) {
+        this.currentState.init();
+      }
+    });
   }
 
   public void setStateTransition(GameStateTransition transition) {
-    ThreadUtils.checkMainThread();
-    this.transition = transition;
-    this.transition.init();
-  }
-
-  public void removeStateTransition() {
-    this.transition = null;
+    this.runOnMainThread(() -> {
+      if(this.transition != null) {
+        this.transition.dispose();
+      }
+      this.transition = transition;
+      if(this.transition != null) {
+        this.transition.init();
+      }
+    });
   }
 
   public boolean hasFocus() {
