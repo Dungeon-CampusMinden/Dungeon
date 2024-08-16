@@ -68,7 +68,7 @@ public class UIImage extends UIElement<UIImage> {
     initShader();
     initMesh();
 
-    MESH.transformation(this.position, null, this.size);
+    MESH.transformation(this.position, this.rotation, this.size);
     SHADER.bind();
     this.texture.bind(GL33.GL_TEXTURE0);
     SHADER.setUniform1i("uTexture", 0);

@@ -115,6 +115,8 @@ public class UIText extends UIElement<UIText> {
     initShader();
     this.initMesh();
 
+    //TODO: Add transformation of UIElement to UIText
+
     SHADER.bind();
     SHADER.useCamera(camera);
     SHADER.setUniform4fv("uColor", 1.0f, 1.0f, 1.0f, 1.0f);

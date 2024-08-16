@@ -66,7 +66,7 @@ public class UIColorPane extends UIElement<UIColorPane> {
               GLUsageHint.DRAW_STATIC,
               new VertexAttribute(3, DataType.FLOAT, "aPosition"));
     }
-    MESH.transformation(this.absolutePosition(), null, this.size);
+    MESH.transformation(this.absolutePosition(), this.rotation, this.size);
     SHADER.bind();
     SHADER.setUniform1i("uColor", this.color);
     MESH.render(camera, SHADER);
