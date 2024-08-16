@@ -18,6 +18,8 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -42,7 +44,10 @@ public interface ILevel extends IndexedGraph<Tile> {
    * it as the start tile for the level.
    */
   default void randomStart() {
-    startTile(randomTile(LevelElement.FLOOR));
+    startTile(
+        randomTile(LevelElement.FLOOR)
+            .orElseThrow(
+                () -> new NoSuchElementException("There is no Floor-Tile to place the Start on.")));
   }
 
   /**
@@ -268,23 +273,38 @@ public interface ILevel extends IndexedGraph<Tile> {
    * specified type is empty, the method returns null.
    *
    * @param elementType Type of the tile to retrieve.
-   * @return A random tile of the specified type, or null if the list for that type is empty.
+   * @return A random tile of the specified type, or empty if the list for that type is empty.
    */
-  default Tile randomTile(final LevelElement elementType) {
+  default Optional<Tile> randomTile(final LevelElement elementType) {
     return switch (elementType) {
       case SKIP ->
-          skipTiles().size() > 0 ? skipTiles().get(RANDOM.nextInt(skipTiles().size())) : null;
+          skipTiles().size() > 0
+              ? Optional.of(skipTiles().get(RANDOM.nextInt(skipTiles().size())))
+              : Optional.empty();
       case FLOOR ->
-          floorTiles().size() > 0 ? floorTiles().get(RANDOM.nextInt(floorTiles().size())) : null;
+          floorTiles().size() > 0
+              ? Optional.of(floorTiles().get(RANDOM.nextInt(floorTiles().size())))
+              : Optional.empty();
       case WALL ->
-          wallTiles().size() > 0 ? wallTiles().get(RANDOM.nextInt(wallTiles().size())) : null;
+          wallTiles().size() > 0
+              ? Optional.of(wallTiles().get(RANDOM.nextInt(wallTiles().size())))
+              : Optional.empty();
       case HOLE ->
-          holeTiles().size() > 0 ? holeTiles().get(RANDOM.nextInt(holeTiles().size())) : null;
+          holeTiles().size() > 0
+              ? Optional.of(holeTiles().get(RANDOM.nextInt(holeTiles().size())))
+              : Optional.empty();
       case EXIT ->
-          exitTiles().size() > 0 ? exitTiles().get(RANDOM.nextInt(exitTiles().size())) : null;
+          exitTiles().size() > 0
+              ? Optional.of(exitTiles().get(RANDOM.nextInt(exitTiles().size())))
+              : Optional.empty();
       case DOOR ->
-          doorTiles().size() > 0 ? doorTiles().get(RANDOM.nextInt(doorTiles().size())) : null;
-      case PIT -> pitTiles().size() > 0 ? pitTiles().get(RANDOM.nextInt(pitTiles().size())) : null;
+          doorTiles().size() > 0
+              ? Optional.of(doorTiles().get(RANDOM.nextInt(doorTiles().size())))
+              : Optional.empty();
+      case PIT ->
+          pitTiles().size() > 0
+              ? Optional.of(pitTiles().get(RANDOM.nextInt(pitTiles().size())))
+              : Optional.empty();
     };
   }
 
@@ -482,7 +502,10 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return The position of a randomly selected tile of the specified type in the level as a {@link
    *     Point}.
    */
-  default Point randomTilePoint(final LevelElement elementType) {
-    return randomTile(elementType).position();
+  default Optional<Point> randomTilePoint(final LevelElement elementType) {
+    Optional<Tile> t = randomTile(elementType);
+    if (t.isPresent()) {
+      return Optional.of(t.get().position());
+    } else return Optional.empty();
   }
 }

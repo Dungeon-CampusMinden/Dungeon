@@ -4,10 +4,10 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.level.utils.Coordinate;
-import core.level.utils.LevelElement;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import java.util.NoSuchElementException;
 
 /**
  * The {@link PositionSystem} checks if an entity has an illegal position and then changes the
@@ -44,20 +44,20 @@ public final class PositionSystem extends System {
    * @param data The PSData object containing entity and position component information.
    */
   private void randomPosition(final PSData data) {
-    // The Level can be null if the LevelSystem has not yet been executed (this may occur during the initial loop frame of the game).
+    // The Level can be null if the LevelSystem has not yet been executed (this may occur during the
+    // initial loop frame of the game).
     if (Game.currentLevel() != null) {
-      Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
-      boolean otherEntityIsOnThisCoordinate =
-          filteredEntityStream()
-              .map(this::buildDataObject)
-              .anyMatch(psData -> psData.pc().position().toCoordinate().equals(randomPosition));
-      if (!otherEntityIsOnThisCoordinate) {
-        Point position = randomPosition.toPoint();
-        // place on center
-        position.x += 0.5f;
-        position.y += 0.5f;
-        data.pc().position(position);
-      } else randomPosition(data);
+      Tile tile =
+          Game.freeTile()
+              .orElseThrow(
+                  () ->
+                      new NoSuchElementException(
+                          "There is no free tile in the level; the entity can't be placed."));
+      Point position = tile.position();
+      // place on center
+      position.x += 0.5f;
+      position.y += 0.5f;
+      data.pc().position(position);
     }
   }
 

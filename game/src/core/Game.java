@@ -18,12 +18,11 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -456,7 +455,7 @@ public final class Game {
    * @param elementType Type of the tile.
    * @return A random tile of the given type.
    */
-  public static Tile randomTile(final LevelElement elementType) {
+  public static Optional<Tile> randomTile(final LevelElement elementType) {
     return currentLevel().randomTile(elementType);
   }
 
@@ -475,8 +474,59 @@ public final class Game {
    * @param elementTyp Type of the Tile.
    * @return Position of the Tile as Point.
    */
-  public static Point randomTilePoint(final LevelElement elementTyp) {
+  public static Optional<Point> randomTilePoint(final LevelElement elementTyp) {
     return currentLevel().randomTilePoint(elementTyp);
+  }
+
+  /**
+   * Get all tiles from the current level.
+   *
+   * @return A Set containing all tiles in the current level.
+   */
+  public static Set<Tile> allTiles() {
+
+    return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
+        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
+        .collect(Collectors.toSet()); // Collect the elements into a Set
+  }
+
+  /**
+   * Get all tiles of the specified type from the current level.
+   *
+   * @param elementTyp Type of the tiles to retrieve.
+   * @return A Set containing all tiles of the specified type in the current level.
+   */
+  public static Set<Tile> allTiles(final LevelElement elementTyp) {
+    Set<Tile> tiles = allTiles();
+    tiles.removeIf(tile -> tile.levelElement() != elementTyp);
+    return tiles;
+  }
+
+  /**
+   * Get all free tiles from the current level. A tile is considered free if no entity is present on
+   * it and it is accessible.
+   *
+   * @return A Set containing all free tiles in the current level.
+   */
+  public static Set<Tile> allFreeTiles() {
+    Set<Tile> tiles = allTiles();
+    // Remove the tile if an entity is on it or it is not accessible.
+    tiles.removeIf(t -> entityAtTile(t).count() > 0 || !t.isAccessible());
+    return tiles;
+  }
+
+  /**
+   * Get a random free tile from the current level. A free tile is a tile that is of type FLOOR and
+   * is not occupied by any entity and is accessible.
+   *
+   * @return An Optional containing a random free tile if available, otherwise an empty Optional.
+   */
+  public static Optional<Tile> freeTile() {
+    // create arraylist so i can shuffle the immutable list
+    List<Tile> floorTiles = new ArrayList<>(Game.allTiles(LevelElement.FLOOR).stream().toList());
+    // Shuffle the tiles for more randomness
+    Collections.shuffle(floorTiles);
+    return floorTiles.stream().findFirst();
   }
 
   /**
