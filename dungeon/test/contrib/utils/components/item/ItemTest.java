@@ -1,6 +1,6 @@
 package contrib.utils.components.item;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
@@ -22,9 +22,9 @@ import core.utils.components.draw.Painter;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** WTF? . */
@@ -36,7 +36,7 @@ public class ItemTest {
   Animation inventoryAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/red_key"));
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void before() {
     Game.add(
         new LevelSystem(
@@ -92,7 +92,7 @@ public class ItemTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.removeAllSystems();
@@ -198,7 +198,7 @@ public class ItemTest {
 
     Point point = new Point(3, 3);
     item.drop(point);
-    assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
+    assertEquals(1, Game.entityStream().count());
     Entity worldItem = Game.entityStream().findFirst().get();
     assertTrue(worldItem.isPresent(PositionComponent.class));
     assertTrue(worldItem.fetch(PositionComponent.class).get().position().equals(point));
@@ -209,11 +209,11 @@ public class ItemTest {
   /** Tests if item is present in inventory and removed from Game world after collect. */
   @Test
   public void testCollect() {
-    assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
+    assertEquals(0, Game.entityStream().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
+    assertEquals(1, Game.entityStream().count());
     Entity collector = new Entity();
     collector.add(new InventoryComponent(3));
     Entity worldItem = Game.entityStream().findFirst().get();
@@ -226,40 +226,38 @@ public class ItemTest {
             .map(inventoryComponent -> inventoryComponent.hasItem(item))
             .get());
 
-    assertEquals("There should be no item in the gameworld.", 0, Game.entityStream().count());
+    assertEquals(0, Game.entityStream().count());
   }
 
   /** Tests if item can be collected from entity with no InventoryComponent. */
   @Test
   public void testCollectNoInventory() {
-    assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
+    assertEquals(0, Game.entityStream().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
+    assertEquals(1, Game.entityStream().count());
     Entity collector = new Entity();
     Entity worldItem = Game.entityStream().findFirst().get();
 
     assertFalse(item.collect(worldItem, collector));
-    assertEquals(
-        "There should still be the item in the gameworld.", 1, Game.entityStream().count());
+    assertEquals(1, Game.entityStream().count());
   }
 
   /** Tests if item can be collected from entity with full inventory. */
   @Test
   public void testCollectFullInventory() {
-    assertEquals("There should be no entity in the game", 0, Game.entityStream().count());
+    assertEquals(0, Game.entityStream().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals("There should only be one entity in the game", 1, Game.entityStream().count());
+    assertEquals(1, Game.entityStream().count());
     Entity collector = new Entity();
     collector.add(new InventoryComponent(0));
     Entity worldItem = Game.entityStream().findFirst().get();
 
     assertFalse(item.collect(worldItem, collector));
-    assertEquals(
-        "There should still be the item in the gameworld.", 1, Game.entityStream().count());
+    assertEquals(1, Game.entityStream().count());
   }
 
   /** Tests if item is removed from inventory after use. */
@@ -270,12 +268,8 @@ public class ItemTest {
     InventoryComponent inventoryComponent = new InventoryComponent(2);
     entity.add(inventoryComponent);
     inventoryComponent.add(item);
-    assertTrue(
-        "ItemActive needs to be in entities inventory.",
-        Arrays.asList(inventoryComponent.items()).contains(item));
+    assertTrue(Arrays.asList(inventoryComponent.items()).contains(item));
     item.use(entity);
-    assertFalse(
-        "Item was not removed from inventory after use.",
-        Arrays.asList(inventoryComponent.items()).contains(item));
+    assertFalse(Arrays.asList(inventoryComponent.items()).contains(item));
   }
 }

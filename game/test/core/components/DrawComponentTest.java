@@ -1,14 +1,14 @@
 package core.components;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link DrawComponent} class. */
 public class DrawComponentTest {
@@ -17,7 +17,7 @@ public class DrawComponentTest {
   private DrawComponent animationComponent;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() throws IOException {
     animationComponent = new DrawComponent(animationPath);
   }

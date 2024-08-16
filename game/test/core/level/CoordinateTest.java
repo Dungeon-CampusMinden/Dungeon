@@ -1,22 +1,22 @@
 package core.level;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import core.level.utils.Coordinate;
 import core.utils.Point;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link Coordinate} class. */
 public class CoordinateTest {
 
-  private Coordinate coordinate;
   private final int x = 3;
   private final int y = -3;
+  private Coordinate coordinate;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     coordinate = new Coordinate(x, y);
   }

@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 import contrib.components.AIComponent;
@@ -8,9 +8,9 @@ import core.Entity;
 import core.Game;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** WTF? . */
@@ -21,7 +21,7 @@ public class AISystemTest {
   private Entity entity;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     Game.removeAllEntities();
     Game.removeAllSystems();
@@ -40,7 +40,7 @@ public class AISystemTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);

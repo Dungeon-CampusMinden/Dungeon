@@ -8,17 +8,7 @@ import java.util.Set;
 /** WTF? . */
 @DSLType
 public class TestComponentWithSetMember extends Component {
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
+  private final Entity entity;
   @DSLTypeMember Set<Integer> intSet;
   @DSLTypeMember Set<Float> floatSet;
 
@@ -30,5 +20,14 @@ public class TestComponentWithSetMember extends Component {
   public TestComponentWithSetMember(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
   }
 }

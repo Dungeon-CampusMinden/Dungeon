@@ -1,5 +1,7 @@
 package dslToGame;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import contrib.components.HealthComponent;
 import core.Entity;
 import core.Game;
@@ -17,8 +19,7 @@ import dsl.interpreter.mockecs.TestComponentWithExternalType;
 import dsl.runtime.value.AggregateValue;
 import dsl.runtime.value.Value;
 import dsl.semanticanalysis.environment.GameEnvironment;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class TestRuntimeObjectTranslator {
@@ -48,11 +49,11 @@ public class TestRuntimeObjectTranslator {
 
     var velocityComponent =
         (AggregateValue) entityAsValue.getMemorySpace().resolve("velocity_component");
-    Assert.assertNotEquals(Value.NONE, velocityComponent);
+    assertNotEquals(Value.NONE, velocityComponent);
 
     var positionComponent =
         (AggregateValue) entityAsValue.getMemorySpace().resolve("position_component");
-    Assert.assertNotEquals(Value.NONE, positionComponent);
+    assertNotEquals(Value.NONE, positionComponent);
   }
 
   /** WTF? . */
@@ -83,11 +84,11 @@ public class TestRuntimeObjectTranslator {
 
     var xVelocityValue = velocityValue.getMemorySpace().resolve("x_velocity");
     var internalXVelocityValue = xVelocityValue.getInternalValue();
-    Assert.assertEquals(0.0f, internalXVelocityValue);
+    assertEquals(0.0f, internalXVelocityValue);
 
     xVelocityValue.setInternalValue(42.0f);
     float xVelocityFromComponent = componentObject.xVelocity();
-    Assert.assertEquals(42.0f, xVelocityFromComponent, 0.0f);
+    assertEquals(42.0f, xVelocityFromComponent, 0.0f);
   }
 
   /** WTF? . */
@@ -119,9 +120,9 @@ public class TestRuntimeObjectTranslator {
                 .translateRuntimeObject(
                     componentObject.getMemberExternalType(), interpreter.getGlobalMemorySpace());
     ExternalType object = (ExternalType) externalTypeValue.getInternalValue();
-    Assert.assertEquals(42, object.member1);
-    Assert.assertEquals(12, object.member2);
-    Assert.assertEquals("Hello", object.member3);
+    assertEquals(42, object.member1);
+    assertEquals(12, object.member2);
+    assertEquals("Hello", object.member3);
   }
 
   /** WTF? . */
@@ -153,6 +154,6 @@ public class TestRuntimeObjectTranslator {
                 .getRuntimeEnvironment()
                 .translateRuntimeObject(
                     componentObject.getMemberExternalType(), interpreter.getGlobalMemorySpace());
-    Assert.assertTrue(true);
+    assertTrue(true);
   }
 }

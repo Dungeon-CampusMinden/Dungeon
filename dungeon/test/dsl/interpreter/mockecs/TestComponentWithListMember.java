@@ -8,17 +8,7 @@ import java.util.List;
 /** WTF? . */
 @DSLType
 public class TestComponentWithListMember extends Component {
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
+  private final Entity entity;
   @DSLTypeMember List<Integer> intList;
   @DSLTypeMember List<Float> floatList;
 
@@ -30,5 +20,14 @@ public class TestComponentWithListMember extends Component {
   public TestComponentWithListMember(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
   }
 }

@@ -1,10 +1,10 @@
 package core.components;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.utils.Point;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link PositionComponent} class. */
 public class PositionComponentTest {
@@ -13,7 +13,7 @@ public class PositionComponentTest {
   private PositionComponent positionComponent;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     positionComponent = new PositionComponent(position);
   }

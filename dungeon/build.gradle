@@ -19,8 +19,9 @@ dependencies {
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 
-    // JUnit 4 and Mockito for testing
+    // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
 }
 
@@ -110,4 +111,9 @@ tasks.register('runTaskGenerationTest', JavaExec) {
 tasks.register('runYesNoDialogTest', JavaExec) {
     mainClass = 'manual.YesNoDialogTest'
     classpath = sourceSets.test.runtimeClasspath
+}
+
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }

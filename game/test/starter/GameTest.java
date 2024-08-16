@@ -2,23 +2,24 @@ package starter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Game;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link Game} class. */
 public class GameTest {
 
+  private final int someArbitraryValueGreater0forDelta = 7;
   private Game game;
   private SpriteBatch batch;
-  private final int someArbitraryValueGreater0forDelta = 7;
 
   // Because of use of PowerMockRunner we need an empty constructor here
+
   /** WTF? . */
   public GameTest() {}
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() throws Exception {
     /*
     game = Mockito.spy(Game.class);
@@ -45,7 +46,7 @@ public class GameTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() throws Exception {
     // Game.getDelayedEntitySet().removeAll(Game.getEntities());
     // Game.getDelayedEntitySet().update();
@@ -115,6 +116,7 @@ public class GameTest {
   @Test
   public void test_getEntity(){}
    */
+
   /** WTF? . */
   @Test
   public void setHero() {

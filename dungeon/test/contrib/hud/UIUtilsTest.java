@@ -1,9 +1,9 @@
 package contrib.hud;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Test {@link UIUtils#formatString} for the expected behaviour. */
 public class UIUtilsTest {
@@ -83,25 +83,25 @@ public class UIUtilsTest {
   public void regression1460() {
     String input =
         """
-            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
-            dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
-            ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
-            et justo duo dolores et ea
+                Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiipsum
+                dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt
+                ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
+                et justo duo dolores et ea
 
-            rebum.   \s
-            """;
+                rebum.   \s
+                """;
 
     String expected =
         """
-            Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-            iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-            iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor
-            sit amet, consetetur sadipscing elitr,
-            sed diam nonumy eirmod tempor invidunt
-            ut labore et dolore magna aliquyam erat,
-            sed diam voluptua. At vero eos et
-            accusam et justo duo dolores et ea
-            rebum.""";
+                Lorem iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+                iiiiiiiiiiiiiiiiiiiiiiiiiiipsum dolor
+                sit amet, consetetur sadipscing elitr,
+                sed diam nonumy eirmod tempor invidunt
+                ut labore et dolore magna aliquyam erat,
+                sed diam voluptua. At vero eos et
+                accusam et justo duo dolores et ea
+                rebum.""";
 
     assertEquals(expected, UIUtils.formatString(input, 40));
   }

@@ -1,5 +1,7 @@
 package dsl.semanticanalysis;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 import dsl.helpers.Helpers;
@@ -10,19 +12,16 @@ import dsl.semanticanalysis.environment.GameEnvironment;
 import dsl.semanticanalysis.scope.IScope;
 import dsl.semanticanalysis.scope.Scope;
 import dsl.semanticanalysis.symbol.Symbol;
-import dsl.semanticanalysis.typesystem.*;
+import dsl.semanticanalysis.typesystem.RecordBuilder;
+import dsl.semanticanalysis.typesystem.TestRecordComponent;
+import dsl.semanticanalysis.typesystem.TestRecordUser;
 import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateType;
 import dsl.semanticanalysis.typesystem.typebuilding.type.AggregateTypeAdapter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class TestTypeBinder {
-  @DSLType
-  private record TestComponent(
-      @DSLTypeMember int member1, @DSLTypeMember String member2, @DSLTypeMember float member3) {}
-
   /** WTF? . */
   @Test
   public void testAggregateTypeBinding() {
@@ -31,14 +30,14 @@ public class TestTypeBinder {
 
     String program =
         """
-            entity_type o {
-                test_component{
-                    member1: 42,
-                    member2: "Hello",
-                    member3: 3.14
+                entity_type o {
+                    test_component{
+                        member1: 42,
+                        member2: "Hello",
+                        member3: 3.14
+                    }
                 }
-            }
-            """;
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var symTableParser = new SemanticAnalyzer();
@@ -51,20 +50,20 @@ public class TestTypeBinder {
 
     // test, that type 'o' was correctly bound in global scope
     var gameObjectDefinition = symbolTable.globalScope.resolve("o");
-    Assert.assertNotSame(Symbol.NULL, gameObjectDefinition);
-    Assert.assertTrue(gameObjectDefinition instanceof AggregateType);
+    assertNotSame(Symbol.NULL, gameObjectDefinition);
+    assertInstanceOf(AggregateType.class, gameObjectDefinition);
 
     var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
-    Assert.assertNotSame(Symbol.NULL, testComponent);
+    assertNotSame(Symbol.NULL, testComponent);
     var testComponentDataType = symbolTable.globalScope.resolve("test_component");
-    Assert.assertEquals(testComponentDataType, testComponent.getDataType());
+    assertEquals(testComponentDataType, testComponent.getDataType());
 
     var member1 = ((AggregateType) testComponentDataType).resolve("member1");
-    Assert.assertNotSame(Symbol.NULL, member1);
+    assertNotSame(Symbol.NULL, member1);
     var member2 = ((AggregateType) testComponentDataType).resolve("member2");
-    Assert.assertNotSame(Symbol.NULL, member2);
+    assertNotSame(Symbol.NULL, member2);
     var member3 = ((AggregateType) testComponentDataType).resolve("member3");
-    Assert.assertNotSame(Symbol.NULL, member3);
+    assertNotSame(Symbol.NULL, member3);
   }
 
   /** WTF? . */
@@ -75,13 +74,13 @@ public class TestTypeBinder {
 
     String program =
         """
-        entity_type o {
-            test_component{
-                member1: 42,
-                member2: "Hello"
-            }
-        }
-        """;
+                entity_type o {
+                    test_component{
+                        member1: 42,
+                        member2: "Hello"
+                    }
+                }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var symTableParser = new SemanticAnalyzer();
@@ -96,14 +95,14 @@ public class TestTypeBinder {
     var gameObjectDefinition = symbolTable.globalScope.resolve("o");
     var gameObjectDefNode = symbolTable.getCreationAstNode(gameObjectDefinition);
     var gameObjectDefNodeFromAST = ast.getChild(0);
-    Assert.assertEquals(gameObjectDefNodeFromAST, gameObjectDefNode);
+    assertEquals(gameObjectDefNodeFromAST, gameObjectDefNode);
 
     // check, that the creation node of the datatype-member matches the AST node
     var testComponent = ((AggregateType) gameObjectDefinition).resolve("test_component");
     var testComponentDefNode = symbolTable.getCreationAstNode(testComponent);
     var testComponentDefNodeFromAST =
         ((PrototypeDefinitionNode) gameObjectDefNodeFromAST).getComponentDefinitionNodes().get(0);
-    Assert.assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
+    assertEquals(testComponentDefNodeFromAST, testComponentDefNode);
   }
 
   /** WTF? . */
@@ -112,12 +111,12 @@ public class TestTypeBinder {
 
     String program =
         """
-            entity_type o {
-                test_record_user {
-                    component_member: test_record_component { param: "Hello"}
+                entity_type o {
+                    test_record_user {
+                        component_member: test_record_component { param: "Hello"}
+                    }
                 }
-            }
-            """;
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var symTableParser = new SemanticAnalyzer();
@@ -138,10 +137,10 @@ public class TestTypeBinder {
     var testRecordUserType = (AggregateType) testRecordUser.getDataType();
     var member = testRecordUserType.resolve("component_member");
     var memberType = member.getDataType();
-    Assert.assertTrue(memberType instanceof AggregateTypeAdapter);
+    assertInstanceOf(AggregateTypeAdapter.class, memberType);
 
     var adaptedType = (AggregateTypeAdapter) memberType;
-    Assert.assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
+    assertEquals(TestRecordComponent.class, adaptedType.getOriginType());
   }
 
   /** WTF? . */
@@ -153,18 +152,18 @@ public class TestTypeBinder {
 
     String program =
         """
-        entity_type o {
-            test_component{
-                member1: 42,
-                member2: "Hello",
-                member3: 3.14
-            }
-        }
+                entity_type o {
+                    test_component{
+                        member1: 42,
+                        member2: "Hello",
+                        member3: 3.14
+                    }
+                }
 
-        fn test(inventory_component<> compSet) -> bool<> {
-            var floatSetSet : float<><>;
-        }
-        """;
+                fn test(inventory_component<> compSet) -> bool<> {
+                    var floatSetSet : float<><>;
+                }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var symTableParser = new SemanticAnalyzer();
@@ -179,8 +178,12 @@ public class TestTypeBinder {
 
     IScope globalScope = symTable.globalScope();
 
-    Assert.assertNotSame(Symbol.NULL, globalScope.resolve("bool<>"));
-    Assert.assertNotSame(Symbol.NULL, globalScope.resolve("float<><>"));
-    Assert.assertNotSame(Symbol.NULL, globalScope.resolve("inventory_component<>"));
+    assertNotSame(Symbol.NULL, globalScope.resolve("bool<>"));
+    assertNotSame(Symbol.NULL, globalScope.resolve("float<><>"));
+    assertNotSame(Symbol.NULL, globalScope.resolve("inventory_component<>"));
   }
+
+  @DSLType
+  private record TestComponent(
+      @DSLTypeMember int member1, @DSLTypeMember String member2, @DSLTypeMember float member3) {}
 }

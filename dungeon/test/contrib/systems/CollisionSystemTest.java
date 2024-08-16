@@ -1,6 +1,6 @@
 package contrib.systems;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.CollideComponent;
 import core.Entity;
@@ -9,8 +9,8 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import testingUtils.SimpleCounter;
 
 /** WTF? . */
@@ -55,7 +55,7 @@ public class CollisionSystemTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);
@@ -88,9 +88,8 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(
-        DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
+    assertEquals(Tile.Direction.E, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -123,9 +122,8 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(
-        DIRECTION_MESSAGE, Tile.Direction.E, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
+    assertEquals(Tile.Direction.E, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -155,7 +153,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
     assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
@@ -189,7 +187,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
     assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
@@ -219,7 +217,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
     assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
@@ -250,7 +248,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
     assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
@@ -280,7 +278,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
     assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
@@ -311,7 +309,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(NO_COLLISION_DETECTION_MESSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
     assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
@@ -340,7 +338,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -368,7 +366,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(COLLISION_DETECTED_MESSSAGE, cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -451,8 +449,8 @@ public class CollisionSystemTest {
             (a, b, c) -> sc1OnEnter.inc(),
             (a, b, c) -> sc1OnLeave.inc()));
     cs.execute();
-    assertEquals("No interaction begins for e1", 0, sc1OnEnter.getCount());
-    assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
+    assertEquals(0, sc1OnEnter.getCount());
+    assertEquals(0, sc1OnLeave.getCount());
     cleanUpEnvironment();
   }
 
@@ -481,10 +479,10 @@ public class CollisionSystemTest {
             (a, b, c) -> sc2OnEnter.inc(),
             (a, b, c) -> sc2OnLeave.inc()));
     cs.execute();
-    assertEquals("No interaction begins for e1", 0, sc1OnEnter.getCount());
-    assertEquals("No interaction ends for e1", 0, sc1OnLeave.getCount());
-    assertEquals("No interaction begins for e2", 0, sc2OnEnter.getCount());
-    assertEquals("No interaction ends for e2", 0, sc2OnLeave.getCount());
+    assertEquals(0, sc1OnEnter.getCount());
+    assertEquals(0, sc1OnLeave.getCount());
+    assertEquals(0, sc2OnEnter.getCount());
+    assertEquals(0, sc2OnLeave.getCount());
 
     cleanUpEnvironment();
   }

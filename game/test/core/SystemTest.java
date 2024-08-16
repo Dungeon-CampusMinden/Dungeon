@@ -1,22 +1,21 @@
 package core;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link System} class. */
 public class SystemTest {
-  private System testSystem;
   private final boolean[] onAdd = {false};
   private final boolean[] onRemove = {false};
+  private System testSystem;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     testSystem =
         new System(DummyComponent.class) {
@@ -29,7 +28,7 @@ public class SystemTest {
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.removeAllSystems();

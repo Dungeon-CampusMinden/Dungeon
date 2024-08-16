@@ -1,6 +1,6 @@
 package core.level;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.level.elements.astar.TileConnection;
@@ -16,7 +16,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link TileLevel} class. */
 public class TileLevelTest {
@@ -58,7 +58,6 @@ public class TileLevelTest {
     assertSame(tileLayout[0][0], layout[0][0]);
     assertSame(tileLayout[1][0], layout[1][0]);
     assertTrue(
-        "Es muss mindestens einen Ausgang geben!",
         layout[0][1].levelElement() == LevelElement.EXIT
             || layout[1][1].levelElement() == LevelElement.EXIT);
   }
@@ -90,7 +89,6 @@ public class TileLevelTest {
     assertSame(elementsLayout[0][0], layout[0][0].levelElement());
     assertSame(elementsLayout[1][0], layout[1][0].levelElement());
     assertTrue(
-        "Es muss mindestens einen Ausgang geben!",
         layout[0][1].levelElement() == LevelElement.EXIT
             || layout[1][1].levelElement() == LevelElement.EXIT);
   }
@@ -498,19 +496,17 @@ public class TileLevelTest {
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
-    assertTrue("tile needs to be added to specific Tile list", level.floorTiles().contains(tile));
+    assertTrue(level.floorTiles().contains(tile));
     assertEquals(level.getNodeCount() - 1, tile.index());
     assertTrue(
-        "All neighbouring tiles need to be informed about the new tile",
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
             .allMatch(
                 x ->
                     x.connections().size == 1
                         && x.connections().contains(new TileConnection(x, tile), false)));
-    assertSame("tile needs to know its new level", level, tile.level());
+    assertSame(level, tile.level());
     assertEquals(
-        "each accessible tile needs to have a unique index",
         3,
         Arrays.stream(level.layout())
             .flatMap(x -> Arrays.stream(x).map(Tile::index))
@@ -531,19 +527,17 @@ public class TileLevelTest {
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
-    assertTrue("tile needs to be added to specific Tile list", level.exitTiles().contains(tile));
+    assertTrue(level.exitTiles().contains(tile));
     assertEquals(level.getNodeCount() - 1, tile.index());
     assertTrue(
-        "All neighbouring tiles need to be informed about the new tile",
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
             .allMatch(
                 x ->
                     x.connections().size == 1
                         && x.connections().contains(new TileConnection(x, tile), false)));
-    assertSame("tile needs to know its new level", level, tile.level());
+    assertSame(level, tile.level());
     assertEquals(
-        "each accessible tile needs to have a unique index",
         3,
         Arrays.stream(level.layout())
             .flatMap(x -> Arrays.stream(x).map(Tile::index))
@@ -564,19 +558,17 @@ public class TileLevelTest {
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
-    assertTrue("tile needs to be added to specific Tile list", level.doorTiles().contains(tile));
+    assertTrue(level.doorTiles().contains(tile));
     assertEquals(level.getNodeCount() - 1, tile.index());
     assertTrue(
-        "All neighbouring tiles need to be informed about the new tile",
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
             .allMatch(
                 x ->
                     x.connections().size == 1
                         && x.connections().contains(new TileConnection(x, tile), false)));
-    assertSame("tile needs to know its new level", level, tile.level());
+    assertSame(level, tile.level());
     assertEquals(
-        "each accessible tile needs to have a unique index",
         3,
         Arrays.stream(level.layout())
             .flatMap(x -> Arrays.stream(x).map(Tile::index))
@@ -597,16 +589,14 @@ public class TileLevelTest {
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
-    assertTrue("tile needs to be added to specific Tile list", level.skipTiles().contains(tile));
+    assertTrue(level.skipTiles().contains(tile));
     assertEquals(0, tile.index());
     assertTrue(
-        "All neighbouring tiles need to be informed about the new tile",
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
             .allMatch(x -> x.connections().size == 0));
-    assertSame("tile needs to know its new level", level, tile.level());
+    assertSame(level, tile.level());
     assertEquals(
-        "each accessible tile needs to have a unique index",
         2,
         Arrays.stream(level.layout())
             .flatMap(x -> Arrays.stream(x).filter(Tile::isAccessible).map(Tile::index))
@@ -627,16 +617,14 @@ public class TileLevelTest {
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
-    assertTrue("tile needs to be added to specific Tile list", level.wallTiles().contains(tile));
+    assertTrue(level.wallTiles().contains(tile));
     assertEquals(0, tile.index());
     assertTrue(
-        "All neighbouring tiles need to be informed about the new tile",
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
             .allMatch(x -> x.connections().size == 0));
-    assertSame("tile needs to know its new level", level, tile.level());
+    assertSame(level, tile.level());
     assertEquals(
-        "each accessible tile needs to have a unique index",
         2,
         Arrays.stream(level.layout())
             .flatMap(x -> Arrays.stream(x).filter(Tile::isAccessible).map(Tile::index))
@@ -657,16 +645,14 @@ public class TileLevelTest {
     level.removeTile(level.layout()[0][1]);
     level.layout()[0][1] = tile;
     level.addTile(tile);
-    assertTrue("tile needs to be added to specific Tile list", level.holeTiles().contains(tile));
+    assertTrue(level.holeTiles().contains(tile));
     assertEquals(0, tile.index());
     assertTrue(
-        "All neighbouring tiles need to be informed about the new tile",
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
             .allMatch(x -> x.connections().size == 0));
-    assertSame("tile needs to know its new level", level, tile.level());
+    assertSame(level, tile.level());
     assertEquals(
-        "each accessible tile needs to have a unique index",
         2,
         Arrays.stream(level.layout())
             .flatMap(x -> Arrays.stream(x).filter(Tile::isAccessible).map(Tile::index))

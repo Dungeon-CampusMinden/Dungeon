@@ -1,6 +1,6 @@
 package core.level;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.FloorTile;
@@ -9,7 +9,7 @@ import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link Tile} class. */
 public class TileTest {

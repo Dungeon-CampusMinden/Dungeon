@@ -9,7 +9,18 @@ import java.util.function.Function;
 /** WTF? . */
 @DSLType
 public class TestComponentListCallback extends Component {
-  private Entity entity;
+  private final Entity entity;
+  @DSLCallback private Function<List<Entity>, Boolean> onInteraction;
+
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
+  public TestComponentListCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 
   /**
    * WTF? .
@@ -20,8 +31,6 @@ public class TestComponentListCallback extends Component {
     return entity;
   }
 
-  @DSLCallback private Function<List<Entity>, Boolean> onInteraction;
-
   /**
    * WTF? .
    *
@@ -29,16 +38,6 @@ public class TestComponentListCallback extends Component {
    */
   public Function<List<Entity>, Boolean> getOnInteraction() {
     return onInteraction;
-  }
-
-  /**
-   * WTF? .
-   *
-   * @param entity foo
-   */
-  public TestComponentListCallback(@DSLContextMember(name = "entity") Entity entity) {
-    super(entity);
-    this.entity = entity;
   }
 
   /**

@@ -1,11 +1,11 @@
 package petriNet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import graph.petrinet.Place;
 import graph.petrinet.Transition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import task.Task;
 
@@ -35,7 +35,7 @@ public class PlaceTest {
     place.removeToken();
     assertEquals(0, place.tokenCount());
     place.removeToken();
-    assertEquals("Token-count should not be negative", 0, place.tokenCount());
+    assertEquals(0, place.tokenCount());
   }
 
   /** WTF? . */

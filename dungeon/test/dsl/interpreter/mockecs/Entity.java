@@ -4,7 +4,7 @@ import dsl.annotation.DSLContextPush;
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
 import dsl.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.typesystem.*;
+import dsl.semanticanalysis.typesystem.ComponentWithExternalTypeMember;
 import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,26 @@ import java.util.List;
 @DSLType(name = "entity")
 @DSLContextPush(name = "entity")
 public class Entity {
+  private static int _idx;
+  @DSLTypeMember private final int idx;
+
+  /** WTF? . */
+  public List<Component> components = new ArrayList<>();
+
+  /** WTF? . */
+  public Entity() {
+    this.idx = _idx++;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public int getIdx() {
+    return idx;
+  }
+
   /** WTF? . */
   @DSLTypeProperty(name = "test_component2", extendedType = Entity.class, isSettable = false)
   public static class TestComponent2Property
@@ -117,26 +137,5 @@ public class Entity {
         return (ComponentWithExternalTypeMember) list.get(0);
       }
     }
-  }
-
-  private static int _idx;
-
-  /** WTF? . */
-  public List<Component> components = new ArrayList<>();
-
-  @DSLTypeMember private int idx;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public int getIdx() {
-    return idx;
-  }
-
-  /** WTF? . */
-  public Entity() {
-    this.idx = _idx++;
   }
 }

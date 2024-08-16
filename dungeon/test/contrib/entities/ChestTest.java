@@ -1,7 +1,6 @@
 package contrib.entities;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
@@ -17,14 +16,14 @@ import core.utils.Point;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the Chest classes. */
 public class ChestTest {
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);
@@ -39,20 +38,15 @@ public class ChestTest {
     Entity c = null;
     c = EntityFactory.newChest(itemData, position);
 
-    assertTrue(
-        "Needs the AnimationComponent to be visible to the player.",
-        c.fetch(DrawComponent.class).isPresent());
+    assertTrue(c.fetch(DrawComponent.class).isPresent());
     Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
-    assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
-    assertEquals(
-        "Chest should have the given Items",
+    assertTrue(inventoryComponent.isPresent());
+    assertArrayEquals(
         new Item[] {null, null, null, null, null, null, null, null, null, null, null, null},
         inventoryComponent.get().items());
     Optional<PositionComponent> positionComponent = c.fetch(PositionComponent.class);
+    assertTrue(positionComponent.isPresent());
     assertTrue(
-        "Needs the PositionComponent to be somewhere in the Level", positionComponent.isPresent());
-    assertTrue(
-        "Position should be equal to the given Position",
         position.equals(positionComponent.map(PositionComponent.class::cast).get().position()));
   }
 
@@ -118,17 +112,12 @@ public class ChestTest {
 
     // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
     // newChest));
-    assertTrue(
-        "Needs the AnimationComponent to be visible to the player.",
-        newChest.fetch(DrawComponent.class).isPresent());
+    assertTrue(newChest.fetch(DrawComponent.class).isPresent());
     Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
-    assertTrue("Needs the InventoryComponent to be a chest", inventoryComponent.isPresent());
-    assertTrue(
-        "Chest should have at least 1 Item",
-        1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
+    assertTrue(inventoryComponent.isPresent());
+    assertTrue(1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
 
     assertEquals(
-        "x Position has to be ILLEGAL",
         PositionComponent.ILLEGAL_POSITION.x,
         newChest
             .fetch(PositionComponent.class)
@@ -138,7 +127,6 @@ public class ChestTest {
             .x,
         0.00001f);
     assertEquals(
-        "y Position has to be ILLEGAL",
         PositionComponent.ILLEGAL_POSITION.y,
         newChest
             .fetch(PositionComponent.class)
