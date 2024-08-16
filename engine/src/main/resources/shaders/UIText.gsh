@@ -9,12 +9,13 @@ flat in ivec2 vs_Size[]; //Size of the character in pixels
 uniform mat4 uProjection;
 uniform mat4 uView;
 uniform ivec2 uPageSize;
+uniform vec3 uBasePosition;
 
 out vec2 gs_TexCoord;
 
 void main() {
 
-  vec4 pos = gl_in[0].gl_Position;
+  vec4 pos = gl_in[0].gl_Position + vec4(uBasePosition, 0.0f);
 
   //Top Left
   gl_Position = uProjection * uView * vec4(pos.x, pos.y, pos.z, 1.0f);

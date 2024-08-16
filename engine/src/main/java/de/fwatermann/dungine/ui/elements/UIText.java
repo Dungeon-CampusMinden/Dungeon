@@ -120,6 +120,7 @@ public class UIText extends UIElement<UIText> {
     SHADER.setUniform4fv("uColor", 1.0f, 1.0f, 1.0f, 1.0f);
     SHADER.setUniform2iv("uPageSize", Font.PAGE_SIZE_X, Font.PAGE_SIZE_Y);
     SHADER.setUniform1i("uPage", 0);
+    SHADER.setUniform3f("uBasePosition", this.position);
     this.renderSteps.forEach(
         s -> {
           GL33.glActiveTexture(GL33.GL_TEXTURE0);
@@ -159,9 +160,9 @@ public class UIText extends UIElement<UIText> {
         page = element.glyph.page;
       }
 
-      buffer.putFloat(this.position.x + element.x);
-      buffer.putFloat(this.position.y + element.y);
-      buffer.putFloat(this.position.z);
+      buffer.putFloat(element.x);
+      buffer.putFloat(element.y);
+      buffer.putFloat(0.0f);
       buffer.putInt(element.glyph.pageX);
       buffer.putInt(element.glyph.pageY);
       buffer.putInt(element.glyph.width);
