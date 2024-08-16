@@ -1,13 +1,10 @@
 package de.fwatermann.dungine.state;
 
 import de.fwatermann.dungine.ecs.ECS;
-import de.fwatermann.dungine.graphics.camera.CameraOrthographic;
-import de.fwatermann.dungine.graphics.camera.CameraViewport;
-import de.fwatermann.dungine.ui.UIContainer;
+import de.fwatermann.dungine.ui.UIRoot;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.IVoidFunction;
 import de.fwatermann.dungine.window.GameWindow;
-import org.lwjgl.opengl.GL33;
 
 /** Represents a state of the game. It extents the ECS class. */
 public abstract class GameState extends ECS implements Disposable {
@@ -16,8 +13,7 @@ public abstract class GameState extends ECS implements Disposable {
   protected float lastFrameDeltaTime = 0.0f;
   protected float lastTickDeltaTime = 0.0f;
 
-  protected UIContainer ui;
-  protected CameraOrthographic uiCamera;
+  protected UIRoot ui;
 
   /**
    * Create a new game state.
@@ -26,9 +22,7 @@ public abstract class GameState extends ECS implements Disposable {
    */
   protected GameState(GameWindow window) {
     this.window = window;
-    this.ui = new UIContainer();
-    this.uiCamera =
-        new CameraOrthographic(new CameraViewport(window.size().x, window.size().y, 0, 0));
+    this.ui = new UIRoot(this.window, this.window.size().x, this.window.size().y);
   }
 
   /**
@@ -64,9 +58,7 @@ public abstract class GameState extends ECS implements Disposable {
     this.lastFrameDeltaTime = deltaTime;
     this.executeSystems(this, true);
     this.renderState(deltaTime);
-    this.uiCamera.update();
-    GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
-    this.ui.render(this.uiCamera);
+    this.ui.render();
   }
 
   /**
