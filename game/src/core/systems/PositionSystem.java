@@ -44,6 +44,7 @@ public final class PositionSystem extends System {
    * @param data The PSData object containing entity and position component information.
    */
   private void randomPosition(final PSData data) {
+    // The Level can be null if the LevelSystem has not yet been executed (this may occur during the initial loop frame of the game).
     if (Game.currentLevel() != null) {
       Coordinate randomPosition = Game.randomTile(LevelElement.FLOOR).coordinate();
       boolean otherEntityIsOnThisCoordinate =
