@@ -484,10 +484,10 @@ public abstract class Camera<T extends Camera<T>> {
         y,
         z,
         new int[] {
-          (int) Math.floor(this.viewport.width()),
-          (int) Math.floor(this.viewport.height()),
           (int) Math.floor(this.viewport.offsetX()),
-          (int) Math.floor(this.viewport.offsetY())
+          (int) Math.floor(this.viewport.offsetY()),
+          (int) Math.floor(this.viewport.width()),
+          (int) Math.floor(this.viewport.height())
         },
         new Vector3f());
   }
@@ -515,10 +515,10 @@ public abstract class Camera<T extends Camera<T>> {
         y,
         0,
         new int[] {
-          (int) Math.floor(this.viewport.width()),
-          (int) Math.floor(this.viewport.height()),
-          (int) Math.floor(this.viewport.offsetX()),
-          (int) Math.floor(this.viewport.offsetY())
+          (int) this.viewport.offsetX(),
+          (int) this.viewport.offsetY(),
+          (int) this.viewport.width(),
+          (int) this.viewport.height()
         },
         new Vector3f());
   }
@@ -531,5 +531,27 @@ public abstract class Camera<T extends Camera<T>> {
    */
   public Vector3f unproject(Vector2i screenCoords) {
     return this.unproject(screenCoords.x, screenCoords.y);
+  }
+
+  /**
+   * Calculates the direction of a ray from the camera through the specified screen coordinates.
+   *
+   * @param x The x-coordinate on the screen.
+   * @param y The y-coordinate on the screen.
+   * @return A new {@link Vector3f} instance representing the direction of the ray.
+   */
+  public Vector3f raycast(int x, int y) {
+    return this.projectionMatrix.frustumRayDir(
+        x / this.viewport.width(), y / this.viewport.height(), new Vector3f());
+  }
+
+  /**
+   * Calculates the direction of a ray from the camera through the specified screen coordinates.
+   *
+   * @param screenCoords The {@link Vector2i} instance representing the screen coordinates.
+   * @return A new {@link Vector3f} instance representing the direction of the ray.
+   */
+  public Vector3f raycast(Vector2i screenCoords) {
+    return this.raycast(screenCoords.x, screenCoords.y);
   }
 }
