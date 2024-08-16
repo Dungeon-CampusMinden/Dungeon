@@ -177,6 +177,8 @@ public final class GameLoop extends ScreenAdapter {
     createSystems();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
+    // load the first level
+    Game.systems().get(LevelSystem.class).execute();
   }
 
   /**
