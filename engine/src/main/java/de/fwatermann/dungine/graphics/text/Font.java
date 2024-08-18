@@ -529,6 +529,7 @@ public class Font {
     int rowMaxHeight = 0;
     int lastWrapIndex = 0;
     int lastWrapAt = 0;
+    int lineNr = 0;
 
     TextLayoutElement[] elements = new TextLayoutElement[text.length()];
 
@@ -544,6 +545,15 @@ public class Font {
       if (NEWLINE_CHARS.contains(c)) {
         currentX = 0;
         currentY += fontSize + linePadding;
+        if(lineNr == 0) {
+          for(int j = 0; j < i + 1; j ++) {
+            if(elements[j] != null)
+              elements[j].y = -rowMaxHeight + elements[j].glyph.offsetY;
+          }
+          currentY += rowMaxHeight;
+        }
+        lineNr ++;
+        rowMaxHeight = 0;
         continue;
       }
 
@@ -569,6 +579,15 @@ public class Font {
         }
         currentX = 0;
         currentY += fontSize + linePadding;
+        if(lineNr == 0) {
+          for(int j = 0; j < i + 1; j ++) {
+            if(elements[j] != null)
+              elements[j].y = -rowMaxHeight + elements[j].glyph.offsetY;
+          }
+          currentY += rowMaxHeight;
+        }
+        lineNr ++;
+        rowMaxHeight = 0;
         continue;
       }
 
@@ -607,8 +626,8 @@ public class Font {
     int height = 0;
     for (TextLayoutElement element : elements) {
       if (element != null) {
-        width = Math.max(width, element.x + element.width);
-        height = Math.max(height, element.y + element.height);
+        width = Math.max(width, Math.abs(element.x + element.width));
+        height = Math.max(height, Math.abs(element.y + element.height));
       }
     }
     return new BoundingBox2D(0, 0, width, height);
@@ -789,10 +808,10 @@ public class Font {
   /** Represents an element of text layout. */
   public static class TextLayoutElement {
 
-    public final Font font;
-    public final GlyphInfo glyph;
-    public final int x, y;
-    public final int width, height;
+    public Font font;
+    public GlyphInfo glyph;
+    public int x, y;
+    public int width, height;
 
     /**
      * Constructs a new TextLayoutElement object.
