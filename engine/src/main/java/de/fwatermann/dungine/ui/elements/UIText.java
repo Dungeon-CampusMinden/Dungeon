@@ -11,6 +11,7 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIElement;
+import de.fwatermann.dungine.utils.BoundingBox2D;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -175,6 +176,8 @@ public class UIText extends UIElement<UIText> {
     buffer.flip();
     this.renderSteps.add(new RenderStep(this.font.getPage(page).glHandle(), count, offset));
     this.mesh.vertexBuffer(buffer);
+    BoundingBox2D bb = this.font.calculateBoundingBox(this.layoutElements);
+    this.size.setComponent(1, bb.height());
   }
 
   /**
@@ -183,6 +186,7 @@ public class UIText extends UIElement<UIText> {
    * @param text the new text
    */
   public void text(String text) {
+    if(this.text.equals(text)) return;
     this.text = text;
     this.update();
   }
@@ -212,6 +216,7 @@ public class UIText extends UIElement<UIText> {
    * @return this element
    */
   public UIText font(Font font) {
+    if(this.font.equals(font)) return this;
     this.font = font;
     this.update();
     return this;
@@ -233,6 +238,7 @@ public class UIText extends UIElement<UIText> {
    * @return this element
    */
   public UIText fontSize(int fontSize) {
+    if(this.fontSize == fontSize) return this;
     this.fontSize = fontSize;
     this.update();
     return this;
