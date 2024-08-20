@@ -13,7 +13,7 @@ import org.joml.Vector3f;
  */
 public abstract class UIElement<T extends UIElement<?>> {
 
-  protected UIContainer parent;
+  protected UIContainer<?> parent;
   protected Vector3f position = new Vector3f();
   protected Vector3f size = new Vector3f();
   protected Quaternionf rotation = new Quaternionf();
@@ -31,7 +31,7 @@ public abstract class UIElement<T extends UIElement<?>> {
    *
    * @return the parent container
    */
-  public UIContainer parent() {
+  public UIContainer<?> parent() {
     return this.parent;
   }
 
