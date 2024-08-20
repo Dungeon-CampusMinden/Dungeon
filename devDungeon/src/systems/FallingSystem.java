@@ -81,8 +81,8 @@ public class FallingSystem extends System {
   }
 
   private Tile getSafeTile(Point heroCoords) {
-    return Game.accessibleTilesInRange(heroCoords, 5)
-        .getFirst()
+    return Game.accessibleTilesInRange(heroCoords, 5).stream()
+        .findFirst()
         .orElse(
             Game.randomTile(LevelElement.FLOOR)
                 .orElseThrow(() -> new NoSuchElementException("No Floor Tile in the level.")));
