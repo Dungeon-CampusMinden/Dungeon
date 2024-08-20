@@ -12,6 +12,7 @@ import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
@@ -537,6 +538,21 @@ public final class Game {
    */
   public static Optional<Point> freePosition() {
     return freeTile().map(tile -> tile.position());
+  }
+
+  /**
+   * Get all accessible tiles within a specified range around a given center point.
+   *
+   * <p>The range is determined by the provided radius.
+   *
+   * <p>The tile at the given point will be part of the list as well, if it is accessible.
+   *
+   * @param center The center point around which the tiles are considered.
+   * @param radius The radius within which the accessible tiles should be located.
+   * @return List of accessible tiles in the given radius around the center point.
+   */
+  public static List<Tile> accessibleTilesInRange(final Point center, float radius) {
+    return LevelUtils.accessibleTilesInRange(center, radius);
   }
 
   /**
