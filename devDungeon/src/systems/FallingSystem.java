@@ -12,7 +12,6 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
-import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.NoSuchElementException;
@@ -82,7 +81,8 @@ public class FallingSystem extends System {
   }
 
   private Tile getSafeTile(Point heroCoords) {
-    return LevelUtils.accessibleTilesInRange(heroCoords, 5).getFirst()
+    return Game.accessibleTilesInRange(heroCoords, 5)
+        .getFirst()
         .orElse(
             Game.randomTile(LevelElement.FLOOR)
                 .orElseThrow(() -> new NoSuchElementException("No Floor Tile in the level.")));
