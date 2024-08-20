@@ -21,6 +21,7 @@ import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -491,15 +492,26 @@ public final class Game {
   }
 
   /**
+   * Get all tiles from the current level that satisfy the provided predicate.
+   *
+   * @param filterRule A predicate that determines which tiles to include.
+   * @return A Set containing all tiles in the current level that satisfy the predicate.
+   */
+  public static Set<Tile> allTiles(Predicate<Tile> filterRule) {
+    return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
+        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
+        .filter(filterRule) // Apply the predicate to filter the tiles
+        .collect(Collectors.toSet()); // Collect the elements into a Set
+  }
+
+  /**
    * Get all tiles of the specified type from the current level.
    *
    * @param elementTyp Type of the tiles to retrieve.
    * @return A Set containing all tiles of the specified type in the current level.
    */
   public static Set<Tile> allTiles(final LevelElement elementTyp) {
-    Set<Tile> tiles = allTiles();
-    tiles.removeIf(tile -> tile.levelElement() != elementTyp);
-    return tiles;
+    return allTiles(tile -> tile.levelElement() == elementTyp);
   }
 
   /**
@@ -509,10 +521,8 @@ public final class Game {
    * @return A Set containing all free tiles in the current level.
    */
   public static Set<Tile> allFreeTiles() {
-    Set<Tile> tiles = allTiles();
     // Remove the tile if an entity is on it or it is not accessible.
-    tiles.removeIf(t -> entityAtTile(t).count() > 0 || !t.isAccessible());
-    return tiles;
+    return allTiles(tile -> tile.isAccessible() && entityAtTile(tile).count() == 0);
   }
 
   /**
