@@ -8,7 +8,9 @@ import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIElement;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 
@@ -21,15 +23,54 @@ public class UIColorPane extends UIElement<UIColorPane> {
   private static ShaderProgram SHADER;
   private static ArrayMesh MESH;
 
-  private int color = 0xFFFFFFFF;
+  private int fillColor;
+  private int borderColor;
+  private float borderWidth;
+  private float borderRadius;
 
   /**
    * Constructs a ColorPane with the specified color.
    *
-   * @param rgba the color in RGBA format
+   * @param fillColor the color of the pane in RGBA format
+   * @param borderColor the color of the border in RGBA format
+   * @param borderWidth the width of the border
+   * @param borderRadius the radius of the border
    */
-  public UIColorPane(int rgba) {
-    this.color = rgba;
+  public UIColorPane(int fillColor, int borderColor, float borderWidth, float borderRadius) {
+    this.fillColor = fillColor;
+    this.borderColor = borderColor;
+    this.borderWidth = borderWidth;
+    this.borderRadius = borderRadius;
+  }
+
+  /**
+   * Constructs a ColorPane with the specified color and border radius.
+   *
+   * @param fillColor the color of the pane in RGBA format
+   * @param borderRadius the radius of the border
+   */
+  public UIColorPane(int fillColor, float borderRadius) {
+    this(fillColor, 0x000000FF, 0.0f, borderRadius);
+  }
+
+  /**
+   * Constructs a ColorPane with the specified color, border color, and border width.
+   *
+   * @param fillColor the color of the pane in RGBA format
+   * @param borderColor the color of the border in RGBA format
+   * @param borderWidth the width of the border
+   */
+  public UIColorPane(int fillColor, int borderColor, float borderWidth) {
+    this(fillColor, borderColor, borderWidth, 0.0f);
+  }
+
+  /**
+   * Constructs a ColorPane with the specified color.
+   *
+   * @param fillColor the color of the pane in RGBA format
+   */
+  public UIColorPane(int fillColor) {
+    this(fillColor, 0x000000FF, 0.0f, 0.0f);
   }
 
   /**
@@ -40,9 +81,17 @@ public class UIColorPane extends UIElement<UIColorPane> {
   @Override
   protected void render(Camera<?> camera) {
     if (SHADER == null) {
-      Shader vertexShader = new Shader(VERTEX_SHADER, Shader.ShaderType.VERTEX_SHADER);
-      Shader fragmentShader = new Shader(FRAGMENT_SHADER, Shader.ShaderType.FRAGMENT_SHADER);
-      SHADER = new ShaderProgram(vertexShader, fragmentShader);
+      try {
+        Shader vertexShader =
+            Shader.loadShader(
+                Resource.load("/shaders/ui/ColorPane.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader fragmentShader =
+            Shader.loadShader(
+                Resource.load("/shaders/ui/ColorPane.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        SHADER = new ShaderProgram(vertexShader, fragmentShader);
+      } catch (IOException ex) {
+        throw new RuntimeException("Failed to load shaders", ex);
+      }
     }
     if (MESH == null) {
       ByteBuffer vertices = BufferUtils.createByteBuffer(6 * 3 * 4);
@@ -68,7 +117,11 @@ public class UIColorPane extends UIElement<UIColorPane> {
     }
     MESH.transformation(this.absolutePosition(), this.rotation, this.size);
     SHADER.bind();
-    SHADER.setUniform1i("uColor", this.color);
+    SHADER.setUniform1i("uFillColor", this.fillColor);
+    SHADER.setUniform1i("uBorderColor", this.borderColor);
+    SHADER.setUniform2f("uSize", this.size.x, this.size.y);
+    SHADER.setUniform1f("uBorderWidth", this.borderWidth);
+    SHADER.setUniform1f("uBorderRadius", this.borderRadius);
     MESH.render(camera, SHADER);
     SHADER.unbind();
   }
@@ -78,8 +131,8 @@ public class UIColorPane extends UIElement<UIColorPane> {
    *
    * @return the color in RGBA format
    */
-  public int color() {
-    return this.color;
+  public int fillColor() {
+    return this.fillColor;
   }
 
   /**
@@ -88,8 +141,8 @@ public class UIColorPane extends UIElement<UIColorPane> {
    * @param rgba the new color in RGBA format
    * @return this ColorPane instance for method chaining
    */
-  public UIColorPane color(int rgba) {
-    this.color = rgba;
+  public UIColorPane fillColor(int rgba) {
+    this.fillColor = rgba;
     return this;
   }
 
@@ -102,8 +155,8 @@ public class UIColorPane extends UIElement<UIColorPane> {
    * @param a the alpha component (0-255)
    * @return this ColorPane instance for method chaining
    */
-  public UIColorPane color(int r, int g, int b, int a) {
-    this.color = ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
+  public UIColorPane fillColor(int r, int g, int b, int a) {
+    this.fillColor = ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
     return this;
   }
 
@@ -116,8 +169,8 @@ public class UIColorPane extends UIElement<UIColorPane> {
    * @param b the blue component (0-255)
    * @return this ColorPane instance for method chaining
    */
-  public UIColorPane color(int r, int g, int b) {
-    return this.color(r, g, b, 0xFF);
+  public UIColorPane fillColor(int r, int g, int b) {
+    return this.fillColor(r, g, b, 0xFF);
   }
 
   /**
@@ -129,36 +182,107 @@ public class UIColorPane extends UIElement<UIColorPane> {
    * @param a the alpha component (0.0-1.0)
    * @return this ColorPane instance for method chaining
    */
-  public UIColorPane color(float r, float g, float b, float a) {
-    return this.color((int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
+  public UIColorPane fillColor(float r, float g, float b, float a) {
+    return this.fillColor((int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
   }
 
-  private static final String VERTEX_SHADER =
-      """
-#version 330 core
+  /**
+   * Gets the border color of the ColorPane.
+   *
+   * @return the border color in RGBA format
+   */
+  public int borderColor() {
+    return this.borderColor;
+  }
 
-layout (location=0) in vec3 aPosition;
+  /**
+   * Sets the border color of the ColorPane.
+   *
+   * @param rgba the new border color in RGBA format
+   * @return this ColorPane instance for method chaining
+   */
+  public UIColorPane borderColor(int rgba) {
+    this.borderColor = rgba;
+    return this;
+  }
 
-uniform mat4 uModel;
-uniform mat4 uView;
-uniform mat4 uProjection;
+  /**
+   * Sets the border color of the ColorPane using individual RGBA components.
+   *
+   * @param r the red component (0-255)
+   * @param g the green component (0-255)
+   * @param b the blue component (0-255)
+   * @param a the alpha component (0-255)
+   * @return this ColorPane instance for method chaining
+   */
+  public UIColorPane borderColor(int r, int g, int b, int a) {
+    this.borderColor = ((r & 0xFF) << 24) | ((g & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
+    return this;
+  }
 
-void main() {
-  gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
-}
+  /**
+   * Sets the border color of the ColorPane using individual RGB components and a default alpha
+   * value of 255.
+   *
+   * @param r the red component (0-255)
+   * @param g the green component (0-255)
+   * @param b the blue component (0-255)
+   * @return this ColorPane instance for method chaining
+   */
+  public UIColorPane borderColor(int r, int g, int b) {
+    return this.borderColor(r, g, b, 0xFF);
+  }
 
-""";
+  /**
+   * Sets the border color of the ColorPane using individual RGBA components as floats.
+   *
+   * @param r the red component (0.0-1.0)
+   * @param g the green component (0.0-1.0)
+   * @param b the blue component (0.0-1.0)
+   * @param a the alpha component (0.0-1.0)
+   * @return this ColorPane instance for method chaining
+   */
+  public UIColorPane borderColor(float r, float g, float b, float a) {
+    return this.borderColor((int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
+  }
 
-  private static final String FRAGMENT_SHADER =
-      """
-#version 330 core
+  /**
+   * Gets the border radius of the ColorPane.
+   *
+   * @return the border radius
+   */
+  public float borderRadius() {
+    return this.borderRadius;
+  }
 
-uniform int uColor;
+  /**
+   * Sets the border radius of the ColorPane.
+   *
+   * @param borderRadius the new border radius
+   * @return this ColorPane instance for method chaining
+   */
+  public UIColorPane borderRadius(float borderRadius) {
+    this.borderRadius = borderRadius;
+    return this;
+  }
 
-out vec4 fragColor;
+  /**
+   * Gets the border width of the ColorPane.
+   *
+   * @return the border width
+   */
+  public float borderWidth() {
+    return this.borderWidth;
+  }
 
-void main() {
-  fragColor = vec4((uColor >> 24) & 0xFF, (uColor >> 16) & 0xFF, (uColor >> 8) & 0xFF, uColor & 0xFF) / 255.0f;
-}
-""";
+  /**
+   * Sets the border width of the ColorPane.
+   *
+   * @param borderWidth the new border width
+   * @return this ColorPane instance for method chaining
+   */
+  public UIColorPane borderWidth(float borderWidth) {
+    this.borderWidth = borderWidth;
+    return this;
+  }
 }
