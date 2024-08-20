@@ -13,7 +13,7 @@ import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.IUIClickable;
 import de.fwatermann.dungine.ui.IUIHoverable;
 import de.fwatermann.dungine.ui.UIContainer;
-import de.fwatermann.dungine.utils.IVoidFunction;
+import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;

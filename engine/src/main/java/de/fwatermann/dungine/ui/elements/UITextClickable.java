@@ -3,7 +3,7 @@ package de.fwatermann.dungine.ui.elements;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.ui.IUIClickable;
-import de.fwatermann.dungine.utils.IVoidFunction;
+import de.fwatermann.dungine.utils.functions.IVoidFunction;
 
 public class UITextClickable extends UIText implements IUIClickable {
 

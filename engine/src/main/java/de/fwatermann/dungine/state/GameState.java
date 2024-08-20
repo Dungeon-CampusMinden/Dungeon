@@ -3,7 +3,7 @@ package de.fwatermann.dungine.state;
 import de.fwatermann.dungine.ecs.ECS;
 import de.fwatermann.dungine.ui.UIRoot;
 import de.fwatermann.dungine.utils.Disposable;
-import de.fwatermann.dungine.utils.IVoidFunction;
+import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.window.GameWindow;
 
 /** Represents a state of the game. It extents the ECS class. */

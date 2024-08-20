@@ -18,7 +18,7 @@ import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
-import de.fwatermann.dungine.utils.IVoidFunction;
+import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.utils.Then;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Null;

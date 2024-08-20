@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.utils;
+package de.fwatermann.dungine.utils.functions;
 
 @FunctionalInterface
 public interface IVoidFunction {
