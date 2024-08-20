@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  * Defines the API for Levels in the dungeon.
@@ -276,36 +277,21 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return A random tile of the specified type, or empty if the list for that type is empty.
    */
   default Optional<Tile> randomTile(final LevelElement elementType) {
-    return switch (elementType) {
-      case SKIP ->
-          skipTiles().size() > 0
-              ? Optional.of(skipTiles().get(RANDOM.nextInt(skipTiles().size())))
-              : Optional.empty();
-      case FLOOR ->
-          floorTiles().size() > 0
-              ? Optional.of(floorTiles().get(RANDOM.nextInt(floorTiles().size())))
-              : Optional.empty();
-      case WALL ->
-          wallTiles().size() > 0
-              ? Optional.of(wallTiles().get(RANDOM.nextInt(wallTiles().size())))
-              : Optional.empty();
-      case HOLE ->
-          holeTiles().size() > 0
-              ? Optional.of(holeTiles().get(RANDOM.nextInt(holeTiles().size())))
-              : Optional.empty();
-      case EXIT ->
-          exitTiles().size() > 0
-              ? Optional.of(exitTiles().get(RANDOM.nextInt(exitTiles().size())))
-              : Optional.empty();
-      case DOOR ->
-          doorTiles().size() > 0
-              ? Optional.of(doorTiles().get(RANDOM.nextInt(doorTiles().size())))
-              : Optional.empty();
-      case PIT ->
-          pitTiles().size() > 0
-              ? Optional.of(pitTiles().get(RANDOM.nextInt(pitTiles().size())))
-              : Optional.empty();
-    };
+    Function<List<? extends Tile>, Optional<Tile>> returnVal =
+        (list) ->
+            Optional.ofNullable(list.isEmpty() ? null : list.get(RANDOM.nextInt(list.size())));
+
+    return returnVal.apply(
+        switch (elementType) {
+          case SKIP -> skipTiles();
+          case FLOOR -> floorTiles();
+          case WALL -> wallTiles();
+          case HOLE -> holeTiles();
+          case EXIT -> exitTiles();
+          case DOOR -> doorTiles();
+          case PIT -> pitTiles();
+          default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");
+        });
   }
 
   /**
