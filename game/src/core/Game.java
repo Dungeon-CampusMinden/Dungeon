@@ -534,12 +534,14 @@ public final class Game {
    */
   public static Optional<Tile> freeTile() {
     // Direction vectors for moving up, down, left, and right
-    int[] deltaRow = {-1, 1, 0, 0};
-    int[] deltaCol = {0, 0, -1, 1};
+    Tuple<Integer, Integer>[] deltaVectors =
+        new Tuple[] {
+          new Tuple<>(-1, 0), new Tuple<>(1, 0), new Tuple<>(0, -1), new Tuple<>(0, 1),
+        };
 
     Tile[][] layout = currentLevel().layout();
-    int startRow = RANDOM.nextInt(layout[0].length);
-    int startCol = RANDOM.nextInt(layout.length);
+    int startRow = RANDOM.nextInt(layout.length);
+    int startCol = RANDOM.nextInt(layout[0].length);
     int rowsSize = layout.length;
     int colsSize = layout[0].length;
     boolean[][] queued = new boolean[rowsSize][colsSize];
@@ -561,8 +563,8 @@ public final class Game {
 
       // Explore all 4 possible directions
       for (int i = 0; i < 4; i++) {
-        int newRow = row + deltaRow[i];
-        int newCol = col + deltaCol[i];
+        int newRow = row + deltaVectors[i].a();
+        int newCol = col + deltaVectors[i].b();
 
         // Check if the new cell is within bounds and not yet visited
         if (newRow >= 0
