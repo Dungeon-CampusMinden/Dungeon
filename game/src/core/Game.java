@@ -529,6 +529,17 @@ public final class Game {
   }
 
   /**
+   * Get a position of a random free tile from the current level. A free tile is a tile that is of
+   * type FLOOR and is not occupied by any entity and is accessible.
+   *
+   * @return An Optional containing the postion of a random free tile if available, otherwise an
+   *     empty Optional.
+   */
+  public static Optional<Point> freePosition() {
+    return freeTile().map(tile -> tile.position());
+  }
+
+  /**
    * Starts the indexed A* pathfinding algorithm a returns a path
    *
    * <p>Throws an IllegalArgumentException if start or end is non-accessible.

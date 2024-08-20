@@ -44,12 +44,11 @@ public final class PositionSystem extends System {
    */
   private void randomPosition(final PSData data) {
     Point position =
-        Game.freeTile()
+        Game.freePosition()
             .orElseThrow(
                 () ->
                     new NoSuchElementException(
-                        "There is no free tile in the level; the entity can't be placed."))
-            .position();
+                        "There is no free tile in the level; the entity can't be placed."));
     // place on center
     position.x += 0.5f;
     position.y += 0.5f;
