@@ -4,7 +4,7 @@ import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
-import de.fwatermann.dungine.event.input.MouseMoveEvent;
+import de.fwatermann.dungine.event.input.MouseScrollEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraOrthographic;
@@ -13,19 +13,15 @@ import de.fwatermann.dungine.input.Mouse;
 import de.fwatermann.dungine.window.GameWindow;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joml.Intersectionf;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
 
-public class UIRoot extends UIContainer implements EventListener {
+public class UIRoot extends UIContainer<UIRoot> implements EventListener {
 
-  private static Logger LOGGER = LogManager.getLogger(UIRoot.class);
-
-  private final List<UIElement<?>> hovered = new ArrayList<>();
+  private UIElement<?> lastHovered = null;
 
   private Camera<?> uiCamera;
   private GameWindow window;
@@ -33,13 +29,13 @@ public class UIRoot extends UIContainer implements EventListener {
   public UIRoot(GameWindow window, int pixelWidth, int pixelHeight) {
     this.window = window;
     this.uiCamera = new CameraOrthographic(new CameraViewport(pixelWidth, pixelHeight, 0, 0));
-    //this.uiCamera = new CameraPerspective(new CameraViewport(pixelWidth, pixelHeight, 0, 0));
     EventManager.getInstance().registerListener(this);
   }
 
   public void render() {
     this.uiCamera.update();
     GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
+    this.hover();
     this.render(this.uiCamera);
   }
 
@@ -60,129 +56,103 @@ public class UIRoot extends UIContainer implements EventListener {
 
   @EventHandler
   public void onMouseButton(MouseButtonEvent event) {
-    if(event.action == MouseButtonEvent.MouseButtonAction.PRESS) {
+    if (event.action == MouseButtonEvent.MouseButtonAction.PRESS) {
       this.click(event.button, event.action);
     }
   }
 
   @EventHandler
-  public void onMouseMove(MouseMoveEvent event) {
-    this.checkHover(event.to.x, event.to.y);
+  public void onMouseScroll(MouseScrollEvent event) {
+    this.scroll(event.x, event.y);
   }
 
   private void click(int button, MouseButtonEvent.MouseButtonAction action) {
-    List<UIElement<?>> elements = this.allElements(true);
-
-    Vector2i mousePos = Mouse.getMousePosition();
-    mousePos.y = this.window.size().y - mousePos.y;
-
-    Vector3f origin = this.uiCamera.unproject(mousePos.x, mousePos.y);
-    Vector3f direction = this.uiCamera.raycast(mousePos.x, mousePos.y);
-
-    IUIClickable closest = null;
-    float closestDistance = Float.MAX_VALUE;
-    Vector2f result = new Vector2f();
-
-    for(UIElement<?> element : elements) {
-      if(!(element instanceof IUIClickable clickable)) continue;
-      Vector3f min = element.position();
-      Vector3f max = element.position().add(element.size(), new Vector3f());
-
-      if(Math.abs(max.z - min.z) == 0) {
-        max.z = 0.001f;
-        min.z = -0.001f;
-      }
-
-      boolean intersects = Intersectionf.intersectRayAab(origin, direction, min, max, result);
-      if(!intersects) continue;
-
-      if(result.x < closestDistance){
-        closestDistance = result.x;
-        closest = clickable;
-        continue;
-      }
-      if(result.y < closestDistance){
-        closestDistance = result.y;
-        closest = clickable;
-      }
+    UIElement<?> element = this.getElementAtMouse(true, IUIClickable.class);
+    if (element instanceof IUIClickable clickable) {
+      clickable.click(button, action);
     }
-    if(closest != null) {
-      closest.click(button, action);
-    }
-
-    LOGGER.debug("Clicked on {}", closest);
-    //TODO: Add click event for UIElements (abstract or so)
   }
 
-  private void checkHover(int x, int y) {
-
-    //Check currently hovered if still hovered
-    Vector3f origin = this.uiCamera.unproject(x, y);
-    Vector3f direction = this.uiCamera.raycast(x, y);
-
-    this.hovered.removeIf(e -> {
-      float distance = this.isOver(e, origin, direction);
-      if(distance < 0) {
-        if(e instanceof IUIHoverable hoverable) {
-          hoverable.leave();
-        }
-        return true;
-      }
-      return false;
-    });
-
-    List<UIElement<?>> elements = this.allElements(true);
-
-    float distance = Float.MAX_VALUE;
-    UIElement<?> closest = null;
-    for(UIElement<?> element : elements) {
-      if(!(element instanceof IUIHoverable)) return;
-      float d = this.isOver(element, origin, direction);
-      if(d < 0) continue;
-      if(d < distance) {
-        distance = d;
-        closest = element;
-      }
-    }
-    if(closest instanceof IUIHoverable hoverable) {
+  private void hover() {
+    UIElement<?> element = this.getElementAtMouse(true, IUIHoverable.class);
+    if (this.lastHovered instanceof IUIHoverable hoverable && this.lastHovered != element) {
+      hoverable.leave();
+      this.lastHovered = null;
+    } else if (this.lastHovered == element) return;
+    if (element instanceof IUIHoverable hoverable) {
       hoverable.enter();
-      this.hovered.add(closest);
+      this.lastHovered = element;
+    }
+  }
+
+  private void scroll(int x, int y) {
+    UIElement<?> element = this.getElementAtMouse(true, IUIScrollable.class);
+    if (element instanceof IUIScrollable scrollable) {
+      scrollable.scroll(x, y);
     }
   }
 
   private float isOver(UIElement<?> element, Vector3f origin, Vector3f direction) {
     Vector3f min = element.position();
     Vector3f max = element.position().add(element.size(), new Vector3f());
-    if(Math.abs(max.z - min.z) == 0) {
+    if (Math.abs(max.z - min.z) == 0) {
       max.z = 0.001f;
       min.z = -0.001f;
     }
     Vector2f result = new Vector2f();
     boolean intersects = Intersectionf.intersectRayAab(origin, direction, min, max, result);
-    if(intersects) {
+    if (intersects) {
       return result.x;
     }
     return -1.0f;
   }
 
-  //TODO: Add scroll handling / hover / ...
+  private UIElement<?> getElementAtMouse(boolean includeContainers, Class<?> clazzFilter) {
+    Vector2i mousePos = Mouse.getMousePosition();
+    mousePos.y = this.window.size().y - mousePos.y;
 
-  private List<UIElement<?>> allElements(boolean includeContainers) {
+    Vector3f origin = this.uiCamera.unproject(mousePos.x, mousePos.y);
+    Vector3f direction = this.uiCamera.raycast(mousePos.x, mousePos.y);
+
+    List<UIElement<?>> elements = this.allChildElements(includeContainers);
+    float distance = Float.MAX_VALUE;
+    UIElement<?> closest = null;
+    for (UIElement<?> element : elements) {
+      if (clazzFilter != null && !clazzFilter.isInstance(element)) continue;
+      float d = this.isOver(element, origin, direction);
+      if (d < 0) continue;
+      if (d < distance) {
+        distance = d;
+        closest = element;
+      }
+    }
+    return closest;
+  }
+
+  /**
+   * Returns all child elements of this container.
+   *
+   * @param includeContainers If true, containers will be included in the list.
+   * @return List of all child elements.
+   */
+  public List<UIElement<?>> allChildElements(boolean includeContainers) {
     List<UIElement<?>> list = new ArrayList<>();
-    if(includeContainers) list.add(this);
-    this.allElements(this, list);
+    this.allChildElements(this, includeContainers, list);
     return list;
   }
 
-  private void allElements(UIContainer container, List<UIElement<?>> elements) {
-    container.elements().forEach(e -> {
-      if(e instanceof UIContainer c) {
-        this.allElements(c, elements);
-      } else {
-        elements.add(e);
-      }
-    });
+  private void allChildElements(
+      UIContainer<?> container, boolean includeContainers, List<UIElement<?>> elements) {
+    container
+        .elements()
+        .forEach(
+            e -> {
+              if (e instanceof UIContainer<?> c) {
+                if (includeContainers) elements.add(e);
+                this.allChildElements(c, includeContainers, elements);
+              } else {
+                elements.add(e);
+              }
+            });
   }
-
-
 }
