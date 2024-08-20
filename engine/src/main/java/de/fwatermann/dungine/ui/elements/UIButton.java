@@ -13,7 +13,7 @@ import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.IUIClickable;
 import de.fwatermann.dungine.ui.IUIHoverable;
 import de.fwatermann.dungine.ui.UIContainer;
-import de.fwatermann.dungine.utils.functions.IVoidFunction;
+import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
@@ -28,9 +28,9 @@ public class UIButton extends UIContainer<UIButton> implements IUIClickable, IUI
   private float borderWidth = 1.0f; // Default: 1.0f
   private float borderRadius = 0.0f; // Default: 0.0f
 
-  private IVoidFunction onClick;
-  private IVoidFunction onEnter;
-  private IVoidFunction onLeave;
+  private IVoidFunction1Parameter<UIButton> onClick;
+  private IVoidFunction1Parameter<UIButton> onEnter;
+  private IVoidFunction1Parameter<UIButton> onLeave;
 
   private static void initGL() {
 
@@ -51,17 +51,17 @@ public class UIButton extends UIContainer<UIButton> implements IUIClickable, IUI
     if (MESH == null) {
       ByteBuffer vertices = BufferUtils.createByteBuffer(6 * 3 * 4);
       vertices
-        .asFloatBuffer()
-        .put(
-          new float[] {
-            0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f
-          })
-        .flip();
+          .asFloatBuffer()
+          .put(
+              new float[] {
+                0.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+                1.0f, 1.0f, 0.0f,
+                1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f
+              })
+          .flip();
 
       MESH =
           new ArrayMesh(
@@ -91,12 +91,22 @@ public class UIButton extends UIContainer<UIButton> implements IUIClickable, IUI
   @Override
   public void click(int button, MouseButtonEvent.MouseButtonAction action) {
     if (action == MouseButtonEvent.MouseButtonAction.PRESS && this.onClick != null) {
-      this.onClick.run();
+      this.onClick.run(this);
     }
   }
 
-  public UIButton onClick(IVoidFunction onClick) {
+  public UIButton onClick(IVoidFunction1Parameter<UIButton> onClick) {
     this.onClick = onClick;
+    return this;
+  }
+
+  public UIButton onEnter(IVoidFunction1Parameter<UIButton> onEnter) {
+    this.onEnter = onEnter;
+    return this;
+  }
+
+  public UIButton onLeave(IVoidFunction1Parameter<UIButton> onLeave) {
+    this.onLeave = onLeave;
     return this;
   }
 
@@ -138,18 +148,11 @@ public class UIButton extends UIContainer<UIButton> implements IUIClickable, IUI
 
   @Override
   public void enter() {
-    this.fillColor = 0xFF0000FF;
-    System.out.println("Enter");
+    if (this.onEnter != null) this.onEnter.run(this);
   }
 
   @Override
   public void leave() {
-    this.fillColor = 0xFF8000FF;
-    System.out.println("Leave");
-  }
-
-  @Override
-  public boolean isHovered() {
-    return false;
+    if (this.onLeave != null) this.onLeave.run(this);
   }
 }

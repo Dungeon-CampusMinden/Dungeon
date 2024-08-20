@@ -6,6 +6,4 @@ public interface IUIHoverable {
 
   void leave();
 
-  boolean isHovered();
-
 }
