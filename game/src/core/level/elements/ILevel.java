@@ -503,9 +503,6 @@ public interface ILevel extends IndexedGraph<Tile> {
    *     Point}.
    */
   default Optional<Point> randomTilePoint(final LevelElement elementType) {
-    Optional<Tile> t = randomTile(elementType);
-    if (t.isPresent()) {
-      return Optional.of(t.get().position());
-    } else return Optional.empty();
+    return randomTile(elementType).map(Tile::position);
   }
 }

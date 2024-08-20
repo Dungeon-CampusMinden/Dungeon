@@ -484,7 +484,6 @@ public final class Game {
    * @return A Set containing all tiles in the current level.
    */
   public static Set<Tile> allTiles() {
-
     return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
         .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
         .collect(Collectors.toSet()); // Collect the elements into a Set
