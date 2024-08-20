@@ -16,6 +16,7 @@ import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
@@ -53,6 +54,7 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static final Random RANDOM = new Random();
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
@@ -192,7 +194,7 @@ public final class Game {
    * Initialize the base logger.
    *
    * <p>Set the logging level to {@code Level.ALL}, and remove the console handler, and write all
-   * log messages into the log files. This is a concenience method.
+   * log messages into the log files. This is a convenience method.
    */
   public static void initBaseLogger() {
     Game.initBaseLogger(Level.ALL);
@@ -516,13 +518,12 @@ public final class Game {
 
   /**
    * Get all free tiles from the current level. A tile is considered free if no entity is present on
-   * it and it is accessible.
+   * it, and it is accessible.
    *
    * @return A Set containing all free tiles in the current level.
    */
   public static Set<Tile> allFreeTiles() {
-    // Remove the tile if an entity is on it or it is not accessible.
-    return allTiles(tile -> tile.isAccessible() && entityAtTile(tile).count() == 0);
+    return allTiles(Game::isFreeTile);
   }
 
   /**
@@ -532,11 +533,61 @@ public final class Game {
    * @return An Optional containing a random free tile if available, otherwise an empty Optional.
    */
   public static Optional<Tile> freeTile() {
-    // create arraylist so i can shuffle the immutable list
-    List<Tile> floorTiles = new ArrayList<>(Game.allTiles(LevelElement.FLOOR).stream().toList());
-    // Shuffle the tiles for more randomness
-    Collections.shuffle(floorTiles);
-    return floorTiles.stream().findFirst();
+    // Direction vectors for moving up, down, left, and right
+    int[] dRow = {-1, 1, 0, 0};
+    int[] dCol = {0, 0, -1, 1};
+
+    Tile[][] layout = currentLevel().layout();
+    int startRow = RANDOM.nextInt(layout[0].length);
+    int startCol = RANDOM.nextInt(layout.length);
+    int rows = layout.length;
+    int cols = layout[0].length;
+    boolean[][] visited = new boolean[rows][cols];
+
+    // Queue to hold the cells to be explored in the form of (row, col)
+    Queue<Tuple<Integer, Integer>> queue = new LinkedList<>();
+
+    // Start BFS from the given start position
+    queue.add(new Tuple<>(startRow, startCol));
+    visited[startRow][startCol] = true;
+
+    while (!queue.isEmpty()) {
+      // Dequeue the front cell
+      Tuple<Integer, Integer> cell = queue.poll();
+      int row = cell.a();
+      int col = cell.b();
+
+      if (isFreeTile(layout[row][col])) {
+        return Optional.of(layout[row][col]);
+      }
+
+      // Explore all 4 possible directions
+      for (int i = 0; i < 4; i++) {
+        int newRow = row + dRow[i];
+        int newCol = col + dCol[i];
+
+        // Check if the new cell is within bounds and not yet visited
+        if (newRow >= 0
+            && newRow < rows
+            && newCol >= 0
+            && newCol < cols
+            && !visited[newRow][newCol]) {
+          queue.add(new Tuple<>(newRow, newCol));
+          visited[newRow][newCol] = true;
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Checks if the given Tile is accessible and no entity is placed on that tile.
+   *
+   * @param tile Tile to check.
+   * @return True if the Tile is free, false if not
+   */
+  public static boolean isFreeTile(Tile tile) {
+    return tile.isAccessible() && entityAtTile(tile).findAny().isEmpty();
   }
 
   /**
@@ -547,7 +598,7 @@ public final class Game {
    *     empty Optional.
    */
   public static Optional<Point> freePosition() {
-    return freeTile().map(tile -> tile.position());
+    return freeTile().map(Tile::position);
   }
 
   /**
