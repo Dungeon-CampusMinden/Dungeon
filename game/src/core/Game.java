@@ -534,22 +534,22 @@ public final class Game {
    */
   public static Optional<Tile> freeTile() {
     // Direction vectors for moving up, down, left, and right
-    int[] dRow = {-1, 1, 0, 0};
-    int[] dCol = {0, 0, -1, 1};
+    int[] deltaRow = {-1, 1, 0, 0};
+    int[] deltaCol = {0, 0, -1, 1};
 
     Tile[][] layout = currentLevel().layout();
     int startRow = RANDOM.nextInt(layout[0].length);
     int startCol = RANDOM.nextInt(layout.length);
-    int rows = layout.length;
-    int cols = layout[0].length;
-    boolean[][] visited = new boolean[rows][cols];
+    int rowsSize = layout.length;
+    int colsSize = layout[0].length;
+    boolean[][] queued = new boolean[rowsSize][colsSize];
 
     // Queue to hold the cells to be explored in the form of (row, col)
     Queue<Tuple<Integer, Integer>> queue = new LinkedList<>();
 
     // Start BFS from the given start position
     queue.add(new Tuple<>(startRow, startCol));
-    visited[startRow][startCol] = true;
+    queued[startRow][startCol] = true;
 
     while (!queue.isEmpty()) {
       // Dequeue the front cell
@@ -557,23 +557,21 @@ public final class Game {
       int row = cell.a();
       int col = cell.b();
 
-      if (isFreeTile(layout[row][col])) {
-        return Optional.of(layout[row][col]);
-      }
+      if (isFreeTile(layout[row][col])) return Optional.of(layout[row][col]);
 
       // Explore all 4 possible directions
       for (int i = 0; i < 4; i++) {
-        int newRow = row + dRow[i];
-        int newCol = col + dCol[i];
+        int newRow = row + deltaRow[i];
+        int newCol = col + deltaCol[i];
 
         // Check if the new cell is within bounds and not yet visited
         if (newRow >= 0
-            && newRow < rows
+            && newRow < rowsSize
             && newCol >= 0
-            && newCol < cols
-            && !visited[newRow][newCol]) {
+            && newCol < colsSize
+            && !queued[newRow][newCol]) {
           queue.add(new Tuple<>(newRow, newCol));
-          visited[newRow][newCol] = true;
+          queued[newRow][newCol] = true;
         }
       }
     }
