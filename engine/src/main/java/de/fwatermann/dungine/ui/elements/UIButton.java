@@ -95,52 +95,114 @@ public class UIButton extends UIContainer<UIButton> implements IUIClickable, IUI
     }
   }
 
+  /**
+   * Sets the onClick event handler for the UIButton.
+   *
+   * @param onClick the function to be called when the button is clicked
+   * @return this UIButton instance for method chaining
+   */
   public UIButton onClick(IVoidFunction1Parameter<UIButton> onClick) {
     this.onClick = onClick;
     return this;
   }
 
+  /**
+   * Sets the onEnter event handler for the UIButton.
+   *
+   * @param onEnter the function to be called when the mouse enters the button area
+   * @return this UIButton instance for method chaining
+   */
   public UIButton onEnter(IVoidFunction1Parameter<UIButton> onEnter) {
     this.onEnter = onEnter;
     return this;
   }
 
+  /**
+   * Sets the onLeave event handler for the UIButton.
+   *
+   * @param onLeave the function to be called when the mouse leaves the button area
+   * @return this UIButton instance for method chaining
+   */
   public UIButton onLeave(IVoidFunction1Parameter<UIButton> onLeave) {
     this.onLeave = onLeave;
     return this;
   }
 
+  /**
+   * Gets the border radius of the UIButton.
+   *
+   * @return the border radius
+   */
   public float borderRadius() {
     return this.borderRadius;
   }
 
+  /**
+   * Sets the border radius of the UIButton.
+   *
+   * @param borderRadius the new border radius
+   * @return this UIButton instance for method chaining
+   */
   public UIButton borderRadius(float borderRadius) {
     this.borderRadius = borderRadius;
     return this;
   }
 
+  /**
+   * Gets the border width of the UIButton.
+   *
+   * @return the border width
+   */
   public float borderWidth() {
     return this.borderWidth;
   }
 
+  /**
+   * Sets the border width of the UIButton.
+   *
+   * @param borderWidth the new border width
+   * @return this UIButton instance for method chaining
+   */
   public UIButton borderWidth(float borderWidth) {
     this.borderWidth = borderWidth;
     return this;
   }
 
+  /**
+   * Gets the border color of the UIButton.
+   *
+   * @return the border color in RGBA format
+   */
   public int borderColor() {
     return this.borderColor;
   }
 
+  /**
+   * Sets the border color of the UIButton.
+   *
+   * @param borderColor the new border color in RGBA format
+   * @return this UIButton instance for method chaining
+   */
   public UIButton borderColor(int borderColor) {
     this.borderColor = borderColor;
     return this;
   }
 
+  /**
+   * Gets the fill color of the UIButton.
+   *
+   * @return the fill color in RGBA format
+   */
   public int fillColor() {
     return this.fillColor;
   }
 
+  /**
+   * Sets the fill color of the UIButton.
+   *
+   * @param fillColor the new fill color in RGBA format
+   * @return this UIButton instance for method chaining
+   */
   public UIButton fillColor(int fillColor) {
     this.fillColor = fillColor;
     return this;
