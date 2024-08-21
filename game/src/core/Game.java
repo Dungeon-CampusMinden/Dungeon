@@ -547,6 +547,16 @@ public final class Game {
   }
 
   /**
+   * Checks if the given Tile is accessible and no entity is placed on that tile.
+   *
+   * @param tile Tile to check.
+   * @return True if the Tile is free, false if not
+   */
+  public static boolean isFreeTile(Tile tile) {
+    return LevelUtils.isFreeTile(tile);
+  }
+
+  /**
    * Get all accessible tiles within a specified range around a given center point.
    *
    * <p>The range is determined by the provided radius.
