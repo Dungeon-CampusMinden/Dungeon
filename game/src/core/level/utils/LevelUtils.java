@@ -17,6 +17,12 @@ public final class LevelUtils {
 
   private static final Random RANDOM = new Random();
 
+  /** These vectors can be used to calculate neighbor coordinates. */
+  private static final Coordinate[] DELTA_VECTORS =
+      new Coordinate[] {
+        new Coordinate(-1, 0), new Coordinate(1, 0), new Coordinate(0, -1), new Coordinate(0, 1),
+      };
+
   /**
    * Finds the path from the given point to another given point.
    *
@@ -305,51 +311,60 @@ public final class LevelUtils {
    * @return An Optional containing a random free tile if available, otherwise an empty Optional.
    */
   public static Optional<Tile> freeTile() {
-    // Direction vectors for moving up, down, left, and right
-    Tuple<Integer, Integer>[] deltaVectors =
-        new Tuple[] {
-          new Tuple<>(-1, 0), new Tuple<>(1, 0), new Tuple<>(0, -1), new Tuple<>(0, 1),
-        };
 
-    Tile[][] layout = Game.currentLevel().layout();
-    int startRow = RANDOM.nextInt(layout.length);
-    int startCol = RANDOM.nextInt(layout[0].length);
-    int rowsSize = layout.length;
-    int colsSize = layout[0].length;
-    boolean[][] queued = new boolean[rowsSize][colsSize];
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
+    int startRow = RANDOM.nextInt(levelSize.a());
+    int startCol = RANDOM.nextInt(levelSize.b());
+    boolean[][] queued = new boolean[levelSize.a()][levelSize.b()];
 
     // Queue to hold the cells to be explored in the form of (row, col)
-    Queue<Tuple<Integer, Integer>> queue = new LinkedList<>();
-
+    Queue<Tile> queue = new LinkedList<>();
     // Start BFS from the given start position
-    queue.add(new Tuple<>(startRow, startCol));
+    queue.add(Game.currentLevel().tileAt(new Coordinate(startRow, startCol)));
     queued[startRow][startCol] = true;
 
     while (!queue.isEmpty()) {
       // Dequeue the front cell
-      Tuple<Integer, Integer> cell = queue.poll();
-      int row = cell.a();
-      int col = cell.b();
+      Tile cell = queue.poll();
 
-      if (isFreeTile(layout[row][col])) return Optional.of(layout[row][col]);
-
+      if (isFreeTile(cell)) return Optional.of(cell);
       // Explore all 4 possible directions
-      for (int i = 0; i < 4; i++) {
-        int newRow = row + deltaVectors[i].a();
-        int newCol = col + deltaVectors[i].b();
-
+      for (Tile tile : neighbours(cell)) {
+        Coordinate coordinate = tile.coordinate();
         // Check if the new cell is within bounds and not yet visited
-        if (newRow >= 0
-            && newRow < rowsSize
-            && newCol >= 0
-            && newCol < colsSize
-            && !queued[newRow][newCol]) {
-          queue.add(new Tuple<>(newRow, newCol));
-          queued[newRow][newCol] = true;
+        if (!queued[coordinate.x][coordinate.y]) {
+          queue.add(tile);
+          queued[coordinate.x][coordinate.y] = true;
         }
       }
     }
     return Optional.empty();
+  }
+
+  /**
+   * Get the neighbors of the given Tile.
+   *
+   * <p>Neighbors are the tiles directly above, below, left, and right of the given Tile.
+   *
+   * @param tile Tile to get the neighbors for
+   * @return Set with the neighbor tiles.
+   */
+  public static Set<Tile> neighbours(final Tile tile) {
+    // Direction vectors for moving up, down, left, and right+
+    Set<Tile> returnSet = new HashSet<>();
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
+    Tile[][] layout = Game.currentLevel().layout();
+    Coordinate coordinate = tile.coordinate();
+    for (int i = 0; i < 4; i++) {
+      Coordinate newCoordinate = coordinate.add(DELTA_VECTORS[i]);
+      // Check if the new cell is within bounds and not yet visited
+      if (newCoordinate.x >= 0
+          && newCoordinate.x < levelSize.a()
+          && newCoordinate.y >= 0
+          && newCoordinate.y < levelSize.b())
+        returnSet.add(layout[newCoordinate.x][newCoordinate.y]);
+    }
+    return returnSet;
   }
 
   /**

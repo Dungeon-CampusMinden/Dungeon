@@ -16,6 +16,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -385,6 +386,20 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return The layout of the level as a 2D array of tiles.
    */
   Tile[][] layout();
+
+  /**
+   * Get the size (row x col) of the level as a Tuple.
+   *
+   * <p>{@link Tuple#a()} contains the row size (starting at 0).
+   *
+   * <p>{@link Tuple#b()} contains the column size (starting at 0).
+   *
+   * @return The size of the level as a Tuple.
+   */
+  default Tuple<Integer, Integer> size() {
+    Tile[][] layout = layout();
+    return new Tuple<>(layout.length, layout[0].length);
+  }
 
   /**
    * Retrieves the tile at the specified position within the level.

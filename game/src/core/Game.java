@@ -53,7 +53,6 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
-  private static final Random RANDOM = new Random();
 
   /** Starts the dungeon and requires a {@link Game}. */
   public static void run() {
@@ -401,6 +400,18 @@ public final class Game {
    */
   public static Tile randomTile() {
     return currentLevel().randomTile();
+  }
+
+  /**
+   * Get the neighbors of the given Tile.
+   *
+   * <p>Neighbors are the tiles directly above, below, left, and right of the given Tile.
+   *
+   * @param tile Tile to get the neighbors for
+   * @return Set with the neighbor tiles.
+   */
+  public static Set<Tile> neighbours(final Tile tile) {
+    return LevelUtils.neighbours(tile);
   }
 
   /**
