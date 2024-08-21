@@ -18,11 +18,11 @@ import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
-import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.utils.Then;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Null;
 import de.fwatermann.dungine.utils.annotations.Nullable;
+import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import java.io.PrintStream;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
@@ -295,12 +295,11 @@ public abstract class GameWindow implements Disposable {
 
         long start = System.nanoTime();
 
-        if((this.currentState != null && this.currentState.loaded()) || this.transition != null) {
-          GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
-        }
         if(this.currentState != null && this.currentState.loaded()) {
+          GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
           this.currentState.render(deltaTime);
         } else if(this.transition != null) {
+          GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
           this.transition.render(deltaTime, this.currentState);
         }
 
