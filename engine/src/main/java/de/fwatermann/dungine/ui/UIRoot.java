@@ -34,9 +34,28 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener {
 
   public void render() {
     this.uiCamera.update();
+
+    boolean depthEnabled = GL33.glIsEnabled(GL33.GL_DEPTH_TEST);
+    int depthFunc = GL33.glGetInteger(GL33.GL_DEPTH_FUNC);
+
+    boolean blendEnabled = GL33.glIsEnabled(GL33.GL_BLEND);
+    int blendFunc_src = GL33.glGetInteger(GL33.GL_BLEND_SRC);
+    int blendFunc_dst = GL33.glGetInteger(GL33.GL_BLEND_DST);
+
+    GL33.glEnable(GL33.GL_DEPTH_TEST);
+    GL33.glDepthFunc(GL33.GL_LEQUAL);
     GL33.glClear(GL33.GL_DEPTH_BUFFER_BIT);
+
+    GL33.glEnable(GL33.GL_BLEND);
+    GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+
     this.hover();
     this.render(this.uiCamera);
+
+    if (!depthEnabled) GL33.glDisable(GL33.GL_DEPTH_TEST);
+    GL33.glDepthFunc(depthFunc);
+    if (!blendEnabled) GL33.glDisable(GL33.GL_BLEND);
+    GL33.glBlendFunc(blendFunc_src, blendFunc_dst);
   }
 
   public UIRoot camera(Camera<?> camera) {

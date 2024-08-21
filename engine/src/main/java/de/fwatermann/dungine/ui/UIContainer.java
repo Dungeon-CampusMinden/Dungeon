@@ -41,7 +41,9 @@ public class UIContainer<T extends UIContainer<?>> extends UIElement<T> {
   @Override
   public void render(Camera<?> camera) {
     // TODO: Stencil!
-    this.elements.forEach(element -> element.render(camera));
+    this.elements.stream()
+        .sorted((a, b) -> Float.compare(a.position.z, b.position.z))
+        .forEach(element -> element.render(camera));
   }
 
   /**
