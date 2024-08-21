@@ -59,6 +59,7 @@ public abstract class GameWindow implements Disposable {
   private long frameRate = -1;
   private long tickRate = 50;
   private boolean shouldClose = false;
+  private int clearColor = 0x000000FF;
 
   private Vector2f mousePosition = new Vector2f(0, 0);
   private long glfwWindow;
@@ -210,7 +211,7 @@ public abstract class GameWindow implements Disposable {
           if (event.isCanceled()) {
             glfwSetCursorPos(window, from.x, from.y);
           } else {
-            if(!to.equals(event.to)) {
+            if (!to.equals(event.to)) {
               glfwSetCursorPos(window, event.to.x, event.to.y);
               this.mousePosition = new Vector2f(event.to.x, event.to.y);
             } else {
@@ -240,10 +241,17 @@ public abstract class GameWindow implements Disposable {
       throw new GLFWException("OpenGL 3.3 or higher is required!");
     }
 
-    GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
+    // GL33.glClearColor(0.51f, 0.78f, 0.89f, 1f);
+    GL33.glClearColor(
+        ((this.clearColor >> 24) & 0xFF) / 255.0f,
+        ((this.clearColor >> 16) & 0xFF) / 255.0f,
+        ((this.clearColor >> 8) & 0xFF) / 255.0f,
+        (this.clearColor & 0xFF) / 255.0f);
     GL33.glEnable(GL33.GL_DEPTH_TEST);
     GL33.glEnable(GL33.GL_BLEND);
-    GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+    // GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+    GL33.glBlendFuncSeparate(
+        GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA, GL33.GL_ONE, GL33.GL_ZERO);
     GL33.glEnable(GL33.GL_CULL_FACE);
 
     LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));
@@ -295,10 +303,10 @@ public abstract class GameWindow implements Disposable {
 
         long start = System.nanoTime();
 
-        if(this.currentState != null && this.currentState.loaded()) {
+        if (this.currentState != null && this.currentState.loaded()) {
           GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
           this.currentState.render(deltaTime);
-        } else if(this.transition != null) {
+        } else if (this.transition != null) {
           GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
           this.transition.render(deltaTime, this.currentState);
         }
@@ -667,7 +675,7 @@ public abstract class GameWindow implements Disposable {
       glfwSetWindowMonitor(
           this.glfwWindow, monitor, 0, 0, mode.width(), mode.height(), mode.refreshRate());
     }
-    if(this.fullscreen != fullscreen) {
+    if (this.fullscreen != fullscreen) {
       LOGGER.info("Fullscreen: {}", fullscreen);
     }
     this.fullscreen = fullscreen;
@@ -676,37 +684,48 @@ public abstract class GameWindow implements Disposable {
 
   /**
    * Sets the current game state.
-   * <p>
-   *   This game state will be rendered when it is loaded. Meanwhile, the transition is rendered.
+   *
+   * <p>This game state will be rendered when it is loaded. Meanwhile, the transition is rendered.
    *
    * @param state the new game state
    */
   public void setState(@NotNull GameState state) {
-    this.runOnMainThread(() -> {
-      if (this.currentState != null) {
-        this.currentState.dispose();
-      }
-      this.currentState = state;
-      if (this.currentState != null) {
-        this.currentState.init();
-      }
-    });
+    this.runOnMainThread(
+        () -> {
+          if (this.currentState != null) {
+            this.currentState.dispose();
+          }
+          this.currentState = state;
+          if (this.currentState != null) {
+            this.currentState.init();
+          }
+        });
   }
 
   public void setStateTransition(GameStateTransition transition) {
-    this.runOnMainThread(() -> {
-      if(this.transition != null) {
-        this.transition.dispose();
-      }
-      this.transition = transition;
-      if(this.transition != null) {
-        this.transition.init();
-      }
-    });
+    this.runOnMainThread(
+        () -> {
+          if (this.transition != null) {
+            this.transition.dispose();
+          }
+          this.transition = transition;
+          if (this.transition != null) {
+            this.transition.init();
+          }
+        });
   }
 
   public boolean hasFocus() {
     return this.hasFocus;
+  }
+
+  public int clearColor() {
+    return this.clearColor;
+  }
+
+  public GameWindow clearColor(int clearColor) {
+    this.clearColor = clearColor;
+    return this;
   }
 
   @Override
@@ -714,6 +733,4 @@ public abstract class GameWindow implements Disposable {
     Dungine.WINDOWS.remove(this);
     this.close();
   }
-
-
 }
