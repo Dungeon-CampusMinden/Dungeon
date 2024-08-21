@@ -529,7 +529,6 @@ public class Font {
     int rowMaxHeight = 0;
     int lastWrapIndex = 0;
     int lastWrapAt = 0;
-    int lineNr = 0;
 
     TextLayoutElement[] elements = new TextLayoutElement[text.length()];
 
@@ -545,14 +544,6 @@ public class Font {
       if (NEWLINE_CHARS.contains(c)) {
         currentX = 0;
         currentY += fontSize + linePadding;
-        if(lineNr == 0) {
-          for(int j = 0; j < i + 1; j ++) {
-            if(elements[j] != null)
-              elements[j].y = -rowMaxHeight + elements[j].glyph.offsetY;
-          }
-          currentY += rowMaxHeight;
-        }
-        lineNr ++;
         rowMaxHeight = 0;
         continue;
       }
@@ -579,14 +570,6 @@ public class Font {
         }
         currentX = 0;
         currentY += fontSize + linePadding;
-        if(lineNr == 0) {
-          for(int j = 0; j < i + 1; j ++) {
-            if(elements[j] != null)
-              elements[j].y = -rowMaxHeight + elements[j].glyph.offsetY;
-          }
-          currentY += rowMaxHeight;
-        }
-        lineNr ++;
         rowMaxHeight = 0;
         continue;
       }
