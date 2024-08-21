@@ -16,7 +16,6 @@ import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
@@ -523,7 +522,7 @@ public final class Game {
    * @return A Set containing all free tiles in the current level.
    */
   public static Set<Tile> allFreeTiles() {
-    return allTiles(Game::isFreeTile);
+    return allTiles(LevelUtils::isFreeTile);
   }
 
   /**
@@ -533,61 +532,7 @@ public final class Game {
    * @return An Optional containing a random free tile if available, otherwise an empty Optional.
    */
   public static Optional<Tile> freeTile() {
-    // Direction vectors for moving up, down, left, and right
-    Tuple<Integer, Integer>[] deltaVectors =
-        new Tuple[] {
-          new Tuple<>(-1, 0), new Tuple<>(1, 0), new Tuple<>(0, -1), new Tuple<>(0, 1),
-        };
-
-    Tile[][] layout = currentLevel().layout();
-    int startRow = RANDOM.nextInt(layout.length);
-    int startCol = RANDOM.nextInt(layout[0].length);
-    int rowsSize = layout.length;
-    int colsSize = layout[0].length;
-    boolean[][] queued = new boolean[rowsSize][colsSize];
-
-    // Queue to hold the cells to be explored in the form of (row, col)
-    Queue<Tuple<Integer, Integer>> queue = new LinkedList<>();
-
-    // Start BFS from the given start position
-    queue.add(new Tuple<>(startRow, startCol));
-    queued[startRow][startCol] = true;
-
-    while (!queue.isEmpty()) {
-      // Dequeue the front cell
-      Tuple<Integer, Integer> cell = queue.poll();
-      int row = cell.a();
-      int col = cell.b();
-
-      if (isFreeTile(layout[row][col])) return Optional.of(layout[row][col]);
-
-      // Explore all 4 possible directions
-      for (int i = 0; i < 4; i++) {
-        int newRow = row + deltaVectors[i].a();
-        int newCol = col + deltaVectors[i].b();
-
-        // Check if the new cell is within bounds and not yet visited
-        if (newRow >= 0
-            && newRow < rowsSize
-            && newCol >= 0
-            && newCol < colsSize
-            && !queued[newRow][newCol]) {
-          queue.add(new Tuple<>(newRow, newCol));
-          queued[newRow][newCol] = true;
-        }
-      }
-    }
-    return Optional.empty();
-  }
-
-  /**
-   * Checks if the given Tile is accessible and no entity is placed on that tile.
-   *
-   * @param tile Tile to check.
-   * @return True if the Tile is free, false if not
-   */
-  public static boolean isFreeTile(Tile tile) {
-    return tile.isAccessible() && entityAtTile(tile).findAny().isEmpty();
+    return LevelUtils.freeTile();
   }
 
   /**
