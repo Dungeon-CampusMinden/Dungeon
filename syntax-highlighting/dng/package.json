@@ -1,0 +1,25 @@
+{
+  "name": "dng",
+  "displayName": "Dungeon Syntax Highlighting",
+  "description": "Dungeon Highlighting",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "dng",
+      "aliases": ["Dungeon Programming Language", "dng"],
+      "extensions": [".dng"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "dng",
+      "scopeName": "source.dng",
+      "path": "./syntaxes/dng.tmLanguage.json"
+    }]
+  }
+}

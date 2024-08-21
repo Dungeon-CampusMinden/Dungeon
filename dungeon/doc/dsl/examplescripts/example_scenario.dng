@@ -8,7 +8,6 @@ single_choice_task my_task {
     ],
     correct_answer_index: 0
 }
-
 graph dependencies {
     my_task;
 }
@@ -85,10 +84,10 @@ fn build_task(single_choice_task t) -> entity<><> {
         place_quest_item(item, room_set);
     }
 
+    
     // Erstellung der Aufgaben-Truhe, in welche die Antworten abgegeben werden sollen
     var chest : entity;
     chest = instantiate(chest_type);
-
     // Markierung der Aufgaben-Truhe als Task-Container
     chest.mark_as_task_container(t, "Quest-Truhe");
     room_set.add(chest);
@@ -106,7 +105,7 @@ fn build_task(single_choice_task t) -> entity<><> {
 
     // Setzen der Event-Handler-Funktion für Interaktion mit der Manager-Entität
     knight.interaction_component.on_interaction = ask_task_finished;
-
+    
     return_set.add(room_set);
     return return_set;
 }
