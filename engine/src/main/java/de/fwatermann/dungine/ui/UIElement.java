@@ -1,6 +1,10 @@
 package de.fwatermann.dungine.ui;
 
 import de.fwatermann.dungine.graphics.camera.Camera;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -18,6 +22,7 @@ public abstract class UIElement<T extends UIElement<?>> {
   protected Vector3f size = new Vector3f();
   protected Quaternionf rotation = new Quaternionf();
   protected boolean initialized = false;
+  protected List<UIComponent<?>> components = new ArrayList<>();
 
   /**
    * Renders the UI element using the specified camera.
@@ -174,5 +179,73 @@ public abstract class UIElement<T extends UIElement<?>> {
     return this.parent == null
         ? this.position
         : this.parent.absolutePosition().add(this.position, new Vector3f());
+  }
+
+  /**
+   * Attaches a component to this UI element.
+   *
+   * @param component the component to attach
+   */
+  public void attachComponent(UIComponent<?> component) {
+    this.components.add(component);
+  }
+
+  /**
+   * Detaches a component from this UI element.
+   *
+   * @param component the component to detach
+   */
+  public void detachComponent(UIComponent<?> component) {
+    this.components.remove(component);
+  }
+
+  /**
+   * Gets a stream of all components attached to this UI element.
+   *
+   * @return a stream of components
+   */
+  public Stream<UIComponent<?>> components() {
+    return this.components.stream();
+  }
+
+  /**
+   * Gets a stream of components of the specified types attached to this UI element.
+   *
+   * @param clazz the classes of the components to filter by
+   * @return a stream of components of the specified types
+   */
+  @SafeVarargs
+  public final Stream<UIComponent<?>> components(Class<? extends UIComponent<?>>... clazz) {
+    return this.components.stream()
+        .filter(
+            c -> {
+              for (Class<? extends UIComponent<?>> cClazz : clazz) {
+                if (cClazz.isInstance(c)) {
+                  return true;
+                }
+              }
+              return false;
+            });
+  }
+
+  /**
+   * Gets the first component of the specified type attached to this UI element.
+   *
+   * @param <C> the type of the component
+   * @param clazz the class of the component to get
+   * @return the first component of the specified type, or null if none found
+   */
+  public final <C extends UIComponent<?>> Optional<C> component(Class<C> clazz) {
+    return Optional.ofNullable((C) this.components.stream().filter(clazz::isInstance).findFirst().orElse(null));
+  }
+
+  /**
+   * Checks if a component of the specified type is attached to this UI element.
+   *
+   * @param clazz the class of the component to check for
+   * @return true if a component of the specified type is attached, false otherwise
+   */
+  public boolean hasComponent(Class<? extends UIComponent<?>> clazz) {
+    return this.components.stream().anyMatch(clazz::isInstance);
   }
 }

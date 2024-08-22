@@ -10,8 +10,12 @@ import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraOrthographic;
 import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.input.Mouse;
+import de.fwatermann.dungine.ui.components.UIComponentClickable;
+import de.fwatermann.dungine.ui.components.UIComponentHoverable;
+import de.fwatermann.dungine.ui.components.UIComponentScrollable;
 import de.fwatermann.dungine.window.GameWindow;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.joml.Intersectionf;
 import org.joml.Vector2f;
@@ -86,28 +90,36 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener {
   }
 
   private void click(int button, MouseButtonEvent.MouseButtonAction action) {
-    UIElement<?> element = this.getElementAtMouse(true, IUIClickable.class);
-    if (element instanceof IUIClickable clickable) {
-      clickable.click(button, action);
+    UIElement<?> element = this.getElementAtMouse(true, UIComponentClickable.class);
+    if (element != null) {
+      element.component(UIComponentClickable.class).ifPresent(c -> c.onClick().run(element));
     }
   }
 
   private void hover() {
-    UIElement<?> element = this.getElementAtMouse(true, IUIHoverable.class);
-    if (this.lastHovered instanceof IUIHoverable hoverable && this.lastHovered != element) {
-      hoverable.leave();
+    UIElement<?> element = this.getElementAtMouse(true, UIComponentHoverable.class);
+    if (this.lastHovered != element) {
+      if (this.lastHovered != null) {
+        this.lastHovered
+            .component(UIComponentHoverable.class)
+            .ifPresent(c -> c.onLeave().run(this.lastHovered));
+      }
       this.lastHovered = null;
-    } else if (this.lastHovered == element) return;
-    if (element instanceof IUIHoverable hoverable) {
-      hoverable.enter();
+    } else {
+      return;
+    }
+    if (element != null) {
+      element.component(UIComponentHoverable.class).ifPresent(c -> c.onEnter().run(element));
       this.lastHovered = element;
     }
   }
 
   private void scroll(int x, int y) {
-    UIElement<?> element = this.getElementAtMouse(true, IUIScrollable.class);
-    if (element instanceof IUIScrollable scrollable) {
-      scrollable.scroll(x, y);
+    UIElement<?> element = this.getElementAtMouse(true, UIComponentScrollable.class);
+    if (element != null) {
+      element
+          .component(UIComponentScrollable.class)
+          .ifPresent(c -> c.onScroll().run(element, x, y));
     }
   }
 
@@ -126,18 +138,18 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener {
     return -1.0f;
   }
 
-  private UIElement<?> getElementAtMouse(boolean includeContainers, Class<?> clazzFilter) {
+  private UIElement<?> getElementAtMouse(
+      boolean includeContainers, Class<? extends UIComponent<?>> clazzFilter) {
     Vector2i mousePos = Mouse.getMousePosition();
     mousePos.y = this.window.size().y - mousePos.y;
 
     Vector3f origin = this.uiCamera.unproject(mousePos.x, mousePos.y);
     Vector3f direction = this.uiCamera.raycast(mousePos.x, mousePos.y);
 
-    List<UIElement<?>> elements = this.allChildElements(includeContainers);
+    List<UIElement<?>> elements = this.allChildElements(includeContainers, clazzFilter);
     float distance = Float.MAX_VALUE;
     UIElement<?> closest = null;
     for (UIElement<?> element : elements) {
-      if (clazzFilter != null && !clazzFilter.isInstance(element)) continue;
       float d = this.isOver(element, origin, direction);
       if (d < 0) continue;
       if (d < distance) {
@@ -154,23 +166,33 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener {
    * @param includeContainers If true, containers will be included in the list.
    * @return List of all child elements.
    */
-  public List<UIElement<?>> allChildElements(boolean includeContainers) {
+  @SafeVarargs
+  public final List<UIElement<?>> allChildElements(
+      boolean includeContainers, Class<? extends UIComponent<?>>... componentFilter) {
     List<UIElement<?>> list = new ArrayList<>();
-    this.allChildElements(this, includeContainers, list);
+    this.allChildElements(this, includeContainers, list, componentFilter);
     return list;
   }
 
+  @SafeVarargs
   private void allChildElements(
-      UIContainer<?> container, boolean includeContainers, List<UIElement<?>> elements) {
+      UIContainer<?> container,
+      boolean includeContainers,
+      List<UIElement<?>> elements,
+      Class<? extends UIComponent<?>>... componentFilter) {
     container
         .elements()
         .forEach(
             e -> {
               if (e instanceof UIContainer<?> c) {
-                if (includeContainers) elements.add(e);
+                if (includeContainers && Arrays.stream(componentFilter).allMatch(c::hasComponent)) {
+                  elements.add(e);
+                }
                 this.allChildElements(c, includeContainers, elements);
               } else {
-                elements.add(e);
+                if (Arrays.stream(componentFilter).allMatch(e::hasComponent)) {
+                  elements.add(e);
+                }
               }
             });
   }
