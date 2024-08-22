@@ -325,6 +325,7 @@ public final class LevelUtils {
     while (!queue.isEmpty()) {
       // Dequeue the front cell
       Tile cell = queue.poll();
+
       // We have found a free field, abort the search
       if (isFreeTile(cell)) return Optional.of(cell);
 
