@@ -15,6 +15,7 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import utils.EntityUtils;
 
 /**
@@ -75,24 +76,18 @@ public class FallingSystem extends System {
   private void teleportPlayerIfPossible() {
     Point heroCoords = EntityUtils.getHeroPosition();
     if (heroCoords != null) {
-      try {
-        Tile tile = getSafeTile(heroCoords);
-        Debugger.TELEPORT(tile);
-      } catch (NoSuchElementException e) {
-        LOGGER.warning(e.getMessage());
-      }
+      Tile tile =
+          getSafeTile(heroCoords)
+              .orElseThrow(() -> new NoSuchElementException(("No safe place to port.")));
+      Debugger.TELEPORT(tile);
     }
   }
 
-  private Tile getSafeTile(Point heroCoords) throws NoSuchElementException {
-    Tile tile;
+  private Optional<Tile> getSafeTile(Point heroCoords) throws NoSuchElementException {
     try {
-      tile = Game.accessibleTilesInRange(heroCoords, 5).getFirst();
+      return Optional.of(Game.accessibleTilesInRange(heroCoords, 5).getFirst());
     } catch (NoSuchElementException e) {
-      tile =
-          Game.randomTile(LevelElement.FLOOR)
-              .orElseThrow(() -> new NoSuchElementException("No safe Tile found."));
+      return Game.randomTile(LevelElement.FLOOR);
     }
-    return tile;
   }
 }
