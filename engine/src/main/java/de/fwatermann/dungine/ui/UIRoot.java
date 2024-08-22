@@ -29,14 +29,21 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener {
 
   private Camera<?> uiCamera;
   private GameWindow window;
+  private boolean initialized = false;
 
   public UIRoot(GameWindow window, int pixelWidth, int pixelHeight) {
     this.window = window;
     this.uiCamera = new CameraOrthographic(new CameraViewport(pixelWidth, pixelHeight, 0, 0));
+  }
+
+  private void init() {
+    if(this.initialized) return;
     EventManager.getInstance().registerListener(this);
+    this.initialized =  true;
   }
 
   public void render() {
+    this.init();
     this.uiCamera.update();
 
     boolean depthEnabled = GL33.glIsEnabled(GL33.GL_DEPTH_TEST);
