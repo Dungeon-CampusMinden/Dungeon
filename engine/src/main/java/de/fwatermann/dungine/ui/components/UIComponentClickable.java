@@ -8,6 +8,14 @@ public class UIComponentClickable extends UIComponent<UIComponentClickable> {
 
   private IVoidFunction1Parameter<UIElement<?>> onClick;
 
+  public UIComponentClickable() {
+    this.onClick = (element) -> {};
+  }
+
+  public UIComponentClickable(IVoidFunction1Parameter<UIElement<?>> onClick) {
+    this.onClick = onClick;
+  }
+
   public IVoidFunction1Parameter<UIElement<?>> onClick() {
     return this.onClick;
   }
