@@ -311,7 +311,6 @@ public final class LevelUtils {
    * @return An Optional containing a random free tile if available, otherwise an empty Optional.
    */
   public static Optional<Tile> freeTile() {
-
     Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
     int startRow = RANDOM.nextInt(levelSize.a());
     int startCol = RANDOM.nextInt(levelSize.b());
@@ -327,7 +326,9 @@ public final class LevelUtils {
       // Dequeue the front cell
       Tile cell = queue.poll();
 
+      // We have found a free field, abort the search.
       if (isFreeTile(cell)) return Optional.of(cell);
+      
       // Explore all 4 possible directions
       for (Tile tile : neighbours(cell)) {
         Coordinate coordinate = tile.coordinate();
