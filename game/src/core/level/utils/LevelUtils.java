@@ -312,30 +312,29 @@ public final class LevelUtils {
    */
   public static Optional<Tile> freeTile() {
     Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
-    int startRow = RANDOM.nextInt(levelSize.a());
-    int startCol = RANDOM.nextInt(levelSize.b());
-    boolean[][] queued = new boolean[levelSize.a()][levelSize.b()];
+    int startX = RANDOM.nextInt(0, levelSize.a());
+    int startY = RANDOM.nextInt(0, levelSize.b());
+    boolean[][] queued = new boolean[levelSize.b()][levelSize.a()];
 
     // Queue to hold the cells to be explored in the form of (row, col)
     Queue<Tile> queue = new LinkedList<>();
     // Start BFS from the given start position
-    queue.add(Game.currentLevel().tileAt(new Coordinate(startRow, startCol)));
-    queued[startRow][startCol] = true;
+    queue.add(Game.currentLevel().tileAt(new Coordinate(startX, startY)));
+    queued[startY][startX] = true;
 
     while (!queue.isEmpty()) {
       // Dequeue the front cell
       Tile cell = queue.poll();
-
-      // We have found a free field, abort the search.
+      // We have found a free field, abort the search
       if (isFreeTile(cell)) return Optional.of(cell);
-      
+
       // Explore all 4 possible directions
       for (Tile tile : neighbours(cell)) {
         Coordinate coordinate = tile.coordinate();
         // Check if the new cell is within bounds and not yet visited
-        if (!queued[coordinate.x][coordinate.y]) {
+        if (!queued[coordinate.y][coordinate.x]) {
           queue.add(tile);
-          queued[coordinate.x][coordinate.y] = true;
+          queued[coordinate.y][coordinate.x] = true;
         }
       }
     }
@@ -356,14 +355,14 @@ public final class LevelUtils {
     Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
     Tile[][] layout = Game.currentLevel().layout();
     Coordinate coordinate = tile.coordinate();
-    for (int i = 0; i < 4; i++) {
-      Coordinate newCoordinate = coordinate.add(DELTA_VECTORS[i]);
+    for (Coordinate deltaVector : DELTA_VECTORS) {
+      Coordinate newCoordinate = coordinate.add(deltaVector);
       // Check if the new cell is within bounds and not yet visited
       if (newCoordinate.x >= 0
           && newCoordinate.x < levelSize.a()
           && newCoordinate.y >= 0
           && newCoordinate.y < levelSize.b())
-        returnSet.add(layout[newCoordinate.x][newCoordinate.y]);
+        returnSet.add(layout[newCoordinate.y][newCoordinate.x]);
     }
     return returnSet;
   }
@@ -374,7 +373,7 @@ public final class LevelUtils {
    * @param tile Tile to check.
    * @return True if the Tile is free, false if not
    */
-  public static boolean isFreeTile(Tile tile) {
+  public static boolean isFreeTile(final Tile tile) {
     return tile.isAccessible() && Game.entityAtTile(tile).findAny().isEmpty();
   }
 }

@@ -383,6 +383,9 @@ public interface ILevel extends IndexedGraph<Tile> {
   /**
    * Retrieves the layout of the level, represented as a 2D array of tiles.
    *
+   * <p>Note that the layout is stored [y][x], so the first index defines the y-coordinate, and the
+   * second index the x-coordinate.
+   *
    * @return The layout of the level as a 2D array of tiles.
    */
   Tile[][] layout();
@@ -390,15 +393,18 @@ public interface ILevel extends IndexedGraph<Tile> {
   /**
    * Get the size (row x col) of the level as a Tuple.
    *
-   * <p>{@link Tuple#a()} contains the row size (starting at 0).
+   * <p>{@link Tuple#a()} contains the row size (starting at 1).
    *
-   * <p>{@link Tuple#b()} contains the column size (starting at 0).
+   * <p>{@link Tuple#b()} contains the column size (starting at 1).
+   *
+   * <p>Note that the layout is stored [y][x], so the first index defines the y-coordinate, and the
+   * second index the x-coordinate.
    *
    * @return The size of the level as a Tuple.
    */
   default Tuple<Integer, Integer> size() {
     Tile[][] layout = layout();
-    return new Tuple<>(layout.length, layout[0].length);
+    return new Tuple<>(layout[0].length, layout.length);
   }
 
   /**

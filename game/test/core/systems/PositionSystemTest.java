@@ -14,6 +14,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Tuple;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,8 +64,15 @@ public class PositionSystemTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
         };
-    Mockito.when(level.layout())
-        .thenReturn(new TileLevel(elementsLayout, DesignLabel.DEFAULT).layout());
+    Tile[][] layout = new TileLevel(elementsLayout, DesignLabel.DEFAULT).layout();
+    Mockito.when(level.layout()).thenReturn(layout);
+    Mockito.when(level.size()).thenReturn(new Tuple<>(2, 2));
+    Mockito.when(level.tileAt(Mockito.any(Coordinate.class)))
+        .thenAnswer(
+            invocation -> {
+              Coordinate c = invocation.getArgument(0);
+              return layout[c.y][c.x];
+            });
     pc.position(PositionComponent.ILLEGAL_POSITION);
     // entities will be placed in the center of a tile, so add the offset for check
     Point offsetPoint = new Point(point.x + 0.5f, point.y + 0.5f);
