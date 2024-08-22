@@ -14,8 +14,9 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import java.util.NoSuchElementException;
 import utils.EntityUtils;
+
+import java.util.NoSuchElementException;
 
 /**
  * The FallingSystem is responsible for handling entities that fall into {@link PitTile}s. Falling
@@ -75,16 +76,26 @@ public class FallingSystem extends System {
   private void teleportPlayerIfPossible() {
     Point heroCoords = EntityUtils.getHeroPosition();
     if (heroCoords != null) {
-      Tile tile = getSafeTile(heroCoords);
-      Debugger.TELEPORT(tile);
+      try {
+        Tile tile = getSafeTile(heroCoords);
+        Debugger.TELEPORT(tile);
+      }
+      catch (NoSuchElementException e) {
+        LOGGER.warning(e.getMessage());
+      }
+      }
     }
-  }
 
-  private Tile getSafeTile(Point heroCoords) {
-    return Game.accessibleTilesInRange(heroCoords, 5).stream()
-        .findFirst()
-        .orElse(
-            Game.randomTile(LevelElement.FLOOR)
-                .orElseThrow(() -> new NoSuchElementException("No Floor Tile in the level.")));
+  private Tile getSafeTile(Point heroCoords) throws NoSuchElementException{
+    Tile tile;
+    try {
+      tile=Game.accessibleTilesInRange(heroCoords, 5).getFirst();
+    }
+    catch (NoSuchElementException e){
+      tile=Game.randomTile(LevelElement.FLOOR)
+                    .orElseThrow(() -> new NoSuchElementException("No safe Tile found."));
+    }
+    return tile;
+
   }
 }
