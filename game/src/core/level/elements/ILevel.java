@@ -16,9 +16,13 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  * Defines the API for Levels in the dungeon.
@@ -42,7 +46,10 @@ public interface ILevel extends IndexedGraph<Tile> {
    * it as the start tile for the level.
    */
   default void randomStart() {
-    startTile(randomTile(LevelElement.FLOOR));
+    startTile(
+        randomTile(LevelElement.FLOOR)
+            .orElseThrow(
+                () -> new NoSuchElementException("There is no Floor-Tile to place the Start on.")));
   }
 
   /**
@@ -268,24 +275,24 @@ public interface ILevel extends IndexedGraph<Tile> {
    * specified type is empty, the method returns null.
    *
    * @param elementType Type of the tile to retrieve.
-   * @return A random tile of the specified type, or null if the list for that type is empty.
+   * @return A random tile of the specified type, or empty if the list for that type is empty.
    */
-  default Tile randomTile(final LevelElement elementType) {
-    return switch (elementType) {
-      case SKIP ->
-          skipTiles().size() > 0 ? skipTiles().get(RANDOM.nextInt(skipTiles().size())) : null;
-      case FLOOR ->
-          floorTiles().size() > 0 ? floorTiles().get(RANDOM.nextInt(floorTiles().size())) : null;
-      case WALL ->
-          wallTiles().size() > 0 ? wallTiles().get(RANDOM.nextInt(wallTiles().size())) : null;
-      case HOLE ->
-          holeTiles().size() > 0 ? holeTiles().get(RANDOM.nextInt(holeTiles().size())) : null;
-      case EXIT ->
-          exitTiles().size() > 0 ? exitTiles().get(RANDOM.nextInt(exitTiles().size())) : null;
-      case DOOR ->
-          doorTiles().size() > 0 ? doorTiles().get(RANDOM.nextInt(doorTiles().size())) : null;
-      case PIT -> pitTiles().size() > 0 ? pitTiles().get(RANDOM.nextInt(pitTiles().size())) : null;
-    };
+  default Optional<Tile> randomTile(final LevelElement elementType) {
+    Function<List<? extends Tile>, Optional<Tile>> returnVal =
+        (list) ->
+            Optional.ofNullable(list.isEmpty() ? null : list.get(RANDOM.nextInt(list.size())));
+
+    return returnVal.apply(
+        switch (elementType) {
+          case SKIP -> skipTiles();
+          case FLOOR -> floorTiles();
+          case WALL -> wallTiles();
+          case HOLE -> holeTiles();
+          case EXIT -> exitTiles();
+          case DOOR -> doorTiles();
+          case PIT -> pitTiles();
+          default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");
+        });
   }
 
   /**
@@ -376,9 +383,29 @@ public interface ILevel extends IndexedGraph<Tile> {
   /**
    * Retrieves the layout of the level, represented as a 2D array of tiles.
    *
+   * <p>Note that the layout is stored [y][x], so the first index defines the y-coordinate, and the
+   * second index the x-coordinate.
+   *
    * @return The layout of the level as a 2D array of tiles.
    */
   Tile[][] layout();
+
+  /**
+   * Get the size (row x col) of the level as a Tuple.
+   *
+   * <p>{@link Tuple#a()} contains the row size (starting at 1).
+   *
+   * <p>{@link Tuple#b()} contains the column size (starting at 1).
+   *
+   * <p>Note that the layout is stored [y][x], so the first index defines the y-coordinate, and the
+   * second index the x-coordinate.
+   *
+   * @return The size of the level as a Tuple.
+   */
+  default Tuple<Integer, Integer> size() {
+    Tile[][] layout = layout();
+    return new Tuple<>(layout[0].length, layout.length);
+  }
 
   /**
    * Retrieves the tile at the specified position within the level.
@@ -482,7 +509,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return The position of a randomly selected tile of the specified type in the level as a {@link
    *     Point}.
    */
-  default Point randomTilePoint(final LevelElement elementType) {
-    return randomTile(elementType).position();
+  default Optional<Point> randomTilePoint(final LevelElement elementType) {
+    return randomTile(elementType).map(Tile::position);
   }
 }

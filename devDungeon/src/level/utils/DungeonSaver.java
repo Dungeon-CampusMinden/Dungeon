@@ -9,6 +9,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import level.DevDungeonLevel;
 
 /**
@@ -31,7 +32,15 @@ public class DungeonSaver {
   public static void saveCurrentDungeon() {
     String designLabel;
     if (Game.currentLevel().endTile() == null) {
-      designLabel = Game.currentLevel().randomTile(LevelElement.FLOOR).designLabel().name();
+      designLabel =
+          Game.currentLevel()
+              .randomTile(LevelElement.FLOOR)
+              .orElseThrow(
+                  () ->
+                      new NoSuchElementException(
+                          "There is no floor tile in the level; cannot place the missing exit and cannot save the dungeon"))
+              .designLabel()
+              .name();
     } else {
       designLabel = Game.currentLevel().endTile().designLabel().name();
     }

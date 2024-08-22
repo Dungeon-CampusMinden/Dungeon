@@ -8,6 +8,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.*;
 
@@ -15,6 +16,12 @@ import java.util.*;
 public final class LevelUtils {
 
   private static final Random RANDOM = new Random();
+
+  /** These vectors can be used to calculate neighbor coordinates. */
+  private static final Coordinate[] DELTA_VECTORS =
+      new Coordinate[] {
+        new Coordinate(-1, 0), new Coordinate(1, 0), new Coordinate(0, -1), new Coordinate(0, 1),
+      };
 
   /**
    * Finds the path from the given point to another given point.
@@ -295,5 +302,79 @@ public final class LevelUtils {
    */
   public static boolean playerInRange(final Entity entity, float range) {
     return Game.hero().filter(value -> entityInRange(entity, value, range)).isPresent();
+  }
+
+  /**
+   * Get a random free tile from the current level. A free tile is a tile that is of type FLOOR and
+   * is not occupied by any entity and is accessible.
+   *
+   * @return An Optional containing a random free tile if available, otherwise an empty Optional.
+   */
+  public static Optional<Tile> freeTile() {
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
+    int startX = RANDOM.nextInt(0, levelSize.a());
+    int startY = RANDOM.nextInt(0, levelSize.b());
+    boolean[][] queued = new boolean[levelSize.b()][levelSize.a()];
+
+    // Queue to hold the cells to be explored in the form of (row, col)
+    Queue<Tile> queue = new LinkedList<>();
+    // Start BFS from the given start position
+    queue.add(Game.currentLevel().tileAt(new Coordinate(startX, startY)));
+    queued[startY][startX] = true;
+
+    while (!queue.isEmpty()) {
+      // Dequeue the front cell
+      Tile cell = queue.poll();
+
+      // We have found a free field, abort the search
+      if (isFreeTile(cell)) return Optional.of(cell);
+
+      // Explore all 4 possible directions
+      for (Tile tile : neighbours(cell)) {
+        Coordinate coordinate = tile.coordinate();
+        // Check if the new cell is within bounds and not yet visited
+        if (!queued[coordinate.y][coordinate.x]) {
+          queue.add(tile);
+          queued[coordinate.y][coordinate.x] = true;
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Get the neighbors of the given Tile.
+   *
+   * <p>Neighbors are the tiles directly above, below, left, and right of the given Tile.
+   *
+   * @param tile Tile to get the neighbors for
+   * @return Set with the neighbor tiles.
+   */
+  public static Set<Tile> neighbours(final Tile tile) {
+    // Direction vectors for moving up, down, left, and right+
+    Set<Tile> returnSet = new HashSet<>();
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
+    Tile[][] layout = Game.currentLevel().layout();
+    Coordinate coordinate = tile.coordinate();
+    for (Coordinate deltaVector : DELTA_VECTORS) {
+      Coordinate newCoordinate = coordinate.add(deltaVector);
+      // Check if the new cell is within bounds and not yet visited
+      if (newCoordinate.x >= 0
+          && newCoordinate.x < levelSize.a()
+          && newCoordinate.y >= 0
+          && newCoordinate.y < levelSize.b())
+        returnSet.add(layout[newCoordinate.y][newCoordinate.x]);
+    }
+    return returnSet;
+  }
+
+  /**
+   * Checks if the given Tile is accessible and no entity is placed on that tile.
+   *
+   * @param tile Tile to check.
+   * @return True if the Tile is free, false if not
+   */
+  public static boolean isFreeTile(final Tile tile) {
+    return tile.isAccessible() && Game.entityAtTile(tile).findAny().isEmpty();
   }
 }

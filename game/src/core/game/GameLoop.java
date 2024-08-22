@@ -170,6 +170,10 @@ public final class GameLoop extends ScreenAdapter {
   /**
    * Called once at the beginning of the game.
    *
+   * <p>Will execute {@link LevelSystem#execute()} once to load the first level before the actual
+   * game loop starts. This ensures the first level is set at the start of the game loop, even if
+   * the {@link LevelSystem} is not executed as the first system in the game loop..
+   *
    * <p>Will perform some setup.
    */
   private void setup() {
@@ -177,6 +181,7 @@ public final class GameLoop extends ScreenAdapter {
     createSystems();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
+    Game.systems().get(LevelSystem.class).execute();
   }
 
   /**

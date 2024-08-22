@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,7 +38,7 @@ public class CameraSystemTest {
     cameraSystem = new CameraSystem();
     Game.add(cameraSystem);
     Mockito.when(startTile.position()).thenReturn(testPoint);
-    Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
+    Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(Optional.of(testPoint));
     Mockito.when(level.startTile()).thenReturn(startTile);
     Game.add(new LevelSystem(null, null, () -> {}));
   }
