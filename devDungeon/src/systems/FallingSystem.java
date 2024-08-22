@@ -76,10 +76,8 @@ public class FallingSystem extends System {
   private void teleportPlayerIfPossible() {
     Point heroCoords = EntityUtils.getHeroPosition();
     if (heroCoords != null) {
-      Tile tile =
-          getSafeTile(heroCoords)
-              .orElseThrow(() -> new NoSuchElementException(("No safe place to port.")));
-      Debugger.TELEPORT(tile);
+      getSafeTile(heroCoords)
+          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warning("No safe place to port."));
     }
   }
 
