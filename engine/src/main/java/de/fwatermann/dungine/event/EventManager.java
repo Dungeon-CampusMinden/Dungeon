@@ -75,7 +75,10 @@ public class EventManager {
               this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
                   .add(new EventHandlerPair(listener, listener.getClass(), m));
-              LOGGER.debug("Registered event handler for event type {} by {}", eventType.getName(), listener.getClass().getName());
+              LOGGER.debug(
+                  "Registered event handler for event type {} by {}",
+                  eventType.getName(),
+                  listener.getClass().getName());
             });
   }
 
@@ -122,7 +125,10 @@ public class EventManager {
               this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
                   .add(new EventHandlerPair(null, clazz, m));
-              LOGGER.debug("Registered static event handler for event type {} by {}", eventType.getName(), clazz.getName());
+              LOGGER.debug(
+                  "Registered static event handler for event type {} by {}",
+                  eventType.getName(),
+                  clazz.getName());
             });
   }
 
@@ -133,7 +139,44 @@ public class EventManager {
    * @param listener the event listener to unregister
    */
   public void unregisterListener(de.fwatermann.dungine.event.EventListener listener) {
-    this.listeners.values().forEach(l -> l.removeIf(p -> p.listener() == listener));
+    this.listeners
+        .values()
+        .forEach(
+            l ->
+                l.removeIf(
+                    p -> {
+                      if (p.listener == listener) {
+                        LOGGER.debug(
+                            "Unregistered all event handler for object of {} [{}]",
+                            listener.getClass().getName(),
+                            listener.hashCode());
+                        return true;
+                      }
+                      return false;
+                    }));
+  }
+
+  /**
+   * Unregisters a static event listener. This method removes all event handler methods of the
+   * specified listener class from the registration.
+   *
+   * @param listenerClass the class of the event listener to unregister
+   */
+  public void unregisterStaticListener(Class<? extends EventListener> listenerClass) {
+    this.listeners
+        .values()
+        .forEach(
+            l ->
+                l.removeIf(
+                    p -> {
+                      if (p.clazz() == listenerClass) {
+                        LOGGER.debug(
+                            "Unregistered all static handlers for class {}",
+                            listenerClass.getName());
+                        return true;
+                      }
+                      return false;
+                    }));
   }
 
   /**
