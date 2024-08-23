@@ -20,7 +20,7 @@ public class FontTestState extends GameState {
   @Override
   public void init() {
     try {
-      Font font = Font.load(Resource.load("/fonts/opensans.ttf"), 24);
+      Font font = Font.load(Resource.load("/fonts/segoeui.ttf"));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

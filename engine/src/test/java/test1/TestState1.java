@@ -7,21 +7,21 @@ import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
+import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.Grid3D;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.graphics.simple.CubeColored;
 import de.fwatermann.dungine.graphics.text.Font;
-import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
-import java.io.IOException;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.GL33;
+import org.lwjgl.glfw.GLFW;
+import test2.UITestState0;
 
-public class GameState1 extends GameState implements EventListener {
+public class TestState1 extends GameState implements EventListener {
 
   private boolean loaded = false;
 
@@ -29,7 +29,7 @@ public class GameState1 extends GameState implements EventListener {
   private Grid3D grid;
   private UIText fps;
 
-  public GameState1(GameWindow window) {
+  public TestState1(GameWindow window) {
     super(window);
   }
 
@@ -48,19 +48,9 @@ public class GameState1 extends GameState implements EventListener {
 //    image.position(new Vector3f(400, 100, 0)).size().set(200, 200, 0);
 //    this.ui.add(image);
 
-    try {
-      this.fps = new UIText(Font.load(Resource.load("/fonts/DBNeoOffice.ttf")), "Hello, World!");
-      this.fps.position(new Vector3f(10, 10, 0)).size(new Vector3f(200, 200, 0));
-      this.ui.add(this.fps);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-
-    GL33.glEnable(GL33.GL_BLEND);
-    GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
-    GL33.glEnable(GL33.GL_DEPTH_TEST);
-    GL33.glDisable(GL33.GL_CULL_FACE);
+    this.fps = new UIText(Font.defaultMonoFont(), "Hello, World!");
+    this.fps.position(new Vector3f(10, 10, 0)).size(new Vector3f(200, 200, 0));
+    this.ui.add(this.fps);
 
     this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0, 0));
     this.camera.position(1, 5, 1);
@@ -99,12 +89,21 @@ public class GameState1 extends GameState implements EventListener {
     return this.loaded;
   }
 
-  @Override
-  public void dispose() {}
-
   @EventHandler
   public void onResize(WindowResizeEvent event) {
     this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
-    this.uiCamera.updateViewport(event.to.x, event.to.y, 0, 0);
   }
+
+  @EventHandler
+  public void onKeyboard(KeyboardEvent event) {
+    if(event.key == GLFW.GLFW_KEY_ESCAPE && event.action == KeyboardEvent.KeyAction.PRESS) {
+      this.window.setState(new UITestState0(this.window));
+    }
+  }
+
+  @Override
+  public void dispose() {
+    EventManager.getInstance().unregisterListener(this);
+  }
+
 }

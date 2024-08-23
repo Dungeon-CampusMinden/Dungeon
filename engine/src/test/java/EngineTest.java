@@ -5,6 +5,7 @@ import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.window.GameWindow;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
+import test1.TestState0;
 
 public class EngineTest extends GameWindow implements EventListener {
 
@@ -21,9 +22,9 @@ public class EngineTest extends GameWindow implements EventListener {
     this.vsync(true);
     EventManager.getInstance().registerListener(this);
     // this.setState(new CubeState(this));
-    // this.setState(new Test1State(this));
+    this.setState(new TestState0(this));
     // this.setState(new ChunkTest(this));
-    this.setState(new FontTestState(this));
+    // this.setState(new FontTestState(this));
   }
 
   @Override
