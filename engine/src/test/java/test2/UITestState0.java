@@ -1,6 +1,8 @@
 package test2;
 
 import de.fwatermann.dungine.event.EventHandler;
+import de.fwatermann.dungine.event.EventListener;
+import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.text.Font;
@@ -13,7 +15,7 @@ import de.fwatermann.dungine.window.GameWindow;
 import org.lwjgl.glfw.GLFW;
 import test1.TestState1;
 
-public class UITestState0 extends GameState {
+public class UITestState0 extends GameState implements EventListener {
 
   private long doneAt = 0;
 
@@ -49,6 +51,8 @@ public class UITestState0 extends GameState {
     this.layout();
 
     this.doneAt = System.currentTimeMillis() + 10_000;
+
+    EventManager.getInstance().registerListener(this);
   }
 
   private void layout() {
@@ -108,5 +112,7 @@ public class UITestState0 extends GameState {
   }
 
   @Override
-  public void dispose() {}
+  public void dispose() {
+    EventManager.getInstance().unregisterListener(this);
+  }
 }
