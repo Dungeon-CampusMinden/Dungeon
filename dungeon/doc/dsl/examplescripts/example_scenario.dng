@@ -27,7 +27,7 @@ item_type scroll_type {
 entity_type chest_type {
     inventory_component {},
     draw_component {
-        path: "objects/treasurechest"
+        path: "objects/treasurechest",
     },
     position_component{},
     interaction_component{
@@ -39,12 +39,12 @@ entity_type chest_type {
 
 entity_type knight_type {
     draw_component {
-        path: "character/blue_knight"
+        path: "character/blue_knight",
     },
     hitbox_component {},
     position_component{},
     interaction_component{
-        radius: 1.5
+        radius: 1.5,
     },
     task_component{}
 }
@@ -60,11 +60,13 @@ fn ask_task_finished(entity knight, entity who) {
         show_info("Du hast die Aufgabe schon bearbeitet.");
     }
 }
-
+var keee: int;
+var keasd: int;
 fn open_container(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
 // ------------------------ ENDE EVENT-HANDLER DEFINITION -----------------------
+
 
 // ------------------------- SZENARIO-BUILDER DEFINITION ------------------------
 fn build_task(single_choice_task t) -> entity<><> {
@@ -110,3 +112,4 @@ fn build_task(single_choice_task t) -> entity<><> {
     return return_set;
 }
 // ----------------------- ENDE SZENARIO-BUILDER DEFINITION ----------------------
+

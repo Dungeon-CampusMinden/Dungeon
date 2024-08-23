@@ -17,4 +17,5 @@ graph task_graph {
 dungeon_config meine_config {
     dependency_graph: task_graph
 }
-meine_aufgabe.description
+
+

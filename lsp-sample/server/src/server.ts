@@ -20,10 +20,12 @@ import {
 	TextEdit,
 	Range
 } from 'vscode-languageserver/node';
-import { suggestionDefinitions, SuggestionData, createCompletionItems } from './completionItems';
+import { createCompletionItems } from './completionItems';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
+import { checkForBracketErrors, checkForUnusedVariables, checkForVariableIssues } from './diagnostics';
+
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -39,7 +41,8 @@ const typeFields: Map<string, string[]> = new Map([
         'description',
         'answers',
         'correct_answer_index',
-        'scenario_builder'
+        'scenario_builder', 
+        'explanation'
     ]],
     ['replacement_task', [
         'description',
@@ -61,6 +64,14 @@ const typeFields: Map<string, string[]> = new Map([
         'fn_score'
     ]],
     ['multiple_choice_task', [
+        'description',
+        'answers',
+        'correct_answer_indices',
+        'fn_score'
+    ]],
+    ['var', []
+    ],
+    ['entity_type', [
         'description',
         'answers',
         'correct_answer_indices',
@@ -203,18 +214,14 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<Diagnostic[]> {
-	// In this simple example we get the settings for every validate run.
-	const settings = await getDocumentSettings(textDocument.uri);
-
-	// The validator creates diagnostics for all uppercase words length 2 and more
-	const text = textDocument.getText();
-	const lines = text.split(/\r?\n/g);
-
-	let problems = 0;
 	const diagnostics: Diagnostic[] = [];
+	const text = textDocument.getText();
+    const lines = text.split(/\r?\n/g);
+	
 	declaredVariables.clear();
-	//Dokument nach deklarierten Variablen und Objekten durchsuchen anhand der definierten Typen
-	for (const line of lines) {
+
+    // Durchsuche das Dokument nach Deklarationen
+    for (const line of lines) {
         for (const type of configTypes) {
             const regex = new RegExp(`\\b${type}\\s+(\\w+)`);
             const match = regex.exec(line);
@@ -223,120 +230,11 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
             }
         }
     }
-
-	const variableDeclarations: Set<string> = new Set();
-    const usedVariables: Set<string> = new Set();
-    
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        let match: RegExpExecArray | null;
-
-        // 1. Syntaxfehler: Nicht geschlossene Klammern
-        const openBrackets = (line.match(/\(/g) || []).length;
-        const closeBrackets = (line.match(/\)/g) || []).length;
-        if (openBrackets > closeBrackets) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Error,
-                range: {
-                    start: { line: i, character: line.indexOf('(') },
-                    end: { line: i, character: line.length }
-                },
-                message: "Unclosed '(' detected.",
-                source: 'ex'
-            });
-        } else if (closeBrackets > openBrackets) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Error,
-                range: {
-                    start: { line: i, character: line.indexOf(')') },
-                    end: { line: i, character: line.length }
-                },
-                message: "Unmatched ')' detected.",
-                source: 'ex'
-            });
-        }
-
-        // 2. Typfehler: Einfache Zuweisungsprüfung (string zu int)
-        if (match = /int\s+\w+\s*=\s*".*";/.exec(line)) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Error,
-                range: {
-                    start: { line: i, character: match.index },
-                    end: { line: i, character: line.length }
-                },
-                message: "Type mismatch: Cannot assign string to int.",
-                source: 'ex'
-            });
-        }
-
-        // 3. Variablen- und Namensfehler: Nicht deklarierte und unbenutzte Variablen
-        if (match = /\bvar\s+(\w+)/.exec(line)) {
-            const variableName = match[1];
-            if (variableDeclarations.has(variableName)) {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Warning,
-                    range: {
-                        start: { line: i, character: match.index },
-                        end: { line: i, character: match.index + variableName.length }
-                    },
-                    message: `Variable '${variableName}' is already declared.`,
-                    source: 'ex'
-                });
-            } else {
-                variableDeclarations.add(variableName);
-            }
-        }
-
-        // Erfassen der verwendeten Variablen
-        const words = line.split(/\W+/);
-        for (const word of words) {
-            if (variableDeclarations.has(word)) {
-                usedVariables.add(word);
-            }
-        }
-
-        // 4. Scope- und Gültigkeitsfehler: Variablen außerhalb ihres Gültigkeitsbereichs
-        if (match = /\bprint\((\w+)\)/.exec(line)) {
-            const variableName = match[1];
-            if (!variableDeclarations.has(variableName)) {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Error,
-                    range: {
-                        start: { line: i, character: match.index },
-                        end: { line: i, character: line.length }
-                    },
-                    message: `Variable '${variableName}' is not declared.`,
-                    source: 'ex'
-                });
-            }
-        }
-
-        // 5. Logische Fehler: Tote Codes
-        if (/if\s*\(\s*false\s*\)\s*\{/.test(line)) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Warning,
-                range: {
-                    start: { line: i, character: line.indexOf('if') },
-                    end: { line: i, character: line.length }
-                },
-                message: "Dead code: Condition 'false' will never be true.",
-                source: 'ex'
-            });
-        }
-        // 7. Formatierungsfehler: Lange Zeilen
-        if (line.length > 100) {
-            diagnostics.push({
-                severity: DiagnosticSeverity.Information,
-                range: {
-                    start: { line: i, character: 80 },
-                    end: { line: i, character: line.length }
-                },
-                message: "Line exceeds 80 characters.",
-                source: 'ex'
-            });
-        }      
-    }
-	return diagnostics;
+    // Rufe die spezifischen Diagnosefunktionen auf
+    diagnostics.push(...checkForVariableIssues(textDocument));
+    diagnostics.push(...checkForBracketErrors(textDocument));
+    diagnostics.push(...checkForUnusedVariables(textDocument));
+    return diagnostics;
 }
 
 connection.onDidChangeWatchedFiles(_change => {
