@@ -1,10 +1,12 @@
 package de.fwatermann.dungine.ecs;
 
 import de.fwatermann.dungine.utils.ThreadUtils;
+import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
@@ -14,11 +16,14 @@ import java.util.stream.Stream;
  */
 public abstract class ECS {
 
+  private ReentrantReadWriteLock entityLock = new ReentrantReadWriteLock(true);
+  private ReentrantReadWriteLock systemLock = new ReentrantReadWriteLock(true);
+
   /** Set holding all entities within the ECS */
-  protected final Set<Entity> entities = new HashSet<>();
+  private final Set<Entity> entities = new HashSet<>();
 
   /** Map holding all systems withing the ECS, associated each system with their interval */
-  protected final Map<System<?>, Integer> systems = new HashMap<>();
+  private final Map<System<?>, Integer> systems = new HashMap<>();
 
   /**
    * Adds an entity to the ECS.
@@ -26,10 +31,20 @@ public abstract class ECS {
    * @param entity The entity to be added.
    */
   public void addEntity(Entity entity) {
-    this.entities.add(entity);
-    this.systems.keySet().stream()
-        .filter(s -> entity.hasComponents(s.componentFilter()))
-        .forEach(s -> s.onEntityAdd(this, entity));
+    try {
+      this.entityLock.writeLock().lock();
+      this.entities.add(entity);
+    } finally {
+      this.entityLock.writeLock().unlock();
+    }
+    try {
+      this.systemLock.readLock().lock();
+      this.systems.keySet().stream()
+          .filter(s -> entity.hasComponents(s.componentFilter()))
+          .forEach(s -> s.onEntityAdd(this, entity));
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
   }
 
   /**
@@ -38,10 +53,15 @@ public abstract class ECS {
    * @param entity The entity to be removed.
    */
   public void removeEntity(Entity entity) {
-    this.entities.remove(entity);
-    this.systems.keySet().stream()
-        .filter(s -> entity.hasComponents(s.componentFilter()))
-        .forEach(s -> s.onEntityRemove(this, entity));
+    try {
+      this.entityLock.writeLock().lock();
+      this.entities.remove(entity);
+      this.systems.keySet().stream()
+          .filter(s -> entity.hasComponents(s.componentFilter()))
+          .forEach(s -> s.onEntityRemove(this, entity));
+    } finally {
+      this.entityLock.writeLock().unlock();
+    }
   }
 
   /**
@@ -51,34 +71,47 @@ public abstract class ECS {
    * @return true if the entity is present, false otherwise.
    */
   public boolean hasEntity(Entity entity) {
-    return this.entities.contains(entity);
+    try {
+      this.entityLock.readLock().lock();
+      return this.entities.contains(entity);
+    } finally {
+      this.entityLock.readLock().unlock();
+    }
+  }
+
+  /** Run a function receiving a stream of all entities in the ECS. */
+  public void entities(IVoidFunction1Parameter<Stream<Entity>> func) {
+    try {
+      this.entityLock.readLock().lock();
+      func.run(this.entities.stream());
+    } finally {
+      this.entityLock.readLock().unlock();
+    }
   }
 
   /**
-   * Returns a stream of all entities in the ECS.
-   *
-   * @return A stream of all entities.
-   */
-  public Stream<Entity> entities() {
-    return this.entities.stream();
-  }
-
-  /**
-   * Returns a stream of all entities in the ECS that have all of the given components.
+   * Run a function receiving a stream of entities filtered by the given components.
    *
    * @param ComponentClasses The components to filter by.
-   * @return A stream of all entities that have all of the given components.
    */
   @SafeVarargs
-  public final Stream<Entity> entities(Class<? extends Component>... ComponentClasses) {
-    return this.entities.stream()
-        .filter(
-            e -> {
-              for (int i = 0; i < ComponentClasses.length; i++) {
-                if (!e.hasComponents(ComponentClasses[i])) return false;
-              }
-              return true;
-            });
+  public final void entities(
+      IVoidFunction1Parameter<Stream<Entity>> func,
+      Class<? extends Component>... ComponentClasses) {
+    try {
+      this.entityLock.readLock().lock();
+      func.run(
+          this.entities.stream()
+              .filter(
+                  e -> {
+                    for (int i = 0; i < ComponentClasses.length; i++) {
+                      if (!e.hasComponents(ComponentClasses[i])) return false;
+                    }
+                    return true;
+                  }));
+    } finally {
+      this.entityLock.readLock().unlock();
+    }
   }
 
   /**
@@ -87,7 +120,12 @@ public abstract class ECS {
    * @param system The system to be added.
    */
   public void addSystem(System<?> system) {
-    this.systems.put(system, 0);
+    try {
+      this.systemLock.writeLock().lock();
+      this.systems.put(system, 0);
+    } finally {
+      this.systemLock.writeLock().unlock();
+    }
   }
 
   /**
@@ -96,7 +134,12 @@ public abstract class ECS {
    * @param system The system to be removed.
    */
   public void removeSystem(System<?> system) {
-    this.systems.remove(system);
+    try {
+      this.systemLock.writeLock().lock();
+      this.systems.remove(system);
+    } finally {
+      this.systemLock.writeLock().unlock();
+    }
   }
 
   /**
@@ -106,16 +149,22 @@ public abstract class ECS {
    * @return true if the system is present, false otherwise.
    */
   public boolean hasSystem(System<?> system) {
-    return this.systems.containsKey(system);
+    try {
+      this.systemLock.readLock().lock();
+      return this.systems.containsKey(system);
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
   }
 
-  /**
-   * Returns a stream of all systems in the ECS.
-   *
-   * @return A stream of all systems.
-   */
-  public Stream<System<?>> systems() {
-    return this.systems.keySet().stream();
+  /** Run a function receiving a stream of all systems in the ECS. */
+  public void systems(IVoidFunction1Parameter<Stream<System<?>>> func) {
+    try {
+      this.systemLock.readLock().lock();
+      func.run(this.systems.keySet().stream());
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
   }
 
   /**
@@ -127,16 +176,21 @@ public abstract class ECS {
     if (sync && !ThreadUtils.isMainThread())
       throw new IllegalStateException(
           "Synchronous systems can only be executed on the main thread.");
-    this.systems
-        .entrySet()
-        .forEach(
-            e -> {
-              if (e.getKey().sync() != sync || e.getKey().paused()) return;
-              e.setValue(e.getValue() - 1);
-              if (e.getValue() <= 0) {
-                e.getKey().update(ecs);
-                e.setValue(e.getKey().interval());
-              }
-            });
+    try {
+      this.systemLock.readLock().lock();
+      this.systems
+          .entrySet()
+          .forEach(
+              e -> {
+                if (e.getKey().sync() != sync || e.getKey().paused()) return;
+                e.setValue(e.getValue() - 1);
+                if (e.getValue() <= 0) {
+                  e.getKey().update(ecs);
+                  e.setValue(e.getKey().interval());
+                }
+              });
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
   }
 }

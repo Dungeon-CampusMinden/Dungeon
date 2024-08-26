@@ -16,9 +16,12 @@ public class RenderableSystem extends System<RenderableSystem> {
 
   @Override
   public void update(ECS ecs) {
-    ecs.entities(RenderableComponent.class)
-        .map(e -> e.components(RenderableComponent.class))
-        .forEach(s -> s.forEach(c -> c.renderable.render(this.camera)));
+    ecs.entities(s -> s.forEach(e -> {
+      e.components(RenderableComponent.class).forEach(c -> {
+        c.renderable.transformation(e.position(), e.rotation(), e.size());
+        c.renderable.render(this.camera);
+      });
+    }), RenderableComponent.class);
   }
 
   public Camera<?> camera() {

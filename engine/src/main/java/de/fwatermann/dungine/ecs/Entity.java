@@ -2,12 +2,26 @@ package de.fwatermann.dungine.ecs;
 
 import java.util.*;
 import java.util.stream.Stream;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class Entity {
 
+  private Vector3f position;
+  private Vector3f size;
+  private Quaternionf rotation;
+
   private final Map<Class<? extends Component>, List<Component>> components = new HashMap<>();
 
-  public Entity() {}
+  public Entity(Vector3f position, Quaternionf rotation, Vector3f scaling) {
+    this.position = position;
+    this.rotation = rotation;
+    this.size = scaling;
+  }
+
+  public Entity() {
+    this(new Vector3f(), new Quaternionf(), new Vector3f(1.0f));
+  }
 
   /**
    * Create a new entity with the given components.
@@ -15,6 +29,7 @@ public class Entity {
    * @param components the components to add
    */
   public Entity(Component... components) {
+    this();
     Arrays.stream(components)
         .forEach(
             c -> {
@@ -51,11 +66,11 @@ public class Entity {
    * @return this entity
    */
   public Entity addComponent(Component component) {
-    List<Component> list = this.components
-        .computeIfAbsent(
+    List<Component> list =
+        this.components.computeIfAbsent(
             component.getClass(), (Class<? extends Component> clazz) -> new ArrayList<>());
-    if(!component.canHaveMultiple()) {
-      if(list.isEmpty()) {
+    if (!component.canHaveMultiple()) {
+      if (list.isEmpty()) {
         list.add(component);
       } else {
         list.set(0, component);
@@ -68,12 +83,14 @@ public class Entity {
 
   /**
    * Get the first component of a specific type.
+   *
    * @param clazz the class of the component
    * @return the component
    * @param <T> the type of the component
    */
   public <T extends Component> Optional<T> component(Class<T> clazz) {
-    return Optional.ofNullable((T) this.components.getOrDefault(clazz, Collections.emptyList()).get(0));
+    return Optional.ofNullable(
+        (T) this.components.getOrDefault(clazz, Collections.emptyList()).get(0));
   }
 
   /**
@@ -102,6 +119,7 @@ public class Entity {
 
   /**
    * Check if this entity has a specific component of a specific class.
+   *
    * @param componentClass the class of the component to check
    * @return true if the component is present, false otherwise
    */
@@ -114,4 +132,30 @@ public class Entity {
     return componentClasses.stream().allMatch(this.components::containsKey);
   }
 
+  public Vector3f position() {
+    return this.position;
+  }
+
+  public Entity position(Vector3f position) {
+    this.position = position;
+    return this;
+  }
+
+  public Vector3f size() {
+    return this.size;
+  }
+
+  public Entity size(Vector3f size) {
+    this.size = size;
+    return this;
+  }
+
+  public Quaternionf rotation() {
+    return this.rotation;
+  }
+
+  public Entity rotation(Quaternionf rotation) {
+    this.rotation = rotation;
+    return this;
+  }
 }
