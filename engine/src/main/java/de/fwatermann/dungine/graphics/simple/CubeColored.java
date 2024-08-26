@@ -72,6 +72,7 @@ public class CubeColored extends Cube {
       ((this.color >> 16) & 0xFF) / 255.0f,
       ((this.color >> 8) & 0xFF) / 255.0f,
       ((this.color) & 0xFF) / 255.0f);
+    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
   }

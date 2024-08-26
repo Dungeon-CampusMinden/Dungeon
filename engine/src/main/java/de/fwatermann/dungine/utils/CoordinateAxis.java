@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.utils;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
@@ -12,22 +13,20 @@ import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
-public class CoordinateAxis {
+public class CoordinateAxis extends Renderable<CoordinateAxis> {
 
   private ArrayMesh mesh;
   private ShaderProgram shaderProgram;
   private boolean ignoreDepth;
-  private Vector3f position;
-  private float size;
 
   public CoordinateAxis(Vector3f position, float size, boolean ignoreDepth) {
+    super(position, new Vector3f(size), new Quaternionf());
     this.ignoreDepth = ignoreDepth;
-    this.position = position;
-    this.size = size;
     this.initGL();
   }
 
@@ -54,9 +53,6 @@ public class CoordinateAxis {
             GLUsageHint.DRAW_STATIC,
             new VertexAttribute(3, DataType.FLOAT, "a_Position"),
             new VertexAttribute(3, DataType.FLOAT, "a_Color"));
-    this.mesh.translation(this.position);
-    this.mesh.setScale(this.size, this.size, this.size);
-
     try {
       Shader vertexShader =
           Shader.loadShader(
@@ -70,16 +66,22 @@ public class CoordinateAxis {
     }
   }
 
+  @Override
   public void render(Camera<?> camera) {
     ThreadUtils.checkMainThread();
+    this.render(camera, this.shaderProgram);
+  }
 
+  @Override
+  public void render(Camera<?> camera, ShaderProgram shader) {
     boolean depthTestState = GL33.glIsEnabled(GL33.GL_DEPTH_TEST);
     if (this.ignoreDepth && depthTestState) {
       GL33.glDisable(GL33.GL_DEPTH_TEST);
     }
-    this.shaderProgram.bind();
-    this.mesh.render(camera, this.shaderProgram);
-    this.shaderProgram.unbind();
+    shader.bind();
+    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
+    this.mesh.render(camera, shader);
+    shader.unbind();
 
     if (this.ignoreDepth && depthTestState) {
       GL33.glEnable(GL33.GL_DEPTH_TEST);
@@ -92,26 +94,6 @@ public class CoordinateAxis {
 
   public CoordinateAxis ignoreDepth(boolean ignoreDepth) {
     this.ignoreDepth = ignoreDepth;
-    return this;
-  }
-
-  public Vector3f position() {
-    return new Vector3f(this.position);
-  }
-
-  public CoordinateAxis position(Vector3f position) {
-    this.position = new Vector3f(position);
-    this.mesh.translation(this.position);
-    return this;
-  }
-
-  public float size() {
-    return this.size;
-  }
-
-  public CoordinateAxis size(float size) {
-    this.size = size;
-    this.mesh.setScale(new Vector3f(this.size));
     return this;
   }
 

@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
-import de.fwatermann.dungine.graphics.IRenderable;
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.Disposable;
@@ -17,7 +17,7 @@ import org.lwjgl.opengl.GL33;
  * manipulating the mesh's position, rotation, and scale, as well as methods for rendering the mesh.
  * This class is abstract, and should be extended by specific types of meshes.
  */
-public abstract class Mesh<T extends Mesh<?>> implements Disposable, IRenderable {
+public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implements Disposable {
 
   private static final Logger LOGGER = LogManager.getLogger(Mesh.class);
 

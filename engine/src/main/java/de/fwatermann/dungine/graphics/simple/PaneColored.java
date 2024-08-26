@@ -5,19 +5,20 @@ import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import org.joml.Vector3f;
 
-public class PlaneColored extends Plane {
+public class PaneColored extends Pane {
 
   private static ShaderProgram SHADER;
 
   private int color;
 
-  public PlaneColored(Vector3f position, Vector3f size, int rgba) {
+  public PaneColored(Vector3f position, Vector3f size, int rgba) {
     super(position, size);
     this.color = rgba;
   }
 
   /**
    * Get the color of the plane.
+   *
    * @return the color of the plane
    */
   public int color() {
@@ -26,6 +27,7 @@ public class PlaneColored extends Plane {
 
   /**
    * Set the color of the plane.
+   *
    * @param rgba the new color of the plane in RGBA format.
    */
   public void color(int rgba) {
@@ -34,6 +36,7 @@ public class PlaneColored extends Plane {
 
   /**
    * Set the color of the plane.
+   *
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color
@@ -45,6 +48,7 @@ public class PlaneColored extends Plane {
 
   /**
    * Set the color of the plane.
+   *
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color
@@ -56,7 +60,7 @@ public class PlaneColored extends Plane {
 
   @Override
   public void render(Camera<?> camera) {
-    if(SHADER == null) {
+    if (SHADER == null) {
       Shader vertexShader = new Shader(VERTEX_SHADER, Shader.ShaderType.VERTEX_SHADER);
       Shader fragmentShader = new Shader(FRAGMENT_SHADER, Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, fragmentShader);
@@ -66,15 +70,21 @@ public class PlaneColored extends Plane {
 
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
-    if(shader == null) return;
+    if (shader == null) return;
     shader.bind();
-    shader.setUniform4fv("uColor", ((this.color >> 24) & 0xFF) / 255.0f, ((this.color >> 16) & 0xFF) / 255.0f, ((this.color >> 8) & 0xFF) / 255.0f, ((this.color) & 0xFF) / 255.0f);
+    shader.setUniform4fv(
+        "uColor",
+        ((this.color >> 24) & 0xFF) / 255.0f,
+        ((this.color >> 16) & 0xFF) / 255.0f,
+        ((this.color >> 8) & 0xFF) / 255.0f,
+        ((this.color) & 0xFF) / 255.0f);
+    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
   }
 
   private static final String VERTEX_SHADER =
-    """
+      """
 #version 330 core
 
 in vec3 a_Position;
@@ -90,7 +100,7 @@ void main() {
 """;
 
   private static final String FRAGMENT_SHADER =
-    """
+      """
 #version 330 core
 
 uniform vec4 uColor;
@@ -100,5 +110,4 @@ void main() {
  fragColor = uColor;
 }
 """;
-
 }
