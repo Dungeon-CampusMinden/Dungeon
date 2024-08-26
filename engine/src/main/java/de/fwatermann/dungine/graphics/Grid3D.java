@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
-public class Grid3D implements IRenderable, Disposable {
+public class Grid3D extends Renderable<Grid3D> implements Disposable {
 
   private static ShaderProgram SHADER;
 

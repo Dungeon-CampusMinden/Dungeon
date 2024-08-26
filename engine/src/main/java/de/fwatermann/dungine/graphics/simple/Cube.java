@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.graphics.simple;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
-import de.fwatermann.dungine.graphics.IRenderable;
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.IndexDataType;
@@ -11,14 +11,13 @@ import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import java.nio.ByteBuffer;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
-public class Cube implements IRenderable {
+public class Cube extends Renderable<Cube> {
 
   private static ShaderProgram SHADER;
-
-  protected final Vector3f position;
   protected IndexedMesh mesh;
 
   /**
@@ -27,7 +26,7 @@ public class Cube implements IRenderable {
    * @param position the position of the cube
    */
   public Cube(Vector3f position) {
-    this.position = position;
+    super(position, new Vector3f(1.0f), new Quaternionf());
     this.initMesh();
   }
 
@@ -68,66 +67,6 @@ public class Cube implements IRenderable {
             IndexDataType.UNSIGNED_INT,
             GLUsageHint.DRAW_STATIC,
             new VertexAttribute(3, DataType.FLOAT, "a_Position"));
-    this.mesh.translation(this.position);
-  }
-
-  /**
-   * Set position of the cube.
-   * @param position the new position of the cube
-   */
-  public void position(Vector3f position) {
-    this.position.set(position);
-    this.mesh.translation(position);
-  }
-
-  /**
-   * Move the cube by the specified offset.
-   * @param offset the offset to move the cube by
-   */
-  public void move(Vector3f offset) {
-    this.position.add(offset);
-    this.mesh.translate(offset);
-  }
-
-  /**
-   * Get the position of the cube.
-   * @return the position of the cube
-   */
-  public Vector3f position() {
-    return this.position;
-  }
-
-  /**
-   * Get the scale of the cube.
-   * @param scalar the scalar to scale the cube by
-   */
-  public void scale(float scalar) {
-    this.mesh.scale(scalar, scalar, scalar);
-  }
-
-  /**
-   * Scale the cube by the specified scale.
-   * @param scale the scale to scale the cube by
-   */
-  public void scale(Vector3f scale) {
-    this.mesh.scale(scale);
-  }
-
-  /**
-   * Set the scale of the cube.
-   * @param scale the new scale of the cube
-   */
-  public void setScale(Vector3f scale) {
-    this.mesh.setScale(scale);
-  }
-
-  /**
-   * Rotate the cube by the specified axis and angle.
-   * @param axis the axis to rotate the cube around
-   * @param angle the angle to rotate the cube by
-   */
-  public void rotate(Vector3f axis, float angle) {
-    this.mesh.rotate(axis, angle);
   }
 
   @Override
@@ -136,6 +75,7 @@ public class Cube implements IRenderable {
       return;
     }
     shader.bind();
+    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
   }

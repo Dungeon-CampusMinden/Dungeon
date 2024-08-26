@@ -193,7 +193,7 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
     boolean wasBound = shader.bound();
     if (!shader.bound()) shader.bind();
 
-    shader.setUniformMatrix4f(shader.configuration().uniformModelMatrix, this.transformMatrix);
+    shader.setUniformMatrix4f(shader.configuration().uniformModelMatrix, this.transformMatrix());
     shader.useCamera(camera);
     GL33.glBindVertexArray(this.glVAO);
     GL33.glDrawElements(this.primitiveType.glType, count, this.indexDataType.glType, offset);

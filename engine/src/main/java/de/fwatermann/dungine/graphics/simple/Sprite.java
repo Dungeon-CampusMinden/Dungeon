@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.graphics.simple;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
-import de.fwatermann.dungine.graphics.IRenderable;
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL33;
  * Represents a sprite that can be rendered. Implements the IRenderable interface to provide
  * rendering functionality.
  */
-public class Sprite implements IRenderable {
+public class Sprite extends Renderable<Sprite> {
 
   /** Enum representing the different billboard modes for the sprite. */
   public enum BillboardMode {
@@ -98,7 +98,7 @@ public class Sprite implements IRenderable {
     this.texture.bind(GL33.GL_TEXTURE0);
     shader.setUniform1i("uTexture", 0);
     shader.setUniform1i("uBillboardMode", this.billboardMode.value);
-    MESH.setScale(this.width, this.height, 1.0f);
+    MESH.transformation(this.position(), this.rotation(), this.scaling());
     MESH.render(camera, shader);
     shader.unbind();
   }

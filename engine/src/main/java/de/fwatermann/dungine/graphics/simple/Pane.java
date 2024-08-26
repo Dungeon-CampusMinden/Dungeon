@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.graphics.simple;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
-import de.fwatermann.dungine.graphics.IRenderable;
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
@@ -10,76 +10,19 @@ import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import java.nio.ByteBuffer;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
-public class Plane implements IRenderable {
+public class Pane extends Renderable<Pane> {
 
   private static ShaderProgram SHADER;
 
   protected ArrayMesh mesh;
 
-  public Plane(Vector3f position, Vector3f size) {
+  public Pane(Vector3f position, Vector3f size) {
+    super(position, size, new Quaternionf());
     this.initMesh();
-    this.mesh.translation(position);
-    this.mesh.setScale(size);
-  }
-
-  /**
-   * Set position of the cube.
-   * @param position the new position of the cube
-   */
-  public void position(Vector3f position) {
-    this.mesh.translation(position);
-  }
-
-  /**
-   * Move the plane by the specified offset.
-   * @param offset the offset to move the plane by
-   */
-  public void move(Vector3f offset) {
-    this.mesh.translate(offset);
-  }
-
-  /**
-   * Get the position of the plane.
-   * @return the position of the plane
-   */
-  public Vector3f position() {
-    return this.mesh.translation();
-  }
-
-  /**
-   * Get the scale of the plane.
-   * @param scalar the scalar to scale the plane by
-   */
-  public void scale(float scalar) {
-    this.mesh.scale(scalar, scalar, scalar);
-  }
-
-  /**
-   * Scale the plane by the specified scale.
-   * @param scale the scale to scale the plane by
-   */
-  public void scale(Vector3f scale) {
-    this.mesh.scale(scale);
-  }
-
-  /**
-   * Set the scale of the plane.
-   * @param scale the new scale of the plane
-   */
-  public void setScale(Vector3f scale) {
-    this.mesh.setScale(scale);
-  }
-
-  /**
-   * Rotate the plane by the specified axis and angle.
-   * @param axis the axis to rotate the plane around
-   * @param angle the angle to rotate the plane by
-   */
-  public void rotate(Vector3f axis, float angle) {
-    this.mesh.rotate(axis, angle);
   }
 
   private void initMesh() {
@@ -117,6 +60,7 @@ public class Plane implements IRenderable {
   public void render(Camera<?> camera, ShaderProgram shader) {
     if(shader == null) return;
     shader.bind();
+    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
   }

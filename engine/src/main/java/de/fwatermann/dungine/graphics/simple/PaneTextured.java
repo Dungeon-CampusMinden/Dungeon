@@ -9,20 +9,20 @@ import de.fwatermann.dungine.resource.Resource;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
 
-public class PlaneTextured extends Plane {
+public class PaneTextured extends Pane {
 
   private static ShaderProgram SHADER;
 
   private Resource resource;
   private Texture texture;
 
-  public PlaneTextured(Vector3f position, Vector3f size, Resource texture) {
+  public PaneTextured(Vector3f position, Vector3f size, Resource texture) {
     super(position, size);
   }
 
   @Override
   public void render(Camera<?> camera) {
-    if(SHADER == null) {
+    if (SHADER == null) {
       Shader vertexShader = new Shader(VERTEX_SHADER, Shader.ShaderType.VERTEX_SHADER);
       Shader fragmentShader = new Shader(FRAGMENT_SHADER, Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, fragmentShader);
@@ -32,26 +32,27 @@ public class PlaneTextured extends Plane {
 
   public void texture(Resource texture) {
     this.resource = texture;
-    if(this.texture != null) this.texture.dispose();
+    if (this.texture != null) this.texture.dispose();
   }
 
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
-    if(shader == null) return;
+    if (shader == null) return;
 
-    if(this.texture == null) {
+    if (this.texture == null) {
       this.texture = TextureManager.instance().load(this.resource);
     }
 
     this.texture.bind(GL33.GL_TEXTURE0);
     shader.bind();
     shader.setUniform1i("uTexture", 0);
+    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
   }
 
   private static final String VERTEX_SHADER =
-    """
+      """
 #version 330 core
 
 in vec3 a_Position;
@@ -71,7 +72,7 @@ void main() {
 """;
 
   private static final String FRAGMENT_SHADER =
-    """
+      """
 #version 330 core
 
 in vec2 vs_TexCoord;
@@ -84,5 +85,4 @@ void main() {
  fragColor = texture(uTexture, vs_TexCoord);
 }
 """;
-
 }

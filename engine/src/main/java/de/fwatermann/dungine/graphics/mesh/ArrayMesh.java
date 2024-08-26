@@ -89,7 +89,7 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
     boolean wasBound = shader.bound();
     if (!wasBound) shader.bind();
 
-    shader.setUniformMatrix4f(shader.configuration().uniformModelMatrix, this.transformMatrix);
+    shader.setUniformMatrix4f(shader.configuration().uniformModelMatrix, this.transformMatrix());
     shader.useCamera(camera);
     GL33.glBindVertexArray(this.glVAO);
     GL33.glDrawArrays(this.primitiveType.glType, offset, count);
