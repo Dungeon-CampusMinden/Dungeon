@@ -193,4 +193,23 @@ public abstract class ECS {
       this.systemLock.readLock().unlock();
     }
   }
+
+  public int entityCount() {
+    try {
+      this.entityLock.readLock().lock();
+      return this.entities.size();
+    } finally {
+      this.entityLock.readLock().unlock();
+    }
+  }
+
+  public int systemCount() {
+    try {
+      this.systemLock.readLock().lock();
+      return this.systems.size();
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
+  }
+
 }
