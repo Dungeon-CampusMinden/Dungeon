@@ -41,6 +41,22 @@ public class Font {
       new ArrayList<>(List.of('.', ',', ':', ';', '!', '?', '-', ' ', '\t'));
   private static final List<Character> NEWLINE_CHARS = new ArrayList<>(List.of('\n'));
   private static final Map<Character, Float> WHITESPACE_CHARS = new HashMap<>();
+  private static final int[] FT_ENCODINGS = {
+    FT_ENCODING_UNICODE,
+    FT_ENCODING_APPLE_ROMAN,
+    FT_ENCODING_MS_SYMBOL,
+    FT_ENCODING_SJIS,
+    FT_ENCODING_PRC,
+    FT_ENCODING_BIG5,
+    FT_ENCODING_WANSUNG,
+    FT_ENCODING_JOHAB,
+    FT_ENCODING_ADOBE_STANDARD,
+    FT_ENCODING_ADOBE_EXPERT,
+    FT_ENCODING_ADOBE_CUSTOM,
+    FT_ENCODING_ADOBE_LATIN_1,
+    FT_ENCODING_OLD_LATIN_2,
+    FT_ENCODING_NONE
+  };
 
   private static final Logger LOGGER = LogManager.getLogger(Font.class);
   private static final ByteBuffer EMPTY;
@@ -128,7 +144,11 @@ public class Font {
    * @param preferredSize the preferred size
    */
   private static void selectSize(FT_Face face, int preferredSize) {
-    int error = FT_Select_Charmap(face, FT_ENCODING_UNICODE);
+    int error;
+    int encI = 0;
+    do {
+      error = FT_Select_Charmap(face, FT_ENCODINGS[encI++]);
+    } while (error != 0 && encI < FT_ENCODINGS.length);
     if (error != 0) {
       throw new RuntimeException("Failed to select Unicode charmap: " + error);
     }
