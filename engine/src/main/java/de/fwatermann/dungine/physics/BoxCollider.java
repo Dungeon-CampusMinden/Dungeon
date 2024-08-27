@@ -14,8 +14,6 @@ public class BoxCollider extends Collider {
   static {
     collisionFunctions.put(BoxCollider.class, BoxCollider::collideBox);
     collisionFunctions.put(SphereCollider.class, BoxCollider::collideSphere);
-    collisionFunctions.put(CapsuleCollider.class, BoxCollider::collideCapsule);
-    collisionFunctions.put(PaneCollider.class, BoxCollider::collidePlane);
   }
 
   public static void registerCollisionFunction(
@@ -62,24 +60,12 @@ public class BoxCollider extends Collider {
   }
 
   private static boolean collideSphere(BoxCollider a, Collider b) {
-    if(!(b instanceof SphereCollider other)) {
-      throw new IllegalStateException("This function can only be used to check for collisions with SphereColliders!");
+    if (!(b instanceof SphereCollider other)) {
+      throw new IllegalStateException(
+          "This function can only be used to check for collisions with SphereColliders!");
     }
-    return other.collide(a); // BoxCollider/SphereCollider collision is implemented in SphereCollider.
-  }
-
-  private static boolean collideCapsule(BoxCollider a, Collider b) {
-    if(!(b instanceof CapsuleCollider other)) {
-      throw new IllegalStateException("This function can only be used to check for collisions with CapsuleColliders!");
-    }
-    return other.collide(a); // BoxCollider/CapsuleCollider collision is implemented in CapsuleCollider.
-  }
-
-  private static boolean collidePlane(BoxCollider a, Collider b) {
-    if(!(b instanceof PaneCollider other)) {
-      throw new IllegalStateException("This function can only be used to check for collisions with PlaneColliders!");
-    }
-    return other.collide(a); // BoxCollider/PaneCollider collision is implemented in PlaneCollider.
+    return other.collide(
+        a); // BoxCollider/SphereCollider collision is implemented in SphereCollider.
   }
 
   public Vector3f min() {
@@ -89,5 +75,4 @@ public class BoxCollider extends Collider {
   public Vector3f max() {
     return this.max;
   }
-
 }
