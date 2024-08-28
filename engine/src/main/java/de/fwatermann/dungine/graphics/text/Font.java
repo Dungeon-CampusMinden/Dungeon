@@ -530,7 +530,7 @@ public class Font {
    * Lays out the text into an array of TextLayoutElement objects.
    *
    * <p>This method processes the input text and arranges it into lines and positions based on the
-   * specified font size, line padding, and maximum line width. It handles wrapping characters,
+   * specified font size, line padding, and maximum line width and alignment. It handles wrapping characters,
    * newline characters, and whitespace characters appropriately to ensure the text fits within the
    * given constraints.
    *
@@ -538,10 +538,35 @@ public class Font {
    * @param fontSize the size of the font to use
    * @param linePadding the padding between lines
    * @param maxLineWidth the maximum width of a line before wrapping
+   * @param alignment the alignment of the text
    * @return an array of TextLayoutElement objects representing the laid out text
    */
-  public TextLayoutElement[] layoutText(
-      String text, int fontSize, int linePadding, int maxLineWidth) {
+  public TextLayoutElement[] layoutText(String text, int fontSize, int linePadding, int maxLineWidth, TextAlignment alignment) {
+    return switch(alignment) {
+      case LEFT -> this.layoutTextLeft(text, fontSize, linePadding, maxLineWidth);
+      case CENTER -> this.layoutTextCenter(text, fontSize, linePadding, maxLineWidth);
+      case RIGHT -> this.layoutTextRight(text, fontSize, linePadding, maxLineWidth);
+      default -> throw new IllegalArgumentException("Unsupported alignment: " + alignment);
+    };
+  }
+
+  public TextLayoutElement[] layoutText(String text, int fontSize, int linePadding, int maxLineWidth) {
+    return this.layoutText(text, fontSize, linePadding, maxLineWidth, TextAlignment.LEFT);
+  }
+
+  public TextLayoutElement[] layoutText(String text, int fontSize, int maxLineWidth, TextAlignment alignment) {
+    return this.layoutText(text, fontSize, DEFAULT_LINE_PADDING, maxLineWidth, alignment);
+  }
+
+  public TextLayoutElement[] layoutText(String text, int fontSize, int maxLineWidth) {
+    return this.layoutText(text, fontSize, DEFAULT_LINE_PADDING, maxLineWidth, TextAlignment.LEFT);
+  }
+
+  public TextLayoutElement[] layoutText(String text, int fontSize) {
+    return this.layoutText(text, fontSize, Integer.MAX_VALUE, TextAlignment.LEFT);
+  }
+
+  private TextLayoutElement[] layoutTextLeft(String text, int fontSize, int linePadding, int maxLineWidth) {
 
     int maxWidth = 0;
     int currentX = 0;
@@ -551,6 +576,7 @@ public class Font {
     int lastWrapAt = 0;
 
     TextLayoutElement[] elements = new TextLayoutElement[text.length()];
+    int line = 0;
 
     for (int i = 0; i < text.length(); i++) {
       char c = text.charAt(i);
@@ -565,6 +591,7 @@ public class Font {
         currentX = 0;
         currentY += fontSize + linePadding;
         rowMaxHeight = 0;
+        line++;
         continue;
       }
 
@@ -590,6 +617,7 @@ public class Font {
         }
         currentX = 0;
         currentY += fontSize + linePadding;
+        line++;
         rowMaxHeight = 0;
         continue;
       }
@@ -601,7 +629,8 @@ public class Font {
               currentX + glyph.offsetX,
               -currentY + glyph.offsetY,
               glyph.width,
-              glyph.height);
+              glyph.height,
+              line);
 
       currentX += Math.round(glyph.xAdvance);
       rowMaxHeight = Math.max(rowMaxHeight, glyph.height);
@@ -611,8 +640,42 @@ public class Font {
     return elements;
   }
 
-  public TextLayoutElement[] layoutText(String text, int fontSize, int maxLineWidth) {
-    return this.layoutText(text, fontSize, DEFAULT_LINE_PADDING, maxLineWidth);
+  private TextLayoutElement[] layoutTextRight(String text, int fontSize, int linePadding, int maxLineWidth) {
+    TextLayoutElement[] elements = this.layoutTextLeft(text, fontSize, linePadding, maxLineWidth);
+    BoundingBox2D bb = this.calculateBoundingBox(elements);
+    float maxX = Float.MIN_VALUE;
+    Map<Integer, Integer> lineMaxWidth = new HashMap<>();
+    for(int i = 0; i < elements.length; i ++) {
+      if(elements[i] == null) continue;
+      maxX = Math.max(maxX, elements[i].x + elements[i].width);
+      int lineMax = lineMaxWidth.getOrDefault(elements[i].line, 0);
+      lineMaxWidth.put(elements[i].line, Math.max(lineMax, elements[i].x + elements[i].width));
+    }
+    for(int i = 0; i < elements.length; i ++) {
+      if(elements[i] == null) continue;
+      int lineMax = lineMaxWidth.get(elements[i].line);
+      elements[i].x = elements[i].x + (maxLineWidth - lineMax);
+    }
+    return elements;
+  }
+
+  private TextLayoutElement[] layoutTextCenter(String text, int fontSize, int linePadding, int maxLineWidth) {
+    TextLayoutElement[] elements = this.layoutTextLeft(text, fontSize, linePadding, maxLineWidth);
+    BoundingBox2D bb = this.calculateBoundingBox(elements);
+    float maxX = Float.MIN_VALUE;
+    Map<Integer, Integer> lineMaxWidth = new HashMap<>();
+    for(int i = 0; i < elements.length; i ++) {
+      if(elements[i] == null) continue;
+      maxX = Math.max(maxX, elements[i].x + elements[i].width);
+      int lineMax = lineMaxWidth.getOrDefault(elements[i].line, 0);
+      lineMaxWidth.put(elements[i].line, Math.max(lineMax, elements[i].x + elements[i].width));
+    }
+    for(int i = 0; i < elements.length; i ++) {
+      if(elements[i] == null) continue;
+      int lineMax = lineMaxWidth.get(elements[i].line);
+      elements[i].x = elements[i].x + (maxLineWidth - lineMax) / 2;
+    }
+    return elements;
   }
 
   /**
@@ -815,6 +878,7 @@ public class Font {
     public GlyphInfo glyph;
     public int x, y;
     public int width, height;
+    public int line;
 
     /**
      * Constructs a new TextLayoutElement object.
@@ -826,13 +890,14 @@ public class Font {
      * @param width the width of the element
      * @param height the height of the element
      */
-    public TextLayoutElement(Font font, GlyphInfo glyph, int x, int y, int width, int height) {
+    public TextLayoutElement(Font font, GlyphInfo glyph, int x, int y, int width, int height, int line) {
       this.font = font;
       this.glyph = glyph;
       this.x = x;
       this.y = y;
       this.width = width;
       this.height = height;
+      this.line = line;
     }
   }
 }
