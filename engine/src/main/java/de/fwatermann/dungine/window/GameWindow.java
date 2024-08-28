@@ -272,7 +272,11 @@ public abstract class GameWindow implements Disposable {
       lastTime = currentTime;
 
       long start = System.nanoTime();
-      if (this.currentState != null) this.currentState.update(deltaTime);
+      try {
+        if (this.currentState != null) this.currentState.update(deltaTime);
+      } catch(Exception ex) {
+        LOGGER.error("Exception in Update Loop!", ex);
+      }
       long end = System.nanoTime();
       long execution = end - start;
 

@@ -9,6 +9,7 @@ import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIElement;
 import de.fwatermann.dungine.utils.BoundingBox2D;
@@ -32,6 +33,7 @@ public class UIText extends UIElement<UIText> {
 
   private Font.TextLayoutElement[] layoutElements;
   private ArrayMesh mesh;
+  private TextAlignment alignment;
   private final List<RenderStep> renderSteps = new ArrayList<>();
 
   /**
@@ -39,10 +41,14 @@ public class UIText extends UIElement<UIText> {
    *
    * @param font the font to use for rendering the text
    * @param text the text to render
+   * @param fontSize the font size to use for rendering the text
+   * @param alignment the text alignment to use for rendering the text
    */
-  public UIText(Font font, String text) {
+  public UIText(Font font, String text, int fontSize, TextAlignment alignment) {
     this.font = font;
     this.text = text;
+    this.fontSize = fontSize;
+    this.alignment = alignment;
   }
 
   /**
@@ -53,9 +59,17 @@ public class UIText extends UIElement<UIText> {
    * @param fontSize the font size to use for rendering the text
    */
   public UIText(Font font, String text, int fontSize) {
-    this.font = font;
-    this.text = text;
-    this.fontSize = fontSize;
+    this(font, text, fontSize, TextAlignment.LEFT);
+  }
+
+  /**
+   * Constructs a new UIText object.
+   *
+   * @param font the font to use for rendering the text
+   * @param text the text to render
+   */
+  public UIText(Font font, String text) {
+    this(font, text, 24);
   }
 
   /**
@@ -71,13 +85,13 @@ public class UIText extends UIElement<UIText> {
     if (SHADER != null) return;
     try {
       Shader vertexShader =
-          Shader.loadShader(Resource.load("/shaders/UIText.vsh"), Shader.ShaderType.VERTEX_SHADER);
+          Shader.loadShader(Resource.load("/shaders/ui/Text.vsh"), Shader.ShaderType.VERTEX_SHADER);
       Shader geometryShader =
           Shader.loadShader(
-              Resource.load("/shaders/UIText.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+              Resource.load("/shaders/ui/Text.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
       Shader fragmentShader =
           Shader.loadShader(
-              Resource.load("/shaders/UIText.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+              Resource.load("/shaders/ui/Text.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -116,7 +130,7 @@ public class UIText extends UIElement<UIText> {
     initShader();
     this.initMesh();
 
-    //TODO: Add transformation of UIElement to UIText
+    // TODO: Add transformation of UIElement to UIText
 
     SHADER.bind();
     SHADER.useCamera(camera);
@@ -143,7 +157,7 @@ public class UIText extends UIElement<UIText> {
   private void update() {
     if (this.mesh == null) return;
 
-    this.layoutElements = this.font.layoutText(this.text, this.fontSize, (int) this.size.x);
+    this.layoutElements = this.font.layoutText(this.text, this.fontSize, (int) this.size.x, this.alignment);
     this.renderSteps.clear();
     Arrays.sort(this.layoutElements, Comparator.comparingInt(a -> a != null ? a.glyph.page : 0));
 
@@ -186,7 +200,7 @@ public class UIText extends UIElement<UIText> {
    * @param text the new text
    */
   public void text(String text) {
-    if(this.text.equals(text)) return;
+    if (this.text.equals(text)) return;
     this.text = text;
     this.update();
   }
@@ -216,7 +230,7 @@ public class UIText extends UIElement<UIText> {
    * @return this element
    */
   public UIText font(Font font) {
-    if(this.font.equals(font)) return this;
+    if (this.font.equals(font)) return this;
     this.font = font;
     this.update();
     return this;
@@ -238,7 +252,7 @@ public class UIText extends UIElement<UIText> {
    * @return this element
    */
   public UIText fontSize(int fontSize) {
-    if(this.fontSize == fontSize) return this;
+    if (this.fontSize == fontSize) return this;
     this.fontSize = fontSize;
     this.update();
     return this;
