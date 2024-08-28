@@ -152,11 +152,11 @@ public abstract class Renderable<T extends Renderable<?>> {
   /**
    * Sets the scale of the object.
    *
-   * @param scalation the new scale
+   * @param scaling the new scale
    * @return this object for method chaining
    */
-  public T scaling(Vector3f scalation) {
-    this.scaling.set(scalation);
+  public T scaling(Vector3f scaling) {
+    this.scaling.set(scaling);
     this.calcTransformation();
     return (T) this;
   }
