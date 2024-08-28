@@ -1,7 +1,6 @@
 package de.fwatermann.dungine.ecs.components;
 
 import de.fwatermann.dungine.ecs.Component;
-import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.physics.Collider;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
@@ -14,8 +13,6 @@ import org.joml.Vector3f;
 public class RigidBodyComponent extends Component {
 
   private final List<Collider> colliders = new ArrayList<>();
-
-  private final Entity entity;
 
   private boolean sleeping = false;
   private boolean kinematic = false; // True = object is not affected by forces and gravity
@@ -33,9 +30,8 @@ public class RigidBodyComponent extends Component {
 
   public int sleepCounter = 0;
 
-  public RigidBodyComponent(Entity entity) {
+  public RigidBodyComponent() {
     super(false);
-    this.entity = entity;
   }
 
   public Vector3f force() {
