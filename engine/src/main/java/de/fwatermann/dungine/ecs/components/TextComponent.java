@@ -14,12 +14,14 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.resource.Resource;
+import de.fwatermann.dungine.utils.BoundingBox2D;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
@@ -30,6 +32,7 @@ public class TextComponent extends Component {
 
   private static ShaderProgram DEFAULT_SHADER;
 
+  private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final List<RenderStep> renderSteps = new ArrayList<>();
 
   private Vector3f offset;
@@ -41,6 +44,7 @@ public class TextComponent extends Component {
   private String text;
   private Vector3f size = new Vector3f(1.0f);
   private TextAlignment alignment = TextAlignment.LEFT;
+  private OriginMode originMode = OriginMode.TOP_LEFT;
   private int fontSize = 24;
   private int backgroundColor = 0x00000000;
 
@@ -71,6 +75,7 @@ public class TextComponent extends Component {
 
   public void render(Camera<?> camera, ShaderProgram shader, Entity attachedEntity) {
     this.initMesh();
+
     shader.bind();
     shader.useCamera(camera);
     shader.setUniform4fv("uColor", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -80,11 +85,13 @@ public class TextComponent extends Component {
     shader.setUniform3f("uBasePosition", this.offset);
     shader.setUniform3f("uScale", new Vector3f(1.0f / FONT_SIZE_FACTOR));
     this.mesh.transformation(attachedEntity.position(), attachedEntity.rotation(), new Vector3f(1.0f / FONT_SIZE_FACTOR));
+    this.lock.readLock().lock();
     this.renderSteps.forEach(step -> {
       GL33.glActiveTexture(GL33.GL_TEXTURE0);
       GL33.glBindTexture(GL33.GL_TEXTURE_2D, step.pageGLHandle);
       this.mesh.render(camera, shader, step.offset, step.count);
     });
+    this.lock.readLock().unlock();
     shader.unbind();
   }
 
@@ -104,6 +111,13 @@ public class TextComponent extends Component {
   private void updateMesh() {
     if(this.mesh == null) return;
     this.layoutElements = this.font.layoutText(this.text, this.fontSize, Math.round(this.size.x * FONT_SIZE_FACTOR), this.alignment);
+    BoundingBox2D bounds = this.font.calculateBoundingBox(this.text, this.fontSize, Math.round(this.size.x * FONT_SIZE_FACTOR));
+    Vector3f posOffset = new Vector3f(0, 0, 0);
+    if(this.originMode == OriginMode.CENTER) {
+      posOffset.set(-bounds.width() / 2.0f, -bounds.height() / 2.0f, 0);
+    }
+
+    this.lock.writeLock().lock();
     this.renderSteps.clear();
     Arrays.sort(this.layoutElements, Comparator.comparingInt(a -> a != null ? a.glyph.page : 0));
 
@@ -123,8 +137,8 @@ public class TextComponent extends Component {
         page = element.glyph.page;
       }
 
-      buffer.putFloat(element.x);
-      buffer.putFloat(element.y);
+      buffer.putFloat(element.x + posOffset.x);
+      buffer.putFloat(element.y + posOffset.y);
       buffer.putFloat(0.0f);
       buffer.putInt(element.glyph.pageX);
       buffer.putInt(element.glyph.pageY);
@@ -136,6 +150,7 @@ public class TextComponent extends Component {
     buffer.flip();
     this.renderSteps.add(new RenderStep(this.font.getPage(page).glHandle(), count, offset));
     this.mesh.vertexBuffer(buffer);
+    this.lock.writeLock().unlock();
   }
 
   public TextComponent offset(Vector3f offset) {
@@ -228,6 +243,20 @@ public class TextComponent extends Component {
       this.updateMesh();
     }
     return this;
+  }
+
+  public OriginMode originMode() {
+    return this.originMode;
+  }
+
+  public TextComponent originMode(OriginMode originMode) {
+    this.originMode = originMode;
+    return this;
+  }
+
+  public enum OriginMode {
+    CENTER,
+    TOP_LEFT;
   }
 
   /** Represents a render step for a specific texture page. */
