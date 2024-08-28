@@ -1,0 +1,19 @@
+dependencies {
+    implementation project(':dungeon')
+}
+
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+processResources {
+    from new File(project(':game').projectDir, '/assets')
+    from new File(project(':dungeon').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+
+tasks.register('runBlockly', JavaExec) {
+    mainClass = 'client.Client'
+    classpath = sourceSets.main.runtimeClasspath
+}

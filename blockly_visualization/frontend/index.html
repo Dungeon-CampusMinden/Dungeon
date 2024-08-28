@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blockly Dungeon</title>
+    <link rel="hsbi-icon" href="/favicon.ico" type="image/x-icon" />
+  </head>
+  <body>
+    <header>
+      <h1 id="page-title">Blockly Dungeon</h1>
+      <img id="cat-logo" src="/cat_logo.png" alt="cat-logo" />
+    </header>
+    <div id="pageContainer">
+      <div id="blockly"></div>
+      <div id="outputPanel">
+        <pre id="generatedCode"><code></code></pre>
+        <div id="response">
+          <div id="responseStatus">HTTP response status:</div>
+          <div id="characterPosition">Character position:</div>
+        </div>
+        <div id="buttons">
+          <button type="button" id="startBtn">Start</button>
+          <button type="button" id="resetBtn">Reset</button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+</html>
