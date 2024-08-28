@@ -1,5 +1,6 @@
 package de.fwatermann.dungine.graphics.simple;
 
+import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
@@ -22,27 +23,6 @@ import org.lwjgl.opengl.GL33;
  * rendering functionality.
  */
 public class Sprite extends Renderable<Sprite> {
-
-  /** Enum representing the different billboard modes for the sprite. */
-  public enum BillboardMode {
-
-    /** No billboarding. The sprite is rendered as a plane in the world. */
-    NONE(0),
-
-    /** Sphere billboarding. The sprite is always facing the camera. */
-    SPHERICAL(1),
-
-    /**
-     * Cylinder billboarding. The sprite is always facing the camera, but only rotates around the
-     * y-axis.
-     */
-    CYLINDRICAL(2);
-    public final int value;
-
-    BillboardMode(int value) {
-      this.value = value;
-    }
-  }
 
   private static ShaderProgram SHADER;
   private static ArrayMesh MESH;
