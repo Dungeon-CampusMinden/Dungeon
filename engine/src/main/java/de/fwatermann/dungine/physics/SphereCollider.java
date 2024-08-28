@@ -1,5 +1,6 @@
 package de.fwatermann.dungine.physics;
 
+import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.utils.functions.IFunction2P;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,16 +11,28 @@ import org.joml.Vector3f;
 public class SphereCollider extends Collider {
 
   private static final Map<
-          Class<? extends Collider>, IFunction2P<Boolean, SphereCollider, Collider>>
+          Class<? extends Collider>, IFunction2P<CollisionResult, SphereCollider, Collider>>
       collisionFunctions = new HashMap<>();
 
   static {
-    collisionFunctions.put(BoxCollider.class, SphereCollider::collideBox);
+    collisionFunctions.put(AABCollider.class, SphereCollider::collideBox);
     collisionFunctions.put(SphereCollider.class, SphereCollider::collideSphere);
   }
 
+  private float radius;
+
+  public SphereCollider(Entity entity, Vector3f offset, float radius) {
+    super(entity, offset);
+    this.radius = radius;
+  }
+
+  public SphereCollider(Entity entity, float radius) {
+    super(entity);
+    this.radius = radius;
+  }
+
   public static void registerCollisionFunction(
-      Class<? extends Collider> other, IFunction2P<Boolean, SphereCollider, Collider> function) {
+      Class<? extends Collider> other, IFunction2P<CollisionResult, SphereCollider, Collider> function) {
     collisionFunctions.put(other, function);
   }
 
@@ -27,12 +40,9 @@ public class SphereCollider extends Collider {
     collisionFunctions.remove(other);
   }
 
-  private Vector3f center;
-  private float radius;
-
   @Override
-  public boolean collide(Collider other) {
-    Optional<IFunction2P<Boolean, SphereCollider, Collider>> func =
+  public CollisionResult collide(Collider other) {
+    Optional<IFunction2P<CollisionResult, SphereCollider, Collider>> func =
         Optional.ofNullable(collisionFunctions.get(other.getClass()));
     if (func.isPresent()) {
       return func.get().run(this, other);
@@ -44,54 +54,90 @@ public class SphereCollider extends Collider {
     }
   }
 
-  private static boolean collideBox(SphereCollider a, Collider b) {
-    if (!(b instanceof BoxCollider other)) {
+  private static CollisionResult collideBox(SphereCollider a, Collider b) {
+    if (!(b instanceof AABCollider other)) {
       throw new IllegalStateException(
           "This function can only be used to check for collisions with other BoxColliders!");
     }
-    Vector3f sMin = new Vector3f(a.center).sub(a.radius, a.radius, a.radius);
-    Vector3f sMax = new Vector3f(a.center).add(a.radius, a.radius, a.radius);
+    Vector3f sMin = a.worldPosition().sub(a.radius, a.radius, a.radius);
+    Vector3f sMax = a.worldPosition().add(a.radius, a.radius, a.radius);
+
+    Vector3f otherMin = other.min();
+    Vector3f otherMax = other.max();
 
     // AABB check for approximation
-    if (sMax.x < other.min().x || sMin.x > other.max().x) {
-      return false;
+    if (sMax.x < otherMin.x || sMin.x > otherMax.x) {
+      return CollisionResult.NO_COLLISION;
     }
-    if (sMax.y < other.min().y || sMin.y > other.max().y) {
-      return false;
+    if (sMax.y < otherMin.y || sMin.y > otherMax.y) {
+      return CollisionResult.NO_COLLISION;
     }
-    if (sMax.z < other.min().z || sMin.z > other.max().z) {
-      return false;
+    if (sMax.z < otherMin.z || sMin.z > otherMax.z) {
+      return CollisionResult.NO_COLLISION;
     }
 
+    Vector3f center = a.worldPosition();
+
     // Check if sphere is inside box
-    if (a.center.x >= other.min().x
-        && a.center.x <= other.max().x
-        && a.center.y >= other.min().y
-        && a.center.y <= other.max().y
-        && a.center.z >= other.min().z
-        && a.center.z <= other.max().z) {
-      return true;
+    if (center.x >= otherMin.x
+        && center.x <= otherMax.x
+        && center.y >= otherMin.y
+        && center.y <= otherMax.y
+        && center.z >= otherMin.z
+        && center.z <= otherMax.z) {
+      return new CollisionResult(true, new Vector3f(0, 1, 0), a.radius);
     }
 
     // Check if sphere intersects box
-    float x = Math.max(other.min().x, Math.min(a.center.x, other.max().x));
-    float y = Math.max(other.min().y, Math.min(a.center.y, other.max().y));
-    float z = Math.max(other.min().z, Math.min(a.center.z, other.max().z));
+    float x = Math.max(otherMin.x, Math.min(center.x, otherMax.x));
+    float y = Math.max(otherMin.y, Math.min(center.y, otherMax.y));
+    float z = Math.max(otherMin.z, Math.min(center.z, otherMax.z));
 
     float distance =
         (float)
             Math.sqrt(
-                (x - a.center.x) * (x - a.center.x)
-                    + (y - a.center.y) * (y - a.center.y)
-                    + (z - a.center.z) * (z - a.center.z));
-    return distance < a.radius;
+                (x - center.x) * (x - center.x)
+                    + (y - center.y) * (y - center.y)
+                    + (z - center.z) * (z - center.z));
+
+    if (distance < a.radius) {
+      Vector3f normal = new Vector3f(center).sub(x, y, z).normalize();
+      return new CollisionResult(true, normal, a.radius - distance);
+    } else {
+      return CollisionResult.NO_COLLISION;
+    }
   }
 
-  private static boolean collideSphere(SphereCollider a, Collider b) {
+  private static CollisionResult collideSphere(SphereCollider a, Collider b) {
     if (!(b instanceof SphereCollider other)) {
       throw new IllegalStateException(
           "This function can only be used to check for collisions with SphereColliders!");
     }
-    return other.center.distance(a.center) < a.radius + other.radius;
+    float distance = other.worldPosition().distance(a.worldPosition());
+    if(distance < a.radius + other.radius) {
+      Vector3f normal = new Vector3f(other.worldPosition()).sub(a.worldPosition()).normalize();
+      return new CollisionResult(true, normal, a.radius + other.radius - distance);
+    } else {
+      return CollisionResult.NO_COLLISION;
+    }
+  }
+
+  public float radius() {
+    return this.radius;
+  }
+
+  public SphereCollider radius(float radius) {
+    this.radius = radius;
+    return this;
+  }
+
+  @Override
+  public Vector3f min() {
+    return this.worldPosition().sub(this.radius, this.radius, this.radius);
+  }
+
+  @Override
+  public Vector3f max() {
+    return this.worldPosition().add(this.radius, this.radius, this.radius);
   }
 }
