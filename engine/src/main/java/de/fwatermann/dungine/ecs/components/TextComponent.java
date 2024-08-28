@@ -26,7 +26,7 @@ import org.lwjgl.opengl.GL33;
 
 public class TextComponent extends Component {
 
-  private static final float FONT_SIZE_FACTOR = 40.0F;
+  private static final float FONT_SIZE_FACTOR = 400f;
 
   private static ShaderProgram DEFAULT_SHADER;
 
@@ -44,13 +44,10 @@ public class TextComponent extends Component {
   private int fontSize = 24;
   private int backgroundColor = 0x00000000;
 
-  public TextComponent() {
-    super(true);
-  }
-
-  public TextComponent(Vector3f offset, BillboardMode billboardMode) {
+  public TextComponent(Vector3f offset, String text, BillboardMode billboardMode) {
     super(true);
     this.offset = offset;
+    this.text = text;
     this.billboardMode = billboardMode;
   }
 
@@ -80,7 +77,9 @@ public class TextComponent extends Component {
     shader.setUniform2iv("uPageSize", Font.PAGE_SIZE_X, Font.PAGE_SIZE_Y);
     shader.setUniform1i("uPage", 0);
     shader.setUniform1i("uBillboardMode", this.billboardMode.value);
-    this.mesh.transformation(attachedEntity.position(), attachedEntity.rotation(), new Vector3f(1.0f));
+    shader.setUniform3f("uBasePosition", this.offset);
+    shader.setUniform3f("uScale", new Vector3f(1.0f / FONT_SIZE_FACTOR));
+    this.mesh.transformation(attachedEntity.position(), attachedEntity.rotation(), new Vector3f(1.0f / FONT_SIZE_FACTOR));
     this.renderSteps.forEach(step -> {
       GL33.glActiveTexture(GL33.GL_TEXTURE0);
       GL33.glBindTexture(GL33.GL_TEXTURE_2D, step.pageGLHandle);
