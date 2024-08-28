@@ -20,26 +20,27 @@ mat4 billboard(mat4 modelView);
 
 void main() {
 
-  vec4 pos = gl_in[0].gl_Position + vec4(uBasePosition, 0.0f);
-  mat4 modelView = billboard(uView * uModel);
+  vec4 pos = gl_in[0].gl_Position;
+  mat4 trans = mat4(vec4(1.0f, 0.0f, 0.0f, 0.0f), vec4(0.0f, 1.0f, 0.0f, 0.0f), vec4(0.0f, 0.0f, 1.0f, 0.0f), vec4(uBasePosition, 1.0f));
+  mat4 viewModel = billboard(uView * trans * uModel);
 
   //Top Left
-  gl_Position = uProjection * modelView * vec4(pos.x, pos.y, pos.z, 1.0f);
+  gl_Position = uProjection * viewModel * vec4(pos.x, pos.y, pos.z, 1.0f);
   gs_TexCoord = vec2(vs_TexCoord[0].x / float(uPageSize.x), (vs_TexCoord[0].y + vs_Size[0].y) / float(uPageSize.y));
   EmitVertex();
 
   //Top Right
-  gl_Position = uProjection * modelView * vec4(pos.x + vs_Size[0].x, pos.y, pos.z, 1.0f);
+  gl_Position = uProjection * viewModel * vec4(pos.x + vs_Size[0].x, pos.y, pos.z, 1.0f);
   gs_TexCoord = vec2((vs_TexCoord[0].x + vs_Size[0].x) / float(uPageSize.x), (vs_TexCoord[0].y + vs_Size[0].y) / float(uPageSize.y));
   EmitVertex();
 
   //Bottom Left
-  gl_Position = uProjection * modelView * vec4(pos.x, pos.y + vs_Size[0].y, pos.z, 1.0f);
+  gl_Position = uProjection * viewModel * vec4(pos.x, pos.y + vs_Size[0].y, pos.z, 1.0f);
   gs_TexCoord = vec2(vs_TexCoord[0].x / float(uPageSize.x), vs_TexCoord[0].y / float(uPageSize.y));
   EmitVertex();
 
   //Bottom Right
-  gl_Position = uProjection * modelView * vec4(pos.x + vs_Size[0].x, pos.y + vs_Size[0].y, pos.z, 1.0f);
+  gl_Position = uProjection * viewModel * vec4(pos.x + vs_Size[0].x, pos.y + vs_Size[0].y, pos.z, 1.0f);
   gs_TexCoord = vec2((vs_TexCoord[0].x + vs_Size[0].x) / float(uPageSize.x), vs_TexCoord[0].y / float(uPageSize.y));
   EmitVertex();
 
