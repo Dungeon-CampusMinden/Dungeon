@@ -1,10 +1,13 @@
 package de.fwatermann.dungine.state;
 
 import de.fwatermann.dungine.ecs.ECS;
+import de.fwatermann.dungine.graphics.Grid3D;
+import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.ui.UIRoot;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.window.GameWindow;
+import org.lwjgl.opengl.GL33;
 
 /** Represents a state of the game. It extents the ECS class. */
 public abstract class GameState extends ECS implements Disposable {
@@ -12,6 +15,9 @@ public abstract class GameState extends ECS implements Disposable {
   protected GameWindow window;
   protected float lastFrameDeltaTime = 0.0f;
   protected float lastTickDeltaTime = 0.0f;
+  private Grid3D grid;
+  private Camera<?> gridCamera;
+  private boolean renderGrid = false;
 
   protected UIRoot ui;
 
@@ -56,8 +62,16 @@ public abstract class GameState extends ECS implements Disposable {
    */
   public final void render(float deltaTime) {
     this.lastFrameDeltaTime = deltaTime;
+    GL33.glEnable(GL33.GL_BLEND);
+    GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+
     this.executeSystems(this, true);
     this.renderState(deltaTime);
+    if(this.renderGrid) {
+      if(this.grid == null)
+        this.grid = new Grid3D();
+      this.grid.render(this.gridCamera);
+    }
     this.ui.render();
   }
 
@@ -112,4 +126,20 @@ public abstract class GameState extends ECS implements Disposable {
   public GameWindow window() {
     return this.window;
   }
+
+  public boolean renderGrid() {
+    return this.renderGrid;
+  }
+
+  public GameState enableGrid(Camera<?> camera) {
+    this.renderGrid = true;
+    this.gridCamera = camera;
+    return this;
+  }
+
+  public GameState disableGrid() {
+    this.renderGrid = false;
+    return this;
+  }
+
 }
