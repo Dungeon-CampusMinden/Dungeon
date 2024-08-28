@@ -99,7 +99,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
 
   @Override
   protected void onUpdate() {
-    this.frustum.set(this.viewMatrix.mul(this.projectionMatrix, new Matrix4f()));
+    this.frustum.set(this.projectionMatrix.mul(this.viewMatrix, new Matrix4f()));
   }
 
   /**

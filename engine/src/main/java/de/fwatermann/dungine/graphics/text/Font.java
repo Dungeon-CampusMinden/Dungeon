@@ -33,7 +33,7 @@ public class Font {
   private static final int[] DEFAULT_SIZES = {
     8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64
   };
-  private static final int DEFAULT_LINE_PADDING = 2;
+  private static final int DEFAULT_LINE_PADDING = 6;
   private static final int ATLAS_PADDING = 1;
   private static final int DEFAULT_RENDER_MODE = FT_RENDER_MODE_NORMAL;
   private static final Map<Resource, Font> CACHE = new HashMap<>();
