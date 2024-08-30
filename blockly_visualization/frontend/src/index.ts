@@ -25,8 +25,8 @@ const workspace =
   });
 const api = new Api();
 const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
+const delay = document.getElementById("delay");
 const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
-console.log(stepBtn);
 const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
 const responseStatusDiv = document.getElementById("responseStatus");
 const characterPositionDiv = document.getElementById("characterPosition");
@@ -82,24 +82,63 @@ if (workspace) {
   });
 }
 
+function isNumber(str) {
+  if (typeof str != "string") return false // we only process strings!
+  // could also coerce to string: str = ""+str
+  return !isNaN(str) && !isNaN(parseFloat(str))
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
-    try {
-      const response = await api.post("start", code);
-      const status = response.status;
-      const text = await response.text();
-      if (text) {
-        character.setPosition(text);
-        characterPositionDiv!.textContent = `Character position: x=${
-          character.getPosition()?.x
-        }, y=${character.getPosition()?.y}`;
-      }
-      responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
-    } catch (error) {
-      if (error instanceof Error) {
-        responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
-      }
+    var sleepingTime = delay.value;
+    console.log(sleepingTime);
+    if (!isNumber(sleepingTime)) {
+      alert("Die konfigurierte Verzögerung muss eine Zahl sein");
+      return;
     }
+    startBtn.disabled = true;
+    workspace.highlightBlock(null);
+    var startBlock = getStartBlock();
+    var currentBlock = startBlock;
+    while (currentBlock !== null) {
+      // Highlight current block
+      if (currentBlock) {
+          workspace.highlightBlock(currentBlock.id);
+      }
+      // Do nothing except highlighting on start block
+      if (currentBlock.type !== "start") {
+        // Disable button
+
+        // Get code of the current block
+        var currentCode = javaGenerator.blockToCode(currentBlock, true);
+        try {
+          const response = await api.post("start", currentCode);
+          const status = response.status;
+          const text = await response.text();
+          if (text) {
+            character.setPosition(text);
+            characterPositionDiv!.textContent = `Character position: x=${
+              character.getPosition()?.x
+            }, y=${character.getPosition()?.y}`;
+          }
+          responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
+          console.log(status.toString());
+        } catch (error) {
+          if (error instanceof Error) {
+            responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
+          }
+        } finally {
+
+        }
+      }
+      // Get next block
+      currentBlock = currentBlock.getNextBlock();
+      await sleep(sleepingTime * 1000);
+    }
+    workspace.highlightBlock(null);
+    // Enable button again
+    startBtn.disabled = false;
   });
 }
 
