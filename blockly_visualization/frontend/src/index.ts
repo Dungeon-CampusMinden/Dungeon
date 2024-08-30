@@ -93,6 +93,9 @@ if (startBtn) {
   startBtn.addEventListener("click", async () => {
     var sleepingTime = delay.value;
     console.log(sleepingTime);
+    if (sleepingTime === "") {
+      sleepingTime = "1";
+    }
     if (!isNumber(sleepingTime)) {
       alert("Die konfigurierte Verzögerung muss eine Zahl sein");
       return;
