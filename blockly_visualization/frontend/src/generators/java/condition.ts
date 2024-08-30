@@ -16,7 +16,7 @@ export function logic_operator(
   const input_a = generator.valueToCode(block, "CONDITION_A", Order.NONE);
   const input_b = generator.valueToCode(block, "CONDITION_B", Order.NONE);
   const operator = block.getFieldValue("LOGIC_OPERATOR");
-  const code = input_a + ' ' + operator + ' ' + input_b;
+  const code = '(' + input_a + ' ' + operator + ' ' + input_b + ')';
   return [code, Order.NONE];
 }
 
