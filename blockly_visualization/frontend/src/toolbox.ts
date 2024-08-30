@@ -102,18 +102,6 @@ export const toolbox = {
         },
         {
           kind: "block",
-          type: "logic_boolean",
-        },
-        {
-          kind: "block",
-          type: "usual_condition",
-        },
-        {
-          kind: "block",
-          type: "logic_operator",
-        },
-        {
-          kind: "block",
           type: "logic_wall",
         },
         {
