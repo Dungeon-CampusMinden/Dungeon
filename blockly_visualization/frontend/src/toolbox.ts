@@ -105,7 +105,19 @@ export const toolbox = {
       contents: [
         {
           kind: "block",
+          type: "get_number",
+        },
+        {
+          kind: "block",
+          type: "repeat_number",
+        },
+        {
+          kind: "block",
           type: "logic_boolean",
+        },
+        {
+          kind: "block",
+          type: "usual_condition",
         },
         {
           kind: "block",

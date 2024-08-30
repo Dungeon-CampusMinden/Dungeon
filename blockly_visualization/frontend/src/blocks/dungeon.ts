@@ -247,6 +247,37 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 60,
   },
   {
+      type: "usual_condition",
+      message0: "%1 %2 %3",
+      args0: [
+        {
+          type: "input_value",
+          name: "INPUT_A",
+          check: "Move",
+        },
+        {
+          type: "field_dropdown",
+          name: "OPERATOR",
+          options: [
+            ["gleich", "=="],
+            ["ungleich", "!="],
+            ["größer gleich", ">="],
+            ["größer", ">"],
+            ["kleiner gleich", "<="],
+            ["kleiner", "<"],
+          ],
+        },
+        {
+          type: "input_value",
+          name: "INPUT_B",
+          check: "Move",
+        },
+      ],
+      "inputsInline": true,
+      output: "Boolean",
+      colour: 60,
+  },
+  {
     type: "logic_wall",
     message0: "nahe Wand",
     output: "Boolean",

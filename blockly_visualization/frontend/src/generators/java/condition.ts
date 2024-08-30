@@ -9,6 +9,17 @@ export function logic_boolean(
   return [code, Order.NONE];
 }
 
+export function usual_condition(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const input_a = generator.valueToCode(block, "INPUT_A", Order.NONE);
+  const input_b = generator.valueToCode(block, "INPUT_B", Order.NONE);
+  const operator = block.getFieldValue("OPERATOR");
+  const code = input_a + ' ' + operator + ' ' + input_b;
+  return [code, Order.NONE];
+}
+
 export function logic_wall(
   _block: Blockly.Block,
   _generator: Blockly.Generator
