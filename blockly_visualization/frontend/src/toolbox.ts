@@ -121,6 +121,10 @@ export const toolbox = {
         },
         {
           kind: "block",
+          type: "logic_operator",
+        },
+        {
+          kind: "block",
           type: "logic_wall",
         },
         {
