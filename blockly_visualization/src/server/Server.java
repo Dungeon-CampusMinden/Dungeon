@@ -108,32 +108,93 @@ public class Server {
       else_flag = false;
       return;
     }
-    if (action.contains("falls") && action.contains("wahr")) {
-      if_flag = true;
+    Pattern pattern = Pattern.compile("falls \\((.*)\\)");
+    Matcher matcher = pattern.matcher(action);
+    String condition = "";
+    if (matcher.find()) {
+      condition = matcher.group(1);
+      // There may be multiple conditions in one condition. We need to split it.
+      // We split at each opening "(" without an immediate following ")"
+      String[] splitted_condition = condition.split("\\((?=[^\\)])");
+      String lastLogicOp = "";
+      boolean lastResult = false;
+      for (String currentCondition : splitted_condition) {
+        // Skip if condition string is empty
+        if (currentCondition.isEmpty()) {
+          continue;
+        }
+        // Get left and right condition with regex
+        Pattern condPattern = Pattern.compile("(.+?)(&&|\\|\\|)(.+)");
+        Matcher condMatcher = condPattern.matcher(currentCondition);
+        if (condMatcher.find()) {
+          String leftCondition = condMatcher.group(1);
+          String rightCondition = condMatcher.group(3);
+          String logicOperator = condMatcher.group(2);
+
+          // Eval res with logic operator
+          boolean result = evalLogicOp(evalCondition(leftCondition), evalCondition(rightCondition), logicOperator);
+          // Check if there is a logic operator from last result and check current result with last result
+          if (!lastLogicOp.isEmpty()) {
+            result = evalLogicOp(result, lastResult, lastLogicOp);
+          }
+          // Right condition might contain a logic operator that needs to be used for eval of current result and next
+          // result
+          if (rightCondition.contains("||")) {
+            lastLogicOp = "||";
+          } else if (rightCondition.contains("&&")) {
+            lastLogicOp = "&&";
+          } else {
+            lastLogicOp = "";
+          }
+          lastResult = result;
+        } else {
+          lastResult = evalCondition(currentCondition);
+        }
+
+      }
+      if_flag = lastResult;
     }
-    if (action.contains("falls") && action.contains("naheWand()")) {
-      if_flag = isNearWall();
-    }
-    if (action.contains("falls") && action.contains("WandOben()")) {
-      if_flag = isNearWallUp();
-    }
-    if (action.contains("falls") && action.contains("WandUnten()")) {
-      if_flag = isNearWallDown();
-    }
-    if (action.contains("falls") && action.contains("WandLinks()")) {
-      if_flag = isNearWallLeft();
-    }
-    if (action.contains("falls") && action.contains("WandRechts()")) {
-      if_flag = isNearWallRight();
-    }
-    String[] ops = {"==", "!=", "<", ">", "<=", ">="};
-    if (action.contains("falls") && containsItemFromArray(action, ops)) {
-      if_flag = eval_condition(action);
-    }
+
     if (action.contains("sonst")) {
       else_flag = !if_flag;
       if_flag = false;
     }
+  }
+
+  private static boolean evalLogicOp(Boolean leftCondition, Boolean rightCondition, String op) {
+    switch(op) {
+      case "&&":
+        return leftCondition && rightCondition;
+      case "||":
+        return leftCondition || rightCondition;
+      default:
+        return false;
+    }
+  }
+  private static boolean evalCondition(String condition) {
+    if (condition.contains("wahr")) {
+      return true;
+    }
+    if (condition.contains("naheWand()")) {
+      return isNearWall();
+    }
+    if (condition.contains("WandOben()")) {
+      return isNearWallUp();
+    }
+    if (condition.contains("WandUnten()")) {
+      return isNearWallDown();
+    }
+    if (condition.contains("WandLinks()")) {
+      return isNearWallLeft();
+    }
+    if (condition.contains("WandRechts()")) {
+      return isNearWallRight();
+    }
+    String[] ops = {"==", "!=", "<", ">", "<=", ">="};
+    if (containsItemFromArray(condition, ops)) {
+      return evalCompareCondition(condition);
+    }
+    return false;
   }
 
   /**
@@ -141,8 +202,8 @@ public class Server {
    * @param action String that contains the condition.
    * @return Return true or false depending on the condition.
    */
-  private static boolean eval_condition(String action) {
-    Pattern pattern = Pattern.compile("falls \\((\\w+)\\s(<|>|==|!=|<=|>=)\\s(\\w+)\\)");
+  private static boolean evalCompareCondition(String action) {
+    Pattern pattern = Pattern.compile("(\\w+)\\s(<|>|==|!=|<=|>=)\\s(\\w+)");
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
       int input_a = Integer.parseInt(matcher.group(1));
