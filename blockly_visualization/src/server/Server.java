@@ -18,8 +18,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** WTF? . */
 public class Server {
@@ -89,7 +92,18 @@ public class Server {
     os.close();
   }
 
+  private static boolean containsItemFromArray(String inputString, String[] items) {
+    // Convert the array of String items as a Stream
+    // For each element of the Stream call inputString.contains(element)
+    // If you have any match returns true, false otherwise
+    return Arrays.stream(items).anyMatch(inputString::contains);
+  }
   private static void ifEvaluation(String action) {
+    if (action.equals("}")) {
+      if_flag = false;
+      else_flag = false;
+      return;
+    }
     if (action.contains("falls") && action.contains("wahr")) {
       if_flag = true;
     }
@@ -108,14 +122,41 @@ public class Server {
     if (action.contains("falls") && action.contains("WandRechts()")) {
       if_flag = isNearWallRight();
     }
+    String[] ops = {"==", "!=", "<", ">", "<=", ">="};
+    if (action.contains("falls") && containsItemFromArray(action, ops)) {
+      if_flag = eval_condition(action);
+    }
     if (action.contains("sonst")) {
       else_flag = !if_flag;
       if_flag = false;
     }
-    if (action.equals("}")) {
-      if_flag = false;
-      else_flag = false;
+  }
+
+  private static boolean eval_condition(String action) {
+    Pattern pattern = Pattern.compile("falls \\((\\w+)\\s(<|>|==|!=|<=|>=)\\s(\\w+)\\)");
+    Matcher matcher = pattern.matcher(action);
+    if (matcher.find()) {
+      int input_a = Integer.parseInt(matcher.group(1));
+      int input_b =  Integer.parseInt(matcher.group(3));
+      String op = matcher.group(2);
+      switch (op) {
+        case "==":
+          return input_a == input_b;
+        case "!=":
+          return input_a != input_b;
+        case "<=":
+          return input_a <= input_b;
+        case "<":
+          return input_a < input_b;
+        case ">=":
+          return input_a >= input_b;
+        case ">":
+          return input_a > input_b;
+        default:
+          return false;
+      }
     }
+    return false;
   }
 
   private static void performAction(String action) {
