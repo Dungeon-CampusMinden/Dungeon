@@ -216,6 +216,28 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 30,
   },
   {
+    type: "while_loop",
+    message0: "%{BKY_CONTROLS_WHILEUNTIL_OPERATOR_WHILE} %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "CONDITION",
+        check: "Boolean",
+      },
+    ],
+    message1: "%{BKY_CONTROLS_REPEAT_INPUT_DO} %1",
+    args1: [
+      {
+        type: "input_statement",
+        name: "DO",
+      },
+    ],
+    previousStatement: null,
+    nextStatement: null,
+    tooltip: "%{BKY_CONTROLS_WHILEUNTIL_TOOLTIP_WHILE}",
+    colour: 30,
+  },
+  {
     type: "repeat_number",
     message0: "%1",
     args0: [
@@ -273,7 +295,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Move",
       },
     ],
-    "inputsInline": true,
+    inputsInline: true,
     output: "Boolean",
     colour: 60,
   },
@@ -300,7 +322,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
           check: "Boolean",
         },
       ],
-      "inputsInline": true,
+      inputsInline: true,
       output: "Boolean",
       colour: 60,
   },

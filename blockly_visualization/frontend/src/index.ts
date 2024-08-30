@@ -114,10 +114,6 @@ function getStartBlock() {
   return null;
 }
 
-function codeExecutionFinished() {
-
-}
-
 if (stepBtn) {
   workspace.highlightBlock(null);
   var startBlock = getStartBlock();

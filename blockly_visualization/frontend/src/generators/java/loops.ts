@@ -18,6 +18,21 @@ export function repeat(block: Blockly.Block, generator: Blockly.Generator) {
   return code;
 }
 
+export function while_loop(block: Blockly.Block, generator: Blockly.Generator) {
+  let code = "";
+  const condition = generator.valueToCode(block, "CONDITION", Order.NONE);
+  const times = Number(generator.valueToCode(block, "TIMES", Order.NONE));
+
+  var while_body = generator.prefixLines(
+    generator.blockToCode(block.getInputTargetBlock("DO")),
+    generator.INDENT
+  );
+  code = "solange (" + condition + ") {\n" + while_body + "\n}";
+
+
+  return code;
+}
+
 export function repeat_number(
   block: Blockly.Block,
   _generator: Blockly.Generator

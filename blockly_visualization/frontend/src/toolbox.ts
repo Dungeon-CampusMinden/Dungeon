@@ -90,11 +90,47 @@ export const toolbox = {
         },
         {
           kind: "block",
+          type: "while_loop",
+        },
+        {
+          kind: "block",
           type: "repeat_number",
         },
         {
           kind: "block",
           type: "get_number",
+        },
+        {
+          kind: "block",
+          type: "logic_boolean",
+        },
+        {
+          kind: "block",
+          type: "usual_condition",
+        },
+        {
+          kind: "block",
+          type: "logic_operator",
+        },
+        {
+          kind: "block",
+          type: "logic_wall",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_up",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_down",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_left",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_right",
         },
       ],
     },
