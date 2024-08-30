@@ -92,10 +92,14 @@ public class Server {
     os.close();
   }
 
+  /**
+   * Check if the given string contains at least one string of a list
+   * @param inputString String that will be tested
+   * @param items List of strings that will be tested against the input string
+   * @return Returns true if input string contains at least on string that is given in items. Otherwise, return false
+   */
   private static boolean containsItemFromArray(String inputString, String[] items) {
-    // Convert the array of String items as a Stream
-    // For each element of the Stream call inputString.contains(element)
-    // If you have any match returns true, false otherwise
+    //
     return Arrays.stream(items).anyMatch(inputString::contains);
   }
   private static void ifEvaluation(String action) {
@@ -132,6 +136,11 @@ public class Server {
     }
   }
 
+  /**
+   * Evaluate the given condition
+   * @param action String that contains the condition.
+   * @return Return true or false depending on the condition.
+   */
   private static boolean eval_condition(String action) {
     Pattern pattern = Pattern.compile("falls \\((\\w+)\\s(<|>|==|!=|<=|>=)\\s(\\w+)\\)");
     Matcher matcher = pattern.matcher(action);
