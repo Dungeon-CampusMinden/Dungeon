@@ -108,16 +108,35 @@ public class Server {
       else_flag = false;
       return;
     }
-    Pattern pattern = Pattern.compile("falls \\((.*)\\)");
+    if (action.contains("falls")) {
+      Pattern pattern = Pattern.compile("falls \\((.*)\\)");
+      if_flag = evalComplexCondition(action, pattern);
+    }
+
+    if (action.contains("sonst")) {
+      else_flag = !if_flag;
+      if_flag = false;
+    }
+  }
+
+  /**
+   * Eval a complex condition. This function is used when evaluating if or while conditions.
+   * @param action String containing the condition
+   * @param pattern Regex to extract only the condition from the action string
+   * @return Returns true or false depending on the result of the condition
+   */
+
+  private static boolean evalComplexCondition(String action, Pattern pattern) {
     Matcher matcher = pattern.matcher(action);
     String condition = "";
+    boolean retValue = false;
     if (matcher.find()) {
       condition = matcher.group(1);
       // There may be multiple conditions in one condition. We need to split it.
       // We split at each opening "(" without an immediate following ")"
       String[] splitted_condition = condition.split("\\((?=[^\\)])");
       String lastLogicOp = "";
-      boolean lastResult = false;
+
       for (String currentCondition : splitted_condition) {
         // Skip if condition string is empty
         if (currentCondition.isEmpty()) {
@@ -135,7 +154,7 @@ public class Server {
           boolean result = evalLogicOp(evalCondition(leftCondition), evalCondition(rightCondition), logicOperator);
           // Check if there is a logic operator from last result and check current result with last result
           if (!lastLogicOp.isEmpty()) {
-            result = evalLogicOp(result, lastResult, lastLogicOp);
+            result = evalLogicOp(result, retValue, lastLogicOp);
           }
           // Right condition might contain a logic operator that needs to be used for eval of current result and next
           // result
@@ -146,21 +165,14 @@ public class Server {
           } else {
             lastLogicOp = "";
           }
-          lastResult = result;
+          retValue = result;
         } else {
-          lastResult = evalCondition(currentCondition);
+          retValue = evalCondition(currentCondition);
         }
-
       }
-      if_flag = lastResult;
     }
-
-    if (action.contains("sonst")) {
-      else_flag = !if_flag;
-      if_flag = false;
-    }
+    return retValue;
   }
-
   private static boolean evalLogicOp(Boolean leftCondition, Boolean rightCondition, String op) {
     switch(op) {
       case "&&":
