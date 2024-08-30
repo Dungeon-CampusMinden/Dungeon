@@ -79,6 +79,23 @@ header {
   background-color: #239e4a;
 }
 
+#stepBtn {
+  background-color: #2b69f0;
+  border-radius: 10px;
+  border: 4px double #cccccc;
+  color: #eeeeee;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 150px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+#stepBtn:hover {
+  background-color: #2559cc;
+}
+
 #resetBtn {
   background-color: #d83838;
   border-radius: 10px;
