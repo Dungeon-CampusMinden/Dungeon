@@ -96,6 +96,13 @@ header {
   background-color: #2559cc;
 }
 
+#stepBtn:disabled,
+#stepBtn[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+
 #resetBtn {
   background-color: #d83838;
   border-radius: 10px;

@@ -103,12 +103,6 @@ if (startBtn) {
   });
 }
 
-function prepareCodeSteps() {
-    codeSteps = code.split('\n').filter(line => line.trim() !== '');
-    currentStep = 0;
-    workspace.highlightBlock(null);
-  }
-
 function getStartBlock() {
   var allBlocks = workspace.getAllBlocks();
   for (var i = 0; i < allBlocks.length; i++) {
@@ -121,34 +115,52 @@ function getStartBlock() {
 }
 
 function codeExecutionFinished() {
-  console.log("Alle Schritte ausgeführt.");
-  workspace.highlightBlock(null);
-  currentStep = 0;
-  currentBlock = startBlock;
-}
-if (stepBtn) {
 
-  var codeSteps = [];
-  var currentStep = 0;
-  prepareCodeSteps();
+}
+
+if (stepBtn) {
+  workspace.highlightBlock(null);
   var startBlock = getStartBlock();
   var currentBlock = startBlock;
   stepBtn.addEventListener("click", async () => {
       if (currentBlock === null) {
-        codeExecutionFinished();
+        alert("Alle Schritte ausgeführt.");
+        workspace.highlightBlock(null);
+        currentBlock = startBlock;
         return;
       }
-      var currentCode = codeSteps[currentStep];
-      currentCode = javaGenerator.blockToCode(currentBlock);
-      console.log(currentCode);
-      console.log(currentBlock)
-      console.log(currentBlock.getFieldValue("REPEAT_NUMBER"))
       // Highlight current block
       if (currentBlock) {
           workspace.highlightBlock(currentBlock.id);
       }
-
-      currentStep++;
+      // Do nothing except highlighting on start block
+      if (currentBlock.type !== "start") {
+        // Disable button
+        stepBtn.disabled = true;
+        // Get code of the current block
+        var currentCode = javaGenerator.blockToCode(currentBlock, true);
+        try {
+          const response = await api.post("start", currentCode);
+          const status = response.status;
+          const text = await response.text();
+          if (text) {
+            character.setPosition(text);
+            characterPositionDiv!.textContent = `Character position: x=${
+              character.getPosition()?.x
+            }, y=${character.getPosition()?.y}`;
+          }
+          responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
+          console.log(status.toString());
+        } catch (error) {
+          if (error instanceof Error) {
+            responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
+          }
+        } finally {
+          // Enable button again
+          stepBtn.disabled = false;
+        }
+      }
+      // Get next block
       currentBlock = currentBlock.getNextBlock();
   });
 }
