@@ -25,6 +25,8 @@ const workspace =
   });
 const api = new Api();
 const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
+const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
+console.log(stepBtn);
 const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
 const responseStatusDiv = document.getElementById("responseStatus");
 const characterPositionDiv = document.getElementById("characterPosition");
@@ -98,6 +100,56 @@ if (startBtn) {
         responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
       }
     }
+  });
+}
+
+function prepareCodeSteps() {
+    codeSteps = code.split('\n').filter(line => line.trim() !== '');
+    currentStep = 0;
+    workspace.highlightBlock(null);
+  }
+
+function getStartBlock() {
+  var allBlocks = workspace.getAllBlocks();
+  for (var i = 0; i < allBlocks.length; i++) {
+      var block = allBlocks[i];
+      if (block.type == "start") {
+        return block;
+      }
+  }
+  return null;
+}
+
+function codeExecutionFinished() {
+  console.log("Alle Schritte ausgeführt.");
+  workspace.highlightBlock(null);
+  currentStep = 0;
+  currentBlock = startBlock;
+}
+if (stepBtn) {
+
+  var codeSteps = [];
+  var currentStep = 0;
+  prepareCodeSteps();
+  var startBlock = getStartBlock();
+  var currentBlock = startBlock;
+  stepBtn.addEventListener("click", async () => {
+      if (currentBlock === null) {
+        codeExecutionFinished();
+        return;
+      }
+      var currentCode = codeSteps[currentStep];
+      currentCode = javaGenerator.blockToCode(currentBlock);
+      console.log(currentCode);
+      console.log(currentBlock)
+      console.log(currentBlock.getFieldValue("REPEAT_NUMBER"))
+      // Highlight current block
+      if (currentBlock) {
+          workspace.highlightBlock(currentBlock.id);
+      }
+
+      currentStep++;
+      currentBlock = currentBlock.getNextBlock();
   });
 }
 
