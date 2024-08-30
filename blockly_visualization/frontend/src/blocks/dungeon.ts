@@ -177,6 +177,69 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 230,
   },
   {
+    type: "set_number_expression",
+    previousStatement: null,
+    nextStatement: null,
+    message0: "%{BKY_VARIABLES_SET}",
+    args0: [
+      {
+        type: "field_variable",
+        name: "VAR",
+        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+      },
+      {
+        type: "input_value",
+        name: "VALUE",
+        check: "Expression",
+      },
+    ],
+    colour: 260,
+  },
+  {
+      type: "get_variable",
+      message0: "%1",
+      previousStatement: null,
+      nextStatement: null,
+      args0: [
+        {
+          type: "field_variable",
+          name: "VAR",
+          variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+        },
+      ],
+      output: "Variable",
+      colour: 260,
+    },
+  {
+    type: "expression",
+    message0: "%1 %2 %3",
+    args0: [
+      {
+        type: "input_value",
+        name: "INPUT_A",
+        check: ["Number", "Variable"],
+      },
+      {
+        type: "field_dropdown",
+        name: "OPERATOR",
+        options: [
+          ["plus", "+"],
+          ["minus", "-"],
+          ["mal", "*"],
+          ["geteilt", "/"],
+        ],
+      },
+      {
+        type: "input_value",
+        name: "INPUT_B",
+        check: ["Number", "Variable"],
+      },
+    ],
+    inputsInline: true,
+    output: "Expression",
+    colour: 260,
+  },
+  {
     type: "var_number",
     previousStatement: null,
     nextStatement: null,

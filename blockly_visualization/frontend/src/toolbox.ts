@@ -74,8 +74,21 @@ export const toolbox = {
           type: "set_number",
         },
         {
+
           kind: "block",
           type: "var_number",
+        },
+        {
+          kind: "block",
+          type: "set_number_expression",
+        },
+        {
+          kind: "block",
+          type: "expression",
+        },
+        {
+          kind: "block",
+          type: "get_variable",
         },
       ],
     },
