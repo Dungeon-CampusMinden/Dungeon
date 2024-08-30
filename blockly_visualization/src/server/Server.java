@@ -29,16 +29,17 @@ public class Server {
   private static Entity hero;
   private static boolean if_flag = false;
   private static boolean else_flag = false;
+  private static boolean if_active = false;
 
-  private static ArrayList<Boolean> while_is_repeating = new ArrayList<>();
+  private static final ArrayList<Boolean> while_is_repeating = new ArrayList<>();
   private static boolean current_while_cond_negative = false;
-  private static ArrayList<ArrayList<String>> whileBodys = new ArrayList<>();
-  private static Stack<String> while_conditions = new Stack<>();
+  private static final ArrayList<ArrayList<String>> whileBodys = new ArrayList<>();
+  private static final Stack<String> while_conditions = new Stack<>();
 
   // This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
   // It can hold the following values: if, while.
-  private static Stack<String> active_scopes = new Stack<>();
-  private static Dictionary<String, Integer> variables = new Hashtable<>();
+  private static final Stack<String> active_scopes = new Stack<>();
+  private static final Dictionary<String, Integer> variables = new Hashtable<>();
 
   /**
    * WTF? .
@@ -73,11 +74,16 @@ public class Server {
       System.out.print("Current action: ");
       System.out.println(action);
       processAction(action);
+      System.out.println(active_scopes);
+      System.out.println(while_is_repeating);
+
       // Repeat statements of while loop as long as while flag is set
-      if (!active_scopes.isEmpty() && active_scopes.peek().equals("while")) {
+      if (!active_scopes.isEmpty() && whileBodys.size() > 0) {
         while (while_is_repeating.get(while_is_repeating.size() - 1)) {
           for (String whileAction : whileBodys.get(whileBodys.size() - 1)) {
             processAction(whileAction);
+            System.out.println("in while action");
+            System.out.println(whileAction);
           }
         }
       }
@@ -94,23 +100,26 @@ public class Server {
   }
 
   private static void processAction(String action) {
-    // Make sure we close the right scope
-    if (action.equals("}") && !active_scopes.isEmpty()) {
-      String current_scope = active_scopes.peek();
-      if (current_scope.equals("if")) {
-        ifEvaluation(action);
-        return;
-      } else if (current_scope.equals("while")) {
-        whileBodys.get(whileBodys.size() - 1).add(action);
-        whileEvaluation(action);
-        return;
-      }
-    } else if (!active_scopes.isEmpty() && active_scopes.peek().equals("while")) {
+    if (!active_scopes.isEmpty() && whileBodys.size() > 0) {
       // We must add action to all currently active while loops
       for (int i = 0; i < whileBodys.size(); i++) {
         if (!while_is_repeating.get(i)) {
           whileBodys.get(i).add(action.trim());
         }
+      }
+    }
+    // Make sure we close the right scope
+    if (action.trim().equals("}") && !active_scopes.isEmpty()) {
+      System.out.println("End of if or while detected");
+      String current_scope = active_scopes.peek();
+      if (current_scope.equals("if")) {
+        System.out.println("eval if cond");
+        ifEvaluation(action.trim());
+        return;
+      } else if (current_scope.equals("while")) {
+        System.out.println("eval while loop");
+        whileEvaluation(action.trim());
+        return;
       }
     }
     ifEvaluation(action);
@@ -119,6 +128,10 @@ public class Server {
 
     // Do not perform any actions if current while condition is false
     if (current_while_cond_negative) {
+      return;
+    }
+    // Do not perform action if currently in if and condition is false
+    if (if_active && !if_flag && !else_flag) {
       return;
     }
 
@@ -211,8 +224,10 @@ public class Server {
       current_while_cond_negative = !evalComplexCondition(currentCondition, pattern);
       if (!current_while_cond_negative) {
         // Repeat the loop
+        System.out.println("Starting the loop");
         while_is_repeating.set(while_is_repeating.size() - 1, true);
       } else {
+        System.out.println("Ending the loop");
         // End the loop
         while_is_repeating.remove(while_is_repeating.size() - 1);
         active_scopes.pop();
@@ -236,10 +251,12 @@ public class Server {
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("if")) {
       if_flag = false;
       else_flag = false;
+      if_active = false;
       active_scopes.pop();
       return;
     }
     if (action.contains("falls")) {
+      if_active = true;
       active_scopes.push("if");
       Pattern pattern = Pattern.compile("falls \\((.*)\\)");
       if_flag = evalComplexCondition(action, pattern);
