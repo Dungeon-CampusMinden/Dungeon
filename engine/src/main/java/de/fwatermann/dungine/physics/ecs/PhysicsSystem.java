@@ -36,7 +36,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   private float gravityConstant = DEFAULT_GRAVITY_CONSTANT;
   private float sleepThreshold = DEFAULT_SLEEP_THRESHOLD;
 
-  private long lastExecution = java.lang.System.currentTimeMillis();
+  private long lastExecution = java.lang.System.nanoTime();
   private float lastDeltaTime = 0.0f;
   private int lastUpdates = 0;
   private int lUc = 0;
@@ -61,8 +61,8 @@ public class PhysicsSystem extends System<PhysicsSystem> {
 
   @Override
   public void update(ECS ecs) {
-    float deltaTime = (java.lang.System.currentTimeMillis() - this.lastExecution) / 1000.0f;
-    this.lastExecution = java.lang.System.currentTimeMillis();
+    float deltaTime = (java.lang.System.nanoTime() - this.lastExecution) / 1_000_000_000.0f;
+    this.lastExecution = java.lang.System.nanoTime();
     this.lastDeltaTime = deltaTime;
     this.lUc = 0;
     ecs.entities(
@@ -193,6 +193,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
           });
           if(collisions.isEmpty()) continue;
           collided = true;
+
 
           //DEBUG
           entity.component(PhysicsDebugComponent.class).ifPresent(pdc -> {
