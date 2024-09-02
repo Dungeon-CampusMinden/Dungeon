@@ -28,7 +28,7 @@ public class SATCheck {
     for (Vector3f edgeA : edgesA) {
       for (Vector3f edgeB : edgesB) {
         Vector3f axis = new Vector3f();
-        edgeA.cross(edgeB, axis);
+        edgeA.cross(edgeB, axis).normalize();
         axes.add(axis);
       }
     }
@@ -74,11 +74,11 @@ public class SATCheck {
     // Calculate edges
     for (int i = 0; i < edgeIndicesA.length; i++) {
       edgesA[i] =
-          verticesA[edgeIndicesA[i].a()].sub(verticesA[edgeIndicesA[i].b()], new Vector3f());
+              verticesA[edgeIndicesA[i].a()].sub(verticesA[edgeIndicesA[i].b()], new Vector3f());
     }
     for (int i = 0; i < edgeIndicesB.length; i++) {
       edgesB[i] =
-          verticesB[edgeIndicesB[i].a()].sub(verticesB[edgeIndicesB[i].b()], new Vector3f());
+              verticesB[edgeIndicesB[i].a()].sub(verticesB[edgeIndicesB[i].b()], new Vector3f());
     }
 
     List<Vector3f> axes = getAxes(edgesA, edgesB);
@@ -89,7 +89,7 @@ public class SATCheck {
       FloatPair projectionA = project(verticesA, axis);
       FloatPair projectionB = project(verticesB, axis);
       float overlap =
-          Math.min(projectionA.b() - projectionB.a(), projectionB.b() - projectionA.a());
+              Math.min(projectionA.b() - projectionB.a(), projectionB.b() - projectionA.a());
       if (overlap < 0) {
         return null;
       }
