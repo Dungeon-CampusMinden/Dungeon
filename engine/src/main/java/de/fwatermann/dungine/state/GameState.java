@@ -142,4 +142,11 @@ public abstract class GameState extends ECS implements Disposable {
     return this;
   }
 
+  public final void dispose() {
+    this.disposeState();
+    this.ui.dispose();
+  }
+
+  public void disposeState() {};
+
 }
