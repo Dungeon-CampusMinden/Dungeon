@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.graphics;
 
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -32,6 +33,7 @@ public abstract class Renderable<T extends Renderable<?>> {
     this.position = position;
     this.scaling = scale;
     this.rotation = rotation;
+    this.calcTransformation();
   }
 
   /** Constructs a Renderable object with default position, rotation, scale. */
@@ -62,6 +64,9 @@ public abstract class Renderable<T extends Renderable<?>> {
   public Matrix4f transformationMatrix() {
     return this.transformationMatrix;
   }
+
+  /** Called when the transformation of the object has changed. */
+  protected void transformationChanged() {}
 
   /**
    * Sets the transformation of the object.
@@ -262,5 +267,14 @@ public abstract class Renderable<T extends Renderable<?>> {
     this.transformationMatrix
         .identity()
         .translationRotateScale(this.position, this.rotation, this.scaling);
+    this.transformationChanged();
   }
+
+  /**
+   * Checks if the object should be rendered based on the specified camera frustum.
+   * @param frustum the camera frustum
+   * @return true if the object should be rendered, false otherwise
+   */
+  public abstract boolean shouldRender(CameraFrustum frustum);
+
 }

@@ -3,12 +3,14 @@ package de.fwatermann.dungine.graphics.simple;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.utils.BoundingBox;
 import java.nio.ByteBuffer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -19,6 +21,7 @@ public class Pane extends Renderable<Pane> {
   private static ShaderProgram SHADER;
 
   protected ArrayMesh mesh;
+  protected BoundingBox boundingBox;
 
   public Pane(Vector3f position, Vector3f size) {
     super(position, size, new Quaternionf());
@@ -63,6 +66,18 @@ public class Pane extends Renderable<Pane> {
     this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
+  }
+
+  @Override
+  protected void transformationChanged() {
+    super.transformationChanged();
+    this.boundingBox = BoundingBox.fromVertices(this.mesh.vertexBuffer().asFloatBuffer(), 0, 3, 4, this.transformationMatrix());
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    int frustumResult = frustum.intersectAab(this.boundingBox.getMin(), this.boundingBox.getMax());
+    return frustumResult == CameraFrustum.INTERSECT || frustumResult == CameraFrustum.INSIDE;
   }
 
   private static final String VERTEX_SHADER =

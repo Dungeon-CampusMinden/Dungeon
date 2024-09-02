@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.graphics;
 
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.Disposable;
@@ -80,6 +81,11 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
       GL33.glDeleteBuffers(this.vbo);
       this.initialized = false;
     }
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
   }
 
   private static final String VERTEX_SHADER =

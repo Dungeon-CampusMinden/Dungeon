@@ -3,6 +3,7 @@ package de.fwatermann.dungine.graphics.simple;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.IndexDataType;
 import de.fwatermann.dungine.graphics.mesh.IndexedMesh;
@@ -10,6 +11,7 @@ import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.utils.BoundingBox;
 import java.nio.ByteBuffer;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -19,6 +21,7 @@ public class Cube extends Renderable<Cube> {
 
   private static ShaderProgram SHADER;
   protected IndexedMesh mesh;
+  private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
 
   /**
    * Constructs a new Cube with the specified position and color.
@@ -37,14 +40,14 @@ public class Cube extends Renderable<Cube> {
         .position(0)
         .put(
             new float[] {
-              0.0f, 0.0f, 0.0f, //0
-              0.0f, 0.0f, 1.0f, //1
-              0.0f, 1.0f, 1.0f, //2
-              0.0f, 1.0f, 0.0f, //3
-              1.0f, 0.0f, 0.0f, //4
-              1.0f, 0.0f, 1.0f, //5
-              1.0f, 1.0f, 1.0f, //6
-              1.0f, 1.0f, 0.0f  //7
+              -0.5f, -0.5f, -0.5f, // 0
+              -0.5f, -0.5f, 0.5f, // 1
+              -0.5f, 0.5f, 0.5f, // 2
+              -0.5f, 0.5f, -0.5f, // 3
+              0.5f, -0.5f, -0.5f, // 4
+              0.5f, -0.5f, 0.5f, // 5
+              0.5f, 0.5f, 0.5f, // 6
+              0.5f, 0.5f, -0.5f // 7
             });
     ByteBuffer indices = BufferUtils.createByteBuffer(36 * 4);
     indices
@@ -88,6 +91,21 @@ public class Cube extends Renderable<Cube> {
       SHADER = new ShaderProgram(vertexShader, fragmentShader);
     }
     this.render(camera, SHADER);
+  }
+
+  @Override
+  protected void transformationChanged() {
+    super.transformationChanged();
+    if (this.mesh == null) return;
+    this.boundingBox =
+        BoundingBox.fromVertices(
+            this.mesh.vertexBuffer().asFloatBuffer(), 0, 3, 8, this.transformationMatrix());
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    int frustumResult = frustum.intersectAab(this.boundingBox.getMin(), this.boundingBox.getMax());
+    return frustumResult == CameraFrustum.INTERSECT || frustumResult == CameraFrustum.INSIDE;
   }
 
   private static final String VERTEX_SHADER =

@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.ThreadUtils;
@@ -206,5 +207,10 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
   public void dispose() {
     super.dispose();
     GL33.glDeleteBuffers(this.glEBO);
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
   }
 }

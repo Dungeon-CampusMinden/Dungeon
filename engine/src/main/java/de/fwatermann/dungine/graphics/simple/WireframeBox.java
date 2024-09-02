@@ -3,6 +3,7 @@ package de.fwatermann.dungine.graphics.simple;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.IndexDataType;
 import de.fwatermann.dungine.graphics.mesh.IndexedMesh;
@@ -119,4 +120,10 @@ public class WireframeBox extends Renderable<WireframeBox> {
     this.color = color;
     return this;
   }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
+  }
+
 }

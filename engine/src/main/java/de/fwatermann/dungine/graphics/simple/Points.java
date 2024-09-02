@@ -11,42 +11,36 @@ import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
-import de.fwatermann.dungine.utils.Pair;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
-public class Lines extends Renderable<Lines> {
-
-  private static final Logger LOGGER = LogManager.getLogger(Lines.class);
+public class Points extends Renderable<Points> {
 
   private static ShaderProgram SHADER;
   private ArrayMesh mesh;
-  private final Set<Pair<Vector3f, Vector3f>> lines = new HashSet<>();
-  private boolean linesDirty = false;
+  private final Set<Vector3f> points = new HashSet<>();
+  private boolean pointsDirty = false;
   private int color = 0xFFFFFFFF;
-  private float lineWidth = 1.0f;
+  private float pointSize = 1.0f;
 
-  public Lines(int color, Set<Pair<Vector3f, Vector3f>> lines) {
+  public Points(int color, Set<Vector3f> points) {
     this.color = color;
-    this.lines.addAll(lines);
+    this.points.addAll(points);
   }
 
-  @SafeVarargs
-  public Lines(int color, Pair<Vector3f, Vector3f> ... lines) {
+  public Points(int color, Vector3f ... points) {
     this.color = color;
-    Collections.addAll(this.lines, lines);
+    Collections.addAll(this.points, points);
   }
 
-  public Lines(int color) {
+  public Points(int color) {
     this.color = color;
   }
 
@@ -55,10 +49,10 @@ public class Lines extends Renderable<Lines> {
     try {
       Shader vertexShader =
           Shader.loadShader(
-              Resource.load("/shaders/3d/Lines.vsh"), Shader.ShaderType.VERTEX_SHADER);
+              Resource.load("/shaders/3d/Points.vsh"), Shader.ShaderType.VERTEX_SHADER);
       Shader fragmentShader =
           Shader.loadShader(
-              Resource.load("/shaders/3d/Lines.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+              Resource.load("/shaders/3d/Points.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, fragmentShader);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -70,21 +64,20 @@ public class Lines extends Renderable<Lines> {
     this.mesh =
         new ArrayMesh(
             null,
-            PrimitiveType.LINES,
+            PrimitiveType.POINTS,
             GLUsageHint.DRAW_STATIC,
             new VertexAttribute(3, DataType.FLOAT, "aPosition"));
   }
 
   private void updateMesh() {
-    if(!this.linesDirty) return;
-    ByteBuffer vertices = BufferUtils.createByteBuffer(this.lines.size() * 2 * 3 * 4);
+    if(!this.pointsDirty) return;
+    ByteBuffer vertices = BufferUtils.createByteBuffer(this.points.size() * 3 * 4);
     FloatBuffer floatView = vertices.asFloatBuffer();
-    for(Pair<Vector3f, Vector3f> line : this.lines) {
-      floatView.put(line.a().x).put(line.a().y).put(line.a().z);
-      floatView.put(line.b().x).put(line.b().y).put(line.b().z);
+    for(Vector3f point : this.points) {
+      floatView.put(point.x).put(point.y).put(point.z);
     }
     this.mesh.vertexBuffer(vertices);
-    this.linesDirty = false;
+    this.pointsDirty = false;
   }
 
   @Override
@@ -100,10 +93,10 @@ public class Lines extends Renderable<Lines> {
 
     shader.bind();
     shader.setUniform1i("uColor", this.color);
-    float lineWidth = GL33.glGetFloat(GL33.GL_LINE_WIDTH);
-    GL33.glLineWidth(this.lineWidth);
+    float pointSize = GL33.glGetFloat(GL33.GL_POINT_SIZE);
+    GL33.glPointSize(this.pointSize);
     this.mesh.render(camera, shader);
-    GL33.glLineWidth(lineWidth);
+    GL33.glPointSize(pointSize);
     shader.unbind();
   }
 
@@ -111,43 +104,33 @@ public class Lines extends Renderable<Lines> {
     return this.color;
   }
 
-  public Lines color(int color) {
+  public Points color(int color) {
     this.color = color;
     return this;
   }
 
-  public void addLine(Vector3f a, Vector3f b) {
-    this.lines.add(new Pair<>(a, b));
-    this.linesDirty = true;
+  public void addPoint(Vector3f point) {
+    this.points.add(point);
+    this.pointsDirty = true;
   }
 
-  public void addLine(Pair<Vector3f, Vector3f> line) {
-    this.lines.add(line);
-    this.linesDirty = true;
-  }
-
-  public void removeLine(Vector3f a, Vector3f b) {
-    this.lines.remove(new Pair<>(a, b));
-    this.linesDirty = true;
-  }
-
-  public void removeLine(Pair<Vector3f, Vector3f> line) {
-    this.lines.remove(line);
-    this.linesDirty = true;
+  public void removePoint(Vector3f point) {
+    this.points.remove(point);
+    this.pointsDirty = true;
   }
 
   public void clear() {
-    if(this.lines.isEmpty()) return;
-    this.lines.clear();
-    this.linesDirty = true;
+    if(this.points.isEmpty()) return;
+    this.points.clear();
+    this.pointsDirty = true;
   }
 
-  public float lineWidth() {
-    return this.lineWidth;
+  public float pointSize() {
+    return this.pointSize;
   }
 
-  public Lines lineWidth(float lineWidth) {
-    this.lineWidth = lineWidth;
+  public Points pointSize(float lineWidth) {
+    this.pointSize = lineWidth;
     return this;
   }
 
@@ -155,4 +138,5 @@ public class Lines extends Renderable<Lines> {
   public boolean shouldRender(CameraFrustum frustum) {
     return true;
   }
+
 }
