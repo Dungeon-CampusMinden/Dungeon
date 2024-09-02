@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.ecs.components;
 
 import de.fwatermann.dungine.ecs.Component;
-import de.fwatermann.dungine.physics.Collider;
+import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
 import java.util.ArrayList;
