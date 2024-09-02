@@ -139,15 +139,14 @@ public class EventManager {
    * @param listener the event listener to unregister
    */
   public void unregisterListener(de.fwatermann.dungine.event.EventListener listener) {
-    this.listeners
-        .values()
-        .forEach(
-            l ->
-                l.removeIf(
+    this.listeners.forEach(
+            (k, v) ->
+                v.removeIf(
                     p -> {
                       if (p.listener == listener) {
                         LOGGER.debug(
-                            "Unregistered all event handler for object of {} [{}]",
+                            "Unregistered {} handler for object of {} [{}]",
+                            k.getName(),
                             listener.getClass().getName(),
                             listener.hashCode());
                         return true;
