@@ -5,8 +5,8 @@ import de.fwatermann.dungine.utils.FloatPair;
 import de.fwatermann.dungine.utils.IntPair;
 import de.fwatermann.dungine.utils.Pair;
 import de.fwatermann.dungine.utils.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
@@ -23,16 +23,19 @@ public class SATCheck {
    * @param edgesB The second set of edges.
    * @return A list of axes.
    */
-  private static List<Vector3f> getAxes(Vector3f[] edgesA, Vector3f[] edgesB) {
-    List<Vector3f> axes = new ArrayList<>();
+  private static void getAxes(Vector3f[] edgesA, Vector3f[] edgesB, Set<Vector3f> dest) {
     for (Vector3f edgeA : edgesA) {
       for (Vector3f edgeB : edgesB) {
+        Vector3f a = edgeA.normalize(new Vector3f());
+        Vector3f b = edgeB.normalize(new Vector3f());
+        if(Math.abs(a.dot(b)) >= 0.99999f) {
+          continue;
+        }
         Vector3f axis = new Vector3f();
-        edgeA.cross(edgeB, axis).normalize();
-        axes.add(axis);
+        edgeA.cross(edgeB, axis).normalize().mul(10000).round().div(10000);
+        dest.add(axis);
       }
     }
-    return axes;
   }
 
   /**
@@ -81,7 +84,11 @@ public class SATCheck {
               verticesB[edgeIndicesB[i].a()].sub(verticesB[edgeIndicesB[i].b()], new Vector3f());
     }
 
-    List<Vector3f> axes = getAxes(edgesA, edgesB);
+    Set<Vector3f> axes = new HashSet<>();
+    getAxes(edgesA, edgesB, axes);
+    getAxes(edgesB, edgesA, axes);
+    getAxes(edgesA, edgesA, axes);
+    getAxes(edgesB, edgesB, axes);
 
     float minOverlap = Float.MAX_VALUE;
     Vector3f minAxis = new Vector3f();

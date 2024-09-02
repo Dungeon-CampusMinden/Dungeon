@@ -4,9 +4,13 @@ import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
 import de.fwatermann.dungine.physics.util.SATCheck;
 import de.fwatermann.dungine.utils.IntPair;
 import de.fwatermann.dungine.utils.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 
 public abstract class CuboidCollider extends Collider {
+
+  private static final Logger LOGGER = LogManager.getLogger(CuboidCollider.class);
 
   protected Vector3f[] vertices;
   protected IntPair[] edges;
@@ -29,6 +33,16 @@ public abstract class CuboidCollider extends Collider {
         String.format(
           "Cannot collide BoxCollider with collider of type \"%s\"!", b.getClass().getName()));
     }
+    //Check AAB collision using min/max
+    Vector3f aMin = a.min();
+    Vector3f aMax = a.max();
+    Vector3f bMin = other.min();
+    Vector3f bMax = other.max();
+
+    if (aMax.x < bMin.x || aMin.x > bMax.x) return CollisionResult.NO_COLLISION;
+    if (aMax.y < bMin.y || aMin.y > bMax.y) return CollisionResult.NO_COLLISION;
+    if (aMax.z < bMin.z || aMin.z > bMax.z) return CollisionResult.NO_COLLISION;
+
     Pair<Float, Vector3f> satResult = SATCheck.checkCollision(a, other);
     if (satResult == null) return CollisionResult.NO_COLLISION;
     Collision collision = new Collision(satResult.b(), satResult.a());
