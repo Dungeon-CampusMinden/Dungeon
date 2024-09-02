@@ -25,6 +25,8 @@ import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Math;
@@ -101,13 +103,13 @@ public class TestState1 extends GameState implements EventListener {
       entity.position().set(0, 0, 0);
       RenderableComponent rc = new RenderableComponent(cube);
       rb.addCollider(
-          new BoxCollider(rb, new Vector3f(-10, -0.5f, -10), new Vector3f(20, 1, 20), new Quaternionf()));
+          new BoxCollider(
+              rb, new Vector3f(-10, -0.5f, -10), new Vector3f(20, 1, 20), new Quaternionf()));
       entity.addComponent(rb).addComponent(rc).addComponent(pdc);
       this.addEntity(entity);
     }
 
-
-        this.loaded = true;
+    this.loaded = true;
     EventManager.getInstance().registerListener(this);
   }
 
@@ -222,6 +224,33 @@ public class TestState1 extends GameState implements EventListener {
         // rb.applyForce(force, RigidBodyComponent.ForceMode.ACCELERATION);
 
         this.addEntity(e);
+      } else if (event.key == GLFW.GLFW_KEY_T) {
+
+        List<Entity> toBeAdded = new ArrayList<>();
+        for (int x = -4; x < 5; x++) {
+          for (int z = -4; z < 5; z++) {
+
+            Entity entity = new Entity();
+            RigidBodyComponent rbc = new RigidBodyComponent();
+            RenderableComponent rb =
+                new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
+            rbc.addCollider(
+                new BoxCollider(
+                    rbc,
+                    new Vector3f(-0.25f, -0.25f, -0.25f),
+                    new Vector3f(0.5f),
+                    new Quaternionf()));
+            entity.addComponent(rbc).addComponent(rb);
+            entity.position().set(x, 15, z);
+            entity.size(new Vector3f(0.5f));
+            entity.rotation().rotateX(Math.toRadians(45));
+            entity.rotation().rotateY(Math.toRadians(45));
+            rbc.mass(1.0f);
+
+            toBeAdded.add(entity);
+          }
+        }
+        this.addEntities(toBeAdded);
       }
     }
   }
