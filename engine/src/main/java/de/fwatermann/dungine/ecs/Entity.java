@@ -2,14 +2,18 @@ package de.fwatermann.dungine.ecs;
 
 import java.util.*;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class Entity {
 
-  private Vector3f position;
-  private Vector3f size;
-  private Quaternionf rotation;
+  private static final Logger LOGGER = LogManager.getLogger(Entity.class);
+
+  private final Vector3f position;
+  private final Vector3f size;
+  private final Quaternionf rotation;
 
   private final Map<Class<? extends Component>, List<Component>> components = new HashMap<>();
 
@@ -69,6 +73,13 @@ public class Entity {
     List<Component> list =
         this.components.computeIfAbsent(
             component.getClass(), (Class<? extends Component> clazz) -> new ArrayList<>());
+
+    Entity oE = component.entity();
+    if(oE != null && oE != this) {
+      LOGGER.warn("Component {} was already added to entity {}! Removing it from previous entity!", component, oE);
+      oE.removeComponent(component);
+    }
+
     if (!component.canHaveMultiple()) {
       if (list.isEmpty()) {
         list.add(component);
@@ -78,6 +89,7 @@ public class Entity {
     } else {
       list.add(component);
     }
+    component.entity(this);
     return this;
   }
 
@@ -89,8 +101,9 @@ public class Entity {
    * @param <T> the type of the component
    */
   public <T extends Component> Optional<T> component(Class<T> clazz) {
-    return Optional.ofNullable(
-        (T) this.components.getOrDefault(clazz, Collections.emptyList()).get(0));
+    List<T> comps = (List<T>) this.components.get(clazz);
+    if(comps == null) return Optional.empty();
+    return Optional.ofNullable(comps.isEmpty() ? null : comps.getFirst());
   }
 
   /**
@@ -100,6 +113,12 @@ public class Entity {
    * @return true if the component was removed, false if the component was not present
    */
   public boolean removeComponent(Component component) {
+    if(component.entity() != this) {
+      LOGGER.warn("Component {} is not part of entity {}!", component, this);
+      return false;
+    } else {
+      component.entity(null);
+    }
     return this.components
         .getOrDefault(component.getClass(), Collections.emptyList())
         .remove(component);
@@ -137,7 +156,7 @@ public class Entity {
   }
 
   public Entity position(Vector3f position) {
-    this.position = position;
+    this.position.set(position);
     return this;
   }
 
@@ -146,7 +165,7 @@ public class Entity {
   }
 
   public Entity size(Vector3f size) {
-    this.size = size;
+    this.size.set(size);
     return this;
   }
 
@@ -155,7 +174,7 @@ public class Entity {
   }
 
   public Entity rotation(Quaternionf rotation) {
-    this.rotation = rotation;
+    this.rotation.set(rotation);
     return this;
   }
 }
