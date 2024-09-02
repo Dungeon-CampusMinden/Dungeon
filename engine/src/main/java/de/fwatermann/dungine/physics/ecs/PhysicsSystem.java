@@ -25,7 +25,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
 
   public static final float DEFAULT_GRAVITY_CONSTANT = 9.81f;
   public static final float DEFAULT_SLEEP_THRESHOLD = 0.01f;
-  public static final int DEFAULT_PHYSIC_CHUNK_SIZE = 10;
+  public static final int DEFAULT_PHYSIC_CHUNK_SIZE = 1;
   private static final Logger LOGGER = LogManager.getLogger(PhysicsSystem.class);
 
 
@@ -62,6 +62,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   @Override
   public void update(ECS ecs) {
     float deltaTime = (java.lang.System.currentTimeMillis() - this.lastExecution) / 1000.0f;
+    this.lastExecution = java.lang.System.currentTimeMillis();
     this.lastDeltaTime = deltaTime;
     this.lUc = 0;
     ecs.entities(
@@ -118,7 +119,6 @@ public class PhysicsSystem extends System<PhysicsSystem> {
                   this.updateChunkOfEntity(entity, rbc);
                 }),
         RigidBodyComponent.class);
-    this.lastExecution = java.lang.System.currentTimeMillis();
     this.lastUpdates = this.lUc;
   }
 
