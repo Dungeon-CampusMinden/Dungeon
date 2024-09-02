@@ -2,6 +2,8 @@ package de.fwatermann.dungine.ecs;
 
 import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,6 +44,29 @@ public abstract class ECS {
       this.systems.keySet().stream()
           .filter(s -> entity.hasComponents(s.componentFilter()))
           .forEach(s -> s.onEntityAdd(this, entity));
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
+  }
+
+  /**
+   * Adds a collection of entities to the ECS.
+   * @param entities The entities to be added.
+   */
+  public void addEntities(Collection<Entity> entities) {
+    try {
+      this.entityLock.writeLock().lock();
+      this.entities.addAll(entities);
+    } finally {
+      this.entityLock.writeLock().unlock();
+    }
+    try {
+      this.systemLock.readLock().lock();
+      entities.forEach(
+          e ->
+              this.systems.keySet().stream()
+                  .filter(s -> e.hasComponents(s.componentFilter()))
+                  .forEach(s -> s.onEntityAdd(this, e)));
     } finally {
       this.systemLock.readLock().unlock();
     }
