@@ -231,7 +231,7 @@ public class ChunkTest extends GameState implements EventListener {
   }
 
   @Override
-  public void dispose() {
+  public void disposeState() {
     EventManager.getInstance().unregisterListener(this);
   }
 }

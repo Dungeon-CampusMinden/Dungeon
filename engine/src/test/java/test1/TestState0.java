@@ -89,7 +89,7 @@ public class TestState0 extends GameState implements EventListener {
   }
 
   @Override
-  public void dispose() {
+  public void disposeState() {
     EventManager.getInstance().unregisterListener(this);
   }
 

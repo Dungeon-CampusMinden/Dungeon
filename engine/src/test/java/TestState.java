@@ -267,7 +267,7 @@ public class TestState extends GameState implements EventListener {
   }
 
   @Override
-  public void dispose() {
+  public void disposeState() {
     EventManager.getInstance().unregisterListener(this);
   }
 }

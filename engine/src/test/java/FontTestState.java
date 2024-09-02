@@ -33,7 +33,7 @@ public class FontTestState extends GameState {
   }
 
   @Override
-  public void dispose() {
+  public void disposeState() {
 
   }
 }

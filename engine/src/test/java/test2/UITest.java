@@ -17,15 +17,15 @@ public class UITest extends GameWindow implements EventListener {
 
   @Override
   public void init() {
+    System.setProperty("joml.format", "false");
     EventManager.getInstance().registerListener(this);
-    this.fullscreen(true);
     this.setStateTransition(new UITestTransition(this));
     this.setState(new UITestState0(this));
   }
 
   @Override
   public void cleanup() {
-
+    EventManager.getInstance().unregisterListener(this);
   }
 
 }

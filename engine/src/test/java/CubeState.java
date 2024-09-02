@@ -105,5 +105,5 @@ public class CubeState extends GameState implements EventListener {
   }
 
   @Override
-  public void dispose() {}
+  public void disposeState() {}
 }
