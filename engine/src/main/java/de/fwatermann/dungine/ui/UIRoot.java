@@ -13,6 +13,7 @@ import de.fwatermann.dungine.input.Mouse;
 import de.fwatermann.dungine.ui.components.UIComponentClickable;
 import de.fwatermann.dungine.ui.components.UIComponentHoverable;
 import de.fwatermann.dungine.ui.components.UIComponentScrollable;
+import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.window.GameWindow;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
 
-public class UIRoot extends UIContainer<UIRoot> implements EventListener {
+public class UIRoot extends UIContainer<UIRoot> implements EventListener, Disposable {
 
   private UIElement<?> lastHovered = null;
 
@@ -202,5 +203,10 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener {
                 }
               }
             });
+  }
+
+  @Override
+  public void dispose() {
+    EventManager.getInstance().unregisterListener(this);
   }
 }
