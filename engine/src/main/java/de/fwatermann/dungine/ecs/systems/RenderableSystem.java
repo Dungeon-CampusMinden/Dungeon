@@ -7,8 +7,6 @@ import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.FrustumIntersection;
-import org.joml.Vector3f;
 
 public class RenderableSystem extends System<RenderableSystem> {
 
@@ -27,13 +25,11 @@ public class RenderableSystem extends System<RenderableSystem> {
   public void update(ECS ecs) {
     ecs.entities(s -> s.forEach(e -> {
       e.components(RenderableComponent.class).forEach(c -> {
-        if(this.camera instanceof CameraPerspective pCam) {
-          int intersect = pCam.frustum().intersectAab(e.position(), e.position().add(e.size(), new Vector3f()));
-          if(intersect != FrustumIntersection.INTERSECT && intersect != FrustumIntersection.INSIDE) {
-            return;
-          }
-        }
         c.renderable.transformation(e.position(), e.rotation(), e.size());
+
+        if(this.camera instanceof CameraPerspective pCam) {
+          if(!c.renderable.shouldRender(pCam.frustum())) return;
+        }
         c.renderable.render(this.camera);
         this.renderCount ++;
       });
