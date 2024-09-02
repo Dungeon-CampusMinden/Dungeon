@@ -16,6 +16,7 @@ import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.graphics.simple.CubeColored;
 import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.input.Keyboard;
 import de.fwatermann.dungine.physics.colliders.AABCollider;
 import de.fwatermann.dungine.physics.colliders.BoxCollider;
 import de.fwatermann.dungine.physics.ecs.PhysicsDebugComponent;
@@ -130,7 +131,7 @@ public class TestState1 extends GameState implements EventListener {
             this.entityCount(), this.renderableSystem.latestRenderCount()));
     this.debugPhysics.text(
         String.format(
-            "Physics: T:%.2fs / U:%d",
+            "Physics: T:%.6fs / U:%d",
             this.physicsSystem.lastDeltaTime(), this.physicsSystem.lastUpdates()));
   }
 
@@ -199,26 +200,16 @@ public class TestState1 extends GameState implements EventListener {
         RenderableComponent rc =
             new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
         RigidBodyComponent rb = new RigidBodyComponent();
-        PhysicsDebugComponent pdc =
-            new PhysicsDebugComponent()
-                .displayBoundingBox(true)
-                .displayCollisionPairs(true)
-                .displayForce(true)
-                .displayVelocity(true)
-                .displayColliders(true)
-                .displayEntityPosition(true);
-        rb.mass(1);
-        TextComponent tc =
-            new TextComponent(new Vector3f(0, 1.25f, 0), "CUBE", BillboardMode.SPHERICAL)
-                .size(new Vector3f(2.0f, 1.0f, 2.0f))
-                .originMode(TextComponent.OriginMode.CENTER);
-        rb.addCollider(
-            new BoxCollider(rb, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
-        e.addComponent(rc).addComponent(rb).addComponent(tc).addComponent(pdc);
-        e.position().set(this.camera.position().add(this.camera.front()));
+        PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
+        rb.addCollider(new BoxCollider(rb, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
+        e.addComponent(rc).addComponent(rb).addComponent(pdc);
+        e.position().set(this.camera.position().add(this.camera.front().mul(2.0f)));
 
-        e.rotation().rotateZ(Math.toRadians(45));
-        e.rotation().rotateX(Math.toRadians(45));
+        if (Keyboard.keyPressed(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+          e.rotation().rotateZ(Math.toRadians(45));
+          e.rotation().rotateX(Math.toRadians(45));
+        }
+
 
         // Vector3f force = this.camera.front().mul(10.0f);
         // rb.applyForce(force, RigidBodyComponent.ForceMode.ACCELERATION);
