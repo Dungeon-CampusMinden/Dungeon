@@ -1,5 +1,7 @@
 package de.fwatermann.dungine.utils;
 
+import java.nio.FloatBuffer;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public class BoundingBox {
@@ -55,4 +57,23 @@ public class BoundingBox {
         && this.min.z <= other.max.z
         && this.max.z >= other.min.z;
   }
+
+  public static BoundingBox fromVertices(FloatBuffer buffer, int offset, int stride, int count, Matrix4f transformation) {
+    Vector3f min = new Vector3f(Float.MAX_VALUE);
+    Vector3f max = new Vector3f(-Float.MAX_VALUE);
+    for(int i = 0; i < count; i++) {
+      float x = buffer.get(offset + i * stride);
+      float y = buffer.get(offset + i * stride + 1);
+      float z = buffer.get(offset + i * stride + 2);
+      Vector3f vertex = new Vector3f(x, y, z);
+      if(transformation != null) {
+        transformation.transformPosition(vertex);
+      }
+      min.min(vertex);
+      max.max(vertex);
+    }
+    return new BoundingBox(min, max);
+  }
+
+
 }

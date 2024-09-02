@@ -1,13 +1,13 @@
-package de.fwatermann.dungine.ecs.components;
+package de.fwatermann.dungine.physics.ecs;
 
 import de.fwatermann.dungine.ecs.Component;
-import de.fwatermann.dungine.physics.Collider;
+import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.joml.Vector3f;
 
 public class RigidBodyComponent extends Component {
@@ -19,10 +19,12 @@ public class RigidBodyComponent extends Component {
   private boolean gravity = true;
 
   private float mass = 1.0f;
-  private float bounciness = 0.33f;
+  private float bounciness = 0.5f;
 
-  private final Vector3f force = new Vector3f();
   private final Vector3f velocity = new Vector3f();
+  private final Vector3f angularVelocity = new Vector3f();
+  private final Vector3f force = new Vector3f();
+  private final Vector3f torque = new Vector3f();
 
   private IVoidFunction1Parameter<RigidBodyComponent> onCollision = null;
   private IVoidFunction onSleep = null;
@@ -39,24 +41,42 @@ public class RigidBodyComponent extends Component {
   }
 
   public RigidBodyComponent force(Vector3f force) {
+    return this.force(force, true);
+  }
+
+  public RigidBodyComponent force(Vector3f force, boolean wake) {
     this.force.set(force);
-    this.sleeping(false);
+    if(wake) {
+      this.sleeping(false);
+    }
+    return this;
+  }
+
+  public RigidBodyComponent force(float x, float y, float z) {
+    return this.force(x, y, z, true);
+  }
+
+  public RigidBodyComponent force(float x, float y, float z, boolean wake) {
+    this.force.set(x, y, z);
+    if(wake) {
+      this.sleeping(false);
+    }
     return this;
   }
 
   public RigidBodyComponent applyForce(Vector3f force) {
-    return this.applyForce(force.x, force.y, force.z, ForceMode.FORCE);
+    return this.applyForce(force.x, force.y, force.z, ForceMode.FORCE, true);
   }
 
   public RigidBodyComponent applyForce(float x, float y, float z) {
-    return this.applyForce(x, y, z, ForceMode.FORCE);
+    return this.applyForce(x, y, z, ForceMode.FORCE, true);
   }
 
   public RigidBodyComponent applyForce(Vector3f force, ForceMode mode) {
-    return this.applyForce(force.x, force.y, force.z, mode);
+    return this.applyForce(force.x, force.y, force.z, mode, true);
   }
 
-  public RigidBodyComponent applyForce(float x, float y, float z, ForceMode mode) {
+  public RigidBodyComponent applyForce(float x, float y, float z, ForceMode mode, boolean wake) {
     switch(mode) {
       case FORCE:
         this.force.add(x, y, z);
@@ -71,10 +91,74 @@ public class RigidBodyComponent extends Component {
         this.velocity.add(x, y, z);
         break;
     }
-    this.sleeping(false);
+    if(wake) {
+      this.sleeping(false);
+    }
     return this;
   }
 
+  public RigidBodyComponent applyForceAt(Vector3f force, Vector3f position) {
+    return this.applyForceAt(force.x, force.y, force.z, position.x, position.y, position.z, ForceMode.FORCE, true);
+  }
+
+  public RigidBodyComponent applyForceAt(float x, float y, float z, float px, float py, float pz) {
+    return this.applyForceAt(x, y, z, px, py, pz, ForceMode.FORCE, true);
+  }
+
+  public RigidBodyComponent applyForceAt(Vector3f force, Vector3f position, ForceMode mode) {
+    return this.applyForceAt(force.x, force.y, force.z, position.x, position.y, position.z, mode, true);
+  }
+
+  public RigidBodyComponent applyForceAt(float x, float y, float z, float px, float py, float pz, ForceMode mode) {
+    return this.applyForceAt(x, y, z, px, py, pz, mode, true);
+  }
+
+  public RigidBodyComponent applyForceAt(Vector3f force, Vector3f position, ForceMode mode, boolean wake) {
+    return this.applyForceAt(force.x, force.y, force.z, position.x, position.y, position.z, mode, wake);
+  }
+
+  public RigidBodyComponent applyForceAt(float x, float y, float z, float px, float py, float pz, ForceMode mode, boolean wake) {
+    Vector3f r = new Vector3f(px, py, pz).sub(this.entity().position());
+    Vector3f f = new Vector3f(x, y, z);
+    Vector3f torque = new Vector3f();
+    torque.cross(r, f);
+    this.applyForce(x, y, z, mode, wake);
+    this.applyTorque(torque, mode, wake);
+    return this;
+  }
+
+  public RigidBodyComponent applyTorque(Vector3f torque) {
+    return this.applyTorque(torque, ForceMode.FORCE, true);
+  }
+
+  public RigidBodyComponent applyTorque(Vector3f torque, ForceMode mode) {
+    return this.applyTorque(torque, mode, true);
+  }
+
+  public RigidBodyComponent applyTorque(float tX, float tY, float tZ, ForceMode mode, boolean wake) {
+    return this.applyTorque(new Vector3f(tX, tY, tZ), mode, wake);
+  }
+
+  public RigidBodyComponent applyTorque(Vector3f torque, ForceMode mode, boolean wake) {
+    switch(mode) {
+      case FORCE:
+        this.torque.add(torque);
+        break;
+      case ACCELERATION:
+        this.torque.add(torque.x * this.mass, torque.y * this.mass, torque.z * this.mass);
+        break;
+      case IMPULSE:
+        this.angularVelocity.add(torque.x / this.mass, torque.y / this.mass, torque.z / this.mass);
+        break;
+      case VELOCITY_CHANGE:
+        this.angularVelocity.add(torque);
+        break;
+    }
+    if(wake) {
+      this.sleeping(false);
+    }
+    return this;
+  }
 
   public boolean sleeping() {
     return this.sleeping;
@@ -125,8 +209,14 @@ public class RigidBodyComponent extends Component {
   }
 
   public RigidBodyComponent velocity(Vector3f velocity) {
+    return this.velocity(velocity, true);
+  }
+
+  public RigidBodyComponent velocity(Vector3f velocity, boolean wake) {
     this.velocity.set(velocity);
-    this.sleeping(false);
+    if(wake) {
+      this.sleeping(false);
+    }
     return this;
   }
 
@@ -140,8 +230,8 @@ public class RigidBodyComponent extends Component {
     this.sleeping(false);
   }
 
-  public Stream<Collider> colliders() {
-    return this.colliders.stream();
+  public List<Collider> colliders() {
+    return Collections.unmodifiableList(this.colliders);
   }
 
   public RigidBodyComponent addCollider(Collider collider) {

@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import java.nio.ByteBuffer;
@@ -70,6 +71,11 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
   public void render(Camera<?> camera, ShaderProgram shader) {
     if (shader == null) return;
     this.render(camera, shader, 0, this.vertexCount());
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
   }
 
   public void render(Camera<?> camera, ShaderProgram shader, int offset, int count) {

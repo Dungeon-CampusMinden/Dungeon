@@ -1,7 +1,6 @@
-package de.fwatermann.dungine.physics;
+package de.fwatermann.dungine.physics.colliders;
 
-import de.fwatermann.dungine.ecs.Entity;
-import org.joml.Quaternionf;
+import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
 import org.joml.Vector3f;
 
 /**
@@ -10,22 +9,16 @@ import org.joml.Vector3f;
  */
 public abstract class Collider {
 
-  protected final Entity entity;
+  protected final RigidBodyComponent rbc;
   protected Vector3f offset;
-  protected Quaternionf rotation;
 
-  public Collider(Entity entity, Vector3f offset, Quaternionf rotation) {
-    this.entity = entity;
+  public Collider(RigidBodyComponent rbc, Vector3f offset) {
+    this.rbc = rbc;
     this.offset = offset;
-    this.rotation = rotation;
   }
 
-  public Collider(Entity entity, Vector3f offset) {
-    this(entity, offset, new Quaternionf());
-  }
-
-  public Collider(Entity entity) {
-    this(entity, new Vector3f(), new Quaternionf());
+  public Collider(RigidBodyComponent rbc) {
+    this(rbc, new Vector3f());
   }
 
   /**
@@ -78,40 +71,7 @@ public abstract class Collider {
    * @return the world position of the collider
    */
   public Vector3f worldPosition() {
-    return new Vector3f(this.offset).rotate(this.entity.rotation()).add(this.entity.position());
-  }
-
-  /**
-   * Gets the rotation of the collider relative to the owning entity's rotation.
-   *
-   * @return the rotation of the collider
-   */
-  public Quaternionf rotation() {
-    return this.rotation;
-  }
-
-  /**
-   * Sets the rotation of the collider relative to the owning entity's rotation.
-   *
-   * @param rotation the new rotation of the collider
-   * @return this collider instance for method chaining
-   */
-  public Collider rotation(Quaternionf rotation) {
-    this.rotation = rotation;
-    return this;
-  }
-
-  /**
-   * Gets the entity associated with this collider.
-   *
-   * @return the entity associated with this collider
-   */
-  public Entity entity() {
-    return this.entity;
-  }
-
-  public record CollisionResult(boolean collided, Vector3f normal, float depth) {
-    public static final CollisionResult NO_COLLISION = new CollisionResult(false, null, 0);
+    return this.rbc.entity().rotation().transform(this.offset, new Vector3f()).add(this.rbc.entity().position());
   }
 
 }

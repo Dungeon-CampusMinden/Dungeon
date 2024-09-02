@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.graphics.mesh;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -152,6 +153,11 @@ public abstract class InstancedMesh<T extends InstancedMesh<?>> extends Mesh<Ins
     if (buffers != null) {
       buffers.dirty = true;
     }
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
   }
 
   public static class InstanceDataBuffer {

@@ -4,6 +4,7 @@ import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
@@ -172,6 +173,12 @@ public class Sprite extends Renderable<Sprite> {
             GLUsageHint.DRAW_STATIC,
             new VertexAttribute(3, DataType.FLOAT, "a_Position"),
             new VertexAttribute(2, DataType.FLOAT, "a_TexCoord"));
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
+    //TODO: Implement frustum culling for sprites
   }
 
   private static final String VERTEX_SHADER =

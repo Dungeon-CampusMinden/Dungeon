@@ -3,6 +3,7 @@ package de.fwatermann.dungine.utils;
 import de.fwatermann.dungine.graphics.GLUsageHint;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.mesh.ArrayMesh;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
@@ -23,6 +24,7 @@ public class CoordinateAxis extends Renderable<CoordinateAxis> {
   private ArrayMesh mesh;
   private ShaderProgram shaderProgram;
   private boolean ignoreDepth;
+  private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
 
   public CoordinateAxis(Vector3f position, float size, boolean ignoreDepth) {
     super(position, new Vector3f(size), new Quaternionf());
@@ -97,7 +99,21 @@ public class CoordinateAxis extends Renderable<CoordinateAxis> {
     return this;
   }
 
+  @Override
+  protected void transformationChanged() {
+    super.transformationChanged();
+    this.boundingBox =
+        BoundingBox.fromVertices(
+            this.mesh.vertexBuffer().asFloatBuffer(), 0, 6, 6, this.transformationMatrix());
+  }
+
   public ArrayMesh mesh() {
     return this.mesh;
+  }
+
+  @Override
+  public boolean shouldRender(CameraFrustum frustum) {
+    int frustumResult = frustum.intersectAab(this.boundingBox.getMin(), this.boundingBox.getMax());
+    return frustumResult == CameraFrustum.INTERSECT || frustumResult == CameraFrustum.INSIDE;
   }
 }
