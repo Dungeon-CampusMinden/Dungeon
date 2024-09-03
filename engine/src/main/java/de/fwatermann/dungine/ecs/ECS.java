@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.ecs;
 
 import de.fwatermann.dungine.utils.ThreadUtils;
-import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
+import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -105,7 +105,7 @@ public abstract class ECS {
   }
 
   /** Run a function receiving a stream of all entities in the ECS. */
-  public void entities(IVoidFunction1Parameter<Stream<Entity>> func) {
+  public void entities(IVoidFunction1P<Stream<Entity>> func) {
     try {
       this.entityLock.readLock().lock();
       func.run(this.entities.stream());
@@ -121,7 +121,7 @@ public abstract class ECS {
    */
   @SafeVarargs
   public final void entities(
-      IVoidFunction1Parameter<Stream<Entity>> func,
+      IVoidFunction1P<Stream<Entity>> func,
       Class<? extends Component>... ComponentClasses) {
     try {
       this.entityLock.readLock().lock();
@@ -183,7 +183,7 @@ public abstract class ECS {
   }
 
   /** Run a function receiving a stream of all systems in the ECS. */
-  public void systems(IVoidFunction1Parameter<Stream<System<?>>> func) {
+  public void systems(IVoidFunction1P<Stream<System<?>>> func) {
     try {
       this.systemLock.readLock().lock();
       func.run(this.systems.keySet().stream());

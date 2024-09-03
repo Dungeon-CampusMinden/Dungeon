@@ -2,7 +2,7 @@ package de.fwatermann.dungine.physics.ecs;
 
 import de.fwatermann.dungine.ecs.Component;
 import de.fwatermann.dungine.ecs.Entity;
-import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
+import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,7 +145,7 @@ public class PhysicsDebugComponent extends Component {
     }
   }
 
-  public void collisions(IVoidFunction1Parameter<Stream<Entity>> stream) {
+  public void collisions(IVoidFunction1P<Stream<Entity>> stream) {
     try {
       this.collisionLock.readLock().lock();
       stream.run(this.collision.stream());

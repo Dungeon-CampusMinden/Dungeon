@@ -3,7 +3,7 @@ package de.fwatermann.dungine.physics.ecs;
 import de.fwatermann.dungine.ecs.Component;
 import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
-import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
+import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +26,7 @@ public class RigidBodyComponent extends Component {
   private final Vector3f force = new Vector3f();
   private final Vector3f torque = new Vector3f();
 
-  private IVoidFunction1Parameter<RigidBodyComponent> onCollision = null;
+  private IVoidFunction1P<RigidBodyComponent> onCollision = null;
   private IVoidFunction onSleep = null;
   private IVoidFunction onWake = null;
 
@@ -246,7 +246,7 @@ public class RigidBodyComponent extends Component {
     return this;
   }
 
-  public RigidBodyComponent onCollision(IVoidFunction1Parameter<RigidBodyComponent> onCollision) {
+  public RigidBodyComponent onCollision(IVoidFunction1P<RigidBodyComponent> onCollision) {
     this.onCollision = onCollision;
     return this;
   }
