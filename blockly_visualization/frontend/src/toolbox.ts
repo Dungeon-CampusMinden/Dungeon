@@ -90,6 +90,10 @@ export const toolbox = {
           kind: "block",
           type: "get_variable",
         },
+        {
+          kind: "block",
+          type: "array_get",
+        },
       ],
     },
     {
@@ -104,6 +108,10 @@ export const toolbox = {
         {
           kind: "block",
           type: "array_set",
+        },
+        {
+          kind: "block",
+          type: "array_get",
         },
         {
           kind: "block",

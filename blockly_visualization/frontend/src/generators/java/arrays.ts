@@ -30,4 +30,18 @@ export function array_set(
   return code;
 }
 
+export function array_get(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+
+  const variable_id = block.getFieldValue("VAR");
+  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+
+  const input_index = generator.valueToCode(block, "INPUT_INDEX", Order.NONE);
+
+  const code = variable_name + '[' + input_index + ']';
+  return [code, Order.NONE];
+}
+
 

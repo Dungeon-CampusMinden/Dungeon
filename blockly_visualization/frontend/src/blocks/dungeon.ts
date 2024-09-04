@@ -284,35 +284,58 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 200,
   },
   {
-      type: "array_set",
-      previousStatement: null,
-      nextStatement: null,
-      message0: "In Array %1",
-      args0: [
-         {
-          type: "field_variable",
-          name: "VAR",
-          variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-        },
-      ],
-      message1: "den Wert %1",
-      args1: [
+    type: "array_set",
+    previousStatement: null,
+    nextStatement: null,
+    message0: "In Array %1",
+    args0: [
+       {
+        type: "field_variable",
+        name: "VAR",
+        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+      },
+    ],
+    message1: "den Wert %1",
+    args1: [
+      {
+         type: "input_value",
+         name: "INPUT_VALUE",
+         check: ["Variable", "Number", "Expression"],
+       },
+    ],
+    message2: "an Index %1 setzen",
+      args2: [
         {
            type: "input_value",
-           name: "INPUT_VALUE",
+           name: "INPUT_INDEX",
            check: ["Variable", "Number", "Expression"],
          },
       ],
-      message2: "an Index %1 setzen",
-        args2: [
-          {
-             type: "input_value",
-             name: "INPUT_INDEX",
-             check: ["Variable", "Number", "Expression"],
-           },
-        ],
-      colour: 200,
-    },
+    colour: 200,
+  },
+  {
+    type: "array_get",
+    previousStatement: null,
+    nextStatement: null,
+    message0: "Hole Wert aus Array %1",
+    args0: [
+       {
+        type: "field_variable",
+        name: "VAR",
+        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+      },
+    ],
+    message1: "von dem Index %1",
+    args1: [
+      {
+         type: "input_value",
+         name: "INPUT_INDEX",
+         check: ["Variable", "Number", "Expression"],
+       },
+    ],
+    output: 'Expression',
+    colour: 200,
+  },
   // ---------------------- Loops ----------------------
   {
     type: "repeat",
