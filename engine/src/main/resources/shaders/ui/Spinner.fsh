@@ -3,6 +3,7 @@
 #define PI 3.14159265359
 
 in vec3 vs_FragPos;
+in float vs_Depth;
 
 uniform mat4 aModel;
 uniform float uThickness;
@@ -28,4 +29,5 @@ void main() {
     a *= 1.0f - angle / (2 * PI);
     fragColor = vec4(((uColor >> 24) & 0xFF) / 255.0f, ((uColor >> 16) & 0xFF) / 255.0f, ((uColor >> 8) & 0xFF) / 255.0f, a);
   }
+  gl_FragDepth = vs_Depth;
 }

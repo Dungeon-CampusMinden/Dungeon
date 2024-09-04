@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec3 vs_FragPos;
+in float vs_Depth;
 
 uniform mat4 uModel;
 uniform vec2 uSize;
@@ -70,4 +71,5 @@ void main() {
       ((uBorderColor >> 8) & 0xFF) / 255.0f,
       ((uBorderColor >> 0) & 0xFF) / 255.0f);
   }
+  gl_FragDepth = vs_Depth;
 }

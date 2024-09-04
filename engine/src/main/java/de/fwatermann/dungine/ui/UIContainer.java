@@ -39,12 +39,7 @@ public class UIContainer<T extends UIContainer<?>> extends UIElement<T> {
    * @param camera the camera to use for rendering
    */
   @Override
-  public void render(Camera<?> camera) {
-    // TODO: Stencil!
-    this.elements.stream()
-        .sorted((a, b) -> Float.compare(a.position.z, b.position.z))
-        .forEach(element -> element.render(camera));
-  }
+  public void render(Camera<?> camera) {}
 
   /**
    * Adds a UI element to this container.

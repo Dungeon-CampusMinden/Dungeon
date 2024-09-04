@@ -1,6 +1,7 @@
 #version 330 core
 
 in vec3 vs_FragCoord;
+in float vs_Depth;
 
 uniform int uFillColor;
 uniform int uBorderColor;
@@ -80,4 +81,5 @@ void main() {
     discard;
     return;
   }
+  gl_FragDepth = vs_Depth;
 }
