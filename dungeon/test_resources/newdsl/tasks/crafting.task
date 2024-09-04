@@ -1,0 +1,15 @@
+# Rezept für einen einfachen Kuchen in der DSL
+task crafting KuchenBacken:
+"Backe einen Kuchen."
+"Mehl" as m
+"Zucker" as z
+"Backpulver" as bp
+"Vanillezucker" as vz
+"Eier" as e
+"Butter" as b
+2 "Milch" as ml
+m + z + bp + vz ~> "trocken" as tm
+e + 2 b + ml ~> "nass" as fm
+tm + fm -> "Teig" as t
+t -> "Kuchen"
+=> "Kuchen"

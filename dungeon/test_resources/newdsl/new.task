@@ -1,0 +1,7 @@
+task multiple-choice GeographieDE: "Welche Stadt liegt in Deutschland?"
+[X] "Minden"
+[X] "Hamburg"
+[ ] "New York"
+(?) "Wähle die Städte aus, die in Deutschland liegen"
+
+config Geographie: GeographieDE

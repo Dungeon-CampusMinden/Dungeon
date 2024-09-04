@@ -6,7 +6,7 @@ import dsl.annotation.DSLTypeMember;
 import java.util.*;
 import task.Task;
 import task.TaskContent;
-import task.game.hud.QuizUI;
+import task.game.hud.NewDSLQuizUI;
 import task.tasktype.quizquestion.FreeText;
 import task.tasktype.quizquestion.MultipleChoice;
 import task.tasktype.quizquestion.SingleChoice;
@@ -17,7 +17,7 @@ import task.tasktype.quizquestion.SingleChoice;
  *
  * <p>A {@link Quiz} can be a Single-Choice, a Multiple-Choice, or a Free-text question. The type is
  * defined by the concret class {@link SingleChoice}, {@link MultipleChoice} or {@link FreeText}. If
- * the question is asked via the UI, the {@link QuizUI} will configure the UI for the question based
+ * the question is asked via the UI, the {@link NewDSLQuizUI} will configure the UI for the question based
  * on that type.
  *
  * <p>Add a {@link Content} answer by using the {@link #addAnswer(Content...)} method. Use the

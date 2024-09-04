@@ -1,0 +1,4 @@
+task single-choice Task1:
+"Which city is the capital of Germany"
+[X] "Berlin"
+<<b>> "4"

@@ -5,6 +5,7 @@ import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
