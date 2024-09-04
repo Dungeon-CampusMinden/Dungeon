@@ -14,18 +14,20 @@ import de.fwatermann.dungine.utils.BoundingBox2D;
 import de.fwatermann.dungine.window.GameWindow;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL33;
 import test1.TestState1;
 
 public class UITestState0 extends GameState implements EventListener {
 
-  private static final long LOAD_DURATION = 0;
+  private static final long LOAD_DURATION = 1000;
 
   private long doneAt = 0;
 
   private UIText title;
   private UIButton buttonStart;
   private UIButton buttonExit;
+
+  private UIText textStart;
+  private UIText textEnd;
 
   public UITestState0(GameWindow window) {
     super(window);
@@ -34,7 +36,6 @@ public class UITestState0 extends GameState implements EventListener {
   @Override
   public void init() {
 
-    GL33.glEnable(GL33.GL_MULTISAMPLE);
     this.title = new UIText(Font.defaultMonoFont(), "Dungine", 60);
     this.buttonStart = new UIButton();
     this.buttonExit = new UIButton();
@@ -43,12 +44,18 @@ public class UITestState0 extends GameState implements EventListener {
         new UIComponentClickable(
             (e) -> {
               this.window.setState(new TestState1(this.window));
+
             }));
     this.buttonExit.attachComponent(
         new UIComponentClickable(
             (e) -> {
               this.window.close();
             }));
+    this.textStart = new UIText(Font.defaultMonoFont(), "Start", 40);
+    this.buttonStart.add(this.textStart);
+
+    this.textEnd = new UIText(Font.defaultMonoFont(), "Exit", 40);
+    this.buttonExit.add(this.textEnd);
 
     this.ui.add(this.title);
     this.ui.add(this.buttonStart);
@@ -78,6 +85,14 @@ public class UITestState0 extends GameState implements EventListener {
             size.x / 2.0f - buttonWidth / 2.0f,
             size.y / 2.0f - buttonHeight / 2.0f - buttonHeight - 10.0f,
             0.0f);
+
+    BoundingBox2D startTextBounds = this.textStart.font().calculateBoundingBox(this.textStart.text(), this.textStart.fontSize(), Math.round(this.buttonStart.size().x));
+    this.textStart.size().set(startTextBounds.width(), startTextBounds.height(), 0.0f);
+    this.textStart.position().set(this.buttonStart.size().x / 2 - startTextBounds.width() / 2.0f, this.buttonStart.size().y / 2 - startTextBounds.height() / 2.0f, 1.0f);
+
+    BoundingBox2D endTextBounds = this.textEnd.font().calculateBoundingBox(this.textEnd.text(), this.textEnd.fontSize(), Math.round(this.buttonExit.size().x));
+    this.textEnd.size().set(endTextBounds.width(), endTextBounds.height(), 0.0f);
+    this.textEnd.position().set(this.buttonExit.size().x / 2 - endTextBounds.width() / 2.0f, this.buttonExit.size().y / 2 - endTextBounds.height() / 2.0f, 1.0f);
 
     BoundingBox2D titleBounds =
         this.title.font().calculateBoundingBox(this.title.text(), this.title.fontSize());

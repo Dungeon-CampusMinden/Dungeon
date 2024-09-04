@@ -1,12 +1,12 @@
 package de.fwatermann.dungine.physics.util;
 
-import de.fwatermann.dungine.physics.colliders.CuboidCollider;
-import de.fwatermann.dungine.utils.FloatPair;
-import de.fwatermann.dungine.utils.IntPair;
-import de.fwatermann.dungine.utils.Pair;
+import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
+import de.fwatermann.dungine.utils.pair.FloatPair;
+import de.fwatermann.dungine.utils.pair.IntPair;
+import de.fwatermann.dungine.utils.pair.Pair;
 import de.fwatermann.dungine.utils.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
@@ -23,16 +23,19 @@ public class SATCheck {
    * @param edgesB The second set of edges.
    * @return A list of axes.
    */
-  private static List<Vector3f> getAxes(Vector3f[] edgesA, Vector3f[] edgesB) {
-    List<Vector3f> axes = new ArrayList<>();
+  private static void getAxes(Vector3f[] edgesA, Vector3f[] edgesB, Set<Vector3f> dest) {
     for (Vector3f edgeA : edgesA) {
       for (Vector3f edgeB : edgesB) {
+        Vector3f a = edgeA.normalize(new Vector3f());
+        Vector3f b = edgeB.normalize(new Vector3f());
+        if(Math.abs(a.dot(b)) >= 0.99999f) {
+          continue;
+        }
         Vector3f axis = new Vector3f();
-        edgeA.cross(edgeB, axis).normalize();
-        axes.add(axis);
+        edgeA.cross(edgeB, axis).normalize().mul(10000).round().div(10000);
+        dest.add(axis);
       }
     }
-    return axes;
   }
 
   /**
@@ -56,18 +59,18 @@ public class SATCheck {
   /**
    * Check for collision between two cuboid colliders.
    *
-   * @param boxA The first cuboid collider.
-   * @param boxB The second cuboid collider.
+   * @param colliderA The first cuboid collider.
+   * @param colliderB The second cuboid collider.
    * @return A pair containing the overlap distance and the collision normal if a collision
    *     occurred, null otherwise.
    */
   @Nullable
-  public static Pair<Float, Vector3f> checkCollision(CuboidCollider boxA, CuboidCollider boxB) {
+  public static Pair<Float, Vector3f> checkCollision(PolyhedronCollider<?> colliderA, PolyhedronCollider<?> colliderB) {
 
-    Vector3f[] verticesA = boxA.verticesTransformed(true);
-    Vector3f[] verticesB = boxB.verticesTransformed(true);
-    IntPair[] edgeIndicesA = boxA.edges();
-    IntPair[] edgeIndicesB = boxB.edges();
+    Vector3f[] verticesA = colliderA.vertices();
+    Vector3f[] verticesB = colliderB.vertices();
+    IntPair[] edgeIndicesA = colliderA.edges();
+    IntPair[] edgeIndicesB = colliderB.edges();
     Vector3f[] edgesA = new Vector3f[edgeIndicesA.length];
     Vector3f[] edgesB = new Vector3f[edgeIndicesB.length];
 
@@ -81,7 +84,11 @@ public class SATCheck {
               verticesB[edgeIndicesB[i].a()].sub(verticesB[edgeIndicesB[i].b()], new Vector3f());
     }
 
-    List<Vector3f> axes = getAxes(edgesA, edgesB);
+    Set<Vector3f> axes = new HashSet<>();
+    getAxes(edgesA, edgesB, axes);
+    getAxes(edgesB, edgesA, axes);
+    getAxes(edgesA, edgesA, axes);
+    getAxes(edgesB, edgesB, axes);
 
     float minOverlap = Float.MAX_VALUE;
     Vector3f minAxis = new Vector3f();

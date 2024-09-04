@@ -16,6 +16,7 @@ import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.graphics.simple.CubeColored;
 import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.input.Keyboard;
 import de.fwatermann.dungine.physics.colliders.AABCollider;
 import de.fwatermann.dungine.physics.colliders.BoxCollider;
 import de.fwatermann.dungine.physics.ecs.PhysicsDebugComponent;
@@ -25,6 +26,8 @@ import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Math;
@@ -97,17 +100,16 @@ public class TestState1 extends GameState implements EventListener {
       PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
       rb.gravity(false).kinematic(true);
       CubeColored cube = new CubeColored(new Vector3f(), 0x606060FF);
-      entity.size(new Vector3f(20, 1, 20));
+      entity.size(new Vector3f(5, 1, 5));
       entity.position().set(0, 0, 0);
       RenderableComponent rc = new RenderableComponent(cube);
       rb.addCollider(
-          new BoxCollider(rb, new Vector3f(-10, -0.5f, -10), new Vector3f(20, 1, 20), new Quaternionf()));
+          new BoxCollider(entity, new Vector3f(-2.5f, -0.5f, -2.5f), new Vector3f(5, 1, 5)));
       entity.addComponent(rb).addComponent(rc).addComponent(pdc);
       this.addEntity(entity);
     }
 
-
-        this.loaded = true;
+    this.loaded = true;
     EventManager.getInstance().registerListener(this);
   }
 
@@ -128,7 +130,7 @@ public class TestState1 extends GameState implements EventListener {
             this.entityCount(), this.renderableSystem.latestRenderCount()));
     this.debugPhysics.text(
         String.format(
-            "Physics: T:%.2fs / U:%d",
+            "Physics: T:%.6fs / U:%d",
             this.physicsSystem.lastDeltaTime(), this.physicsSystem.lastUpdates()));
   }
 
@@ -171,7 +173,7 @@ public class TestState1 extends GameState implements EventListener {
         // SphereCollider sphereCollider = new SphereCollider(e, new Vector3f(0.5f, 0.5f, 0.5f),
         // 0.5f);
         RigidBodyComponent rb = new RigidBodyComponent();
-        rb.addCollider(new AABCollider(rb, new Vector3f(0, 0, 0), new Vector3f(1, 1, 1)));
+        rb.addCollider(new AABCollider(e, new Vector3f(0, 0, 0), new Vector3f(1, 1, 1)));
         e.addComponent(rc).addComponent(rb);
         e.position().set(-0.5f, 5f, -0.5f);
         rb.mass(mass);
@@ -197,31 +199,48 @@ public class TestState1 extends GameState implements EventListener {
         RenderableComponent rc =
             new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
         RigidBodyComponent rb = new RigidBodyComponent();
-        PhysicsDebugComponent pdc =
-            new PhysicsDebugComponent()
-                .displayBoundingBox(true)
-                .displayCollisionPairs(true)
-                .displayForce(true)
-                .displayVelocity(true)
-                .displayColliders(true)
-                .displayEntityPosition(true);
-        rb.mass(1);
-        TextComponent tc =
-            new TextComponent(new Vector3f(0, 1.25f, 0), "CUBE", BillboardMode.SPHERICAL)
-                .size(new Vector3f(2.0f, 1.0f, 2.0f))
-                .originMode(TextComponent.OriginMode.CENTER);
-        rb.addCollider(
-            new BoxCollider(rb, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
-        e.addComponent(rc).addComponent(rb).addComponent(tc).addComponent(pdc);
-        e.position().set(this.camera.position().add(this.camera.front()));
+        PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
+        rb.addCollider(new BoxCollider(e, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
+        e.addComponent(rc).addComponent(rb).addComponent(pdc);
+        e.position().set(this.camera.position().add(this.camera.front().mul(2.0f)));
 
-        e.rotation().rotateZ(Math.toRadians(45));
-        e.rotation().rotateX(Math.toRadians(45));
+        if (Keyboard.keyPressed(GLFW.GLFW_KEY_LEFT_CONTROL)) {
+          e.rotation().rotateZ(Math.toRadians(45));
+          e.rotation().rotateX(Math.toRadians(45));
+        }
+
 
         // Vector3f force = this.camera.front().mul(10.0f);
         // rb.applyForce(force, RigidBodyComponent.ForceMode.ACCELERATION);
 
         this.addEntity(e);
+      } else if (event.key == GLFW.GLFW_KEY_T) {
+
+        List<Entity> toBeAdded = new ArrayList<>();
+        for (int x = -4; x < 5; x++) {
+          for (int z = -4; z < 5; z++) {
+
+            Entity entity = new Entity();
+            RigidBodyComponent rbc = new RigidBodyComponent();
+            RenderableComponent rb =
+                new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
+            rbc.addCollider(
+                new BoxCollider(
+                    entity,
+                    new Vector3f(-0.25f, -0.25f, -0.25f),
+                    new Vector3f(0.5f),
+                    new Quaternionf()));
+            entity.addComponent(rbc).addComponent(rb);
+            entity.position().set(x, 15, z);
+            entity.size(new Vector3f(0.5f));
+            entity.rotation().rotateX(Math.toRadians(45));
+            entity.rotation().rotateY(Math.toRadians(45));
+            rbc.mass(1.0f);
+
+            toBeAdded.add(entity);
+          }
+        }
+        this.addEntities(toBeAdded);
       }
     }
   }

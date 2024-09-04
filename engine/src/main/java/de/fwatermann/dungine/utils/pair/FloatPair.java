@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.utils;
+package de.fwatermann.dungine.utils.pair;
 
 public record FloatPair(float a, float b) {
 

@@ -1,10 +1,10 @@
 package de.fwatermann.dungine.physics.ecs;
 
 import de.fwatermann.dungine.ecs.Component;
-import de.fwatermann.dungine.ecs.Entity;
-import de.fwatermann.dungine.utils.functions.IVoidFunction1Parameter;
-
+import de.fwatermann.dungine.physics.colliders.Collision;
+import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -20,7 +20,7 @@ public class PhysicsDebugComponent extends Component {
   private boolean displayEntityPositions = false;
 
   ReentrantReadWriteLock collisionLock = new ReentrantReadWriteLock();
-  private List<Entity> collision = new ArrayList<>();
+  private List<Collision> collision = new ArrayList<>();
 
   public PhysicsDebugComponent(
       boolean displayVelocity,
@@ -118,19 +118,28 @@ public class PhysicsDebugComponent extends Component {
     return this;
   }
 
-  public void addCollision(Entity entity) {
+  public void addCollision(Collision collision) {
     try {
       this.collisionLock.writeLock().lock();
-      this.collision.add(entity);
+      this.collision.add(collision);
     } finally {
       this.collisionLock.writeLock().unlock();
     }
   }
 
-  public void removeCollision(Entity entity) {
+  public void addCollisions(Collection<Collision> collisions) {
     try {
       this.collisionLock.writeLock().lock();
-      this.collision.remove(entity);
+      this.collision.addAll(collisions);
+    } finally {
+      this.collisionLock.writeLock().unlock();
+    }
+  }
+
+  public void removeCollision(Collision collision) {
+    try {
+      this.collisionLock.writeLock().lock();
+      this.collision.remove(collision);
     } finally {
       this.collisionLock.writeLock().unlock();
     }
@@ -145,7 +154,7 @@ public class PhysicsDebugComponent extends Component {
     }
   }
 
-  public void collisions(IVoidFunction1Parameter<Stream<Entity>> stream) {
+  public void collisions(IVoidFunction1P<Stream<Collision>> stream) {
     try {
       this.collisionLock.readLock().lock();
       stream.run(this.collision.stream());

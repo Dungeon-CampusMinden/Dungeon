@@ -7,8 +7,8 @@ import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.simple.Lines;
 import de.fwatermann.dungine.graphics.simple.Points;
 import de.fwatermann.dungine.graphics.simple.WireframeBox;
-import de.fwatermann.dungine.physics.colliders.BoxCollider;
-import de.fwatermann.dungine.physics.colliders.CuboidCollider;
+import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
+import de.fwatermann.dungine.utils.pair.IntPair;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,12 +25,16 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
 
   private Camera<?> camera;
   private WireframeBox boundingBox;
-  private WireframeBox colliderBox;
-  private Points colliderVertices;
+  private Lines colliderLines;
   private Lines collisionLines;
   private Lines velocityLines;
   private Lines forceLines;
   private Points entityPositionPoints;
+  private Points colliderVertices;
+  private Points contactPoints;
+
+  public static Points contactPointsDebug;
+  public static Lines manifoldLines;
 
   public PhysicsDebugSystem(Camera<?> camera) {
     super(0, true, PhysicsDebugComponent.class);
@@ -43,15 +47,21 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     if (this.collisionLines == null) this.collisionLines = new Lines(0xFF0000FF).lineWidth(4.0f);
     if (this.velocityLines == null) this.velocityLines = new Lines(0x00FF00FF);
     if (this.forceLines == null) this.forceLines = new Lines(0xFF8000FF);
+    if(this.colliderLines == null) this.colliderLines = new Lines(0x00FF00FF);
     if (this.entityPositionPoints == null)
       this.entityPositionPoints = new Points(0x8000FFFF).pointSize(8.0f);
     if (this.colliderVertices == null)
       this.colliderVertices = new Points(0x00FFFFFF).pointSize(8.0f);
+    if (this.contactPoints == null) this.contactPoints = new Points(0xFF00FFFF).pointSize(8.0f);
+    if(contactPointsDebug == null) contactPointsDebug = new Points(0xFFFF00FF).pointSize(8.0f);
+    if(manifoldLines == null) manifoldLines = new Lines(0xFFFF00FF);
     this.collisionLines.clear();
     this.velocityLines.clear();
     this.forceLines.clear();
     this.entityPositionPoints.clear();
     this.colliderVertices.clear();
+    this.contactPoints.clear();
+    this.colliderLines.clear();
 
     ecs.entities(
         s -> {
@@ -96,40 +106,37 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
                   pdc.collisions(
                       (stream) ->
                           stream.forEach(
-                              e2 -> {
-                                this.collisionLines.addLine(
-                                    new Vector3f(entity.position()), new Vector3f(e2.position()));
+                              c -> {
+                                c.collisionPoints()
+                                    .forEach(
+                                        cp -> {
+                                          this.contactPoints.addPoint(cp);
+                                        });
                               }));
                 }
 
                 if (pdc.displayColliders()) {
                   optRBC.ifPresent(
                       rbc -> {
-                        if (this.colliderBox == null) {
-                          this.colliderBox =
-                              new WireframeBox(
-                                  new Vector3f(), new Vector3f(1.0f), 1.0f, 0x00FF00FF);
-                        }
                         rbc.colliders().stream()
-                            .filter(c -> c instanceof CuboidCollider)
+                            .filter(c -> c instanceof PolyhedronCollider<?>)
                             .forEach(
                                 c -> {
-                                  CuboidCollider cc = (CuboidCollider) c;
-                                  this.colliderBox.scaling(cc.size());
-                                  this.colliderBox.position(cc.worldPosition());
-                                  if (cc instanceof BoxCollider bc) {
-                                    this.colliderBox.rotation(bc.rotation(true));
+                                  PolyhedronCollider<?> pc = (PolyhedronCollider<?>) c;
+                                  Vector3f[] vertices = pc.vertices();
+                                  IntPair[] edges = pc.edges();
+                                  for (IntPair edge : edges) {
+                                    /*this.colliderVertices.addPoint(vertices[edge.a()]);
+                                    this.colliderVertices.addPoint(vertices[edge.b()]);*/
+                                    this.colliderLines.addLine(
+                                        vertices[edge.a()], vertices[edge.b()]);
                                   }
-                                  this.colliderBox.render(this.camera);
-
-                                  Vector3f[] vertices = cc.verticesTransformed(true);
-                                  for (Vector3f vertex : vertices) {
-                                    this.colliderVertices.addPoint(vertex);
-                                  }
-
-                                  Vector3f offset = entity.rotation().transform(cc.offset(), new Vector3f());
+                                  this.colliderLines.render(this.camera);
+                                  Vector3f offset =
+                                      entity.rotation().transform(pc.offset(), new Vector3f());
                                   this.forceLines.addLine(
-                                      new Vector3f(entity.position()), offset.add(entity.position()));
+                                      new Vector3f(entity.position()),
+                                      offset.add(entity.position()));
                                 });
                       });
                 }
@@ -142,6 +149,9 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     this.forceLines.render(this.camera);
     this.entityPositionPoints.render(this.camera);
     this.colliderVertices.render(this.camera);
+    this.contactPoints.render(this.camera);
+    contactPointsDebug.render(this.camera);
+    manifoldLines.render(this.camera);
   }
 
   private void initBoundingBox(Entity entity) {
@@ -173,4 +183,7 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     this.camera = camera;
     return this;
   }
+
+
+
 }
