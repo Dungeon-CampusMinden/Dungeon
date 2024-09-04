@@ -33,7 +33,7 @@ MULTI : '*';
 DIV   : '/';
 PLUS  : '+';
 MINUS : '-';
-NOT   : 'not';
+NOT   : 'nicht';
 
 ID      : (CHAR | '_')(CHAR | DIGIT | '_')*;
 INT     : DIGIT+;
