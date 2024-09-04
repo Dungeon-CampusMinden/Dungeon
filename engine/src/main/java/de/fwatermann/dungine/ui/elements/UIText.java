@@ -137,7 +137,7 @@ public class UIText extends UIElement<UIText> {
     SHADER.setUniform4fv("uColor", 1.0f, 1.0f, 1.0f, 1.0f);
     SHADER.setUniform2iv("uPageSize", Font.PAGE_SIZE_X, Font.PAGE_SIZE_Y);
     SHADER.setUniform1i("uPage", 0);
-    SHADER.setUniform3f("uBasePosition", this.position);
+    SHADER.setUniform3f("uBasePosition", this.absolutePosition());
     this.renderSteps.forEach(
         s -> {
           GL33.glActiveTexture(GL33.GL_TEXTURE0);
