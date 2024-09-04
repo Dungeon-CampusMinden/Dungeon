@@ -100,11 +100,11 @@ public class TestState1 extends GameState implements EventListener {
       PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
       rb.gravity(false).kinematic(true);
       CubeColored cube = new CubeColored(new Vector3f(), 0x606060FF);
-      entity.size(new Vector3f(20, 1, 20));
+      entity.size(new Vector3f(5, 1, 5));
       entity.position().set(0, 0, 0);
       RenderableComponent rc = new RenderableComponent(cube);
       rb.addCollider(
-          new BoxCollider(entity, new Vector3f(-10, -0.5f, -10), new Vector3f(20, 1, 20)));
+          new BoxCollider(entity, new Vector3f(-2.5f, -0.5f, -2.5f), new Vector3f(5, 1, 5)));
       entity.addComponent(rb).addComponent(rc).addComponent(pdc);
       this.addEntity(entity);
     }
