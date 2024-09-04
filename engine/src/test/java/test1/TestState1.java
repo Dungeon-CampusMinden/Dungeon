@@ -104,8 +104,7 @@ public class TestState1 extends GameState implements EventListener {
       entity.position().set(0, 0, 0);
       RenderableComponent rc = new RenderableComponent(cube);
       rb.addCollider(
-          new BoxCollider(
-              rb, new Vector3f(-10, -0.5f, -10), new Vector3f(20, 1, 20), new Quaternionf()));
+          new BoxCollider(entity, new Vector3f(-10, -0.5f, -10), new Vector3f(20, 1, 20)));
       entity.addComponent(rb).addComponent(rc).addComponent(pdc);
       this.addEntity(entity);
     }
@@ -174,7 +173,7 @@ public class TestState1 extends GameState implements EventListener {
         // SphereCollider sphereCollider = new SphereCollider(e, new Vector3f(0.5f, 0.5f, 0.5f),
         // 0.5f);
         RigidBodyComponent rb = new RigidBodyComponent();
-        rb.addCollider(new AABCollider(rb, new Vector3f(0, 0, 0), new Vector3f(1, 1, 1)));
+        rb.addCollider(new AABCollider(e, new Vector3f(0, 0, 0), new Vector3f(1, 1, 1)));
         e.addComponent(rc).addComponent(rb);
         e.position().set(-0.5f, 5f, -0.5f);
         rb.mass(mass);
@@ -201,7 +200,7 @@ public class TestState1 extends GameState implements EventListener {
             new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
         RigidBodyComponent rb = new RigidBodyComponent();
         PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
-        rb.addCollider(new BoxCollider(rb, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
+        rb.addCollider(new BoxCollider(e, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
         e.addComponent(rc).addComponent(rb).addComponent(pdc);
         e.position().set(this.camera.position().add(this.camera.front().mul(2.0f)));
 
@@ -227,7 +226,7 @@ public class TestState1 extends GameState implements EventListener {
                 new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
             rbc.addCollider(
                 new BoxCollider(
-                    rbc,
+                    entity,
                     new Vector3f(-0.25f, -0.25f, -0.25f),
                     new Vector3f(0.5f),
                     new Quaternionf()));

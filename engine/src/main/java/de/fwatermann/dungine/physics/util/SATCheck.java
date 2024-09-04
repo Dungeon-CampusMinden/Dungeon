@@ -1,6 +1,6 @@
 package de.fwatermann.dungine.physics.util;
 
-import de.fwatermann.dungine.physics.colliders.CuboidCollider;
+import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
 import de.fwatermann.dungine.utils.FloatPair;
 import de.fwatermann.dungine.utils.IntPair;
 import de.fwatermann.dungine.utils.Pair;
@@ -59,18 +59,18 @@ public class SATCheck {
   /**
    * Check for collision between two cuboid colliders.
    *
-   * @param boxA The first cuboid collider.
-   * @param boxB The second cuboid collider.
+   * @param colliderA The first cuboid collider.
+   * @param colliderB The second cuboid collider.
    * @return A pair containing the overlap distance and the collision normal if a collision
    *     occurred, null otherwise.
    */
   @Nullable
-  public static Pair<Float, Vector3f> checkCollision(CuboidCollider boxA, CuboidCollider boxB) {
+  public static Pair<Float, Vector3f> checkCollision(PolyhedronCollider<?> colliderA, PolyhedronCollider<?> colliderB) {
 
-    Vector3f[] verticesA = boxA.verticesTransformed(true);
-    Vector3f[] verticesB = boxB.verticesTransformed(true);
-    IntPair[] edgeIndicesA = boxA.edges();
-    IntPair[] edgeIndicesB = boxB.edges();
+    Vector3f[] verticesA = colliderA.vertices();
+    Vector3f[] verticesB = colliderB.vertices();
+    IntPair[] edgeIndicesA = colliderA.edges();
+    IntPair[] edgeIndicesB = colliderB.edges();
     Vector3f[] edgesA = new Vector3f[edgeIndicesA.length];
     Vector3f[] edgesB = new Vector3f[edgeIndicesB.length];
 
