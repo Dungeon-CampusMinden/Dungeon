@@ -1,0 +1,33 @@
+import * as Blockly from "blockly";
+import { Order } from "../java.ts";
+
+export function var_array(
+  block: Blockly.Block,
+  _generator: Blockly.Generator
+) {
+
+  const variable_id = block.getFieldValue("VAR");
+  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+
+  const input_a = block.getFieldValue("INPUT_A");
+
+  const code = 'int[] ' + variable_name + ' = new int[' + input_a + '];'
+  return code;
+}
+
+export function array_set(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+
+  const variable_id = block.getFieldValue("VAR");
+  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+
+  const input_index = generator.valueToCode(block, "INPUT_INDEX", Order.NONE);
+  const input_value = generator.valueToCode(block, "INPUT_VALUE", Order.NONE);
+
+  const code = variable_name + '[' + input_index + '] = ' + input_value + ';'
+  return code;
+}
+
+

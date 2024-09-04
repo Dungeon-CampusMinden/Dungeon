@@ -14,6 +14,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 120,
     tooltip: "Startpunkt des Spiels",
   },
+  // ---------------------- Movement ----------------------
   {
     type: "move_up",
     message0: "Oben %1",
@@ -142,6 +143,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
   },
+  // ---------------------- Variables ----------------------
   {
     type: "get_number",
     message0: "%1",
@@ -256,6 +258,62 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Number",
     colour: 230,
   },
+  // ---------------------- Arrays ----------------------
+  {
+    type: "var_array",
+    previousStatement: null,
+    nextStatement: null,
+    message0: "Array erstellen %1",
+    args0: [
+       {
+        type: "field_variable",
+        name: "VAR",
+        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+      },
+    ],
+    message1: "mit der Größe %1",
+    args1: [
+      {
+         type: "field_number",
+         name: "INPUT_A",
+         value: 1,
+         min: 1,
+         max: config.ARRAY_MAX_VALUE,
+       },
+    ],
+    colour: 200,
+  },
+  {
+      type: "array_set",
+      previousStatement: null,
+      nextStatement: null,
+      message0: "In Array %1",
+      args0: [
+         {
+          type: "field_variable",
+          name: "VAR",
+          variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+        },
+      ],
+      message1: "den Wert %1",
+      args1: [
+        {
+           type: "input_value",
+           name: "INPUT_VALUE",
+           check: ["Variable", "Number", "Expression"],
+         },
+      ],
+      message2: "an Index %1 setzen",
+        args2: [
+          {
+             type: "input_value",
+             name: "INPUT_INDEX",
+             check: ["Variable", "Number", "Expression"],
+           },
+        ],
+      colour: 200,
+    },
+  // ---------------------- Loops ----------------------
   {
     type: "repeat",
     message0: "%{BKY_CONTROLS_REPEAT_TITLE}",
@@ -315,6 +373,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Move",
     colour: 30,
   },
+  // ---------------------- Conditions ----------------------
   {
     type: "logic_boolean",
     message0: "%1",
@@ -433,6 +492,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Boolean",
     colour: 60,
   },
+  // ---------------------- If statement ----------------------
   {
     type: "controls_if",
     message0: "%{BKY_CONTROLS_IF_MSG_IF} %1",
@@ -487,6 +547,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 60,
     suppressPrefixSuffix: true,
   },
+  // ---------------------- Skills ----------------------
   {
     type: "interact",
     message0: "Interagieren",

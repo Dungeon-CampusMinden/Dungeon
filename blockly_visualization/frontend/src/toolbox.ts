@@ -94,6 +94,33 @@ export const toolbox = {
     },
     {
       kind: "category",
+      name: "Arrays",
+      colour: "200",
+      contents: [
+        {
+          kind: "block",
+          type: "var_array",
+        },
+        {
+          kind: "block",
+          type: "array_set",
+        },
+        {
+          kind: "block",
+          type: "expression",
+        },
+        {
+          kind: "block",
+          type: "get_variable",
+        },
+        {
+          kind: "block",
+          type: "var_number",
+        },
+      ],
+    },
+    {
+      kind: "category",
       name: "Schleife",
       colour: "30",
       contents: [

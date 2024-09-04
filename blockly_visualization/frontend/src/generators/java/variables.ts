@@ -58,10 +58,9 @@ export function set_number_expression(
   const value = generator.valueToCode(block, "VALUE", Order.NONE);
 
   const variable_id = block.getFieldValue("VAR");
-  const variable_name =
-      Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
 
-  const code = variable_name + ' = ' + value
+  const code = variable_name + ' = ' + value + ';'
   return code
 }
 
