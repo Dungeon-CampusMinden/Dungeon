@@ -1,6 +1,6 @@
 package de.fwatermann.dungine.physics.colliders;
 
-import de.fwatermann.dungine.utils.IntPair;
+import de.fwatermann.dungine.utils.pair.IntPair;
 import org.joml.Vector3f;
 
 public class Face {

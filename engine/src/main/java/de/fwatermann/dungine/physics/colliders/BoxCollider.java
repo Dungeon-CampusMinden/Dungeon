@@ -1,7 +1,7 @@
 package de.fwatermann.dungine.physics.colliders;
 
 import de.fwatermann.dungine.ecs.Entity;
-import de.fwatermann.dungine.utils.IntPair;
+import de.fwatermann.dungine.utils.pair.IntPair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;

@@ -1,9 +1,9 @@
 package de.fwatermann.dungine.physics.util;
 
 import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
-import de.fwatermann.dungine.utils.FloatPair;
-import de.fwatermann.dungine.utils.IntPair;
-import de.fwatermann.dungine.utils.Pair;
+import de.fwatermann.dungine.utils.pair.FloatPair;
+import de.fwatermann.dungine.utils.pair.IntPair;
+import de.fwatermann.dungine.utils.pair.Pair;
 import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
