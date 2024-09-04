@@ -19,6 +19,7 @@ import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.Then;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Null;
 import de.fwatermann.dungine.utils.annotations.Nullable;
@@ -729,6 +730,21 @@ public abstract class GameWindow implements Disposable {
 
   public GameWindow clearColor(int clearColor) {
     this.clearColor = clearColor;
+    if(ThreadUtils.isMainThread()) {
+      GL33.glClearColor(
+        ((this.clearColor >> 24) & 0xFF) / 255.0f,
+        ((this.clearColor >> 16) & 0xFF) / 255.0f,
+        ((this.clearColor >> 8) & 0xFF) / 255.0f,
+        (this.clearColor & 0xFF) / 255.0f);
+    } else {
+      this.runOnMainThread(() -> {
+        GL33.glClearColor(
+          ((this.clearColor >> 24) & 0xFF) / 255.0f,
+          ((this.clearColor >> 16) & 0xFF) / 255.0f,
+          ((this.clearColor >> 8) & 0xFF) / 255.0f,
+          (this.clearColor & 0xFF) / 255.0f);
+      });
+    }
     return this;
   }
 
