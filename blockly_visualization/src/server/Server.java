@@ -48,7 +48,7 @@ public class Server {
   // It can hold the following values: if, while.
   private static final Stack<String> active_scopes = new Stack<>();
   // This is public, so we can easily access it in the blocklyConditionVisitor
-  public static final Dictionary<String, Integer> variables = new Hashtable<>();
+  public static final HashMap<String, Integer> variables = new HashMap<>();
 
   /**
    * WTF? .
@@ -153,6 +153,16 @@ public class Server {
     }
   }
   private static void handleResetRequest(HttpExchange exchange) throws IOException {
+    // Reset values
+    if_flag = false;
+    if_active = false;
+    else_flag = false;
+    current_while_cond_negative = false;
+    while_is_repeating.clear();
+    whileBodys.clear();
+    while_conditions.clear();
+    active_scopes.clear();
+    variables.clear();
     Debugger.TELEPORT_TO_START();
 
     PositionComponent pc = getHeroPosition();
@@ -163,6 +173,8 @@ public class Server {
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
+
+
   }
 
   /**
@@ -187,18 +199,13 @@ public class Server {
    * @return Returns the result of the expression
    */
   private static int executeExpression(int leftValue, int rightValue, String op) {
-    switch (op) {
-      case "+":
-        return leftValue + rightValue;
-      case "-":
-        return leftValue - rightValue;
-      case "*":
-        return leftValue * rightValue;
-      case "/":
-        return leftValue / rightValue;
-      default:
-        return 0;
-    }
+    return switch (op) {
+      case "+" -> leftValue + rightValue;
+      case "-" -> leftValue - rightValue;
+      case "*" -> leftValue * rightValue;
+      case "/" -> leftValue / rightValue;
+      default -> 0;
+    };
   }
 
   /**
@@ -269,7 +276,7 @@ public class Server {
       active_scopes.push("if");
       Pattern pattern = Pattern.compile("falls \\((.*)\\)");
       if_flag = evalComplexCondition(action, pattern);
-      System.out.print("IF condition result");
+      System.out.print("IF condition result: ");
       System.out.println(if_flag);
     }
 

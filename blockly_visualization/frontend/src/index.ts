@@ -156,10 +156,11 @@ function getStartBlock() {
   return null;
 }
 
+var startBlock = getStartBlock();
+var currentBlock = startBlock;
+
 if (stepBtn) {
   workspace.highlightBlock(null);
-  var startBlock = getStartBlock();
-  var currentBlock = startBlock;
   stepBtn.addEventListener("click", async () => {
       if (currentBlock === null) {
         alert("Alle Schritte ausgeführt.");
@@ -205,6 +206,10 @@ if (stepBtn) {
 
 if (resetBtn) {
   resetBtn.addEventListener("click", async () => {
+    // Reset code highlighting
+    workspace.highlightBlock(null);
+    // Reset currentBlock for step button
+    currentBlock = startBlock;
     try {
       const response = await api.post("reset");
       const status = response.status;
