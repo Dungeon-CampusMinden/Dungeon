@@ -1,18 +1,14 @@
 grammar blockly;
 
-start   : (condition)*;
+start   : (expr+)*;
 
-condition  : expr+;
-
-expr        : sign=(PLUS | MINUS) right=expr                    #Unary_Expr
-            | '(' ex=expr ')'                                      #Parenthese_Expr
-            | left=expr op=(MULTI | DIV) right=expr             #Operator_Expr
-            | left=expr op=(PLUS | MINUS) right=expr          #Operator_Expr
+expr        : '(' ex=expr ')'                                  #Parenthese_Expr
             | left=expr op=COMPARE_OPERATOR right=expr         #Compare_Expr
-            | NOT right=expr                                    #Not_Expr
+            | NOT right=expr                                   #Not_Expr
             | left=expr op=(AND | OR) right=expr               #Logic_Expr
             | right_value                                      #Atom_Expr
             ;
+
 right_value : value
             | var
             | func_call
@@ -20,7 +16,7 @@ right_value : value
 
 func_call   : id=ID '(' args=arguments? ')';
 var         : ID;
-value   : INT | STRING | BOOLEAN;
+value   : BOOLEAN | INT;
 arguments    : (expr ','?)+;
 
 // Lexer
