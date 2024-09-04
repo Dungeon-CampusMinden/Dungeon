@@ -1,5 +1,8 @@
 package server;
 
+import antlr.blocklyConditionVisitor;
+import antlr.blocklyLexer;
+import antlr.blocklyParser;
 import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -13,6 +16,11 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import nodes.StartNode;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,7 +47,8 @@ public class Server {
   // This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
   // It can hold the following values: if, while.
   private static final Stack<String> active_scopes = new Stack<>();
-  private static final Dictionary<String, Integer> variables = new Hashtable<>();
+  // This is public, so we can easily access it in the blocklyConditionVisitor
+  public static final Dictionary<String, Integer> variables = new Hashtable<>();
 
   /**
    * WTF? .
@@ -260,6 +269,8 @@ public class Server {
       active_scopes.push("if");
       Pattern pattern = Pattern.compile("falls \\((.*)\\)");
       if_flag = evalComplexCondition(action, pattern);
+      System.out.print("IF condition result");
+      System.out.println(if_flag);
     }
 
     if (action.contains("sonst")) {
@@ -268,134 +279,18 @@ public class Server {
     }
   }
 
-  /**
-   * Check if the given string contains at least one string of a list
-   * @param inputString String that will be tested
-   * @param items List of strings that will be tested against the input string
-   * @return Returns true if input string contains at least on string that is given in items. Otherwise, return false
-   */
-  private static boolean containsItemFromArray(String inputString, String[] items) {
-    return Arrays.stream(items).anyMatch(inputString::contains);
-  }
-
-  /**
-   * Eval a complex condition. This function is used when evaluating if or while conditions.
-   * @param action String containing the condition
-   * @param pattern Regex to extract only the condition from the action string
-   * @return Returns true or false depending on the result of the condition
-   */
-
   private static boolean evalComplexCondition(String action, Pattern pattern) {
     Matcher matcher = pattern.matcher(action);
-    String condition = "";
-    boolean retValue = false;
     if (matcher.find()) {
-      condition = matcher.group(1);
-      // There may be multiple conditions in one condition. We need to split it.
-      // We split at each opening "(" without an immediate following ")"
-      String[] splitted_condition = condition.split("\\((?=[^\\)])");
-      String lastLogicOp = "";
+      blocklyLexer lexer = new blocklyLexer(CharStreams.fromString(matcher.group(1)));
+      CommonTokenStream tokens = new CommonTokenStream(lexer);
+      blocklyParser parser = new blocklyParser(tokens);
 
-      for (String currentCondition : splitted_condition) {
-        // Skip if condition string is empty
-        if (currentCondition.isEmpty()) {
-          continue;
-        }
-        // Get left and right condition with regex
-        Pattern condPattern = Pattern.compile("(.+?)(&&|\\|\\|)(.+)");
-        Matcher condMatcher = condPattern.matcher(currentCondition);
-        if (condMatcher.find()) {
-          String leftCondition = condMatcher.group(1);
-          String rightCondition = condMatcher.group(3);
-          String logicOperator = condMatcher.group(2);
+      ParseTree tree = parser.start();
+      blocklyConditionVisitor eval = new blocklyConditionVisitor();
+      StartNode ast = (StartNode) eval.visit(tree);
 
-          // Eval res with logic operator
-          boolean result = evalLogicOp(evalCondition(leftCondition), evalCondition(rightCondition), logicOperator);
-          // Check if there is a logic operator from last result and check current result with last result
-          if (!lastLogicOp.isEmpty()) {
-            result = evalLogicOp(result, retValue, lastLogicOp);
-          }
-          // Right condition might contain a logic operator that needs to be used for eval of current result and next
-          // result
-          if (rightCondition.contains("||")) {
-            lastLogicOp = "||";
-          } else if (rightCondition.contains("&&")) {
-            lastLogicOp = "&&";
-          } else {
-            lastLogicOp = "";
-          }
-          retValue = result;
-        } else {
-          retValue = evalCondition(currentCondition);
-        }
-      }
-    }
-    return retValue;
-  }
-  private static boolean evalLogicOp(Boolean leftCondition, Boolean rightCondition, String op) {
-    switch(op) {
-      case "&&":
-        return leftCondition && rightCondition;
-      case "||":
-        return leftCondition || rightCondition;
-      default:
-        return false;
-    }
-  }
-  private static boolean evalCondition(String condition) {
-    if (condition.contains("wahr")) {
-      return true;
-    }
-    if (condition.contains("naheWand()")) {
-      return isNearWall();
-    }
-    if (condition.contains("WandOben()")) {
-      return isNearWallUp();
-    }
-    if (condition.contains("WandUnten()")) {
-      return isNearWallDown();
-    }
-    if (condition.contains("WandLinks()")) {
-      return isNearWallLeft();
-    }
-    if (condition.contains("WandRechts()")) {
-      return isNearWallRight();
-    }
-    String[] ops = {"==", "!=", "<", ">", "<=", ">="};
-    if (containsItemFromArray(condition, ops)) {
-      return evalCompareCondition(condition);
-    }
-    return false;
-  }
-
-  /**
-   * Evaluate the given condition
-   * @param action String that contains the condition.
-   * @return Return true or false depending on the condition.
-   */
-  private static boolean evalCompareCondition(String action) {
-    Pattern pattern = Pattern.compile("(\\w+)\\s(<|>|==|!=|<=|>=)\\s(\\w+)");
-    Matcher matcher = pattern.matcher(action);
-    if (matcher.find()) {
-      int input_a = Integer.parseInt(matcher.group(1));
-      int input_b =  Integer.parseInt(matcher.group(3));
-      String op = matcher.group(2);
-      switch (op) {
-        case "==":
-          return input_a == input_b;
-        case "!=":
-          return input_a != input_b;
-        case "<=":
-          return input_a <= input_b;
-        case "<":
-          return input_a < input_b;
-        case ">=":
-          return input_a >= input_b;
-        case ">":
-          return input_a > input_b;
-        default:
-          return false;
-      }
+      return ast.getBoolValue();
     }
     return false;
   }
