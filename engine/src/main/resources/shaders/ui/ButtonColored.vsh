@@ -7,8 +7,11 @@ uniform mat4 uView;
 uniform mat4 uModel;
 
 out vec3 vs_FragCoord;
+out float vs_Depth;
 
 void main() {
-  gl_Position = uProjection * uView * uModel * vec4(aPosition.xy, 0.0f, 1.0f);
+  vec4 pos = uView * uModel * vec4(aPosition, 1.0f);
+  gl_Position = uProjection * pos;
   vs_FragCoord = aPosition;
+  vs_Depth = pos.z;
 }
