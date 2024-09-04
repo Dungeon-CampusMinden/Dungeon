@@ -31,6 +31,15 @@ export function usual_condition(
   return [code, Order.NONE];
 }
 
+export function not_condition(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const input_a = generator.valueToCode(block, "INPUT_A", Order.NONE);
+  const code = 'nicht ' + input_a;
+  return [code, Order.NONE];
+}
+
 export function logic_wall(
   _block: Blockly.Block,
   _generator: Blockly.Generator

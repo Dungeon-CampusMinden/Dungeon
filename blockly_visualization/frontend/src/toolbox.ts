@@ -115,6 +115,14 @@ export const toolbox = {
         },
         {
           kind: "block",
+          type: "not_condition",
+        },
+        {
+          kind: "block",
+          type: "logic_operator",
+        },
+        {
+          kind: "block",
           type: "logic_wall",
         },
         {
@@ -155,6 +163,10 @@ export const toolbox = {
         {
           kind: "block",
           type: "usual_condition",
+        },
+        {
+          kind: "block",
+          type: "not_condition",
         },
         {
           kind: "block",

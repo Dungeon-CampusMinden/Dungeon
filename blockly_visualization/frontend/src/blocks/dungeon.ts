@@ -363,6 +363,20 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 60,
   },
   {
+    type: "not_condition",
+    message0: "nicht %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "INPUT_A",
+        check: "Boolean",
+      },
+    ],
+    inputsInline: true,
+    output: "Boolean",
+    colour: 60,
+  },
+  {
       type: "logic_operator",
       message0: "%1 %2 %3",
       args0: [
