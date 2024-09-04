@@ -38,9 +38,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   private void init() {
-    if(this.initialized) return;
+    if (this.initialized) return;
     EventManager.getInstance().registerListener(this);
-    this.initialized =  true;
+    this.initialized = true;
   }
 
   public void render() {
@@ -62,7 +62,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
     this.hover();
-    this.render(this.uiCamera);
+    this.allChildElements(true).stream()
+        .sorted((a, b) -> Float.compare(b.position.z, a.position.z))
+        .forEach(e -> e.render(this.camera()));
 
     if (!depthEnabled) GL33.glDisable(GL33.GL_DEPTH_TEST);
     GL33.glDepthFunc(depthFunc);
