@@ -9,7 +9,7 @@ import de.fwatermann.dungine.graphics.simple.CubeColored;
 import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.physics.colliders.Collision;
 import de.fwatermann.dungine.physics.colliders.CollisionResult;
-import de.fwatermann.dungine.utils.Pair;
+import de.fwatermann.dungine.utils.pair.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +65,10 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     this.lastExecution = java.lang.System.nanoTime();
     this.lastDeltaTime = deltaTime;
     this.lUc = 0;
+    if(PhysicsDebugSystem.contactPointsDebug != null)
+      PhysicsDebugSystem.contactPointsDebug.clear();
+    if(PhysicsDebugSystem.manifoldLines != null)
+      PhysicsDebugSystem.manifoldLines.clear();
     ecs.entities(
         (s) ->
             s.forEach(
@@ -197,7 +201,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
 
           //DEBUG
           entity.component(PhysicsDebugComponent.class).ifPresent(pdc -> {
-            pdc.addCollision(entity2);
+            pdc.addCollisions(collisions);
           });
 
         }

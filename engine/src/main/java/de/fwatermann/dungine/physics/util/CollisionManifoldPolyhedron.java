@@ -3,8 +3,9 @@ package de.fwatermann.dungine.physics.util;
 import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.physics.colliders.Face;
 import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
-import de.fwatermann.dungine.utils.IntPair;
-import java.util.Arrays;
+import de.fwatermann.dungine.physics.ecs.PhysicsDebugSystem;
+import de.fwatermann.dungine.utils.pair.IntPair;
+import de.fwatermann.dungine.utils.pair.Vector3fPair;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -38,47 +39,58 @@ public class CollisionManifoldPolyhedron {
       return Set.of();
     }
 
-    Vector3f furthestVertex1 = getFurthestVertex(pc1, normal.negate(new Vector3f()));
-    Vector3f furthestVertex2 = getFurthestVertex(pc2, normal);
+    Vector3f normalNeg = normal.negate(new Vector3f());
+    Vector3f furthestVertex1 = getFurthestVertex(pc1, normal);
+    Vector3f furthestVertex2 = getFurthestVertex(pc2, normalNeg);
 
-    Face referenceFace = getBestFace(pc1, furthestVertex1, normal);
-    Face incidentFace = getBestFace(pc2, furthestVertex2, normal.negate(new Vector3f()));
+    PhysicsDebugSystem.manifoldLines.addLine(pc1.vertices()[0], pc1.vertices()[0].add(normal, new Vector3f()), 0x0080FFFF);
 
+    PhysicsDebugSystem.contactPointsDebug.addPoint(furthestVertex1, 0xFF0000FF);
+    PhysicsDebugSystem.contactPointsDebug.addPoint(furthestVertex2, 0x00FF00FF);
 
-    if(Math.abs(referenceFace.normal().dot(incidentFace.normal())) < Math.abs(incidentFace.normal().dot(normal))) {
-      Face temp = referenceFace;
-      referenceFace = incidentFace;
-      incidentFace = temp;
-    }
+    Face refFace = getBestFace(pc1, furthestVertex1, normalNeg);
+    Face incFace = getBestFace(pc2, furthestVertex2, normal);
 
-    IntPair[] referenceEdges = referenceFace.edges();
-    IntPair[] incidentEdges = incidentFace.edges();
-    Vector3f[] referenceVertices = new Vector3f[referenceEdges.length * 2];
-    Vector3f[] incidentVertices = new Vector3f[incidentEdges.length * 2];
+    /*if(Math.abs(refFace.normal().dot(normal)) < Math.abs(incFace.normal().dot(normal))) {
+      Face temp = refFace;
+      refFace = incFace;
+      incFace = temp;
+    }*/
 
-    for(int i = 0; i < referenceEdges.length; i++) {
-      Vector3f a = pc1.vertices()[referenceEdges[i].a()];
-      Vector3f b = pc1.vertices()[referenceEdges[i].b()];
-      referenceVertices[i * 2] = a;
-      referenceVertices[i * 2 + 1] = b;
-    }
-    for(int i = 0; i < incidentEdges.length; i++) {
-      Vector3f a = pc2.vertices()[incidentEdges[i].a()];
-      Vector3f b = pc2.vertices()[incidentEdges[i].b()];
-      incidentVertices[i * 2] = a;
-      incidentVertices[i * 2 + 1] = b;
-    }
+    Vector3fPair[] incidentEdges = convertEdges(incFace);
+    Vector3fPair[] referenceEdges = convertEdges(refFace);
 
     for(int i = 0; i < referenceEdges.length; i++) {
-      Vector3f a = referenceFace.parent().vertices()[referenceEdges[i].a()];
-      Vector3f b = referenceFace.parent().vertices()[referenceEdges[i].b()];
-      Vector3f edge = b.sub(a).normalize();
-      Vector3f aN = edge.cross(referenceFace.normal(), new Vector3f());
-      clipFace(incidentVertices, aN, a);
+      Vector3fPair vertices = referenceEdges[i];
+      Vector3f a = vertices.a();
+      Vector3f b = vertices.b();
+      Vector3f edge = b.sub(a, new Vector3f()).normalize();
+      Vector3f aN = edge.cross(refFace.normal(), new Vector3f());
+      PhysicsDebugSystem.contactPointsDebug.addPoint(a);
+      PhysicsDebugSystem.contactPointsDebug.addPoint(b);
+      PhysicsDebugSystem.manifoldLines.addLine(a, a.add(aN, new Vector3f()));
+      PhysicsDebugSystem.manifoldLines.addLine(a, a.add(edge, new Vector3f()), 0x8080FFFF);
+      //clipFace(incidentEdges, aN, a);
     }
-    clipFace(incidentVertices, referenceFace.normal(), referenceVertices[0]);
+    //clipFace(incidentEdges, refFace.normal(), refFace.vertex(0));
 
-    return new HashSet<>(Arrays.asList(incidentVertices));
+    Set<Vector3f> result = new HashSet<>();
+    for(Vector3fPair pair : incidentEdges) {
+      result.add(pair.a());
+      result.add(pair.b());
+    }
+    return result;
+  }
+
+  private static Vector3fPair[] convertEdges(Face face) {
+    Vector3fPair[] edges = new Vector3fPair[face.edges().length];
+    for(int i = 0; i < face.edges().length; i++) {
+      IntPair edge = face.edges()[i];
+      Vector3f a = new Vector3f(face.parent().vertices()[edge.a()]);
+      Vector3f b = new Vector3f(face.parent().vertices()[edge.b()]);
+      edges[i] = new Vector3fPair(a, b);
+    }
+    return edges;
   }
 
   private static Vector3f getFurthestVertex(PolyhedronCollider<?> pc, Vector3f direction) {
@@ -99,9 +111,9 @@ public class CollisionManifoldPolyhedron {
     Face[] faces = pc.faces();
     Face bestFace = faces[0];
     float minAngle = Float.MAX_VALUE;
-    for(int i = 1; i < pc.faces().length; i++) {
+    for(int i = 0; i < pc.faces().length; i++) {
       if(bestFace.hasVertex(vertex)) {
-        float angle = Math.abs(normal.dot(faces[i].normal()));
+        float angle = 1.0f - Math.abs(normal.normalize().dot(faces[i].normal().normalize()));
         if(angle < minAngle) {
           minAngle = angle;
           bestFace = faces[i];
@@ -111,40 +123,34 @@ public class CollisionManifoldPolyhedron {
     return bestFace;
   }
 
-  private static void clipFace(Vector3f[] vertices, Vector3f faceNormal, Vector3f faceOrigin) {
-    for(int i = 0; i < vertices.length; i += 2) {
-      Vector3f v1 = vertices[i];
-      Vector3f v2 = vertices[i + 1];
-      Vector3f edge = v2.sub(v1, new Vector3f());
+  private static void clipFace(Vector3fPair[] edges, Vector3f faceNormal, Vector3f faceOrigin) {
+    for(Vector3fPair pair : edges) {
+      Vector3f v1 = pair.a();
+      Vector3f v2 = pair.b();
+      Vector3f edge = v2.sub(v1, new Vector3f()).normalize();
       if(!isInside(v1, faceOrigin, faceNormal)) {
-        Vector3f intersection = getIntersection(v1, edge, faceNormal, faceOrigin);
-        if(intersection != null) {
-          vertices[i] = intersection;
-        }
+        clipVertex(v1, edge, faceNormal, faceOrigin);
       }
       if(!isInside(v2, faceOrigin, faceNormal)) {
-        Vector3f intersection = getIntersection(v2, edge, faceNormal, faceOrigin);
-        if (intersection != null) {
-          vertices[i + 1] = intersection;
-        }
+        clipVertex(v2, edge, faceNormal, faceOrigin);
       }
     }
   }
+
 
   private static boolean isInside(Vector3f point, Vector3f origin, Vector3f normal) {
     return normal.dot(point.sub(origin, new Vector3f())) <= 0;
   }
 
-  private static Vector3f getIntersection(Vector3f vertex, Vector3f edge, Vector3f normal, Vector3f origin) {
+  private static void clipVertex(Vector3f vertex, Vector3f edge, Vector3f normal, Vector3f origin) {
     //Gerade g = vertex + r * edge
     //Ebene  E = normal * (x - origin) = 0
     //Eingesetzt in E: normal * (vertex + r * edge - origin) = 0
     //r = (normal * (origin - vertex)) / (normal * edge)
-    if(normal.dot(edge) == 0) return null;
-    // float r = normal.dot(origin.sub(vertex, new Vector3f())) / normal.dot(edge);
-    float r =
-        (normal.dot(origin) - normal.dot(vertex)) / normal.dot(edge.normalize(new Vector3f()));
-    return edge.normalize(r, new Vector3f()).add(vertex);
+    if(normal.dot(edge) == 0) return;
+    float r = normal.dot(origin.sub(vertex, new Vector3f())) / normal.dot(edge);
+    //float r = (normal.dot(origin) - normal.dot(vertex)) / normal.dot(edge.normalize(new Vector3f()));
+    edge.normalize(r, vertex).add(vertex);
   }
 
 
