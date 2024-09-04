@@ -102,7 +102,8 @@ public class CoordinateAxis extends Renderable<CoordinateAxis> {
   @Override
   protected void transformationChanged() {
     super.transformationChanged();
-    this.boundingBox =
+    if(this.mesh != null)
+      this.boundingBox =
         BoundingBox.fromVertices(
             this.mesh.vertexBuffer().asFloatBuffer(), 0, 6, 6, this.transformationMatrix());
   }
