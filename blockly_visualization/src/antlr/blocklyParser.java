@@ -32,7 +32,7 @@ public class blocklyParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "'('", "')'", "','", null, "'falls'", null, null, "'&&'", "'||'", 
-			"'*'", "'/'", "'+'", "'-'", "'not'"
+			"'*'", "'/'", "'+'", "'-'", "'nicht'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
