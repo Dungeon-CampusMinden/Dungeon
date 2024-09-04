@@ -1,8 +1,15 @@
+plugins {
+  id 'antlr'
+}
+
+repositories {
+  mavenCentral()
+}
+
 dependencies {
     implementation project(':dungeon')
     antlr "org.antlr:antlr4:4.5.3"
 }
-
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
