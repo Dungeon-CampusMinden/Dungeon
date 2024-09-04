@@ -17,25 +17,12 @@ public interface blocklyVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStart(blocklyParser.StartContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link blocklyParser#condition}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCondition(blocklyParser.ConditionContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code Parenthese_Expr}
 	 * labeled alternative in {@link blocklyParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitParenthese_Expr(blocklyParser.Parenthese_ExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code Operator_Expr}
-	 * labeled alternative in {@link blocklyParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitOperator_Expr(blocklyParser.Operator_ExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code Compare_Expr}
 	 * labeled alternative in {@link blocklyParser#expr}.
@@ -64,13 +51,6 @@ public interface blocklyVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNot_Expr(blocklyParser.Not_ExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code Unary_Expr}
-	 * labeled alternative in {@link blocklyParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnary_Expr(blocklyParser.Unary_ExprContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link blocklyParser#right_value}.
 	 * @param ctx the parse tree

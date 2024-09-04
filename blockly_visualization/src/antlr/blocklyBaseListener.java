@@ -29,18 +29,6 @@ public class blocklyBaseListener implements blocklyListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCondition(blocklyParser.ConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCondition(blocklyParser.ConditionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterParenthese_Expr(blocklyParser.Parenthese_ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -48,18 +36,6 @@ public class blocklyBaseListener implements blocklyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitParenthese_Expr(blocklyParser.Parenthese_ExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterOperator_Expr(blocklyParser.Operator_ExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitOperator_Expr(blocklyParser.Operator_ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -108,18 +84,6 @@ public class blocklyBaseListener implements blocklyListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNot_Expr(blocklyParser.Not_ExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUnary_Expr(blocklyParser.Unary_ExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUnary_Expr(blocklyParser.Unary_ExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

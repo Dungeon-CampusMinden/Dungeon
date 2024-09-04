@@ -18,16 +18,6 @@ public interface blocklyListener extends ParseTreeListener {
 	 */
 	void exitStart(blocklyParser.StartContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link blocklyParser#condition}.
-	 * @param ctx the parse tree
-	 */
-	void enterCondition(blocklyParser.ConditionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link blocklyParser#condition}.
-	 * @param ctx the parse tree
-	 */
-	void exitCondition(blocklyParser.ConditionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code Parenthese_Expr}
 	 * labeled alternative in {@link blocklyParser#expr}.
 	 * @param ctx the parse tree
@@ -39,18 +29,6 @@ public interface blocklyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitParenthese_Expr(blocklyParser.Parenthese_ExprContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Operator_Expr}
-	 * labeled alternative in {@link blocklyParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterOperator_Expr(blocklyParser.Operator_ExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Operator_Expr}
-	 * labeled alternative in {@link blocklyParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitOperator_Expr(blocklyParser.Operator_ExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code Compare_Expr}
 	 * labeled alternative in {@link blocklyParser#expr}.
@@ -99,18 +77,6 @@ public interface blocklyListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNot_Expr(blocklyParser.Not_ExprContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code Unary_Expr}
-	 * labeled alternative in {@link blocklyParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnary_Expr(blocklyParser.Unary_ExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code Unary_Expr}
-	 * labeled alternative in {@link blocklyParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnary_Expr(blocklyParser.Unary_ExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link blocklyParser#right_value}.
 	 * @param ctx the parse tree
