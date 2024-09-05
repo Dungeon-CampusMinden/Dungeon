@@ -336,6 +336,21 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: 'Expression',
     colour: 200,
   },
+  {
+      type: "array_length",
+      previousStatement: null,
+      nextStatement: null,
+      message0: "Länge von Array %1",
+      args0: [
+         {
+          type: "field_variable",
+          name: "VAR",
+          variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+        },
+      ],
+      output: 'Expression',
+      colour: 200,
+    },
   // ---------------------- Loops ----------------------
   {
     type: "repeat",

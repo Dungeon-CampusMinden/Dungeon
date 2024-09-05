@@ -115,6 +115,10 @@ export const toolbox = {
         },
         {
           kind: "block",
+          type: "array_length",
+        },
+        {
+          kind: "block",
           type: "expression",
         },
         {

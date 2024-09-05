@@ -44,4 +44,16 @@ export function array_get(
   return [code, Order.NONE];
 }
 
+export function array_length(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+
+  const variable_id = block.getFieldValue("VAR");
+  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+
+  const code = variable_name + '.length';
+  return [code, Order.NONE];
+}
+
 
