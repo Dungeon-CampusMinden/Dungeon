@@ -23,7 +23,7 @@ public class RenderableSystem extends System<RenderableSystem> {
 
   @Override
   public void update(ECS ecs) {
-    ecs.entities(s -> s.forEach(e -> {
+    ecs.forEachEntity(e -> {
       e.components(RenderableComponent.class).forEach(c -> {
         c.renderable.transformation(e.position(), e.rotation(), e.size());
 
@@ -33,7 +33,7 @@ public class RenderableSystem extends System<RenderableSystem> {
         c.renderable.render(this.camera);
         this.renderCount ++;
       });
-    }), RenderableComponent.class);
+    }, RenderableComponent.class);
     this.latestRenderCount = this.renderCount;
     this.renderCount = 0;
   }

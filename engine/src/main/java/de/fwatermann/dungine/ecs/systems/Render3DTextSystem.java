@@ -16,18 +16,13 @@ public class Render3DTextSystem extends System<Render3DTextSystem> {
 
   @Override
   public void update(ECS ecs) {
-    ecs.entities(
-        s -> {
-          s.forEach(
-              e -> {
-                e.components(TextComponent.class)
-                    .forEach(
-                        c -> {
-                          c.render(this.camera, e);
-                        });
-              });
-        },
-        TextComponent.class);
+    ecs.forEachEntity(e -> {
+      e.components(TextComponent.class)
+        .forEach(
+          c -> {
+            c.render(this.camera, e);
+          });
+    }, TextComponent.class);
   }
 
   public Camera<?> camera() {
