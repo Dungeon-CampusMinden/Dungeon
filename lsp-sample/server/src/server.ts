@@ -81,7 +81,8 @@ const typeFields: Map<string, string[]> = new Map([
 ]);
 
 const configTypes = Array.from(typeFields.keys());
-//const configTypes = ['var', 'entity_type', 'item_type', 'graph', 'dungeon_config', 'multiple_choice_task', 'single_choice_task', 'replacement_task', 'mapping_task', 'gap_task'];
+const primitiveTypes = ['int', 'string', 'boolean', 'entity'];
+const functions = ['instantiate', 'other_function']; 
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -110,7 +111,7 @@ connection.onInitialize((params: InitializeParams) => {
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				resolveProvider: true,
-				triggerCharacters: ["."]
+				triggerCharacters: ['=', '.', ':', '(', ',', ' ']
 			},
 			diagnosticProvider: {
 				interFileDependencies: false,
@@ -250,61 +251,103 @@ connection.onCompletion(
         if (!document) {
             return [];
         }
-
-        const position = _textDocumentPosition.position;
-		const textBeforeCursor = document.getText({
-            start: { line: position.line, character: 0 },
-            end: position
-        }).trim();
-        const completionStart = { line: position.line, character: 0 };
+		const text = document.getText({
+			start: { line: _textDocumentPosition.position.line, character: 0 },
+			end: _textDocumentPosition.position
+		});
+	
+		const trimmedText = text.trim();
+		const suggestions: CompletionItem[] = [];
+		const position = _textDocumentPosition.position;
+		const completionStart = { line: position.line, character: 0 };
         const completionEnd = { line: position.line, character: position.character };
         const range = Range.create(completionStart, completionEnd);
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
-		const suggestions: CompletionItem[] = createCompletionItems(range);
-		// Prüfen, ob der Benutzer auf ein bekanntes Typ-Objekt zugreift
-        const objectAccessRegex = /(\w+)\.\s*$/;
-        const match = objectAccessRegex.exec(textBeforeCursor);
+		const isConfigType = configTypes.some(keyword => {
+			const regex = new RegExp(`^\s*${keyword}\s*[^:{]*$`);
+			return regex.test(trimmedText);
+		});
+	
+		if (isConfigType) {
+			// Keine Vorschläge nach Begriffen wie var, entity_type oder anderen TopLevel begriffen, dass ein freier Name vergeben werden kann
+			return [];
+		}
 
-        if (match) {
-            const variableName = match[1];
-            const variableType = declaredVariables.get(variableName);
-
-            if (variableType && typeFields.has(variableType)) {
-                // Vorschlagen der Felder für den spezifischen Typ
-                const fields = typeFields.get(variableType) || [];
-                for (const field of fields) {
-                    suggestions.push({
-                        label: field,
-                        kind: CompletionItemKind.Field,
-                        documentation: `Feld von ${variableType}: ${field}`,
-                        insertText: field
-                    });
-                }
-                return suggestions;
-            }
-        } else {
-            // Vorschläge für Typen selbst (z.B. 'single_choice_task', 'replacement_task')
-            for (const [type] of typeFields) {
-                suggestions.push({
-                    label: type,
-                    kind: CompletionItemKind.Class,
-                    documentation: `Definiert ein neues Objekt vom Typ ${type}.`,
-                    insertText: type
-                });
-            }
-
-            // Vorschlag für alle gefundenen Variablen und Instanzen
-            declaredVariables.forEach((type, name) => {
-                suggestions.push({
-                    label: name,
-                    kind: CompletionItemKind.Variable,
-                    documentation: `Typ: ${type}`,
-                    insertText: name
-                });
-            });
-        }
+		// Zeilenanfang-Kontext
+		if (/^\s*$/.test(text) || /^[a-zA-Z_]\w*\s*$/.test(trimmedText)) {
+			configTypes.forEach(keyword => {
+				suggestions.push({
+					label: keyword,
+					kind: CompletionItemKind.Keyword,
+					documentation: `Top-level keyword: ${keyword}`
+				});
+			});
+			const snippets = createCompletionItems(range);
+			snippets.forEach(snippet => {
+				suggestions.push(snippet)
+			})
+			return suggestions;
+		}
+	
+		// Typdefinition-Kontext (nach ':', nach '(', nach ',')
+		if (/:$/.test(trimmedText) || /\($/.test(trimmedText) || /,$/.test(trimmedText)) {
+			primitiveTypes.forEach(type => {
+				suggestions.push({
+					label: type,
+					kind: CompletionItemKind.TypeParameter,
+					documentation: `Primitive type: ${type}`
+				});
+			});
+			return suggestions;
+		}
+	
+		// Zuweisung-Kontext (nach '=')
+		if (/=\s*$/.test(trimmedText)) {
+			declaredVariables.forEach((type, name) => {
+				suggestions.push({
+					label: name,
+					kind: CompletionItemKind.Variable,
+					documentation: `Variable of type ${type}: ${name}`
+				});
+			});
+	
+			functions.forEach(fn => {
+				suggestions.push({
+					label: `${fn}()`,
+					kind: CompletionItemKind.Function,
+					documentation: `Function: ${fn}`
+				});
+			});
+			return suggestions;
+		}
+	
+		// Kontext nach einem '.' (Objektzugriff)
+		const objectAccessMatch = /(\w+)\.\s*$/.exec(trimmedText);
+		if (objectAccessMatch) {
+			const objectName = objectAccessMatch[1];
+			const objectType = declaredVariables.get(objectName); // Hier wird der Typ des Objekts abgerufen
+	
+			if (objectType && typeFields.has(objectType)) {
+				const fields = typeFields.get(objectType) || [];
+				fields.forEach(field => {
+					suggestions.push({
+						label: field,
+						kind: CompletionItemKind.Field,
+						documentation: `Field of ${objectType}: ${field}`
+					});
+				});
+			}
+			return suggestions;
+		}
+	
+		// Allgemeiner Kontext (Überall sonst)
+		declaredVariables.forEach((type, name) => {
+			suggestions.push({
+				label: name,
+				kind: CompletionItemKind.Variable,
+				documentation: `Variable of type ${type}: ${name}`
+			});
+		});
+	
 		return suggestions;
 	}
 	

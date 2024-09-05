@@ -86,7 +86,7 @@ fn build_task(single_choice_task t) -> entity<><> {
         place_quest_item(item, room_set);
     }
 
-    
+
     // Erstellung der Aufgaben-Truhe, in welche die Antworten abgegeben werden sollen
     var chest : entity;
     chest = instantiate(chest_type);

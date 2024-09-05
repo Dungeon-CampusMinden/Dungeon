@@ -61,7 +61,24 @@ export const suggestionDefinitions: SuggestionData[] = [
         snippet: `fn \${1:function_name}(\${2:possible_params}) {
   \${3://TODO: Implement logic}
 }`
+    },
+    {
+        label: 'if',
+        documentation: 'If Statement',
+        snippet: `if(\${1:condition}) {
+        
+}`
+    },
+    {
+        label: 'ifelse',
+        documentation: 'If-Else Statement',
+        snippet: `if(\${1:condition}) {
+        
+} else {
+     
+}`
     }
+
     // Weitere Suggestionen hier hinzufügen
 ];
 
