@@ -40,22 +40,17 @@ public class CollisionManifoldPolyhedron {
     }
 
     Vector3f normalNeg = normal.negate(new Vector3f());
-    Vector3f furthestVertex1 = getFurthestVertex(pc1, normal);
-    Vector3f furthestVertex2 = getFurthestVertex(pc2, normalNeg);
 
     PhysicsDebugSystem.manifoldLines.addLine(pc1.vertices()[0], pc1.vertices()[0].add(normal, new Vector3f()), 0x0080FFFF);
 
-    PhysicsDebugSystem.contactPointsDebug.addPoint(furthestVertex1, 0xFF0000FF);
-    PhysicsDebugSystem.contactPointsDebug.addPoint(furthestVertex2, 0x00FF00FF);
+    Face refFace = getBestFace(pc1, getFurthestVertex(pc1, normal), normal);
+    Face incFace = getBestFace(pc2, getFurthestVertex(pc2, normalNeg), normalNeg);
 
-    Face refFace = getBestFace(pc1, furthestVertex1, normalNeg);
-    Face incFace = getBestFace(pc2, furthestVertex2, normal);
-
-    /*if(Math.abs(refFace.normal().dot(normal)) < Math.abs(incFace.normal().dot(normal))) {
+    if(refFace.normal().angle(normal) < incFace.normal().angle(normal)) {
       Face temp = refFace;
       refFace = incFace;
       incFace = temp;
-    }*/
+    }
 
     Vector3fPair[] incidentEdges = convertEdges(incFace);
     Vector3fPair[] referenceEdges = convertEdges(refFace);
@@ -65,19 +60,20 @@ public class CollisionManifoldPolyhedron {
       Vector3f a = vertices.a();
       Vector3f b = vertices.b();
       Vector3f edge = b.sub(a, new Vector3f()).normalize();
-      Vector3f aN = edge.cross(refFace.normal(), new Vector3f());
-      PhysicsDebugSystem.contactPointsDebug.addPoint(a);
-      PhysicsDebugSystem.contactPointsDebug.addPoint(b);
-      PhysicsDebugSystem.manifoldLines.addLine(a, a.add(aN, new Vector3f()));
-      PhysicsDebugSystem.manifoldLines.addLine(a, a.add(edge, new Vector3f()), 0x8080FFFF);
-      //clipFace(incidentEdges, aN, a);
+      Vector3f aN = refFace.normal().cross(edge, new Vector3f());
+      clipFace(incidentEdges, aN, a);
     }
-    //clipFace(incidentEdges, refFace.normal(), refFace.vertex(0));
 
+    //Collect resulting contact points by filtering out the vertices that are not "inside" the reference face.
+    Vector3f faceOrigin = refFace.vertex(0);
     Set<Vector3f> result = new HashSet<>();
     for(Vector3fPair pair : incidentEdges) {
-      result.add(pair.a());
-      result.add(pair.b());
+      if(isInside(pair.a(), faceOrigin, refFace.normal())) {
+        result.add(pair.a());
+      }
+      if(isInside(pair.b(), faceOrigin, refFace.normal())) {
+        result.add(pair.b());
+      }
     }
     return result;
   }
@@ -112,11 +108,12 @@ public class CollisionManifoldPolyhedron {
     Face bestFace = faces[0];
     float minAngle = Float.MAX_VALUE;
     for(int i = 0; i < pc.faces().length; i++) {
-      if(bestFace.hasVertex(vertex)) {
-        float angle = 1.0f - Math.abs(normal.normalize().dot(faces[i].normal().normalize()));
+      Face face = faces[i];
+      if(face.hasVertex(vertex)) {
+        float angle = normal.angle(faces[i].normal());
         if(angle < minAngle) {
           minAngle = angle;
-          bestFace = faces[i];
+          bestFace = face;
         }
       }
     }
@@ -137,7 +134,6 @@ public class CollisionManifoldPolyhedron {
     }
   }
 
-
   private static boolean isInside(Vector3f point, Vector3f origin, Vector3f normal) {
     return normal.dot(point.sub(origin, new Vector3f())) <= 0;
   }
@@ -149,7 +145,6 @@ public class CollisionManifoldPolyhedron {
     //r = (normal * (origin - vertex)) / (normal * edge)
     if(normal.dot(edge) == 0) return;
     float r = normal.dot(origin.sub(vertex, new Vector3f())) / normal.dot(edge);
-    //float r = (normal.dot(origin) - normal.dot(vertex)) / normal.dot(edge.normalize(new Vector3f()));
     edge.normalize(r, vertex).add(vertex);
   }
 
