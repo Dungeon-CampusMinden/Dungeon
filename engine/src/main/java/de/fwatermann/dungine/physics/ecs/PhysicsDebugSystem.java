@@ -47,14 +47,14 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     if (this.collisionLines == null) this.collisionLines = new Lines(0xFF0000FF).lineWidth(4.0f);
     if (this.velocityLines == null) this.velocityLines = new Lines(0x00FF00FF);
     if (this.forceLines == null) this.forceLines = new Lines(0xFF8000FF);
-    if(this.colliderLines == null) this.colliderLines = new Lines(0x00FF00FF);
+    if (this.colliderLines == null) this.colliderLines = new Lines(0x00FF00FF);
     if (this.entityPositionPoints == null)
       this.entityPositionPoints = new Points(0x8000FFFF).pointSize(8.0f);
     if (this.colliderVertices == null)
       this.colliderVertices = new Points(0x00FFFFFF).pointSize(8.0f);
     if (this.contactPoints == null) this.contactPoints = new Points(0xFF00FFFF).pointSize(8.0f);
-    if(contactPointsDebug == null) contactPointsDebug = new Points(0xFFFF00FF).pointSize(8.0f);
-    if(manifoldLines == null) manifoldLines = new Lines(0xFFFF00FF);
+    if (contactPointsDebug == null) contactPointsDebug = new Points(0xFFFF00FF).pointSize(8.0f);
+    if (manifoldLines == null) manifoldLines = new Lines(0xFFFF00FF);
     this.collisionLines.clear();
     this.velocityLines.clear();
     this.forceLines.clear();
@@ -63,84 +63,75 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     this.contactPoints.clear();
     this.colliderLines.clear();
 
-    ecs.entities(
-        s -> {
-          s.forEach(
-              entity -> {
-                Optional<PhysicsDebugComponent> optPDC =
-                    entity.component(PhysicsDebugComponent.class);
-                if (optPDC.isEmpty()) return;
-                PhysicsDebugComponent pdc = optPDC.get();
+    ecs.forEachEntity(
+        entity -> {
+          Optional<PhysicsDebugComponent> optPDC = entity.component(PhysicsDebugComponent.class);
+          if (optPDC.isEmpty()) return;
+          PhysicsDebugComponent pdc = optPDC.get();
 
-                Optional<RigidBodyComponent> optRBC = entity.component(RigidBodyComponent.class);
+          Optional<RigidBodyComponent> optRBC = entity.component(RigidBodyComponent.class);
 
-                if (pdc.displayBoundingBox()) {
-                  this.initBoundingBox(entity);
-                  this.boundingBox.render(this.camera);
-                }
+          if (pdc.displayBoundingBox()) {
+            this.initBoundingBox(entity);
+            this.boundingBox.render(this.camera);
+          }
 
-                if (pdc.displayEntityPosition()) {
-                  this.entityPositionPoints.addPoint(entity.position());
-                }
+          if (pdc.displayEntityPosition()) {
+            this.entityPositionPoints.addPoint(entity.position());
+          }
 
-                if (pdc.displayVelocity()) {
-                  optRBC.ifPresent(
-                      rbc -> {
-                        Vector3f center =
-                            entity.size().mul(0.5f, new Vector3f()).add(entity.position());
-                        this.velocityLines.addLine(
-                            center, center.add(rbc.velocity(), new Vector3f()));
-                      });
-                }
+          if (pdc.displayVelocity()) {
+            optRBC.ifPresent(
+                rbc -> {
+                  Vector3f center = entity.size().mul(0.5f, new Vector3f()).add(entity.position());
+                  this.velocityLines.addLine(center, center.add(rbc.velocity(), new Vector3f()));
+                });
+          }
 
-                if (pdc.displayForce()) {
-                  optRBC.ifPresent(
-                      rbc -> {
-                        Vector3f center =
-                            entity.size().mul(0.5f, new Vector3f()).add(entity.position());
-                        this.forceLines.addLine(center, center.add(rbc.force(), new Vector3f()));
-                      });
-                }
+          if (pdc.displayForce()) {
+            optRBC.ifPresent(
+                rbc -> {
+                  Vector3f center = entity.size().mul(0.5f, new Vector3f()).add(entity.position());
+                  this.forceLines.addLine(center, center.add(rbc.force(), new Vector3f()));
+                });
+          }
 
-                if (pdc.displayCollisionPairs()) {
-                  pdc.collisions(
-                      (stream) ->
-                          stream.forEach(
-                              c -> {
-                                c.collisionPoints()
-                                    .forEach(
-                                        cp -> {
-                                          this.contactPoints.addPoint(cp);
-                                        });
-                              }));
-                }
+          if (pdc.displayCollisionPairs()) {
+            pdc.collisions(
+                (stream) ->
+                    stream.forEach(
+                        c -> {
+                          c.collisionPoints()
+                              .forEach(
+                                  cp -> {
+                                    this.contactPoints.addPoint(cp);
+                                  });
+                        }));
+          }
 
-                if (pdc.displayColliders()) {
-                  optRBC.ifPresent(
-                      rbc -> {
-                        rbc.colliders().stream()
-                            .filter(c -> c instanceof PolyhedronCollider<?>)
-                            .forEach(
-                                c -> {
-                                  PolyhedronCollider<?> pc = (PolyhedronCollider<?>) c;
-                                  Vector3f[] vertices = pc.vertices();
-                                  IntPair[] edges = pc.edges();
-                                  for (IntPair edge : edges) {
-                                    /*this.colliderVertices.addPoint(vertices[edge.a()]);
-                                    this.colliderVertices.addPoint(vertices[edge.b()]);*/
-                                    this.colliderLines.addLine(
-                                        vertices[edge.a()], vertices[edge.b()]);
-                                  }
-                                  this.colliderLines.render(this.camera);
-                                  Vector3f offset =
-                                      entity.rotation().transform(pc.offset(), new Vector3f());
-                                  this.forceLines.addLine(
-                                      new Vector3f(entity.position()),
-                                      offset.add(entity.position()));
-                                });
-                      });
-                }
-              });
+          if (pdc.displayColliders()) {
+            optRBC.ifPresent(
+                rbc -> {
+                  rbc.colliders().stream()
+                      .filter(c -> c instanceof PolyhedronCollider<?>)
+                      .forEach(
+                          c -> {
+                            PolyhedronCollider<?> pc = (PolyhedronCollider<?>) c;
+                            Vector3f[] vertices = pc.vertices();
+                            IntPair[] edges = pc.edges();
+                            for (IntPair edge : edges) {
+                              /*this.colliderVertices.addPoint(vertices[edge.a()]);
+                              this.colliderVertices.addPoint(vertices[edge.b()]);*/
+                              this.colliderLines.addLine(vertices[edge.a()], vertices[edge.b()]);
+                            }
+                            this.colliderLines.render(this.camera);
+                            Vector3f offset =
+                                entity.rotation().transform(pc.offset(), new Vector3f());
+                            this.forceLines.addLine(
+                                new Vector3f(entity.position()), offset.add(entity.position()));
+                          });
+                });
+          }
         },
         PhysicsDebugComponent.class);
 
@@ -183,7 +174,4 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     this.camera = camera;
     return this;
   }
-
-
-
 }

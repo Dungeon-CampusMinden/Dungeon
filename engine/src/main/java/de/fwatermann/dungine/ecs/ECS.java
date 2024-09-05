@@ -2,7 +2,6 @@ package de.fwatermann.dungine.ecs;
 
 import de.fwatermann.dungine.utils.ThreadUtils;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,23 +116,45 @@ public abstract class ECS {
   /**
    * Run a function receiving a stream of entities filtered by the given components.
    *
-   * @param ComponentClasses The components to filter by.
+   * @param componentFilter The components to filter by.
    */
   @SafeVarargs
   public final void entities(
       IVoidFunction1P<Stream<Entity>> func,
-      Class<? extends Component>... ComponentClasses) {
+      Class<? extends Component>... componentFilter) {
     try {
       this.entityLock.readLock().lock();
-      func.run(
-          this.entities.stream()
-              .filter(
-                  e -> {
-                    for (int i = 0; i < ComponentClasses.length; i++) {
-                      if (!e.hasComponents(ComponentClasses[i])) return false;
-                    }
-                    return true;
-                  }));
+      func.run(this.entities.stream().filter(e -> e.hasComponents(componentFilter)));
+    } finally {
+      this.entityLock.readLock().unlock();
+    }
+  }
+
+  /**
+   * Run a function for each entity in the ECS.
+   * @param func The function to run for each entity.
+   */
+  public final void forEachEntity(IVoidFunction1P<Entity> func) {
+    try {
+      this.entityLock.readLock().lock();
+      this.entities.forEach(func::run);
+    } finally {
+      this.entityLock.readLock().unlock();
+    }
+  }
+
+  /**
+   * Run a function for each entity in the ECS filtered by the given components.
+   * @param func The function to run for each entity.
+   * @param componentFilter The components to filter by.
+   */
+  @SafeVarargs
+  public final void forEachEntity(IVoidFunction1P<Entity> func, Class<? extends Component> ... componentFilter) {
+    try {
+      this.entityLock.readLock().lock();
+      this.entities.stream()
+          .filter(e -> e.hasComponents(componentFilter))
+          .forEach(func::run);
     } finally {
       this.entityLock.readLock().unlock();
     }
@@ -187,6 +208,15 @@ public abstract class ECS {
     try {
       this.systemLock.readLock().lock();
       func.run(this.systems.keySet().stream());
+    } finally {
+      this.systemLock.readLock().unlock();
+    }
+  }
+
+  public void forEachSystem(IVoidFunction1P<System<?>> func) {
+    try {
+      this.systemLock.readLock().lock();
+      this.systems.keySet().forEach(func::run);
     } finally {
       this.systemLock.readLock().unlock();
     }

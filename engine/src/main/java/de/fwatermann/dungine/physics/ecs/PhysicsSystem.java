@@ -28,7 +28,6 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   public static final int DEFAULT_PHYSIC_CHUNK_SIZE = 1;
   private static final Logger LOGGER = LogManager.getLogger(PhysicsSystem.class);
 
-
   private final Vector3i physicChunkSize;
   private final Map<Integer, Map<Integer, Map<Integer, List<Entity>>>> chunks = new HashMap<>();
   private final Map<Entity, Pair<Vector3i, Vector3i>> entityChunks = new HashMap<>();
@@ -65,54 +64,64 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     this.lastExecution = java.lang.System.nanoTime();
     this.lastDeltaTime = deltaTime;
     this.lUc = 0;
-    if(PhysicsDebugSystem.contactPointsDebug != null)
+    if (PhysicsDebugSystem.contactPointsDebug != null)
       PhysicsDebugSystem.contactPointsDebug.clear();
-    if(PhysicsDebugSystem.manifoldLines != null)
-      PhysicsDebugSystem.manifoldLines.clear();
-    ecs.entities(
-        (s) ->
-            s.forEach(
-                entity -> {
-                  Optional<RigidBodyComponent> opt = entity.component(RigidBodyComponent.class);
-                  if (opt.isEmpty()) return;
-                  RigidBodyComponent rbc = opt.get();
-                  if(rbc.sleeping() || rbc.kinematic()) return; //Skip sleeping/kinematic entities.
-                  this.lUc ++;
+    if (PhysicsDebugSystem.manifoldLines != null) PhysicsDebugSystem.manifoldLines.clear();
+    ecs.forEachEntity(
+        entity -> {
+          Optional<RigidBodyComponent> opt = entity.component(RigidBodyComponent.class);
+          if (opt.isEmpty()) return;
+          RigidBodyComponent rbc = opt.get();
+          if (rbc.sleeping() || rbc.kinematic()) return; // Skip sleeping/kinematic entities.
+          this.lUc++;
 
-                  if(rbc.gravity()) {
-                    rbc.applyForce(
-                      0.0f,
-                      -this.gravityConstant * deltaTime,
-                      0.0f,
-                      RigidBodyComponent.ForceMode.ACCELERATION, false);
-                  }
+          if (rbc.gravity()) {
+            rbc.applyForce(
+                0.0f,
+                -this.gravityConstant * deltaTime,
+                0.0f,
+                RigidBodyComponent.ForceMode.ACCELERATION,
+                false);
+          }
 
-                  Vector3f acceleration = rbc.force().div(rbc.mass());
-                  if(acceleration.length() > this.sleepThreshold) {
-                    rbc.velocity().add(acceleration);
-                  }
-                  rbc.force(0, 0, 0, false);
+          Vector3f acceleration = rbc.force().div(rbc.mass());
+          if (acceleration.length() > this.sleepThreshold) {
+            rbc.velocity().add(acceleration);
+          }
+          rbc.force(0, 0, 0, false);
 
-                  // Change position of rigid bodies based on their velocity
-                  Vector3f oldPos = new Vector3f(entity.position());
-                  entity.position().add(rbc.velocity().mul(deltaTime, new Vector3f()));
+          // Change position of rigid bodies based on their velocity
+          Vector3f oldPos = new Vector3f(entity.position());
+          entity.position().add(rbc.velocity().mul(deltaTime, new Vector3f()));
 
-                  // Collision detection and resolution
-                  boolean collided = this.collisionCheck(entity);
-                  if(collided) {
-                    entity.position(oldPos);
-                    rbc.velocity().set(0);
-                  }
+          // Collision detection and resolution
+          boolean collided = this.collisionCheck(entity);
+          if (collided) {
+            entity.position(oldPos);
+            rbc.velocity().set(0);
+          }
 
-                  entity.component(TextComponent.class).ifPresent(tc -> {
-                    tc.text(String.format("v: [x:%.3f y:%.3f z:%.3f]\na: [x:%.3f y:%.3f z:%.3f]",
-                      rbc.velocity().x, rbc.velocity().y, rbc.velocity().z,
-                      acceleration.x, acceleration.y, acceleration.z));
+          entity
+              .component(TextComponent.class)
+              .ifPresent(
+                  tc -> {
+                    tc.text(
+                        String.format(
+                            "v: [x:%.3f y:%.3f z:%.3f]\na: [x:%.3f y:%.3f z:%.3f]",
+                            rbc.velocity().x,
+                            rbc.velocity().y,
+                            rbc.velocity().z,
+                            acceleration.x,
+                            acceleration.y,
+                            acceleration.z));
                   });
 
-                  entity.component(RenderableComponent.class).ifPresent(rc -> {
-                    if(rc.renderable instanceof CubeColored cube) {
-                      if(collided) {
+          entity
+              .component(RenderableComponent.class)
+              .ifPresent(
+                  rc -> {
+                    if (rc.renderable instanceof CubeColored cube) {
+                      if (collided) {
                         cube.color(0xFF0000FF);
                       } else {
                         cube.color(0x0000FFFF);
@@ -120,8 +129,8 @@ public class PhysicsSystem extends System<PhysicsSystem> {
                     }
                   });
 
-                  this.updateChunkOfEntity(entity, rbc);
-                }),
+          this.updateChunkOfEntity(entity, rbc);
+        },
         RigidBodyComponent.class);
     this.lastUpdates = this.lUc;
   }
@@ -129,14 +138,16 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   @Override
   public void onEntityAdd(ECS ecs, Entity entity) {
     Optional<RigidBodyComponent> opt = entity.component(RigidBodyComponent.class);
-    if(opt.isEmpty()) return;
+    if (opt.isEmpty()) return;
     RigidBodyComponent rbc = opt.get();
     entity.position().set(entity.position());
 
     Pair<Vector3i, Vector3i> pair = this.getMinMax(entity, rbc);
-    this.getChunksBetween(pair.a(), pair.b()).forEach(c -> {
-      this.getChunkEntityList(c, true).ifPresent(l -> l.add(entity));
-    });
+    this.getChunksBetween(pair.a(), pair.b())
+        .forEach(
+            c -> {
+              this.getChunkEntityList(c, true).ifPresent(l -> l.add(entity));
+            });
     this.entityChunks.put(entity, pair);
     LOGGER.debug("Added entity to chunk {}", this.toChunkCoordinates(entity.position()));
   }
@@ -144,19 +155,25 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   @Override
   public void onEntityRemove(ECS ecs, Entity entity) {
     Pair<Vector3i, Vector3i> pair = this.entityChunks.get(entity);
-    if(pair != null) {
-      this.getChunksBetween(pair.a(), pair.b()).forEach(c -> {
-        this.getChunkEntityList(c, false).ifPresent(l -> {
-          l.remove(entity);
-          l.forEach(e -> {
-            Optional<RigidBodyComponent> optRbc = e.component(RigidBodyComponent.class);
-            if(optRbc.isEmpty()) return;
-            RigidBodyComponent rbc2 = optRbc.get();
-            rbc2.sleeping(false);
-          });
-        });
-        this.checkDeletion(c);
-      });
+    if (pair != null) {
+      this.getChunksBetween(pair.a(), pair.b())
+          .forEach(
+              c -> {
+                this.getChunkEntityList(c, false)
+                    .ifPresent(
+                        l -> {
+                          l.remove(entity);
+                          l.forEach(
+                              e -> {
+                                Optional<RigidBodyComponent> optRbc =
+                                    e.component(RigidBodyComponent.class);
+                                if (optRbc.isEmpty()) return;
+                                RigidBodyComponent rbc2 = optRbc.get();
+                                rbc2.sleeping(false);
+                              });
+                        });
+                this.checkDeletion(c);
+              });
     }
     LOGGER.debug("Removed entity from chunk {}", this.toChunkCoordinates(entity.position()));
   }
@@ -164,7 +181,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   private boolean collisionCheck(Entity entity) {
 
     Optional<RigidBodyComponent> optRbc = entity.component(RigidBodyComponent.class);
-    if(optRbc.isEmpty()) return false;
+    if (optRbc.isEmpty()) return false;
     RigidBodyComponent rbc = optRbc.get();
 
     Pair<Vector3i, Vector3i> minMax = this.getMinMax(entity, rbc);
@@ -174,36 +191,39 @@ public class PhysicsSystem extends System<PhysicsSystem> {
 
     entity.component(PhysicsDebugComponent.class).ifPresent(PhysicsDebugComponent::clearCollisions);
 
-    for(Vector3i chunk : chunks) {
+    for (Vector3i chunk : chunks) {
       Optional<List<Entity>> optEntities = this.getChunkEntityList(chunk, false);
-      if(optEntities.isEmpty()) continue;
+      if (optEntities.isEmpty()) continue;
       List<Entity> entities = optEntities.get();
-      for(Entity entity2 : entities) {
-        if(entity == entity2) continue;
+      for (Entity entity2 : entities) {
+        if (entity == entity2) continue;
         Optional<RigidBodyComponent> optRbc2 = entity2.component(RigidBodyComponent.class);
-        if(optRbc2.isEmpty()) continue;
+        if (optRbc2.isEmpty()) continue;
         RigidBodyComponent rbc2 = optRbc2.get();
 
         Vector3f v1 = rbc.velocity();
         Vector3f v2 = rbc2.velocity();
 
-        for(Collider c : rbc.colliders()) {
+        for (Collider c : rbc.colliders()) {
           List<Collision> collisions = new ArrayList<>();
-          rbc2.colliders().forEach(c2 -> {
-            CollisionResult result = c.collide(c2);
-            if(result.collided()) {
-              collisions.addAll(result.collisions());
-            }
-          });
-          if(collisions.isEmpty()) continue;
+          rbc2.colliders()
+              .forEach(
+                  c2 -> {
+                    CollisionResult result = c.collide(c2);
+                    if (result.collided()) {
+                      collisions.addAll(result.collisions());
+                    }
+                  });
+          if (collisions.isEmpty()) continue;
           collided = true;
 
-
-          //DEBUG
-          entity.component(PhysicsDebugComponent.class).ifPresent(pdc -> {
-            pdc.addCollisions(collisions);
-          });
-
+          // DEBUG
+          entity
+              .component(PhysicsDebugComponent.class)
+              .ifPresent(
+                  pdc -> {
+                    pdc.addCollisions(collisions);
+                  });
         }
       }
     }
@@ -240,16 +260,20 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   private void updateChunkOfEntity(Entity entity, RigidBodyComponent rbc) {
     Pair<Vector3i, Vector3i> old = this.entityChunks.get(entity);
     Pair<Vector3i, Vector3i> neu = this.getMinMax(entity, rbc);
-    if(old != null && old.equals(neu)) return;
-    if(old != null) {
-      this.getChunksBetween(old.a(), old.b()).forEach(c -> {
-        this.getChunkEntityList(c, false).ifPresent(l -> l.remove(entity));
-        this.checkDeletion(c);
-      });
+    if (old != null && old.equals(neu)) return;
+    if (old != null) {
+      this.getChunksBetween(old.a(), old.b())
+          .forEach(
+              c -> {
+                this.getChunkEntityList(c, false).ifPresent(l -> l.remove(entity));
+                this.checkDeletion(c);
+              });
     }
-    this.getChunksBetween(neu.a(), neu.b()).forEach(c -> {
-      this.getChunkEntityList(c, true).ifPresent(l -> l.add(entity));
-    });
+    this.getChunksBetween(neu.a(), neu.b())
+        .forEach(
+            c -> {
+              this.getChunkEntityList(c, true).ifPresent(l -> l.add(entity));
+            });
     this.entityChunks.put(entity, neu);
   }
 
@@ -325,5 +349,4 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   public int lastUpdates() {
     return this.lastUpdates;
   }
-
 }
