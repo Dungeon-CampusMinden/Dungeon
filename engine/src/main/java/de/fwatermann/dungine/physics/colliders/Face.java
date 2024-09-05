@@ -32,6 +32,14 @@ public class Face {
     return result;
   }
 
+  public Vector3f center() {
+    Vector3f result = new Vector3f();
+    for(int i = 0; i < this.vertices.length; i++) {
+      result.add(this.parent.vertices()[this.vertices[i]]);
+    }
+    return result.div(this.vertices.length);
+  }
+
   public Vector3f normal() {
     return new Vector3f(this.normal);
   }

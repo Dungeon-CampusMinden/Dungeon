@@ -101,6 +101,12 @@ public abstract class Collider {
   public abstract Vector3f max();
 
   /**
+   * Get the center of the collider.
+   * @return the center of the collider
+   */
+  public abstract Vector3f center();
+
+  /**
    * Get the offset of the collider relative to the owning entity's position.
    *
    * @return the offset of the collider
