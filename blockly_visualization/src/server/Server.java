@@ -48,7 +48,7 @@ public class Server {
   // It can hold the following values: if, while.
   private static final Stack<String> active_scopes = new Stack<>();
   // This is public, so we can easily access it in the blocklyConditionVisitor
-  public static final HashMap<String, Integer> variables = new HashMap<>();
+  public static final HashMap<String, Variable> variables = new HashMap<>();
 
   /**
    * WTF? .
@@ -83,8 +83,12 @@ public class Server {
       System.out.print("Current action: ");
       System.out.println(action);
       processAction(action);
+      System.out.println("Current scopes");
       System.out.println(active_scopes);
+      System.out.println("Current while is repeating values");
       System.out.println(while_is_repeating);
+      System.out.println("Current variables");
+      System.out.println(variables);
 
       // Repeat statements of while loop as long as while flag is set
       if (!active_scopes.isEmpty() && whileBodys.size() > 0) {
@@ -177,18 +181,57 @@ public class Server {
 
   }
 
+  private static Variable getArrayVariable(String varName) throws IllegalAccessException {
+    Variable array_var = variables.get(varName);
+    // Throw exception if nothing found
+    if (array_var == null) {
+      throw new NoSuchElementException(String.format("Variable not found %s", varName));
+    }
+    if (!array_var.type.equals("array")) {
+      throw new IllegalAccessException(
+        String.format("Expected array variable. Got %s for variable %s", array_var.type, varName)
+      );
+    }
+    return array_var;
+  }
+
   /**
-   * Get the actual value from an expression. This is either the value itself or the expression contains a variable.
+   * Get the actual value from an expression. This might be the value itself or the expression contains a variable.
+   * Return the value of the variable or the value of an array expression if given.
    * Return the value of the variable in this case.
    * @param value Value of the expression
    * @return Returns the value as an integer
    */
-  private static int getActualValueFromExpression(String value) {
+  private static int getActualValueFromExpression(String value) throws IllegalAccessException {
+    // Process array access
+    Pattern pattern = Pattern.compile("(\\w+)\\[(\\d+)]");
+    Matcher matcher = pattern.matcher(value);
+    if (matcher.find()) {
+      System.out.println("Array access detected");
+      Variable array_var = getArrayVariable(matcher.group(1));
+      int index = Integer.parseInt(matcher.group(2));
+      return array_var.arrayVal[index];
+    }
+    // We might have to return the array length
+    Pattern patternArraySize = Pattern.compile("(\\w+)\\.length");
+    Matcher matcherArraySize = patternArraySize.matcher(value);
+    if (matcherArraySize.find()) {
+      System.out.println("Array .length detected");
+      Variable array_var = getArrayVariable(matcherArraySize.group(1));
+      return array_var.arrayVal.length;
+    }
+    // Process usual values
     if (variables.get(value) == null) {
       return Integer.parseInt(value);
-    } else {
-      return variables.get(value);
     }
+    // Process int variable access
+    Variable var = variables.get(value);
+    if (var.type.equals("base")) {
+      return var.intVal;
+    }
+    throw new IllegalAccessException(
+      String.format("Expected base variable. Got %s for variable %s", var.type, value)
+    );
   }
 
   /**
@@ -217,21 +260,75 @@ public class Server {
     Matcher matcher = pattern.matcher(action);
     // If pattern matches we have a new variable
     if (matcher.find()) {
-      variables.put(matcher.group(1), Integer.parseInt(matcher.group(2)));
+      variables.put(matcher.group(1), new Variable(Integer.parseInt(matcher.group(2))));
+      return;
     }
-    Pattern patternAssign = Pattern.compile("(\\w+) = (\\w+) (\\+|-|\\*|/) (\\w+)");
-    Matcher matcherAssign = patternAssign.matcher(action);
-    // If pattern matches we have an assignment to an already existing variable
-    if (matcherAssign.find()) {
-      String varName = matcherAssign.group(1);
-      // Get left value and right value
-      int leftValue = getActualValueFromExpression(matcherAssign.group(2));
-      int rightValue = getActualValueFromExpression(matcherAssign.group(4));
-      String op = matcherAssign.group(3);
-      // Update value of expression
-      variables.put(varName, executeExpression(leftValue, rightValue, op));
+    // We may have a creation of an array
+    Pattern patternArray = Pattern.compile("int\\[] (\\w+) = new int\\[(\\d+)]");
+    Matcher matcherArray = patternArray.matcher(action);
+    if (matcherArray.find()) {
+      int array_size = Integer.parseInt(matcherArray.group(2));
+      variables.put(matcherArray.group(1), new Variable(new int[array_size]));
+      return;
     }
+
+    // We might have an assignment to an already existing variable
+    // Check expression with operator
+    Pattern patternAssign = Pattern.compile("(\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
+    int leftGroup = 2;
+    int rightGroup = 6;
+    int varNameGroup = 1;
+    int opGroup = 5;
+    if (checkOperatorExpression(action, patternAssign, leftGroup, rightGroup, varNameGroup, opGroup)) return;
+
+    // Check single right value
+    Pattern patternAssignRightValue = Pattern.compile("(\\w+) = (\\w+(\\[\\d+])?(\\.length)?)");
+    int varNameGroup_RightValue = 1;
+    int valueGroup = 2;
+    if (checkRightValueExpression(action, patternAssignRightValue, varNameGroup_RightValue, valueGroup)) return;
   }
+
+  private static boolean checkRightValueExpression(String action, Pattern patternAssignRightValue, int varNameGroup_RightValue, int valueGroup) {
+    Matcher matcherAssignRightValue = patternAssignRightValue.matcher(action);
+    if (matcherAssignRightValue.find()) {
+      String varName = matcherAssignRightValue.group(varNameGroup_RightValue);
+      int value;
+      try {
+        value = getActualValueFromExpression(matcherAssignRightValue.group(valueGroup));
+      } catch (IllegalAccessException | NoSuchElementException e) {
+        System.out.println(e.getMessage());
+        return true;
+      }
+      variables.put(varName, new Variable(value));
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean checkOperatorExpression(String action, Pattern patternAssign, int leftGroup, int rightGroup, int varNameGroup, int opGroup) {
+
+    Matcher matcherAssign = patternAssign.matcher(action);
+    if (matcherAssign.find()) {
+      String varName = matcherAssign.group(varNameGroup);
+      // Get left and right value
+      int leftValue;
+      int rightValue;
+      try {
+        leftValue = getActualValueFromExpression(matcherAssign.group(leftGroup));
+        rightValue = getActualValueFromExpression(matcherAssign.group(rightGroup));
+      } catch (IllegalAccessException | NoSuchElementException e) {
+        System.out.println(e.getMessage());
+        return true;
+      }
+      // Get operator
+      String op = matcherAssign.group(opGroup);
+      // Update value of expression
+      variables.put(varName, new Variable(executeExpression(leftValue, rightValue, op)));
+      return true;
+    }
+    return false;
+  }
+
   private static void whileEvaluation(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("while")) {

@@ -4,6 +4,7 @@ import nodes.INode;
 import nodes.*;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import server.Server;
+import server.Variable;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -208,11 +209,14 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
 
   @Override public INode visitVar(blocklyParser.VarContext ctx) {
     String id = ctx.getText();
-    Integer value = Server.variables.get(id);
+    Variable value = Server.variables.get(id);
     if (value == null) {
       throw new NoSuchElementException("Variable " + id + " could not be found");
     }
-    return new VarNode("var", id, value);
+    if (!value.type.equals("base")) {
+      throw new NoSuchElementException("Variable " + id + "is not a base type variable");
+    }
+    return new VarNode("var", id, value.intVal);
   }
 }
 
