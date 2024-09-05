@@ -1,6 +1,8 @@
 package de.fwatermann.dungine.state;
 
 import de.fwatermann.dungine.ecs.ECS;
+import de.fwatermann.dungine.event.EventListener;
+import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.graphics.Grid3D;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.ui.UIRoot;
@@ -143,6 +145,9 @@ public abstract class GameState extends ECS implements Disposable {
   }
 
   public final void dispose() {
+    if(this instanceof EventListener el) {
+      EventManager.getInstance().unregisterListener(el);
+    }
     this.disposeState();
     this.ui.dispose();
   }
