@@ -192,7 +192,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "VALUE",
-        check: "Expression",
+        check: ["Expression", "Array_get"],
       },
     ],
     colour: 260,
@@ -219,7 +219,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_A",
-        check: ["Number", "Variable"],
+        check: ["Number", "Variable", "Array_get"],
       },
       {
         type: "field_dropdown",
@@ -234,7 +234,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_B",
-        check: ["Number", "Variable"],
+        check: ["Number", "Variable", "Array_get"],
       },
     ],
     inputsInline: true,
@@ -333,7 +333,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
          check: ["Variable", "Number", "Expression"],
        },
     ],
-    output: 'Expression',
+    output: 'Array_get',
     colour: 200,
   },
   {
@@ -348,7 +348,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
           variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
         },
       ],
-      output: 'Expression',
+      output: 'Array_get',
       colour: 200,
     },
   // ---------------------- Loops ----------------------
