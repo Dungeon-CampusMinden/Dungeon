@@ -17,6 +17,7 @@ import de.fwatermann.dungine.logging.Log4jOutputStream;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
+import de.fwatermann.dungine.utils.FrameCounter;
 import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.Then;
 import de.fwatermann.dungine.utils.ThreadUtils;
@@ -61,6 +62,7 @@ public abstract class GameWindow implements Disposable {
   private long tickRate = 50;
   private boolean shouldClose = false;
   private int clearColor = 0x000000FF;
+  private final FrameCounter frameCounter = new FrameCounter();
 
   private Vector2f mousePosition = new Vector2f(0, 0);
   private long glfwWindow;
@@ -305,6 +307,7 @@ public abstract class GameWindow implements Disposable {
         long currentTime = System.nanoTime();
         float deltaTime = (currentTime - lastTime) / 1_000_000_000f;
         lastTime = currentTime;
+        this.frameCounter.update();
 
         long start = System.nanoTime();
 
@@ -752,5 +755,9 @@ public abstract class GameWindow implements Disposable {
   public void dispose() {
     Dungine.WINDOWS.remove(this);
     this.close();
+  }
+
+  public FrameCounter frameCounter() {
+    return this.frameCounter;
   }
 }
