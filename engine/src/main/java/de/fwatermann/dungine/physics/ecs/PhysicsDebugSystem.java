@@ -9,7 +9,12 @@ import de.fwatermann.dungine.graphics.simple.Points;
 import de.fwatermann.dungine.graphics.simple.WireframeBox;
 import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
 import de.fwatermann.dungine.utils.pair.IntPair;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
@@ -23,93 +28,92 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
 
   private static final Logger LOGGER = LogManager.getLogger(PhysicsDebugSystem.class);
 
-  private Camera<?> camera;
-  private WireframeBox boundingBox;
-  private Lines colliderLines;
-  private Lines collisionLines;
-  private Lines velocityLines;
-  private Lines forceLines;
-  private Points entityPositionPoints;
-  private Points colliderVertices;
-  private Points contactPoints;
+  private static PhysicsDebugSystem instance;
 
-  public static Points contactPointsDebug;
-  public static Lines manifoldLines;
+  public static PhysicsDebugSystem instance() {
+    if(instance == null) {
+      instance = new PhysicsDebugSystem();
+    }
+    return instance;
+  }
 
-  public PhysicsDebugSystem(Camera<?> camera) {
-    super(0, true, PhysicsDebugComponent.class);
-    this.camera = camera;
+  public static final int OPTION_ALL = 0xFFFFFFFF;
+  public static final int OPTION_ENTITY_POSITION = 0x00000001;
+  public static final int OPTION_BOUNDING_BOX = 0x00000002;
+  public static final int OPTION_VELOCITY = 0x00000004;
+  public static final int OPTION_FORCE = 0x00000008;
+  public static final int OPTION_COLLIDERS = 0x00000010;
+  public static final int OPTION_CONTACT_POINTS = 0x00000020;
+
+  private static final ReentrantReadWriteLock linesLock = new ReentrantReadWriteLock();
+  private static final ReentrantReadWriteLock pointsLock = new ReentrantReadWriteLock();
+  private static final Set<Lines> linesList = new HashSet<>();
+  private static final Set<Points> pointsList = new HashSet<>();
+
+  private static WireframeBox boundingBox;
+  private static Camera<?> camera;
+  private static final Lines lines = new Lines(0xFFFFFFFF);
+  private static final Points points = new Points(0xFFFFFFFF);
+  private static final Map<Integer, Integer> optionColors = new HashMap<>();
+  private static int options = 0x00;
+
+  static {
+    linesList.add(lines);
+    pointsList.add(points);
+
+    optionColors.put(OPTION_ENTITY_POSITION, 0xFF00FFFF);
+    optionColors.put(OPTION_BOUNDING_BOX, 0x0000FFFF);
+    optionColors.put(OPTION_VELOCITY, 0xFF8000FF);
+    optionColors.put(OPTION_FORCE, 0xFF0000FF);
+    optionColors.put(OPTION_COLLIDERS, 0x00FF00FF);
+  }
+
+
+  private PhysicsDebugSystem() {
+    super(0, true);
   }
 
   @Override
   public void update(ECS ecs) {
 
-    if (this.collisionLines == null) this.collisionLines = new Lines(0xFF0000FF).lineWidth(4.0f);
-    if (this.velocityLines == null) this.velocityLines = new Lines(0x00FF00FF);
-    if (this.forceLines == null) this.forceLines = new Lines(0xFF8000FF);
-    if (this.colliderLines == null) this.colliderLines = new Lines(0x00FF00FF);
-    if (this.entityPositionPoints == null)
-      this.entityPositionPoints = new Points(0x8000FFFF).pointSize(8.0f);
-    if (this.colliderVertices == null)
-      this.colliderVertices = new Points(0x00FFFFFF).pointSize(8.0f);
-    if (this.contactPoints == null) this.contactPoints = new Points(0xFF00FFFF).pointSize(8.0f);
-    if (contactPointsDebug == null) contactPointsDebug = new Points(0xFFFF00FF).pointSize(8.0f);
-    if (manifoldLines == null) manifoldLines = new Lines(0xFFFF00FF);
-    this.collisionLines.clear();
-    this.velocityLines.clear();
-    this.forceLines.clear();
-    this.entityPositionPoints.clear();
-    this.colliderVertices.clear();
-    this.contactPoints.clear();
-    this.colliderLines.clear();
+    lines.clear();
+    points.clear();
+
+    if(camera == null) return;
 
     ecs.forEachEntity(
         entity -> {
-          Optional<PhysicsDebugComponent> optPDC = entity.component(PhysicsDebugComponent.class);
-          if (optPDC.isEmpty()) return;
-          PhysicsDebugComponent pdc = optPDC.get();
-
           Optional<RigidBodyComponent> optRBC = entity.component(RigidBodyComponent.class);
 
-          if (pdc.displayBoundingBox()) {
-            this.initBoundingBox(entity);
-            this.boundingBox.render(this.camera);
+          if (isEnabled(OPTION_ENTITY_POSITION)) {
+            points.addPoint(new Vector3f(entity.position()), color(OPTION_ENTITY_POSITION));
           }
 
-          if (pdc.displayEntityPosition()) {
-            this.entityPositionPoints.addPoint(entity.position());
+          if (isEnabled(OPTION_BOUNDING_BOX)) {
+            initBoundingBox(entity);
+            boundingBox.render(camera);
           }
 
-          if (pdc.displayVelocity()) {
+          if (isEnabled(OPTION_VELOCITY)) {
             optRBC.ifPresent(
                 rbc -> {
-                  Vector3f center = entity.size().mul(0.5f, new Vector3f()).add(entity.position());
-                  this.velocityLines.addLine(center, center.add(rbc.velocity(), new Vector3f()));
+                  Vector3f center = rbc.getCenterOfMass();
+                  lines.addLine(
+                      center, center.add(rbc.velocity(), new Vector3f()), color(OPTION_VELOCITY));
                 });
           }
 
-          if (pdc.displayForce()) {
+          if (isEnabled(OPTION_FORCE)) {
             optRBC.ifPresent(
                 rbc -> {
-                  Vector3f center = entity.size().mul(0.5f, new Vector3f()).add(entity.position());
-                  this.forceLines.addLine(center, center.add(rbc.force(), new Vector3f()));
+                  Vector3f center = rbc.getCenterOfMass();
+                  lines.addLine(
+                      center, center.add(rbc.force(), new Vector3f()), color(OPTION_FORCE));
                 });
           }
 
-          if (pdc.displayCollisionPairs()) {
-            pdc.collisions(
-                (stream) ->
-                    stream.forEach(
-                        c -> {
-                          c.collisionPoints()
-                              .forEach(
-                                  cp -> {
-                                    this.contactPoints.addPoint(cp);
-                                  });
-                        }));
-          }
-
-          if (pdc.displayColliders()) {
+          if (isEnabled(OPTION_COLLIDERS)) {
+            int color = color(OPTION_COLLIDERS);
             optRBC.ifPresent(
                 rbc -> {
                   rbc.colliders().stream()
@@ -120,38 +124,36 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
                             Vector3f[] vertices = pc.vertices();
                             IntPair[] edges = pc.edges();
                             for (IntPair edge : edges) {
-                              /*this.colliderVertices.addPoint(vertices[edge.a()]);
-                              this.colliderVertices.addPoint(vertices[edge.b()]);*/
-                              this.colliderLines.addLine(vertices[edge.a()], vertices[edge.b()]);
+                              lines.addLine(
+                                  vertices[edge.a()], vertices[edge.b()], color);
                             }
-                            this.colliderLines.render(this.camera);
-                            Vector3f offset =
-                                entity.rotation().transform(pc.offset(), new Vector3f());
-                            this.forceLines.addLine(
-                                new Vector3f(entity.position()), offset.add(entity.position()));
                           });
                 });
           }
-        },
-        PhysicsDebugComponent.class);
+        });
 
-    this.collisionLines.render(this.camera);
-    this.velocityLines.render(this.camera);
-    this.forceLines.render(this.camera);
-    this.entityPositionPoints.render(this.camera);
-    this.colliderVertices.render(this.camera);
-    this.contactPoints.render(this.camera);
-    contactPointsDebug.render(this.camera);
-    manifoldLines.render(this.camera);
+    try {
+      linesLock.readLock().lock();
+      linesList.forEach(l -> l.render(camera));
+    } finally {
+      linesLock.readLock().unlock();
+    }
+
+    try {
+      pointsLock.readLock().lock();
+      pointsList.forEach(p -> p.render(camera));
+    } finally {
+      pointsLock.readLock().unlock();
+    }
   }
 
-  private void initBoundingBox(Entity entity) {
-    if (this.boundingBox == null) {
-      this.boundingBox = new WireframeBox().color(0x0000FFFF);
+  private static void initBoundingBox(Entity entity) {
+    if (boundingBox == null) {
+      boundingBox = new WireframeBox().color(0x0000FFFF);
     }
     Optional<RigidBodyComponent> rbcOpt = entity.component(RigidBodyComponent.class);
     if (rbcOpt.isEmpty()) {
-      this.boundingBox.position(entity.position()).rotation(entity.rotation()).scale(entity.size());
+      boundingBox.position(entity.position()).rotation(entity.rotation()).scale(entity.size());
     } else {
       RigidBodyComponent rbc = rbcOpt.get();
       Vector3f min = new Vector3f(Float.MAX_VALUE);
@@ -162,16 +164,73 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
                 min.min(collider.min());
                 max.max(collider.max());
               });
-      this.boundingBox.position(min).scaling(max.sub(min)).rotation(new Quaternionf());
+      boundingBox.position(min).scaling(max.sub(min)).rotation(new Quaternionf());
+      boundingBox.color(color(OPTION_BOUNDING_BOX));
     }
   }
 
-  public Camera<?> camera() {
-    return this.camera;
+  public static Camera<?> camera() {
+    return camera;
   }
 
-  public PhysicsDebugSystem camera(Camera<?> camera) {
-    this.camera = camera;
-    return this;
+  public static void camera(Camera<?> camera) {
+    PhysicsDebugSystem.camera = camera;
   }
+
+  public static void addLines(Lines lines) {
+    try {
+      linesLock.writeLock().lock();
+      linesList.add(lines);
+    } finally {
+      linesLock.writeLock().unlock();
+    }
+  }
+
+  public static void removeLines(Lines lines) {
+    try {
+      linesLock.writeLock().lock();
+      linesList.remove(lines);
+    } finally {
+      linesLock.writeLock().unlock();
+    }
+  }
+
+  public static void addPoints(Points points) {
+    try {
+      pointsLock.writeLock().lock();
+      pointsList.add(points);
+    } finally {
+      pointsLock.writeLock().unlock();
+    }
+  }
+
+  public static void removePoints(Points points) {
+    try {
+      pointsLock.writeLock().lock();
+      pointsList.remove(points);
+    } finally {
+      pointsLock.writeLock().unlock();
+    }
+  }
+
+  public static void enable(int option) {
+    options |= option;
+  }
+
+  public static void disable(int option) {
+    options &= ~option;
+  }
+
+  public static boolean isEnabled(int option) {
+    return (options & option) != 0;
+  }
+
+  public static void color(int option, int color) {
+    optionColors.put(option, color);
+  }
+
+  public static int color(int option) {
+    return optionColors.get(option);
+  }
+
 }

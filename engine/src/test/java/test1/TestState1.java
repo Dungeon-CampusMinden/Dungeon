@@ -19,7 +19,6 @@ import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.input.Keyboard;
 import de.fwatermann.dungine.physics.colliders.AABCollider;
 import de.fwatermann.dungine.physics.colliders.BoxCollider;
-import de.fwatermann.dungine.physics.ecs.PhysicsDebugComponent;
 import de.fwatermann.dungine.physics.ecs.PhysicsDebugSystem;
 import de.fwatermann.dungine.physics.ecs.PhysicsSystem;
 import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
@@ -92,12 +91,12 @@ public class TestState1 extends GameState implements EventListener {
     this.addSystem(this.renderableSystem);
     this.addSystem((this.physicsSystem = new PhysicsSystem()));
     this.addSystem(new Render3DTextSystem(this.camera));
-    this.addSystem(new PhysicsDebugSystem(this.camera));
+    this.addSystem(PhysicsDebugSystem.instance());
+    PhysicsDebugSystem.camera(this.camera);
 
     {
       Entity entity = new Entity();
       RigidBodyComponent rb = new RigidBodyComponent();
-      PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
       rb.gravity(false).kinematic(true);
       CubeColored cube = new CubeColored(new Vector3f(), 0x606060FF);
       entity.size(new Vector3f(5, 1, 5));
@@ -105,7 +104,7 @@ public class TestState1 extends GameState implements EventListener {
       RenderableComponent rc = new RenderableComponent(cube);
       rb.addCollider(
           new BoxCollider(entity, new Vector3f(-2.5f, -0.5f, -2.5f), new Vector3f(5, 1, 5)));
-      entity.addComponent(rb).addComponent(rc).addComponent(pdc);
+      entity.addComponent(rb).addComponent(rc);
       this.addEntity(entity);
     }
 
@@ -199,9 +198,8 @@ public class TestState1 extends GameState implements EventListener {
         RenderableComponent rc =
             new RenderableComponent(new CubeColored(new Vector3f(), 0xFFFF00FF));
         RigidBodyComponent rb = new RigidBodyComponent();
-        PhysicsDebugComponent pdc = new PhysicsDebugComponent(true);
         rb.addCollider(new BoxCollider(e, new Vector3f(-0.5f), new Vector3f(1), new Quaternionf()));
-        e.addComponent(rc).addComponent(rb).addComponent(pdc);
+        e.addComponent(rc).addComponent(rb);
         e.position().set(this.camera.position().add(this.camera.front().mul(2.0f)));
 
         if (Keyboard.keyPressed(GLFW.GLFW_KEY_LEFT_CONTROL)) {
