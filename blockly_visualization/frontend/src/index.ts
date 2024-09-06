@@ -40,6 +40,7 @@ if (workspace) {
   });
 }
 
+
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
 // In a real application, you probably shouldn't use `eval`.

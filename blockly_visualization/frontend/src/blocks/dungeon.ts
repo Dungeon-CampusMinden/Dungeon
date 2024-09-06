@@ -282,6 +282,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
        },
     ],
     colour: 200,
+    output: "array_set",
   },
   {
     type: "array_set",
@@ -312,6 +313,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
          },
       ],
     colour: 200,
+    output: "array_set",
   },
   {
     type: "array_get",
@@ -371,6 +373,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     previousStatement: null,
     nextStatement: null,
+    output: "loop",
     tooltip: "%{BKY_CONTROLS_REPEAT_TOOLTIP}",
     colour: 30,
   },
@@ -393,6 +396,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     previousStatement: null,
     nextStatement: null,
+    output: "loop",
     tooltip: "%{BKY_CONTROLS_WHILEUNTIL_TOOLTIP_WHILE}",
     colour: 30,
   },
@@ -548,8 +552,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         name: "DO0",
       },
     ],
-    previousStatement: "If",
-    nextStatement: "If",
+    previousStatement: null,
+    nextStatement: null,
+    output: "if",
     colour: 60,
     suppressPrefixSuffix: true,
   },
@@ -577,8 +582,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         name: "ELSE",
       },
     ],
-    previousStatement: "If",
-    nextStatement: "If",
+    previousStatement: null,
+    nextStatement: null,
+    output: "if",
     colour: 60,
     suppressPrefixSuffix: true,
   },
@@ -590,6 +596,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Mit Items interagieren",
+    output: "Skill",
   },
   {
     type: "fireball_up",
@@ -598,6 +605,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Feuerball nach oben schießen",
+    output: "Skill",
   },
   {
     type: "fireball_down",
@@ -606,6 +614,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Feuerball nach unten schießen",
+    output: "Skill",
   },
   {
     type: "fireball_left",
@@ -614,6 +623,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Feuerball nach links schießen",
+    output: "Skill",
   },
   {
     type: "fireball_right",
@@ -622,5 +632,27 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Feuerball nach rechts schießen",
+    output: "Skill",
+  },
+  //  ---------------------- Functions ----------------------
+  {
+    type: "func_def",
+    message0: "Funktion %1 definieren",
+    args0: [
+      {
+        type: "field_variable",
+        name: "FUNC_NAME",
+      },
+    ],
+    message1: "%{BKY_CONTROLS_REPEAT_INPUT_DO} %1",
+    args1: [
+      {
+        type: "input_statement",
+        name: "DO",
+      },
+    ],
+    previousStatement: null,
+    nextStatement: null,
+    colour: 300,
   },
 ]);

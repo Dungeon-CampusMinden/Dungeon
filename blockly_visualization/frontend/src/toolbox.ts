@@ -264,5 +264,16 @@ export const toolbox = {
         },
       ],
     },
+    {
+      kind: "category",
+      name: "Funktionen",
+      colour: "300",
+      contents: [
+        {
+          kind: "block",
+          type: "func_def",
+        },
+      ],
+    },
   ],
 };
