@@ -50,6 +50,10 @@ public class Server {
   // This is public, so we can easily access it in the blocklyConditionVisitor
   public static final HashMap<String, Variable> variables = new HashMap<>();
 
+  public static final Stack<RepeatStats> active_repeats = new Stack<>();
+
+  private static final Stack<String> currently_repeating_scope = new Stack<>();
+
   /**
    * WTF? .
    *
@@ -80,24 +84,41 @@ public class Server {
     String[] actions = text.split("\n");
 
     for (String action : actions) {
+      action = action.trim();
       System.out.print("Current action: ");
       System.out.println(action);
       processAction(action);
-      System.out.println("Current scopes");
+      System.out.print("Current scopes: ");
       System.out.println(active_scopes);
-      System.out.println("Current while is repeating values");
-      System.out.println(while_is_repeating);
-      System.out.println("Current variables");
+      System.out.print("Currently repeating scopes: ");
+      System.out.println(currently_repeating_scope);
+      System.out.print("Current variables: ");
       System.out.println(variables);
 
-      // Repeat statements of while loop as long as while flag is set
-      if (!active_scopes.isEmpty() && whileBodys.size() > 0) {
-        while (while_is_repeating.get(while_is_repeating.size() - 1)) {
-          for (String whileAction : whileBodys.get(whileBodys.size() - 1)) {
-            processAction(whileAction);
-            System.out.println("in while action");
-            System.out.println(whileAction);
-          }
+      if (!currently_repeating_scope.isEmpty()) {
+        String currentLoop = currently_repeating_scope.peek();
+        switch(currentLoop) {
+          case "while":
+            while (while_is_repeating.get(while_is_repeating.size() - 1)) {
+              for (String whileAction : whileBodys.get(whileBodys.size() - 1)) {
+                processAction(whileAction);
+                System.out.println("in while action");
+                System.out.println(whileAction);
+              }
+            }
+            break;
+          case "repeat":
+            RepeatStats currentRepeat = active_repeats.peek();
+            while (currentRepeat.isRepeating) {
+              for (String repeatAction: currentRepeat.repeatBody) {
+                processAction(repeatAction);
+                System.out.println("in repeat action");
+                System.out.println(currentRepeat);
+              }
+            }
+            break;
+          default:
+            System.out.println("Unknown repeating scope");
         }
       }
     }
@@ -117,26 +138,35 @@ public class Server {
       // We must add action to all currently active while loops
       for (int i = 0; i < whileBodys.size(); i++) {
         if (!while_is_repeating.get(i)) {
-          whileBodys.get(i).add(action.trim());
+          whileBodys.get(i).add(action);
         }
       }
     }
     // Make sure we close the right scope
-    if (action.trim().equals("}") && !active_scopes.isEmpty()) {
-      System.out.println("End of if or while detected");
+    if (action.equals("}") && !active_scopes.isEmpty()) {
+      System.out.println("End of if, while or repeat detected");
       String current_scope = active_scopes.peek();
-      if (current_scope.equals("if")) {
-        System.out.println("eval if cond");
-        ifEvaluation(action.trim());
-        return;
-      } else if (current_scope.equals("while")) {
-        System.out.println("eval while loop");
-        whileEvaluation(action.trim());
-        return;
+      switch (current_scope) {
+        case "if" -> {
+          System.out.println("eval if cond");
+          ifEvaluation(action);
+          return;
+        }
+        case "while" -> {
+          System.out.println("eval while loop");
+          whileEvaluation(action);
+          return;
+        }
+        case "repeat" -> {
+          System.out.println("eval while loop");
+          repeatEvaluation(action);
+          return;
+        }
       }
     }
     ifEvaluation(action);
     whileEvaluation(action);
+    repeatEvaluation(action);
     variableEvaluation(action);
 
     // Do not perform any actions if current while condition is false
@@ -148,13 +178,7 @@ public class Server {
       return;
     }
 
-    if (if_flag || else_flag) {
-      performAction(action.trim());
-    } else if (!active_scopes.isEmpty() && active_scopes.peek().equals("while")) {
-      performAction(action.trim());
-    } else {
-      performAction(action);
-    }
+    performAction(action);
   }
   private static void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
@@ -207,7 +231,6 @@ public class Server {
     Pattern pattern = Pattern.compile("(\\w+)\\[(\\d+)]");
     Matcher matcher = pattern.matcher(value);
     if (matcher.find()) {
-      System.out.println("Array access detected");
       Variable array_var = getArrayVariable(matcher.group(1));
       int index = Integer.parseInt(matcher.group(2));
       return array_var.arrayVal[index];
@@ -216,7 +239,6 @@ public class Server {
     Pattern patternArraySize = Pattern.compile("(\\w+)\\.length");
     Matcher matcherArraySize = patternArraySize.matcher(value);
     if (matcherArraySize.find()) {
-      System.out.println("Array .length detected");
       Variable array_var = getArrayVariable(matcherArraySize.group(1));
       return array_var.arrayVal.length;
     }
@@ -274,8 +296,6 @@ public class Server {
 
     // Check array assign
     if (checkArrayAssign(action)) return;
-
-
     checkAssign(action);
 
   }
@@ -284,14 +304,15 @@ public class Server {
     // Check expression with operator
     Pattern pattern = Pattern.compile("int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
     Matcher matcher = pattern.matcher(action);
-    String leftVal = matcher.group(2);
-    String rightVal =  matcher.group(6);
-    String varName = matcher.group(1);
-    String op = matcher.group(5);
     if (matcher.find()) {
+      String leftVal = matcher.group(2);
+      String rightVal =  matcher.group(6);
+      String varName = matcher.group(1);
+      String op = matcher.group(5);
       try {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         variables.put(varName, new Variable(value));
+        return;
       } catch (IllegalAccessException | NoSuchElementException e) {
         System.out.println(e.getMessage());
         return;
@@ -301,9 +322,9 @@ public class Server {
     // Check single right value
     Pattern patternRightValue = Pattern.compile("int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?)");
     Matcher matcherRightValue = patternRightValue.matcher(action);
-    String varNameRightValue = matcherRightValue.group(1);
-    String rightValue = matcherRightValue.group(2);
     if (matcherRightValue.find()) {
+      String varNameRightValue = matcherRightValue.group(1);
+      String rightValue = matcherRightValue.group(2);
       try {
         int value = getActualValueFromExpression(rightValue);
         variables.put(varNameRightValue, new Variable(value));
@@ -314,25 +335,17 @@ public class Server {
   }
 
   private static boolean checkArrayAssign(String action) {
-    Pattern pattern = Pattern.compile("(\\w+\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
+    Pattern pattern = Pattern.compile("((\\w+)\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
     Matcher matcher = pattern.matcher(action);
-    int index = Integer.parseInt(matcher.group(2));
-    String leftVal = matcher.group(3);
-    String rightVal =  matcher.group(7);
-    String varName = matcher.group(1);
-    String op = matcher.group(6);
     if (matcher.find()) {
+      int index = Integer.parseInt(matcher.group(3));
+      String leftVal = matcher.group(4);
+      String rightVal =  matcher.group(8);
+      String varName = matcher.group(2);
+      String op = matcher.group(7);
       try {
         int value = executeOperatorExpression(leftVal, rightVal, op);
-        Variable arrayVar = variables.get(varName);
-        if (arrayVar == null) {
-          System.out.println("Variable could not be found");
-          return true;
-        }
-        if (!arrayVar.type.equals("array")) {
-          System.out.printf("Expected array. Got %s%n", arrayVar.type);
-          return true;
-        }
+        Variable arrayVar = getArrayVariable(varName);
         arrayVar.arrayVal[index] = value;
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
@@ -342,23 +355,15 @@ public class Server {
     }
 
     // Check single right value
-    Pattern patternRightValue = Pattern.compile("(\\w+\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?)");
+    Pattern patternRightValue = Pattern.compile("((\\w+)\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?)");
     Matcher matcherRightValue = patternRightValue.matcher(action);
-    String varNameRightValue = matcherRightValue.group(1);
-    int indexRightValue = Integer.parseInt(matcherRightValue.group(2));
-    String rightValue = matcherRightValue.group(3);
     if (matcherRightValue.find()) {
+      String varNameRightValue = matcherRightValue.group(2);
+      int indexRightValue = Integer.parseInt(matcherRightValue.group(3));
+      String rightValue = matcherRightValue.group(4);
       try {
         int value = getActualValueFromExpression(rightValue);
-        Variable arrayVar = variables.get(varNameRightValue);
-        if (arrayVar == null) {
-          System.out.println("Variable could not be found");
-          return true;
-        }
-        if (!arrayVar.type.equals("array")) {
-          System.out.printf("Expected array. Got %s%n", arrayVar.type);
-          return true;
-        }
+        Variable arrayVar = getArrayVariable(varNameRightValue);
         arrayVar.arrayVal[indexRightValue] = value;
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
@@ -383,15 +388,20 @@ public class Server {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("while")) {
       String currentCondition = while_conditions.peek();
-      // Complex eval is not necessary here, because we only allow wall left/right etc. as condition at the moment
       current_while_cond_negative = !evalComplexCondition(currentCondition, pattern);
       if (!current_while_cond_negative) {
         // Repeat the loop
         System.out.println("Starting the loop");
-        while_is_repeating.set(while_is_repeating.size() - 1, true);
+        if (!while_is_repeating.get(while_is_repeating.size() - 1)) {
+          while_is_repeating.set(while_is_repeating.size() - 1, true);
+          currently_repeating_scope.push("while");
+        }
       } else {
         System.out.println("Ending the loop");
         // End the loop
+        if (while_is_repeating.get(while_is_repeating.size() - 1)) {
+          currently_repeating_scope.pop();
+        }
         while_is_repeating.remove(while_is_repeating.size() - 1);
         active_scopes.pop();
         whileBodys.remove(whileBodys.size() - 1);
@@ -408,6 +418,50 @@ public class Server {
       while_conditions.push(action);
       whileBodys.add(new ArrayList<>());
       while_is_repeating.add(false);
+    }
+  }
+
+  private static void repeatEvaluation(String action) {
+    if (!active_repeats.isEmpty()) {
+      RepeatStats currentRepeat = active_repeats.peek();
+      if (!currentRepeat.isRepeating) {
+        for (RepeatStats repeatLoop: active_repeats) {
+          repeatLoop.repeatBody.add(action);
+        }
+      }
+      if (action.equals("}") && active_scopes.peek().equals("repeat")) {
+        System.out.print("Eval repeat: ");
+        System.out.println(currentRepeat.evalRepeatComplete());
+        System.out.println(currentRepeat);
+        if (currentRepeat.evalRepeatComplete()) {
+          if (currentRepeat.isRepeating) {
+            currentRepeat.isRepeating = false;
+            currently_repeating_scope.pop();
+          }
+          active_scopes.pop();
+          active_repeats.pop();
+        } else {
+          if (!currentRepeat.isRepeating) {
+            currentRepeat.isRepeating = true;
+            currently_repeating_scope.push("repeat");
+          }
+          currentRepeat.increaseCounter();
+        }
+        return;
+      }
+    }
+
+    Pattern pattern = Pattern.compile("widerhole (\\w+) Mal");
+    Matcher matcher = pattern.matcher(action);
+    if (matcher.find()) {
+      String repeatString = matcher.group(1);
+      try {
+        int value = getActualValueFromExpression(repeatString);
+        active_scopes.push("repeat");
+        active_repeats.push(new RepeatStats(value));
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
+        System.out.println(e.getMessage());
+      }
     }
   }
   private static void ifEvaluation(String action) {
@@ -444,8 +498,11 @@ public class Server {
       blocklyConditionVisitor eval = new blocklyConditionVisitor();
       StartNode ast = (StartNode) eval.visit(tree);
 
-      return ast.getBoolValue();
+      boolean result = ast.getBoolValue();
+      System.out.println("Result of current condition: " + result);
+      return result;
     }
+    System.out.println("Detected condition that is not valid: " + action);
     return false;
   }
 
