@@ -6,6 +6,7 @@ import de.fwatermann.dungine.ecs.System;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
 import de.fwatermann.dungine.ecs.components.TextComponent;
 import de.fwatermann.dungine.graphics.simple.CubeColored;
+import de.fwatermann.dungine.graphics.simple.Points;
 import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.physics.colliders.Collision;
 import de.fwatermann.dungine.physics.colliders.CollisionResult;
@@ -40,6 +41,16 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   private int lastUpdates = 0;
   private int lUc = 0;
 
+  private static Points debugPoints;
+  private static Points debugPoints() {
+    if(debugPoints == null) {
+      debugPoints = new Points(0xFFFFFFFF);
+      debugPoints.pointSize(5.0f);
+      PhysicsDebugSystem.instance().addPoints(debugPoints);
+    }
+    return debugPoints;
+  }
+
   public PhysicsSystem(float gravityConstant, Vector3i physicChunkSize) {
     super(0, false, RigidBodyComponent.class);
     this.gravityConstant = gravityConstant;
@@ -64,9 +75,9 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     this.lastExecution = java.lang.System.nanoTime();
     this.lastDeltaTime = deltaTime;
     this.lUc = 0;
-    if (PhysicsDebugSystem.contactPointsDebug != null)
-      PhysicsDebugSystem.contactPointsDebug.clear();
-    if (PhysicsDebugSystem.manifoldLines != null) PhysicsDebugSystem.manifoldLines.clear();
+
+    debugPoints().clear();
+
     ecs.forEachEntity(
         entity -> {
           Optional<RigidBodyComponent> opt = entity.component(RigidBodyComponent.class);
@@ -189,8 +200,6 @@ public class PhysicsSystem extends System<PhysicsSystem> {
 
     boolean collided = false;
 
-    entity.component(PhysicsDebugComponent.class).ifPresent(PhysicsDebugComponent::clearCollisions);
-
     for (Vector3i chunk : chunks) {
       Optional<List<Entity>> optEntities = this.getChunkEntityList(chunk, false);
       if (optEntities.isEmpty()) continue;
@@ -217,13 +226,12 @@ public class PhysicsSystem extends System<PhysicsSystem> {
           if (collisions.isEmpty()) continue;
           collided = true;
 
-          // DEBUG
-          entity
-              .component(PhysicsDebugComponent.class)
-              .ifPresent(
-                  pdc -> {
-                    pdc.addCollisions(collisions);
-                  });
+          if (PhysicsDebugSystem.isEnabled(PhysicsDebugSystem.OPTION_CONTACT_POINTS)) {
+            collisions.forEach(
+              collision -> {
+                collision.collisionPoints().forEach(p -> debugPoints().addPoint(p, 0xFF00FFFF));
+              });
+          }
         }
       }
     }

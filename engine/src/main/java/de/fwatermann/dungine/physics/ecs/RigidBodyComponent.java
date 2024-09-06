@@ -160,6 +160,18 @@ public class RigidBodyComponent extends Component {
     return this;
   }
 
+  /**
+   * Calculates the center of mass based on all colliders attached to this rigid body.
+   * @return The center of mass
+   */
+  public Vector3f getCenterOfMass() {
+    Vector3f result = new Vector3f();
+    for(Collider collider : this.colliders) {
+      result.add(collider.center());
+    }
+    return result.div(this.colliders.size());
+  }
+
   public boolean sleeping() {
     return this.sleeping;
   }
