@@ -7,8 +7,10 @@ repositories {
 }
 
 dependencies {
-    implementation project(':dungeon')
-    antlr "org.antlr:antlr4:4.5.3"
+  implementation project(':dungeon')
+  implementation 'junit:junit:4.13.1'
+  testImplementation 'junit:junit:4.13.1'
+  antlr "org.antlr:antlr4:4.5.3"
 }
 
 sourceSets.main.java.srcDirs = ['src/']
