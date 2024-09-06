@@ -192,10 +192,10 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "VALUE",
-        check: ["Expression", "Array_get"],
+        check: ["Expression", "Array_get", "Number"],
       },
     ],
-    colour: 260,
+    colour: 230,
   },
   {
       type: "get_variable",

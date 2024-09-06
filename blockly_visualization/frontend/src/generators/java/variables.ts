@@ -60,8 +60,13 @@ export function set_number_expression(
   const variable_id = block.getFieldValue("VAR");
   const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
 
-  const code = variable_name + ' = ' + value + ';'
-  return code
+  const code = "int " + variable_name + ' = ' + value + ';'
+  if (value) {
+      javaGenerator.variables.set(variable_name!, variable_name);
+      return `int ${variable_name} = ${value};`;
+    } else {
+      return null;
+    }
 }
 
 export function get_variable(

@@ -70,10 +70,6 @@ export const toolbox = {
           callbackKey: "createVariable",
         },
         {
-          kind: "block",
-          type: "set_number",
-        },
-        {
 
           kind: "block",
           type: "var_number",
