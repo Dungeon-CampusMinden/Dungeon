@@ -272,61 +272,111 @@ public class Server {
       return;
     }
 
-    // We might have an assignment to an already existing variable
+    // Check array assign
+    if (checkArrayAssign(action)) return;
+
+
+    checkAssign(action);
+
+  }
+
+  private static void checkAssign(String action) {
     // Check expression with operator
-    Pattern patternAssign = Pattern.compile("(\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
-    int leftGroup = 2;
-    int rightGroup = 6;
-    int varNameGroup = 1;
-    int opGroup = 5;
-    if (checkOperatorExpression(action, patternAssign, leftGroup, rightGroup, varNameGroup, opGroup)) return;
+    Pattern pattern = Pattern.compile("int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
+    Matcher matcher = pattern.matcher(action);
+    String leftVal = matcher.group(2);
+    String rightVal =  matcher.group(6);
+    String varName = matcher.group(1);
+    String op = matcher.group(5);
+    if (matcher.find()) {
+      try {
+        int value = executeOperatorExpression(leftVal, rightVal, op);
+        variables.put(varName, new Variable(value));
+      } catch (IllegalAccessException | NoSuchElementException e) {
+        System.out.println(e.getMessage());
+        return;
+      }
+    }
 
     // Check single right value
-    Pattern patternAssignRightValue = Pattern.compile("(\\w+) = (\\w+(\\[\\d+])?(\\.length)?)");
-    int varNameGroup_RightValue = 1;
-    int valueGroup = 2;
-    if (checkRightValueExpression(action, patternAssignRightValue, varNameGroup_RightValue, valueGroup)) return;
+    Pattern patternRightValue = Pattern.compile("int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?)");
+    Matcher matcherRightValue = patternRightValue.matcher(action);
+    String varNameRightValue = matcherRightValue.group(1);
+    String rightValue = matcherRightValue.group(2);
+    if (matcherRightValue.find()) {
+      try {
+        int value = getActualValueFromExpression(rightValue);
+        variables.put(varNameRightValue, new Variable(value));
+      } catch (IllegalAccessException | NoSuchElementException e) {
+        System.out.println(e.getMessage());
+      }
+    }
   }
 
-  private static boolean checkRightValueExpression(String action, Pattern patternAssignRightValue, int varNameGroup_RightValue, int valueGroup) {
-    Matcher matcherAssignRightValue = patternAssignRightValue.matcher(action);
-    if (matcherAssignRightValue.find()) {
-      String varName = matcherAssignRightValue.group(varNameGroup_RightValue);
-      int value;
+  private static boolean checkArrayAssign(String action) {
+    Pattern pattern = Pattern.compile("(\\w+\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
+    Matcher matcher = pattern.matcher(action);
+    int index = Integer.parseInt(matcher.group(2));
+    String leftVal = matcher.group(3);
+    String rightVal =  matcher.group(7);
+    String varName = matcher.group(1);
+    String op = matcher.group(6);
+    if (matcher.find()) {
       try {
-        value = getActualValueFromExpression(matcherAssignRightValue.group(valueGroup));
-      } catch (IllegalAccessException | NoSuchElementException e) {
+        int value = executeOperatorExpression(leftVal, rightVal, op);
+        Variable arrayVar = variables.get(varName);
+        if (arrayVar == null) {
+          System.out.println("Variable could not be found");
+          return true;
+        }
+        if (!arrayVar.type.equals("array")) {
+          System.out.printf("Expected array. Got %s%n", arrayVar.type);
+          return true;
+        }
+        arrayVar.arrayVal[index] = value;
+        return true;
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
         System.out.println(e.getMessage());
         return true;
       }
-      variables.put(varName, new Variable(value));
-      return true;
     }
-    return false;
-  }
 
-  private static boolean checkOperatorExpression(String action, Pattern patternAssign, int leftGroup, int rightGroup, int varNameGroup, int opGroup) {
-
-    Matcher matcherAssign = patternAssign.matcher(action);
-    if (matcherAssign.find()) {
-      String varName = matcherAssign.group(varNameGroup);
-      // Get left and right value
-      int leftValue;
-      int rightValue;
+    // Check single right value
+    Pattern patternRightValue = Pattern.compile("(\\w+\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?)");
+    Matcher matcherRightValue = patternRightValue.matcher(action);
+    String varNameRightValue = matcherRightValue.group(1);
+    int indexRightValue = Integer.parseInt(matcherRightValue.group(2));
+    String rightValue = matcherRightValue.group(3);
+    if (matcherRightValue.find()) {
       try {
-        leftValue = getActualValueFromExpression(matcherAssign.group(leftGroup));
-        rightValue = getActualValueFromExpression(matcherAssign.group(rightGroup));
-      } catch (IllegalAccessException | NoSuchElementException e) {
+        int value = getActualValueFromExpression(rightValue);
+        Variable arrayVar = variables.get(varNameRightValue);
+        if (arrayVar == null) {
+          System.out.println("Variable could not be found");
+          return true;
+        }
+        if (!arrayVar.type.equals("array")) {
+          System.out.printf("Expected array. Got %s%n", arrayVar.type);
+          return true;
+        }
+        arrayVar.arrayVal[indexRightValue] = value;
+        return true;
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
         System.out.println(e.getMessage());
         return true;
       }
-      // Get operator
-      String op = matcherAssign.group(opGroup);
-      // Update value of expression
-      variables.put(varName, new Variable(executeExpression(leftValue, rightValue, op)));
-      return true;
     }
+    // Regex did not match. Return false in this case
     return false;
+  }
+
+  private static int executeOperatorExpression(String leftVal, String rightVal, String op) throws IllegalAccessException {
+    // Get left and right value
+    int leftValue = getActualValueFromExpression(leftVal);
+    int rightValue = getActualValueFromExpression(rightVal);
+
+    return executeExpression(leftValue, rightValue, op);
+
   }
 
   private static void whileEvaluation(String action) {
