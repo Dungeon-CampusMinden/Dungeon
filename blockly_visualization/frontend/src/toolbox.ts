@@ -273,6 +273,14 @@ export const toolbox = {
           kind: "block",
           type: "func_def",
         },
+        {
+          kind: "block",
+          type: "func_call",
+        },
+        {
+          kind: "block",
+          type: "get_variable",
+        },
       ],
     },
   ],

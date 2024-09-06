@@ -655,4 +655,17 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 300,
   },
+  {
+    type: "func_call",
+    message0: "Funktion %1 aufrufen",
+    args0: [
+      {
+        type: "input_value",
+        name: "FUNC_NAME",
+      },
+    ],
+    previousStatement: null,
+    nextStatement: null,
+    colour: 300,
+  }
 ]);
