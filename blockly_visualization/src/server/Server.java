@@ -47,8 +47,11 @@ public class Server {
 
   private static final Stack<RepeatStats> active_repeats = new Stack<>();
   private static final Stack<WhileStats> active_whiles = new Stack<>();
+  private static final Stack<IfStats> active_ifs = new Stack<>();
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
+
+
 
   /**
    * WTF? .
@@ -183,7 +186,7 @@ public class Server {
       return;
     }
     // Do not perform action if currently in if and condition is false
-    if (if_active && !if_flag && !else_flag) {
+    if (!active_ifs.isEmpty() && !active_ifs.peek().executeAction()) {
       return;
     }
 
@@ -493,22 +496,19 @@ public class Server {
   }
   private static void ifEvaluation(String action) {
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("if")) {
-      if_flag = false;
-      else_flag = false;
-      if_active = false;
+      active_ifs.pop();
       active_scopes.pop();
       return;
     }
     if (action.contains("falls")) {
-      if_active = true;
       active_scopes.push("if");
       Pattern pattern = Pattern.compile("falls \\((.*)\\)");
-      if_flag = evalComplexCondition(action, pattern);
+      active_ifs.push(new IfStats(evalComplexCondition(action, pattern)));
     }
 
     if (action.contains("sonst")) {
-      else_flag = !if_flag;
-      if_flag = false;
+      IfStats currentIf = active_ifs.peek();
+      currentIf.else_flag = !currentIf.if_flag;
     }
   }
 
