@@ -27,6 +27,6 @@ public class RepeatStats {
 
   @Override
   public String toString() {
-    return "Counter: " + counter + ", Target Counter: " + targetCounter + ", Body: " + repeatBody.toString();
+    return "Counter: " + counter + ", Target Counter: " + targetCounter;
   }
 }

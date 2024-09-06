@@ -39,18 +39,14 @@ public class Server {
   private static boolean else_flag = false;
   private static boolean if_active = false;
 
-  private static final ArrayList<Boolean> while_is_repeating = new ArrayList<>();
-  private static boolean current_while_cond_negative = false;
-  private static final ArrayList<ArrayList<String>> whileBodys = new ArrayList<>();
-  private static final Stack<String> while_conditions = new Stack<>();
-
   // This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
-  // It can hold the following values: if, while.
+  // It can hold the following values: if, while, repeat.
   private static final Stack<String> active_scopes = new Stack<>();
   // This is public, so we can easily access it in the blocklyConditionVisitor
   public static final HashMap<String, Variable> variables = new HashMap<>();
 
-  public static final Stack<RepeatStats> active_repeats = new Stack<>();
+  private static final Stack<RepeatStats> active_repeats = new Stack<>();
+  private static final Stack<WhileStats> active_whiles = new Stack<>();
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -88,39 +84,7 @@ public class Server {
       System.out.print("Current action: ");
       System.out.println(action);
       processAction(action);
-      System.out.print("Current scopes: ");
-      System.out.println(active_scopes);
-      System.out.print("Currently repeating scopes: ");
-      System.out.println(currently_repeating_scope);
-      System.out.print("Current variables: ");
-      System.out.println(variables);
 
-      if (!currently_repeating_scope.isEmpty()) {
-        String currentLoop = currently_repeating_scope.peek();
-        switch(currentLoop) {
-          case "while":
-            while (while_is_repeating.get(while_is_repeating.size() - 1)) {
-              for (String whileAction : whileBodys.get(whileBodys.size() - 1)) {
-                processAction(whileAction);
-                System.out.println("in while action");
-                System.out.println(whileAction);
-              }
-            }
-            break;
-          case "repeat":
-            RepeatStats currentRepeat = active_repeats.peek();
-            while (currentRepeat.isRepeating) {
-              for (String repeatAction: currentRepeat.repeatBody) {
-                processAction(repeatAction);
-                System.out.println("in repeat action");
-                System.out.println(currentRepeat);
-              }
-            }
-            break;
-          default:
-            System.out.println("Unknown repeating scope");
-        }
-      }
     }
 
     PositionComponent pc = getHeroPosition();
@@ -133,33 +97,71 @@ public class Server {
     os.close();
   }
 
-  private static void processAction(String action) {
-    if (!active_scopes.isEmpty() && whileBodys.size() > 0) {
-      // We must add action to all currently active while loops
-      for (int i = 0; i < whileBodys.size(); i++) {
-        if (!while_is_repeating.get(i)) {
-          whileBodys.get(i).add(action);
+  private static void repeatHook(){
+    if (!currently_repeating_scope.isEmpty()) {
+      String currentLoop = currently_repeating_scope.peek();
+      switch (currentLoop) {
+        case "while" -> {
+          WhileStats currentWhile = active_whiles.peek();
+          while (currentWhile.isRepeating) {
+            System.out.print("Repeating while loop");
+            System.out.println(currentWhile);
+            for (String whileAction : currentWhile.whileBody) {
+              processAction(whileAction);
+              System.out.println("Executing while action: " + whileAction);
+
+            }
+          }
         }
+        case "repeat" -> {
+          RepeatStats currentRepeat = active_repeats.peek();
+          while (currentRepeat.isRepeating) {
+            System.out.print("Repeating repeat loop");
+            System.out.println(currentRepeat);
+            for (String repeatAction : currentRepeat.repeatBody) {
+              processAction(repeatAction);
+              System.out.println("Executing repeat action: " + repeatAction);
+            }
+          }
+        }
+        default -> System.out.println("Unknown repeating scope");
       }
     }
+  }
+
+  private static void processAction(String action) {
     // Make sure we close the right scope
     if (action.equals("}") && !active_scopes.isEmpty()) {
+      addActionToWhileBody(action);
+      addActionToRepeatBody(action);
       System.out.println("End of if, while or repeat detected");
       String current_scope = active_scopes.peek();
       switch (current_scope) {
         case "if" -> {
           System.out.println("eval if cond");
           ifEvaluation(action);
+          System.out.print("Scopes after eval: ");
+          System.out.println(active_scopes);
           return;
         }
         case "while" -> {
           System.out.println("eval while loop");
-          whileEvaluation(action);
+          boolean whileIsRepeating = closeWhile(action);
+          System.out.print("Scopes after eval: ");
+          System.out.println(active_scopes);
+          if (whileIsRepeating) {
+            repeatHook();
+          }
           return;
         }
         case "repeat" -> {
-          System.out.println("eval while loop");
-          repeatEvaluation(action);
+          System.out.println("eval repeat loop");
+          boolean repeatIsRepeating = closeRepeat(action);
+          System.out.print("Scopes after eval: ");
+          System.out.println(active_scopes);
+          if (repeatIsRepeating) {
+            repeatHook();
+          }
           return;
         }
       }
@@ -169,8 +171,15 @@ public class Server {
     repeatEvaluation(action);
     variableEvaluation(action);
 
+    System.out.print("Current scopes: ");
+    System.out.println(active_scopes);
+    System.out.print("Currently repeating scopes: ");
+    System.out.println(currently_repeating_scope);
+    System.out.print("Current variables: ");
+    System.out.println(variables);
+
     // Do not perform any actions if current while condition is false
-    if (current_while_cond_negative) {
+    if (!active_whiles.isEmpty() && active_scopes.peek().equals("while") && !active_whiles.peek().conditionResult) {
       return;
     }
     // Do not perform action if currently in if and condition is false
@@ -179,17 +188,17 @@ public class Server {
     }
 
     performAction(action);
+
   }
   private static void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
     if_flag = false;
     if_active = false;
     else_flag = false;
-    current_while_cond_negative = false;
-    while_is_repeating.clear();
-    whileBodys.clear();
-    while_conditions.clear();
     active_scopes.clear();
+    currently_repeating_scope.clear();
+    active_whiles.clear();
+    active_repeats.clear();
     variables.clear();
     Debugger.TELEPORT_TO_START();
 
@@ -384,72 +393,90 @@ public class Server {
 
   }
 
-  private static void whileEvaluation(String action) {
+  private static boolean closeWhile(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
-    if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("while")) {
-      String currentCondition = while_conditions.peek();
-      current_while_cond_negative = !evalComplexCondition(currentCondition, pattern);
-      if (!current_while_cond_negative) {
-        // Repeat the loop
-        System.out.println("Starting the loop");
-        if (!while_is_repeating.get(while_is_repeating.size() - 1)) {
-          while_is_repeating.set(while_is_repeating.size() - 1, true);
+    // Check if loop must be ended
+    if (action.equals("}") && active_scopes.peek().equals("while")) {
+      WhileStats currentWhile = active_whiles.peek();
+      String condition = currentWhile.condition;
+      boolean conditionResult = evalComplexCondition(condition, pattern);
+      if (conditionResult) {
+        if (!currentWhile.isRepeating) {
+          currentWhile.isRepeating = true;
           currently_repeating_scope.push("while");
+          return true;
         }
       } else {
-        System.out.println("Ending the loop");
-        // End the loop
-        if (while_is_repeating.get(while_is_repeating.size() - 1)) {
+        System.out.println("Ending while loop");
+        if (currentWhile.isRepeating) {
+          currentWhile.isRepeating = false;
           currently_repeating_scope.pop();
         }
-        while_is_repeating.remove(while_is_repeating.size() - 1);
         active_scopes.pop();
-        whileBodys.remove(whileBodys.size() - 1);
-        while_conditions.pop();
-        current_while_cond_negative = false;
+        active_whiles.pop();
+        return false;
       }
-      return;
     }
-    if (action.contains("solange") && !current_while_cond_negative) {
-      // Start the loop
+    return false;
+  }
+
+  private static void addActionToWhileBody(String action) {
+    if (!active_whiles.isEmpty()) {
+      for (WhileStats whileLoop: active_whiles) {
+        if (!whileLoop.isRepeating) {
+          whileLoop.whileBody.add(action);
+        }
+      }
+    }
+  }
+  private static void whileEvaluation(String action) {
+    Pattern pattern = Pattern.compile("solange \\((.*)\\)");
+    addActionToWhileBody(action);
+
+    if (action.contains("solange")) {
+      boolean currentConditionResult = evalComplexCondition(action, pattern);
       active_scopes.push("while");
-      // Complex eval is not necessary here, because we only allow wall left/right etc. as condition at the moment
-      current_while_cond_negative = !evalComplexCondition(action, pattern);
-      while_conditions.push(action);
-      whileBodys.add(new ArrayList<>());
-      while_is_repeating.add(false);
+      active_whiles.push(new WhileStats(action, currentConditionResult));
     }
   }
 
-  private static void repeatEvaluation(String action) {
-    if (!active_repeats.isEmpty()) {
+  private static boolean closeRepeat(String action) {
+    // Check if repeat loop must end
+    if (action.equals("}") && active_scopes.peek().equals("repeat")) {
       RepeatStats currentRepeat = active_repeats.peek();
-      if (!currentRepeat.isRepeating) {
-        for (RepeatStats repeatLoop: active_repeats) {
+      if (currentRepeat.evalRepeatComplete()) {
+        if (currentRepeat.isRepeating) {
+          currentRepeat.isRepeating = false;
+          currently_repeating_scope.pop();
+        }
+        active_scopes.pop();
+        active_repeats.pop();
+        return false;
+      } else {
+        if (!currentRepeat.isRepeating) {
+          currentRepeat.isRepeating = true;
+          currently_repeating_scope.push("repeat");
+          currentRepeat.increaseCounter();
+          return true;
+        }
+        currentRepeat.increaseCounter();
+      }
+    }
+    return false;
+  }
+
+  private static void addActionToRepeatBody(String action){
+    if (!active_repeats.isEmpty()) {
+      // Add current action to bodies of all active repeats that are not repeating
+      for (RepeatStats repeatLoop: active_repeats) {
+        if (!repeatLoop.isRepeating) {
           repeatLoop.repeatBody.add(action);
         }
       }
-      if (action.equals("}") && active_scopes.peek().equals("repeat")) {
-        System.out.print("Eval repeat: ");
-        System.out.println(currentRepeat.evalRepeatComplete());
-        System.out.println(currentRepeat);
-        if (currentRepeat.evalRepeatComplete()) {
-          if (currentRepeat.isRepeating) {
-            currentRepeat.isRepeating = false;
-            currently_repeating_scope.pop();
-          }
-          active_scopes.pop();
-          active_repeats.pop();
-        } else {
-          if (!currentRepeat.isRepeating) {
-            currentRepeat.isRepeating = true;
-            currently_repeating_scope.push("repeat");
-          }
-          currentRepeat.increaseCounter();
-        }
-        return;
-      }
     }
+  }
+  private static void repeatEvaluation(String action) {
+    addActionToRepeatBody(action);
 
     Pattern pattern = Pattern.compile("widerhole (\\w+) Mal");
     Matcher matcher = pattern.matcher(action);
@@ -477,8 +504,6 @@ public class Server {
       active_scopes.push("if");
       Pattern pattern = Pattern.compile("falls \\((.*)\\)");
       if_flag = evalComplexCondition(action, pattern);
-      System.out.print("IF condition result: ");
-      System.out.println(if_flag);
     }
 
     if (action.contains("sonst")) {
