@@ -35,9 +35,6 @@ import java.util.regex.Pattern;
 /** WTF? . */
 public class Server {
   private static Entity hero;
-  private static boolean if_flag = false;
-  private static boolean else_flag = false;
-  private static boolean if_active = false;
 
   // This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
   // It can hold the following values: if, while, repeat.
@@ -195,14 +192,13 @@ public class Server {
   }
   private static void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
-    if_flag = false;
-    if_active = false;
-    else_flag = false;
     active_scopes.clear();
     currently_repeating_scope.clear();
+    active_ifs.clear();
     active_whiles.clear();
     active_repeats.clear();
     variables.clear();
+    System.out.println("Values cleared");
     Debugger.TELEPORT_TO_START();
 
     PositionComponent pc = getHeroPosition();
@@ -238,7 +234,7 @@ public class Server {
    * @param value Value of the expression
    * @return Returns the value as an integer
    */
-  private static int getActualValueFromExpression(String value) throws IllegalAccessException {
+  public static int getActualValueFromExpression(String value) throws IllegalAccessException {
     // Process array access
     Pattern pattern = Pattern.compile("(\\w+)\\[(\\d+)]");
     Matcher matcher = pattern.matcher(value);
@@ -289,7 +285,7 @@ public class Server {
    * Evaluation if we currently have a variable assignment
    * @param action Currently executed action
    */
-  private static void variableEvaluation(String action) {
+  public static void variableEvaluation(String action) {
     Pattern pattern = Pattern.compile("int (\\w+) = (\\d+)");
     Matcher matcher = pattern.matcher(action);
     // If pattern matches we have a new variable
@@ -432,7 +428,7 @@ public class Server {
       }
     }
   }
-  private static void whileEvaluation(String action) {
+  public static void whileEvaluation(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
     addActionToWhileBody(action);
 
@@ -478,7 +474,7 @@ public class Server {
       }
     }
   }
-  private static void repeatEvaluation(String action) {
+  public static void repeatEvaluation(String action) {
     addActionToRepeatBody(action);
 
     Pattern pattern = Pattern.compile("widerhole (\\w+) Mal");
@@ -494,7 +490,7 @@ public class Server {
       }
     }
   }
-  private static void ifEvaluation(String action) {
+  public static void ifEvaluation(String action) {
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("if")) {
       active_ifs.pop();
       active_scopes.pop();
@@ -512,7 +508,7 @@ public class Server {
     }
   }
 
-  private static boolean evalComplexCondition(String action, Pattern pattern) {
+  public static boolean evalComplexCondition(String action, Pattern pattern) {
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
       blocklyLexer lexer = new blocklyLexer(CharStreams.fromString(matcher.group(1)));
