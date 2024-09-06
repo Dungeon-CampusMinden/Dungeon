@@ -139,6 +139,23 @@ if (startBtn) {
       currentBlock = currentBlock.getNextBlock();
       await sleep(sleepingTime * 1000);
     }
+    // Reset values in backend
+    try {
+      const response = await api.post("reset");
+      const status = response.status;
+      const text = await response.text();
+      if (text) {
+        character.setPosition(text);
+        characterPositionDiv!.textContent = `Character position: x=${
+          character.getPosition()?.x
+        }, y=${character.getPosition()?.y}`;
+      }
+      responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
+    } catch (error) {
+      if (error instanceof Error) {
+        responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
+      }
+    }
     workspace.highlightBlock(null);
     // Enable button again
     startBtn.disabled = false;
@@ -166,6 +183,23 @@ if (stepBtn) {
         alert("Alle Schritte ausgeführt.");
         workspace.highlightBlock(null);
         currentBlock = startBlock;
+        // Reset values in backend
+        try {
+          const response = await api.post("reset");
+          const status = response.status;
+          const text = await response.text();
+          if (text) {
+            character.setPosition(text);
+            characterPositionDiv!.textContent = `Character position: x=${
+              character.getPosition()?.x
+            }, y=${character.getPosition()?.y}`;
+          }
+          responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
+        } catch (error) {
+          if (error instanceof Error) {
+            responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
+          }
+        }
         return;
       }
       // Highlight current block
