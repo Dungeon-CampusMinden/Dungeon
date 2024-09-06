@@ -45,7 +45,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     if(debugPoints == null) {
       debugPoints = new Points(0xFFFFFFFF);
       debugPoints.pointSize(5.0f);
-      PhysicsDebugSystem.instance().addPoints(debugPoints);
+      PhysicsDebugSystem.addPoints(debugPoints);
     }
     return debugPoints;
   }
