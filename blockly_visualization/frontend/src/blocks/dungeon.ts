@@ -546,7 +546,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_statement",
         name: "DO0",
-        check: "Not_If",
       },
     ],
     previousStatement: "If",
@@ -569,7 +568,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_statement",
         name: "DO0",
-        check: "Not_If",
       },
     ],
     message2: "%{BKY_CONTROLS_IF_MSG_ELSE} %1",
@@ -577,7 +575,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_statement",
         name: "ELSE",
-        check: "Not_If",
       },
     ],
     previousStatement: "If",
