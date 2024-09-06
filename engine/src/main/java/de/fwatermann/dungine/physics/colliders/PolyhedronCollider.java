@@ -144,6 +144,16 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
   }
 
   @Override
+  public Vector3f center() {
+    Vector3f center = new Vector3f();
+    Vector3f[] vertices = this.vertices();
+    for (Vector3f vertex : vertices) {
+      center.add(vertex);
+    }
+    return center.div(vertices.length);
+  }
+
+  @Override
   protected void transformationChanged() {
     super.transformationChanged();
     Quaternionf rotation = this.rotation().premul(this.entity.rotation());

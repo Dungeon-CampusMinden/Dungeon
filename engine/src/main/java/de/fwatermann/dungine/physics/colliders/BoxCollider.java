@@ -43,37 +43,37 @@ public class BoxCollider extends PolyhedronCollider<BoxCollider> {
         new Face(
             this,
             new int[] {0, 1, 2, 3},
-            new IntPair[] {EDGES[0], EDGES[1], EDGES[2], EDGES[3]},
+            new IntPair[] {IntPair.of(0, 1), IntPair.of(1, 2), IntPair.of(2, 3), IntPair.of(3, 0)},
             new Vector3f(0.0f, -1.0f, 0.0f));
     this.faces[1] =
         new Face(
             this,
             new int[] {4, 5, 6, 7},
-            new IntPair[] {EDGES[4], EDGES[5], EDGES[6], EDGES[7]},
+            new IntPair[] {IntPair.of(0, 1), IntPair.of(1, 2), IntPair.of(2, 3), IntPair.of(3, 0)},
             new Vector3f(0.0f, 1.0f, 0.0f));
     this.faces[2] =
         new Face(
             this,
             new int[] {0, 1, 5, 4},
-            new IntPair[] {EDGES[0], EDGES[8], EDGES[9], EDGES[4]},
+            new IntPair[] {IntPair.of(0, 1), IntPair.of(1, 2), IntPair.of(2, 3), IntPair.of(3, 0)},
             new Vector3f(0.0f, 0.0f, -1.0f));
     this.faces[3] =
         new Face(
             this,
             new int[] {1, 2, 6, 5},
-            new IntPair[] {EDGES[1], EDGES[10], EDGES[5], EDGES[9]},
+            new IntPair[] {IntPair.of(0, 1), IntPair.of(1, 2), IntPair.of(2, 3), IntPair.of(3, 0)},
             new Vector3f(1.0f, 0.0f, 0.0f));
     this.faces[4] =
         new Face(
             this,
             new int[] {2, 3, 7, 6},
-            new IntPair[] {EDGES[2], EDGES[11], EDGES[6], EDGES[10]},
+            new IntPair[] {IntPair.of(0, 1), IntPair.of(1, 2), IntPair.of(2, 3), IntPair.of(3, 0)},
             new Vector3f(0.0f, 0.0f, 1.0f));
     this.faces[5] =
         new Face(
             this,
             new int[] {3, 0, 4, 7},
-            new IntPair[] {EDGES[3], EDGES[8], EDGES[7], EDGES[11]},
+            new IntPair[] {IntPair.of(0, 1), IntPair.of(1, 2), IntPair.of(2, 3), IntPair.of(3, 0)},
             new Vector3f(-1.0f, 0.0f, 0.0f));
   }
 
