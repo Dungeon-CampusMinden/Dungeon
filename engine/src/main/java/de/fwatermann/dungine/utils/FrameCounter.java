@@ -9,7 +9,7 @@ public class FrameCounter {
   private long counter = 0;
   private long currentFPS = 0;
   private long lastReset = 0;
-  private long updateInterval;
+  private long updateInterval = 1000;
 
   /**
    * Updates the frame counter. If the update interval has passed, it calculates the current FPS,
@@ -49,7 +49,7 @@ public class FrameCounter {
    * @return the `FrameCounter` instance
    */
   public FrameCounter updateInterval(long updateInterval) {
-    this.updateInterval = updateInterval;
+    this.updateInterval = updateInterval == 0 ? 1 : updateInterval;
     return this;
   }
 }
