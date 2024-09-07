@@ -37,14 +37,27 @@ public class Server {
   private static Entity hero;
 
   // This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
-  // It can hold the following values: if, while, repeat.
+  // It can hold the following values: if, while, repeat, function.
   private static final Stack<String> active_scopes = new Stack<>();
   // This is public, so we can easily access it in the blocklyConditionVisitor
   public static final HashMap<String, Variable> variables = new HashMap<>();
+  public static final HashMap<String, FuncStats> functions = new HashMap<>();
 
   private static final Stack<RepeatStats> active_repeats = new Stack<>();
   private static final Stack<WhileStats> active_whiles = new Stack<>();
   private static final Stack<IfStats> active_ifs = new Stack<>();
+  private static final Stack<FuncStats> active_func_defs = new Stack<>();
+
+  private static final String[] reservedFunctions = {
+    "oben",
+    "unten",
+    "links",
+    "rechts",
+    "feuerballOben",
+    "feuerballUnten",
+    "feuerballLinks",
+    "feuerballRechts"
+  };
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -70,6 +83,8 @@ public class Server {
     startContext.setHandler(Server::handleStartRequest);
     HttpContext resetContext = server.createContext("/reset");
     resetContext.setHandler(Server::handleResetRequest);
+    HttpContext clearContext = server.createContext("/clear");
+    clearContext.setHandler(Server::handleClearRequest);
     server.start();
   }
 
@@ -164,20 +179,27 @@ public class Server {
           }
           return;
         }
+        case "function" -> {
+          System.out.println("eval function");
+          closeFunc(action);
+          System.out.print("Scopes after eval: ");
+          System.out.println(active_scopes);
+          return;
+        }
       }
     }
     ifEvaluation(action);
     whileEvaluation(action);
     repeatEvaluation(action);
     variableEvaluation(action);
+    funcEvaluation(action);
+    funcCallEvaluation(action);
 
-    System.out.print("Current scopes: ");
-    System.out.println(active_scopes);
-    System.out.print("Currently repeating scopes: ");
-    System.out.println(currently_repeating_scope);
-    System.out.print("Current variables: ");
-    System.out.println(variables);
+    printScopes();
 
+    if (!active_func_defs.isEmpty()) {
+      return;
+    }
     // Do not perform any actions if current while condition is false
     if (!active_whiles.isEmpty() && active_scopes.peek().equals("while") && !active_whiles.peek().conditionResult) {
       return;
@@ -190,15 +212,21 @@ public class Server {
     performAction(action);
 
   }
+
+  private static void printScopes() {
+    System.out.print("Current scopes: ");
+    System.out.println(active_scopes);
+    System.out.print("Currently repeating scopes: ");
+    System.out.println(currently_repeating_scope);
+    System.out.print("Current variables: ");
+    System.out.println(variables);
+    System.out.print("Available functions: ");
+    System.out.println(functions);
+  }
+
   private static void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
-    active_scopes.clear();
-    currently_repeating_scope.clear();
-    active_ifs.clear();
-    active_whiles.clear();
-    active_repeats.clear();
-    variables.clear();
-    System.out.println("Values cleared");
+    clearGlobalValues();
     Debugger.TELEPORT_TO_START();
 
     PositionComponent pc = getHeroPosition();
@@ -209,8 +237,33 @@ public class Server {
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
+  }
 
+  private static void handleClearRequest(HttpExchange exchange) throws IOException {
+    clearGlobalValues();
 
+    PositionComponent pc = getHeroPosition();
+    String response = pc.position().x + "," + pc.position().y;
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  private static void clearGlobalValues() {
+    // Reset values
+    active_scopes.clear();
+    currently_repeating_scope.clear();
+    active_ifs.clear();
+    active_whiles.clear();
+    active_repeats.clear();
+    active_func_defs.clear();
+    variables.clear();
+    functions.clear();
+    System.out.println("Values cleared");
+    printScopes();
   }
 
   private static Variable getArrayVariable(String varName) throws IllegalAccessException {
@@ -281,6 +334,52 @@ public class Server {
     };
   }
 
+  public static void funcCallEvaluation(String action) {
+    Pattern pattern = Pattern.compile("(\\w+)\\(\\)");
+    Matcher matcher = pattern.matcher(action);
+    if (matcher.find()) {
+      String funcName = matcher.group(1);
+      if (Arrays.asList(reservedFunctions).contains(funcName)) {
+        return;
+      }
+      FuncStats calledFunc = functions.get(funcName);
+      if (calledFunc == null) {
+        System.out.println("Could not find function " + funcName);
+        return;
+      }
+      System.out.println("Executing function" + funcName);
+      for (String funcAction: calledFunc.funcBody) {
+        System.out.println("Executing func action: " + funcAction);
+        processAction(funcAction);
+      }
+    }
+
+  }
+  public static void closeFunc(String action) {
+    if (action.equals("}") && active_scopes.peek().equals("function")) {
+      FuncStats finishedFunc = active_func_defs.pop();
+      active_scopes.pop();
+      functions.put(finishedFunc.name, finishedFunc);
+    }
+  }
+  private static void addActionToFunc(String action){
+    if (!active_func_defs.isEmpty()) {
+      for (FuncStats func: active_func_defs) {
+        func.funcBody.add(action);
+      }
+    }
+  }
+
+  public static void funcEvaluation(String action) {
+    addActionToFunc(action);
+    Pattern pattern = Pattern.compile("public void (\\w+)\\(\\)");
+    Matcher matcher = pattern.matcher(action);
+    // If pattern matches we have a new func definition
+    if (matcher.find()) {
+      active_func_defs.push(new FuncStats(matcher.group(1)));
+      active_scopes.push("function");
+    }
+  }
   /**
    * Evaluation if we currently have a variable assignment
    * @param action Currently executed action
