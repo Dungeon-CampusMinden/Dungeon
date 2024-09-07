@@ -147,8 +147,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   {
     type: "get_number",
     message0: "%1",
-    previousStatement: null,
-    nextStatement: null,
     args0: [
       {
         type: "field_variable",
@@ -200,8 +198,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   {
       type: "get_variable",
       message0: "%1",
-      previousStatement: null,
-      nextStatement: null,
       args0: [
         {
           type: "field_variable",
@@ -243,8 +239,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "var_number",
-    previousStatement: null,
-    nextStatement: null,
     message0: "%1",
     args0: [
       {
@@ -317,8 +311,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "array_get",
-    previousStatement: null,
-    nextStatement: null,
     message0: "Hole Wert aus Array %1",
     args0: [
        {
@@ -340,8 +332,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
       type: "array_length",
-      previousStatement: null,
-      nextStatement: null,
       message0: "Länge von Array %1",
       args0: [
          {
@@ -653,6 +643,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     previousStatement: null,
     nextStatement: null,
+    output: "Function",
     colour: 300,
   },
   {
@@ -662,6 +653,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "FUNC_NAME",
+        check: "Variable",
       },
     ],
     previousStatement: null,
