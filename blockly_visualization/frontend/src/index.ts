@@ -142,7 +142,7 @@ if (startBtn) {
     }
     // Reset values in backend
     try {
-      const response = await api.post("reset");
+      const response = await api.post("clear");
       const status = response.status;
       const text = await response.text();
       if (text) {
@@ -186,7 +186,7 @@ if (stepBtn) {
         currentBlock = startBlock;
         // Reset values in backend
         try {
-          const response = await api.post("reset");
+          const response = await api.post("clear");
           const status = response.status;
           const text = await response.text();
           if (text) {
