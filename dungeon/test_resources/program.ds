@@ -5,3 +5,4 @@ graph g {
 quest_config c {
     levelgraph: g
 }
+

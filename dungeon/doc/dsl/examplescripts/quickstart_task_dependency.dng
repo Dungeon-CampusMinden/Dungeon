@@ -27,10 +27,7 @@ multiple_choice_task Aufgabe3 {
 graph task_graph {
     Aufgabe1 -> Aufgabe2 -> Aufgabe3 [type=sequence]
 }
-single_choice_task
-var swaf = Aufgabe1;
-var ekf = other_function();
-var sds = 
+
 // Übergabe der Aufgabenabhängigkeit an das Dungeon-System
 dungeon_config meine_config {
     dependency_graph: task_graph

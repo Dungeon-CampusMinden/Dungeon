@@ -1,7 +1,7 @@
 public class ErrorInfo {
-    private int line;
-    private int charPositionInLine;
-    private String message;
+    int line;
+    int charPositionInLine;
+    String message;
 
     public ErrorInfo(int line, int charPositionInLine, String message) {
         this.line = line;

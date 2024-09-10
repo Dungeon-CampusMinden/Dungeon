@@ -1,4 +1,4 @@
-grammar DungeonDiagnostics;
+grammar grammer;
 
 
 DOUBLE_LINE : '--';
@@ -308,7 +308,8 @@ graph
     ;
 
 taskDependency
-    : ID (ARROW ID)* '['dependencyAttribute']' // Eine einzelne Abhängigkeit zwischen zwei Tasks, optional mit Attributen
+    : ID (ARROW ID)* '['dependencyAttribute']'
+    | ID
     ;
 
 dependencyAttribute

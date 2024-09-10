@@ -18,19 +18,22 @@ import {
 	DocumentDiagnosticReportKind,
 	type DocumentDiagnosticReport,
 	TextEdit,
-	Range
+	Range,
 } from 'vscode-languageserver/node';
 import { createCompletionItems } from './completionItems';
+import * as path from 'path';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
 import { checkForBracketErrors, checkForUnusedVariables, checkForVariableIssues } from './diagnostics';
-
-
+import { exec } from 'child_process';
+import { URI } from 'vscode-uri';
+import { promisify } from 'util';
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
-
+const javaJarPath =  path.resolve('lsp-sample\\server\\jars\\Dungeon-Diagnostics.jar');
+const execPromise = promisify(exec);
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 //In dieser Liste werden alle deklarierten Variablen und Objekte für die Completions gespeichert
@@ -185,6 +188,8 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 	return result;
 }
 
+
+
 // Only keep settings for open documents
 documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
@@ -215,11 +220,53 @@ documents.onDidChangeContent(change => {
 });
 
 async function validateTextDocument(textDocument: TextDocument): Promise<Diagnostic[]> {
-	const diagnostics: Diagnostic[] = [];
-	const text = textDocument.getText();
+    const diagnostics: Diagnostic[] = [];
+    const text = textDocument.getText();
     const lines = text.split(/\r?\n/g);
-	
-	declaredVariables.clear();
+    declaredVariables.clear();
+
+    const filePath = URI.parse(textDocument.uri).fsPath;
+
+    try {
+        // Asynchrones Ausführen der JAR-Datei
+        const { stdout, stderr } = await execPromise(`java -jar ${javaJarPath} ${filePath}`);
+
+        if (stderr) {
+            console.error(`Fehler im Java-Programm: ${stderr}`);
+        }
+
+        // Verarbeitung des stdout-Outputs
+        try {
+            const output = JSON.parse(stdout);
+            console.log(output);
+
+            if (output.errors && Array.isArray(output.errors)) {
+                // Verarbeite die Fehler im Output
+                output.errors.forEach((err: any) => {
+                    diagnostics.push({
+                        severity: DiagnosticSeverity.Error,
+                        range: {
+                            start: { line: err.line, character: err.column },
+                            end: { line: err.line, character: err.column }
+                        },
+                        message: err.message,
+                        source: 'ex'
+                    });
+                    console.error(`Fehler: ${err.message}, Zeile: ${err.line}, Spalte: ${err.column}`);
+                });
+            } else if (output.message) {
+                console.log(`Erfolg: ${output.message}`);
+            } else {
+                console.log('Unbekannter Output:', output);
+            }
+        } catch (parseError) {
+            console.error('Fehler beim Parsen des JSON-Outputs:', parseError);
+            console.error('Raw stdout:', stdout);
+        }
+
+    } catch (error) {
+        console.error(`Fehler beim Ausführen des Java-Prozesses: ${error}`);
+    }
 
     // Durchsuche das Dokument nach Deklarationen
     for (const line of lines) {
@@ -231,10 +278,12 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
             }
         }
     }
+
     // Rufe die spezifischen Diagnosefunktionen auf
     diagnostics.push(...checkForVariableIssues(textDocument));
     diagnostics.push(...checkForBracketErrors(textDocument));
     diagnostics.push(...checkForUnusedVariables(textDocument));
+
     return diagnostics;
 }
 
