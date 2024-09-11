@@ -57,4 +57,30 @@ public class ClasspathResource extends Resource {
   public void dispose() {
     this.buffer = null;
   }
+
+  @Override
+  public String toString() {
+    if (this.buffer != null) {
+      return String.format("ClasspathResource[path=%s, bytes: %d]", this.path, this.buffer.capacity());
+    } else {
+      return String.format("ClasspathResource[path=%s, bytes: n/a]", this.path);
+    }
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || this.getClass() != other.getClass()) {
+      return false;
+    }
+    ClasspathResource that = (ClasspathResource) other;
+    return this.path.equals(that.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.path.hashCode();
+  }
 }

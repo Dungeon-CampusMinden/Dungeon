@@ -49,4 +49,30 @@ public class FileResource extends Resource {
   public void dispose() {
     this.buffer = null;
   }
+
+  @Override
+  public String toString() {
+    if(this.buffer != null) {
+      return String.format("FileResource[path=%s, bytes: %d]", this.path, this.buffer.capacity());
+    } else {
+      return String.format("FileResource[path=%s, bytes: n/a]", this.path);
+    }
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || this.getClass() != other.getClass()) {
+      return false;
+    }
+    FileResource that = (FileResource) other;
+    return this.path.equals(that.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.path.hashCode();
+  }
 }
