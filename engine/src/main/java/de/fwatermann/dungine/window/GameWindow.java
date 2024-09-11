@@ -44,11 +44,11 @@ import org.lwjgl.opengl.GLUtil;
 
 public abstract class GameWindow implements Disposable {
 
+  private static final Logger LOGGER = LogManager.getLogger();
+
   @Nullable public static Thread MAIN_THREAD = null;
   @Nullable public static Thread UPDATE_THREAD = null;
   @Nullable public static GameWindow CURRENT_GAME = null;
-
-  private static Logger LOGGER = LogManager.getLogger();
 
   private String title;
   private Vector2i size;
