@@ -33,7 +33,7 @@ public class Texture implements Disposable {
    * @param height the height of the texture
    * @param format the format of the texture
    * @param minFilter the minifying filter of the texture
-   * @param maxFilter the magnification filter of the texture
+   * @param magFilter the magnification filter of the texture
    * @param wrapS the wrap parameter for texture coordinate s
    * @param wrapT the wrap parameter for texture coordinate t
    * @param pixels the pixel data of the texture
@@ -42,10 +42,10 @@ public class Texture implements Disposable {
       int width,
       int height,
       int format,
-      int minFilter,
-      int maxFilter,
-      int wrapS,
-      int wrapT,
+      TextureMinFilter minFilter,
+      TextureMagFilter magFilter,
+      TextureWrapMode wrapS,
+      TextureWrapMode wrapT,
       ByteBuffer pixels) {
     ThreadUtils.checkMainThread();
     this.glTextureId = GL33.glGenTextures();
@@ -60,10 +60,10 @@ public class Texture implements Disposable {
       GL33.glTexImage2D(
           GL33.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL33.GL_UNSIGNED_BYTE, 0);
     }
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter);
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, maxFilter);
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter.glValue);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, magFilter.glValue);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS.glValue);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT.glValue);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
     LOGGER.trace("Created texture {}", this.glTextureId);
   }
@@ -82,10 +82,10 @@ public class Texture implements Disposable {
         width,
         height,
         format,
-        GL33.GL_NEAREST,
-        GL33.GL_NEAREST,
-        GL33.GL_CLAMP_TO_EDGE,
-        GL33.GL_CLAMP_TO_EDGE,
+        TextureMinFilter.NEAREST,
+        TextureMagFilter.NEAREST,
+        TextureWrapMode.CLAMP_TO_EDGE,
+        TextureWrapMode.CLAMP_TO_EDGE,
         pixels);
   }
 
