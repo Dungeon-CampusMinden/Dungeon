@@ -41,7 +41,7 @@ public class Sprite extends Renderable<Sprite> {
    * @param billboardMode The billboard mode for the sprite.
    */
   public Sprite(Resource textureResource, float width, float height, BillboardMode billboardMode) {
-    this.texture = TextureManager.instance().load(textureResource);
+    this.texture = TextureManager.load(textureResource);
     this.width = width;
     this.height = height;
     this.billboardMode = billboardMode;
@@ -90,7 +90,7 @@ public class Sprite extends Renderable<Sprite> {
    * @param resource The resource representing the new texture.
    */
   public void texture(Resource resource) {
-    this.texture = TextureManager.instance().load(resource);
+    this.texture = TextureManager.load(resource);
   }
 
   /**

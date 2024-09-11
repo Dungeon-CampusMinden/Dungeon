@@ -55,11 +55,11 @@ public class UIImage extends UIElement<UIImage> {
   private Texture texture;
 
   public UIImage(Resource image) {
-    this.texture = TextureManager.instance().load(image);
+    this.texture = TextureManager.load(image);
   }
 
   public UIImage texture(Resource resource) {
-    this.texture = TextureManager.instance().load(resource);
+    this.texture = TextureManager.load(resource);
     return this;
   }
 

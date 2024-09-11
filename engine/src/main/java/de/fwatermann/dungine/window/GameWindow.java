@@ -13,7 +13,9 @@ import de.fwatermann.dungine.event.window.WindowFocusChangedEvent;
 import de.fwatermann.dungine.event.window.WindowMoveEvent;
 import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.exception.GLFWException;
+import de.fwatermann.dungine.graphics.texture.TextureManager;
 import de.fwatermann.dungine.logging.Log4jOutputStream;
+import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.GameStateTransition;
 import de.fwatermann.dungine.utils.Disposable;
@@ -44,6 +46,7 @@ public abstract class GameWindow implements Disposable {
 
   @Nullable public static Thread MAIN_THREAD = null;
   @Nullable public static Thread UPDATE_THREAD = null;
+  @Nullable public static GameWindow CURRENT_GAME = null;
 
   private static Logger LOGGER = LogManager.getLogger();
 
@@ -333,6 +336,9 @@ public abstract class GameWindow implements Disposable {
               }
             });
         queue.clear();
+
+        TextureManager.collectGarbage();
+        Resource.collectGarbage();
 
         long end = System.nanoTime();
         long execution = end - start;

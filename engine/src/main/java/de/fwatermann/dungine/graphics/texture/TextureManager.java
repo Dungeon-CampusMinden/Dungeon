@@ -24,24 +24,9 @@ public class TextureManager {
 
   private static final Logger LOGGER = LogManager.getLogger(TextureManager.class);
 
-  private static TextureManager instance;
-
-  /**
-   * Returns the singleton instance of the TextureManager class. If the instance does not exist, it
-   * is created.
-   *
-   * @return the singleton instance of the TextureManager class
-   */
-  public static TextureManager instance() {
-    if (instance == null) {
-      instance = new TextureManager();
-    }
-    return instance;
-  }
-
-  private final ReferenceQueue<Texture> refQueue = new ReferenceQueue<>();
-  private final Map<Resource, WeakReference<Texture>> resourceCache = new HashMap<>();
-  private final Map<WeakReference<Texture>, Integer> refTextureHandle = new HashMap<>();
+  private static final ReferenceQueue<Texture> refQueue = new ReferenceQueue<>();
+  private static final Map<Resource, WeakReference<Texture>> resourceCache = new HashMap<>();
+  private static final Map<WeakReference<Texture>, Integer> refTextureHandle = new HashMap<>();
 
   private TextureManager() {}
 
@@ -53,20 +38,20 @@ public class TextureManager {
    * @return the loaded texture
    * @throws RuntimeException if the image fails to load or if an I/O error occurs
    */
-  public Texture load(Resource resource) {
-    WeakReference<Texture> texRef = this.resourceCache.get(resource);
-    if(texRef != null && texRef.get() != null) {
+  public static Texture load(Resource resource) {
+    WeakReference<Texture> texRef = resourceCache.get(resource);
+    if (texRef != null && texRef.get() != null) {
       return texRef.get();
     }
     Texture texture;
     try {
       texture = loadTexture(resource.readBytes());
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
-    texRef = new WeakReference<>(texture, this.refQueue);
-    this.resourceCache.put(resource, texRef);
-    this.refTextureHandle.put(texRef, texture.glHandle());
+    texRef = new WeakReference<>(texture, refQueue);
+    resourceCache.put(resource, texRef);
+    refTextureHandle.put(texRef, texture.glHandle());
     return texture;
   }
 
@@ -78,9 +63,9 @@ public class TextureManager {
    * @param cached an array to store whether the texture was cached
    * @return the loaded texture
    */
-  public Texture load(Resource resource, boolean[] cached) {
-    cached[0] = this.resourceCache.containsKey(resource);
-    return this.load(resource);
+  public static Texture load(Resource resource, boolean[] cached) {
+    cached[0] = resourceCache.containsKey(resource);
+    return load(resource);
   }
 
   private static Texture loadTexture(ByteBuffer buffer) {
@@ -97,41 +82,35 @@ public class TextureManager {
     return ret;
   }
 
-  /**
-   * Removes the texture from the cache.
-   * @param texture the texture to remove
-   */
-  protected void removeFromCache(Texture texture) {
-    this.resourceCache.values().removeIf(t -> t != null && t.get() == texture);
-  }
-
-  public void collectGarbage() {
-    if(!ThreadUtils.isMainThread()) return;
+  /** Method to collect unused textures and remove them from the cache. */
+  public static void collectGarbage() {
+    if (!ThreadUtils.isMainThread()) return;
     Reference<? extends Texture> texRef;
     boolean collected = false;
-    while((texRef = this.refQueue.poll()) != null) {
-      if(this.refTextureHandle.containsKey(texRef)) {
-        int handle = this.refTextureHandle.get(texRef);
+    while ((texRef = refQueue.poll()) != null) {
+      if (refTextureHandle.containsKey(texRef)) {
+        int handle = refTextureHandle.get(texRef);
         GL33.glDeleteTextures(handle);
-        this.refTextureHandle.remove(texRef);
+        refTextureHandle.remove(texRef);
       }
       Texture texture = texRef.get();
-      if(texture != null) {
+      if (texture != null) {
         texture.dispose();
       }
       collected = true;
     }
 
-    if(collected) {
-      this.resourceCache.entrySet().removeIf(e -> {
-        if(e.getValue().get() == null) {
-          LOGGER.trace("Removing Texture from cache: {}", e.getKey());
-          return true;
-        }
-        return false;
-      });
+    if (collected) {
+      resourceCache
+          .entrySet()
+          .removeIf(
+              e -> {
+                if (e.getValue().get() == null) {
+                  LOGGER.trace("Removing Texture from cache: {}", e.getKey());
+                  return true;
+                }
+                return false;
+              });
     }
-
   }
-
 }
