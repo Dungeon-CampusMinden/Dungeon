@@ -135,6 +135,12 @@ public class Server {
       String currentLoop = currently_repeating_scope.peek();
       switch (currentLoop) {
         case "while" -> {
+          if (!active_func_defs.isEmpty()) {
+            active_whiles.pop();
+            active_scopes.pop();
+            currently_repeating_scope.pop();
+            return;
+          }
           WhileStats currentWhile = active_whiles.peek();
           while (currentWhile.isRepeating && !interruptExecution) {
             System.out.print("Repeating while loop");
@@ -149,6 +155,12 @@ public class Server {
           }
         }
         case "repeat" -> {
+          if (!active_func_defs.isEmpty()) {
+            active_repeats.pop();
+            active_scopes.pop();
+            currently_repeating_scope.pop();
+            return;
+          }
           RepeatStats currentRepeat = active_repeats.peek();
           while (currentRepeat.isRepeating && !interruptExecution) {
             System.out.print("Repeating repeat loop");
@@ -171,6 +183,7 @@ public class Server {
     // Make sure we close the right scope
     addActionToWhileBody(action);
     addActionToRepeatBody(action);
+    addActionToFunc(action);
     if (action.equals("}") && !active_scopes.isEmpty()) {
       System.out.println("End of if, while or repeat detected");
       String current_scope = active_scopes.peek();
@@ -211,24 +224,28 @@ public class Server {
         }
       }
     }
-    // Do not perform any actions if current while condition is false
-    if (!active_whiles.isEmpty() && active_scopes.peek().equals("while") && !active_whiles.peek().conditionResult) {
-      return;
-    }
-    // Do not actually execute any actions in func definition
-    if (!active_func_defs.isEmpty()) {
-      return;
-    }
-    // Do not perform action if currently in if and condition is false
-    if (!active_ifs.isEmpty() && !active_ifs.peek().executeAction()) {
-      return;
-    }
 
     ifEvaluation(action);
     whileEvaluation(action);
     repeatEvaluation(action);
-    variableEvaluation(action);
     funcEvaluation(action);
+
+    // Do not perform any actions in func definition
+    if (!active_func_defs.isEmpty()) {
+      return;
+    }
+    // Do not perform any actions if current while condition is false
+    if (!active_whiles.isEmpty() && !active_whiles.peek().conditionResult) {
+      return;
+    }
+    // Do not perform any actions if current if condition is false
+    if (!active_ifs.isEmpty() && !active_ifs.peek().executeAction()) {
+      return;
+    }
+
+    // Variable and func call evaluation are not allowed to be actually performed if while or if condition is false or
+    // a function is currently defined
+    variableEvaluation(action);
     funcCallEvaluation(action);
 
     printScopes();
@@ -396,7 +413,6 @@ public class Server {
   }
 
   private static void funcEvaluation(String action) {
-    addActionToFunc(action);
     Pattern pattern = Pattern.compile("public void (\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
     // If pattern matches we have a new func definition
@@ -637,6 +653,9 @@ public class Server {
   }
 
   public static boolean evalComplexCondition(String action, Pattern pattern) {
+    if (!active_func_defs.isEmpty()) {
+      return false;
+    }
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
       blocklyLexer lexer = new blocklyLexer(CharStreams.fromString(matcher.group(1)));

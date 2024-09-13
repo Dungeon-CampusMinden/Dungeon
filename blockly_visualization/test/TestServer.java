@@ -224,4 +224,109 @@ public class TestServer {
     Assert.assertTrue(Server.active_scopes.isEmpty());
   }
 
+  @Test
+  public void testFuncEval() {
+    Server.processAction("int x = 0");
+
+    Server.processAction("public void dummy_func() {");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("function", Server.active_scopes.peek());
+
+
+    Server.processAction("falls (wahr)");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("if", Server.active_scopes.peek());
+
+    Server.processAction("solange (wahr)");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("while", Server.active_scopes.peek());
+
+    Server.processAction("wiederhole 3 Mal");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("repeat", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals("while", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals("if", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals("function", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertTrue(Server.active_scopes.isEmpty());
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+  }
+
+
+  @Test
+  public void testFuncCall() {
+    Server.processAction("int x = 0");
+
+    Server.processAction("public void dummy_func() {");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("function", Server.active_scopes.peek());
+
+
+    Server.processAction("falls (wahr)");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("if", Server.active_scopes.peek());
+
+    Server.processAction("solange (x <= 2)");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("while", Server.active_scopes.peek());
+
+    Server.processAction("wiederhole 3 Mal");
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals("repeat", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals("while", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals("if", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals("function", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertTrue(Server.active_scopes.isEmpty());
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+
+    Server.processAction("dummy_func();");
+    Assert.assertEquals(6,  Server.variables.get("x").intVal);
+  }
+
+  @Test
+  public void testFuncCallInFuncDef() {
+    Server.processAction("int x = 0");
+    Server.processAction("public void dummy_func() {");
+    Server.processAction("int x = x + 1");
+    Server.processAction("falls (wahr)");
+    Server.processAction("int x = x + 1");
+    Server.processAction("solange (x <= 2)");
+    Server.processAction("int x = x + 1");
+    Server.processAction("wiederhole 3 Mal");
+    Server.processAction("int x = x + 1");
+    Server.processAction("}");
+    Server.processAction("}");
+    Server.processAction("}");
+    Server.processAction("}");
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+
+    Server.processAction("public void dummy_func2() {");
+    Server.processAction("int x = 5");
+    Server.processAction("dummy_func()");
+    Assert.assertEquals("function", Server.active_scopes.peek());
+    Server.processAction("}");
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+
+    Server.processAction("dummy_func2();");
+    Assert.assertEquals(7,  Server.variables.get("x").intVal);
+    Server.processAction("dummy_func();");
+    Assert.assertEquals(9,  Server.variables.get("x").intVal);
+  }
+
+
 }
