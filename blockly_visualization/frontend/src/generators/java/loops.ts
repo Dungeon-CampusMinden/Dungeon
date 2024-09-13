@@ -9,7 +9,7 @@ export function repeat(block: Blockly.Block, generator: Blockly.Generator) {
     generator.INDENT
   );
 
-  const code = "widerhole " + times + " Mal{\n" + repeat_body + "\n}";
+  const code = "wiederhole " + times + " Mal{\n" + repeat_body + "\n}";
   return code;
 }
 

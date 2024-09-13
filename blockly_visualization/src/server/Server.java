@@ -38,15 +38,15 @@ public class Server {
 
   // This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
   // It can hold the following values: if, while, repeat, function.
-  private static final Stack<String> active_scopes = new Stack<>();
+  public static final Stack<String> active_scopes = new Stack<>();
   // This is public, so we can easily access it in the blocklyConditionVisitor
   public static final HashMap<String, Variable> variables = new HashMap<>();
   public static final HashMap<String, FuncStats> functions = new HashMap<>();
 
-  private static final Stack<RepeatStats> active_repeats = new Stack<>();
-  private static final Stack<WhileStats> active_whiles = new Stack<>();
-  private static final Stack<IfStats> active_ifs = new Stack<>();
-  private static final Stack<FuncStats> active_func_defs = new Stack<>();
+  public static final Stack<RepeatStats> active_repeats = new Stack<>();
+  public static final Stack<WhileStats> active_whiles = new Stack<>();
+  public static final Stack<IfStats> active_ifs = new Stack<>();
+  public static final Stack<FuncStats> active_func_defs = new Stack<>();
 
   public static boolean interruptExecution = false;
   public static boolean errorOccured = false;
@@ -64,8 +64,6 @@ public class Server {
   };
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
-
-
 
   /**
    * WTF? .
@@ -169,11 +167,11 @@ public class Server {
     }
   }
 
-  private static void processAction(String action) {
+  public static void processAction(String action) {
     // Make sure we close the right scope
+    addActionToWhileBody(action);
+    addActionToRepeatBody(action);
     if (action.equals("}") && !active_scopes.isEmpty()) {
-      addActionToWhileBody(action);
-      addActionToRepeatBody(action);
       System.out.println("End of if, while or repeat detected");
       String current_scope = active_scopes.peek();
       switch (current_scope) {
@@ -213,6 +211,19 @@ public class Server {
         }
       }
     }
+    // Do not perform any actions if current while condition is false
+    if (!active_whiles.isEmpty() && active_scopes.peek().equals("while") && !active_whiles.peek().conditionResult) {
+      return;
+    }
+    // Do not actually execute any actions in func definition
+    if (!active_func_defs.isEmpty()) {
+      return;
+    }
+    // Do not perform action if currently in if and condition is false
+    if (!active_ifs.isEmpty() && !active_ifs.peek().executeAction()) {
+      return;
+    }
+
     ifEvaluation(action);
     whileEvaluation(action);
     repeatEvaluation(action);
@@ -221,18 +232,6 @@ public class Server {
     funcCallEvaluation(action);
 
     printScopes();
-
-    if (!active_func_defs.isEmpty()) {
-      return;
-    }
-    // Do not perform any actions if current while condition is false
-    if (!active_whiles.isEmpty() && active_scopes.peek().equals("while") && !active_whiles.peek().conditionResult) {
-      return;
-    }
-    // Do not perform action if currently in if and condition is false
-    if (!active_ifs.isEmpty() && !active_ifs.peek().executeAction()) {
-      return;
-    }
 
     performAction(action);
 
@@ -278,7 +277,7 @@ public class Server {
     os.close();
   }
 
-  private static void clearGlobalValues() {
+  public static void clearGlobalValues() {
     // Reset values
     active_scopes.clear();
     currently_repeating_scope.clear();
@@ -360,7 +359,7 @@ public class Server {
     };
   }
 
-  public static void funcCallEvaluation(String action) {
+  private static void funcCallEvaluation(String action) {
     Pattern pattern = Pattern.compile("(\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
@@ -381,7 +380,7 @@ public class Server {
     }
 
   }
-  public static void closeFunc(String action) {
+  private static void closeFunc(String action) {
     if (action.equals("}") && active_scopes.peek().equals("function")) {
       FuncStats finishedFunc = active_func_defs.pop();
       active_scopes.pop();
@@ -396,7 +395,7 @@ public class Server {
     }
   }
 
-  public static void funcEvaluation(String action) {
+  private static void funcEvaluation(String action) {
     addActionToFunc(action);
     Pattern pattern = Pattern.compile("public void (\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
@@ -410,7 +409,7 @@ public class Server {
    * Evaluation if we currently have a variable assignment
    * @param action Currently executed action
    */
-  public static void variableEvaluation(String action) {
+  private static void variableEvaluation(String action) {
     Pattern pattern = Pattern.compile("int (\\w+) = (\\d+)");
     Matcher matcher = pattern.matcher(action);
     // If pattern matches we have a new variable
@@ -546,6 +545,9 @@ public class Server {
 
   private static void addActionToWhileBody(String action) {
     if (!active_whiles.isEmpty()) {
+      if (active_whiles.peek().isRepeating) {
+        return;
+      }
       for (WhileStats whileLoop: active_whiles) {
         if (!whileLoop.isRepeating) {
           whileLoop.whileBody.add(action);
@@ -553,9 +555,8 @@ public class Server {
       }
     }
   }
-  public static void whileEvaluation(String action) {
+  private static void whileEvaluation(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
-    addActionToWhileBody(action);
 
     if (action.contains("solange")) {
       boolean currentConditionResult = evalComplexCondition(action, pattern);
@@ -591,6 +592,9 @@ public class Server {
 
   private static void addActionToRepeatBody(String action){
     if (!active_repeats.isEmpty()) {
+      if (active_repeats.peek().isRepeating) {
+        return;
+      }
       // Add current action to bodies of all active repeats that are not repeating
       for (RepeatStats repeatLoop: active_repeats) {
         if (!repeatLoop.isRepeating) {
@@ -599,10 +603,8 @@ public class Server {
       }
     }
   }
-  public static void repeatEvaluation(String action) {
-    addActionToRepeatBody(action);
-
-    Pattern pattern = Pattern.compile("widerhole (\\w+) Mal");
+  private static void repeatEvaluation(String action) {
+    Pattern pattern = Pattern.compile("wiederhole (\\w+) Mal");
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
       String repeatString = matcher.group(1);
@@ -615,7 +617,7 @@ public class Server {
       }
     }
   }
-  public static void ifEvaluation(String action) {
+  private static void ifEvaluation(String action) {
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("if")) {
       active_ifs.pop();
       active_scopes.pop();
@@ -630,6 +632,7 @@ public class Server {
     if (action.contains("sonst")) {
       IfStats currentIf = active_ifs.peek();
       currentIf.else_flag = !currentIf.if_flag;
+      currentIf.if_flag = false;
     }
   }
 
