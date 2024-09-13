@@ -6,6 +6,10 @@ import server.Server;
 import java.util.regex.Pattern;
 
 public class TestServer {
+  @Before
+  public void setUp() {
+      Server.clearGlobalValues();
+  }
   @Test
   public void testConditionEval() {
     Pattern pattern = Pattern.compile("(.*)");
@@ -32,6 +36,10 @@ public class TestServer {
     Assert.assertTrue(Server.evalComplexCondition("9 >= 10 || wahr", pattern));
     // Complex condition
     Assert.assertTrue(Server.evalComplexCondition("(((nicht falsch && 10 >= 1) || (11 <= 10 && falsch)))", pattern));
-
+  }
+  @Test
+  public void ifEval() {
+    String action = "falls (wahr)";
+    Server.processAction(action);
   }
 }

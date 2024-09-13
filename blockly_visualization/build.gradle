@@ -8,13 +8,15 @@ repositories {
 
 dependencies {
   implementation project(':dungeon')
-  implementation 'junit:junit:4.13.1'
-  testImplementation 'junit:junit:4.13.1'
   antlr "org.antlr:antlr4:4.5.3"
+  // JUnit 4 and Mockito for testing
+  testImplementation supportDependencies.junit
 }
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
 
 processResources {
     from new File(project(':game').projectDir, '/assets')
