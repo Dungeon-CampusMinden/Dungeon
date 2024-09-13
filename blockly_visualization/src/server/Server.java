@@ -48,6 +48,8 @@ public class Server {
   private static final Stack<IfStats> active_ifs = new Stack<>();
   private static final Stack<FuncStats> active_func_defs = new Stack<>();
 
+  public static boolean interruptExecution = false;
+
   private static final String[] reservedFunctions = {
     "oben",
     "unten",
@@ -99,7 +101,14 @@ public class Server {
       System.out.print("Current action: ");
       System.out.println(action);
       processAction(action);
+      if (interruptExecution) {
+        break;
+      }
 
+    }
+    if (interruptExecution) {
+      clearGlobalValues();
+      interruptExecution = false;
     }
 
     PositionComponent pc = getHeroPosition();
@@ -118,24 +127,29 @@ public class Server {
       switch (currentLoop) {
         case "while" -> {
           WhileStats currentWhile = active_whiles.peek();
-          while (currentWhile.isRepeating) {
+          while (currentWhile.isRepeating && !interruptExecution) {
             System.out.print("Repeating while loop");
             System.out.println(currentWhile);
             for (String whileAction : currentWhile.whileBody) {
-              processAction(whileAction);
               System.out.println("Executing while action: " + whileAction);
-
+              processAction(whileAction);
+              if (interruptExecution) {
+                break;
+              }
             }
           }
         }
         case "repeat" -> {
           RepeatStats currentRepeat = active_repeats.peek();
-          while (currentRepeat.isRepeating) {
+          while (currentRepeat.isRepeating && !interruptExecution) {
             System.out.print("Repeating repeat loop");
             System.out.println(currentRepeat);
             for (String repeatAction : currentRepeat.repeatBody) {
-              processAction(repeatAction);
               System.out.println("Executing repeat action: " + repeatAction);
+              processAction(repeatAction);
+              if (interruptExecution) {
+                break;
+              }
             }
           }
         }
