@@ -49,6 +49,8 @@ public class Server {
   private static final Stack<FuncStats> active_func_defs = new Stack<>();
 
   public static boolean interruptExecution = false;
+  public static boolean errorOccured = false;
+  public static String errorMsg = "";
 
   private static final String[] reservedFunctions = {
     "oben",
@@ -106,16 +108,25 @@ public class Server {
       }
 
     }
+    // Build response for blockly frontend
+    String response;
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     if (interruptExecution) {
       clearGlobalValues();
       interruptExecution = false;
+      System.out.println("Interruption performed");
+      if (errorOccured) {
+        response = errorMsg;
+        exchange.sendResponseHeaders(400, response.getBytes().length);
+      } else {
+        response = "Execution interrupted";
+        exchange.sendResponseHeaders(205, response.getBytes().length);
+      }
+    } else {
+      response = "OK";
+      exchange.sendResponseHeaders(200, response.getBytes().length);
     }
 
-    PositionComponent pc = getHeroPosition();
-    String response = pc.position().x + "," + pc.position().y;
-
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-    exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
@@ -240,7 +251,8 @@ public class Server {
 
   private static void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
-    clearGlobalValues();
+    interruptExecution = true;
+
     Debugger.TELEPORT_TO_START();
 
     PositionComponent pc = getHeroPosition();
