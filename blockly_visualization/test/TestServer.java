@@ -14,6 +14,29 @@ public class TestServer {
   }
 
   @Test
+  public void testSimpleAssign() {
+    Server.processAction("int x = 5;");
+    Assert.assertEquals(5,  Server.variables.get("x").intVal);
+  }
+  @Test
+  public void testExpressionAssign() {
+    Server.processAction("int x = 5 + 5;");
+    Assert.assertEquals(10,  Server.variables.get("x").intVal);
+    Server.processAction("int x = 5 * 5;");
+    Assert.assertEquals(25,  Server.variables.get("x").intVal);
+    Server.processAction("int x = 5 - 5;");
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Server.processAction("int x = 5 / 5;");
+    Assert.assertEquals(1,  Server.variables.get("x").intVal);
+    Server.processAction("int x = x + x;");
+    Assert.assertEquals(2,  Server.variables.get("x").intVal);
+    Server.processAction("int x = x + 3;");
+    Assert.assertEquals(5,  Server.variables.get("x").intVal);
+    Server.processAction("int x = 5 - x;");
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+  }
+
+  @Test
   public void testConditionEval() {
     Pattern pattern = Pattern.compile("(.*)");
     // Check for simple booleans

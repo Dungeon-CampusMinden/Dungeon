@@ -426,14 +426,7 @@ public class Server {
    * @param action Currently executed action
    */
   private static void variableEvaluation(String action) {
-    Pattern pattern = Pattern.compile("int (\\w+) = (\\d+)");
-    Matcher matcher = pattern.matcher(action);
-    // If pattern matches we have a new variable
-    if (matcher.find()) {
-      variables.put(matcher.group(1), new Variable(Integer.parseInt(matcher.group(2))));
-      return;
-    }
-    // We may have a creation of an array
+    // Check array creation
     Pattern patternArray = Pattern.compile("int\\[] (\\w+) = new int\\[(\\d+)]");
     Matcher matcherArray = patternArray.matcher(action);
     if (matcherArray.find()) {
@@ -441,14 +434,21 @@ public class Server {
       variables.put(matcherArray.group(1), new Variable(new int[array_size]));
       return;
     }
-
     // Check array assign
     if (checkArrayAssign(action)) return;
-    checkAssign(action);
+    // Check assign to normal variable with expression
+    if (checkAssign(action)) return;
 
+    // Simple assign
+    Pattern pattern = Pattern.compile("int (\\w+) = (\\d+);");
+    Matcher matcher = pattern.matcher(action);
+    // If pattern matches we have a new variable
+    if (matcher.find()) {
+      variables.put(matcher.group(1), new Variable(Integer.parseInt(matcher.group(2))));
+    }
   }
 
-  private static void checkAssign(String action) {
+  private static boolean checkAssign(String action) {
     // Check expression with operator
     Pattern pattern = Pattern.compile("int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
     Matcher matcher = pattern.matcher(action);
@@ -460,10 +460,10 @@ public class Server {
       try {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         variables.put(varName, new Variable(value));
-        return;
+        return true;
       } catch (IllegalAccessException | NoSuchElementException e) {
         System.out.println(e.getMessage());
-        return;
+        return true;
       }
     }
 
@@ -476,10 +476,13 @@ public class Server {
       try {
         int value = getActualValueFromExpression(rightValue);
         variables.put(varNameRightValue, new Variable(value));
+        return true;
       } catch (IllegalAccessException | NoSuchElementException e) {
         System.out.println(e.getMessage());
+        return true;
       }
     }
+    return false;
   }
 
   private static boolean checkArrayAssign(String action) {
