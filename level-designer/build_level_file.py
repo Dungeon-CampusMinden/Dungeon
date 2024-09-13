@@ -78,13 +78,11 @@ for filepath in glob.iglob('src_maps/*.json'):
             file_content.append(''.join(row))
         file_string = '\n'.join(file_content)
 
-        print(file_string)
         file_name_full = filepath.split('\\')[1]
         file_name = file_name_full.split('.')[0]
-        print(file_name)
-        dist_file = open('./dist_maps/' + file_name + '.txt', 'w')
+        # Write new file
+        dist_file = open('./dist_maps/' + file_name + '.level', 'w')
         dist_file.write(file_string)
         dist_file.close()
-        print(file_name + ' written')
 
 print('Done')
