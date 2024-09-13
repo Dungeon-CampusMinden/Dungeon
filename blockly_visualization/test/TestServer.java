@@ -12,6 +12,7 @@ public class TestServer {
   public void setUp() {
       Server.clearGlobalValues();
   }
+
   @Test
   public void testConditionEval() {
     Pattern pattern = Pattern.compile("(.*)");
@@ -328,5 +329,33 @@ public class TestServer {
     Assert.assertEquals(9,  Server.variables.get("x").intVal);
   }
 
+  @Test
+  public void testArrayCreation() {
+    Server.processAction("int[] array_a = new int[5];");
+    int[] array_a = new int[5];
+    Assert.assertArrayEquals(array_a,  Server.variables.get("array_a").arrayVal);
+  }
 
+  @Test
+  public void testArrayGet() {
+    Server.processAction("int[] array_a = new int[5];");
+    Server.processAction("int x = array_a[1];");
+    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+  }
+
+  @Test
+  public void testArraySet() {
+    Server.processAction("int[] array_a = new int[5];");
+    Server.processAction("int array_a[1] = 5;");
+    int[] array_a = new int[5];
+    array_a[1] = 5;
+    Assert.assertArrayEquals(array_a,  Server.variables.get("array_a").arrayVal);
+  }
+
+  @Test
+  public void testArrayLength() {
+    Server.processAction("int[] array_a = new int[5];");
+    Server.processAction("int x = array_a.length;");
+    Assert.assertEquals(5,  Server.variables.get("x").intVal);
+  }
 }
