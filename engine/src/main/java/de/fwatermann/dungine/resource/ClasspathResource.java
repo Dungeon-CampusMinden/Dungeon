@@ -41,7 +41,13 @@ public class ClasspathResource extends Resource {
   @Override
   @Nullable
   public Resource resolveRelative(String path) {
-    return load(this.path + "/" + path, 0x02);
+    if(path.startsWith("/")) {
+      return load(path, 0x02);
+    } else {
+      // Remove filename from path
+      String dirPath = this.path.substring(0, this.path.lastIndexOf('/'));
+      return load(dirPath + "/" + path, 0x02);
+    }
   }
 
   /**

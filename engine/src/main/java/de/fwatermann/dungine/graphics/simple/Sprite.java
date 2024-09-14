@@ -15,6 +15,7 @@ import de.fwatermann.dungine.graphics.texture.Texture;
 import de.fwatermann.dungine.graphics.texture.TextureManager;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.ThreadUtils;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
@@ -56,9 +57,13 @@ public class Sprite extends Renderable<Sprite> {
   @Override
   public void render(Camera<?> camera) {
     if (SHADER == null) {
-      Shader vertexShader = new Shader(VERTEX_SHADER, Shader.ShaderType.VERTEX_SHADER);
-      Shader fragmentShader = new Shader(FRAGMENT_SHADER, Shader.ShaderType.FRAGMENT_SHADER);
-      SHADER = new ShaderProgram(vertexShader, fragmentShader);
+      try {
+        Shader vertexShader = Shader.loadShader(Resource.load("/shaders/3d/Sprite.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/3d/Sprite.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        SHADER = new ShaderProgram(vertexShader, fragmentShader);
+      } catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
     }
     this.render(camera, SHADER);
   }
@@ -171,8 +176,8 @@ public class Sprite extends Renderable<Sprite> {
             vertices,
             PrimitiveType.TRIANGLE_STRIP,
             GLUsageHint.DRAW_STATIC,
-            new VertexAttribute(3, DataType.FLOAT, "a_Position"),
-            new VertexAttribute(2, DataType.FLOAT, "a_TexCoord"));
+            new VertexAttribute(3, DataType.FLOAT, "aPosition"),
+            new VertexAttribute(2, DataType.FLOAT, "aTexCoord"));
   }
 
   @Override
