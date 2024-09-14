@@ -3,6 +3,7 @@ package de.fwatermann.dungine.graphics.shader;
 import de.fwatermann.dungine.exception.OpenGLException;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
+import de.fwatermann.dungine.graphics.texture.animation.Animation;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ import org.lwjgl.opengl.GL33;
  */
 public class ShaderProgram implements Disposable {
 
+  public static boolean FORCE_NO_SEPARAT_SHADER_OBJECT = false;
+
   private static final Logger LOGGER = LogManager.getLogger(ShaderProgram.class);
 
   private int glHandle;
@@ -46,7 +49,7 @@ public class ShaderProgram implements Disposable {
   }
 
   private static boolean supportsSSO() {
-    return GL.getCapabilities().GL_ARB_separate_shader_objects;
+    return !FORCE_NO_SEPARAT_SHADER_OBJECT && GL.getCapabilities().GL_ARB_separate_shader_objects;
   }
 
   private void glInit() {
@@ -76,6 +79,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Checks if this shader program is currently bound.
+   *
    * @return true if this shader program is currently bound, false otherwise
    */
   public boolean bound() {
@@ -146,12 +150,14 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform1i(String name, int value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform1i(this.getUniformLocation(name), value);
-    } else if(supportsSSO()){
-      ARBSeparateShaderObjects.glProgramUniform1i(this.glHandle, this.getUniformLocation(name), value);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform1i(
+          this.glHandle, this.getUniformLocation(name), value);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -162,12 +168,14 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform1f(String name, float value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform1f(this.getUniformLocation(name), value);
-    } else if(supportsSSO()){
-      ARBSeparateShaderObjects.glProgramUniform1f(this.glHandle, this.getUniformLocation(name), value);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform1f(
+          this.glHandle, this.getUniformLocation(name), value);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -178,12 +186,14 @@ public class ShaderProgram implements Disposable {
    * @param values the values of the uniform
    */
   public void setUniform1iv(String name, int[] values) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform1iv(this.getUniformLocation(name), values);
-    } else if(supportsSSO()){
-      ARBSeparateShaderObjects.glProgramUniform1iv(this.glHandle, this.getUniformLocation(name), values);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform1iv(
+          this.glHandle, this.getUniformLocation(name), values);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -195,12 +205,14 @@ public class ShaderProgram implements Disposable {
    * @param y the y component of the value
    */
   public void setUniform2f(String name, float x, float y) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform2f(this.getUniformLocation(name), x, y);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform2f(this.glHandle, this.getUniformLocation(name), x, y);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform2f(
+          this.glHandle, this.getUniformLocation(name), x, y);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -211,32 +223,38 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform2f(String name, Vector2f value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform2f(this.getUniformLocation(name), value.x, value.y);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform2f(this.glHandle, this.getUniformLocation(name), value.x, value.y);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform2f(
+          this.glHandle, this.getUniformLocation(name), value.x, value.y);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
   public void setUniform2iv(String name, int x, int y) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform2i(this.getUniformLocation(name), x, y);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform2i(this.glHandle, this.getUniformLocation(name), x, y);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform2i(
+          this.glHandle, this.getUniformLocation(name), x, y);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
   public void setUniform2i(String name, Vector2i value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform2i(this.getUniformLocation(name), value.x, value.y);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform2i(this.glHandle, this.getUniformLocation(name), value.x, value.y);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform2i(
+          this.glHandle, this.getUniformLocation(name), value.x, value.y);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -249,12 +267,14 @@ public class ShaderProgram implements Disposable {
    * @param z the z component of the value
    */
   public void setUniform3fv(String name, float x, float y, float z) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform3f(this.getUniformLocation(name), x, y, z);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform3f(this.glHandle, this.getUniformLocation(name), x, y, z);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform3f(
+          this.glHandle, this.getUniformLocation(name), x, y, z);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -265,12 +285,14 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform3f(String name, Vector3f value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform3f(this.getUniformLocation(name), value.x, value.y, value.z);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform3f(this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform3f(
+          this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -283,12 +305,14 @@ public class ShaderProgram implements Disposable {
    * @param z the z component of the value
    */
   public void setUniform3iv(String name, int x, int y, int z) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform3i(this.getUniformLocation(name), x, y, z);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform3i(this.glHandle, this.getUniformLocation(name), x, y, z);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform3i(
+          this.glHandle, this.getUniformLocation(name), x, y, z);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -299,12 +323,14 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform3i(String name, Vector3i value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform3i(this.getUniformLocation(name), value.x, value.y, value.z);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform3i(this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform3i(
+          this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -318,12 +344,14 @@ public class ShaderProgram implements Disposable {
    * @param w the w component of the value
    */
   public void setUniform4fv(String name, float x, float y, float z, float w) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform4f(this.getUniformLocation(name), x, y, z, w);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform4f(this.glHandle, this.getUniformLocation(name), x, y, z, w);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform4f(
+          this.glHandle, this.getUniformLocation(name), x, y, z, w);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -334,12 +362,14 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform4f(String name, Vector4f value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform4f(this.getUniformLocation(name), value.x, value.y, value.z, value.w);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform4f(this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z, value.w);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform4f(
+          this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z, value.w);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -353,12 +383,14 @@ public class ShaderProgram implements Disposable {
    * @param w the w component of the value
    */
   public void setUniform4iv(String name, int x, int y, int z, int w) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform4i(this.getUniformLocation(name), x, y, z, w);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform4i(this.glHandle, this.getUniformLocation(name), x, y, z, w);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform4i(
+          this.glHandle, this.getUniformLocation(name), x, y, z, w);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -369,12 +401,14 @@ public class ShaderProgram implements Disposable {
    * @param value the value of the uniform
    */
   public void setUniform4i(String name, Vector4i value) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniform4i(this.getUniformLocation(name), value.x, value.y, value.z, value.w);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniform4i(this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z, value.w);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniform4i(
+          this.glHandle, this.getUniformLocation(name), value.x, value.y, value.z, value.w);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -385,12 +419,14 @@ public class ShaderProgram implements Disposable {
    * @param matrix the value of the uniform
    */
   public void setUniformMatrix4fv(String name, float[] matrix) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniformMatrix4fv(this.getUniformLocation(name), false, matrix);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(this.glHandle, this.getUniformLocation(name), false, matrix);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(
+          this.glHandle, this.getUniformLocation(name), false, matrix);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -401,12 +437,14 @@ public class ShaderProgram implements Disposable {
    * @param matrix the value of the uniform
    */
   public void setUniformMatrix4f(String name, Matrix4f matrix) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniformMatrix4fv(this.getUniformLocation(name), false, matrix.get(new float[16]));
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(this.glHandle, this.getUniformLocation(name), false, matrix.get(new float[16]));
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(
+          this.glHandle, this.getUniformLocation(name), false, matrix.get(new float[16]));
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -418,12 +456,14 @@ public class ShaderProgram implements Disposable {
    * @param transpose whether the matrix should be transposed
    */
   public void setUniformMatrix4fv(String name, float[] matrix, boolean transpose) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniformMatrix4fv(this.getUniformLocation(name), transpose, matrix);
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(this.glHandle, this.getUniformLocation(name), transpose, matrix);
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(
+          this.glHandle, this.getUniformLocation(name), transpose, matrix);
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -435,12 +475,14 @@ public class ShaderProgram implements Disposable {
    * @param transpose whether the matrix should be transposed
    */
   public void setUniformMatrix4f(String name, Matrix4f matrix, boolean transpose) {
-    if(this.bound()) {
+    if (this.bound()) {
       GL33.glUniformMatrix4fv(this.getUniformLocation(name), transpose, matrix.get(new float[16]));
-    } else if(supportsSSO()) {
-      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(this.glHandle, this.getUniformLocation(name), transpose, matrix.get(new float[16]));
+    } else if (supportsSSO()) {
+      ARBSeparateShaderObjects.glProgramUniformMatrix4fv(
+          this.glHandle, this.getUniformLocation(name), transpose, matrix.get(new float[16]));
     } else {
-      throw new OpenGLException("Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
+      throw new OpenGLException(
+          "Cannot set uniform value when shader program is not bound and separate shader objects are not supported!");
     }
   }
 
@@ -462,13 +504,32 @@ public class ShaderProgram implements Disposable {
    * @param camera the camera to use
    */
   public void useCamera(Camera<?> camera) {
-    if(camera == null) return;
+    if (camera == null) return;
     this.setUniformMatrix4f(this.configuration.uniformViewMatrix, camera.viewMatrix());
     this.setUniformMatrix4f(this.configuration.uniformProjectionMatrix, camera.projectionMatrix());
-    if(camera instanceof CameraPerspective cp) {
+    if (camera instanceof CameraPerspective cp) {
       this.setUniform1f(this.configuration.uniformCameraPerspectiveNearPlane, cp.nearPlane());
       this.setUniform1f(this.configuration.uniformCameraPerspectiveFarPlane, cp.farPlane());
     }
+  }
+
+  /**
+   * Uses the specified animation by binding it to this shader program.
+   *
+   * @param animation the animation to use
+   */
+  public void useAnimation(Animation animation) {
+    animation.bind(this);
+  }
+
+  /**
+   * Uses the specified animation by binding it to this shader program with the given texture unit.
+   *
+   * @param animation the animation to use
+   * @param textureUnit the texture unit to bind the animation to
+   */
+  public void useAnimation(Animation animation, int textureUnit) {
+    animation.bind(this, textureUnit);
   }
 
   /**
@@ -482,6 +543,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Sets the configuration of this shader program.
+   *
    * @param configuration the configuration of this shader program
    * @return the current instance of this shader program
    */
