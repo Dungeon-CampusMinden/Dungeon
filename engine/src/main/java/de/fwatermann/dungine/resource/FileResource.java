@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.annotations.NotNull;
+import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,6 +29,12 @@ public class FileResource extends Resource {
   }
 
   @Override
+  @Nullable
+  public Resource resolveRelative(String path) {
+    return load(this.path.resolve(path).toString(), 0x01);
+  }
+
+  @Override
   public ByteBuffer readBytes() {
     if (this.buffer == null) {
       this.read();
@@ -52,7 +59,7 @@ public class FileResource extends Resource {
 
   @Override
   public String toString() {
-    if(this.buffer != null) {
+    if (this.buffer != null) {
       return String.format("FileResource[path=%s, bytes: %d]", this.path, this.buffer.capacity());
     } else {
       return String.format("FileResource[path=%s, bytes: n/a]", this.path);

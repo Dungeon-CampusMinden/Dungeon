@@ -1,5 +1,6 @@
 package de.fwatermann.dungine.resource;
 
+import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -32,6 +33,18 @@ public class ClasspathResource extends Resource {
   }
 
   /**
+   * Resolve a relative path to a resource. The path is relative to the current resource.
+   *
+   * @param path the relative path
+   * @return the resource or null if the resource does not exist
+   */
+  @Override
+  @Nullable
+  public Resource resolveRelative(String path) {
+    return load(this.path + "/" + path, 0x02);
+  }
+
+  /**
    * Get the size of the resource. If the resource is not read yet, the size is unknown and -1 is
    * returned.
    */
@@ -61,7 +74,8 @@ public class ClasspathResource extends Resource {
   @Override
   public String toString() {
     if (this.buffer != null) {
-      return String.format("ClasspathResource[path=%s, bytes: %d]", this.path, this.buffer.capacity());
+      return String.format(
+          "ClasspathResource[path=%s, bytes: %d]", this.path, this.buffer.capacity());
     } else {
       return String.format("ClasspathResource[path=%s, bytes: n/a]", this.path);
     }

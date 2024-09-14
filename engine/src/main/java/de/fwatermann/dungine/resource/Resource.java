@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.Disposable;
+import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -30,6 +31,22 @@ public abstract class Resource implements Disposable {
    * @return the resource
    */
   public static Resource load(String path) {
+    return load(path, 0x00);
+  }
+
+  /**
+   * Loads a resource from the specified path. If the resource is not found on the file system, it
+   * will be loaded from the classpath.
+   *
+   * <p>If the forceType is 0x01, the resource will be loaded from the file system. If the forceType
+   * is 0x02, the resource will be loaded from the classpath. If the forceType is 0x00, the resource
+   * will be loaded from the file system if it exists, otherwise from the classpath.
+   *
+   * @param path the path to the resource
+   * @param forceType the type of resource to load
+   * @return the resource
+   */
+  protected static Resource load(String path, int forceType) {
     SoftReference<Resource> ref = cache.get(path);
     if (ref != null && ref.get() != null) {
       return ref.get();
@@ -37,11 +54,34 @@ public abstract class Resource implements Disposable {
     Resource res = null;
     FileSystem fs = FileSystems.getDefault();
     Path p = fs.getPath(path);
-    if (Files.exists(p)) {
-      res = new FileResource(p);
+
+    if (forceType == 0x00) {
+      if (Files.exists(p)) {
+        res = new FileResource(p);
+      } else if (Resource.class.getResourceAsStream(path) != null) {
+        res = new ClasspathResource(path);
+      } else {
+        LOGGER.warn("Resource not found: {}", path);
+        return null;
+      }
     } else {
-      res = new ClasspathResource(path);
+      if (forceType == 0x01) { // force FileResource
+        if (Files.exists(p)) {
+          res = new FileResource(p);
+        } else {
+          return null;
+        }
+      } else if (forceType == 0x02) { // force ClasspathResource
+        if (Resource.class.getResourceAsStream(path) != null) {
+          res = new ClasspathResource(path);
+        } else {
+          return null;
+        }
+      } else {
+        throw new IllegalArgumentException("Invalid forceType: " + forceType);
+      }
     }
+
     ref = new SoftReference<>(res, refQueue);
     cache.put(path, ref);
     return res;
@@ -55,14 +95,26 @@ public abstract class Resource implements Disposable {
         res.dispose();
       }
     }
-    cache.entrySet().removeIf(e -> {
-      if (e.getValue().get() == null) {
-        LOGGER.trace("Collected unused resource: {}", e.getKey());
-        return true;
-      }
-      return false;
-    });
+    cache
+        .entrySet()
+        .removeIf(
+            e -> {
+              if (e.getValue().get() == null) {
+                LOGGER.trace("Collected unused resource: {}", e.getKey());
+                return true;
+              }
+              return false;
+            });
   }
+
+  /**
+   * Resolves a relative path to a resource.
+   *
+   * @param path the relative path
+   * @return the resource
+   */
+  @Nullable
+  public abstract Resource resolveRelative(String path);
 
   /**
    * Reads the resource as a byte buffer. If the bytes are no longer required the resource should be
