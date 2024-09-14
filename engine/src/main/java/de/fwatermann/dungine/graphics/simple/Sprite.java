@@ -11,14 +11,12 @@ import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
-import de.fwatermann.dungine.graphics.texture.Texture;
-import de.fwatermann.dungine.graphics.texture.TextureManager;
+import de.fwatermann.dungine.graphics.texture.animation.Animation;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.ThreadUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL33;
 
 /**
  * Represents a sprite that can be rendered. Implements the IRenderable interface to provide
@@ -31,18 +29,10 @@ public class Sprite extends Renderable<Sprite> {
 
   private BillboardMode billboardMode;
   private float width, height;
-  private Texture texture;
+  private Animation animation;
 
-  /**
-   * Constructs a new Sprite with the specified texture, dimensions, and billboard mode.
-   *
-   * @param textureResource The resource representing the texture to be used.
-   * @param width The width of the sprite.
-   * @param height The height of the sprite.
-   * @param billboardMode The billboard mode for the sprite.
-   */
-  public Sprite(Resource textureResource, float width, float height, BillboardMode billboardMode) {
-    this.texture = TextureManager.load(textureResource);
+  public Sprite(Animation animation, float width, float height, BillboardMode billboardMode) {
+    this.animation = animation;
     this.width = width;
     this.height = height;
     this.billboardMode = billboardMode;
@@ -81,8 +71,7 @@ public class Sprite extends Renderable<Sprite> {
       initMesh();
     }
     shader.bind();
-    this.texture.bind(GL33.GL_TEXTURE0);
-    shader.setUniform1i("uTexture", 0);
+    shader.useAnimation(this.animation);
     shader.setUniform1i("uBillboardMode", this.billboardMode.value);
     MESH.transformation(this.position(), this.rotation(), this.scaling());
     MESH.render(camera, shader);
@@ -90,12 +79,12 @@ public class Sprite extends Renderable<Sprite> {
   }
 
   /**
-   * Sets the texture of the sprite.
+   * Sets the animation to be used on this sprite.
    *
-   * @param resource The resource representing the new texture.
+   * @param animation the animation to be used from now on.
    */
-  public void texture(Resource resource) {
-    this.texture = TextureManager.load(resource);
+  public void animation(Animation animation) {
+    this.animation = animation;
   }
 
   /**
@@ -166,10 +155,10 @@ public class Sprite extends Renderable<Sprite> {
         .position(0)
         .put(
             new float[] {
-              -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-              +0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-              -0.5f, +0.5f, 0.0f, 0.0f, 1.0f,
-              +0.5f, +0.5f, 0.0f, 1.0f, 1.0f
+              -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+              +0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+              -0.5f, +0.5f, 0.0f, 0.0f, 0.0f,
+              +0.5f, +0.5f, 0.0f, 1.0f, 0.0f
             });
     MESH =
         new ArrayMesh(
@@ -183,64 +172,6 @@ public class Sprite extends Renderable<Sprite> {
   @Override
   public boolean shouldRender(CameraFrustum frustum) {
     return true;
-    //TODO: Implement frustum culling for sprites
+    //TODO: Implement frustum culling for Sprites.
   }
-
-  private static final String VERTEX_SHADER =
-      """
-#version 330 core
-
-in vec3 a_Position;
-in vec2 a_TexCoord;
-
-uniform mat4 uProjection;
-uniform mat4 uView;
-uniform mat4 uModel;
-
-uniform int uBillboardMode;
-
-out vec2 v_TexCoord;
-
-void main() {
-  mat4 modelView = uView * uModel;
-  if (uBillboardMode == 1) {
-    modelView[0][0] = 1.0;
-    modelView[0][1] = 0.0;
-    modelView[0][2] = 0.0;
-    modelView[1][0] = 0.0;
-    modelView[1][1] = 1.0;
-    modelView[1][2] = 0.0;
-    modelView[2][0] = 0.0;
-    modelView[2][1] = 0.0;
-    modelView[2][2] = 1.0;
-    gl_Position = uProjection * modelView * vec4(a_Position, 1.0);
-  } else if (uBillboardMode == 2) {
-    modelView[0][0] = 1.0;
-    modelView[0][1] = 0.0;
-    modelView[0][2] = 0.0;
-    modelView[2][0] = 0.0;
-    modelView[2][1] = 0.0;
-    modelView[2][2] = 1.0;
-    gl_Position = uProjection * modelView * vec4(a_Position, 1.0);
-  } else {
-    gl_Position = uProjection * uView * uModel * vec4(a_Position, 1.0);
-  }
-  v_TexCoord = a_TexCoord;
-}
-""";
-
-  private static final String FRAGMENT_SHADER =
-      """
-#version 330 core
-
-in vec2 v_TexCoord;
-
-uniform sampler2D uTexture;
-
-out vec4 fragColor;
-
-void main() {
-  fragColor = texture(uTexture, v_TexCoord);
-}
-""";
 }
