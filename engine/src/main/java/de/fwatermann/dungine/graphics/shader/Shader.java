@@ -5,6 +5,10 @@ import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.Disposable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL40;
 import org.lwjgl.opengl.GL43;
@@ -15,9 +19,19 @@ import org.lwjgl.opengl.GL43;
  */
 public class Shader implements Disposable {
 
+  private static final Logger LOGGER = LogManager.getLogger(Shader.class);
+
+  private static final String includeRegex =
+      "^\\h*(?<keyword>#include)\\h+((\"?(?<path1>.+)\")|(?<path2>.+))$";
+  private static final Pattern includePattern = Pattern.compile(includeRegex, Pattern.MULTILINE);
+
+  private static final String versionRegex = "^\\h*(?<keyword>#version)\\h+.*$";
+  private static final Pattern versionPattern = Pattern.compile(versionRegex, Pattern.MULTILINE);
+
   /**
-   * Enumeration of shader types supported by this class. Each shader type is associated with its OpenGL shader type constant,
-   * and the minimum OpenGL version required to support that shader type.
+   * Enumeration of shader types supported by this class. Each shader type is associated with its
+   * OpenGL shader type constant, and the minimum OpenGL version required to support that shader
+   * type.
    */
   public enum ShaderType {
     VERTEX_SHADER(GL33.GL_VERTEX_SHADER, 3, 3),
@@ -39,8 +53,8 @@ public class Shader implements Disposable {
     }
 
     /**
-     * Checks if the current OpenGL context meets the minimum version requirement for this shader type.
-     * Throws an OpenGLException if the requirement is not met.
+     * Checks if the current OpenGL context meets the minimum version requirement for this shader
+     * type. Throws an OpenGLException if the requirement is not met.
      */
     private void compatible() {
       int glMajor = GL33.glGetInteger(GL33.GL_MAJOR_VERSION);
@@ -55,8 +69,10 @@ public class Shader implements Disposable {
   }
 
   /**
-   * Loads a shader from a resource. The resource is read into a ByteBuffer, and then a new Shader instance is created
-   * with the shader code and type specified.
+   * Loads a shader from a resource. The resource is read into a ByteBuffer, and then a new Shader
+   * instance is created with the shader code and type specified. If <code>#include "path"</code> is
+   * used in this shader source it will be replaced with the contents of the file at the provided
+   * path.
    *
    * @param resource The resource containing the shader code.
    * @param shaderType The type of the shader to be loaded.
@@ -64,14 +80,46 @@ public class Shader implements Disposable {
    * @throws IOException If an I/O error occurs while reading the shader code from the resource.
    */
   public static Shader loadShader(Resource resource, ShaderType shaderType) throws IOException {
+    String sourceCode = loadSourceCode(resource);
+
+    // Parse the source code to add includes
+    Matcher matcher = includePattern.matcher(sourceCode);
+    while (matcher.find()) {
+      String includePath = matcher.group("path1");
+      if (includePath == null) {
+        includePath = matcher.group("path2");
+      }
+      LOGGER.debug("Including: {} into {}", includePath, resource);
+      Resource includeResource = resource.resolveRelative(includePath);
+      if (includeResource == null) {
+        throw new IOException("Failed to resolve include path: " + includePath);
+      }
+      String includeSourceCode = loadSourceCode(includeResource);
+      includeSourceCode = removeVersionDirective(includeSourceCode);
+      sourceCode = sourceCode.replace(matcher.group(), includeSourceCode);
+      matcher = includePattern.matcher(sourceCode);
+    }
+
+    return new Shader(sourceCode, shaderType);
+  }
+
+  private static String removeVersionDirective(String sourceCode) {
+    Matcher matcher = versionPattern.matcher(sourceCode);
+    if (matcher.find()) {
+      sourceCode = sourceCode.replace(matcher.group(), "");
+    }
+    return sourceCode;
+  }
+
+  private static String loadSourceCode(Resource resource) throws IOException {
     ByteBuffer data = resource.readBytes();
     if (data.hasArray()) {
-      return new Shader(new String(data.array()), shaderType);
+      return new String(data.array());
     } else {
       data.position(0);
       byte[] bytes = new byte[data.capacity()];
       data.get(bytes);
-      return new Shader(new String(bytes), shaderType);
+      return new String(bytes);
     }
   }
 
@@ -80,9 +128,9 @@ public class Shader implements Disposable {
   private int glHandle = 0;
 
   /**
-   * Constructs a new Shader with the specified source code and shader type.
-   * This constructor also checks if the current OpenGL context is compatible with the shader type
-   * and initializes the shader in OpenGL.
+   * Constructs a new Shader with the specified source code and shader type. This constructor also
+   * checks if the current OpenGL context is compatible with the shader type and initializes the
+   * shader in OpenGL.
    *
    * @param sourceCode The source code of the shader.
    * @param shaderType The type of the shader.

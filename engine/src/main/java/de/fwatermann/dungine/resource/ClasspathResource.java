@@ -1,5 +1,6 @@
 package de.fwatermann.dungine.resource;
 
+import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -32,6 +33,24 @@ public class ClasspathResource extends Resource {
   }
 
   /**
+   * Resolve a relative path to a resource. The path is relative to the current resource.
+   *
+   * @param path the relative path
+   * @return the resource or null if the resource does not exist
+   */
+  @Override
+  @Nullable
+  public Resource resolveRelative(String path) {
+    if(path.startsWith("/")) {
+      return load(path, 0x02);
+    } else {
+      // Remove filename from path
+      String dirPath = this.path.substring(0, this.path.lastIndexOf('/'));
+      return load(dirPath + "/" + path, 0x02);
+    }
+  }
+
+  /**
    * Get the size of the resource. If the resource is not read yet, the size is unknown and -1 is
    * returned.
    */
@@ -56,5 +75,32 @@ public class ClasspathResource extends Resource {
   @Override
   public void dispose() {
     this.buffer = null;
+  }
+
+  @Override
+  public String toString() {
+    if (this.buffer != null) {
+      return String.format(
+          "ClasspathResource[path=%s, bytes: %d]", this.path, this.buffer.capacity());
+    } else {
+      return String.format("ClasspathResource[path=%s, bytes: n/a]", this.path);
+    }
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null || this.getClass() != other.getClass()) {
+      return false;
+    }
+    ClasspathResource that = (ClasspathResource) other;
+    return this.path.equals(that.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.path.hashCode();
   }
 }

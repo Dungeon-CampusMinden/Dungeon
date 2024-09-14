@@ -1,8 +1,6 @@
 package de.fwatermann.dungine.graphics.shader;
 
-/**
- * The ShaderProgramConfiguration class represents a configuration for a ShaderProgram object.
- */
+/** The ShaderProgramConfiguration class represents a configuration for a ShaderProgram object. */
 public class ShaderProgramConfiguration {
 
   /** Uniform name of the mat4 that contains the View matrix. */
@@ -24,6 +22,13 @@ public class ShaderProgramConfiguration {
 
   public String uniformTextureAtlasPagesSamplerArray = "uTextureAtlasPages";
 
-  public ShaderProgramConfiguration() {}
+  /**
+   * Name of the uniform array that contains the animation information.
+   *
+   * <p>Must be an array! Example: <code>"uAnimation[%d]"</code> where <code>%d</code> will be
+   * replaced with the animation slot.
+   */
+  public String uniformAnimation = "uAnimation[%d]";
 
+  public ShaderProgramConfiguration() {}
 }

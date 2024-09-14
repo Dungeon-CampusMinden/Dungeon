@@ -40,7 +40,7 @@ public class PaneTextured extends Pane {
     if (shader == null) return;
 
     if (this.texture == null) {
-      this.texture = TextureManager.instance().load(this.resource);
+      this.texture = TextureManager.load(this.resource);
     }
 
     this.texture.bind(GL33.GL_TEXTURE0);

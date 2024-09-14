@@ -3,6 +3,9 @@ package de.fwatermann.dungine.graphics.text;
 import static org.lwjgl.util.freetype.FreeType.*;
 
 import de.fwatermann.dungine.graphics.texture.Texture;
+import de.fwatermann.dungine.graphics.texture.TextureMagFilter;
+import de.fwatermann.dungine.graphics.texture.TextureMinFilter;
+import de.fwatermann.dungine.graphics.texture.TextureWrapMode;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.BoundingBox2D;
 import java.io.IOException;
@@ -515,10 +518,10 @@ public class Font {
             PAGE_SIZE_X,
             PAGE_SIZE_Y,
             GL33.GL_RGBA,
-            GL33.GL_LINEAR,
-            GL33.GL_LINEAR,
-            GL33.GL_CLAMP_TO_EDGE,
-            GL33.GL_CLAMP_TO_EDGE,
+          TextureMinFilter.LINEAR,
+          TextureMagFilter.LINEAR,
+          TextureWrapMode.CLAMP_TO_EDGE,
+          TextureWrapMode.CLAMP_TO_EDGE,
             EMPTY);
     EMPTY.position(0);
     return page;

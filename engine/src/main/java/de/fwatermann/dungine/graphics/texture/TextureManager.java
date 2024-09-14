@@ -2,11 +2,17 @@ package de.fwatermann.dungine.graphics.texture;
 
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.GLUtils;
+import de.fwatermann.dungine.utils.ThreadUtils;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.opengl.GL33;
 import org.lwjgl.stb.STBImage;
 
 /**
@@ -16,30 +22,13 @@ import org.lwjgl.stb.STBImage;
  */
 public class TextureManager {
 
-  //TODO: Use WeakHashMap to prevent memory leaks
+  private static final Logger LOGGER = LogManager.getLogger(TextureManager.class);
 
-  private static TextureManager instance;
+  private static final ReferenceQueue<Texture> refQueue = new ReferenceQueue<>();
+  private static final Map<Resource, WeakReference<Texture>> resourceCache = new HashMap<>();
+  private static final Map<WeakReference<Texture>, Integer> refTextureHandle = new HashMap<>();
 
-  /**
-   * Returns the singleton instance of the TextureManager class. If the instance does not exist, it
-   * is created.
-   *
-   * @return the singleton instance of the TextureManager class
-   */
-  public static TextureManager instance() {
-    if (instance == null) {
-      instance = new TextureManager();
-    }
-    return instance;
-  }
-
-  private final HashMap<Resource, Texture> resourceCache = new HashMap<>();
-  private final HashMap<String, Texture> classPathCache = new HashMap<>();
-  private final HashMap<String, Texture> fileCache = new HashMap<>();
-
-  private TextureManager() {
-    //TODO: Implement TextureManager using WeakHashMap/WeakReference/PhantomReference
-  }
+  private TextureManager() {}
 
   /**
    * Loads a texture from a resource and caches it. If the texture has already been loaded, the
@@ -49,16 +38,21 @@ public class TextureManager {
    * @return the loaded texture
    * @throws RuntimeException if the image fails to load or if an I/O error occurs
    */
-  public Texture load(Resource resource) {
-    return this.resourceCache.computeIfAbsent(
-        resource,
-        k -> {
-          try {
-            return loadTexture(resource.readBytes());
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
+  public static Texture load(Resource resource) {
+    WeakReference<Texture> texRef = resourceCache.get(resource);
+    if (texRef != null && texRef.get() != null) {
+      return texRef.get();
+    }
+    Texture texture;
+    try {
+      texture = loadTexture(resource.readBytes());
+    } catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    texRef = new WeakReference<>(texture, refQueue);
+    resourceCache.put(resource, texRef);
+    refTextureHandle.put(texRef, texture.glHandle());
+    return texture;
   }
 
   /**
@@ -69,67 +63,9 @@ public class TextureManager {
    * @param cached an array to store whether the texture was cached
    * @return the loaded texture
    */
-  public Texture load(Resource resource, boolean[] cached) {
-    cached[0] = this.resourceCache.containsKey(resource);
-    return this.load(resource);
-  }
-
-  /**
-   * Loads a texture from a resource and caches it. If the texture has already been loaded, the
-   * cached texture is returned.
-   *
-   * @param resourcePath the path of the resource
-   * @return the loaded texture
-   * @throws RuntimeException if the resource is not found, if the image fails to load, or if an I/O
-   *     error occurs
-   */
-  @Deprecated
-  public Texture loadFromClassPath(String resourcePath) {
-    return this.classPathCache.computeIfAbsent(
-        resourcePath,
-        p -> {
-          try {
-            InputStream is = TextureManager.class.getResourceAsStream(p);
-            if (is == null) {
-              throw new RuntimeException("Resource not found: " + p);
-            }
-            byte[] data = is.readAllBytes();
-            is.close();
-
-            ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
-            buffer.put(data);
-            buffer.position(0);
-
-            return loadTexture(buffer);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
-  }
-
-  /**
-   * Loads a texture from a file and caches it. If the texture has already been loaded, the cached
-   * texture is returned.
-   *
-   * @param path the path of the texture
-   * @return the loaded texture
-   * @throws RuntimeException if the image fails to load or if an I/O error occurs
-   */
-  @Deprecated
-  public Texture loadFromFile(String path) {
-    return this.fileCache.computeIfAbsent(
-        path,
-        p -> {
-          try {
-            byte[] data = Files.readAllBytes(java.nio.file.Paths.get(p));
-            ByteBuffer buffer = ByteBuffer.allocateDirect(data.length);
-            buffer.put(data);
-            buffer.position(0);
-            return loadTexture(buffer);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
+  public static Texture load(Resource resource, boolean[] cached) {
+    cached[0] = resourceCache.containsKey(resource);
+    return load(resource);
   }
 
   private static Texture loadTexture(ByteBuffer buffer) {
@@ -146,46 +82,35 @@ public class TextureManager {
     return ret;
   }
 
-  /**
-   * Removes the texture from the file cache.
-   *
-   * @param path the path of the texture
-   * @return the removed texture, or null if the texture was not in the cache
-   */
-  @Deprecated
-  public Texture removeFromFileCache(String path) {
-    return this.fileCache.remove(path);
-  }
+  /** Method to collect unused textures and remove them from the cache. */
+  public static void collectGarbage() {
+    if (!ThreadUtils.isMainThread()) return;
+    Reference<? extends Texture> texRef;
+    boolean collected = false;
+    while ((texRef = refQueue.poll()) != null) {
+      if (refTextureHandle.containsKey(texRef)) {
+        int handle = refTextureHandle.get(texRef);
+        GL33.glDeleteTextures(handle);
+        refTextureHandle.remove(texRef);
+      }
+      Texture texture = texRef.get();
+      if (texture != null) {
+        texture.dispose();
+      }
+      collected = true;
+    }
 
-  /**
-   * Removes the texture from the resource cache.
-   *
-   * @param path the path of the texture
-   * @return the removed texture, or null if the texture was not in the cache
-   */
-  @Deprecated
-  public Texture removeFromClassPathCache(String path) {
-    return this.classPathCache.remove(path);
+    if (collected) {
+      resourceCache
+          .entrySet()
+          .removeIf(
+              e -> {
+                if (e.getValue().get() == null) {
+                  LOGGER.trace("Removing Texture from cache: {}", e.getKey());
+                  return true;
+                }
+                return false;
+              });
+    }
   }
-
-  /**
-   * Removes the texture from the resource cache.
-   *
-   * @param resource the resource to remove
-   * @return the removed texture, or null if the texture was not in the cache
-   */
-  public Texture removeFromResourceCache(Resource resource) {
-    return this.resourceCache.remove(resource);
-  }
-
-  /**
-   * Removes the texture from the cache.
-   * @param texture the texture to remove
-   */
-  protected void removeFromCache(Texture texture) {
-    this.resourceCache.values().removeIf(t -> t == texture);
-    this.classPathCache.values().removeIf(t -> t == texture);
-    this.fileCache.values().removeIf(t -> t == texture);
-  }
-
 }

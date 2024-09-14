@@ -21,10 +21,10 @@ public class Texture implements Disposable {
   private int unit;
   private int width;
   private int height;
-  private int minFilter;
-  private int maxFilter;
-  private int wrapS;
-  private int wrapT;
+  private TextureMinFilter minFilter;
+  private TextureMagFilter magFilter;
+  private TextureWrapMode wrapS;
+  private TextureWrapMode wrapT;
 
   /**
    * Constructs a new Texture with the specified parameters.
@@ -33,7 +33,7 @@ public class Texture implements Disposable {
    * @param height the height of the texture
    * @param format the format of the texture
    * @param minFilter the minifying filter of the texture
-   * @param maxFilter the magnification filter of the texture
+   * @param magFilter the magnification filter of the texture
    * @param wrapS the wrap parameter for texture coordinate s
    * @param wrapT the wrap parameter for texture coordinate t
    * @param pixels the pixel data of the texture
@@ -42,15 +42,19 @@ public class Texture implements Disposable {
       int width,
       int height,
       int format,
-      int minFilter,
-      int maxFilter,
-      int wrapS,
-      int wrapT,
+      TextureMinFilter minFilter,
+      TextureMagFilter magFilter,
+      TextureWrapMode wrapS,
+      TextureWrapMode wrapT,
       ByteBuffer pixels) {
     ThreadUtils.checkMainThread();
     this.glTextureId = GL33.glGenTextures();
     this.width = width;
     this.height = height;
+    this.minFilter = minFilter;
+    this.magFilter = magFilter;
+    this.wrapS = wrapS;
+    this.wrapT = wrapT;
     GL33.glActiveTexture(GL33.GL_TEXTURE0);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, this.glTextureId);
     if (pixels != null) {
@@ -60,10 +64,10 @@ public class Texture implements Disposable {
       GL33.glTexImage2D(
           GL33.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL33.GL_UNSIGNED_BYTE, 0);
     }
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter);
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, maxFilter);
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter.glValue);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, magFilter.glValue);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS.glValue);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT.glValue);
     GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
     LOGGER.trace("Created texture {}", this.glTextureId);
   }
@@ -82,10 +86,10 @@ public class Texture implements Disposable {
         width,
         height,
         format,
-        GL33.GL_NEAREST,
-        GL33.GL_NEAREST,
-        GL33.GL_CLAMP_TO_EDGE,
-        GL33.GL_CLAMP_TO_EDGE,
+        TextureMinFilter.NEAREST,
+        TextureMagFilter.NEAREST,
+        TextureWrapMode.CLAMP_TO_EDGE,
+        TextureWrapMode.CLAMP_TO_EDGE,
         pixels);
   }
 
@@ -172,7 +176,7 @@ public class Texture implements Disposable {
    *
    * @return the minifying filter of this texture
    */
-  public int minFilter() {
+  public TextureMinFilter minFilter() {
     return this.minFilter;
   }
 
@@ -182,9 +186,9 @@ public class Texture implements Disposable {
    * @param minFilter the minifying filter to set
    * @return this texture
    */
-  public Texture minFilter(int minFilter) {
+  public Texture minFilter(TextureMinFilter minFilter) {
     this.minFilter = minFilter;
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, minFilter.glValue);
     return this;
   }
 
@@ -193,19 +197,19 @@ public class Texture implements Disposable {
    *
    * @return the magnification filter of this texture
    */
-  public int maxFilter() {
-    return this.maxFilter;
+  public TextureMagFilter magFilter() {
+    return this.magFilter;
   }
 
   /**
    * Sets the magnification filter of this texture and returns this texture.
    *
-   * @param maxFilter the magnification filter to set
+   * @param magFilter the magnification filter to set
    * @return this texture
    */
-  public Texture maxFilter(int maxFilter) {
-    this.maxFilter = maxFilter;
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, maxFilter);
+  public Texture magFilter(TextureMagFilter magFilter) {
+    this.magFilter = magFilter;
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, magFilter.glValue);
     return this;
   }
 
@@ -214,7 +218,7 @@ public class Texture implements Disposable {
    *
    * @return the wrap parameter for texture coordinate s of this texture
    */
-  public int wrapS() {
+  public TextureWrapMode wrapS() {
     return this.wrapS;
   }
 
@@ -224,9 +228,9 @@ public class Texture implements Disposable {
    * @param wrapS the wrap parameter for texture coordinate s to set
    * @return this texture
    */
-  public Texture wrapS(int wrapS) {
+  public Texture wrapS(TextureWrapMode wrapS) {
     this.wrapS = wrapS;
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_S, wrapS.glValue);
     return this;
   }
 
@@ -235,7 +239,7 @@ public class Texture implements Disposable {
    *
    * @return the wrap parameter for texture coordinate t of this texture
    */
-  public int wrapT() {
+  public TextureWrapMode wrapT() {
     return this.wrapT;
   }
 
@@ -245,9 +249,9 @@ public class Texture implements Disposable {
    * @param wrapT the wrap parameter for texture coordinate t to set
    * @return this texture
    */
-  public Texture wrapT(int wrapT) {
+  public Texture wrapT(TextureWrapMode wrapT) {
     this.wrapT = wrapT;
-    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT);
+    GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_WRAP_T, wrapT.glValue);
     return this;
   }
 
@@ -345,7 +349,6 @@ public class Texture implements Disposable {
   @Override
   public void dispose() {
     GL33.glDeleteTextures(this.glTextureId);
-    TextureManager.instance().removeFromCache(this);
   }
 
   public int glHandle() {
