@@ -5,41 +5,41 @@ import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import org.joml.Vector3f;
 
-public class CubeColored extends Cube {
+public class CuboidColored extends Cuboid {
 
   private static ShaderProgram SHADER;
 
   private int color;
 
   /**
-   * Constructs a new Cube with the specified position and color.
+   * Constructs a new Cuboid with the specified position and color.
    *
-   * @param position the position of the cube
-   * @param rgba     the color of the cube in RGBA format.
+   * @param position the position of the cuboid
+   * @param rgba     the color of the cuboid in RGBA format.
    */
-  public CubeColored(Vector3f position, int rgba) {
+  public CuboidColored(Vector3f position, int rgba) {
     super(position);
     this.color = rgba;
   }
 
   /**
-   * Get the color of the cube.
-   * @return the color of the cube
+   * Get the color of the cuboid.
+   * @return the color of the cuboid
    */
   public int color() {
     return this.color;
   }
 
   /**
-   * Set the color of the cube.
-   * @param rgba the new color of the cube in RGBA format.
+   * Set the color of the cuboid.
+   * @param rgba the new color of the cuboid in RGBA format.
    */
   public void color(int rgba) {
     this.color = rgba;
   }
 
   /**
-   * Set the color of the cube.
+   * Set the color of the cuboid.
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color
@@ -50,7 +50,7 @@ public class CubeColored extends Cube {
   }
 
   /**
-   * Set the color of the cube.
+   * Set the color of the cuboid.
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color

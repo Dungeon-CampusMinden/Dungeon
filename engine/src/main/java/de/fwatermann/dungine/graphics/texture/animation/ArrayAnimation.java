@@ -19,9 +19,6 @@ public class ArrayAnimation extends Animation {
 
   private Texture[] frames;
 
-  private int currentFrame = 0;
-  private long lastFrameTime = System.currentTimeMillis();
-
   /**
    * Creates an `ArrayAnimation` instance from multiple resources with specified texture filters and
    * wrap mode.
@@ -37,9 +34,7 @@ public class ArrayAnimation extends Animation {
       TextureMinFilter minFilter,
       TextureWrapMode wrapMode,
       Resource... resources) {
-    ArrayAnimation animation = new ArrayAnimation();
-    animation.loadFromMultipleResources(magFilter, minFilter, wrapMode, resources);
-    return animation;
+    return loadFromMultipleResources(magFilter, minFilter, wrapMode, resources);
   }
 
   /**
@@ -57,7 +52,9 @@ public class ArrayAnimation extends Animation {
         resources);
   }
 
-  private ArrayAnimation() {}
+  private ArrayAnimation(int count) {
+    super(count);
+  }
 
   /**
    * Loads textures from multiple resources and applies the specified texture filters and wrap mode.
@@ -68,7 +65,7 @@ public class ArrayAnimation extends Animation {
    * @param resources the resources to load the textures from
    * @throws IllegalArgumentException if no resources or no valid resources are provided
    */
-  private void loadFromMultipleResources(
+  private static ArrayAnimation loadFromMultipleResources(
       TextureMagFilter magFilter,
       TextureMinFilter minFilter,
       TextureWrapMode wrapMode,
@@ -89,53 +86,18 @@ public class ArrayAnimation extends Animation {
       throw new IllegalArgumentException("No valid resources provided.");
     }
 
-    this.frames = new Texture[numFrames];
+    ArrayAnimation animation = new ArrayAnimation(numFrames);
+
+    animation.frames = new Texture[numFrames];
     for (int i = 0; i < resources.length; i++) {
       Resource resource = resources[i];
       if (resource == null) continue;
       Texture texture = TextureManager.load(resource);
       texture.minFilter(minFilter).magFilter(magFilter).wrapS(wrapMode).wrapT(wrapMode);
-      this.frames[i] = texture;
-    }
-  }
-
-  /**
-   * Returns the current animation step, updating it if necessary.
-   *
-   * @return the current `AnimationStep`
-   */
-  @Override
-  protected AnimationStep currentAnimationStep() {
-    if (this.currentAnimationStep == null) {
-      this.updateAnimationStep();
-      return this.currentAnimationStep;
-    }
-    if (this.paused()) return this.currentAnimationStep;
-
-    long diff = System.currentTimeMillis() - this.lastFrameTime;
-
-    if (diff > this.frameDuration()) {
-      int newFrame =
-          (this.currentFrame + (int) diff / (int) this.frameDuration()) % this.frames.length;
-      if (newFrame < this.currentFrame && !this.loop()) {
-        if (this.onAnimationFinish != null) this.onAnimationFinish.run(this);
-        return this.currentAnimationStep;
-      }
-      this.currentFrame = newFrame;
-      this.lastFrameTime = System.currentTimeMillis();
-      this.updateAnimationStep();
-    }
-    if (this.blend()) {
-      if (!this.loop() && this.currentFrame == this.frames.length - 1) {
-        this.currentAnimationStep.blendFactor(0.0f);
-      } else {
-        this.currentAnimationStep.blendFactor(diff / (float) this.frameDuration());
-      }
-    } else {
-      this.currentAnimationStep.blendFactor(0.0f);
+      animation.frames[i] = texture;
     }
 
-    return this.currentAnimationStep;
+    return animation;
   }
 
   /**
@@ -144,40 +106,11 @@ public class ArrayAnimation extends Animation {
    * @param pIndex the index of the frame
    * @return the created `AnimationFrame`
    */
-  private AnimationFrame makeAnimationFrame(int pIndex) {
+  @Override
+  protected AnimationFrame makeFrame(int pIndex) {
     int index = pIndex % this.frames.length;
     Texture texture = this.frames[index];
     return new AnimationFrame(
         texture, new Vector2i(texture.width(), texture.height()), new Vector2i(0));
-  }
-
-  /** Updates the current animation step based on the current frame. */
-  private void updateAnimationStep() {
-    this.currentAnimationStep =
-        new AnimationStep(
-            this.makeAnimationFrame(this.currentFrame),
-            this.makeAnimationFrame(this.currentFrame + 1),
-            0.0f);
-  }
-
-  /**
-   * Returns the index of the current frame.
-   *
-   * @return the current frame index
-   */
-  public int currentFrame() {
-    return this.currentFrame;
-  }
-
-  /**
-   * Sets the index of the current frame and updates the animation step.
-   *
-   * @param currentFrame the current frame index
-   * @return the `ArrayAnimation` instance
-   */
-  public ArrayAnimation currentFrame(int currentFrame) {
-    this.currentFrame = currentFrame;
-    this.updateAnimationStep();
-    return this;
   }
 }

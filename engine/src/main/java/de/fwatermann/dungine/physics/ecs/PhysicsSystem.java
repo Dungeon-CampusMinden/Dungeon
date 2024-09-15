@@ -4,7 +4,7 @@ import de.fwatermann.dungine.ecs.ECS;
 import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.ecs.System;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
-import de.fwatermann.dungine.graphics.simple.CubeColored;
+import de.fwatermann.dungine.graphics.simple.CuboidColored;
 import de.fwatermann.dungine.graphics.simple.Points;
 import de.fwatermann.dungine.physics.colliders.Collider;
 import de.fwatermann.dungine.physics.colliders.Collision;
@@ -115,7 +115,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
               .component(RenderableComponent.class)
               .ifPresent(
                   rc -> {
-                    if (rc.renderable instanceof CubeColored cube) {
+                    if (rc.renderable instanceof CuboidColored cube) {
                       if (collided) {
                         cube.color(0xFF0000FF);
                       } else {
