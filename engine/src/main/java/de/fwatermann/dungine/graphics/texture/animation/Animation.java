@@ -217,6 +217,11 @@ public abstract class Animation {
     ANIMATION_12,
     ANIMATION_13,
     ANIMATION_14,
-    ANIMATION_15
+    ANIMATION_15;
+
+    public static AnimationSlot fromIndex(int index) {
+      return AnimationSlot.values()[index];
+    }
+
   }
 }
