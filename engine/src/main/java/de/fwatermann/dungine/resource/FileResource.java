@@ -12,6 +12,7 @@ public class FileResource extends Resource {
 
   private final Path path;
   private ByteBuffer buffer;
+  private long size = -1;
 
   protected FileResource(@NotNull Path path) {
     this.path = path;
@@ -44,7 +45,10 @@ public class FileResource extends Resource {
 
   @Override
   public long size() throws IOException {
-    return this.buffer != null ? this.buffer.capacity() : Files.size(this.path);
+    if(this.size == -1) {
+      this.size = Files.size(this.path);
+    }
+    return this.size;
   }
 
   @Override

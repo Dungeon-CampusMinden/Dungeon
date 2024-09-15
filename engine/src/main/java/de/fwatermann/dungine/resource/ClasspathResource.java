@@ -10,6 +10,7 @@ public class ClasspathResource extends Resource {
 
   private final String path;
   private ByteBuffer buffer;
+  private long size = -1;
 
   protected ClasspathResource(String path) {
     this.path = path;
@@ -56,7 +57,10 @@ public class ClasspathResource extends Resource {
    */
   @Override
   public long size() throws IOException {
-    return this.buffer != null ? this.buffer.capacity() : -1;
+    if(this.size == -1) {
+      this.size = ClassLoader.getSystemResource(this.path).openConnection().getContentLengthLong();
+    }
+    return this.size;
   }
 
   @Override
