@@ -49,7 +49,7 @@ public class AudioContext implements Disposable {
   }
 
   public AudioSource createSource(String name, boolean loop, boolean relative) {
-    AudioSource source = new AudioSource(loop, relative);
+    AudioSource source = new AudioSource(this, loop, relative);
     AudioSource old = this.sources.put(name, source);
     if(old != null) old.dispose();
     return source;
@@ -57,6 +57,19 @@ public class AudioContext implements Disposable {
 
   public AudioSource source(String name) {
     return this.sources.get(name);
+  }
+
+  public AudioSource removeSource(AudioSource source) {
+    Map.Entry<String, AudioSource> entry = this.sources.entrySet().stream().filter(e -> e.getValue() == source).findFirst().orElse(null);
+    if(entry != null) {
+      return this.sources.remove(entry.getKey());
+    } else {
+      return null;
+    }
+  }
+
+  public AudioSource removeSource(String name) {
+    return this.sources.remove(name);
   }
 
   public AudioBuffer createBuffer(Resource resource, AudioBuffer.AudioFileType fileType) {
