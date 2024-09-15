@@ -2,6 +2,8 @@ package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Nullable;
+import org.lwjgl.BufferUtils;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -41,6 +43,20 @@ public class FileResource extends Resource {
       this.read();
     }
     return this.buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+  }
+
+  @Override
+  public ByteBuffer readBytes(int offset, int count) {
+    if(this.buffer != null) {
+      return this.buffer.slice(offset, count).asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+    }
+    ByteBuffer buffer = BufferUtils.createByteBuffer(count);
+    try {
+      Files.newByteChannel(this.path).position(offset).read(buffer);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to read part of file: " + this.path + " [s: " + offset + " e:" + (offset + count) + "]", e);
+    }
+    return buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
   }
 
   @Override
