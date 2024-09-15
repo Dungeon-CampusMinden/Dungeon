@@ -7,11 +7,14 @@ import org.lwjgl.openal.AL10;
 public class AudioSource implements Disposable {
 
   private final int alSourceId;
+  private AudioContext context;
 
-  AudioSource(boolean loop, boolean relative) {
+  AudioSource(AudioContext context, boolean loop, boolean relative) {
     this.alSourceId = AL10.alGenSources();
+    this.context = context;
     AL10.alSourcei(this.alSourceId, AL10.AL_LOOPING, loop ? AL10.AL_TRUE : AL10.AL_FALSE);
-    AL10.alSourcei(this.alSourceId, AL10.AL_SOURCE_RELATIVE, relative ? AL10.AL_TRUE : AL10.AL_FALSE);
+    AL10.alSourcei(
+        this.alSourceId, AL10.AL_SOURCE_RELATIVE, relative ? AL10.AL_TRUE : AL10.AL_FALSE);
   }
 
   public AudioSource setBuffer(AudioBuffer buffer) {
@@ -72,7 +75,8 @@ public class AudioSource implements Disposable {
   }
 
   public AudioSource relative(boolean relative) {
-    AL10.alSourcei(this.alSourceId, AL10.AL_SOURCE_RELATIVE, relative ? AL10.AL_TRUE : AL10.AL_FALSE);
+    AL10.alSourcei(
+        this.alSourceId, AL10.AL_SOURCE_RELATIVE, relative ? AL10.AL_TRUE : AL10.AL_FALSE);
     return this;
   }
 
@@ -84,9 +88,29 @@ public class AudioSource implements Disposable {
     return AL10.alGetSourcei(this.alSourceId, AL10.AL_SOURCE_STATE) == AL10.AL_PLAYING;
   }
 
+  public AudioContext context() {
+    return this.context;
+  }
+
+  public AudioSource loop(boolean loop) {
+    AL10.alSourcei(this.alSourceId, AL10.AL_LOOPING, loop ? AL10.AL_TRUE : AL10.AL_FALSE);
+    return this;
+  }
+
+  public boolean loop() {
+    return AL10.alGetSourcei(this.alSourceId, AL10.AL_LOOPING) == AL10.AL_TRUE;
+  }
+
   @Override
   public void dispose() {
+    this.dispose(true);
+  }
+
+  void dispose(boolean rmFromContext) {
     this.stop();
     AL10.alDeleteSources(this.alSourceId);
+    if(rmFromContext)
+      this.context.removeSource(this);
   }
+
 }
