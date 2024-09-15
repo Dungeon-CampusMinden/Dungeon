@@ -17,18 +17,18 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
-public class Cube extends Renderable<Cube> {
+public class Cuboid extends Renderable<Cuboid> {
 
   private static ShaderProgram SHADER;
   protected IndexedMesh mesh;
   private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
 
   /**
-   * Constructs a new Cube with the specified position and color.
+   * Constructs a new Cuboid with the specified position and color.
    *
-   * @param position the position of the cube
+   * @param position the position of the cuboid
    */
-  public Cube(Vector3f position) {
+  public Cuboid(Vector3f position) {
     super(position, new Vector3f(1.0f), new Quaternionf());
     this.initMesh();
   }
