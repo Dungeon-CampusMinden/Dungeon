@@ -2,8 +2,10 @@ package de.fwatermann.dungine.state;
 
 import de.fwatermann.dungine.audio.AudioContext;
 import de.fwatermann.dungine.ecs.ECS;
+import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
+import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.Grid3D;
 import de.fwatermann.dungine.graphics.SkyBox;
 import de.fwatermann.dungine.graphics.camera.Camera;
@@ -16,7 +18,7 @@ import de.fwatermann.dungine.window.GameWindow;
 import org.lwjgl.opengl.GL33;
 
 /** Represents a state of the game. It extents the ECS class. */
-public abstract class GameState extends ECS implements Disposable {
+public abstract class GameState extends ECS implements Disposable, EventListener {
 
   private Grid3D grid;
   private boolean renderGrid = false;
@@ -39,6 +41,7 @@ public abstract class GameState extends ECS implements Disposable {
     this.ui = new UIRoot(this.window, this.window.size().x, this.window.size().y);
     this.audioContext = new AudioContext();
     this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0.0f, 0.0f));
+    EventManager.getInstance().registerListener(this);
   }
 
   /**
@@ -74,6 +77,8 @@ public abstract class GameState extends ECS implements Disposable {
     this.lastFrameDeltaTime = deltaTime;
     GL33.glEnable(GL33.GL_BLEND);
     GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+
+    this.camera.update();
 
     if(this.skyBox != null)
       this.skyBox.render(this.camera);
@@ -150,14 +155,20 @@ public abstract class GameState extends ECS implements Disposable {
   }
 
   public final void dispose() {
-    if(this instanceof EventListener el) {
-      EventManager.getInstance().unregisterListener(el);
-    }
+    EventManager.getInstance().unregisterListener(this);
     this.disposeState();
     this.ui.dispose();
     this.audioContext.dispose();
   }
 
   public void disposeState() {};
+
+  @EventHandler
+  public void onWindowSize(WindowResizeEvent event) {
+    if(!event.isCanceled()) {
+      this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
+    }
+  }
+
 
 }
