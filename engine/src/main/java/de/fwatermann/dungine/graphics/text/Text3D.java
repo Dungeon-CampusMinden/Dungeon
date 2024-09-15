@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.graphics.simple;
+package de.fwatermann.dungine.graphics.text;
 
 import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.GLUsageHint;
@@ -11,8 +11,6 @@ import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
-import de.fwatermann.dungine.graphics.text.Font;
-import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.BoundingBox2D;
 import java.io.IOException;
