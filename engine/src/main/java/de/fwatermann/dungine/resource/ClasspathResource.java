@@ -1,6 +1,8 @@
 package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.annotations.Nullable;
+import org.lwjgl.BufferUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -10,6 +12,7 @@ public class ClasspathResource extends Resource {
 
   private final String path;
   private ByteBuffer buffer;
+  private long size = -1;
 
   protected ClasspathResource(String path) {
     this.path = path;
@@ -56,7 +59,10 @@ public class ClasspathResource extends Resource {
    */
   @Override
   public long size() throws IOException {
-    return this.buffer != null ? this.buffer.capacity() : -1;
+    if(this.size == -1) {
+      this.size = ClassLoader.getSystemResource(this.path).openConnection().getContentLengthLong();
+    }
+    return this.size;
   }
 
   @Override
@@ -65,6 +71,28 @@ public class ClasspathResource extends Resource {
       this.read();
     }
     return this.buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+  }
+
+  @Override
+  public ByteBuffer readBytes(int offset, int count) {
+    if(this.buffer != null) {
+      return this.buffer.slice(offset, count).asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+    }
+    try {
+      InputStream is = ClasspathResource.class.getResourceAsStream(this.path);
+      if(is == null) throw new RuntimeException("Resource not found: " + this.path);
+      is.skipNBytes(offset);
+
+      byte[] bytes = is.readNBytes(count);
+      ByteBuffer buffer = BufferUtils.createByteBuffer(count);
+      buffer.put(bytes);
+      buffer.flip();
+
+      is.close();
+      return buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+    } catch(IOException ex) {
+      throw new RuntimeException("Failed to read part of resource: " + this.path + " [s: " + offset + " e:" + (offset + count) + "]", ex);
+    }
   }
 
   @Override

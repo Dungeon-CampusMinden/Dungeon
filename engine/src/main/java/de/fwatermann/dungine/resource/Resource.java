@@ -127,6 +127,14 @@ public abstract class Resource implements Disposable {
   public abstract ByteBuffer readBytes() throws IOException;
 
   /**
+   * Reads part of the resource as byte buffer. The result of this reading will not be cached!
+   * @param offset the offset in bytes
+   * @param count the number of bytes to read
+   * @return the resource as a byte buffer
+   */
+  public abstract ByteBuffer readBytes(int offset, int count);
+
+  /**
    * Deallocates the resource, freeing any resources. This method should be called when the resource
    * is no longer needed. Or only used as reference.
    */
