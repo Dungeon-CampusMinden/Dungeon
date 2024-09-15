@@ -4,7 +4,6 @@ import de.fwatermann.dungine.ecs.ECS;
 import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.ecs.System;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
-import de.fwatermann.dungine.ecs.components.TextComponent;
 import de.fwatermann.dungine.graphics.simple.CubeColored;
 import de.fwatermann.dungine.graphics.simple.Points;
 import de.fwatermann.dungine.physics.colliders.Collider;
@@ -111,21 +110,6 @@ public class PhysicsSystem extends System<PhysicsSystem> {
             entity.position(oldPos);
             rbc.velocity().set(0);
           }
-
-          entity
-              .component(TextComponent.class)
-              .ifPresent(
-                  tc -> {
-                    tc.text(
-                        String.format(
-                            "v: [x:%.3f y:%.3f z:%.3f]\na: [x:%.3f y:%.3f z:%.3f]",
-                            rbc.velocity().x,
-                            rbc.velocity().y,
-                            rbc.velocity().z,
-                            acceleration.x,
-                            acceleration.y,
-                            acceleration.z));
-                  });
 
           entity
               .component(RenderableComponent.class)
