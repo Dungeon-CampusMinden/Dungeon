@@ -59,7 +59,6 @@ public class TestState0 extends GameState implements EventListener {
     this.button.borderRadius(10); //TODO: Implement
     this.ui.add(this.button);
 
-
     this.loaded = true;
     EventManager.getInstance().registerListener(this);
   }

@@ -1,10 +1,11 @@
 package test1;
 
+import de.fwatermann.dungine.audio.AudioBuffer;
+import de.fwatermann.dungine.audio.AudioSource;
 import de.fwatermann.dungine.ecs.Entity;
+import de.fwatermann.dungine.ecs.components.AudioSourceComponent;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
-import de.fwatermann.dungine.ecs.components.TextComponent;
 import de.fwatermann.dungine.ecs.systems.FreeCamSystem;
-import de.fwatermann.dungine.ecs.systems.Render3DTextSystem;
 import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
@@ -15,13 +16,18 @@ import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.graphics.simple.CubeColored;
+import de.fwatermann.dungine.graphics.simple.Sprite;
+import de.fwatermann.dungine.graphics.simple.Text3D;
 import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.graphics.texture.animation.Animation;
+import de.fwatermann.dungine.graphics.texture.animation.ArrayAnimation;
 import de.fwatermann.dungine.input.Keyboard;
 import de.fwatermann.dungine.physics.colliders.AABCollider;
 import de.fwatermann.dungine.physics.colliders.BoxCollider;
 import de.fwatermann.dungine.physics.ecs.PhysicsDebugSystem;
 import de.fwatermann.dungine.physics.ecs.PhysicsSystem;
 import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
+import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
@@ -45,8 +51,12 @@ public class TestState1 extends GameState implements EventListener {
   private UIText fps;
   private UIText debugEntity;
   private UIText debugPhysics;
+  private UIText debugRender;
   private PhysicsSystem physicsSystem;
   private RenderableSystem renderableSystem;
+
+  private Animation fireAnimation;
+
 
   public TestState1(GameWindow window) {
     super(window);
@@ -79,6 +89,11 @@ public class TestState1 extends GameState implements EventListener {
         .size(new Vector3f(500, 200, 0));
     this.ui.add(this.debugPhysics);
 
+    this.debugRender = new UIText(Font.defaultMonoFont(), "Render: f: 0", fontSize);
+    this.debugRender.position().set(10, this.window.size().y - (4 * (fontSize + 5)), 0);
+    this.debugRender.size().set(500, 200, 0);
+    this.ui.add(this.debugRender);
+
     this.camera =
         new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0, 0));
     this.camera.position(1, 5, 1);
@@ -90,11 +105,10 @@ public class TestState1 extends GameState implements EventListener {
     this.addSystem(new FreeCamSystem(this.camera, true, this));
     this.addSystem(this.renderableSystem);
     this.addSystem((this.physicsSystem = new PhysicsSystem()));
-    this.addSystem(new Render3DTextSystem(this.camera));
     this.addSystem(PhysicsDebugSystem.instance());
     PhysicsDebugSystem.camera(this.camera);
 
-    {
+    /*{
       Entity entity = new Entity();
       RigidBodyComponent rb = new RigidBodyComponent();
       rb.gravity(false).kinematic(true);
@@ -106,6 +120,50 @@ public class TestState1 extends GameState implements EventListener {
           new BoxCollider(entity, new Vector3f(-2.5f, -0.5f, -2.5f), new Vector3f(5, 1, 5)));
       entity.addComponent(rb).addComponent(rc);
       this.addEntity(entity);
+    }*/
+
+    {
+      Entity entity = new Entity();
+
+      Resource[] frames = new Resource[4];
+      for(int i = 0; i < 4; i ++) {
+        frames[i] = Resource.load(String.format("/textures/animation/knight/frame_%d.png", i));
+      }
+
+      //this.fireAnimation = new BatchAnimation(Resource.load("/textures/animation/animation_3.png"), 32, BatchAnimation.Direction.UP);
+      this.fireAnimation = ArrayAnimation.of(frames);
+      this.fireAnimation.frameDuration(200);
+      this.fireAnimation.blend(false);
+      this.fireAnimation.loop(true);
+
+      entity.addComponent(
+          new RenderableComponent(
+              new Sprite(
+                this.fireAnimation,
+                  0.57143f,
+                  1.0f,
+                  BillboardMode.NONE)));
+      entity.addComponent(
+          new RenderableComponent(new Text3D("Hello World!").offset(new Vector3f(0, 1, 0))));
+
+      entity.size().set(0.57143f, 1.0f, 0.0f);
+
+      AudioBuffer buffer = this.audioContext.createBuffer(Resource.load("/sounds/yes.ogg"), AudioBuffer.AudioFileType.OGGVorbis);
+      AudioSourceComponent asc = new AudioSourceComponent(this.audioContext);
+      asc.source().setBuffer(buffer).loop(true).play();
+      entity.addComponent(asc);
+
+      this.addEntity(entity);
+    }
+
+    {
+      AudioBuffer buffer = this.audioContext.createBuffer(Resource.load("/sounds/yes.ogg"), AudioBuffer.AudioFileType.OGGVorbis);
+      AudioSource source = this.audioContext.createSource("sound", true, false);
+      source.position(0, 0, 0);
+      source.setBuffer(buffer);
+      source.play();
+
+      this.audioContext.camera(this.camera);
     }
 
     this.loaded = true;
@@ -131,6 +189,7 @@ public class TestState1 extends GameState implements EventListener {
         String.format(
             "Physics: T:%.6fs / U:%d",
             this.physicsSystem.lastDeltaTime(), this.physicsSystem.lastUpdates()));
+    this.debugRender.text(String.format("Render: f: %02d", this.fireAnimation.currentFrame()));
   }
 
   @Override
@@ -184,11 +243,6 @@ public class TestState1 extends GameState implements EventListener {
             true);
         rb.onSleep(() -> LOGGER.debug("Entity {} felt asleep", e));
         rb.onWake(() -> LOGGER.debug("Entity {} woke up", e));
-        TextComponent tc =
-            new TextComponent(new Vector3f(0, 1.5f, 0), "Cube", BillboardMode.SPHERICAL);
-        tc.size(new Vector3f(2.0f, 1.0f, 2.0f));
-        tc.originMode(TextComponent.OriginMode.CENTER);
-        e.addComponent(tc);
 
         this.addEntity(e);
 
@@ -206,7 +260,6 @@ public class TestState1 extends GameState implements EventListener {
           e.rotation().rotateZ(Math.toRadians(45));
           e.rotation().rotateX(Math.toRadians(45));
         }
-
 
         // Vector3f force = this.camera.front().mul(10.0f);
         // rb.applyForce(force, RigidBodyComponent.ForceMode.ACCELERATION);
