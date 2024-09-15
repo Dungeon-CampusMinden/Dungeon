@@ -17,11 +17,6 @@ public class BatchAnimation extends Animation {
   private final int count;
   private final Direction direction;
 
-  private int currentFrame = 0;
-  private long lastFrameTime = System.currentTimeMillis();
-
-  private AnimationStep currentStep;
-
   /**
    * Constructs a BatchAnimation with the specified texture, frame count, and direction.
    *
@@ -30,6 +25,7 @@ public class BatchAnimation extends Animation {
    * @param direction the direction of the animation.
    */
   public BatchAnimation(Texture texture, int count, Direction direction) {
+    super(count);
     this.texture = texture;
     this.count = count;
     this.direction = direction;
@@ -46,7 +42,8 @@ public class BatchAnimation extends Animation {
     this(TextureManager.load(resource), count, direction);
   }
 
-  private AnimationFrame makeAnimationFrame(int pIndex) {
+  @Override
+  protected AnimationFrame makeFrame(int pIndex) {
     int index = pIndex % this.count;
     Vector2i size;
     if (this.direction == Direction.UP || this.direction == Direction.DOWN) {
@@ -62,78 +59,6 @@ public class BatchAnimation extends Animation {
           case RIGHT -> new Vector2i(this.texture.width() - (index + 1) * size.x, 0);
         };
     return new AnimationFrame(this.texture, size, position);
-  }
-
-  private void makeCurrentStep() {
-    this.currentStep =
-        new AnimationStep(
-            this.makeAnimationFrame(this.currentFrame),
-            this.makeAnimationFrame(this.currentFrame + 1),
-            0.0f);
-  }
-
-  private void updateStep() {
-    if (this.currentStep == null) {
-      this.makeCurrentStep();
-      return;
-    }
-
-    if (this.paused()) return;
-
-    long diff = System.currentTimeMillis() - this.lastFrameTime;
-    if (diff > this.frameDuration()) {
-      int newFrame = (this.currentFrame + (int) diff / (int) this.frameDuration()) % this.count;
-      if (newFrame < this.currentFrame && !this.loop()) {
-        if (this.onAnimationFinish != null) this.onAnimationFinish.run(this);
-        return;
-      }
-      this.currentFrame = newFrame;
-      this.lastFrameTime = System.currentTimeMillis();
-      this.makeCurrentStep();
-    }
-    if (this.blend()) {
-      if (!this.loop() && this.currentFrame == this.count - 1) {
-        this.currentStep.blendFactor(0.0f);
-      } else {
-        this.currentStep.blendFactor(diff / (float) this.frameDuration());
-      }
-    } else {
-      this.currentStep.blendFactor(0.0f);
-    }
-  }
-
-  /**
-   * Gets the current animation step.
-   *
-   * @return the current AnimationStep.
-   */
-  @Override
-  protected AnimationStep currentAnimationStep() {
-    this.updateStep();
-    return this.currentStep;
-  }
-
-  /**
-   * Sets the current frame index.
-   *
-   * @param frameIndex the frame index to set.
-   * @return the current BatchAnimation instance.
-   */
-  @Override
-  public Animation currentFrame(int frameIndex) {
-    this.currentFrame = frameIndex % this.count;
-    this.makeCurrentStep();
-    return this;
-  }
-
-  /**
-   * Gets the current frame index.
-   *
-   * @return the current frame index.
-   */
-  @Override
-  public int currentFrame() {
-    return this.currentFrame;
   }
 
   /** Enum representing the direction of the animation. */

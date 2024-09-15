@@ -15,20 +15,93 @@ public abstract class Animation {
   // the default duration of each frame in milliseconds.
   public static final long DEFAULT_FRAME_DURATION = 1000;
 
+  private final int frameCount;
   private boolean loop = true;
   private boolean paused = false;
   private boolean blend = false;
   private long frameDuration = DEFAULT_FRAME_DURATION;
+  private LoopMode loopMode = LoopMode.REPEAT;
+
+  private AnimationStep currentStep;
+  private long lastFrameTime = System.currentTimeMillis();
+  private int currentFrame = 0;
+  private int nextFrame = 0;
+  private int step = 1;
 
   // Function to be called when the animation finishes.
   @Nullable protected IVoidFunction1P<Animation> onAnimationFinish;
 
+  protected Animation(int frameCount) {
+    this.frameCount = frameCount;
+  }
+
   /**
-   * Get the current AnimationStep.
-   *
-   * @return the current AnimationStep.
+   * Create AnimationFrame based on index
+   * @param index index of the frame
+   * @return AnimationFrame
    */
-  protected abstract AnimationStep currentAnimationStep();
+  protected abstract AnimationFrame makeFrame(int index);
+
+  private void makeCurrentStep() {
+    this.currentStep = new AnimationStep(
+      this.makeFrame(this.currentFrame),
+      this.makeFrame(this.nextFrame),
+      0.0f
+    );
+  }
+
+  /**
+   * Advances the current Frame if needed based on the time since last frame update.
+   */
+  private void update() {
+    if(this.currentStep == null) {
+      this.makeCurrentStep();
+      return;
+    }
+    long diff = System.currentTimeMillis() - this.lastFrameTime;
+    if(diff > this.frameDuration) {
+      int frames = (int) (diff / this.frameDuration) * this.step;
+      boolean[] requireReverse = new boolean[] {false};
+      int newFrame = this.clampFrameIndexRespectingLoopMode(this.currentFrame + frames, requireReverse);
+      if(newFrame != this.currentFrame) {
+        if(!this.loop && newFrame == this.frameCount - 1 && this.onAnimationFinish != null) {
+          this.onAnimationFinish.run(this);
+        }
+        this.currentFrame = newFrame;
+        if(requireReverse[0]) this.step *= -1;
+        this.nextFrame = this.clampFrameIndexRespectingLoopMode(this.currentFrame + this.step, null);
+        this.makeCurrentStep();
+      }
+      this.lastFrameTime = System.currentTimeMillis();
+    }
+
+    if(this.blend) {
+      if(!this.loop && this.currentFrame == this.frameCount - 1) {
+        this.currentStep.blendFactor(0.0f);
+      } else {
+        this.currentStep.blendFactor(diff / (float) this.frameDuration);
+      }
+    } else {
+      this.currentStep.blendFactor(0.0f);
+    }
+  }
+
+  private int clampFrameIndexRespectingLoopMode(int index, boolean[] requireReverse) {
+    int frame = index;
+    int clamped = Math.min(Math.max(0, frame), this.frameCount - 1);
+    int overshoot = Math.abs(clamped - frame);
+    if(this.loop) {
+      if(this.loopMode == LoopMode.REPEAT) {
+        if(frame < 0) frame = this.frameCount - (overshoot % this.frameCount);
+        else if(frame > this.frameCount - 1) frame = overshoot % this.frameCount;
+      } else if(this.loopMode == LoopMode.PING_PONG) {
+        if(frame < 0) frame = overshoot % this.frameCount;
+        else if(frame > this.frameCount - 1) frame = this.frameCount - 1 - (overshoot % this.frameCount);
+      }
+    }
+    if(requireReverse != null) requireReverse[0] = overshoot != 0;
+    return Math.min(Math.max(0, frame), this.frameCount - 1);
+  }
 
   /**
    * Bind the animation to the given shader using the default animation slot and default texture
@@ -70,7 +143,8 @@ public abstract class Animation {
    * @param textureUnit the texture unit to use for binding.
    */
   public void bind(ShaderProgram shader, AnimationSlot slot, int textureUnit) {
-    AnimationStep step = this.currentAnimationStep();
+    this.update();
+    AnimationStep step = this.currentStep;
     ShaderProgramConfiguration config = shader.configuration();
 
     boolean sameTexture =
@@ -197,10 +271,56 @@ public abstract class Animation {
     return this;
   }
 
-  public abstract Animation currentFrame(int frameIndex);
+  /**
+   * Gets the loop mode of the animation.
+   *
+   * @return the loop mode of the animation.
+   */
+  public LoopMode loopMode() {
+    return this.loopMode;
+  }
 
-  public abstract int currentFrame();
+  /**
+   * Sets the loop mode of the animation.
+   *
+   * @param loopMode the loop mode to set.
+   * @return the current Animation instance.
+   */
+  public Animation loopMode(LoopMode loopMode) {
+    this.loopMode = loopMode;
+    return this;
+  }
 
+  /**
+   * Get the current frame index.
+   * @return the current frame index.
+   */
+  public int currentFrame() {
+    return this.currentFrame;
+  }
+
+  /**
+   * Sets the current frame index.
+   * @param index the index of the frame to set.
+   * @return the current Animation instance.
+   */
+  public Animation currentFrame(int index) {
+    this.currentFrame = index % this.frameCount;
+    this.makeCurrentStep();
+    return this;
+  }
+
+  /** Enum representing the loop mode of an animation. */
+  public enum LoopMode {
+    /** The animation will repeat from the beginning when it reaches the end. */
+    REPEAT,
+
+    /** The animation will play in reverse when it reaches the end. */
+    PING_PONG
+  }
+
+
+  /** Enum representing the animation slot to use when binding an animation to a shader. */
   public enum AnimationSlot {
     ANIMATION_0,
     ANIMATION_1,
@@ -222,6 +342,5 @@ public abstract class Animation {
     public static AnimationSlot fromIndex(int index) {
       return AnimationSlot.values()[index];
     }
-
   }
 }
