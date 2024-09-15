@@ -1,5 +1,6 @@
 package de.fwatermann.dungine.state;
 
+import de.fwatermann.dungine.audio.AudioContext;
 import de.fwatermann.dungine.ecs.ECS;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
@@ -22,6 +23,7 @@ public abstract class GameState extends ECS implements Disposable {
   private boolean renderGrid = false;
 
   protected UIRoot ui;
+  protected AudioContext audioContext;
 
   /**
    * Create a new game state.
@@ -31,6 +33,7 @@ public abstract class GameState extends ECS implements Disposable {
   protected GameState(GameWindow window) {
     this.window = window;
     this.ui = new UIRoot(this.window, this.window.size().x, this.window.size().y);
+    this.audioContext = new AudioContext();
   }
 
   /**
@@ -91,6 +94,7 @@ public abstract class GameState extends ECS implements Disposable {
    */
   public final void update(float deltaTime) {
     this.lastTickDeltaTime = deltaTime;
+    this.audioContext.update(deltaTime);
     this.executeSystems(this, false);
     this.updateState(deltaTime);
   }
@@ -150,6 +154,7 @@ public abstract class GameState extends ECS implements Disposable {
     }
     this.disposeState();
     this.ui.dispose();
+    this.audioContext.dispose();
   }
 
   public void disposeState() {};
