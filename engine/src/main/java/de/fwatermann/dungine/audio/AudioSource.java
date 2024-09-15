@@ -103,8 +103,14 @@ public class AudioSource implements Disposable {
 
   @Override
   public void dispose() {
+    this.dispose(true);
+  }
+
+  void dispose(boolean rmFromContext) {
     this.stop();
     AL10.alDeleteSources(this.alSourceId);
-    this.context.removeSource(this);
+    if(rmFromContext)
+      this.context.removeSource(this);
   }
+
 }
