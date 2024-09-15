@@ -14,7 +14,7 @@ out vec2 vsTexCoord;
 #include "../util/Billboard.vsh"
 
 void main() {
-  mat4 modelView = billboard(uView * uModel, vec3(1.0), uBillboardMode);
+  mat4 modelView = billboard(uModel, uView, uBillboardMode);
   gl_Position = uProjection * modelView * vec4(aPosition, 1.0f);
   vsTexCoord = aTexCoord;
 }

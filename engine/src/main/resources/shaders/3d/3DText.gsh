@@ -11,18 +11,17 @@ uniform mat4 uProjection;
 uniform mat4 uView;
 uniform mat4 uModel;
 uniform vec3 uBasePosition;
-uniform vec3 uScale;
 uniform ivec2 uPageSize;
 
 out vec2 gs_TexCoord;
 
-mat4 billboard(mat4 modelView);
+#include "../util/Billboard.vsh"
 
 void main() {
 
   vec4 pos = gl_in[0].gl_Position;
   mat4 trans = mat4(vec4(1.0f, 0.0f, 0.0f, 0.0f), vec4(0.0f, 1.0f, 0.0f, 0.0f), vec4(0.0f, 0.0f, 1.0f, 0.0f), vec4(uBasePosition, 1.0f));
-  mat4 viewModel = billboard(uView * trans * uModel);
+  mat4 viewModel = billboard(trans * uModel, uView, uBillboardMode);
 
   //Top Left
   gl_Position = uProjection * viewModel * vec4(pos.x, pos.y, pos.z, 1.0f);
@@ -45,29 +44,4 @@ void main() {
   EmitVertex();
 
   EndPrimitive();
-}
-
-mat4 billboard(mat4 modelView) {
-  if(uBillboardMode == 1) {
-    modelView[0][0] = uScale.x;
-    modelView[0][1] = 0.0;
-    modelView[0][2] = 0.0;
-    modelView[1][0] = 0.0;
-    modelView[1][1] = uScale.y;
-    modelView[1][2] = 0.0;
-    modelView[2][0] = 0.0;
-    modelView[2][1] = 0.0;
-    modelView[2][2] = uScale.z;
-    return modelView;
-  } else if(uBillboardMode == 2) {
-    modelView[0][0] = uScale.x;
-    modelView[0][1] = 0.0;
-    modelView[0][2] = 0.0;
-    modelView[2][0] = 0.0;
-    modelView[2][1] = 0.0;
-    modelView[2][2] = uScale.z;
-    return modelView;
-  } else {
-    return modelView;
-  }
 }

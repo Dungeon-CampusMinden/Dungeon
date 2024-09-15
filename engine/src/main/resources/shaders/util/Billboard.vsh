@@ -4,8 +4,14 @@
 #define BILLBOARD_MODE_SPHERICAL 1
 #define BILLBOARD_MODE_CYLINDRICAL 2
 
-mat4 billboard(mat4 pModelView, vec3 scaling, int mode) {
-  mat4 modelView = mat4(pModelView);
+mat4 billboard(mat4 pModel, mat4 pView, int mode) {
+
+  vec3 scaling = vec3(1);
+  scaling.x = length(pModel[0].xyz);
+  scaling.y = length(pModel[1].xyz);
+  scaling.z = length(pModel[2].xyz);
+
+  mat4 modelView = mat4(pView * pModel);
   switch (mode) {
     case BILLBOARD_MODE_SPHERICAL:
           modelView[0][0] = scaling.x;
