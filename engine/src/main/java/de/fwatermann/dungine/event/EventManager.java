@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Manages the registration and firing of events. This class is a singleton and provides methods to
@@ -32,6 +33,7 @@ public class EventManager {
 
   private EventManager() {}
 
+  private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final Map<Class<? extends Event>, Set<EventHandlerPair>> listeners = new HashMap<>();
 
   /**
@@ -72,9 +74,14 @@ public class EventManager {
               }
               @SuppressWarnings("unchecked")
               Class<? extends Event> eventType = (Class<? extends Event>) eventTypeClass;
-              this.listeners
+              try {
+                this.lock.writeLock().lock();
+                this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
                   .add(new EventHandlerPair(listener, listener.getClass(), m));
+              } finally {
+                this.lock.writeLock().unlock();
+              }
               LOGGER.debug(
                   "Registered event handler for event type {} by {}",
                   eventType.getName(),
@@ -122,9 +129,14 @@ public class EventManager {
               }
               @SuppressWarnings("unchecked")
               Class<? extends Event> eventType = (Class<? extends Event>) eventTypeClass;
-              this.listeners
+              try {
+                this.lock.writeLock().lock();
+                this.listeners
                   .computeIfAbsent(eventType, k -> new HashSet<>())
                   .add(new EventHandlerPair(null, clazz, m));
+              } finally {
+                this.lock.writeLock().unlock();
+              }
               LOGGER.debug(
                   "Registered static event handler for event type {} by {}",
                   eventType.getName(),
@@ -139,20 +151,25 @@ public class EventManager {
    * @param listener the event listener to unregister
    */
   public void unregisterListener(de.fwatermann.dungine.event.EventListener listener) {
-    this.listeners.forEach(
-            (k, v) ->
-                v.removeIf(
-                    p -> {
-                      if (p.listener == listener) {
-                        LOGGER.debug(
-                            "Unregistered {} handler for object of {} [{}]",
-                            k.getName(),
-                            listener.getClass().getName(),
-                            listener.hashCode());
-                        return true;
-                      }
-                      return false;
-                    }));
+    try {
+      this.lock.writeLock().lock();
+      this.listeners.forEach(
+        (k, v) ->
+          v.removeIf(
+            p -> {
+              if (p.listener == listener) {
+                LOGGER.debug(
+                  "Unregistered {} handler for object of {} [{}]",
+                  k.getName(),
+                  listener.getClass().getName(),
+                  listener.hashCode());
+                return true;
+              }
+              return false;
+            }));
+    } finally {
+      this.lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -162,20 +179,25 @@ public class EventManager {
    * @param listenerClass the class of the event listener to unregister
    */
   public void unregisterStaticListener(Class<? extends EventListener> listenerClass) {
-    this.listeners
+    try {
+      this.lock.writeLock().lock();
+      this.listeners
         .values()
         .forEach(
-            l ->
-                l.removeIf(
-                    p -> {
-                      if (p.clazz() == listenerClass) {
-                        LOGGER.debug(
-                            "Unregistered all static handlers for class {}",
-                            listenerClass.getName());
-                        return true;
-                      }
-                      return false;
-                    }));
+          l ->
+            l.removeIf(
+              p -> {
+                if (p.clazz() == listenerClass) {
+                  LOGGER.debug(
+                    "Unregistered all static handlers for class {}",
+                    listenerClass.getName());
+                  return true;
+                }
+                return false;
+              }));
+    } finally {
+      this.lock.writeLock().unlock();
+    }
   }
 
   /**
@@ -185,11 +207,13 @@ public class EventManager {
    * @param event the event to fire
    */
   public void fireEvent(Event event) {
-    Set<EventHandlerPair> listeners = this.listeners.get(event.getClass());
-    if (listeners == null) {
-      return;
-    }
-    listeners.forEach(
+    try {
+      this.lock.readLock().lock();
+      Set<EventHandlerPair> listeners = this.listeners.get(event.getClass());
+      if (listeners == null) {
+        return;
+      }
+      listeners.forEach(
         p -> {
           try {
             p.method().invoke(p.listener(), event);
@@ -197,6 +221,9 @@ public class EventManager {
             throw new RuntimeException(e);
           }
         });
+    } finally {
+      this.lock.readLock().unlock();
+    }
   }
 
   /**

@@ -41,7 +41,10 @@ public abstract class GameState extends ECS implements Disposable, EventListener
     this.ui = new UIRoot(this.window, this.window.size().x, this.window.size().y);
     this.audioContext = new AudioContext();
     this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0.0f, 0.0f));
-    EventManager.getInstance().registerListener(this);
+
+    this.window.runOnMainThread(() -> {
+      EventManager.getInstance().registerListener(this);
+    });
   }
 
   /**
