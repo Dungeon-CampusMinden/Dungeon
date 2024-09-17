@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL33;
  */
 public class VertexAttributeList implements Iterable<VertexAttribute> {
 
-  private static final Logger LOGGER = LogManager.getFormatterLogger();
+  private static final Logger LOGGER = LogManager.getLogger(VertexAttributeList.class);
 
   /** An array of VertexAttributes in the list. */
   private final VertexAttribute[] attributes;
