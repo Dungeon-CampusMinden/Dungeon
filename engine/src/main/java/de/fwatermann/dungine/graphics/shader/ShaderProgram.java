@@ -505,6 +505,7 @@ public class ShaderProgram implements Disposable {
    */
   public void useCamera(Camera<?> camera) {
     if (camera == null) return;
+    this.setUniform3f(this.configuration.uniformCameraPosition, camera.position());
     this.setUniformMatrix4f(this.configuration.uniformViewMatrix, camera.viewMatrix());
     this.setUniformMatrix4f(this.configuration.uniformProjectionMatrix, camera.projectionMatrix());
     if (camera instanceof CameraPerspective cp) {

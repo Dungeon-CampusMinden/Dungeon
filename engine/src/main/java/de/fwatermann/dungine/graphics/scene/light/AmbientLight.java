@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 
 public class AmbientLight extends Light<AmbientLight> {
 
-  protected AmbientLight(Vector3f color, float intensity) {
+  public AmbientLight(Vector3f color, float intensity) {
     super(LightType.AMBIENT);
     this.color.set(color);
     this.intensity = intensity;

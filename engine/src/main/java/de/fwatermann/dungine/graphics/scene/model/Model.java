@@ -9,6 +9,7 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 import org.lwjgl.opengl.GL33;
 
 public class Model extends Renderable<Model> {
@@ -27,9 +28,9 @@ public class Model extends Renderable<Model> {
   private static void initShader() {
     if(DEFAULT_SHADER != null) return;
     try {
-      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/model.vsh"), Shader.ShaderType.VERTEX_SHADER);
-      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/model.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/model.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/scene.vsh"), Shader.ShaderType.VERTEX_SHADER);
+      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/scene.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/scene.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
       DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
     } catch(IOException ex) {
       throw new RuntimeException("Failed to load default shader!", ex);
@@ -53,6 +54,8 @@ public class Model extends Renderable<Model> {
 
     for(Material material : this.materials) {
       shader.setUniform4f("uMaterial.diffuseColor", material.diffuseColor);
+      shader.setUniform4f("uMaterial.ambientColor", material.ambientColor);
+      shader.setUniform4f("uMaterial.specularColor", material.specularColor);
       shader.setUniform1i("uMaterial.diffuseTexture", 0);
       shader.setUniform1i("uMaterial.ambientTexture", 1);
       shader.setUniform1i("uMaterial.specularTexture", 2);
@@ -92,4 +95,9 @@ public class Model extends Renderable<Model> {
     return true;
     //TODO: Implement frustum culling for models.
   }
+
+  public Stream<Material> materials() {
+    return this.materials.stream();
+  }
+
 }

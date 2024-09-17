@@ -140,7 +140,7 @@ public class ModelLoader {
       aiFile.FileSizeProc().free();
     });
 
-    int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_OptimizeMeshes;
+    int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes;
 
     AIScene aiScene = aiImportFileEx(MODEL_ROOT_FILE_KEY, flags, fileIO);
     fileIO.OpenProc().free();
@@ -292,19 +292,27 @@ public class ModelLoader {
 
   private static Mesh<?> loadMesh(AIMesh mesh) {
     int numVertices = mesh.mNumVertices();
-    float[] vertices = new float[numVertices * 8]; // 3 for position, 2 for texture coordinates
+    float[] vertices = new float[numVertices * 14]; // 3 for position, 2 for texture coordinates
     for (int i = 0; i < numVertices; i++) {
       AIVector3D position = mesh.mVertices().get(i);
       AIVector3D normal = mesh.mNormals().get(i);
       AIVector3D textureCoords = mesh.mTextureCoords(0).get(i);
-      vertices[i * 8] = position.x();
-      vertices[i * 8 + 1] = position.y();
-      vertices[i * 8 + 2] = position.z();
-      vertices[i * 8 + 3] = textureCoords.x();
-      vertices[i * 8 + 4] = 1.0f - textureCoords.y();
-      vertices[i * 8 + 5] = normal.x();
-      vertices[i * 8 + 6] = normal.y();
-      vertices[i * 8 + 7] = normal.z();
+      AIVector3D tanget = mesh.mTangents().get(i);
+      AIVector3D bitangent = mesh.mBitangents().get(i);
+      vertices[i * 14] = position.x();
+      vertices[i * 14 + 1] = position.y();
+      vertices[i * 14 + 2] = position.z();
+      vertices[i * 14 + 3] = textureCoords.x();
+      vertices[i * 14 + 4] = 1.0f - textureCoords.y();
+      vertices[i * 14 + 5] = normal.x();
+      vertices[i * 14 + 6] = normal.y();
+      vertices[i * 14 + 7] = normal.z();
+      vertices[i * 14 + 8] = tanget.x();
+      vertices[i * 14 + 9] = tanget.y();
+      vertices[i * 14 + 10] = tanget.z();
+      vertices[i * 14 + 11] = bitangent.x();
+      vertices[i * 14 + 12] = bitangent.y();
+      vertices[i * 14 + 13] = bitangent.z();
     }
 
     int numFaces = mesh.mNumFaces();
@@ -333,6 +341,8 @@ public class ModelLoader {
         GLUsageHint.DRAW_STATIC,
         new VertexAttribute(3, DataType.FLOAT, "aPosition"),
         new VertexAttribute(2, DataType.FLOAT, "aTexCoord"),
-        new VertexAttribute(3, DataType.FLOAT, "aNormal"));
+        new VertexAttribute(3, DataType.FLOAT, "aNormal"),
+        new VertexAttribute(3, DataType.FLOAT, "aTangent"),
+        new VertexAttribute(3, DataType.FLOAT, "aBitangent"));
   }
 }

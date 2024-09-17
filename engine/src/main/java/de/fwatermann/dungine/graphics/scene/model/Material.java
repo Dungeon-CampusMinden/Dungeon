@@ -14,7 +14,7 @@ public class Material {
   public static final int MATERIAL_FLAG_HAS_SPECULAR_TEXTURE = 0x04;
   public static final int MATERIAL_FLAG_HAS_AMBIENT_TEXTURE = 0x08;
 
-  public static final Vector4f DEFAULT_COLOR = new Vector4f(1.0f, 0.0f, 0.5f, 1.0f);
+  public static final Vector4f DEFAULT_COLOR = new Vector4f(1.0f);
 
   List<Mesh<?>> meshes = new ArrayList<>();
 
