@@ -20,8 +20,8 @@ void main() {
   vec4 worldPos = uModel * vec4(aPosition, 1.0);
   gl_Position = uProjection * uView * worldPos;
   vsTexCoord = aTexCoord;
-  vsNormal = aNormal;
-  vsTangent = aTangent;
-  vsBitangent = aBitangent;
+  vsNormal = normalize(uModel * vec4(aNormal, 1.0f)).xyz;
+  vsTangent = normalize(uModel * vec4(aPosition, 1.0f)).xyz;
+  vsBitangent = normalize(uModel * vec4(aBitangent, 1.0f)).xyz;
   vsWorldPosition = worldPos.xyz;
 }
