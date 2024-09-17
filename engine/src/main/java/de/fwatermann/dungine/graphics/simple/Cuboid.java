@@ -1,105 +1,157 @@
 package de.fwatermann.dungine.graphics.simple;
 
 import de.fwatermann.dungine.graphics.GLUsageHint;
-import de.fwatermann.dungine.graphics.Renderable;
-import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.mesh.DataType;
 import de.fwatermann.dungine.graphics.mesh.IndexDataType;
 import de.fwatermann.dungine.graphics.mesh.IndexedMesh;
 import de.fwatermann.dungine.graphics.mesh.PrimitiveType;
 import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
-import de.fwatermann.dungine.graphics.shader.Shader;
-import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.graphics.scene.model.Material;
+import de.fwatermann.dungine.graphics.scene.model.Model;
 import de.fwatermann.dungine.utils.BoundingBox;
 import java.nio.ByteBuffer;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
-public class Cuboid extends Renderable<Cuboid> {
+public class Cuboid extends Model {
 
-  private static ShaderProgram SHADER;
-  protected IndexedMesh mesh;
+  protected static IndexedMesh MESH;
   private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
+
+  private int color = 0xDDDDDDFF;
 
   /**
    * Constructs a new Cuboid with the specified position and color.
-   *
-   * @param position the position of the cuboid
+   * @param rgb the color of the cuboid in RGBA format
    */
-  public Cuboid(Vector3f position) {
-    super(position, new Vector3f(1.0f), new Quaternionf());
-    this.initMesh();
+  public Cuboid(int rgb) {
+    initMesh();
+    this.color = rgb;
+    Material material = new Material();
+    material.diffuseColor.set(0.8f);
+    material.meshes.add(MESH);
+    this.materials.add(material);
   }
 
-  private void initMesh() {
-    ByteBuffer vertices = BufferUtils.createByteBuffer(8 * 3 * 4);
+  public Cuboid() {
+    this(0xDDDDDDFF);
+  }
+
+  private static void initMesh() {
+    if(MESH != null) return;
+    ByteBuffer vertices = BufferUtils.createByteBuffer(4 * 6 * 6 * 4);
     vertices
         .asFloatBuffer()
         .position(0)
         .put(
             new float[] {
-              -0.5f, -0.5f, -0.5f, // 0
-              -0.5f, -0.5f, 0.5f, // 1
-              -0.5f, 0.5f, 0.5f, // 2
-              -0.5f, 0.5f, -0.5f, // 3
-              0.5f, -0.5f, -0.5f, // 4
-              0.5f, -0.5f, 0.5f, // 5
-              0.5f, 0.5f, 0.5f, // 6
-              0.5f, 0.5f, -0.5f // 7
+              //Format: x, y, z, nx, ny, nz, tx, ty, tz, bix, biy, biz
+
+              //Top (y+)
+              -0.5f, 0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+               0.5f, 0.5f,  0.5f, 0.0f, 1.0f, 0.0f,
+               0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+              -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+
+              //Bottom (y-)
+              -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+               0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,
+               0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
+              -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,
+
+              //Front (z+)
+              -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+               0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+               0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+              -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+
+              //Back (z-)
+               0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+              -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+              -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+               0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,
+
+              //Right (x+)
+              0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+              0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+              0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
+              0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,
+
+              //Left (x-)
+              -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+              -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
+              -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,
+              -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f
             });
-    ByteBuffer indices = BufferUtils.createByteBuffer(36 * 4);
+    ByteBuffer indices = BufferUtils.createByteBuffer(36 * 2);
     indices
-        .asIntBuffer()
+        .asShortBuffer()
         .position(0)
         .put(
-            new int[] {
-              3, 2, 6, 6, 7, 3, // TOP
-              4, 5, 1, 1, 0, 4, // BOTTOM
-              0, 1, 2, 2, 3, 0, // FRONT
-              5, 4, 7, 7, 6, 5, // BACK
-              4, 0, 3, 3, 7, 4, // LEFT
-              1, 5, 6, 6, 2, 1  // RIGHT
+            new short[] {
+              0, 1, 2, 2, 3, 0,
+              4, 5, 6, 6, 7, 4,
+              8, 9, 10, 10, 11, 8,
+              12, 13, 14, 14, 15, 12,
+              16, 17, 18, 18, 19, 16,
+              20, 21, 22, 22, 23, 20
             });
-    this.mesh =
-        new IndexedMesh(
-            vertices,
-            PrimitiveType.TRIANGLES,
-            indices,
-            IndexDataType.UNSIGNED_INT,
-            GLUsageHint.DRAW_STATIC,
-            new VertexAttribute(3, DataType.FLOAT, "a_Position"));
+
+    MESH = new IndexedMesh(
+        vertices,
+        PrimitiveType.TRIANGLES,
+        indices,
+        IndexDataType.UNSIGNED_SHORT,
+        GLUsageHint.DRAW_STATIC,
+        new VertexAttribute(3, DataType.FLOAT, "aPosition"),
+        new VertexAttribute(3, DataType.FLOAT, "aNormal"));
   }
 
-  @Override
-  public void render(Camera<?> camera, ShaderProgram shader) {
-    if (shader == null) {
-      return;
-    }
-    shader.bind();
-    this.mesh.transformation(this.position(), this.rotation(), this.scaling());
-    this.mesh.render(camera, shader);
-    shader.unbind();
+  /**
+   * Get the color of the cuboid.
+   * @return the color of the cuboid
+   */
+  public int color() {
+    return this.color;
   }
 
-  @Override
-  public void render(Camera<?> camera) {
-    if (SHADER == null) {
-      Shader vertexShader = new Shader(VERTEX_SHADER, Shader.ShaderType.VERTEX_SHADER);
-      Shader fragmentShader = new Shader(FRAGMENT_SHADER, Shader.ShaderType.FRAGMENT_SHADER);
-      SHADER = new ShaderProgram(vertexShader, fragmentShader);
-    }
-    this.render(camera, SHADER);
+  /**
+   * Set the color of the cuboid.
+   * @param rgba the new color of the cuboid in RGBA format.
+   */
+  public void color(int rgba) {
+    this.color = rgba;
+  }
+
+  /**
+   * Set the color of the cuboid.
+   * @param r the red component of the color
+   * @param g the green component of the color
+   * @param b the blue component of the color
+   * @param a the alpha component of the color
+   */
+  public void color(int r, int g, int b, int a) {
+    this.color = (a << 24) | (r << 16) | (g << 8) | b;
+  }
+
+  /**
+   * Set the color of the cuboid.
+   * @param r the red component of the color
+   * @param g the green component of the color
+   * @param b the blue component of the color
+   * @param a the alpha component of the color
+   */
+  public void color(float r, float g, float b, float a) {
+    this.color((int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
   }
 
   @Override
   protected void transformationChanged() {
     super.transformationChanged();
-    if (this.mesh == null) return;
-    this.boundingBox =
-        BoundingBox.fromVertices(
-            this.mesh.vertexBuffer().asFloatBuffer(), 0, 3, 8, this.transformationMatrix());
+    Vector4f max = this.transformationMatrix().transform(new Vector4f(0.5f, 0.5f, 0.5f, 1.0f));
+    Vector4f min = this.transformationMatrix().transform(new Vector4f(-0.5f, -0.5f, -0.5f, 1.0f));
+    this.boundingBox = new BoundingBox(min.x, min.y, min.z, max.x, max.y, max.z);
   }
 
   @Override
@@ -107,31 +159,4 @@ public class Cuboid extends Renderable<Cuboid> {
     int frustumResult = frustum.intersectAab(this.boundingBox.getMin(), this.boundingBox.getMax());
     return frustumResult == CameraFrustum.INTERSECT || frustumResult == CameraFrustum.INSIDE;
   }
-
-  private static final String VERTEX_SHADER =
-      """
-#version 330 core
-
-in vec3 a_Position;
-
-uniform mat4 uProjection;
-uniform mat4 uView;
-uniform mat4 uModel;
-
-void main() {
-    gl_Position = uProjection * uView * uModel * vec4(a_Position, 1.0);
-}
-
-""";
-
-  private static final String FRAGMENT_SHADER =
-      """
-#version 330 core
-
-out vec4 fragColor;
-
-void main() {
-   fragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-}
-""";
 }
