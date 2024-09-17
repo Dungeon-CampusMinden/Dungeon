@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.graphics.model;
+package de.fwatermann.dungine.graphics.scene.model;
 
 
 import de.fwatermann.dungine.graphics.Renderable;
@@ -28,8 +28,9 @@ public class Model extends Renderable<Model> {
     if(DEFAULT_SHADER != null) return;
     try {
       Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/model.vsh"), Shader.ShaderType.VERTEX_SHADER);
+      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/model.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
       Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/model.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
-      DEFAULT_SHADER = new ShaderProgram(vertexShader, fragmentShader);
+      DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
     } catch(IOException ex) {
       throw new RuntimeException("Failed to load default shader!", ex);
     }
@@ -47,34 +48,35 @@ public class Model extends Renderable<Model> {
 
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
-
     shader.bind();
     shader.useCamera(camera);
 
     for(Material material : this.materials) {
       shader.setUniform4f("uMaterial.diffuseColor", material.diffuseColor);
       shader.setUniform1i("uMaterial.diffuseTexture", 0);
-      shader.setUniform1i("uMaterial.normalTexture", 1);
+      shader.setUniform1i("uMaterial.ambientTexture", 1);
       shader.setUniform1i("uMaterial.specularTexture", 2);
+      shader.setUniform1i("uMaterial.normalTexture", 3);
+      shader.setUniform1i("uMaterial.flags", material.flags);
 
-      int flags = 0x00;
+      if(material.transparent) {
+        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
+      } else {
+        GL33.glBlendFunc(GL33.GL_ONE, GL33.GL_ZERO);
+      }
 
       if(material.diffuseTexture != null) {
         material.diffuseTexture.bind(GL33.GL_TEXTURE0);
-        flags |= Material.MATERIAL_FLAG_HAS_DIFFUSE_TEXTURE;
       }
-
-      if(material.normalTexture != null) {
-        material.normalTexture.bind(GL33.GL_TEXTURE1);
-        flags |= Material.MATERIAL_FLAG_HAS_NORMAL_TEXTURE;
+      if(material.ambientTexture != null) {
+        material.ambientTexture.bind(GL33.GL_TEXTURE1);
       }
-
       if(material.specularTexture != null) {
         material.specularTexture.bind(GL33.GL_TEXTURE2);
-        flags |= Material.MATERIAL_FLAG_HAS_SPECULAR_TEXTURE;
       }
-
-      shader.setUniform1i("uMaterial.flags", flags);
+      if(material.normalTexture != null) {
+        material.normalTexture.bind(GL33.GL_TEXTURE3);
+      }
 
       material.meshes.forEach(mesh -> {
         mesh.transformation(this.position(), this.rotation(), this.scaling());

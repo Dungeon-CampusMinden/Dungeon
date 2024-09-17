@@ -1,4 +1,4 @@
-package de.fwatermann.dungine.graphics.model;
+package de.fwatermann.dungine.graphics.scene.model;
 
 import static org.lwjgl.assimp.Assimp.*;
 
@@ -15,7 +15,7 @@ import de.fwatermann.dungine.graphics.texture.TextureManager;
 import de.fwatermann.dungine.graphics.texture.TextureMinFilter;
 import de.fwatermann.dungine.graphics.texture.TextureWrapMode;
 import de.fwatermann.dungine.resource.Resource;
-import de.fwatermann.dungine.utils.annotations.Nullable;
+import de.fwatermann.dungine.utils.pair.Pair;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -65,7 +65,9 @@ public class ModelLoader {
     List<Material> materials = new ArrayList<>();
     for (int i = 0; i < numMaterials; i++) {
       AIMaterial aiMaterial = AIMaterial.create(aiScene.mMaterials().get(i));
-      materials.add(loadMaterial(resource, aiScene, aiMaterial));
+      Material material = loadMaterial(resource, aiScene, aiMaterial);
+      materials.add(material);
+      LOGGER.debug("Material: {}", material.transparent);
     }
 
     int numMeshes = aiScene.mNumMeshes();
@@ -84,6 +86,15 @@ public class ModelLoader {
     if (!defaultMaterial.meshes.isEmpty()) {
       materials.add(defaultMaterial);
     }
+
+    materials.sort((Material a, Material b) -> {
+      if (a.transparent && !b.transparent) {
+        return 1;
+      } else if (!a.transparent && b.transparent) {
+        return -1;
+      }
+      return 0;
+    });
 
     Model model = new Model(resource, materials);
     modelCache.put(resource, model);
@@ -141,16 +152,38 @@ public class ModelLoader {
   private static Material loadMaterial(Resource modelFile, AIScene aiScene, AIMaterial aiMaterial) {
     Material material = new Material();
     material.diffuseColor.set(loadColor(aiMaterial, AI_MATKEY_COLOR_DIFFUSE, 0));
-    material.diffuseTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_DIFFUSE, 0);
-    material.normalTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_NORMALS, 0);
-    material.specularTexture =
-        loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_SPECULAR, 0);
+    material.ambientColor.set(loadColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, 0));
+    material.specularColor.set(loadColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, 0));
+
+    Pair<Texture, Boolean> diffuseTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_DIFFUSE, 0, true);
+    material.diffuseTexture = diffuseTexture.a();
+    material.ambientTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_AMBIENT, 0, false).a();
+    material.specularTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_SPECULAR, 0, false).a();
+    material.normalTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_NORMALS, 0, false).a();
+    material.transparent = diffuseTexture.b();
+
+    //Reflectance
+    {
+      float[] shinFac = new float[1];
+      int[] pMax = new int[1];
+      int result = aiGetMaterialFloatArray(aiMaterial, AI_MATKEY_SHININESS_STRENGTH, aiTextureType_NONE, 0, shinFac, pMax);
+      if(result == aiReturn_SUCCESS) {
+        material.reflectance = shinFac[0];
+      } else {
+        material.reflectance = 0.0f;
+      }
+    }
+
+    material.flags |= material.diffuseTexture != null ? Material.MATERIAL_FLAG_HAS_DIFFUSE_TEXTURE : 0;
+    material.flags |= material.ambientTexture != null ? Material.MATERIAL_FLAG_HAS_AMBIENT_TEXTURE : 0;
+    material.flags |= material.specularTexture != null ? Material.MATERIAL_FLAG_HAS_SPECULAR_TEXTURE : 0;
+    material.flags |= material.normalTexture != null ? Material.MATERIAL_FLAG_HAS_NORMAL_TEXTURE : 0;
+
     return material;
   }
 
-  @Nullable
-  private static Texture loadTexture(
-      Resource modelFile, AIScene aiScene, AIMaterial aiMaterial, int textureType, int index) {
+  private static Pair<Texture, Boolean> loadTexture(
+      Resource modelFile, AIScene aiScene, AIMaterial aiMaterial, int textureType, int index, boolean checkTransparent) {
     try (MemoryStack stack = MemoryStack.stackPush()) {
       AIString texturePath = AIString.calloc(stack);
 
@@ -168,9 +201,9 @@ public class ModelLoader {
               index,
               texturePath,
               mapping, uvIndex, blend, op, mapMode, flags);
-      if(error != aiReturn_SUCCESS) return null;
+      if(error != aiReturn_SUCCESS) return new Pair<>(null, false);
       String path = texturePath.dataString();
-      if(path.isEmpty()) return null;
+      if(path.isEmpty()) return new Pair<>(null, false);
 
       //Wrap mode
       TextureWrapMode uWrapMode = switch(mapMode.get(0)) {
@@ -192,12 +225,16 @@ public class ModelLoader {
 
 
       Texture texture;
+      boolean transparent = false;
       if (path.startsWith("*")) { // Embedded texture
         int embeddedTextureIndex = Integer.parseInt(path.substring(1));
         AITexture aiTexture = AITexture.create(aiScene.mTextures().get(embeddedTextureIndex));
         if (aiTexture.mHeight() != 0) { // Texture is not compressed
           ByteBuffer buffer = aiTexture.pcDataCompressed(); // RGBA8888
           texture = new Texture(aiTexture.mWidth(), aiTexture.mHeight(), GL33.GL_RGBA, minFilter, magFilter, uWrapMode, vWrapMode, buffer);
+          if (checkTransparent) {
+            transparent = isTransparent(buffer);
+          }
         } else {
           ByteBuffer buffer = aiTexture.pcDataCompressed();
           IntBuffer channels = BufferUtils.createIntBuffer(1);
@@ -210,6 +247,9 @@ public class ModelLoader {
                 "Failed to load embedded texture: " + STBImage.stbi_failure_reason());
           }
           texture = new Texture(width.get(0), height.get(0), GL33.GL_RGBA, minFilter, magFilter, uWrapMode, vWrapMode, pixels);
+          if(checkTransparent) {
+            transparent = isTransparent(pixels);
+          }
           STBImage.stbi_image_free(pixels);
         }
       } else {
@@ -222,10 +262,23 @@ public class ModelLoader {
         texture.wrapS(uWrapMode);
         texture.wrapT(vWrapMode);
         texture.unbind();
+        if(checkTransparent) {
+          transparent = isTransparent(texture.readPixels());
+        }
       }
 
-      return texture;
+      return new Pair<>(texture, transparent);
     }
+  }
+
+  private static boolean isTransparent(ByteBuffer pixels) {
+    ByteBuffer buffer = pixels.asReadOnlyBuffer();
+    for(int i = 3; i < buffer.limit(); i += 4) {
+      if((buffer.get(i) & 0xFF) < 255) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static Vector4f loadColor(AIMaterial aiMaterial, String matKey, int index) {
