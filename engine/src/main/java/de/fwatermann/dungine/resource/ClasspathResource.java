@@ -1,12 +1,12 @@
 package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.annotations.Nullable;
-import org.lwjgl.BufferUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
+import org.lwjgl.BufferUtils;
 
 public class ClasspathResource extends Resource {
 
@@ -47,9 +47,11 @@ public class ClasspathResource extends Resource {
     if(path.startsWith("/")) {
       return load(path, 0x02);
     } else {
-      // Remove filename from path
-      String dirPath = this.path.substring(0, this.path.lastIndexOf('/'));
-      return load(dirPath + "/" + path, 0x02);
+      String nPath = Path.of(this.path).getParent().resolve(path).normalize().toString();
+      if(System.getProperty("os.name").toLowerCase().contains("win")) {
+        nPath = nPath.replaceAll("\\\\", "/");
+      }
+      return load(nPath, 0x02);
     }
   }
 
