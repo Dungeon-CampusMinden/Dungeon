@@ -5,6 +5,8 @@ import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.Disposable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -83,27 +85,35 @@ public class Shader implements Disposable {
    * @throws IOException If an I/O error occurs while reading the shader code from the resource.
    */
   public static Shader loadShader(Resource resource, ShaderType shaderType) throws IOException {
-    String sourceCode = loadSourceCode(resource);
+    String sourceCode = parseShaderSource(resource, new HashSet<>());
+    return new Shader(sourceCode, shaderType);
+  }
 
+  private static String parseShaderSource(Resource resource, Set<Resource> alreadyIncluded) throws IOException {
     // Parse the source code to add includes
+    String sourceCode = loadSourceCode(resource);
     Matcher matcher = includePattern.matcher(sourceCode);
     while (matcher.find()) {
       String includePath = matcher.group("path1");
       if (includePath == null) {
         includePath = matcher.group("path2");
       }
-      LOGGER.debug("Including: {} into {}", includePath, resource);
       Resource includeResource = resource.resolveRelative(includePath);
       if (includeResource == null) {
         throw new IOException("Failed to resolve include path: " + includePath);
       }
-      String includeSourceCode = loadSourceCode(includeResource);
+      if(alreadyIncluded.contains(includeResource)) {
+        sourceCode = sourceCode.replace(matcher.group(), "");
+        matcher = includePattern.matcher(sourceCode);
+        continue;
+      }
+      alreadyIncluded.add(includeResource);
+      String includeSourceCode = parseShaderSource(includeResource, alreadyIncluded);
       includeSourceCode = removeVersionDirective(includeSourceCode);
       sourceCode = sourceCode.replace(matcher.group(), includeSourceCode);
       matcher = includePattern.matcher(sourceCode);
     }
-
-    return new Shader(sourceCode, shaderType);
+    return sourceCode;
   }
 
   private static String removeVersionDirective(String sourceCode) {
