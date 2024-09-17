@@ -1,11 +1,10 @@
 package de.fwatermann.dungine.graphics.scene.model;
 
 import de.fwatermann.dungine.graphics.mesh.Mesh;
-import de.fwatermann.dungine.graphics.texture.Texture;
-import org.joml.Vector4f;
-
+import de.fwatermann.dungine.graphics.texture.animation.Animation;
 import java.util.ArrayList;
 import java.util.List;
+import org.joml.Vector4f;
 
 public class Material {
 
@@ -24,10 +23,10 @@ public class Material {
   Vector4f ambientColor = new Vector4f(DEFAULT_COLOR);
   Vector4f specularColor = new Vector4f(DEFAULT_COLOR);
 
-  Texture diffuseTexture = null;
-  Texture ambientTexture = null;
-  Texture normalTexture = null;
-  Texture specularTexture = null;
+  Animation diffuseTexture = null;
+  Animation ambientTexture = null;
+  Animation normalTexture = null;
+  Animation specularTexture = null;
 
   float reflectance = 0.0f;
 

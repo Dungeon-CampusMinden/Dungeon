@@ -6,6 +6,7 @@ import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraFrustum;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
+import de.fwatermann.dungine.graphics.texture.animation.Animation;
 import de.fwatermann.dungine.resource.Resource;
 import java.io.IOException;
 import java.util.List;
@@ -69,16 +70,16 @@ public class Model extends Renderable<Model> {
       }
 
       if(material.diffuseTexture != null) {
-        material.diffuseTexture.bind(GL33.GL_TEXTURE0);
+        material.diffuseTexture.bind(shader, Animation.AnimationSlot.ANIMATION_0, GL33.GL_TEXTURE0);
       }
       if(material.ambientTexture != null) {
-        material.ambientTexture.bind(GL33.GL_TEXTURE1);
+        material.ambientTexture.bind(shader, Animation.AnimationSlot.ANIMATION_1, GL33.GL_TEXTURE2);
       }
       if(material.specularTexture != null) {
-        material.specularTexture.bind(GL33.GL_TEXTURE2);
+        material.specularTexture.bind(shader, Animation.AnimationSlot.ANIMATION_2, GL33.GL_TEXTURE4);
       }
       if(material.normalTexture != null) {
-        material.normalTexture.bind(GL33.GL_TEXTURE3);
+        material.normalTexture.bind(shader, Animation.AnimationSlot.ANIMATION_3, GL33.GL_TEXTURE6);
       }
 
       material.meshes.forEach(mesh -> {

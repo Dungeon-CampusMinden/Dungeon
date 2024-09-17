@@ -52,6 +52,17 @@ public class ArrayAnimation extends Animation {
         resources);
   }
 
+  /**
+   * Creates an `ArrayAnimation` instance from multiple textures.
+   * @param textures the textures to create the animation from
+   * @return the created `ArrayAnimation` instance
+   */
+  public static ArrayAnimation of(Texture... textures) {
+    ArrayAnimation animation = new ArrayAnimation(textures.length);
+    animation.frames = textures;
+    return animation;
+  }
+
   private ArrayAnimation(int count) {
     super(count);
   }

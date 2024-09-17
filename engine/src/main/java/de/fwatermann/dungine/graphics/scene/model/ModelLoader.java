@@ -14,6 +14,7 @@ import de.fwatermann.dungine.graphics.texture.TextureMagFilter;
 import de.fwatermann.dungine.graphics.texture.TextureManager;
 import de.fwatermann.dungine.graphics.texture.TextureMinFilter;
 import de.fwatermann.dungine.graphics.texture.TextureWrapMode;
+import de.fwatermann.dungine.graphics.texture.animation.ArrayAnimation;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.pair.Pair;
 import java.io.IOException;
@@ -86,6 +87,7 @@ public class ModelLoader {
     if (!defaultMaterial.meshes.isEmpty()) {
       materials.add(defaultMaterial);
     }
+    materials.removeIf(m -> m.meshes.isEmpty());
 
     materials.sort((Material a, Material b) -> {
       if (a.transparent && !b.transparent) {
@@ -156,10 +158,14 @@ public class ModelLoader {
     material.specularColor.set(loadColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, 0));
 
     Pair<Texture, Boolean> diffuseTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_DIFFUSE, 0, true);
-    material.diffuseTexture = diffuseTexture.a();
-    material.ambientTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_AMBIENT, 0, false).a();
-    material.specularTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_SPECULAR, 0, false).a();
-    material.normalTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_NORMALS, 0, false).a();
+    material.diffuseTexture = diffuseTexture.a() != null ? ArrayAnimation.of(diffuseTexture.a()) : null;
+    Pair<Texture, Boolean> ambientTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_AMBIENT, 0, false);
+    material.ambientTexture = ambientTexture.a() != null ? ArrayAnimation.of(ambientTexture.a()) : null;
+    Pair<Texture, Boolean> specularTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_SPECULAR, 0, false);
+    material.specularTexture = specularTexture.a() != null ? ArrayAnimation.of(specularTexture.a()) : null;
+    Pair<Texture, Boolean> normalTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_NORMALS, 0, false);
+    material.normalTexture = normalTexture.a() != null ? ArrayAnimation.of(normalTexture.a()) : null;
+
     material.transparent = diffuseTexture.b();
 
     //Reflectance

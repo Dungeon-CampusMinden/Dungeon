@@ -7,12 +7,11 @@ import de.fwatermann.dungine.graphics.scene.model.Model;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
-import org.lwjgl.opengl.GL33;
-import org.lwjgl.system.MemoryStack;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Set;
+import org.lwjgl.opengl.GL33;
+import org.lwjgl.system.MemoryStack;
 
 public class SceneRenderer {
 
@@ -20,21 +19,22 @@ public class SceneRenderer {
 
   private static int glLightsUBO = -1;
 
-  private static void initShader() {
-    if(DEFAULT_SHADER != null) return;
-    try {
-      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/scene.vsh"), Shader.ShaderType.VERTEX_SHADER);
-      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/scene.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/scene.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
-      DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
-    } catch(IOException ex) {
-      throw new RuntimeException("Failed to load default scene shader!", ex);
+  public static ShaderProgram defaultShader() {
+    if(DEFAULT_SHADER == null) {
+      try {
+        Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/scene.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/scene.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+        Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/scene.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
+      } catch(IOException ex) {
+        throw new RuntimeException("Failed to load default scene shader!", ex);
+      }
     }
+    return DEFAULT_SHADER;
   }
 
   public static void renderScene(Camera<?> camera, Set<Model> models, Set<Light<?>> lights) {
-    initShader();
-    renderScene(camera, models, lights, DEFAULT_SHADER);
+    renderScene(camera, models, lights, defaultShader());
   }
 
   public static void renderScene(Camera<?> camera, Set<Model> models, Set<Light<?>> lights, ShaderProgram shader) {

@@ -19,7 +19,7 @@ void main() {
 
   if((uMaterial.flags & MATERIAL_FLAG_HAS_NORMAL_TEXTURE) != 0) {
     mat3 TBN = mat3(gsTangent, gsBitangent, gsNormal);
-    normal = normalize(texture(uMaterial.normalTexture, gsTexCoord).rgb * 2.0 - 1.0);
+    normal = normalize(normalColor(uMaterial, gsTexCoord).rgb * 2.0 - 1.0);
     normal = normalize(TBN * normal);
   }
 
