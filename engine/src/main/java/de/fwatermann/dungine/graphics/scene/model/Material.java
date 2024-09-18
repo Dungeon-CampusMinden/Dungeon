@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.scene.model;
 
 import de.fwatermann.dungine.graphics.mesh.Mesh;
 import de.fwatermann.dungine.graphics.texture.animation.Animation;
+import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import org.joml.Vector4f;
@@ -15,21 +16,28 @@ public class Material {
 
   public static final Vector4f DEFAULT_COLOR = new Vector4f(1.0f);
 
-  List<Mesh<?>> meshes = new ArrayList<>();
+  public final List<MeshEntry> meshes = new ArrayList<>();
 
-  boolean transparent = false;
+  public final Vector4f diffuseColor = new Vector4f(DEFAULT_COLOR);
+  public final Vector4f ambientColor = new Vector4f(DEFAULT_COLOR);
+  public final Vector4f specularColor = new Vector4f(DEFAULT_COLOR);
 
-  Vector4f diffuseColor = new Vector4f(DEFAULT_COLOR);
-  Vector4f ambientColor = new Vector4f(DEFAULT_COLOR);
-  Vector4f specularColor = new Vector4f(DEFAULT_COLOR);
+  @Nullable
+  public Animation diffuseTexture = null;
 
-  Animation diffuseTexture = null;
-  Animation ambientTexture = null;
-  Animation normalTexture = null;
-  Animation specularTexture = null;
+  @Nullable
+  public Animation ambientTexture = null;
 
-  float reflectance = 0.0f;
+  @Nullable
+  public Animation normalTexture = null;
 
-  int flags = 0;
+  @Nullable
+  public Animation specularTexture = null;
+
+  public boolean transparent = false;
+  public float reflectance = 0.0f;
+  public int flags = 0;
+
+  public record MeshEntry(Mesh<?> mesh, int offset, int count) {}
 
 }

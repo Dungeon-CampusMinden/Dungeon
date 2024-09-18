@@ -4,45 +4,29 @@ package de.fwatermann.dungine.graphics.scene.model;
 import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraFrustum;
-import de.fwatermann.dungine.graphics.shader.Shader;
+import de.fwatermann.dungine.graphics.scene.SceneRenderer;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.graphics.texture.animation.Animation;
-import de.fwatermann.dungine.resource.Resource;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.lwjgl.opengl.GL33;
 
 public class Model extends Renderable<Model> {
 
-  private static ShaderProgram DEFAULT_SHADER;
+  protected final List<Material> materials = new ArrayList<>();
+  protected ShaderProgram shader;
 
-  private final Resource resource;
-  private final List<Material> materials;
-  private ShaderProgram shader;
+  protected Model() {}
 
-  protected Model(Resource resource, List<Material> materials) {
-    this.resource = resource;
-    this.materials = materials;
-  }
-
-  private static void initShader() {
-    if(DEFAULT_SHADER != null) return;
-    try {
-      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/scene.vsh"), Shader.ShaderType.VERTEX_SHADER);
-      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/scene.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/scene.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
-      DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
-    } catch(IOException ex) {
-      throw new RuntimeException("Failed to load default shader!", ex);
-    }
+  protected Model(List<Material> materials) {
+    this.materials.addAll(materials);
   }
 
   @Override
   public void render(Camera<?> camera) {
     if(this.shader == null) {
-      initShader();
-      this.render(camera, DEFAULT_SHADER);
+      this.render(camera, SceneRenderer.defaultShader());
     } else {
       this.render(camera, this.shader);
     }
@@ -63,11 +47,7 @@ public class Model extends Renderable<Model> {
       shader.setUniform1i("uMaterial.normalTexture", 3);
       shader.setUniform1i("uMaterial.flags", material.flags);
 
-      if(material.transparent) {
-        GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
-      } else {
-        GL33.glBlendFunc(GL33.GL_ONE, GL33.GL_ZERO);
-      }
+      GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
       if(material.diffuseTexture != null) {
         material.diffuseTexture.bind(shader, Animation.AnimationSlot.ANIMATION_0, GL33.GL_TEXTURE0);
@@ -82,9 +62,13 @@ public class Model extends Renderable<Model> {
         material.normalTexture.bind(shader, Animation.AnimationSlot.ANIMATION_3, GL33.GL_TEXTURE6);
       }
 
-      material.meshes.forEach(mesh -> {
-        mesh.transformation(this.position(), this.rotation(), this.scaling());
-        mesh.render(camera, shader);
+      material.meshes.forEach(meshEntry -> {
+        meshEntry.mesh().transformation(this.position(), this.rotation(), this.scaling());
+        if(meshEntry.offset() == 0 && meshEntry.count() <= 0) {
+          meshEntry.mesh().render(camera, shader);
+        } else {
+          meshEntry.mesh().render(camera, shader, meshEntry.offset(), meshEntry.count());
+        }
       });
     }
 
@@ -101,4 +85,12 @@ public class Model extends Renderable<Model> {
     return this.materials.stream();
   }
 
+  public ShaderProgram shader() {
+    return this.shader;
+  }
+
+  public Model shader(ShaderProgram shader) {
+    this.shader = shader;
+    return this;
+  }
 }

@@ -79,9 +79,9 @@ public class ModelLoader {
       Mesh<?> mesh = loadMesh(aiMesh);
       int materialIndex = aiMesh.mMaterialIndex();
       if (materialIndex >= 0 && materialIndex < materials.size()) {
-        materials.get(materialIndex).meshes.add(mesh);
+        materials.get(materialIndex).meshes.add(new Material.MeshEntry(mesh, 0, 0));
       } else {
-        defaultMaterial.meshes.add(mesh);
+        defaultMaterial.meshes.add(new Material.MeshEntry(mesh, 0, 0));
       }
     }
     if (!defaultMaterial.meshes.isEmpty()) {
@@ -98,7 +98,7 @@ public class ModelLoader {
       return 0;
     });
 
-    Model model = new Model(resource, materials);
+    Model model = new Model(materials);
     modelCache.put(resource, model);
     return model;
   }
