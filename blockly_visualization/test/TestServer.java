@@ -381,4 +381,48 @@ public class TestServer {
     Server.processAction("int x = array_a.length;");
     Assert.assertEquals(5,  Server.variables.get("x").intVal);
   }
+
+  @Test
+  public void testVariableNotFoundError() {
+    Server.processAction("int z = 5 + x");
+    Assert.assertTrue(Server.errorOccured);
+    Assert.assertEquals("x is not a number or variable", Server.errorMsg);
+    Assert.assertNull(Server.variables.get("z"));
+    Server.clearGlobalValues();
+
+    Server.processAction("int z = x[10]");
+    Assert.assertTrue(Server.errorOccured);
+    Assert.assertEquals("Variable not found x", Server.errorMsg);
+    Assert.assertNull(Server.variables.get("z"));
+  }
+
+  @Test
+  public void testVariableIsArrayError() {
+    Server.processAction("int[] array_a = new int[5];");
+    Server.processAction("falls (array_a < 5)");
+    Assert.assertTrue(Server.errorOccured);
+    Assert.assertEquals("Variable array_a is not a base type variable", Server.errorMsg);
+    Server.clearGlobalValues();
+
+    Server.processAction("int[] array_a = new int[5];");
+    Server.processAction("int z = array_a + 5;");
+    Assert.assertTrue(Server.errorOccured);
+    Assert.assertEquals("Expected base variable. Got array for variable array_a", Server.errorMsg);
+  }
+
+  @Test
+  public void testIndexOutOfBoundsError() {
+    Server.processAction("int[] array_a = new int[5];");
+    Server.processAction("int z = array_a[10]");
+    Assert.assertTrue(Server.errorOccured);
+    Assert.assertEquals("Index 10 out of bounds for length 5", Server.errorMsg);
+  }
+
+  @Test
+  public void testVariableIsBaseError() {
+    Server.processAction("int x = 5;");
+    Server.processAction("int z = x[10]");
+    Assert.assertTrue(Server.errorOccured);
+    Assert.assertEquals("Expected array variable. Got base for variable x", Server.errorMsg);
+  }
 }

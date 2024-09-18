@@ -214,7 +214,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       throw new NoSuchElementException("Variable " + id + " could not be found");
     }
     if (!value.type.equals("base")) {
-      throw new NoSuchElementException("Variable " + id + "is not a base type variable");
+      throw new NoSuchElementException("Variable " + id + " is not a base type variable");
     }
     return new VarNode("var", id, value.intVal);
   }

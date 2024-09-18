@@ -99,8 +99,6 @@ public class Server {
     String errAction = null;
     for (String action : actions) {
       action = action.trim();
-      System.out.print("Current action: ");
-      System.out.println(action);
       processAction(action);
       if (interruptExecution) {
         errAction = action;
@@ -112,8 +110,6 @@ public class Server {
     String response;
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     if (interruptExecution) {
-      clearGlobalValues();
-      interruptExecution = false;
       System.out.println("Interruption performed");
       if (errorOccured) {
         String msg = "Anweisung: " + errAction + "\n";
@@ -124,6 +120,7 @@ public class Server {
         response = "Execution interrupted";
         exchange.sendResponseHeaders(205, response.getBytes().length);
       }
+      clearGlobalValues();
     } else {
       response = "OK";
       exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -150,7 +147,7 @@ public class Server {
             System.out.print("Repeating while loop");
             System.out.println(currentWhile);
             for (String whileAction : currentWhile.whileBody) {
-              System.out.println("Executing while action: " + whileAction);
+              System.out.println("[In while loop]");
               processAction(whileAction);
               if (interruptExecution) {
                 break;
@@ -170,7 +167,7 @@ public class Server {
             System.out.print("Repeating repeat loop");
             System.out.println(currentRepeat);
             for (String repeatAction : currentRepeat.repeatBody) {
-              System.out.println("Executing repeat action: " + repeatAction);
+              System.out.println("[In repeat loop]");
               processAction(repeatAction);
               if (interruptExecution) {
                 break;
@@ -184,6 +181,8 @@ public class Server {
   }
 
   public static void processAction(String action) {
+    System.out.print("Processing action: ");
+    System.out.println(action);
     // Make sure we close the right scope
     addActionToWhileBody(action);
     addActionToRepeatBody(action);
@@ -308,6 +307,9 @@ public class Server {
     active_func_defs.clear();
     variables.clear();
     functions.clear();
+    interruptExecution = false;
+    errorOccured = false;
+    errorMsg = "";
     System.out.println("Values cleared");
     printScopes();
   }
@@ -357,7 +359,12 @@ public class Server {
     }
     // Process usual values
     if (variables.get(value) == null) {
-      return Integer.parseInt(value);
+      try {
+        return Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        throw new NumberFormatException(value + " is not a number or variable");
+      }
+
     }
     // Process int variable access
     Variable var = variables.get(value);
@@ -401,7 +408,7 @@ public class Server {
       }
       System.out.println("Executing function" + funcName);
       for (String funcAction: calledFunc.funcBody) {
-        System.out.println("Executing func action: " + funcAction);
+        System.out.println("[In function " + funcName + "]");
         processAction(funcAction);
       }
     }
@@ -471,7 +478,7 @@ public class Server {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         variables.put(varName, new Variable(value));
         return true;
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
         setError(e.getMessage());
         return true;
@@ -488,7 +495,7 @@ public class Server {
         int value = getActualValueFromExpression(rightValue);
         variables.put(varNameRightValue, new Variable(value));
         return true;
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
         setError(e.getMessage());
         return true;
@@ -511,7 +518,7 @@ public class Server {
         Variable arrayVar = getArrayVariable(varName);
         arrayVar.arrayVal[index] = value;
         return true;
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
         setError(e.getMessage());
         return true;
@@ -530,7 +537,7 @@ public class Server {
         Variable arrayVar = getArrayVariable(varNameRightValue);
         arrayVar.arrayVal[indexRightValue] = value;
         return true;
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
         setError(e.getMessage());
         return true;
@@ -645,7 +652,7 @@ public class Server {
         int value = getActualValueFromExpression(repeatString);
         active_scopes.push("repeat");
         active_repeats.push(new RepeatStats(value));
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
       }
     }
