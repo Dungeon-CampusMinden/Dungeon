@@ -131,9 +131,8 @@ if (startBtn) {
       // Check if response was not ok
       if (!response.ok) {
         currentBlock = null;
-        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.");
         const text = await response.text();
-        console.log(text);
+        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
         continue;
       }
       // Status 205 means program was interrupted
@@ -203,9 +202,10 @@ if (stepBtn) {
       if (!response.ok) {
         currentBlock = startBlock;
         workspace.highlightBlock(null);
-        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.");
+
         const text = await response.text();
-        console.log(text);
+        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
+
         call_clear_route();
       }
       // Status 205 means program was interrupted

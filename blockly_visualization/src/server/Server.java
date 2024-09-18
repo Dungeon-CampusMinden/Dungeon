@@ -96,12 +96,14 @@ public class Server {
 
     String[] actions = text.split("\n");
 
+    String errAction = null;
     for (String action : actions) {
       action = action.trim();
       System.out.print("Current action: ");
       System.out.println(action);
       processAction(action);
       if (interruptExecution) {
+        errAction = action;
         break;
       }
 
@@ -114,7 +116,9 @@ public class Server {
       interruptExecution = false;
       System.out.println("Interruption performed");
       if (errorOccured) {
-        response = errorMsg;
+        String msg = "Anweisung: " + errAction + "\n";
+        msg += "Fehlermeldung: " + errorMsg;
+        response = msg;
         exchange.sendResponseHeaders(400, response.getBytes().length);
       } else {
         response = "Execution interrupted";
@@ -308,6 +312,12 @@ public class Server {
     printScopes();
   }
 
+  private static void setError(String errMsg) {
+    interruptExecution = true;
+    errorOccured = true;
+    errorMsg = errMsg;
+  }
+
   private static Variable getArrayVariable(String varName) throws IllegalAccessException {
     Variable array_var = variables.get(varName);
     // Throw exception if nothing found
@@ -461,8 +471,9 @@ public class Server {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         variables.put(varName, new Variable(value));
         return true;
-      } catch (IllegalAccessException | NoSuchElementException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
         System.out.println(e.getMessage());
+        setError(e.getMessage());
         return true;
       }
     }
@@ -477,8 +488,9 @@ public class Server {
         int value = getActualValueFromExpression(rightValue);
         variables.put(varNameRightValue, new Variable(value));
         return true;
-      } catch (IllegalAccessException | NoSuchElementException e) {
+      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
         System.out.println(e.getMessage());
+        setError(e.getMessage());
         return true;
       }
     }
@@ -501,6 +513,7 @@ public class Server {
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
         System.out.println(e.getMessage());
+        setError(e.getMessage());
         return true;
       }
     }
@@ -519,6 +532,7 @@ public class Server {
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException e) {
         System.out.println(e.getMessage());
+        setError(e.getMessage());
         return true;
       }
     }
@@ -667,13 +681,19 @@ public class Server {
 
       ParseTree tree = parser.start();
       blocklyConditionVisitor eval = new blocklyConditionVisitor();
-      StartNode ast = (StartNode) eval.visit(tree);
-
-      boolean result = ast.getBoolValue();
-      System.out.println("Result of current condition: " + result);
-      return result;
+      try {
+        StartNode ast = (StartNode) eval.visit(tree);
+        boolean result = ast.getBoolValue();
+        System.out.println("Result of current condition: " + result);
+        return result;
+      } catch (NoSuchElementException e) {
+        System.out.println(e.getMessage());
+        setError(e.getMessage());
+        return false;
+      }
     }
     System.out.println("Detected condition that is not valid: " + action);
+    setError("Detected condition that is not valid: " + action);
     return false;
   }
 
