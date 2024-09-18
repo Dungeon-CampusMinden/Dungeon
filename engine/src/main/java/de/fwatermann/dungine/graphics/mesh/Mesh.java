@@ -137,4 +137,7 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
   public void render(Camera<?> camera) {
     this.render(camera, this.shaderProgram);
   }
+
+  public abstract void render(Camera<?> camera, ShaderProgram shader, int offset, int count);
+
 }
