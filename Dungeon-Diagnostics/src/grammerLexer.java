@@ -1,4 +1,4 @@
-// Generated from C:/Users/bjarn/VS_Projects/Dungeon/Dungeon-Diagnostics/grammer.g4 by ANTLR 4.13.1
+// Generated from C:/Users/bjarn/VS_Projects/Dungeon/Dungeon-Diagnostics/DungeonDiagnostics.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -92,7 +92,7 @@ public class grammerLexer extends Lexer {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "grammer.g4"; }
+	public String getGrammarFileName() { return "DungeonDiagnostics.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

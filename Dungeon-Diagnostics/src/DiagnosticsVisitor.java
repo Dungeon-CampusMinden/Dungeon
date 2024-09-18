@@ -6,49 +6,64 @@ import java.util.Map;
 import java.util.Stack;
 
 public class DiagnosticsVisitor extends DungeonDiagnosticsBaseVisitor<Object> {
-//    SymbolTable symbolTable = new SymbolTable();
-//
-//    @Override
-//    public Void visitStmt_block(DungeonDiagnosticsParser.Stmt_blockContext ctx) {
-//        symbolTable.enterScope();
-//        super.visitStmt_block(ctx);
-//        symbolTable.exitScope();
-//        return null;
-//    }
-//
-//    @Override
-//    public Void visitVar_decl_assignment(DungeonDiagnosticsParser.Var_decl_assignmentContext ctx) {
-//        String varName = ctx.id.getText();
-//
-//        if (!symbolTable.variableExistsInCurrentScope(varName)) {
-//            System.out.println("Variable " + varName + " bereits im aktuellen Scope deklariert");
-//        }
-//        return null;
-//    }
-//
-//    @Override
-//    public Void visitVar_decl_type_decl(DungeonDiagnosticsParser.Var_decl_type_declContext ctx) {
-//        String varName = ctx.id.getText();
-//        String varType = ctx.type_decl().getText();
-//
-//        if (!symbolTable.declareVariable(varName, varType)) {
-//            System.out.println("Variable " + varName + " bereits im aktuellen Scope deklariert");
-//        }
-//        return null;
-//    }
-//
-//    @Override
-//    public Void visitAssignment(DungeonDiagnosticsParser.AssignmentContext ctx) {
-//        String varName = ctx.assignee().getText();
-//
-//        String declaredType = symbolTable.lookupVariable(varName);
-//        if (declaredType == null) {
-//            System.out.println("Variable " + varName + " wurde nicht deklariert");
-//        }
-//        return null;
-//    }
+    // Stack für Scopes: Jede Ebene enthält eine Map für Variablen und ihre Typen/Informationen
+    private Stack<Map<String, String>> scopeStack = new Stack<>();
 
+    // Aktuelle Scope-Tiefe
+    private int scopeLevel = 0;
 
+    public DiagnosticsVisitor() {
+        // Initialer globaler Scope
+        scopeStack.push(new HashMap<>());
+    }
+
+    // Prüfe eine Variablendeklaration
+    @Override
+    public Void visitVar_decl_assignment(DungeonDiagnosticsParser.Var_decl_assignmentContext ctx) {
+        String varName = ctx.id.getText();  // Variablenname
+        Map<String, String> currentScope = scopeStack.peek();  // Hole den aktuellen Scope
+
+        if (currentScope.containsKey(varName)) {
+            // Fehler: Variable wurde bereits im aktuellen Scope deklariert
+            System.out.println("Fehler: Variable '" + varName + "' wurde bereits deklariert in diesem Scope.");
+        } else {
+            // Deklariere die Variable im aktuellen Scope
+            currentScope.put(varName, "assigned");
+            System.out.println("Variable '" + varName + "' deklariert in Scope Level: " + scopeLevel);
+        }
+
+        return null;
+    }
+
+    @Override
+    public Void visitOtherCode(DungeonDiagnosticsParser.OtherCodeContext ctx) {
+        String text = ctx.getText();  // Hole den Text des Tokens
+
+        // Prüfe den Inhalt auf { oder }
+        for (char c : text.toCharArray()) {
+            if (c == '{') {
+                // Neuer Scope: Neue Map auf den Stack
+                scopeStack.push(new HashMap<>());
+                scopeLevel++;
+                System.out.println("Scope geöffnet. Aktuelle Tiefe: " + scopeLevel);
+            } else if (c == '}') {
+                // Scope wird geschlossen: Map entfernen
+                if (!scopeStack.isEmpty()) {
+                    scopeStack.pop();
+                    scopeLevel--;
+                } else {
+                    throw new RuntimeException("Fehler: Zu viele geschlossene Scopes!");
+                }
+                System.out.println("Scope geschlossen. Aktuelle Tiefe: " + scopeLevel);
+            }
+        }
+
+        return null;
+    }
+
+    public int getScopeLevel() {
+        return scopeLevel;
+    }
 
 
 //    // Hilfsmethode zum Hinzufügen eines Fehlers in die errors-Liste
