@@ -39,12 +39,12 @@ muss dann in den Ordner ``src_maps`` kopiert werden.
 ## Schritt 3: Level Datei generieren
 
 Um letztendlich die Level Datei zu generieren, welche vom Dungeon geladen werden
-kann, muss das Python-Skript ``build_level_file``.py ausgeführt werden. Die
+kann, muss das Python-Skript ``build_level_file.py`` ausgeführt werden. Die
 generierten Dateien sind in dem Ordner ``dist_maps`` zu finden. In dieser Datei
 kann in der ersten Zeile das Theme des Levels manuell nachgetragen werden. Wenn
 die erste Zeile leer ist, wird ein zufälliges Theme ausgewählt. Die verfügbaren
 Themes sind mit ihren Wahrscheinlichkeiten bei einer zufälligen Auswahl des
-Themes im folgenden aufgelistet:
+Themes im Folgenden aufgelistet:
 
 - DEFAULT (50% Chance)
 - FIRE (0% Chance, keine geschlossenen Türen vorhanden)
