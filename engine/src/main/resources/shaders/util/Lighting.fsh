@@ -76,7 +76,7 @@ vec4 calcSpotLight(Light light, Material material, vec3 worldPos, vec3 normal, v
 
   if (factor > light.cutOff)
   {
-    color = calcPointLight(light, material, normal, worldPos, texCoords, toCamera);
+    color = calcPointLight(light, material, worldPos, normal, texCoords, toCamera);
     color *= (1.0f - (1.0f - factor) / (1.0f - light.cutOff));
   }
   return color;
