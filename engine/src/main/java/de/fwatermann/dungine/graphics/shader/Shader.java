@@ -5,6 +5,8 @@ import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.utils.Disposable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +29,9 @@ public class Shader implements Disposable {
 
   private static final String versionRegex = "^\\h*(?<keyword>#version)\\h+.*$";
   private static final Pattern versionPattern = Pattern.compile(versionRegex, Pattern.MULTILINE);
+
+  private static final String compileErrorRegex = "^(?<file>[0-9]+)\\((?<line>[0-9]+)\\)(?<message>.*)$";
+  private static final Pattern compileErrorPattern = Pattern.compile(compileErrorRegex, Pattern.MULTILINE);
 
   /**
    * Enumeration of shader types supported by this class. Each shader type is associated with its
@@ -80,27 +85,35 @@ public class Shader implements Disposable {
    * @throws IOException If an I/O error occurs while reading the shader code from the resource.
    */
   public static Shader loadShader(Resource resource, ShaderType shaderType) throws IOException {
-    String sourceCode = loadSourceCode(resource);
+    String sourceCode = parseShaderSource(resource, new HashSet<>());
+    return new Shader(sourceCode, shaderType);
+  }
 
+  private static String parseShaderSource(Resource resource, Set<Resource> alreadyIncluded) throws IOException {
     // Parse the source code to add includes
+    String sourceCode = loadSourceCode(resource);
     Matcher matcher = includePattern.matcher(sourceCode);
     while (matcher.find()) {
       String includePath = matcher.group("path1");
       if (includePath == null) {
         includePath = matcher.group("path2");
       }
-      LOGGER.debug("Including: {} into {}", includePath, resource);
       Resource includeResource = resource.resolveRelative(includePath);
       if (includeResource == null) {
         throw new IOException("Failed to resolve include path: " + includePath);
       }
-      String includeSourceCode = loadSourceCode(includeResource);
+      if(alreadyIncluded.contains(includeResource)) {
+        sourceCode = sourceCode.replace(matcher.group(), "");
+        matcher = includePattern.matcher(sourceCode);
+        continue;
+      }
+      alreadyIncluded.add(includeResource);
+      String includeSourceCode = parseShaderSource(includeResource, alreadyIncluded);
       includeSourceCode = removeVersionDirective(includeSourceCode);
       sourceCode = sourceCode.replace(matcher.group(), includeSourceCode);
       matcher = includePattern.matcher(sourceCode);
     }
-
-    return new Shader(sourceCode, shaderType);
+    return sourceCode;
   }
 
   private static String removeVersionDirective(String sourceCode) {
@@ -147,8 +160,36 @@ public class Shader implements Disposable {
     GL33.glShaderSource(this.glHandle, this.sourceCode);
     GL33.glCompileShader(this.glHandle);
     if (GL33.glGetShaderi(this.glHandle, GL33.GL_COMPILE_STATUS) == GL33.GL_FALSE) {
-      throw new OpenGLException(
-          "Failed to compile shader: " + GL33.glGetShaderInfoLog(this.glHandle));
+      String errorLog = GL33.glGetShaderInfoLog(this.glHandle);
+
+      StringBuilder errorOutput = new StringBuilder();
+
+      Matcher matcher = compileErrorPattern.matcher(errorLog);
+      while (matcher.find()) {
+        int file = Integer.parseInt(matcher.group("file"));
+        int line = Integer.parseInt(matcher.group("line"));
+        String message = matcher.group("message");
+        String[] lines = this.sourceCode.split("\n");
+        errorOutput
+            .append(file)
+            .append(".")
+            .append(line)
+            .append(": ")
+            .append(message)
+            .append("\n");
+
+        for(int i = Math.max(0, line - 3); i < Math.min(lines.length, line + 3); i ++) {
+          String sourceCodeLine = lines[i];
+          if(i == line - 1) {
+            errorOutput.append(">> ");
+          } else {
+            errorOutput.append("   ");
+          }
+          errorOutput.append(i + 1).append(": ").append(sourceCodeLine).append("\n");
+        }
+      }
+      LOGGER.error(errorLog);
+      throw new OpenGLException("Failed to compile shader: \n" + errorOutput);
     }
   }
 

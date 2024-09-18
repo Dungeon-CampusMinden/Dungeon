@@ -13,6 +13,8 @@ public class ShaderProgramConfiguration {
 
   public String uniformCameraPerspectiveFarPlane = "uFar";
 
+  public String uniformCameraPosition = "uCameraPosition";
+
   /** Uniform name of the mat4 that contains the Model/Transform matrix. */
   public String uniformModelMatrix = "uModel";
 

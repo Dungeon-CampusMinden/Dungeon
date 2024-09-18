@@ -44,7 +44,7 @@ import org.lwjgl.opengl.GLUtil;
 
 public abstract class GameWindow implements Disposable {
 
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOGGER = LogManager.getLogger(GameWindow.class);
 
   @Nullable public static Thread MAIN_THREAD = null;
   @Nullable public static Thread UPDATE_THREAD = null;
@@ -255,9 +255,7 @@ public abstract class GameWindow implements Disposable {
         (this.clearColor & 0xFF) / 255.0f);
     GL33.glEnable(GL33.GL_DEPTH_TEST);
     GL33.glEnable(GL33.GL_BLEND);
-    // GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
-    GL33.glBlendFuncSeparate(
-        GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA, GL33.GL_ONE, GL33.GL_ZERO);
+    GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
     GL33.glEnable(GL33.GL_CULL_FACE);
 
     LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));

@@ -34,7 +34,7 @@ public class FileResource extends Resource {
   @Override
   @Nullable
   public Resource resolveRelative(String path) {
-    return load(this.path.resolve(path).toString(), 0x01);
+    return load(this.path.resolve(path).normalize().toString(), 0x01);
   }
 
   @Override

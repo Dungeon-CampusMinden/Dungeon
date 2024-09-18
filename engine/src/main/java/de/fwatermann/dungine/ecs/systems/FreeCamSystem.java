@@ -33,7 +33,6 @@ public class FreeCamSystem extends System<FreeCamSystem> {
   public void update(ECS ecs) {
     this.keyboard();
     this.mouse();
-    this.camera.update();
   }
 
   private void keyboard() {

@@ -2,10 +2,15 @@ package de.fwatermann.dungine.state;
 
 import de.fwatermann.dungine.audio.AudioContext;
 import de.fwatermann.dungine.ecs.ECS;
+import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
+import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.Grid3D;
+import de.fwatermann.dungine.graphics.SkyBox;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.camera.CameraPerspective;
+import de.fwatermann.dungine.graphics.camera.CameraViewport;
 import de.fwatermann.dungine.ui.UIRoot;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
@@ -13,17 +18,18 @@ import de.fwatermann.dungine.window.GameWindow;
 import org.lwjgl.opengl.GL33;
 
 /** Represents a state of the game. It extents the ECS class. */
-public abstract class GameState extends ECS implements Disposable {
+public abstract class GameState extends ECS implements Disposable, EventListener {
 
-  protected GameWindow window;
-  protected float lastFrameDeltaTime = 0.0f;
-  protected float lastTickDeltaTime = 0.0f;
   private Grid3D grid;
-  private Camera<?> gridCamera;
   private boolean renderGrid = false;
 
+  protected GameWindow window;
   protected UIRoot ui;
+  protected SkyBox skyBox;
+  protected Camera<?> camera;
   protected AudioContext audioContext;
+  protected float lastFrameDeltaTime = 0.0f;
+  protected float lastTickDeltaTime = 0.0f;
 
   /**
    * Create a new game state.
@@ -34,6 +40,11 @@ public abstract class GameState extends ECS implements Disposable {
     this.window = window;
     this.ui = new UIRoot(this.window, this.window.size().x, this.window.size().y);
     this.audioContext = new AudioContext();
+    this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0.0f, 0.0f));
+
+    this.window.runOnMainThread(() -> {
+      EventManager.getInstance().registerListener(this);
+    });
   }
 
   /**
@@ -70,12 +81,17 @@ public abstract class GameState extends ECS implements Disposable {
     GL33.glEnable(GL33.GL_BLEND);
     GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
+    this.camera.update();
+
+    if(this.skyBox != null)
+      this.skyBox.render(this.camera);
+
     this.executeSystems(this, true);
     this.renderState(deltaTime);
     if(this.renderGrid) {
       if(this.grid == null)
         this.grid = new Grid3D();
-      this.grid.render(this.gridCamera);
+      this.grid.render(this.camera);
     }
     this.ui.render();
   }
@@ -133,30 +149,29 @@ public abstract class GameState extends ECS implements Disposable {
     return this.window;
   }
 
-  public boolean renderGrid() {
+  public boolean grid() {
     return this.renderGrid;
   }
 
-  public GameState enableGrid(Camera<?> camera) {
-    this.renderGrid = true;
-    this.gridCamera = camera;
-    return this;
-  }
-
-  public GameState disableGrid() {
-    this.renderGrid = false;
-    return this;
+  public void grid(boolean renderGrid) {
+    this.renderGrid = renderGrid;
   }
 
   public final void dispose() {
-    if(this instanceof EventListener el) {
-      EventManager.getInstance().unregisterListener(el);
-    }
+    EventManager.getInstance().unregisterListener(this);
     this.disposeState();
     this.ui.dispose();
     this.audioContext.dispose();
   }
 
   public void disposeState() {};
+
+  @EventHandler
+  public void onWindowSize(WindowResizeEvent event) {
+    if(!event.isCanceled()) {
+      this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
+    }
+  }
+
 
 }

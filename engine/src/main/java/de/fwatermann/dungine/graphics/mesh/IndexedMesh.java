@@ -176,6 +176,7 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
     this.render(camera, shader, 0, this.indexCount());
   }
 
+  @Override
   public void render(Camera<?> camera, ShaderProgram shader, int offset, int count) {
     if (shader == null) return;
     if (this.vertices == null || this.indices == null) return;

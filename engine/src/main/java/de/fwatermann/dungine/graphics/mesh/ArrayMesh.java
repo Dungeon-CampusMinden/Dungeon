@@ -78,6 +78,7 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
     return true;
   }
 
+  @Override
   public void render(Camera<?> camera, ShaderProgram shader, int offset, int count) {
     if (shader == null) return;
     if (this.vertices == null) return;
