@@ -209,5 +209,13 @@ public class LoadStepper {
     }
   }
 
+  public int currentStep() {
+    return this.currentStep;
+  }
+
+  public int stepCount() {
+    return this.steps.size();
+  }
+
   private record Step(StepFunction.IWithResults<?> func, boolean mainThread) {}
 }
