@@ -22,6 +22,7 @@ public class Cuboid extends Model {
   private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
 
   private int color = 0xDDDDDDFF;
+  private Material material;
 
   /**
    * Constructs a new Cuboid with the specified position and color.
@@ -108,10 +109,14 @@ public class Cuboid extends Model {
   }
 
   protected void initMaterials() {
-    Material material = new Material();
-    material.diffuseColor.set(0.8f);
-    material.meshes.add(new Material.MeshEntry(MESH, 0, 0));
-    this.materials.add(material);
+    this.material = new Material();
+    this.material.diffuseColor.set(
+      ((this.color >> 24) & 0xFF) / 255.0f,
+      ((this.color >> 16) & 0xFF) / 255.0f,
+      ((this.color >> 8) & 0xFF) / 255.0f,
+      (this.color & 0xFF) / 255.0f);
+    this.material.meshes.add(new Material.MeshEntry(MESH, 0, 0));
+    this.materials.add(this.material);
   }
 
   @Override
@@ -135,6 +140,13 @@ public class Cuboid extends Model {
    */
   public void color(int rgba) {
     this.color = rgba;
+    if(this.material != null) {
+      this.material.diffuseColor.set(
+        ((this.color >> 24) & 0xFF) / 255.0f,
+        ((this.color >> 16) & 0xFF) / 255.0f,
+        ((this.color >> 8) & 0xFF) / 255.0f,
+        (this.color & 0xFF) / 255.0f);
+    }
   }
 
   /**
@@ -145,7 +157,7 @@ public class Cuboid extends Model {
    * @param a the alpha component of the color
    */
   public void color(int r, int g, int b, int a) {
-    this.color = (a << 24) | (r << 16) | (g << 8) | b;
+    this.color((a << 24) | (r << 16) | (g << 8) | b);
   }
 
   /**
