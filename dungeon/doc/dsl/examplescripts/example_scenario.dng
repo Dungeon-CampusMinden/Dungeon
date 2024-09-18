@@ -1,5 +1,5 @@
 // ----------------------------- AUFGABENDEFINITION ----------------------------
-single_choice_task my_task {
+single_choice_task my_task1 {
     description: "Bitte suchen Sie die eine richtige Ausage:",
     answers: [
     "Man kann auf den Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
@@ -12,9 +12,12 @@ graph dependencies {
     my_task;
 }
 
+
 dungeon_config config {
     dependency_graph: dependencies
 }
+
+
 // ----------------------------- AUFGABENDEFINITION ----------------------------
 
 // ---------------------------- ITEM TYP DEFINITION ----------------------------
@@ -37,6 +40,7 @@ entity_type chest_type {
     },
     task_content_component{}
 }
+
 
 
 entity_type knight_type {
@@ -64,11 +68,13 @@ fn ask_task_finished(entity knight, entity who) {
 }
 
 
+
 fn open_container(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
 
 // ------------------------ ENDE EVENT-HANDLER DEFINITION -----------------------
+
 
 
 // ------------------------- SZENARIO-BUILDER DEFINITION ------------------------

@@ -26,7 +26,7 @@ public class Main {
                 visitor.visit(tree);
                 List<ErrorInfo> errors = errorListener.getErrors();
                 //System.out.println(visitor.getErrors());
-                errors.addAll(visitor.getErrors());
+                //errors.addAll(visitor.getErrors());
 
                 if (!errors.isEmpty()) {
                     String json = generateErrorJson(errors);

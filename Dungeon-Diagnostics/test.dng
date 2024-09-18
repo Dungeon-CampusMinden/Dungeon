@@ -15,12 +15,14 @@ graph dependencies {
 dungeon_config config {
     dependency_graph: dependencies
 }
+
 // ----------------------------- AUFGABENDEFINITION ----------------------------
 
 // ---------------------------- ITEM TYP DEFINITION ----------------------------
 item_type scroll_type {
     texture_path: "items/book/wisdom_scroll.png"
 }
+
 // -------------------------- ENDE ITEM TYP DEFINITION -------------------------
 
 // --------------------------- ENTITÄTSTYP DEFINITION --------------------------
@@ -36,6 +38,7 @@ entity_type chest_type {
     },
     task_content_component{}
 }
+
 
 entity_type knight_type {
     draw_component {
@@ -61,9 +64,11 @@ fn ask_task_finished(entity knight, entity who) {
     }
 }
 
+
 fn open_container(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
+
 // ------------------------ ENDE EVENT-HANDLER DEFINITION -----------------------
 
 
