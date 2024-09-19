@@ -81,6 +81,7 @@ public class CoordinateAxis extends Renderable<CoordinateAxis> {
       GL33.glDisable(GL33.GL_DEPTH_TEST);
     }
     shader.bind();
+    GL33.glLineWidth(5.0f);
     this.mesh.transformation(this.position(), this.rotation(), this.scaling());
     this.mesh.render(camera, shader);
     shader.unbind();
