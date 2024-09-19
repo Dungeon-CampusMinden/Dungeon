@@ -1,7 +1,5 @@
 package de.fwatermann.dungine.graphics.camera;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -17,8 +15,6 @@ import org.joml.Vector3f;
 public abstract class Camera<T extends Camera<T>> {
 
   private static final Vector3f WORLD_UP = new Vector3f(0, 1, 0);
-
-  private static final Logger LOGGER = LogManager.getLogger(Camera.class);
 
   protected Matrix4f viewMatrix = new Matrix4f();
   protected Matrix4f projectionMatrix = new Matrix4f();
@@ -213,7 +209,6 @@ public abstract class Camera<T extends Camera<T>> {
     this.up.set(this.right).cross(this.front).normalize();
 
     this.updateMatrices(false);
-    LOGGER.debug("Front: {} Up: {} Right: {}", this.front, this.up, this.right);
     return (T) this;
   }
 
