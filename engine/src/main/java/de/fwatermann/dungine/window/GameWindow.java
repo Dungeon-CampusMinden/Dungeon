@@ -8,6 +8,7 @@ import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.event.input.MouseMoveEvent;
 import de.fwatermann.dungine.event.input.MouseScrollEvent;
+import de.fwatermann.dungine.event.window.FrameBufferResizeEvent;
 import de.fwatermann.dungine.event.window.WindowCloseEvent;
 import de.fwatermann.dungine.event.window.WindowFocusChangedEvent;
 import de.fwatermann.dungine.event.window.WindowMoveEvent;
@@ -151,6 +152,7 @@ public abstract class GameWindow implements Disposable {
         this.glfwWindow,
         (window, width, height) -> {
           GL33.glViewport(0, 0, width, height);
+          new FrameBufferResizeEvent(width, height).fire();
         });
 
     glfwSetWindowPosCallback(
