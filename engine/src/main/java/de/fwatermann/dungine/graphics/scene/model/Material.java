@@ -19,7 +19,7 @@ public class Material {
   public final List<MeshEntry> meshes = new ArrayList<>();
 
   public final Vector4f diffuseColor = new Vector4f(DEFAULT_COLOR);
-  public final Vector4f ambientColor = new Vector4f(DEFAULT_COLOR);
+  public final Vector4f ambientColor = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
   public final Vector4f specularColor = new Vector4f(DEFAULT_COLOR);
 
   @Nullable
