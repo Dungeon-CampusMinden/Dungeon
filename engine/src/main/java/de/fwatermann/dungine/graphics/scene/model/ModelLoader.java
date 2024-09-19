@@ -142,7 +142,7 @@ public class ModelLoader {
       aiFile.FileSizeProc().free();
     });
 
-    int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes;
+    int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_GenSmoothNormals;
 
     AIScene aiScene = aiImportFileEx(MODEL_ROOT_FILE_KEY, flags, fileIO);
     fileIO.OpenProc().free();
