@@ -84,23 +84,23 @@ public abstract class UILayouter {
       if (containerLayout.wrap() == FlexWrap.NO_WRAP) {
         for (UIElement<?> element : elements) {
           lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().y);
-          lines.getLast().mainSize += element.size().x;
+          lines.getLast().mainSizeNoGap += element.size().x;
           lines.getLast().elements.add(element);
         }
-        lines.getLast().mainSize += columnGap * (lines.getLast().elements.size() - 1);
+        lines.getLast().mainSize += lines.getLast().mainSizeNoGap + columnGap * (lines.getLast().elements.size() - 1);
         return lines;
       }
 
       for (UIElement<?> element : elements) {
         if (lines.getLast().mainSize + element.size().x > container.size().x) {
-          lines.getLast().mainSize -= columnGap; // Remove last column gap
+          lines.getLast().mainSize = lines.getLast().mainSizeNoGap + columnGap * (lines.getLast().elements.size() - 1);
           lines.add(new FlexLine());
         }
         lines.getLast().elements.add(element);
-        lines.getLast().mainSize += element.size().x + columnGap;
+        lines.getLast().mainSizeNoGap += element.size().x;
         lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().y);
       }
-      lines.getLast().mainSize -= columnGap; // Remove last column gap
+      lines.getLast().mainSize = lines.getLast().mainSizeNoGap + columnGap * (lines.getLast().elements.size() - 1);
 
     } else if (containerLayout.direction().isColumn()) {
       float rowGap = containerLayout.rowGap().toPixels(viewport, container.size().y);
@@ -108,23 +108,23 @@ public abstract class UILayouter {
       if (containerLayout.wrap() == FlexWrap.NO_WRAP) {
         for (UIElement<?> element : elements) {
           lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().x);
-          lines.getLast().mainSize += element.size().y;
+          lines.getLast().mainSizeNoGap += element.size().y;
           lines.getLast().elements.add(element);
         }
-        lines.getLast().mainSize += rowGap * (lines.getLast().elements.size() - 1);
+        lines.getLast().mainSize = lines.getLast().mainSizeNoGap + rowGap * (lines.getLast().elements.size() - 1);
         return lines;
       }
 
       for (UIElement<?> element : elements) {
         if (lines.getLast().mainSize + element.size().y > container.size().y) {
-          lines.getLast().mainSize -= rowGap;
+          lines.getLast().mainSize = lines.getLast().mainSizeNoGap + rowGap * (lines.getLast().elements.size() - 1);
           lines.add(new FlexLine());
         }
         lines.getLast().elements.add(element);
-        lines.getLast().mainSize += element.size().y + rowGap;
+        lines.getLast().mainSizeNoGap += element.size().y;
         lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().x);
       }
-      lines.getLast().mainSize -= rowGap;
+      lines.getLast().mainSize = lines.getLast().mainSizeNoGap + rowGap * (lines.getLast().elements.size() - 1);
     }
 
     if (containerLayout.wrap() == FlexWrap.WRAP_REVERSE) {
@@ -537,6 +537,7 @@ public abstract class UILayouter {
   private static class FlexLine {
 
     private float mainSize = 0.0f;
+    private float mainSizeNoGap = 0.0f;
     private float crossSize = 0.0f;
     private final List<UIElement<?>> elements = new ArrayList<>();
 
