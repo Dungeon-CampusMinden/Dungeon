@@ -39,7 +39,7 @@ public class UIContainer<T extends UIContainer<?>> extends UIElement<T> {
    * @param camera the camera to use for rendering
    */
   @Override
-  public void render(Camera<?> camera) {}
+  protected void render(Camera<?> camera) {}
 
   /**
    * Adds a UI element to this container.

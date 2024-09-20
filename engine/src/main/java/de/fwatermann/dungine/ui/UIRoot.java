@@ -65,9 +65,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 
     this.hover();
-    this.allChildElements(true).stream()
-        .sorted((a, b) -> Float.compare(b.position.z, a.position.z))
-        .forEach(e -> e.render(this.camera()));
+    List<UIElement<?>> elements = this.allChildElements(true);
+    elements.sort((a, b) -> Float.compare(b.position.z, a.position.z));
+    elements.forEach(e -> e.render(this.camera()));
 
     if (!depthEnabled) GL33.glDisable(GL33.GL_DEPTH_TEST);
     GL33.glDepthFunc(depthFunc);
@@ -199,7 +199,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
         .forEach(
             e -> {
               if (e instanceof UIContainer<?> c) {
-                if (includeContainers && Arrays.stream(componentFilter).allMatch(c::hasComponent)) {
+                if (includeContainers && (componentFilter.length == 0 || Arrays.stream(componentFilter).allMatch(c::hasComponent))) {
                   elements.add(e);
                 }
                 this.allChildElements(c, includeContainers, elements);
