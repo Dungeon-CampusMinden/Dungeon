@@ -25,14 +25,13 @@ public abstract class UILayouter {
     justifyContent(lines, container, viewport);
     alignContent(lines, container, viewport);
 
-    if(recurse) {
-        for (UIElement<?> element : elements) {
+    if (recurse) {
+      for (UIElement<?> element : elements) {
         if (element instanceof UIContainer<?> c) {
           layout(c, viewport, true);
         }
       }
     }
-
   }
 
   private static List<UIElement<?>> getElements(UIContainer<?> container) {
@@ -49,24 +48,32 @@ public abstract class UILayouter {
   }
 
   private static void sizeElements(UIContainer<?> container, Vector2i viewport) {
-    container.elements().forEach((element) -> {
-      UIElementLayout layout = element.layout();
+    container
+        .elements()
+        .forEach(
+            (element) -> {
+              UIElementLayout layout = element.layout();
 
-      Vector2f size = new Vector2f(Float.NaN, Float.NaN);
-      if (layout.width().type() != Unit.UnitType.AUTO) {
-        size.x = layout.width().toPixels(viewport, container.size().x);
-      }
-      if (layout.height().type() != Unit.UnitType.AUTO) {
-        size.y = layout.height().toPixels(viewport, container.size().y);
-      }
-      element.size().set(size.x, size.y, 0.0f);
-    });
+              Vector2f size = new Vector2f(0, 0);
+              if (layout.width().type() != Unit.UnitType.AUTO) {
+                size.x = layout.width().toPixels(viewport, container.size().x);
+
+              } else if(container.layout().direction().isRow()) {
+                layout.flexGrow(1);
+                layout.alignSelf(AlignSelf.STRETCH);
+              }
+              if (layout.height().type() != Unit.UnitType.AUTO) {
+                size.y = layout.height().toPixels(viewport, container.size().y);
+              } else if(container.layout().direction().isColumn()) {
+                layout.flexGrow(1);
+                layout.alignSelf(AlignSelf.STRETCH);
+              }
+              element.size().set(size.x, size.y, 0.0f);
+            });
   }
 
   private static List<FlexLine> lines(
-      List<UIElement<?>> elements,
-      UIContainer<?> container,
-      Vector2i viewport) {
+      List<UIElement<?>> elements, UIContainer<?> container, Vector2i viewport) {
     UIElementLayout containerLayout = container.layout();
     List<FlexLine> lines = new ArrayList<>();
     lines.add(new FlexLine());
@@ -109,9 +116,7 @@ public abstract class UILayouter {
   }
 
   private static void shrinkGrowElements(
-      List<UIElement<?>> elements,
-      Vector2i viewport,
-      UIContainer<?> container) {
+      List<UIElement<?>> elements, Vector2i viewport, UIContainer<?> container) {
 
     UIElementLayout containerLayout = container.layout();
     Vector3f containerSize = container.size();
@@ -167,8 +172,7 @@ public abstract class UILayouter {
     for (UIElement<?> element : elements) {
       UIElementLayout layout = element.layout();
       if (containerLayout.alignItems() == AlignItems.STRETCH
-          && (layout.alignSelf() == AlignSelf.AUTO
-              || layout.alignSelf() == AlignSelf.STRETCH)) {
+          && (layout.alignSelf() == AlignSelf.AUTO || layout.alignSelf() == AlignSelf.STRETCH)) {
         if (containerLayout.direction() == FlexDirection.ROW
             || containerLayout.direction() == FlexDirection.ROW_REVERSE) {
           element.size().y = maxCross;
@@ -181,9 +185,7 @@ public abstract class UILayouter {
   }
 
   private static void justifyContent(
-      List<FlexLine> lines,
-      UIContainer<?> container,
-      Vector2i viewport) {
+      List<FlexLine> lines, UIContainer<?> container, Vector2i viewport) {
 
     UIElementLayout containerLayout = container.layout();
     Vector3f containerSize = container.size();
@@ -204,7 +206,7 @@ public abstract class UILayouter {
           case FLEX_END -> {
             float currentX = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(containerSize.x - currentX, currentY, 0.0f);
+              element.position().set(containerSize.x - currentX - element.size().x, currentY, 0.0f);
               currentX += element.size().x + columnGap;
             }
           }
@@ -295,7 +297,8 @@ public abstract class UILayouter {
             }
           }
         }
-        currentX += line.crossSize + containerLayout.columnGap().toPixels(viewport, containerSize.x);
+        currentX +=
+            line.crossSize + containerLayout.columnGap().toPixels(viewport, containerSize.x);
       }
     }
   }
@@ -355,9 +358,7 @@ public abstract class UILayouter {
   }
 
   private static void alignContent(
-      List<FlexLine> lines,
-      UIContainer<?> container,
-      Vector2i viewport) {
+      List<FlexLine> lines, UIContainer<?> container, Vector2i viewport) {
 
     UIElementLayout containerLayout = container.layout();
     Vector3f containerSize = container.size();
