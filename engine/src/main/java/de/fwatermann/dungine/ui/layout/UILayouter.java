@@ -78,34 +78,53 @@ public abstract class UILayouter {
     List<FlexLine> lines = new ArrayList<>();
     lines.add(new FlexLine());
 
-    if (containerLayout.wrap() == FlexWrap.NO_WRAP) {
-      for (UIElement<?> element : elements) {
-        lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().y);
-        lines.getLast().elements.add(element);
-      }
-      return lines;
-    }
-
     if (containerLayout.direction().isRow()) {
       float columnGap = containerLayout.columnGap().toPixels(viewport, container.size().x);
+
+      if (containerLayout.wrap() == FlexWrap.NO_WRAP) {
+        for (UIElement<?> element : elements) {
+          lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().y);
+          lines.getLast().mainSize += element.size().x;
+          lines.getLast().elements.add(element);
+        }
+        lines.getLast().mainSize += columnGap * (lines.getLast().elements.size() - 1);
+        return lines;
+      }
+
       for (UIElement<?> element : elements) {
         if (lines.getLast().mainSize + element.size().x > container.size().x) {
+          lines.getLast().mainSize -= columnGap; // Remove last column gap
           lines.add(new FlexLine());
         }
         lines.getLast().elements.add(element);
         lines.getLast().mainSize += element.size().x + columnGap;
         lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().y);
       }
+      lines.getLast().mainSize -= columnGap; // Remove last column gap
+
     } else if (containerLayout.direction().isColumn()) {
       float rowGap = containerLayout.rowGap().toPixels(viewport, container.size().y);
+
+      if (containerLayout.wrap() == FlexWrap.NO_WRAP) {
+        for (UIElement<?> element : elements) {
+          lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().x);
+          lines.getLast().mainSize += element.size().y;
+          lines.getLast().elements.add(element);
+        }
+        lines.getLast().mainSize += rowGap * (lines.getLast().elements.size() - 1);
+        return lines;
+      }
+
       for (UIElement<?> element : elements) {
         if (lines.getLast().mainSize + element.size().y > container.size().y) {
+          lines.getLast().mainSize -= rowGap;
           lines.add(new FlexLine());
         }
         lines.getLast().elements.add(element);
         lines.getLast().mainSize += element.size().y + rowGap;
         lines.getLast().crossSize = Math.max(lines.getLast().crossSize, element.size().x);
       }
+      lines.getLast().mainSize -= rowGap;
     }
 
     if (containerLayout.wrap() == FlexWrap.WRAP_REVERSE) {
