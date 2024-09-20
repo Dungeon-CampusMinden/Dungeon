@@ -250,7 +250,7 @@ public abstract class UILayouter {
             }
           }
           case SPACE_BETWEEN -> {
-            float space = (containerSize.x - line.mainSize) / (line.elements.size() - 1);
+            float space = (containerSize.x - line.mainSizeNoGap) / (line.elements.size() - 1);
             float currentX = 0.0f;
             for (UIElement<?> element : line.elements) {
               element.position().set(currentX, currentY, 0.0f);
@@ -258,7 +258,7 @@ public abstract class UILayouter {
             }
           }
           case SPACE_AROUND -> {
-            float space = (containerSize.x - line.mainSize) / (line.elements.size() * 2);
+            float space = (containerSize.x - line.mainSizeNoGap) / (line.elements.size() * 2);
             float currentX = space;
             for (UIElement<?> element : line.elements) {
               element.position().set(currentX, currentY, 0.0f);
@@ -266,7 +266,7 @@ public abstract class UILayouter {
             }
           }
           case SPACE_EVENLY -> {
-            float space = (containerSize.x - line.mainSize) / (line.elements.size() + 1);
+            float space = (containerSize.x - line.mainSizeNoGap) / (line.elements.size() + 1);
             float currentX = space;
             for (UIElement<?> element : line.elements) {
               element.position().set(currentX, currentY, 0.0f);
@@ -305,7 +305,7 @@ public abstract class UILayouter {
             }
           }
           case SPACE_BETWEEN -> {
-            float space = (containerSize.y - line.mainSize) / (line.elements.size() - 1);
+            float space = (containerSize.y - line.mainSizeNoGap) / (line.elements.size() - 1);
             float currentY = 0.0f;
             for (UIElement<?> element : line.elements) {
               element.position().set(currentX, currentY, 0.0f);
@@ -313,7 +313,7 @@ public abstract class UILayouter {
             }
           }
           case SPACE_AROUND -> {
-            float space = (containerSize.y - line.mainSize) / (line.elements.size() * 2);
+            float space = (containerSize.y - line.mainSizeNoGap) / (line.elements.size() * 2);
             float currentY = space;
             for (UIElement<?> element : line.elements) {
               element.position().set(currentX, currentY, 0.0f);
@@ -321,7 +321,7 @@ public abstract class UILayouter {
             }
           }
           case SPACE_EVENLY -> {
-            float space = (containerSize.y / line.mainSize) / (line.elements.size() + 1);
+            float space = (containerSize.y / line.mainSizeNoGap) / (line.elements.size() + 1);
             float currentY = space;
             for (UIElement<?> element : line.elements) {
               element.position().set(currentX, currentY, 0.0f);
