@@ -22,7 +22,6 @@ public abstract class UIElement<T extends UIElement<?>> {
   protected Vector3f position = new Vector3f();
   protected Vector3f size = new Vector3f();
   protected Quaternionf rotation = new Quaternionf();
-  protected boolean initialized = false;
   protected List<UIComponent<?>> components = new ArrayList<>();
   protected UIElementLayout layout = new UIElementLayout();
 
