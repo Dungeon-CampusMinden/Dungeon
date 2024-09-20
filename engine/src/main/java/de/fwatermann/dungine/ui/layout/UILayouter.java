@@ -18,7 +18,7 @@ public abstract class UILayouter {
     List<FlexLine> lines = lines(elements, container, viewport);
 
     for (FlexLine line : lines) {
-      shrinkGrowElements(line.elements, viewport, container);
+      shrinkGrowElements(line, viewport, container);
       alignItemSelfStretch(line.elements, line.crossSize, container.layout());
     }
 
@@ -115,8 +115,9 @@ public abstract class UILayouter {
     return lines;
   }
 
-  private static void shrinkGrowElements(
-      List<UIElement<?>> elements, Vector2i viewport, UIContainer<?> container) {
+  private static void shrinkGrowElements(FlexLine line, Vector2i viewport, UIContainer<?> container) {
+
+    List<UIElement<?>> elements = line.elements;
 
     UIElementLayout containerLayout = container.layout();
     Vector3f containerSize = container.size();
@@ -132,11 +133,11 @@ public abstract class UILayouter {
       accSize.y += element.size().y;
     }
 
+    float rowGap = containerLayout.rowGap().toPixels(viewport, containerSize.y);
+    float columnGap = containerLayout.columnGap().toPixels(viewport, containerSize.x);
+
     float remainingSpaceX =
-        containerSize.x
-            - accSize.x
-            - containerLayout.columnGap().toPixels(viewport, containerSize.x)
-                * (elements.size() - 1);
+        containerSize.x - accSize.x - columnGap * (elements.size() - 1);
     float remainingSpaceY =
         containerSize.y
             - accSize.y
@@ -151,6 +152,12 @@ public abstract class UILayouter {
           element.size().x += (remainingSpaceX / sumFlexShrink) * layout.flexShrink();
         }
       }
+      if(remainingSpaceX != 0 && sumFlexGrow + sumFlexShrink != 0) {
+        //Recalculate row sizes
+        float elementSizes = line.elements.stream().map(e -> e.size().x).reduce(0.0f, Float::sum);
+        float gaps = columnGap * (line.elements.size() - 1);
+        line.mainSize = elementSizes + gaps;
+      }
     } else if (containerLayout.direction().isColumn()) {
       for (UIElement<?> element : elements) {
         UIElementLayout layout = element.layout();
@@ -159,6 +166,12 @@ public abstract class UILayouter {
         } else if (remainingSpaceY < 0 && layout.flexShrink() > 0) {
           element.size().y += (remainingSpaceY / sumFlexShrink) * layout.flexShrink();
         }
+      }
+      if(remainingSpaceY != 0 && sumFlexGrow + sumFlexShrink != 0) {
+        //Recalculate column sizes
+        float elementSizes = line.elements.stream().map(e -> e.size().y).reduce(0.0f, Float::sum);
+        float gaps = rowGap * (line.elements.size() - 1);
+        line.mainSize = elementSizes + gaps;
       }
     } else {
       throw new IllegalStateException(
