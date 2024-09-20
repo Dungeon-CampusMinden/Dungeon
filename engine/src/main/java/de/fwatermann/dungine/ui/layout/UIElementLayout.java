@@ -31,8 +31,13 @@ public class UIElementLayout {
   private AlignSelf alignSelf = DEFAULT_ALIGN_SELF;
 
   //Other
+  private Position position = Position.RELATIVE;
   private Unit width = Unit.auto();
   private Unit height = Unit.auto();
+  private Unit top = Unit.auto();
+  private Unit right = Unit.auto();
+  private Unit bottom = Unit.auto();
+  private Unit left = Unit.auto();
 
   public FlexDirection direction() {
     return this.direction;
@@ -139,6 +144,15 @@ public class UIElementLayout {
     return this;
   }
 
+  public Position position() {
+    return this.position;
+  }
+
+  public UIElementLayout position(Position position) {
+    this.position = position;
+    return this;
+  }
+
   public Unit width() {
     return this.width;
   }
@@ -154,6 +168,42 @@ public class UIElementLayout {
 
   public UIElementLayout height(Unit height) {
     this.height = height;
+    return this;
+  }
+
+  public Unit left() {
+    return this.left;
+  }
+
+  public UIElementLayout left(Unit left) {
+    this.left = left;
+    return this;
+  }
+
+  public Unit bottom() {
+    return this.bottom;
+  }
+
+  public UIElementLayout bottom(Unit bottom) {
+    this.bottom = bottom;
+    return this;
+  }
+
+  public Unit right() {
+    return this.right;
+  }
+
+  public UIElementLayout right(Unit right) {
+    this.right = right;
+    return this;
+  }
+
+  public Unit top() {
+    return this.top;
+  }
+
+  public UIElementLayout top(Unit top) {
+    this.top = top;
     return this;
   }
 }
