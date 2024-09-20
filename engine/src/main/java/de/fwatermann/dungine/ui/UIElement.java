@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.ui;
 
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.ui.layout.UIElementLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public abstract class UIElement<T extends UIElement<?>> {
   protected Quaternionf rotation = new Quaternionf();
   protected boolean initialized = false;
   protected List<UIComponent<?>> components = new ArrayList<>();
+  protected UIElementLayout layout = new UIElementLayout();
 
   /**
    * Renders the UI element using the specified camera.
@@ -179,6 +181,14 @@ public abstract class UIElement<T extends UIElement<?>> {
     return this.parent == null
         ? this.position
         : this.parent.absolutePosition().add(this.position, new Vector3f());
+  }
+
+  /**
+   * Get the layout object of this element.
+   * @return the layout object
+   */
+  public UIElementLayout layout() {
+    return this.layout;
   }
 
   /**

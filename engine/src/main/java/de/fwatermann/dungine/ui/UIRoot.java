@@ -5,7 +5,7 @@ import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.event.input.MouseScrollEvent;
-import de.fwatermann.dungine.event.window.WindowResizeEvent;
+import de.fwatermann.dungine.event.window.FrameBufferResizeEvent;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraOrthographic;
 import de.fwatermann.dungine.graphics.camera.CameraViewport;
@@ -13,6 +13,7 @@ import de.fwatermann.dungine.input.Mouse;
 import de.fwatermann.dungine.ui.components.UIComponentClickable;
 import de.fwatermann.dungine.ui.components.UIComponentHoverable;
 import de.fwatermann.dungine.ui.components.UIComponentScrollable;
+import de.fwatermann.dungine.ui.layout.UILayouter;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.window.GameWindow;
 import java.util.ArrayList;
@@ -29,18 +30,20 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   private UIElement<?> lastHovered = null;
 
   private Camera<?> uiCamera;
-  private GameWindow window;
+  private final GameWindow window;
   private boolean initialized = false;
 
   public UIRoot(GameWindow window, int pixelWidth, int pixelHeight) {
     this.window = window;
     this.uiCamera = new CameraOrthographic(new CameraViewport(pixelWidth, pixelHeight, 0, 0));
+    this.size.set(pixelWidth, pixelHeight, 0);
   }
 
   private void init() {
     if (this.initialized) return;
     EventManager.getInstance().registerListener(this);
     this.initialized = true;
+    UILayouter.layout(this, this.window.size(), true);
   }
 
   public void render() {
@@ -82,9 +85,10 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   @EventHandler
-  public void onResize(WindowResizeEvent event) {
-    this.uiCamera.updateViewport(event.to.x, event.to.y, 0, 0);
-    this.size().set(event.to.x, event.to.y, 0);
+  public void onResize(FrameBufferResizeEvent event) {
+    this.uiCamera.updateViewport(event.width(), event.height(), 0, 0);
+    this.size().set(event.width(), event.height(), 0);
+    UILayouter.layout(this, new Vector2i(event.width(), event.height()), true);
   }
 
   @EventHandler
