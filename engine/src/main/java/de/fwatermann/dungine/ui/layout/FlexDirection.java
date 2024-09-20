@@ -3,8 +3,8 @@ package de.fwatermann.dungine.ui.layout;
 public enum FlexDirection {
   ROW(0b00),
   ROW_REVERSE(0b10),
-  COLUMN(0b00),
-  COLUMN_REVERSE(0b10);
+  COLUMN(0b01),
+  COLUMN_REVERSE(0b11);
 
   private final int flags;
 
