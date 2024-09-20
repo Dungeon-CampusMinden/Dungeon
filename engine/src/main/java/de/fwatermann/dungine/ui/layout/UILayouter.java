@@ -9,28 +9,65 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
-public abstract class UILayouter {
+/**
+ * Class responsible for laying out UI elements within a container.
+ *
+ * <p>This class provides methods to layout, size, and align UI elements based on various flexbox
+ * properties such as direction, wrapping, justification, and alignment. It supports both row and
+ * column layouts and handles the positioning of fixed elements.
+ *
+ * <p>Usage example:
+ *
+ * <pre>{@code
+ * UIContainer<?> container = ...;
+ * Vector2i viewport = ...;
+ * UILayouter.layout(container, viewport, true);
+ * }</pre>
+ *
+ * @see UIContainer
+ * @see UIElement
+ * @see FlexDirection
+ * @see FlexWrap
+ * @see JustifyContent
+ * @see AlignItems
+ * @see AlignContent
+ */
+public class UILayouter {
 
+  private UILayouter() {}
+
+  /**
+   * Lays out UI elements within a container.
+   *
+   * @param container the container holding the UI elements.
+   * @param viewport the viewport dimensions.
+   * @param recurse whether to recursively layout child containers.
+   */
   public static void layout(UIContainer<?> container, Vector2i viewport, boolean recurse) {
+    // Get and sort elements based on their layout order
     List<UIElement<?>> elements = getElements(container);
+    // Size elements based on the container and viewport dimensions
     sizeElements(container, viewport);
 
+    // Create flex lines based on the elements and container layout
     List<FlexLine> lines = lines(elements, container, viewport);
 
+    // Adjust elements within each flex line
     for (FlexLine line : lines) {
       shrinkGrowElements(line, viewport, container);
       alignItemSelfStretch(line.elements, line.crossSize, container.layout());
     }
 
+    // Justify and align content within the container
     justifyContent(lines, container, viewport);
     alignContent(lines, container, viewport);
 
-    // Layout all position = FIXED elements
+    // Layout all elements with position = FIXED
     elements.stream()
         .filter(e -> e.layout().position() == Position.FIXED)
         .forEach(
             e -> {
-              // Position
+              // Position the element based on its layout properties
               Vector3f pos = new Vector3f(0.0f);
               if (e.layout().bottom().type() != Unit.UnitType.AUTO) {
                 pos.y = e.layout().bottom().toPixels(viewport, container.size().y);
@@ -44,7 +81,7 @@ public abstract class UILayouter {
               }
               e.position().set(pos);
 
-              // Size
+              // Size the element based on its layout properties
               Vector2f size = new Vector2f(0.0f);
               if (e.layout().width().type() != Unit.UnitType.AUTO) {
                 size.x = e.layout().width().toPixels(viewport, container.size().x);
@@ -59,6 +96,7 @@ public abstract class UILayouter {
               e.size().set(size.x, size.y, 0.0f);
             });
 
+    // Recursively layout child containers if specified
     if (recurse) {
       for (UIElement<?> element : elements) {
         if (element instanceof UIContainer<?> c) {
@@ -68,6 +106,12 @@ public abstract class UILayouter {
     }
   }
 
+  /**
+   * Retrieves and sorts the UI elements within a container based on their layout order.
+   *
+   * @param container the container holding the UI elements.
+   * @return a list of sorted UI elements.
+   */
   private static List<UIElement<?>> getElements(UIContainer<?> container) {
     List<UIElement<?>> elements = new ArrayList<>(container.elements().toList());
     elements.sort(
@@ -81,6 +125,13 @@ public abstract class UILayouter {
     return elements;
   }
 
+  /**
+   * Sizes the UI elements within a container based on their layout properties and the viewport
+   * dimensions.
+   *
+   * @param container the container holding the UI elements.
+   * @param viewport the viewport dimensions.
+   */
   private static void sizeElements(UIContainer<?> container, Vector2i viewport) {
     container
         .elements()
@@ -106,6 +157,14 @@ public abstract class UILayouter {
             });
   }
 
+  /**
+   * Creates flex lines based on the elements and container layout.
+   *
+   * @param elements the list of UI elements to be laid out.
+   * @param container the container holding the UI elements.
+   * @param viewport the viewport dimensions.
+   * @return a list of flex lines.
+   */
   private static List<FlexLine> lines(
       List<UIElement<?>> elements, UIContainer<?> container, Vector2i viewport) {
     UIElementLayout containerLayout = container.layout();
@@ -178,6 +237,14 @@ public abstract class UILayouter {
     return lines;
   }
 
+  /**
+   * Adjusts the size of UI elements within a flex line based on their flex grow and shrink
+   * properties.
+   *
+   * @param line the flex line containing the UI elements.
+   * @param viewport the viewport dimensions.
+   * @param container the container holding the UI elements.
+   */
   private static void shrinkGrowElements(
       FlexLine line, Vector2i viewport, UIContainer<?> container) {
 
@@ -243,6 +310,14 @@ public abstract class UILayouter {
     }
   }
 
+  /**
+   * Stretches the size of UI elements within a container based on the container's alignment
+   * settings.
+   *
+   * @param elements the list of UI elements to be stretched.
+   * @param maxCross the maximum cross size to stretch the elements to.
+   * @param containerLayout the layout properties of the container.
+   */
   private static void alignItemSelfStretch(
       List<UIElement<?>> elements, float maxCross, UIElementLayout containerLayout) {
     for (UIElement<?> element : elements) {
@@ -260,6 +335,14 @@ public abstract class UILayouter {
     }
   }
 
+  /**
+   * Justifies the content of UI elements within a container based on the container's layout
+   * settings.
+   *
+   * @param lines the list of flex lines containing the UI elements.
+   * @param container the container holding the UI elements.
+   * @param viewport the viewport dimensions.
+   */
   private static void justifyContent(
       List<FlexLine> lines, UIContainer<?> container, Vector2i viewport) {
 
@@ -379,6 +462,14 @@ public abstract class UILayouter {
     }
   }
 
+  /**
+   * Aligns the items within a flex line based on their alignment properties and the container's
+   * layout settings.
+   *
+   * @param line the flex line containing the UI elements.
+   * @param container the container holding the UI elements.
+   * @param linePos the position of the flex line.
+   */
   private static void alignItems(FlexLine line, UIContainer<?> container, Vector2f linePos) {
     UIElementLayout containerLayout = container.layout();
 
@@ -433,6 +524,13 @@ public abstract class UILayouter {
     }
   }
 
+  /**
+   * Aligns the content of UI elements within a container based on the container's layout settings.
+   *
+   * @param lines the list of flex lines containing the UI elements.
+   * @param container the container holding the UI elements.
+   * @param viewport the viewport dimensions.
+   */
   private static void alignContent(
       List<FlexLine> lines, UIContainer<?> container, Vector2i viewport) {
 
@@ -578,6 +676,9 @@ public abstract class UILayouter {
     }
   }
 
+  /**
+   * Represents a flex line containing UI elements.
+   */
   private static class FlexLine {
 
     private float mainSize = 0.0f;
