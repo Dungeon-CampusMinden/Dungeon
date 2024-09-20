@@ -4,7 +4,7 @@ import core.Component;
 import entities.BlocklyHUD;
 
 public final class BlocklyUIComponent implements Component {
-  private BlocklyHUD hud;
+  private final BlocklyHUD hud;
   public BlocklyUIComponent(BlocklyHUD hud) {
     this.hud = hud;
   }

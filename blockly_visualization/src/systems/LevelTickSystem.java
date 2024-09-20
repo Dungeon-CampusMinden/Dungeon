@@ -11,7 +11,7 @@ import level.ITickable;
  * interface.
  *
  * @see ITickable
- * @see level.DevDungeonLevel DevDungeonLevel
+ * @see level.BlocklyLevel BlocklyLevel
  */
 public class LevelTickSystem extends System {
 

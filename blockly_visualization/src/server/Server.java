@@ -467,7 +467,9 @@ public class Server {
 
   private static boolean checkAssign(String action) {
     // Check expression with operator
-    Pattern pattern = Pattern.compile("int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
+    Pattern pattern = Pattern.compile(
+      "int (\\w+) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)"
+    );
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
       String leftVal = matcher.group(2);
@@ -505,7 +507,9 @@ public class Server {
   }
 
   private static boolean checkArrayAssign(String action) {
-    Pattern pattern = Pattern.compile("((\\w+)\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
+    Pattern pattern = Pattern.compile(
+      "((\\w+)\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)"
+    );
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
       int index = Integer.parseInt(matcher.group(3));

@@ -1,12 +1,9 @@
 package level;
 
-import core.level.Tile;
-import core.level.TileLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import level.utils.ITickable;
 
 import java.util.List;
 
