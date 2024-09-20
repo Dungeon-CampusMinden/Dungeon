@@ -21,10 +21,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
+import entities.VariableHUD;
 import level.BlocklyLevel;
 import level.LevelParser;
 import level.MazeLevel;
 import server.Server;
+import systems.HudBlocklySystem;
 import systems.LevelTickSystem;
 
 /** This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't have any effect */
@@ -56,6 +58,7 @@ public class Client {
 
     // build and start game
     Game.run();
+
   }
 
   private static void onFrame(Debugger debugger) {
@@ -75,6 +78,9 @@ public class Client {
 
           TileLevel firstLevel = initLevels();
           Game.currentLevel(firstLevel);
+
+          VariableHUD hud = new VariableHUD(Game.stage());
+          Game.add(hud.createEntity());
         });
   }
 
@@ -160,6 +166,7 @@ public class Client {
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());
     Game.add(new HudSystem());
+    Game.add(new HudBlocklySystem());
   }
 
   private static void startServer() {
