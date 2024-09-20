@@ -258,6 +258,17 @@ public class UIText extends UIElement<UIText> {
     return this;
   }
 
+  public TextAlignment alignment() {
+    return this.alignment;
+  }
+
+  public UIText alignment(TextAlignment alignment) {
+    if(this.alignment == alignment) return this;
+    this.alignment = alignment;
+    this.update();
+    return this;
+  }
+
   /** Represents a render step for a specific texture page. */
   private record RenderStep(int pageGLHandle, int count, int offset) {}
 }

@@ -9,7 +9,7 @@ import de.fwatermann.dungine.graphics.mesh.VertexAttribute;
 import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
-import de.fwatermann.dungine.ui.UIElement;
+import de.fwatermann.dungine.ui.UIContainer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
@@ -18,7 +18,7 @@ import org.lwjgl.BufferUtils;
  * The ColorPane class represents a UI element that displays a colored pane. It extends the
  * UIElement class and provides methods to set the color and render the pane.
  */
-public class UIColorPane extends UIElement<UIColorPane> {
+public class UIColorPane extends UIContainer<UIColorPane> {
 
   private static ShaderProgram SHADER;
   private static ArrayMesh MESH;
