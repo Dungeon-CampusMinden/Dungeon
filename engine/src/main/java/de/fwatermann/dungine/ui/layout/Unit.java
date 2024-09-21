@@ -60,7 +60,7 @@ public class Unit {
    * @param value the pixel value of the unit.
    * @return a new Unit instance with pixel type.
    */
-  public static Unit pixel(int value) {
+  public static Unit pixel(float value) {
     return new Unit(value, UnitType.PIXEL);
   }
 
@@ -70,7 +70,7 @@ public class Unit {
    * @param value the pixel value of the unit.
    * @return a new Unit instance with pixel type.
    */
-  public static Unit px(int value) {
+  public static Unit px(float value) {
     return new Unit(value, UnitType.PIXEL);
   }
 
