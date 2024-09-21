@@ -2,19 +2,25 @@ package dungine.state.mainmenu;
 
 import de.fwatermann.dungine.audio.AudioBuffer;
 import de.fwatermann.dungine.audio.AudioSource;
+import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.graphics.SkyBox;
+import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.LoadStepper;
+import de.fwatermann.dungine.ui.UIContainer;
+import de.fwatermann.dungine.ui.components.UIComponentClickable;
 import de.fwatermann.dungine.ui.elements.UIButton;
-import de.fwatermann.dungine.ui.elements.UIColorPane;
 import de.fwatermann.dungine.ui.elements.UIImage;
+import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.ui.layout.AlignContent;
 import de.fwatermann.dungine.ui.layout.FlexDirection;
 import de.fwatermann.dungine.ui.layout.FlexWrap;
 import de.fwatermann.dungine.ui.layout.JustifyContent;
 import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
+import dungine.state.ingame.InGameState;
 import org.joml.Math;
 
 public class MainMenuState extends GameState {
@@ -52,77 +58,134 @@ public class MainMenuState extends GameState {
           this.audioSourceBackgroundMusic.gain(0.25f);
         });
 
-    this.stepper.step("skybox", true, () -> {
-      this.skyBox = new SkyBox(Resource.load("/images/skybox.png"));
-    });
+    this.stepper.step(
+        "skybox",
+        true,
+        () -> {
+          this.skyBox = new SkyBox(Resource.load("/images/skybox.png"));
+        });
 
     this.stepper.step(
         "buttons",
         true,
         () -> {
-          this.ui.layout()
-            .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
-            .justifyContent(JustifyContent.SPACE_EVENLY)
-            .alignContent(AlignContent.STRETCH);
+          this.ui
+              .layout()
+              .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
+              .justifyContent(JustifyContent.SPACE_EVENLY)
+              .alignContent(AlignContent.STRETCH);
 
-          UIColorPane topContainer = new UIColorPane(0xFF000080);
-          topContainer.layout()
-            .flow(FlexDirection.ROW, FlexWrap.WRAP)
-            .justifyContent(JustifyContent.CENTER)
-            .alignContent(AlignContent.CENTER)
-            .order(1)
-            .height(Unit.percent(30));
+          UIContainer<?> topContainer = new UIContainer<>();
+          topContainer
+              .layout()
+              .flow(FlexDirection.ROW, FlexWrap.WRAP)
+              .justifyContent(JustifyContent.CENTER)
+              .alignContent(AlignContent.CENTER)
+              .order(1)
+              .height(Unit.percent(30));
 
-          UIColorPane logoPlaceholder = new UIColorPane(0xFF800080);
-          logoPlaceholder.layout().width(Unit.percent(50)).height(Unit.percent(50));
+          UIContainer<?> bottomContainer = new UIContainer<>();
+          bottomContainer
+              .layout()
+              .order(0)
+              .flexGrow(1)
+              .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
+              .justifyContent(JustifyContent.SPACE_EVENLY)
+              .alignContent(AlignContent.CENTER)
+              .rowGap(Unit.px(20));
 
           this.logo = new UIImage(Resource.load("/images/logo.png"));
-          this.logo.layout().width(Unit.percent(50)).height(Unit.percent(50));
+          this.logo.layout().height(Unit.percent(100)).aspectRatio(Unit.px(1.0f));
           topContainer.add(this.logo);
-
-          UIColorPane bottomContainer = new UIColorPane(0x00FF0080);
-          bottomContainer.layout()
-            .order(0)
-            .flexGrow(1)
-            .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
-            .justifyContent(JustifyContent.SPACE_EVENLY)
-            .alignContent(AlignContent.CENTER)
-            .rowGap(Unit.px(20));
 
           this.buttonStart = new UIButton();
           this.buttonStart.fillColor(0x0000FF80).borderRadius(10);
-          this.buttonStart.layout().width(Unit.percent(50)).flexGrow(1).order(2);
+          this.buttonStart
+              .layout()
+              .width(Unit.percent(50))
+              .flexGrow(1)
+              .order(2)
+              .flow(FlexDirection.ROW, FlexWrap.WRAP)
+              .alignContent(AlignContent.CENTER);
           bottomContainer.add(this.buttonStart);
+
+          UIText buttonStartText =
+              new UIText(Font.defaultFont(), "Neues Spiel", 32, TextAlignment.CENTER);
+          buttonStartText.layout().flexGrow(1);
+          this.buttonStart.add(buttonStartText);
 
           this.buttonLoad = new UIButton();
           this.buttonLoad.fillColor(0x0000FF80).borderRadius(10);
-          this.buttonLoad.layout().width(Unit.percent(50)).flexGrow(1).order(1);
+          this.buttonLoad
+              .layout()
+              .width(Unit.percent(50))
+              .flexGrow(1)
+              .order(1)
+              .flow(FlexDirection.ROW, FlexWrap.WRAP)
+              .alignContent(AlignContent.CENTER);
           bottomContainer.add(this.buttonLoad);
 
-          UIColorPane optExitContainer = new UIColorPane(0xFF800080);
-          optExitContainer.layout()
-            .order(0)
-            .flexGrow(1)
-            .flow(FlexDirection.ROW, FlexWrap.WRAP)
-            .justifyContent(JustifyContent.SPACE_BETWEEN)
-            .alignContent(AlignContent.STRETCH)
+          UIText buttonLoadText =
+              new UIText(Font.defaultFont(), "Spiel laden", 32, TextAlignment.CENTER);
+          buttonLoadText.layout().flexGrow(1);
+          this.buttonLoad.add(buttonLoadText);
+
+          UIContainer<?> optExitContainer = new UIContainer<>();
+          optExitContainer
+              .layout()
+              .order(0)
+              .flexGrow(1)
+              .flow(FlexDirection.ROW, FlexWrap.WRAP)
+              .justifyContent(JustifyContent.SPACE_BETWEEN)
+              .alignContent(AlignContent.STRETCH)
               .columnGap(Unit.px(20));
           bottomContainer.add(optExitContainer);
 
           this.buttonOptions = new UIButton();
           this.buttonOptions.fillColor(0x0000FF80).borderRadius(10);
-          this.buttonOptions.layout().flexGrow(1);
+          this.buttonOptions
+              .layout()
+              .flexGrow(1)
+              .flow(FlexDirection.ROW, FlexWrap.WRAP)
+              .alignContent(AlignContent.CENTER);
           optExitContainer.add(this.buttonOptions);
+
+          UIText buttonOptionsText =
+              new UIText(Font.defaultFont(), "Optionen", 32, TextAlignment.CENTER);
+          buttonOptionsText.layout().flexGrow(1);
+          this.buttonOptions.add(buttonOptionsText);
 
           this.buttonExit = new UIButton();
           this.buttonExit.fillColor(0x0000FF80).borderRadius(10);
-          this.buttonExit.layout().flexGrow(1);
+          this.buttonExit
+              .layout()
+              .flexGrow(1)
+              .flow(FlexDirection.ROW, FlexWrap.WRAP)
+              .alignContent(AlignContent.CENTER);
           optExitContainer.add(this.buttonExit);
+
+          UIText buttonExitText =
+              new UIText(Font.defaultFont(), "Beenden", 32, TextAlignment.CENTER);
+          buttonExitText.layout().flexGrow(1);
+          this.buttonExit.add(buttonExitText);
 
           this.ui.add(topContainer);
           this.ui.add(bottomContainer);
 
-
+          this.buttonStart.attachComponent(
+              new UIComponentClickable(
+                  (element, button, action) -> {
+                    if (button == 0 && action == MouseButtonEvent.MouseButtonAction.PRESS) {
+                      this.window.setState(new InGameState(this.window));
+                    }
+                  }));
+          this.buttonExit.attachComponent(
+              new UIComponentClickable(
+                  (element, button, action) -> {
+                    if (button == 0 && action == MouseButtonEvent.MouseButtonAction.PRESS) {
+                      this.window.close();
+                    }
+                  }));
         });
 
     this.stepper.step(
@@ -138,7 +201,7 @@ public class MainMenuState extends GameState {
     this.stepper.done(
         true,
         (results) -> {
-          //this.audioSourceBackgroundMusic.play();
+          // this.audioSourceBackgroundMusic.play();
           this.loaded = true;
         });
 
