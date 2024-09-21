@@ -1,14 +1,12 @@
 package dungine.state.ingame;
 
 import de.fwatermann.dungine.ecs.Entity;
-import de.fwatermann.dungine.ecs.components.LightComponent;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
 import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.input.MouseScrollEvent;
 import de.fwatermann.dungine.graphics.SkyBox;
-import de.fwatermann.dungine.graphics.scene.light.DirectionalLight;
 import de.fwatermann.dungine.graphics.scene.light.SpotLight;
 import de.fwatermann.dungine.graphics.scene.model.ModelLoader;
 import de.fwatermann.dungine.graphics.text.Font;
@@ -78,24 +76,7 @@ public class InGameState extends GameState {
     this.player.position().set(0, 2, 0);
 
     this.addEntity(this.player);
-
     this.grid(true);
-
-    Entity mapEntity = new Entity();
-    LightComponent lc = new LightComponent(this.spotLight);
-    LightComponent lc2 =
-        new LightComponent(
-            new DirectionalLight(
-                new Vector3f(1.0f, -1.0f, -1.0f).normalize(),
-                new Vector3f(1.0f),
-                0.5f));
-    mapEntity.addComponent(new RenderableComponent(ModelLoader.loadModel(Resource.load("/models/earth.glb"))));
-    mapEntity.addComponent(lc);
-    mapEntity.addComponent(lc2);
-    mapEntity.size().set(100, 100, 100);
-    mapEntity.position().set(0, -100, 0);
-    this.addEntity(mapEntity);
-
   }
 
   @Override
