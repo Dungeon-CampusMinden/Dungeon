@@ -2,21 +2,19 @@ package dungine.state.mainmenu;
 
 import de.fwatermann.dungine.audio.AudioBuffer;
 import de.fwatermann.dungine.audio.AudioSource;
-import de.fwatermann.dungine.event.EventHandler;
-import de.fwatermann.dungine.event.window.WindowResizeEvent;
 import de.fwatermann.dungine.graphics.SkyBox;
-import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.state.LoadStepper;
-import de.fwatermann.dungine.ui.UIElement;
-import de.fwatermann.dungine.ui.components.UIComponentClickable;
 import de.fwatermann.dungine.ui.elements.UIButton;
+import de.fwatermann.dungine.ui.elements.UIColorPane;
 import de.fwatermann.dungine.ui.elements.UIImage;
-import de.fwatermann.dungine.ui.elements.UIText;
-import de.fwatermann.dungine.utils.BoundingBox2D;
+import de.fwatermann.dungine.ui.layout.AlignContent;
+import de.fwatermann.dungine.ui.layout.FlexDirection;
+import de.fwatermann.dungine.ui.layout.FlexWrap;
+import de.fwatermann.dungine.ui.layout.JustifyContent;
+import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
-import dungine.state.ingame.InGameState;
 import org.joml.Math;
 
 public class MainMenuState extends GameState {
@@ -28,12 +26,7 @@ public class MainMenuState extends GameState {
   private LoadStepper stepper;
   private AudioSource audioSourceBackgroundMusic;
 
-  private UIButton buttonStart;
-  private UIText buttonStartText;
-
-  private UIButton buttonEnd;
-  private UIText buttonEndText;
-
+  private UIButton buttonStart, buttonLoad, buttonOptions, buttonExit;
   private UIImage logo;
 
   private boolean loaded = false;
@@ -67,34 +60,69 @@ public class MainMenuState extends GameState {
         "buttons",
         true,
         () -> {
-          this.buttonStart = new UIButton();
-          this.buttonEnd = new UIButton();
+          this.ui.layout()
+            .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
+            .justifyContent(JustifyContent.SPACE_EVENLY)
+            .alignContent(AlignContent.STRETCH);
+
+          UIColorPane topContainer = new UIColorPane(0xFF000080);
+          topContainer.layout()
+            .flow(FlexDirection.ROW, FlexWrap.WRAP)
+            .justifyContent(JustifyContent.CENTER)
+            .alignContent(AlignContent.CENTER)
+            .order(1)
+            .height(Unit.percent(30));
+
+          UIColorPane logoPlaceholder = new UIColorPane(0xFF800080);
+          logoPlaceholder.layout().width(Unit.percent(50)).height(Unit.percent(50));
+
           this.logo = new UIImage(Resource.load("/images/logo.png"));
+          this.logo.layout().width(Unit.percent(50)).height(Unit.percent(50));
+          topContainer.add(this.logo);
 
-          this.buttonStart.attachComponent(
-              new UIComponentClickable(
-                  (UIElement<?> clicked) -> {
-                    this.window.setState(new InGameState(this.window));
-                  }));
+          UIColorPane bottomContainer = new UIColorPane(0x00FF0080);
+          bottomContainer.layout()
+            .order(0)
+            .flexGrow(1)
+            .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
+            .justifyContent(JustifyContent.SPACE_EVENLY)
+            .alignContent(AlignContent.CENTER)
+            .rowGap(Unit.px(20));
 
-          this.buttonEnd.attachComponent(new UIComponentClickable((UIElement<?> clicked) -> {
-            this.window.close();
-          }));
+          this.buttonStart = new UIButton();
+          this.buttonStart.fillColor(0x0000FF80).borderRadius(10);
+          this.buttonStart.layout().width(Unit.percent(50)).flexGrow(1).order(2);
+          bottomContainer.add(this.buttonStart);
 
-          this.buttonStart.fillColor(0x37804aFF).borderRadius(10).borderWidth(5.0f).borderColor(0x1e4729FF);
-          this.buttonEnd.fillColor(0x4a0404FF).borderRadius(10).borderWidth(5.0f).borderColor(0x290202FF);
+          this.buttonLoad = new UIButton();
+          this.buttonLoad.fillColor(0x0000FF80).borderRadius(10);
+          this.buttonLoad.layout().width(Unit.percent(50)).flexGrow(1).order(1);
+          bottomContainer.add(this.buttonLoad);
 
-          this.buttonStartText = new UIText(Font.defaultFont(), "Start", 32);
-          this.buttonStart.add(this.buttonStartText);
+          UIColorPane optExitContainer = new UIColorPane(0xFF800080);
+          optExitContainer.layout()
+            .order(0)
+            .flexGrow(1)
+            .flow(FlexDirection.ROW, FlexWrap.WRAP)
+            .justifyContent(JustifyContent.SPACE_BETWEEN)
+            .alignContent(AlignContent.STRETCH)
+              .columnGap(Unit.px(20));
+          bottomContainer.add(optExitContainer);
 
-          this.buttonEndText = new UIText(Font.defaultFont(), "Beenden", 32);
-          this.buttonEnd.add(this.buttonEndText);
+          this.buttonOptions = new UIButton();
+          this.buttonOptions.fillColor(0x0000FF80).borderRadius(10);
+          this.buttonOptions.layout().flexGrow(1);
+          optExitContainer.add(this.buttonOptions);
 
-          this.ui.add(this.buttonStart);
-          this.ui.add(this.buttonEnd);
-          this.ui.add(this.logo);
+          this.buttonExit = new UIButton();
+          this.buttonExit.fillColor(0x0000FF80).borderRadius(10);
+          this.buttonExit.layout().flexGrow(1);
+          optExitContainer.add(this.buttonExit);
 
-          this.layout(this.window.size().x, this.window.size().y);
+          this.ui.add(topContainer);
+          this.ui.add(bottomContainer);
+
+
         });
 
     this.stepper.step(
@@ -110,39 +138,11 @@ public class MainMenuState extends GameState {
     this.stepper.done(
         true,
         (results) -> {
-          this.audioSourceBackgroundMusic.play();
+          //this.audioSourceBackgroundMusic.play();
           this.loaded = true;
         });
 
     this.stepper.start();
-  }
-
-  private void layout(int width, int height) {
-    //TODO: Mach schön!
-
-    this.buttonStart.size().set(width / 3.0f, 100, 0);
-    this.buttonStart.position().set(width / 2.0f - this.buttonStart.size().x / 2.0f, height / 2.0f - 100, 0);
-
-    this.buttonEnd.size().set(width / 3.0f, 100, 0);
-    this.buttonEnd.position().set(width / 2.0f - this.buttonEnd.size().x / 2.0f, height / 2.0f - 250, 0);
-
-    this.logo.size().set(width / 6.0f, width / 6.0f, 0);
-    this.logo.position().set(width / 2.0f - this.logo.size().x / 2.0f, height / 2.0f, 0);
-
-    BoundingBox2D startTextBB = this.buttonStartText.font().calculateBoundingBox(this.buttonStartText.text(), 32, Math.round(this.buttonStart.size().x));
-    this.buttonStartText.size().set(startTextBB.width(), startTextBB.height(), 0);
-    this.buttonStartText.position().set(this.buttonStart.size().x / 2 - startTextBB.width() / 2.0f, this.buttonStart.size().y / 2 - startTextBB.height() / 2.0f, 1);
-
-    BoundingBox2D endTextBB = this.buttonEndText.font().calculateBoundingBox(this.buttonEndText.text(), 32, Math.round(this.buttonEnd.size().x));
-    this.buttonEndText.size().set(endTextBB.width(), endTextBB.height(), 0);
-    this.buttonEndText.position().set(this.buttonEnd.size().x / 2 - endTextBB.width() / 2.0f, this.buttonEnd.size().y / 2 - endTextBB.height() / 2.0f, 1);
-  }
-
-  @EventHandler
-  public void onResize(WindowResizeEvent event) {
-    if (!event.isCanceled()) {
-      this.layout(event.to.x, event.to.y);
-    }
   }
 
   @Override
