@@ -62,7 +62,7 @@ public class StartupTransition extends GameStateTransition implements EventListe
   }
 
   @Override
-  public void dispose() {
+  public void cleanup() {
     EventManager.getInstance().unregisterListener(this);
     this.ui.dispose();
   }
