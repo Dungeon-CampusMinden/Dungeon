@@ -64,7 +64,7 @@ application {
 jar {
     manifest {
         attributes(
-            'Main-Class': 'de.fwatermann.engine.Engine'
+            'Main-Class': 'de.fwatermann.dungine.Dungine'
         )
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
