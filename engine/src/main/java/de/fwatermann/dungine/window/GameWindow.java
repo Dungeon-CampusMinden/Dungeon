@@ -3,7 +3,6 @@ package de.fwatermann.dungine.window;
 import static de.fwatermann.dungine.utils.ThreadUtils.checkMainThread;
 import static org.lwjgl.glfw.GLFW.*;
 
-import de.fwatermann.dungine.Dungine;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.event.input.MouseMoveEvent;
@@ -90,7 +89,7 @@ public abstract class GameWindow implements Disposable {
     this.visible = visible;
     this.debug = debug;
 
-    Dungine.WINDOWS.add(this);
+    CURRENT_GAME = this;
     LOGGER.info("Initialized GameWindow: {}", title);
   }
 
@@ -306,6 +305,7 @@ public abstract class GameWindow implements Disposable {
       UPDATE_THREAD.start();
 
       long lastTime = System.nanoTime();
+      boolean wasDone = false;
       while (!this.shouldClose) {
         long currentTime = System.nanoTime();
         float deltaTime = (currentTime - lastTime) / 1_000_000_000f;
@@ -315,11 +315,18 @@ public abstract class GameWindow implements Disposable {
         long start = System.nanoTime();
 
         if (this.currentState != null && this.currentState.loaded()) {
+          if(!wasDone && this.transition != null) {
+            this.transition.cleanup();
+          }
+          wasDone = true;
           GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
           this.currentState.render(deltaTime);
         } else if (this.transition != null) {
+          wasDone = false;
           GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT);
           this.transition.render(deltaTime, this.currentState);
+        } else {
+          wasDone = false;
         }
 
         glfwSwapBuffers(this.glfwWindow);
@@ -709,6 +716,9 @@ public abstract class GameWindow implements Disposable {
           if (this.currentState != null) {
             this.currentState.dispose();
           }
+          if(this.transition != null) {
+            this.transition.init();
+          }
           this.currentState = state;
           if (this.currentState != null) {
             this.currentState.init();
@@ -720,7 +730,7 @@ public abstract class GameWindow implements Disposable {
     this.runOnMainThread(
         () -> {
           if (this.transition != null) {
-            this.transition.dispose();
+            this.transition.cleanup();
           }
           this.transition = transition;
           if (this.transition != null) {
@@ -759,7 +769,6 @@ public abstract class GameWindow implements Disposable {
 
   @Override
   public void dispose() {
-    Dungine.WINDOWS.remove(this);
     this.close();
   }
 
