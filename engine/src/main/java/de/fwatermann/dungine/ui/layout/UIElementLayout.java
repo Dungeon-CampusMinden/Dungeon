@@ -38,6 +38,9 @@ public class UIElementLayout {
   /** Default positioning of items within a container. */
   public static final Position DEFAULT_POSITION = Position.RELATIVE;
 
+  /** Default aspect ratio of the item. */
+  public static final Unit DEFAULT_ASPECT_RATIO = Unit.auto();
+
   /** Default width of the item. */
   public static final Unit DEFAULT_WIDTH = Unit.auto();
 
@@ -73,6 +76,7 @@ public class UIElementLayout {
 
   // Other
   private Position position = DEFAULT_POSITION;
+  private Unit aspectRatio = DEFAULT_ASPECT_RATIO;
   private Unit width = DEFAULT_WIDTH;
   private Unit height = DEFAULT_HEIGHT;
   private Unit top = DEFAULT_TOP;
@@ -330,6 +334,26 @@ public class UIElementLayout {
    */
   public UIElementLayout position(Position position) {
     this.position = position;
+    return this;
+  }
+
+  /**
+   * Gets the aspect ratio of the item.
+   *
+   * @return the aspect ratio of the item.
+   */
+  public Unit aspectRatio() {
+    return this.aspectRatio;
+  }
+
+  /**
+   * Sets the aspect ratio of the item.
+   *
+   * @param aspectRatio the aspect ratio to set.
+   * @return the updated UIElementLayout instance.
+   */
+  public UIElementLayout aspectRatio(Unit aspectRatio) {
+    this.aspectRatio = aspectRatio;
     return this;
   }
 
