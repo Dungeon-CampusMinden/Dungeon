@@ -6,6 +6,7 @@ import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
+import de.fwatermann.dungine.window.GameWindow;
 import java.util.HashSet;
 import java.util.Set;
 import org.joml.Vector2i;
@@ -16,7 +17,9 @@ import org.joml.Vector2i;
 public class Mouse implements EventListener {
 
   static {
-    EventManager.getInstance().registerStaticListener(Mouse.class);
+    GameWindow.CURRENT_GAME.runOnMainThread(() -> {
+      EventManager.getInstance().registerStaticListener(Mouse.class);
+    });
   }
 
   private static final Set<Integer> justPressedCheck = new HashSet<>();

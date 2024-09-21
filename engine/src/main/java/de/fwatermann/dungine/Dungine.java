@@ -1,12 +1,11 @@
 package de.fwatermann.dungine;
 
-import de.fwatermann.dungine.window.GameWindow;
 
-import java.util.HashSet;
-import java.util.Set;
 
 public class Dungine {
 
-  public static Set<GameWindow> WINDOWS = new HashSet<>();
+  public static void main(String[] args) {
+    System.out.println("This is the DUNGINE! It is not made for direct execution. Use this jar as library to create your own games.");
+  }
 
 }
