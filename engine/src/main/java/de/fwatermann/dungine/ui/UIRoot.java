@@ -138,7 +138,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   private float isOver(UIElement<?> element, Vector3f origin, Vector3f direction) {
-    Vector3f min = element.position();
+    Vector3f min = new Vector3f(element.position());
     Vector3f max = element.position().add(element.size(), new Vector3f());
     if (Math.abs(max.z - min.z) == 0) {
       max.z = 0.001f;
