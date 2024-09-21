@@ -181,7 +181,7 @@ public class UILayouter {
           lines.getLast().mainSizeNoGap += element.size().x;
           lines.getLast().elements.add(element);
         }
-        lines.getLast().mainSize +=
+        lines.getLast().mainSize =
             lines.getLast().mainSizeNoGap + columnGap * (lines.getLast().elements.size() - 1);
         return lines;
       }
@@ -268,10 +268,7 @@ public class UILayouter {
     float columnGap = containerLayout.columnGap().toPixels(viewport, containerSize.x);
 
     float remainingSpaceX = containerSize.x - accSize.x - columnGap * (elements.size() - 1);
-    float remainingSpaceY =
-        containerSize.y
-            - accSize.y
-            - containerLayout.rowGap().toPixels(viewport, containerSize.y) * (elements.size() - 1);
+    float remainingSpaceY = containerSize.y - accSize.y - rowGap * (elements.size() - 1);
 
     if (containerLayout.direction().isRow()) {
       for (UIElement<?> element : elements) {
@@ -286,6 +283,7 @@ public class UILayouter {
         // Recalculate row sizes
         float elementSizes = line.elements.stream().map(e -> e.size().x).reduce(0.0f, Float::sum);
         float gaps = columnGap * (line.elements.size() - 1);
+        line.mainSizeNoGap = elementSizes;
         line.mainSize = elementSizes + gaps;
       }
     } else if (containerLayout.direction().isColumn()) {
@@ -301,6 +299,7 @@ public class UILayouter {
         // Recalculate column sizes
         float elementSizes = line.elements.stream().map(e -> e.size().y).reduce(0.0f, Float::sum);
         float gaps = rowGap * (line.elements.size() - 1);
+        line.mainSizeNoGap = elementSizes;
         line.mainSize = elementSizes + gaps;
       }
     } else {
@@ -358,21 +357,21 @@ public class UILayouter {
           case FLEX_START -> {
             float currentX = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentX += element.size().x + columnGap;
             }
           }
           case FLEX_END -> {
             float currentX = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(containerSize.x - currentX - element.size().x, currentY, 0.0f);
+              element.position().set(containerSize.x - currentX - element.size().x, currentY, element.position().z);
               currentX += element.size().x + columnGap;
             }
           }
           case CENTER -> {
             float currentX = containerSize.x / 2 - line.mainSize / 2;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentX += element.size().x + columnGap;
             }
           }
@@ -380,7 +379,7 @@ public class UILayouter {
             float space = (containerSize.x - line.mainSizeNoGap) / (line.elements.size() - 1);
             float currentX = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentX += element.size().x + space;
             }
           }
@@ -388,7 +387,7 @@ public class UILayouter {
             float space = (containerSize.x - line.mainSizeNoGap) / (line.elements.size() * 2);
             float currentX = space;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentX += element.size().x + 2 * space;
             }
           }
@@ -396,7 +395,7 @@ public class UILayouter {
             float space = (containerSize.x - line.mainSizeNoGap) / (line.elements.size() + 1);
             float currentX = space;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentX += element.size().x + space;
             }
           }
@@ -413,21 +412,21 @@ public class UILayouter {
           case FLEX_START -> {
             float currentY = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentY += element.size().y + rowGap;
             }
           }
           case FLEX_END -> {
             float currentY = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, containerSize.y - currentY, 0.0f);
+              element.position().set(currentX, containerSize.y - currentY, element.position().z);
               currentY += element.size().y + rowGap;
             }
           }
           case CENTER -> {
             float currentY = containerSize.y / 2 - line.mainSize / 2;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentY += element.size().y + rowGap;
             }
           }
@@ -435,7 +434,7 @@ public class UILayouter {
             float space = (containerSize.y - line.mainSizeNoGap) / (line.elements.size() - 1);
             float currentY = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentY += element.size().y + space;
             }
           }
@@ -443,15 +442,15 @@ public class UILayouter {
             float space = (containerSize.y - line.mainSizeNoGap) / (line.elements.size() * 2);
             float currentY = space;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentY += element.size().y + space * 2;
             }
           }
           case SPACE_EVENLY -> {
-            float space = (containerSize.y / line.mainSizeNoGap) / (line.elements.size() + 1);
+            float space = (containerSize.y - line.mainSizeNoGap) / (line.elements.size() + 1);
             float currentY = space;
             for (UIElement<?> element : line.elements) {
-              element.position().set(currentX, currentY, 0.0f);
+              element.position().set(currentX, currentY, element.position().z);
               currentY += element.size().y + space;
             }
           }
