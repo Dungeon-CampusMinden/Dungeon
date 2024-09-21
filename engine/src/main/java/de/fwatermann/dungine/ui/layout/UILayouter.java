@@ -138,22 +138,43 @@ public class UILayouter {
         .forEach(
             (element) -> {
               UIElementLayout layout = element.layout();
-
               Vector2f size = new Vector2f(0, 0);
-              if (layout.width().type() != Unit.UnitType.AUTO) {
-                size.x = layout.width().toPixels(viewport, container.size().x);
 
-              } else if (container.layout().direction().isRow()) {
-                layout.flexGrow(1);
-                layout.alignSelf(AlignSelf.STRETCH);
+              if(layout.aspectRatio().type() != Unit.UnitType.AUTO) {
+                if(layout.width().type() != Unit.UnitType.AUTO) {
+                  size.x = layout.width().toPixels(viewport, container.size().x);
+                  if(layout.height().type() != Unit.UnitType.AUTO) {
+                    size.y = layout.height().toPixels(viewport, container.size().y);
+                  } else {
+                    size.y = size.x / layout.aspectRatio().value();
+                  }
+                } else if(layout.height().type() != Unit.UnitType.AUTO) {
+                  size.y = layout.height().toPixels(viewport, container.size().y);
+                  if(layout.width().type() != Unit.UnitType.AUTO) {
+                    size.x = layout.width().toPixels(viewport, container.size().x);
+                  } else {
+                    size.x = size.y * layout.aspectRatio().value();
+                  }
+                } else {
+                  layout.flexGrow(1);
+                  layout.alignSelf(AlignSelf.STRETCH);
+                }
+              } else {
+                if(layout.width().type() != Unit.UnitType.AUTO) {
+                  size.x = layout.width().toPixels(viewport, container.size().x);
+                } else if(container.layout().direction().isRow()) {
+                  layout.flexGrow(1);
+                  layout.alignSelf(AlignSelf.STRETCH);
+                }
+                if(layout.height().type() != Unit.UnitType.AUTO) {
+                  size.y = layout.height().toPixels(viewport, container.size().y);
+                } else if(container.layout().direction().isColumn()) {
+                  layout.flexGrow(1);
+                  layout.alignSelf(AlignSelf.STRETCH);
+                }
               }
-              if (layout.height().type() != Unit.UnitType.AUTO) {
-                size.y = layout.height().toPixels(viewport, container.size().y);
-              } else if (container.layout().direction().isColumn()) {
-                layout.flexGrow(1);
-                layout.alignSelf(AlignSelf.STRETCH);
-              }
-              element.size().set(size.x, size.y, 0.0f);
+
+              element.size().set(size.x, size.y, element.size().z);
             });
   }
 
@@ -278,6 +299,9 @@ public class UILayouter {
         } else if (remainingSpaceX < 0 && layout.flexShrink() > 0) {
           element.size().x += (remainingSpaceX / sumFlexShrink) * layout.flexShrink();
         }
+        if(element.layout().aspectRatio().type() != Unit.UnitType.AUTO) {
+          element.size().y = element.size().x / element.layout().aspectRatio().toPixels(viewport, containerSize.x);
+        }
       }
       if (remainingSpaceX != 0 && sumFlexGrow + sumFlexShrink != 0) {
         // Recalculate row sizes
@@ -293,6 +317,9 @@ public class UILayouter {
           element.size().y += (remainingSpaceY / sumFlexGrow) * layout.flexGrow();
         } else if (remainingSpaceY < 0 && layout.flexShrink() > 0) {
           element.size().y += (remainingSpaceY / sumFlexShrink) * layout.flexShrink();
+        }
+        if(element.layout().aspectRatio().type() != Unit.UnitType.AUTO) {
+          element.size().x = element.size().y * element.layout().aspectRatio().toPixels(viewport, containerSize.y);
         }
       }
       if (remainingSpaceY != 0 && sumFlexGrow + sumFlexShrink != 0) {
