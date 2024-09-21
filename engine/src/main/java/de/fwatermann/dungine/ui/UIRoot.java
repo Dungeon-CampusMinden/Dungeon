@@ -33,6 +33,8 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   private final GameWindow window;
   private boolean initialized = false;
 
+  private Vector2i lastMousePos = new Vector2i(0, 0);
+
   public UIRoot(GameWindow window, int pixelWidth, int pixelHeight) {
     this.window = window;
     this.uiCamera = new CameraOrthographic(new CameraViewport(pixelWidth, pixelHeight, 0, 0));
@@ -104,14 +106,32 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   private void click(int button, MouseButtonEvent.MouseButtonAction action) {
-    UIElement<?> element = this.getElementAtMouse(true, UIComponentClickable.class);
-    if (element != null) {
-      element.component(UIComponentClickable.class).ifPresent(c -> c.onClick().run(element));
+    UIElement<?> element = this.getElementAtMouse(true);
+    while(element != null && !element.hasComponent(UIComponentClickable.class)) {
+      element = element.parent;
+    }
+    if(element != null) {
+      UIElement<?> finalElement = element;
+      element.component(UIComponentClickable.class).ifPresent(c -> c.onClick().run(finalElement, button, action));
     }
   }
 
+  private boolean isAncestor(UIElement<?> ancestor, UIElement<?> element) {
+    while (element != null) {
+      if (element == ancestor) {
+        return true;
+      }
+      element = element.parent;
+    }
+    return false;
+  }
+
   private void hover() {
-    UIElement<?> element = this.getElementAtMouse(true, UIComponentHoverable.class);
+    if(this.lastMousePos.equals(Mouse.getMousePosition())) {
+      return;
+    }
+    this.lastMousePos.set(Mouse.getMousePosition());
+    UIElement<?> element = this.getElementAtMouse(true);
     if (this.lastHovered != element) {
       if (this.lastHovered != null) {
         this.lastHovered
@@ -129,7 +149,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   private void scroll(int x, int y) {
-    UIElement<?> element = this.getElementAtMouse(true, UIComponentScrollable.class);
+    UIElement<?> element = this.getElementAtMouse(true);
     if (element != null) {
       element
           .component(UIComponentScrollable.class)
@@ -138,11 +158,28 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   private float isOver(UIElement<?> element, Vector3f origin, Vector3f direction) {
-    Vector3f min = new Vector3f(element.position());
-    Vector3f max = element.position().add(element.size(), new Vector3f());
+    Vector3f min = new Vector3f(element.absolutePosition());
+    Vector3f max = element.absolutePosition().add(element.size(), new Vector3f());
     if (Math.abs(max.z - min.z) == 0) {
-      max.z = 0.001f;
-      min.z = -0.001f;
+      Vector3f diagonal = max.sub(min, new Vector3f());
+      element.rotation.transform(diagonal);
+      Vector3f edge = min.sub(max.x, 0.0f, max.z, new Vector3f());
+      element.rotation.transform(edge);
+      Vector3f normal = diagonal.cross(edge, new Vector3f()).normalize();
+      if(normal.dot(direction) == 0.0f) {
+        return -1.0f;
+      }
+      float d = Intersectionf.intersectRayPlane(origin, direction, element.position(), normal, 0.0f);
+      if(d < 0) return -1.0f;
+
+      //Check if the intersection point is inside the rectangle
+      Vector3f intersection = origin.add(direction.mul(d, new Vector3f()), new Vector3f());
+      Vector3f local = intersection.sub(element.absolutePosition(), new Vector3f());
+      element.rotation.invert().transform(local);
+      if(local.x >= 0 && local.x <= diagonal.x && local.y >= 0 && local.y <= diagonal.y && local.z >= 0 && local.z <= diagonal.z) {
+        return d;
+      }
+      return -1.0f;
     }
     Vector2f result = new Vector2f();
     boolean intersects = Intersectionf.intersectRayAab(origin, direction, min, max, result);
@@ -152,21 +189,20 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     return -1.0f;
   }
 
-  private UIElement<?> getElementAtMouse(
-      boolean includeContainers, Class<? extends UIComponent<?>> clazzFilter) {
+  private UIElement<?> getElementAtMouse(boolean includeContainers) {
     Vector2i mousePos = Mouse.getMousePosition();
     mousePos.y = this.window.size().y - mousePos.y;
 
     Vector3f origin = this.uiCamera.unproject(mousePos.x, mousePos.y);
     Vector3f direction = this.uiCamera.raycast(mousePos.x, mousePos.y);
 
-    List<UIElement<?>> elements = this.allChildElements(includeContainers, clazzFilter);
+    List<UIElement<?>> elements = this.allChildElements(includeContainers);
     float distance = Float.MAX_VALUE;
     UIElement<?> closest = null;
     for (UIElement<?> element : elements) {
       float d = this.isOver(element, origin, direction);
       if (d < 0) continue;
-      if (d < distance) {
+      if (d < distance || (d == distance && this.isAncestor(closest, element))) {
         distance = d;
         closest = element;
       }
@@ -202,7 +238,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
                 if (includeContainers && (componentFilter.length == 0 || Arrays.stream(componentFilter).allMatch(c::hasComponent))) {
                   elements.add(e);
                 }
-                this.allChildElements(c, includeContainers, elements);
+                this.allChildElements(c, includeContainers, elements, componentFilter);
               } else {
                 if (Arrays.stream(componentFilter).allMatch(e::hasComponent)) {
                   elements.add(e);

@@ -1,6 +1,5 @@
 package de.fwatermann.dungine.state;
 
-import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.window.GameWindow;
 
 /**
@@ -8,16 +7,17 @@ import de.fwatermann.dungine.window.GameWindow;
  * it is used between two states. E.G Loading screen. This is not a state itself. Also transitions
  * will be reused.
  */
-public abstract class GameStateTransition implements Disposable {
+public abstract class GameStateTransition {
 
   protected GameWindow window;
 
   /**
    * Create a new transition.
+   *
    * @param window the game window
    */
   protected GameStateTransition(GameWindow window) {
-      this.window = window;
+    this.window = window;
   }
 
   /** Initialize this transition. */
@@ -30,13 +30,6 @@ public abstract class GameStateTransition implements Disposable {
    */
   public abstract void render(float deltaTime, GameState to);
 
-  /**
-   * Reset this transition.
-   *
-   * <p>Default implementation does nothing.
-   */
-  public void reset() {}
-
-
-
+  /** Cleanup this transitions. This is called after the transition is done. */
+  public abstract void cleanup();
 }
