@@ -33,7 +33,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   private final GameWindow window;
   private boolean initialized = false;
 
-  private Vector2i lastMousePos = new Vector2i(0, 0);
+  private final Vector2i lastMousePos = new Vector2i(0, 0);
 
   public UIRoot(GameWindow window, int pixelWidth, int pixelHeight) {
     this.window = window;
@@ -90,7 +90,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   public void onResize(FrameBufferResizeEvent event) {
     this.uiCamera.updateViewport(event.width(), event.height(), 0, 0);
     this.size().set(event.width(), event.height(), 0);
+
     UILayouter.layout(this, new Vector2i(event.width(), event.height()), true);
+    this.allChildElements(true).forEach(UIElement::update);
   }
 
   @EventHandler
