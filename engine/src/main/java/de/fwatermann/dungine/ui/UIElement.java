@@ -257,4 +257,12 @@ public abstract class UIElement<T extends UIElement<?>> {
   public boolean hasComponent(Class<? extends UIComponent<?>> clazz) {
     return this.components.stream().anyMatch(clazz::isInstance);
   }
+
+  /**
+   * Gets called after the layout had changed.
+   * Override this method to update the layout of the UI element.
+   * The default implementation does nothing.
+   */
+  protected void update() {}
+
 }

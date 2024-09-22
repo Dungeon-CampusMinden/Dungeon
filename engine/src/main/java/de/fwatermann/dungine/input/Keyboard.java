@@ -6,13 +6,16 @@ import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
+import de.fwatermann.dungine.window.GameWindow;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Keyboard implements EventListener {
 
   static {
-    EventManager.getInstance().registerStaticListener(Keyboard.class);
+    GameWindow.CURRENT_GAME.runOnMainThread(() -> {
+      EventManager.getInstance().registerStaticListener(Keyboard.class);
+    });
   }
 
   private static final Set<Integer> justPressedCheck = new HashSet<>();

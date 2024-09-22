@@ -114,7 +114,7 @@ public class UIText extends UIElement<UIText> {
             new VertexAttribute(3, DataType.FLOAT, "a_Position"), // 12
             new VertexAttribute(2, DataType.INT, "a_TexCoord"), // 8
             new VertexAttribute(2, DataType.INT, "a_Size")); // 8
-    this.update();
+    this.updateTextElements();
   }
 
   /**
@@ -154,7 +154,7 @@ public class UIText extends UIElement<UIText> {
    * elements by page, and updates the vertex buffer with the layout data. It also updates the
    * render steps for each page.
    */
-  private void update() {
+  private void updateTextElements() {
     if (this.mesh == null) return;
 
     this.layoutElements = this.font.layoutText(this.text, this.fontSize, (int) this.size.x, this.alignment);
@@ -202,7 +202,7 @@ public class UIText extends UIElement<UIText> {
   public void text(String text) {
     if (this.text.equals(text)) return;
     this.text = text;
-    this.update();
+    this.updateTextElements();
   }
 
   /**
@@ -232,7 +232,7 @@ public class UIText extends UIElement<UIText> {
   public UIText font(Font font) {
     if (this.font.equals(font)) return this;
     this.font = font;
-    this.update();
+    this.updateTextElements();
     return this;
   }
 
@@ -254,7 +254,7 @@ public class UIText extends UIElement<UIText> {
   public UIText fontSize(int fontSize) {
     if (this.fontSize == fontSize) return this;
     this.fontSize = fontSize;
-    this.update();
+    this.updateTextElements();
     return this;
   }
 
@@ -265,10 +265,15 @@ public class UIText extends UIElement<UIText> {
   public UIText alignment(TextAlignment alignment) {
     if(this.alignment == alignment) return this;
     this.alignment = alignment;
-    this.update();
+    this.updateTextElements();
     return this;
   }
 
   /** Represents a render step for a specific texture page. */
   private record RenderStep(int pageGLHandle, int count, int offset) {}
+
+  @Override
+  protected void update() {
+    this.updateTextElements();
+  }
 }

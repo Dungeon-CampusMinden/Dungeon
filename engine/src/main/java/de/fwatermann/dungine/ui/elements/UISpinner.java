@@ -10,6 +10,7 @@ import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIElement;
+import de.fwatermann.dungine.ui.layout.Unit;
 import org.lwjgl.BufferUtils;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ public class UISpinner extends UIElement<UISpinner> {
 
   public UISpinner() {
     super();
+    this.layout.aspectRatio(Unit.px(1.0f));
   }
 
   private static void initGL() {
