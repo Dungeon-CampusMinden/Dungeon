@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
@@ -132,12 +133,15 @@ public class UIText extends UIElement<UIText> {
 
     // TODO: Add transformation of UIElement to UIText
 
+    Vector3f basePos = new Vector3f(this.absolutePosition());
+    basePos.y -= this.fontSize;
+
     SHADER.bind();
     SHADER.useCamera(camera);
     SHADER.setUniform4fv("uColor", 1.0f, 1.0f, 1.0f, 1.0f);
     SHADER.setUniform2iv("uPageSize", Font.PAGE_SIZE_X, Font.PAGE_SIZE_Y);
     SHADER.setUniform1i("uPage", 0);
-    SHADER.setUniform3f("uBasePosition", this.absolutePosition());
+    SHADER.setUniform3f("uBasePosition", basePos);
     this.renderSteps.forEach(
         s -> {
           GL33.glActiveTexture(GL33.GL_TEXTURE0);
