@@ -21,7 +21,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
 
-import entities.VariableHUD;
+import entities.VariableHUDNames;
+import entities.VariableHUDTiles;
 import level.BlocklyLevel;
 import level.LevelParser;
 import level.MazeLevel;
@@ -34,6 +35,8 @@ public class Client {
 
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
+
+  private static VariableHUDNames hudNames;
 
   private static Server blocklyServer;
   /**
@@ -79,8 +82,12 @@ public class Client {
           TileLevel firstLevel = initLevels();
           Game.currentLevel(firstLevel);
 
-          VariableHUD hud = new VariableHUD(Game.stage());
-          Game.add(hud.createEntity());
+          VariableHUDTiles hudTiles = new VariableHUDTiles(Game.stage());
+          hudNames = new VariableHUDNames(Game.stage());
+          Game.add(hudTiles.createEntity());
+          Game.add(hudNames.createEntity());
+
+          Server.variableHUD = hudNames;
         });
   }
 

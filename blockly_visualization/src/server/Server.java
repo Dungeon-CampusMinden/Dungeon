@@ -16,6 +16,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.VariableHUDNames;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -49,7 +50,7 @@ public class Server {
   public static final Stack<FuncStats> active_func_defs = new Stack<>();
 
   public static boolean interruptExecution = false;
-  public static boolean errorOccured = false;
+  public static boolean errorOccurred = false;
   public static String errorMsg = "";
 
   private static final String[] reservedFunctions = {
@@ -64,6 +65,8 @@ public class Server {
   };
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
+
+  public static VariableHUDNames variableHUD = null;
 
   /**
    * WTF? .
@@ -111,7 +114,7 @@ public class Server {
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     if (interruptExecution) {
       System.out.println("Interruption performed");
-      if (errorOccured) {
+      if (errorOccurred) {
         String msg = "Anweisung: " + errAction + "\n";
         msg += "Fehlermeldung: " + errorMsg;
         response = msg;
@@ -308,7 +311,7 @@ public class Server {
     variables.clear();
     functions.clear();
     interruptExecution = false;
-    errorOccured = false;
+    errorOccurred = false;
     errorMsg = "";
     System.out.println("Values cleared");
     printScopes();
@@ -316,7 +319,7 @@ public class Server {
 
   private static void setError(String errMsg) {
     interruptExecution = true;
-    errorOccured = true;
+    errorOccurred = true;
     errorMsg = errMsg;
   }
 
@@ -438,6 +441,13 @@ public class Server {
       active_scopes.push("function");
     }
   }
+
+  private static void addBaseVar(String name, int value) {
+    variables.put(name, new Variable(value));
+    if (variableHUD != null) {
+      variableHUD.addVariable(name, value);
+    }
+  }
   /**
    * Evaluation if we currently have a variable assignment
    * @param action Currently executed action
@@ -461,7 +471,7 @@ public class Server {
     Matcher matcher = pattern.matcher(action);
     // If pattern matches we have a new variable
     if (matcher.find()) {
-      variables.put(matcher.group(1), new Variable(Integer.parseInt(matcher.group(2))));
+      addBaseVar(matcher.group(1), Integer.parseInt(matcher.group(2)));
     }
   }
 
@@ -478,7 +488,7 @@ public class Server {
       String op = matcher.group(5);
       try {
         int value = executeOperatorExpression(leftVal, rightVal, op);
-        variables.put(varName, new Variable(value));
+        addBaseVar(varName, value);
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
@@ -495,7 +505,7 @@ public class Server {
       String rightValue = matcherRightValue.group(2);
       try {
         int value = getActualValueFromExpression(rightValue);
-        variables.put(varNameRightValue, new Variable(value));
+        addBaseVar(varNameRightValue, value);
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
