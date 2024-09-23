@@ -385,13 +385,13 @@ public class TestServer {
   @Test
   public void testVariableNotFoundError() {
     Server.processAction("int z = 5 + x");
-    Assert.assertTrue(Server.errorOccured);
+    Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("x is not a number or variable", Server.errorMsg);
     Assert.assertNull(Server.variables.get("z"));
     Server.clearGlobalValues();
 
     Server.processAction("int z = x[10]");
-    Assert.assertTrue(Server.errorOccured);
+    Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Variable not found x", Server.errorMsg);
     Assert.assertNull(Server.variables.get("z"));
   }
@@ -400,13 +400,13 @@ public class TestServer {
   public void testVariableIsArrayError() {
     Server.processAction("int[] array_a = new int[5];");
     Server.processAction("falls (array_a < 5)");
-    Assert.assertTrue(Server.errorOccured);
+    Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Variable array_a is not a base type variable", Server.errorMsg);
     Server.clearGlobalValues();
 
     Server.processAction("int[] array_a = new int[5];");
     Server.processAction("int z = array_a + 5;");
-    Assert.assertTrue(Server.errorOccured);
+    Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Expected base variable. Got array for variable array_a", Server.errorMsg);
   }
 
@@ -414,7 +414,7 @@ public class TestServer {
   public void testIndexOutOfBoundsError() {
     Server.processAction("int[] array_a = new int[5];");
     Server.processAction("int z = array_a[10]");
-    Assert.assertTrue(Server.errorOccured);
+    Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Index 10 out of bounds for length 5", Server.errorMsg);
   }
 
@@ -422,7 +422,7 @@ public class TestServer {
   public void testVariableIsBaseError() {
     Server.processAction("int x = 5;");
     Server.processAction("int z = x[10]");
-    Assert.assertTrue(Server.errorOccured);
+    Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Expected array variable. Got base for variable x", Server.errorMsg);
   }
 }
