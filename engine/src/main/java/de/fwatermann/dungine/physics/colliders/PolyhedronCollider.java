@@ -159,7 +159,7 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
     Quaternionf rotation = this.rotation().premul(this.entity.rotation());
     for (int i = 0; i < this.vertices.length; i++) {
       this.vertices[i].set(this.initialVertices[i]);
-      rotation.transform(this.vertices[i]).mul(this.scaling).add(this.worldPosition());
+      rotation.transform(this.vertices[i].mul(this.scaling)).add(this.worldPosition());
     }
   }
 
