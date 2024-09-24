@@ -1,10 +1,10 @@
 package de.fwatermann.dungine.physics.util;
 
 import de.fwatermann.dungine.physics.colliders.PolyhedronCollider;
+import de.fwatermann.dungine.utils.annotations.Nullable;
 import de.fwatermann.dungine.utils.pair.FloatPair;
 import de.fwatermann.dungine.utils.pair.IntPair;
 import de.fwatermann.dungine.utils.pair.Pair;
-import de.fwatermann.dungine.utils.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +32,7 @@ public class SATCheck {
           continue;
         }
         Vector3f axis = new Vector3f();
-        edgeA.cross(edgeB, axis).normalize().mul(10000).round().div(10000);
+        edgeA.cross(edgeB, axis).normalize();
         dest.add(axis);
       }
     }

@@ -70,6 +70,12 @@ public class FreeCamSystem extends System<FreeCamSystem> {
   }
 
   private void mouse() {
+
+    if(!this.catchMouse && !Mouse.buttonPressed(0)) {
+      this.lastMousePos = Mouse.getMousePosition();
+      return;
+    }
+
     Vector2i windowCenter = this.state.window().size().div(2, new Vector2i());
     if(this.lastMousePos == null) {
       Mouse.setMousePosition(windowCenter);
