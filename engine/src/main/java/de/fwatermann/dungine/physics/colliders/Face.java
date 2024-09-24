@@ -1,6 +1,7 @@
 package de.fwatermann.dungine.physics.colliders;
 
 import de.fwatermann.dungine.utils.pair.IntPair;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class Face {
@@ -41,7 +42,10 @@ public class Face {
   }
 
   public Vector3f normal() {
-    return new Vector3f(this.normal);
+    Vector3f ret = new Vector3f(this.normal);
+    Quaternionf rotation = this.parent.rotation().premul(this.parent.entity.rotation());
+    rotation.transform(ret);
+    return ret;
   }
 
   public IntPair[] edges() {
