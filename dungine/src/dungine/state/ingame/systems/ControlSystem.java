@@ -37,12 +37,6 @@ public class ControlSystem extends System<ControlSystem> {
     ecs.forEachEntity(
         (entity) -> {
 
-          // Is RigidBody -> Control by forces
-          Optional<RigidBodyComponent> rbOpt = entity.component(RigidBodyComponent.class);
-          if (rbOpt.isPresent()) {
-            return;
-          }
-
           Vector3f forward = new Vector3f(0.0f, 0.0f, -1.0f);
           Vector3f right = new Vector3f(1.0f, 0.0f, 0.0f);
 
@@ -64,13 +58,29 @@ public class ControlSystem extends System<ControlSystem> {
           if (Keyboard.keyPressed(68)) { // D
             movement.add(right);
           }
+          if(Keyboard.keyPressed(32)) { // Space
+            movement.add(0.0f, 1.0f, 0.0f);
+          }
+          if(Keyboard.keyPressed(340)) { // LShift
+            movement.add(0.0f, -1.0f, 0.0f);
+          }
 
           if(movement.lengthSquared() == 0.0f) {
             return;
           }
 
           movement.normalize().mul(deltaTime);
-          entity.position().add(movement);
+
+          // Is RigidBody -> Control by forces
+          Optional<RigidBodyComponent> rbOpt = entity.component(RigidBodyComponent.class);
+          if (rbOpt.isPresent() && !rbOpt.get().kinematic()) {
+            RigidBodyComponent rb = rbOpt.get();
+            rb.applyForce(movement, RigidBodyComponent.ForceMode.FORCE);
+          } else {
+            entity.position().add(movement);
+          }
+
+
         },
         ControlComponent.class);
   }
