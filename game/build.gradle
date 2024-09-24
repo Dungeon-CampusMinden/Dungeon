@@ -4,12 +4,7 @@ plugins {
 
 
 dependencies {
-    // LibGDX: expose this API to users because of core.level.elements.ILevel
-    api supportDependencies.gdx
-    api supportDependencies.gdx_platform
-    api supportDependencies.gdx_backend_lwjgl3
-    api supportDependencies.gdx_lwjgl3_glfw_awt_macos
-    api supportDependencies.gdx_ai
+    api project(":engine")
 
     // JUnit 4 and Mockito for testing
     testImplementation supportDependencies.junit
