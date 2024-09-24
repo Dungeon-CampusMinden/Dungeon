@@ -9,11 +9,13 @@ import de.fwatermann.dungine.event.input.MouseScrollEvent;
 import de.fwatermann.dungine.graphics.SkyBox;
 import de.fwatermann.dungine.graphics.scene.light.SpotLight;
 import de.fwatermann.dungine.graphics.scene.model.ModelLoader;
-import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.graphics.simple.Cuboid;
+import de.fwatermann.dungine.physics.colliders.BoxCollider;
+import de.fwatermann.dungine.physics.ecs.PhysicsDebugSystem;
 import de.fwatermann.dungine.physics.ecs.PhysicsSystem;
+import de.fwatermann.dungine.physics.ecs.RigidBodyComponent;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
-import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
 import dungine.state.ingame.components.CameraComponent;
 import dungine.state.ingame.components.ControlComponent;
@@ -36,8 +38,6 @@ public class InGameState extends GameState {
 
   private Entity player;
 
-  private UIText textCameraPos;
-
   @Override
   public void init() {
     this.renderableSystem = new RenderableSystem(this.camera);
@@ -58,15 +58,15 @@ public class InGameState extends GameState {
             0.9f,
             0.1f);
 
-    this.textCameraPos = new UIText(Font.defaultMonoFont(), "Camera: ", 12);
-    this.textCameraPos.position().set(20, 20, 0);
-    this.textCameraPos.size().set(500, 20, 0);
-    this.ui.add(this.textCameraPos);
 
     this.addSystem(this.renderableSystem);
     this.addSystem(this.physicsSystem);
     this.addSystem(this.cameraSystem);
     this.addSystem(this.controlSystem);
+    this.addSystem(PhysicsDebugSystem.instance());
+
+    PhysicsDebugSystem.camera(this.camera);
+    PhysicsDebugSystem.enable(PhysicsDebugSystem.OPTION_ALL);
 
     this.player = new Entity();
     this.player.addComponent(new ControlComponent());
@@ -74,6 +74,20 @@ public class InGameState extends GameState {
     CameraComponent cameraComponent = new CameraComponent(this.camera, new Vector3f(0, 5, 2));
     this.player.addComponent(cameraComponent);
     this.player.position().set(0, 2, 0);
+
+    RigidBodyComponent rbc = new RigidBodyComponent();
+    rbc.addCollider(new BoxCollider(this.player, new Vector3f(-0.5f, 0, -0.5f), new Vector3f(1, 2, 1)));
+    rbc.gravity(false);
+    this.player.addComponent(rbc);
+
+    Entity wall = new Entity();
+    wall.addComponent(new RenderableComponent(new Cuboid(0xFFFFFFFF)));
+    wall.position().set(5, 2, 0);
+    wall.size(new Vector3f(1, 5, 5));
+    wall.rotation().rotateZ((float) Math.toRadians(-45));
+    wall.addComponent(new RigidBodyComponent().addCollider(new BoxCollider(wall, new Vector3f(-0.5f, -2.5f, -2.5f), new Vector3f(1, 5, 5))).gravity(false));
+    this.addEntity(wall);
+
 
     this.addEntity(this.player);
     this.grid(true);
@@ -83,9 +97,6 @@ public class InGameState extends GameState {
   public void renderState(float deltaTime) {
     this.spotLight.direction(this.camera.front());
     this.spotLight.position(this.camera.position());
-
-    Vector3f camPos = this.camera.position();
-    this.textCameraPos.text(String.format("Camera: x:%.3f y:%.3f z:%.3f", camPos.x, camPos.y, camPos.z));
   }
 
   @EventHandler
