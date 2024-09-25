@@ -3,7 +3,7 @@
 	"patterns": [
 	  {
 		"name": "keyword.control.dng",
-		"match": "\\b(fn|for|while|if|else|return|entity_type|item_type|var|graph|type|true|false)\\b"
+		"match": "\\b(fn|for|while|if|else|return|entity_type|item_type|var|graph|type|true|false|single_choice_task|multiple_choice_task|dungeon_config)\\b"
 	  },
 	  {
 		"name": "keyword.operator.dng",
@@ -48,8 +48,6 @@
 		"name": "variable.other.dng",
 		"match": "\\b[_a-zA-Z][_a-zA-Z0-9]*\\b"
 	  }
-	],
-	"repository": {},
-	"scopeName": "source.dng"
+	]
   }
   

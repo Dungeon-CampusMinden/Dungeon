@@ -77,7 +77,7 @@ fn open_container(entity chest, entity who) {
 
 
 
-// ------------------------- SZENARIO-BUILDER DEFINITION ------------------------
+//  ------------------------- SZENARIO-BUILDER DEFINITION ------------------------
 fn build_task(single_choice_task t) -> entity<><> {
     // Szenario-spezifische Beschreibung setzen
     t.set_scenario_text("Platziere die richtige Schriftrolle in der Quest-Truhe");
@@ -85,6 +85,7 @@ fn build_task(single_choice_task t) -> entity<><> {
     // Erzeugung der Entitätsmengen
     var return_set : entity<><>;
     var room_set : entity<>;
+
 
     // Erstellung der Items aus den Antwortmöglichkeiten
     for task_content content in t.get_content() {
@@ -102,14 +103,18 @@ fn build_task(single_choice_task t) -> entity<><> {
     // Markierung der Aufgaben-Truhe als Task-Container
     chest.mark_as_task_container(t, "Quest-Truhe");
     room_set.add(chest);
-
+    
     // Festlegung der Antwort-Auswahl-Funktion
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // Erstellung der Aufgaben-Manager-Entität
     var knight : entity;
     knight = instantiate_named(knight_type, "Aufgabengeber");
+
     room_set.add(knight);
+
+    
+
 
     // Verknüpfung der Aufgabe mit der Manager-Entität
     knight.task_component.task = t;
@@ -121,4 +126,16 @@ fn build_task(single_choice_task t) -> entity<><> {
     return return_set;
 }
 // ----------------------- ENDE SZENARIO-BUILDER DEFINITION ----------------------
+
+single_choice_task name {
+    description: "description",
+    answers: [
+    "answer",
+    "answer",
+    "answer"
+    ],
+    correct_answer_index: 1
+}
+
+
 

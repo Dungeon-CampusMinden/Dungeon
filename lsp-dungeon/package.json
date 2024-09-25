@@ -1,7 +1,7 @@
 {
-	"name": "lsp-sample",
-	"description": "A language server example",
-	"author": "Microsoft Corporation",
+	"name": "lsp-dungeon",
+	"description": "A language server for the Dungeon DSL",
+	"author": "Bjarne Küper",
 	"license": "MIT",
 	"version": "1.0.0",
 	"repository": {
@@ -43,7 +43,18 @@
 					"description": "Traces the communication between VS Code and the language server."
 				}
 			}
-		}
+		},
+		"languages": [{
+				"id": "dng",
+				"aliases": ["Dungeon Programming Language", "dng"],
+				"extensions": [".dng"],
+				"configuration": "./language-configuration.json"
+				}],
+				"grammars": [{
+				"language": "dng",
+				"scopeName": "source.dng",
+				"path": "./syntaxes/dng.tmLanguage.json"
+				}]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

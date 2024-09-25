@@ -1,10 +1,9 @@
-grammar grammer;
+grammar DungeonDiagnostics;
 
 // Parser-Kopfbereich für dynamische Methoden und Variablen
 @parser::members {
     private boolean isVariableDeclaration() {
-        // Schaue nach, ob "var" am aktuellen Token steht
-        return _input.LT(1).getText().equals("var");
+        return _input.LT(1).getType() == VAR;
     }
 }
 
@@ -18,8 +17,8 @@ statement
     ;
 
 var_decl
-    : 'var' id=ID '=' expression ';'   #var_decl_assignment
-    | 'var' id=ID ':' type_decl ';'    #var_decl_type_decl
+    : VAR id=ID '=' expression ';'   #var_decl_assignment
+    | VAR id=ID ':' type_decl ';'    #var_decl_type_decl
     ;
 
 expression
@@ -47,8 +46,10 @@ taskTypes
 
 
 otherCode
-    : { !isVariableDeclaration() }? .+? (';' | '\n')  // Dynamisches Prädikat, das überprüft, ob es sich nicht um eine Variablendeklaration handelt
+    : { !isVariableDeclaration() }? (LBRACE | RBRACE | COMMA | DOT | LPAREN | RPAREN | .)*? (';' | '\n' | LBRACE | RBRACE)
     ;
+
+
 
 fragment STRING_ESCAPE_SEQ
     : '\\' .
@@ -60,6 +61,7 @@ ARROW       : '->';
 
 TRUE : 'true';
 FALSE: 'false';
+VAR : 'var';
 ID  : [_a-zA-Z][a-zA-Z0-9_]*;
 NUM : ([0-9]|[1-9][0-9]*);
 NUM_DEC: [0-9]+'.'[0-9]+;
@@ -77,3 +79,10 @@ BLOCK_COMMENT
 STRING_LITERAL  : '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f'] )* '\''
                 | '"' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f"] )* '"'
                 ;
+
+LBRACE      : '{';
+RBRACE      : '}';
+COMMA       : ',';
+DOT         : '.';
+LPAREN      : '(';
+RPAREN      : ')';

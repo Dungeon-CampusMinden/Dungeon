@@ -15,9 +15,6 @@ import {
 	TextDocumentPositionParams,
 	TextDocumentSyncKind,
 	InitializeResult,
-	DocumentDiagnosticReportKind,
-	type DocumentDiagnosticReport,
-	TextEdit,
 	Range,
 } from 'vscode-languageserver/node';
 import { createCompletionItems } from './completionItems';
@@ -25,10 +22,11 @@ import * as path from 'path';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
-import { checkForBracketErrors, checkForUnusedVariables, checkForVariableIssues } from './diagnostics';
 import { exec } from 'child_process';
-import { URI } from 'vscode-uri';
 import { promisify } from 'util';
+import { writeFile, unlink } from 'fs/promises';
+import { tmpdir } from 'os';
+import { join } from 'path';
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
@@ -116,10 +114,12 @@ connection.onInitialize((params: InitializeParams) => {
 				resolveProvider: true,
 				triggerCharacters: ['=', '.', ':', '(', ',', ' ']
 			},
-			diagnosticProvider: {
-				interFileDependencies: false,
-				workspaceDiagnostics: false
-			}
+			// diagnosticProvider: {
+			// 	identifier: 'dngDiagnostics',
+			// 	interFileDependencies: false,
+			// 	workspaceDiagnostics: false
+				
+			// }
 		}
 	};
 	if (hasWorkspaceFolderCapability) {
@@ -196,38 +196,37 @@ documents.onDidClose(e => {
 });
 
 
-connection.languages.diagnostics.on(async (params) => {
-	const document = documents.get(params.textDocument.uri);
-	if (document !== undefined) {
-		return {
-			kind: DocumentDiagnosticReportKind.Full,
-			items: await validateTextDocument(document)
-		} satisfies DocumentDiagnosticReport;
-	} else {
-		// We don't know the document. We can either try to read it from disk
-		// or we don't report problems for it.
-		return {
-			kind: DocumentDiagnosticReportKind.Full,
-			items: []
-		} satisfies DocumentDiagnosticReport;
-	}
-});
+// connection.languages.diagnostics.on(async (params) => {
+// 	const document = documents.get(params.textDocument.uri);
+// 	if (document !== undefined) {
+// 		return {
+// 			kind: DocumentDiagnosticReportKind.Full,
+// 			items: await validateTextDocument(document)
+// 		} satisfies DocumentDiagnosticReport;
+// 	} else {
+// 		// We don't know the document. We can either try to read it from disk
+// 		// or we don't report problems for it.
+// 		return {
+// 			kind: DocumentDiagnosticReportKind.Full,
+// 			items: []
+// 		} satisfies DocumentDiagnosticReport;
+// 	}
+// });
 
 // The content of a text document has changed. This event is emitted
-// when the text document first opened or when its content has changed.
+//when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
+	//connection.languages.diagnostics.refresh();
 	validateTextDocument(change.document);
 });
-documents.onDidSave(change => {
-	validateTextDocument(change.document);
-});
-async function validateTextDocument(textDocument: TextDocument): Promise<Diagnostic[]> {
+
+async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     const diagnostics: Diagnostic[] =[];
     const text = textDocument.getText();
     const lines = text.split(/\r?\n/g);
     declaredVariables.clear();
 
-	// Durchsuche das Dokument nach Deklarationen
+	//Durchsuche das Dokument nach Deklarationen
     for (const line of lines) {
         for (const type of configTypes) {
             const regex = new RegExp(`\\b${type}\\s+(\\w+)`);
@@ -238,23 +237,26 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
         }
     }
 	
-    const filePath = URI.parse(textDocument.uri).fsPath;
 
     try {
-        // Asynchrones Ausführen der JAR-Datei
-        const { stdout, stderr } = await execPromise(`java -jar ${javaJarPath} ${filePath}`);
+        // Erstellen eines temporären Dateipfads
+        const tempFilePath = join(tmpdir(), `temp-${Date.now()}.dng`);
+        // Schreiben des aktuellen Inhalts in die temporäre Datei
+		// Notwendiger workaround, da das JAR sonst auf einer veralteten Datei
+		// analysiert und falsche Diagnostics ausgegeben werden
+        await writeFile(tempFilePath, text, 'utf8');
+
+        // Ausführen des Java-Prozesses mit der temporären Datei
+        const { stdout, stderr } = await execPromise(`java -jar ${javaJarPath} ${tempFilePath}`);
 
         if (stderr) {
             console.error(`Fehler im Java-Programm: ${stderr}`);
         }
 
-        // Verarbeitung des stdout-Outputs
+        // Verarbeitung des Outputs und Auffüllen von diagnostics
         try {
             const output = JSON.parse(stdout);
-            console.log(output);
-
             if (output.errors && Array.isArray(output.errors)) {
-                // Verarbeite die Fehler im Output
                 output.errors.forEach((err: any) => {
                     diagnostics.push({
                         severity: DiagnosticSeverity.Error,
@@ -265,30 +267,21 @@ async function validateTextDocument(textDocument: TextDocument): Promise<Diagnos
                         message: err.message,
                         source: 'ex'
                     });
-                    console.error(`Fehler: ${err.message}, Zeile: ${err.line}, Spalte: ${err.column}`);
                 });
-            } else if (output.message) {
-                console.log(`Erfolg: ${output.message}`);
-            } else {
-                console.log('Unbekannter Output:', output);
             }
         } catch (parseError) {
             console.error('Fehler beim Parsen des JSON-Outputs:', parseError);
             console.error('Raw stdout:', stdout);
         }
 
+        // Löschen der temporären Datei
+        await unlink(tempFilePath);
     } catch (error) {
         console.error(`Fehler beim Ausführen des Java-Prozesses: ${error}`);
     }
 
-    
-
-    // Rufe die spezifischen Diagnosefunktionen auf
-    // diagnostics.push(...checkForVariableIssues(textDocument));
-    // diagnostics.push(...checkForBracketErrors(textDocument));
-    // diagnostics.push(...checkForUnusedVariables(textDocument));
-
-    return diagnostics;
+    // Senden der Diagnosen an den Client
+    connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
 connection.onDidChangeWatchedFiles(_change => {
@@ -315,6 +308,7 @@ connection.onCompletion(
 		const completionStart = { line: position.line, character: 0 };
         const completionEnd = { line: position.line, character: position.character };
         const range = Range.create(completionStart, completionEnd);
+
 		const isConfigType = configTypes.some(keyword => {
 			const regex = new RegExp(`^\s*${keyword}\s*[^:{]*$`);
 			return regex.test(trimmedText);

@@ -22,8 +22,8 @@ public class Main {
                 parser.addErrorListener(errorListener); // Füge benutzerdefinierten Listener hinzu
 
                 ParseTree tree = parser.program();
-                DiagnosticsVisitor visitor = new DiagnosticsVisitor();
-                visitor.visit(tree);
+                //DiagnosticsVisitor visitor = new DiagnosticsVisitor();
+                //visitor.visit(tree);
                 List<ErrorInfo> errors = errorListener.getErrors();
                 //System.out.println(visitor.getErrors());
                 //errors.addAll(visitor.getErrors());
