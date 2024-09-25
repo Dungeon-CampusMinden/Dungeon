@@ -16,10 +16,21 @@ import core.utils.components.path.IPath;
 import java.util.Optional;
 
 public class VariableHUDTiles extends BlocklyHUD {
-  private Table table;
+  private Table varTable;
+
+  private Table arrayTable;
   private Stage stage;
 
-  private final int numTiles = 28;
+  private final int xTiles = 28;
+
+  private int yTiles = 16;
+  private final int varTiles = 3;
+  private int numArrayTiles = yTiles - varTiles;
+
+
+
+  private Texture textureWall;
+  private Texture textureFloor;
 
   public VariableHUDTiles(Optional<Stage> stage) {
     if (stage.isEmpty()) {
@@ -27,27 +38,41 @@ public class VariableHUDTiles extends BlocklyHUD {
     }
     this.stage = stage.get();
 
-    table = new Table();
+    this.textureWall = createTexture(LevelElement.WALL, DesignLabel.FOREST);
+    this.textureFloor = createTexture(LevelElement.FLOOR, DesignLabel.FOREST);
+
+    this.varTable = createVariableTable(textureWall, textureFloor);
+    this.stage.addActor(varTable);
+
+    this.arrayTable = createArrayTable(textureWall, textureFloor);
+    this.stage.addActor(arrayTable);
+  }
+
+  private Table createVariableTable(Texture textureWall, Texture textureFloor) {
+    Table table = new Table();
     table.bottom();
     table.setFillParent(true);
 
-    Texture textureWall = createTexture(LevelElement.WALL, DesignLabel.FOREST);
-    for (int i=0; i < numTiles; i++){
-      Image image = createImage(textureWall);
-      table.add(image).expandX().width(getWidth()).height(getHeight());
+    for (int i=0; i < xTiles; i++){
+      createVarRow(table, textureWall);
     }
     table.row();
 
-    Texture textureFloor = createTexture(LevelElement.FLOOR, DesignLabel.FOREST);
-    for (int j=0; j< 2; j++) {
-      for (int i=0; i < numTiles; i++){
-        Image image = createImage(textureFloor);
-        table.add(image).expandX().width(getWidth()).height(getHeight());
+
+    for (int j=0; j < varTiles - 1; j++) {
+      for (int i=0; i < xTiles; i++){
+        createVarRow(table, textureFloor);
       }
       table.row();
     }
+    return table;
+  }
 
-    this.stage.addActor(table);
+  private void createVarRow(Table table, Texture texture) {
+    for (int i=0; i < xTiles; i++){
+      Image image = createImage(texture);
+      table.add(image).expandX().width(getWidth()).height(getHeight());
+    }
   }
 
   private Texture createTexture(LevelElement levelElement, DesignLabel designLabel) {
@@ -61,19 +86,67 @@ public class VariableHUDTiles extends BlocklyHUD {
     return image;
   }
 
+  private Table createArrayTable(Texture textureWall, Texture textureFloor) {
+    Table table = new Table();
+    table.top();
+    table.setFillParent(true);
+    // Create first row
+    createArrayRow(table, textureWall, textureWall);
+    numArrayTiles = yTiles - 3;
+    for (int i=0; i < numArrayTiles - 1; i++) {
+      createArrayRow(table, textureWall, textureFloor);
+    }
+    return table;
+  }
+
+  private void createArrayRow(Table table, Texture textureWall, Texture textureFloor) {
+    float paddingLeft = getWidth() * (xTiles - 4);
+    for (int i=0; i < 2; i++) {
+      Image imageFloor = createImage(textureFloor);
+      table.add(imageFloor).width(getWidth()).height(getHeight()).padLeft(paddingLeft * i);
+      Image imageWall = createImage(textureWall);
+      table.add(imageWall).width(getWidth()).height(getHeight());
+      // Swap textures for right array
+      Texture tmpTexture = textureFloor;
+      textureFloor = textureWall;
+      textureWall = tmpTexture;
+    }
+    table.row();
+  }
+
   private float getWidth() {
-    return this.stage.getWidth() / numTiles;
+    return this.stage.getWidth() / xTiles;
   }
   private float getHeight() {
-    float aspectRatio = Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
-    return this.stage.getHeight() /  numTiles * aspectRatio;
+    yTiles = (int) (this.stage.getHeight() / getWidth());
+    return this.stage.getHeight() / (float) yTiles;
   }
 
   @Override
   public void updateActors() {
-    Array<Cell> tableCells = table.getCells();
+    int tmpYTiles = yTiles;
+    Array<Cell> tableCells = varTable.getCells();
     for (Cell cell: tableCells) {
       cell.size(getWidth(), getHeight());
+    }
+    // We need to recreate the array table
+    if (tmpYTiles != yTiles) {
+      // Create new table first
+      Table newTable = createArrayTable(this.textureWall, this.textureFloor);
+      // Remove old table
+      this.stage.getActors().removeValue(arrayTable, true);
+      // Set new table
+      this.stage.addActor(newTable);
+      arrayTable = newTable;
+      return;
+    }
+    Array<Cell> tableCellsArray = arrayTable.getCells();
+    for (Cell cell: tableCellsArray) {
+      cell.size(getWidth(), getHeight());
+      if (cell.getColumn() == 2) {
+        float paddingLeft = getWidth() * (xTiles - 4);
+        cell.padLeft(paddingLeft);
+      }
     }
   }
 

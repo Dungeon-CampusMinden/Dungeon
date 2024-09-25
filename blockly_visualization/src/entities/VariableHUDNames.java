@@ -21,7 +21,9 @@ public class VariableHUDNames extends BlocklyHUD {
   private Stage stage;
 
   private float initialWidth;
-  private final int numTiles = 28;
+  private final int xTiles = 28;
+
+  private int yTiles = 16;
 
   TreeSet<HUDVariable> variables = new TreeSet<>();
 
@@ -36,7 +38,7 @@ public class VariableHUDNames extends BlocklyHUD {
     table.setFillParent(true);
 
     for (int j=0; j < 2; j++) {
-      for (int i=0; i < numTiles / 2; i++){
+      for (int i=0; i < xTiles / 2; i++){
         Label label = new Label("", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         label.setFontScale(j+1);
         table.add(label).expandX().width(getWidth()).height(getHeight()).padBottom(getHeight()*j).center();
@@ -49,12 +51,11 @@ public class VariableHUDNames extends BlocklyHUD {
   }
 
   private float getWidth() {
-    float tilesWidth = (float) numTiles / 2;
-    return (this.stage.getWidth() - 10) / tilesWidth;
+    return this.stage.getWidth() / xTiles;
   }
   private float getHeight() {
-    float aspectRatio = Gdx.graphics.getWidth() / (float) Gdx.graphics.getHeight();
-    return this.stage.getHeight() /  numTiles * aspectRatio;
+    yTiles = (int) (this.stage.getHeight() / getWidth());
+    return this.stage.getHeight() / (float) yTiles;
   }
   @Override
   public void updateActors() {
@@ -83,7 +84,7 @@ public class VariableHUDNames extends BlocklyHUD {
     int variableSize = variables.size();
     if (variables.contains(newVar)) {
       variables.remove(newVar);
-    } else if(variableSize >= (numTiles / 2)) {
+    } else if(variableSize >= (xTiles / 2)) {
       variables.remove(variables.last());
     }
     variables.add(newVar);
@@ -102,7 +103,7 @@ public class VariableHUDNames extends BlocklyHUD {
     Label nameLabel = (Label) nameCell.getActor();
     nameLabel.setText(var.getFormattedName());
     // Set text for variable value label
-    Cell valueCell = tableCells.get(position + (numTiles / 2));
+    Cell valueCell = tableCells.get(position + (xTiles / 2));
     Label valueLabel = (Label) valueCell.getActor();
     valueLabel.setText(var.value);
   }
