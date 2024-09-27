@@ -112,6 +112,42 @@ public class TestServer {
   }
 
   @Test
+  public void testNestedIfNegativeOuterCondition() {
+    Server.processAction("int x = 0;");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
+
+    Server.processAction("falls (falsch)");
+    Assert.assertFalse(Server.active_ifs.peek().if_flag);
+    Assert.assertFalse(Server.active_ifs.peek().else_flag);
+    Assert.assertEquals("if", Server.active_scopes.peek());
+
+    Server.processAction("falls (wahr)");
+    Assert.assertTrue(Server.active_ifs.peek().if_flag);
+    Assert.assertFalse(Server.active_ifs.peek().else_flag);
+
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
+
+    Server.processAction("}");
+    Assert.assertFalse(Server.active_ifs.peek().if_flag);
+    Assert.assertFalse(Server.active_ifs.peek().else_flag);
+
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
+
+    Server.processAction("} sonst {");
+    Assert.assertFalse(Server.active_ifs.peek().if_flag);
+    Assert.assertTrue(Server.active_ifs.peek().else_flag);
+
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals(1, Server.variables.get("x").intVal);
+
+    Server.processAction("}");
+    Assert.assertTrue(Server.active_ifs.isEmpty());
+    Assert.assertTrue(Server.active_scopes.isEmpty());
+  }
+
+  @Test
   public void testWhileEval() {
     Server.processAction("int x = 0;");
     Assert.assertEquals(0, Server.variables.get("x").intVal);
@@ -177,6 +213,40 @@ public class TestServer {
 
     Server.processAction("}");
     Assert.assertEquals(2, Server.variables.get("x").intVal);
+    Assert.assertTrue(Server.active_whiles.isEmpty());
+    Assert.assertTrue(Server.active_scopes.isEmpty());
+  }
+
+  @Test
+  public void testNestedWhileNegativeOuterCondition() {
+    Server.processAction("int x = 0;");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
+
+    Server.processAction("solange (x > 2) {");
+    Assert.assertFalse(Server.active_whiles.peek().conditionResult);
+    Assert.assertEquals("while", Server.active_scopes.peek());
+
+    Server.processAction("int x = x + 1");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
+
+    Server.processAction("int y = 0");
+    Server.processAction("solange (y < 3) {");
+    Assert.assertEquals(2, Server.active_whiles.size());
+    Assert.assertEquals("while", Server.active_scopes.peek());
+    Assert.assertEquals(2, Server.active_scopes.size());
+
+    Server.processAction("int y = y + 1");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
+
+    Server.processAction("}");
+    Assert.assertNull(Server.variables.get("y"));
+    Assert.assertEquals(5, Server.active_whiles.peek().whileBody.size());
+    Assert.assertEquals(1, Server.active_whiles.size());
+    Assert.assertEquals(1, Server.active_scopes.size());
+    Assert.assertEquals("while", Server.active_scopes.peek());
+
+    Server.processAction("}");
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
     Assert.assertTrue(Server.active_whiles.isEmpty());
     Assert.assertTrue(Server.active_scopes.isEmpty());
   }

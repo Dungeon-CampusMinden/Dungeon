@@ -139,12 +139,6 @@ public class Server {
       String currentLoop = currently_repeating_scope.peek();
       switch (currentLoop) {
         case "while" -> {
-          if (!active_func_defs.isEmpty()) {
-            active_whiles.pop();
-            active_scopes.pop();
-            currently_repeating_scope.pop();
-            return;
-          }
           WhileStats currentWhile = active_whiles.peek();
           while (currentWhile.isRepeating && !interruptExecution) {
             System.out.print("Repeating while loop");
@@ -159,12 +153,6 @@ public class Server {
           }
         }
         case "repeat" -> {
-          if (!active_func_defs.isEmpty()) {
-            active_repeats.pop();
-            active_scopes.pop();
-            currently_repeating_scope.pop();
-            return;
-          }
           RepeatStats currentRepeat = active_repeats.peek();
           while (currentRepeat.isRepeating && !interruptExecution) {
             System.out.print("Repeating repeat loop");
@@ -236,16 +224,11 @@ public class Server {
     repeatEvaluation(action);
     funcEvaluation(action);
 
-    // Do not perform any actions in func definition
-    if (!active_func_defs.isEmpty()) {
-      return;
-    }
-    // Do not perform any actions if current while condition is false
-    if (!active_whiles.isEmpty() && !active_whiles.peek().conditionResult) {
-      return;
-    }
-    // Do not perform any actions if current if condition is false
-    if (!active_ifs.isEmpty() && !active_ifs.peek().executeAction()) {
+    // Do not perform any actions when:
+    // 1: Currently in func definition
+    // 2: The condition of a while loop is false
+    // 3: The condition of an if-statement is false
+    if (!evalActionsExecute()) {
       return;
     }
 
@@ -258,6 +241,46 @@ public class Server {
 
     performAction(action);
 
+  }
+
+  /**
+   * Check if actions should be executed or if any if- or while-condition is false or if a function is currently
+   * defined.
+   * @return Returns true if actions may be performed. Returns false if no action may be performed.
+   */
+  private static boolean evalActionsExecute() {
+    return evalIfConditions() && evalWhileConditions() && active_func_defs.isEmpty();
+  }
+
+  /**
+   * Eval if any if-condition is currently false.
+   * @return Returns true if all conditions are true or no if is currently active. Otherwise, returns false.
+   */
+  private static boolean evalIfConditions() {
+    if (active_ifs.isEmpty()) {
+      return true;
+    }
+    for (IfStats ifStatement: active_ifs) {
+      if (!ifStatement.executeAction()) {
+        return false;
+      }
+    }
+    return true;
+  }
+  /**
+   * Eval if any while-condition is currently false.
+   * @return Returns true if all conditions are true or no while-loop is currently active. Otherwise, returns false.
+   */
+  private static boolean evalWhileConditions() {
+    if (active_whiles.isEmpty()) {
+      return true;
+    }
+    for (WhileStats whileStatement: active_whiles) {
+      if (!whileStatement.conditionResult) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static void printScopes() {
@@ -586,7 +609,7 @@ public class Server {
       WhileStats currentWhile = active_whiles.peek();
       String condition = currentWhile.condition;
       boolean conditionResult = evalComplexCondition(condition, pattern);
-      if (conditionResult) {
+      if (conditionResult && evalActionsExecute()) {
         if (!currentWhile.isRepeating) {
           currentWhile.isRepeating = true;
           currently_repeating_scope.push("while");
@@ -632,15 +655,8 @@ public class Server {
     // Check if repeat loop must end
     if (action.equals("}") && active_scopes.peek().equals("repeat")) {
       RepeatStats currentRepeat = active_repeats.peek();
-      if (currentRepeat.evalRepeatComplete()) {
-        if (currentRepeat.isRepeating) {
-          currentRepeat.isRepeating = false;
-          currently_repeating_scope.pop();
-        }
-        active_scopes.pop();
-        active_repeats.pop();
-        return false;
-      } else {
+      // Check if repeat loops needs to be repeated
+      if (!currentRepeat.evalRepeatComplete() && evalActionsExecute()) {
         if (!currentRepeat.isRepeating) {
           currentRepeat.isRepeating = true;
           currently_repeating_scope.push("repeat");
@@ -648,6 +664,15 @@ public class Server {
           return true;
         }
         currentRepeat.increaseCounter();
+      } else {
+        // Stop repeat loop if loop is finished or no actions may be performed
+        if (currentRepeat.isRepeating) {
+          currentRepeat.isRepeating = false;
+          currently_repeating_scope.pop();
+        }
+        active_scopes.pop();
+        active_repeats.pop();
+        return false;
       }
     }
     return false;
