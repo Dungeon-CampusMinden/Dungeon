@@ -8,11 +8,21 @@ public class HUDVariable implements Comparable<HUDVariable>{
   public LocalDateTime modtime;
   public String name;
   public int value;
+  public int[] arrayValue;
+  public String type;
 
   public HUDVariable(String name, int value) {
     modtime = LocalDateTime.now();
     this.name = name;
     this.value = value;
+    this.type = "base";
+  }
+
+  public HUDVariable(String name, int[] value) {
+    modtime = LocalDateTime.now();
+    this.name = name;
+    this.arrayValue = value;
+    this.type = "array";
   }
 
   @Override
@@ -42,8 +52,8 @@ public class HUDVariable implements Comparable<HUDVariable>{
   }
 
   public String getFormattedName(){
-    if (this.name.length() > 12) {
-      String substr = name.substring(0, 9);
+    if (this.name.length() > 9) {
+      String substr = name.substring(0, 7);
       return substr + "...";
     }
     return name;

@@ -448,6 +448,12 @@ public class Server {
       variableHUD.addVariable(name, value);
     }
   }
+
+  private static void updateArrayHUD(String name, int[] value){
+    if (variableHUD != null) {
+      variableHUD.addArrayVariable(name, value);
+    }
+  }
   /**
    * Evaluation if we currently have a variable assignment
    * @param action Currently executed action
@@ -459,6 +465,7 @@ public class Server {
     if (matcherArray.find()) {
       int array_size = Integer.parseInt(matcherArray.group(2));
       variables.put(matcherArray.group(1), new Variable(new int[array_size]));
+      updateArrayHUD(matcherArray.group(1), new int[array_size]);
       return;
     }
     // Check array assign
@@ -531,6 +538,7 @@ public class Server {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         Variable arrayVar = getArrayVariable(varName);
         arrayVar.arrayVal[index] = value;
+        updateArrayHUD(varName, arrayVar.arrayVal);
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
@@ -550,6 +558,7 @@ public class Server {
         int value = getActualValueFromExpression(rightValue);
         Variable arrayVar = getArrayVariable(varNameRightValue);
         arrayVar.arrayVal[indexRightValue] = value;
+        updateArrayHUD(varNameRightValue, arrayVar.arrayVal);
         return true;
       } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
         System.out.println(e.getMessage());
