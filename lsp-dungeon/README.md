@@ -128,8 +128,13 @@ Für die Code-Completions wird im Gegensatz zur Fehleranalyse keine Analyse des 
 
 Für den verwendeten Regex-Ansatz ist das Ziel, dass je nachdem in was für einem Kontext sich der User im Dokument des Clients befindet passende Vorschläge gegeben werden. Hierfür wird auf verschiedene Completion-Kontexte geprüft, welche unterschiedliche Completion-Items ausgeben.
 ### Completion-Kontexte
-- 
+- **Bezeichner** Für diesen Kontext wird geprüft, ob das vom Kontext erwartete nächste Token ein Bezeichner ist. Dementsprechend wird geprüft, ob das Wort welches sich vor der Cursor-Position befindet ein Schlüsselwort wie z.B. var oder single_choice_task ist. In diesem Fall sollen keine Vorschläge gegeben werden, da der Bezeichner individuell bestimmt werden muss.
+- **Zeilenanfang** An Zeilenanfängen sollen Schlüsselworter vorgeschlagen werden.
+- **Typdefinition** Nach ':', '(' oder ',' sollen Typdefinitionen angezeigt werden wie *string*, *int* und *boolean*.
+- **Zuweisung** Nach '=' sollen bereits deklarierte Variablen oder Objekte vorgeschlagen werden. Außerdem sollen definierte Funktionen und Dungeon DSL Standard-Funktionen wie 'instantiate()' vorgeschlagen werden.
+- **Punktnotationen** Wenn ein '.' nach dem Bezeichner eines initialisierten Objekts eingegeben wird, sollen alle möglichen Felder des dazugehörigen Objekt-Typen zurückgegeben werden.
 ### Snippets
+Mit Snippets können komplette Code-Strukturen erstellt werden. Außerdem kann der User mit 'Tab' durch die anzupassenden Stellen der Snippets springen und diese direkt definieren. Auf diese Weise können z.B. schnell Tasks erzeugt und definiert werden. Diese Felder können über *\${index:description}* in den Snippet-Strings eingefügt werden. Snippets werden unabhängig vom Kontext angezeigt und sind an ein label gebunden, welches bestimmt, bei welchen Zeichenfolgen das Snippet vorgeschlagen wird. 
 ## Syntax-Highlighting
 Für das Syntax-Highlighting der Dungeon DSL wurde eine TextMate-Grammatik zusammen mit einer Konfigurationsdatei verwendet, die die Grundlage für die farbliche Hervorhebung verschiedener Sprachbestandteile und die Code-Editor-Funktionalität legt.
 
