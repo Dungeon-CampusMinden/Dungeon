@@ -16,7 +16,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.VariableHUDNames;
+import entities.VariableHUD;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -66,7 +66,7 @@ public class Server {
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
 
-  public static VariableHUDNames variableHUD = null;
+  public static VariableHUD variableHUD = null;
 
   /**
    * WTF? .
