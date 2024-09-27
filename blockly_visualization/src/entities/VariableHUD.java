@@ -21,6 +21,10 @@ import entities.utility.HUDVariable;
 import java.util.Optional;
 import java.util.TreeSet;
 
+/**
+ * This class will control the variable HUD. It will display tiles on the right, left and bottom side of the screen.
+ * The tile fields will be filled with the values of variable and arrays that were created in blockly.
+ */
 public class VariableHUD extends BlocklyHUD {
 
   private Stage stage;

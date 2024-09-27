@@ -7,6 +7,10 @@ import core.utils.Point;
 
 import java.util.List;
 
+/**
+ * This class is used to store the values from a parsed level file. It contains the layout (the tiles), the design
+ * label, the hero start position and the custom points. This class is used in the LevelParser.
+ */
 public class BlocklyLevel  {
 
   public LevelElement[][] layout;

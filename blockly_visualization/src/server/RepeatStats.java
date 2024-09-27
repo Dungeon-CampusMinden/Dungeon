@@ -2,6 +2,10 @@ package server;
 
 import java.util.ArrayList;
 
+/**
+ *  This class is used to store all important values of a repeat instruction. This class contains the body of the repeat
+ *  loop, the current counter and the target counter.
+ */
 public class RepeatStats {
   private final int targetCounter;
 
@@ -17,10 +21,17 @@ public class RepeatStats {
     repeatBody = new ArrayList<>();
   }
 
+  /**
+   * Evaluate if the repeat loop is finished.
+   * @return
+   */
   public boolean evalRepeatComplete() {
     return counter >= targetCounter;
   }
 
+  /**
+   * Increase the counter of the repeat loop.
+   */
   public void increaseCounter() {
     counter++;
   }

@@ -10,6 +10,11 @@ import core.utils.Point;
 
 import java.util.Optional;
 
+/**
+ * This system will call the updateActors method of all entities with the BlocklyUIComponent when the screen size
+ * changed. This system will always save the last width and height of the screen and will compare it to the current
+ * screen size.
+ */
 public class HudBlocklySystem extends System {
   private int lastWidth;
   private int lastHeight;

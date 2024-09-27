@@ -10,12 +10,20 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 
+/**
+ * This class is used for the Maze Level. The first level of the blockly dungeon.
+ * This class will only set the start position of the hero and show a popup at the beginning of the level to explain the
+ * target of the Maze level.
+ */
 public class MazeLevel extends TileLevel implements ITickable {
-  private Coordinate lastHeroCoords = new Coordinate(0, 0);
 
-  public boolean finished = false;
-
-
+  /**
+   * Call the parent constructor of a tile level with the given layout and design label. Set the start tile of the hero
+   * to the given heroPos.
+   * @param layout 2D array containing the tile layout.
+   * @param designLabel The design label for the level.
+   * @param heroPos The start position for the hero.
+   */
   public MazeLevel(LevelElement[][] layout, DesignLabel designLabel, Point heroPos) {
     super(layout, designLabel);
     // Set Hero Position
@@ -31,17 +39,7 @@ public class MazeLevel extends TileLevel implements ITickable {
     if (isFirstTick) {
       DialogUtils.showTextPopup("Finde des Ausgang des Labyrinths!", "Ziel");
     }
-    if (lastHeroCoords != null && !lastHeroCoords.equals(getHeroCoords())) {
-      return;
-    }
-    this.lastHeroCoords = getHeroCoords();
+
   }
 
-  public static Coordinate getHeroCoords() {
-    try {
-      return SkillTools.heroPositionAsPoint().toCoordinate();
-    } catch (MissingHeroException e) {
-      return null;
-    }
-  }
 }
