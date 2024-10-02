@@ -495,4 +495,18 @@ public class TestServer {
     Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Expected array variable. Got base for variable x", Server.errorMsg);
   }
+
+  @Test
+  public void testFunctionNotFoundError() {
+    Server.processAction("dummyFunc();");
+    Assert.assertTrue(Server.errorOccurred);
+    Assert.assertEquals("Function dummyFunc is not defined", Server.errorMsg);
+  }
+
+  @Test
+  public void testConditionError() {
+    Server.processAction("falls (array_a < 5)");
+    Assert.assertTrue(Server.errorOccurred);
+    Assert.assertEquals("Variable array_a could not be found", Server.errorMsg);
+  }
 }
