@@ -20,18 +20,26 @@ def get_token(layer_name):
     return None
 
 
-def get_hero_position(hero_tiles):
+def invert_y_index(y_index, max_height):
+    """
+    We actually invert the index because the dungeon level will be build from the bottom to the top. Meaning that our
+    first line must be the bottom line and the last line must be the top line.
+    """
+    return max_height - y_index - 1
+
+
+def get_hero_position(hero_tiles, max_height):
     if hero_tiles and type(hero_tiles) is list:
         if len(hero_tiles) > 1:
             print('Warning: More than one hero pos specified. Using first position.')
-        return hero_tiles[0]['x'], hero_tiles[0]['y']
+        return hero_tiles[0]['x'], invert_y_index(hero_tiles[0]['y'], max_height)
 
 
-def get_custom_positions(custom_tiles):
+def get_custom_positions(custom_tiles, max_height):
     positions = []
     if custom_tiles and type(custom_tiles) is list:
         for pos in custom_tiles:
-            positions.append('{},{}'.format(pos['x'], pos['y']))
+            positions.append('{},{}'.format(pos['x'], invert_y_index(pos['y'], max_height)))
         return ';'.join(positions)
     return None
 
@@ -47,18 +55,18 @@ for filepath in glob.iglob('src_maps/*.json'):
         hero_pos = None
         for layer in data['layers']:
             if layer['name'] == 'hero':
-                hero_pos = get_hero_position(layer['tiles'])
+                hero_pos = get_hero_position(layer['tiles'], height)
                 map_matrix[hero_pos[1]][hero_pos[0]] = 'F'
                 continue
             if layer['name'] == 'custom':
-                custom_positions = get_custom_positions(layer['tiles'])
+                custom_positions = get_custom_positions(layer['tiles'], height)
                 continue
             token = get_token(layer['name'])
             # Skip current layer
             if not token:
                 continue
             for tile in layer['tiles']:
-                map_matrix[tile['y']][tile['x']] = token
+                map_matrix[invert_y_index(tile['y'], height)][tile['x']] = token
 
         # First line is empty. Fill with the setting of the map, eg. DEFAULT, FIRE, FOREST, etc.
         file_content = ['']
