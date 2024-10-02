@@ -478,13 +478,18 @@ public class Server {
    * @return Returns the result of the expression
    */
   private static int executeExpression(int leftValue, int rightValue, String op) {
-    return switch (op) {
-      case "+" -> leftValue + rightValue;
-      case "-" -> leftValue - rightValue;
-      case "*" -> leftValue * rightValue;
-      case "/" -> leftValue / rightValue;
-      default -> 0;
-    };
+    try {
+      return switch (op) {
+        case "+" -> leftValue + rightValue;
+        case "-" -> leftValue - rightValue;
+        case "*" -> leftValue * rightValue;
+        case "/" -> leftValue / rightValue;
+        default -> 0;
+      };
+    } catch (ArithmeticException e) {
+      throw new ArithmeticException("Division by zero is not allowed.");
+    }
+
   }
 
   /**
@@ -628,7 +633,10 @@ public class Server {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         addBaseVar(varName, value);
         return true;
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
+      } catch (
+        IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException |
+        ArithmeticException e
+      ) {
         System.out.println(e.getMessage());
         setError(e.getMessage());
         return true;
@@ -677,7 +685,10 @@ public class Server {
         arrayVar.arrayVal[index] = value;
         updateArrayHUD(varName, arrayVar.arrayVal);
         return true;
-      } catch (IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException e) {
+      } catch (
+        IllegalAccessException | NoSuchElementException | IndexOutOfBoundsException | NumberFormatException |
+        ArithmeticException e
+      ) {
         System.out.println(e.getMessage());
         setError(e.getMessage());
         return true;

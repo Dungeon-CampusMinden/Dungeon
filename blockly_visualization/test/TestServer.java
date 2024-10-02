@@ -509,4 +509,11 @@ public class TestServer {
     Assert.assertTrue(Server.errorOccurred);
     Assert.assertEquals("Variable array_a could not be found", Server.errorMsg);
   }
+
+  @Test
+  public void testDivisionByZeroError() {
+    Server.processAction("int a = 3 / 0");
+    Assert.assertTrue(Server.errorOccurred);
+    Assert.assertEquals("Division by zero is not allowed.", Server.errorMsg);
+  }
 }
