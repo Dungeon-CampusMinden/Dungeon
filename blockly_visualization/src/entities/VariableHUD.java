@@ -224,6 +224,18 @@ public class VariableHUD extends BlocklyHUD {
   }
 
   /**
+   * Clear the variables set and the reset the variables HUD. Called by the server class when resetting all values.
+   */
+  public void clearVariables() {
+    variables.clear();
+    Array<Cell> tableCells = this.varLabels.getCells();
+    for (Cell cell: tableCells) {
+      Label label = (Label) cell.getActor();
+      label.setText("");
+    }
+  }
+
+  /**
    * Update the text of a variable label. This will update the name and the value of the cell at the given position.
    * This function is intended for the variable labels table.
    * @param tableCells Array containing all table cells.
@@ -380,6 +392,20 @@ public class VariableHUD extends BlocklyHUD {
       leftArray = newVar;
     }
     updateArrayLabelCells(true);
+  }
+
+  /**
+   * Reset the array HUD. Set the left and right array to null and set the text of all array labels to an empty string.
+   * Called by the Server class when resetting all values.
+   */
+  public void clearArrayVariables() {
+    this.leftArray = null;
+    this.rightArray = null;
+    Array<Cell> tableCells = this.arrayLabels.getCells();
+    for (Cell cell: tableCells) {
+      Label label = (Label) cell.getActor();
+      label.setText("");
+    }
   }
 
   /**

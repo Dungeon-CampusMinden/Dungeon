@@ -64,6 +64,8 @@ public class Server {
   public static boolean errorOccurred = false;
   public static String errorMsg = "";
 
+  private static boolean clearHUD = false;
+
   private static final String[] reservedFunctions = {
     "oben",
     "unten",
@@ -113,6 +115,10 @@ public class Server {
    * @throws IOException
    */
   private static void handleStartRequest(HttpExchange exchange) throws IOException {
+    if (clearHUD) {
+      clearHUDValues();
+      clearHUD = false;
+    }
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
 
@@ -151,6 +157,17 @@ public class Server {
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
+  }
+
+  /**
+   * Clear the variable and array HUD in the dungeon.
+   */
+  private static void clearHUDValues() {
+    if (variableHUD == null) {
+      return;
+    }
+    variableHUD.clearArrayVariables();
+    variableHUD.clearVariables();
   }
 
   /**
@@ -195,7 +212,7 @@ public class Server {
 
   /**
    * Clear all global variables that may have been modified. Empty all stacks, hashmaps and reset all global variables
-   * to their default value.
+   * to their default value. Also clear the variable and array HUD in the dungeon.
    */
   public static void clearGlobalValues() {
     // Reset values
@@ -210,6 +227,8 @@ public class Server {
     interruptExecution = false;
     errorOccurred = false;
     errorMsg = "";
+    // Set clear HUD to true so the HUD will be cleared next time the start route will be used.
+    clearHUD = true;
     System.out.println("Values cleared");
     printScopes();
   }

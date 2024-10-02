@@ -82,9 +82,6 @@ public class Client {
           VariableHUD variableHUD = new VariableHUD(Game.stage());
           Game.add(variableHUD.createEntity());
 
-          int[] array_a =  {23, 10, 2, 45};
-          variableHUD.addArrayVariable("123456789", array_a);
-
           Server.variableHUD = variableHUD;
         });
   }
