@@ -1,0 +1,37 @@
+task single-choice Geschichte:
+"Wer war der erste Präsident der Vereinigten Staaten?"
+[X] "George Washington"
+[] "Thomas Jefferson"
+[] "Abraham Lincoln"
+
+task multiple-choice Biologie:
+"Welche dieser Tiere sind Säugetiere?"
+[X] "Delfin"
+[X] "Fledermaus"
+[ ] "Krokodil"
+
+task single-choice Literatur:
+"Wer schrieb 'Stolz und Vorurteil'?"
+[X] "Jane Austen"
+[] "Charlotte Brontë"
+[] "Virginia Woolf"
+
+task multiple-choice Musik:
+"Welche dieser Personen sind klassische Komponisten?"
+[X] "Mozart"
+[X] "Beethoven"
+[ ] "Bob Dylan"
+
+task single-choice Technologie:
+"Wer wird oft als 'Vater der Informatik' bezeichnet?"
+[X] "Alan Turing"
+[] "Bill Gates"
+[] "Steve Jobs"
+
+task Mint: (Technologie), Biologie
+
+config MeineAufgaben:
+    Geschichte  -> {
+        [X] -> Literatur
+        [ ] -> Musik
+    } -> Mint
