@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * This class is used to parse a level file and generate a layout.
  * Usage:
  * Step 1: Load all level files with the function getAllLevelFilePaths. The level files must be placed under
- *         assets/levels. Each level file must be name like this <level-name>_<int>.level.
+ *         assets/levels. Each level file must be name like this <level-name>_<difficulty>_<int>.level.
  * Step 2: Call the function getRandomVariant for your levels that you want to add to your game.
  * Step 3: Store all levels in a list.
  * Step 4: Define a function that should be called when the hero is on the end tile of a level.
@@ -28,7 +28,8 @@ import java.util.stream.Stream;
 public class LevelParser {
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getSimpleName());
   private static final String LEVEL_PATH_PREFIX = "/levels";
-  private static final Map<String, List<String>> LEVELS = new HashMap<>();
+  // Top Level key is the level name -> Returns another Map. Key for this map is the difficulty of the level.
+  private static final Map<String, Map<String, List<String>>> LEVELS = new HashMap<>();
   protected static final Random RANDOM = new Random();
 
   /**
@@ -36,8 +37,8 @@ public class LevelParser {
    * @param levelName The name of the level.
    * @return Returns a BlocklyLevel instance containing the layout, design label, hero position and custom points.
    */
-  public static BlocklyLevel getRandomVariant(String levelName) {
-    List<String> levelVariants = LEVELS.get(levelName);
+  public static BlocklyLevel getRandomVariant(String levelName, String difficulty) {
+    List<String> levelVariants = LEVELS.get(levelName).get(difficulty);
 
     if (levelVariants == null || levelVariants.isEmpty()) {
       throw new RuntimeException("Level file not found: " + levelName);
@@ -120,12 +121,23 @@ public class LevelParser {
               String[] onlyFileName = fileName.split("/");
               fileName = onlyFileName[onlyFileName.length - 1];
               String[] parts = fileName.split("_");
-              if (parts.length == 2) {
+              if (parts.length == 3) {
                 String levelName = parts[0];
+                String difficulty = parts[1];
                 String levelFilePath = file.toString();
-                LEVELS
-                  .computeIfAbsent(levelName, k -> new ArrayList<>())
-                  .add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                if (!LEVELS.containsKey(levelName)) {
+                  Map<String, List<String>> diffs = new HashMap<>();
+                  List<String> files = new ArrayList<>();
+                  files.add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                  diffs.put(difficulty, files);
+                  LEVELS.put(levelName, diffs);
+                } else if (!LEVELS.get(levelName).containsKey(difficulty)) {
+                  List<String> files = new ArrayList<>();
+                  files.add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                  LEVELS.get(levelName).put(difficulty, files);
+                } else {
+                  LEVELS.get(levelName).get(difficulty).add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                }
               } else {
                 LOGGER.warning("Invalid level file name: " + fileName);
               }
@@ -262,7 +274,7 @@ public class LevelParser {
   private static LevelElement[][] loadLevelLayoutFromString(List<String> lines) {
     LevelElement[][] layout = new LevelElement[lines.size()][lines.getFirst().length()];
 
-    for (int y = 0; y < lines.size(); y++) {
+    for (int y =0; y <  lines.size(); y++) {
       for (int x = 0; x < lines.getFirst().length(); x++) {
         char c = lines.get(y).charAt(x);
         switch (c) {
@@ -277,7 +289,6 @@ public class LevelParser {
         }
       }
     }
-
     return layout;
   }
 }

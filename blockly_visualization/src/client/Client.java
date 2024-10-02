@@ -90,8 +90,11 @@ public class Client {
     LevelParser.getAllLevelFilePaths();
     // Add all levels here
     // Add maze level
-    BlocklyLevel mazeLevel = LevelParser.getRandomVariant("maze");
+    BlocklyLevel mazeLevel = LevelParser.getRandomVariant("maze", "easy");
     levels.add(new MazeLevel(mazeLevel.layout, mazeLevel.designLabel, mazeLevel.heroPos));
+
+    BlocklyLevel mazeLevelHard = LevelParser.getRandomVariant("maze", "hard");
+    levels.add(new MazeLevel(mazeLevelHard.layout, mazeLevelHard.designLabel, mazeLevelHard.heroPos));
 
     return levels.get(currentLevel);
   }
