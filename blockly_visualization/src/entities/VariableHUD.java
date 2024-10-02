@@ -16,9 +16,13 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import entities.utility.HUDVariable;
+import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Random;
 import java.util.TreeSet;
 
 /**
@@ -39,6 +43,10 @@ public class VariableHUD extends BlocklyHUD {
   // Tables for labels
   private Table arrayLabels;
   private Table varLabels;
+  // Monster table
+  private Table monsterTable;
+  private ArrayList<Texture> monsterTextures;
+  private final Random RANDOM = new Random();
   // For Labels
   private float initialWidth;
   TreeSet<HUDVariable> variables = new TreeSet<>();
@@ -80,6 +88,28 @@ public class VariableHUD extends BlocklyHUD {
     this.arrayLabels = createArrayLabels();
     updateArrayLabelCells(false);
     this.stage.addActor(arrayLabels);
+
+    loadMonsterTextures();
+  }
+
+  /**
+   * Load all textures for the monsters. This will be called initially once.
+   */
+  private void loadMonsterTextures() {
+    monsterTextures = new ArrayList<>();
+    monsterTextures.add(new Texture(new SimpleIPath("monsters/chort.png").pathString()));
+    monsterTextures.add(new Texture(new SimpleIPath("monsters/doc.png").pathString()));
+    monsterTextures.add(new Texture(new SimpleIPath("monsters/goblin.png").pathString()));
+    monsterTextures.add(new Texture(new SimpleIPath("monsters/imp.png").pathString()));
+    monsterTextures.add(new Texture(new SimpleIPath("monsters/monster_elemental_small.png").pathString()));
+  }
+
+  /**
+   * Get a random monster texture from the monster textures list that was filled initially.
+   * @return Returns a texture of a random monster.
+   */
+  private Texture getRandomMonsterTexture() {
+    return monsterTextures.get(RANDOM.nextInt(monsterTextures.size()));
   }
 
   /**
@@ -209,11 +239,18 @@ public class VariableHUD extends BlocklyHUD {
     HUDVariable newVar = new HUDVariable(name, value);
     int variableSize = variables.size();
     if (variables.contains(newVar)) {
+      newVar = variables.ceiling(newVar);
+      assert newVar != null;
+      newVar.updateVariable(value);
       variables.remove(newVar);
-    } else if(variableSize >= (xTiles / 2)) {
-      variables.remove(variables.last());
+    } else {
+      if (variableSize >= (xTiles / 2)) {
+        variables.remove(variables.last());
+      }
+      newVar.setMonsterTexture(getRandomMonsterTexture());
     }
     variables.add(newVar);
+
     // Update the table
     Array<Cell> tableCells = this.varLabels.getCells();
     int counter = 0;
@@ -221,6 +258,12 @@ public class VariableHUD extends BlocklyHUD {
       updateVariableCell(tableCells, counter, var);
       counter++;
     }
+    Table tmpMonsterTable = createMonsterTable();
+    if (this.monsterTable != null) {
+      monsterTable.remove();
+    }
+    this.monsterTable = tmpMonsterTable;
+    this.stage.addActor(monsterTable);
   }
 
   /**
@@ -232,6 +275,9 @@ public class VariableHUD extends BlocklyHUD {
     for (Cell cell: tableCells) {
       Label label = (Label) cell.getActor();
       label.setText("");
+    }
+    if (this.monsterTable != null) {
+      monsterTable.remove();
     }
   }
 
@@ -499,6 +545,26 @@ public class VariableHUD extends BlocklyHUD {
     valueLabel.setText(value);
   }
 
+  // ============================= Table for monsters =========================================================\\
+
+  /**
+   * Create the table for the monsters. This function will be called each time a new monster was created.
+   * @return Returns the created table.
+   */
+  private Table createMonsterTable() {
+    Table table = new Table();
+    table.bottom();
+    table.left();
+    table.setFillParent(true);
+
+    for (HUDVariable var : variables) {
+      Image image = createImage(var.monsterTexture);
+      table.add(image).width(getWidth()).height(getHeight()).padLeft(5).padRight(getWidth()).padBottom(5);
+    }
+
+    return table;
+  }
+
   // ============================= Update different tables if screen size changed ============================= \\
 
   /**
@@ -514,6 +580,12 @@ public class VariableHUD extends BlocklyHUD {
     Array<Cell> tableCells = varTable.getCells();
     for (Cell cell: tableCells) {
       cell.size(getWidth(), getHeight());
+    }
+    // Update Monsters
+    Array<Cell> monsterCells = monsterTable.getCells();
+    for (Cell cell: monsterCells) {
+      cell.size(getWidth(), getHeight());
+      cell.padRight(getWidth());
     }
     updateVariableLabels();
     // Update array tiles
@@ -619,6 +691,11 @@ public class VariableHUD extends BlocklyHUD {
   }
 
   // ============================= Create an entity for this object ============================= \\
+
+  /**
+   * Creates a new Entity with a BlocklyUIComponent which will contain this object
+   * @return Returns a new Entity with a BlocklyUIComponent
+   */
   @Override
   public Entity createEntity(){
     Entity entity = new Entity("VariableHUDTiles");

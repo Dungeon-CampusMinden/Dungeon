@@ -1,5 +1,8 @@
 package entities.utility;
 
+import com.badlogic.gdx.graphics.Texture;
+import org.w3c.dom.Text;
+
 import java.time.LocalDateTime;
 
 
@@ -10,6 +13,7 @@ public class HUDVariable implements Comparable<HUDVariable>{
   public int value;
   public int[] arrayValue;
   public String type;
+  public Texture monsterTexture;
 
   public HUDVariable(String name, int value) {
     modtime = LocalDateTime.now();
@@ -23,6 +27,15 @@ public class HUDVariable implements Comparable<HUDVariable>{
     this.name = name;
     this.arrayValue = value;
     this.type = "array";
+  }
+
+  public void setMonsterTexture(Texture monsterTexture) {
+    this.monsterTexture = monsterTexture;
+  }
+
+  public void updateVariable(int value) {
+    modtime = LocalDateTime.now();
+    this.value = value;
   }
 
   @Override
