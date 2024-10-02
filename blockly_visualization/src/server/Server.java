@@ -33,7 +33,18 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** WTF? . */
+/**
+ * This class controls the communication between the blockly frontend and the dungeon. It has three interfaces that can
+ * be used by the blockly frontend:
+ * /start
+ * /reset
+ * /clear
+ * The main interface is "/start". This interface receives a string representing the code that should be executed in the
+ * dungeon. The string can contain multiple lines or just one line.
+ * The "/reset" interface will stop the current execution and will reset all values.
+ * The "/clear" interface will reset all values and will typically be called after the blockly program run into an error
+ * or the execution finished (when the whole program was executed and not just a step).
+ */
 public class Server {
   private static Entity hero;
 
@@ -69,16 +80,16 @@ public class Server {
   public static VariableHUD variableHUD = null;
 
   /**
-   * WTF? .
+   * Constructor of the server. Sets the hero.
    *
-   * @param hero
+   * @param hero The hero entity. Used to control the movement of the hero.
    */
   public Server(Entity hero) {
     Server.hero = hero;
   }
 
   /**
-   * WTF? .
+   * Start the server and listen on the start, reset, clear interfaces. This server will be started by the client.
    *
    * @throws IOException
    */
@@ -93,6 +104,14 @@ public class Server {
     server.start();
   }
 
+  /**
+   * Handle the start request. It receives the program that should be executed in the dungeon from the request body.
+   * It will process each action step by step. If the execution was interrupted by an error or the reset button was
+   * clicked the execution will be stopped. In this case all variables and other values will be cleared. If the program
+   * run into an error the response to the blockly frontend will contain an error message.
+   * @param exchange
+   * @throws IOException
+   */
   private static void handleStartRequest(HttpExchange exchange) throws IOException {
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -134,6 +153,81 @@ public class Server {
     os.close();
   }
 
+  /**
+   * Handles the reset request. This function will set the boolean interruptExecution. The execution will be stopped.
+   * @param exchange Exchange object. The function will send a success response to the blockly frontend
+   * @throws IOException
+   */
+  private static void handleResetRequest(HttpExchange exchange) throws IOException {
+    // Reset values
+    interruptExecution = true;
+
+    Debugger.TELEPORT_TO_START();
+
+    PositionComponent pc = getHeroPosition();
+    String response = pc.position().x + "," + pc.position().y;
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the clear request. This function will clear all global variables that may have been modified. It will empty
+   * all stacks, hashmaps and resets all global variables to their default value.
+   * @param exchange Exchange object. The function will send a success response to the blockly frontend
+   * @throws IOException
+   */
+  private static void handleClearRequest(HttpExchange exchange) throws IOException {
+    clearGlobalValues();
+
+    PositionComponent pc = getHeroPosition();
+    String response = pc.position().x + "," + pc.position().y;
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Clear all global variables that may have been modified. Empty all stacks, hashmaps and reset all global variables
+   * to their default value.
+   */
+  public static void clearGlobalValues() {
+    // Reset values
+    active_scopes.clear();
+    currently_repeating_scope.clear();
+    active_ifs.clear();
+    active_whiles.clear();
+    active_repeats.clear();
+    active_func_defs.clear();
+    variables.clear();
+    functions.clear();
+    interruptExecution = false;
+    errorOccurred = false;
+    errorMsg = "";
+    System.out.println("Values cleared");
+    printScopes();
+  }
+
+  /**
+   * Set the error flag and stop the execution. Also set the error message to the provided message.
+   * @param errMsg Error message that will be sent to the blockly frontend.
+   */
+  private static void setError(String errMsg) {
+    interruptExecution = true;
+    errorOccurred = true;
+    errorMsg = errMsg;
+  }
+
+  /**
+   * This function will be called when a scope is repeating itself. This can be the case for while or repeat loops.
+   * It will process the actions of the loop until the condition of the loop is false.
+   */
   private static void repeatHook(){
     if (!currently_repeating_scope.isEmpty()) {
       String currentLoop = currently_repeating_scope.peek();
@@ -171,6 +265,17 @@ public class Server {
     }
   }
 
+  /**
+   * This function will process the given action. The action must be given without any whitespaces at the end or
+   * beginning of the string. This function takes care of the following:
+   * 1: Scopes -> Evaluate if the current scope must be closed or a new scopes must be opened. Possible scopes are:
+   *    if, while, repeat, function.
+   * 2: Variables -> Evaluate if a new variable must be created or an existing variable must be adjusted. This includes
+   *    int variables or int array variables.
+   * 3: Execute actions in the dungeon -> Perform the desired actions in the dungeon. This can be moving into a specific
+   *    direction or throwing a fireball.
+   * @param action
+   */
   public static void processAction(String action) {
     System.out.print("Processing action: ");
     System.out.println(action);
@@ -244,8 +349,10 @@ public class Server {
   }
 
   /**
-   * Check if actions should be executed or if any if- or while-condition is false or if a function is currently
-   * defined.
+   * Check if actions should be executed. Do not perform any action if one of the following conditions is true:
+   * 1. At least one if-condition of the currently active if-scopes is false
+   * 2. At least one while-condition of the currently active while-scopes is false
+   * 3: A function is currently being defined
    * @return Returns true if actions may be performed. Returns false if no action may be performed.
    */
   private static boolean evalActionsExecute() {
@@ -283,6 +390,9 @@ public class Server {
     return true;
   }
 
+  /**
+   * Prints all current scopes, repeating scopes, variables and functions.
+   */
   private static void printScopes() {
     System.out.print("Current scopes: ");
     System.out.println(active_scopes);
@@ -294,58 +404,13 @@ public class Server {
     System.out.println(functions);
   }
 
-  private static void handleResetRequest(HttpExchange exchange) throws IOException {
-    // Reset values
-    interruptExecution = true;
-
-    Debugger.TELEPORT_TO_START();
-
-    PositionComponent pc = getHeroPosition();
-    String response = pc.position().x + "," + pc.position().y;
-
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-    exchange.sendResponseHeaders(200, response.getBytes().length);
-    OutputStream os = exchange.getResponseBody();
-    os.write(response.getBytes());
-    os.close();
-  }
-
-  private static void handleClearRequest(HttpExchange exchange) throws IOException {
-    clearGlobalValues();
-
-    PositionComponent pc = getHeroPosition();
-    String response = pc.position().x + "," + pc.position().y;
-
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-    exchange.sendResponseHeaders(200, response.getBytes().length);
-    OutputStream os = exchange.getResponseBody();
-    os.write(response.getBytes());
-    os.close();
-  }
-
-  public static void clearGlobalValues() {
-    // Reset values
-    active_scopes.clear();
-    currently_repeating_scope.clear();
-    active_ifs.clear();
-    active_whiles.clear();
-    active_repeats.clear();
-    active_func_defs.clear();
-    variables.clear();
-    functions.clear();
-    interruptExecution = false;
-    errorOccurred = false;
-    errorMsg = "";
-    System.out.println("Values cleared");
-    printScopes();
-  }
-
-  private static void setError(String errMsg) {
-    interruptExecution = true;
-    errorOccurred = true;
-    errorMsg = errMsg;
-  }
-
+  /**
+   * Retrieve an array variable from the variables hashmap. It will either throw a NoSuchElementException when the
+   * variable name could not be found or an IllegalAccessException if the variable does not have the type "array".
+   * @param varName Name of the variable that should be retrieved
+   * @return Returns the variable from the hashmap
+   * @throws IllegalAccessException
+   */
   private static Variable getArrayVariable(String varName) throws IllegalAccessException {
     Variable array_var = variables.get(varName);
     // Throw exception if nothing found
@@ -364,6 +429,9 @@ public class Server {
    * Get the actual value from an expression. This might be the value itself or the expression contains a variable.
    * Return the value of the variable or the value of an array expression if given.
    * Return the value of the variable in this case.
+   * Throws a NumberFormatException when a value that is not a variable can not be parsed as an integer.
+   * Throws an IllegalAccessException when an integer variable is expected but an array variable as given. Throws the
+   * same exception if it's the other way around.
    * @param value Value of the expression
    * @return Returns the value as an integer
    */
@@ -419,6 +487,11 @@ public class Server {
     };
   }
 
+  /**
+   * Evaluate if a function was called. Ignore the reserved function names. If the function pattern matches but the
+   * function can not be found in the functions hashmap set the error flag an stop the execution.
+   * @param action The current action that should be evaluated.
+   */
   private static void funcCallEvaluation(String action) {
     Pattern pattern = Pattern.compile("(\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
@@ -429,6 +502,7 @@ public class Server {
       }
       FuncStats calledFunc = functions.get(funcName);
       if (calledFunc == null) {
+        setError("Function " + funcName + " is not defined");
         System.out.println("Could not find function " + funcName);
         return;
       }
@@ -440,6 +514,12 @@ public class Server {
     }
 
   }
+
+  /**
+   * Check if the scope of a function ends with current action. The function definition ends if the current action is
+   * "}" and the active scope is "function".
+   * @param action
+   */
   private static void closeFunc(String action) {
     if (action.equals("}") && active_scopes.peek().equals("function")) {
       FuncStats finishedFunc = active_func_defs.pop();
@@ -447,6 +527,11 @@ public class Server {
       functions.put(finishedFunc.name, finishedFunc);
     }
   }
+
+  /**
+   * Add the current action to all active function definitions.
+   * @param action Current action that will be added to the function body of all active func defs.
+   */
   private static void addActionToFunc(String action){
     if (!active_func_defs.isEmpty()) {
       for (FuncStats func: active_func_defs) {
@@ -455,6 +540,11 @@ public class Server {
     }
   }
 
+  /**
+   * Evaluate if a func definition was started with the current action. In this case push a new function scope to the
+   * active scopes and add a new FuncStats object to the active_func_defs.
+   * @param action Current action that needs to be evaluated.
+   */
   private static void funcEvaluation(String action) {
     Pattern pattern = Pattern.compile("public void (\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
@@ -465,6 +555,11 @@ public class Server {
     }
   }
 
+  /**
+   * Add a new base variable to the variables hashmap. Also display it in the dungeon variable HUD if not null.
+   * @param name Name of the variable.
+   * @param value Integer value of the variable.
+   */
   private static void addBaseVar(String name, int value) {
     variables.put(name, new Variable(value));
     if (variableHUD != null) {
@@ -472,14 +567,20 @@ public class Server {
     }
   }
 
+  /**
+   * Update the array HUD if not null.
+   * @param name Name of the array variable.
+   * @param value Integer array value of the array variable
+   */
   private static void updateArrayHUD(String name, int[] value){
     if (variableHUD != null) {
       variableHUD.addArrayVariable(name, value);
     }
   }
   /**
-   * Evaluation if we currently have a variable assignment
-   * @param action Currently executed action
+   * Evaluate if a new variable was introduces or an existing variable was modified. This function checks for usual int
+   * variables and int array variables.
+   * @param action Current action that needs to be evaluated.
    */
   private static void variableEvaluation(String action) {
     // Check array creation
@@ -505,6 +606,13 @@ public class Server {
     }
   }
 
+  /**
+   * Check if the current action is an assignment to an int variable. Sets the error flag in case of an error in the
+   * blockly program. Updates the variable HUD.
+   * @param action Current action
+   * @return Returns true if the current action matched the regex for variable assignments. Returns false if the regex
+   * did not match.
+   */
   private static boolean checkAssign(String action) {
     // Check expression with operator
     Pattern pattern = Pattern.compile(
@@ -546,6 +654,12 @@ public class Server {
     return false;
   }
 
+  /**
+   * Check if the current action is an assignment to an int array variable. Sets the error flag in case of an error in
+   * the blockly program. Updates the array HUD.
+   * @param action
+   * @return
+   */
   private static boolean checkArrayAssign(String action) {
     Pattern pattern = Pattern.compile(
       "((\\w+)\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)"
@@ -593,6 +707,14 @@ public class Server {
     return false;
   }
 
+  /**
+   * Execute an operator expression. Retrieves the actual value from the given left and right value.
+   * @param leftVal Left value of the expression
+   * @param rightVal Right value of the expression
+   * @param op Operator of the expression
+   * @return Returns the result of the expression as an integer
+   * @throws IllegalAccessException
+   */
   private static int executeOperatorExpression(String leftVal, String rightVal, String op) throws IllegalAccessException {
     // Get left and right value
     int leftValue = getActualValueFromExpression(leftVal);
@@ -602,6 +724,13 @@ public class Server {
 
   }
 
+  /**
+   * Evaluate if the currently active while-loop must be closed. A while-loop will be closed if the current action is
+   * "}", the current scope is "while" and the condition of the current while loop evaluates to false.
+   * If the current while condition evaluates to true, set the isRepeating flag for the current while.
+   * @param action Current action that needs to be evaluated
+   * @return Returns true if the current while loop is repeating. Returns false if the current while loop was closed.
+   */
   private static boolean closeWhile(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
     // Check if loop must be ended
@@ -629,6 +758,10 @@ public class Server {
     return false;
   }
 
+  /**
+   * Adds the current action to all active whiles.
+   * @param action Current action
+   */
   private static void addActionToWhileBody(String action) {
     if (!active_whiles.isEmpty()) {
       if (active_whiles.peek().isRepeating) {
@@ -641,6 +774,12 @@ public class Server {
       }
     }
   }
+
+  /**
+   * Evaluate if the current action is the beginning of a while loop. Push a new while loop onto the active scopes stack
+   * and the active whiles stack.
+   * @param action Current action
+   */
   private static void whileEvaluation(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
 
@@ -651,6 +790,14 @@ public class Server {
     }
   }
 
+  /**
+   * Evaluate if the current repeat loop must be closed. The repeat loop will be closed if the current action is "}",
+   * the current scope is "repeat" and the repeat condition evaluates to false. The repeat condition evaluates to false
+   * if the counter is equal or bigger than the target counter.
+   * If the repeat condition evaluates to true, set the isRepeating flag.
+   * @param action Current action
+   * @return Returns true if the current repeat loop is repeating. Returns false if the repeat loop was closed.
+   */
   private static boolean closeRepeat(String action) {
     // Check if repeat loop must end
     if (action.equals("}") && active_scopes.peek().equals("repeat")) {
@@ -678,6 +825,10 @@ public class Server {
     return false;
   }
 
+  /**
+   * Adds the current action to all active repeat loops.
+   * @param action Current action
+   */
   private static void addActionToRepeatBody(String action){
     if (!active_repeats.isEmpty()) {
       if (active_repeats.peek().isRepeating) {
@@ -691,6 +842,12 @@ public class Server {
       }
     }
   }
+
+  /**
+   * Evaluate if the current action is the beginning of a repeat loop. Push a new repeat scopes on the active scopes
+   * stack and the active repeats stack.
+   * @param action Current action
+   */
   private static void repeatEvaluation(String action) {
     Pattern pattern = Pattern.compile("wiederhole (\\w+) Mal");
     Matcher matcher = pattern.matcher(action);
@@ -705,6 +862,14 @@ public class Server {
       }
     }
   }
+
+  /**
+   * Evaluate if the current action is the beginning or the end of an if-scope. Close the current if-scope if the
+   * current action is "}" and the active scope is "if". If the current action is the beginning of an if-scope push a
+   * new if-scope onto the active scopes stack and the active_ifs stack. If the current action starts the else part of
+   * the if-statement set the else-flag to the opposite of the if-flag and set the if-flag to false.
+   * @param action Current action
+   */
   private static void ifEvaluation(String action) {
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("if")) {
       active_ifs.pop();
@@ -724,6 +889,14 @@ public class Server {
     }
   }
 
+  /**
+   * Evaluate a given condition. This function will use the blocklyConditionVisitor to evaluate the given condition.
+   * The visitor will eventually throw a NoSuchElementException when a variable could not be found. This function will
+   * set the error flag if an error occurred while parsing the condition.
+   * @param action Current action
+   * @param pattern Regex pattern that can be used to extract the condition from the action.
+   * @return Returns the result of the condition or false on error.
+   */
   public static boolean evalComplexCondition(String action, Pattern pattern) {
     if (!active_func_defs.isEmpty()) {
       return false;
@@ -752,6 +925,11 @@ public class Server {
     return false;
   }
 
+  /**
+   * Perform an actual action in the dungeon with the hero. This can either be movement or a fireball in a specific
+   * direction.
+   * @param action Current action
+   */
   private static void performAction(String action) {
     switch (action) {
       case "oben();" -> up();
@@ -766,6 +944,9 @@ public class Server {
     }
   }
 
+  /**
+   * Move the hero up.
+   */
   private static void up() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
@@ -775,6 +956,9 @@ public class Server {
     waitDelta();
   }
 
+  /**
+   * Move the hero down.
+   */
   private static void down() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
@@ -784,6 +968,9 @@ public class Server {
     waitDelta();
   }
 
+  /**
+   * Move the hero to the left.
+   */
   private static void left() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
@@ -793,6 +980,9 @@ public class Server {
     waitDelta();
   }
 
+  /**
+   * Move the hero to the right.
+   */
   private static void right() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
@@ -812,9 +1002,9 @@ public class Server {
   }
 
   /**
-   * WTF? .
+   * Check if the hero is near a wall.
    *
-   * @return foo
+   * @return Returns true if the hero is near to a wall. Otherwise, returns false.
    */
   public static boolean isNearWall() {
     boolean isNearWall;
@@ -824,9 +1014,9 @@ public class Server {
   }
 
   /**
-   * WTF? .
+   * Check if a wall is above the hero.
    *
-   * @return foo
+   * @return Returns true if a wall is above the hero. Otherwise, returns false.
    */
   public static boolean isNearWallUp() {
     boolean isNearWallUp;
@@ -839,9 +1029,9 @@ public class Server {
   }
 
   /**
-   * WTF? .
+   * Check if a wall is below the hero.
    *
-   * @return foo
+   * @return Returns true if a wall is below the hero. Otherwise, returns false.
    */
   public static boolean isNearWallDown() {
     boolean isNearWallDown;
@@ -854,9 +1044,9 @@ public class Server {
   }
 
   /**
-   * WTF? .
+   * Check if a wall is to the left of the hero.
    *
-   * @return foo
+   * @return Returns true if a wall is to the left the hero. Otherwise, returns false.
    */
   public static boolean isNearWallLeft() {
     boolean isNearWallLeft;
@@ -869,9 +1059,9 @@ public class Server {
   }
 
   /**
-   * WTF? .
+   * Check if a wall is to the right of the hero.
    *
-   * @return foo
+   * @return Returns true if a wall is to the right the hero. Otherwise, returns false.
    */
   public static boolean isNearWallRight() {
     boolean isNearWallRight;
@@ -884,16 +1074,18 @@ public class Server {
   }
 
   /**
-   * WTF? .
+   * Get the current position of the hero in the dungeon.
    *
-   * @return foo
+   * @return Returns a position component which contains the x and y coordinates of the hero in the dungeon.
    */
   public static PositionComponent getHeroPosition() {
     return hero.fetch(PositionComponent.class)
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
 
-  /** WTF? . */
+  /**
+   * Throw a fireball upwards.
+   */
   public static void fireballUp() {
     Skill fireball =
         new Skill(
@@ -912,7 +1104,9 @@ public class Server {
     waitDelta();
   }
 
-  /** WTF? . */
+  /**
+   * Throw a fireball downwards.
+   */
   public static void fireballDown() {
     Skill fireball =
         new Skill(
@@ -931,7 +1125,9 @@ public class Server {
     waitDelta();
   }
 
-  /** WTF? . */
+  /**
+   * Throw a fireball to the left.
+   */
   public static void fireballLeft() {
     Skill fireball =
         new Skill(
@@ -950,7 +1146,9 @@ public class Server {
     waitDelta();
   }
 
-  /** WTF? . */
+  /**
+   * Throw a fireball to the right.
+   */
   public static void fireballRight() {
     Skill fireball =
         new Skill(
