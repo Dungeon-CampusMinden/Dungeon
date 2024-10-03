@@ -1,9 +1,10 @@
 import { CompletionItem, CompletionItemKind, Range, TextEdit } from 'vscode-languageserver';
+// Datei zum auslagern der Snippets
 
 export interface SuggestionData {
     label: string;
     documentation: string;
-    snippet: string; // Der eigentliche Snippet-Text
+    snippet: string; 
 }
 
 export const suggestionDefinitions: SuggestionData[] = [

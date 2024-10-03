@@ -1,4 +1,4 @@
-// Generated from C:/Users/bjarn/VS_Projects/Dungeon/Dungeon-Diagnostics/grammer.g4 by ANTLR 4.13.1
+// Generated from C:/Users/bjarn/VS_Projects/Dungeon/Dungeon-Diagnostics/SemanticAnalysis.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
@@ -16,8 +16,8 @@ public class grammerLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
-		T__9=10, T__10=11, DOUBLE_LINE=12, ARROW=13, TRUE=14, FALSE=15, ID=16, 
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9,
+		T__9=10, T__10=11, DOUBLE_LINE=12, ARROW=13, TRUE=14, FALSE=15, ID=16,
 		NUM=17, NUM_DEC=18, WS=19, LINE_COMMENT=20, BLOCK_COMMENT=21, STRING_LITERAL=22;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -29,9 +29,9 @@ public class grammerLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8", 
-			"T__9", "T__10", "STRING_ESCAPE_SEQ", "DOUBLE_LINE", "ARROW", "TRUE", 
-			"FALSE", "ID", "NUM", "NUM_DEC", "WS", "LINE_COMMENT", "BLOCK_COMMENT", 
+			"T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8",
+			"T__9", "T__10", "STRING_ESCAPE_SEQ", "DOUBLE_LINE", "ARROW", "TRUE",
+			"FALSE", "ID", "NUM", "NUM_DEC", "WS", "LINE_COMMENT", "BLOCK_COMMENT",
 			"STRING_LITERAL"
 		};
 	}
@@ -39,15 +39,15 @@ public class grammerLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'var'", "'='", "';'", "':'", "'<>'", "'[]'", "'['", "']'", "'single_choice_task'", 
+			null, "'var'", "'='", "';'", "':'", "'<>'", "'[]'", "'['", "']'", "'single_choice_task'",
 			"'multiple_choice_task'", "'\\n'", "'--'", "'->'", "'true'", "'false'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, null, null, null, null, null, null, null, null, null, null, null, 
-			"DOUBLE_LINE", "ARROW", "TRUE", "FALSE", "ID", "NUM", "NUM_DEC", "WS", 
+			null, null, null, null, null, null, null, null, null, null, null, null,
+			"DOUBLE_LINE", "ARROW", "TRUE", "FALSE", "ID", "NUM", "NUM_DEC", "WS",
 			"LINE_COMMENT", "BLOCK_COMMENT", "STRING_LITERAL"
 		};
 	}
@@ -92,7 +92,7 @@ public class grammerLexer extends Lexer {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "grammer.g4"; }
+	public String getGrammarFileName() { return "SemanticAnalysis.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }

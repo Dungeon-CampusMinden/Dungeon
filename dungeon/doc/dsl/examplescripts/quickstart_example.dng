@@ -8,5 +8,12 @@ single_choice_task meine_aufgabe {
     explanation: "Optionaler Erklärungstext"
 }
 
-
-
+single_choice_task name {
+    description: "description",
+    answers: [
+    "answer",
+    "answer",
+    "answer"
+    ]
+    correct_answer_index: 1
+}

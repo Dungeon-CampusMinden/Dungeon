@@ -1,4 +1,4 @@
-grammar DungeonDiagnostics;
+grammar SemanticAnalysis;
 
 // Parser-Kopfbereich für dynamische Methoden und Variablen
 @parser::members {

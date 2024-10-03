@@ -1,25 +1,22 @@
-import org.antlr.v4.runtime.tree.TerminalNode;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class DiagnosticsVisitor extends DungeonDiagnosticsBaseVisitor<Object> {
+public class DungeonSemanticVisitor extends SemanticAnalysisBaseVisitor<Object> {
     // Stack für Scopes: Jede Ebene enthält eine Map für Variablen und ihre Typen/Informationen
     private Stack<Map<String, String>> scopeStack = new Stack<>();
 
     // Aktuelle Scope-Tiefe
     private int scopeLevel = 0;
 
-    public DiagnosticsVisitor() {
+    public DungeonSemanticVisitor() {
         // Initialer globaler Scope
         scopeStack.push(new HashMap<>());
     }
 
     // Prüfe eine Variablendeklaration
     @Override
-    public Void visitVar_decl_assignment(DungeonDiagnosticsParser.Var_decl_assignmentContext ctx) {
+    public Object visitVar_decl_assignment(SemanticAnalysisParser.Var_decl_assignmentContext ctx) {
         String varName = ctx.id.getText();  // Variablenname
         Map<String, String> currentScope = scopeStack.peek();  // Hole den aktuellen Scope
 
@@ -36,7 +33,7 @@ public class DiagnosticsVisitor extends DungeonDiagnosticsBaseVisitor<Object> {
     }
 
     @Override
-    public Void visitOtherCode(DungeonDiagnosticsParser.OtherCodeContext ctx) {
+    public Object visitOtherCode(SemanticAnalysisParser.OtherCodeContext ctx) {
         String text = ctx.getText();  // Hole den Text des Tokens
 
         // Prüfe den Inhalt auf { oder }
@@ -64,18 +61,6 @@ public class DiagnosticsVisitor extends DungeonDiagnosticsBaseVisitor<Object> {
     public int getScopeLevel() {
         return scopeLevel;
     }
-
-
-//    // Hilfsmethode zum Hinzufügen eines Fehlers in die errors-Liste
-//    private void addError(String message, int line, int column) {
-//        errors.add(new ErrorInfo( line, column, message));
-//    }
-//
-//    // Getter für die Fehlerliste
-//    public ArrayList<ErrorInfo> getErrors() {
-//        return errors;
-//    }
-
 
 }
 

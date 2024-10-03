@@ -1,12 +1,12 @@
 fn ask_task_finished(entity knight, entity who) {
     var my_task = 10;
-    var myTask =
+    var myTask = 10;
 
     my_task =  knight.task_component.task;
     if my_task.is_active() {
         var myTask = u;
         ask_task_yes_no(my_task);
     } else {
-        show_info("Du hast die Aufgabe schon bearbeitet."
+        show_info("Du hast die Aufgabe schon bearbeitet.");
     }
 }

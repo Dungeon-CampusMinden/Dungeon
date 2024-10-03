@@ -11,7 +11,7 @@ public class Main {
         try {
             if (args.length > 0) {
                 String source = args[0];
-                //System.out.println("Der übergebene Dokumentenpfad ist: " + source);
+
                 CharStream cs = fromFileName(source);
                 DungeonDiagnosticsLexer lexer = new DungeonDiagnosticsLexer(cs);
                 CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -22,7 +22,7 @@ public class Main {
                 parser.addErrorListener(errorListener); // Füge benutzerdefinierten Listener hinzu
 
                 ParseTree tree = parser.program();
-                //DiagnosticsVisitor visitor = new DiagnosticsVisitor();
+                //           DungeonSemanticVisitor visitor = new DungeonSemanticVisitor();
                 //visitor.visit(tree);
                 List<ErrorInfo> errors = errorListener.getErrors();
                 //System.out.println(visitor.getErrors());
@@ -42,32 +42,6 @@ public class Main {
         } catch (IOException e) {
             System.out.println("{\"error\": \"" + e.getMessage() + "\"}");
         }
-
-
-//                // Fehler ausgeben
-//                if (!errorListener.getErrors().isEmpty()) {
-//                    for (ErrorInfo error : errorListener.getErrors()) {
-//                        System.out.println(error);
-//                    }
-//                } else {
-//                    System.out.println("Parsing erfolgreich.");
-//                }
-
-//            DiagnosticsVisitor visitor = new DiagnosticsVisitor();
-//            visitor.visit(tree);
-//
-//            for (ErrorInfo error : visitor.getErrors()) {
-//                System.out.println(error);
-//            }
-//            } else{
-//                System.out.println("Es wurde kein Pfad übergeben.");
-//                return;
-//            }
-//
-//        }catch(IOException e){
-//
-//           e.printStackTrace();
-//        }
 
     }
     public static String generateErrorJson(List<ErrorInfo> errors) {

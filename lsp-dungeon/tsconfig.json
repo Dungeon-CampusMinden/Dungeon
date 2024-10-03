@@ -8,7 +8,8 @@
 		"sourceMap": true
 	},
 	"include": [
-		"src"
+		"src",
+		"jars"
 	],
 	"exclude": [
 		"node_modules",

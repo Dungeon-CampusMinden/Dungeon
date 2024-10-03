@@ -8,16 +8,37 @@ single_choice_task my_task1 {
     ],
     correct_answer_index: 0
 }
+
+single_choice_task newtask {
+    description: "Frage?",
+    answers: [
+    "aw1",
+    "aw2",
+    "aw3"
+    ],
+    correct_answer_index: 2
+}
+
+dungeon_config dg {
+    dependency_graph: a
+}
+
 graph dependencies {
     my_task;
 }
 
-
 dungeon_config config {
     dependency_graph: dependencies
 }
-
-
+single_choice_task name {
+    description: "description",
+    answers: [
+    "answer",
+    "answer",
+    "answer"
+    ],
+    correct_answer_index: 1
+}
 // ----------------------------- AUFGABENDEFINITION ----------------------------
 
 // ---------------------------- ITEM TYP DEFINITION ----------------------------
@@ -40,8 +61,6 @@ entity_type chest_type {
     },
     task_content_component{}
 }
-
-
 
 entity_type knight_type {
     draw_component {
@@ -77,8 +96,9 @@ fn open_container(entity chest, entity who) {
 
 
 
+
 //  ------------------------- SZENARIO-BUILDER DEFINITION ------------------------
-fn build_task(single_choice_task t) -> entity<><> {
+fn build_task(single_choice_task my_task) -> entity<><> {
     // Szenario-spezifische Beschreibung setzen
     t.set_scenario_text("Platziere die richtige Schriftrolle in der Quest-Truhe");
 
@@ -86,7 +106,7 @@ fn build_task(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
-
+    var resdas: int;
     // Erstellung der Items aus den Antwortmöglichkeiten
     for task_content content in t.get_content() {
         var item : entity;

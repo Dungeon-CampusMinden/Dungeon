@@ -1,4 +1,4 @@
-// Generated from C:/Users/bjarn/VS_Projects/Dungeon/Dungeon-Diagnostics/grammer.g4 by ANTLR 4.13.1
+// Generated from C:/Users/bjarn/VS_Projects/Dungeon/Dungeon-Diagnostics/SemanticAnalysis.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
