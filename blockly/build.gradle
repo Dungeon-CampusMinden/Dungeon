@@ -29,3 +29,7 @@ tasks.register('runBlockly', JavaExec) {
     mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}
