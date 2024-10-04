@@ -11,10 +11,22 @@ public class RepeatStats {
 
   private int counter;
 
+  /**
+   * Body of the repeat loop. Contains all actions that need to be performed when the repeat loop is repeating itself.
+   */
   public ArrayList<String> repeatBody;
 
+  /**
+   * This boolean indicates if the repeat loop is repeating itself. Will be set to true when the scope of the repeat
+   * loop ends but the current counter did not reach the target counter yet.
+   */
   public boolean isRepeating = false;
 
+  /**
+   * Create a new repeat loop with the given target counter.
+   *
+   * @param targetCounter The targetCounter controls how often the repeat loop will be repeated.
+   */
   public RepeatStats(int targetCounter) {
     this.targetCounter = targetCounter - 1;
     counter = 0;
@@ -24,7 +36,7 @@ public class RepeatStats {
   /**
    * Evaluate if the repeat loop is finished.
    *
-   * @return
+   * @return Returns true if the counter reached the target counter. Otherwise, false.
    */
   public boolean evalRepeatComplete() {
     return counter >= targetCounter;

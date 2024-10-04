@@ -754,7 +754,7 @@ public class VariableHUD extends BlocklyHUD {
   // ============================= Create an entity for this object ============================= \\
 
   /**
-   * Creates a new Entity with a BlocklyUIComponent which will contain this object
+   * Creates a new Entity with a BlocklyUIComponent which will contain this object.
    *
    * @return Returns a new Entity with a BlocklyUIComponent
    */

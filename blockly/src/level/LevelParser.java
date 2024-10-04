@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 /**
  * This class is used to parse a level file and generate a layout. Usage: Step 1: Load all level
  * files with the function getAllLevelFilePaths. The level files must be placed under assets/levels.
- * Each level file must be name like this <level-name>_<difficulty>_<int>.level. Step 2: Call the
+ * Each level file must be name like this [level-name]_[difficulty]_[int].level. Step 2: Call the
  * function getRandomVariant for your levels that you want to add to your game. Step 3: Store all
  * levels in a list. Step 4: Define a function that should be called when the hero is on the end
  * tile of a level. Step 5: Add this function to your LevelSystem with the function onEndTile. Check
@@ -35,6 +35,7 @@ public class LevelParser {
    * Retrieve a random layout for the specified level.
    *
    * @param levelName The name of the level.
+   * @param difficulty The difficulty of the level.
    * @return Returns a BlocklyLevel instance containing the layout, design label, hero position and
    *     custom points.
    */

@@ -12,7 +12,16 @@ import server.Variable;
 @SuppressWarnings("CheckReturnValue")
 public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
 
-  public boolean calculateIntCompare(String op, int left, int right) {
+    /**
+     * Calculate the boolean value of an integer compare operation. Returns the result of the
+     * comparison.
+     *
+     * @param op Operator of the comparison
+     * @param left Left integer of the comparison
+     * @param right Right operator of the comparison
+     * @return Returns the result of the comparison
+     */
+    public boolean calculateIntCompare(String op, int left, int right) {
     return switch (op) {
       case "==" -> left == right;
       case "!=" -> left != right;
@@ -33,7 +42,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
   @Override
   public INode visitStart(blocklyParser.StartContext ctx) {
     INode output = visitChildren(ctx);
-    return new StartNode("start", output);
+    return new StartNode(output);
   }
 
   /**
@@ -44,16 +53,11 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
    */
   @Override
   public INode visitParenthese_Expr(blocklyParser.Parenthese_ExprContext ctx) {
-    INode node = visit(ctx.ex);
-    if (node.type.equals("expr")) {
-      ExprNode expr = (ExprNode) node;
-      expr.parentheseExpr = true;
-    }
-    return node;
+    return visit(ctx.ex);
   }
 
   /**
-   * We assume that this function will only be called with int nodes or variable nodes
+   * We assume that this function will only be called with int nodes or variable nodes.
    *
    * @param node Node to extract the value from
    * @return Returns the extracted int value
@@ -83,7 +87,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     int rightValue = extractIntValueFromNode(right);
     boolean boolVal = calculateIntCompare(op, leftValue, rightValue);
 
-    BaseNode node = new BaseNode("base", Types.BOOLEAN);
+    BaseNode node = new BaseNode(Types.BOOLEAN);
     node.boolVal = boolVal;
     return node;
   }
@@ -108,7 +112,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     boolean leftBool = leftBase.boolVal;
     boolean rightBool = rightBase.boolVal;
 
-    BaseNode node = new BaseNode("base", Types.BOOLEAN);
+    BaseNode node = new BaseNode( Types.BOOLEAN);
     if (op.equals("&&")) {
       node.boolVal = leftBool && rightBool;
     } else if (op.equals("||")) {
@@ -174,7 +178,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "WandRechts" -> Server.isNearWallRight();
           default -> false;
         };
-    BaseNode node = new BaseNode("base", Types.BOOLEAN);
+    BaseNode node = new BaseNode(Types.BOOLEAN);
     node.boolVal = boolVal;
     return node;
   }
@@ -200,12 +204,12 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
 
     if (checkIfInteger(value)) {
       int val = Integer.parseInt(value);
-      BaseNode node = new BaseNode("base", Types.INTEGER);
+      BaseNode node = new BaseNode(Types.INTEGER);
       node.intVal = val;
       return node;
     }
 
-    BaseNode node = new BaseNode("base", Types.BOOLEAN);
+    BaseNode node = new BaseNode(Types.BOOLEAN);
     if (value.equals("wahr")) {
       node.boolVal = true;
     } else if (value.equals("falsch")) {
@@ -238,6 +242,6 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     if (!value.type.equals("base")) {
       throw new NoSuchElementException("Variable " + id + " is not a base type variable");
     }
-    return new VarNode("var", id, value.intVal);
+    return new VarNode(id, value.intVal);
   }
 }

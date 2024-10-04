@@ -1,7 +1,15 @@
 package nodes;
 
+/**
+ * Enum holding possible base node types.
+ */
 public enum Types {
+  /**
+   * Boolean type.
+   */
   BOOLEAN,
-  INTEGER,
-  STRING
+  /**
+   * Integer type.
+   */
+  INTEGER
 }
