@@ -54,49 +54,44 @@ public class Server {
   private static Entity hero;
 
   /**
-   * This variable holds all active scopes in a stack. The value at the top of the stack is the current scope.
-   * It can hold the following values: if, while, repeat, function.
-  */
+   * This variable holds all active scopes in a stack. The value at the top of the stack is the
+   * current scope. It can hold the following values: if, while, repeat, function.
+   */
   public static final Stack<String> active_scopes = new Stack<>();
-  /**
-   * Hashmap storing all variables.
-   * This is public, so we can easily access it in the blocklyConditionVisitor
-   */
-  public static final HashMap<String, Variable> variables = new HashMap<>();
-  /**
-   * Hashmap storing all functions.
-   */
-  private static final HashMap<String, FuncStats> functions = new HashMap<>();
 
   /**
-   * Stack containing all active scopes.
+   * Hashmap storing all variables. This is public, so we can easily access it in the
+   * blocklyConditionVisitor
    */
+  public static final HashMap<String, Variable> variables = new HashMap<>();
+
+  /** Hashmap storing all functions. */
+  private static final HashMap<String, FuncStats> functions = new HashMap<>();
+
+  /** Stack containing all active scopes. */
   public static final Stack<RepeatStats> active_repeats = new Stack<>();
-  /**
-   * Stack containing all active while loops.
-   */
+
+  /** Stack containing all active while loops. */
   public static final Stack<WhileStats> active_whiles = new Stack<>();
-  /**
-   * Stack containing all active ifs.
-   */
+
+  /** Stack containing all active ifs. */
   public static final Stack<IfStats> active_ifs = new Stack<>();
-  /**
-   * Stack containing all active func defs.
-   */
+
+  /** Stack containing all active func defs. */
   public static final Stack<FuncStats> active_func_defs = new Stack<>();
+
   /**
-   * This boolean will be set to true on error or if the user clicked the reset button in the blockly frontend.
-   * The execution of the current program will stop if this variable is true.
+   * This boolean will be set to true on error or if the user clicked the reset button in the
+   * blockly frontend. The execution of the current program will stop if this variable is true.
    */
   public static boolean interruptExecution = false;
-  /**
-   * This boolean will be set to true on error.
-   */
+
+  /** This boolean will be set to true on error. */
   public static boolean errorOccurred = false;
-  /**
-   * This variable cotnains the error message if an error occured during the execution.
-   */
+
+  /** This variable cotnains the error message if an error occured during the execution. */
   public static String errorMsg = "";
+
   private static boolean clearHUD = false;
   private static final String[] reservedFunctions = {
     "oben",
@@ -114,9 +109,10 @@ public class Server {
     "naheWand"
   };
   private static final Stack<String> currently_repeating_scope = new Stack<>();
+
   /**
-   * Object containing the variable HUD in the dungeon. This object is used to add new variables to the HUD.
-   * It will add int variables and arrays to the HUD and update existing varaible values.
+   * Object containing the variable HUD in the dungeon. This object is used to add new variables to
+   * the HUD. It will add int variables and arrays to the HUD and update existing varaible values.
    */
   public static VariableHUD variableHUD = null;
 

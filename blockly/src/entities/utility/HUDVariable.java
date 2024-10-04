@@ -3,38 +3,30 @@ package entities.utility;
 import com.badlogic.gdx.graphics.Texture;
 import java.time.LocalDateTime;
 
-/**
- * This class holds all important values of variable that should be displayed in the HUD.
- */
+/** This class holds all important values of variable that should be displayed in the HUD. */
 public class HUDVariable implements Comparable<HUDVariable> {
 
-  /**
-   * Latest modification time of this object.
-   */
+  /** Latest modification time of this object. */
   public LocalDateTime modtime;
-  /**
-   * Name of the variable.
-   */
+
+  /** Name of the variable. */
   public String name;
-  /**
-   * Int value of this variable.
-   */
+
+  /** Int value of this variable. */
   public int value;
-  /**
-   * Int array value of this variable.
-   */
+
+  /** Int array value of this variable. */
   public int[] arrayValue;
-  /**
-   * Type of this array. Can either be base (int) or array (int[]).
-   */
+
+  /** Type of this array. Can either be base (int) or array (int[]). */
   public String type;
-  /**
-   * Texture of the monster that will be used to visualize this variable in the HUD.
-   */
+
+  /** Texture of the monster that will be used to visualize this variable in the HUD. */
   public Texture monsterTexture;
 
   /**
-   * Constructor for base variables (int). Sets the modtime to the current timestamp. Sets the type to "base".
+   * Constructor for base variables (int). Sets the modtime to the current timestamp. Sets the type
+   * to "base".
    *
    * @param name Name of the variable.
    * @param value Value of the variable.
@@ -47,7 +39,8 @@ public class HUDVariable implements Comparable<HUDVariable> {
   }
 
   /**
-   * Constructor for array variables (int[]). Sets the modtime to the current timestamp. Sets the type to "array".
+   * Constructor for array variables (int[]). Sets the modtime to the current timestamp. Sets the
+   * type to "array".
    *
    * @param name Name of the variable.
    * @param value Value of the variable.
@@ -105,8 +98,8 @@ public class HUDVariable implements Comparable<HUDVariable> {
   }
 
   /**
-   * Get the formatted name of the variable. The variable name will be shortened if it is longer than 9 chars.
-   * The variable name will be cut at 7 chars and add three dots at the end.
+   * Get the formatted name of the variable. The variable name will be shortened if it is longer
+   * than 9 chars. The variable name will be cut at 7 chars and add three dots at the end.
    *
    * @return Returns the formatted name for the HUD.
    */

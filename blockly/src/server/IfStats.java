@@ -7,19 +7,19 @@ package server;
  */
 public class IfStats {
   /**
-   * Will be set after evaluating the condition of the if-statement. If either the if-flag or else-flag is set,
-   * actions may be performed. Otherwise, no action may be performed.
+   * Will be set after evaluating the condition of the if-statement. If either the if-flag or
+   * else-flag is set, actions may be performed. Otherwise, no action may be performed.
    */
   public boolean if_flag;
-  /**
-   * Will be set if we parse a "sonst" action. Will be set to the negation of the if-flag.
-   */
+
+  /** Will be set if we parse a "sonst" action. Will be set to the negation of the if-flag. */
   public boolean else_flag;
 
   /**
    * Create a new if-statement with the result of the condition.
    *
-   * @param if_flag The result of the condition. Will be set as the if_flag. The else flag is initially always false.
+   * @param if_flag The result of the condition. Will be set as the if_flag. The else flag is
+   *     initially always false.
    */
   public IfStats(boolean if_flag) {
     this.if_flag = if_flag;

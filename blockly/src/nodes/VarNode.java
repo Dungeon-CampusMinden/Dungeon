@@ -1,17 +1,12 @@
 package nodes;
 
-/**
- * This class hold the name and the value of an integer variable.
- */
+/** This class hold the name and the value of an integer variable. */
 public class VarNode extends INode {
 
-  /**
-   * Name of the variable.
-   */
+  /** Name of the variable. */
   public String name;
-  /**
-   * Integer value of the variable.
-   */
+
+  /** Integer value of the variable. */
   public int value;
 
   /**

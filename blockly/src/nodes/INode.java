@@ -1,14 +1,8 @@
 package nodes;
 
-import java.util.ArrayList;
-
-/**
- * Inherit from this class to store important values when visiting a node in the parsed tree.
- */
+/** Inherit from this class to store important values when visiting a node in the parsed tree. */
 public abstract class INode {
-  /**
-   * Type of the node.
-   */
+  /** Type of the node. */
   public String type;
 
   /**

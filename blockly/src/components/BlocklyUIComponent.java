@@ -21,9 +21,7 @@ public final class BlocklyUIComponent implements Component {
     this.hud = hud;
   }
 
-  /**
-   * Call teh updateActors function of the HUD object.
-   */
+  /** Call teh updateActors function of the HUD object. */
   public void updateActors() {
     hud.updateActors();
   }

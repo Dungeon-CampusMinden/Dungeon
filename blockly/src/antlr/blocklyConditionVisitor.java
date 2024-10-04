@@ -12,16 +12,16 @@ import server.Variable;
 @SuppressWarnings("CheckReturnValue")
 public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
 
-    /**
-     * Calculate the boolean value of an integer compare operation. Returns the result of the
-     * comparison.
-     *
-     * @param op Operator of the comparison
-     * @param left Left integer of the comparison
-     * @param right Right operator of the comparison
-     * @return Returns the result of the comparison
-     */
-    public boolean calculateIntCompare(String op, int left, int right) {
+  /**
+   * Calculate the boolean value of an integer compare operation. Returns the result of the
+   * comparison.
+   *
+   * @param op Operator of the comparison
+   * @param left Left integer of the comparison
+   * @param right Right operator of the comparison
+   * @return Returns the result of the comparison
+   */
+  public boolean calculateIntCompare(String op, int left, int right) {
     return switch (op) {
       case "==" -> left == right;
       case "!=" -> left != right;
@@ -112,7 +112,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     boolean leftBool = leftBase.boolVal;
     boolean rightBool = rightBase.boolVal;
 
-    BaseNode node = new BaseNode( Types.BOOLEAN);
+    BaseNode node = new BaseNode(Types.BOOLEAN);
     if (op.equals("&&")) {
       node.boolVal = leftBool && rightBool;
     } else if (op.equals("||")) {

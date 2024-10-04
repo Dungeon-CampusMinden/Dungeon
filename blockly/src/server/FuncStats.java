@@ -7,12 +7,12 @@ import java.util.ArrayList;
  * name and the body of the function in an array list.
  */
 public class FuncStats {
-  /**
-   * Name of the function.
-   */
+  /** Name of the function. */
   public String name;
+
   /**
-   * Body of the function. Contains all actions that need to be performed when this function will be called.
+   * Body of the function. Contains all actions that need to be performed when this function will be
+   * called.
    */
   public ArrayList<String> funcBody;
 

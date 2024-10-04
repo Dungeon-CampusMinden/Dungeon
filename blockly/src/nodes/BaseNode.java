@@ -1,25 +1,19 @@
 package nodes;
 
-/**
- * This class holds a base value. A base value can either be a boolean or an integer.
- */
+/** This class holds a base value. A base value can either be a boolean or an integer. */
 public class BaseNode extends INode {
-  /**
-   * Type of the base node. Can either be boolean or integer.
-   */
+  /** Type of the base node. Can either be boolean or integer. */
   public Types baseType;
-  /**
-   * Boolean value of the node.
-   */
+
+  /** Boolean value of the node. */
   public boolean boolVal;
-  /**
-   * Integer value of the node.
-   */
+
+  /** Integer value of the node. */
   public int intVal;
 
   /**
-   * Create a new base node. The general type of the node will be set to "base". The base type can either be
-   * integer or boolean.
+   * Create a new base node. The general type of the node will be set to "base". The base type can
+   * either be integer or boolean.
    *
    * @param baseType Specific type of the base node. Either integer or boolean.
    */

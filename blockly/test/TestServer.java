@@ -5,31 +5,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Server;
 
-/**
- * Test the server class.
- */
+/** Test the server class. */
 public class TestServer {
 
-  /**
-   * Reset all global values before each test.
-   */
+  /** Reset all global values before each test. */
   @BeforeEach
   public void setUp() {
     Server.clearGlobalValues();
   }
 
-  /**
-   * Test a simple variable assign.
-   */
+  /** Test a simple variable assign. */
   @Test
   public void testSimpleAssign() {
     Server.processAction("int x = 5;");
     assertEquals(5, Server.variables.get("x").intVal);
   }
 
-  /**
-   * Test variable assign with expressions.
-   */
+  /** Test variable assign with expressions. */
   @Test
   public void testExpressionAssign() {
     Server.processAction("int x = 5 + 5;");
@@ -48,9 +40,7 @@ public class TestServer {
     assertEquals(0, Server.variables.get("x").intVal);
   }
 
-  /**
-   * Test evaluation of conditions.
-   */
+  /** Test evaluation of conditions. */
   @Test
   public void testConditionEval() {
     Pattern pattern = Pattern.compile("(.*)");
@@ -81,9 +71,7 @@ public class TestServer {
             "(((nicht falsch && 10 >= 1) || (11 <= 10 && falsch)))", pattern));
   }
 
-  /**
-   * Test if if-statements will be recognized correctly and if/else flag will be set properly.
-   */
+  /** Test if if-statements will be recognized correctly and if/else flag will be set properly. */
   @Test
   public void testIfEval() {
     Server.processAction("falls (wahr)");
@@ -101,9 +89,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test nested if-statements.
-   */
+  /** Test nested if-statements. */
   @Test
   public void testNestedIf() {
     Server.processAction("falls (wahr)");
@@ -135,9 +121,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test nested if-statements with a negative condition at the top-level.
-   */
+  /** Test nested if-statements with a negative condition at the top-level. */
   @Test
   public void testNestedIfNegativeOuterCondition() {
     Server.processAction("int x = 0;");
@@ -175,7 +159,8 @@ public class TestServer {
   }
 
   /**
-   * Test if while-loops will be recognized correctly and execution of the while-body works properly.
+   * Test if while-loops will be recognized correctly and execution of the while-body works
+   * properly.
    */
   @Test
   public void testWhileEval() {
@@ -195,9 +180,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test while-loop with a condition that evaluates to false.
-   */
+  /** Test while-loop with a condition that evaluates to false. */
   @Test
   public void testWhileFalseCondition() {
     Server.processAction("int x = 0;");
@@ -216,9 +199,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test nested while-loops.
-   */
+  /** Test nested while-loops. */
   @Test
   public void testNestedWhile() {
     Server.processAction("int x = 0;");
@@ -253,9 +234,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test nested whiles with a while-loop that evaluates to false at the top-level.
-   */
+  /** Test nested whiles with a while-loop that evaluates to false at the top-level. */
   @Test
   public void testNestedWhileNegativeOuterCondition() {
     Server.processAction("int x = 0;");
@@ -291,7 +270,8 @@ public class TestServer {
   }
 
   /**
-   * Test if repeat-loops will be recognized correctly and execution of the repeat-body works properly.
+   * Test if repeat-loops will be recognized correctly and execution of the repeat-body works
+   * properly.
    */
   @Test
   public void testRepeatEval() {
@@ -309,9 +289,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test nested repeat loops.
-   */
+  /** Test nested repeat loops. */
   @Test
   public void testNestedRepeat() {
     Server.processAction("int x = 0");
@@ -342,9 +320,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test nested scopes of different types.
-   */
+  /** Test nested scopes of different types. */
   @Test
   public void testNestedScopes() {
     Server.processAction("wiederhole 4 Mal");
@@ -366,9 +342,7 @@ public class TestServer {
     assertTrue(Server.active_scopes.isEmpty());
   }
 
-  /**
-   * Test if func defs will be recognized correctly and the code will not actually be executed.
-   */
+  /** Test if func defs will be recognized correctly and the code will not actually be executed. */
   @Test
   public void testFuncEval() {
     Server.processAction("int x = 0");
@@ -443,9 +417,7 @@ public class TestServer {
     assertEquals(6, Server.variables.get("x").intVal);
   }
 
-  /**
-   * Test func calls in func def. The code of the func call must not be executed.
-   */
+  /** Test func calls in func def. The code of the func call must not be executed. */
   @Test
   public void testFuncCallInFuncDef() {
     Server.processAction("int x = 0");
@@ -477,7 +449,8 @@ public class TestServer {
   }
 
   /**
-   * Test if array creation will be recognized correctly and array variable will be created properly.
+   * Test if array creation will be recognized correctly and array variable will be created
+   * properly.
    */
   @Test
   public void testArrayCreation() {
@@ -486,9 +459,7 @@ public class TestServer {
     assertArrayEquals(array_a, Server.variables.get("array_a").arrayVal);
   }
 
-  /**
-   * Test if a value can be retrieved from an array properly.
-   */
+  /** Test if a value can be retrieved from an array properly. */
   @Test
   public void testArrayGet() {
     Server.processAction("int[] array_a = new int[5];");
@@ -496,9 +467,7 @@ public class TestServer {
     assertEquals(0, Server.variables.get("x").intVal);
   }
 
-  /**
-   * Test if a value can be set in an array properly.
-   */
+  /** Test if a value can be set in an array properly. */
   @Test
   public void testArraySet() {
     Server.processAction("int[] array_a = new int[5];");
@@ -508,9 +477,7 @@ public class TestServer {
     assertArrayEquals(array_a, Server.variables.get("array_a").arrayVal);
   }
 
-  /**
-   * Test if the length of an array can be retrieved properly.
-   */
+  /** Test if the length of an array can be retrieved properly. */
   @Test
   public void testArrayLength() {
     Server.processAction("int[] array_a = new int[5];");
@@ -518,9 +485,7 @@ public class TestServer {
     assertEquals(5, Server.variables.get("x").intVal);
   }
 
-  /**
-   * Test if the variable not found error works properly.
-   */
+  /** Test if the variable not found error works properly. */
   @Test
   public void testVariableNotFoundError() {
     Server.processAction("int z = 5 + x");
@@ -535,9 +500,7 @@ public class TestServer {
     assertNull(Server.variables.get("z"));
   }
 
-  /**
-   * Test if the array is an array but a base variable was expected error works properly.
-   */
+  /** Test if the array is an array but a base variable was expected error works properly. */
   @Test
   public void testVariableIsArrayError() {
     Server.processAction("int[] array_a = new int[5];");
@@ -552,9 +515,7 @@ public class TestServer {
     assertEquals("Expected base variable. Got array for variable array_a", Server.errorMsg);
   }
 
-  /**
-   * Test if an index out of bounds exception will be caught properly.
-   */
+  /** Test if an index out of bounds exception will be caught properly. */
   @Test
   public void testIndexOutOfBoundsError() {
     Server.processAction("int[] array_a = new int[5];");
@@ -564,7 +525,8 @@ public class TestServer {
   }
 
   /**
-   * Test if an error will be raised properly if an array variable was expected, but we got a base variable.
+   * Test if an error will be raised properly if an array variable was expected, but we got a base
+   * variable.
    */
   @Test
   public void testVariableIsBaseError() {
@@ -574,9 +536,7 @@ public class TestServer {
     assertEquals("Expected array variable. Got base for variable x", Server.errorMsg);
   }
 
-  /**
-   * Test if we properly raise an error if we do not find a function.
-   */
+  /** Test if we properly raise an error if we do not find a function. */
   @Test
   public void testFunctionNotFoundError() {
     Server.processAction("dummyFunc();");
@@ -584,9 +544,7 @@ public class TestServer {
     assertEquals("Function dummyFunc is not defined", Server.errorMsg);
   }
 
-  /**
-   * Test if we properly raise an error when we can not find a variable in a condition.
-   */
+  /** Test if we properly raise an error when we can not find a variable in a condition. */
   @Test
   public void testConditionError() {
     Server.processAction("falls (array_a < 5)");
@@ -605,9 +563,7 @@ public class TestServer {
     assertEquals("Variable array_a is not a base type variable", Server.errorMsg);
   }
 
-  /**
-   * Test if we properly catch a division by zero and raise an error.
-   */
+  /** Test if we properly catch a division by zero and raise an error. */
   @Test
   public void testDivisionByZeroError() {
     Server.processAction("int a = 3 / 0");

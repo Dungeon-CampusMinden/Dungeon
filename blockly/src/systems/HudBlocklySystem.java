@@ -34,10 +34,11 @@ public class HudBlocklySystem extends System {
   }
 
   /**
-   * Handler for changed screen size. Will call the updateActors function of the BlocklyUIComponent of the given entity.
+   * Handler for changed screen size. Will call the updateActors function of the BlocklyUIComponent
+   * of the given entity.
    *
-   * @param entity Entity that has a BlocklyUIComponent and needs to update the size of its actors due to screen size
-   *               change.
+   * @param entity Entity that has a BlocklyUIComponent and needs to update the size of its actors
+   *     due to screen size change.
    */
   public void handleChangedScreenSize(Entity entity) {
     entity.fetch(BlocklyUIComponent.class).ifPresent(BlocklyUIComponent::updateActors);

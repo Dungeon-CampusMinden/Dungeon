@@ -12,13 +12,14 @@ public class RepeatStats {
   private int counter;
 
   /**
-   * Body of the repeat loop. Contains all actions that need to be performed when the repeat loop is repeating itself.
+   * Body of the repeat loop. Contains all actions that need to be performed when the repeat loop is
+   * repeating itself.
    */
   public ArrayList<String> repeatBody;
 
   /**
-   * This boolean indicates if the repeat loop is repeating itself. Will be set to true when the scope of the repeat
-   * loop ends but the current counter did not reach the target counter yet.
+   * This boolean indicates if the repeat loop is repeating itself. Will be set to true when the
+   * scope of the repeat loop ends but the current counter did not reach the target counter yet.
    */
   public boolean isRepeating = false;
 

@@ -9,21 +9,23 @@ import java.util.ArrayList;
  */
 public class WhileStats {
   /**
-   * Condition string of the while-loop. Will be used to eval the while-loop when the scope of the while-loop
-   * was about to be closed.
+   * Condition string of the while-loop. Will be used to eval the while-loop when the scope of the
+   * while-loop was about to be closed.
    */
   public String condition;
-  /**
-   * Current condition result of the while-loop.
-   */
+
+  /** Current condition result of the while-loop. */
   public boolean conditionResult;
+
   /**
-   * Boolean indicating if the while-loop is repeating itself. Will be set to true if the scope of the while-loop
-   * was about to be closed, but the condition evaluates to true.
+   * Boolean indicating if the while-loop is repeating itself. Will be set to true if the scope of
+   * the while-loop was about to be closed, but the condition evaluates to true.
    */
   public boolean isRepeating;
+
   /**
-   * Body of the while-loop. Contains all actions that need to be performed when repeating the while-loop.
+   * Body of the while-loop. Contains all actions that need to be performed when repeating the
+   * while-loop.
    */
   public ArrayList<String> whileBody;
 

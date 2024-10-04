@@ -13,21 +13,18 @@ import java.util.List;
  */
 public class BlocklyLevel {
 
-  /**
-   * Layout of the level. Will be passed to the dungeon.
-   */
+  /** Layout of the level. Will be passed to the dungeon. */
   public LevelElement[][] layout;
-  /**
-   * Design label of the dungeon. Will be passed to the dungeon.
-   */
+
+  /** Design label of the dungeon. Will be passed to the dungeon. */
   public DesignLabel designLabel;
-  /**
-   * Initial starting point of the hero in the level.
-   */
+
+  /** Initial starting point of the hero in the level. */
   public Point heroPos;
+
   /**
-   * Custom points. Can be used in a level class to define custom events when the hero is at one of the
-   * custom points.
+   * Custom points. Can be used in a level class to define custom events when the hero is at one of
+   * the custom points.
    */
   public List<Coordinate> customPoints;
 
@@ -37,8 +34,8 @@ public class BlocklyLevel {
    * @param layout Layout of the level.
    * @param designLabel Design label of the dungeon.
    * @param heroPos Initial starting point of the hero in the level.
-   * @param customPoints Custom points. Can be used in a level class to define custom events when the hero is at one of
-   *                     the custom points.
+   * @param customPoints Custom points. Can be used in a level class to define custom events when
+   *     the hero is at one of the custom points.
    */
   public BlocklyLevel(
       LevelElement[][] layout,

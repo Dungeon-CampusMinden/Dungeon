@@ -89,8 +89,8 @@ public class Client {
   }
 
   /**
-   * Init levels. Load your levels here with the LevelParser and add them to the levels list in the order that they
-   * should be played
+   * Init levels. Load your levels here with the LevelParser and add them to the levels list in the
+   * order that they should be played
    *
    * @return Returns the first level
    */
@@ -109,8 +109,8 @@ public class Client {
   }
 
   /**
-   * Load the next level. This function will be executed when the player enters the exit tile. If the player
-   * finished all level generated a random level layout and call it sandbox mode.
+   * Load the next level. This function will be executed when the player enters the exit tile. If
+   * the player finished all level generated a random level layout and call it sandbox mode.
    */
   public static void loadNextLevel() {
     Server.interruptExecution = true;
