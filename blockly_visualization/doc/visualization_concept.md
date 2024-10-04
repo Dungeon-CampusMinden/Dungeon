@@ -233,3 +233,33 @@ Frames oder mehr Frames angezeigt werden soll. Denkbar wäre auch, die zeitaufw�
 der Benutzer z.B. über einen Schritt-für-Schritt Button das Programm schrittweise durchläuft. Wenn er jedoch den
 Start-Button drückt, um das gesamte Programm auszuführen werden die Animationen nicht angezeigt oder nur in einer
 minimalen Form mit weniger Frames.
+
+## Technische Umsetzung
+
+Aktuell ist ein Teil des Visualisierungskonzepts bereits umgesetzt. Es wird bereits der Variablen- und die beiden
+Array-Bereiche angezeigt. Jedoch noch in einer minimalistischen Ausführung. Die beiden Bereiche werden jeweils über
+einen Table von Scene2D im HUD organisiert und angezeigt. Dabei wird jeweils ein Table für die Darstellung der Kacheln
+genutzt und ein Table für die Darstellung der Werte. Diese Tabellen werden der Stage hinzugefügt, damit sie fixiert
+immer an derselben Stelle auf dem Bildschirm platziert sind. Da die Ausführung des Codes in der Klasse ``Server``
+geschieht, erhält die Klasse Server ein Objekt der Klasse ``VariableHUD``. Die Klasse ``Client`` erstellt das Objekt
+der Klasse ``VariableHUD`` und übergibt es an die ``Server`` Klasse. Auf dem ``VariableHUD``-Objekt werden
+hauptsächlich die folgenden Funktionen in der ``Server`` Klasse aufgerufen:
+
+1. *clearArrayVariables*: Löscht alle Werte aus den Array-Bereichen. Wird aufgerufen, wenn z.B. das Programm auf einen
+Fehler läuft, oder das Programm einmal durchgelaufen ist.
+2. *clearVariables*: Löscht alle Variablen aus dem Variablen-Bereich. Wird aufgerufen, wenn z.B. das Programm auf einen
+Fehler läuft, oder das Programm einmal durchgelaufen ist.
+3. *addVariable*: Fügt dem HUD eine neue Variable hinzu oder aktualisiert den Wert einer vorhandenen Variable. Die neue
+Variable wird im Variablen-Bereich angezeigt.
+4. *addArrayVariable*: Fügt dem HUD ein neues Array hinzu oder aktualisiert die Werte in einem vorhandenen Array.
+
+### Erweiterung des HUDs
+
+Um weitere Elemente im HUD anzuzeigen, bietet es sich an eine weitere Klasse zu erstellen, welche von der abstrakten
+Klasse ``BlocklyHUD`` erbt. Es müssen die beiden Funktionen ``updateActors`` und ``createEntity`` implementiert werden.
+Die Funktion ``updateActors`` muss dabei genutzt werden, um die Größe des HUDs an die aktuelle Bildschirmgröße anzupassen.
+Die Funktion wird durch das ``HudBlocklySystem`` für alle Entitäten aufgerufen, welche eine ``BlocklyUIComponent``
+besitzen. Die Funktion ``createEntity`` sollte eine Entität zurückgeben, welche die Komponente ``BlocklyUIComponent``
+besitzt. Der Konstruktor der ``BlocklyUIComponent`` Klasse erhält ein Objekt der Klasse ``BlocklyHUD``. Dort muss das
+Objekt der neuen HUD-Klasse übergeben werden.
+
