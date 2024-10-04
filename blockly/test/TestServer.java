@@ -1,9 +1,9 @@
-import java.util.regex.Pattern;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import server.Server;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import server.Server;
 
 public class TestServer {
 
