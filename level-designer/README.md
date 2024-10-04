@@ -2,17 +2,17 @@
 
 Der Level-Designer hilft bei der Erstellung von Karten für ein Level. Für die
 Konfiguration des Levels wird der folgende Tilemap-Editor verwendet:
-https://www.spritefusion.com/editor. In den folgenden Schritten wird erklärt wie
+<https://www.spritefusion.com/editor>. In den folgenden Schritten wird erklärt wie
 der Level-Designer zu verwenden ist.
 
 ## Schritt 1: Tilemap erstellen
 
-In dem Online-Editor https://www.spritefusion.com/editor kann ein neues Projekt
+In dem Online-Editor <https://www.spritefusion.com/editor> kann ein neues Projekt
 gestartet werden oder eines der Beispielprojekte aus dem Ordner "example_projects"
 geladen werden. Wenn ein neues Projekt erstellt wird kann ein tileset importiert
 werden. Dabei kann als tile_set die Datei "tile_set_spritesheet.png" verwendet
 werden. Es besteht auch die Möglichkeit sich ein eigenes tileset zu bauen über die
-folgende URL: https://www.codeandweb.com/tp-online. Mit welchen tiles gearbeitet
+folgende URL: <https://www.codeandweb.com/tp-online>. Mit welchen tiles gearbeitet
 wird, ist für die Erstellung einer ".level" Datei egal.
 
 ### Layer erstellen
@@ -20,6 +20,7 @@ wird, ist für die Erstellung einer ".level" Datei egal.
 Wenn das Projekt so weit erstellt wurde müssen die Layer erstellt werden. Diese
 sind später entscheidend, um die Tilemap aus dem Editor in das Format des Dungeons
 zu übertragen. Es können die folgenden Layer angelegt werden:
+
 - hero
 - custom
 - hole
@@ -52,4 +53,10 @@ Themes im Folgenden aufgelistet:
 - ICE (10% Chance)
 - TEMPLE (30% Chance)
 - DARK (0% Chance, keine geschlossenen Türen vorhanden)
-- RAINBOW( (1% Chance)
+- RAINBOW(1% Chance)
+
+## Schritt 4: Level Datei parsen und einlesen
+
+Nachdem die Level-Datei generiert und fertig konfiguriert wurde, muss sie im Code
+über einen Parser eingelesen werden. Ein Beispiel eines Parsers ist in dem Modul
+"blockly" unter ``src/level/LevelParser`` zu finden.
