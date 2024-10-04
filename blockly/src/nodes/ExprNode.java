@@ -26,7 +26,8 @@ public class ExprNode extends INode {
         retVal = new StringBuilder(operator + " " + leftNode.toString());
       } else {
         // We got left and right node
-        retVal = new StringBuilder(leftNode.toString() + " " + operator + " " + rightNode.toString());
+        retVal =
+            new StringBuilder(leftNode.toString() + " " + operator + " " + rightNode.toString());
       }
     }
 
@@ -36,5 +37,4 @@ public class ExprNode extends INode {
 
     return retVal.toString();
   }
-
 }

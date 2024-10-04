@@ -16,5 +16,4 @@ public class StartNode extends INode {
     }
     return ((BaseNode) firstNode).boolVal;
   }
-
 }

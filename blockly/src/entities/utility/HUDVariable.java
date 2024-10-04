@@ -1,12 +1,9 @@
 package entities.utility;
 
 import com.badlogic.gdx.graphics.Texture;
-import org.w3c.dom.Text;
-
 import java.time.LocalDateTime;
 
-
-public class HUDVariable implements Comparable<HUDVariable>{
+public class HUDVariable implements Comparable<HUDVariable> {
 
   public LocalDateTime modtime;
   public String name;
@@ -64,7 +61,7 @@ public class HUDVariable implements Comparable<HUDVariable>{
     return other.name.equals(this.name);
   }
 
-  public String getFormattedName(){
+  public String getFormattedName() {
     if (this.name.length() > 9) {
       String substr = name.substring(0, 7);
       return substr + "...";

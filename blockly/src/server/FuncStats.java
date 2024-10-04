@@ -3,8 +3,8 @@ package server;
 import java.util.ArrayList;
 
 /**
- * This class is used to store the important values of a function. This class contains the function name and the body
- * of the function in an array list.
+ * This class is used to store the important values of a function. This class contains the function
+ * name and the body of the function in an array list.
  */
 public class FuncStats {
   public String name;
@@ -16,7 +16,7 @@ public class FuncStats {
   }
 
   @Override
-  public String toString(){
+  public String toString() {
     return name + "(" + funcBody.size() + " lines)";
   }
 }

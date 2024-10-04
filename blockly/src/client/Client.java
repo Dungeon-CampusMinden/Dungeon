@@ -15,13 +15,12 @@ import core.level.utils.DesignLabel;
 import core.systems.LevelSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.path.SimpleIPath;
+import entities.VariableHUD;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-
-import entities.VariableHUD;
 import level.BlocklyLevel;
 import level.LevelParser;
 import level.MazeLevel;
@@ -29,16 +28,20 @@ import server.Server;
 import systems.HudBlocklySystem;
 import systems.LevelTickSystem;
 
-/** This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't have any effect */
+/**
+ * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
+ * have any effect
+ */
 public class Client {
 
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
 
   private static Server blocklyServer;
+
   /**
-   * Setup and run the game. Also start the server that is listening to the requests from
-   * blockly frontend.
+   * Setup and run the game. Also start the server that is listening to the requests from blockly
+   * frontend.
    *
    * @param args
    * @throws IOException
@@ -58,7 +61,6 @@ public class Client {
 
     // build and start game
     Game.run();
-
   }
 
   private static void onFrame(Debugger debugger) {
@@ -94,7 +96,8 @@ public class Client {
     levels.add(new MazeLevel(mazeLevel.layout, mazeLevel.designLabel, mazeLevel.heroPos));
 
     BlocklyLevel mazeLevelHard = LevelParser.getRandomVariant("maze", "hard");
-    levels.add(new MazeLevel(mazeLevelHard.layout, mazeLevelHard.designLabel, mazeLevelHard.heroPos));
+    levels.add(
+        new MazeLevel(mazeLevelHard.layout, mazeLevelHard.designLabel, mazeLevelHard.heroPos));
 
     return levels.get(currentLevel);
   }
@@ -104,7 +107,8 @@ public class Client {
     currentLevel++;
     if (currentLevel >= levels.size()) {
       createRoomBasedLevel(10, 5, 1);
-      DialogUtils.showTextPopup("Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
+      DialogUtils.showTextPopup(
+          "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
       return;
     }
     Game.currentLevel(levels.get(currentLevel));

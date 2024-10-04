@@ -6,7 +6,6 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,26 +15,28 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * This class is used to parse a level file and generate a layout.
- * Usage:
- * Step 1: Load all level files with the function getAllLevelFilePaths. The level files must be placed under
- *         assets/levels. Each level file must be name like this <level-name>_<difficulty>_<int>.level.
- * Step 2: Call the function getRandomVariant for your levels that you want to add to your game.
- * Step 3: Store all levels in a list.
- * Step 4: Define a function that should be called when the hero is on the end tile of a level.
- * Step 5: Add this function to your LevelSystem with the function onEndTile. Check the Client class as an example.
+ * This class is used to parse a level file and generate a layout. Usage: Step 1: Load all level
+ * files with the function getAllLevelFilePaths. The level files must be placed under assets/levels.
+ * Each level file must be name like this <level-name>_<difficulty>_<int>.level. Step 2: Call the
+ * function getRandomVariant for your levels that you want to add to your game. Step 3: Store all
+ * levels in a list. Step 4: Define a function that should be called when the hero is on the end
+ * tile of a level. Step 5: Add this function to your LevelSystem with the function onEndTile. Check
+ * the Client class as an example.
  */
 public class LevelParser {
   private static final Logger LOGGER = Logger.getLogger(LevelParser.class.getSimpleName());
   private static final String LEVEL_PATH_PREFIX = "/levels";
-  // Top Level key is the level name -> Returns another Map. Key for this map is the difficulty of the level.
+  // Top Level key is the level name -> Returns another Map. Key for this map is the difficulty of
+  // the level.
   private static final Map<String, Map<String, List<String>>> LEVELS = new HashMap<>();
   protected static final Random RANDOM = new Random();
 
   /**
    * Retrieve a random layout for the specified level.
+   *
    * @param levelName The name of the level.
-   * @return Returns a BlocklyLevel instance containing the layout, design label, hero position and custom points.
+   * @return Returns a BlocklyLevel instance containing the layout, design label, hero position and
+   *     custom points.
    */
   public static BlocklyLevel getRandomVariant(String levelName, String difficulty) {
     List<String> levelVariants = LEVELS.get(levelName).get(difficulty);
@@ -51,7 +52,8 @@ public class LevelParser {
   }
 
   /**
-   * Read all level files placed under assets/levels. This functions should always be executed as a first step.
+   * Read all level files placed under assets/levels. This functions should always be executed as a
+   * first step.
    */
   public static void getAllLevelFilePaths() {
     if (isRunningFromJar()) {
@@ -71,17 +73,19 @@ public class LevelParser {
 
   /**
    * Check if application is currently running from a jar.
+   *
    * @return Returns true if the application is currently running from a jar. Otherwise false.
    */
   private static boolean isRunningFromJar() {
     return Objects.requireNonNull(
-        LevelParser.class.getResource(LevelParser.class.getSimpleName() + ".class"))
-      .toString()
-      .startsWith("jar:");
+            LevelParser.class.getResource(LevelParser.class.getSimpleName() + ".class"))
+        .toString()
+        .startsWith("jar:");
   }
 
   /**
    * Parses all level files from the file system when not running from a jar.
+   *
    * @throws IOException
    * @throws URISyntaxException
    */
@@ -93,6 +97,7 @@ public class LevelParser {
 
   /**
    * Parses all level files from the jar.
+   *
    * @throws IOException
    * @throws URISyntaxException
    */
@@ -105,51 +110,57 @@ public class LevelParser {
 
   /**
    * Parse a level file from the given path.
+   *
    * @param path Path of the level file.
-   * @param isJar Set to true, if currently running from jar. Path needs to be adjusted in this case. If executed from
-   *              the file system set to false.
+   * @param isJar Set to true, if currently running from jar. Path needs to be adjusted in this
+   *     case. If executed from the file system set to false.
    * @throws IOException
    */
   private static void parseLevelFiles(Path path, boolean isJar) throws IOException {
     try (Stream<Path> paths = Files.walk(path)) {
       paths
-        .filter(Files::isRegularFile)
-        .forEach(
-          file -> {
-            String fileName = file.getFileName().toString();
-            if (fileName.endsWith(".level")) {
-              String[] onlyFileName = fileName.split("/");
-              fileName = onlyFileName[onlyFileName.length - 1];
-              String[] parts = fileName.split("_");
-              if (parts.length == 3) {
-                String levelName = parts[0];
-                String difficulty = parts[1];
-                String levelFilePath = file.toString();
-                if (!LEVELS.containsKey(levelName)) {
-                  Map<String, List<String>> diffs = new HashMap<>();
-                  List<String> files = new ArrayList<>();
-                  files.add(isJar ? "jar:" + levelFilePath : levelFilePath);
-                  diffs.put(difficulty, files);
-                  LEVELS.put(levelName, diffs);
-                } else if (!LEVELS.get(levelName).containsKey(difficulty)) {
-                  List<String> files = new ArrayList<>();
-                  files.add(isJar ? "jar:" + levelFilePath : levelFilePath);
-                  LEVELS.get(levelName).put(difficulty, files);
-                } else {
-                  LEVELS.get(levelName).get(difficulty).add(isJar ? "jar:" + levelFilePath : levelFilePath);
+          .filter(Files::isRegularFile)
+          .forEach(
+              file -> {
+                String fileName = file.getFileName().toString();
+                if (fileName.endsWith(".level")) {
+                  String[] onlyFileName = fileName.split("/");
+                  fileName = onlyFileName[onlyFileName.length - 1];
+                  String[] parts = fileName.split("_");
+                  if (parts.length == 3) {
+                    String levelName = parts[0];
+                    String difficulty = parts[1];
+                    String levelFilePath = file.toString();
+                    if (!LEVELS.containsKey(levelName)) {
+                      Map<String, List<String>> diffs = new HashMap<>();
+                      List<String> files = new ArrayList<>();
+                      files.add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                      diffs.put(difficulty, files);
+                      LEVELS.put(levelName, diffs);
+                    } else if (!LEVELS.get(levelName).containsKey(difficulty)) {
+                      List<String> files = new ArrayList<>();
+                      files.add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                      LEVELS.get(levelName).put(difficulty, files);
+                    } else {
+                      LEVELS
+                          .get(levelName)
+                          .get(difficulty)
+                          .add(isJar ? "jar:" + levelFilePath : levelFilePath);
+                    }
+                  } else {
+                    LOGGER.warning("Invalid level file name: " + fileName);
+                  }
                 }
-              } else {
-                LOGGER.warning("Invalid level file name: " + fileName);
-              }
-            }
-          });
+              });
     }
   }
 
   /**
    * Loads a BlocklyLevel from the specified path.
+   *
    * @param path The path to the level file.
-   * @return Returns an instance of a BlocklyLevel containing the layout, design label, hero position and custom points.
+   * @return Returns an instance of a BlocklyLevel containing the layout, design label, hero
+   *     position and custom points.
    */
   public static BlocklyLevel loadFromPath(IPath path) {
     try {
@@ -192,8 +203,9 @@ public class LevelParser {
   }
 
   /**
-   * Read a line with the given reader. This function will ignore lines beginning with # and will also remove all chars
-   * after the # if a line contains the # char.
+   * Read a line with the given reader. This function will ignore lines beginning with # and will
+   * also remove all chars after the # if a line contains the # char.
+   *
    * @param reader Reader that will be used for reading a new line.
    * @return Returns the line.
    * @throws IOException
@@ -211,9 +223,11 @@ public class LevelParser {
 
   /**
    * Parse the position of the hero and returns a point.
-   * @param heroPositionLine The line from the level file containing the hero position. The line must not be empty or
-   *                         contain an invalid format for the hero position.
-   * @return Returns the point with the x and y coordinate that will be used as the start position for the hero.
+   *
+   * @param heroPositionLine The line from the level file containing the hero position. The line
+   *     must not be empty or contain an invalid format for the hero position.
+   * @return Returns the point with the x and y coordinate that will be used as the start position
+   *     for the hero.
    */
   private static Point parseHeroPosition(String heroPositionLine) {
     if (heroPositionLine.isEmpty()) throw new RuntimeException("Missing Hero Position");
@@ -230,8 +244,10 @@ public class LevelParser {
 
   /**
    * Parse custom points of the level file. Can be used for custom events.
+   *
    * @param customPointsLine The line containing the custom points. The line can be empty.
-   * @return Returns an array list with all custom points. Return an empty list if the line is empty.
+   * @return Returns an array list with all custom points. Return an empty list if the line is
+   *     empty.
    */
   private static List<Coordinate> parseCustomPoints(String customPointsLine) {
     List<Coordinate> customPoints = new ArrayList<>();
@@ -254,7 +270,9 @@ public class LevelParser {
 
   /**
    * Parse the design label from the level file.
-   * @param line The line containing the design label. If the line is empty choose a random design label.
+   *
+   * @param line The line containing the design label. If the line is empty choose a random design
+   *     label.
    * @return Returns the design label for the level.
    */
   private static DesignLabel parseDesignLabel(String line) {
@@ -267,14 +285,16 @@ public class LevelParser {
   }
 
   /**
-   * Generate a 2D array of Level Elements for a list of lines. The generated Level Elements build the level layout.
+   * Generate a 2D array of Level Elements for a list of lines. The generated Level Elements build
+   * the level layout.
+   *
    * @param lines Lines of the level file only containing information about the level layout.
    * @return Returns a 2D array of Level Elements which will be used as the level layout.
    */
   private static LevelElement[][] loadLevelLayoutFromString(List<String> lines) {
     LevelElement[][] layout = new LevelElement[lines.size()][lines.getFirst().length()];
 
-    for (int y =0; y <  lines.size(); y++) {
+    for (int y = 0; y < lines.size(); y++) {
       for (int x = 0; x < lines.getFirst().length(); x++) {
         char c = lines.get(y).charAt(x);
         switch (c) {

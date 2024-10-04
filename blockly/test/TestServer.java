@@ -1,39 +1,38 @@
+import java.util.regex.Pattern;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.junit.Assert;
 import server.Server;
-
-import java.util.regex.Pattern;
 
 public class TestServer {
 
   @Before
   public void setUp() {
-      Server.clearGlobalValues();
+    Server.clearGlobalValues();
   }
 
   @Test
   public void testSimpleAssign() {
     Server.processAction("int x = 5;");
-    Assert.assertEquals(5,  Server.variables.get("x").intVal);
+    Assert.assertEquals(5, Server.variables.get("x").intVal);
   }
+
   @Test
   public void testExpressionAssign() {
     Server.processAction("int x = 5 + 5;");
-    Assert.assertEquals(10,  Server.variables.get("x").intVal);
+    Assert.assertEquals(10, Server.variables.get("x").intVal);
     Server.processAction("int x = 5 * 5;");
-    Assert.assertEquals(25,  Server.variables.get("x").intVal);
+    Assert.assertEquals(25, Server.variables.get("x").intVal);
     Server.processAction("int x = 5 - 5;");
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
     Server.processAction("int x = 5 / 5;");
-    Assert.assertEquals(1,  Server.variables.get("x").intVal);
+    Assert.assertEquals(1, Server.variables.get("x").intVal);
     Server.processAction("int x = x + x;");
-    Assert.assertEquals(2,  Server.variables.get("x").intVal);
+    Assert.assertEquals(2, Server.variables.get("x").intVal);
     Server.processAction("int x = x + 3;");
-    Assert.assertEquals(5,  Server.variables.get("x").intVal);
+    Assert.assertEquals(5, Server.variables.get("x").intVal);
     Server.processAction("int x = 5 - x;");
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
   }
 
   @Test
@@ -61,8 +60,11 @@ public class TestServer {
     Assert.assertFalse(Server.evalComplexCondition("nicht (9 <= 10 && wahr)", pattern));
     Assert.assertTrue(Server.evalComplexCondition("9 >= 10 || wahr", pattern));
     // Complex condition
-    Assert.assertTrue(Server.evalComplexCondition("(((nicht falsch && 10 >= 1) || (11 <= 10 && falsch)))", pattern));
+    Assert.assertTrue(
+        Server.evalComplexCondition(
+            "(((nicht falsch && 10 >= 1) || (11 <= 10 && falsch)))", pattern));
   }
+
   @Test
   public void testIfEval() {
     Server.processAction("falls (wahr)");
@@ -289,7 +291,7 @@ public class TestServer {
     Assert.assertEquals(1, Server.active_scopes.size());
     Assert.assertEquals(1, Server.active_repeats.size());
     Assert.assertEquals(5, Server.active_repeats.peek().repeatBody.size());
-    Assert.assertEquals(2,  Server.variables.get("y").intVal);
+    Assert.assertEquals(2, Server.variables.get("y").intVal);
 
     Server.processAction("}");
     Assert.assertEquals(4, Server.variables.get("x").intVal);
@@ -326,7 +328,6 @@ public class TestServer {
     Server.processAction("int x = x + 1");
     Assert.assertEquals("function", Server.active_scopes.peek());
 
-
     Server.processAction("falls (wahr)");
     Server.processAction("int x = x + 1");
     Assert.assertEquals("if", Server.active_scopes.peek());
@@ -350,9 +351,8 @@ public class TestServer {
 
     Server.processAction("}");
     Assert.assertTrue(Server.active_scopes.isEmpty());
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
   }
-
 
   @Test
   public void testFuncCall() {
@@ -361,7 +361,6 @@ public class TestServer {
     Server.processAction("public void dummy_func() {");
     Server.processAction("int x = x + 1");
     Assert.assertEquals("function", Server.active_scopes.peek());
-
 
     Server.processAction("falls (wahr)");
     Server.processAction("int x = x + 1");
@@ -386,10 +385,10 @@ public class TestServer {
 
     Server.processAction("}");
     Assert.assertTrue(Server.active_scopes.isEmpty());
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
 
     Server.processAction("dummy_func();");
-    Assert.assertEquals(6,  Server.variables.get("x").intVal);
+    Assert.assertEquals(6, Server.variables.get("x").intVal);
   }
 
   @Test
@@ -407,33 +406,33 @@ public class TestServer {
     Server.processAction("}");
     Server.processAction("}");
     Server.processAction("}");
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
 
     Server.processAction("public void dummy_func2() {");
     Server.processAction("int x = 5");
     Server.processAction("dummy_func()");
     Assert.assertEquals("function", Server.active_scopes.peek());
     Server.processAction("}");
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
 
     Server.processAction("dummy_func2();");
-    Assert.assertEquals(7,  Server.variables.get("x").intVal);
+    Assert.assertEquals(7, Server.variables.get("x").intVal);
     Server.processAction("dummy_func();");
-    Assert.assertEquals(9,  Server.variables.get("x").intVal);
+    Assert.assertEquals(9, Server.variables.get("x").intVal);
   }
 
   @Test
   public void testArrayCreation() {
     Server.processAction("int[] array_a = new int[5];");
     int[] array_a = new int[5];
-    Assert.assertArrayEquals(array_a,  Server.variables.get("array_a").arrayVal);
+    Assert.assertArrayEquals(array_a, Server.variables.get("array_a").arrayVal);
   }
 
   @Test
   public void testArrayGet() {
     Server.processAction("int[] array_a = new int[5];");
     Server.processAction("int x = array_a[1];");
-    Assert.assertEquals(0,  Server.variables.get("x").intVal);
+    Assert.assertEquals(0, Server.variables.get("x").intVal);
   }
 
   @Test
@@ -442,14 +441,14 @@ public class TestServer {
     Server.processAction("int array_a[1] = 5;");
     int[] array_a = new int[5];
     array_a[1] = 5;
-    Assert.assertArrayEquals(array_a,  Server.variables.get("array_a").arrayVal);
+    Assert.assertArrayEquals(array_a, Server.variables.get("array_a").arrayVal);
   }
 
   @Test
   public void testArrayLength() {
     Server.processAction("int[] array_a = new int[5];");
     Server.processAction("int x = array_a.length;");
-    Assert.assertEquals(5,  Server.variables.get("x").intVal);
+    Assert.assertEquals(5, Server.variables.get("x").intVal);
   }
 
   @Test
