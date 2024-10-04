@@ -556,10 +556,16 @@ public class VariableHUD extends BlocklyHUD {
     table.bottom();
     table.left();
     table.setFillParent(true);
-
+    boolean isFirst = true;
     for (HUDVariable var : variables) {
       Image image = createImage(var.monsterTexture);
-      table.add(image).width(getWidth()).height(getHeight()).padLeft(5).padRight(getWidth()).padBottom(5);
+      if (isFirst) {
+        table.add(image).width(getWidth()).height(getHeight()).padLeft(5).padRight(getWidth()).padBottom(5);
+        isFirst = false;
+      } else {
+        table.add(image).width(getWidth()).height(getHeight()).padRight(getWidth()).padBottom(5);
+      }
+
     }
 
     return table;
