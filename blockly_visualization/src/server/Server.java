@@ -74,7 +74,12 @@ public class Server {
     "feuerballOben",
     "feuerballUnten",
     "feuerballLinks",
-    "feuerballRechts"
+    "feuerballRechts",
+    "WandRechts",
+    "WandLinks",
+    "WandOben",
+    "WandUnten",
+    "naheWand"
   };
 
   private static final Stack<String> currently_repeating_scope = new Stack<>();
