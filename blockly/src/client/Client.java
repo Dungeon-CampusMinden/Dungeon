@@ -2,26 +2,43 @@ package client;
 
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.hud.DialogUtils;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.game.ECSManagment;
+import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
-import core.level.utils.LevelSize;
+import core.systems.LevelSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-import server.Server;
 
-/** WTF? . */
+import entities.VariableHUD;
+import level.BlocklyLevel;
+import level.LevelParser;
+import level.MazeLevel;
+import server.Server;
+import systems.HudBlocklySystem;
+import systems.LevelTickSystem;
+
+/** This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't have any effect */
 public class Client {
+
+  private static final ArrayList<TileLevel> levels = new ArrayList<>();
+  private static int currentLevel = 0;
+
+  private static Server blocklyServer;
   /**
-   * WTF? .
+   * Setup and run the game. Also start the server that is listening to the requests from
+   * blockly frontend.
    *
    * @param args
    * @throws IOException
@@ -34,33 +51,14 @@ public class Client {
     Debugger debugger = new Debugger();
     // start the game
     configGame();
-
-    if (useRoomBasedLevel) onSetupRoomBasedLevel(10, 5, 1);
-    else {
-      onSetup();
-      onLevelLoad(5, 1);
-    }
+    // Set up components and level
+    onSetup();
 
     onFrame(debugger);
 
     // build and start game
     Game.run();
-  }
 
-  private static void onLevelLoad(int monstercount, int chestcount) {
-    Game.userOnLevelLoad(
-        (firstTime) -> {
-          if (firstTime) {
-            try {
-              for (int i = 0; i < monstercount; i++) Game.add(EntityFactory.randomMonster());
-              for (int i = 0; i < chestcount; i++) Game.add(EntityFactory.newChest());
-              Game.add(EntityFactory.newCraftingCauldron());
-            } catch (IOException e) {
-              throw new RuntimeException();
-            }
-            Game.levelSize(LevelSize.randomSize());
-          }
-        });
   }
 
   private static void onFrame(Debugger debugger) {
@@ -75,18 +73,41 @@ public class Client {
           Crafting.loadRecipes();
           startServer();
           Crafting.loadRecipes();
+          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
+          levelSystem.onEndTile(Client::loadNextLevel);
+
+          TileLevel firstLevel = initLevels();
+          Game.currentLevel(firstLevel);
+
+          VariableHUD variableHUD = new VariableHUD(Game.stage());
+          Game.add(variableHUD.createEntity());
+
+          Server.variableHUD = variableHUD;
         });
   }
 
-  private static void onSetupRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
-    Game.userOnSetup(
-        () -> {
-          createSystems();
-          createHero();
-          Crafting.loadRecipes();
-          createRoomBasedLevel(roomcount, monstercount, chestcount);
-          startServer();
-        });
+  public static TileLevel initLevels() {
+    LevelParser.getAllLevelFilePaths();
+    // Add all levels here
+    // Add maze level
+    BlocklyLevel mazeLevel = LevelParser.getRandomVariant("maze", "easy");
+    levels.add(new MazeLevel(mazeLevel.layout, mazeLevel.designLabel, mazeLevel.heroPos));
+
+    BlocklyLevel mazeLevelHard = LevelParser.getRandomVariant("maze", "hard");
+    levels.add(new MazeLevel(mazeLevelHard.layout, mazeLevelHard.designLabel, mazeLevelHard.heroPos));
+
+    return levels.get(currentLevel);
+  }
+
+  public static void loadNextLevel() {
+    Server.interruptExecution = true;
+    currentLevel++;
+    if (currentLevel >= levels.size()) {
+      createRoomBasedLevel(10, 5, 1);
+      DialogUtils.showTextPopup("Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
+      return;
+    }
+    Game.currentLevel(levels.get(currentLevel));
   }
 
   private static void configGame() throws IOException {
@@ -146,14 +167,15 @@ public class Client {
     Game.add(new AISystem());
     Game.add(new HealthSystem());
     Game.add(new PathSystem());
+    Game.add(new LevelTickSystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());
     Game.add(new HudSystem());
+    Game.add(new HudBlocklySystem());
   }
 
   private static void startServer() {
-
-    Server blocklyServer = new Server(Game.hero().orElseThrow(MissingHeroException::new));
+    blocklyServer = new Server(Game.hero().orElseThrow(MissingHeroException::new));
     try {
       blocklyServer.start();
     } catch (IOException e) {

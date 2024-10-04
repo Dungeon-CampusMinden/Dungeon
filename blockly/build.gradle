@@ -1,10 +1,22 @@
-dependencies {
-    implementation project(':dungeon')
+plugins {
+  id 'antlr'
 }
 
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation project(':dungeon')
+  antlr "org.antlr:antlr4:4.5.3"
+  // JUnit 4 and Mockito for testing
+  testImplementation supportDependencies.junit
+}
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
 
 processResources {
     from new File(project(':game').projectDir, '/assets')

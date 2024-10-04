@@ -37,3 +37,45 @@ export function get_number(
 
   return [code, Order.NONE];
 }
+
+export function expression(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const input_a = generator.valueToCode(block, "INPUT_A", Order.NONE);
+  const input_b = generator.valueToCode(block, "INPUT_B", Order.NONE);
+  const op = block.getFieldValue("OPERATOR");
+
+  const code = input_a + ' ' + op + ' ' + input_b;
+
+  return [code, Order.NONE];
+}
+
+export function set_number_expression(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const value = generator.valueToCode(block, "VALUE", Order.NONE);
+
+  const variable_id = block.getFieldValue("VAR");
+  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+
+  const code = "int " + variable_name + ' = ' + value + ';'
+  if (value) {
+      javaGenerator.variables.set(variable_name!, variable_name);
+      return `int ${variable_name} = ${value};`;
+    } else {
+      return null;
+    }
+}
+
+export function get_variable(
+  block: Blockly.Block,
+  _generator: Blockly.Generator
+) {
+  const variable_id = block.getFieldValue("VAR");
+  const variable_name =
+      Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+
+  return [variable_name, Order.NONE];
+}
