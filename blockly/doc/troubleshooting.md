@@ -6,9 +6,8 @@ title: "Blockly: Troubleshooting"
 
 ## Fehleranalyse
 
-Alle Fehler, die während der Laufzeit auftreten können, werden in der Konsole des Browsers ausgegeben. Falls während der Benutzung oder Entwicklung der Anwendung Fehler auftreten, sollte hier zuerst nachgesehen werden.
-
-Fehler, die während der Kommunikation mit dem Server auftreten, als auch Rückmeldungen nach erfolgreichen Anfragen werden ebenfalls in der Konsole angezeigt.
+Alle Fehler, die während der Laufzeit auftreten können, werden in einem Dialog dem Benutzer im Browser angezeigt. Der
+Dialog enthält die Fehlermeldung und die ausgeführte Programmzeile, welche den Fehler enthält.
 
 ### Generierter Code
 

@@ -70,8 +70,56 @@ export const toolbox = {
           callbackKey: "createVariable",
         },
         {
+
           kind: "block",
-          type: "set_number",
+          type: "var_number",
+        },
+        {
+          kind: "block",
+          type: "set_number_expression",
+        },
+        {
+          kind: "block",
+          type: "expression",
+        },
+        {
+          kind: "block",
+          type: "get_variable",
+        },
+        {
+          kind: "block",
+          type: "array_get",
+        },
+      ],
+    },
+    {
+      kind: "category",
+      name: "Arrays",
+      colour: "200",
+      contents: [
+        {
+          kind: "block",
+          type: "var_array",
+        },
+        {
+          kind: "block",
+          type: "array_set",
+        },
+        {
+          kind: "block",
+          type: "array_get",
+        },
+        {
+          kind: "block",
+          type: "array_length",
+        },
+        {
+          kind: "block",
+          type: "expression",
+        },
+        {
+          kind: "block",
+          type: "get_variable",
         },
         {
           kind: "block",
@@ -90,11 +138,43 @@ export const toolbox = {
         },
         {
           kind: "block",
+          type: "while_loop",
+        },
+        {
+          kind: "block",
           type: "repeat_number",
         },
         {
           kind: "block",
           type: "get_number",
+        },
+        {
+          kind: "block",
+          type: "not_condition",
+        },
+        {
+          kind: "block",
+          type: "logic_operator",
+        },
+        {
+          kind: "block",
+          type: "logic_wall",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_up",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_down",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_left",
+        },
+        {
+          kind: "block",
+          type: "logic_wall_right",
         },
       ],
     },
@@ -105,7 +185,27 @@ export const toolbox = {
       contents: [
         {
           kind: "block",
+          type: "get_number",
+        },
+        {
+          kind: "block",
+          type: "repeat_number",
+        },
+        {
+          kind: "block",
           type: "logic_boolean",
+        },
+        {
+          kind: "block",
+          type: "usual_condition",
+        },
+        {
+          kind: "block",
+          type: "not_condition",
+        },
+        {
+          kind: "block",
+          type: "logic_operator",
         },
         {
           kind: "block",
@@ -161,6 +261,25 @@ export const toolbox = {
         {
           kind: "block",
           type: "fireball_right",
+        },
+      ],
+    },
+    {
+      kind: "category",
+      name: "Funktionen",
+      colour: "300",
+      contents: [
+        {
+          kind: "block",
+          type: "func_def",
+        },
+        {
+          kind: "block",
+          type: "func_call",
+        },
+        {
+          kind: "block",
+          type: "get_variable",
         },
       ],
     },

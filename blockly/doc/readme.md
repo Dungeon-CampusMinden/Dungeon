@@ -61,3 +61,10 @@ Häufig auftretende Probleme und deren Lösungen werden hier behandelt. Dieser A
 [Ressourcen Dokumentation](resources.md)
 
 Nützliche Links, Referenzen und Ressourcen zur Blockly-Programmierung werden hier aufgeführt.
+
+## Visualisierungskonzept im Dungeon
+
+[Visualisierungskonzept im Dungeon](visualization_concept.md)
+
+Hier wird das Konzept zur Visualisierung des Blockly-Programms vorgestellt. Teilweise sind diese Ideen bereits umgesetzt,
+teilweise jedoch auch nicht. Bisher wurde die Anzeige des Variablenbereichs und der Array-Bereiche als HUD umgesetzt.
