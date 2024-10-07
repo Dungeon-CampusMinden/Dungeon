@@ -15,7 +15,6 @@ single_choice_task Aufgabe2 {
     correct_answer_index: 0,
     explanation: "Das chemische Symbol 'O' steht für Sauerstoff."
 }
-
 // Aufgabendefinition 3
 multiple_choice_task Aufgabe3 {
     description: "Welche der folgenden Planeten gehören zu den Gasriesen?",
@@ -33,3 +32,7 @@ graph task_graph {
 dungeon_config meine_config {
     dependency_graph: task_graph
 }
+multiple_choice_task mct {
+
+}
+

@@ -15,13 +15,13 @@ graph g1 {
 }
 
 graph g2 {
-    my_task2
+    my_task2 -> task2 [type=sequence]
 }
 
 dungeon_config my_config {
-    name: "This is my config 1",
     dependency_graph: g1
 }
+
 
 dungeon_config my_other_config {
     dependency_graph: g2

@@ -11,17 +11,21 @@ single_choice_task my_task2 {
 }
 
 graph g1 {
-    my_task1
+    my_task1 
 }
 
+
 graph g2 {
-    my_task2
+    my_task
 }
+
+
 
 dungeon_config my_other_config {
     name: "This is my config 2",
     dependency_graph: g1
 }
+
 
 dungeon_config my_completely_other_config {
     dependency_graph: g2

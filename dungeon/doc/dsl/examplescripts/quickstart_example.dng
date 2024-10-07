@@ -8,12 +8,12 @@ single_choice_task meine_aufgabe {
     explanation: "Optionaler Erklärungstext"
 }
 
-// Definition von Aufgabenabhängigkeiten
-graph task_graph {
-    meine_aufgabe;
-}
-
-// Übergabe der Aufgabenabhängigkeit an das Dungeon-System
-dungeon_config meine_config {
-    dependency_graph: task_graph
+single_choice_task name {
+    description: "description",
+    answers: [
+    "answer",
+    "answer",
+    "answer"
+    ]
+    correct_answer_index: 1
 }

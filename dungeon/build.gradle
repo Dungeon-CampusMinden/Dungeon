@@ -98,7 +98,7 @@ tasks.register('runCallbackTest', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
 }
 
-tasks.register('runManualQuizTest', JavaExec) {
+tasks.register('runManualQuizTest', Exec) {
     mainClass = 'manual.quizquestion.QuizQuestionUITest'
     classpath = sourceSets.test.runtimeClasspath
 }
