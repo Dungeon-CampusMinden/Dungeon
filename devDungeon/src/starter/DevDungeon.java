@@ -26,6 +26,7 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
+import java.util.Set;
 import java.util.logging.Level;
 import level.utils.DungeonLoader;
 import systems.*;
@@ -142,25 +143,22 @@ public class DevDungeon {
   }
 
   private static void createSystems() {
-    Game.add(new CollisionSystem());
-    Game.add(new AISystem());
-    Game.add(new ReviveSystem());
-    Game.add(new DevHealthSystem());
-    Game.add(new ProjectileSystem());
-    Game.add(new HealthBarSystem());
-    Game.add(new HudSystem());
-    Game.add(new SpikeSystem());
-    Game.add(new IdleSoundSystem());
-    Game.add(new FallingSystem());
-    Game.add(new PathSystem());
-    Game.add(new LevelTickSystem());
-    Game.add(new PitSystem());
-    Game.add(new TeleporterSystem());
+    Set<Class<? extends System>> baseSystems =
+        StandardSystems.mutableSetOfBaseSystems(Set.of(HealthBarSystem.class));
+    baseSystems.addAll(
+        Set.of(
+            ReviveSystem.class,
+            DevHealthSystem.class,
+            FallingSystem.class,
+            LevelTickSystem.class,
+            PitSystem.class,
+            TeleporterSystem.class,
+            FogOfWarSystem.class,
+            LeverSystem.class,
+            MobSpawnerSystem.class,
+            MagicShieldSystem.class));
+    Game.add(StandardSystems.constructStandardSystems(baseSystems));
     Game.add(EventScheduler.getInstance());
-    Game.add(new FogOfWarSystem());
-    Game.add(new LeverSystem());
-    Game.add(new MobSpawnerSystem());
-    Game.add(new MagicShieldSystem());
 
     /* Cheats */
     if (ENABLE_CHEATS) {
