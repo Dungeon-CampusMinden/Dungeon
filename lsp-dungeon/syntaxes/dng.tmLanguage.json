@@ -1,0 +1,48 @@
+{
+	"scopeName": "source.dng",
+	"patterns": [
+	  {
+		"name": "keyword.control.dng",
+		"match": "\\b(fn|for|while|if|else|return|entity_type|item_type|var|graph|type|true|false|single_choice_task|multiple_choice_task|dungeon_config)\\b"
+	  },
+	  {
+		"name": "keyword.operator.dng",
+		"match": "(->|=|!=|==|>|<|>=|<=|\\+|\\-|\\*|/|!)"
+	  },
+	  {
+		"name": "constant.numeric.dng",
+		"match": "\\b([0-9]+(\\.[0-9]+)?)\\b"
+	  },
+	  {
+		"name": "string.quoted.single.dng",
+		"begin": "'",
+		"end": "'",
+		"patterns": [
+		  {
+			"name": "constant.character.escape.dng",
+			"match": "\\\\."
+		  }
+		]
+	  },
+	  {
+		"name": "string.quoted.double.dng",
+		"begin": "\"",
+		"end": "\"",
+		"patterns": [
+		  {
+			"name": "constant.character.escape.dng",
+			"match": "\\\\."
+		  }
+		]
+	  },
+	  {
+		"name": "comment.line.double-slash.dng",
+		"match": "//.*$"
+	  },
+	  {
+		"name": "variable.other.dng",
+		"match": "\\b[_a-zA-Z][_a-zA-Z0-9]*\\b"
+	  }
+	]
+  }
+  

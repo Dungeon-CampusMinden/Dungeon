@@ -1,5 +1,5 @@
 // ----------------------------- AUFGABENDEFINITION ----------------------------
-single_choice_task my_task {
+single_choice_task my_task1 {
     description: "Bitte suchen Sie die eine richtige Ausage:",
     answers: [
     "Man kann auf den Betriebssystemen Windows, MACOS und Linux in Python programmieren.",
@@ -9,6 +9,20 @@ single_choice_task my_task {
     correct_answer_index: 0
 }
 
+single_choice_task newtask {
+    description: "Frage?",
+    answers: [
+    "aw1",
+    "aw2",
+    "aw3"
+    ],
+    correct_answer_index: 2
+}
+
+dungeon_config dg {
+    dependency_graph: a
+}
+
 graph dependencies {
     my_task;
 }
@@ -16,19 +30,29 @@ graph dependencies {
 dungeon_config config {
     dependency_graph: dependencies
 }
+single_choice_task name {
+    description: "description",
+    answers: [
+    "answer",
+    "answer",
+    "answer"
+    ],
+    correct_answer_index: 1
+}
 // ----------------------------- AUFGABENDEFINITION ----------------------------
 
 // ---------------------------- ITEM TYP DEFINITION ----------------------------
 item_type scroll_type {
     texture_path: "items/book/wisdom_scroll.png"
 }
+
 // -------------------------- ENDE ITEM TYP DEFINITION -------------------------
 
 // --------------------------- ENTITÄTSTYP DEFINITION --------------------------
 entity_type chest_type {
     inventory_component {},
     draw_component {
-        path: "objects/treasurechest"
+        path: "objects/treasurechest",
     },
     position_component{},
     interaction_component{
@@ -40,12 +64,12 @@ entity_type chest_type {
 
 entity_type knight_type {
     draw_component {
-        path: "character/blue_knight"
+        path: "character/blue_knight",
     },
     hitbox_component {},
     position_component{},
     interaction_component{
-        radius: 1.5
+        radius: 1.5,
     },
     task_component{}
 }
@@ -62,13 +86,19 @@ fn ask_task_finished(entity knight, entity who) {
     }
 }
 
+
+
 fn open_container(entity chest, entity who) {
     chest.inventory_component.open(who);
 }
+
 // ------------------------ ENDE EVENT-HANDLER DEFINITION -----------------------
 
-// ------------------------- SZENARIO-BUILDER DEFINITION ------------------------
-fn build_task(single_choice_task t) -> entity<><> {
+
+
+
+//  ------------------------- SZENARIO-BUILDER DEFINITION ------------------------
+fn build_task(single_choice_task my_task) -> entity<><> {
     // Szenario-spezifische Beschreibung setzen
     t.set_scenario_text("Platziere die richtige Schriftrolle in der Quest-Truhe");
 
@@ -76,6 +106,7 @@ fn build_task(single_choice_task t) -> entity<><> {
     var return_set : entity<><>;
     var room_set : entity<>;
 
+    var resdas: int;
     // Erstellung der Items aus den Antwortmöglichkeiten
     for task_content content in t.get_content() {
         var item : entity;
@@ -85,29 +116,46 @@ fn build_task(single_choice_task t) -> entity<><> {
         place_quest_item(item, room_set);
     }
 
+
     // Erstellung der Aufgaben-Truhe, in welche die Antworten abgegeben werden sollen
     var chest : entity;
     chest = instantiate(chest_type);
-
     // Markierung der Aufgaben-Truhe als Task-Container
     chest.mark_as_task_container(t, "Quest-Truhe");
     room_set.add(chest);
-
+    
     // Festlegung der Antwort-Auswahl-Funktion
     t.set_answer_picker_function(answer_picker_single_chest);
 
     // Erstellung der Aufgaben-Manager-Entität
     var knight : entity;
     knight = instantiate_named(knight_type, "Aufgabengeber");
+
     room_set.add(knight);
+
+    
+
 
     // Verknüpfung der Aufgabe mit der Manager-Entität
     knight.task_component.task = t;
 
     // Setzen der Event-Handler-Funktion für Interaktion mit der Manager-Entität
     knight.interaction_component.on_interaction = ask_task_finished;
-
+    
     return_set.add(room_set);
     return return_set;
 }
 // ----------------------- ENDE SZENARIO-BUILDER DEFINITION ----------------------
+
+single_choice_task name {
+    description: "description",
+    answers: [
+    "answer",
+    "answer",
+    "answer"
+    ],
+    correct_answer_index: 1
+}
+
+
+
