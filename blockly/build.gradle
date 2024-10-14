@@ -8,6 +8,7 @@ repositories {
 
 dependencies {
   implementation project(':dungeon')
+  implementation project(':devDungeon')
   antlr supportDependencies.antlr
   // JUnit 4 and Mockito for testing
   testImplementation supportDependencies.junit

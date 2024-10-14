@@ -6,6 +6,7 @@ import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import level.utils.ITickable;
 
 /**
  * This class is used for the Maze Level. The first level of the blockly dungeon. This class will
