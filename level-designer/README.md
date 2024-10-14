@@ -60,3 +60,8 @@ Themes im Folgenden aufgelistet:
 Nachdem die Level-Datei generiert und fertig konfiguriert wurde, muss sie im Code
 über einen Parser eingelesen werden. Ein Beispiel eines Parsers ist in dem Modul
 "blockly" unter `src/level/LevelParser` zu finden.
+
+# Lizenz
+
+Die Bilder der Tiles wurden aus den [Game-Assets](../game/assets/dungeon)
+kopiert. Es gilt somit dieselbe Lizenz wie in dem [Game Projekt](../game).
