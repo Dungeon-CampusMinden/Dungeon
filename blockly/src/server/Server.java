@@ -1,8 +1,8 @@
 package server;
 
 import antlr.blocklyConditionVisitor;
-import antlr.blocklyLexer;
-import antlr.blocklyParser;
+import antlr.main.blocklyLexer;
+import antlr.main.blocklyParser;
 import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;

@@ -8,12 +8,12 @@ repositories {
 
 dependencies {
   implementation project(':dungeon')
-  antlr "org.antlr:antlr4:4.5.3"
+  antlr supportDependencies.antlr
   // JUnit 4 and Mockito for testing
   testImplementation supportDependencies.junit
 }
 
-sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
 sourceSets.main.resources.srcDirs = ['assets/']
 
 sourceSets.test.java.srcDirs = ['test/']
@@ -22,6 +22,14 @@ processResources {
     from new File(project(':game').projectDir, '/assets')
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+sourceSets.main.antlr.srcDirs = ['src']
+
+// generate ANTLR visitor and listener classes from grammar
+generateGrammarSource {
+  maxHeapSize = '64m'
+  arguments += ['-visitor', '-listener', '-long-messages']
 }
 
 
