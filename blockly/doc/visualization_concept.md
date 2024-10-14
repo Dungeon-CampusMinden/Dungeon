@@ -37,7 +37,7 @@ Wie in Blockly hat man bestimmte Blöcke zur Verfügung, welche genutzt werden k
 Büroangestellten zu steuern.
 
 Das Spielprinzip funktioniert wie folgt: Es gibt ein Input- und ein Output-Förderband. Über das Input-Förderband kommen
-Blöcke mit Werten rein. Mit dem Befehl ``Outbox`` transportiert der Büroangestellte den obersten Block vom
+Blöcke mit Werten rein. Mit dem Befehl `Outbox` transportiert der Büroangestellte den obersten Block vom
 Input-Förderband zum Output-Förderband. Zu Beginn bestehen die Aufgaben z.B. darin, alle Blöcke vom Input-Förderband
 zum Output-Förderband zu transportieren. Um so weiter der Spieler im Spiel fortschreitet, desto schwieriger werden die
 Aufgabenstellungen und umso mehr Blöcke hat der Spieler zur Verfügung. Z.B. hat der Spieler später Blöcke wie JUMP und IF
@@ -59,7 +59,7 @@ Blöcke über seinem Kopf zusammen und diese ergeben einen neuen Block.
 Andere Spiele setzten oft vorraus, das bereits Vorkenntnisse in der Programmierung vorhanden sind. Die Spiele zielen
 darauf ab, die eigenen Fähigkeiten zu verbessern, anstatt Einsteigern das Programmieren unabhängig von einer Programmiersprache
 beizubringen. In den meisten Fällen muss in einer existierenden Programmiersprache programmiert werden. Es gibt jedoch
-auch Ausnahmen, wie das Spiel ``Human Resource Machine``. Es ist einsteigerfreundlich und unabhängig von einer
+auch Ausnahmen, wie das Spiel `Human Resource Machine`. Es ist einsteigerfreundlich und unabhängig von einer
 Programmiersprache. Es kommt den Anforderungen des Visualisierungskonzepts im Dungeon am nächsten und kann deshalb eine
 grobe Orientierungshilfe bieten.
 
@@ -67,7 +67,7 @@ grobe Orientierungshilfe bieten.
 
 ### Variablen
 
-Monster stellen eine zentrale Rolle in dem Visualisierungskonzept dar. Ähnlich wie die Blöcke bei ``Human Resource Machine``
+Monster stellen eine zentrale Rolle in dem Visualisierungskonzept dar. Ähnlich wie die Blöcke bei `Human Resource Machine`
 transportieren sie die Werte in die Oberfläche. Damit Variablen die gesamte Zeit über im Dungeon sichtbar sind, wird ein
 gesonderter Bereich für die Monster als HUD dargestellt. Dieser Bereich nutzt die bereits vorhandenen Kacheln für den
 Boden und die Wände. Der Bereich wird von dem Rest des Spiels mit den Wand-Kacheln abgegrenzt. Im inneren Bereich des
@@ -78,7 +78,7 @@ werden müssen, sollte der maximale Wert einer Variable in Frontend bereits begr
 
 Die Anzahl der Variablen, welche gleichzeitig angezeigt werden können, ist limitiert. Das heißt, dass in dem Bereich
 immer die zuletzt verwendeten Variablen angezeigt werden. Es werden maximal bis zu 14 Variablen gleichzeitig angezeigt.
-Bei langen Variablennamen werden die Zeichen, welche zu viel sind durch ein ``...`` ersetzt, damit sich die
+Bei langen Variablennamen werden die Zeichen, welche zu viel sind durch ein `...` ersetzt, damit sich die
 Variablennamen nicht überschneiden.
 
 Wenn eine neue Variable erstellt wird und damit auch ein neues Monster im HUD angezeigt wird, sollte eine Animation
@@ -161,7 +161,7 @@ Zusätzlich wird das Ergebnis mit einem success oder einem error sound effekt ve
 
 ##### AND
 
-In der Denkblase werden zwei Buttons angezeigt auf denen ``AND`` steht. Die beiden booleschen Werte werden wieder durch
+In der Denkblase werden zwei Buttons angezeigt auf denen `AND` steht. Die beiden booleschen Werte werden wieder durch
 Monster dargestellt. Dieses Mal haben sie jedoch keinen Zahlenwert, sondern entweder einen grünen Haken (true) oder ein
 rotes Kreuz (false) über ihrem Kopf schweben. Wenn ein Monster zu True evaluiert läuft es auf einen Button, welcher dann
 grün zu leuchten beginnt. Wenn beide Monster zu True evaluieren laufen sie jeweils beide auf einen Button und es wird
@@ -170,13 +170,13 @@ mindestens ein Monster stehen bleibt wird ein rotes Kreuz angezeigt.
 
 ##### OR
 
-In der Denkblase werden erneut zwei Buttons angezeigt, auf denen dieses Mal jedoch ``OR`` steht. Wie bei ``AND`` läuft
+In der Denkblase werden erneut zwei Buttons angezeigt, auf denen dieses Mal jedoch `OR` steht. Wie bei `AND` läuft
 ein Monster los, wenn es zu true evaluiert. Wenn mindestens ein Monster auf einem Button steht, wird der grüne Haken
 angezeigt. Andernfalls erscheint das rote Kreuz.
 
 ##### NOT
 
-Es wird ein Button angezeigt auf dem ``NOT`` steht. Der Button leuchtet grün, wenn kein Monster auf dem Button steht.
+Es wird ein Button angezeigt auf dem `NOT` steht. Der Button leuchtet grün, wenn kein Monster auf dem Button steht.
 Wenn das Monster zu true evaluiert läuft es wie bisher auf den Button. Dann leuchtet der Button aber nicht mehr und es
 wird das rote Kreuz angezeigt. Wenn das Monster zu false evaluiert, bleibt es stehen. Der Button bleibt am Leuchten und
 es erscheint der grüne Haken.
@@ -199,11 +199,11 @@ Bedingung wird nichts weiter visualisiert.
 
 ### Funktionen
 
-Eine Funktion wird über ein neues Item ``To-do-Liste`` abgebildet. Zu Beginn einer Funktion wird das Item ``To-do-Liste``
+Eine Funktion wird über ein neues Item `To-do-Liste` abgebildet. Zu Beginn einer Funktion wird das Item `To-do-Liste`
 ausgelöst. Es erscheint eine kurze Meldung am oberen Rand des Bildschirms (wie Toasts in der Frontend-Entwicklung):
-``<Icon TODO-Liste>`` mit dem Text: ``To-do-Liste: 'Funktionsname' wird bearbeitet``. Wenn die Funktion beendet ist, wird
+`<Icon TODO-Liste>` mit dem Text: `To-do-Liste: 'Funktionsname' wird bearbeitet`. Wenn die Funktion beendet ist, wird
 eine Erfolgsmeldung angezeigt, dass die To-do-Liste vollständig bearbeitet wurde, z.B.:
-``To-do-Liste: 'Funktionsname' abgeschlossen``.
+`To-do-Liste: 'Funktionsname' abgeschlossen`.
 
 ### Anzeige für aktuell ausgeführte Codezeile
 
@@ -240,10 +240,10 @@ Aktuell ist ein Teil des Visualisierungskonzepts bereits umgesetzt. Es wird bere
 Array-Bereiche angezeigt. Jedoch noch in einer minimalistischen Ausführung. Die beiden Bereiche werden jeweils über
 einen Table von Scene2D im HUD organisiert und angezeigt. Dabei wird jeweils ein Table für die Darstellung der Kacheln
 genutzt und ein Table für die Darstellung der Werte. Diese Tabellen werden der Stage hinzugefügt, damit sie fixiert
-immer an derselben Stelle auf dem Bildschirm platziert sind. Da die Ausführung des Codes in der Klasse ``Server``
-geschieht, erhält die Klasse Server ein Objekt der Klasse ``VariableHUD``. Die Klasse ``Client`` erstellt das Objekt
-der Klasse ``VariableHUD`` und übergibt es an die ``Server`` Klasse. Auf dem ``VariableHUD``-Objekt werden
-hauptsächlich die folgenden Funktionen in der ``Server`` Klasse aufgerufen:
+immer an derselben Stelle auf dem Bildschirm platziert sind. Da die Ausführung des Codes in der Klasse `Server`
+geschieht, erhält die Klasse Server ein Objekt der Klasse `VariableHUD`. Die Klasse `Client` erstellt das Objekt
+der Klasse `VariableHUD` und übergibt es an die `Server` Klasse. Auf dem `VariableHUD`-Objekt werden
+hauptsächlich die folgenden Funktionen in der `Server` Klasse aufgerufen:
 
 1. *clearArrayVariables*: Löscht alle Werte aus den Array-Bereichen. Wird aufgerufen, wenn z.B. das Programm auf einen
 Fehler läuft, oder das Programm einmal durchgelaufen ist.
@@ -256,10 +256,10 @@ Variable wird im Variablen-Bereich angezeigt.
 ### Erweiterung des HUDs
 
 Um weitere Elemente im HUD anzuzeigen, bietet es sich an eine weitere Klasse zu erstellen, welche von der abstrakten
-Klasse ``BlocklyHUD`` erbt. Es müssen die beiden Funktionen ``updateActors`` und ``createEntity`` implementiert werden.
-Die Funktion ``updateActors`` muss dabei genutzt werden, um die Größe des HUDs an die aktuelle Bildschirmgröße anzupassen.
-Die Funktion wird durch das ``HudBlocklySystem`` für alle Entitäten aufgerufen, welche eine ``BlocklyUIComponent``
-besitzen. Die Funktion ``createEntity`` sollte eine Entität zurückgeben, welche die Komponente ``BlocklyUIComponent``
-besitzt. Der Konstruktor der ``BlocklyUIComponent`` Klasse erhält ein Objekt der Klasse ``BlocklyHUD``. Dort muss das
+Klasse `BlocklyHUD` erbt. Es müssen die beiden Funktionen `updateActors` und `createEntity` implementiert werden.
+Die Funktion `updateActors` muss dabei genutzt werden, um die Größe des HUDs an die aktuelle Bildschirmgröße anzupassen.
+Die Funktion wird durch das `HudBlocklySystem` für alle Entitäten aufgerufen, welche eine `BlocklyUIComponent`
+besitzen. Die Funktion `createEntity` sollte eine Entität zurückgeben, welche die Komponente `BlocklyUIComponent`
+besitzt. Der Konstruktor der `BlocklyUIComponent` Klasse erhält ein Objekt der Klasse `BlocklyHUD`. Dort muss das
 Objekt der neuen HUD-Klasse übergeben werden.
 

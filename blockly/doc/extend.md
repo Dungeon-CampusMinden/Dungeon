@@ -163,7 +163,7 @@ Der Dungeon-Server führt den Code Schritt für Schritt aus, in dieser Auswertun
 implementiert werden. Alle Funktionen, welche den Dungeon-Server betreffen, sind unter
 `Dungeon/blockly-dungeon/src/server/...` zu finden.
 
-Das Herzstück der ``Server``-Klasse ist die Funktion ``processAction``. Diese Funktion wird für jede generierte
+Das Herzstück der `Server`-Klasse ist die Funktion `processAction`. Diese Funktion wird für jede generierte
 Programmzeile des Blockly-Programms ausgeführt. Sie wendet sämtliche Logik bei der Verarbeitung des Codes auf die
 aktuell ausgeführte Zeile an. Wenn ein neuer Block hinzugefügt wird, ist diese Funktion ein guter Startpunkt, um festzustellen,
 an welcher Stelle in der Verarbeitung der Codezeile die Logik des neuen Blocks eingefügt werden muss. Am besten wird

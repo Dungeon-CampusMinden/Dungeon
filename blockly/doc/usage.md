@@ -11,14 +11,14 @@ Auf der linken Seite wird die Toolbox mit den Code-Blöcken angezeigt. In der Mi
 indem die Blöcke platziert werden können und auf der rechten Seite wird der Code angezeigt, der aus den Blöcken generiert wird.
 2. **Drag-and-Drop Programmierung:** Ziehen Sie Code-Blöcke aus der Toolbox in den Programmierbereich, um Aktionen festzulegen.
 Verbinden Sie die Blöcke in der richtigen Reihenfolge, um die gewünschte Logik zu erstellen.
-3. **Aktionen ausführen:** Nachdem die Blöcke platziert wurden, kann durch Drücken des ``Start``-Buttons der Code ausgeführt
-werden und der `Dungeon-Charakter` wird entsprechend der Logik bewegt. Der ``Start``-Button sorgt dafür, dass der gesamte
+3. **Aktionen ausführen:** Nachdem die Blöcke platziert wurden, kann durch Drücken des `Start`-Buttons der Code ausgeführt
+werden und der `Dungeon-Charakter` wird entsprechend der Logik bewegt. Der `Start`-Button sorgt dafür, dass der gesamte
 Programmcode ausgeführt wird. Während der Ausführung wird der aktuell ausgeführte Block hervorgehoben. Außerdem kann
-in dem Eingabe-Feld ``Verzögerung (in Sek.)`` eine Verzögerung nach jedem Schritt mitgegeben werden. Der Wert muss in
+in dem Eingabe-Feld `Verzögerung (in Sek.)` eine Verzögerung nach jedem Schritt mitgegeben werden. Der Wert muss in
 Sekunden angegeben werden.
-4. **Programm unterbrechen**: Durch Drücken des ``Reset``-Buttons wird der `Dungeon-Charakter` an seine Startposition zurückgesetzt. Außerdem wird die
+4. **Programm unterbrechen**: Durch Drücken des `Reset`-Buttons wird der `Dungeon-Charakter` an seine Startposition zurückgesetzt. Außerdem wird die
 aktuelle Ausführung des Programmcodes unterbrochen.
-5. **Programm Schritt-für-Schritt ausführen**: Mithilfe des ``Step``-Buttons ist es möglich, das Programm Schritt-für-Schritt
+5. **Programm Schritt-für-Schritt ausführen**: Mithilfe des `Step`-Buttons ist es möglich, das Programm Schritt-für-Schritt
 durchzugehen. Es wird immer der aktuell ausgeführte Schritt hervorgehoben.
 
 ![Blockly](img/Blockly_App.png)
