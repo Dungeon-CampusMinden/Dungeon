@@ -2,13 +2,13 @@
 // ANTLR 4.13.1
 package antlr;
 
+import antlr.main.blocklyBaseVisitor;
+import antlr.main.blocklyParser;
 import java.util.NoSuchElementException;
 import nodes.*;
 import nodes.INode;
 import server.Server;
 import server.Variable;
-import antlr.main.blocklyBaseVisitor;
-import antlr.main.blocklyParser;
 
 /** */
 @SuppressWarnings("CheckReturnValue")
