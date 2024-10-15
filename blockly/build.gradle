@@ -1,10 +1,26 @@
-dependencies {
-    implementation project(':dungeon')
+plugins {
+  id 'antlr'
 }
 
+repositories {
+  mavenCentral()
+}
 
-sourceSets.main.java.srcDirs = ['src/']
+dependencies {
+  implementation project(':dungeon')
+  implementation project(':devDungeon')
+
+  // ANTLR version 4 for DSL Grammar
+  antlr supportDependencies.antlr
+
+  // JUnit 4 and Mockito for testing
+  testImplementation supportDependencies.junit
+}
+
+sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
 sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
 
 processResources {
     from new File(project(':game').projectDir, '/assets')
@@ -12,8 +28,20 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+sourceSets.main.antlr.srcDirs = ['src']
+
+// generate ANTLR visitor and listener classes from grammar
+generateGrammarSource {
+  maxHeapSize = '64m'
+  arguments += ['-visitor', '-listener', '-long-messages']
+}
+
 
 tasks.register('runBlockly', JavaExec) {
     mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }

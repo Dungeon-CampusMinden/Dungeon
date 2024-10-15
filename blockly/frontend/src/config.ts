@@ -5,6 +5,7 @@ interface Config {
   REPEAT_MAX_VALUE: number;
   HIDE_GENERATED_CODE: boolean;
   HIDE_RESPONSE_INFO: boolean;
+  ARRAY_MAX_VALUE: number;
 }
 
 export const config: Config = {
@@ -14,4 +15,5 @@ export const config: Config = {
   REPEAT_MAX_VALUE: 10,
   HIDE_GENERATED_CODE: false,
   HIDE_RESPONSE_INFO: true,
+  ARRAY_MAX_VALUE: 10,
 };
