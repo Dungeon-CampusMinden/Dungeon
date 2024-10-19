@@ -71,10 +71,6 @@ public class AudioBuffer implements Disposable {
     }
   }
 
-  private void swapBuffers() {
-    this.currentBuffer = this.currentBuffer == 0 ? 1 : 0;
-  }
-
   int alBufferId() {
     return this.alBufferId;
   }
