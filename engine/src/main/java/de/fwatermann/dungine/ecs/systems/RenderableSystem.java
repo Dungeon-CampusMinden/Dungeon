@@ -9,6 +9,7 @@ import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.scene.SceneRenderer;
 import de.fwatermann.dungine.graphics.scene.light.Light;
 import de.fwatermann.dungine.graphics.scene.model.Model;
+import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +19,8 @@ import java.util.Set;
 public class RenderableSystem extends System<RenderableSystem> {
 
   private static final Logger LOGGER = LogManager.getLogger(RenderableSystem.class);
+
+  private ShaderProgram sceneShader;
 
   private Camera<?> camera;
   private int latestRenderCount = 0;
@@ -53,7 +56,11 @@ public class RenderableSystem extends System<RenderableSystem> {
     this.latestRenderCount = this.renderCount;
     this.renderCount = 0;
 
-    SceneRenderer.renderScene(this.camera, models, lights);
+    if(this.sceneShader != null) {
+      SceneRenderer.renderScene(this.camera, models, lights, this.sceneShader);
+    } else {
+      SceneRenderer.renderScene(this.camera, models, lights);
+    }
 
   }
 
@@ -69,4 +76,14 @@ public class RenderableSystem extends System<RenderableSystem> {
   public int latestRenderCount() {
     return this.latestRenderCount;
   }
+
+  public RenderableSystem sceneShader(ShaderProgram sceneShader) {
+    this.sceneShader = sceneShader;
+    return this;
+  }
+
+  public ShaderProgram sceneShader() {
+    return this.sceneShader;
+  }
+
 }

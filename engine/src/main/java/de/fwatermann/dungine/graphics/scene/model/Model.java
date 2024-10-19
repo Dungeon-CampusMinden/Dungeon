@@ -38,14 +38,7 @@ public class Model extends Renderable<Model> {
     shader.useCamera(camera);
 
     for(Material material : this.materials) {
-      shader.setUniform4f("uMaterial.diffuseColor", material.diffuseColor);
-      shader.setUniform4f("uMaterial.ambientColor", material.ambientColor);
-      shader.setUniform4f("uMaterial.specularColor", material.specularColor);
-      shader.setUniform1i("uMaterial.diffuseTexture", 0);
-      shader.setUniform1i("uMaterial.ambientTexture", 1);
-      shader.setUniform1i("uMaterial.specularTexture", 2);
-      shader.setUniform1i("uMaterial.normalTexture", 3);
-      shader.setUniform1i("uMaterial.flags", material.flags);
+      shader.useMaterial(material);
 
       GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
 

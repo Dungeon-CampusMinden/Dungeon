@@ -189,7 +189,7 @@ public class ModelLoader {
   }
 
   private static Pair<Texture, Boolean> loadTexture(
-      Resource modelFile, AIScene aiScene, AIMaterial aiMaterial, int textureType, int index, boolean checkTransparent) {
+    Resource modelFile, AIScene aiScene, AIMaterial aiMaterial, int textureType, int index, boolean checkTransparent) {
     try (MemoryStack stack = MemoryStack.stackPush()) {
       AIString texturePath = AIString.calloc(stack);
 
@@ -201,12 +201,12 @@ public class ModelLoader {
       IntBuffer flags = stack.callocInt(1);
 
       int error =
-          aiGetMaterialTexture(
-              aiMaterial,
-              textureType,
-              index,
-              texturePath,
-              mapping, uvIndex, blend, op, mapMode, flags);
+        aiGetMaterialTexture(
+          aiMaterial,
+          textureType,
+          index,
+          texturePath,
+          mapping, uvIndex, blend, op, mapMode, flags);
       if(error != aiReturn_SUCCESS) return new Pair<>(null, false);
       String path = texturePath.dataString();
       if(path.isEmpty()) return new Pair<>(null, false);
@@ -247,10 +247,10 @@ public class ModelLoader {
           IntBuffer width = BufferUtils.createIntBuffer(1);
           IntBuffer height = BufferUtils.createIntBuffer(1);
           ByteBuffer pixels =
-              STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
+            STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
           if (pixels == null) {
             throw new RuntimeException(
-                "Failed to load embedded texture: " + STBImage.stbi_failure_reason());
+              "Failed to load embedded texture: " + STBImage.stbi_failure_reason());
           }
           texture = new Texture(width.get(0), height.get(0), GL33.GL_RGBA, minFilter, magFilter, uWrapMode, vWrapMode, pixels);
           if(checkTransparent) {
@@ -340,15 +340,15 @@ public class ModelLoader {
     indicesBuffer.asIntBuffer().put(indices);
 
     return new IndexedMesh(
-        verticesBuffer,
-        PrimitiveType.TRIANGLES,
-        indicesBuffer,
-        IndexDataType.UNSIGNED_INT,
-        GLUsageHint.DRAW_STATIC,
-        new VertexAttribute(3, DataType.FLOAT, "aPosition"),
-        new VertexAttribute(2, DataType.FLOAT, "aTexCoord"),
-        new VertexAttribute(3, DataType.FLOAT, "aNormal"),
-        new VertexAttribute(3, DataType.FLOAT, "aTangent"),
-        new VertexAttribute(3, DataType.FLOAT, "aBitangent"));
+      verticesBuffer,
+      PrimitiveType.TRIANGLES,
+      indicesBuffer,
+      IndexDataType.UNSIGNED_INT,
+      GLUsageHint.DRAW_STATIC,
+      new VertexAttribute(3, DataType.FLOAT, "aPosition"),
+      new VertexAttribute(2, DataType.FLOAT, "aTexCoord"),
+      new VertexAttribute(3, DataType.FLOAT, "aNormal"),
+      new VertexAttribute(3, DataType.FLOAT, "aTangent"),
+      new VertexAttribute(3, DataType.FLOAT, "aBitangent"));
   }
 }

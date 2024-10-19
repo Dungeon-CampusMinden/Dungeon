@@ -3,6 +3,7 @@ package de.fwatermann.dungine.graphics.shader;
 import de.fwatermann.dungine.exception.OpenGLException;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
+import de.fwatermann.dungine.graphics.scene.model.Material;
 import de.fwatermann.dungine.graphics.texture.animation.Animation;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.utils.GLUtils;
@@ -531,6 +532,21 @@ public class ShaderProgram implements Disposable {
    */
   public void useAnimation(Animation animation, int textureUnit) {
     animation.bind(this, textureUnit);
+  }
+
+  /**
+   * Uses the specified material by setting its properties as uniforms in this shader program.
+   * @param material the material to use
+   */
+  public void useMaterial(Material material) {
+    this.setUniform4f(this.configuration.material.diffuseColor(), material.diffuseColor);
+    this.setUniform4f(this.configuration.material.ambientColor(), material.ambientColor);
+    this.setUniform4f(this.configuration.material.specularColor(), material.specularColor);
+    this.setUniform1i(this.configuration.material.diffuseTexture(), 0);
+    this.setUniform1i(this.configuration.material.ambientTexture(), 1);
+    this.setUniform1i(this.configuration.material.specularTexture(), 2);
+    this.setUniform1i(this.configuration.material.normalTexture(), 3);
+    this.setUniform1i(this.configuration.material.flags(), material.flags);
   }
 
   /**
