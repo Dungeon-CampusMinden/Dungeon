@@ -1,27 +1,17 @@
 package de.fwatermann.dungine.ui.layout;
 
-/**
- * Enum representing the direction of the flexible items within a container.
- */
+/** Enum representing the direction of the flexible items within a container. */
 public enum FlexDirection {
-  /**
-   * Items are placed in a row, from left to right.
-   */
+  /** Items are placed in a row, from left to right. */
   ROW(0b00),
 
-  /**
-   * Items are placed in a row, from right to left.
-   */
+  /** Items are placed in a row, from right to left. */
   ROW_REVERSE(0b10),
 
-  /**
-   * Items are placed in a column, from top to bottom.
-   */
+  /** Items are placed in a column, from top to bottom. */
   COLUMN(0b01),
 
-  /**
-   * Items are placed in a column, from bottom to top.
-   */
+  /** Items are placed in a column, from bottom to top. */
   COLUMN_REVERSE(0b11);
 
   private final int flags;

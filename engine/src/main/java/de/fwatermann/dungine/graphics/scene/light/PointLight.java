@@ -3,8 +3,9 @@ package de.fwatermann.dungine.graphics.scene.light;
 import org.joml.Vector3f;
 
 /**
- * The `PointLight` class represents a point light source in a 3D scene.
- * It extends the `Light` class and provides methods to set and get the position, color, intensity, and attenuation factors of the light.
+ * The `PointLight` class represents a point light source in a 3D scene. It extends the `Light`
+ * class and provides methods to set and get the position, color, intensity, and attenuation factors
+ * of the light.
  */
 public class PointLight extends Light<PointLight> {
 
@@ -18,7 +19,13 @@ public class PointLight extends Light<PointLight> {
    * @param constant the constant attenuation factor
    * @param exponent the exponent attenuation factor
    */
-  public PointLight(Vector3f position, Vector3f color, float intensity, float linear, float constant, float exponent) {
+  public PointLight(
+      Vector3f position,
+      Vector3f color,
+      float intensity,
+      float linear,
+      float constant,
+      float exponent) {
     super(LightType.POINT);
     this.position.set(position);
     this.color.set(color);

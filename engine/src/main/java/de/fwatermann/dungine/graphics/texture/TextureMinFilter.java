@@ -3,8 +3,8 @@ package de.fwatermann.dungine.graphics.texture;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Enum representing the texture minification filters used in OpenGL.
- * Each filter type has an associated OpenGL constant.
+ * Enum representing the texture minification filters used in OpenGL. Each filter type has an
+ * associated OpenGL constant.
  */
 public enum TextureMinFilter {
 
@@ -36,5 +36,4 @@ public enum TextureMinFilter {
   TextureMinFilter(int glValue) {
     this.glValue = glValue;
   }
-
 }

@@ -133,6 +133,7 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
 
   /**
    * Returns the shader program used for rendering the mesh.
+   *
    * @return the shader program
    */
   public ShaderProgram shaderProgram() {
@@ -141,6 +142,7 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
 
   /**
    * Sets the shader program used for rendering the mesh.
+   *
    * @param shaderProgram the new shader program
    * @return this mesh for method chaining
    */

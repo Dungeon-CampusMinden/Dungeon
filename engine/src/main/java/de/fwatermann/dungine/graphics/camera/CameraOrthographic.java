@@ -4,20 +4,19 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * The `CameraOrthographic` class represents an orthographic camera in a 3D graphics environment.
- * It extends the `Camera` class and provides methods to set and get the zoom level, as well as to calculate
- * the orthographic projection matrix based on the camera's viewport and zoom level.
+ * The `CameraOrthographic` class represents an orthographic camera in a 3D graphics environment. It
+ * extends the `Camera` class and provides methods to set and get the zoom level, as well as to
+ * calculate the orthographic projection matrix based on the camera's viewport and zoom level.
  *
- * <p>This class supports method chaining for setting properties like zoom level.</p>
+ * <p>This class supports method chaining for setting properties like zoom level.
  *
- * <p>Example usage:</p>
- * <pre>
- * {@code
+ * <p>Example usage:
+ *
+ * <pre>{@code
  * CameraViewport viewport = new CameraViewport(800, 600);
  * CameraOrthographic camera = new CameraOrthographic(viewport, 2.0f);
  * camera.zoom(1.5f);
- * }
- * </pre>
+ * }</pre>
  */
 public class CameraOrthographic extends Camera<CameraOrthographic> {
 

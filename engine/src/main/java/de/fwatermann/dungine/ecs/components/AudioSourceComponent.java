@@ -4,18 +4,16 @@ import de.fwatermann.dungine.audio.AudioContext;
 import de.fwatermann.dungine.audio.AudioSource;
 import de.fwatermann.dungine.ecs.Component;
 import de.fwatermann.dungine.utils.Disposable;
-
 import java.util.UUID;
 
-/**
- * Component to create and attach an audio source to an entity.
- */
+/** Component to create and attach an audio source to an entity. */
 public class AudioSourceComponent extends Component implements Disposable {
 
   private AudioSource source;
 
   /**
    * Constructs a new AudioSourceComponent.
+   *
    * @param context the audio context to create the audio source with
    */
   public AudioSourceComponent(AudioContext context) {
@@ -42,7 +40,6 @@ public class AudioSourceComponent extends Component implements Disposable {
     this.source = source;
     return this;
   }
-
 
   @Override
   public void dispose() {

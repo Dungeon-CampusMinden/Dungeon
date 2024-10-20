@@ -5,8 +5,9 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 /**
- * The `Light` class is an abstract base class for different types of lights in a 3D scene.
- * It provides common properties and methods for handling light attributes such as position, intensity, direction, color, etc.
+ * The `Light` class is an abstract base class for different types of lights in a 3D scene. It
+ * provides common properties and methods for handling light attributes such as position, intensity,
+ * direction, color, etc.
  *
  * @param <T> The type of the light extending this class.
  */
@@ -14,13 +15,13 @@ public abstract class Light<T extends Light<?>> {
 
   /**
    * Max number of lights supported by all GPUs
-   * <p>16KB is guaranteed to be supported by all GPUs! 16000 / 80 = 200 -> 200 - 1 for the actual size
+   *
+   * <p>16KB is guaranteed to be supported by all GPUs! 16000 / 80 = 200 -> 200 - 1 for the actual
+   * size
    */
   public static final int MAX_NUMBER_LIGHTS = 240;
 
-  /**
-   * Size of the light structure in bytes.
-   */
+  /** Size of the light structure in bytes. */
   public static final int STRUCT_SIZE = 64;
 
   private ByteBuffer buffer = null;

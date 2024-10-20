@@ -11,8 +11,8 @@ import org.lwjgl.util.nfd.NFDFilterItem;
 import org.lwjgl.util.nfd.NFDPathSetEnum;
 
 /**
- * Provides functionality for displaying file dialog windows using the native file dialog library (NFD).
- * Allows for opening single or multiple files with filter options.
+ * Provides functionality for displaying file dialog windows using the native file dialog library
+ * (NFD). Allows for opening single or multiple files with filter options.
  */
 public class FileDialog {
 
@@ -23,14 +23,10 @@ public class FileDialog {
    */
   public static class Filter {
 
-    /**
-     * The display name of the filter.
-     */
+    /** The display name of the filter. */
     public final String displayName;
 
-    /**
-     * The file extensions included in the filter.
-     */
+    /** The file extensions included in the filter. */
     public final String[] extensions;
 
     /**
@@ -39,7 +35,7 @@ public class FileDialog {
      * @param displayName The display name of the filter.
      * @param extensions The file extensions included in the filter.
      */
-    public Filter(String displayName, String ... extensions) {
+    public Filter(String displayName, String... extensions) {
       this.displayName = displayName;
       this.extensions = extensions;
     }
@@ -63,17 +59,19 @@ public class FileDialog {
    * Opens a file dialog to select a single file, with optional file filters.
    *
    * @param pFilters Filters to apply to the file dialog.
-   * @return The path to the selected file, or null if no file was selected or the operation was cancelled.
+   * @return The path to the selected file, or null if no file was selected or the operation was
+   *     cancelled.
    */
-  public static String openFile(Filter ... pFilters) {
-    try(MemoryStack stack = MemoryStack.stackPush()) {
+  public static String openFile(Filter... pFilters) {
+    try (MemoryStack stack = MemoryStack.stackPush()) {
       NFDFilterItem.Buffer filters = null;
-      if(pFilters.length > 0) {
+      if (pFilters.length > 0) {
         filters = NFDFilterItem.malloc(pFilters.length);
-        for(int i = 0; i < pFilters.length; i ++) {
-          filters.get(i)
-            .name(stack.UTF8(pFilters[i].displayName))
-            .spec(stack.UTF8(String.join(",", pFilters[i].extensions)));
+        for (int i = 0; i < pFilters.length; i++) {
+          filters
+              .get(i)
+              .name(stack.UTF8(pFilters[i].displayName))
+              .spec(stack.UTF8(String.join(",", pFilters[i].extensions)));
         }
       }
       PointerBuffer outPath = stack.callocPointer(1);
@@ -86,24 +84,26 @@ public class FileDialog {
    * Opens a file dialog to select multiple files, with optional file filters.
    *
    * @param pFilters Filters to apply to the file dialog.
-   * @return An array of paths to the selected files, or null if no files were selected or the operation was cancelled.
+   * @return An array of paths to the selected files, or null if no files were selected or the
+   *     operation was cancelled.
    */
-  public static String[] openFiles(Filter ... pFilters) {
-    try(MemoryStack stack = MemoryStack.stackPush()) {
+  public static String[] openFiles(Filter... pFilters) {
+    try (MemoryStack stack = MemoryStack.stackPush()) {
       PointerBuffer pp = stack.callocPointer(1);
 
       NFDFilterItem.Buffer filters = null;
-      if(pFilters.length > 0) {
+      if (pFilters.length > 0) {
         filters = NFDFilterItem.calloc(pFilters.length);
-        for(int i = 0; i < pFilters.length; i ++) {
-          filters.get(i)
-            .name(stack.UTF8(pFilters[i].displayName))
-            .spec(stack.UTF8(String.join(",", pFilters[i].extensions)));
+        for (int i = 0; i < pFilters.length; i++) {
+          filters
+              .get(i)
+              .name(stack.UTF8(pFilters[i].displayName))
+              .spec(stack.UTF8(String.join(",", pFilters[i].extensions)));
         }
       }
 
       int result = NFD_OpenDialogMultiple(pp, filters, (ByteBuffer) null);
-      switch(result) {
+      switch (result) {
         case NFD_OKAY:
           long pathSet = pp.get(0);
 
@@ -113,7 +113,7 @@ public class FileDialog {
           List<String> paths = new ArrayList<String>();
 
           int i = 0;
-          while(NFD_PathSet_EnumNext(psEnum, pp) == NFD_OKAY && pp.get(0) != 0) {
+          while (NFD_PathSet_EnumNext(psEnum, pp) == NFD_OKAY && pp.get(0) != 0) {
             paths.add(pp.getStringUTF8(0));
             i++;
             NFD_PathSet_FreePath(pp.get(0));
@@ -131,6 +131,4 @@ public class FileDialog {
     }
     return null;
   }
-
-
 }

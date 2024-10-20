@@ -21,9 +21,7 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
 
   private static final Logger LOGGER = LogManager.getLogger(IndexedMesh.class);
 
-  /**
-   * The OpenGL buffer object containing the mesh's indices.
-   */
+  /** The OpenGL buffer object containing the mesh's indices. */
   protected int glEBO;
 
   /** The data type of the indices. */
@@ -174,9 +172,7 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
     this.updateIndexBuffer();
   }
 
-  /**
-   * Updates the index buffer in OpenGL.
-   */
+  /** Updates the index buffer in OpenGL. */
   protected void updateIndexBuffer() {
     ThreadUtils.checkMainThread();
     if (this.indices != null && this.indicesDirty) {

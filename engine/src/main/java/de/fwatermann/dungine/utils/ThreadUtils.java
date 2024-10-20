@@ -3,16 +3,16 @@ package de.fwatermann.dungine.utils;
 import de.fwatermann.dungine.window.GameWindow;
 
 /**
- * Utility class for thread-related operations.
- * Provides methods to check if the current thread is the main thread.
+ * Utility class for thread-related operations. Provides methods to check if the current thread is
+ * the main thread.
  */
 public class ThreadUtils {
 
   private ThreadUtils() {}
 
   /**
-   * Checks if the current thread is the main thread.
-   * Throws an IllegalStateException if the current thread is not the main thread.
+   * Checks if the current thread is the main thread. Throws an IllegalStateException if the current
+   * thread is not the main thread.
    *
    * @throws IllegalStateException if the current thread is not the main thread
    */
@@ -31,5 +31,4 @@ public class ThreadUtils {
   public static boolean isMainThread() {
     return Thread.currentThread() == GameWindow.MAIN_THREAD;
   }
-
 }

@@ -11,8 +11,9 @@ import java.util.Optional;
 import org.joml.Vector3f;
 
 /**
- * The `RigidBodyComponent` class represents a physical body in the ECS that can be affected by forces and collisions.
- * It extends the `Component` class and provides methods to manage physical properties and behaviors.
+ * The `RigidBodyComponent` class represents a physical body in the ECS that can be affected by
+ * forces and collisions. It extends the `Component` class and provides methods to manage physical
+ * properties and behaviors.
  */
 public class RigidBodyComponent extends Component {
 
@@ -58,9 +59,7 @@ public class RigidBodyComponent extends Component {
   /** Counter for sleep state. */
   public int sleepCounter = 0;
 
-  /**
-   * Constructs a new `RigidBodyComponent`.
-   */
+  /** Constructs a new `RigidBodyComponent`. */
   public RigidBodyComponent() {
     super(false);
   }
@@ -93,7 +92,7 @@ public class RigidBodyComponent extends Component {
    */
   public RigidBodyComponent force(Vector3f force, boolean wake) {
     this.force.set(force);
-    if(wake) {
+    if (wake) {
       this.sleeping(false);
     }
     return this;
@@ -122,7 +121,7 @@ public class RigidBodyComponent extends Component {
    */
   public RigidBodyComponent force(float x, float y, float z, boolean wake) {
     this.force.set(x, y, z);
-    if(wake) {
+    if (wake) {
       this.sleeping(false);
     }
     return this;
@@ -172,7 +171,7 @@ public class RigidBodyComponent extends Component {
    * @return this `RigidBodyComponent` instance for method chaining
    */
   public RigidBodyComponent applyForce(float x, float y, float z, ForceMode mode, boolean wake) {
-    switch(mode) {
+    switch (mode) {
       case FORCE:
         this.force.add(x, y, z);
         break;
@@ -186,7 +185,7 @@ public class RigidBodyComponent extends Component {
         this.velocity.add(x, y, z);
         break;
     }
-    if(wake) {
+    if (wake) {
       this.sleeping(false);
     }
     return this;
@@ -200,7 +199,8 @@ public class RigidBodyComponent extends Component {
    * @return this `RigidBodyComponent` instance for method chaining
    */
   public RigidBodyComponent applyForceAt(Vector3f force, Vector3f position) {
-    return this.applyForceAt(force.x, force.y, force.z, position.x, position.y, position.z, ForceMode.FORCE, true);
+    return this.applyForceAt(
+        force.x, force.y, force.z, position.x, position.y, position.z, ForceMode.FORCE, true);
   }
 
   /**
@@ -227,11 +227,13 @@ public class RigidBodyComponent extends Component {
    * @return this `RigidBodyComponent` instance for method chaining
    */
   public RigidBodyComponent applyForceAt(Vector3f force, Vector3f position, ForceMode mode) {
-    return this.applyForceAt(force.x, force.y, force.z, position.x, position.y, position.z, mode, true);
+    return this.applyForceAt(
+        force.x, force.y, force.z, position.x, position.y, position.z, mode, true);
   }
 
   /**
    * Applies a force at a specific position on the rigid body with a specified mode.
+   *
    * @param x the x component of the force
    * @param y the y component of the force
    * @param z the z component of the force
@@ -241,12 +243,14 @@ public class RigidBodyComponent extends Component {
    * @param mode the mode of the force
    * @return this `RigidBodyComponent` instance for method chaining
    */
-  public RigidBodyComponent applyForceAt(float x, float y, float z, float px, float py, float pz, ForceMode mode) {
+  public RigidBodyComponent applyForceAt(
+      float x, float y, float z, float px, float py, float pz, ForceMode mode) {
     return this.applyForceAt(x, y, z, px, py, pz, mode, true);
   }
 
   /**
-   * Applies a force at a specific position on the rigid body with a specified mode and optionally wakes it up.
+   * Applies a force at a specific position on the rigid body with a specified mode and optionally
+   * wakes it up.
    *
    * @param force the force to apply
    * @param position the position to apply the force
@@ -254,12 +258,15 @@ public class RigidBodyComponent extends Component {
    * @param wake whether to wake up the rigid body
    * @return this `RigidBodyComponent` instance for method chaining
    */
-  public RigidBodyComponent applyForceAt(Vector3f force, Vector3f position, ForceMode mode, boolean wake) {
-    return this.applyForceAt(force.x, force.y, force.z, position.x, position.y, position.z, mode, wake);
+  public RigidBodyComponent applyForceAt(
+      Vector3f force, Vector3f position, ForceMode mode, boolean wake) {
+    return this.applyForceAt(
+        force.x, force.y, force.z, position.x, position.y, position.z, mode, wake);
   }
 
   /**
-   * Applies a force at a specific position on the rigid body with a specified mode and optionally wakes it up.
+   * Applies a force at a specific position on the rigid body with a specified mode and optionally
+   * wakes it up.
    *
    * @param x the x component of the force
    * @param y the y component of the force
@@ -271,7 +278,8 @@ public class RigidBodyComponent extends Component {
    * @param wake whether to wake up the rigid body
    * @return this `RigidBodyComponent` instance for method chaining
    */
-  public RigidBodyComponent applyForceAt(float x, float y, float z, float px, float py, float pz, ForceMode mode, boolean wake) {
+  public RigidBodyComponent applyForceAt(
+      float x, float y, float z, float px, float py, float pz, ForceMode mode, boolean wake) {
     Vector3f r = new Vector3f(px, py, pz).sub(this.entity().position());
     Vector3f f = new Vector3f(x, y, z);
     Vector3f torque = new Vector3f();
@@ -312,7 +320,8 @@ public class RigidBodyComponent extends Component {
    * @param wake whether to wake up the rigid body
    * @return this `RigidBodyComponent` instance for method chaining
    */
-  public RigidBodyComponent applyTorque(float tX, float tY, float tZ, ForceMode mode, boolean wake) {
+  public RigidBodyComponent applyTorque(
+      float tX, float tY, float tZ, ForceMode mode, boolean wake) {
     return this.applyTorque(new Vector3f(tX, tY, tZ), mode, wake);
   }
 
@@ -325,7 +334,7 @@ public class RigidBodyComponent extends Component {
    * @return this `RigidBodyComponent` instance for method chaining
    */
   public RigidBodyComponent applyTorque(Vector3f torque, ForceMode mode, boolean wake) {
-    switch(mode) {
+    switch (mode) {
       case FORCE:
         this.torque.add(torque);
         break;
@@ -339,7 +348,7 @@ public class RigidBodyComponent extends Component {
         this.angularVelocity.add(torque);
         break;
     }
-    if(wake) {
+    if (wake) {
       this.sleeping(false);
     }
     return this;
@@ -352,7 +361,7 @@ public class RigidBodyComponent extends Component {
    */
   public Vector3f getCenterOfMass() {
     Vector3f result = new Vector3f();
-    for(Collider collider : this.colliders) {
+    for (Collider collider : this.colliders) {
       result.add(collider.center());
     }
     return result.div(this.colliders.size());
@@ -374,9 +383,9 @@ public class RigidBodyComponent extends Component {
    * @return this `RigidBodyComponent` instance for method chaining
    */
   public RigidBodyComponent sleeping(boolean sleeping) {
-    if(this.sleeping && !sleeping) {
+    if (this.sleeping && !sleeping) {
       Optional.ofNullable(this.onWake).ifPresent(IVoidFunction::run);
-    } else if(!this.sleeping && sleeping) {
+    } else if (!this.sleeping && sleeping) {
       Optional.ofNullable(this.onSleep).ifPresent(IVoidFunction::run);
     }
     this.sleeping = sleeping;
@@ -474,7 +483,7 @@ public class RigidBodyComponent extends Component {
    */
   public RigidBodyComponent velocity(Vector3f velocity, boolean wake) {
     this.velocity.set(velocity);
-    if(wake) {
+    if (wake) {
       this.sleeping(false);
     }
     return this;
@@ -552,7 +561,7 @@ public class RigidBodyComponent extends Component {
    * @param other the other rigid body
    */
   public void collision(RigidBodyComponent other) {
-    if(this.onCollision != null) {
+    if (this.onCollision != null) {
       this.onCollision.run(other);
     }
   }
@@ -599,22 +608,21 @@ public class RigidBodyComponent extends Component {
     return this;
   }
 
-/**
- * Enum representing the mode of force application.
- * Each mode defines a different way to apply forces to a rigid body.
- */
-public enum ForceMode {
-  /** Apply a continuous force to the rigid body. */
-  FORCE,
+  /**
+   * Enum representing the mode of force application. Each mode defines a different way to apply
+   * forces to a rigid body.
+   */
+  public enum ForceMode {
+    /** Apply a continuous force to the rigid body. */
+    FORCE,
 
-  /** Apply an acceleration to the rigid body. */
-  ACCELERATION,
+    /** Apply an acceleration to the rigid body. */
+    ACCELERATION,
 
-  /** Apply an instantaneous change in velocity to the rigid body. */
-  IMPULSE,
+    /** Apply an instantaneous change in velocity to the rigid body. */
+    IMPULSE,
 
-  /** Apply an instantaneous change in velocity without considering mass. */
-  VELOCITY_CHANGE;
-}
-
+    /** Apply an instantaneous change in velocity without considering mass. */
+    VELOCITY_CHANGE
+  }
 }

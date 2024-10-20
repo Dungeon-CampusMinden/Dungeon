@@ -3,15 +3,16 @@ package de.fwatermann.dungine.ui.layout;
 import org.joml.Vector2i;
 
 /**
- * The `Unit` class represents a unit of measurement with a specific value and type.
- * It provides various factory methods to create instances of units with different types
- * such as pixel, percentage, viewport width, and viewport height.
+ * The `Unit` class represents a unit of measurement with a specific value and type. It provides
+ * various factory methods to create instances of units with different types such as pixel,
+ * percentage, viewport width, and viewport height.
  *
- * <p>This class allows the value and type of the unit to be set and retrieved.
- * It also provides a method to convert the unit to pixels based on the viewport size
- * and relative value for percentage-based units.</p>
+ * <p>This class allows the value and type of the unit to be set and retrieved. It also provides a
+ * method to convert the unit to pixels based on the viewport size and relative value for
+ * percentage-based units.
  *
- * <p>Example usage:</p>
+ * <p>Example usage:
+ *
  * <pre>{@code
  * Unit unit = Unit.pixel(10);
  * }</pre>
@@ -29,7 +30,7 @@ public class Unit {
    * @param value the value of the unit.
    * @param type the type of the unit.
    */
-  protected Unit (float value, UnitType type) {
+  protected Unit(float value, UnitType type) {
     this.value = value;
     this.type = type;
   }
@@ -172,7 +173,7 @@ public class Unit {
    * @return the pixel value of the unit.
    */
   protected float toPixels(Vector2i viewportSize, float relativeValue) {
-    return switch(this.type) {
+    return switch (this.type) {
       case PIXEL -> this.value;
       case PERCENT -> relativeValue * this.value / 100.0f;
       case VIEWPORT_WIDTH -> viewportSize.x * this.value / 100.0f;
@@ -182,56 +183,50 @@ public class Unit {
   }
 
   /**
- * Represents the type of a unit of measurement.
- * The `UnitType` enum defines various types of units such as pixel, percentage, viewport width, and viewport height.
- * Each unit type can be either fixed or relative.
- */
-public enum UnitType {
-  /**
-   * Pixel unit type, representing a fixed value in pixels.
+   * Represents the type of a unit of measurement. The `UnitType` enum defines various types of
+   * units such as pixel, percentage, viewport width, and viewport height. Each unit type can be
+   * either fixed or relative.
    */
-  PIXEL(true),
+  public enum UnitType {
+    /** Pixel unit type, representing a fixed value in pixels. */
+    PIXEL(true),
 
-  /**
-   * Percentage unit type, representing a relative value as a percentage.
-   */
-  PERCENT(false),
+    /** Percentage unit type, representing a relative value as a percentage. */
+    PERCENT(false),
 
-  /**
-   * Viewport width unit type, representing a fixed value as a percentage of the viewport width.
-   */
-  VIEWPORT_WIDTH(true),
+    /**
+     * Viewport width unit type, representing a fixed value as a percentage of the viewport width.
+     */
+    VIEWPORT_WIDTH(true),
 
-  /**
-   * Viewport height unit type, representing a fixed value as a percentage of the viewport height.
-   */
-  VIEWPORT_HEIGHT(true),
+    /**
+     * Viewport height unit type, representing a fixed value as a percentage of the viewport height.
+     */
+    VIEWPORT_HEIGHT(true),
 
-  /**
-   * Automatic unit type, representing an automatic value.
-   */
-  AUTO(false);
+    /** Automatic unit type, representing an automatic value. */
+    AUTO(false);
 
-  final boolean fixed;
+    final boolean fixed;
 
-  /**
-   * Constructs a UnitType with the specified fixed property.
-   *
-   * @param fixed whether the unit type is fixed.
-   */
-  UnitType(boolean fixed) {
-    this.fixed = fixed;
+    /**
+     * Constructs a UnitType with the specified fixed property.
+     *
+     * @param fixed whether the unit type is fixed.
+     */
+    UnitType(boolean fixed) {
+      this.fixed = fixed;
+    }
+
+    /**
+     * Returns whether the unit type is fixed.
+     *
+     * @return true if the unit type is fixed, false otherwise.
+     */
+    public boolean isFixed() {
+      return this.fixed;
+    }
   }
-
-  /**
-   * Returns whether the unit type is fixed.
-   *
-   * @return true if the unit type is fixed, false otherwise.
-   */
-  public boolean isFixed() {
-    return this.fixed;
-  }
-}
 
   /**
    * Checks if this unit is equal to another object.
@@ -244,7 +239,7 @@ public enum UnitType {
     if (this == other) {
       return true;
     }
-    if(other instanceof Unit u) {
+    if (other instanceof Unit u) {
       return this.value == u.value && this.type == u.type;
     }
     return false;

@@ -3,8 +3,9 @@ package de.fwatermann.dungine.utils;
 import de.fwatermann.dungine.utils.functions.IVoidFunction;
 
 /**
- * The Then class provides a mechanism to chain actions that should be executed sequentially.
- * It holds a primary action to run and an optional subsequent action to execute after the primary action.
+ * The Then class provides a mechanism to chain actions that should be executed sequentially. It
+ * holds a primary action to run and an optional subsequent action to execute after the primary
+ * action.
  */
 public class Then {
 
@@ -40,5 +41,4 @@ public class Then {
   public IVoidFunction then() {
     return this.then;
   }
-
 }

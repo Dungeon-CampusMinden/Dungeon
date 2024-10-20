@@ -13,8 +13,8 @@ import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * The `FreeCamSystem` class is responsible for handling the free camera movement in the game.
- * It processes keyboard and mouse inputs to update the camera's position and orientation.
+ * The `FreeCamSystem` class is responsible for handling the free camera movement in the game. It
+ * processes keyboard and mouse inputs to update the camera's position and orientation.
  */
 public class FreeCamSystem extends System<FreeCamSystem> {
 
@@ -51,9 +51,7 @@ public class FreeCamSystem extends System<FreeCamSystem> {
     this.mouse();
   }
 
-  /**
-   * Processes keyboard inputs to update the camera's position.
-   */
+  /** Processes keyboard inputs to update the camera's position. */
   private void keyboard() {
     Vector3f movement = new Vector3f();
     Vector3f forward = this.camera.front().mul(1.0f, 0.0f, 1.0f, new Vector3f()).normalize();
@@ -77,7 +75,7 @@ public class FreeCamSystem extends System<FreeCamSystem> {
     if (Keyboard.keyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) {
       movement.add(0.0f, -1.0f, 0.0f);
     }
-    if(movement.x == 0 && movement.y == 0 && movement.z == 0) {
+    if (movement.x == 0 && movement.y == 0 && movement.z == 0) {
       return;
     }
     movement.normalize();
@@ -88,36 +86,33 @@ public class FreeCamSystem extends System<FreeCamSystem> {
     this.camera.move(movement);
   }
 
-  /**
-   * Processes mouse inputs to update the camera's orientation.
-   */
+  /** Processes mouse inputs to update the camera's orientation. */
   private void mouse() {
 
-    if(!this.catchMouse && !Mouse.buttonPressed(0)) {
+    if (!this.catchMouse && !Mouse.buttonPressed(0)) {
       this.lastMousePos = Mouse.getMousePosition();
       return;
     }
 
     Vector2i windowCenter = this.state.window().size().div(2, new Vector2i());
-    if(this.lastMousePos == null) {
+    if (this.lastMousePos == null) {
       Mouse.setMousePosition(windowCenter);
       this.lastMousePos = new Vector2i(windowCenter);
       return;
     }
     Vector2i current = Mouse.getMousePosition();
     Vector2i rel = current.sub(this.lastMousePos, new Vector2i());
-    if(rel.x == 0 && rel.y == 0) {
+    if (rel.x == 0 && rel.y == 0) {
       return;
     }
 
     this.camera.pitchDeg((float) -rel.y);
     this.camera.yawDeg((float) -rel.x);
-    if(this.catchMouse) {
+    if (this.catchMouse) {
       Mouse.setMousePosition(windowCenter);
       this.lastMousePos = windowCenter;
     } else {
       this.lastMousePos = new Vector2i(current);
     }
   }
-
 }

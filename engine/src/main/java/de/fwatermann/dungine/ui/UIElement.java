@@ -36,9 +36,7 @@ public abstract class UIElement<T extends UIElement<?>> {
   /** The layout object of this element. */
   protected UIElementLayout layout = new UIElementLayout();
 
-  /**
-   * Creates a new UIElement.
-   */
+  /** Creates a new UIElement. */
   protected UIElement() {}
 
   /**
@@ -200,6 +198,7 @@ public abstract class UIElement<T extends UIElement<?>> {
 
   /**
    * Get the layout object of this element.
+   *
    * @return the layout object
    */
   public UIElementLayout layout() {
@@ -261,7 +260,8 @@ public abstract class UIElement<T extends UIElement<?>> {
    * @return the first component of the specified type, or null if none found
    */
   public final <C extends UIComponent<?>> Optional<C> component(Class<C> clazz) {
-    return Optional.ofNullable((C) this.components.stream().filter(clazz::isInstance).findFirst().orElse(null));
+    return Optional.ofNullable(
+        (C) this.components.stream().filter(clazz::isInstance).findFirst().orElse(null));
   }
 
   /**
@@ -275,10 +275,8 @@ public abstract class UIElement<T extends UIElement<?>> {
   }
 
   /**
-   * Gets called after the layout had changed.
-   * Override this method to update the layout of the UI element.
-   * The default implementation does nothing.
+   * Gets called after the layout had changed. Override this method to update the layout of the UI
+   * element. The default implementation does nothing.
    */
   protected void update() {}
-
 }

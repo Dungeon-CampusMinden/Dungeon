@@ -3,13 +3,13 @@ package de.fwatermann.dungine.ecs;
 import java.util.Set;
 
 /**
- * Abstract class representing a system in the Entity Component System (ECS) architecture.
- * Systems are used to update entities in the ECS. Systems can be updated synchronously or asynchronously
- * and can be paused. Systems can also have a specific interval at which they are updated. Additionally,
- * systems can be notified when an entity is added or removed from the ECS. The components provided
- * in the constructor are used to filter entities that are updated by this system, meaning this
- * system will only be notified about entities that have all the specified components. The update
- * method must be implemented by the user.
+ * Abstract class representing a system in the Entity Component System (ECS) architecture. Systems
+ * are used to update entities in the ECS. Systems can be updated synchronously or asynchronously
+ * and can be paused. Systems can also have a specific interval at which they are updated.
+ * Additionally, systems can be notified when an entity is added or removed from the ECS. The
+ * components provided in the constructor are used to filter entities that are updated by this
+ * system, meaning this system will only be notified about entities that have all the specified
+ * components. The update method must be implemented by the user.
  *
  * @param <T> The type of the system, used for chaining methods.
  */
@@ -24,7 +24,8 @@ public abstract class System<T extends System<?>> {
    * Creates a new System with a specific interval, sync flag, and components.
    *
    * @param interval Interval at which this system should be updated.
-   * @param isSync Whether this system should be updated synchronously or asynchronously to the render loop.
+   * @param isSync Whether this system should be updated synchronously or asynchronously to the
+   *     render loop.
    * @param components List of components this system requires.
    */
   public System(int interval, boolean isSync, Set<Class<? extends Component>> components) {
@@ -37,7 +38,8 @@ public abstract class System<T extends System<?>> {
    * Creates a new System with a specific interval, sync flag, and components.
    *
    * @param interval Interval at which this system should be updated.
-   * @param isSync Whether this system should be updated synchronously or asynchronously to the render loop.
+   * @param isSync Whether this system should be updated synchronously or asynchronously to the
+   *     render loop.
    * @param components List of components this system requires.
    */
   @SafeVarargs

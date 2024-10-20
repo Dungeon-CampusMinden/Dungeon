@@ -18,9 +18,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Represents a UI image element that can be rendered with OpenGL.
- * The UIImage class extends UIElement and provides methods to set and get
- * the image texture.
+ * Represents a UI image element that can be rendered with OpenGL. The UIImage class extends
+ * UIElement and provides methods to set and get the image texture.
  */
 public class UIImage extends UIElement<UIImage> {
 
@@ -28,23 +27,27 @@ public class UIImage extends UIElement<UIImage> {
   private static ArrayMesh MESH;
 
   /**
-   * Initializes the OpenGL shader for the UIImage.
-   * This method is called internally before rendering the image.
+   * Initializes the OpenGL shader for the UIImage. This method is called internally before
+   * rendering the image.
    */
   private static void initShader() {
     if (SHADER != null) return;
     try {
-      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/ui/Image.vsh"), Shader.ShaderType.VERTEX_SHADER);
-      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/ui/Image.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+      Shader vertexShader =
+          Shader.loadShader(
+              Resource.load("/shaders/ui/Image.vsh"), Shader.ShaderType.VERTEX_SHADER);
+      Shader fragmentShader =
+          Shader.loadShader(
+              Resource.load("/shaders/ui/Image.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, fragmentShader);
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException("Failed to load shader", ex);
     }
   }
 
   /**
-   * Initializes the OpenGL mesh for the UIImage.
-   * This method is called internally before rendering the image.
+   * Initializes the OpenGL mesh for the UIImage. This method is called internally before rendering
+   * the image.
    */
   private static void initMesh() {
     if (MESH != null) return;
@@ -93,8 +96,8 @@ public class UIImage extends UIElement<UIImage> {
   }
 
   /**
-   * Renders the UIImage using the specified camera.
-   * This method sets the shader uniforms and renders the mesh.
+   * Renders the UIImage using the specified camera. This method sets the shader uniforms and
+   * renders the mesh.
    *
    * @param camera the camera to use for rendering
    */

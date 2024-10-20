@@ -13,8 +13,8 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 
 /**
- * The `SceneRenderer` class provides methods to render a scene using OpenGL.
- * It handles the setup of shaders, lights, and models for rendering.
+ * The `SceneRenderer` class provides methods to render a scene using OpenGL. It handles the setup
+ * of shaders, lights, and models for rendering.
  */
 public class SceneRenderer {
 
@@ -32,13 +32,19 @@ public class SceneRenderer {
    * @return the default shader program
    */
   public static ShaderProgram defaultShader() {
-    if(DEFAULT_SHADER == null) {
+    if (DEFAULT_SHADER == null) {
       try {
-        Shader vertexShader = Shader.loadShader(Resource.load("/shaders/default/scene.vsh"), Shader.ShaderType.VERTEX_SHADER);
-        Shader geometryShader = Shader.loadShader(Resource.load("/shaders/default/scene.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-        Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/default/scene.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        Shader vertexShader =
+            Shader.loadShader(
+                Resource.load("/shaders/default/scene.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader geometryShader =
+            Shader.loadShader(
+                Resource.load("/shaders/default/scene.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+        Shader fragmentShader =
+            Shader.loadShader(
+                Resource.load("/shaders/default/scene.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
         DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
-      } catch(IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException("Failed to load default scene shader!", ex);
       }
     }
@@ -64,19 +70,28 @@ public class SceneRenderer {
    * @param lights the set of lights in the scene
    * @param shader the shader program to use for rendering
    */
-  public static void renderScene(Camera<?> camera, Set<Model> models, Set<Light<?>> lights, ShaderProgram shader) {
-    if(glLightsUBO == -1) {
+  public static void renderScene(
+      Camera<?> camera, Set<Model> models, Set<Light<?>> lights, ShaderProgram shader) {
+    if (glLightsUBO == -1) {
       glLightsUBO = GL33.glGenBuffers();
       GL33.glBindBuffer(GL33.GL_UNIFORM_BUFFER, glLightsUBO);
-      GL33.glBufferData(GL33.GL_UNIFORM_BUFFER, Light.MAX_NUMBER_LIGHTS * Light.STRUCT_SIZE + 16, GL33.GL_DYNAMIC_DRAW);
-      GL33.glBindBufferRange(GL33.GL_UNIFORM_BUFFER, 0, glLightsUBO, 0, Light.MAX_NUMBER_LIGHTS * Light.STRUCT_SIZE + 16);
+      GL33.glBufferData(
+          GL33.GL_UNIFORM_BUFFER,
+          Light.MAX_NUMBER_LIGHTS * Light.STRUCT_SIZE + 16,
+          GL33.GL_DYNAMIC_DRAW);
+      GL33.glBindBufferRange(
+          GL33.GL_UNIFORM_BUFFER,
+          0,
+          glLightsUBO,
+          0,
+          Light.MAX_NUMBER_LIGHTS * Light.STRUCT_SIZE + 16);
       GL33.glBindBuffer(GL33.GL_UNIFORM_BUFFER, 0);
     }
 
-    try(MemoryStack stack = MemoryStack.stackPush()) {
+    try (MemoryStack stack = MemoryStack.stackPush()) {
       ByteBuffer lightsBuffer = stack.calloc(16 + lights.size() * Light.STRUCT_SIZE);
       lightsBuffer.putInt(lights.size()).put(new byte[12]);
-      for(Light<?> light : lights) {
+      for (Light<?> light : lights) {
         ByteBuffer struct = light.getStruct();
         lightsBuffer.put(struct);
       }
@@ -89,12 +104,18 @@ public class SceneRenderer {
     shader.bind();
     shader.setUniformBlockBinding("uLighting", 0);
 
-    models.stream().sorted((a, b) -> {
-      float diff = a.position().distanceSquared(camera.position()) - b.position().distanceSquared(camera.position());
-      return diff < 0 ? -1 : diff > 0 ? 1 : 0;
-    }).forEach(m -> {
-      m.render(camera, shader);
-    });
+    models.stream()
+        .sorted(
+            (a, b) -> {
+              float diff =
+                  a.position().distanceSquared(camera.position())
+                      - b.position().distanceSquared(camera.position());
+              return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+            })
+        .forEach(
+            m -> {
+              m.render(camera, shader);
+            });
     shader.unbind();
   }
 }

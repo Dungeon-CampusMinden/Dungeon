@@ -12,8 +12,8 @@ import java.util.stream.Stream;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The `Model` class represents a 3D model in the game engine.
- * It contains materials and provides methods for rendering the model.
+ * The `Model` class represents a 3D model in the game engine. It contains materials and provides
+ * methods for rendering the model.
  */
 public class Model extends Renderable<Model> {
 
@@ -72,20 +72,22 @@ public class Model extends Renderable<Model> {
         material.ambientTexture.bind(shader, Animation.AnimationSlot.ANIMATION_1, GL33.GL_TEXTURE2);
       }
       if (material.specularTexture != null) {
-        material.specularTexture.bind(shader, Animation.AnimationSlot.ANIMATION_2, GL33.GL_TEXTURE4);
+        material.specularTexture.bind(
+            shader, Animation.AnimationSlot.ANIMATION_2, GL33.GL_TEXTURE4);
       }
       if (material.normalTexture != null) {
         material.normalTexture.bind(shader, Animation.AnimationSlot.ANIMATION_3, GL33.GL_TEXTURE6);
       }
 
-      material.meshes.forEach(meshEntry -> {
-        meshEntry.mesh().transformation(this.position(), this.rotation(), this.scaling());
-        if (meshEntry.offset() == 0 && meshEntry.count() <= 0) {
-          meshEntry.mesh().render(camera, shader);
-        } else {
-          meshEntry.mesh().render(camera, shader, meshEntry.offset(), meshEntry.count());
-        }
-      });
+      material.meshes.forEach(
+          meshEntry -> {
+            meshEntry.mesh().transformation(this.position(), this.rotation(), this.scaling());
+            if (meshEntry.offset() == 0 && meshEntry.count() <= 0) {
+              meshEntry.mesh().render(camera, shader);
+            } else {
+              meshEntry.mesh().render(camera, shader, meshEntry.offset(), meshEntry.count());
+            }
+          });
     }
 
     shader.unbind();

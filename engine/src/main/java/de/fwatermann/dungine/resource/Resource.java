@@ -17,8 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The `Resource` class represents an abstract resource that can be loaded from the file system or classpath.
- * It provides methods to load, read, and manage resources, including caching and garbage collection.
+ * The `Resource` class represents an abstract resource that can be loaded from the file system or
+ * classpath. It provides methods to load, read, and manage resources, including caching and garbage
+ * collection.
  */
 public abstract class Resource implements Disposable {
 
@@ -31,9 +32,7 @@ public abstract class Resource implements Disposable {
   /** Cache for loaded resources. */
   private static final Map<String, SoftReference<Resource>> cache = new HashMap<>();
 
-  /**
-   * Constructs a new `Resource`.
-   */
+  /** Constructs a new `Resource`. */
   protected Resource() {}
 
   /**
@@ -100,9 +99,7 @@ public abstract class Resource implements Disposable {
     return res;
   }
 
-  /**
-   * Collects garbage by disposing of unused resources and removing them from the cache.
-   */
+  /** Collects garbage by disposing of unused resources and removing them from the cache. */
   public static void collectGarbage() {
     Reference<? extends Resource> ref;
     while ((ref = refQueue.poll()) != null) {
@@ -144,6 +141,7 @@ public abstract class Resource implements Disposable {
 
   /**
    * Reads part of the resource as byte buffer. The result of this reading will not be cached!
+   *
    * @param offset the offset in bytes
    * @param count the number of bytes to read
    * @return the resource as a byte buffer

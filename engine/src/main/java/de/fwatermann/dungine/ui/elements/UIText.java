@@ -161,7 +161,8 @@ public class UIText extends UIElement<UIText> {
   private void updateTextElements() {
     if (this.mesh == null) return;
 
-    this.layoutElements = this.font.layoutText(this.text, this.fontSize, (int) this.size.x, this.alignment);
+    this.layoutElements =
+        this.font.layoutText(this.text, this.fontSize, (int) this.size.x, this.alignment);
     this.renderSteps.clear();
     Arrays.sort(this.layoutElements, Comparator.comparingInt(a -> a != null ? a.glyph.page : 0));
 
@@ -264,6 +265,7 @@ public class UIText extends UIElement<UIText> {
 
   /**
    * Returns the text alignment used by this element.
+   *
    * @return the text alignment.
    */
   public TextAlignment alignment() {
@@ -272,11 +274,12 @@ public class UIText extends UIElement<UIText> {
 
   /**
    * Sets the text alignment used by this element.
+   *
    * @param alignment the new text alignment
    * @return this element
    */
   public UIText alignment(TextAlignment alignment) {
-    if(this.alignment == alignment) return this;
+    if (this.alignment == alignment) return this;
     this.alignment = alignment;
     this.updateTextElements();
     return this;

@@ -4,8 +4,8 @@ import de.fwatermann.dungine.ecs.Component;
 import de.fwatermann.dungine.graphics.scene.light.Light;
 
 /**
- * The `LightComponent` class represents a component that holds a reference to a light object.
- * It extends the `Component` class and provides methods to get and set the light.
+ * The `LightComponent` class represents a component that holds a reference to a light object. It
+ * extends the `Component` class and provides methods to get and set the light.
  */
 public class LightComponent extends Component {
 
@@ -40,5 +40,4 @@ public class LightComponent extends Component {
     this.light = light;
     return this;
   }
-
 }

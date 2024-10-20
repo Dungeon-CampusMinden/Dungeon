@@ -20,5 +20,5 @@ public enum AlignSelf {
   CENTER,
 
   /** The item is stretched to fill the line. */
-  STRETCH;
+  STRETCH
 }

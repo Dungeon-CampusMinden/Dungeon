@@ -12,17 +12,17 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 
 /**
- * The `CollisionManifoldPolyhedron` class provides methods to calculate contact points between two polyhedron colliders.
+ * The `CollisionManifoldPolyhedron` class provides methods to calculate contact points between two
+ * polyhedron colliders.
  *
- * <p>This class includes methods to identify significant faces, calculate incident and reference faces, and perform clipping
- * operations to determine the contact points between colliders.</p>
+ * <p>This class includes methods to identify significant faces, calculate incident and reference
+ * faces, and perform clipping operations to determine the contact points between colliders.
  *
- * <p>Example usage:</p>
- * <pre>
- * {@code
+ * <p>Example usage:
+ *
+ * <pre>{@code
  * Set<Vector3f> contactPoints = CollisionManifoldPolyhedron.calculateContactPoints(collider1, collider2, normal, depth);
- * }
- * </pre>
+ * }</pre>
  */
 public class CollisionManifoldPolyhedron {
 
@@ -79,7 +79,7 @@ public class CollisionManifoldPolyhedron {
         Vector3f a = incidentEdges[j].a();
         Vector3f b = incidentEdges[j].b();
         Vector3f edge = b.sub(a, new Vector3f()).normalize();
-        if (clipNormal.dot(edge) == 0) continue; //Skip parallel edges
+        if (clipNormal.dot(edge) == 0) continue; // Skip parallel edges
         clipVertex(a, edge, clipOrigin, clipNormal);
         clipVertex(b, edge, clipOrigin, clipNormal);
       }
@@ -147,9 +147,8 @@ public class CollisionManifoldPolyhedron {
   }
 
   private static void clipVertex(Vector3f vertex, Vector3f edge, Vector3f origin, Vector3f normal) {
-    if(isInside(vertex, origin, normal)) return;
+    if (isInside(vertex, origin, normal)) return;
     float r = normal.dot(origin.sub(vertex, new Vector3f())) / normal.dot(edge);
     vertex.add(edge.mul(r, new Vector3f()));
   }
-
 }

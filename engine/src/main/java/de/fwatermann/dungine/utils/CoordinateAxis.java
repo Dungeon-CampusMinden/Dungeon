@@ -20,8 +20,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The `CoordinateAxis` class represents a 3D coordinate axis renderable object.
- * It provides methods to initialize OpenGL resources, render the axis, and manage transformations.
+ * The `CoordinateAxis` class represents a 3D coordinate axis renderable object. It provides methods
+ * to initialize OpenGL resources, render the axis, and manage transformations.
  */
 public class CoordinateAxis extends Renderable<CoordinateAxis> {
 
@@ -43,9 +43,7 @@ public class CoordinateAxis extends Renderable<CoordinateAxis> {
     this.initGL();
   }
 
-  /**
-   * Initializes OpenGL resources for the coordinate axis.
-   */
+  /** Initializes OpenGL resources for the coordinate axis. */
   private void initGL() {
     ByteBuffer verticesB = BufferUtils.createByteBuffer(6 * 6 * 4);
     FloatBuffer vertices = verticesB.asFloatBuffer();
@@ -136,16 +134,14 @@ public class CoordinateAxis extends Renderable<CoordinateAxis> {
     return this;
   }
 
-  /**
-   * Called when the transformation of the coordinate axis changes.
-   */
+  /** Called when the transformation of the coordinate axis changes. */
   @Override
   protected void transformationChanged() {
     super.transformationChanged();
-    if(this.mesh != null)
+    if (this.mesh != null)
       this.boundingBox =
-        BoundingBox.fromVertices(
-            this.mesh.vertexBuffer().asFloatBuffer(), 0, 6, 6, this.transformationMatrix());
+          BoundingBox.fromVertices(
+              this.mesh.vertexBuffer().asFloatBuffer(), 0, 6, 6, this.transformationMatrix());
   }
 
   /**

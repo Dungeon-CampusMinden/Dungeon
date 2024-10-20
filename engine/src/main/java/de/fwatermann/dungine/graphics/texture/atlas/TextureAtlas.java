@@ -37,8 +37,8 @@ public class TextureAtlas {
   /**
    * The maximum number of pages in the atlas. Each page is a separat texture.
    *
-   * <p>Set to 32 as OpenGL 3.3 must support at least 48 texture units, and we may need some for other
-   * textures. The first 10 (GL_TEXTURE0 - GL_TEXTURE9) texture units are left free.
+   * <p>Set to 32 as OpenGL 3.3 must support at least 48 texture units, and we may need some for
+   * other textures. The first 10 (GL_TEXTURE0 - GL_TEXTURE9) texture units are left free.
    */
   public static int MAX_PAGES = 32;
 
@@ -224,7 +224,8 @@ public class TextureAtlas {
     neu.put(old);
 
     // x
-    neu.putInt(((entry.atlasNode.position.x & 0xFFFF) << 16) | (entry.atlasNode.position.y & 0xFFFF));
+    neu.putInt(
+        ((entry.atlasNode.position.x & 0xFFFF) << 16) | (entry.atlasNode.position.y & 0xFFFF));
     // y
     neu.putInt(((entry.atlasNode.size.x & 0xFFFF) << 16) | (entry.atlasNode.size.y & 0xFFFF));
     // z
@@ -257,10 +258,15 @@ public class TextureAtlas {
    * @param program the shader program to use the TextureAtlas in
    * @param uniformAtlasPageSize the name of the uniform for the size of the atlas pages
    * @param uniformAtlasEntrySampler the name of the uniform for the sampler of the atlas entries
-   * @param uniformPagesSamplerName the name of the uniform for the sampler of the atlas pages textures
+   * @param uniformPagesSamplerName the name of the uniform for the sampler of the atlas pages
+   *     textures
    */
-  public void use(ShaderProgram program, String uniformAtlasPageSize, String uniformAtlasEntrySampler, String uniformPagesSamplerName) {
-    if(this.glBO == -1) {
+  public void use(
+      ShaderProgram program,
+      String uniformAtlasPageSize,
+      String uniformAtlasEntrySampler,
+      String uniformPagesSamplerName) {
+    if (this.glBO == -1) {
       this.glBO = GL33.glGenBuffers();
     }
     if (this.glTBO == -1) {
@@ -277,7 +283,7 @@ public class TextureAtlas {
       this.uboDirty = false;
     }
     int firstUnit = 11;
-    for(int i = 0; i < this.pages.size(); i ++) {
+    for (int i = 0; i < this.pages.size(); i++) {
       this.pages.get(i).texture.bind(GL33.GL_TEXTURE0 + firstUnit + i);
       program.setUniform1i(uniformPagesSamplerName + "[" + i + "]", firstUnit + i);
     }
@@ -300,16 +306,20 @@ public class TextureAtlas {
    * @param suffix the suffix to append to the uniform block names
    */
   public void use(ShaderProgram program, String suffix) {
-    if(suffix == null) suffix = "";
-    this.use(program, program.configuration().uniformTextureAtlasSize + suffix, program.configuration().uniformTextureAtlasEntrySampler + suffix, program.configuration().uniformTextureAtlasPagesSamplerArray + suffix);
+    if (suffix == null) suffix = "";
+    this.use(
+        program,
+        program.configuration().uniformTextureAtlasSize + suffix,
+        program.configuration().uniformTextureAtlasEntrySampler + suffix,
+        program.configuration().uniformTextureAtlasPagesSamplerArray + suffix);
   }
 
   /**
    * Use the TextureAtlas in a shader program.
+   *
    * @param program the shader program to use the TextureAtlas in
    */
   public void use(ShaderProgram program) {
     this.use(program, null);
   }
-
 }

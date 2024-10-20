@@ -3,25 +3,18 @@ package de.fwatermann.dungine.graphics.texture.atlas;
 import de.fwatermann.dungine.graphics.texture.Texture;
 
 /**
- * Represents an entry in a texture atlas.
- * An atlas entry is a reference to a specific texture within a larger atlas,
- * identified by its index and position within the atlas.
+ * Represents an entry in a texture atlas. An atlas entry is a reference to a specific texture
+ * within a larger atlas, identified by its index and position within the atlas.
  */
 public class AtlasEntry {
 
-  /**
-   * The index of the texture within the atlas.
-   */
+  /** The index of the texture within the atlas. */
   protected final int atlasPage;
 
-  /**
-   * The node within the atlas where this texture is located.
-   */
+  /** The node within the atlas where this texture is located. */
   protected final AtlasNode atlasNode;
 
-  /**
-   * The texture atlas this entry is part of.
-   */
+  /** The texture atlas this entry is part of. */
   protected final TextureAtlas atlas;
 
   /**

@@ -4,8 +4,8 @@ import org.joml.Vector3f;
 import org.lwjgl.openal.AL10;
 
 /**
- * The `AudioListener` class represents the listener in the audio environment.
- * It provides methods to set the position, velocity, and orientation of the listener.
+ * The `AudioListener` class represents the listener in the audio environment. It provides methods
+ * to set the position, velocity, and orientation of the listener.
  */
 public class AudioListener {
 
@@ -74,7 +74,8 @@ public class AudioListener {
    * @param upZ the z-coordinate of the "up" vector
    * @return the updated `AudioListener` instance
    */
-  public AudioListener orientation(float atX, float atY, float atZ, float upX, float upY, float upZ) {
+  public AudioListener orientation(
+      float atX, float atY, float atZ, float upX, float upY, float upZ) {
     float[] data = new float[] {atX, atY, atZ, upX, upY, upZ};
     AL10.alListenerfv(AL10.AL_ORIENTATION, data);
     return this;

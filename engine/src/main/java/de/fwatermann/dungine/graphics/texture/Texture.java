@@ -353,6 +353,7 @@ public class Texture implements Disposable {
 
   /**
    * Returns the OpenGL handle of this texture.
+   *
    * @return the OpenGL handle of this texture
    */
   public int glHandle() {

@@ -51,9 +51,9 @@ public abstract class Collider {
   }
 
   private static IFunction2P<CollisionResult, Collider, Collider> getCollisionFunction(
-    Class<? extends Collider> colliderA, Class<? extends Collider> colliderB) {
+      Class<? extends Collider> colliderA, Class<? extends Collider> colliderB) {
     Map<Class<? extends Collider>, IFunction2P<CollisionResult, Collider, Collider>> map =
-      collisionFunctions.get(colliderA);
+        collisionFunctions.get(colliderA);
     return map != null ? map.get(colliderB) : null;
   }
 
@@ -65,6 +65,7 @@ public abstract class Collider {
 
   /**
    * Constructs a new Collider instance with the specified entity and offset.
+   *
    * @param entity the entity that owns this collider
    * @param offset the offset of the collider relative to the owning entity's position
    */
@@ -75,6 +76,7 @@ public abstract class Collider {
 
   /**
    * Constructs a new Collider instance with the specified entity and zero offset.
+   *
    * @param entity the entity that owns this collider
    */
   public Collider(Entity entity) {
@@ -88,9 +90,13 @@ public abstract class Collider {
    * @return CollisionResult object containing information about the collision
    */
   public CollisionResult collide(Collider other) {
-    IFunction2P<CollisionResult, Collider, Collider> func = getCollisionFunction(this.getClass(), other.getClass());
-    if(func == null) {
-      LOGGER.warn("Missing collision function for colliders {} and {}", this.getClass().getName(), other.getClass().getName());
+    IFunction2P<CollisionResult, Collider, Collider> func =
+        getCollisionFunction(this.getClass(), other.getClass());
+    if (func == null) {
+      LOGGER.warn(
+          "Missing collision function for colliders {} and {}",
+          this.getClass().getName(),
+          other.getClass().getName());
       return CollisionResult.NO_COLLISION;
     }
     return func.run(this, other);
@@ -114,6 +120,7 @@ public abstract class Collider {
 
   /**
    * Get the center of the collider.
+   *
    * @return the center of the collider
    */
   public abstract Vector3f center();
@@ -153,5 +160,4 @@ public abstract class Collider {
 
   /** Is called when the transformation of the collider changes. */
   protected void transformationChanged() {}
-
 }

@@ -52,11 +52,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    * @param far The distance to the far clipping plane.
    */
   public CameraPerspective(
-      Vector3f position,
-      float fov,
-      CameraViewport viewport,
-      float near,
-      float far) {
+      Vector3f position, float fov, CameraViewport viewport, float near, float far) {
     this(position, fov, viewport, near, far, false);
   }
 
@@ -96,7 +92,10 @@ public class CameraPerspective extends Camera<CameraPerspective> {
   @Override
   protected Matrix4f calcProjectionMatrix(Matrix4f projectionMatrix) {
     return projectionMatrix.setPerspective(
-        Math.toRadians(this.fov), (this.viewport.width() / this.viewport.height()), this.near, this.far);
+        Math.toRadians(this.fov),
+        (this.viewport.width() / this.viewport.height()),
+        this.near,
+        this.far);
   }
 
   @Override
@@ -124,6 +123,7 @@ public class CameraPerspective extends Camera<CameraPerspective> {
     this.updateMatrices(false);
     return this;
   }
+
   /**
    * Get the distance to the near clipping plane of the camera.
    *

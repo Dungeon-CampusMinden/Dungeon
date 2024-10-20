@@ -50,6 +50,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Creates a new shader program with the specified shaders.
+   *
    * @param shaders the shaders to use in the program
    */
   public ShaderProgram(Shader... shaders) {
@@ -142,6 +143,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Returns the index of the uniform block with the specified name.
+   *
    * @param name the name of the uniform block
    * @return the index of the uniform block
    */
@@ -250,6 +252,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Sets the uniform with the specified name to the specified values.
+   *
    * @param name the name of the uniform
    * @param x the x component of the value
    * @param y the y component of the value
@@ -268,6 +271,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Sets the uniform with the specified name to the specified value.
+   *
    * @param name the name of the uniform
    * @param value the value of the uniform
    */
@@ -560,6 +564,7 @@ public class ShaderProgram implements Disposable {
 
   /**
    * Uses the specified material by setting its properties as uniforms in this shader program.
+   *
    * @param material the material to use
    */
   public void useMaterial(Material material) {

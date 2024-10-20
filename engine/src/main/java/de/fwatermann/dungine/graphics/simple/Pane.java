@@ -16,9 +16,9 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 /**
- * The `Pane` class represents a simple graphical pane that can be rendered in a scene.
- * It extends the `Model` class and provides methods to set and get the color of the pane,
- * initialize materials, and handle transformations.
+ * The `Pane` class represents a simple graphical pane that can be rendered in a scene. It extends
+ * the `Model` class and provides methods to set and get the color of the pane, initialize
+ * materials, and handle transformations.
  */
 public class Pane extends Model {
 

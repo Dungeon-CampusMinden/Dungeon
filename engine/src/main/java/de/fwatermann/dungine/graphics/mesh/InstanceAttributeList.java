@@ -111,21 +111,21 @@ public class InstanceAttributeList implements Iterable<InstanceAttribute> {
               LOGGER.trace(
                   "Binding instance attribute '%s' (%d) in buffer %d at location %d",
                   attrib.name, attrib.numComponents - remaining, attrib.bufferIndex, loc);
-              if(attrib.dataType.isInteger()) {
+              if (attrib.dataType.isInteger()) {
                 GL33.glVertexAttribIPointer(
-                  loc,
-                  Math.min(remaining, 4),
-                  attrib.dataType.glType,
-                  strides.get(attrib.bufferIndex),
-                  offset + (long) (attrib.numComponents - remaining) * 4);
+                    loc,
+                    Math.min(remaining, 4),
+                    attrib.dataType.glType,
+                    strides.get(attrib.bufferIndex),
+                    offset + (long) (attrib.numComponents - remaining) * 4);
               } else {
                 GL33.glVertexAttribPointer(
-                  loc,
-                  Math.min(remaining, 4),
-                  attrib.dataType.glType,
-                  false,
-                  strides.get(attrib.bufferIndex),
-                  offset + (long) (attrib.numComponents - remaining) * 4);
+                    loc,
+                    Math.min(remaining, 4),
+                    attrib.dataType.glType,
+                    false,
+                    strides.get(attrib.bufferIndex),
+                    offset + (long) (attrib.numComponents - remaining) * 4);
               }
               remaining -= Math.min(remaining, 4);
               loc++;

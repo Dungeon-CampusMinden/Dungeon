@@ -30,7 +30,7 @@ public class SATCheck {
       for (Vector3f edgeB : edgesB) {
         Vector3f a = edgeA.normalize(new Vector3f());
         Vector3f b = edgeB.normalize(new Vector3f());
-        if(Math.abs(a.dot(b)) >= 0.99999f) {
+        if (Math.abs(a.dot(b)) >= 0.99999f) {
           continue;
         }
         Vector3f axis = new Vector3f();
@@ -67,7 +67,8 @@ public class SATCheck {
    *     occurred, null otherwise.
    */
   @Nullable
-  public static Pair<Float, Vector3f> checkCollision(PolyhedronCollider<?> colliderA, PolyhedronCollider<?> colliderB) {
+  public static Pair<Float, Vector3f> checkCollision(
+      PolyhedronCollider<?> colliderA, PolyhedronCollider<?> colliderB) {
 
     Vector3f[] verticesA = colliderA.vertices();
     Vector3f[] verticesB = colliderB.vertices();
@@ -79,11 +80,11 @@ public class SATCheck {
     // Calculate edges
     for (int i = 0; i < edgeIndicesA.length; i++) {
       edgesA[i] =
-              verticesA[edgeIndicesA[i].a()].sub(verticesA[edgeIndicesA[i].b()], new Vector3f());
+          verticesA[edgeIndicesA[i].a()].sub(verticesA[edgeIndicesA[i].b()], new Vector3f());
     }
     for (int i = 0; i < edgeIndicesB.length; i++) {
       edgesB[i] =
-              verticesB[edgeIndicesB[i].a()].sub(verticesB[edgeIndicesB[i].b()], new Vector3f());
+          verticesB[edgeIndicesB[i].a()].sub(verticesB[edgeIndicesB[i].b()], new Vector3f());
     }
 
     Set<Vector3f> axes = new HashSet<>();
@@ -98,7 +99,7 @@ public class SATCheck {
       FloatPair projectionA = project(verticesA, axis);
       FloatPair projectionB = project(verticesB, axis);
       float overlap =
-              Math.min(projectionA.b() - projectionB.a(), projectionB.b() - projectionA.a());
+          Math.min(projectionA.b() - projectionB.a(), projectionB.b() - projectionA.a());
       if (overlap < 0) {
         return null;
       }

@@ -4,8 +4,8 @@ import de.fwatermann.dungine.ecs.Component;
 import de.fwatermann.dungine.graphics.Renderable;
 
 /**
- * The `RenderableComponent` class represents a component that holds a renderable object.
- * It extends the `Component` class and provides methods to manage the renderable object.
+ * The `RenderableComponent` class represents a component that holds a renderable object. It extends
+ * the `Component` class and provides methods to manage the renderable object.
  */
 public class RenderableComponent extends Component {
 
@@ -21,5 +21,4 @@ public class RenderableComponent extends Component {
     super(true);
     this.renderable = renderable;
   }
-
 }

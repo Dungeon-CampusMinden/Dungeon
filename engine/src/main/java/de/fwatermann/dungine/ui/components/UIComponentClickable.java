@@ -6,9 +6,8 @@ import de.fwatermann.dungine.ui.UIElement;
 import de.fwatermann.dungine.utils.functions.IVoidFunction3P;
 
 /**
- * A UI component that adds click functionality to a UI element.
- * The UIComponentClickable class allows setting and getting a function
- * that will be executed when the UI element is clicked.
+ * A UI component that adds click functionality to a UI element. The UIComponentClickable class
+ * allows setting and getting a function that will be executed when the UI element is clicked.
  */
 public class UIComponentClickable extends UIComponent<UIComponentClickable> {
 
@@ -16,8 +15,8 @@ public class UIComponentClickable extends UIComponent<UIComponentClickable> {
   private IVoidFunction3P<UIElement<?>, Integer, MouseButtonEvent.MouseButtonAction> onClick;
 
   /**
-   * Constructs a UIComponentClickable with a default click function.
-   * The default function does nothing.
+   * Constructs a UIComponentClickable with a default click function. The default function does
+   * nothing.
    */
   public UIComponentClickable() {
     this.onClick = (element, button, action) -> {};
@@ -28,7 +27,8 @@ public class UIComponentClickable extends UIComponent<UIComponentClickable> {
    *
    * @param onClick the function to be executed when the UI element is clicked
    */
-  public UIComponentClickable(IVoidFunction3P<UIElement<?>, Integer, MouseButtonEvent.MouseButtonAction> onClick) {
+  public UIComponentClickable(
+      IVoidFunction3P<UIElement<?>, Integer, MouseButtonEvent.MouseButtonAction> onClick) {
     this.onClick = onClick;
   }
 
@@ -47,7 +47,8 @@ public class UIComponentClickable extends UIComponent<UIComponentClickable> {
    * @param onClick the function to be executed when the UI element is clicked
    * @return this UIComponentClickable instance for method chaining
    */
-  public UIComponentClickable onClick(IVoidFunction3P<UIElement<?>, Integer, MouseButtonEvent.MouseButtonAction> onClick) {
+  public UIComponentClickable onClick(
+      IVoidFunction3P<UIElement<?>, Integer, MouseButtonEvent.MouseButtonAction> onClick) {
     this.onClick = onClick;
     return this;
   }

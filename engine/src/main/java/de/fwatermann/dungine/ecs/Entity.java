@@ -8,8 +8,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * The `Entity` class represents an entity in the ECS (Entity Component System) framework.
- * It holds components and provides methods to manage them, as well as methods to handle the entity's position, size, and rotation.
+ * The `Entity` class represents an entity in the ECS (Entity Component System) framework. It holds
+ * components and provides methods to manage them, as well as methods to handle the entity's
+ * position, size, and rotation.
  */
 public class Entity {
 
@@ -34,9 +35,7 @@ public class Entity {
     this.size = scaling;
   }
 
-  /**
-   * Constructs a new `Entity` with default position, rotation, and scaling.
-   */
+  /** Constructs a new `Entity` with default position, rotation, and scaling. */
   public Entity() {
     this(new Vector3f(), new Quaternionf(), new Vector3f(1.0f));
   }
@@ -90,8 +89,11 @@ public class Entity {
             component.getClass(), (Class<? extends Component> clazz) -> new ArrayList<>());
 
     Entity oE = component.entity();
-    if(oE != null && oE != this) {
-      LOGGER.warn("Component {} was already added to entity {}! Removing it from previous entity!", component, oE);
+    if (oE != null && oE != this) {
+      LOGGER.warn(
+          "Component {} was already added to entity {}! Removing it from previous entity!",
+          component,
+          oE);
       oE.removeComponent(component);
     }
 
@@ -117,7 +119,7 @@ public class Entity {
    */
   public <T extends Component> Optional<T> component(Class<T> clazz) {
     List<T> comps = (List<T>) this.components.get(clazz);
-    if(comps == null) return Optional.empty();
+    if (comps == null) return Optional.empty();
     return Optional.ofNullable(comps.isEmpty() ? null : comps.getFirst());
   }
 
@@ -128,7 +130,7 @@ public class Entity {
    * @return true if the component was removed, false if the component was not present
    */
   public boolean removeComponent(Component component) {
-    if(component.entity() != this) {
+    if (component.entity() != this) {
       LOGGER.warn("Component {} is not part of entity {}!", component, this);
       return false;
     } else {

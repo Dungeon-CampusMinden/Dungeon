@@ -27,5 +27,5 @@ public enum AlignContent {
   /**
    * Items are evenly distributed with equal space around them, but with more space at the edges.
    */
-  SPACE_AROUND;
+  SPACE_AROUND
 }

@@ -3,8 +3,8 @@ package de.fwatermann.dungine.graphics.mesh;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Enum representing the data types used in OpenGL.
- * Each data type has an associated OpenGL type and size in bytes.
+ * Enum representing the data types used in OpenGL. Each data type has an associated OpenGL type and
+ * size in bytes.
  */
 public enum DataType {
   /** Signed byte data type. */

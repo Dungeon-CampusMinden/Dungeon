@@ -1,8 +1,8 @@
 package de.fwatermann.dungine.graphics.texture.animation;
 
 /**
- * The `AnimationStep` class represents a step in an animation sequence.
- * It contains the current frame, the next frame, and a blend factor to transition between frames.
+ * The `AnimationStep` class represents a step in an animation sequence. It contains the current
+ * frame, the next frame, and a blend factor to transition between frames.
  */
 public class AnimationStep {
 

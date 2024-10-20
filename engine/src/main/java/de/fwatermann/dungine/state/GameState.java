@@ -26,7 +26,7 @@ public abstract class GameState extends ECS implements Disposable, EventListener
   /** The game window. */
   protected GameWindow window;
 
-  /** The user interface root element*/
+  /** The user interface root element */
   protected UIRoot ui;
 
   /** The skybox. */
@@ -53,11 +53,14 @@ public abstract class GameState extends ECS implements Disposable, EventListener
     this.window = window;
     this.ui = new UIRoot(this.window, this.window.size().x, this.window.size().y);
     this.audioContext = new AudioContext();
-    this.camera = new CameraPerspective(new CameraViewport(this.window.size().x, this.window.size().y, 0.0f, 0.0f));
+    this.camera =
+        new CameraPerspective(
+            new CameraViewport(this.window.size().x, this.window.size().y, 0.0f, 0.0f));
 
-    this.window.runOnMainThread(() -> {
-      EventManager.getInstance().registerListener(this);
-    });
+    this.window.runOnMainThread(
+        () -> {
+          EventManager.getInstance().registerListener(this);
+        });
   }
 
   /**
@@ -96,14 +99,12 @@ public abstract class GameState extends ECS implements Disposable, EventListener
 
     this.camera.update();
 
-    if(this.skyBox != null)
-      this.skyBox.render(this.camera);
+    if (this.skyBox != null) this.skyBox.render(this.camera);
 
     this.executeSystems(this, true);
     this.renderState(deltaTime);
-    if(this.renderGrid) {
-      if(this.grid == null)
-        this.grid = new Grid3D();
+    if (this.renderGrid) {
+      if (this.grid == null) this.grid = new Grid3D();
       this.grid.render(this.camera);
     }
     this.ui.render();
@@ -164,6 +165,7 @@ public abstract class GameState extends ECS implements Disposable, EventListener
 
   /**
    * Get whether the grid is rendered.
+   *
    * @return true if the grid is rendered
    */
   public boolean grid() {
@@ -172,15 +174,14 @@ public abstract class GameState extends ECS implements Disposable, EventListener
 
   /**
    * Set whether the grid is rendered.
+   *
    * @param renderGrid true if the grid should be rendered
    */
   public void grid(boolean renderGrid) {
     this.renderGrid = renderGrid;
   }
 
-  /**
-   * Dispose this state.
-   */
+  /** Dispose this state. */
   public final void dispose() {
     EventManager.getInstance().unregisterListener(this);
     this.disposeState();
@@ -188,17 +189,13 @@ public abstract class GameState extends ECS implements Disposable, EventListener
     this.audioContext.dispose();
   }
 
-  /**
-   * Dispose this state. This method is called by {@link #dispose()}
-   */
-  public void disposeState() {};
+  /** Dispose this state. This method is called by {@link #dispose()} */
+  public void disposeState() {}
 
   @EventHandler
   private void onWindowSize(WindowResizeEvent event) {
-    if(!event.isCanceled()) {
+    if (!event.isCanceled()) {
       this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
     }
   }
-
-
 }

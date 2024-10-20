@@ -12,22 +12,17 @@ import org.joml.Vector2i;
  */
 public class AtlasNode {
 
-  /**
-   * The position of the texture within the page texture in pixels.
-   */
+  /** The position of the texture within the page texture in pixels. */
   protected final Vector2i position;
 
-  /**
-   * The size of the texture in pixels.
-   */
+  /** The size of the texture in pixels. */
   protected final Vector2i size;
 
   /**
-   * The resource associated with this node. If the node is a leaf node, this is the texture otherwise
-   * it is null.
+   * The resource associated with this node. If the node is a leaf node, this is the texture
+   * otherwise it is null.
    */
-  @Nullable
-  protected Resource resource;
+  @Nullable protected Resource resource;
 
   private final AtlasNode[] children;
 

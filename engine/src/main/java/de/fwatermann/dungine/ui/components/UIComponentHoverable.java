@@ -5,9 +5,9 @@ import de.fwatermann.dungine.ui.UIElement;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
 
 /**
- * A UI component that adds hover functionality to a UI element.
- * The UIComponentHoverable class allows setting and getting functions
- * that will be executed when the UI element is hovered over or when the hover ends.
+ * A UI component that adds hover functionality to a UI element. The UIComponentHoverable class
+ * allows setting and getting functions that will be executed when the UI element is hovered over or
+ * when the hover ends.
  */
 public class UIComponentHoverable extends UIComponent<UIComponentHoverable> {
 
@@ -17,9 +17,7 @@ public class UIComponentHoverable extends UIComponent<UIComponentHoverable> {
   /** The function to be executed when the hover ends. */
   private IVoidFunction1P<UIElement<?>> onLeave;
 
-  /**
-   * Creates a new UIComponentHoverable.
-   */
+  /** Creates a new UIComponentHoverable. */
   public UIComponentHoverable() {}
 
   /**

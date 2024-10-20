@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import org.lwjgl.stb.STBImage;
 
 /**
- * The `ImageUtils` class provides utility methods for working with images.
- * It includes methods for retrieving image size and other properties from a given resource.
+ * The `ImageUtils` class provides utility methods for working with images. It includes methods for
+ * retrieving image size and other properties from a given resource.
  */
 public class ImageUtils {
 
@@ -34,11 +34,12 @@ public class ImageUtils {
   }
 
   /**
-   * The `ImageInfo` record holds information about an image's width, height, and number of channels.
+   * The `ImageInfo` record holds information about an image's width, height, and number of
+   * channels.
+   *
    * @param width the width of the image
    * @param height the height of the image
    * @param channels the number of channels in the image
    */
   public record ImageInfo(int width, int height, int channels) {}
-
 }

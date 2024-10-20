@@ -20,9 +20,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Represents a wireframe box that can be rendered using OpenGL.
- * The WireframeBox class extends Renderable and provides methods to set and get
- * the line width and color of the wireframe box.
+ * Represents a wireframe box that can be rendered using OpenGL. The WireframeBox class extends
+ * Renderable and provides methods to set and get the line width and color of the wireframe box.
  */
 public class WireframeBox extends Renderable<WireframeBox> {
 
@@ -47,17 +46,16 @@ public class WireframeBox extends Renderable<WireframeBox> {
   }
 
   /**
-   * Constructs a WireframeBox with default settings.
-   * The default position is (0, 0, 0), the default size is (1, 1, 1),
-   * the default line width is 1.0, and the default color is white.
+   * Constructs a WireframeBox with default settings. The default position is (0, 0, 0), the default
+   * size is (1, 1, 1), the default line width is 1.0, and the default color is white.
    */
   public WireframeBox() {
     this(new Vector3f(), new Vector3f(1.0f), 1.0f, 0xFFFFFFFF);
   }
 
   /**
-   * Initializes the shader program for the WireframeBox.
-   * This method is called internally before rendering the wireframe box.
+   * Initializes the shader program for the WireframeBox. This method is called internally before
+   * rendering the wireframe box.
    */
   private static void initShader() {
     if (SHADER != null) return;
@@ -75,29 +73,35 @@ public class WireframeBox extends Renderable<WireframeBox> {
   }
 
   /**
-   * Initializes the mesh for the WireframeBox.
-   * This method is called internally before rendering the wireframe box.
+   * Initializes the mesh for the WireframeBox. This method is called internally before rendering
+   * the wireframe box.
    */
   private static void initMesh() {
     if (MESH != null) return;
     ByteBuffer vertices = BufferUtils.createByteBuffer(8 * 3 * 4);
-    vertices.asFloatBuffer().put(new float[] {
-      0.0f, 0.0f, 0.0f,
-      1.0f, 0.0f, 0.0f,
-      1.0f, 0.0f, 1.0f,
-      0.0f, 0.0f, 1.0f,
-      0.0f, 1.0f, 0.0f,
-      1.0f, 1.0f, 0.0f,
-      1.0f, 1.0f, 1.0f,
-      0.0f, 1.0f, 1.0f
-    });
+    vertices
+        .asFloatBuffer()
+        .put(
+            new float[] {
+              0.0f, 0.0f, 0.0f,
+              1.0f, 0.0f, 0.0f,
+              1.0f, 0.0f, 1.0f,
+              0.0f, 0.0f, 1.0f,
+              0.0f, 1.0f, 0.0f,
+              1.0f, 1.0f, 0.0f,
+              1.0f, 1.0f, 1.0f,
+              0.0f, 1.0f, 1.0f
+            });
 
     ByteBuffer indices = BufferUtils.createByteBuffer(24 * 4);
-    indices.asIntBuffer().put(new int[] {
-      0, 1, 1, 2, 2, 3, 3, 0,
-      4, 5, 5, 6, 6, 7, 7, 4,
-      0, 4, 1, 5, 2, 6, 3, 7
-    });
+    indices
+        .asIntBuffer()
+        .put(
+            new int[] {
+              0, 1, 1, 2, 2, 3, 3, 0,
+              4, 5, 5, 6, 6, 7, 7, 4,
+              0, 4, 1, 5, 2, 6, 3, 7
+            });
 
     MESH =
         new IndexedMesh(
@@ -110,8 +114,8 @@ public class WireframeBox extends Renderable<WireframeBox> {
   }
 
   /**
-   * Renders the WireframeBox using the specified camera.
-   * This method initializes the shader and calls the render method with the shader.
+   * Renders the WireframeBox using the specified camera. This method initializes the shader and
+   * calls the render method with the shader.
    *
    * @param camera the camera to use for rendering
    */
@@ -122,8 +126,8 @@ public class WireframeBox extends Renderable<WireframeBox> {
   }
 
   /**
-   * Renders the WireframeBox using the specified camera and shader program.
-   * This method sets the shader uniforms and renders the mesh.
+   * Renders the WireframeBox using the specified camera and shader program. This method sets the
+   * shader uniforms and renders the mesh.
    *
    * @param camera the camera to use for rendering
    * @param shader the shader program to use for rendering
@@ -192,5 +196,4 @@ public class WireframeBox extends Renderable<WireframeBox> {
   public boolean shouldRender(CameraFrustum frustum) {
     return true;
   }
-
 }

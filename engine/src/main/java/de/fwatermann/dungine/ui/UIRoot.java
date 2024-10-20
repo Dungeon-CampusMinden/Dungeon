@@ -26,21 +26,23 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The `UIRoot` class represents the root container for the UI system.
- * It handles rendering, event management, and interaction with UI elements.
+ * The `UIRoot` class represents the root container for the UI system. It handles rendering, event
+ * management, and interaction with UI elements.
  *
  * <p>This class extends `UIContainer` and implements `EventListener` and `Disposable` interfaces.
- * It manages the UI camera, processes mouse events, and handles the layout of child elements.</p>
+ * It manages the UI camera, processes mouse events, and handles the layout of child elements.
  *
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
+ *
  * <ul>
- *   <li>Rendering the UI elements with proper depth and blend settings.</li>
- *   <li>Handling mouse click, scroll, and hover events.</li>
- *   <li>Managing the layout and resizing of UI elements.</li>
- *   <li>Providing methods to get and set the camera used for rendering the UI.</li>
+ *   <li>Rendering the UI elements with proper depth and blend settings.
+ *   <li>Handling mouse click, scroll, and hover events.
+ *   <li>Managing the layout and resizing of UI elements.
+ *   <li>Providing methods to get and set the camera used for rendering the UI.
  * </ul>
  *
- * <p>Example usage:</p>
+ * <p>Example usage:
+ *
  * <pre>{@code
  * GameWindow window = new GameWindow();
  * UIRoot uiRoot = new UIRoot(window, 800, 600);
@@ -63,6 +65,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
 
   /**
    * Constructs a new UIRoot instance.
+   *
    * @param window The game window.
    * @param pixelWidth The width of the root element in pixels.
    * @param pixelHeight The height of the root element in pixels.
@@ -80,9 +83,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     UILayouter.layout(this, this.window.size(), true);
   }
 
-  /**
-   * Renders the UI.
-   */
+  /** Renders the UI. */
   public void render() {
     this.init();
     this.uiCamera.update();
@@ -114,6 +115,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
 
   /**
    * Sets the camera of this root element that is used for rendering the ui.
+   *
    * @param camera The camera.
    * @return This root element.
    */
@@ -124,6 +126,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
 
   /**
    * Returns the camera of this root element that is used for rendering the ui.
+   *
    * @return The camera.
    */
   public Camera<?> camera() {
@@ -153,12 +156,14 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
 
   private void click(int button, MouseButtonEvent.MouseButtonAction action) {
     UIElement<?> element = this.getElementAtMouse(true);
-    while(element != null && !element.hasComponent(UIComponentClickable.class)) {
+    while (element != null && !element.hasComponent(UIComponentClickable.class)) {
       element = element.parent;
     }
-    if(element != null) {
+    if (element != null) {
       UIElement<?> finalElement = element;
-      element.component(UIComponentClickable.class).ifPresent(c -> c.onClick().run(finalElement, button, action));
+      element
+          .component(UIComponentClickable.class)
+          .ifPresent(c -> c.onClick().run(finalElement, button, action));
     }
   }
 
@@ -173,7 +178,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   private void hover() {
-    if(this.lastMousePos.equals(Mouse.getMousePosition())) {
+    if (this.lastMousePos.equals(Mouse.getMousePosition())) {
       return;
     }
     this.lastMousePos.set(Mouse.getMousePosition());
@@ -212,17 +217,23 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
       Vector3f edge = min.sub(max.x, 0.0f, max.z, new Vector3f());
       element.rotation.transform(edge);
       Vector3f normal = diagonal.cross(edge, new Vector3f()).normalize();
-      if(normal.dot(direction) == 0.0f) {
+      if (normal.dot(direction) == 0.0f) {
         return -1.0f;
       }
-      float d = Intersectionf.intersectRayPlane(origin, direction, element.position(), normal, 0.0f);
-      if(d < 0) return -1.0f;
+      float d =
+          Intersectionf.intersectRayPlane(origin, direction, element.position(), normal, 0.0f);
+      if (d < 0) return -1.0f;
 
-      //Check if the intersection point is inside the rectangle
+      // Check if the intersection point is inside the rectangle
       Vector3f intersection = origin.add(direction.mul(d, new Vector3f()), new Vector3f());
       Vector3f local = intersection.sub(element.absolutePosition(), new Vector3f());
       element.rotation.invert().transform(local);
-      if(local.x >= 0 && local.x <= diagonal.x && local.y >= 0 && local.y <= diagonal.y && local.z >= 0 && local.z <= diagonal.z) {
+      if (local.x >= 0
+          && local.x <= diagonal.x
+          && local.y >= 0
+          && local.y <= diagonal.y
+          && local.z >= 0
+          && local.z <= diagonal.z) {
         return d;
       }
       return -1.0f;
@@ -282,7 +293,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
         .forEach(
             e -> {
               if (e instanceof UIContainer<?> c) {
-                if (includeContainers && (componentFilter.length == 0 || Arrays.stream(componentFilter).allMatch(c::hasComponent))) {
+                if (includeContainers
+                    && (componentFilter.length == 0
+                        || Arrays.stream(componentFilter).allMatch(c::hasComponent))) {
                   elements.add(e);
                 }
                 this.allChildElements(c, includeContainers, elements, componentFilter);

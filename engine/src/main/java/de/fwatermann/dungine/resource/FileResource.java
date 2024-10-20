@@ -2,17 +2,16 @@ package de.fwatermann.dungine.resource;
 
 import de.fwatermann.dungine.utils.annotations.NotNull;
 import de.fwatermann.dungine.utils.annotations.Nullable;
-import org.lwjgl.BufferUtils;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.lwjgl.BufferUtils;
 
 /**
- * The `FileResource` class represents a resource that is loaded from a file.
- * It provides methods to read the file's contents into a byte buffer and to resolve relative paths.
+ * The `FileResource` class represents a resource that is loaded from a file. It provides methods to
+ * read the file's contents into a byte buffer and to resolve relative paths.
  */
 public class FileResource extends Resource {
 
@@ -30,8 +29,8 @@ public class FileResource extends Resource {
   }
 
   /**
-   * Reads the file's contents into a byte buffer.
-   * This method is called internally when the buffer is accessed for the first time.
+   * Reads the file's contents into a byte buffer. This method is called internally when the buffer
+   * is accessed for the first time.
    */
   private void read() {
     try {
@@ -78,14 +77,22 @@ public class FileResource extends Resource {
    */
   @Override
   public ByteBuffer readBytes(int offset, int count) {
-    if(this.buffer != null) {
+    if (this.buffer != null) {
       return this.buffer.slice(offset, count).asReadOnlyBuffer().order(ByteOrder.nativeOrder());
     }
     ByteBuffer buffer = BufferUtils.createByteBuffer(count);
     try {
       Files.newByteChannel(this.path).position(offset).read(buffer);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to read part of file: " + this.path + " [s: " + offset + " e:" + (offset + count) + "]", e);
+      throw new RuntimeException(
+          "Failed to read part of file: "
+              + this.path
+              + " [s: "
+              + offset
+              + " e:"
+              + (offset + count)
+              + "]",
+          e);
     }
     return buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
   }
@@ -98,23 +105,19 @@ public class FileResource extends Resource {
    */
   @Override
   public long size() throws IOException {
-    if(this.size == -1) {
+    if (this.size == -1) {
       this.size = Files.size(this.path);
     }
     return this.size;
   }
 
-  /**
-   * Deallocates the buffer, allowing it to be garbage collected.
-   */
+  /** Deallocates the buffer, allowing it to be garbage collected. */
   @Override
   public void deallocate() {
     this.buffer = null;
   }
 
-  /**
-   * Disposes of the resource, deallocating the buffer.
-   */
+  /** Disposes of the resource, deallocating the buffer. */
   @Override
   public void dispose() {
     this.buffer = null;

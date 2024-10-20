@@ -6,9 +6,7 @@ package de.fwatermann.dungine.event;
  */
 public abstract class Event {
 
-  /**
-   * Constructs a new event.
-   */
+  /** Constructs a new event. */
   protected Event() {}
 
   /**

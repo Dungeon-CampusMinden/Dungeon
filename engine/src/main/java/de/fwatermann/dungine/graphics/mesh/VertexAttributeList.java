@@ -88,6 +88,7 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
 
   /**
    * Binds the VertexAttributes in the list to the specified shader program, VAO, and VBO.
+   *
    * @param shaderProgram the shader program to bind the attributes to
    * @param vao the VAO to bind the attributes to
    * @param vbo the VBO to bind the attributes to
@@ -104,23 +105,23 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
             while (remaining > 0) {
               GL33.glEnableVertexAttribArray(loc);
               LOGGER.trace("Binding vertex attribute '%s' at location %d", attrib.name, loc);
-              if(attrib.dataType.isInteger()) {
+              if (attrib.dataType.isInteger()) {
                 GL33.glVertexAttribIPointer(
-                  loc,
-                  Math.min(remaining, 4),
-                  attrib.dataType.glType,
-                  this.sizeInBytes(),
-                  attrib.offset
-                    + (long) (attrib.numComponents - remaining) * attrib.sizeInBytes());
+                    loc,
+                    Math.min(remaining, 4),
+                    attrib.dataType.glType,
+                    this.sizeInBytes(),
+                    attrib.offset
+                        + (long) (attrib.numComponents - remaining) * attrib.sizeInBytes());
               } else {
                 GL33.glVertexAttribPointer(
-                  loc,
-                  Math.min(remaining, 4),
-                  attrib.dataType.glType,
-                  false,
-                  this.sizeInBytes(),
-                  attrib.offset
-                    + (long) (attrib.numComponents - remaining) * attrib.sizeInBytes());
+                    loc,
+                    Math.min(remaining, 4),
+                    attrib.dataType.glType,
+                    false,
+                    this.sizeInBytes(),
+                    attrib.offset
+                        + (long) (attrib.numComponents - remaining) * attrib.sizeInBytes());
               }
               remaining -= Math.min(remaining, 4);
               loc++;
@@ -130,5 +131,4 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
     GL33.glBindVertexArray(0);
     GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
   }
-
 }

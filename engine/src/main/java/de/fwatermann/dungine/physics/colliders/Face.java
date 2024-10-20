@@ -5,8 +5,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * The `Face` class represents a face of a polyhedron collider in the physics engine.
- * It holds information about the parent collider, vertices, edges, and normal of the face.
+ * The `Face` class represents a face of a polyhedron collider in the physics engine. It holds
+ * information about the parent collider, vertices, edges, and normal of the face.
  */
 public class Face {
 
@@ -50,7 +50,7 @@ public class Face {
    */
   public Vector3f[] vertices() {
     Vector3f[] result = new Vector3f[this.vertices.length];
-    for(int i = 0; i < this.vertices.length; i++) {
+    for (int i = 0; i < this.vertices.length; i++) {
       result[i] = new Vector3f(this.parent.vertices()[this.vertices[i]]);
     }
     return result;
@@ -63,14 +63,15 @@ public class Face {
    */
   public Vector3f center() {
     Vector3f result = new Vector3f();
-    for(int i = 0; i < this.vertices.length; i++) {
+    for (int i = 0; i < this.vertices.length; i++) {
       result.add(this.parent.vertices()[this.vertices[i]]);
     }
     return result.div(this.vertices.length);
   }
 
   /**
-   * Returns the normal vector of the face, transformed by the rotation of the parent collider and entity.
+   * Returns the normal vector of the face, transformed by the rotation of the parent collider and
+   * entity.
    *
    * @return the normal vector of the face
    */
@@ -97,8 +98,8 @@ public class Face {
    * @return true if the face contains the vertex, false otherwise
    */
   public boolean hasVertex(Vector3f vertex) {
-    for(int i = 0; i < this.vertices.length; i++) {
-      if(this.parent.vertices()[this.vertices[i]].equals(vertex)) {
+    for (int i = 0; i < this.vertices.length; i++) {
+      if (this.parent.vertices()[this.vertices[i]].equals(vertex)) {
         return true;
       }
     }
@@ -112,8 +113,8 @@ public class Face {
    * @return true if the face contains the vertex, false otherwise
    */
   public boolean hasVertex(int index) {
-    for(int i = 0; i < this.vertices.length; i++) {
-      if(this.vertices[i] == index) {
+    for (int i = 0; i < this.vertices.length; i++) {
+      if (this.vertices[i] == index) {
         return true;
       }
     }
@@ -138,5 +139,4 @@ public class Face {
   public PolyhedronCollider<?> parent() {
     return this.parent;
   }
-
 }

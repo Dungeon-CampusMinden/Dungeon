@@ -33,6 +33,7 @@ public class Sprite extends Renderable<Sprite> {
 
   /**
    * Constructs a new sprite with the specified animation, width, height, and billboard mode.
+   *
    * @param animation The animation to be used for this sprite.
    * @param width The width of the sprite.
    * @param height The height of the sprite.
@@ -55,10 +56,14 @@ public class Sprite extends Renderable<Sprite> {
   public void render(Camera<?> camera) {
     if (SHADER == null) {
       try {
-        Shader vertexShader = Shader.loadShader(Resource.load("/shaders/3d/Sprite.vsh"), Shader.ShaderType.VERTEX_SHADER);
-        Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/3d/Sprite.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        Shader vertexShader =
+            Shader.loadShader(
+                Resource.load("/shaders/3d/Sprite.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader fragmentShader =
+            Shader.loadShader(
+                Resource.load("/shaders/3d/Sprite.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
         SHADER = new ShaderProgram(vertexShader, fragmentShader);
-      } catch(IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -179,6 +184,6 @@ public class Sprite extends Renderable<Sprite> {
   @Override
   public boolean shouldRender(CameraFrustum frustum) {
     return true;
-    //TODO: Implement frustum culling for Sprites.
+    // TODO: Implement frustum culling for Sprites.
   }
 }

@@ -4,9 +4,10 @@ import de.fwatermann.dungine.graphics.scene.model.Material;
 import de.fwatermann.dungine.graphics.texture.animation.Animation;
 
 /**
- * The `CuboidTextured` class represents a textured cuboid model that can be rendered in a graphics scene.
- * It extends the `Cuboid` class and provides constructors to initialize the cuboid with different animations
- * for its faces. It also overrides the `initMaterials` method to set up the materials for rendering.
+ * The `CuboidTextured` class represents a textured cuboid model that can be rendered in a graphics
+ * scene. It extends the `Cuboid` class and provides constructors to initialize the cuboid with
+ * different animations for its faces. It also overrides the `initMaterials` method to set up the
+ * materials for rendering.
  */
 public class CuboidTextured extends Cuboid {
 
@@ -18,7 +19,7 @@ public class CuboidTextured extends Cuboid {
    * @param animation the animation to use for all faces
    */
   public CuboidTextured(Animation animation) {
-    for(int i = 0; i < 6; i++) {
+    for (int i = 0; i < 6; i++) {
       this.animations[i] = animation;
     }
   }
@@ -48,7 +49,13 @@ public class CuboidTextured extends Cuboid {
    * @param top the animation to use for the top face
    * @param bottom the animation to use for the bottom face
    */
-  public CuboidTextured(Animation front, Animation back, Animation left, Animation right, Animation top, Animation bottom) {
+  public CuboidTextured(
+      Animation front,
+      Animation back,
+      Animation left,
+      Animation right,
+      Animation top,
+      Animation bottom) {
     this.animations[0] = front;
     this.animations[1] = back;
     this.animations[2] = left;
@@ -58,11 +65,12 @@ public class CuboidTextured extends Cuboid {
   }
 
   /**
-   * Initializes the materials for the cuboid, setting up the diffuse texture and mesh entries for each face.
+   * Initializes the materials for the cuboid, setting up the diffuse texture and mesh entries for
+   * each face.
    */
   @Override
   protected void initMaterials() {
-    for(int i = 0; i < 6; i ++) {
+    for (int i = 0; i < 6; i++) {
       Material material = new Material();
       material.diffuseTexture = this.animations[i];
       material.meshes.add(new Material.MeshEntry(MESH, i * 6 * 2, 6));

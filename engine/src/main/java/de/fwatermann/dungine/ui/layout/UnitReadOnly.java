@@ -1,14 +1,15 @@
 package de.fwatermann.dungine.ui.layout;
 
 /**
- * The `UnitReadOnly` class represents a read-only unit of measurement.
- * It extends the `Unit` class and provides various factory methods to create instances
- * of read-only units with different types such as pixel, percentage, viewport width, and viewport height.
+ * The `UnitReadOnly` class represents a read-only unit of measurement. It extends the `Unit` class
+ * and provides various factory methods to create instances of read-only units with different types
+ * such as pixel, percentage, viewport width, and viewport height.
  *
  * <p>This class ensures that the value and type of the unit cannot be changed once it is created.
- * Any attempt to modify the value or type will result in an `UnsupportedOperationException`.</p>
+ * Any attempt to modify the value or type will result in an `UnsupportedOperationException`.
  *
- * <p>Example usage:</p>
+ * <p>Example usage:
+ *
  * <pre>{@code
  * UnitReadOnly unit = UnitReadOnly.pixel(10);
  * }</pre>

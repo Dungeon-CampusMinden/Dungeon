@@ -18,6 +18,7 @@ public class AABCollider extends BoxCollider {
 
   /**
    * Create a new AABCollider for the given entity with offset and size.
+   *
    * @param entity The entity this collider is attached to.
    * @param offset The offset of the collider.
    * @param size The size of the collider.
@@ -46,13 +47,13 @@ public class AABCollider extends BoxCollider {
 
   @Override
   public Quaternionf rotation() {
-    //Return identity as this is an Axis Aligned Box.
+    // Return identity as this is an Axis Aligned Box.
     return new Quaternionf();
   }
 
   @Override
   public BoxCollider rotation(Quaternionf rotation) {
-    //Do nothing as this is an Axis Aligned Box.
+    // Do nothing as this is an Axis Aligned Box.
     return this;
   }
 }

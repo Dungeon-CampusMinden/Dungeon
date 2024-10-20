@@ -1,8 +1,8 @@
 package de.fwatermann.dungine.graphics.scene.light;
 
 /**
- * The `LightType` enum represents different types of lights that can be used in the graphics engine.
- * Each light type is associated with a unique identifier.
+ * The `LightType` enum represents different types of lights that can be used in the graphics
+ * engine. Each light type is associated with a unique identifier.
  */
 public enum LightType {
 
@@ -37,5 +37,4 @@ public enum LightType {
   public int id() {
     return this.id;
   }
-
 }

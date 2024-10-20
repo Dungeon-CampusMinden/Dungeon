@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * The `ReadOnlyIterator` class provides an iterator that allows read-only access to an array of elements.
- * It implements the `Iterator` interface and does not support element removal.
+ * The `ReadOnlyIterator` class provides an iterator that allows read-only access to an array of
+ * elements. It implements the `Iterator` interface and does not support element removal.
  *
  * @param <T> the type of elements returned by this iterator
  */
@@ -58,9 +58,7 @@ public class ReadOnlyIterator<T> implements Iterator<T> {
     throw new UnsupportedOperationException("Cannot remove elements from read-only iterator.");
   }
 
-  /**
-   * Resets the iterator to the initial position.
-   */
+  /** Resets the iterator to the initial position. */
   public void reset() {
     this.position = 0;
   }

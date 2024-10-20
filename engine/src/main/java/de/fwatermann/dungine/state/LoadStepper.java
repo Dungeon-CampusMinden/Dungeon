@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The `LoadStepper` class manages a sequence of steps to be executed, optionally on the main thread.
- * It allows for defining steps with or without results and with or without context.
+ * The `LoadStepper` class manages a sequence of steps to be executed, optionally on the main
+ * thread. It allows for defining steps with or without results and with or without context.
  */
 public class LoadStepper {
 
@@ -142,10 +142,13 @@ public class LoadStepper {
    */
   public LoadStepper step(String id, boolean mainThread, StepFunction.IVoidWithResults step) {
     this.stepMap.put(id, this.steps.size());
-    this.steps.add(new Step((r) -> {
-      step.run(r);
-      return null;
-    }, mainThread));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run(r);
+              return null;
+            },
+            mainThread));
     return this;
   }
 
@@ -158,10 +161,13 @@ public class LoadStepper {
    */
   public LoadStepper step(String id, StepFunction.IVoidWithResults step) {
     this.stepMap.put(id, this.steps.size());
-    this.steps.add(new Step((r) -> {
-      step.run(r);
-      return null;
-    }, false));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run(r);
+              return null;
+            },
+            false));
     return this;
   }
 
@@ -173,10 +179,13 @@ public class LoadStepper {
    * @return the updated `LoadStepper` instance
    */
   public LoadStepper step(boolean mainThread, StepFunction.IVoidWithResults step) {
-    this.steps.add(new Step((r) -> {
-      step.run(r);
-      return null;
-    }, mainThread));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run(r);
+              return null;
+            },
+            mainThread));
     return this;
   }
 
@@ -187,10 +196,13 @@ public class LoadStepper {
    * @return the updated `LoadStepper` instance
    */
   public LoadStepper step(StepFunction.IVoidWithResults step) {
-    this.steps.add(new Step((r) -> {
-      step.run(r);
-      return null;
-    }, false));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run(r);
+              return null;
+            },
+            false));
     return this;
   }
 
@@ -204,10 +216,13 @@ public class LoadStepper {
    */
   public LoadStepper step(String id, boolean mainThread, StepFunction.IVoidWithoutResults step) {
     this.stepMap.put(id, this.steps.size());
-    this.steps.add(new Step((r) -> {
-      step.run();
-      return null;
-    }, mainThread));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run();
+              return null;
+            },
+            mainThread));
     return this;
   }
 
@@ -220,10 +235,13 @@ public class LoadStepper {
    */
   public LoadStepper step(String id, StepFunction.IVoidWithoutResults step) {
     this.stepMap.put(id, this.steps.size());
-    this.steps.add(new Step((r) -> {
-      step.run();
-      return null;
-    }, false));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run();
+              return null;
+            },
+            false));
     return this;
   }
 
@@ -235,10 +253,13 @@ public class LoadStepper {
    * @return the updated `LoadStepper` instance
    */
   public LoadStepper step(boolean mainThread, StepFunction.IVoidWithoutResults step) {
-    this.steps.add(new Step((r) -> {
-      step.run();
-      return null;
-    }, mainThread));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run();
+              return null;
+            },
+            mainThread));
     return this;
   }
 
@@ -249,10 +270,13 @@ public class LoadStepper {
    * @return the updated `LoadStepper` instance
    */
   public LoadStepper step(StepFunction.IVoidWithoutResults step) {
-    this.steps.add(new Step((r) -> {
-      step.run();
-      return null;
-    }, false));
+    this.steps.add(
+        new Step(
+            (r) -> {
+              step.run();
+              return null;
+            },
+            false));
     return this;
   }
 
@@ -274,16 +298,12 @@ public class LoadStepper {
     return this;
   }
 
-  /**
-   * Starts the execution of the steps.
-   */
+  /** Starts the execution of the steps. */
   public void start() {
     this.next();
   }
 
-  /**
-   * Executes the next step in the sequence.
-   */
+  /** Executes the next step in the sequence. */
   private void next() {
     if (this.steps.isEmpty() || this.currentStep >= this.steps.size()) { // Done
       if (this.done == null) return;
@@ -347,8 +367,6 @@ public class LoadStepper {
     return this.steps.size();
   }
 
-  /**
-   * The `Step` record represents a single step in the `LoadStepper`.
-   */
+  /** The `Step` record represents a single step in the `LoadStepper`. */
   private record Step(StepFunction.IWithResults<?> func, boolean mainThread) {}
 }

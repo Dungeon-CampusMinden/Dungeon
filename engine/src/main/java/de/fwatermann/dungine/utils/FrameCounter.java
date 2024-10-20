@@ -1,9 +1,8 @@
 package de.fwatermann.dungine.utils;
 
-
 /**
- * The `FrameCounter` class is used to keep track of the number of frames per second (FPS) in an application.
- * It provides methods to update the frame count and retrieve the current FPS.
+ * The `FrameCounter` class is used to keep track of the number of frames per second (FPS) in an
+ * application. It provides methods to update the frame count and retrieve the current FPS.
  */
 public class FrameCounter {
 
@@ -12,9 +11,7 @@ public class FrameCounter {
   private long lastReset = 0;
   private long updateInterval = 1000;
 
-  /**
-   * Constructs a new `FrameCounter` with the default update interval of 1000 milliseconds.
-   */
+  /** Constructs a new `FrameCounter` with the default update interval of 1000 milliseconds. */
   public FrameCounter() {}
 
   /**
@@ -22,8 +19,8 @@ public class FrameCounter {
    * resets the counter, and updates the last reset time.
    */
   public void update() {
-    this.counter ++;
-    if(System.currentTimeMillis() > this.lastReset + this.updateInterval) {
+    this.counter++;
+    if (System.currentTimeMillis() > this.lastReset + this.updateInterval) {
       this.currentFPS = this.counter * (1000 / this.updateInterval);
       this.counter = 0;
       this.lastReset = System.currentTimeMillis();

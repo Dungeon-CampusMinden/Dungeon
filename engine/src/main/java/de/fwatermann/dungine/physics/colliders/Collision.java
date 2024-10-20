@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The `Collision` record represents a collision event in the physics engine.
- * It contains information about the collision normal, depth, and the points of collision.
+ * The `Collision` record represents a collision event in the physics engine. It contains
+ * information about the collision normal, depth, and the points of collision.
  *
  * @param normal the normal of the collision
  * @param depth the depth of the collision
@@ -23,8 +23,10 @@ public record Collision(Vector3f normal, float depth, Set<Vector3f> collisionPoi
    */
   @Override
   public boolean equals(Object obj) {
-    if(!(obj instanceof Collision other)) return false;
-    return this.normal.equals(other.normal) && this.depth == other.depth && this.collisionPoints.equals(other.collisionPoints);
+    if (!(obj instanceof Collision other)) return false;
+    return this.normal.equals(other.normal)
+        && this.depth == other.depth
+        && this.collisionPoints.equals(other.collisionPoints);
   }
 
   /**

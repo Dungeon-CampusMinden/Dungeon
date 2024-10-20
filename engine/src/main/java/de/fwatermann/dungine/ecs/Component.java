@@ -1,9 +1,10 @@
 package de.fwatermann.dungine.ecs;
 
 /**
- * The `Component` class represents a base class for all components in the Entity-Component-System (ECS) architecture.
- * It provides functionality to determine if multiple components of the same type can be attached to an entity and
- * to get or set the entity to which the component is attached.
+ * The `Component` class represents a base class for all components in the Entity-Component-System
+ * (ECS) architecture. It provides functionality to determine if multiple components of the same
+ * type can be attached to an entity and to get or set the entity to which the component is
+ * attached.
  */
 public abstract class Component {
 

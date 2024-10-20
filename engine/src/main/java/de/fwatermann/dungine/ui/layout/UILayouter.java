@@ -140,17 +140,17 @@ public class UILayouter {
               UIElementLayout layout = element.layout();
               Vector2f size = new Vector2f(0, 0);
 
-              if(layout.aspectRatio().type() != Unit.UnitType.AUTO) {
-                if(layout.width().type() != Unit.UnitType.AUTO) {
+              if (layout.aspectRatio().type() != Unit.UnitType.AUTO) {
+                if (layout.width().type() != Unit.UnitType.AUTO) {
                   size.x = layout.width().toPixels(viewport, container.size().x);
-                  if(layout.height().type() != Unit.UnitType.AUTO) {
+                  if (layout.height().type() != Unit.UnitType.AUTO) {
                     size.y = layout.height().toPixels(viewport, container.size().y);
                   } else {
                     size.y = size.x / layout.aspectRatio().value();
                   }
-                } else if(layout.height().type() != Unit.UnitType.AUTO) {
+                } else if (layout.height().type() != Unit.UnitType.AUTO) {
                   size.y = layout.height().toPixels(viewport, container.size().y);
-                  if(layout.width().type() != Unit.UnitType.AUTO) {
+                  if (layout.width().type() != Unit.UnitType.AUTO) {
                     size.x = layout.width().toPixels(viewport, container.size().x);
                   } else {
                     size.x = size.y * layout.aspectRatio().value();
@@ -160,15 +160,15 @@ public class UILayouter {
                   layout.alignSelf(AlignSelf.STRETCH);
                 }
               } else {
-                if(layout.width().type() != Unit.UnitType.AUTO) {
+                if (layout.width().type() != Unit.UnitType.AUTO) {
                   size.x = layout.width().toPixels(viewport, container.size().x);
-                } else if(container.layout().direction().isRow()) {
+                } else if (container.layout().direction().isRow()) {
                   layout.flexGrow(1);
                   layout.alignSelf(AlignSelf.STRETCH);
                 }
-                if(layout.height().type() != Unit.UnitType.AUTO) {
+                if (layout.height().type() != Unit.UnitType.AUTO) {
                   size.y = layout.height().toPixels(viewport, container.size().y);
-                } else if(container.layout().direction().isColumn()) {
+                } else if (container.layout().direction().isColumn()) {
                   layout.flexGrow(1);
                   layout.alignSelf(AlignSelf.STRETCH);
                 }
@@ -299,8 +299,9 @@ public class UILayouter {
         } else if (remainingSpaceX < 0 && layout.flexShrink() > 0) {
           element.size().x += (remainingSpaceX / sumFlexShrink) * layout.flexShrink();
         }
-        if(element.layout().aspectRatio().type() != Unit.UnitType.AUTO) {
-          element.size().y = element.size().x / element.layout().aspectRatio().toPixels(viewport, containerSize.x);
+        if (element.layout().aspectRatio().type() != Unit.UnitType.AUTO) {
+          element.size().y =
+              element.size().x / element.layout().aspectRatio().toPixels(viewport, containerSize.x);
         }
       }
       if (remainingSpaceX != 0 && sumFlexGrow + sumFlexShrink != 0) {
@@ -318,8 +319,9 @@ public class UILayouter {
         } else if (remainingSpaceY < 0 && layout.flexShrink() > 0) {
           element.size().y += (remainingSpaceY / sumFlexShrink) * layout.flexShrink();
         }
-        if(element.layout().aspectRatio().type() != Unit.UnitType.AUTO) {
-          element.size().x = element.size().y * element.layout().aspectRatio().toPixels(viewport, containerSize.y);
+        if (element.layout().aspectRatio().type() != Unit.UnitType.AUTO) {
+          element.size().x =
+              element.size().y * element.layout().aspectRatio().toPixels(viewport, containerSize.y);
         }
       }
       if (remainingSpaceY != 0 && sumFlexGrow + sumFlexShrink != 0) {
@@ -391,7 +393,12 @@ public class UILayouter {
           case FLEX_END -> {
             float currentX = 0.0f;
             for (UIElement<?> element : line.elements) {
-              element.position().set(containerSize.x - currentX - element.size().x, currentY, element.position().z);
+              element
+                  .position()
+                  .set(
+                      containerSize.x - currentX - element.size().x,
+                      currentY,
+                      element.position().z);
               currentX += element.size().x + columnGap;
             }
           }
@@ -702,9 +709,7 @@ public class UILayouter {
     }
   }
 
-  /**
-   * Represents a flex line containing UI elements.
-   */
+  /** Represents a flex line containing UI elements. */
   private static class FlexLine {
 
     private float mainSize = 0.0f;

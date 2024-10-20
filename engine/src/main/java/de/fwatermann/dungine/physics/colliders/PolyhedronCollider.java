@@ -10,8 +10,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * The `PolyhedronCollider` class represents a collider with a polyhedral shape.
- * It extends the `Collider` class and provides methods to handle the vertices, edges, and faces of the polyhedron.
+ * The `PolyhedronCollider` class represents a collider with a polyhedral shape. It extends the
+ * `Collider` class and provides methods to handle the vertices, edges, and faces of the polyhedron.
  * This class also includes methods for collision detection and transformation handling.
  *
  * @param <T> The type of the polyhedron collider.
@@ -19,10 +19,14 @@ import org.joml.Vector3f;
 public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collider {
 
   static {
-    registerCollisionFunction(PolyhedronCollider.class, PolyhedronCollider.class, PolyhedronCollider::collidePolyhedrons);
-    registerCollisionFunction(PolyhedronCollider.class, BoxCollider.class, PolyhedronCollider::collidePolyhedrons);
-    registerCollisionFunction(PolyhedronCollider.class, AABCollider.class, PolyhedronCollider::collidePolyhedrons);
-    registerCollisionFunction(BoxCollider.class, BoxCollider.class, PolyhedronCollider::collidePolyhedrons);
+    registerCollisionFunction(
+        PolyhedronCollider.class, PolyhedronCollider.class, PolyhedronCollider::collidePolyhedrons);
+    registerCollisionFunction(
+        PolyhedronCollider.class, BoxCollider.class, PolyhedronCollider::collidePolyhedrons);
+    registerCollisionFunction(
+        PolyhedronCollider.class, AABCollider.class, PolyhedronCollider::collidePolyhedrons);
+    registerCollisionFunction(
+        BoxCollider.class, BoxCollider.class, PolyhedronCollider::collidePolyhedrons);
   }
 
   private final Vector3f[] initialVertices;
@@ -39,7 +43,9 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
   protected final Face[] faces;
 
   /**
-   * Constructs a new `PolyhedronCollider` with the specified entity, vertices, edges, faces, offset, scaling, and rotation.
+   * Constructs a new `PolyhedronCollider` with the specified entity, vertices, edges, faces,
+   * offset, scaling, and rotation.
+   *
    * @param entity The entity of the collider.
    * @param vertices The vertices of the collider.
    * @param edges The edges of the collider.
@@ -131,6 +137,7 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
 
   /**
    * Get the edges of the collider.
+   *
    * @return The edges of the collider.
    */
   public IntPair[] edges() {
@@ -139,6 +146,7 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
 
   /**
    * Get the faces of the collider.
+   *
    * @return The faces of the collider.
    */
   public Face[] faces() {
@@ -185,18 +193,18 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
     }
   }
 
-  //Default Collision handler
+  // Default Collision handler
 
   private static CollisionResult collidePolyhedrons(Collider pA, Collider pB) {
     if (!(pA instanceof PolyhedronCollider<?> a)) {
       throw new IllegalStateException(
-        String.format(
-          "Cannot collide BoxCollider with collider of type \"%s\"!", pA.getClass().getName()));
+          String.format(
+              "Cannot collide BoxCollider with collider of type \"%s\"!", pA.getClass().getName()));
     }
     if (!(pB instanceof PolyhedronCollider<?> b)) {
       throw new IllegalStateException(
-        String.format(
-          "Cannot collide BoxCollider with collider of type \"%s\"!", pB.getClass().getName()));
+          String.format(
+              "Cannot collide BoxCollider with collider of type \"%s\"!", pB.getClass().getName()));
     }
     // Check AAB collision using min/max
     if (!aabCheck(a, b)) return CollisionResult.NO_COLLISION;
@@ -204,7 +212,8 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
     // Check SAT collision
     Pair<Float, Vector3f> satResult = SATCheck.checkCollision(a, b);
     if (satResult == null) return CollisionResult.NO_COLLISION;
-    Set<Vector3f> collisionPoints = CollisionManifold.calculateContactPoints(a, b, satResult.b(), satResult.a());
+    Set<Vector3f> collisionPoints =
+        CollisionManifold.calculateContactPoints(a, b, satResult.b(), satResult.a());
     Collision collision = new Collision(satResult.b(), satResult.a(), collisionPoints);
     return new CollisionResult(true, collision);
   }
@@ -226,5 +235,4 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
     if (aMax.z < bMin.z || aMin.z > bMax.z) return false;
     return true;
   }
-
 }

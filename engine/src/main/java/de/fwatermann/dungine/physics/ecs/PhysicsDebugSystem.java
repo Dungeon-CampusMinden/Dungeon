@@ -38,7 +38,7 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
    * @return the singleton instance
    */
   public static PhysicsDebugSystem instance() {
-    if(instance == null) {
+    if (instance == null) {
       instance = new PhysicsDebugSystem();
     }
     return instance;
@@ -122,7 +122,7 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
     lines.clear();
     points.clear();
 
-    if(camera == null) return;
+    if (camera == null) return;
 
     ecs.forEachEntity(
         entity -> {
@@ -167,8 +167,7 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
                             Vector3f[] vertices = pc.vertices();
                             IntPair[] edges = pc.edges();
                             for (IntPair edge : edges) {
-                              lines.addLine(
-                                  vertices[edge.a()], vertices[edge.b()], color);
+                              lines.addLine(vertices[edge.a()], vertices[edge.b()], color);
                             }
                           });
                 });
@@ -338,5 +337,4 @@ public class PhysicsDebugSystem extends System<PhysicsDebugSystem> {
   public static int color(int option) {
     return optionColors.get(option);
   }
-
 }

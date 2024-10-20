@@ -1,13 +1,12 @@
 package de.fwatermann.dungine.event;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the registration and firing of events. This class is a singleton and provides methods to
@@ -77,8 +76,8 @@ public class EventManager {
               try {
                 this.lock.writeLock().lock();
                 this.listeners
-                  .computeIfAbsent(eventType, k -> new HashSet<>())
-                  .add(new EventHandlerPair(listener, listener.getClass(), m));
+                    .computeIfAbsent(eventType, k -> new HashSet<>())
+                    .add(new EventHandlerPair(listener, listener.getClass(), m));
               } finally {
                 this.lock.writeLock().unlock();
               }
@@ -132,8 +131,8 @@ public class EventManager {
               try {
                 this.lock.writeLock().lock();
                 this.listeners
-                  .computeIfAbsent(eventType, k -> new HashSet<>())
-                  .add(new EventHandlerPair(null, clazz, m));
+                    .computeIfAbsent(eventType, k -> new HashSet<>())
+                    .add(new EventHandlerPair(null, clazz, m));
               } finally {
                 this.lock.writeLock().unlock();
               }
@@ -154,19 +153,19 @@ public class EventManager {
     try {
       this.lock.writeLock().lock();
       this.listeners.forEach(
-        (k, v) ->
-          v.removeIf(
-            p -> {
-              if (p.listener == listener) {
-                LOGGER.debug(
-                  "Unregistered {} handler for object of {} [{}]",
-                  k.getName(),
-                  listener.getClass().getName(),
-                  listener.hashCode());
-                return true;
-              }
-              return false;
-            }));
+          (k, v) ->
+              v.removeIf(
+                  p -> {
+                    if (p.listener == listener) {
+                      LOGGER.debug(
+                          "Unregistered {} handler for object of {} [{}]",
+                          k.getName(),
+                          listener.getClass().getName(),
+                          listener.hashCode());
+                      return true;
+                    }
+                    return false;
+                  }));
     } finally {
       this.lock.writeLock().unlock();
     }
@@ -182,19 +181,19 @@ public class EventManager {
     try {
       this.lock.writeLock().lock();
       this.listeners
-        .values()
-        .forEach(
-          l ->
-            l.removeIf(
-              p -> {
-                if (p.clazz() == listenerClass) {
-                  LOGGER.debug(
-                    "Unregistered all static handlers for class {}",
-                    listenerClass.getName());
-                  return true;
-                }
-                return false;
-              }));
+          .values()
+          .forEach(
+              l ->
+                  l.removeIf(
+                      p -> {
+                        if (p.clazz() == listenerClass) {
+                          LOGGER.debug(
+                              "Unregistered all static handlers for class {}",
+                              listenerClass.getName());
+                          return true;
+                        }
+                        return false;
+                      }));
     } finally {
       this.lock.writeLock().unlock();
     }
@@ -214,13 +213,13 @@ public class EventManager {
         return;
       }
       listeners.forEach(
-        p -> {
-          try {
-            p.method().invoke(p.listener(), event);
-          } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-          }
-        });
+          p -> {
+            try {
+              p.method().invoke(p.listener(), event);
+            } catch (InvocationTargetException | IllegalAccessException e) {
+              throw new RuntimeException(e);
+            }
+          });
     } finally {
       this.lock.readLock().unlock();
     }

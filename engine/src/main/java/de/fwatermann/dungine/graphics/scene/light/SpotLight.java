@@ -3,7 +3,8 @@ package de.fwatermann.dungine.graphics.scene.light;
 import org.joml.Vector3f;
 
 /**
- * Represents a spotlight in the scene with various properties such as position, direction, color, intensity, and attenuation factors.
+ * Represents a spotlight in the scene with various properties such as position, direction, color,
+ * intensity, and attenuation factors.
  */
 public class SpotLight extends Light<SpotLight> {
 
@@ -20,7 +21,16 @@ public class SpotLight extends Light<SpotLight> {
    * @param cutOff the cutoff value for the spotlight
    * @param cutOffAngle the cutoff angle for the spotlight
    */
-  public SpotLight(Vector3f position, Vector3f direction, Vector3f color, float intensity, float constant, float linear, float exponent, float cutOff, float cutOffAngle)  {
+  public SpotLight(
+      Vector3f position,
+      Vector3f direction,
+      Vector3f color,
+      float intensity,
+      float constant,
+      float linear,
+      float exponent,
+      float cutOff,
+      float cutOffAngle) {
     super(LightType.SPOTLIGHT);
     this.position.set(position);
     this.direction.set(direction);

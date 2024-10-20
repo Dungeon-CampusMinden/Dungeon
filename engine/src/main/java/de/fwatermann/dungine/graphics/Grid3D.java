@@ -10,8 +10,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The `Grid3D` class represents a 3D grid that can be rendered in the game.
- * It handles the initialization of OpenGL resources, rendering of the grid, and disposal of resources.
+ * The `Grid3D` class represents a 3D grid that can be rendered in the game. It handles the
+ * initialization of OpenGL resources, rendering of the grid, and disposal of resources.
  */
 public class Grid3D extends Renderable<Grid3D> implements Disposable {
 
@@ -21,9 +21,7 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
   private int vbo;
   private boolean initialized = false;
 
-  /**
-   * Constructs a new `Grid3D` object.
-   */
+  /** Constructs a new `Grid3D` object. */
   public Grid3D() {}
 
   private void initGL() {
@@ -95,8 +93,8 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
   }
 
   /**
-   * Disposes of the OpenGL resources used by the grid.
-   * This includes deleting vertex array objects and vertex buffer objects.
+   * Disposes of the OpenGL resources used by the grid. This includes deleting vertex array objects
+   * and vertex buffer objects.
    */
   @Override
   public void dispose() {

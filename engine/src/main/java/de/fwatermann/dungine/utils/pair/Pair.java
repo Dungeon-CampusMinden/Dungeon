@@ -1,8 +1,8 @@
 package de.fwatermann.dungine.utils.pair;
 
 /**
- * The `Pair` class represents a generic pair of values.
- * It provides methods to get and set the values, as well as to compare pairs for equality.
+ * The `Pair` class represents a generic pair of values. It provides methods to get and set the
+ * values, as well as to compare pairs for equality.
  *
  * @param <A> the type of the first value
  * @param <B> the type of the second value
@@ -85,7 +85,7 @@ public class Pair<A, B> {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
-    if(this.getClass().isAssignableFrom(obj.getClass())) {
+    if (this.getClass().isAssignableFrom(obj.getClass())) {
       Pair<?, ?> pair = (Pair<?, ?>) obj;
       return this.a.equals(pair.a) && this.b.equals(pair.b);
     }

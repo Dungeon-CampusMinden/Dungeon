@@ -54,6 +54,7 @@ public class ArrayAnimation extends Animation {
 
   /**
    * Creates an `ArrayAnimation` instance from multiple textures.
+   *
    * @param textures the textures to create the animation from
    * @return the created `ArrayAnimation` instance
    */

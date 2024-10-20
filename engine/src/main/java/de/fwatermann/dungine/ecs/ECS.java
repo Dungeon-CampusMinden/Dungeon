@@ -17,8 +17,8 @@ import java.util.stream.Stream;
  */
 public abstract class ECS {
 
-  private ReentrantReadWriteLock entityLock = new ReentrantReadWriteLock(true);
-  private ReentrantReadWriteLock systemLock = new ReentrantReadWriteLock(true);
+  private final ReentrantReadWriteLock entityLock = new ReentrantReadWriteLock(true);
+  private final ReentrantReadWriteLock systemLock = new ReentrantReadWriteLock(true);
 
   /** Set holding all entities within the ECS */
   private final Set<Entity> entities = new HashSet<>();
@@ -26,9 +26,7 @@ public abstract class ECS {
   /** Map holding all systems withing the ECS, associated each system with their interval */
   private final Map<System<?>, Integer> systems = new HashMap<>();
 
-  /**
-   * Default constructor for the ECS class.
-   */
+  /** Default constructor for the ECS class. */
   protected ECS() {}
 
   /**
@@ -272,6 +270,7 @@ public abstract class ECS {
 
   /**
    * Get the number of entities in this ECS-Environment.
+   *
    * @return The number of entities.
    */
   public int entityCount() {
@@ -285,6 +284,7 @@ public abstract class ECS {
 
   /**
    * Get the number of systems in this ECS-Environment.
+   *
    * @return The number of systems.
    */
   public int systemCount() {

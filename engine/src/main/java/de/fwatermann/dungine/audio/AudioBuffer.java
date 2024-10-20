@@ -13,16 +13,17 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 /**
- * The `AudioBuffer` class represents an audio buffer that loads audio data from a resource.
- * It supports loading OGG Vorbis audio files and provides methods to access the OpenAL buffer ID and the resource.
+ * The `AudioBuffer` class represents an audio buffer that loads audio data from a resource. It
+ * supports loading OGG Vorbis audio files and provides methods to access the OpenAL buffer ID and
+ * the resource.
  */
 public class AudioBuffer implements Disposable {
 
   private int alBufferId = 0;
-  private int currentBuffer = 0;
+  private final int currentBuffer = 0;
 
-  private Resource resource;
-  private AudioFileType fileType;
+  private final Resource resource;
+  private final AudioFileType fileType;
 
   /**
    * Constructs a new `AudioBuffer` with the specified resource and audio file type.
@@ -36,9 +37,7 @@ public class AudioBuffer implements Disposable {
     this.load();
   }
 
-  /**
-   * Loads the audio data from the resource based on the file type.
-   */
+  /** Loads the audio data from the resource based on the file type. */
   private void load() {
     try {
       ByteBuffer fileData = this.resource.readBytes();
@@ -102,19 +101,15 @@ public class AudioBuffer implements Disposable {
     return this.resource;
   }
 
-  /**
-   * Disposes of the audio buffer, releasing any resources it holds.
-   */
+  /** Disposes of the audio buffer, releasing any resources it holds. */
   @Override
   public void dispose() {
     AL10.alDeleteBuffers(this.alBufferId);
   }
 
-/**
- * Enum representing the supported audio file types.
- */
-public enum AudioFileType {
-  /** OGG Vorbis audio file type. */
-  OGGVorbis,
-}
+  /** Enum representing the supported audio file types. */
+  public enum AudioFileType {
+    /** OGG Vorbis audio file type. */
+    OGGVorbis,
+  }
 }

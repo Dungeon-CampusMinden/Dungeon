@@ -3,8 +3,8 @@ package de.fwatermann.dungine.graphics.scene.light;
 import org.joml.Vector3f;
 
 /**
- * The `AmbientLight` class represents an ambient light source in a 3D scene.
- * It extends the `Light` class and provides methods to set and get the color and intensity of the ambient light.
+ * The `AmbientLight` class represents an ambient light source in a 3D scene. It extends the `Light`
+ * class and provides methods to set and get the color and intensity of the ambient light.
  */
 public class AmbientLight extends Light<AmbientLight> {
 

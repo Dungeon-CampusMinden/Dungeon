@@ -3,8 +3,8 @@ package de.fwatermann.dungine.graphics.mesh;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Enum representing the primitive types used in OpenGL.
- * Each primitive type has an associated OpenGL type.
+ * Enum representing the primitive types used in OpenGL. Each primitive type has an associated
+ * OpenGL type.
  */
 public enum PrimitiveType {
 
@@ -51,5 +51,4 @@ public enum PrimitiveType {
   PrimitiveType(int glType) {
     this.glType = glType;
   }
-
 }

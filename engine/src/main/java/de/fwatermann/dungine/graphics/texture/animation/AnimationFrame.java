@@ -4,8 +4,8 @@ import de.fwatermann.dungine.graphics.texture.Texture;
 import org.joml.Vector2i;
 
 /**
- * The `AnimationFrame` class represents a single frame in an animation.
- * It contains a texture, size, and position.
+ * The `AnimationFrame` class represents a single frame in an animation. It contains a texture,
+ * size, and position.
  */
 public class AnimationFrame {
 

@@ -3,8 +3,8 @@ package de.fwatermann.dungine.graphics.texture;
 import org.lwjgl.opengl.GL33;
 
 /**
- * Enum representing the texture wrap modes used in OpenGL.
- * Each wrap mode has an associated OpenGL constant.
+ * Enum representing the texture wrap modes used in OpenGL. Each wrap mode has an associated OpenGL
+ * constant.
  */
 public enum TextureWrapMode {
 

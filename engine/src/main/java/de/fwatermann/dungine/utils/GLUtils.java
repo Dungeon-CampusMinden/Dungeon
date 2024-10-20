@@ -4,12 +4,12 @@ import java.nio.*;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The `GLUtils` class provides utility methods for working with OpenGL.
- * It includes methods for checking OpenGL errors, verifying buffer properties,
- * and ensuring compatibility with specific OpenGL versions.
+ * The `GLUtils` class provides utility methods for working with OpenGL. It includes methods for
+ * checking OpenGL errors, verifying buffer properties, and ensuring compatibility with specific
+ * OpenGL versions.
  *
- * <p>All methods in this class are static and are intended to be used as helper functions
- * for OpenGL-related operations.</p>
+ * <p>All methods in this class are static and are intended to be used as helper functions for
+ * OpenGL-related operations.
  */
 public class GLUtils {
 
@@ -25,7 +25,7 @@ public class GLUtils {
   }
 
   private static String getErrorName(int errorCode) {
-    return switch(errorCode) {
+    return switch (errorCode) {
       case GL33.GL_NO_ERROR -> "GL_NO_ERROR";
       case GL33.GL_INVALID_ENUM -> "GL_INVALID_ENUM";
       case GL33.GL_INVALID_VALUE -> "GL_INVALID_VALUE";
@@ -53,30 +53,30 @@ public class GLUtils {
 
   /**
    * Checks if the provided buffer is direct.
+   *
    * @param buffer The buffer to check.
    */
   public static void checkBuffer(Buffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
   }
 
   /**
-   * Checks if the provided FloatBuffer is direct and in native byte order.
-   * Direct buffers are memory areas outside the normal garbage-collected heap.
-   * Native byte order refers to the byte order used by the underlying hardware,
-   * which can be either big-endian or little-endian.
+   * Checks if the provided FloatBuffer is direct and in native byte order. Direct buffers are
+   * memory areas outside the normal garbage-collected heap. Native byte order refers to the byte
+   * order used by the underlying hardware, which can be either big-endian or little-endian.
    *
    * @param buffer The FloatBuffer to check.
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(FloatBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
@@ -88,11 +88,11 @@ public class GLUtils {
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(IntBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
@@ -104,11 +104,11 @@ public class GLUtils {
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(ShortBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
@@ -120,11 +120,11 @@ public class GLUtils {
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(ByteBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
@@ -136,11 +136,11 @@ public class GLUtils {
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(LongBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
@@ -152,11 +152,11 @@ public class GLUtils {
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(DoubleBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
@@ -168,14 +168,12 @@ public class GLUtils {
    * @throws IllegalArgumentException if the buffer is not direct or not in native byte order.
    */
   public static void checkBuffer(CharBuffer buffer) {
-    if(buffer == null) return;
-    if(!buffer.isDirect()) {
+    if (buffer == null) return;
+    if (!buffer.isDirect()) {
       throw new IllegalArgumentException("Buffer must be direct!");
     }
-    if(buffer.order() != ByteOrder.nativeOrder()) {
+    if (buffer.order() != ByteOrder.nativeOrder()) {
       throw new IllegalArgumentException("Buffer must be in native byte order!");
     }
   }
-
-
 }

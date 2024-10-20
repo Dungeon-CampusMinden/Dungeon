@@ -17,9 +17,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Represents a UI spinner element that can be rendered with OpenGL.
- * The UISpinner class extends UIElement and provides methods to set and get
- * the spinner color.
+ * Represents a UI spinner element that can be rendered with OpenGL. The UISpinner class extends
+ * UIElement and provides methods to set and get the spinner color.
  */
 public class UISpinner extends UIElement<UISpinner> {
 
@@ -29,8 +28,8 @@ public class UISpinner extends UIElement<UISpinner> {
   private int color = 0xFFFFFFFF;
 
   /**
-   * Constructs a UISpinner with default settings.
-   * The default color is white and the aspect ratio is set to 1:1.
+   * Constructs a UISpinner with default settings. The default color is white and the aspect ratio
+   * is set to 1:1.
    */
   public UISpinner() {
     super();
@@ -38,16 +37,20 @@ public class UISpinner extends UIElement<UISpinner> {
   }
 
   /**
-   * Initializes the OpenGL shader and mesh for the UISpinner.
-   * This method is called internally before rendering the spinner.
+   * Initializes the OpenGL shader and mesh for the UISpinner. This method is called internally
+   * before rendering the spinner.
    */
   private static void initGL() {
-    if(SHADER == null) {
+    if (SHADER == null) {
       try {
-        Shader vertexShader = Shader.loadShader(Resource.load("/shaders/ui/Spinner.vsh"), Shader.ShaderType.VERTEX_SHADER);
-        Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/ui/Spinner.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        Shader vertexShader =
+            Shader.loadShader(
+                Resource.load("/shaders/ui/Spinner.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader fragmentShader =
+            Shader.loadShader(
+                Resource.load("/shaders/ui/Spinner.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
         SHADER = new ShaderProgram(vertexShader, fragmentShader);
-      } catch(IOException ex) {
+      } catch (IOException ex) {
         throw new RuntimeException(ex);
       }
     }
@@ -55,30 +58,30 @@ public class UISpinner extends UIElement<UISpinner> {
     if (MESH == null) {
       ByteBuffer vertices = BufferUtils.createByteBuffer(6 * 3 * 4);
       vertices
-        .asFloatBuffer()
-        .put(
-          new float[] {
-            0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f
-          })
-        .flip();
+          .asFloatBuffer()
+          .put(
+              new float[] {
+                0.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f,
+                1.0f, 1.0f, 0.0f,
+                1.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f
+              })
+          .flip();
 
       MESH =
-        new ArrayMesh(
-          vertices,
-          PrimitiveType.TRIANGLES,
-          GLUsageHint.DRAW_STATIC,
-          new VertexAttribute(3, DataType.FLOAT, "aPosition"));
+          new ArrayMesh(
+              vertices,
+              PrimitiveType.TRIANGLES,
+              GLUsageHint.DRAW_STATIC,
+              new VertexAttribute(3, DataType.FLOAT, "aPosition"));
     }
   }
 
   /**
-   * Renders the UISpinner using the specified camera.
-   * This method sets the shader uniforms and renders the mesh.
+   * Renders the UISpinner using the specified camera. This method sets the shader uniforms and
+   * renders the mesh.
    *
    * @param camera the camera to use for rendering
    */

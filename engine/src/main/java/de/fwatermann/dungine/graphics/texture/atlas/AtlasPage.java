@@ -18,19 +18,13 @@ import org.lwjgl.stb.STBImageWrite;
  */
 public class AtlasPage {
 
-  /**
-   * Texture that contains the textures of this page.
-   */
+  /** Texture that contains the textures of this page. */
   protected Texture texture;
 
-  /**
-   * The root node of the atlas page.
-   */
+  /** The root node of the atlas page. */
   protected final AtlasNode rootNode;
 
-  /**
-   * The width and height of the atlas page in pixels.
-   */
+  /** The width and height of the atlas page in pixels. */
   protected final int width, height;
 
   /**

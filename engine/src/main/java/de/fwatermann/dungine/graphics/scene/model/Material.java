@@ -8,8 +8,8 @@ import java.util.List;
 import org.joml.Vector4f;
 
 /**
- * The `Material` class represents the material properties of a 3D model.
- * It includes colors, textures, and other material-specific attributes.
+ * The `Material` class represents the material properties of a 3D model. It includes colors,
+ * textures, and other material-specific attributes.
  */
 public class Material {
 
@@ -41,20 +41,16 @@ public class Material {
   public final Vector4f specularColor = new Vector4f(DEFAULT_COLOR);
 
   /** The diffuse texture animation of the material. */
-  @Nullable
-  public Animation diffuseTexture = null;
+  @Nullable public Animation diffuseTexture = null;
 
   /** The ambient texture animation of the material. */
-  @Nullable
-  public Animation ambientTexture = null;
+  @Nullable public Animation ambientTexture = null;
 
   /** The normal texture animation of the material. */
-  @Nullable
-  public Animation normalTexture = null;
+  @Nullable public Animation normalTexture = null;
 
   /** The specular texture animation of the material. */
-  @Nullable
-  public Animation specularTexture = null;
+  @Nullable public Animation specularTexture = null;
 
   /** Indicates whether the material is transparent. */
   public boolean transparent = false;
@@ -65,9 +61,7 @@ public class Material {
   /** The flags indicating the presence of various textures. */
   public int flags = 0;
 
-  /**
-   * Constructs a new `Material` with the default values.
-   */
+  /** Constructs a new `Material` with the default values. */
   public Material() {}
 
   /**

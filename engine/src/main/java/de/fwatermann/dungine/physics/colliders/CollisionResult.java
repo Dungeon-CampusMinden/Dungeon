@@ -3,8 +3,8 @@ package de.fwatermann.dungine.physics.colliders;
 import java.util.List;
 
 /**
- * The `CollisionResult` class represents the result of a collision detection operation.
- * It contains information about whether a collision occurred and the details of the collisions.
+ * The `CollisionResult` class represents the result of a collision detection operation. It contains
+ * information about whether a collision occurred and the details of the collisions.
  */
 public class CollisionResult {
 

@@ -25,10 +25,10 @@ public class InstancedIndexedMesh extends InstancedMesh<InstancedIndexedMesh> {
 
   private int glEBO;
 
-  private IndexDataType indexDataType;
+  private final IndexDataType indexDataType;
   private @Null ByteBuffer indices;
   private boolean indicesDirty = false;
-  private ShaderProgram lastShaderProgram = null;
+  private final ShaderProgram lastShaderProgram = null;
 
   /**
    * Constructs a new InstancedIndexedMesh with the specified vertices, indices, instance data,

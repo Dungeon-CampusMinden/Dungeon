@@ -46,8 +46,8 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
 /**
- * The `ModelLoader` class is responsible for loading 3D models from resources.
- * It uses the Assimp library to import model data and convert it into the engine's format.
+ * The `ModelLoader` class is responsible for loading 3D models from resources. It uses the Assimp
+ * library to import model data and convert it into the engine's format.
  */
 public class ModelLoader {
 
@@ -104,14 +104,15 @@ public class ModelLoader {
     }
     materials.removeIf(m -> m.meshes.isEmpty());
 
-    materials.sort((Material a, Material b) -> {
-      if (a.transparent && !b.transparent) {
-        return 1;
-      } else if (!a.transparent && b.transparent) {
-        return -1;
-      }
-      return 0;
-    });
+    materials.sort(
+        (Material a, Material b) -> {
+          if (a.transparent && !b.transparent) {
+            return 1;
+          } else if (!a.transparent && b.transparent) {
+            return -1;
+          }
+          return 0;
+        });
 
     Model model = new Model(materials);
     modelCache.put(resource, model);
@@ -119,45 +120,57 @@ public class ModelLoader {
   }
 
   private static AIScene loadScene(Resource resource) {
-    AIFileIO fileIO = AIFileIO.create().OpenProc((pFileIO, pFileName, pOpenMode) -> {
-      String fileName = MemoryUtil.memUTF8(pFileName);
-      try {
-        ByteBuffer data;
-        LOGGER.debug("Loading File: {}", fileName);
-        if(fileName.equals(MODEL_ROOT_FILE_KEY)) {
-          data = resource.readBytes();
-        } else {
-          data = resource.resolveRelative(fileName).readBytes();
-        }
-        return AIFile.create()
-          .ReadProc((pFile, pBuffer, pSize, pCount) -> {
-            long max = Math.min(data.remaining() / pSize, pCount);
-            MemoryUtil.memCopy(MemoryUtil.memAddress(data), pBuffer, max * pSize);
-            data.position(data.position() + (int) (max * pSize));
-            return max;
-          })
-          .SeekProc((pFile, offset, origin) -> {
-            switch(origin) {
-              case aiOrigin_CUR -> data.position(data.position() + (int) offset);
-              case aiOrigin_END -> data.position(data.limit() + (int) offset);
-              case aiOrigin_SET -> data.position((int) offset);
-            }
-            return aiReturn_SUCCESS;
-          })
-          .TellProc((pFile) -> data.position())
-          .FileSizeProc((pFile) -> data.limit())
-          .address();
-      } catch (IOException e) {
-        throw new RuntimeException("Could not load relative resource!", e);
-      }
-    }).CloseProc((pFileIO, pFile) -> {
-      AIFile aiFile = AIFile.create(pFile);
-      aiFile.ReadProc().free();
-      aiFile.SeekProc().free();
-      aiFile.FileSizeProc().free();
-    });
+    AIFileIO fileIO =
+        AIFileIO.create()
+            .OpenProc(
+                (pFileIO, pFileName, pOpenMode) -> {
+                  String fileName = MemoryUtil.memUTF8(pFileName);
+                  try {
+                    ByteBuffer data;
+                    LOGGER.debug("Loading File: {}", fileName);
+                    if (fileName.equals(MODEL_ROOT_FILE_KEY)) {
+                      data = resource.readBytes();
+                    } else {
+                      data = resource.resolveRelative(fileName).readBytes();
+                    }
+                    return AIFile.create()
+                        .ReadProc(
+                            (pFile, pBuffer, pSize, pCount) -> {
+                              long max = Math.min(data.remaining() / pSize, pCount);
+                              MemoryUtil.memCopy(MemoryUtil.memAddress(data), pBuffer, max * pSize);
+                              data.position(data.position() + (int) (max * pSize));
+                              return max;
+                            })
+                        .SeekProc(
+                            (pFile, offset, origin) -> {
+                              switch (origin) {
+                                case aiOrigin_CUR -> data.position(data.position() + (int) offset);
+                                case aiOrigin_END -> data.position(data.limit() + (int) offset);
+                                case aiOrigin_SET -> data.position((int) offset);
+                              }
+                              return aiReturn_SUCCESS;
+                            })
+                        .TellProc((pFile) -> data.position())
+                        .FileSizeProc((pFile) -> data.limit())
+                        .address();
+                  } catch (IOException e) {
+                    throw new RuntimeException("Could not load relative resource!", e);
+                  }
+                })
+            .CloseProc(
+                (pFileIO, pFile) -> {
+                  AIFile aiFile = AIFile.create(pFile);
+                  aiFile.ReadProc().free();
+                  aiFile.SeekProc().free();
+                  aiFile.FileSizeProc().free();
+                });
 
-    int flags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_GenSmoothNormals;
+    int flags =
+        aiProcess_JoinIdenticalVertices
+            | aiProcess_Triangulate
+            | aiProcess_CalcTangentSpace
+            | aiProcess_OptimizeMeshes
+            | aiProcess_GenSmoothNormals;
 
     AIScene aiScene = aiImportFileEx(MODEL_ROOT_FILE_KEY, flags, fileIO);
     fileIO.OpenProc().free();
@@ -172,39 +185,58 @@ public class ModelLoader {
     material.ambientColor.set(loadColor(aiMaterial, AI_MATKEY_COLOR_AMBIENT, 0));
     material.specularColor.set(loadColor(aiMaterial, AI_MATKEY_COLOR_SPECULAR, 0));
 
-    Pair<Texture, Boolean> diffuseTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_DIFFUSE, 0, true);
-    material.diffuseTexture = diffuseTexture.a() != null ? ArrayAnimation.of(diffuseTexture.a()) : null;
-    Pair<Texture, Boolean> ambientTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_AMBIENT, 0, false);
-    material.ambientTexture = ambientTexture.a() != null ? ArrayAnimation.of(ambientTexture.a()) : null;
-    Pair<Texture, Boolean> specularTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_SPECULAR, 0, false);
-    material.specularTexture = specularTexture.a() != null ? ArrayAnimation.of(specularTexture.a()) : null;
-    Pair<Texture, Boolean> normalTexture = loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_NORMALS, 0, false);
-    material.normalTexture = normalTexture.a() != null ? ArrayAnimation.of(normalTexture.a()) : null;
+    Pair<Texture, Boolean> diffuseTexture =
+        loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_DIFFUSE, 0, true);
+    material.diffuseTexture =
+        diffuseTexture.a() != null ? ArrayAnimation.of(diffuseTexture.a()) : null;
+    Pair<Texture, Boolean> ambientTexture =
+        loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_AMBIENT, 0, false);
+    material.ambientTexture =
+        ambientTexture.a() != null ? ArrayAnimation.of(ambientTexture.a()) : null;
+    Pair<Texture, Boolean> specularTexture =
+        loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_SPECULAR, 0, false);
+    material.specularTexture =
+        specularTexture.a() != null ? ArrayAnimation.of(specularTexture.a()) : null;
+    Pair<Texture, Boolean> normalTexture =
+        loadTexture(modelFile, aiScene, aiMaterial, aiTextureType_NORMALS, 0, false);
+    material.normalTexture =
+        normalTexture.a() != null ? ArrayAnimation.of(normalTexture.a()) : null;
 
     material.transparent = diffuseTexture.b();
 
-    //Reflectance
+    // Reflectance
     {
       float[] shinFac = new float[1];
       int[] pMax = new int[1];
-      int result = aiGetMaterialFloatArray(aiMaterial, AI_MATKEY_SHININESS_STRENGTH, aiTextureType_NONE, 0, shinFac, pMax);
-      if(result == aiReturn_SUCCESS) {
+      int result =
+          aiGetMaterialFloatArray(
+              aiMaterial, AI_MATKEY_SHININESS_STRENGTH, aiTextureType_NONE, 0, shinFac, pMax);
+      if (result == aiReturn_SUCCESS) {
         material.reflectance = shinFac[0];
       } else {
         material.reflectance = 0.0f;
       }
     }
 
-    material.flags |= material.diffuseTexture != null ? Material.MATERIAL_FLAG_HAS_DIFFUSE_TEXTURE : 0;
-    material.flags |= material.ambientTexture != null ? Material.MATERIAL_FLAG_HAS_AMBIENT_TEXTURE : 0;
-    material.flags |= material.specularTexture != null ? Material.MATERIAL_FLAG_HAS_SPECULAR_TEXTURE : 0;
-    material.flags |= material.normalTexture != null ? Material.MATERIAL_FLAG_HAS_NORMAL_TEXTURE : 0;
+    material.flags |=
+        material.diffuseTexture != null ? Material.MATERIAL_FLAG_HAS_DIFFUSE_TEXTURE : 0;
+    material.flags |=
+        material.ambientTexture != null ? Material.MATERIAL_FLAG_HAS_AMBIENT_TEXTURE : 0;
+    material.flags |=
+        material.specularTexture != null ? Material.MATERIAL_FLAG_HAS_SPECULAR_TEXTURE : 0;
+    material.flags |=
+        material.normalTexture != null ? Material.MATERIAL_FLAG_HAS_NORMAL_TEXTURE : 0;
 
     return material;
   }
 
   private static Pair<Texture, Boolean> loadTexture(
-    Resource modelFile, AIScene aiScene, AIMaterial aiMaterial, int textureType, int index, boolean checkTransparent) {
+      Resource modelFile,
+      AIScene aiScene,
+      AIMaterial aiMaterial,
+      int textureType,
+      int index,
+      boolean checkTransparent) {
     try (MemoryStack stack = MemoryStack.stackPush()) {
       AIString texturePath = AIString.calloc(stack);
 
@@ -216,34 +248,40 @@ public class ModelLoader {
       IntBuffer flags = stack.callocInt(1);
 
       int error =
-        aiGetMaterialTexture(
-          aiMaterial,
-          textureType,
-          index,
-          texturePath,
-          mapping, uvIndex, blend, op, mapMode, flags);
-      if(error != aiReturn_SUCCESS) return new Pair<>(null, false);
+          aiGetMaterialTexture(
+              aiMaterial,
+              textureType,
+              index,
+              texturePath,
+              mapping,
+              uvIndex,
+              blend,
+              op,
+              mapMode,
+              flags);
+      if (error != aiReturn_SUCCESS) return new Pair<>(null, false);
       String path = texturePath.dataString();
-      if(path.isEmpty()) return new Pair<>(null, false);
+      if (path.isEmpty()) return new Pair<>(null, false);
 
-      //Wrap mode
-      TextureWrapMode uWrapMode = switch(mapMode.get(0)) {
-        case aiTextureMapMode_Wrap -> TextureWrapMode.REPEAT;
-        case aiTextureMapMode_Clamp -> TextureWrapMode.CLAMP_TO_EDGE;
-        case aiTextureMapMode_Mirror -> TextureWrapMode.MIRRORED_REPEAT;
-        case aiTextureMapMode_Decal -> TextureWrapMode.CLAMP_TO_BORDER;
-        default -> TextureWrapMode.CLAMP_TO_EDGE;
-      };
-      TextureWrapMode vWrapMode = switch(mapMode.get(1)) {
-        case aiTextureMapMode_Wrap -> TextureWrapMode.REPEAT;
-        case aiTextureMapMode_Clamp -> TextureWrapMode.CLAMP_TO_EDGE;
-        case aiTextureMapMode_Mirror -> TextureWrapMode.MIRRORED_REPEAT;
-        case aiTextureMapMode_Decal -> TextureWrapMode.CLAMP_TO_BORDER;
-        default -> TextureWrapMode.CLAMP_TO_EDGE;
-      };
+      // Wrap mode
+      TextureWrapMode uWrapMode =
+          switch (mapMode.get(0)) {
+            case aiTextureMapMode_Wrap -> TextureWrapMode.REPEAT;
+            case aiTextureMapMode_Clamp -> TextureWrapMode.CLAMP_TO_EDGE;
+            case aiTextureMapMode_Mirror -> TextureWrapMode.MIRRORED_REPEAT;
+            case aiTextureMapMode_Decal -> TextureWrapMode.CLAMP_TO_BORDER;
+            default -> TextureWrapMode.CLAMP_TO_EDGE;
+          };
+      TextureWrapMode vWrapMode =
+          switch (mapMode.get(1)) {
+            case aiTextureMapMode_Wrap -> TextureWrapMode.REPEAT;
+            case aiTextureMapMode_Clamp -> TextureWrapMode.CLAMP_TO_EDGE;
+            case aiTextureMapMode_Mirror -> TextureWrapMode.MIRRORED_REPEAT;
+            case aiTextureMapMode_Decal -> TextureWrapMode.CLAMP_TO_BORDER;
+            default -> TextureWrapMode.CLAMP_TO_EDGE;
+          };
       TextureMagFilter magFilter = TextureMagFilter.NEAREST;
       TextureMinFilter minFilter = TextureMinFilter.LINEAR;
-
 
       Texture texture;
       boolean transparent = false;
@@ -252,7 +290,16 @@ public class ModelLoader {
         AITexture aiTexture = AITexture.create(aiScene.mTextures().get(embeddedTextureIndex));
         if (aiTexture.mHeight() != 0) { // Texture is not compressed
           ByteBuffer buffer = aiTexture.pcDataCompressed(); // RGBA8888
-          texture = new Texture(aiTexture.mWidth(), aiTexture.mHeight(), GL33.GL_RGBA, minFilter, magFilter, uWrapMode, vWrapMode, buffer);
+          texture =
+              new Texture(
+                  aiTexture.mWidth(),
+                  aiTexture.mHeight(),
+                  GL33.GL_RGBA,
+                  minFilter,
+                  magFilter,
+                  uWrapMode,
+                  vWrapMode,
+                  buffer);
           if (checkTransparent) {
             transparent = isTransparent(buffer);
           }
@@ -261,14 +308,22 @@ public class ModelLoader {
           IntBuffer channels = BufferUtils.createIntBuffer(1);
           IntBuffer width = BufferUtils.createIntBuffer(1);
           IntBuffer height = BufferUtils.createIntBuffer(1);
-          ByteBuffer pixels =
-            STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
+          ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, width, height, channels, 4);
           if (pixels == null) {
             throw new RuntimeException(
-              "Failed to load embedded texture: " + STBImage.stbi_failure_reason());
+                "Failed to load embedded texture: " + STBImage.stbi_failure_reason());
           }
-          texture = new Texture(width.get(0), height.get(0), GL33.GL_RGBA, minFilter, magFilter, uWrapMode, vWrapMode, pixels);
-          if(checkTransparent) {
+          texture =
+              new Texture(
+                  width.get(0),
+                  height.get(0),
+                  GL33.GL_RGBA,
+                  minFilter,
+                  magFilter,
+                  uWrapMode,
+                  vWrapMode,
+                  pixels);
+          if (checkTransparent) {
             transparent = isTransparent(pixels);
           }
           STBImage.stbi_image_free(pixels);
@@ -283,7 +338,7 @@ public class ModelLoader {
         texture.wrapS(uWrapMode);
         texture.wrapT(vWrapMode);
         texture.unbind();
-        if(checkTransparent) {
+        if (checkTransparent) {
           transparent = isTransparent(texture.readPixels());
         }
       }
@@ -294,8 +349,8 @@ public class ModelLoader {
 
   private static boolean isTransparent(ByteBuffer pixels) {
     ByteBuffer buffer = pixels.asReadOnlyBuffer();
-    for(int i = 3; i < buffer.limit(); i += 4) {
-      if((buffer.get(i) & 0xFF) < 255) {
+    for (int i = 3; i < buffer.limit(); i += 4) {
+      if ((buffer.get(i) & 0xFF) < 255) {
         return true;
       }
     }
@@ -355,15 +410,15 @@ public class ModelLoader {
     indicesBuffer.asIntBuffer().put(indices);
 
     return new IndexedMesh(
-      verticesBuffer,
-      PrimitiveType.TRIANGLES,
-      indicesBuffer,
-      IndexDataType.UNSIGNED_INT,
-      GLUsageHint.DRAW_STATIC,
-      new VertexAttribute(3, DataType.FLOAT, "aPosition"),
-      new VertexAttribute(2, DataType.FLOAT, "aTexCoord"),
-      new VertexAttribute(3, DataType.FLOAT, "aNormal"),
-      new VertexAttribute(3, DataType.FLOAT, "aTangent"),
-      new VertexAttribute(3, DataType.FLOAT, "aBitangent"));
+        verticesBuffer,
+        PrimitiveType.TRIANGLES,
+        indicesBuffer,
+        IndexDataType.UNSIGNED_INT,
+        GLUsageHint.DRAW_STATIC,
+        new VertexAttribute(3, DataType.FLOAT, "aPosition"),
+        new VertexAttribute(2, DataType.FLOAT, "aTexCoord"),
+        new VertexAttribute(3, DataType.FLOAT, "aNormal"),
+        new VertexAttribute(3, DataType.FLOAT, "aTangent"),
+        new VertexAttribute(3, DataType.FLOAT, "aBitangent"));
   }
 }

@@ -11,15 +11,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The `Keyboard` class provides methods to check the state of keyboard keys.
- * It also listens for keyboard events and updates the state of keys accordingly.
+ * The `Keyboard` class provides methods to check the state of keyboard keys. It also listens for
+ * keyboard events and updates the state of keys accordingly.
  */
 public class Keyboard implements EventListener {
 
   static {
-    GameWindow.CURRENT_GAME.runOnMainThread(() -> {
-      EventManager.getInstance().registerStaticListener(Keyboard.class);
-    });
+    GameWindow.CURRENT_GAME.runOnMainThread(
+        () -> {
+          EventManager.getInstance().registerStaticListener(Keyboard.class);
+        });
   }
 
   private static final Set<Integer> justPressedCheck = new HashSet<>();
@@ -44,8 +45,8 @@ public class Keyboard implements EventListener {
    */
   public static boolean keyJustPressed(int key) {
     boolean pressed = glfwGetKey(glfwGetCurrentContext(), key) == GLFW_PRESS;
-    if(pressed) {
-      if(!justPressedCheck.contains(key)) {
+    if (pressed) {
+      if (!justPressedCheck.contains(key)) {
         justPressedCheck.add(key);
         return true;
       }
@@ -63,9 +64,8 @@ public class Keyboard implements EventListener {
    */
   @EventHandler
   private static void onKey(KeyboardEvent e) {
-    if(e.action == KeyboardEvent.KeyAction.RELEASE) {
+    if (e.action == KeyboardEvent.KeyAction.RELEASE) {
       justPressedCheck.remove(e.key);
     }
   }
-
 }

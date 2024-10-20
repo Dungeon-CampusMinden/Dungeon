@@ -8,16 +8,15 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * The `BoxCollider` class represents a box-shaped collider in the physics engine.
- * It extends the `PolyhedronCollider` class and provides methods to define the vertices, edges, and faces of the box.
+ * The `BoxCollider` class represents a box-shaped collider in the physics engine. It extends the
+ * `PolyhedronCollider` class and provides methods to define the vertices, edges, and faces of the
+ * box.
  */
 public class BoxCollider extends PolyhedronCollider<BoxCollider> {
 
   private static final Logger LOGGER = LogManager.getLogger(BoxCollider.class);
 
-  /**
-   * The vertices of the box.
-   */
+  /** The vertices of the box. */
   protected static final Vector3f[] VERTICES = {
     new Vector3f(0.0f, 0.0f, 0.0f),
     new Vector3f(1.0f, 0.0f, 0.0f),
@@ -29,9 +28,7 @@ public class BoxCollider extends PolyhedronCollider<BoxCollider> {
     new Vector3f(0.0f, 1.0f, 1.0f),
   };
 
-  /**
-   * The edges of the box.
-   */
+  /** The edges of the box. */
   protected static final IntPair[] EDGES = {
     IntPair.of(0, 1),
     IntPair.of(1, 2),
@@ -124,5 +121,4 @@ public class BoxCollider extends PolyhedronCollider<BoxCollider> {
   public BoxCollider(Entity entity) {
     this(entity, new Vector3f(), new Vector3f(1.0f), new Quaternionf());
   }
-
 }

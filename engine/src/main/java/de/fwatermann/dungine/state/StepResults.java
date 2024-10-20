@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents the results of steps executed by a {@link LoadStepper}.
- * Provides methods to retrieve and set results based on step indices or identifiers.
+ * Represents the results of steps executed by a {@link LoadStepper}. Provides methods to retrieve
+ * and set results based on step indices or identifiers.
  */
 public class StepResults {
 
-  private LoadStepper stepper;
+  private final LoadStepper stepper;
 
   /**
    * Constructs a new StepResults instance with the specified stepper.
@@ -20,7 +20,7 @@ public class StepResults {
     this.stepper = stepper;
   }
 
-  private Map<Integer, Object> results = new HashMap<>();
+  private final Map<Integer, Object> results = new HashMap<>();
 
   /**
    * Retrieves the result of the specified step.
@@ -31,7 +31,7 @@ public class StepResults {
    */
   public <T> T result(int step) {
     Object result = this.results.getOrDefault(step, null);
-    if(result == null) return null;
+    if (result == null) return null;
     return (T) result;
   }
 
@@ -44,7 +44,7 @@ public class StepResults {
    */
   public <T> T result(String id) {
     int index = this.stepper.stepMap.getOrDefault(id, -1);
-    if(index == -1) return null;
+    if (index == -1) return null;
     return this.result(index);
   }
 
@@ -57,5 +57,4 @@ public class StepResults {
   protected void setResult(int step, Object result) {
     this.results.put(step, result);
   }
-
 }

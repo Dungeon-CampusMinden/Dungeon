@@ -68,7 +68,8 @@ public abstract class Camera<T extends Camera<T>> {
    * Calculates the projection matrix. This method must be implemented by subclasses to define how
    * the camera projects the 3D world onto a 2D surface.
    *
-   * @param projectionMatrix The projection matrix to be calculated. This matrix may contain the old projection matrix.
+   * @param projectionMatrix The projection matrix to be calculated. This matrix may contain the old
+   *     projection matrix.
    * @return The projection matrix.
    */
   protected abstract Matrix4f calcProjectionMatrix(Matrix4f projectionMatrix);
@@ -341,7 +342,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The camera instance for method chaining.
    */
   public T pitchDeg(float angle) {
-    return this.pitch((float) Math.toRadians(angle));
+    return this.pitch(Math.toRadians(angle));
   }
 
   /**
@@ -351,7 +352,7 @@ public abstract class Camera<T extends Camera<T>> {
    * @return The pitch angle in radians.
    */
   public float pitch() {
-    return (float) Math.asin(this.front.y);
+    return Math.asin(this.front.y);
   }
 
   /**

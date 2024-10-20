@@ -17,26 +17,27 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 /**
- * The `Cuboid` class represents a 3D cuboid model that can be rendered in a graphics scene.
- * It extends the `Model` class and provides methods to initialize the cuboid's mesh, set its color,
+ * The `Cuboid` class represents a 3D cuboid model that can be rendered in a graphics scene. It
+ * extends the `Model` class and provides methods to initialize the cuboid's mesh, set its color,
  * and manage its transformation and rendering.
  *
  * <p>The cuboid is defined by its vertices, normals, and texture coordinates, and it supports
- * various methods to set its color using different formats (RGBA integer, individual components, or float values).</p>
+ * various methods to set its color using different formats (RGBA integer, individual components, or
+ * float values).
  *
- * <p>Example usage:</p>
- * <pre>
- * {@code
+ * <p>Example usage:
+ *
+ * <pre>{@code
  * Cuboid cuboid = new Cuboid(0xFF0000FF); // Red color with full opacity
  * cuboid.color(0, 255, 0, 255); // Change color to green with full opacity
  * cuboid.render(camera, shaderProgram);
- * }
- * </pre>
+ * }</pre>
  */
 public class Cuboid extends Model {
 
   /** The mesh of any cuboid */
   protected static IndexedMesh MESH;
+
   private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
 
   private int color = 0xDDDDDDFF;
@@ -44,6 +45,7 @@ public class Cuboid extends Model {
 
   /**
    * Constructs a new Cuboid with the specified position and color.
+   *
    * @param rgb the color of the cuboid in RGBA format
    */
   public Cuboid(int rgb) {
@@ -51,74 +53,73 @@ public class Cuboid extends Model {
     initMesh();
   }
 
-  /**
-   * Constructs a new Cuboid with the specified position and color.
-   */
+  /** Constructs a new Cuboid with the specified position and color. */
   public Cuboid() {
     this(0xDDDDDDFF);
   }
 
   private static void initMesh() {
-    if(MESH != null) return;
+    if (MESH != null) return;
     ByteBuffer vertices = BufferUtils.createByteBuffer(4 * 4 * 8 * 6);
     vertices
-            .asFloatBuffer()
-            .position(0)
-            .put(
-                    new float[] {
-                            //Format: x, y, z, nx, ny, nz, u, v
+        .asFloatBuffer()
+        .position(0)
+        .put(
+            new float[] {
+              // Format: x, y, z, nx, ny, nz, u, v
 
-                            //Top (y+)
-                            -0.5f, 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-                            0.5f, 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-                            0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-                            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+              // Top (y+)
+              -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+              0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+              0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+              -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 
-                            //Bottom (y-)
-                            -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-                            0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-                            0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-                            -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+              // Bottom (y-)
+              -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+              0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+              0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+              -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 
-                            //Front (z+)
-                            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-                            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-                            0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-                            -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+              // Front (z+)
+              -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+              0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+              0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+              -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 
-                            //Back (z-)
-                            0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-                            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-                            -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-                            0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+              // Back (z-)
+              0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+              -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+              -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+              0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
 
-                            //Right (x+)
-                            0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                            0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-                            0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+              // Right (x+)
+              0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+              0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+              0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+              0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 
-                            //Left (x-)
-                            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                            -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-                            -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-                            -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f
-                    });
+              // Left (x-)
+              -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+              -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+              -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+              -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f
+            });
     ByteBuffer indices = BufferUtils.createByteBuffer(36 * 4);
     indices
-            .asShortBuffer()
-            .position(0)
-            .put(
-                    new short[] {
-                            0, 1, 2, 2, 3, 0,
-                            4, 5, 6, 6, 7, 4,
-                            8, 9, 10, 10, 11, 8,
-                            12, 13, 14, 14, 15, 12,
-                            16, 17, 18, 18, 19, 16,
-                            20, 21, 22, 22, 23, 20
-                    });
+        .asShortBuffer()
+        .position(0)
+        .put(
+            new short[] {
+              0, 1, 2, 2, 3, 0,
+              4, 5, 6, 6, 7, 4,
+              8, 9, 10, 10, 11, 8,
+              12, 13, 14, 14, 15, 12,
+              16, 17, 18, 18, 19, 16,
+              20, 21, 22, 22, 23, 20
+            });
 
-    MESH = new IndexedMesh(
+    MESH =
+        new IndexedMesh(
             vertices,
             PrimitiveType.TRIANGLES,
             indices,
@@ -129,29 +130,27 @@ public class Cuboid extends Model {
             new VertexAttribute(2, DataType.FLOAT, "aTexCoord"));
   }
 
-  /**
-   * Initializes the materials of the cuboid.
-   */
+  /** Initializes the materials of the cuboid. */
   protected void initMaterials() {
     this.material = new Material();
     this.material.diffuseColor.set(
-      ((this.color >> 24) & 0xFF) / 255.0f,
-      ((this.color >> 16) & 0xFF) / 255.0f,
-      ((this.color >> 8) & 0xFF) / 255.0f,
-      (this.color & 0xFF) / 255.0f);
+        ((this.color >> 24) & 0xFF) / 255.0f,
+        ((this.color >> 16) & 0xFF) / 255.0f,
+        ((this.color >> 8) & 0xFF) / 255.0f,
+        (this.color & 0xFF) / 255.0f);
     this.material.meshes.add(new Material.MeshEntry(MESH, 0, 0));
     this.materials.add(this.material);
   }
 
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
-    if(this.materials.isEmpty())
-      this.initMaterials();
+    if (this.materials.isEmpty()) this.initMaterials();
     super.render(camera, shader);
   }
 
   /**
    * Get the color of the cuboid.
+   *
    * @return the color of the cuboid
    */
   public int color() {
@@ -160,21 +159,23 @@ public class Cuboid extends Model {
 
   /**
    * Set the color of the cuboid.
+   *
    * @param rgba the new color of the cuboid in RGBA format.
    */
   public void color(int rgba) {
     this.color = rgba;
-    if(this.material != null) {
+    if (this.material != null) {
       this.material.diffuseColor.set(
-        ((this.color >> 24) & 0xFF) / 255.0f,
-        ((this.color >> 16) & 0xFF) / 255.0f,
-        ((this.color >> 8) & 0xFF) / 255.0f,
-        (this.color & 0xFF) / 255.0f);
+          ((this.color >> 24) & 0xFF) / 255.0f,
+          ((this.color >> 16) & 0xFF) / 255.0f,
+          ((this.color >> 8) & 0xFF) / 255.0f,
+          (this.color & 0xFF) / 255.0f);
     }
   }
 
   /**
    * Set the color of the cuboid.
+   *
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color
@@ -186,6 +187,7 @@ public class Cuboid extends Model {
 
   /**
    * Set the color of the cuboid.
+   *
    * @param r the red component of the color
    * @param g the green component of the color
    * @param b the blue component of the color

@@ -5,13 +5,14 @@ import org.joml.Vector3f;
 import org.lwjgl.openal.AL10;
 
 /**
- * The `AudioSource` class represents an audio source in the audio environment.
- * It provides methods to control playback, set properties like gain, pitch, position, and velocity, and manage the audio buffer.
+ * The `AudioSource` class represents an audio source in the audio environment. It provides methods
+ * to control playback, set properties like gain, pitch, position, and velocity, and manage the
+ * audio buffer.
  */
 public class AudioSource implements Disposable {
 
   private final int alSourceId;
-  private AudioContext context;
+  private final AudioContext context;
 
   /**
    * Constructs a new `AudioSource` with the specified context, loop, and relative settings.
@@ -215,9 +216,7 @@ public class AudioSource implements Disposable {
     return AL10.alGetSourcei(this.alSourceId, AL10.AL_LOOPING) == AL10.AL_TRUE;
   }
 
-  /**
-   * Disposes of the audio source, releasing any resources it holds.
-   */
+  /** Disposes of the audio source, releasing any resources it holds. */
   @Override
   public void dispose() {
     this.dispose(true);
@@ -231,7 +230,6 @@ public class AudioSource implements Disposable {
   void dispose(boolean rmFromContext) {
     this.stop();
     AL10.alDeleteSources(this.alSourceId);
-    if(rmFromContext)
-      this.context.removeSource(this);
+    if (rmFromContext) this.context.removeSource(this);
   }
 }

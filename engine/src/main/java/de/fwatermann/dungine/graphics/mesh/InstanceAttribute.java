@@ -30,7 +30,8 @@ public class InstanceAttribute {
    * @param dataType the data type of the instance attribute
    * @param name the name of the instance attribute
    */
-  public InstanceAttribute(int bufferIndex, int numComponents, DataType dataType, @NotNull String name) {
+  public InstanceAttribute(
+      int bufferIndex, int numComponents, DataType dataType, @NotNull String name) {
     this.bufferIndex = bufferIndex;
     this.numComponents = numComponents;
     this.dataType = dataType;

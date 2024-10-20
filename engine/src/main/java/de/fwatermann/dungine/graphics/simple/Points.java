@@ -23,8 +23,8 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
 /**
- * The `Points` class represents a collection of points that can be rendered in a 3D scene.
- * It extends the `Renderable` class and provides methods to add, remove, and render points.
+ * The `Points` class represents a collection of points that can be rendered in a 3D scene. It
+ * extends the `Renderable` class and provides methods to add, remove, and render points.
  */
 public class Points extends Renderable<Points> {
 
@@ -224,9 +224,7 @@ public class Points extends Renderable<Points> {
     }
   }
 
-  /**
-   * Clears all points from the collection.
-   */
+  /** Clears all points from the collection. */
   public void clear() {
     if (this.points.isEmpty()) return;
     try {

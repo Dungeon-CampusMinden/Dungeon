@@ -1,19 +1,18 @@
 package de.fwatermann.dungine.logging;
 
-import org.apache.logging.log4j.Level;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import org.apache.logging.log4j.Level;
 
 /**
- * The `Log4jOutputStream` class extends `OutputStream` to redirect output to Log4j.
- * It buffers the output and logs it at the specified log level.
+ * The `Log4jOutputStream` class extends `OutputStream` to redirect output to Log4j. It buffers the
+ * output and logs it at the specified log level.
  */
 public class Log4jOutputStream extends OutputStream {
 
   /** The log level to use for logging messages. */
-  private Level level;
+  private final Level level;
 
   /**
    * Constructs a new `Log4jOutputStream` with the specified log level.

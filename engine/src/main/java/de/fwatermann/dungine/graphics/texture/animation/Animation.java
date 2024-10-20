@@ -42,46 +42,44 @@ public abstract class Animation {
 
   /**
    * Create AnimationFrame based on index
+   *
    * @param index index of the frame
    * @return AnimationFrame
    */
   protected abstract AnimationFrame makeFrame(int index);
 
   private void makeCurrentStep() {
-    this.currentStep = new AnimationStep(
-      this.makeFrame(this.currentFrame),
-      this.makeFrame(this.nextFrame),
-      0.0f
-    );
+    this.currentStep =
+        new AnimationStep(this.makeFrame(this.currentFrame), this.makeFrame(this.nextFrame), 0.0f);
   }
 
-  /**
-   * Advances the current Frame if needed based on the time since last frame update.
-   */
+  /** Advances the current Frame if needed based on the time since last frame update. */
   private void update() {
-    if(this.currentStep == null) {
+    if (this.currentStep == null) {
       this.makeCurrentStep();
       return;
     }
     long diff = System.currentTimeMillis() - this.lastFrameTime;
-    if(diff > this.frameDuration) {
+    if (diff > this.frameDuration) {
       int frames = (int) (diff / this.frameDuration) * this.step;
       boolean[] requireReverse = new boolean[] {false};
-      int newFrame = this.clampFrameIndexRespectingLoopMode(this.currentFrame + frames, requireReverse);
-      if(newFrame != this.currentFrame) {
-        if(!this.loop && newFrame == this.frameCount - 1 && this.onAnimationFinish != null) {
+      int newFrame =
+          this.clampFrameIndexRespectingLoopMode(this.currentFrame + frames, requireReverse);
+      if (newFrame != this.currentFrame) {
+        if (!this.loop && newFrame == this.frameCount - 1 && this.onAnimationFinish != null) {
           this.onAnimationFinish.run(this);
         }
         this.currentFrame = newFrame;
-        if(requireReverse[0]) this.step *= -1;
-        this.nextFrame = this.clampFrameIndexRespectingLoopMode(this.currentFrame + this.step, null);
+        if (requireReverse[0]) this.step *= -1;
+        this.nextFrame =
+            this.clampFrameIndexRespectingLoopMode(this.currentFrame + this.step, null);
         this.makeCurrentStep();
       }
       this.lastFrameTime = System.currentTimeMillis();
     }
 
-    if(this.blend) {
-      if(!this.loop && this.currentFrame == this.frameCount - 1) {
+    if (this.blend) {
+      if (!this.loop && this.currentFrame == this.frameCount - 1) {
         this.currentStep.blendFactor(0.0f);
       } else {
         this.currentStep.blendFactor(diff / (float) this.frameDuration);
@@ -95,16 +93,17 @@ public abstract class Animation {
     int frame = index;
     int clamped = Math.min(Math.max(0, frame), this.frameCount - 1);
     int overshoot = Math.abs(clamped - frame);
-    if(this.loop) {
-      if(this.loopMode == LoopMode.REPEAT) {
-        if(frame < 0) frame = this.frameCount - (overshoot % this.frameCount);
-        else if(frame > this.frameCount - 1) frame = overshoot % this.frameCount;
-      } else if(this.loopMode == LoopMode.PING_PONG) {
-        if(frame < 0) frame = overshoot % this.frameCount;
-        else if(frame > this.frameCount - 1) frame = this.frameCount - 1 - (overshoot % this.frameCount);
+    if (this.loop) {
+      if (this.loopMode == LoopMode.REPEAT) {
+        if (frame < 0) frame = this.frameCount - (overshoot % this.frameCount);
+        else if (frame > this.frameCount - 1) frame = overshoot % this.frameCount;
+      } else if (this.loopMode == LoopMode.PING_PONG) {
+        if (frame < 0) frame = overshoot % this.frameCount;
+        else if (frame > this.frameCount - 1)
+          frame = this.frameCount - 1 - (overshoot % this.frameCount);
       }
     }
-    if(requireReverse != null) requireReverse[0] = overshoot != 0;
+    if (requireReverse != null) requireReverse[0] = overshoot != 0;
     return Math.min(Math.max(0, frame), this.frameCount - 1);
   }
 
@@ -298,6 +297,7 @@ public abstract class Animation {
 
   /**
    * Get the current frame index.
+   *
    * @return the current frame index.
    */
   public int currentFrame() {
@@ -306,6 +306,7 @@ public abstract class Animation {
 
   /**
    * Sets the current frame index.
+   *
    * @param index the index of the frame to set.
    * @return the current Animation instance.
    */
@@ -324,68 +325,67 @@ public abstract class Animation {
     PING_PONG
   }
 
-
-/**
- * Enum representing the animation slot to use when binding an animation to a shader.
- * Each slot corresponds to a specific animation that can be bound to a shader.
- */
-public enum AnimationSlot {
-  /** Animation slot 0. */
-  ANIMATION_0,
-
-  /** Animation slot 1. */
-  ANIMATION_1,
-
-  /** Animation slot 2. */
-  ANIMATION_2,
-
-  /** Animation slot 3. */
-  ANIMATION_3,
-
-  /** Animation slot 4. */
-  ANIMATION_4,
-
-  /** Animation slot 5. */
-  ANIMATION_5,
-
-  /** Animation slot 6. */
-  ANIMATION_6,
-
-  /** Animation slot 7. */
-  ANIMATION_7,
-
-  /** Animation slot 8. */
-  ANIMATION_8,
-
-  /** Animation slot 9. */
-  ANIMATION_9,
-
-  /** Animation slot 10. */
-  ANIMATION_10,
-
-  /** Animation slot 11. */
-  ANIMATION_11,
-
-  /** Animation slot 12. */
-  ANIMATION_12,
-
-  /** Animation slot 13. */
-  ANIMATION_13,
-
-  /** Animation slot 14. */
-  ANIMATION_14,
-
-  /** Animation slot 15. */
-  ANIMATION_15;
-
   /**
-   * Returns the AnimationSlot corresponding to the given index.
-   *
-   * @param index the index of the animation slot
-   * @return the AnimationSlot corresponding to the given index
+   * Enum representing the animation slot to use when binding an animation to a shader. Each slot
+   * corresponds to a specific animation that can be bound to a shader.
    */
-  public static AnimationSlot fromIndex(int index) {
-    return AnimationSlot.values()[index];
+  public enum AnimationSlot {
+    /** Animation slot 0. */
+    ANIMATION_0,
+
+    /** Animation slot 1. */
+    ANIMATION_1,
+
+    /** Animation slot 2. */
+    ANIMATION_2,
+
+    /** Animation slot 3. */
+    ANIMATION_3,
+
+    /** Animation slot 4. */
+    ANIMATION_4,
+
+    /** Animation slot 5. */
+    ANIMATION_5,
+
+    /** Animation slot 6. */
+    ANIMATION_6,
+
+    /** Animation slot 7. */
+    ANIMATION_7,
+
+    /** Animation slot 8. */
+    ANIMATION_8,
+
+    /** Animation slot 9. */
+    ANIMATION_9,
+
+    /** Animation slot 10. */
+    ANIMATION_10,
+
+    /** Animation slot 11. */
+    ANIMATION_11,
+
+    /** Animation slot 12. */
+    ANIMATION_12,
+
+    /** Animation slot 13. */
+    ANIMATION_13,
+
+    /** Animation slot 14. */
+    ANIMATION_14,
+
+    /** Animation slot 15. */
+    ANIMATION_15;
+
+    /**
+     * Returns the AnimationSlot corresponding to the given index.
+     *
+     * @param index the index of the animation slot
+     * @return the AnimationSlot corresponding to the given index
+     */
+    public static AnimationSlot fromIndex(int index) {
+      return AnimationSlot.values()[index];
+    }
   }
-}
 }

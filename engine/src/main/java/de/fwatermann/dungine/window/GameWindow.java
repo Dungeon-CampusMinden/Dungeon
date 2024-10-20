@@ -663,15 +663,14 @@ public abstract class GameWindow implements Disposable {
 
   /**
    * Returns the fullscreen state of the game window.
+   *
    * @return the fullscreen state of the game window
    */
   public boolean fullscreen() {
     return this.fullscreen;
   }
 
-  /**
-   * Closes the game window and stop the game and update loop.
-   */
+  /** Closes the game window and stop the game and update loop. */
   public void close() {
     glfwSetWindowShouldClose(this.glfwWindow, true);
     this.shouldClose = true;
@@ -748,6 +747,7 @@ public abstract class GameWindow implements Disposable {
 
   /**
    * Sets the current game state transition.
+   *
    * @param transition the new game state transition
    */
   public void setStateTransition(GameStateTransition transition) {

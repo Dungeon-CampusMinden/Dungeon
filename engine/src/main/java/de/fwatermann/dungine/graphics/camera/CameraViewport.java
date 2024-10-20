@@ -1,18 +1,18 @@
 package de.fwatermann.dungine.graphics.camera;
 
 /**
- * The `CameraViewport` class represents the viewport of a camera in a 3D graphics environment.
- * It provides methods to set and get the dimensions and offsets of the viewport.
+ * The `CameraViewport` class represents the viewport of a camera in a 3D graphics environment. It
+ * provides methods to set and get the dimensions and offsets of the viewport.
  *
- * <p>This class supports method chaining for setting properties like width, height, offsetX, and offsetY.</p>
+ * <p>This class supports method chaining for setting properties like width, height, offsetX, and
+ * offsetY.
  *
- * <p>Example usage:</p>
- * <pre>
- * {@code
+ * <p>Example usage:
+ *
+ * <pre>{@code
  * CameraViewport viewport = new CameraViewport(800, 600, 0, 0);
  * viewport.width(1024).height(768).offsetX(10).offsetY(20);
- * }
- * </pre>
+ * }</pre>
  */
 public class CameraViewport {
 

@@ -204,9 +204,7 @@ public class AudioContext implements Disposable {
     return this;
   }
 
-  /**
-   * Disposes of the audio context, releasing any resources it holds.
-   */
+  /** Disposes of the audio context, releasing any resources it holds. */
   @Override
   public void dispose() {
     try {

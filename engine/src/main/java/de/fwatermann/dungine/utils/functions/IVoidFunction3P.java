@@ -1,7 +1,8 @@
 package de.fwatermann.dungine.utils.functions;
 
 /**
- * The `IVoidFunction3P` interface represents a functional interface with a single method `run` that executes a function with three parameters and does not return a result.
+ * The `IVoidFunction3P` interface represents a functional interface with a single method `run` that
+ * executes a function with three parameters and does not return a result.
  *
  * @param <P1> the type of the first parameter accepted by the function
  * @param <P2> the type of the second parameter accepted by the function
@@ -18,5 +19,4 @@ public interface IVoidFunction3P<P1, P2, P3> {
    * @param p3 the third parameter to be passed to the function
    */
   void run(P1 p1, P2 p2, P3 p3);
-
 }

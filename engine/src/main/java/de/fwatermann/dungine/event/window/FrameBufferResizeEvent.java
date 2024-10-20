@@ -3,8 +3,8 @@ package de.fwatermann.dungine.event.window;
 import de.fwatermann.dungine.event.Event;
 
 /**
- * The `FrameBufferResizeEvent` class represents an event that is triggered when the frame buffer is resized.
- * It contains the new width and height of the frame buffer.
+ * The `FrameBufferResizeEvent` class represents an event that is triggered when the frame buffer is
+ * resized. It contains the new width and height of the frame buffer.
  */
 public class FrameBufferResizeEvent extends Event {
 

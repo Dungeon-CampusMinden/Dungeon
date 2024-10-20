@@ -272,9 +272,9 @@ public abstract class Renderable<T extends Renderable<?>> {
 
   /**
    * Checks if the object should be rendered based on the specified camera frustum.
+   *
    * @param frustum the camera frustum
    * @return true if the object should be rendered, false otherwise
    */
   public abstract boolean shouldRender(CameraFrustum frustum);
-
 }

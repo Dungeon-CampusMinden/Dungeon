@@ -1,17 +1,14 @@
 package de.fwatermann.dungine.state;
 
-/**
- * Contains functional interfaces for step functions with and without results.
- */
+/** Contains functional interfaces for step functions with and without results. */
 public class StepFunction {
 
-  /**
-   * Create a new instance of StepFunction.
-   */
+  /** Create a new instance of StepFunction. */
   public StepFunction() {}
 
   /**
-   * Functional interface for a step function that takes {@link StepResults} as input and returns a result.
+   * Functional interface for a step function that takes {@link StepResults} as input and returns a
+   * result.
    *
    * @param <T> the type of the result
    */
@@ -42,7 +39,8 @@ public class StepFunction {
   }
 
   /**
-   * Functional interface for a step function that takes {@link StepResults} as input and does not return a result.
+   * Functional interface for a step function that takes {@link StepResults} as input and does not
+   * return a result.
    */
   @FunctionalInterface
   public interface IVoidWithResults {
@@ -55,13 +53,12 @@ public class StepFunction {
   }
 
   /**
-   * Functional interface for a step function that does not take any input and does not return a result.
+   * Functional interface for a step function that does not take any input and does not return a
+   * result.
    */
   @FunctionalInterface
   public interface IVoidWithoutResults {
-    /**
-     * Runs the step function.
-     */
+    /** Runs the step function. */
     void run();
   }
 }

@@ -8,8 +8,8 @@ import de.fwatermann.dungine.graphics.texture.animation.ArrayAnimation;
 import de.fwatermann.dungine.resource.Resource;
 
 /**
- * The `PaneTextured` class represents a textured pane that can be rendered in a scene.
- * It extends the `Pane` class and provides methods to set and get the animation of the pane.
+ * The `PaneTextured` class represents a textured pane that can be rendered in a scene. It extends
+ * the `Pane` class and provides methods to set and get the animation of the pane.
  */
 public class PaneTextured extends Pane {
 
@@ -49,9 +49,7 @@ public class PaneTextured extends Pane {
     this.animation = ArrayAnimation.of(texture);
   }
 
-  /**
-   * Initializes the materials for the pane.
-   */
+  /** Initializes the materials for the pane. */
   @Override
   protected void initMaterials() {
     this.material = new Material();
@@ -79,7 +77,7 @@ public class PaneTextured extends Pane {
    */
   public PaneTextured animation(Animation animation) {
     this.animation = animation;
-    if(this.material != null) {
+    if (this.material != null) {
       this.material.diffuseTexture = this.animation;
     }
     return this;

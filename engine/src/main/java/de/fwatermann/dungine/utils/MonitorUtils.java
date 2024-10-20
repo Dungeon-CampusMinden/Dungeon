@@ -8,8 +8,8 @@ import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFWVidMode;
 
 /**
- * The `MonitorUtils` class provides utility methods for interacting with monitor settings.
- * It includes methods to retrieve the resolution of the default monitor.
+ * The `MonitorUtils` class provides utility methods for interacting with monitor settings. It
+ * includes methods to retrieve the resolution of the default monitor.
  */
 public class MonitorUtils {
 

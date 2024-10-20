@@ -3,8 +3,9 @@ package de.fwatermann.dungine.graphics.scene.light;
 import org.joml.Vector3f;
 
 /**
- * The `DirectionalLight` class represents a directional light source in a graphics scene.
- * It extends the `Light` class and provides methods to set and get the direction, color, and intensity of the light.
+ * The `DirectionalLight` class represents a directional light source in a graphics scene. It
+ * extends the `Light` class and provides methods to set and get the direction, color, and intensity
+ * of the light.
  */
 public class DirectionalLight extends Light<DirectionalLight> {
 

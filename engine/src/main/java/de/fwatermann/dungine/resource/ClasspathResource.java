@@ -9,18 +9,19 @@ import java.nio.file.Path;
 import org.lwjgl.BufferUtils;
 
 /**
- * The `ClasspathResource` class represents a resource that is loaded from the classpath.
- * It provides methods to read the resource as a byte buffer, resolve relative paths, and get the size of the resource.
+ * The `ClasspathResource` class represents a resource that is loaded from the classpath. It
+ * provides methods to read the resource as a byte buffer, resolve relative paths, and get the size
+ * of the resource.
  *
- * <p>This class extends the `Resource` class and overrides its methods to provide specific functionality for classpath resources.</p>
+ * <p>This class extends the `Resource` class and overrides its methods to provide specific
+ * functionality for classpath resources.
  *
- * <p>Example usage:</p>
- * <pre>
- * {@code
+ * <p>Example usage:
+ *
+ * <pre>{@code
  * ClasspathResource resource = new ClasspathResource("/path/to/resource");
  * ByteBuffer buffer = resource.readBytes();
- * }
- * </pre>
+ * }</pre>
  */
 public class ClasspathResource extends Resource {
 
@@ -30,6 +31,7 @@ public class ClasspathResource extends Resource {
 
   /**
    * Constructs a new ClasspathResource instance with the specified path.
+   *
    * @param path the path to the resource
    */
   protected ClasspathResource(String path) {
@@ -62,11 +64,11 @@ public class ClasspathResource extends Resource {
   @Override
   @Nullable
   public Resource resolveRelative(String path) {
-    if(path.startsWith("/")) {
+    if (path.startsWith("/")) {
       return load(path, 0x02);
     } else {
       String nPath = Path.of(this.path).getParent().resolve(path).normalize().toString();
-      if(System.getProperty("os.name").toLowerCase().contains("win")) {
+      if (System.getProperty("os.name").toLowerCase().contains("win")) {
         nPath = nPath.replaceAll("\\\\", "/");
       }
       return load(nPath, 0x02);
@@ -79,7 +81,7 @@ public class ClasspathResource extends Resource {
    */
   @Override
   public long size() throws IOException {
-    if(this.size == -1) {
+    if (this.size == -1) {
       this.size = ClassLoader.getSystemResource(this.path).openConnection().getContentLengthLong();
     }
     return this.size;
@@ -95,12 +97,12 @@ public class ClasspathResource extends Resource {
 
   @Override
   public ByteBuffer readBytes(int offset, int count) {
-    if(this.buffer != null) {
+    if (this.buffer != null) {
       return this.buffer.slice(offset, count).asReadOnlyBuffer().order(ByteOrder.nativeOrder());
     }
     try {
       InputStream is = ClasspathResource.class.getResourceAsStream(this.path);
-      if(is == null) throw new RuntimeException("Resource not found: " + this.path);
+      if (is == null) throw new RuntimeException("Resource not found: " + this.path);
       is.skipNBytes(offset);
 
       byte[] bytes = is.readNBytes(count);
@@ -110,8 +112,16 @@ public class ClasspathResource extends Resource {
 
       is.close();
       return buffer.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
-    } catch(IOException ex) {
-      throw new RuntimeException("Failed to read part of resource: " + this.path + " [s: " + offset + " e:" + (offset + count) + "]", ex);
+    } catch (IOException ex) {
+      throw new RuntimeException(
+          "Failed to read part of resource: "
+              + this.path
+              + " [s: "
+              + offset
+              + " e:"
+              + (offset + count)
+              + "]",
+          ex);
     }
   }
 

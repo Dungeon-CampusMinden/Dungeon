@@ -1,7 +1,8 @@
 package de.fwatermann.dungine.utils.functions;
 
 /**
- * The `IVoidFunction4P` interface represents a functional interface with a single method `run` that executes a function with four parameters and does not return a result.
+ * The `IVoidFunction4P` interface represents a functional interface with a single method `run` that
+ * executes a function with four parameters and does not return a result.
  *
  * @param <P1> the type of the first parameter accepted by the function
  * @param <P2> the type of the second parameter accepted by the function
@@ -20,5 +21,4 @@ public interface IVoidFunction4P<P1, P2, P3, P4> {
    * @param p4 the fourth parameter to be passed to the function
    */
   void run(P1 p1, P2 p2, P3 p3, P4 p4);
-
 }

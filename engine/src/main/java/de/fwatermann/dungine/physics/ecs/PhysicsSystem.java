@@ -22,8 +22,9 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 /**
- * The `PhysicsSystem` class is responsible for managing the physics simulation in the ECS framework.
- * It handles gravity, collision detection, and resolution, and updates the positions of entities based on their velocities.
+ * The `PhysicsSystem` class is responsible for managing the physics simulation in the ECS
+ * framework. It handles gravity, collision detection, and resolution, and updates the positions of
+ * entities based on their velocities.
  */
 public class PhysicsSystem extends System<PhysicsSystem> {
 
@@ -75,7 +76,7 @@ public class PhysicsSystem extends System<PhysicsSystem> {
    * @return the debug points object
    */
   private static Points debugPoints() {
-    if(debugPoints == null) {
+    if (debugPoints == null) {
       debugPoints = new Points(0xFFFFFFFF);
       debugPoints.pointSize(5.0f);
       PhysicsDebugSystem.addPoints(debugPoints);
@@ -285,9 +286,9 @@ public class PhysicsSystem extends System<PhysicsSystem> {
 
           if (PhysicsDebugSystem.isEnabled(PhysicsDebugSystem.OPTION_CONTACT_POINTS)) {
             collisions.forEach(
-              collision -> {
-                collision.collisionPoints().forEach(p -> debugPoints().addPoint(p, 0xFF00FFFF));
-              });
+                collision -> {
+                  collision.collisionPoints().forEach(p -> debugPoints().addPoint(p, 0xFF00FFFF));
+                });
           }
         }
       }
@@ -297,7 +298,8 @@ public class PhysicsSystem extends System<PhysicsSystem> {
   }
 
   /**
-   * Returns the minimum and maximum chunk coordinates for the specified entity and rigid body component.
+   * Returns the minimum and maximum chunk coordinates for the specified entity and rigid body
+   * component.
    *
    * @param entity the entity
    * @param rbc the rigid body component
