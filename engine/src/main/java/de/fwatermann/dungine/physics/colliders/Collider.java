@@ -57,14 +57,26 @@ public abstract class Collider {
     return map != null ? map.get(colliderB) : null;
   }
 
+  /** The entity that owns this collider. */
   protected Entity entity;
+
+  /** The offset of the collider relative to the owning entity's position. */
   protected Vector3f offset;
 
+  /**
+   * Constructs a new Collider instance with the specified entity and offset.
+   * @param entity the entity that owns this collider
+   * @param offset the offset of the collider relative to the owning entity's position
+   */
   public Collider(Entity entity, Vector3f offset) {
     this.entity = entity;
     this.offset = offset;
   }
 
+  /**
+   * Constructs a new Collider instance with the specified entity and zero offset.
+   * @param entity the entity that owns this collider
+   */
   public Collider(Entity entity) {
     this(entity, new Vector3f());
   }

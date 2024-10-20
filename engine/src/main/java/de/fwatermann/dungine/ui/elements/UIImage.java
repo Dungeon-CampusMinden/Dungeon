@@ -17,11 +17,20 @@ import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * Represents a UI image element that can be rendered with OpenGL.
+ * The UIImage class extends UIElement and provides methods to set and get
+ * the image texture.
+ */
 public class UIImage extends UIElement<UIImage> {
 
   private static ShaderProgram SHADER;
   private static ArrayMesh MESH;
 
+  /**
+   * Initializes the OpenGL shader for the UIImage.
+   * This method is called internally before rendering the image.
+   */
   private static void initShader() {
     if (SHADER != null) return;
     try {
@@ -33,6 +42,10 @@ public class UIImage extends UIElement<UIImage> {
     }
   }
 
+  /**
+   * Initializes the OpenGL mesh for the UIImage.
+   * This method is called internally before rendering the image.
+   */
   private static void initMesh() {
     if (MESH != null) return;
     ByteBuffer vertices = BufferUtils.createByteBuffer(6 * 5 * 4);
@@ -59,15 +72,32 @@ public class UIImage extends UIElement<UIImage> {
 
   private Texture texture;
 
+  /**
+   * Constructs a UIImage with the specified image resource.
+   *
+   * @param image the image resource to load as texture
+   */
   public UIImage(Resource image) {
     this.texture = TextureManager.load(image);
   }
 
+  /**
+   * Sets the texture of the UIImage.
+   *
+   * @param resource the image resource to load as texture
+   * @return this UIImage instance for method chaining
+   */
   public UIImage texture(Resource resource) {
     this.texture = TextureManager.load(resource);
     return this;
   }
 
+  /**
+   * Renders the UIImage using the specified camera.
+   * This method sets the shader uniforms and renders the mesh.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   protected void render(Camera<?> camera) {
     initShader();

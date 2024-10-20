@@ -3,9 +3,9 @@ package de.fwatermann.dungine.ecs;
 import java.util.Set;
 
 /**
- * Abstract class representing a system in the Entity Component System (ECS) architecture. Systems
- * are used to update entities in the ECS. Systems can be updated synchronously or asynchronously
- * and can be paused. Systems can also have a specific interval at which they are updated. Also
+ * Abstract class representing a system in the Entity Component System (ECS) architecture.
+ * Systems are used to update entities in the ECS. Systems can be updated synchronously or asynchronously
+ * and can be paused. Systems can also have a specific interval at which they are updated. Additionally,
  * systems can be notified when an entity is added or removed from the ECS. The components provided
  * in the constructor are used to filter entities that are updated by this system, meaning this
  * system will only be notified about entities that have all the specified components. The update
@@ -21,11 +21,10 @@ public abstract class System<T extends System<?>> {
   private final Set<Class<? extends Component>> components;
 
   /**
-   * Create a new System with specific interval, sync flag and components.
+   * Creates a new System with a specific interval, sync flag, and components.
    *
    * @param interval Interval at which this system should be updated.
-   * @param isSync Whether this system should be updated synchronously or asynchronously to the
-   *     render loop.
+   * @param isSync Whether this system should be updated synchronously or asynchronously to the render loop.
    * @param components List of components this system requires.
    */
   public System(int interval, boolean isSync, Set<Class<? extends Component>> components) {
@@ -35,11 +34,10 @@ public abstract class System<T extends System<?>> {
   }
 
   /**
-   * Create a new System with specific interval, sync flag and components.
+   * Creates a new System with a specific interval, sync flag, and components.
    *
    * @param interval Interval at which this system should be updated.
-   * @param isSync Whether this system should be updated synchronously or asynchronously to the
-   *     render loop.
+   * @param isSync Whether this system should be updated synchronously or asynchronously to the render loop.
    * @param components List of components this system requires.
    */
   @SafeVarargs
@@ -48,7 +46,7 @@ public abstract class System<T extends System<?>> {
   }
 
   /**
-   * Create a new System with specific interval.
+   * Creates a new System with a specific interval.
    *
    * <p>The interval determines how many ticks should be waited before the next update trigger.
    *
@@ -59,7 +57,7 @@ public abstract class System<T extends System<?>> {
   }
 
   /**
-   * Create a new System with default interval.
+   * Creates a new System with a default interval.
    *
    * <p>The interval determines how many ticks should be waited before the next update trigger.
    */
@@ -88,9 +86,9 @@ public abstract class System<T extends System<?>> {
   public void onEntityRemove(ECS ecs, Entity entity) {}
 
   /**
-   * Get the component filter for this system.
+   * Gets the component filter for this system.
    *
-   * <p>Default implementation does nothing.
+   * @return The component filter for this system.
    */
   public Set<Class<? extends Component>> componentFilter() {
     return this.components;
@@ -103,23 +101,50 @@ public abstract class System<T extends System<?>> {
    */
   public abstract void update(ECS ecs);
 
+  /**
+   * Gets the interval at which this system should be updated.
+   *
+   * @return The interval at which this system should be updated.
+   */
   public final int interval() {
     return this.interval;
   }
 
+  /**
+   * Sets the interval at which this system should be updated.
+   *
+   * @param interval The interval to set.
+   * @return The current System instance.
+   */
   public final T interval(int interval) {
     this.interval = interval;
     return (T) this;
   }
 
+  /**
+   * Checks if this system should be updated synchronously.
+   *
+   * @return true if this system should be updated synchronously, false otherwise.
+   */
   public final boolean sync() {
     return this.isSync;
   }
 
+  /**
+   * Checks if this system is paused.
+   *
+   * @return true if this system is paused, false otherwise.
+   */
   public final boolean paused() {
     return this.paused;
   }
 
+  /**
+   * Sets whether this system should be paused.
+   *
+   * @param paused true to pause the system, false otherwise.
+   * @return The current System instance.
+   */
   public final T paused(boolean paused) {
     this.paused = paused;
     return (T) this;

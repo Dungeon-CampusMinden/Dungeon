@@ -21,26 +21,59 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+/**
+ * The `PhysicsSystem` class is responsible for managing the physics simulation in the ECS framework.
+ * It handles gravity, collision detection, and resolution, and updates the positions of entities based on their velocities.
+ */
 public class PhysicsSystem extends System<PhysicsSystem> {
 
+  /** The default gravity constant. */
   public static final float DEFAULT_GRAVITY_CONSTANT = 9.81f;
+
+  /** The default sleep threshold. */
   public static final float DEFAULT_SLEEP_THRESHOLD = 0.01f;
+
+  /** The default size of a physics chunk. */
   public static final int DEFAULT_PHYSIC_CHUNK_SIZE = 1;
+
+  /** Logger for the PhysicsSystem class. */
   private static final Logger LOGGER = LogManager.getLogger(PhysicsSystem.class);
 
+  /** The size of the physics chunks. */
   private final Vector3i physicChunkSize;
+
+  /** Map of chunks containing entities. */
   private final Map<Integer, Map<Integer, Map<Integer, List<Entity>>>> chunks = new HashMap<>();
+
+  /** Map of entities and their corresponding chunks. */
   private final Map<Entity, Pair<Vector3i, Vector3i>> entityChunks = new HashMap<>();
 
+  /** The gravity constant. */
   private float gravityConstant = DEFAULT_GRAVITY_CONSTANT;
+
+  /** The sleep threshold. */
   private float sleepThreshold = DEFAULT_SLEEP_THRESHOLD;
 
+  /** The time of the last execution. */
   private long lastExecution = java.lang.System.nanoTime();
+
+  /** The delta time of the last update. */
   private float lastDeltaTime = 0.0f;
+
+  /** The number of updates in the last frame. */
   private int lastUpdates = 0;
+
+  /** The number of updates in the current frame. */
   private int lUc = 0;
 
+  /** Points object for debugging. */
   private static Points debugPoints;
+
+  /**
+   * Returns the debug points object, creating it if necessary.
+   *
+   * @return the debug points object
+   */
   private static Points debugPoints() {
     if(debugPoints == null) {
       debugPoints = new Points(0xFFFFFFFF);
@@ -50,24 +83,46 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     return debugPoints;
   }
 
+  /**
+   * Constructs a new PhysicsSystem with the specified gravity constant and physics chunk size.
+   *
+   * @param gravityConstant the gravity constant
+   * @param physicChunkSize the size of the physics chunks
+   */
   public PhysicsSystem(float gravityConstant, Vector3i physicChunkSize) {
     super(0, false, RigidBodyComponent.class);
     this.gravityConstant = gravityConstant;
     this.physicChunkSize = new Vector3i(physicChunkSize);
   }
 
+  /**
+   * Constructs a new PhysicsSystem with the specified physics chunk size.
+   *
+   * @param physicChunkSize the size of the physics chunks
+   */
   public PhysicsSystem(Vector3i physicChunkSize) {
     this(DEFAULT_GRAVITY_CONSTANT, physicChunkSize);
   }
 
+  /**
+   * Constructs a new PhysicsSystem with the specified gravity constant.
+   *
+   * @param gravityConstant the gravity constant
+   */
   public PhysicsSystem(float gravityConstant) {
     this(gravityConstant, new Vector3i(DEFAULT_PHYSIC_CHUNK_SIZE));
   }
 
+  /** Constructs a new PhysicsSystem with default settings. */
   public PhysicsSystem() {
     this(DEFAULT_GRAVITY_CONSTANT);
   }
 
+  /**
+   * Updates the physics system.
+   *
+   * @param ecs the ECS instance
+   */
   @Override
   public void update(ECS ecs) {
     float deltaTime = (java.lang.System.nanoTime() - this.lastExecution) / 1_000_000_000.0f;
@@ -130,6 +185,12 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     this.lastUpdates = this.lUc;
   }
 
+  /**
+   * Handles the addition of an entity to the physics system.
+   *
+   * @param ecs the ECS instance
+   * @param entity the entity to add
+   */
   @Override
   public void onEntityAdd(ECS ecs, Entity entity) {
     Optional<RigidBodyComponent> opt = entity.component(RigidBodyComponent.class);
@@ -147,6 +208,12 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     LOGGER.debug("Added entity to chunk {}", this.toChunkCoordinates(entity.position()));
   }
 
+  /**
+   * Handles the removal of an entity from the physics system.
+   *
+   * @param ecs the ECS instance
+   * @param entity the entity to remove
+   */
   @Override
   public void onEntityRemove(ECS ecs, Entity entity) {
     Pair<Vector3i, Vector3i> pair = this.entityChunks.get(entity);
@@ -173,6 +240,12 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     LOGGER.debug("Removed entity from chunk {}", this.toChunkCoordinates(entity.position()));
   }
 
+  /**
+   * Checks for collisions between the specified entity and other entities.
+   *
+   * @param entity the entity to check for collisions
+   * @return true if a collision occurred, false otherwise
+   */
   private boolean collisionCheck(Entity entity) {
 
     Optional<RigidBodyComponent> optRbc = entity.component(RigidBodyComponent.class);
@@ -223,6 +296,13 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     return collided;
   }
 
+  /**
+   * Returns the minimum and maximum chunk coordinates for the specified entity and rigid body component.
+   *
+   * @param entity the entity
+   * @param rbc the rigid body component
+   * @return a pair of minimum and maximum chunk coordinates
+   */
   private Pair<Vector3i, Vector3i> getMinMax(Entity entity, RigidBodyComponent rbc) {
     Vector3f min = new Vector3f(Float.MAX_VALUE);
     Vector3f max = new Vector3f(-Float.MAX_VALUE);
@@ -237,6 +317,13 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     return new Pair<>(minChunk, maxChunk);
   }
 
+  /**
+   * Returns a stream of chunk coordinates between the specified minimum and maximum coordinates.
+   *
+   * @param min the minimum chunk coordinates
+   * @param max the maximum chunk coordinates
+   * @return a stream of chunk coordinates
+   */
   private Stream<Vector3i> getChunksBetween(Vector3i min, Vector3i max) {
     List<Vector3i> chunks = new ArrayList<>();
     for (int x = min.x; x <= max.x; x++) {
@@ -249,6 +336,12 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     return chunks.stream();
   }
 
+  /**
+   * Updates the chunk of the specified entity.
+   *
+   * @param entity the entity
+   * @param rbc the rigid body component
+   */
   private void updateChunkOfEntity(Entity entity, RigidBodyComponent rbc) {
     Pair<Vector3i, Vector3i> old = this.entityChunks.get(entity);
     Pair<Vector3i, Vector3i> neu = this.getMinMax(entity, rbc);
@@ -269,6 +362,11 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     this.entityChunks.put(entity, neu);
   }
 
+  /**
+   * Checks if a chunk should be deleted and removes it if necessary.
+   *
+   * @param chunk the chunk to check
+   */
   private void checkDeletion(Vector3i chunk) {
     Map<Integer, Map<Integer, List<Entity>>> mapX = this.chunks.get(chunk.x);
     if (mapX == null) return;
@@ -287,6 +385,13 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     }
   }
 
+  /**
+   * Returns the list of entities in the specified chunk, creating it if necessary.
+   *
+   * @param chunk the chunk coordinates
+   * @param create whether to create the list if it does not exist
+   * @return an optional containing the list of entities
+   */
   private Optional<List<Entity>> getChunkEntityList(Vector3i chunk, boolean create) {
     Map<Integer, Map<Integer, List<Entity>>> mapX = this.chunks.get(chunk.x);
     if (mapX == null) {
@@ -309,6 +414,12 @@ public class PhysicsSystem extends System<PhysicsSystem> {
     return Optional.of(list);
   }
 
+  /**
+   * Converts world coordinates to chunk coordinates.
+   *
+   * @param worldPos the world coordinates
+   * @return the chunk coordinates
+   */
   private Vector3i toChunkCoordinates(Vector3f worldPos) {
     return new Vector3i(
         (int) Math.floor(worldPos.x / this.physicChunkSize.x),
@@ -316,28 +427,60 @@ public class PhysicsSystem extends System<PhysicsSystem> {
         (int) Math.floor(worldPos.z / this.physicChunkSize.z));
   }
 
+  /**
+   * Returns the gravity constant.
+   *
+   * @return the gravity constant
+   */
   public float gravityConstant() {
     return this.gravityConstant;
   }
 
+  /**
+   * Sets the gravity constant.
+   *
+   * @param gravityConstant the new gravity constant
+   * @return this PhysicsSystem instance for method chaining
+   */
   public PhysicsSystem gravityConstant(float gravityConstant) {
     this.gravityConstant = gravityConstant;
     return this;
   }
 
+  /**
+   * Returns the sleep threshold.
+   *
+   * @return the sleep threshold
+   */
   public float sleepThreshold() {
     return this.sleepThreshold;
   }
 
+  /**
+   * Sets the sleep threshold.
+   *
+   * @param sleepThreshold the new sleep threshold
+   * @return this PhysicsSystem instance for method chaining
+   */
   public PhysicsSystem sleepThreshold(float sleepThreshold) {
     this.sleepThreshold = sleepThreshold;
     return this;
   }
 
+  /**
+   * Returns the delta time of the last update.
+   *
+   * @return the delta time of the last update
+   */
   public float lastDeltaTime() {
     return this.lastDeltaTime;
   }
 
+  /**
+   * Returns the number of updates in the last frame.
+   *
+   * @return the number of updates in the last frame
+   */
   public int lastUpdates() {
     return this.lastUpdates;
   }

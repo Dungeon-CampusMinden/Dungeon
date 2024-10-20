@@ -35,7 +35,9 @@ public class InstancedIndexedMesh extends InstancedMesh<InstancedIndexedMesh> {
    * instance count, usage hint, attributes, and instance attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param indices the index buffer of the mesh
+   * @param indexDataType the data type of the indices
    * @param instanceData the instance data buffer of the mesh
    * @param instanceCount the number of instances of the mesh
    * @param usageHint the usage hint of the mesh

@@ -16,32 +16,53 @@ import org.lwjgl.opengl.GL33;
  * The Mesh class represents a 3D mesh object in the game engine. It provides methods for
  * manipulating the mesh's position, rotation, and scale, as well as methods for rendering the mesh.
  * This class is abstract, and should be extended by specific types of meshes.
+ *
+ * @param <T> the extending tpye of Mesh
  */
 public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implements Disposable {
 
   private static final Logger LOGGER = LogManager.getLogger(Mesh.class);
 
+  /** The OpenGL Vertex Array Object (VAO) identifier. */
   protected int glVAO;
+
+  /** The OpenGL Vertex Buffer Object (VBO) identifier. */
   protected int glVBO;
 
+  /** The list of vertex attributes for the mesh. */
   protected VertexAttributeList attributes;
+
+  /** The vertex buffer of the mesh. */
   protected @Null ByteBuffer vertices;
+
+  /** Flag indicating whether the vertices are dirty and need to be updated. */
   protected boolean verticesDirty = false;
 
+  /** The usage hint for the mesh. */
   protected GLUsageHint usageHint = GLUsageHint.DRAW_STATIC;
-  protected ShaderProgram shaderProgram;
-  protected ShaderProgram lastShader; // Used to avoid unnecessary shader binding
-  protected PrimitiveType primitiveType;
 
+  /** The shader program used for rendering the mesh. */
+  protected ShaderProgram shaderProgram;
+
+  /** The last shader program used, to avoid unnecessary binding. */
+  protected ShaderProgram lastShader;
+
+  /** The primitive type of the mesh. */
+  protected PrimitiveType primitiveType;
 
   /**
    * Constructs a new Mesh with the specified vertex buffer, usage hint, and attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
-  protected Mesh(ByteBuffer vertices, PrimitiveType primitiveType, GLUsageHint usageHint, VertexAttributeList attributes) {
+  protected Mesh(
+      ByteBuffer vertices,
+      PrimitiveType primitiveType,
+      GLUsageHint usageHint,
+      VertexAttributeList attributes) {
     GLUtils.checkBuffer(vertices);
     this.vertices = vertices;
     this.primitiveType = primitiveType;
@@ -96,6 +117,7 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
    * Sets the vertex buffer of the mesh to the specified buffer.
    *
    * @param buffer the new vertex buffer of the mesh
+   * @return this mesh for Method chaining
    */
   public T vertexBuffer(ByteBuffer buffer) {
     GLUtils.checkBuffer(buffer);
@@ -109,10 +131,19 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
     this.verticesDirty = true;
   }
 
+  /**
+   * Returns the shader program used for rendering the mesh.
+   * @return the shader program
+   */
   public ShaderProgram shaderProgram() {
     return this.shaderProgram;
   }
 
+  /**
+   * Sets the shader program used for rendering the mesh.
+   * @param shaderProgram the new shader program
+   * @return this mesh for method chaining
+   */
   public T shaderProgram(ShaderProgram shaderProgram) {
     this.shaderProgram = shaderProgram;
     return (T) this;
@@ -133,11 +164,23 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
     return this.usageHint;
   }
 
+  /**
+   * Renders the object using the specified camera.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   public void render(Camera<?> camera) {
     this.render(camera, this.shaderProgram);
   }
 
+  /**
+   * Renders the object using the specified camera and shader program.
+   *
+   * @param camera the camera to use for rendering
+   * @param shader the shader program to use for rendering
+   * @param offset the offset of the vertices to render
+   * @param count the number of vertices to render
+   */
   public abstract void render(Camera<?> camera, ShaderProgram shader, int offset, int count);
-
 }

@@ -16,6 +16,12 @@ public class AABCollider extends BoxCollider {
     registerCollisionFunction(AABCollider.class, AABCollider.class, AABCollider::collideAABs);
   }
 
+  /**
+   * Create a new AABCollider for the given entity with offset and size.
+   * @param entity The entity this collider is attached to.
+   * @param offset The offset of the collider.
+   * @param size The size of the collider.
+   */
   public AABCollider(Entity entity, Vector3f offset, Vector3f size) {
     super(entity, offset, size);
   }

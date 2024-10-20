@@ -16,6 +16,11 @@ import org.lwjgl.BufferUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+/**
+ * Represents a UI spinner element that can be rendered with OpenGL.
+ * The UISpinner class extends UIElement and provides methods to set and get
+ * the spinner color.
+ */
 public class UISpinner extends UIElement<UISpinner> {
 
   private static ShaderProgram SHADER;
@@ -23,13 +28,20 @@ public class UISpinner extends UIElement<UISpinner> {
 
   private int color = 0xFFFFFFFF;
 
+  /**
+   * Constructs a UISpinner with default settings.
+   * The default color is white and the aspect ratio is set to 1:1.
+   */
   public UISpinner() {
     super();
     this.layout.aspectRatio(Unit.px(1.0f));
   }
 
+  /**
+   * Initializes the OpenGL shader and mesh for the UISpinner.
+   * This method is called internally before rendering the spinner.
+   */
   private static void initGL() {
-
     if(SHADER == null) {
       try {
         Shader vertexShader = Shader.loadShader(Resource.load("/shaders/ui/Spinner.vsh"), Shader.ShaderType.VERTEX_SHADER);
@@ -64,6 +76,12 @@ public class UISpinner extends UIElement<UISpinner> {
     }
   }
 
+  /**
+   * Renders the UISpinner using the specified camera.
+   * This method sets the shader uniforms and renders the mesh.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   protected void render(Camera<?> camera) {
     initGL();
@@ -77,10 +95,21 @@ public class UISpinner extends UIElement<UISpinner> {
     SHADER.unbind();
   }
 
+  /**
+   * Returns the color of the UISpinner.
+   *
+   * @return the color of the UISpinner
+   */
   public int color() {
     return this.color;
   }
 
+  /**
+   * Sets the color of the UISpinner.
+   *
+   * @param color the color to set
+   * @return this UISpinner instance for method chaining
+   */
   public UISpinner color(int color) {
     this.color = color;
     return this;

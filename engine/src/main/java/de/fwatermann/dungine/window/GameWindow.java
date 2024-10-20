@@ -42,12 +42,24 @@ import org.lwjgl.opengl.GL33;
 import org.lwjgl.opengl.GL43;
 import org.lwjgl.opengl.GLUtil;
 
+/**
+ * The `GameWindow` class represents the main window of the game. It handles the initialization of
+ * GLFW and OpenGL, manages the game loop, and processes input events. This class also provides
+ * methods to control the window's properties such as size, position, visibility, and fullscreen
+ * mode. Additionally, it manages the current game state and transitions between different game
+ * states.
+ */
 public abstract class GameWindow implements Disposable {
 
   private static final Logger LOGGER = LogManager.getLogger(GameWindow.class);
 
+  /** The main thread of the game. */
   @Nullable public static Thread MAIN_THREAD = null;
+
+  /** The update thread of the game. */
   @Nullable public static Thread UPDATE_THREAD = null;
+
+  /** The current game window. */
   @Nullable public static GameWindow CURRENT_GAME = null;
 
   private String title;
@@ -279,7 +291,7 @@ public abstract class GameWindow implements Disposable {
       long start = System.nanoTime();
       try {
         if (this.currentState != null) this.currentState.update(deltaTime);
-      } catch(Exception ex) {
+      } catch (Exception ex) {
         LOGGER.error("Exception in Update Loop!", ex);
       }
       long end = System.nanoTime();
@@ -315,7 +327,7 @@ public abstract class GameWindow implements Disposable {
         long start = System.nanoTime();
 
         if (this.currentState != null && this.currentState.loaded()) {
-          if(!wasDone && this.transition != null) {
+          if (!wasDone && this.transition != null) {
             this.transition.cleanup();
           }
           wasDone = true;
@@ -379,6 +391,7 @@ public abstract class GameWindow implements Disposable {
    * and will impact the frame performance.
    *
    * @param func the function to run on the main thread
+   * @return a Then object to chain functions
    */
   public Then runOnMainThread(IVoidFunction func) {
     Then then = new Then(func);
@@ -648,10 +661,17 @@ public abstract class GameWindow implements Disposable {
     glfwFocusWindow(this.glfwWindow);
   }
 
+  /**
+   * Returns the fullscreen state of the game window.
+   * @return the fullscreen state of the game window
+   */
   public boolean fullscreen() {
     return this.fullscreen;
   }
 
+  /**
+   * Closes the game window and stop the game and update loop.
+   */
   public void close() {
     glfwSetWindowShouldClose(this.glfwWindow, true);
     this.shouldClose = true;
@@ -716,7 +736,7 @@ public abstract class GameWindow implements Disposable {
           if (this.currentState != null) {
             this.currentState.dispose();
           }
-          if(this.transition != null) {
+          if (this.transition != null) {
             this.transition.init();
           }
           this.currentState = state;
@@ -726,6 +746,10 @@ public abstract class GameWindow implements Disposable {
         });
   }
 
+  /**
+   * Sets the current game state transition.
+   * @param transition the new game state transition
+   */
   public void setStateTransition(GameStateTransition transition) {
     this.runOnMainThread(
         () -> {
@@ -739,30 +763,47 @@ public abstract class GameWindow implements Disposable {
         });
   }
 
+  /**
+   * Return whether the window has focus.
+   *
+   * @return true if the window has focus
+   */
   public boolean hasFocus() {
     return this.hasFocus;
   }
 
+  /**
+   * Returns the clear color of the game window.
+   *
+   * @return the clear color of the game window
+   */
   public int clearColor() {
     return this.clearColor;
   }
 
+  /**
+   * Sets the clear color of the game window.
+   *
+   * @param clearColor the new clear color of the game window in RGBA format
+   * @return the game window
+   */
   public GameWindow clearColor(int clearColor) {
     this.clearColor = clearColor;
-    if(ThreadUtils.isMainThread()) {
+    if (ThreadUtils.isMainThread()) {
       GL33.glClearColor(
-        ((this.clearColor >> 24) & 0xFF) / 255.0f,
-        ((this.clearColor >> 16) & 0xFF) / 255.0f,
-        ((this.clearColor >> 8) & 0xFF) / 255.0f,
-        (this.clearColor & 0xFF) / 255.0f);
-    } else {
-      this.runOnMainThread(() -> {
-        GL33.glClearColor(
           ((this.clearColor >> 24) & 0xFF) / 255.0f,
           ((this.clearColor >> 16) & 0xFF) / 255.0f,
           ((this.clearColor >> 8) & 0xFF) / 255.0f,
           (this.clearColor & 0xFF) / 255.0f);
-      });
+    } else {
+      this.runOnMainThread(
+          () -> {
+            GL33.glClearColor(
+                ((this.clearColor >> 24) & 0xFF) / 255.0f,
+                ((this.clearColor >> 16) & 0xFF) / 255.0f,
+                ((this.clearColor >> 8) & 0xFF) / 255.0f,
+                (this.clearColor & 0xFF) / 255.0f);
+          });
     }
     return this;
   }
@@ -772,6 +813,11 @@ public abstract class GameWindow implements Disposable {
     this.close();
   }
 
+  /**
+   * Get the windows frame counter instance.
+   *
+   * @return the frame counter instance.
+   */
   public FrameCounter frameCounter() {
     return this.frameCounter;
   }

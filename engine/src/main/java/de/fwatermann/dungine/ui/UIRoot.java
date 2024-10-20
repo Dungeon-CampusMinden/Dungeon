@@ -25,6 +25,32 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * The `UIRoot` class represents the root container for the UI system.
+ * It handles rendering, event management, and interaction with UI elements.
+ *
+ * <p>This class extends `UIContainer` and implements `EventListener` and `Disposable` interfaces.
+ * It manages the UI camera, processes mouse events, and handles the layout of child elements.</p>
+ *
+ * <p>Key functionalities include:</p>
+ * <ul>
+ *   <li>Rendering the UI elements with proper depth and blend settings.</li>
+ *   <li>Handling mouse click, scroll, and hover events.</li>
+ *   <li>Managing the layout and resizing of UI elements.</li>
+ *   <li>Providing methods to get and set the camera used for rendering the UI.</li>
+ * </ul>
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * GameWindow window = new GameWindow();
+ * UIRoot uiRoot = new UIRoot(window, 800, 600);
+ * uiRoot.render();
+ * }</pre>
+ *
+ * @see UIContainer
+ * @see EventListener
+ * @see Disposable
+ */
 public class UIRoot extends UIContainer<UIRoot> implements EventListener, Disposable {
 
   private UIElement<?> lastHovered = null;
@@ -35,6 +61,12 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
 
   private final Vector2i lastMousePos = new Vector2i(0, 0);
 
+  /**
+   * Constructs a new UIRoot instance.
+   * @param window The game window.
+   * @param pixelWidth The width of the root element in pixels.
+   * @param pixelHeight The height of the root element in pixels.
+   */
   public UIRoot(GameWindow window, int pixelWidth, int pixelHeight) {
     this.window = window;
     this.uiCamera = new CameraOrthographic(new CameraViewport(pixelWidth, pixelHeight, 0, 0));
@@ -48,6 +80,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     UILayouter.layout(this, this.window.size(), true);
   }
 
+  /**
+   * Renders the UI.
+   */
   public void render() {
     this.init();
     this.uiCamera.update();
@@ -77,17 +112,26 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     GL33.glBlendFunc(blendFunc_src, blendFunc_dst);
   }
 
+  /**
+   * Sets the camera of this root element that is used for rendering the ui.
+   * @param camera The camera.
+   * @return This root element.
+   */
   public UIRoot camera(Camera<?> camera) {
     this.uiCamera = camera;
     return this;
   }
 
+  /**
+   * Returns the camera of this root element that is used for rendering the ui.
+   * @return The camera.
+   */
   public Camera<?> camera() {
     return this.uiCamera;
   }
 
   @EventHandler
-  public void onResize(FrameBufferResizeEvent event) {
+  private void onResize(FrameBufferResizeEvent event) {
     this.uiCamera.updateViewport(event.width(), event.height(), 0, 0);
     this.size().set(event.width(), event.height(), 0);
 
@@ -96,14 +140,14 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
   }
 
   @EventHandler
-  public void onMouseButton(MouseButtonEvent event) {
+  private void onMouseButton(MouseButtonEvent event) {
     if (event.action == MouseButtonEvent.MouseButtonAction.PRESS) {
       this.click(event.button, event.action);
     }
   }
 
   @EventHandler
-  public void onMouseScroll(MouseScrollEvent event) {
+  private void onMouseScroll(MouseScrollEvent event) {
     this.scroll(event.x, event.y);
   }
 
@@ -216,6 +260,7 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
    * Returns all child elements of this container.
    *
    * @param includeContainers If true, containers will be included in the list.
+   * @param componentFilter A list of components that the elements must have.
    * @return List of all child elements.
    */
   @SafeVarargs

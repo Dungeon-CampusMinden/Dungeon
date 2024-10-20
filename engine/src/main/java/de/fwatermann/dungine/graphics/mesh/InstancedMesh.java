@@ -15,15 +15,34 @@ import org.lwjgl.opengl.GL33;
  * provides methods for manipulating the mesh's position, rotation, and scale, as well as methods
  * for rendering the mesh. This class is abstract and should be extended by specific types of
  * instanced meshes.
+ *
+ * @param <T> the extending type of InstancedMesh
  */
 public abstract class InstancedMesh<T extends InstancedMesh<?>> extends Mesh<InstancedMesh<T>> {
 
   private static final Logger LOGGER = LogManager.getLogger(InstancedMesh.class);
 
+  /** The instance attributes of the mesh. */
   protected InstanceAttributeList instanceAttributes;
+
+  /** The instance data buffers of the mesh. */
   protected ArrayList<InstanceDataBuffer> instanceData = new ArrayList<>();
+
+  /** The number of instances of the mesh. */
   protected int instanceCount = 0;
 
+  /**
+   * Constructs a new InstancedMesh with the specified vertex buffer, primitive type, instance data
+   * buffers, instance count, usage hint, and attributes.
+   *
+   * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
+   * @param instanceData the instance data buffers of the mesh
+   * @param instanceCount the number of instances of the mesh
+   * @param usageHint the usage hint of the mesh
+   * @param attributes the attributes of the mesh
+   * @param instanceAttributes the instance attributes of the mesh
+   */
   protected InstancedMesh(
       ByteBuffer vertices,
       PrimitiveType primitiveType,
@@ -48,6 +67,7 @@ public abstract class InstancedMesh<T extends InstancedMesh<?>> extends Mesh<Ins
    * count, usage hint, and attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param instanceData the instance data buffer of the mesh
    * @param instanceCount the number of instances of the mesh
    * @param usageHint the usage hint of the mesh
@@ -70,6 +90,7 @@ public abstract class InstancedMesh<T extends InstancedMesh<?>> extends Mesh<Ins
     this.instanceCount = instanceCount;
   }
 
+  /** Update the instance data buffer of the mesh. */
   protected void updateInstanceBuffer() {
     for (InstanceDataBuffer buffer : this.instanceData) {
       if (buffer.dirty) {
@@ -160,18 +181,43 @@ public abstract class InstancedMesh<T extends InstancedMesh<?>> extends Mesh<Ins
     return true;
   }
 
+  /**
+   * The `InstanceDataBuffer` class represents a buffer for instance data in an instanced mesh. It
+   * contains the OpenGL buffer object identifier, the instance data, and a flag indicating whether
+   * the buffer is dirty and needs to be updated.
+   */
   public static class InstanceDataBuffer {
 
+    /** The OpenGL buffer object identifier. */
     public int glIBO;
+
+    /** The instance data buffer. */
     public ByteBuffer instanceData;
+
+    /** A flag indicating whether the buffer is dirty and needs to be updated. */
     public boolean dirty = false;
 
+    /**
+     * Constructs a new `InstanceDataBuffer` with the specified buffer object identifier, instance
+     * data, and dirty flag.
+     *
+     * @param glIBO the OpenGL buffer object identifier
+     * @param instanceData the instance data buffer
+     * @param dirty a flag indicating whether the buffer is dirty
+     */
     public InstanceDataBuffer(int glIBO, ByteBuffer instanceData, boolean dirty) {
       this.glIBO = glIBO;
       this.instanceData = instanceData;
       this.dirty = dirty;
     }
 
+    /**
+     * Constructs a new `InstanceDataBuffer` with the specified buffer object identifier and
+     * instance data. The dirty flag is set to true if the instance data is not null.
+     *
+     * @param glIBO the OpenGL buffer object identifier
+     * @param instanceData the instance data buffer
+     */
     public InstanceDataBuffer(int glIBO, ByteBuffer instanceData) {
       this(glIBO, instanceData, instanceData != null);
     }

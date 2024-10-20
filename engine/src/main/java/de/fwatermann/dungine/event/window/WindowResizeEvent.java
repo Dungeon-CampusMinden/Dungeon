@@ -20,6 +20,7 @@ public class WindowResizeEvent extends Event implements Cancelable {
   /** The final size of the game window after the resize. */
   public final Vector2i to;
 
+  /** The game window that was resized. */
   public final GameWindow window;
 
   /**
@@ -27,6 +28,7 @@ public class WindowResizeEvent extends Event implements Cancelable {
    *
    * @param from the initial size of the game window before the resize
    * @param to the final size of the game window after the resize
+   * @param window the game window that was resized
    */
   public WindowResizeEvent(Vector2i from, Vector2i to, GameWindow window) {
     this.from = from;

@@ -7,18 +7,24 @@ package de.fwatermann.dungine.graphics.mesh;
  */
 public class VertexAttribute {
 
+  /** The number of Components this attribute has */
   public final int numComponents;
+
+  /** The data type of this attribute */
   public final DataType dataType;
-  protected int offset;
+
+  /** The name of this attribute */
   public final String name;
+
+  /** The offset of this attribute */
+  protected int offset;
 
   /**
    * Constructs a VertexAttribute with the specified usage, number of components, GL type, offset,
    * and name.
    *
-   * @param usage the usage of the vertex attribute
    * @param numComponents the number of components of the vertex attribute
-   * @param glType the GL type of the vertex attribute
+   * @param dataType the data type of the vertex attribute
    * @param name the name of the vertex attribute
    */
   public VertexAttribute(int numComponents, DataType dataType, String name) {

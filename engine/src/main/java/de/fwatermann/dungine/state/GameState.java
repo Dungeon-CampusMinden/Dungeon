@@ -23,12 +23,25 @@ public abstract class GameState extends ECS implements Disposable, EventListener
   private Grid3D grid;
   private boolean renderGrid = false;
 
+  /** The game window. */
   protected GameWindow window;
+
+  /** The user interface root element*/
   protected UIRoot ui;
+
+  /** The skybox. */
   protected SkyBox skyBox;
+
+  /** The camera. */
   protected Camera<?> camera;
+
+  /** The audio context. */
   protected AudioContext audioContext;
+
+  /** The last delta time of the last frame. */
   protected float lastFrameDeltaTime = 0.0f;
+
+  /** The last delta time of the last tick. */
   protected float lastTickDeltaTime = 0.0f;
 
   /**
@@ -149,14 +162,25 @@ public abstract class GameState extends ECS implements Disposable, EventListener
     return this.window;
   }
 
+  /**
+   * Get whether the grid is rendered.
+   * @return true if the grid is rendered
+   */
   public boolean grid() {
     return this.renderGrid;
   }
 
+  /**
+   * Set whether the grid is rendered.
+   * @param renderGrid true if the grid should be rendered
+   */
   public void grid(boolean renderGrid) {
     this.renderGrid = renderGrid;
   }
 
+  /**
+   * Dispose this state.
+   */
   public final void dispose() {
     EventManager.getInstance().unregisterListener(this);
     this.disposeState();
@@ -164,10 +188,13 @@ public abstract class GameState extends ECS implements Disposable, EventListener
     this.audioContext.dispose();
   }
 
+  /**
+   * Dispose this state. This method is called by {@link #dispose()}
+   */
   public void disposeState() {};
 
   @EventHandler
-  public void onWindowSize(WindowResizeEvent event) {
+  private void onWindowSize(WindowResizeEvent event) {
     if(!event.isCanceled()) {
       this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
     }

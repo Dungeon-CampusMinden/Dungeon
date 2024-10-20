@@ -16,21 +16,41 @@ public abstract class Camera<T extends Camera<T>> {
 
   private static final Vector3f WORLD_UP = new Vector3f(0, 1, 0);
 
+  /** The view matrix of the camera. */
   protected Matrix4f viewMatrix = new Matrix4f();
+
+  /** The projection matrix of the camera. */
   protected Matrix4f projectionMatrix = new Matrix4f();
+
+  /** The view-projection matrix of the camera. */
   protected Matrix4f viewProjectionMatrix = new Matrix4f();
+
+  /** The inverse view-projection matrix of the camera. */
   protected Matrix4f viewProjectionMatrixInv = new Matrix4f();
-  protected Vector3f up, right, front;
+
+  /** The front vector of the camera. */
+  protected Vector3f front;
+
+  /** The up vector of the camera. */
+  protected Vector3f up;
+
+  /** The right vector of the camera. */
+  protected Vector3f right;
+
+  /** The position of the camera in the world space. */
   protected Vector3f position;
 
+  /** The viewport of the camera. */
   protected CameraViewport viewport;
 
+  /** If true, the camera will automatically update its view matrix when its state changes. */
   protected boolean updateOnChange;
 
   /**
    * Constructs a new Camera instance.
    *
    * @param position The initial position of the camera.
+   * @param viewport The viewport of the camera.
    * @param updateOnChange If true, the camera will automatically update its view matrix when its
    *     state changes.
    */
@@ -48,6 +68,7 @@ public abstract class Camera<T extends Camera<T>> {
    * Calculates the projection matrix. This method must be implemented by subclasses to define how
    * the camera projects the 3D world onto a 2D surface.
    *
+   * @param projectionMatrix The projection matrix to be calculated. This matrix may contain the old projection matrix.
    * @return The projection matrix.
    */
   protected abstract Matrix4f calcProjectionMatrix(Matrix4f projectionMatrix);

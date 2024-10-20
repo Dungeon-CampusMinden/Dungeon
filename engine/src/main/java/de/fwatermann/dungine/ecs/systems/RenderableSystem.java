@@ -16,21 +16,42 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The `RenderableSystem` class is responsible for managing and rendering all entities with `RenderableComponent` in the ECS.
+ * It extends the `System` class and provides methods to update and render the entities.
+ */
 public class RenderableSystem extends System<RenderableSystem> {
 
+  /** Logger for the `RenderableSystem` class. */
   private static final Logger LOGGER = LogManager.getLogger(RenderableSystem.class);
 
+  /** The shader program used for rendering the scene. */
   private ShaderProgram sceneShader;
 
+  /** The camera used for rendering. */
   private Camera<?> camera;
+
+  /** The count of the latest rendered entities. */
   private int latestRenderCount = 0;
+
+  /** The count of entities to be rendered. */
   private int renderCount = 0;
 
+  /**
+   * Constructs a new `RenderableSystem` with the specified camera.
+   *
+   * @param camera the camera used for rendering
+   */
   public RenderableSystem(Camera<?> camera) {
     super(1, true, RenderableComponent.class);
     this.camera = camera;
   }
 
+  /**
+   * Updates the system by iterating over all entities and rendering them.
+   *
+   * @param ecs the ECS instance
+   */
   @Override
   public void update(ECS ecs) {
     Set<Model> models = new HashSet<>();
@@ -61,27 +82,53 @@ public class RenderableSystem extends System<RenderableSystem> {
     } else {
       SceneRenderer.renderScene(this.camera, models, lights);
     }
-
   }
 
+  /**
+   * Gets the camera used for rendering.
+   *
+   * @return the camera used for rendering
+   */
   public Camera<?> camera() {
     return this.camera;
   }
 
+  /**
+   * Sets the camera used for rendering.
+   *
+   * @param camera the new camera to be used for rendering
+   * @return this `RenderableSystem` instance for method chaining
+   */
   public RenderableSystem camera(Camera<?> camera) {
     this.camera = camera;
     return this;
   }
 
+  /**
+   * Gets the count of the latest rendered entities.
+   *
+   * @return the count of the latest rendered entities
+   */
   public int latestRenderCount() {
     return this.latestRenderCount;
   }
 
+  /**
+   * Sets the shader program used for rendering the scene.
+   *
+   * @param sceneShader the shader program to be used for rendering the scene
+   * @return this `RenderableSystem` instance for method chaining
+   */
   public RenderableSystem sceneShader(ShaderProgram sceneShader) {
     this.sceneShader = sceneShader;
     return this;
   }
 
+  /**
+   * Gets the shader program used for rendering the scene.
+   *
+   * @return the shader program used for rendering the scene
+   */
   public ShaderProgram sceneShader() {
     return this.sceneShader;
   }

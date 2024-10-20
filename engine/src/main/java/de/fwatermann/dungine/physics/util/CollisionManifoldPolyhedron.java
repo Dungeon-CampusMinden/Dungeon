@@ -11,9 +11,24 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 
+/**
+ * The `CollisionManifoldPolyhedron` class provides methods to calculate contact points between two polyhedron colliders.
+ *
+ * <p>This class includes methods to identify significant faces, calculate incident and reference faces, and perform clipping
+ * operations to determine the contact points between colliders.</p>
+ *
+ * <p>Example usage:</p>
+ * <pre>
+ * {@code
+ * Set<Vector3f> contactPoints = CollisionManifoldPolyhedron.calculateContactPoints(collider1, collider2, normal, depth);
+ * }
+ * </pre>
+ */
 public class CollisionManifoldPolyhedron {
 
   private static final Logger LOGGER = LogManager.getLogger(CollisionManifoldPolyhedron.class);
+
+  private CollisionManifoldPolyhedron() {}
 
   /**
    * Calculates the contact points between the two colliders.

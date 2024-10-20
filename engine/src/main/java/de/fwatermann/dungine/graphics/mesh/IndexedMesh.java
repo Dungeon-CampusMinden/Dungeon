@@ -21,16 +21,27 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
 
   private static final Logger LOGGER = LogManager.getLogger(IndexedMesh.class);
 
+  /**
+   * The OpenGL buffer object containing the mesh's indices.
+   */
   protected int glEBO;
+
+  /** The data type of the indices. */
   protected IndexDataType indexDataType;
+
+  /** The buffer containing the mesh's indices. */
   protected @Null ByteBuffer indices;
+
+  /** Indicates whether the indices are dirty and need to be updated. */
   protected boolean indicesDirty = false;
 
   /**
    * Constructs an IndexedMesh with specified vertices, indices, usage hint, and vertex attributes.
    *
    * @param vertices The buffer containing the mesh's vertices.
+   * @param primitiveType the primitive type of the mesh
    * @param indices The buffer containing the mesh's indices.
+   * @param indexDataType the data type of the indices
    * @param usageHint Hint indicating how the mesh will be used, which affects performance
    *     optimizations.
    * @param attributes The vertex attributes of the mesh.
@@ -54,7 +65,9 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
    * Constructs an IndexedMesh with specified vertices, indices, usage hint, and vertex attributes.
    *
    * @param vertices The buffer containing the mesh's vertices.
+   * @param primitiveType the primitive type of the mesh
    * @param indices The buffer containing the mesh's indices.
+   * @param indexDataType the data type of the indices
    * @param usageHint Hint indicating how the mesh will be used, which affects performance
    *     optimizations.
    * @param attributes The vertex attributes of the mesh.
@@ -79,7 +92,9 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
    * Constructs an IndexedMesh with specified vertices, indices, and vertex attributes.
    *
    * @param vertices The buffer containing the mesh's vertices.
+   * @param primitiveType the primitive type of the mesh
    * @param indices The buffer containing the mesh's indices.
+   * @param indexDataType the data type of the indices
    * @param attributes The vertex attributes of the mesh.
    */
   public IndexedMesh(
@@ -95,7 +110,9 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
    * Constructs an IndexedMesh with specified vertices, indices, and vertex attributes.
    *
    * @param vertices The buffer containing the mesh's vertices.
+   * @param primitiveType the primitive type of the mesh
    * @param indices The buffer containing the mesh's indices.
+   * @param indexDataType the data type of the indices
    * @param attributes The vertex attributes of the mesh.
    */
   public IndexedMesh(
@@ -157,6 +174,9 @@ public class IndexedMesh extends UnInstancedMesh<IndexedMesh> {
     this.updateIndexBuffer();
   }
 
+  /**
+   * Updates the index buffer in OpenGL.
+   */
   protected void updateIndexBuffer() {
     ThreadUtils.checkMainThread();
     if (this.indices != null && this.indicesDirty) {

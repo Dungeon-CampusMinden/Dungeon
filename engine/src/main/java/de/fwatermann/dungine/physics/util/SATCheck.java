@@ -16,6 +16,8 @@ public class SATCheck {
 
   private static final Logger LOGGER = LogManager.getLogger(SATCheck.class);
 
+  private SATCheck() {}
+
   /**
    * Get the axes for a pair of edge sets.
    *

@@ -33,6 +33,10 @@ import org.lwjgl.opengl.GL33;
  */
 public class ShaderProgram implements Disposable {
 
+  /**
+   * Flag to force to not use separate shader objects. This can be useful for debugging purposes or
+   * when separate shader objects are not supported by the OpenGL implementation.
+   */
   public static boolean FORCE_NO_SEPARAT_SHADER_OBJECT = false;
 
   private static final Logger LOGGER = LogManager.getLogger(ShaderProgram.class);
@@ -44,6 +48,10 @@ public class ShaderProgram implements Disposable {
   private final Map<String, Integer> uniformBlockIndices = new HashMap<>();
   private ShaderProgramConfiguration configuration = new ShaderProgramConfiguration();
 
+  /**
+   * Creates a new shader program with the specified shaders.
+   * @param shaders the shaders to use in the program
+   */
   public ShaderProgram(Shader... shaders) {
     this.shaders = shaders;
     this.glInit();
@@ -132,6 +140,11 @@ public class ShaderProgram implements Disposable {
         });
   }
 
+  /**
+   * Returns the index of the uniform block with the specified name.
+   * @param name the name of the uniform block
+   * @return the index of the uniform block
+   */
   public int getUniformBlockIndex(String name) {
     return this.uniformBlockIndices.computeIfAbsent(
         name,
@@ -235,6 +248,12 @@ public class ShaderProgram implements Disposable {
     }
   }
 
+  /**
+   * Sets the uniform with the specified name to the specified values.
+   * @param name the name of the uniform
+   * @param x the x component of the value
+   * @param y the y component of the value
+   */
   public void setUniform2iv(String name, int x, int y) {
     if (this.bound()) {
       GL33.glUniform2i(this.getUniformLocation(name), x, y);
@@ -247,6 +266,11 @@ public class ShaderProgram implements Disposable {
     }
   }
 
+  /**
+   * Sets the uniform with the specified name to the specified value.
+   * @param name the name of the uniform
+   * @param value the value of the uniform
+   */
   public void setUniform2i(String name, Vector2i value) {
     if (this.bound()) {
       GL33.glUniform2i(this.getUniformLocation(name), value.x, value.y);

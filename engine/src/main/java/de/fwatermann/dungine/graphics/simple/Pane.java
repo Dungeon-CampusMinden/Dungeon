@@ -15,17 +15,28 @@ import java.nio.ByteBuffer;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
+/**
+ * The `Pane` class represents a simple graphical pane that can be rendered in a scene.
+ * It extends the `Model` class and provides methods to set and get the color of the pane,
+ * initialize materials, and handle transformations.
+ */
 public class Pane extends Model {
 
+  /** The color of the pane in RGBA format. */
   private int color;
 
+  /** The mesh used for rendering the pane. */
   protected static ArrayMesh MESH;
+
+  /** The bounding box of the pane. */
   protected BoundingBox boundingBox;
 
+  /** Constructs a new `Pane` instance and initializes its mesh. */
   public Pane() {
     initMesh();
   }
 
+  /** Initializes the mesh for the pane. */
   private static void initMesh() {
     ByteBuffer vertices = BufferUtils.createByteBuffer(4 * 4 * 8);
     vertices
@@ -48,6 +59,7 @@ public class Pane extends Model {
             new VertexAttribute(2, DataType.FLOAT, "aTexCoord"));
   }
 
+  /** Initializes the materials for the pane. */
   protected void initMaterials() {
     Material material = new Material();
     material.diffuseColor.set(
@@ -59,6 +71,12 @@ public class Pane extends Model {
     this.materials.add(material);
   }
 
+  /**
+   * Renders the pane using the specified camera and shader program.
+   *
+   * @param camera the camera to use for rendering
+   * @param shader the shader program to use for rendering
+   */
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
     if (this.materials.isEmpty()) {
@@ -68,25 +86,25 @@ public class Pane extends Model {
   }
 
   /**
-   * Get the color of the plane.
+   * Gets the color of the pane.
    *
-   * @return the color of the plane
+   * @return the color of the pane
    */
   public int color() {
     return this.color;
   }
 
   /**
-   * Set the color of the plane.
+   * Sets the color of the pane.
    *
-   * @param rgba the new color of the plane in RGBA format.
+   * @param rgba the new color of the pane in RGBA format
    */
   public void color(int rgba) {
     this.color = rgba;
   }
 
   /**
-   * Set the color of the plane.
+   * Sets the color of the pane.
    *
    * @param r the red component of the color
    * @param g the green component of the color
@@ -98,7 +116,7 @@ public class Pane extends Model {
   }
 
   /**
-   * Set the color of the plane.
+   * Sets the color of the pane.
    *
    * @param r the red component of the color
    * @param g the green component of the color
@@ -109,6 +127,7 @@ public class Pane extends Model {
     this.color((int) (r * 255), (int) (g * 255), (int) (b * 255), (int) (a * 255));
   }
 
+  /** Updates the bounding box when the transformation changes. */
   @Override
   protected void transformationChanged() {
     super.transformationChanged();
@@ -117,6 +136,12 @@ public class Pane extends Model {
     this.boundingBox = new BoundingBox(min.x, min.y, min.z, max.x, max.y, max.z);
   }
 
+  /**
+   * Determines whether the pane should be rendered based on the camera frustum.
+   *
+   * @param frustum the camera frustum to check against
+   * @return true if the pane should be rendered, false otherwise
+   */
   @Override
   public boolean shouldRender(CameraFrustum frustum) {
     int frustumResult = frustum.intersectAab(this.boundingBox.getMin(), this.boundingBox.getMax());

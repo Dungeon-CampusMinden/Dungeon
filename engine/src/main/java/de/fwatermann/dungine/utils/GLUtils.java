@@ -3,7 +3,17 @@ package de.fwatermann.dungine.utils;
 import java.nio.*;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * The `GLUtils` class provides utility methods for working with OpenGL.
+ * It includes methods for checking OpenGL errors, verifying buffer properties,
+ * and ensuring compatibility with specific OpenGL versions.
+ *
+ * <p>All methods in this class are static and are intended to be used as helper functions
+ * for OpenGL-related operations.</p>
+ */
 public class GLUtils {
+
+  private GLUtils() {}
 
   /** Checks for OpenGL errors and throws a RuntimeException if an error occurred. */
   public static void checkError() {

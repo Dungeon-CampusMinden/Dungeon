@@ -9,8 +9,19 @@ import de.fwatermann.dungine.graphics.texture.Texture;
  */
 public class AtlasEntry {
 
+  /**
+   * The index of the texture within the atlas.
+   */
   protected final int atlasPage;
+
+  /**
+   * The node within the atlas where this texture is located.
+   */
   protected final AtlasNode atlasNode;
+
+  /**
+   * The texture atlas this entry is part of.
+   */
   protected final TextureAtlas atlas;
 
   /**

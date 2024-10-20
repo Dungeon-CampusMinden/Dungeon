@@ -9,6 +9,7 @@ import de.fwatermann.dungine.window.GameWindow;
  */
 public abstract class GameStateTransition {
 
+  /** The game window. */
   protected GameWindow window;
 
   /**
@@ -27,6 +28,7 @@ public abstract class GameStateTransition {
    * Render this transition.
    *
    * @param deltaTime the time since the last frame in seconds
+   * @param to the state to transition to
    */
   public abstract void render(float deltaTime, GameState to);
 

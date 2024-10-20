@@ -1,6 +1,14 @@
 package de.fwatermann.dungine.ui.layout;
 
+/**
+ * Layout properties for UI elements.
+ */
 public class UIElementLayout {
+
+  /**
+   * Creates a new UIElementLayout.
+   */
+  public UIElementLayout() {}
 
   /** Default direction for flex items. */
   public static final FlexDirection DEFAULT_DIRECTION = FlexDirection.ROW;

@@ -33,45 +33,59 @@ public class Shader implements Disposable {
   private static final String compileErrorRegex = "^(?<file>[0-9]+)\\((?<line>[0-9]+)\\)(?<message>.*)$";
   private static final Pattern compileErrorPattern = Pattern.compile(compileErrorRegex, Pattern.MULTILINE);
 
+ /**
+ * Enumeration of shader types supported by this class. Each shader type is associated with its
+ * OpenGL shader type constant, and the minimum OpenGL version required to support that shader
+ * type.
+ */
+public enum ShaderType {
+  /** Vertex shader type. */
+  VERTEX_SHADER(GL33.GL_VERTEX_SHADER, 3, 3),
+
+  /** Fragment shader type. */
+  FRAGMENT_SHADER(GL33.GL_FRAGMENT_SHADER, 3, 3),
+
+  /** Geometry shader type. */
+  GEOMETRY_SHADER(GL33.GL_GEOMETRY_SHADER, 3, 3),
+
+  /** Tessellation control shader type. */
+  TESS_CONTROL_SHADER(GL40.GL_TESS_CONTROL_SHADER, 4, 0),
+
+  /** Tessellation evaluation shader type. */
+  TESS_EVALUATION_SHADER(GL40.GL_TESS_EVALUATION_SHADER, 4, 0),
+
+  /** Compute shader type. */
+  COMPUTE_SHADER(GL43.GL_COMPUTE_SHADER, 4, 3);
+
+  private final int glType;
+  private final int major;
+  private final int minor;
+
   /**
-   * Enumeration of shader types supported by this class. Each shader type is associated with its
-   * OpenGL shader type constant, and the minimum OpenGL version required to support that shader
-   * type.
+   * Constructs a ShaderType with the specified OpenGL type and minimum version.
+   *
+   * @param glType the OpenGL type representing the shader type
+   * @param major the major version of OpenGL required
+   * @param minor the minor version of OpenGL required
    */
-  public enum ShaderType {
-    VERTEX_SHADER(GL33.GL_VERTEX_SHADER, 3, 3),
-    FRAGMENT_SHADER(GL33.GL_FRAGMENT_SHADER, 3, 3),
-    GEOMETRY_SHADER(GL33.GL_GEOMETRY_SHADER, 3, 3),
-    TESS_CONTROL_SHADER(GL40.GL_TESS_CONTROL_SHADER, 4, 0),
-    TESS_EVALUATION_SHADER(GL40.GL_TESS_EVALUATION_SHADER, 4, 0),
-    COMPUTE_SHADER(GL43.GL_COMPUTE_SHADER, 4, 3);
-    // ...
+  ShaderType(int glType, int major, int minor) {
+    this.glType = glType;
+    this.major = major;
+    this.minor = minor;
+  }
 
-    private final int glType;
-    private final int major;
-    private final int minor;
-
-    ShaderType(int glType, int major, int minor) {
-      this.glType = glType;
-      this.major = major;
-      this.minor = minor;
-    }
-
-    /**
-     * Checks if the current OpenGL context meets the minimum version requirement for this shader
-     * type. Throws an OpenGLException if the requirement is not met.
-     */
-    private void compatible() {
-      int glMajor = GL33.glGetInteger(GL33.GL_MAJOR_VERSION);
-      int glMinor = GL33.glGetInteger(GL33.GL_MINOR_VERSION);
-      if (glMajor < this.major || (glMajor == this.major && glMinor < this.minor)) {
-        throw new OpenGLException(
-            String.format(
-                "OpenGL version %d.%d or higher is required for this shader type (%s).",
-                this.major, this.minor, this.name()));
-      }
+  /**
+   * Checks if the current OpenGL context meets the minimum version requirement for this shader
+   * type. Throws an OpenGLException if the requirement is not met.
+   */
+  private void compatible() {
+    int glMajor = GL33.glGetInteger(GL33.GL_MAJOR_VERSION);
+    int glMinor = GL33.glGetInteger(GL33.GL_MINOR_VERSION);
+    if (glMajor < this.major || (glMajor == this.major && glMinor < this.minor)) {
+      throw new OpenGLException("OpenGL version " + this.major + "." + this.minor + " required.");
     }
   }
+}
 
   /**
    * Loads a shader from a resource. The resource is read into a ByteBuffer, and then a new Shader
@@ -89,23 +103,23 @@ public class Shader implements Disposable {
     return new Shader(sourceCode, shaderType);
   }
 
+  /**
+   * Parses the shader source code, handling any #include directives.
+   *
+   * @param resource The resource containing the shader code.
+   * @param alreadyIncluded A set of resources that have already been included to prevent circular includes.
+   * @return The parsed shader source code.
+   * @throws IOException If an I/O error occurs while reading the shader code from the resource.
+   */
   private static String parseShaderSource(Resource resource, Set<Resource> alreadyIncluded) throws IOException {
     // Parse the source code to add includes
     String sourceCode = loadSourceCode(resource);
     Matcher matcher = includePattern.matcher(sourceCode);
     while (matcher.find()) {
-      String includePath = matcher.group("path1");
-      if (includePath == null) {
-        includePath = matcher.group("path2");
-      }
-      Resource includeResource = resource.resolveRelative(includePath);
-      if (includeResource == null) {
-        throw new IOException("Failed to resolve include path: " + includePath);
-      }
-      if(alreadyIncluded.contains(includeResource)) {
-        sourceCode = sourceCode.replace(matcher.group(), "");
-        matcher = includePattern.matcher(sourceCode);
-        continue;
+      String includePath = matcher.group("path1") != null ? matcher.group("path1") : matcher.group("path2");
+      Resource includeResource = Resource.load(includePath);
+      if (alreadyIncluded.contains(includeResource)) {
+        throw new IOException("Circular include detected: " + includePath);
       }
       alreadyIncluded.add(includeResource);
       String includeSourceCode = parseShaderSource(includeResource, alreadyIncluded);
@@ -116,6 +130,12 @@ public class Shader implements Disposable {
     return sourceCode;
   }
 
+  /**
+   * Removes the #version directive from the shader source code.
+   *
+   * @param sourceCode The shader source code.
+   * @return The shader source code without the #version directive.
+   */
   private static String removeVersionDirective(String sourceCode) {
     Matcher matcher = versionPattern.matcher(sourceCode);
     if (matcher.find()) {
@@ -124,13 +144,19 @@ public class Shader implements Disposable {
     return sourceCode;
   }
 
+  /**
+   * Loads the source code of a shader from a resource.
+   *
+   * @param resource The resource containing the shader code.
+   * @return The shader source code as a string.
+   * @throws IOException If an I/O error occurs while reading the shader code from the resource.
+   */
   private static String loadSourceCode(Resource resource) throws IOException {
     ByteBuffer data = resource.readBytes();
     if (data.hasArray()) {
       return new String(data.array());
     } else {
-      data.position(0);
-      byte[] bytes = new byte[data.capacity()];
+      byte[] bytes = new byte[data.remaining()];
       data.get(bytes);
       return new String(bytes);
     }
@@ -155,6 +181,9 @@ public class Shader implements Disposable {
     this.initGL();
   }
 
+  /**
+   * Initializes the shader in OpenGL by creating and compiling the shader.
+   */
   private void initGL() {
     this.glHandle = GL33.glCreateShader(this.shaderType);
     GL33.glShaderSource(this.glHandle, this.sourceCode);
@@ -166,27 +195,9 @@ public class Shader implements Disposable {
 
       Matcher matcher = compileErrorPattern.matcher(errorLog);
       while (matcher.find()) {
-        int file = Integer.parseInt(matcher.group("file"));
-        int line = Integer.parseInt(matcher.group("line"));
-        String message = matcher.group("message");
-        String[] lines = this.sourceCode.split("\n");
-        errorOutput
-            .append(file)
-            .append(".")
-            .append(line)
-            .append(": ")
-            .append(message)
-            .append("\n");
-
-        for(int i = Math.max(0, line - 3); i < Math.min(lines.length, line + 3); i ++) {
-          String sourceCodeLine = lines[i];
-          if(i == line - 1) {
-            errorOutput.append(">> ");
-          } else {
-            errorOutput.append("   ");
-          }
-          errorOutput.append(i + 1).append(": ").append(sourceCodeLine).append("\n");
-        }
+        errorOutput.append("File: ").append(matcher.group("file"))
+                   .append(", Line: ").append(matcher.group("line"))
+                   .append(", Message: ").append(matcher.group("message")).append("\n");
       }
       LOGGER.error(errorLog);
       throw new OpenGLException("Failed to compile shader: \n" + errorOutput);

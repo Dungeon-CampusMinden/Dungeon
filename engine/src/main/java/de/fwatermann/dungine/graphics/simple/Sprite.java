@@ -31,6 +31,13 @@ public class Sprite extends Renderable<Sprite> {
   private float width, height;
   private Animation animation;
 
+  /**
+   * Constructs a new sprite with the specified animation, width, height, and billboard mode.
+   * @param animation The animation to be used for this sprite.
+   * @param width The width of the sprite.
+   * @param height The height of the sprite.
+   * @param billboardMode The billboard mode of the sprite.
+   */
   public Sprite(Animation animation, float width, float height, BillboardMode billboardMode) {
     this.animation = animation;
     this.width = width;

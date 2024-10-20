@@ -24,6 +24,10 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * The `Lines` class represents a collection of lines that can be rendered in a 3D space. It extends
+ * the `Renderable` class and provides methods to add, remove, and render lines.
+ */
 public class Lines extends Renderable<Lines> {
 
   private static final Logger LOGGER = LogManager.getLogger(Lines.class);
@@ -36,20 +40,38 @@ public class Lines extends Renderable<Lines> {
   private int color = 0xFFFFFFFF;
   private float lineWidth = 1.0f;
 
+  /**
+   * Constructs a new `Lines` instance with the specified color and set of lines.
+   *
+   * @param color the color of the lines
+   * @param lines the set of lines to be added
+   */
   public Lines(int color, Set<Line> lines) {
     this.color = color;
     this.lines.addAll(lines);
   }
 
+  /**
+   * Constructs a new `Lines` instance with the specified color and array of lines.
+   *
+   * @param color the color of the lines
+   * @param lines the array of lines to be added
+   */
   public Lines(int color, Line... lines) {
     this.color = color;
     Collections.addAll(this.lines, lines);
   }
 
+  /**
+   * Constructs a new `Lines` instance with the specified color.
+   *
+   * @param color the color of the lines
+   */
   public Lines(int color) {
     this.color = color;
   }
 
+  /** Initializes the shader program for rendering lines. */
   private static void initShader() {
     if (SHADER != null) return;
     try {
@@ -65,6 +87,7 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /** Initializes the mesh for rendering lines. */
   private void initMesh() {
     if (this.mesh != null) return;
     this.mesh =
@@ -76,6 +99,7 @@ public class Lines extends Renderable<Lines> {
             new VertexAttribute(1, DataType.UNSIGNED_INT, "aColor"));
   }
 
+  /** Updates the mesh with the current set of lines. */
   private void updateMesh() {
     if (!this.linesDirty) return;
     try {
@@ -101,12 +125,23 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /**
+   * Renders the lines using the specified camera.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   public void render(Camera<?> camera) {
     initShader();
     this.render(camera, SHADER);
   }
 
+  /**
+   * Renders the lines using the specified camera and shader program.
+   *
+   * @param camera the camera to use for rendering
+   * @param shader the shader program to use for rendering
+   */
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
     this.initMesh();
@@ -120,15 +155,32 @@ public class Lines extends Renderable<Lines> {
     shader.unbind();
   }
 
+  /**
+   * Gets the color of the lines.
+   *
+   * @return the color of the lines
+   */
   public int color() {
     return this.color;
   }
 
+  /**
+   * Sets the color of the lines.
+   *
+   * @param color the color to set
+   * @return the updated `Lines` instance
+   */
   public Lines color(int color) {
     this.color = color;
     return this;
   }
 
+  /**
+   * Adds a line to the set of lines.
+   *
+   * @param a the start point of the line
+   * @param b the end point of the line
+   */
   public void addLine(Vector3f a, Vector3f b) {
     try {
       this.lock.writeLock().lock();
@@ -139,6 +191,13 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /**
+   * Adds a line with a specified color to the set of lines.
+   *
+   * @param a the start point of the line
+   * @param b the end point of the line
+   * @param color the color of the line
+   */
   public void addLine(Vector3f a, Vector3f b, int color) {
     try {
       this.lock.writeLock().lock();
@@ -149,6 +208,11 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /**
+   * Adds a line to the set of lines.
+   *
+   * @param line the line to add
+   */
   public void addLine(Line line) {
     try {
       this.lock.writeLock().lock();
@@ -159,6 +223,12 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /**
+   * Removes a line from the set of lines.
+   *
+   * @param a the start point of the line
+   * @param b the end point of the line
+   */
   public void removeLine(Vector3f a, Vector3f b) {
     try {
       this.lock.writeLock().lock();
@@ -169,6 +239,11 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /**
+   * Removes a line from the set of lines.
+   *
+   * @param line the line to remove
+   */
   public void removeLine(Pair<Vector3f, Vector3f> line) {
     try {
       this.lock.writeLock().lock();
@@ -179,6 +254,7 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /** Clears all lines from the set of lines. */
   public void clear() {
     if (this.lines.isEmpty()) return;
     try {
@@ -190,19 +266,43 @@ public class Lines extends Renderable<Lines> {
     }
   }
 
+  /**
+   * Gets the width of the lines.
+   *
+   * @return the width of the lines
+   */
   public float lineWidth() {
     return this.lineWidth;
   }
 
+  /**
+   * Sets the width of the lines.
+   *
+   * @param lineWidth the width to set
+   * @return the updated `Lines` instance
+   */
   public Lines lineWidth(float lineWidth) {
     this.lineWidth = lineWidth;
     return this;
   }
 
+  /**
+   * Determines whether the lines should be rendered based on the camera frustum.
+   *
+   * @param frustum the camera frustum
+   * @return true if the lines should be rendered, false otherwise
+   */
   @Override
   public boolean shouldRender(CameraFrustum frustum) {
     return true;
   }
 
+  /**
+   * The `Line` record represents a line with a start point, end point, and color.
+   *
+   * @param start the start point of the line
+   * @param end the end point of the line
+   * @param color the color of the line
+   */
   public record Line(Vector3f start, Vector3f end, int color) {}
 }

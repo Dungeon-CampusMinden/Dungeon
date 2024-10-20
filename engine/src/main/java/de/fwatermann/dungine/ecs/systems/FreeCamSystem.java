@@ -12,6 +12,10 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+/**
+ * The `FreeCamSystem` class is responsible for handling the free camera movement in the game.
+ * It processes keyboard and mouse inputs to update the camera's position and orientation.
+ */
 public class FreeCamSystem extends System<FreeCamSystem> {
 
   private static final Logger LOGGER = LogManager.getLogger(FreeCamSystem.class);
@@ -22,6 +26,13 @@ public class FreeCamSystem extends System<FreeCamSystem> {
   private boolean catchMouse = false;
   private Vector2i lastMousePos = null;
 
+  /**
+   * Constructs a new `FreeCamSystem` with the specified camera, mouse capture flag, and game state.
+   *
+   * @param camera the camera to control
+   * @param catchMouse whether to capture the mouse for camera control
+   * @param state the current game state
+   */
   public FreeCamSystem(Camera<?> camera, boolean catchMouse, GameState state) {
     super(1, true);
     this.camera = camera;
@@ -29,12 +40,20 @@ public class FreeCamSystem extends System<FreeCamSystem> {
     this.catchMouse = catchMouse;
   }
 
+  /**
+   * Updates the system by processing keyboard and mouse inputs.
+   *
+   * @param ecs the entity component system
+   */
   @Override
   public void update(ECS ecs) {
     this.keyboard();
     this.mouse();
   }
 
+  /**
+   * Processes keyboard inputs to update the camera's position.
+   */
   private void keyboard() {
     Vector3f movement = new Vector3f();
     Vector3f forward = this.camera.front().mul(1.0f, 0.0f, 1.0f, new Vector3f()).normalize();
@@ -69,6 +88,9 @@ public class FreeCamSystem extends System<FreeCamSystem> {
     this.camera.move(movement);
   }
 
+  /**
+   * Processes mouse inputs to update the camera's orientation.
+   */
   private void mouse() {
 
     if(!this.catchMouse && !Mouse.buttonPressed(0)) {

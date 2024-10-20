@@ -50,12 +50,18 @@ public class TextureAtlas {
    */
   public static int MAX_ENTRIES = 65536;
 
+  /** The uniform buffer binding point for the TextureAtlas UBO */
   public static final int UNIFORM_BUFFER_BINDING = 35;
 
   private final int width, height;
 
+  /** The pages of the atlas */
   protected final List<AtlasPage> pages = new ArrayList<>();
+
+  /** The entries in the atlas */
   protected final Map<Integer, AtlasEntry> entries = new HashMap<>();
+
+  /** The indices of the resources in the atlas */
   protected final Map<Resource, Integer> indices = new HashMap<>();
 
   private int glTBO = -1;
@@ -180,6 +186,7 @@ public class TextureAtlas {
    * <p>If the specified path does not exist, it is created.
    *
    * @param path the path to save the atlas to (must be a directory)
+   * @throws IOException if an I/O error occurs
    */
   public void saveAtlas(Path path) throws IOException {
     if (Files.notExists(path)) {
@@ -290,6 +297,7 @@ public class TextureAtlas {
    * preconfigured uniform block name from the shader program configuration.
    *
    * @param program the shader program to use the TextureAtlas in
+   * @param suffix the suffix to append to the uniform block names
    */
   public void use(ShaderProgram program, String suffix) {
     if(suffix == null) suffix = "";

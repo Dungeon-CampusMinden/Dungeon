@@ -22,6 +22,10 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * The `Points` class represents a collection of points that can be rendered in a 3D scene.
+ * It extends the `Renderable` class and provides methods to add, remove, and render points.
+ */
 public class Points extends Renderable<Points> {
 
   private static ShaderProgram SHADER;
@@ -34,17 +38,34 @@ public class Points extends Renderable<Points> {
   private int color = 0xFFFFFFFF;
   private float pointSize = 1.0f;
 
+  /**
+   * Constructs a new `Points` instance with the specified color and points.
+   *
+   * @param color the color of the points
+   * @param points the points to be added
+   */
   public Points(int color, Set<Pair<Vector3f, Integer>> points) {
     this.color = color;
     this.points.addAll(points);
   }
 
+  /**
+   * Constructs a new `Points` instance with the specified color and points.
+   *
+   * @param color the color of the points
+   * @param points the points to be added
+   */
   @SafeVarargs
   public Points(int color, Pair<Vector3f, Integer>... points) {
     this.color = color;
     Collections.addAll(this.points, points);
   }
 
+  /**
+   * Constructs a new `Points` instance with the specified color.
+   *
+   * @param color the color of the points
+   */
   public Points(int color) {
     this.color = color;
   }
@@ -92,12 +113,23 @@ public class Points extends Renderable<Points> {
     }
   }
 
+  /**
+   * Renders the points using the specified camera.
+   *
+   * @param camera the camera used for rendering
+   */
   @Override
   public void render(Camera<?> camera) {
     initShader();
     this.render(camera, SHADER);
   }
 
+  /**
+   * Renders the points using the specified camera and shader program.
+   *
+   * @param camera the camera used for rendering
+   * @param shader the shader program used for rendering
+   */
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
     this.initMesh();
@@ -111,15 +143,31 @@ public class Points extends Renderable<Points> {
     shader.unbind();
   }
 
+  /**
+   * Gets the color of the points.
+   *
+   * @return the color of the points
+   */
   public int color() {
     return this.color;
   }
 
+  /**
+   * Sets the color of the points.
+   *
+   * @param color the new color of the points
+   * @return this `Points` instance for method chaining
+   */
   public Points color(int color) {
     this.color = color;
     return this;
   }
 
+  /**
+   * Adds a point to the collection.
+   *
+   * @param point the point to be added
+   */
   public void addPoint(Vector3f point) {
     try {
       this.lock.writeLock().lock();
@@ -130,6 +178,12 @@ public class Points extends Renderable<Points> {
     }
   }
 
+  /**
+   * Adds a point with a specific color to the collection.
+   *
+   * @param point the point to be added
+   * @param color the color of the point
+   */
   public void addPoint(Vector3f point, int color) {
     try {
       this.lock.writeLock().lock();
@@ -140,6 +194,11 @@ public class Points extends Renderable<Points> {
     }
   }
 
+  /**
+   * Adds a point to the collection.
+   *
+   * @param point the point to be added
+   */
   public void addPoint(Pair<Vector3f, Integer> point) {
     try {
       this.lock.writeLock().lock();
@@ -150,6 +209,11 @@ public class Points extends Renderable<Points> {
     }
   }
 
+  /**
+   * Removes a point from the collection.
+   *
+   * @param point the point to be removed
+   */
   public void removePoint(Pair<Vector3f, Integer> point) {
     try {
       this.lock.writeLock().lock();
@@ -160,6 +224,9 @@ public class Points extends Renderable<Points> {
     }
   }
 
+  /**
+   * Clears all points from the collection.
+   */
   public void clear() {
     if (this.points.isEmpty()) return;
     try {
@@ -171,15 +238,32 @@ public class Points extends Renderable<Points> {
     }
   }
 
+  /**
+   * Gets the size of the points.
+   *
+   * @return the size of the points
+   */
   public float pointSize() {
     return this.pointSize;
   }
 
-  public Points pointSize(float lineWidth) {
-    this.pointSize = lineWidth;
+  /**
+   * Sets the size of the points.
+   *
+   * @param pointSize the new size of the points
+   * @return this `Points` instance for method chaining
+   */
+  public Points pointSize(float pointSize) {
+    this.pointSize = pointSize;
     return this;
   }
 
+  /**
+   * Determines if the points should be rendered based on the camera frustum.
+   *
+   * @param frustum the camera frustum
+   * @return true if the points should be rendered, false otherwise
+   */
   @Override
   public boolean shouldRender(CameraFrustum frustum) {
     return true;

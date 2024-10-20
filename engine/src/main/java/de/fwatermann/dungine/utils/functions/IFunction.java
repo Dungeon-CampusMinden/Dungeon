@@ -8,6 +8,10 @@ package de.fwatermann.dungine.utils.functions;
 @FunctionalInterface
 public interface IFunction<R> {
 
+  /**
+   * The function
+   * @return the result of the function
+   */
   R run();
 
 }

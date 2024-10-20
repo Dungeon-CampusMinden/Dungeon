@@ -26,8 +26,13 @@ import org.lwjgl.util.freetype.*;
 /** Represents a font and provides methods for loading and rendering glyphs. */
 public class Font {
 
+  /** Whether the glyph should be written to a png file. This is a Debug switch. */
   public static boolean WRITE_GLYPHS_TO_PNG = false;
+
+  /** The width of a page in pixels. */
   public static final int PAGE_SIZE_X = 1024;
+
+  /** The height of a page in pixels. */
   public static final int PAGE_SIZE_Y = 1024;
 
   /* Default charset. These chars are loaded by default */
@@ -178,9 +183,9 @@ public class Font {
    *
    * <p>The {@link #DEFAULT_CHARSET default charset} and {@link #DEFAULT_SIZES sizes} are used.
    *
-   * @param resource
+   * @param resource the resource to load the font from
    * @return the font object representing the loaded font
-   * @throws IOException
+   * @throws IOException if an I/O error occurs
    */
   public static Font load(Resource resource) throws IOException {
     return load(resource, DEFAULT_CHARSET, DEFAULT_SIZES, DEFAULT_RENDER_MODE);
@@ -518,10 +523,10 @@ public class Font {
             PAGE_SIZE_X,
             PAGE_SIZE_Y,
             GL33.GL_RGBA,
-          TextureMinFilter.LINEAR,
-          TextureMagFilter.LINEAR,
-          TextureWrapMode.CLAMP_TO_EDGE,
-          TextureWrapMode.CLAMP_TO_EDGE,
+            TextureMinFilter.LINEAR,
+            TextureMagFilter.LINEAR,
+            TextureWrapMode.CLAMP_TO_EDGE,
+            TextureWrapMode.CLAMP_TO_EDGE,
             EMPTY);
     EMPTY.position(0);
     return page;
@@ -533,9 +538,9 @@ public class Font {
    * Lays out the text into an array of TextLayoutElement objects.
    *
    * <p>This method processes the input text and arranges it into lines and positions based on the
-   * specified font size, line padding, and maximum line width and alignment. It handles wrapping characters,
-   * newline characters, and whitespace characters appropriately to ensure the text fits within the
-   * given constraints.
+   * specified font size, line padding, and maximum line width and alignment. It handles wrapping
+   * characters, newline characters, and whitespace characters appropriately to ensure the text fits
+   * within the given constraints.
    *
    * @param text the text to layout
    * @param fontSize the size of the font to use
@@ -544,8 +549,9 @@ public class Font {
    * @param alignment the alignment of the text
    * @return an array of TextLayoutElement objects representing the laid out text
    */
-  public TextLayoutElement[] layoutText(String text, int fontSize, int linePadding, int maxLineWidth, TextAlignment alignment) {
-    return switch(alignment) {
+  public TextLayoutElement[] layoutText(
+      String text, int fontSize, int linePadding, int maxLineWidth, TextAlignment alignment) {
+    return switch (alignment) {
       case LEFT -> this.layoutTextLeft(text, fontSize, linePadding, maxLineWidth);
       case CENTER -> this.layoutTextCenter(text, fontSize, linePadding, maxLineWidth);
       case RIGHT -> this.layoutTextRight(text, fontSize, linePadding, maxLineWidth);
@@ -553,23 +559,59 @@ public class Font {
     };
   }
 
-  public TextLayoutElement[] layoutText(String text, int fontSize, int linePadding, int maxLineWidth) {
+  /**
+   * Lays out the text into an array of TextLayoutElement objects.
+   *
+   * @param text the text to layout
+   * @param fontSize the size of the font to use
+   * @param linePadding the padding between lines
+   * @param maxLineWidth the maximum width of a line before wrapping
+   * @return an array of TextLayoutElement objects representing the laid out text
+   */
+  public TextLayoutElement[] layoutText(
+      String text, int fontSize, int linePadding, int maxLineWidth) {
     return this.layoutText(text, fontSize, linePadding, maxLineWidth, TextAlignment.LEFT);
   }
 
-  public TextLayoutElement[] layoutText(String text, int fontSize, int maxLineWidth, TextAlignment alignment) {
+  /**
+   * Lays out the text into an array of TextLayoutElement objects.
+   *
+   * @param text the text to layout
+   * @param fontSize the size of the font to use
+   * @param maxLineWidth the maximum width of a line before wrapping
+   * @param alignment the alignment of the text
+   * @return an array of TextLayoutElement objects representing the laid out text
+   */
+  public TextLayoutElement[] layoutText(
+      String text, int fontSize, int maxLineWidth, TextAlignment alignment) {
     return this.layoutText(text, fontSize, DEFAULT_LINE_PADDING, maxLineWidth, alignment);
   }
 
+  /**
+   * Lays out the text into an array of TextLayoutElement objects.
+   *
+   * @param text the text to layout
+   * @param fontSize the size of the font to use
+   * @param maxLineWidth the maximum width of a line before wrapping
+   * @return an array of TextLayoutElement objects representing the laid out text
+   */
   public TextLayoutElement[] layoutText(String text, int fontSize, int maxLineWidth) {
     return this.layoutText(text, fontSize, DEFAULT_LINE_PADDING, maxLineWidth, TextAlignment.LEFT);
   }
 
+  /**
+   * Lays out the text into an array of TextLayoutElement objects.
+   *
+   * @param text the text to layout
+   * @param fontSize the size of the font to use
+   * @return an array of TextLayoutElement objects representing the laid out text
+   */
   public TextLayoutElement[] layoutText(String text, int fontSize) {
     return this.layoutText(text, fontSize, Integer.MAX_VALUE, TextAlignment.LEFT);
   }
 
-  private TextLayoutElement[] layoutTextLeft(String text, int fontSize, int linePadding, int maxLineWidth) {
+  private TextLayoutElement[] layoutTextLeft(
+      String text, int fontSize, int linePadding, int maxLineWidth) {
 
     int maxWidth = 0;
     int currentX = 0;
@@ -643,38 +685,40 @@ public class Font {
     return elements;
   }
 
-  private TextLayoutElement[] layoutTextRight(String text, int fontSize, int linePadding, int maxLineWidth) {
+  private TextLayoutElement[] layoutTextRight(
+      String text, int fontSize, int linePadding, int maxLineWidth) {
     TextLayoutElement[] elements = this.layoutTextLeft(text, fontSize, linePadding, maxLineWidth);
     BoundingBox2D bb = this.calculateBoundingBox(elements);
     float maxX = Float.MIN_VALUE;
     Map<Integer, Integer> lineMaxWidth = new HashMap<>();
-    for(int i = 0; i < elements.length; i ++) {
-      if(elements[i] == null) continue;
+    for (int i = 0; i < elements.length; i++) {
+      if (elements[i] == null) continue;
       maxX = Math.max(maxX, elements[i].x + elements[i].width);
       int lineMax = lineMaxWidth.getOrDefault(elements[i].line, 0);
       lineMaxWidth.put(elements[i].line, Math.max(lineMax, elements[i].x + elements[i].width));
     }
-    for(int i = 0; i < elements.length; i ++) {
-      if(elements[i] == null) continue;
+    for (int i = 0; i < elements.length; i++) {
+      if (elements[i] == null) continue;
       int lineMax = lineMaxWidth.get(elements[i].line);
       elements[i].x = elements[i].x + (maxLineWidth - lineMax);
     }
     return elements;
   }
 
-  private TextLayoutElement[] layoutTextCenter(String text, int fontSize, int linePadding, int maxLineWidth) {
+  private TextLayoutElement[] layoutTextCenter(
+      String text, int fontSize, int linePadding, int maxLineWidth) {
     TextLayoutElement[] elements = this.layoutTextLeft(text, fontSize, linePadding, maxLineWidth);
     BoundingBox2D bb = this.calculateBoundingBox(elements);
     float maxX = Float.MIN_VALUE;
     Map<Integer, Integer> lineMaxWidth = new HashMap<>();
-    for(int i = 0; i < elements.length; i ++) {
-      if(elements[i] == null) continue;
+    for (int i = 0; i < elements.length; i++) {
+      if (elements[i] == null) continue;
       maxX = Math.max(maxX, elements[i].x + elements[i].width);
       int lineMax = lineMaxWidth.getOrDefault(elements[i].line, 0);
       lineMaxWidth.put(elements[i].line, Math.max(lineMax, elements[i].x + elements[i].width));
     }
-    for(int i = 0; i < elements.length; i ++) {
-      if(elements[i] == null) continue;
+    for (int i = 0; i < elements.length; i++) {
+      if (elements[i] == null) continue;
       int lineMax = lineMaxWidth.get(elements[i].line);
       elements[i].x = elements[i].x + (maxLineWidth - lineMax) / 2;
     }
@@ -823,13 +867,40 @@ public class Font {
   /** Represents information about a glyph. */
   public static class GlyphInfo {
 
+    /** The Unicode codepoint of the glyph. */
     public final int codepoint;
-    public final float xAdvance, yAdvance;
+
+    /** The horizontal advance of the glyph. */
+    public final float xAdvance;
+
+    /** The vertical advance of the glyph. */
+    public final float yAdvance;
+
+    /** The texture page index where the glyph is stored. */
     public final int page;
-    public final int pageX, pageY;
-    public final int width, height;
-    public final int offsetX, offsetY;
+
+    /** The x-coordinate of the glyph on the texture page. */
+    public final int pageX;
+
+    /** The y-coordinate of the glyph on the texture page. */
+    public final int pageY;
+
+    /** The width of the glyph. */
+    public final int width;
+
+    /** The height of the glyph. */
+    public final int height;
+
+    /** The horizontal offset of the glyph. */
+    public final int offsetX;
+
+    /** The vertical offset of the glyph. */
+    public final int offsetY;
+
+    /** Whether the glyph is colored. */
     public final boolean colored;
+
+    /** The font object that this glyph belongs to. */
     public final Font font;
 
     /**
@@ -844,6 +915,8 @@ public class Font {
      * @param y the y-coordinate of the glyph on the texture page
      * @param width the width of the glyph
      * @param height the height of the glyph
+     * @param offsetX the horizontal offset of the glyph
+     * @param offsetY the vertical offset of the glyph
      * @param colored whether the glyph is colored
      */
     public GlyphInfo(
@@ -877,10 +950,25 @@ public class Font {
   /** Represents an element of text layout. */
   public static class TextLayoutElement {
 
+    /** The font object that this element belongs to. */
     public Font font;
+
+    /** The glyph information for this element. */
     public GlyphInfo glyph;
-    public int x, y;
-    public int width, height;
+
+    /** The x-coordinate of the element. */
+    public int x;
+
+    /** The y-coordinate of the element. */
+    public int y;
+
+    /** The width of the element. */
+    public int width;
+
+    /** The height of the element. */
+    public int height;
+
+    /** The line index of the element. */
     public int line;
 
     /**
@@ -892,8 +980,10 @@ public class Font {
      * @param y the y-coordinate of the element
      * @param width the width of the element
      * @param height the height of the element
+     * @param line the line index of the element
      */
-    public TextLayoutElement(Font font, GlyphInfo glyph, int x, int y, int width, int height, int line) {
+    public TextLayoutElement(
+        Font font, GlyphInfo glyph, int x, int y, int width, int height, int line) {
       this.font = font;
       this.glyph = glyph;
       this.x = x;

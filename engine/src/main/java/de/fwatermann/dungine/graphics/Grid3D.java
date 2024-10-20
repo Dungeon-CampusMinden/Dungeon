@@ -9,6 +9,10 @@ import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL33;
 
+/**
+ * The `Grid3D` class represents a 3D grid that can be rendered in the game.
+ * It handles the initialization of OpenGL resources, rendering of the grid, and disposal of resources.
+ */
 public class Grid3D extends Renderable<Grid3D> implements Disposable {
 
   private static ShaderProgram SHADER;
@@ -16,6 +20,11 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
   private int vao;
   private int vbo;
   private boolean initialized = false;
+
+  /**
+   * Constructs a new `Grid3D` object.
+   */
+  public Grid3D() {}
 
   private void initGL() {
     if (SHADER == null) {
@@ -56,12 +65,23 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
     this.initialized = true;
   }
 
+  /**
+   * Renders the grid using the specified camera.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   public void render(Camera<?> camera) {
     this.initGL();
     this.render(camera, SHADER);
   }
 
+  /**
+   * Renders the grid using the specified camera and shader program.
+   *
+   * @param camera the camera to use for rendering
+   * @param shader the shader program to use for rendering
+   */
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
     this.initGL();
@@ -74,6 +94,10 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
     shader.unbind();
   }
 
+  /**
+   * Disposes of the OpenGL resources used by the grid.
+   * This includes deleting vertex array objects and vertex buffer objects.
+   */
   @Override
   public void dispose() {
     if (this.initialized) {
@@ -83,6 +107,12 @@ public class Grid3D extends Renderable<Grid3D> implements Disposable {
     }
   }
 
+  /**
+   * Determines whether the grid should be rendered based on the camera frustum.
+   *
+   * @param frustum the camera frustum to check
+   * @return true if the grid should be rendered, false otherwise
+   */
   @Override
   public boolean shouldRender(CameraFrustum frustum) {
     return true;

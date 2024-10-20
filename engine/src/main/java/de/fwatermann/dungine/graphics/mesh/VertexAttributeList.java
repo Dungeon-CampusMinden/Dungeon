@@ -86,6 +86,12 @@ public class VertexAttributeList implements Iterable<VertexAttribute> {
     return this.iterator;
   }
 
+  /**
+   * Binds the VertexAttributes in the list to the specified shader program, VAO, and VBO.
+   * @param shaderProgram the shader program to bind the attributes to
+   * @param vao the VAO to bind the attributes to
+   * @param vbo the VBO to bind the attributes to
+   */
   public void bindAttribPointers(ShaderProgram shaderProgram, int vao, int vbo) {
     ThreadUtils.checkMainThread();
     GL33.glBindVertexArray(vao);

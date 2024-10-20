@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
  * Represents a mesh that is not instanced, providing basic transformation capabilities such as
  * translation, rotation, and scaling. This abstract class serves as a foundation for meshes that
  * are manipulated individually rather than as part of an instanced group.
+ *
+ * @param <T> the extending type of UnInstancedMesh
  */
 public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>>
     extends Mesh<UnInstancedMesh<T>> {
@@ -14,6 +16,7 @@ public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>>
    * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
    *
    * @param vertices the vertices of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -29,6 +32,7 @@ public abstract class UnInstancedMesh<T extends UnInstancedMesh<?>>
    * Constructs a new UnInstancedMesh with the specified usage hint and attributes.
    *
    * @param vertices the vertices of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */

@@ -181,34 +181,57 @@ public class Unit {
     };
   }
 
-  public enum UnitType {
-    PIXEL(true),
-    PERCENT(false),
-    VIEWPORT_WIDTH(true),
-    VIEWPORT_HEIGHT(true),
-    AUTO(false);
+  /**
+ * Represents the type of a unit of measurement.
+ * The `UnitType` enum defines various types of units such as pixel, percentage, viewport width, and viewport height.
+ * Each unit type can be either fixed or relative.
+ */
+public enum UnitType {
+  /**
+   * Pixel unit type, representing a fixed value in pixels.
+   */
+  PIXEL(true),
 
-    final boolean fixed;
+  /**
+   * Percentage unit type, representing a relative value as a percentage.
+   */
+  PERCENT(false),
 
-    /**
-     * Constructs a UnitType with the specified fixed property.
-     *
-     * @param fixed whether the unit type is fixed.
-     */
-    UnitType(boolean fixed) {
-      this.fixed = fixed;
-    }
+  /**
+   * Viewport width unit type, representing a fixed value as a percentage of the viewport width.
+   */
+  VIEWPORT_WIDTH(true),
 
-    /**
-     * Returns whether the unit type is fixed.
-     *
-     * @return true if the unit type is fixed, false otherwise.
-     */
-    public boolean isFixed() {
-      return this.fixed;
-    }
+  /**
+   * Viewport height unit type, representing a fixed value as a percentage of the viewport height.
+   */
+  VIEWPORT_HEIGHT(true),
 
+  /**
+   * Automatic unit type, representing an automatic value.
+   */
+  AUTO(false);
+
+  final boolean fixed;
+
+  /**
+   * Constructs a UnitType with the specified fixed property.
+   *
+   * @param fixed whether the unit type is fixed.
+   */
+  UnitType(boolean fixed) {
+    this.fixed = fixed;
   }
+
+  /**
+   * Returns whether the unit type is fixed.
+   *
+   * @return true if the unit type is fixed, false otherwise.
+   */
+  public boolean isFixed() {
+    return this.fixed;
+  }
+}
 
   /**
    * Checks if this unit is equal to another object.

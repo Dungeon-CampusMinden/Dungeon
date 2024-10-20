@@ -20,6 +20,10 @@ import org.lwjgl.opengl.GL33;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+/**
+ * The `SkyBox` class represents a skybox in the graphics engine.
+ * It extends the `Renderable` class and provides methods to manage and render a skybox.
+ */
 public class SkyBox extends Renderable<SkyBox> {
 
   private static ShaderProgram DEFAULT_SHADER;
@@ -28,14 +32,27 @@ public class SkyBox extends Renderable<SkyBox> {
   private ShaderProgram shader;
   private Texture texture;
 
+  /**
+   * Constructs a new `SkyBox` with the specified cube map resource.
+   *
+   * @param cubeMap the resource containing the cube map texture
+   */
   public SkyBox(Resource cubeMap) {
     this.texture = TextureManager.load(cubeMap);
   }
 
+  /**
+   * Constructs a new `SkyBox` with the specified texture.
+   *
+   * @param texture the texture to use for the skybox
+   */
   public SkyBox(Texture texture) {
     this.texture = texture;
   }
 
+  /**
+   * Default constructor for `SkyBox`.
+   */
   public SkyBox() {
     this.texture = TextureManager.load(Resource.load("/textures/CubeMap.png"));
   }

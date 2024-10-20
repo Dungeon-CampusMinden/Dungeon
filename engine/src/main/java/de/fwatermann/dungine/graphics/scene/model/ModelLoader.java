@@ -45,14 +45,29 @@ import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
+/**
+ * The `ModelLoader` class is responsible for loading 3D models from resources.
+ * It uses the Assimp library to import model data and convert it into the engine's format.
+ */
 public class ModelLoader {
 
+  /** Logger instance for logging messages. */
   private static final Logger LOGGER = LogManager.getLogger(ModelLoader.class);
+
+  /** Key for the root file in the model resource. */
   private static final String MODEL_ROOT_FILE_KEY = "###---###ROOTFILE###---###";
 
-
+  /** Cache for loaded models to avoid reloading the same model multiple times. */
   private static final Map<Resource, Model> modelCache = new HashMap<>();
 
+  private ModelLoader() {}
+
+  /**
+   * Loads a model from the specified resource.
+   *
+   * @param resource the resource to load the model from
+   * @return the loaded model
+   */
   public static Model loadModel(Resource resource) {
     if (modelCache.containsKey(resource)) {
       return modelCache.get(resource);

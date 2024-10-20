@@ -16,11 +16,21 @@ import org.lwjgl.util.nfd.NFDPathSetEnum;
  */
 public class FileDialog {
 
+  private FileDialog() {}
+
   /**
    * Represents a filter for file dialog operations, specifying display name and file extensions.
    */
   public static class Filter {
+
+    /**
+     * The display name of the filter.
+     */
     public final String displayName;
+
+    /**
+     * The file extensions included in the filter.
+     */
     public final String[] extensions;
 
     /**

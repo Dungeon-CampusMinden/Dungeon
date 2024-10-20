@@ -351,6 +351,10 @@ public class Texture implements Disposable {
     GL33.glDeleteTextures(this.glTextureId);
   }
 
+  /**
+   * Returns the OpenGL handle of this texture.
+   * @return the OpenGL handle of this texture
+   */
   public int glHandle() {
     return this.glTextureId;
   }

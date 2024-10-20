@@ -8,12 +8,30 @@ import java.nio.ByteOrder;
 import java.nio.file.Path;
 import org.lwjgl.BufferUtils;
 
+/**
+ * The `ClasspathResource` class represents a resource that is loaded from the classpath.
+ * It provides methods to read the resource as a byte buffer, resolve relative paths, and get the size of the resource.
+ *
+ * <p>This class extends the `Resource` class and overrides its methods to provide specific functionality for classpath resources.</p>
+ *
+ * <p>Example usage:</p>
+ * <pre>
+ * {@code
+ * ClasspathResource resource = new ClasspathResource("/path/to/resource");
+ * ByteBuffer buffer = resource.readBytes();
+ * }
+ * </pre>
+ */
 public class ClasspathResource extends Resource {
 
   private final String path;
   private ByteBuffer buffer;
   private long size = -1;
 
+  /**
+   * Constructs a new ClasspathResource instance with the specified path.
+   * @param path the path to the resource
+   */
   protected ClasspathResource(String path) {
     this.path = path;
   }

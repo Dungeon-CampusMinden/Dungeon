@@ -86,6 +86,8 @@ public class CameraPerspective extends Camera<CameraPerspective> {
    *   <li>Far Clipping Plane: 100.0
    *   <li>Update on Change: false
    * </ul>
+   *
+   * @param viewport The viewport of the camera.
    */
   public CameraPerspective(CameraViewport viewport) {
     this(80.0f, viewport, 0.01f, 100.0f);

@@ -6,15 +6,30 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+/**
+ * The `Log4jOutputStream` class extends `OutputStream` to redirect output to Log4j.
+ * It buffers the output and logs it at the specified log level.
+ */
 public class Log4jOutputStream extends OutputStream {
 
+  /** The log level to use for logging messages. */
   private Level level;
 
+  /**
+   * Constructs a new `Log4jOutputStream` with the specified log level.
+   *
+   * @param logLevel the log level to use for logging messages
+   */
   public Log4jOutputStream(Level logLevel) {
     super();
     this.level = logLevel;
   }
 
+  /**
+   * Gets the caller class from the stack trace.
+   *
+   * @return the caller class, or null if not found
+   */
   private Class<?> getCaller() {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     StackTraceElement caller = null;
@@ -36,8 +51,15 @@ public class Log4jOutputStream extends OutputStream {
     }
   }
 
+  /** The buffer to hold the output data. */
   ByteBuffer buffer = ByteBuffer.allocate(1024);
 
+  /**
+   * Writes a byte to the output stream.
+   *
+   * @param b the byte to write
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public void write(int b) throws IOException {
     if (b == 0) return;
@@ -54,6 +76,11 @@ public class Log4jOutputStream extends OutputStream {
     this.buffer.put((byte) b);
   }
 
+  /**
+   * Flushes the output stream and logs the buffered data.
+   *
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public void flush() throws IOException {
     if (this.buffer.position() == 0) return;
@@ -70,16 +97,35 @@ public class Log4jOutputStream extends OutputStream {
     }
   }
 
+  /**
+   * Writes a portion of an array of bytes to the output stream.
+   *
+   * @param b the data
+   * @param off the start offset in the data
+   * @param len the number of bytes to write
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
     super.write(b, off, len);
   }
 
+  /**
+   * Writes an array of bytes to the output stream.
+   *
+   * @param b the data to write
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public void write(byte[] b) throws IOException {
     super.write(b);
   }
 
+  /**
+   * Closes the output stream and flushes any buffered data.
+   *
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public void close() throws IOException {
     this.flush();

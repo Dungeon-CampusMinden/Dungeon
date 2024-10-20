@@ -14,6 +14,8 @@ public enum BillboardMode {
    * y-axis.
    */
   CYLINDRICAL(2);
+
+  /** The integer value of the billboard mode. */
   public final int value;
 
   BillboardMode(int value) {

@@ -61,11 +61,21 @@ public class BatchAnimation extends Animation {
     return new AnimationFrame(this.texture, size, position);
   }
 
-  /** Enum representing the direction of the animation. */
-  public enum Direction {
-    DOWN,
-    UP,
-    LEFT,
-    RIGHT;
-  }
+/**
+ * Enum representing the direction of the animation.
+ * The direction determines how the frames of the animation are arranged within the texture.
+ */
+public enum Direction {
+  /** Animation frames are arranged from bottom to top. */
+  DOWN,
+
+  /** Animation frames are arranged from top to bottom. */
+  UP,
+
+  /** Animation frames are arranged from right to left. */
+  LEFT,
+
+  /** Animation frames are arranged from left to right. */
+  RIGHT;
+}
 }

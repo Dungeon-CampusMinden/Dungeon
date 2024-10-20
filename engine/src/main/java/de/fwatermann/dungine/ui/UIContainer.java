@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 /**
  * The UIContainer class represents a container for UI elements. It extends the UIElement class and
  * provides methods to add, remove, and render child UI elements.
+ *
+ * @param <T> the extending type of UIContainer
  */
 public class UIContainer<T extends UIContainer<?>> extends UIElement<T> {
 

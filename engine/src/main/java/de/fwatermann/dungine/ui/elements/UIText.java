@@ -262,10 +262,19 @@ public class UIText extends UIElement<UIText> {
     return this;
   }
 
+  /**
+   * Returns the text alignment used by this element.
+   * @return the text alignment.
+   */
   public TextAlignment alignment() {
     return this.alignment;
   }
 
+  /**
+   * Sets the text alignment used by this element.
+   * @param alignment the new text alignment
+   * @return this element
+   */
   public UIText alignment(TextAlignment alignment) {
     if(this.alignment == alignment) return this;
     this.alignment = alignment;

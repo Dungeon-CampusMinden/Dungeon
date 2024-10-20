@@ -27,6 +27,11 @@ public abstract class ECS {
   private final Map<System<?>, Integer> systems = new HashMap<>();
 
   /**
+   * Default constructor for the ECS class.
+   */
+  protected ECS() {}
+
+  /**
    * Adds an entity to the ECS.
    *
    * @param entity The entity to be added.
@@ -50,6 +55,7 @@ public abstract class ECS {
 
   /**
    * Adds a collection of entities to the ECS.
+   *
    * @param entities The entities to be added.
    */
   public void addEntities(Collection<Entity> entities) {
@@ -103,7 +109,11 @@ public abstract class ECS {
     }
   }
 
-  /** Run a function receiving a stream of all entities in the ECS. */
+  /**
+   * Run a function receiving a stream of all entities in the ECS.
+   *
+   * @param func The function to run for each entity.
+   */
   public void entities(IVoidFunction1P<Stream<Entity>> func) {
     try {
       this.entityLock.readLock().lock();
@@ -116,12 +126,12 @@ public abstract class ECS {
   /**
    * Run a function receiving a stream of entities filtered by the given components.
    *
+   * @param func The function to run for each entity.
    * @param componentFilter The components to filter by.
    */
   @SafeVarargs
   public final void entities(
-      IVoidFunction1P<Stream<Entity>> func,
-      Class<? extends Component>... componentFilter) {
+      IVoidFunction1P<Stream<Entity>> func, Class<? extends Component>... componentFilter) {
     try {
       this.entityLock.readLock().lock();
       func.run(this.entities.stream().filter(e -> e.hasComponents(componentFilter)));
@@ -132,6 +142,7 @@ public abstract class ECS {
 
   /**
    * Run a function for each entity in the ECS.
+   *
    * @param func The function to run for each entity.
    */
   public final void forEachEntity(IVoidFunction1P<Entity> func) {
@@ -145,16 +156,16 @@ public abstract class ECS {
 
   /**
    * Run a function for each entity in the ECS filtered by the given components.
+   *
    * @param func The function to run for each entity.
    * @param componentFilter The components to filter by.
    */
   @SafeVarargs
-  public final void forEachEntity(IVoidFunction1P<Entity> func, Class<? extends Component> ... componentFilter) {
+  public final void forEachEntity(
+      IVoidFunction1P<Entity> func, Class<? extends Component>... componentFilter) {
     try {
       this.entityLock.readLock().lock();
-      this.entities.stream()
-          .filter(e -> e.hasComponents(componentFilter))
-          .forEach(func::run);
+      this.entities.stream().filter(e -> e.hasComponents(componentFilter)).forEach(func::run);
     } finally {
       this.entityLock.readLock().unlock();
     }
@@ -203,7 +214,11 @@ public abstract class ECS {
     }
   }
 
-  /** Run a function receiving a stream of all systems in the ECS. */
+  /**
+   * Run a function receiving a stream of all systems in the ECS.
+   *
+   * @param func The function to run for each system.
+   */
   public void systems(IVoidFunction1P<Stream<System<?>>> func) {
     try {
       this.systemLock.readLock().lock();
@@ -213,6 +228,11 @@ public abstract class ECS {
     }
   }
 
+  /**
+   * Run a function for each system in the ECS.
+   *
+   * @param func The function to run for each system.
+   */
   public void forEachSystem(IVoidFunction1P<System<?>> func) {
     try {
       this.systemLock.readLock().lock();
@@ -225,6 +245,7 @@ public abstract class ECS {
   /**
    * Executes all systems that match the given synchronization state.
    *
+   * @param ecs The ECS instance.
    * @param sync If true, executes synchronous systems; if false, executes asynchronous systems.
    */
   protected void executeSystems(ECS ecs, boolean sync) {
@@ -249,6 +270,10 @@ public abstract class ECS {
     }
   }
 
+  /**
+   * Get the number of entities in this ECS-Environment.
+   * @return The number of entities.
+   */
   public int entityCount() {
     try {
       this.entityLock.readLock().lock();
@@ -258,6 +283,10 @@ public abstract class ECS {
     }
   }
 
+  /**
+   * Get the number of systems in this ECS-Environment.
+   * @return The number of systems.
+   */
   public int systemCount() {
     try {
       this.systemLock.readLock().lock();
@@ -266,5 +295,4 @@ public abstract class ECS {
       this.systemLock.readLock().unlock();
     }
   }
-
 }

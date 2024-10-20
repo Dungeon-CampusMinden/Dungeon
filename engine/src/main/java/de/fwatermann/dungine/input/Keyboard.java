@@ -10,6 +10,10 @@ import de.fwatermann.dungine.window.GameWindow;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The `Keyboard` class provides methods to check the state of keyboard keys.
+ * It also listens for keyboard events and updates the state of keys accordingly.
+ */
 public class Keyboard implements EventListener {
 
   static {
@@ -20,8 +24,11 @@ public class Keyboard implements EventListener {
 
   private static final Set<Integer> justPressedCheck = new HashSet<>();
 
+  private Keyboard() {}
+
   /**
-   * Check if a key is pressed.
+   * Checks if a key is currently pressed.
+   *
    * @param key the key to check
    * @return true if the key is pressed, false otherwise
    */
@@ -30,7 +37,8 @@ public class Keyboard implements EventListener {
   }
 
   /**
-   * Check if a key was just pressed. This method will return true only once per key press.
+   * Checks if a key was just pressed. This method will return true only once per key press.
+   *
    * @param key the key to check
    * @return true if the key was just pressed, false otherwise
    */
@@ -48,6 +56,11 @@ public class Keyboard implements EventListener {
     return false;
   }
 
+  /**
+   * Handles keyboard events and updates the state of keys.
+   *
+   * @param e the keyboard event
+   */
   @EventHandler
   private static void onKey(KeyboardEvent e) {
     if(e.action == KeyboardEvent.KeyAction.RELEASE) {

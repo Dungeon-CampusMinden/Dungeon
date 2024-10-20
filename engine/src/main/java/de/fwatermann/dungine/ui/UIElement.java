@@ -18,12 +18,28 @@ import org.joml.Vector3f;
  */
 public abstract class UIElement<T extends UIElement<?>> {
 
+  /** The parent container of this UI element. */
   protected UIContainer<?> parent;
+
+  /** The position of this UI element. */
   protected Vector3f position = new Vector3f();
+
+  /** The size of this UI element. */
   protected Vector3f size = new Vector3f();
+
+  /** The rotation of this UI element. */
   protected Quaternionf rotation = new Quaternionf();
+
+  /** The components attached to this UI element. */
   protected List<UIComponent<?>> components = new ArrayList<>();
+
+  /** The layout object of this element. */
   protected UIElementLayout layout = new UIElementLayout();
+
+  /**
+   * Creates a new UIElement.
+   */
+  protected UIElement() {}
 
   /**
    * Renders the UI element using the specified camera.

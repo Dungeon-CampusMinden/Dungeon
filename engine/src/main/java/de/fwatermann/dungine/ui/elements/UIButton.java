@@ -14,6 +14,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 
+/**
+ * Represents a UI button element that can be rendered with OpenGL. The UIButton class extends
+ * UIContainer and provides methods to set and get the button's fill color, border color, border
+ * width, and border radius.
+ */
 public class UIButton extends UIContainer<UIButton> {
 
   private static ShaderProgram SHADER;
@@ -24,6 +29,13 @@ public class UIButton extends UIContainer<UIButton> {
   private float borderWidth = 1.0f; // Default: 1.0f
   private float borderRadius = 0.0f; // Default: 0.0f
 
+  /** Constructs a new UIButton. */
+  public UIButton() {}
+
+  /**
+   * Initializes the OpenGL shader and mesh for the UIButton. This method is called internally
+   * before rendering the button.
+   */
   private static void initGL() {
 
     if (SHADER == null) {
@@ -64,6 +76,12 @@ public class UIButton extends UIContainer<UIButton> {
     }
   }
 
+  /**
+   * Renders the UIButton using the specified camera. This method sets the shader uniforms and
+   * renders the mesh.
+   *
+   * @param camera the camera to use for rendering
+   */
   @Override
   public void render(Camera<?> camera) {
     initGL();

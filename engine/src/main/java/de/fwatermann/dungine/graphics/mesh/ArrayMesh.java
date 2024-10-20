@@ -19,6 +19,7 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
    * Constructs a new ArrayMesh with the specified vertex buffer, usage hint, and attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -34,6 +35,7 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
    * Constructs a new ArrayMesh with the specified vertex buffer and attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param usageHint the usage hint of the mesh
    * @param attributes the attributes of the mesh
    */
@@ -49,6 +51,7 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
    * Constructs a new ArrayMesh with the specified attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param attributes the attributes of the mesh
    */
   public ArrayMesh(
@@ -60,6 +63,7 @@ public class ArrayMesh extends UnInstancedMesh<ArrayMesh> {
    * Constructs a new ArrayMesh with the specified vertex buffer and attributes.
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param attributes the attributes of the mesh
    */
   public ArrayMesh(

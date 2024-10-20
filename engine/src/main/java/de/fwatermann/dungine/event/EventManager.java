@@ -229,6 +229,10 @@ public class EventManager {
   /**
    * Represents a pair of an event listener and an event handler method. This record is used to
    * store the association between an event listener and one of its event handler methods.
+   *
+   * @param listener The EventListener object, that contains the event handler method
+   * @param clazz The class of the EventListener
+   * @param method The event handler method
    */
   public record EventHandlerPair(
       EventListener listener, Class<? extends EventListener> clazz, Method method) {}

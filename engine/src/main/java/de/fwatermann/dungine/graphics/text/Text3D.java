@@ -452,11 +452,17 @@ public class Text3D extends Renderable<Text3D> {
     return this;
   }
 
-  /** Represents the origin mode of the text. */
-  public enum OriginMode {
-    CENTER,
-    TOP_LEFT;
-  }
+/**
+ * Represents the origin mode of the text.
+ * The origin mode determines the reference point for positioning the text.
+ */
+public enum OriginMode {
+  /** The center of the text is used as the origin. */
+  CENTER,
+
+  /** The top-left corner of the text is used as the origin. */
+  TOP_LEFT;
+}
 
   /** Represents a render step for a specific texture page. */
   private record RenderStep(int pageGLHandle, int count, int offset) {}

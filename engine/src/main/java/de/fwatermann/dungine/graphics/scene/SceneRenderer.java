@@ -1,6 +1,5 @@
 package de.fwatermann.dungine.graphics.scene;
 
-
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.scene.light.Light;
 import de.fwatermann.dungine.graphics.scene.model.Model;
@@ -13,12 +12,25 @@ import java.util.Set;
 import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 
+/**
+ * The `SceneRenderer` class provides methods to render a scene using OpenGL.
+ * It handles the setup of shaders, lights, and models for rendering.
+ */
 public class SceneRenderer {
 
+  /** The default shader program used for rendering the scene. */
   private static ShaderProgram DEFAULT_SHADER;
 
+  /** The OpenGL uniform buffer object for lights. */
   private static int glLightsUBO = -1;
 
+  private SceneRenderer() {}
+
+  /**
+   * Gets the default shader program used for rendering the scene.
+   *
+   * @return the default shader program
+   */
   public static ShaderProgram defaultShader() {
     if(DEFAULT_SHADER == null) {
       try {
@@ -33,10 +45,25 @@ public class SceneRenderer {
     return DEFAULT_SHADER;
   }
 
+  /**
+   * Renders the scene using the default shader program.
+   *
+   * @param camera the camera used for rendering
+   * @param models the set of models to render
+   * @param lights the set of lights in the scene
+   */
   public static void renderScene(Camera<?> camera, Set<Model> models, Set<Light<?>> lights) {
     renderScene(camera, models, lights, defaultShader());
   }
 
+  /**
+   * Renders the scene using the specified shader program.
+   *
+   * @param camera the camera used for rendering
+   * @param models the set of models to render
+   * @param lights the set of lights in the scene
+   * @param shader the shader program to use for rendering
+   */
   public static void renderScene(Camera<?> camera, Set<Model> models, Set<Light<?>> lights, ShaderProgram shader) {
     if(glLightsUBO == -1) {
       glLightsUBO = GL33.glGenBuffers();
@@ -70,6 +97,4 @@ public class SceneRenderer {
     });
     shader.unbind();
   }
-
-
 }

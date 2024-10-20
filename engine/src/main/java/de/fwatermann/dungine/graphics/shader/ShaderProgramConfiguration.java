@@ -3,6 +3,9 @@ package de.fwatermann.dungine.graphics.shader;
 /** The ShaderProgramConfiguration class represents a configuration for a ShaderProgram object. */
 public class ShaderProgramConfiguration {
 
+  /**
+   * The ShaderProgramConfigurationMaterial class represents a configuration for the material
+   */
   public final ShaderProgramConfigurationMaterial material = new ShaderProgramConfigurationMaterial();
 
   /** Uniform name of the mat4 that contains the View matrix. */
@@ -11,19 +14,25 @@ public class ShaderProgramConfiguration {
   /** Uniform name of the mat4 that contains the Projection matrix. */
   public String uniformProjectionMatrix = "uProjection";
 
+  /** Uniform name of the float that contains the near plane distance of a perspective camera. */
   public String uniformCameraPerspectiveNearPlane = "uNear";
 
+  /** Uniform name of the float that contains the far plane distance of a perspective camera. */
   public String uniformCameraPerspectiveFarPlane = "uFar";
 
+  /** Uniform name of the vec3 that contains the camera position. */
   public String uniformCameraPosition = "uCameraPosition";
 
   /** Uniform name of the mat4 that contains the Model/Transform matrix. */
   public String uniformModelMatrix = "uModel";
 
+  /** Uniform name of the vec2 that contains the size of the texture atlas. */
   public String uniformTextureAtlasSize = "uTextureAtlasSize";
 
+  /** Uniform name that contains the texture atlas entry information. */
   public String uniformTextureAtlasEntrySampler = "uTextureAtlasEntries";
 
+  /** Uniform name of the sampler2D array that contains the texture atlas pages. */
   public String uniformTextureAtlasPagesSamplerArray = "uTextureAtlasPages";
 
 
@@ -35,9 +44,16 @@ public class ShaderProgramConfiguration {
    */
   public String uniformAnimation = "uAnimation[%d]";
 
+  /** Create a new ShaderProgramConfiguration instance. */
   public ShaderProgramConfiguration() {}
 
+  /**
+   * The ShaderProgramConfigurationMaterial class represents a configuration for the material
+   * information in a ShaderProgram object.
+   */
   public static final class ShaderProgramConfigurationMaterial {
+
+    private ShaderProgramConfigurationMaterial() {}
 
     /**
      * Uniform name of the struct that contains the material information.

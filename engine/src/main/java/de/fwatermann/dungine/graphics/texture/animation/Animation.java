@@ -9,10 +9,10 @@ import org.lwjgl.opengl.GL33;
 /** Abstract class representing an animation. */
 public abstract class Animation {
 
-  // The default texture unit to use if none is specified.
+  /** The default texture unit to use if none is specified. */
   public static int DEFAULT_TEXTURE_UNIT = GL33.GL_TEXTURE10;
 
-  // the default duration of each frame in milliseconds.
+  /** the default duration of each frame in milliseconds. */
   public static final long DEFAULT_FRAME_DURATION = 1000;
 
   private final int frameCount;
@@ -28,9 +28,14 @@ public abstract class Animation {
   private int nextFrame = 0;
   private int step = 1;
 
-  // Function to be called when the animation finishes.
+  /** Function to be called when the animation finishes. */
   @Nullable protected IVoidFunction1P<Animation> onAnimationFinish;
 
+  /**
+   * Creates a new Animation with the specified number of frames.
+   *
+   * @param frameCount the number of frames in the animation.
+   */
   protected Animation(int frameCount) {
     this.frameCount = frameCount;
   }
@@ -320,27 +325,67 @@ public abstract class Animation {
   }
 
 
-  /** Enum representing the animation slot to use when binding an animation to a shader. */
-  public enum AnimationSlot {
-    ANIMATION_0,
-    ANIMATION_1,
-    ANIMATION_2,
-    ANIMATION_3,
-    ANIMATION_4,
-    ANIMATION_5,
-    ANIMATION_6,
-    ANIMATION_7,
-    ANIMATION_8,
-    ANIMATION_9,
-    ANIMATION_10,
-    ANIMATION_11,
-    ANIMATION_12,
-    ANIMATION_13,
-    ANIMATION_14,
-    ANIMATION_15;
+/**
+ * Enum representing the animation slot to use when binding an animation to a shader.
+ * Each slot corresponds to a specific animation that can be bound to a shader.
+ */
+public enum AnimationSlot {
+  /** Animation slot 0. */
+  ANIMATION_0,
 
-    public static AnimationSlot fromIndex(int index) {
-      return AnimationSlot.values()[index];
-    }
+  /** Animation slot 1. */
+  ANIMATION_1,
+
+  /** Animation slot 2. */
+  ANIMATION_2,
+
+  /** Animation slot 3. */
+  ANIMATION_3,
+
+  /** Animation slot 4. */
+  ANIMATION_4,
+
+  /** Animation slot 5. */
+  ANIMATION_5,
+
+  /** Animation slot 6. */
+  ANIMATION_6,
+
+  /** Animation slot 7. */
+  ANIMATION_7,
+
+  /** Animation slot 8. */
+  ANIMATION_8,
+
+  /** Animation slot 9. */
+  ANIMATION_9,
+
+  /** Animation slot 10. */
+  ANIMATION_10,
+
+  /** Animation slot 11. */
+  ANIMATION_11,
+
+  /** Animation slot 12. */
+  ANIMATION_12,
+
+  /** Animation slot 13. */
+  ANIMATION_13,
+
+  /** Animation slot 14. */
+  ANIMATION_14,
+
+  /** Animation slot 15. */
+  ANIMATION_15;
+
+  /**
+   * Returns the AnimationSlot corresponding to the given index.
+   *
+   * @param index the index of the animation slot
+   * @return the AnimationSlot corresponding to the given index
+   */
+  public static AnimationSlot fromIndex(int index) {
+    return AnimationSlot.values()[index];
   }
+}
 }

@@ -24,6 +24,8 @@ public class Mouse implements EventListener {
 
   private static final Set<Integer> justPressedCheck = new HashSet<>();
 
+  private Mouse() {}
+
   /**
    * Check if a button is pressed.
    * @param button the button to check

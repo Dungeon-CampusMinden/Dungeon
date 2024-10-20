@@ -9,9 +9,16 @@ import de.fwatermann.dungine.utils.annotations.NotNull;
  */
 public class InstanceAttribute {
 
+  /** The data type of the instance attribute. */
   public final int bufferIndex;
+
+  /** The number of components of the instance attribute. */
   public final int numComponents;
+
+  /** The data type of the instance attribute. */
   public final DataType dataType;
+
+  /** The name of the instance attribute. */
   public final String name;
 
   /**
@@ -20,7 +27,7 @@ public class InstanceAttribute {
    *
    * @param bufferIndex the index of the buffer containing the instance attribute
    * @param numComponents the number of components of the instance attribute
-   * @param glType the GL type of the instance attribute
+   * @param dataType the data type of the instance attribute
    * @param name the name of the instance attribute
    */
   public InstanceAttribute(int bufferIndex, int numComponents, DataType dataType, @NotNull String name) {
@@ -35,7 +42,7 @@ public class InstanceAttribute {
    * and name.
    *
    * @param numComponents the number of components of the instance attribute
-   * @param glType the GL type of the instance attribute
+   * @param dataType the data type of the instance attribute
    * @param name the name of the instance attribute
    */
   public InstanceAttribute(int numComponents, DataType dataType, @NotNull String name) {

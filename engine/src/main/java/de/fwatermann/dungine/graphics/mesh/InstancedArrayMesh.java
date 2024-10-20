@@ -19,6 +19,7 @@ public class InstancedArrayMesh extends InstancedMesh<InstancedArrayMesh> {
    * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, instance
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param instanceData the instance data buffer of the mesh
    * @param instanceCount the number of instances to render
    * @param usageHint the usage hint of the mesh
@@ -47,6 +48,7 @@ public class InstancedArrayMesh extends InstancedMesh<InstancedArrayMesh> {
    * Constructs a new InstancedArrayMesh with the specified vertex buffer, instance data, instance
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param instanceData the instance data buffer of the mesh
    * @param instanceCount the number of instances to render
    * @param usageHint the usage hint of the mesh
@@ -76,6 +78,7 @@ public class InstancedArrayMesh extends InstancedMesh<InstancedArrayMesh> {
    * instance
    *
    * @param vertices the vertex buffer of the mesh
+   * @param primitiveType the primitive type of the mesh
    * @param instanceData the instance data buffer of the mesh
    * @param instanceCount the number of instances to render
    * @param attributes the attributes of the mesh

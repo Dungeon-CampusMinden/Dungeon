@@ -9,6 +9,13 @@ import java.util.Set;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+/**
+ * The `PolyhedronCollider` class represents a collider with a polyhedral shape.
+ * It extends the `Collider` class and provides methods to handle the vertices, edges, and faces of the polyhedron.
+ * This class also includes methods for collision detection and transformation handling.
+ *
+ * @param <T> The type of the polyhedron collider.
+ */
 public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collider {
 
   static {
@@ -22,10 +29,25 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
   private final Quaternionf rotation;
   private final Vector3f scaling;
 
+  /** The vertices of the collider. */
   protected final Vector3f[] vertices;
+
+  /** The edges of the collider. */
   protected final IntPair[] edges;
+
+  /** The faces of the collider. */
   protected final Face[] faces;
 
+  /**
+   * Constructs a new `PolyhedronCollider` with the specified entity, vertices, edges, faces, offset, scaling, and rotation.
+   * @param entity The entity of the collider.
+   * @param vertices The vertices of the collider.
+   * @param edges The edges of the collider.
+   * @param faces The faces of the collider.
+   * @param offset The offset of the collider.
+   * @param scaling The scaling of the collider.
+   * @param rotation The rotation of the collider.
+   */
   public PolyhedronCollider(
       Entity entity,
       Vector3f[] vertices,
@@ -66,8 +88,8 @@ public class PolyhedronCollider<T extends PolyhedronCollider<?>> extends Collide
   /**
    * Set the rotation of the collider. This does not include the rotation of the entity.
    *
-   * @param rotation
-   * @return
+   * @param rotation The new rotation of the collider.
+   * @return this collider for chaining.
    */
   public T rotation(Quaternionf rotation) {
     this.rotation.set(rotation);

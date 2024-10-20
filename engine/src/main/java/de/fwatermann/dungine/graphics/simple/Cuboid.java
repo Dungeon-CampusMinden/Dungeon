@@ -16,8 +16,26 @@ import java.nio.ByteBuffer;
 import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
+/**
+ * The `Cuboid` class represents a 3D cuboid model that can be rendered in a graphics scene.
+ * It extends the `Model` class and provides methods to initialize the cuboid's mesh, set its color,
+ * and manage its transformation and rendering.
+ *
+ * <p>The cuboid is defined by its vertices, normals, and texture coordinates, and it supports
+ * various methods to set its color using different formats (RGBA integer, individual components, or float values).</p>
+ *
+ * <p>Example usage:</p>
+ * <pre>
+ * {@code
+ * Cuboid cuboid = new Cuboid(0xFF0000FF); // Red color with full opacity
+ * cuboid.color(0, 255, 0, 255); // Change color to green with full opacity
+ * cuboid.render(camera, shaderProgram);
+ * }
+ * </pre>
+ */
 public class Cuboid extends Model {
 
+  /** The mesh of any cuboid */
   protected static IndexedMesh MESH;
   private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
 
@@ -33,6 +51,9 @@ public class Cuboid extends Model {
     initMesh();
   }
 
+  /**
+   * Constructs a new Cuboid with the specified position and color.
+   */
   public Cuboid() {
     this(0xDDDDDDFF);
   }
@@ -108,6 +129,9 @@ public class Cuboid extends Model {
             new VertexAttribute(2, DataType.FLOAT, "aTexCoord"));
   }
 
+  /**
+   * Initializes the materials of the cuboid.
+   */
   protected void initMaterials() {
     this.material = new Material();
     this.material.diffuseColor.set(

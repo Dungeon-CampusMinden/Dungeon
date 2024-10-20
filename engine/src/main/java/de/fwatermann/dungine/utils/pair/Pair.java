@@ -1,5 +1,12 @@
 package de.fwatermann.dungine.utils.pair;
 
+/**
+ * The `Pair` class represents a generic pair of values.
+ * It provides methods to get and set the values, as well as to compare pairs for equality.
+ *
+ * @param <A> the type of the first value
+ * @param <B> the type of the second value
+ */
 public class Pair<A, B> {
 
   private A a;
@@ -69,6 +76,12 @@ public class Pair<A, B> {
     return this;
   }
 
+  /**
+   * Compares this pair to the specified object for equality.
+   *
+   * @param obj the object to compare to
+   * @return true if the specified object is equal to this pair, false otherwise
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;

@@ -14,6 +14,10 @@ public class AudioSourceComponent extends Component implements Disposable {
 
   private AudioSource source;
 
+  /**
+   * Constructs a new AudioSourceComponent.
+   * @param context the audio context to create the audio source with
+   */
   public AudioSourceComponent(AudioContext context) {
     super(true);
     this.source = context.createSource(UUID.randomUUID().toString(), false, false);
