@@ -2,6 +2,7 @@ package de.fwatermann.dungine.graphics.texture.atlas;
 
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
+import de.fwatermann.dungine.utils.GLUtils;
 import de.fwatermann.dungine.utils.annotations.Null;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -268,25 +269,31 @@ public class TextureAtlas {
       String uniformPagesSamplerName) {
     if (this.glBO == -1) {
       this.glBO = GL33.glGenBuffers();
-    }
-    if (this.glTBO == -1) {
-      this.glTBO = GL33.glGenTextures();
-      GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, this.glTBO);
-      GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I, this.glBO);
-      GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, 0);
-      GL33.glBindBuffer(GL33.GL_TEXTURE_BUFFER, 0);
+      GLUtils.checkError();
     }
     if (this.uboDirty) {
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, this.glBO);
       GL33.glBufferData(GL33.GL_ARRAY_BUFFER, this.uboData, GL33.GL_STATIC_DRAW);
       GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
       this.uboDirty = false;
+      GLUtils.checkError();
     }
+    if (this.glTBO == -1) {
+      this.glTBO = GL33.glGenTextures();
+      GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, this.glTBO);
+      GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I,this.glBO);
+      GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, 0);
+      GL33.glBindBuffer(GL33.GL_TEXTURE_BUFFER, 0);
+      GLUtils.checkError();
+    }
+
+
     int firstUnit = 11;
     for (int i = 0; i < this.pages.size(); i++) {
       this.pages.get(i).texture.bind(GL33.GL_TEXTURE0 + firstUnit + i);
       program.setUniform1i(uniformPagesSamplerName + "[" + i + "]", firstUnit + i);
     }
+
     GL33.glActiveTexture(GL33.GL_TEXTURE0 + firstUnit - 1);
     GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, this.glTBO);
     GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I, this.glBO);
