@@ -122,9 +122,11 @@ public class Shader implements Disposable {
     while (matcher.find()) {
       String includePath =
           matcher.group("path1") != null ? matcher.group("path1") : matcher.group("path2");
-      Resource includeResource = Resource.load(includePath);
+      Resource includeResource = resource.resolveRelative(includePath);
       if (alreadyIncluded.contains(includeResource)) {
-        throw new IOException("Circular include detected: " + includePath);
+        LOGGER.debug("Circular include detected: {}", includePath);
+        sourceCode = sourceCode.replace(matcher.group(), "");
+        continue;
       }
       alreadyIncluded.add(includeResource);
       String includeSourceCode = parseShaderSource(includeResource, alreadyIncluded);
