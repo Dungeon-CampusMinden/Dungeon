@@ -44,8 +44,13 @@ public class EventManager {
    *     1 parameter, or if the parameter is not a subclass of Event
    */
   public void registerListener(de.fwatermann.dungine.event.EventListener listener) {
-    Method[] methods = listener.getClass().getDeclaredMethods();
-    Arrays.stream(methods)
+    List<Method> methods = new ArrayList<>();
+    Class<?> clazz = listener.getClass();
+    while (clazz != null) {
+      methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+      clazz = clazz.getSuperclass();
+    }
+    methods.stream()
         .filter(m -> m.getAnnotation(EventHandler.class) != null)
         .forEach(
             m -> {
@@ -95,11 +100,16 @@ public class EventManager {
    * <p>This method is useful for registering event listeners that are not instantiated, meaning the
    * event handler methods are static.
    *
-   * @param clazz the class of the event listener to register
+   * @param pClazz the class of the event listener to register
    */
-  public void registerStaticListener(Class<? extends EventListener> clazz) {
-    Method[] methods = clazz.getDeclaredMethods();
-    Arrays.stream(methods)
+  public void registerStaticListener(Class<? extends EventListener> pClazz) {
+    List<Method> methods = new ArrayList<>();
+    Class<?> clazz = pClazz;
+    while (clazz != null) {
+      methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+      clazz = clazz.getSuperclass();
+    }
+    methods.stream()
         .filter(
             m -> m.getAnnotation(EventHandler.class) != null && Modifier.isStatic(m.getModifiers()))
         .forEach(
@@ -114,7 +124,7 @@ public class EventManager {
                     "EventHandler-Method "
                         + m.getName()
                         + " in "
-                        + clazz.getName()
+                        + pClazz.getName()
                         + " has less or more than 1 parameters!");
               }
               Class<?> eventTypeClass = params[0];
@@ -123,7 +133,7 @@ public class EventManager {
                     "EventHandler-Method "
                         + m.getName()
                         + " in "
-                        + clazz.getName()
+                        + pClazz.getName()
                         + " has a parameter that is not a subclass of Event!");
               }
               @SuppressWarnings("unchecked")
@@ -132,14 +142,14 @@ public class EventManager {
                 this.lock.writeLock().lock();
                 this.listeners
                     .computeIfAbsent(eventType, k -> new HashSet<>())
-                    .add(new EventHandlerPair(null, clazz, m));
+                    .add(new EventHandlerPair(null, pClazz, m));
               } finally {
                 this.lock.writeLock().unlock();
               }
               LOGGER.debug(
                   "Registered static event handler for event type {} by {}",
                   eventType.getName(),
-                  clazz.getName());
+                pClazz.getName());
             });
   }
 
