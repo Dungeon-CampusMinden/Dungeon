@@ -5,7 +5,7 @@ import de.fwatermann.dungine.ecs.ECS;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.EventListener;
 import de.fwatermann.dungine.event.EventManager;
-import de.fwatermann.dungine.event.window.WindowResizeEvent;
+import de.fwatermann.dungine.event.window.FrameBufferResizeEvent;
 import de.fwatermann.dungine.graphics.Grid3D;
 import de.fwatermann.dungine.graphics.SkyBox;
 import de.fwatermann.dungine.graphics.camera.Camera;
@@ -59,7 +59,7 @@ public abstract class GameState extends ECS implements Disposable, EventListener
 
     this.window.runOnMainThread(
         () -> {
-          EventManager.getInstance().registerListener(this);
+          EventManager.getInstance().registerListener(GameState.this);
         });
   }
 
@@ -193,9 +193,7 @@ public abstract class GameState extends ECS implements Disposable, EventListener
   public void disposeState() {}
 
   @EventHandler
-  private void onWindowSize(WindowResizeEvent event) {
-    if (!event.isCanceled()) {
-      this.camera.updateViewport(event.to.x, event.to.y, 0, 0);
-    }
+  private void onFramebufferResize(FrameBufferResizeEvent event) {
+    this.camera.updateViewport(event.width(), event.height(), 0, 0);
   }
 }
