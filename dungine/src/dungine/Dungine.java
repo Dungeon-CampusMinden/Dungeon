@@ -15,12 +15,8 @@ public class Dungine extends GameWindow {
   }
 
   @Override
-  public void init() {
-
-  }
+  public void init() {}
 
   @Override
-  public void cleanup() {
-
-  }
+  public void cleanup() { }
 }
