@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Path;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 
 /**
@@ -24,6 +26,8 @@ import org.lwjgl.BufferUtils;
  * }</pre>
  */
 public class ClasspathResource extends Resource {
+
+  private static final Logger LOGGER = LogManager.getLogger(ClasspathResource.class);
 
   private final String path;
   private ByteBuffer buffer;
@@ -64,6 +68,7 @@ public class ClasspathResource extends Resource {
   @Override
   @Nullable
   public Resource resolveRelative(String path) {
+    LOGGER.debug("Resolving relative path: {} ({})", path, this.path);
     if (path.startsWith("/")) {
       return load(path, 0x02);
     } else {

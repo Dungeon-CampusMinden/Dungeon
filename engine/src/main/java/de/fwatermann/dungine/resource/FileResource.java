@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 
 /**
@@ -14,6 +16,8 @@ import org.lwjgl.BufferUtils;
  * read the file's contents into a byte buffer and to resolve relative paths.
  */
 public class FileResource extends Resource {
+
+  private static final Logger LOGGER = LogManager.getLogger(FileResource.class);
 
   private final Path path;
   private ByteBuffer buffer;
@@ -52,6 +56,7 @@ public class FileResource extends Resource {
   @Override
   @Nullable
   public Resource resolveRelative(String path) {
+    LOGGER.debug("Resolving relative path: {} ({})", path, this.path);
     return load(this.path.resolve(path).normalize().toString(), 0x01);
   }
 
