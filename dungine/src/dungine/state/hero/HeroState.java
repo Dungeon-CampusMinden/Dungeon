@@ -35,7 +35,7 @@ public class HeroState extends GameState {
   private Entity createLevel() {
     Entity entity = new Entity();
     Level level = new Level();
-    entity.position().set(-16, 0, -16);
+    entity.position().set(-15.5, 0, -15.5);
     entity.addComponent(new RenderableComponent(level));
     return entity;
   }
