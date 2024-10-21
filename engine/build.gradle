@@ -16,22 +16,25 @@ repositories {
 }
 
 dependencies {
-    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    api platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
-    implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-assimp"
-    implementation "org.lwjgl:lwjgl-freetype"
-    implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-meshoptimizer"
-    implementation "org.lwjgl:lwjgl-nfd"
-    implementation "org.lwjgl:lwjgl-openal"
-    implementation "org.lwjgl:lwjgl-opencl"
-    implementation "org.lwjgl:lwjgl-opengl"
-    implementation "org.lwjgl:lwjgl-opus"
-    implementation "org.lwjgl:lwjgl-stb"
+    api "org.lwjgl:lwjgl"
+    api "org.lwjgl:lwjgl-assimp"
+    api "org.lwjgl:lwjgl-freetype"
+    api "org.lwjgl:lwjgl-glfw"
+    api "org.lwjgl:lwjgl-meshoptimizer"
+    api "org.lwjgl:lwjgl-nfd"
+    api "org.lwjgl:lwjgl-openal"
+    api "org.lwjgl:lwjgl-opencl"
+    api "org.lwjgl:lwjgl-opengl"
+    api "org.lwjgl:lwjgl-opus"
+    api "org.lwjgl:lwjgl-stb"
 
     api "org.apache.logging.log4j:log4j-api:$project.ext.log4jVersion"
     api "org.apache.logging.log4j:log4j-core:$project.ext.log4jVersion"
+
+    api "org.joml:joml:${jomlVersion}"
+    api "org.joml:joml-primitives:${joml_primitivesVersion}"
 
     for (nat in project.ext.natives) {
         runtimeOnly "org.lwjgl:lwjgl::$nat"
@@ -45,9 +48,6 @@ dependencies {
         runtimeOnly "org.lwjgl:lwjgl-opus::$nat"
         runtimeOnly "org.lwjgl:lwjgl-stb::$nat"
     }
-
-    api "org.joml:joml:${jomlVersion}"
-    api "org.joml:joml-primitives:${joml_primitivesVersion}"
 }
 
 java {
