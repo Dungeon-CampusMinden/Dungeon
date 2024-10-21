@@ -47,6 +47,17 @@ public class Sprite extends Renderable<Sprite> {
   }
 
   /**
+   * Constructs a new sprite with the specified animation, and billboard mode. The width and height
+   * of the sprite are set to 1.0f.
+   *
+   * @param animation The animation to be used for this sprite.
+   * @param billboardMode The billboard mode of the sprite.
+   */
+  public Sprite(Animation animation, BillboardMode billboardMode) {
+    this(animation, 1.0f, 1.0f, billboardMode);
+  }
+
+  /**
    * Renders the sprite using the specified camera. Initializes the shader if it is not already
    * initialized.
    *
