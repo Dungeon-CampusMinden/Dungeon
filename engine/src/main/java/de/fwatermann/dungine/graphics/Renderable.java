@@ -276,5 +276,7 @@ public abstract class Renderable<T extends Renderable<?>> {
    * @param frustum the camera frustum
    * @return true if the object should be rendered, false otherwise
    */
-  public abstract boolean shouldRender(CameraFrustum frustum);
+  public boolean shouldRender(CameraFrustum frustum) {
+    return true;
+  }
 }
