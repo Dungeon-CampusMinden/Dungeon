@@ -2,7 +2,7 @@
 #define ATLAS_MAX_ENTRIES 65536
 
 uniform ivec2 uTextureAtlasSize;
-uniform sampler2D uTextureAtlasPages[32];
+uniform sampler2D uTextureAtlasPages[ATLAS_MAX_PAGES];
 uniform isamplerBuffer uTextureAtlasEntries;
 
 vec4 textureAtlas(int entry, vec2 pTexCoord) {
