@@ -1,11 +1,11 @@
 package core.level.generator;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import core.level.elements.ILevel;
 import core.level.generator.randomwalk.RandomWalkGenerator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link RandomWalkGenerator} class. */
 public class RandomWalkGeneratorTest {
@@ -14,7 +14,7 @@ public class RandomWalkGeneratorTest {
   private ILevel level;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     generator = new RandomWalkGenerator();
     level = generator.level();

@@ -7,8 +7,19 @@ import dsl.annotation.DSLTypeMember;
 /** WTF? . */
 @DSLType
 public class TestComponentWithExternalType extends Component {
-  @DSLTypeMember private int member1;
+  @DSLTypeMember private final int member1;
   @DSLTypeMember private ExternalType memberExternalType;
+
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
+  public TestComponentWithExternalType(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    member1 = 0;
+    memberExternalType = null;
+  }
 
   /**
    * WTF? .
@@ -26,16 +37,5 @@ public class TestComponentWithExternalType extends Component {
    */
   public void setMemberExternalType(ExternalType value) {
     memberExternalType = value;
-  }
-
-  /**
-   * WTF? .
-   *
-   * @param entity foo
-   */
-  public TestComponentWithExternalType(@DSLContextMember(name = "entity") Entity entity) {
-    super(entity);
-    member1 = 0;
-    memberExternalType = null;
   }
 }

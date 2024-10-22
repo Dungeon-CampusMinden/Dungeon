@@ -1,11 +1,11 @@
 package petriNet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import graph.petrinet.Place;
 import graph.petrinet.Transition;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class TransitionTest {
@@ -17,7 +17,7 @@ public class TransitionTest {
     Place addToken = new Place();
     Transition transition = new Transition(Set.of(dependency), Set.of(addToken));
     dependency.placeToken();
-    assertEquals("Transition should have fired.", 1, addToken.tokenCount());
+    assertEquals(1, addToken.tokenCount());
     assertEquals(0, dependency.tokenCount());
   }
 
@@ -29,12 +29,9 @@ public class TransitionTest {
     Place addToken = new Place();
     Transition transition = new Transition(Set.of(dependencyA, dependencyB), Set.of(addToken));
     dependencyA.placeToken();
-    assertEquals(
-        "Transition should not have fired because only one place has a token.",
-        0,
-        addToken.tokenCount());
+    assertEquals(0, addToken.tokenCount());
     dependencyB.placeToken();
-    assertEquals("Transition should have fired.", 1, addToken.tokenCount());
+    assertEquals(1, addToken.tokenCount());
     assertEquals(0, dependencyA.tokenCount());
     assertEquals(0, dependencyB.tokenCount());
   }
@@ -46,9 +43,9 @@ public class TransitionTest {
     Place addToken = new Place();
     Transition transition = new Transition(Set.of(dependency), Set.of(addToken));
     dependency.placeToken();
-    assertEquals("Transition should have fired.", 1, addToken.tokenCount());
+    assertEquals(1, addToken.tokenCount());
     dependency.placeToken();
-    assertEquals("Transition should have fired again.", 2, addToken.tokenCount());
+    assertEquals(2, addToken.tokenCount());
     assertEquals(0, dependency.tokenCount());
   }
 
@@ -60,8 +57,8 @@ public class TransitionTest {
     Place addTokenB = new Place();
     Transition transition = new Transition(Set.of(dependency), Set.of(addTokenA, addTokenB));
     dependency.placeToken();
-    assertEquals("Transition should have fired", 1, addTokenA.tokenCount());
-    assertEquals("Transition should have fired.", 1, addTokenB.tokenCount());
+    assertEquals(1, addTokenA.tokenCount());
+    assertEquals(1, addTokenB.tokenCount());
     assertEquals(0, dependency.tokenCount());
   }
 }

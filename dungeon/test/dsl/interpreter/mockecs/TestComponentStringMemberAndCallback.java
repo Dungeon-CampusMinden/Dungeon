@@ -9,20 +9,9 @@ import java.util.function.Consumer;
 /** WTF? . */
 @DSLType
 public class TestComponentStringMemberAndCallback extends Component {
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
-  @DSLTypeMember private String member1;
-
+  private final Entity entity;
   @DSLCallback Consumer<TestComponent2> consumer;
+  @DSLTypeMember private String member1;
 
   /**
    * WTF? .
@@ -32,6 +21,15 @@ public class TestComponentStringMemberAndCallback extends Component {
   public TestComponentStringMemberAndCallback(@DSLContextMember(name = "entity") Entity entity) {
     super(entity);
     this.entity = entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
   }
 
   /**

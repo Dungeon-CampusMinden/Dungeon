@@ -1,18 +1,18 @@
 package dsl.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import dsl.helpers.Helpers;
 import dsl.parser.ast.*;
 import graph.taskdependencygraph.TaskEdge;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 // CHECKSTYLE:OFF: AvoidStarImport
 
 // CHECKSTYLE:ON: AvoidStarImport
+
 /** WTF? . */
 public class TestDungeonASTConverter {
 
@@ -62,15 +62,15 @@ public class TestDungeonASTConverter {
     var edgeStmtNode = (DotEdgeStmtNode) edgeStmt;
 
     var firstIdList = edgeStmtNode.getIdLists().get(0);
-    var lhsIdNode = (IdNode) firstIdList.getIdNodes().get(0);
+    var lhsIdNode = firstIdList.getIdNodes().get(0);
     assertEquals("a", lhsIdNode.getName());
 
     var secondIdList = edgeStmtNode.getIdLists().get(1);
-    var secondIdNode = (IdNode) secondIdList.getIdNodes().get(0);
+    var secondIdNode = secondIdList.getIdNodes().get(0);
     assertEquals("b", secondIdNode.getName());
 
     var thirdIdList = edgeStmtNode.getIdLists().get(2);
-    var thirdIdNode = (IdNode) thirdIdList.getIdNodes().get(0);
+    var thirdIdNode = thirdIdList.getIdNodes().get(0);
     assertEquals("c", thirdIdNode.getName());
   }
 
@@ -185,12 +185,12 @@ public class TestDungeonASTConverter {
   public void testItemTypeDefinition() {
     String program =
         """
-            item_type test_object {
-                value1: 1,
-                value2: 2,
-                value3: 3
-            }
-            """;
+                item_type test_object {
+                    value1: 1,
+                    value2: 2,
+                    value3: 3
+                }
+                """;
     var ast = Helpers.getASTFromString(program);
 
     var objDef = ast.getChild(0);
@@ -260,16 +260,16 @@ public class TestDungeonASTConverter {
   public void testGameObjectDefinitionMultiComponent() {
     String program =
         """
-            entity_type test_object {
-                complex_component1 {
-                    prop1: 123,
-                    prop2: "Hello, World!"
-                },
-                complex_component2 {
-                    prop3: func(test),
-                    prop4: "42"
+                entity_type test_object {
+                    complex_component1 {
+                        prop1: 123,
+                        prop2: "Hello, World!"
+                    },
+                    complex_component2 {
+                        prop3: func(test),
+                        prop4: "42"
+                    }
                 }
-            }
                 """;
     var ast = Helpers.getASTFromString(program);
 
@@ -313,16 +313,16 @@ public class TestDungeonASTConverter {
   public void adaptedAggregateType() {
     String program =
         """
-            entity_type my_obj {
-                test_component_with_external_type {
-                    member_external_type: external_type { str: "Hello, World!", n: 42 }
+                entity_type my_obj {
+                    test_component_with_external_type {
+                        member_external_type: external_type { str: "Hello, World!", n: 42 }
+                    }
                 }
-            }
 
-            quest_config config {
-                entity: my_obj
-            }
-            """;
+                quest_config config {
+                    entity: my_obj
+                }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var gameObjectDef = (PrototypeDefinitionNode) ast.getChild(0);
@@ -337,8 +337,8 @@ public class TestDungeonASTConverter {
   @Test
   public void funcDefMinimal() {
     String program = """
-        fn test_func() { }
-        """;
+            fn test_func() { }
+            """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -359,10 +359,10 @@ public class TestDungeonASTConverter {
   public void funcDefFull() {
     String program =
         """
-        fn test_func(int param1, float param2, string param3) -> ret_type {
-            print("hello");
-        }
-        """;
+                fn test_func(int param1, float param2, string param3) -> ret_type {
+                    print("hello");
+                }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -393,10 +393,10 @@ public class TestDungeonASTConverter {
   public void returnStmt() {
     String program =
         """
-                fn test_func() -> ret_type {
-                    return 42;
-                }
-            """;
+                    fn test_func() -> ret_type {
+                        return 42;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -414,32 +414,32 @@ public class TestDungeonASTConverter {
   public void nestedBlocks() {
     String program =
         """
-            fn test_func(int param1, float param2, string param3) -> int
-            {
+                fn test_func(int param1, float param2, string param3) -> int
                 {
                     {
-                        print(param1);
+                        {
+                            print(param1);
+                        }
                     }
                 }
-            }
-            """;
+                """;
 
     var ast = Helpers.getASTFromString(program);
 
     FuncDefNode funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmtList = funcDefNode.getStmts();
-    Assert.assertEquals(1, stmtList.size());
+    assertEquals(1, stmtList.size());
 
     Node outerStmtBlock = funcDefNode.getStmtBlock();
-    Assert.assertEquals(Node.Type.Block, outerStmtBlock.type);
+    assertEquals(Node.Type.Block, outerStmtBlock.type);
     Node outerBlocksStmtList = outerStmtBlock.getChild(0);
-    Assert.assertEquals(Node.Type.StmtList, outerBlocksStmtList.type);
+    assertEquals(Node.Type.StmtList, outerBlocksStmtList.type);
     Node middleStmtBlock = outerBlocksStmtList.getChild(0);
-    Assert.assertEquals(Node.Type.Block, middleStmtBlock.type);
+    assertEquals(Node.Type.Block, middleStmtBlock.type);
     Node middleBlocksStmtList = middleStmtBlock.getChild(0);
-    Assert.assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
+    assertEquals(Node.Type.StmtList, middleBlocksStmtList.type);
     Node innerStmtBlock = middleBlocksStmtList.getChild(0);
-    Assert.assertEquals(Node.Type.Block, innerStmtBlock.type);
+    assertEquals(Node.Type.Block, innerStmtBlock.type);
     Node funcCallStmt = ((StmtBlockNode) innerStmtBlock).getStmts().get(0);
   }
 
@@ -448,26 +448,26 @@ public class TestDungeonASTConverter {
   public void ifStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                }
-            }
-        """;
+                    fn test_func() {
+                        if expr {
+                            print("hello");
+                        }
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var conditionalIfStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.ConditionalStmtIf, conditionalIfStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIf, conditionalIfStmt.type);
 
     var condition = ((ConditionalStmtNodeIf) conditionalIfStmt).getCondition();
-    Assert.assertEquals(Node.Type.Identifier, condition.type);
-    Assert.assertEquals("expr", ((IdNode) condition).getName());
+    assertEquals(Node.Type.Identifier, condition.type);
+    assertEquals("expr", ((IdNode) condition).getName());
 
     var stmt = ((ConditionalStmtNodeIf) conditionalIfStmt).getIfStmt();
-    Assert.assertEquals(Node.Type.Block, stmt.type);
+    assertEquals(Node.Type.Block, stmt.type);
   }
 
   /** WTF? . */
@@ -475,30 +475,30 @@ public class TestDungeonASTConverter {
   public void ifElseStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                } else
-                  print("world");
-            }
-        """;
+                    fn test_func() {
+                        if expr {
+                            print("hello");
+                        } else
+                          print("world");
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var conditionalStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
 
     var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
-    Assert.assertEquals(Node.Type.Identifier, condition.type);
-    Assert.assertEquals("expr", ((IdNode) condition).getName());
+    assertEquals(Node.Type.Identifier, condition.type);
+    assertEquals("expr", ((IdNode) condition).getName());
 
     var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
-    Assert.assertEquals(Node.Type.Block, ifStmt.type);
+    assertEquals(Node.Type.Block, ifStmt.type);
 
     var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
-    Assert.assertEquals(Node.Type.FuncCall, elseStmt.type);
+    assertEquals(Node.Type.FuncCall, elseStmt.type);
   }
 
   /** WTF? . */
@@ -506,34 +506,34 @@ public class TestDungeonASTConverter {
   public void elseIfStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                } else if other_expr
-                  print("world");
-            }
-        """;
+                    fn test_func() {
+                        if expr {
+                            print("hello");
+                        } else if other_expr
+                          print("world");
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var conditionalStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
 
     var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
-    Assert.assertEquals(Node.Type.Identifier, condition.type);
-    Assert.assertEquals("expr", ((IdNode) condition).getName());
+    assertEquals(Node.Type.Identifier, condition.type);
+    assertEquals("expr", ((IdNode) condition).getName());
 
     var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
-    Assert.assertEquals(Node.Type.Block, ifStmt.type);
+    assertEquals(Node.Type.Block, ifStmt.type);
 
     var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
-    Assert.assertEquals(Node.Type.ConditionalStmtIf, elseIfStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIf, elseIfStmt.type);
 
     var elseIfStmtCondition = ((ConditionalStmtNodeIf) elseIfStmt).getCondition();
-    Assert.assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
-    Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
+    assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
+    assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
   }
 
   /** WTF? . */
@@ -541,58 +541,58 @@ public class TestDungeonASTConverter {
   public void elseIfElseStmt() {
     String program =
         """
-            fn test_func() {
-                if expr {
-                    print("hello");
-                } else if other_expr {
-                  print("world");
-                } else {
-                  print("!");
-                }
-            }
-        """;
+                    fn test_func() {
+                        if expr {
+                            print("hello");
+                        } else if other_expr {
+                          print("world");
+                        } else {
+                          print("!");
+                        }
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var conditionalStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIfElse, conditionalStmt.type);
 
     var condition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
-    Assert.assertEquals(Node.Type.Identifier, condition.type);
-    Assert.assertEquals("expr", ((IdNode) condition).getName());
+    assertEquals(Node.Type.Identifier, condition.type);
+    assertEquals("expr", ((IdNode) condition).getName());
 
     var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
-    Assert.assertEquals(Node.Type.Block, ifStmt.type);
+    assertEquals(Node.Type.Block, ifStmt.type);
 
     var elseIfStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
-    Assert.assertEquals(Node.Type.ConditionalStmtIfElse, elseIfStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIfElse, elseIfStmt.type);
 
     var elseIfStmtCondition = ((ConditionalStmtNodeIfElse) elseIfStmt).getCondition();
-    Assert.assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
-    Assert.assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
+    assertEquals(Node.Type.Identifier, elseIfStmtCondition.type);
+    assertEquals("other_expr", ((IdNode) elseIfStmtCondition).getName());
 
     var elseStmt = ((ConditionalStmtNodeIfElse) elseIfStmt).getElseStmt();
-    Assert.assertEquals(Node.Type.Block, elseStmt.type);
+    assertEquals(Node.Type.Block, elseStmt.type);
   }
 
   /** WTF? . */
   void nestedIfElseStmts() {
     String program =
         """
-            fn test_func() {
-                if outer_expr {
-                  if inner_expr {
-                    print("hello");
-                  } else if inner_else_if_expr {
-                    print("moin");
-                  }
-                } else {
-                  print("world");
-                }
-            }
-        """;
+                    fn test_func() {
+                        if outer_expr {
+                          if inner_expr {
+                            print("hello");
+                          } else if inner_else_if_expr {
+                            print("moin");
+                          }
+                        } else {
+                          print("world");
+                        }
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -600,33 +600,34 @@ public class TestDungeonASTConverter {
 
     var conditionalStmt = stmts.get(0);
     var outerCondition = ((ConditionalStmtNodeIfElse) conditionalStmt).getCondition();
-    Assert.assertEquals("outer_expr", ((IdNode) outerCondition).getName());
+    assertEquals("outer_expr", ((IdNode) outerCondition).getName());
 
     var ifStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getIfStmt();
     var innerConditionalStmt = ((StmtBlockNode) ifStmt).getStmts().get(0);
-    Assert.assertEquals(Node.Type.ConditionalStmtIfElse, innerConditionalStmt.type);
+    assertEquals(Node.Type.ConditionalStmtIfElse, innerConditionalStmt.type);
 
     var innerIfCondition = ((ConditionalStmtNodeIfElse) innerConditionalStmt).getCondition();
-    Assert.assertEquals("inner_expr", ((IdNode) innerIfCondition).getName());
+    assertEquals("inner_expr", ((IdNode) innerIfCondition).getName());
 
     var innerElseStmt = ((ConditionalStmtNodeIfElse) innerConditionalStmt).getElseStmt();
     var innerElseIfCondition = ((ConditionalStmtNodeIf) innerElseStmt).getCondition();
-    Assert.assertEquals("inner_else_if_expr", ((IdNode) innerElseIfCondition).getName());
+    assertEquals("inner_else_if_expr", ((IdNode) innerElseIfCondition).getName());
 
     var elseStmt = ((ConditionalStmtNodeIfElse) conditionalStmt).getElseStmt();
-    Assert.assertEquals(Node.Type.Block, elseStmt.type);
+    assertEquals(Node.Type.Block, elseStmt.type);
   }
 
   // TODO: tests for complex expressions
+
   /** WTF? . */
   void testUnary() {
     String program =
         """
-                fn test_func() {
-                    !true;
-                    -4;
-                }
-            """;
+                    fn test_func() {
+                        !true;
+                        -4;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -634,26 +635,26 @@ public class TestDungeonASTConverter {
 
     // first statement
     var unaryStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+    assertEquals(Node.Type.Unary, unaryStmt.type);
     var unaryNode = (UnaryNode) unaryStmt;
-    Assert.assertEquals(UnaryNode.UnaryType.not, unaryNode.getUnaryType());
+    assertEquals(UnaryNode.UnaryType.not, unaryNode.getUnaryType());
 
     // second statement
     unaryStmt = stmts.get(1);
-    Assert.assertEquals(Node.Type.Unary, unaryStmt.type);
+    assertEquals(Node.Type.Unary, unaryStmt.type);
     unaryNode = (UnaryNode) unaryStmt;
-    Assert.assertEquals(UnaryNode.UnaryType.minus, unaryNode.getUnaryType());
+    assertEquals(UnaryNode.UnaryType.minus, unaryNode.getUnaryType());
   }
 
   /** WTF? . */
   void testFactor() {
     String program =
         """
-                fn test_func() {
-                    4 * 2;
-                    3 / 1;
-                }
-            """;
+                    fn test_func() {
+                        4 * 2;
+                        3 / 1;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -661,44 +662,44 @@ public class TestDungeonASTConverter {
 
     // first statement
     var factorStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Factor, factorStmt.type);
+    assertEquals(Node.Type.Factor, factorStmt.type);
 
     FactorNode factorNode = (FactorNode) factorStmt;
-    Assert.assertEquals(FactorNode.FactorType.multiply, factorNode.getFactorType());
+    assertEquals(FactorNode.FactorType.multiply, factorNode.getFactorType());
 
     var lhs = factorNode.getLhs();
-    Assert.assertEquals(Node.Type.Number, lhs.type);
-    Assert.assertEquals(4, ((NumNode) lhs).getValue());
+    assertEquals(Node.Type.Number, lhs.type);
+    assertEquals(4, ((NumNode) lhs).getValue());
 
     var rhs = factorNode.getRhs();
-    Assert.assertEquals(Node.Type.Number, rhs.type);
-    Assert.assertEquals(2, ((NumNode) rhs).getValue());
+    assertEquals(Node.Type.Number, rhs.type);
+    assertEquals(2, ((NumNode) rhs).getValue());
 
     // second statement
     factorStmt = stmts.get(1);
-    Assert.assertEquals(Node.Type.Factor, factorStmt.type);
+    assertEquals(Node.Type.Factor, factorStmt.type);
 
     factorNode = (FactorNode) factorStmt;
-    Assert.assertEquals(FactorNode.FactorType.divide, factorNode.getFactorType());
+    assertEquals(FactorNode.FactorType.divide, factorNode.getFactorType());
 
     lhs = factorNode.getLhs();
-    Assert.assertEquals(Node.Type.Number, lhs.type);
-    Assert.assertEquals(3, ((NumNode) lhs).getValue());
+    assertEquals(Node.Type.Number, lhs.type);
+    assertEquals(3, ((NumNode) lhs).getValue());
 
     rhs = factorNode.getRhs();
-    Assert.assertEquals(Node.Type.Number, rhs.type);
-    Assert.assertEquals(1, ((NumNode) rhs).getValue());
+    assertEquals(Node.Type.Number, rhs.type);
+    assertEquals(1, ((NumNode) rhs).getValue());
   }
 
   /** WTF? . */
   void testTerm() {
     String program =
         """
-                fn test_func() {
-                    4 + 2;
-                    3 - 1;
-                }
-            """;
+                    fn test_func() {
+                        4 + 2;
+                        3 - 1;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -706,46 +707,46 @@ public class TestDungeonASTConverter {
 
     // first statement
     var termStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Term, termStmt.type);
+    assertEquals(Node.Type.Term, termStmt.type);
 
     TermNode termNode = (TermNode) termStmt;
-    Assert.assertEquals(TermNode.TermType.plus, termNode.getTermType());
+    assertEquals(TermNode.TermType.plus, termNode.getTermType());
 
     var lhs = termNode.getLhs();
-    Assert.assertEquals(Node.Type.Number, lhs.type);
-    Assert.assertEquals(4, ((NumNode) lhs).getValue());
+    assertEquals(Node.Type.Number, lhs.type);
+    assertEquals(4, ((NumNode) lhs).getValue());
 
     var rhs = termNode.getRhs();
-    Assert.assertEquals(Node.Type.Number, rhs.type);
-    Assert.assertEquals(2, ((NumNode) rhs).getValue());
+    assertEquals(Node.Type.Number, rhs.type);
+    assertEquals(2, ((NumNode) rhs).getValue());
 
     // second statement
     termStmt = stmts.get(1);
-    Assert.assertEquals(Node.Type.Term, termStmt.type);
+    assertEquals(Node.Type.Term, termStmt.type);
 
     termNode = (TermNode) termStmt;
-    Assert.assertEquals(TermNode.TermType.minus, termNode.getTermType());
+    assertEquals(TermNode.TermType.minus, termNode.getTermType());
 
     lhs = termNode.getLhs();
-    Assert.assertEquals(Node.Type.Number, lhs.type);
-    Assert.assertEquals(3, ((NumNode) lhs).getValue());
+    assertEquals(Node.Type.Number, lhs.type);
+    assertEquals(3, ((NumNode) lhs).getValue());
 
     rhs = termNode.getRhs();
-    Assert.assertEquals(Node.Type.Number, rhs.type);
-    Assert.assertEquals(1, ((NumNode) rhs).getValue());
+    assertEquals(Node.Type.Number, rhs.type);
+    assertEquals(1, ((NumNode) rhs).getValue());
   }
 
   /** WTF? . */
   void testComparison() {
     String program =
         """
-            fn test_func() {
-                1 > 5;
-                2 >= 6;
-                3 < 7;
-                4 <= 8;
-            }
-        """;
+                    fn test_func() {
+                        1 > 5;
+                        2 >= 6;
+                        3 < 7;
+                        4 <= 8;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -753,42 +754,42 @@ public class TestDungeonASTConverter {
 
     // first statement
     var compStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+    assertEquals(Node.Type.Comparison, compStmt.type);
 
     ComparisonNode compNode = (ComparisonNode) compStmt;
-    Assert.assertEquals(ComparisonNode.ComparisonType.greaterThan, compNode.getComparisonType());
+    assertEquals(ComparisonNode.ComparisonType.greaterThan, compNode.getComparisonType());
 
     // second statement
     compStmt = stmts.get(1);
-    Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+    assertEquals(Node.Type.Comparison, compStmt.type);
 
     compNode = (ComparisonNode) compStmt;
-    Assert.assertEquals(ComparisonNode.ComparisonType.greaterEquals, compNode.getComparisonType());
+    assertEquals(ComparisonNode.ComparisonType.greaterEquals, compNode.getComparisonType());
 
     // third statement
     compStmt = stmts.get(2);
-    Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+    assertEquals(Node.Type.Comparison, compStmt.type);
 
     compNode = (ComparisonNode) compStmt;
-    Assert.assertEquals(ComparisonNode.ComparisonType.lessThan, compNode.getComparisonType());
+    assertEquals(ComparisonNode.ComparisonType.lessThan, compNode.getComparisonType());
 
     // fourth statement
     compStmt = stmts.get(3);
-    Assert.assertEquals(Node.Type.Comparison, compStmt.type);
+    assertEquals(Node.Type.Comparison, compStmt.type);
 
     compNode = (ComparisonNode) compStmt;
-    Assert.assertEquals(ComparisonNode.ComparisonType.lessEquals, compNode.getComparisonType());
+    assertEquals(ComparisonNode.ComparisonType.lessEquals, compNode.getComparisonType());
   }
 
   /** WTF? . */
   void testEquality() {
     String program =
         """
-                fn test_func() {
-                    test == other_test;
-                    test != other_test;
-                }
-            """;
+                    fn test_func() {
+                        test == other_test;
+                        test != other_test;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
@@ -796,334 +797,334 @@ public class TestDungeonASTConverter {
 
     // first statement
     var equalityStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+    assertEquals(Node.Type.Equality, equalityStmt.type);
 
     EqualityNode equalityNode = (EqualityNode) equalityStmt;
-    Assert.assertEquals(EqualityNode.EqualityType.equals, equalityNode.getEqualityType());
+    assertEquals(EqualityNode.EqualityType.equals, equalityNode.getEqualityType());
 
     // second statement
     equalityStmt = stmts.get(1);
-    Assert.assertEquals(Node.Type.Equality, equalityStmt.type);
+    assertEquals(Node.Type.Equality, equalityStmt.type);
 
     equalityNode = (EqualityNode) equalityStmt;
-    Assert.assertEquals(EqualityNode.EqualityType.notEquals, equalityNode.getEqualityType());
+    assertEquals(EqualityNode.EqualityType.notEquals, equalityNode.getEqualityType());
   }
 
   /** WTF? . */
   void testLogicAnd() {
     String program =
         """
-                fn test_func() {
-                    lhs and rhs;
-                }
-            """;
+                    fn test_func() {
+                        lhs and rhs;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var andStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.LogicAnd, andStmt.type);
+    assertEquals(Node.Type.LogicAnd, andStmt.type);
   }
 
   /** WTF? . */
   void testLogicOr() {
     String program =
         """
-                fn test_func() {
-                    lhs or rhs;
-                }
-            """;
+                    fn test_func() {
+                        lhs or rhs;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var orStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.LogicOr, orStmt.type);
+    assertEquals(Node.Type.LogicOr, orStmt.type);
   }
 
   /** WTF? . */
   void testAssignmentId() {
     String program =
         """
-            fn test_func() {
-                my_var = 4;
-            }
-        """;
+                    fn test_func() {
+                        my_var = 4;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var assignmentStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+    assertEquals(Node.Type.Assignment, assignmentStmt.type);
 
     AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
-    Assert.assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
+    assertEquals(Node.Type.Identifier, assignmentNode.getLhs().type);
   }
 
   /** WTF? . */
   void testAssignmentMemberAccessWithCall() {
     String program =
         """
-            fn test_func() {
-                my_func().test = 4;
-            }
-        """;
+                    fn test_func() {
+                        my_func().test = 4;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var assignmentStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+    assertEquals(Node.Type.Assignment, assignmentStmt.type);
 
     AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
-    Assert.assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
-    Assert.assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
+    assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
+    assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
 
     MemberAccessNode memberAccessNode = (MemberAccessNode) assignmentNode.getLhs();
-    Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getLhs().type);
-    Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    assertEquals(Node.Type.FuncCall, memberAccessNode.getLhs().type);
+    assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
   }
 
   /** WTF? . */
   void testAssignmentMemberAccess() {
     String program =
         """
-                fn test_func() {
-                    my_var.test = 4;
-                }
-            """;
+                    fn test_func() {
+                        my_var.test = 4;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var assignmentStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+    assertEquals(Node.Type.Assignment, assignmentStmt.type);
 
     AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
-    Assert.assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
-    Assert.assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
+    assertEquals(Node.Type.MemberAccess, assignmentNode.getLhs().type);
+    assertEquals(Node.Type.Number, assignmentNode.getRhs().type);
 
     MemberAccessNode memberAccessNode = (MemberAccessNode) assignmentNode.getLhs();
-    Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
-    Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+    assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
   }
 
   /** WTF? . */
   void testMethodCallExpression() {
     String program =
         """
-                fn test_func() {
-                    test = expr.func();
-                }
-            """;
+                    fn test_func() {
+                        test = expr.func();
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var assignmentStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+    assertEquals(Node.Type.Assignment, assignmentStmt.type);
 
     AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
     var rhs = assignmentNode.getRhs();
-    Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+    assertEquals(Node.Type.MemberAccess, rhs.type);
 
     MemberAccessNode memberAccessNode = (MemberAccessNode) rhs;
-    Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
-    Assert.assertEquals(Node.Type.FuncCall, memberAccessNode.getRhs().type);
+    assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+    assertEquals(Node.Type.FuncCall, memberAccessNode.getRhs().type);
   }
 
   /** WTF? . */
   void testMemberAccessExpression() {
     String program =
         """
-                fn test_func() {
-                    test = expr.identifier;
-                }
-            """;
+                    fn test_func() {
+                        test = expr.identifier;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var assignmentStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.Assignment, assignmentStmt.type);
+    assertEquals(Node.Type.Assignment, assignmentStmt.type);
 
     AssignmentNode assignmentNode = (AssignmentNode) assignmentStmt;
     var rhs = assignmentNode.getRhs();
-    Assert.assertEquals(Node.Type.MemberAccess, rhs.type);
+    assertEquals(Node.Type.MemberAccess, rhs.type);
 
     MemberAccessNode memberAccessNode = (MemberAccessNode) rhs;
-    Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
-    Assert.assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
+    assertEquals(Node.Type.Identifier, memberAccessNode.getLhs().type);
+    assertEquals(Node.Type.Identifier, memberAccessNode.getRhs().type);
   }
 
   /** WTF? . */
   void testListDefinition() {
     String program =
         """
-            fn test_func() {
-                [1,2,3];
-            }
-        """;
+                    fn test_func() {
+                        [1,2,3];
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var listDefinitionStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.ListDefinitionNode, listDefinitionStmt.type);
+    assertEquals(Node.Type.ListDefinitionNode, listDefinitionStmt.type);
 
     ListDefinitionNode listDefinitionNode = (ListDefinitionNode) listDefinitionStmt;
 
-    Assert.assertEquals(1, ((NumNode) listDefinitionNode.getEntries().get(0)).getValue());
-    Assert.assertEquals(2, ((NumNode) listDefinitionNode.getEntries().get(1)).getValue());
-    Assert.assertEquals(3, ((NumNode) listDefinitionNode.getEntries().get(2)).getValue());
+    assertEquals(1, ((NumNode) listDefinitionNode.getEntries().get(0)).getValue());
+    assertEquals(2, ((NumNode) listDefinitionNode.getEntries().get(1)).getValue());
+    assertEquals(3, ((NumNode) listDefinitionNode.getEntries().get(2)).getValue());
   }
 
   /** WTF? . */
   void testSetDefinition() {
     String program =
         """
-            fn test_func() {
-                <1,2,3>;
-            }
-        """;
+                    fn test_func() {
+                        <1,2,3>;
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var setDefinitionStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.SetDefinitionNode, setDefinitionStmt.type);
+    assertEquals(Node.Type.SetDefinitionNode, setDefinitionStmt.type);
 
     SetDefinitionNode setDefinitionNode = (SetDefinitionNode) setDefinitionStmt;
 
-    Assert.assertEquals(1, ((NumNode) setDefinitionNode.getEntries().get(0)).getValue());
-    Assert.assertEquals(2, ((NumNode) setDefinitionNode.getEntries().get(1)).getValue());
-    Assert.assertEquals(3, ((NumNode) setDefinitionNode.getEntries().get(2)).getValue());
+    assertEquals(1, ((NumNode) setDefinitionNode.getEntries().get(0)).getValue());
+    assertEquals(2, ((NumNode) setDefinitionNode.getEntries().get(1)).getValue());
+    assertEquals(3, ((NumNode) setDefinitionNode.getEntries().get(2)).getValue());
   }
 
   /** WTF? . */
   void testForLoop() {
     String program =
         """
-        fn test_func() {
-            for var_type var_name in iterable {
-                print(id);
-            }
-        }
-    """;
+                    fn test_func() {
+                        for var_type var_name in iterable {
+                            print(id);
+                        }
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var loopStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
+    assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
     ForLoopStmtNode forLoopStmtNode = (ForLoopStmtNode) loopStmt;
-    Assert.assertEquals(LoopStmtNode.LoopType.forLoop, forLoopStmtNode.loopType());
+    assertEquals(LoopStmtNode.LoopType.forLoop, forLoopStmtNode.loopType());
 
     IdNode typeIdNode = (IdNode) forLoopStmtNode.getTypeIdNode();
-    Assert.assertEquals("var_type", typeIdNode.getName());
+    assertEquals("var_type", typeIdNode.getName());
 
     IdNode varNameIdNode = (IdNode) forLoopStmtNode.getVarIdNode();
-    Assert.assertEquals("var_name", varNameIdNode.getName());
+    assertEquals("var_name", varNameIdNode.getName());
 
     IdNode iterableIdNode = (IdNode) forLoopStmtNode.getIterableIdNode();
-    Assert.assertEquals("iterable", iterableIdNode.getName());
+    assertEquals("iterable", iterableIdNode.getName());
   }
 
   /** WTF? . */
   void testCountingForLoop() {
     String program =
         """
-        fn test_func() {
-            for var_type var_name in iterable count i {
-                print(id);
-            }
-        }
-    """;
+                    fn test_func() {
+                        for var_type var_name in iterable count i {
+                            print(id);
+                        }
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var loopStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
+    assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
     CountingLoopStmtNode forLoopStmtNode = (CountingLoopStmtNode) loopStmt;
-    Assert.assertEquals(LoopStmtNode.LoopType.countingForLoop, forLoopStmtNode.loopType());
+    assertEquals(LoopStmtNode.LoopType.countingForLoop, forLoopStmtNode.loopType());
 
     IdNode typeIdNode = (IdNode) forLoopStmtNode.getTypeIdNode();
-    Assert.assertEquals("var_type", typeIdNode.getName());
+    assertEquals("var_type", typeIdNode.getName());
 
     IdNode varNameIdNode = (IdNode) forLoopStmtNode.getVarIdNode();
-    Assert.assertEquals("var_name", varNameIdNode.getName());
+    assertEquals("var_name", varNameIdNode.getName());
 
     IdNode iterableIdNode = (IdNode) forLoopStmtNode.getIterableIdNode();
-    Assert.assertEquals("iterable", iterableIdNode.getName());
+    assertEquals("iterable", iterableIdNode.getName());
 
     IdNode counterIdNode = (IdNode) forLoopStmtNode.getCounterIdNode();
-    Assert.assertEquals("i", counterIdNode.getName());
+    assertEquals("i", counterIdNode.getName());
   }
 
   /** WTF? . */
   void testWhileLoop() {
     String program =
         """
-        fn test_func() {
-            while expr {
-                print(id);
-            }
-        }
-    """;
+                    fn test_func() {
+                        while expr {
+                            print(id);
+                        }
+                    }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var funcDefNode = (FuncDefNode) ast.getChild(0);
     var stmts = funcDefNode.getStmts();
 
     var loopStmt = stmts.get(0);
-    Assert.assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
+    assertEquals(Node.Type.LoopStmtNode, loopStmt.type);
     WhileLoopStmtNode forLoopStmtNode = (WhileLoopStmtNode) loopStmt;
-    Assert.assertEquals(LoopStmtNode.LoopType.whileLoop, forLoopStmtNode.loopType());
+    assertEquals(LoopStmtNode.LoopType.whileLoop, forLoopStmtNode.loopType());
 
     IdNode counterIdNode = (IdNode) forLoopStmtNode.getExpressionNode();
-    Assert.assertEquals("expr", counterIdNode.getName());
+    assertEquals("expr", counterIdNode.getName());
   }
 
   /** WTF? . */
   void testGraphEdgeAttribute() {
     String program =
         """
-            graph g {
-                t1 -> t2 [type=seq]
-            }
-            """;
+                graph g {
+                    t1 -> t2 [type=seq]
+                }
+                """;
 
     var ast = Helpers.getASTFromString(program);
     var dotDefNode = (DotDefNode) ast.getChild(0);
     var stmts = dotDefNode.getStmtNodes();
 
     var edgeDefinitionNode = stmts.get(0);
-    Assert.assertEquals(Node.Type.DotEdgeStmt, edgeDefinitionNode.type);
+    assertEquals(Node.Type.DotEdgeStmt, edgeDefinitionNode.type);
 
     DotEdgeStmtNode edgeStmtNode = (DotEdgeStmtNode) edgeDefinitionNode;
     var attrList = edgeStmtNode.getAttrListNode();
 
-    Assert.assertEquals(Node.Type.DotAttrList, attrList.type);
+    assertEquals(Node.Type.DotAttrList, attrList.type);
     DotAttrListNode attrListNode = (DotAttrListNode) attrList;
 
     var firstAttr = attrListNode.getChildren().get(0);
-    Assert.assertEquals(Node.Type.DotDependencyTypeAttr, firstAttr.type);
+    assertEquals(Node.Type.DotDependencyTypeAttr, firstAttr.type);
 
     var attrNode = (DotDependencyTypeAttrNode) firstAttr;
-    Assert.assertEquals("type", attrNode.getLhsIdName());
-    Assert.assertEquals("seq", attrNode.getRhsIdName());
-    Assert.assertEquals(TaskEdge.Type.sequence, attrNode.getDependencyType());
+    assertEquals("type", attrNode.getLhsIdName());
+    assertEquals("seq", attrNode.getRhsIdName());
+    assertEquals(TaskEdge.Type.sequence, attrNode.getDependencyType());
   }
 }

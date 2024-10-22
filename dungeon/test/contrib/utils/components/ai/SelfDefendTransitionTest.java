@@ -1,13 +1,13 @@
 package contrib.utils.components.ai;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import core.Entity;
 import core.utils.components.MissingComponentException;
 import java.util.function.Function;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class SelfDefendTransitionTest {

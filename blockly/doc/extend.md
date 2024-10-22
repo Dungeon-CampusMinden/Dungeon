@@ -158,4 +158,21 @@ export function move_up(block: Blockly.Block, _generator: Blockly.Generator) {
 ### Schritt 4: Funktionalität im Dungeon-Server implementieren
 
 Wenn der zuvor erzeugte Block den gewünschten Code generiert, muss die Funktionalität im Dungeon-Server implementiert werden.
-Nachdem der Start-Button in der Anwendung gedrückt wird, wird der generierte Code an den Dungeon-Server gesendet. Der Dungeon-Server führt den Code Schritt für Schritt aus, in dieser Auswertung muss die Funktionalität des neuen Blocks implementiert werden. Alle Funktionen, welche den Dungeon-Server betreffen, sind unter `Dungeon/blockly-dungeon/src/server/...` zu finden.
+Nachdem der Start-Button in der Anwendung gedrückt wird, wird der generierte Code an den Dungeon-Server gesendet.
+Der Dungeon-Server führt den Code Schritt für Schritt aus, in dieser Auswertung muss die Funktionalität des neuen Blocks
+implementiert werden. Alle Funktionen, welche den Dungeon-Server betreffen, sind unter
+`Dungeon/blockly-dungeon/src/server/...` zu finden.
+
+Das Herzstück der `Server`-Klasse ist die Funktion `processAction`. Diese Funktion wird für jede generierte
+Programmzeile des Blockly-Programms ausgeführt. Sie wendet sämtliche Logik bei der Verarbeitung des Codes auf die
+aktuell ausgeführte Zeile an. Wenn ein neuer Block hinzugefügt wird, ist diese Funktion ein guter Startpunkt, um festzustellen,
+an welcher Stelle in der Verarbeitung der Codezeile die Logik des neuen Blocks eingefügt werden muss. Am besten wird
+eine neue Funktion definiert, welche mittels Pattern-Matching prüft, ob die aktuelle Codezeile durch den neuen Block
+generiert wurde. Wenn ja, muss die Logik des neuen Blocks ausgeführt werden. Bei der richtigen Platzierung der neuen
+Funktion muss beachtet werden, ob Seiteneffekte existieren. Z.B.: Beeinflusst der neue Block die Ausführung anderer
+Aktionen die folgen? Wenn die Bedingung eines If-Statements z.B. false ist, dürfen die nachfolgenden Aktionen nicht
+wirklich ausgeführt werden bis der Scope des If-Statements wieder geschlossen ist. In solchen Fällen muss auch beachtet
+werden, ob der neue Block einen eigenen Scope benötigt, z.B. bei if, while, repeat und Funktionsdefinitionen bereits
+vorhanden. Wenn der neue Block seinen eigenen Scope benötigt, muss mindestens ein neuer Scope in dem active_scopes Stack
+hinzugefügt werden.
+

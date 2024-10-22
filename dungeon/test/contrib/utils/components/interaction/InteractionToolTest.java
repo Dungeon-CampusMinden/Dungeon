@@ -1,6 +1,6 @@
 package contrib.utils.components.interaction;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.InteractionComponent;
 import core.Entity;
@@ -13,7 +13,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import testingUtils.SimpleCounter;
 
 /** WTF? . */
@@ -59,9 +59,7 @@ public class InteractionToolTest {
         assertThrows(
             MissingComponentException.class,
             () -> InteractionTool.interactWithClosestInteractable(Game.hero().get()));
-    assertTrue(
-        "Errormessage should contain information about which Component is missing.",
-        e.getMessage().contains(PositionComponent.class.getName()));
+    assertTrue(e.getMessage().contains(PositionComponent.class.getName()));
     cleanup();
   }
 
@@ -105,7 +103,7 @@ public class InteractionToolTest {
     e.add(new InteractionComponent(5f, false, (x, who) -> sc_e.inc()));
 
     InteractionTool.interactWithClosestInteractable(Game.hero().get());
-    assertEquals("No interaction should happen", 0, sc_e.getCount());
+    assertEquals(0, sc_e.getCount());
 
     cleanup();
   }

@@ -1,6 +1,6 @@
 package contrib.components;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import core.Entity;
 import core.components.PositionComponent;
@@ -8,7 +8,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import testingUtils.SimpleCounter;
 
 /** Collision component tests. */
@@ -46,10 +46,10 @@ public class CollisionComponentTest {
     e2.add(hb2);
     hb1.onEnter(e1, e2, Tile.Direction.N);
 
-    assertEquals("Der Counter von Entität 1 Enter soll ", 1, counterE1Enter.getCount());
-    assertEquals("Der Counter von Entität 1 Leave soll ", 0, counterE1Leave.getCount());
-    assertEquals("Der Counter von Entität 2 Enter soll ", 0, counterE2Enter.getCount());
-    assertEquals("Der Counter von Entität 2 Leave soll ", 0, counterE2Leave.getCount());
+    assertEquals(1, counterE1Enter.getCount());
+    assertEquals(0, counterE1Leave.getCount());
+    assertEquals(0, counterE2Enter.getCount());
+    assertEquals(0, counterE2Leave.getCount());
   }
 
   /** On leave no method given. */
@@ -82,10 +82,10 @@ public class CollisionComponentTest {
     e1.add(hb1);
     e2.add(hb2);
     hb1.onLeave(e1, e2, Tile.Direction.N);
-    assertEquals("Der Counter von Entität 1 Enter soll ", 0, counterE1Enter.getCount());
-    assertEquals("Der Counter von Entität 1 Leave soll ", 1, counterE1Leave.getCount());
-    assertEquals("Der Counter von Entität 2 Enter soll ", 0, counterE2Enter.getCount());
-    assertEquals("Der Counter von Entität 2 Leave soll ", 0, counterE2Leave.getCount());
+    assertEquals(0, counterE1Enter.getCount());
+    assertEquals(1, counterE1Leave.getCount());
+    assertEquals(0, counterE2Enter.getCount());
+    assertEquals(0, counterE2Leave.getCount());
   }
 
   /** WTF? . */
@@ -100,8 +100,7 @@ public class CollisionComponentTest {
     e2.add(hb2);
     hb1.collideEnter(null);
     hb1.onEnter(e1, e2, Tile.Direction.N);
-    assertEquals(
-        "Die alte Collide darf nicht mehr aufgerufen werden ", 0, counterE1Enter.getCount());
+    assertEquals(0, counterE1Enter.getCount());
   }
 
   /** WTF? . */
@@ -117,9 +116,8 @@ public class CollisionComponentTest {
     e2.add(hb2);
     hb1.collideEnter((a, b, c) -> newCounterE1Enter.inc());
     hb1.onEnter(e1, e2, Tile.Direction.N);
-    assertEquals(
-        "Die alte Collide darf nicht mehr aufgerufen werden ", 0, counterE1Enter.getCount());
-    assertEquals("Die neue Collide muss aufgerufen werden ", 1, newCounterE1Enter.getCount());
+    assertEquals(0, counterE1Enter.getCount());
+    assertEquals(1, newCounterE1Enter.getCount());
   }
 
   /** WTF? . */
@@ -134,8 +132,7 @@ public class CollisionComponentTest {
     e2.add(hb2);
     hb1.collideLeave(null);
     hb1.onLeave(e1, e2, Tile.Direction.N);
-    assertEquals(
-        "Die alte Collide darf nicht mehr aufgerufen werden ", 0, counterE1Enter.getCount());
+    assertEquals(0, counterE1Enter.getCount());
   }
 
   /** WTF? . */
@@ -151,9 +148,8 @@ public class CollisionComponentTest {
     e2.add(hb2);
     hb1.collideLeave((a, b, c) -> newCounterE1Leave.inc());
     hb1.onLeave(e1, e2, Tile.Direction.N);
-    assertEquals(
-        "Die alte Collide darf nicht mehr aufgerufen werden ", 0, counterE1Leave.getCount());
-    assertEquals("Die neue Collide muss aufgerufen werden ", 1, newCounterE1Leave.getCount());
+    assertEquals(0, counterE1Leave.getCount());
+    assertEquals(1, newCounterE1Leave.getCount());
   }
 
   /** Missing PositionComponent. */

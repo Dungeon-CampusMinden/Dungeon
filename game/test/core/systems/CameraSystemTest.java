@@ -1,6 +1,6 @@
 package core.systems;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import core.Entity;
@@ -10,10 +10,11 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** Tests for the {@link CameraSystem} class. */
@@ -26,24 +27,24 @@ public class CameraSystemTest {
   private Point expectedFocusPoint;
 
   /** WTF? . */
-  @BeforeClass
+  @BeforeAll
   public static void initGDX() {
     GdxNativesLoader.load(); // load natives for headless testing
   }
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     cameraSystem = new CameraSystem();
     Game.add(cameraSystem);
     Mockito.when(startTile.position()).thenReturn(testPoint);
-    Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(testPoint);
+    Mockito.when(level.randomTilePoint(Mockito.any())).thenReturn(Optional.of(testPoint));
     Mockito.when(level.startTile()).thenReturn(startTile);
     Game.add(new LevelSystem(null, null, () -> {}));
   }
 
   /** WTF? . */
-  @After
+  @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
     Game.currentLevel(null);

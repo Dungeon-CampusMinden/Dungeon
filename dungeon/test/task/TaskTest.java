@@ -1,15 +1,13 @@
 package task;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import core.Entity;
 import graph.petrinet.Place;
 import java.util.List;
 import java.util.function.BiFunction;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import task.game.components.TaskComponent;
 
@@ -19,7 +17,7 @@ public class TaskTest {
   private Task task;
 
   /** WTF? . */
-  @Before
+  @BeforeEach
   public void setup() {
     task = new DummyTask();
   }

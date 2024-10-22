@@ -11,6 +11,70 @@ import java.util.List;
 @DSLType
 public class TestComponent2 extends Component {
 
+  private final Entity entity;
+  @DSLTypeMember private String member1;
+  @DSLTypeMember private int member2;
+  @DSLTypeMember private String member3;
+  private float hiddenFloat;
+  private ComplexType hiddenComplexMember;
+
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
+  public TestComponent2(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+    member3 = "DEFAULT VALUE";
+    this.hiddenComplexMember = new ComplexType();
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public Entity getEntity() {
+    return entity;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public String getMember1() {
+    return member1;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public int getMember2() {
+    return member2;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @param value foo
+   */
+  public void setMember2(int value) {
+    member2 = value;
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  public String getMember3() {
+    return member3;
+  }
+
   /** WTF? . */
   @DSLTypeProperty(name = "this_is_a_float", extendedType = TestComponent2.class)
   public static class TestComponentPseudoProperty
@@ -74,71 +138,5 @@ public class TestComponent2 extends Component {
       var arr = new Type[] {Integer.class, Integer.class};
       return Arrays.stream(arr).toList();
     }
-  }
-
-  private Entity entity;
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public Entity getEntity() {
-    return entity;
-  }
-
-  @DSLTypeMember private String member1;
-  @DSLTypeMember private int member2;
-  @DSLTypeMember private String member3;
-
-  private float hiddenFloat;
-  private ComplexType hiddenComplexMember;
-
-  /**
-   * WTF? .
-   *
-   * @param entity foo
-   */
-  public TestComponent2(@DSLContextMember(name = "entity") Entity entity) {
-    super(entity);
-    this.entity = entity;
-    member3 = "DEFAULT VALUE";
-    this.hiddenComplexMember = new ComplexType();
-  }
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public String getMember1() {
-    return member1;
-  }
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public int getMember2() {
-    return member2;
-  }
-
-  /**
-   * WTF? .
-   *
-   * @param value foo
-   */
-  public void setMember2(int value) {
-    member2 = value;
-  }
-
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  public String getMember3() {
-    return member3;
   }
 }

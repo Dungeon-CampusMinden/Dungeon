@@ -11,7 +11,7 @@ updates:
       interval: "weekly"
     labels: []
   - package-ecosystem: "npm"
-    directory: "/blockly"
+    directory: "/blockly/frontend"
     schedule:
       interval: "weekly"
     labels: []

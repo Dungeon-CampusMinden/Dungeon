@@ -1,5 +1,7 @@
 package dsl.semanticanalysis.typesystem;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import dsl.helpers.Helpers;
 import dsl.interpreter.DSLInterpreter;
 import dsl.runtime.memoryspace.MemorySpace;
@@ -15,8 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class TestTypeInstantiator {
@@ -74,7 +75,7 @@ public class TestTypeInstantiator {
         field.setAccessible(true);
         var value = field.get(instance);
 
-        Assert.assertEquals(setValues.get(typeMemberName), value);
+        assertEquals(setValues.get(typeMemberName), value);
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }
@@ -133,7 +134,7 @@ public class TestTypeInstantiator {
         field.setAccessible(true);
         var value = field.get(instance);
 
-        Assert.assertEquals(setValues.get(typeMemberName), value);
+        assertEquals(setValues.get(typeMemberName), value);
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }

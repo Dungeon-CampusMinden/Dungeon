@@ -1,0 +1,27 @@
+CREATE TABLE Project (
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+getProjectById:
+SELECT *
+FROM Project
+WHERE id = :id;
+
+getAllProjects:
+SELECT *
+FROM Project;
+
+getProjectId:
+SELECT id
+FROM Project
+WHERE name = :name;
+
+insertProject:
+INSERT OR REPLACE
+INTO Project
+VALUES (?,?);
+
+deleteProjectById:
+DELETE FROM Question
+WHERE id = :id;

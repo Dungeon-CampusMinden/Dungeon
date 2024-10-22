@@ -1,27 +1,35 @@
 package core.utils.components.draw;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link Animation} class. */
 public class AnimationTest {
 
   /** Creating an Animation without a Collection of frames should not be allowed. */
-  @Test(expected = AssertionError.class)
+  @Test
   public void test_constructor_1() {
-    Animation.fromCollection(null);
+    assertThrows(
+        java.lang.AssertionError.class,
+        () -> {
+          Animation.fromCollection(null);
+        });
   }
 
   /** Creating an Animation without any frames in the Collection should not be allowed. */
-  @Test(expected = AssertionError.class)
+  @Test
   public void test_constructor_2() {
-    Animation.fromCollection(List.of());
+    assertThrows(
+        java.lang.AssertionError.class,
+        () -> {
+          Animation.fromCollection(List.of());
+        });
   }
 
   /** WTF? . */
@@ -46,7 +54,7 @@ public class AnimationTest {
     List<IPath> testStrings =
         Stream.of("a", "b").map(SimpleIPath::new).collect(Collectors.toList());
     Animation ta = Animation.fromCollection(testStrings, 1, false, 1);
-    assertFalse("has still one Frame for the Animation to go", ta.isFinished());
+    assertFalse(ta.isFinished());
   }
 
   /** WTF? . */
@@ -56,7 +64,7 @@ public class AnimationTest {
         Stream.of("a", "b").map(SimpleIPath::new).collect(Collectors.toList());
     Animation ta = Animation.fromCollection(testStrings, 1, false, 1);
     ta.nextAnimationTexturePath();
-    assertTrue("last Frame reached and should not loop", ta.isFinished());
+    assertTrue(ta.isFinished());
   }
 
   /** WTF? . */
@@ -65,7 +73,7 @@ public class AnimationTest {
     List<IPath> testStrings =
         Stream.of("a", "b").map(SimpleIPath::new).collect(Collectors.toList());
     Animation ta = Animation.fromCollection(testStrings, 1, true, 1);
-    assertFalse("has still one Frame for the Animation to go", ta.isFinished());
+    assertFalse(ta.isFinished());
   }
 
   /** WTF? . */
@@ -75,7 +83,7 @@ public class AnimationTest {
         Stream.of("a", "b").map(SimpleIPath::new).collect(Collectors.toList());
     Animation ta = Animation.fromCollection(testStrings, 1, true, 1);
     ta.nextAnimationTexturePath();
-    assertFalse("last Frame reached and should loop", ta.isFinished());
+    assertFalse(ta.isFinished());
   }
 
   /** WTF? . */

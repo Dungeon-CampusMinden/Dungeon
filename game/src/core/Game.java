@@ -9,18 +9,19 @@ import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -188,7 +189,7 @@ public final class Game {
    * Initialize the base logger.
    *
    * <p>Set the logging level to {@code Level.ALL}, and remove the console handler, and write all
-   * log messages into the log files. This is a concenience method.
+   * log messages into the log files. This is a convenience method.
    */
   public static void initBaseLogger() {
     Game.initBaseLogger(Level.ALL);
@@ -399,6 +400,18 @@ public final class Game {
   }
 
   /**
+   * Get the neighbors of the given Tile.
+   *
+   * <p>Neighbors are the tiles directly above, below, left, and right of the given Tile.
+   *
+   * @param tile Tile to get the neighbors for
+   * @return Set with the neighbor tiles.
+   */
+  public static Set<Tile> neighbours(final Tile tile) {
+    return LevelUtils.neighbours(tile);
+  }
+
+  /**
    * Get the end tile.
    *
    * @return The end tile.
@@ -453,7 +466,7 @@ public final class Game {
    * @param elementType Type of the tile.
    * @return A random tile of the given type.
    */
-  public static Tile randomTile(final LevelElement elementType) {
+  public static Optional<Tile> randomTile(final LevelElement elementType) {
     return currentLevel().randomTile(elementType);
   }
 
@@ -472,8 +485,98 @@ public final class Game {
    * @param elementTyp Type of the Tile.
    * @return Position of the Tile as Point.
    */
-  public static Point randomTilePoint(final LevelElement elementTyp) {
+  public static Optional<Point> randomTilePoint(final LevelElement elementTyp) {
     return currentLevel().randomTilePoint(elementTyp);
+  }
+
+  /**
+   * Get all tiles from the current level.
+   *
+   * @return A Set containing all tiles in the current level.
+   */
+  public static Set<Tile> allTiles() {
+    return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
+        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
+        .collect(Collectors.toSet()); // Collect the elements into a Set
+  }
+
+  /**
+   * Get all tiles from the current level that satisfy the provided predicate.
+   *
+   * @param filterRule A predicate that determines which tiles to include.
+   * @return A Set containing all tiles in the current level that satisfy the predicate.
+   */
+  public static Set<Tile> allTiles(Predicate<Tile> filterRule) {
+    return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
+        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
+        .filter(filterRule) // Apply the predicate to filter the tiles
+        .collect(Collectors.toSet()); // Collect the elements into a Set
+  }
+
+  /**
+   * Get all tiles of the specified type from the current level.
+   *
+   * @param elementTyp Type of the tiles to retrieve.
+   * @return A Set containing all tiles of the specified type in the current level.
+   */
+  public static Set<Tile> allTiles(final LevelElement elementTyp) {
+    return allTiles(tile -> tile.levelElement() == elementTyp);
+  }
+
+  /**
+   * Get all free tiles from the current level. A tile is considered free if no entity is present on
+   * it, and it is accessible.
+   *
+   * @return A Set containing all free tiles in the current level.
+   */
+  public static Set<Tile> allFreeTiles() {
+    return allTiles(LevelUtils::isFreeTile);
+  }
+
+  /**
+   * Get a random free tile from the current level. A free tile is a tile that is of type FLOOR and
+   * is not occupied by any entity and is accessible.
+   *
+   * @return An Optional containing a random free tile if available, otherwise an empty Optional.
+   */
+  public static Optional<Tile> freeTile() {
+    return LevelUtils.freeTile();
+  }
+
+  /**
+   * Get a position of a random free tile from the current level. A free tile is a tile that is of
+   * type FLOOR and is not occupied by any entity and is accessible.
+   *
+   * @return An Optional containing the postion of a random free tile if available, otherwise an
+   *     empty Optional.
+   */
+  public static Optional<Point> freePosition() {
+    return freeTile().map(Tile::position);
+  }
+
+  /**
+   * Checks if the given Tile is accessible and no entity is placed on that tile.
+   *
+   * @param tile Tile to check.
+   * @return True if the Tile is free, false if not
+   */
+  public static boolean isFreeTile(Tile tile) {
+    return LevelUtils.isFreeTile(tile);
+  }
+
+  /**
+   * Get all accessible tiles within a specified range around a given center point.
+   *
+   * <p>The range is determined by the provided radius.
+   *
+   * <p>The tile at the given point will be part of the list as well, if it is accessible.
+   *
+   * @param center The center point around which the tiles are considered.
+   * @param radius The radius within which the accessible tiles should be located.
+   * @return List of accessible tiles in the given radius around the center point.
+   */
+  public static List<Tile> accessibleTilesInRange(final Point center, float radius) {
+    return LevelUtils.accessibleTilesInRange(center, radius);
   }
 
   /**

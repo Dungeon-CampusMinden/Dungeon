@@ -25,6 +25,8 @@ const workspace =
   });
 const api = new Api();
 const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
+const delay = document.getElementById("delay");
+const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
 const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
 const responseStatusDiv = document.getElementById("responseStatus");
 const characterPositionDiv = document.getElementById("characterPosition");
@@ -37,6 +39,7 @@ if (workspace) {
     Blockly.Variables.createVariableButtonHandler(workspace);
   });
 }
+
 
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
@@ -80,45 +83,157 @@ if (workspace) {
   });
 }
 
+function isNumber(str) {
+  if (typeof str != "string") return false // we only process strings!
+  // could also coerce to string: str = ""+str
+  return !isNaN(str) && !isNaN(parseFloat(str))
+}
+
+async function call_clear_route(){
+  const clear_response = await api.post("clear");
+  if (!clear_response.ok) {
+    console.log(clear_response.status);
+  }
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
-    try {
-      const response = await api.post("start", code);
-      const status = response.status;
-      const text = await response.text();
-      if (text) {
-        character.setPosition(text);
-        characterPositionDiv!.textContent = `Character position: x=${
-          character.getPosition()?.x
-        }, y=${character.getPosition()?.y}`;
+    var sleepingTime = delay.value;
+    if (sleepingTime === "") {
+      sleepingTime = "1";
+    }
+    if (!isNumber(sleepingTime)) {
+      alert("Die konfigurierte Verzögerung muss eine Zahl sein");
+      return;
+    }
+    startBtn.disabled = true;
+    stepBtn.disabled = true;
+    workspace.highlightBlock(null);
+    var startBlock = getStartBlock();
+    var currentBlock = startBlock;
+    while (currentBlock !== null) {
+      // Highlight current block
+      if (currentBlock) {
+        workspace.highlightBlock(currentBlock.id);
       }
-      responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
-    } catch (error) {
-      if (error instanceof Error) {
-        responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
+      // Do nothing except highlighting on start block
+      if (currentBlock.type === "start") {
+        currentBlock = currentBlock.getNextBlock();
+        continue;
       }
+
+      // Get code of the current block
+      var currentCode = javaGenerator.blockToCode(currentBlock, true);
+
+      const response = await api.post("start", currentCode);
+
+      // Check if response was not ok
+      if (!response.ok) {
+        currentBlock = null;
+        const text = await response.text();
+        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
+        continue;
+      }
+      // Status 205 means program was interrupted
+      if (response.status === 205) {
+        currentBlock = null;
+        alert("Programm unterbrochen!");
+        continue;
+      }
+
+      // Get next block and sleep x seconds
+      currentBlock = currentBlock.getNextBlock();
+      await sleep(sleepingTime * 1000);
+    }
+    // Reset values in backend
+    call_clear_route();
+
+    workspace.highlightBlock(null);
+    // Enable button again
+    startBtn.disabled = false;
+    stepBtn.disabled = false;
+  });
+}
+
+function getStartBlock() {
+  var allBlocks = workspace.getAllBlocks();
+  for (var i = 0; i < allBlocks.length; i++) {
+      var block = allBlocks[i];
+      if (block.type == "start") {
+        return block;
+      }
+  }
+  return null;
+}
+
+var startBlock = getStartBlock();
+var currentBlock = startBlock;
+
+if (stepBtn) {
+  workspace.highlightBlock(null);
+  stepBtn.addEventListener("click", async () => {
+      if (currentBlock === null) {
+        alert("Alle Schritte ausgeführt.");
+        workspace.highlightBlock(null);
+        currentBlock = startBlock;
+        // Reset values in backend
+        call_clear_route();
+        return;
+      }
+      // Highlight current block
+      if (currentBlock) {
+          workspace.highlightBlock(currentBlock.id);
+      }
+      // Do nothing except highlighting on start block
+      if (currentBlock.type === "start") {
+        currentBlock = currentBlock.getNextBlock();
+        return;
+      }
+      // Disable button
+      stepBtn.disabled = true;
+      startBtn.disabled = true;
+      // Get code of the current block
+      var currentCode = javaGenerator.blockToCode(currentBlock, true);
+      // Send code to server
+      const response = await api.post("start", currentCode);
+
+      // Check if response was not ok
+      if (!response.ok) {
+        currentBlock = startBlock;
+        workspace.highlightBlock(null);
+
+        const text = await response.text();
+        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
+
+        call_clear_route();
+      }
+      // Status 205 means program was interrupted
+      if (response.status === 205) {
+        currentBlock = startBlock;
+        workspace.highlightBlock(null);
+        alert("Programm unterbrochen!");
+        call_clear_route();
+      }
+      // Enable button again
+      startBtn.disabled = false;
+      stepBtn.disabled = false;
+
+    // Get next block. Current block may be null if program was interrupted
+    if (currentBlock) {
+      currentBlock = currentBlock.getNextBlock();
     }
   });
 }
 
 if (resetBtn) {
   resetBtn.addEventListener("click", async () => {
-    try {
-      const response = await api.post("reset");
-      const status = response.status;
-      const text = await response.text();
-      if (text) {
-        character.setPosition(text);
-        characterPositionDiv!.textContent = `Character position: x=${
-          character.getPosition()?.x
-        }, y=${character.getPosition()?.y}`;
-      }
-      responseStatusDiv!.textContent = `HTTP response status: ${status.toString()}`;
-    } catch (error) {
-      if (error instanceof Error) {
-        responseStatusDiv!.textContent = `HTTP response status: ${error.message}`;
-      }
-    }
+    // Reset code highlighting
+    workspace.highlightBlock(null);
+    // Reset currentBlock for step button
+    currentBlock = startBlock;
+    const response = await api.post("reset");
+
   });
 }
 

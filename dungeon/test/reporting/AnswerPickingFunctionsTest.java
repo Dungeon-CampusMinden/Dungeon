@@ -1,6 +1,6 @@
 package reporting;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
@@ -13,10 +13,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import task.*;
+import task.Task;
+import task.TaskContent;
 import task.game.components.TaskContentComponent;
 import task.game.content.QuestItem;
 import task.reporting.AnswerPickingFunctions;
@@ -30,7 +31,7 @@ import task.tasktype.quizquestion.SingleChoice;
 public class AnswerPickingFunctionsTest {
 
   /** Cleanup function to be executed after each test case. */
-  @After
+  @AfterEach
   public void cleanup() {
     Task.cleanupAllTask();
     Game.removeAllEntities();
@@ -255,7 +256,7 @@ public class AnswerPickingFunctionsTest {
     ic.add(answerBItem);
     ic.add(answerA2Item);
     ic.add(answerB2Item);
-    assertEquals("Other Quest-Items should be ignored.", 2, callback.apply(sc).size());
+    assertEquals(2, callback.apply(sc).size());
   }
 
   /** WTF? . */
@@ -605,7 +606,7 @@ public class AnswerPickingFunctionsTest {
     assertEquals(1, answer.size());
     Element wrap = (Element) answer.stream().findFirst().get();
     Map<Element, Set<Element>> givenSol = (Map<Element, Set<Element>>) wrap.content();
-    assertEquals("Other Quest-Items should be ignored.", givenSol, sol);
+    assertEquals(givenSol, sol);
   }
 
   /** WTF? . */
@@ -823,6 +824,6 @@ public class AnswerPickingFunctionsTest {
     ic.add(answerBItem);
     ic.add(answerA2Item);
     ic.add(answerB2Item);
-    assertEquals("Other Quest-Items should be ignored.", 2, callback.apply(sc).size());
+    assertEquals(2, callback.apply(sc).size());
   }
 }

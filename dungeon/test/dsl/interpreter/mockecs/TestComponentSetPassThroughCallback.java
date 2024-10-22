@@ -9,7 +9,18 @@ import java.util.function.Function;
 /** WTF? . */
 @DSLType
 public class TestComponentSetPassThroughCallback extends Component {
-  private Entity entity;
+  private final Entity entity;
+  @DSLCallback private Function<Set<Entity>, Set<Entity>> onInteraction;
+
+  /**
+   * WTF? .
+   *
+   * @param entity foo
+   */
+  public TestComponentSetPassThroughCallback(@DSLContextMember(name = "entity") Entity entity) {
+    super(entity);
+    this.entity = entity;
+  }
 
   /**
    * WTF? .
@@ -19,8 +30,6 @@ public class TestComponentSetPassThroughCallback extends Component {
   public Entity getEntity() {
     return entity;
   }
-
-  @DSLCallback private Function<Set<Entity>, Set<Entity>> onInteraction;
 
   /**
    * WTF? .
@@ -39,15 +48,5 @@ public class TestComponentSetPassThroughCallback extends Component {
    */
   public Set<Entity> executeCallback(Set<Entity> entities) {
     return onInteraction.apply(entities);
-  }
-
-  /**
-   * WTF? .
-   *
-   * @param entity foo
-   */
-  public TestComponentSetPassThroughCallback(@DSLContextMember(name = "entity") Entity entity) {
-    super(entity);
-    this.entity = entity;
   }
 }

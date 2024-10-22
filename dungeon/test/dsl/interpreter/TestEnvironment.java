@@ -14,16 +14,6 @@ import java.util.List;
 //  'DefaultEnvironment`, which only bind the basic built in types and the
 //  'TestEnvironment' would be a parallel implementation, not a deriving implementation
 public class TestEnvironment extends GameEnvironment {
-  /**
-   * WTF? .
-   *
-   * @return foo
-   */
-  @Override
-  public TypeBuilder getTypeBuilder() {
-    return super.getTypeBuilder();
-  }
-
   /** WTF? . */
   public TestEnvironment() {
     super();
@@ -36,6 +26,16 @@ public class TestEnvironment extends GameEnvironment {
     this.loadTypes(entitySetType);
     IType entitySetSetType = new SetType(entitySetType, this.getGlobalScope());
     this.loadTypes(entitySetSetType);
+  }
+
+  /**
+   * WTF? .
+   *
+   * @return foo
+   */
+  @Override
+  public TypeBuilder getTypeBuilder() {
+    return super.getTypeBuilder();
   }
 
   @Override

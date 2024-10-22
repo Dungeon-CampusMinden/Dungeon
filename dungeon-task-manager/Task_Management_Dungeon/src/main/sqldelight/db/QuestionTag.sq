@@ -1,0 +1,19 @@
+CREATE TABLE QuestionTag (
+    questionID INTEGER NOT NULL,
+    tagID INTEGER NOT NULL
+);
+
+getTagsByQuestionId:
+SELECT tag
+FROM Tag JOIN QuestionTag
+WHERE QuestionTag.questionID = :questionID AND Tag.id = tagID;
+
+
+insertQuestionTag:
+INSERT OR REPLACE
+INTO QuestionTag
+VALUES (?,?);
+
+deleteQuestionTag:
+DELETE FROM QuestionTag
+WHERE tagID = :tagId AND questionID = :questionId;

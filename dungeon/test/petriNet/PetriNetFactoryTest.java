@@ -1,10 +1,10 @@
 package petriNet;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import graph.petrinet.PetriNet;
 import graph.petrinet.PetriNetFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import task.Task;
 
 /** A test class for the PetriNetFactory class. */

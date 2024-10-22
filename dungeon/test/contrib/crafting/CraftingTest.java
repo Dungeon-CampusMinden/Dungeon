@@ -1,6 +1,6 @@
 package contrib.crafting;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.item.HealthPotionType;
 import contrib.item.Item;
@@ -8,7 +8,7 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceMushroomRed;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link Crafting} class. */
 public class CraftingTest {
@@ -16,9 +16,7 @@ public class CraftingTest {
   /** WTF? . */
   @Test
   public void testFindRecipeWithNoInputs() {
-    assertTrue(
-        "No Recipe should be found with no ingredients.",
-        Crafting.recipeByIngredients(new Item[0]).isEmpty());
+    assertTrue(Crafting.recipeByIngredients(new Item[0]).isEmpty());
   }
 
   /** WTF? . */
@@ -40,8 +38,8 @@ public class CraftingTest {
 
     Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
-    assertFalse("There should be a recipe.", foundRecipe.isEmpty());
-    assertEquals("The found recipe is the correct recipe", recipe, foundRecipe.get());
+    assertFalse(foundRecipe.isEmpty());
+    assertEquals(recipe, foundRecipe.get());
 
     // Cleanup
     Crafting.clearRecipes();
@@ -66,8 +64,8 @@ public class CraftingTest {
 
     Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
-    assertFalse("There should be a recipe.", foundRecipe.isEmpty());
-    assertEquals("The found recipe is the correct recipe", recipe, foundRecipe.get());
+    assertFalse(foundRecipe.isEmpty());
+    assertEquals(recipe, foundRecipe.get());
 
     // Cleanup
     Crafting.clearRecipes();
@@ -92,7 +90,7 @@ public class CraftingTest {
 
     Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
-    assertTrue("There should be no recipe.", foundRecipe.isEmpty());
+    assertTrue(foundRecipe.isEmpty());
 
     // Cleanup
     Crafting.clearRecipes();
@@ -117,8 +115,8 @@ public class CraftingTest {
     };
     Optional<Recipe> foundRecipe = Crafting.recipeByIngredients(ingredients);
 
-    assertFalse("There should be a recipe.", foundRecipe.isEmpty());
-    assertEquals("The found recipe is the correct recipe", recipeOrdered, foundRecipe.get());
+    assertFalse(foundRecipe.isEmpty());
+    assertEquals(recipeOrdered, foundRecipe.get());
 
     // Cleanup
     Crafting.clearRecipes();

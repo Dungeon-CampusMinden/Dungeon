@@ -1,6 +1,6 @@
 package dsl.semanticanalysis.typesystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import dsl.annotation.DSLType;
 import dsl.annotation.DSLTypeMember;
@@ -12,8 +12,7 @@ import dsl.semanticanalysis.typesystem.typebuilding.TypeBuilder;
 import dsl.semanticanalysis.typesystem.typebuilding.type.*;
 import graph.taskdependencygraph.TaskDependencyGraph;
 import java.lang.reflect.InvocationTargetException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** WTF? . */
 public class TestTypeBuilder {
@@ -24,28 +23,6 @@ public class TestTypeBuilder {
     var convertedName = TypeBuilder.convertToDSLName(name);
     assertEquals("hello_world_w", convertedName);
   }
-
-  /** Test class for testing conversion into DSL datatype. */
-  @DSLType
-  private class TestComponent {
-    @DSLTypeMember public int intMember;
-
-    @DSLTypeMember public String stringMember;
-
-    @DSLTypeMember public TaskDependencyGraph graphMember;
-  }
-
-  /** Test class for testing conversion into DSL datatype. */
-  @DSLType
-  private class ChainClass {
-    @DSLTypeMember public TestComponent testComponentMember;
-
-    @DSLTypeMember public String stringMember;
-  }
-
-  @DSLType
-  private record TestRecord(
-      @DSLTypeMember int comp1, @DSLTypeMember String comp2, @DSLTypeMember float comp3) {}
 
   /** WTF? . */
   @Test
@@ -287,22 +264,6 @@ public class TestTypeBuilder {
   }
 
   /** WTF? . */
-  public class TestClass {
-    boolean b = true;
-
-    /**
-     * WTF? .
-     *
-     * @param object foo
-     * @return foo
-     */
-    public Object accept(Object object) {
-      Entity entity = (Entity) object;
-      return b;
-    }
-  }
-
-  /** WTF? . */
   @Test
   public void testListMember() {
     TestEnvironment env = new TestEnvironment();
@@ -348,6 +309,44 @@ public class TestTypeBuilder {
   public void testTypeForNull() {
     TestEnvironment env = new TestEnvironment();
     var type = env.getTypeBuilder().createDSLTypeForJavaTypeInScope(env.getGlobalScope(), null);
-    Assert.assertEquals(BuiltInType.noType, type);
+    assertEquals(BuiltInType.noType, type);
+  }
+
+  @DSLType
+  private record TestRecord(
+      @DSLTypeMember int comp1, @DSLTypeMember String comp2, @DSLTypeMember float comp3) {}
+
+  /** Test class for testing conversion into DSL datatype. */
+  @DSLType
+  private class TestComponent {
+    @DSLTypeMember public int intMember;
+
+    @DSLTypeMember public String stringMember;
+
+    @DSLTypeMember public TaskDependencyGraph graphMember;
+  }
+
+  /** Test class for testing conversion into DSL datatype. */
+  @DSLType
+  private class ChainClass {
+    @DSLTypeMember public TestComponent testComponentMember;
+
+    @DSLTypeMember public String stringMember;
+  }
+
+  /** WTF? . */
+  public class TestClass {
+    boolean b = true;
+
+    /**
+     * WTF? .
+     *
+     * @param object foo
+     * @return foo
+     */
+    public Object accept(Object object) {
+      Entity entity = (Entity) object;
+      return b;
+    }
   }
 }
