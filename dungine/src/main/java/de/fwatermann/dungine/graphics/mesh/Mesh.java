@@ -177,6 +177,17 @@ public abstract class Mesh<T extends Mesh<?>> extends Renderable<Mesh<T>> implem
   }
 
   /**
+   * Get a read-only slice of the vertex buffer containing the vertex at the specified index.
+   * @param index the index of the vertex to get
+   * @return the read-only slice of the vertex buffer
+   */
+  public ByteBuffer getVertex(int index) {
+    return this.vertices
+        .asReadOnlyBuffer()
+        .slice(index * this.attributes.sizeInBytes(), this.attributes.sizeInBytes());
+  }
+
+  /**
    * Renders the object using the specified camera and shader program.
    *
    * @param camera the camera to use for rendering

@@ -11,6 +11,7 @@ in vec2 gsTexCoord;
 
 uniform Material uMaterial;
 uniform vec3 uCameraPosition;
+uniform bool uForceIlluminate;
 
 layout (location = 0) out vec4 fragColor;
 
@@ -23,6 +24,10 @@ void main() {
     normal = normalize(TBN * normal);
   }
 
-  fragColor = calcLighting(uMaterial, gsTexCoord, normal, gsWorldPos, uCameraPosition);
+  if(uForceIlluminate) {
+    fragColor = diffuseColor(uMaterial, gsTexCoord);
+  } else {
+    fragColor = calcLighting(uMaterial, gsTexCoord, normal, gsWorldPos, uCameraPosition);
+  }
 }
 

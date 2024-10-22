@@ -17,6 +17,8 @@ import org.lwjgl.opengl.GL33;
  */
 public class Model extends Renderable<Model> {
 
+  protected boolean forceIlluminate = false;
+
   /** The list of materials associated with this model. */
   protected final List<Material> materials = new ArrayList<>();
 
@@ -79,6 +81,8 @@ public class Model extends Renderable<Model> {
         material.normalTexture.bind(shader, Animation.AnimationSlot.ANIMATION_3, GL33.GL_TEXTURE6);
       }
 
+      shader.setUniform1i(shader.configuration().uniformForceIlluminate, this.forceIlluminate ? 1 : 0);
+
       material.meshes.forEach(
           meshEntry -> {
             meshEntry.mesh().transformation(this.position(), this.rotation(), this.scaling());
@@ -131,6 +135,24 @@ public class Model extends Renderable<Model> {
    */
   public Model shader(ShaderProgram shader) {
     this.shader = shader;
+    return this;
+  }
+
+  /**
+   * Determines whether the model should be force-illuminated.
+   * @return true if the model should be force-illuminated, false otherwise
+   */
+  public boolean forceIlluminate() {
+    return this.forceIlluminate;
+  }
+
+  /**
+   * Sets whether the model should be force illuminated.
+   * @param forceIlluminate the forceIlluminate to set
+   * @return this model for method chaining
+   */
+  public Model forceIlluminate(boolean forceIlluminate) {
+    this.forceIlluminate = forceIlluminate;
     return this;
   }
 }

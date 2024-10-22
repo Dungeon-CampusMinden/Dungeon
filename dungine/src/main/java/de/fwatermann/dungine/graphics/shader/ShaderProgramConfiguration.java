@@ -34,6 +34,9 @@ public class ShaderProgramConfiguration {
   /** Uniform name of the sampler2D array that contains the texture atlas pages. */
   public String uniformTextureAtlasPagesSamplerArray = "uTextureAtlasPages";
 
+  /** Uniform name for determining if the rendered object should be force illuminated. */
+  public String uniformForceIlluminate = "uForceIlluminate";
+
   /**
    * Name of the uniform array that contains the animation information.
    *
