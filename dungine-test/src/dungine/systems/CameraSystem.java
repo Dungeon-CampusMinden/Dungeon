@@ -10,6 +10,7 @@ public class CameraSystem extends System<CameraSystem> {
   private Camera<?> camera;
 
   public CameraSystem(Camera<?> camera) {
+    super(1, true);
     this.camera = camera;
   }
 
