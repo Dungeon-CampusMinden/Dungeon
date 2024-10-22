@@ -53,6 +53,16 @@ public class StateMainMenu extends GameState {
     button3.layout().width(Unit.vW(33)).height(Unit.vH(20));
     button3.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
 
+    UIButton button4 = new UIButton();
+    button4.attachComponent(
+        new UIComponentClickable(
+            (element, button, action) -> {
+              this.window.setState(new StateSolarSystem(this.window));
+            }));
+    button4.add(new UIText(Font.defaultMonoFont(), "Erde, Mond & Sonne", 24, TextAlignment.CENTER));
+    button4.layout().width(Unit.vW(33)).height(Unit.vH(20));
+    button4.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
+
     UIButton buttonExit = new UIButton();
     buttonExit.attachComponent(
         new UIComponentClickable(
@@ -64,6 +74,7 @@ public class StateMainMenu extends GameState {
     buttonExit.borderRadius(20).borderWidth(5).fillColor(0xFF2020FF);
 
     this.ui.add(buttonExit);
+    this.ui.add(button4);
     this.ui.add(button3);
     this.ui.add(button2);
     this.ui.add(button1);
