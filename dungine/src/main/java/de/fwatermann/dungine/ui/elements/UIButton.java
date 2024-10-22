@@ -10,6 +10,10 @@ import de.fwatermann.dungine.graphics.shader.Shader;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIContainer;
+import de.fwatermann.dungine.ui.layout.AlignContent;
+import de.fwatermann.dungine.ui.layout.FlexDirection;
+import de.fwatermann.dungine.ui.layout.FlexWrap;
+import de.fwatermann.dungine.ui.layout.JustifyContent;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
@@ -30,7 +34,13 @@ public class UIButton extends UIContainer<UIButton> {
   private float borderRadius = 0.0f; // Default: 0.0f
 
   /** Constructs a new UIButton. */
-  public UIButton() {}
+  public UIButton() {
+    super();
+    this.layout
+      .flow(FlexDirection.COLUMN, FlexWrap.NO_WRAP)
+      .justifyContent(JustifyContent.CENTER)
+      .alignContent(AlignContent.STRETCH);
+  }
 
   /**
    * Initializes the OpenGL shader and mesh for the UIButton. This method is called internally

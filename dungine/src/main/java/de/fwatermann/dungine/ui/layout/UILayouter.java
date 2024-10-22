@@ -165,6 +165,7 @@ public class UILayouter {
                 } else if (container.layout().direction().isRow()) {
                   layout.flexGrow(1);
                   layout.alignSelf(AlignSelf.STRETCH);
+                  return;
                 }
                 if (layout.height().type() != Unit.UnitType.AUTO) {
                   size.y = layout.height().toPixels(viewport, container.size().y);
