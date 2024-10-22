@@ -9,6 +9,8 @@ import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.scene.SceneRenderer;
 import de.fwatermann.dungine.graphics.scene.light.Light;
+import de.fwatermann.dungine.graphics.scene.light.PointLight;
+import de.fwatermann.dungine.graphics.scene.light.SpotLight;
 import de.fwatermann.dungine.graphics.scene.model.Model;
 import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import java.util.HashSet;
@@ -78,6 +80,11 @@ public class RenderableSystem extends System<RenderableSystem> {
           e.components(LightComponent.class)
               .forEach(
                   c -> {
+                    if (c.light() instanceof PointLight pl) {
+                      pl.position(e.position());
+                    } else if (c.light() instanceof SpotLight sl) {
+                      sl.position(e.position());
+                    }
                     lights.add(c.light());
                   });
         });
