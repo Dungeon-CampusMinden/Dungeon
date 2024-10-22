@@ -1,4 +1,4 @@
-package dungine.util.health;
+package dungine.util;
 
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
 import de.fwatermann.dungine.graphics.text.Font;

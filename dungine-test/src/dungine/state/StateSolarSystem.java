@@ -20,7 +20,7 @@ import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.ui.layout.Position;
 import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
-import dungine.util.health.DemoUI;
+import dungine.util.DemoUI;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.net.URI;

@@ -12,7 +12,7 @@ import dungine.level.OptimizedLevel;
 import dungine.systems.CameraSystem;
 import dungine.systems.HealthSystem;
 import dungine.systems.PlayerSystem;
-import dungine.util.health.DemoUI;
+import dungine.util.DemoUI;
 import dungine.util.health.HeroFactory;
 
 public class StatePlayerTest extends GameState {

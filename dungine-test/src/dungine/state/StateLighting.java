@@ -13,7 +13,7 @@ import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
-import dungine.util.health.DemoUI;
+import dungine.util.DemoUI;
 import org.joml.Vector3f;
 
 public class StateLighting extends GameState {

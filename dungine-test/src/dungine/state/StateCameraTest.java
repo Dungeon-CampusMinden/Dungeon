@@ -14,7 +14,7 @@ import de.fwatermann.dungine.window.GameWindow;
 import dungine.level.OptimizedLevel;
 import dungine.level.SimpleLevel;
 import dungine.systems.CameraSystem;
-import dungine.util.health.DemoUI;
+import dungine.util.DemoUI;
 import dungine.util.health.HeroFactory;
 import org.joml.Math;
 import org.joml.Vector3f;
