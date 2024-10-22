@@ -1,4 +1,4 @@
-package dungine.state.hero;
+package dungine.state;
 
 import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
@@ -10,14 +10,19 @@ import de.fwatermann.dungine.graphics.texture.animation.BatchAnimation;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.window.GameWindow;
-import dungine.state.hero.level.Level;
+import dungine.components.CameraComponent;
+import dungine.level.OptimizedLevel;
+import dungine.systems.CameraSystem;
+import org.joml.Math;
 import org.joml.Vector3f;
 
-public class HeroState extends GameState {
+public class StateCameraTest extends GameState {
 
   private Entity hero, level;
 
-  public HeroState(GameWindow window) {
+  private Vector3f target;
+
+  public StateCameraTest(GameWindow window) {
     super(window);
   }
 
@@ -25,34 +30,48 @@ public class HeroState extends GameState {
   public void init() {
     this.hero = this.createHero();
     this.level = this.createLevel();
-    this.camera.position(0, 20, 0.001f);
-    this.camera.lookAt(0, 0, 0);
+    this.camera.position(0, 5, 5);
     this.addSystem(new RenderableSystem(this.camera));
-    //this.addEntity(this.hero);
+    this.addSystem(new CameraSystem(this.camera));
     this.addEntity(this.level);
+    this.addEntity(this.hero);
+
+    this.target = new Vector3f((float) Math.random() * 32 - 16, 0.5f, (float) Math.random() * 32 - 16);
   }
 
   private Entity createLevel() {
     Entity entity = new Entity();
-    Level level = new Level();
-    entity.position().set(-15.5, 0, -15.5);
+    OptimizedLevel level = new OptimizedLevel();
+    entity.position().set(-16, 0.0f, -16);
     entity.addComponent(new RenderableComponent(level));
     return entity;
   }
 
   private Entity createHero() {
     Entity entity = new Entity();
-    //entity.addComponent(new RigidBodyComponent());
 
     Animation animation = new BatchAnimation(Resource.load("/animations/hero.png"), 4, BatchAnimation.Direction.DOWN)
       .frameDuration(200);
     animation.frameDuration(200);
-    Sprite sprite = new Sprite(animation, BillboardMode.CYLINDRICAL);
+    Sprite sprite = new Sprite(animation, BillboardMode.SPHERICAL);
     entity.addComponent(new RenderableComponent(sprite));
+    entity.addComponent(new CameraComponent());
+    entity.position().set(0.0f, 0.5f, 0.0f);
 
     entity.size(new Vector3f(0.73f, 1.0f, 0.0f));
 
     return entity;
+  }
+
+  @Override
+  public void updateState(float deltaTime) {
+    Vector3f toTarget = this.target.sub(this.hero.position(), new Vector3f());
+    if(toTarget.length() < 0.1f) {
+      this.target.set((float) Math.random() * 32 - 16, 0.5f, (float) Math.random() * 32 - 16);
+    } else {
+      toTarget.normalize();
+      this.hero.position().add(toTarget.mul(0.5f * deltaTime));
+    }
   }
 
   @Override

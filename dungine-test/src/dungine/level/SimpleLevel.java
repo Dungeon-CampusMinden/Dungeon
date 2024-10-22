@@ -1,4 +1,4 @@
-package dungine.state.hero.level;
+package dungine.level;
 
 import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.Renderable;
@@ -11,14 +11,14 @@ import de.fwatermann.dungine.graphics.texture.animation.ArrayAnimation;
 import de.fwatermann.dungine.resource.Resource;
 import org.joml.SimplexNoise;
 
-public class Level extends Renderable<Level> {
+public class SimpleLevel extends Renderable<SimpleLevel> {
 
   public static final int LEVEL_SIZE_X = 32;
   public static final int LEVEL_SIZE_Y = 32;
 
   private Sprite[][] tiles = new Sprite[LEVEL_SIZE_X][LEVEL_SIZE_Y];
 
-  public Level() {
+  public SimpleLevel() {
     this.init();
   }
 
