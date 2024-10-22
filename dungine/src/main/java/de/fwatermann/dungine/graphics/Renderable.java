@@ -19,6 +19,7 @@ public abstract class Renderable<T extends Renderable<?>> {
   private final Vector3f position;
   private final Vector3f scaling;
   private final Quaternionf rotation;
+  protected int order = Integer.MAX_VALUE;
 
   private final Matrix4f transformationMatrix = new Matrix4f();
 
@@ -278,5 +279,13 @@ public abstract class Renderable<T extends Renderable<?>> {
    */
   public boolean shouldRender(CameraFrustum frustum) {
     return true;
+  }
+
+  /**
+   * Gets the order of the object for rendering.
+   * @return order number
+   */
+  public int order() {
+    return this.order;
   }
 }

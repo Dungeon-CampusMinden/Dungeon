@@ -4,6 +4,7 @@ import de.fwatermann.dungine.ecs.ECS;
 import de.fwatermann.dungine.ecs.System;
 import de.fwatermann.dungine.ecs.components.LightComponent;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
 import de.fwatermann.dungine.graphics.camera.CameraPerspective;
 import de.fwatermann.dungine.graphics.scene.SceneRenderer;
@@ -56,6 +57,7 @@ public class RenderableSystem extends System<RenderableSystem> {
   public void update(ECS ecs) {
     Set<Model> models = new HashSet<>();
     Set<Light<?>> lights = new HashSet<>();
+    Set<Renderable<?>> renderables = new HashSet<>();
     ecs.forEachEntity(
         e -> {
           e.components(RenderableComponent.class)
@@ -69,7 +71,7 @@ public class RenderableSystem extends System<RenderableSystem> {
                     if (c.renderable instanceof Model model) {
                       models.add(model);
                     } else {
-                      c.renderable.render(this.camera);
+                      renderables.add(c.renderable);
                     }
                     this.renderCount++;
                   });
@@ -81,6 +83,8 @@ public class RenderableSystem extends System<RenderableSystem> {
         });
     this.latestRenderCount = this.renderCount;
     this.renderCount = 0;
+
+    renderables.stream().sorted((r1, r2) -> Integer.compare(r1.order(), r2.order())).forEach(r -> r.render(this.camera));
 
     if (this.sceneShader != null) {
       SceneRenderer.renderScene(this.camera, models, lights, this.sceneShader);
