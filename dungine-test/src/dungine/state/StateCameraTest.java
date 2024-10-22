@@ -41,7 +41,7 @@ public class StateCameraTest extends GameState {
 
   @Override
   public void init() {
-    this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 16, TextAlignment.LEFT);
+    this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 12, TextAlignment.LEFT);
     DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird das CameraComponent getestet. Es verfolgt den Hero mit einem definierten Offset. Außerdem kann zwischen der einfachen und der optimierten Methode zum rendern der Tiles gewechselt werden (M)");
 
     this.hero = this.createHero();
