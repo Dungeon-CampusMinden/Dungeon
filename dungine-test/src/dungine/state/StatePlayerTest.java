@@ -5,10 +5,13 @@ import de.fwatermann.dungine.ecs.components.RenderableComponent;
 import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.simple.Sprite;
+import de.fwatermann.dungine.graphics.text.Font;
+import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.graphics.texture.animation.Animation;
 import de.fwatermann.dungine.graphics.texture.animation.BatchAnimation;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
+import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
 import dungine.components.CameraComponent;
 import dungine.components.HealthComponent;
@@ -17,15 +20,14 @@ import dungine.level.OptimizedLevel;
 import dungine.systems.CameraSystem;
 import dungine.systems.HealthSystem;
 import dungine.systems.PlayerSystem;
-import org.joml.Math;
+import dungine.util.health.DemoUI;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 public class StatePlayerTest extends GameState {
 
   private Entity hero, level;
-
-  private Vector3f target;
+  private UIText fpsText;
 
   public StatePlayerTest(GameWindow window) {
     super(window);
@@ -33,6 +35,10 @@ public class StatePlayerTest extends GameState {
 
   @Override
   public void init() {
+
+    this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 16, TextAlignment.LEFT);
+    DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird das PlayerComponent getestet. Mit 'W','A','S','D' kann der Hero durch das Level bewegt werden.");
+
     this.hero = this.createHero();
     this.level = this.createLevel();
     this.camera.position(0, 5, 5);
@@ -43,8 +49,6 @@ public class StatePlayerTest extends GameState {
 
     this.addEntity(this.level);
     this.addEntity(this.hero);
-
-    this.target = new Vector3f((float) Math.random() * 32 - 16, 0.5f, (float) Math.random() * 32 - 16);
   }
 
   private Entity createLevel() {
@@ -84,6 +88,11 @@ public class StatePlayerTest extends GameState {
     entity.addComponent(new HealthComponent());
 
     return entity;
+  }
+
+  @Override
+  public void renderState(float deltaTime) {
+    this.fpsText.text("FPS: " + this.window.frameCounter().currentFPS());
   }
 
   @Override
