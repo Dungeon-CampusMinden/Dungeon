@@ -82,6 +82,9 @@ public abstract class GameWindow implements Disposable {
   private Vector2f mousePosition = new Vector2f(0, 0);
   private long glfwWindow;
 
+  private float renderDeltaTime = 0.0f;
+  private float updateDeltaTime = 0.0f;
+
   private @Null GameState currentState;
   private @Null GameStateTransition transition = null;
 
@@ -286,6 +289,7 @@ public abstract class GameWindow implements Disposable {
     while (!this.shouldClose) {
       long currentTime = System.nanoTime();
       float deltaTime = (currentTime - lastTime) / 1_000_000_000f;
+      this.updateDeltaTime = deltaTime;
       lastTime = currentTime;
 
       long start = System.nanoTime();
@@ -321,6 +325,7 @@ public abstract class GameWindow implements Disposable {
       while (!this.shouldClose) {
         long currentTime = System.nanoTime();
         float deltaTime = (currentTime - lastTime) / 1_000_000_000f;
+        this.renderDeltaTime = deltaTime;
         lastTime = currentTime;
         this.frameCounter.update();
 
@@ -820,5 +825,21 @@ public abstract class GameWindow implements Disposable {
    */
   public FrameCounter frameCounter() {
     return this.frameCounter;
+  }
+
+  /**
+   * Get the last render delta time. The delta time is the time since the last frame in seconds.
+   * @return the last render delta time in seconds
+   */
+  public float renderDeltaTime() {
+    return this.renderDeltaTime;
+  }
+
+  /**
+   * Get the last update delta time. The delta time is the time since the last update in seconds.
+   * @return the last update delta time in seconds
+   */
+  public float updateDeltaTime() {
+    return this.updateDeltaTime;
   }
 }
