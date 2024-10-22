@@ -58,7 +58,7 @@ java {
 }
 
 application {
-    mainClass = "de.fwatermann.engine.Engine"
+    mainClass = "de.fwatermann.dungine.Dungine"
 }
 
 jar {
