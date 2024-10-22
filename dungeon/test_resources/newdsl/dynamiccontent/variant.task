@@ -1,0 +1,11 @@
+task matching Atlantik:
+variant Europa:
+    "Ordne die Hauptstädte den Ländern zu"
+    "Berlin" <-> "Deutschland"
+    "Paris" <-> "Frankreich"
+variant Amerika:
+    "Ordne den Ländern ihre Hauptstädte zu"
+    "Kanada" <-> "Ottawa"
+    "USA" <-> "Washington, D.C."
+using:
+    (?) "Ein gemeinsamer Hinweis"

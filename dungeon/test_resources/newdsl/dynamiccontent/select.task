@@ -1,0 +1,16 @@
+task matching Erdkunde:
+"Match the capitals"
+select 4 from {
+    "Berlin" <-> "Germany"
+    "Madrid" <-> "Spain"
+    "Paris" <-> "France"
+    "Rome" <-> "Italy"
+    "London" <-> "United Kingdom"
+    "Amsterdam" <-> "Netherlands"
+    "Brussels" <-> "Belgium"
+    "Vienna" <-> "Austria"
+    "Copenhagen" <-> "Denmark"
+    "Stockholm" <-> "Sweden"
+    "Oslo" <-> "Norway"
+    "Helsinki" <-> "Finland"
+}

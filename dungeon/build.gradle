@@ -19,6 +19,9 @@ dependencies {
     // ANTLR version 4 for DSL Grammar
     antlr supportDependencies.antlr
 
+    api supportDependencies.jython
+    api supportDependencies.jlatexmath
+
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
     testRuntimeOnly supportDependencies.junitLauncher
@@ -32,7 +35,7 @@ sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
-sourceSets.main.antlr.srcDirs = ['src/dsl/antlr']
+sourceSets.main.antlr.srcDirs = ['src/dsl/antlr', 'src/newdsl/antlr']
 
 processResources {
     from new File(project(':game').projectDir, '/assets')
@@ -68,6 +71,11 @@ tasks.register('runRandomDungeon', JavaExec) {
 
 tasks.register('runRoomBasedDungeon', JavaExec) {
     mainClass = 'starter.RoomBasedDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runNewDSLStarter', JavaExec) {
+    mainClass = 'starter.NewDSLStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
