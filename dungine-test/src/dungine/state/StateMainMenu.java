@@ -29,7 +29,7 @@ public class StateMainMenu extends GameState {
             (element, button, action) -> {
               this.window.setState(new StateCameraTest(this.window));
             }));
-    button1.add(new UIText(Font.defaultFont(), "Camera Test", 24, TextAlignment.CENTER));
+    button1.add(new UIText(Font.defaultFont(), "CameraComponent", 24, TextAlignment.CENTER));
     button1.layout().width(Unit.vW(33)).height(Unit.vH(20));
     button1.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
 
@@ -39,7 +39,7 @@ public class StateMainMenu extends GameState {
             (element, button, action) -> {
               this.window.setState(new StatePlayerTest(this.window));
             }));
-    button2.add(new UIText(Font.defaultMonoFont(), "Player Test", 24, TextAlignment.CENTER));
+    button2.add(new UIText(Font.defaultMonoFont(), "PlayerComponent", 24, TextAlignment.CENTER));
     button2.layout().width(Unit.vW(33)).height(Unit.vH(20));
     button2.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
 
@@ -47,13 +47,23 @@ public class StateMainMenu extends GameState {
     button3.attachComponent(
         new UIComponentClickable(
             (element, button, action) -> {
+              this.window.setState(new StateLighting(this.window));
+            }));
+    button3.add(new UIText(Font.defaultMonoFont(), "Beleuchtung", 24, TextAlignment.CENTER));
+    button3.layout().width(Unit.vW(33)).height(Unit.vH(20));
+    button3.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
+
+    UIButton buttonExit = new UIButton();
+    buttonExit.attachComponent(
+        new UIComponentClickable(
+            (element, button, action) -> {
               this.window.close();
             }));
-    button3.add(
-        new UIText(Font.defaultMonoFont(), "Exit", 24, TextAlignment.CENTER));
-    button3.layout().width(Unit.vW(33)).height(Unit.vH(20));
-    button3.borderRadius(20).borderWidth(5).fillColor(0xFF2020FF);
+    buttonExit.add(new UIText(Font.defaultMonoFont(), "Exit", 24, TextAlignment.CENTER));
+    buttonExit.layout().width(Unit.vW(33)).height(Unit.vH(20));
+    buttonExit.borderRadius(20).borderWidth(5).fillColor(0xFF2020FF);
 
+    this.ui.add(buttonExit);
     this.ui.add(button3);
     this.ui.add(button2);
     this.ui.add(button1);
