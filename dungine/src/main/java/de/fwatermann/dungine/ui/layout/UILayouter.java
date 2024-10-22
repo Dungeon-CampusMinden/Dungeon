@@ -210,7 +210,7 @@ public class UILayouter {
 
       for (UIElement<?> element : elements) {
         if (element.layout().position() != Position.RELATIVE) continue;
-        if (lines.getLast().mainSize + element.size().x > container.size().x) {
+        if (lines.getLast().mainSizeNoGap + element.size().x + columnGap * (lines.getLast().elements.size() - 1) > container.size().x) {
           lines.getLast().mainSize =
               lines.getLast().mainSizeNoGap + columnGap * (lines.getLast().elements.size() - 1);
           lines.add(new FlexLine());
@@ -239,7 +239,7 @@ public class UILayouter {
 
       for (UIElement<?> element : elements) {
         if (element.layout().position() != Position.RELATIVE) continue;
-        if (lines.getLast().mainSize + element.size().y > container.size().y) {
+        if (lines.getLast().mainSizeNoGap + element.size().y + rowGap * (lines.getLast().elements.size() - 1) > container.size().y) {
           lines.getLast().mainSize =
               lines.getLast().mainSizeNoGap + rowGap * (lines.getLast().elements.size() - 1);
           lines.add(new FlexLine());
