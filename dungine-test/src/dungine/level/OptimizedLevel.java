@@ -33,6 +33,7 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
   private ArrayMesh mesh;
 
   public OptimizedLevel() {
+    this.order = 0;
     this.atlas = new TextureAtlas();
     this.atlas.add(Resource.load("/textures/floor_1.png"));
     this.atlas.add(Resource.load("/textures/floor_damaged.png"));

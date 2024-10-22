@@ -23,6 +23,7 @@ public class SimpleLevel extends Renderable<SimpleLevel> {
   }
 
   public void init() {
+    this.order = 0;
     Texture floor = TextureManager.load(Resource.load("/textures/floor_1.png"));
     Texture floor_dmg = TextureManager.load(Resource.load("/textures/floor_damaged.png"));
     Texture floor_hole = TextureManager.load(Resource.load("/textures/floor_hole.png"));
