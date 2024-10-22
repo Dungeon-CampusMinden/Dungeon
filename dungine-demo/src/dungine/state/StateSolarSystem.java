@@ -8,8 +8,10 @@ import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.event.input.MouseButtonEvent;
+import de.fwatermann.dungine.graphics.SkyBox;
 import de.fwatermann.dungine.graphics.scene.light.AmbientLight;
 import de.fwatermann.dungine.graphics.scene.light.PointLight;
+import de.fwatermann.dungine.graphics.scene.model.Model;
 import de.fwatermann.dungine.graphics.scene.model.ModelLoader;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.graphics.text.TextAlignment;
@@ -68,7 +70,7 @@ public class StateSolarSystem extends GameState {
         this.window,
         this.ui,
         this.fpsText,
-        "In dieser Szene wird der ModelLoader getestet. Die Kamera kann mit 'W', 'A', 'S', 'D', 'SHIFT' und ' SPACE' durch den Raum bewegt werden. Durch Klicken und ziehen kann die Kamera geschwenkt werden.");
+        "In dieser Szene wird der ModelLoader getestet. Die Kamera kann mit 'W', 'A', 'S', 'D', 'SHIFT' und ' SPACE' durch den Raum bewegt werden. Durch Klicken und ziehen kann die Kamera geschwenkt werden. Mit 'UP' und 'DOWN' kann die Geschwindigkeit der Animation verändert werden.");
 
     this.camera.position(0, 5, 5);
     this.camera.lookAt(0, 0, 0);
@@ -84,8 +86,10 @@ public class StateSolarSystem extends GameState {
 
     this.sun = new Entity();
     this.sun.size(new Vector3f(5));
+    Model sunModel = ModelLoader.loadModel(Resource.load("/models/sun.glb"));
+    sunModel.forceIlluminate(true);
     this.sun.addComponent(
-        new RenderableComponent(ModelLoader.loadModel(Resource.load("/models/sun.glb"))));
+        new RenderableComponent(sunModel));
     this.sun.addComponent(
         new LightComponent(
             new PointLight(
@@ -97,6 +101,8 @@ public class StateSolarSystem extends GameState {
     this.moon.size(new Vector3f(0.33f));
     this.moon.addComponent(
         new RenderableComponent(ModelLoader.loadModel(Resource.load("/models/moon.glb"))));
+
+    this.skyBox = new SkyBox(Resource.load("/textures/skybox.png"));
 
     this.addEntity(this.earth);
     this.addEntity(this.sun);
@@ -124,12 +130,15 @@ public class StateSolarSystem extends GameState {
     float earthX = (float) Math.sin(this.time * 0.2) * 20;
     float earthZ = (float) Math.cos(this.time * 0.2) * 20;
     this.earth.position().set(earthX, 0, earthZ);
-
     this.earth.rotation().rotateY((float) Math.toRadians(deltaTime * 1000));
 
     float moonX = (float) Math.sin(this.time * 2.5) * 3;
     float moonZ = (float) Math.cos(this.time * 2.5) * 3;
     this.moon.position().set(earthX + moonX, 0, earthZ + moonZ);
+    this.moon.rotation().setAngleAxis(this.time * 2.5 + 0.5*Math.PI, 0, 1, 0);
+
+
+
   }
 
   @Override
@@ -145,6 +154,8 @@ public class StateSolarSystem extends GameState {
         this.speed *= 1.1f;
       } else if(event.key == GLFW.GLFW_KEY_DOWN) {
         this.speed *= 0.9f;
+      } else if (event.key == GLFW.GLFW_KEY_G) {
+        this.grid(!this.grid());
       }
     }
   }
