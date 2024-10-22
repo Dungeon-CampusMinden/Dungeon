@@ -87,7 +87,6 @@ public class StateLighting extends GameState {
     this.redEntity.position().z = (float) Math.sin(System.currentTimeMillis() / 2000.0) * -5;
     this.greenEntity.position().x = (float) Math.sin(System.currentTimeMillis() / 2000.0) * 5;
     this.yellowEntity.position().x = (float) Math.sin(System.currentTimeMillis() / 2000.0) * -5;
-    System.out.println(this.redEntity.position().z);
   }
 
   @Override
