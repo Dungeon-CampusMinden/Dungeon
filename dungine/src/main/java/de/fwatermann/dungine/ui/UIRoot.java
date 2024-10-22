@@ -13,6 +13,7 @@ import de.fwatermann.dungine.input.Mouse;
 import de.fwatermann.dungine.ui.components.UIComponentClickable;
 import de.fwatermann.dungine.ui.components.UIComponentHoverable;
 import de.fwatermann.dungine.ui.components.UIComponentScrollable;
+import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.ui.layout.UILayouter;
 import de.fwatermann.dungine.utils.Disposable;
 import de.fwatermann.dungine.window.GameWindow;
@@ -80,6 +81,9 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     if (this.initialized) return;
     EventManager.getInstance().registerListener(this);
     this.initialized = true;
+    UILayouter.layout(this, this.window.size(), true);
+    this.allChildElements(true).stream()
+      .filter(e -> e instanceof UIText).forEach(e -> e.render(this.camera()));
     UILayouter.layout(this, this.window.size(), true);
   }
 

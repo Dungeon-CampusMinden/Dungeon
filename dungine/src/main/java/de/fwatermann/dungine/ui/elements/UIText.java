@@ -135,8 +135,8 @@ public class UIText extends UIElement<UIText> {
 
     // TODO: Add transformation of UIElement to UIText
 
-    Vector3f basePos = new Vector3f(this.absolutePosition().add(0, this.fontSize, 0));
-    basePos.y -= this.fontSize;
+    Vector3f basePos = new Vector3f(this.absolutePosition());
+    basePos.add(0.0f, this.size.y(), 0.0f);
 
     SHADER.bind();
     SHADER.useCamera(camera);

@@ -67,20 +67,6 @@ public class UILayouter {
         .filter(e -> e.layout().position() == Position.FIXED)
         .forEach(
             e -> {
-              // Position the element based on its layout properties
-              Vector3f pos = new Vector3f(0.0f);
-              if (e.layout().bottom().type() != Unit.UnitType.AUTO) {
-                pos.y = e.layout().bottom().toPixels(viewport, container.size().y);
-              } else if (e.layout().top().type() != Unit.UnitType.AUTO) {
-                pos.y = e.layout().top().toPixels(viewport, container.size().y);
-              }
-              if (e.layout().left().type() != Unit.UnitType.AUTO) {
-                pos.x = e.layout().left().toPixels(viewport, container.size().x);
-              } else if (e.layout().right().type() != Unit.UnitType.AUTO) {
-                pos.x = e.layout().right().toPixels(viewport, container.size().x);
-              }
-              e.position().set(pos);
-
               // Size the element based on its layout properties
               Vector2f size = new Vector2f(0.0f);
               if (e.layout().width().type() != Unit.UnitType.AUTO) {
@@ -94,6 +80,20 @@ public class UILayouter {
                 size.y = Math.max(e.size().y, 10);
               }
               e.size().set(size.x, size.y, 0.0f);
+
+              // Position the element based on its layout properties
+              Vector3f pos = new Vector3f(0.0f);
+              if (e.layout().bottom().type() != Unit.UnitType.AUTO) {
+                pos.y = e.layout().bottom().toPixels(viewport, container.size().y);
+              } else if (e.layout().top().type() != Unit.UnitType.AUTO) {
+                pos.y = viewport.y - e.layout().top().toPixels(viewport, container.size().y) - size.y;
+              }
+              if (e.layout().left().type() != Unit.UnitType.AUTO) {
+                pos.x = e.layout().left().toPixels(viewport, container.size().x);
+              } else if (e.layout().right().type() != Unit.UnitType.AUTO) {
+                pos.x = viewport.x - e.layout().right().toPixels(viewport, container.size().x) - size.x;
+              }
+              e.position().set(pos);
             });
 
     // Recursively layout child containers if specified
