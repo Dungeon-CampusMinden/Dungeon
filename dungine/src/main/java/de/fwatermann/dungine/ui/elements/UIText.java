@@ -27,6 +27,8 @@ import org.lwjgl.opengl.GL33;
 /** Represents a UI element for rendering text. */
 public class UIText extends UIElement<UIText> {
 
+  public static boolean debug = false;
+
   private static ShaderProgram SHADER;
 
   private Font font;
@@ -37,6 +39,8 @@ public class UIText extends UIElement<UIText> {
   private ArrayMesh mesh;
   private TextAlignment alignment;
   private final List<RenderStep> renderSteps = new ArrayList<>();
+
+  private UIColorPane boundingBox = new UIColorPane(0x00FF00FF, 0xFFFFFFFF, 0, 0);
 
   /**
    * Constructs a new UIText object.
@@ -136,7 +140,13 @@ public class UIText extends UIElement<UIText> {
     // TODO: Add transformation of UIElement to UIText
 
     Vector3f basePos = new Vector3f(this.absolutePosition());
-    basePos.add(0.0f, this.size.y(), 0.0f);
+    basePos.add(0.0f, this.size.y() - this.fontSize, 0.0f);
+
+    if(debug) {
+      this.boundingBox.position().set(this.absolutePosition());
+      this.boundingBox.size().set(this.size);
+      this.boundingBox.render(camera);
+    }
 
     SHADER.bind();
     SHADER.useCamera(camera);
@@ -198,8 +208,9 @@ public class UIText extends UIElement<UIText> {
     this.renderSteps.add(new RenderStep(this.font.getPage(page).glHandle(), count, offset));
     this.mesh.vertexBuffer(buffer);
     BoundingBox2D bb = this.font.calculateBoundingBox(this.layoutElements);
-    this.size.setComponent(1, bb.height());
-    this.layout().height(Unit.px(bb.height()));
+    if(this.layout.height().type() == Unit.UnitType.AUTO) {
+      this.size.setComponent(1, bb.height());
+    }
   }
 
   /**
