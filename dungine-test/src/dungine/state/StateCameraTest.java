@@ -5,22 +5,17 @@ import de.fwatermann.dungine.ecs.components.RenderableComponent;
 import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
-import de.fwatermann.dungine.graphics.BillboardMode;
 import de.fwatermann.dungine.graphics.Renderable;
-import de.fwatermann.dungine.graphics.simple.Sprite;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.graphics.text.TextAlignment;
-import de.fwatermann.dungine.graphics.texture.animation.Animation;
-import de.fwatermann.dungine.graphics.texture.animation.BatchAnimation;
-import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.window.GameWindow;
-import dungine.components.CameraComponent;
 import dungine.level.OptimizedLevel;
 import dungine.level.SimpleLevel;
 import dungine.systems.CameraSystem;
 import dungine.util.health.DemoUI;
+import dungine.util.health.HeroFactory;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
@@ -42,9 +37,9 @@ public class StateCameraTest extends GameState {
   @Override
   public void init() {
     this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 12, TextAlignment.LEFT);
-    DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird das CameraComponent getestet. Es verfolgt den Hero mit einem definierten Offset. Außerdem kann zwischen der einfachen und der optimierten Methode zum rendern der Tiles gewechselt werden (M)");
+    DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird das CameraComponent getestet. Die Kamera verfolgt den Hero mit einem definierten Offset. Außerdem kann zwischen der einfachen und der optimierten Methode zum rendern der Tiles gewechselt werden (M)");
 
-    this.hero = this.createHero();
+    this.hero = HeroFactory.create();
     this.level = this.createLevel();
     this.camera.position(0, 5, 5);
     this.addSystem(new RenderableSystem(this.camera));
@@ -60,22 +55,6 @@ public class StateCameraTest extends GameState {
     this.levelRenderable = new SimpleLevel();
     entity.position().set(-16, 0.0f, -16);
     entity.addComponent(new RenderableComponent(this.levelRenderable));
-    return entity;
-  }
-
-  private Entity createHero() {
-    Entity entity = new Entity();
-
-    Animation animation = new BatchAnimation(Resource.load("/animations/hero.png"), 4, BatchAnimation.Direction.DOWN)
-      .frameDuration(200);
-    animation.frameDuration(200);
-    Sprite sprite = new Sprite(animation, BillboardMode.SPHERICAL);
-    entity.addComponent(new RenderableComponent(sprite));
-    entity.addComponent(new CameraComponent());
-    entity.position().set(0.0f, 0.5f, 0.0f);
-
-    entity.size(new Vector3f(0.73f, 1.0f, 0.0f));
-
     return entity;
   }
 
