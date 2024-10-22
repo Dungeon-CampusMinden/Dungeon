@@ -1,12 +1,25 @@
 package core.game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
-import core.systems.*;
+import core.systems.CameraSystem;
+import core.systems.DrawSystem;
+import core.systems.LevelSystem;
+import core.systems.PlayerSystem;
+import core.systems.PositionSystem;
+import core.systems.VelocitySystem;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;

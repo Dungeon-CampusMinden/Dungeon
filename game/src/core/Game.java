@@ -1,5 +1,8 @@
 package core;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.GraphPath;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
