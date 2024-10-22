@@ -3,6 +3,7 @@ package dungine.state;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.state.GameState;
+import de.fwatermann.dungine.ui.UIContainer;
 import de.fwatermann.dungine.ui.components.UIComponentClickable;
 import de.fwatermann.dungine.ui.elements.UIButton;
 import de.fwatermann.dungine.ui.elements.UIText;
@@ -22,6 +23,11 @@ public class StateMainMenu extends GameState {
 
   @Override
   public void init() {
+
+    UIContainer<?> demos = new UIContainer<>();
+    demos.layout().flow(FlexDirection.COLUMN, FlexWrap.WRAP);
+    demos.layout().columnGap(Unit.px(20)).rowGap(Unit.px(20));
+    demos.layout().justifyContent(JustifyContent.SPACE_EVENLY).alignContent(AlignContent.CENTER);
 
     UIButton button1 = new UIButton();
     button1.attachComponent(
@@ -63,6 +69,16 @@ public class StateMainMenu extends GameState {
     button4.layout().width(Unit.vW(33)).height(Unit.vH(20));
     button4.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
 
+    UIButton button5 = new UIButton();
+    button5.attachComponent(
+      new UIComponentClickable(
+        (element, button, action) -> {
+          this.window.setState(new State3dLevel(this.window));
+        }));
+    button5.add(new UIText(Font.defaultMonoFont(), "3D-Level", 24, TextAlignment.CENTER));
+    button5.layout().width(Unit.vW(33)).height(Unit.vH(20));
+    button5.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);
+
     UIButton buttonExit = new UIButton();
     buttonExit.attachComponent(
         new UIComponentClickable(
@@ -74,16 +90,19 @@ public class StateMainMenu extends GameState {
     buttonExit.borderRadius(20).borderWidth(5).fillColor(0xFF2020FF);
 
     this.ui.add(buttonExit);
-    this.ui.add(button4);
-    this.ui.add(button3);
-    this.ui.add(button2);
-    this.ui.add(button1);
+    demos.add(button5);
+    demos.add(button4);
+    demos.add(button3);
+    demos.add(button2);
+    demos.add(button1);
+    this.ui.add(demos);
 
     this.ui
         .layout()
         .flow(FlexDirection.COLUMN, FlexWrap.WRAP)
         .justifyContent(JustifyContent.SPACE_EVENLY)
         .alignContent(AlignContent.CENTER)
+        .columnGap(Unit.px(20))
         .rowGap(Unit.px(20));
     UILayouter.layout(this.ui, this.window.size(), true);
   }
