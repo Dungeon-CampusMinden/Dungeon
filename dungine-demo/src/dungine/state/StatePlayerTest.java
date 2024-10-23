@@ -12,8 +12,9 @@ import dungine.level.OptimizedLevel;
 import dungine.systems.CameraSystem;
 import dungine.systems.HealthSystem;
 import dungine.systems.PlayerSystem;
+import dungine.systems.VelocitySystem;
 import dungine.util.DemoUI;
-import dungine.util.health.HeroFactory;
+import dungine.util.HeroFactory;
 
 public class StatePlayerTest extends GameState {
 
@@ -39,6 +40,7 @@ public class StatePlayerTest extends GameState {
     this.addSystem(new CameraSystem(this.camera));
     this.addSystem(new PlayerSystem());
     this.addSystem(new HealthSystem());
+    this.addSystem(new VelocitySystem());
 
     this.addEntity(this.level);
     this.addEntity(this.hero);

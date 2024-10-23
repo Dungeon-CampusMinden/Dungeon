@@ -15,7 +15,7 @@ import dungine.level.OptimizedLevel;
 import dungine.level.SimpleLevel;
 import dungine.systems.CameraSystem;
 import dungine.util.DemoUI;
-import dungine.util.health.HeroFactory;
+import dungine.util.HeroFactory;
 import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;

@@ -1,6 +1,9 @@
 package dungine.state;
 
-import de.fwatermann.dungine.ecs.systems.FreeCamSystem;
+import de.fwatermann.dungine.ecs.Entity;
+import de.fwatermann.dungine.ecs.systems.RenderableSystem;
+import de.fwatermann.dungine.event.EventHandler;
+import de.fwatermann.dungine.event.input.KeyboardEvent;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.graphics.text.TextAlignment;
 import de.fwatermann.dungine.state.GameState;
@@ -10,13 +13,20 @@ import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
 import dungine.level.level3d.Level3D;
 import dungine.level.level3d.generator.rooms.RoomsGenerator;
+import dungine.systems.CameraSystem;
+import dungine.systems.PlayerSystem;
+import dungine.systems.VelocitySystem;
 import dungine.util.DemoUI;
+import dungine.util.HeroFactory;
+import org.lwjgl.glfw.GLFW;
 
 public class State3dLevel extends GameState {
 
   private UIText fpsText;
   private UIText chunksText;
   private Level3D level;
+
+  private Entity hero;
 
   public State3dLevel(GameWindow window) {
     super(window);
@@ -28,14 +38,27 @@ public class State3dLevel extends GameState {
     this.chunksText = new UIText(Font.defaultMonoFont(), "Chunks: 0", 12, TextAlignment.LEFT);
     this.chunksText.layout().position(Position.FIXED).top(Unit.px(32)).left(Unit.px(10)).width(Unit.vW(45));
     this.ui.add(this.chunksText);
-    DemoUI.init(this.window, this.ui, this.fpsText, "Ein 3D-Level im Dungeon-Stil. Mehr muss ich dazu glaube ich nicht sagen ;)");
+    DemoUI.init(this.window, this.ui, this.fpsText, "Ein 3D-Level im Dungeon-Stil. Mehr muss ich dazu glaube ich nicht sagen ;)\nEs existieren nur noch keine Gegner die einen hier erwarten könnten...");
 
-    this.addSystem(new FreeCamSystem(this.camera, false, this));
+    VelocitySystem velocitySystem = new VelocitySystem();
+
+    this.addSystem(new CameraSystem(this.camera));
+    this.addSystem(new RenderableSystem(this.camera));
+    this.addSystem(new PlayerSystem());
+    this.addSystem(velocitySystem);
 
     this.level = new Level3D();
-    RoomsGenerator generator = new RoomsGenerator(this.level);
+    RoomsGenerator generator = new RoomsGenerator(this.level, System.currentTimeMillis());
     this.level.generator(generator);
-    generator.generate(20, 3467589736L);
+    generator.generate();
+
+    velocitySystem.level = this.level;
+
+    this.hero = HeroFactory.create();
+    HeroFactory.makeControlled(this.window, this.hero);
+    this.hero.position(generator.getStartPosition());
+
+    this.addEntity(this.hero);
 
     this.grid(true);
   }
@@ -45,6 +68,19 @@ public class State3dLevel extends GameState {
     this.fpsText.text("FPS: " + this.window.frameCounter().currentFPS());
     this.chunksText.text("Chunks: " + this.level.chunkCount());
     this.level.render(this.camera);
+  }
+
+  @EventHandler
+  private void onKeyboard(KeyboardEvent event) {
+    if(event.action == KeyboardEvent.KeyAction.PRESS ){
+      if(event.key == GLFW.GLFW_KEY_R) {
+        this.level.chunkByWorldCoordinates(
+                (int)Math.floor(this.camera.position().x),
+                (int)Math.floor(this.camera.position().y),
+                (int)Math.floor(this.camera.position().z),
+                false).rebuild();
+      }
+    }
   }
 
   @Override

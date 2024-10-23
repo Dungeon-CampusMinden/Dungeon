@@ -22,6 +22,7 @@ public class CameraSystem extends System<CameraSystem> {
         this.camera.move(0, 5, 2);
         this.camera.lookAt(e.position());
       }, () -> {
+        this.camera.position(0, 5, 2);
         this.camera.lookAt(0, 0, 0);
       });
     }, CameraComponent.class);

@@ -1,4 +1,4 @@
-package dungine.util.health;
+package dungine.util;
 
 import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.ecs.components.RenderableComponent;
@@ -30,33 +30,34 @@ public class HeroFactory {
   }
 
   public static void makeControlled(GameWindow window, Entity entity) {
+    float speedMultiplier = 7.5f * 4;
     PlayerComponent playerComponent = new PlayerComponent();
     playerComponent.registerCallback(GLFW.GLFW_KEY_W, (e) -> {
       entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(0, 0, -2.0f * window.renderDeltaTime());
+        vc.force.add(0, 0, -speedMultiplier * window.renderDeltaTime());
       }, () -> {
-        entity.position().add(0, 0, -2.0f * window.renderDeltaTime());
+        entity.position().add(0, 0, -speedMultiplier * window.renderDeltaTime());
       });
     });
     playerComponent.registerCallback(GLFW.GLFW_KEY_S, (e) -> {
       entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(0, 0, 2.0f * window.renderDeltaTime());
+        vc.force.add(0, 0, speedMultiplier * window.renderDeltaTime());
       }, () -> {
-        entity.position().add(0, 0, 2.0f * window.renderDeltaTime());
+        entity.position().add(0, 0, speedMultiplier * window.renderDeltaTime());
       });
     });
     playerComponent.registerCallback(GLFW.GLFW_KEY_A, (e) -> {
       entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(-2.0f * window.renderDeltaTime(), 0, 0);
+        vc.force.add(-speedMultiplier * window.renderDeltaTime(), 0, 0);
       }, () -> {
-        entity.position().add(-2.0f * window.renderDeltaTime(), 0, 0);
+        entity.position().add(-speedMultiplier * window.renderDeltaTime(), 0, 0);
       });
     });
     playerComponent.registerCallback(GLFW.GLFW_KEY_D, (e) -> {
       entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(2.0f * window.renderDeltaTime(), 0, 0);
+        vc.force.add(speedMultiplier * window.renderDeltaTime(), 0, 0);
       }, () -> {
-        entity.position().add(2.0f * window.renderDeltaTime(), 0, 0);
+        entity.position().add(speedMultiplier * window.renderDeltaTime(), 0, 0);
       });
     });
     entity.addComponent(playerComponent);
