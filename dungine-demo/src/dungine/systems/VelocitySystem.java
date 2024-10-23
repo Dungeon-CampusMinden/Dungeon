@@ -10,10 +10,16 @@ import dungine.level.level3d.utils.ChunkUtils;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+/**
+ * The `VelocitySystem` is a System that updates the velocity of entities with a VelocityComponent.
+ * It applies forces to the velocity and updates the position of the entity based on the velocity.
+ * Additionally, it checks if the new position is accessible.
+ */
 public class VelocitySystem extends System<VelocitySystem> {
 
   private long lastExecution = 0L;
 
+  /** The level instance used to check if the new position is accessible. */
   public Level3D level;
 
   @Override

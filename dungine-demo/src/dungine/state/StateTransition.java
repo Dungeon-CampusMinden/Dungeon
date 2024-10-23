@@ -18,6 +18,11 @@ import de.fwatermann.dungine.window.GameWindow;
  */
 public class StateTransition extends GameStateTransition {
 
+  /**
+   * Create a new `StateTransition` instance.
+   *
+   * @param window The GameWindow instance.
+   */
   public StateTransition(GameWindow window) {
     super(window);
   }

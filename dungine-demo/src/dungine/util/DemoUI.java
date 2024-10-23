@@ -19,8 +19,19 @@ import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
 import dungine.state.StateMainMenu;
 
+/**
+ * The `DemoUI` class provides a static method to initialize the UI elements for the demo states.
+ */
 public class DemoUI {
 
+  /**
+   * Initialize the UI elements for the demo states.
+   *
+   * @param window The GameWindow instance.
+   * @param root The UIRoot instance.
+   * @param fpsText The UIText instance for the FPS display.
+   * @param description The description text for the demo state.
+   */
   public static void init(GameWindow window, UIRoot root, UIText fpsText, String description) {
     UIColorPane box = new UIColorPane(0x3071f280, 0xFFFFFFFF, 2, 10);
     box.layout().flow(FlexDirection.COLUMN, FlexWrap.NO_WRAP);

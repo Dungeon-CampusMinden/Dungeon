@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+/**
+ * The `HealthSystem` is a System that updates the health of entities with a HealthComponent. It
+ * applies damage to entities and removes them if their health reaches zero.
+ */
 public class HealthSystem extends System<HealthSystem> {
 
   protected final List<IHealthObserver> observers = new ArrayList<>();

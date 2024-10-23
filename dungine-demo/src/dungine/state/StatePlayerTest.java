@@ -16,11 +16,20 @@ import dungine.systems.VelocitySystem;
 import dungine.util.DemoUI;
 import dungine.util.HeroFactory;
 
+/**
+ * The `StatePlayerTest` is a GameState that tests the PlayerComponent. The hero can be moved
+ * through the level with 'W', 'A', 'S', 'D'.
+ */
 public class StatePlayerTest extends GameState {
 
   private Entity hero, level;
   private UIText fpsText;
 
+  /**
+   * Create a new `StatePlayerTest` instance.
+   *
+   * @param window The GameWindow instance.
+   */
   public StatePlayerTest(GameWindow window) {
     super(window);
   }

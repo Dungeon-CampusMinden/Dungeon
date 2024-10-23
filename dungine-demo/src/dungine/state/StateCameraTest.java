@@ -20,6 +20,10 @@ import org.joml.Math;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+/**
+ * The `StateCameraTest` is a GameState that tests the CameraComponent and -System. The camera
+ * should follow the hero with a defined offset.
+ */
 public class StateCameraTest extends GameState {
 
   private Entity hero, level;
@@ -30,6 +34,11 @@ public class StateCameraTest extends GameState {
 
   private UIText fpsText;
 
+  /**
+   * Create a new `StateCameraTest` instance.
+   *
+   * @param window The GameWindow instance.
+   */
   public StateCameraTest(GameWindow window) {
     super(window);
   }

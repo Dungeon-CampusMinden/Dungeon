@@ -23,6 +23,7 @@ import dungine.util.DemoUI;
 import dungine.util.HeroFactory;
 import org.lwjgl.glfw.GLFW;
 
+/** The `State3dLevel` class represents a 3D level state in the game. */
 public class State3dLevel extends GameState {
 
   private UIText fpsText;
@@ -32,6 +33,11 @@ public class State3dLevel extends GameState {
   private Entity hero;
   private Entity levelEntity;
 
+  /**
+   * Create a new `State3dLevel` instance.
+   *
+   * @param window
+   */
   public State3dLevel(GameWindow window) {
     super(window);
   }

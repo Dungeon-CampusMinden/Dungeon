@@ -3,6 +3,7 @@ package dungine;
 import de.fwatermann.dungine.window.GameWindow;
 import org.joml.Vector2i;
 
+/** The `Dungine` class is the main entry point for the Dungine-Demo. */
 public class Dungine extends GameWindow {
 
   /**

@@ -1,13 +1,31 @@
 package dungine.level.level3d.block;
 
+/** The `BlockFace` enum represents the six faces of a block in a 3D level. */
 public enum BlockFace {
-  UP, // Y+
-  DOWN, // Y-
-  NORTH, // Z+
-  SOUTH, // Z-
-  WEST, // X-
-  EAST; // X+
 
+  /** The face of the block that is facing upwards (y+). */
+  UP,
+
+  /** The face of the block that is facing downwards. (y-) */
+  DOWN,
+
+  /** The face of the block that is facing north. (z+) */
+  NORTH,
+
+  /** The face of the block that is facing south. (z-) */
+  SOUTH,
+
+  /** The face of the block that is facing west. (x-) */
+  WEST,
+
+  /** The face of the block that is facing east. (x+) */
+  EAST;
+
+  /**
+   * Returns the opposite face of the block face.
+   *
+   * @return The opposite face of the block face.
+   */
   public BlockFace opposite() {
     return switch (this) {
       case UP -> DOWN;
@@ -20,6 +38,11 @@ public enum BlockFace {
     };
   }
 
+  /**
+   * Get the bitmask for the block face.
+   *
+   * @return The bitmask for the block face.
+   */
   public byte bitMask() {
     return switch (this) {
       case UP -> 0b00100000;
@@ -31,6 +54,12 @@ public enum BlockFace {
     };
   }
 
+  /**
+   * Get the block face from the bitmask.
+   *
+   * @param bitMask The bitmask to get the block face from.
+   * @return The block face from the bitmask.
+   */
   public static BlockFace fromBitMask(byte bitMask) {
     return switch (bitMask) {
       case 0b00100000 -> UP;

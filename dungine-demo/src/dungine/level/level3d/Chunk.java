@@ -54,19 +54,31 @@ public class Chunk {
    = 4 + 12 = 16 bytes/vertex
   */
 
+  /** The shader program used to render the chunk. */
   public static ShaderProgram SHADER;
 
   private final ByteBuffer vertices;
   private Mesh<?> mesh;
 
+  /** X-Size of a Chunk. */
   public static final int CHUNK_SIZE_X = 16;
+
+  /** Y-Size of a Chunk. */
   public static final int CHUNK_SIZE_Y = 16;
+
+  /** Z-Size of a Chunk. */
   public static final int CHUNK_SIZE_Z = 16;
 
   private final Block[][][] blocks = new Block[CHUNK_SIZE_X][CHUNK_SIZE_Y][CHUNK_SIZE_Z];
   private final Vector3i position;
   private final Level3D level;
 
+  /**
+   * Constructs a new `Chunk` with the specified level and chunk coordinates.
+   *
+   * @param level The level to which the chunk belongs
+   * @param chunkCoordinates The coordinates of the chunk
+   */
   public Chunk(Level3D level, Vector3i chunkCoordinates) {
     this.position = chunkCoordinates;
     this.vertices = BufferUtils.createByteBuffer(CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 16);
@@ -77,6 +89,7 @@ public class Chunk {
     this.rebuild();
   }
 
+  /** Initialize the chunk shader. */
   public static void initShader() {
     if (SHADER != null) return;
     try {
@@ -95,58 +108,135 @@ public class Chunk {
     }
   }
 
+  /**
+   * Get the block at the given chunk relative position.
+   *
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   * @return The block at the given position
+   */
   public Block getBlockAt(int x, int y, int z) {
     return this.blocks[x][y][z];
   }
 
+  /**
+   * Get the block at the given chunk relative position.
+   *
+   * @param position The position
+   * @return The block at the given position
+   */
   public Block getBlockAt(Vector3i position) {
     return this.getBlockAt(position.x, position.y, position.z);
   }
 
+  /**
+   * Get the block at the given world position.
+   *
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   * @return The block at the given position
+   */
   public Block getBlockAtWorldPosition(int x, int y, int z) {
     return this.getBlockAt(ChunkUtils.worldToChunkRelative(x, y, z));
   }
 
+  /**
+   * Get the block at the given world position.
+   *
+   * @param position The position
+   * @return The block at the given position
+   */
   public Block getBlockAtWorldPosition(Vector3i position) {
     return this.getBlockAtWorldPosition(position.x, position.y, position.z);
   }
 
+  /**
+   * Get the block at the given world position.
+   *
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   * @return The block at the given position
+   */
   public Block getBlockAtWorldPosition(float x, float y, float z) {
     return this.getBlockAtWorldPosition(
         (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
   }
 
+  /**
+   * Get the block at the given world position.
+   *
+   * @param pos The position
+   * @return The block at the given position
+   */
   public Block getBlockAtWorldPosition(Vector3f pos) {
     return this.getBlockAtWorldPosition(pos.x, pos.y, pos.z);
   }
 
+  /**
+   * Remove the block at the given position.
+   *
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   */
   public void removeBlock(int x, int y, int z) {
     this.blocks[x][y][z] = null;
     this.updateMesh(x, y, z, true);
   }
 
+  /**
+   * Remove the block at the given position.
+   *
+   * @param position The position
+   */
   public void removeBlock(Vector3i position) {
     this.removeBlock(position.x, position.y, position.z);
   }
 
+  /**
+   * Set the block at the given position.
+   *
+   * @param block The block to set
+   */
   public void setBlock(Block block) {
     Vector3i chunkPos = block.chunkPosition();
     this.blocks[chunkPos.x][chunkPos.y][chunkPos.z] = block;
     this.updateMesh(chunkPos.x, chunkPos.y, chunkPos.z, true);
   }
 
+  /**
+   * Set the block at the given position.
+   *
+   * @param position The position
+   */
   public void update(Vector3i position) {
     this.updateMesh(position.x, position.y, position.z, false);
   }
 
+  /**
+   * Update the block at the given position.
+   *
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   */
   public void update(int x, int y, int z) {
     this.updateMesh(x, y, z, false);
   }
 
+  /**
+   * Get the chunk coordinates of the chunk.
+   *
+   * @return The chunk coordinates
+   */
   public Vector3ic chunkCoordinates() {
     return this.position;
   }
 
+  /** Rebuild the chunk mesh. */
   public void rebuild() {
     this.rebuild(false);
   }
@@ -378,6 +468,11 @@ public class Chunk {
             this.position.z * CHUNK_SIZE_Z));
   }
 
+  /**
+   * Render the chunk using the specified camera.
+   *
+   * @param camera The camera to use for rendering
+   */
   public void render(Camera<?> camera) {
     if (this.mesh == null) {
       this.initMesh();

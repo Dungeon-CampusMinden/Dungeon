@@ -18,12 +18,21 @@ import org.apache.logging.log4j.Logger;
 import org.joml.SimplexNoise;
 import org.lwjgl.BufferUtils;
 
+/**
+ * The `OptimizedLevel` class represents an optimized 2D level in the game. It manages the tiles
+ * that make up the level, handles the texture atlas for the level, and provides methods for
+ * rendering the level.
+ */
 public class OptimizedLevel extends Renderable<OptimizedLevel> {
 
+  private static final Logger LOGGER = LogManager.getLogger(OptimizedLevel.class);
+
+  /** X-Size of the level. */
   public static final int LEVEL_SIZE_X = 32;
+
+  /** Y-Size of the level. */
   public static final int LEVEL_SIZE_Y = 32;
 
-  private static final Logger LOGGER = LogManager.getLogger(OptimizedLevel.class);
   private static ShaderProgram DEFAULT_SHADER;
 
   private final TextureAtlas atlas;
@@ -32,6 +41,7 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
 
   private ArrayMesh mesh;
 
+  /** Create a new `OptimizedLevel` instance. */
   public OptimizedLevel() {
     this.order = 0;
     this.atlas = new TextureAtlas();
@@ -111,26 +121,49 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
     this.mesh.markVerticesDirty();
   }
 
+  /** Class representing a tile in the level. */
   public static class Tile {
 
     private final int x;
     private final int y;
     private final int entry;
 
+    /**
+     * Create a new `Tile` instance.
+     *
+     * @param x X-coordinate of the tile
+     * @param y Y-coordinate of the tile
+     * @param entry Atlas entry of the tile
+     */
     public Tile(int x, int y, int entry) {
       this.x = x;
       this.y = y;
       this.entry = entry;
     }
 
+    /**
+     * Get the X-coordinate of the tile.
+     *
+     * @return X-coordinate of the tile
+     */
     public int x() {
       return this.x;
     }
 
+    /**
+     * Get the Y-coordinate of the tile.
+     *
+     * @return Y-coordinate of the tile
+     */
     public int y() {
       return this.y;
     }
 
+    /**
+     * Get the atlas entry of the tile.
+     *
+     * @return Atlas entry of the tile
+     */
     public int entry() {
       return this.entry;
     }

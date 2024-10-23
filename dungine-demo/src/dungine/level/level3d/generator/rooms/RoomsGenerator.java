@@ -64,12 +64,20 @@ public class RoomsGenerator implements IGenerator {
   private Level3D level;
   private Random random;
 
+  /**
+   * Constructs a new `RoomsGenerator` with the specified 3D level and random seed. The random seed
+   * is used to ensure reproducibility of the generated structures.
+   *
+   * @param level The 3D level in which to generate rooms and hallways.
+   * @param seed The random seed to use for generating the structures.
+   */
   public RoomsGenerator(Level3D level, long seed) {
     this.level = level;
     this.random = new Random(seed);
     this.floorNoiseSeed = this.random.nextFloat();
   }
 
+  /** Generates rooms and hallways in the 3D level. */
   public void generate() {
     this.generateRooms(this.random.nextInt(40) + 10, new Vector2i(8, 8), new Vector2i(20, 20), 50);
     this.separateRooms();
@@ -129,10 +137,10 @@ public class RoomsGenerator implements IGenerator {
   }
 
   /**
-   * Separiere die Räume voneinander, sodass sie nicht überlappen. Die Methode iteriert über alle
-   * Räume und prüft, ob sie sich überlappen. Falls ja, wird die Position der Räume so angepasst,
-   * dass sie nicht mehr überlappen. Die Methode bricht ab, wenn entweder keine Überlappung mehr
-   * vorhanden ist oder die maximale Anzahl an Iterationen erreicht wurde.
+   * Separates overlapping rooms by moving them apart. The method iterates over all rooms and checks
+   * for overlap in the x and z directions. If overlap is detected, the rooms are moved apart by
+   * half the overlap amount in each direction. The method stops after 1000 iterations or when no
+   * overlap is detected.
    */
   private void separateRooms() {
     boolean overlapping;
@@ -163,11 +171,11 @@ public class RoomsGenerator implements IGenerator {
   }
 
   /**
-   * Verbinde Räume die nah beieinander liegen. Die Methode iteriert über alle Räume und verbindet
-   * sie mit den zwei nächstgelegenen Räumen, die noch nicht verbunden sind. Die Verbindung wird
-   * durch Hinzufügen der Räume zur Liste der verbundenen Räume realisiert.
+   * Connects rooms with hallways to create a navigable dungeon layout. The method iterates over all
+   * rooms and connects each room with the two closest rooms. The connection is established by
+   * adding the rooms to each other's connected rooms list.
    */
-  public void connectRooms() {
+  private void connectRooms() {
     for (Room room : this.rooms) {
       for (int i = 0; i < 2; i++) {
         Room closestRoom = null;
@@ -221,9 +229,9 @@ public class RoomsGenerator implements IGenerator {
   }
 
   /**
-   * Baue die Räume in die Level-Chunk-Struktur. Die Methode iteriert über alle Räume und platziert
-   * entsprechend der Raumgröße Bodenblöcke in den Chunk-Objekten. Die Ränder der Räume werden mit
-   * Wandblöcken versehen.
+   * Builds the rooms in the level by placing floor and wall blocks in the level. The method
+   * iterates over all rooms and places floor blocks in the interior of the rooms and wall blocks
+   * along the perimeter of the rooms.
    */
   private void buildRooms() {
     for (Room room : this.rooms) {
@@ -243,10 +251,13 @@ public class RoomsGenerator implements IGenerator {
   }
 
   /**
-   * Baue die Hallways, die die Räume miteinander verbinden, in die Level-Chunk-Struktur. Die
-   * Methode iteriert über alle Räume und verbindet sie mit Hallways.
+   * Builds the hallways in the level by placing floor and wall blocks in the level. The method
+   * iterates over all rooms and connects each room with the two closest rooms. For each connection,
+   * the method places floor blocks in the hallway between the rooms and wall blocks along the
+   * perimeter of the hallway. The method also clears the air above the floor blocks to create a
+   * navigable path.
    */
-  public void buildHallways() {
+  private void buildHallways() {
 
     List<Vector3i> hallwayFloor = new ArrayList<>();
 
@@ -354,6 +365,11 @@ public class RoomsGenerator implements IGenerator {
     return new Chunk(this.level, chunkCoordinates);
   }
 
+  /**
+   * Returns the start position of the level. The start position is the center of the main room.
+   *
+   * @return The start position of the level.
+   */
   public Vector3f getStartPosition() {
     for (Room room : this.rooms) {
       if (room.mainRoom) {
@@ -364,10 +380,22 @@ public class RoomsGenerator implements IGenerator {
     return new Vector3f(0, 1.5f, 0);
   }
 
+  /**
+   * Class representing a room in a 3D level. A room has a position, size, and a list of connected
+   * rooms.
+   */
   public static class Room {
+
+    /** The position of the room. */
     public Vector3i position;
+
+    /** The size of the room. */
     public Vector2i size;
+
+    /** The list of connected rooms. */
     public List<Room> connectedRooms = new ArrayList<>();
-    boolean mainRoom = false;
+
+    /** Whether the room is a main room. */
+    public boolean mainRoom = false;
   }
 }

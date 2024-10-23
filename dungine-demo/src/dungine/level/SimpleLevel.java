@@ -11,17 +11,26 @@ import de.fwatermann.dungine.graphics.texture.animation.ArrayAnimation;
 import de.fwatermann.dungine.resource.Resource;
 import org.joml.SimplexNoise;
 
+/**
+ * The `SimpleLevel` class represents a simple 2D level in the game. It manages the tiles that make
+ * up the level and provides methods for rendering the level.
+ */
 public class SimpleLevel extends Renderable<SimpleLevel> {
 
+  /** X-Size of the level. */
   public static final int LEVEL_SIZE_X = 32;
+
+  /** Y-Size of the level. */
   public static final int LEVEL_SIZE_Y = 32;
 
   private Sprite[][] tiles = new Sprite[LEVEL_SIZE_X][LEVEL_SIZE_Y];
 
+  /** Create a new `SimpleLevel` instance. */
   public SimpleLevel() {
     this.init();
   }
 
+  /** Initialize the level. */
   public void init() {
     this.order = 0;
     Texture floor = TextureManager.load(Resource.load("/textures/floor_1.png"));

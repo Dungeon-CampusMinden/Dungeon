@@ -10,8 +10,13 @@ import dungine.exception.MissingComponentException;
 import java.util.Map;
 import org.lwjgl.glfw.GLFW;
 
+/**
+ * The `PlayerSystem` is a System that executes the callback functions registered to keys when they
+ * are pressed.
+ */
 public class PlayerSystem extends System<PlayerSystem> {
 
+  /** Create a new `PlayerSystem` instance. */
   public PlayerSystem() {
     super(1, true);
   }

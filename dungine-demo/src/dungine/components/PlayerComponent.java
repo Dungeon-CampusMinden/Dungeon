@@ -8,6 +8,28 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * The `PlayerComponent` class is a component that manages player-specific functionality within the
+ * game. It allows for the registration and handling of key press callbacks, as well as tracking the
+ * number of open dialogs.
+ *
+ * <p>Key functionalities include:
+ *
+ * <ul>
+ *   <li>Registering and removing key press callbacks.
+ *   <li>Handling repeated execution of callbacks while keys are pressed.
+ *   <li>Tracking the number of open dialogs to manage game state.
+ * </ul>
+ *
+ * <p>Usage example:
+ *
+ * <pre>{@code
+ * PlayerComponent playerComponent = new PlayerComponent();
+ * playerComponent.registerCallback(KeyEvent.VK_W, entity -> {
+ *     // Move player forward
+ * });
+ * }</pre>
+ */
 public class PlayerComponent extends Component {
 
   private final Map<Integer, InputData> callbacks;

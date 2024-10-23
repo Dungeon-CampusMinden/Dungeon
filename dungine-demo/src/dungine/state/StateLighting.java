@@ -16,12 +16,21 @@ import de.fwatermann.dungine.window.GameWindow;
 import dungine.util.DemoUI;
 import org.joml.Vector3f;
 
+/**
+ * The `StateLighting` is a GameState that tests the lighting system. For Cuboids with a different
+ * light color and position are placed in the scene.
+ */
 public class StateLighting extends GameState {
 
   private UIText fpsText;
 
   Entity redEntity, blueEntity, greenEntity, yellowEntity;
 
+  /**
+   * Create a new `StateLighting` instance.
+   *
+   * @param window The GameWindow instance.
+   */
   public StateLighting(GameWindow window) {
     super(window);
   }

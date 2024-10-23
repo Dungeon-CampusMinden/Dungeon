@@ -5,6 +5,7 @@ import org.joml.Math;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+/** The `ChunkUtils` class provides utility methods for working with chunks in a 3D level. */
 public class ChunkUtils {
 
   /**

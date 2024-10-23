@@ -40,8 +40,14 @@ public class Level3D extends Renderable<Level3D> {
   protected TextureAtlas textureAtlas;
   private IGenerator generator;
 
+  /** The seed used for generating the level. */
   public final long seed;
 
+  /**
+   * Create a new `Level3D` instance with the specified seed.
+   *
+   * @param seed The seed used for generating the level.
+   */
   protected Level3D(long seed) {
     this.seed = seed;
     this.order = 0;
@@ -52,16 +58,37 @@ public class Level3D extends Renderable<Level3D> {
     this.textureAtlas.add(Resource.load("/textures/wall.png"));
   }
 
+  /** Create a new `Level3D` instance with a seed based on the current time. */
   public Level3D() {
     this(System.currentTimeMillis());
   }
 
+  /**
+   * Get the chunk with the specified chunk coordinates, optionally loading it if it doesn't exist.
+   *
+   * @param x The x-coordinate of the chunk.
+   * @param y The y-coordinate of the chunk.
+   * @param z The z-coordinate of the chunk.
+   * @param load Whether to load the chunk if it doesn't exist.
+   * @return The chunk at the specified coordinates, or `null` if it doesn't exist and `load` is
+   *     `false`.
+   */
   public Chunk chunk(int x, int y, int z, boolean load) {
     if (!load) return this.chunks.get(new Vector3i(x, y, z));
     return this.chunks.computeIfAbsent(
         new Vector3i(x, y, z), (v) -> this.generator.generateChunk(v));
   }
 
+  /**
+   * Get the chunk at the specified coordinates, optionally loading it if it doesn't exist.
+   *
+   * @param x The x-coordinate of the chunk.
+   * @param y The y-coordinate of the chunk.
+   * @param z The z-coordinate of the chunk.
+   * @param load Whether to load the chunk if it doesn't exist.
+   * @return The chunk at the specified coordinates, or `null` if it doesn't exist and `load` is
+   *     `false`.
+   */
   public Chunk chunkByWorldCoordinates(int x, int y, int z, boolean load) {
     int chunkX = (int) Math.floor(x / (float) Chunk.CHUNK_SIZE_X);
     int chunkY = (int) Math.floor(y / (float) Chunk.CHUNK_SIZE_Y);
@@ -69,10 +96,21 @@ public class Level3D extends Renderable<Level3D> {
     return this.chunk(chunkX, chunkY, chunkZ, load);
   }
 
+  /**
+   * Get the generator used for generating the level.
+   *
+   * @return The generator used for generating the level.
+   */
   public IGenerator generator() {
     return this.generator;
   }
 
+  /**
+   * Set the generator used for generating the level.
+   *
+   * @param generator The generator to use for generating the level.
+   * @return This `Level3D` instance.
+   */
   public Level3D generator(IGenerator generator) {
     this.generator = generator;
     return this;
@@ -96,6 +134,11 @@ public class Level3D extends Renderable<Level3D> {
     }
   }
 
+  /**
+   * Get the number of chunks in the level.
+   *
+   * @return The number of chunks in the level.
+   */
   public int chunkCount() {
     return this.chunks.size();
   }

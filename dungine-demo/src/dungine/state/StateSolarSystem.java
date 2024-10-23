@@ -32,10 +32,20 @@ import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+/**
+ * The `StateSolarSystem` is a GameState that tests the ModelLoader. The camera can be moved through
+ * the scene with 'W', 'A', 'S', 'D', 'SHIFT' and 'SPACE'. The speed of the animation can be changed
+ * with 'UP' and 'DOWN'.
+ */
 public class StateSolarSystem extends GameState {
 
   private static final Logger LOGGER = LogManager.getLogger(StateSolarSystem.class);
 
+  /**
+   * Create a new `StateSolarSystem` instance.
+   *
+   * @param window The GameWindow instance.
+   */
   public StateSolarSystem(GameWindow window) {
     super(window);
   }
@@ -213,7 +223,7 @@ public class StateSolarSystem extends GameState {
   }
 
   @EventHandler
-  public void onKeyboard(KeyboardEvent event) {
+  private void onKeyboard(KeyboardEvent event) {
     if (event.action != KeyboardEvent.KeyAction.RELEASE) {
       if (event.key == GLFW.GLFW_KEY_UP) {
         this.speed *= 1.1f;

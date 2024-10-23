@@ -14,6 +14,32 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * The `HealthComponent` class represents the health status of an entity in the game. It manages the
+ * current and maximum health points, handles damage received, and triggers events when the entity
+ * is hit or dies.
+ *
+ * <p>Key functionalities include:
+ *
+ * <ul>
+ *   <li>Managing current and maximum health points.
+ *   <li>Handling damage received and triggering on-hit and on-death events.
+ *   <li>Providing methods to calculate damage, clear damage, and check if the entity is dead.
+ *   <li>Supporting god mode where the entity cannot die.
+ * </ul>
+ *
+ * <p>Usage example:
+ *
+ * <pre>{@code
+ * HealthComponent health = new HealthComponent(100, entity -> {
+ *     System.out.println("Entity died: " + entity);
+ * });
+ * health.receiveHit(new Damage(10, DamageType.PHYSICAL, null));
+ * if (health.isDead()) {
+ *     health.triggerOnDeath(entity);
+ * }
+ * }</pre>
+ */
 public class HealthComponent extends Component {
 
   private static final Logger LOGGER = LogManager.getLogger(HealthComponent.class);

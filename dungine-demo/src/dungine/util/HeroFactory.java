@@ -14,8 +14,17 @@ import dungine.components.VelocityComponent;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
+/**
+ * The `HeroFactory` is a factory class that creates a hero entity with a camera component and a
+ * renderable component. The hero can be made controllable with the 'W', 'A', 'S', 'D' keys.
+ */
 public class HeroFactory {
 
+  /**
+   * Create a new hero entity.
+   *
+   * @return The hero entity.
+   */
   public static Entity create() {
     Entity entity = new Entity();
     Animation animation =
@@ -30,6 +39,12 @@ public class HeroFactory {
     return entity;
   }
 
+  /**
+   * Make the hero entity controllable with the 'W', 'A', 'S', 'D' keys.
+   *
+   * @param window The GameWindow instance.
+   * @param entity The hero entity.
+   */
   public static void makeControlled(GameWindow window, Entity entity) {
     float speedMultiplier = 7.5f * 4;
     PlayerComponent playerComponent = new PlayerComponent();

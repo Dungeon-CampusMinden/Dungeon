@@ -21,6 +21,11 @@ import de.fwatermann.dungine.window.GameWindow;
  */
 public class StateMainMenu extends GameState {
 
+  /**
+   * Create a new `StateMainMenu` instance.
+   *
+   * @param window The GameWindow instance.
+   */
   public StateMainMenu(GameWindow window) {
     super(window);
   }
