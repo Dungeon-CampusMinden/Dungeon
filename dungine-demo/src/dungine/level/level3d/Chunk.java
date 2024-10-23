@@ -15,6 +15,7 @@ import dungine.level.level3d.block.BlockFace;
 import dungine.level.level3d.utils.ChunkUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
@@ -92,52 +93,72 @@ public class Chunk {
 
   public void removeBlock(int x, int y, int z) {
     this.blocks[x][y][z] = null;
+    this.updateMesh(x, y, z, true);
   }
 
   public void removeBlock(Vector3i position) {
     this.removeBlock(position.x, position.y, position.z);
-    this.updateMesh(position.x, position.y, position.z);
   }
 
   public void setBlock(Block block) {
     Vector3i chunkPos = block.chunkPosition();
     this.blocks[chunkPos.x][chunkPos.y][chunkPos.z] = block;
-    this.updateMesh(chunkPos.x, chunkPos.y, chunkPos.z);
+    this.updateMesh(chunkPos.x, chunkPos.y, chunkPos.z, true);
   }
 
   public void update(Vector3i position) {
-    this.updateMesh(position.x, position.y, position.z);
+    this.updateMesh(position.x, position.y, position.z, false);
   }
 
   public void update(int x, int y, int z) {
-    this.updateMesh(x, y, z);
+    this.updateMesh(x, y, z, false);
   }
 
   public Vector3ic chunkCoordinates() {
     return this.position;
   }
 
-  private void rebuild() {
+  public void rebuild() {
+    this.rebuild(false);
+  }
+
+  public void rebuild(boolean updateNeighbours) {
     this.vertices.clear();
     for (int x = 0; x < CHUNK_SIZE_X; x++) {
       for (int y = 0; y < CHUNK_SIZE_Y; y++) {
         for (int z = 0; z < CHUNK_SIZE_Z; z++) {
-          this.updateMesh(x, y, z);
+          this.updateMesh(x, y, z, false);
         }
       }
     }
+    if(updateNeighbours) {
+      Optional.ofNullable(this.level.chunk(this.position.x + 1, this.position.y, this.position.z, false))
+        .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false))
+        .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y + 1, this.position.z, false))
+        .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false))
+        .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y, this.position.z + 1, false))
+        .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y, this.position.z - 1, false))
+        .ifPresent(Chunk::rebuild);
+    }
   }
 
-  private void updateMesh(int x, int y, int z) {
+  private void updateMesh(int x, int y, int z, boolean updateNeighbours) {
     this.vertices.position((x * CHUNK_SIZE_Y * CHUNK_SIZE_Z + y * CHUNK_SIZE_Z + z) * 16);
     Block block = this.blocks[x][y][z];
     if (block == null) {
       this.vertices.putInt(0).putInt(0).putInt(0).putInt(0);
+      this.vertices.position(0);
       return;
     }
     byte faceMask = this.checkVisibleFaces(x, y, z);
     if (faceMask == 0) {
       this.vertices.putInt(0).putInt(0).putInt(0).putInt(0);
+      this.vertices.position(0);
       return;
     }
     this.vertices.put((byte) x).put((byte) y).put((byte) z).put(faceMask);
@@ -153,11 +174,52 @@ public class Chunk {
         (short) this.level.textureAtlas.getIndex(block.getFaceResource(BlockFace.WEST)));
     this.vertices.putShort(
         (short) this.level.textureAtlas.getIndex(block.getFaceResource(BlockFace.EAST)));
+    this.vertices.position(0);
 
     if(this.mesh != null) {
       this.mesh.markVerticesDirty();
     }
-    this.vertices.position(0);
+
+    if(updateNeighbours) {
+      if (x + 1 < CHUNK_SIZE_X) {
+        this.updateMesh(x + 1, y, z, false);
+      } else {
+        Optional.ofNullable(this.level.chunk(this.position.x + 1, this.position.y, this.position.z, false))
+            .ifPresent(chunk -> chunk.updateMesh(0, y, z, false));
+      }
+      if (x - 1 >= 0) {
+        this.updateMesh(x - 1, y, z, false);
+      } else {
+        Optional.ofNullable(this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false))
+            .ifPresent(chunk -> chunk.updateMesh(CHUNK_SIZE_X - 1, y, z, false));
+      }
+      if (y + 1 < CHUNK_SIZE_Y) {
+        this.updateMesh(x, y + 1, z, false);
+      } else {
+        Optional.ofNullable(this.level.chunk(this.position.x, this.position.y + 1, this.position.z, false))
+            .ifPresent(chunk -> chunk.updateMesh(x, 0, z, false));
+      }
+      if (y - 1 >= 0) {
+        this.updateMesh(x, y - 1, z, false);
+      } else {
+        Optional.ofNullable(this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false))
+            .ifPresent(chunk -> chunk.updateMesh(x, CHUNK_SIZE_Y - 1, z, false));
+      }
+      if (z + 1 < CHUNK_SIZE_Z) {
+        this.updateMesh(x, y, z + 1, false);
+      } else {
+        Optional.ofNullable(this.level.chunk(this.position.x, this.position.y, this.position.z + 1, false))
+            .ifPresent(chunk -> chunk.updateMesh(x, y, 0, false));
+      }
+      if (z - 1 >= 0) {
+        this.updateMesh(x, y, z - 1, false);
+      } else {
+        Optional.ofNullable(
+                this.level.chunk(this.position.x, this.position.y, this.position.z - 1, false))
+            .ifPresent(chunk -> chunk.updateMesh(x, y, CHUNK_SIZE_Z - 1, false));
+      }
+    }
+
   }
 
   private byte checkVisibleFaces(int x, int y, int z) {
