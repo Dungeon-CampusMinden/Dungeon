@@ -12,6 +12,10 @@ import de.fwatermann.dungine.ui.layout.JustifyContent;
 import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
 
+/**
+ * The `StateTransition` class represents a state transition in the game. It is used to display a loading
+ * screen while transitioning from one game state to another.
+ */
 public class StateTransition extends GameStateTransition {
 
   public StateTransition(GameWindow window) {

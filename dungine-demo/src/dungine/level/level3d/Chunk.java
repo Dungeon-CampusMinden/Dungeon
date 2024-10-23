@@ -21,6 +21,29 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.lwjgl.BufferUtils;
 
+/**
+ * The `Chunk` class represents a segment of a 3D level in the game. It is responsible for managing
+ * the blocks within the chunk, handling the chunk's mesh, and rendering the chunk.
+ *
+ * <p>Key functionalities include:</p>
+ * <ul>
+ *   <li>Managing the blocks within the chunk, including setting, removing, and retrieving blocks.</li>
+ *   <li>Rebuilding the chunk's mesh to reflect changes in the blocks.</li>
+ *   <li>Rendering the chunk using a shader program.</li>
+ *   <li>Handling chunk coordinates and converting world positions to chunk-relative positions.</li>
+ * </ul>
+ *
+ * <p>Usage example:</p>
+ * <pre>
+ * {@code
+ * Level3D level = new Level3D();
+ * Vector3i chunkCoordinates = new Vector3i(0, 0, 0);
+ * Chunk chunk = new Chunk(level, chunkCoordinates);
+ * chunk.setBlock(new Block(...));
+ * chunk.render(camera);
+ * }
+ * </pre>
+ */
 public class Chunk {
 
   /*
@@ -122,6 +145,10 @@ public class Chunk {
     this.rebuild(false);
   }
 
+  /**
+   * Rebuild the chunk mesh.
+   * @param updateNeighbours Whether to update the neighbouring chunks
+   */
   public void rebuild(boolean updateNeighbours) {
     this.vertices.clear();
     for (int x = 0; x < CHUNK_SIZE_X; x++) {
@@ -147,6 +174,13 @@ public class Chunk {
     }
   }
 
+  /**
+   * Update the mesh for the block at the given position.
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   * @param updateNeighbours Whether to update the neighbours of the block
+   */
   private void updateMesh(int x, int y, int z, boolean updateNeighbours) {
     this.vertices.position((x * CHUNK_SIZE_Y * CHUNK_SIZE_Z + y * CHUNK_SIZE_Z + z) * 16);
     Block block = this.blocks[x][y][z];
@@ -222,6 +256,13 @@ public class Chunk {
 
   }
 
+  /**
+   * Check which faces of the block at the given position are visible.
+   * @param x X coordinate
+   * @param y Y coordinate
+   * @param z Z coordinate
+   * @return Bitmask of visible faces
+   */
   private byte checkVisibleFaces(int x, int y, int z) {
     byte mask = 0;
 

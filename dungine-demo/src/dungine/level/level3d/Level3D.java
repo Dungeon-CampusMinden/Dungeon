@@ -10,7 +10,27 @@ import java.util.HashMap;
 import java.util.Map;
 import org.joml.Vector3i;
 
-public class Level3D extends Renderable<Level3D> {
+/**
+ * The `Level3D` class represents a 3D level in the game. It manages the chunks that make up the level,
+ * handles the texture atlas for the level, and provides methods for generating and rendering the level.
+ *
+ * <p>Key functionalities include:</p>
+ * <ul>
+ *   <li>Managing the chunks within the level, including loading and retrieving chunks by coordinates.</li>
+ *   <li>Handling the texture atlas used for rendering the level's textures.</li>
+ *   <li>Generating chunks using a specified generator.</li>
+ *   <li>Rendering the level by rendering each chunk within it.</li>
+ * </ul>
+ *
+ * <p>Usage example:</p>
+ * <pre>
+ * {@code
+ * Level3D level = new Level3D();
+ * level.generator(new RoomsGenerator(level, 3467589736L));
+ * level.render(camera);
+ * }
+ * </pre>
+ */public class Level3D extends Renderable<Level3D> {
 
   private final Map<Vector3i, Chunk> chunks = new HashMap<>();
 

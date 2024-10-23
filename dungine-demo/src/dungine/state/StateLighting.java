@@ -41,6 +41,7 @@ public class StateLighting extends GameState {
     floorEntity.size(new Vector3f(20, 1, 20));
     floorEntity.addComponent(new RenderableComponent(new Cuboid(0xFFFFFFFF)));
 
+    /* Erstellen der Lichtquellen */
     this.blueEntity = new Entity();
     this.blueEntity.position().set(0, 2, 5);
     this.blueEntity.size(new Vector3f(0.1f, 0.1f, 0.1f));
@@ -83,6 +84,7 @@ public class StateLighting extends GameState {
 
   @Override
   public void updateState(float deltaTime) {
+    /* Positionieren der Lichtquellen */
     this.blueEntity.position().z = (float) Math.sin(System.currentTimeMillis() / 2000.0) * 5;
     this.redEntity.position().z = (float) Math.sin(System.currentTimeMillis() / 2000.0) * -5;
     this.greenEntity.position().x = (float) Math.sin(System.currentTimeMillis() / 2000.0) * 5;

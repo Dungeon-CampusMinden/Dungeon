@@ -15,6 +15,10 @@ import de.fwatermann.dungine.ui.layout.UILayouter;
 import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
 
+/**
+ * The `StateMainMenu` class represents the main menu state in the game. It is used to display the main
+ * menu screen and handle user input for navigating to other game states.
+ */
 public class StateMainMenu extends GameState {
 
   public StateMainMenu(GameWindow window) {

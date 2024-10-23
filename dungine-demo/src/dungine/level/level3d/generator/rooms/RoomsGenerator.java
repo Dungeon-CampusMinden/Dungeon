@@ -23,28 +23,28 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 /**
- * The `RoomsGenerator` class is responsible for generating rooms and hallways in a 3D level.
- * It uses a random seed to ensure reproducibility of the generated structures.
- * The class provides methods to generate rooms, separate overlapping rooms, connect rooms with hallways,
- * and build the rooms and hallways within the level.
+ * The `RoomsGenerator` class is responsible for generating rooms and hallways in a 3D level. It
+ * uses a random seed to ensure reproducibility of the generated structures. The class provides
+ * methods to generate rooms, separate overlapping rooms, connect rooms with hallways, and build the
+ * rooms and hallways within the level.
  *
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
+ *
  * <ul>
- *   <li>Generating a specified number of rooms with random sizes and positions within a given radius.</li>
- *   <li>Separating overlapping rooms to ensure no two rooms occupy the same space.</li>
- *   <li>Connecting rooms with hallways to create a navigable dungeon layout.</li>
- *   <li>Building the rooms and hallways by placing floor and wall blocks in the level.</li>
+ *   <li>Generating a specified number of rooms with random sizes and positions within a given
+ *       radius.
+ *   <li>Separating overlapping rooms to ensure no two rooms occupy the same space.
+ *   <li>Connecting rooms with hallways to create a navigable dungeon layout.
+ *   <li>Building the rooms and hallways by placing floor and wall blocks in the level.
  * </ul>
  *
- * <p>Usage example:</p>
- * <pre>
- * {@code
+ * <p>Usage example:
+ *
+ * <pre>{@code
  * Level3D level = new Level3D();
  * RoomsGenerator generator = new RoomsGenerator(level, 3467589736L);
  * generator.generate();
- * }
- * </pre>
- *
+ * }</pre>
  *
  * @see Level3D
  * @see Chunk
@@ -70,40 +70,70 @@ public class RoomsGenerator implements IGenerator {
     this.floorNoiseSeed = this.random.nextFloat();
   }
 
+  public void generate() {
+    this.generateRooms(this.random.nextInt(40) + 10, new Vector2i(8, 8), new Vector2i(20, 20), 50);
+    this.separateRooms();
+    this.connectRooms();
+
+    this.buildRooms();
+    this.buildHallways();
+  }
+
+  /**
+   * Generates a specified number of rooms with random sizes and positions within a given radius.
+   * The rooms are allowed to overlap. The method {@link #separateRooms()} should be called after
+   * this method to separate overlapping rooms.
+   *
+   * @param numRooms The number of rooms to generate.
+   * @param minSize The minimum size of a room.
+   * @param maxSize The maximum size of a room.
+   * @param radius The radius within which to generate rooms.
+   */
   private void generateRooms(int numRooms, Vector2i minSize, Vector2i maxSize, int radius) {
 
-    for(int i = 0; i < numRooms; i++) {
-        Vector2i size = new Vector2i((int) (this.random.nextFloat() * (maxSize.x - minSize.x) + minSize.x),
-            (int) (this.random.nextFloat() * (maxSize.y - minSize.y) + minSize.y));
+    for (int i = 0; i < numRooms; i++) {
+      Vector2i size =
+          new Vector2i(
+              (int) (this.random.nextFloat() * (maxSize.x - minSize.x) + minSize.x),
+              (int) (this.random.nextFloat() * (maxSize.y - minSize.y) + minSize.y));
 
-        this.meanSize.add(size.x, size.y);
+      this.meanSize.add(size.x, size.y);
 
-        float t = 2 * (float) Math.PI * this.random.nextFloat();
-        float u = this.random.nextFloat() + this.random.nextFloat();
-        float r = u > 1 ? 2 - u : u;
+      // random position within radius
+      float t = 2 * (float) Math.PI * this.random.nextFloat();
+      float u = this.random.nextFloat() + this.random.nextFloat();
+      float r = u > 1 ? 2 - u : u;
 
-        Vector3i position = new Vector3i((int) (radius * r * Math.cos(t)), 0, (int) (radius * r * Math.sin(t)));
-        position.sub(size.x / 2, 0, size.y / 2);
+      Vector3i position =
+          new Vector3i((int) (radius * r * Math.cos(t)), 0, (int) (radius * r * Math.sin(t)));
+      position.sub(size.x / 2, 0, size.y / 2);
 
-        Room room = new Room();
-        room.position = position;
-        room.size = size;
+      Room room = new Room();
+      room.position = position;
+      room.size = size;
 
-        this.rooms.add(room);
+      this.rooms.add(room);
 
-        LOGGER.debug("Generated room at {} with size {}", room.position, room.size);
+      LOGGER.debug("Generated room at {} with size {}", room.position, room.size);
     }
 
     this.meanSize.div(numRooms);
 
-    for(Room room : this.rooms) {
-      if(room.size.x >= this.meanSize.x && room.size.y >= this.meanSize.y) {
+    // Räume die größer als der Durchschnitt werden als Mainroom markiert. Diese Information ist
+    // aktuell nur für den Startpunkt relevant.
+    for (Room room : this.rooms) {
+      if (room.size.x >= this.meanSize.x && room.size.y >= this.meanSize.y) {
         room.mainRoom = true;
       }
     }
-
   }
 
+  /**
+   * Separiere die Räume voneinander, sodass sie nicht überlappen. Die Methode iteriert über alle
+   * Räume und prüft, ob sie sich überlappen. Falls ja, wird die Position der Räume so angepasst,
+   * dass sie nicht mehr überlappen. Die Methode bricht ab, wenn entweder keine Überlappung mehr
+   * vorhanden ist oder die maximale Anzahl an Iterationen erreicht wurde.
+   */
   private void separateRooms() {
     boolean overlapping;
     int iterations = 0;
@@ -111,47 +141,51 @@ public class RoomsGenerator implements IGenerator {
 
     do {
       overlapping = false;
-      for(Room roomA : this.rooms) {
-        for(Room roomB : this.rooms) {
-          if(roomA == roomB) continue;
-          if(this.isOverlapping(roomA, roomB)) {
+      for (Room roomA : this.rooms) {
+        for (Room roomB : this.rooms) {
+          if (roomA == roomB) continue;
+          if (this.isOverlapping(roomA, roomB)) {
             overlapping = true;
             Vector2i overlap = this.calculateOverlap(roomA, roomB);
-            if(overlap.x != 0) {
+            if (overlap.x != 0) {
               roomA.position.x += overlap.x / 2;
               roomB.position.x -= overlap.x / 2;
             }
-            if(overlap.y != 0) {
+            if (overlap.y != 0) {
               roomA.position.z += overlap.y / 2;
               roomB.position.z -= overlap.y / 2;
             }
           }
         }
       }
-      iterations ++;
-    } while(overlapping && iterations < maxIterations);
+      iterations++;
+    } while (overlapping && iterations < maxIterations);
   }
 
+  /**
+   * Verbinde Räume die nah beieinander liegen. Die Methode iteriert über alle Räume und verbindet
+   * sie mit den zwei nächstgelegenen Räumen, die noch nicht verbunden sind. Die Verbindung wird
+   * durch Hinzufügen der Räume zur Liste der verbundenen Räume realisiert.
+   */
   public void connectRooms() {
-    for(Room room : this.rooms) {
-      for(int i = 0; i < 2; i ++) {
+    for (Room room : this.rooms) {
+      for (int i = 0; i < 2; i++) {
         Room closestRoom = null;
         float closestDistance = Float.MAX_VALUE;
-        for(Room otherRoom : this.rooms) {
-          if(room == otherRoom) continue;
+        for (Room otherRoom : this.rooms) {
+          if (room == otherRoom) continue;
           float distance = room.position.distanceSquared(otherRoom.position);
-          if(distance < closestDistance && !room.connectedRooms.contains(otherRoom)) {
+          if (distance < closestDistance && !room.connectedRooms.contains(otherRoom)) {
             closestDistance = distance;
             closestRoom = otherRoom;
           }
         }
-        if(closestRoom == null) continue;
+        if (closestRoom == null) continue;
 
         room.connectedRooms.add(closestRoom);
         closestRoom.connectedRooms.add(room);
       }
     }
-
   }
 
   private boolean isOverlapping(Room roomA, Room roomB) {
@@ -186,21 +220,17 @@ public class RoomsGenerator implements IGenerator {
     return new Vector2i(overlapX, overlapZ);
   }
 
-  public void generate() {
-    this.generateRooms(this.random.nextInt(40) + 10, new Vector2i(8, 8), new Vector2i(20, 20), 50);
-    this.separateRooms();
-    this.connectRooms();
-
-    this.buildRooms();
-    this.buildHallways();
-  }
-
+  /**
+   * Baue die Räume in die Level-Chunk-Struktur.
+   * Die Methode iteriert über alle Räume und platziert entsprechend der Raumgröße Bodenblöcke in
+   * den Chunk-Objekten. Die Ränder der Räume werden mit Wandblöcken versehen.
+   */
   private void buildRooms() {
-    for(Room room : this.rooms) {
-      for(int x = 0; x < room.size.x; x++) {
-        for(int z = 0; z < room.size.y; z++) {
+    for (Room room : this.rooms) {
+      for (int x = 0; x < room.size.x; x++) {
+        for (int z = 0; z < room.size.y; z++) {
           Vector3i pos = new Vector3i(room.position.x + x, room.position.y, room.position.z + z);
-          if(x == 0 || x == room.size.x -1 || z == 0 || z == room.size.y -1) {
+          if (x == 0 || x == room.size.x - 1 || z == 0 || z == room.size.y - 1) {
             this.makeWall(pos.x, pos.y + 1, pos.z);
             this.makeWall(pos.x, pos.y + 2, pos.z);
             this.makeWall(pos.x, pos.y + 3, pos.z);
@@ -212,33 +242,42 @@ public class RoomsGenerator implements IGenerator {
     }
   }
 
+  /**
+   * Baue die Hallways, die die Räume miteinander verbinden, in die Level-Chunk-Struktur.
+   * Die Methode iteriert über alle Räume und verbindet sie mit Hallways.
+   */
   public void buildHallways() {
 
     List<Vector3i> hallwayFloor = new ArrayList<>();
 
-    for(Room room : this.rooms) {
-      for(Room connectedRoom : room.connectedRooms) {
-        Vector3i start = new Vector3i(room.position.x + room.size.x / 2, 0, room.position.z + room.size.y / 2);
-        Vector3i end = new Vector3i(connectedRoom.position.x + connectedRoom.size.x / 2, 0, connectedRoom.position.z + connectedRoom.size.y / 2);
+    for (Room room : this.rooms) {
+      for (Room connectedRoom : room.connectedRooms) {
+        Vector3i start =
+            new Vector3i(room.position.x + room.size.x / 2, 0, room.position.z + room.size.y / 2);
+        Vector3i end =
+            new Vector3i(
+                connectedRoom.position.x + connectedRoom.size.x / 2,
+                0,
+                connectedRoom.position.z + connectedRoom.size.y / 2);
         Vector3i current = new Vector3i(start);
 
-        while(current.x != end.x || current.z != end.z) {
-          if(current.x != end.x) {
+        while (current.x != end.x || current.z != end.z) {
+          if (current.x != end.x) {
             current.x += current.x < end.x ? 1 : -1;
           } else {
             current.z += current.z < end.z ? 1 : -1;
           }
           this.makeFloor(current.x, current.y, current.z);
-          this.makeFloor(current.x+1, current.y, current.z);
-          this.makeFloor(current.x, current.y, current.z+1);
-          this.makeFloor(current.x+1, current.y, current.z+1);
+          this.makeFloor(current.x + 1, current.y, current.z);
+          this.makeFloor(current.x, current.y, current.z + 1);
+          this.makeFloor(current.x + 1, current.y, current.z + 1);
 
-          //Clear air above floor
-          for(int i = 1; i < 3; i ++) {
-            this.makeNull(current.x, current.y+i, current.z);
-            this.makeNull(current.x+1, current.y+i, current.z);
-            this.makeNull(current.x, current.y+i, current.z+1);
-            this.makeNull(current.x+1, current.y+i, current.z+1);
+          // Clear air above floor
+          for (int i = 1; i < 3; i++) {
+            this.makeNull(current.x, current.y + i, current.z);
+            this.makeNull(current.x + 1, current.y + i, current.z);
+            this.makeNull(current.x, current.y + i, current.z + 1);
+            this.makeNull(current.x + 1, current.y + i, current.z + 1);
           }
 
           hallwayFloor.add(new Vector3i(current));
@@ -249,23 +288,23 @@ public class RoomsGenerator implements IGenerator {
       }
     }
 
-    for(Vector3i pos : hallwayFloor) {
-      if(!this.isFloor(pos.x + 1, pos.y, pos.z)) {
+    for (Vector3i pos : hallwayFloor) {
+      if (!this.isFloor(pos.x + 1, pos.y, pos.z)) {
         this.makeWall(pos.x + 1, pos.y + 1, pos.z);
         this.makeWall(pos.x + 1, pos.y + 2, pos.z);
         this.makeWall(pos.x + 1, pos.y + 3, pos.z);
       }
-      if(!this.isFloor(pos.x - 1, pos.y, pos.z)) {
+      if (!this.isFloor(pos.x - 1, pos.y, pos.z)) {
         this.makeWall(pos.x - 1, pos.y + 1, pos.z);
         this.makeWall(pos.x - 1, pos.y + 2, pos.z);
         this.makeWall(pos.x - 1, pos.y + 3, pos.z);
       }
-      if(!this.isFloor(pos.x, pos.y, pos.z + 1)) {
+      if (!this.isFloor(pos.x, pos.y, pos.z + 1)) {
         this.makeWall(pos.x, pos.y + 1, pos.z + 1);
         this.makeWall(pos.x, pos.y + 2, pos.z + 1);
         this.makeWall(pos.x, pos.y + 3, pos.z + 1);
       }
-      if(!this.isFloor(pos.x, pos.y, pos.z - 1)) {
+      if (!this.isFloor(pos.x, pos.y, pos.z - 1)) {
         this.makeWall(pos.x, pos.y + 1, pos.z - 1);
         this.makeWall(pos.x, pos.y + 2, pos.z - 1);
         this.makeWall(pos.x, pos.y + 3, pos.z - 1);
@@ -275,9 +314,11 @@ public class RoomsGenerator implements IGenerator {
 
   private void makeFloor(int x, int y, int z) {
     Chunk chunk = this.level.chunkByWorldCoordinates(x, y, z, true);
-    if(chunk == null) return;
-    int variant = (int) (Math.floor(Math.abs(SimplexNoise.noise(x * 0.1f, z * 0.1f, this.floorNoiseSeed)) * 3));
-    switch(variant) {
+    if (chunk == null) return;
+    int variant =
+        (int)
+            (Math.floor(Math.abs(SimplexNoise.noise(x * 0.1f, z * 0.1f, this.floorNoiseSeed)) * 3));
+    switch (variant) {
       case 1 -> {
         chunk.setBlock(new FloorDamagedBlock(chunk, ChunkUtils.worldToChunkRelative(x, y, z)));
       }
@@ -292,19 +333,19 @@ public class RoomsGenerator implements IGenerator {
 
   private void makeWall(int x, int y, int z) {
     Chunk chunk = this.level.chunkByWorldCoordinates(x, y, z, true);
-    if(chunk == null) return;
+    if (chunk == null) return;
     chunk.setBlock(new WallBlock(chunk, ChunkUtils.worldToChunkRelative(x, y, z)));
   }
 
   private void makeNull(int x, int y, int z) {
     Chunk chunk = this.level.chunkByWorldCoordinates(x, y, z, false);
-    if(chunk == null) return;
+    if (chunk == null) return;
     chunk.removeBlock(ChunkUtils.worldToChunkRelative(x, y, z));
   }
 
   private boolean isFloor(int x, int y, int z) {
     Chunk chunk = this.level.chunkByWorldCoordinates(x, y, z, false);
-    if(chunk == null) return false;
+    if (chunk == null) return false;
     return chunk.getBlockAt(ChunkUtils.worldToChunkRelative(x, y, z)) instanceof FloorBlock;
   }
 
@@ -314,9 +355,10 @@ public class RoomsGenerator implements IGenerator {
   }
 
   public Vector3f getStartPosition() {
-    for(Room room : this.rooms) {
-      if(room.mainRoom) {
-        return new Vector3f(room.position.x + room.size.x / 2.0f, 1.5f, room.position.z + room.size.y / 2.0f);
+    for (Room room : this.rooms) {
+      if (room.mainRoom) {
+        return new Vector3f(
+            room.position.x + room.size.x / 2.0f, 1.5f, room.position.z + room.size.y / 2.0f);
       }
     }
     return new Vector3f(0, 1.5f, 0);
@@ -328,6 +370,4 @@ public class RoomsGenerator implements IGenerator {
     public List<Room> connectedRooms = new ArrayList<>();
     boolean mainRoom = false;
   }
-
-
 }
