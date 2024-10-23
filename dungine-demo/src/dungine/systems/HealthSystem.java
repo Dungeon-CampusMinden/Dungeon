@@ -25,23 +25,29 @@ public class HealthSystem extends System<HealthSystem> {
   public void update(ECS ecs) {
     // filter entities for components and partition into alive and dead
     Map<Boolean, List<HSData>> deadOrAlive = new HashMap<>();
-    ecs.forEachEntity(e -> {
-      e.component(HealthComponent.class).ifPresent(hc -> {
-        HSData hsd = new HSData(e, hc);
-        deadOrAlive.computeIfAbsent(hc.isDead(), k -> new ArrayList<>()).add(hsd);
-      });
-    });
+    ecs.forEachEntity(
+        e -> {
+          e.component(HealthComponent.class)
+              .ifPresent(
+                  hc -> {
+                    HSData hsd = new HSData(e, hc);
+                    deadOrAlive.computeIfAbsent(hc.isDead(), k -> new ArrayList<>()).add(hsd);
+                  });
+        });
 
     // apply damage to all entities which are still alive
-    if(deadOrAlive.containsKey(false)) {
+    if (deadOrAlive.containsKey(false)) {
       deadOrAlive.get(false).forEach(this::applyDamage);
     }
 
     // handle dead entities
-    if(deadOrAlive.containsKey(true)) {
-      deadOrAlive.get(true).forEach(hsd -> {
-        ecs.removeEntity(hsd.e);
-      });
+    if (deadOrAlive.containsKey(true)) {
+      deadOrAlive
+          .get(true)
+          .forEach(
+              hsd -> {
+                ecs.removeEntity(hsd.e);
+              });
     }
   }
 
@@ -51,7 +57,8 @@ public class HealthSystem extends System<HealthSystem> {
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
     hsd.hc.currentHealthpoints(hsd.hc.currentHealthpoints() - dmgAmount);
-    this.observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DAMAGE));
+    this.observers.forEach(
+        observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DAMAGE));
 
     // return data object to enable method chaining/streaming
     return hsd;
@@ -90,9 +97,10 @@ public class HealthSystem extends System<HealthSystem> {
   protected void removeDeadEntities(final HSData hsd) {
     // Entity appears to be dead, so let's clean up the mess
     hsd.hc.triggerOnDeath(hsd.e);
-    this.observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
+    this.observers.forEach(
+        observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
 
-    //TODO: Remove entity from game
+    // TODO: Remove entity from game
   }
 
   /**
@@ -102,5 +110,4 @@ public class HealthSystem extends System<HealthSystem> {
    * @param hc The HealthComponent of the entity
    */
   public record HSData(Entity e, HealthComponent hc) {}
-
 }

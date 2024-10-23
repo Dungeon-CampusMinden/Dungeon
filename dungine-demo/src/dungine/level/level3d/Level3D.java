@@ -11,26 +11,29 @@ import java.util.Map;
 import org.joml.Vector3i;
 
 /**
- * The `Level3D` class represents a 3D level in the game. It manages the chunks that make up the level,
- * handles the texture atlas for the level, and provides methods for generating and rendering the level.
+ * The `Level3D` class represents a 3D level in the game. It manages the chunks that make up the
+ * level, handles the texture atlas for the level, and provides methods for generating and rendering
+ * the level.
  *
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
+ *
  * <ul>
- *   <li>Managing the chunks within the level, including loading and retrieving chunks by coordinates.</li>
- *   <li>Handling the texture atlas used for rendering the level's textures.</li>
- *   <li>Generating chunks using a specified generator.</li>
- *   <li>Rendering the level by rendering each chunk within it.</li>
+ *   <li>Managing the chunks within the level, including loading and retrieving chunks by
+ *       coordinates.
+ *   <li>Handling the texture atlas used for rendering the level's textures.
+ *   <li>Generating chunks using a specified generator.
+ *   <li>Rendering the level by rendering each chunk within it.
  * </ul>
  *
- * <p>Usage example:</p>
- * <pre>
- * {@code
+ * <p>Usage example:
+ *
+ * <pre>{@code
  * Level3D level = new Level3D();
  * level.generator(new RoomsGenerator(level, 3467589736L));
  * level.render(camera);
- * }
- * </pre>
- */public class Level3D extends Renderable<Level3D> {
+ * }</pre>
+ */
+public class Level3D extends Renderable<Level3D> {
 
   private final Map<Vector3i, Chunk> chunks = new HashMap<>();
 
@@ -54,8 +57,9 @@ import org.joml.Vector3i;
   }
 
   public Chunk chunk(int x, int y, int z, boolean load) {
-    if(!load) return this.chunks.get(new Vector3i(x, y, z));
-    return this.chunks.computeIfAbsent(new Vector3i(x, y, z), (v) -> this.generator.generateChunk(v));
+    if (!load) return this.chunks.get(new Vector3i(x, y, z));
+    return this.chunks.computeIfAbsent(
+        new Vector3i(x, y, z), (v) -> this.generator.generateChunk(v));
   }
 
   public Chunk chunkByWorldCoordinates(int x, int y, int z, boolean load) {
@@ -78,7 +82,7 @@ import org.joml.Vector3i;
   public void render(Camera<?> camera) {
     Chunk.initShader();
     this.textureAtlas.use(Chunk.SHADER);
-    for(Chunk chunk : this.chunks.values()) {
+    for (Chunk chunk : this.chunks.values()) {
       chunk.render(camera);
     }
   }
@@ -87,7 +91,7 @@ import org.joml.Vector3i;
   public void render(Camera<?> camera, ShaderProgram shader) {
     Chunk.initShader();
     this.textureAtlas.use(Chunk.SHADER);
-    for(Chunk chunk : this.chunks.values()) {
+    for (Chunk chunk : this.chunks.values()) {
       chunk.render(camera);
     }
   }
@@ -95,5 +99,4 @@ import org.joml.Vector3i;
   public int chunkCount() {
     return this.chunks.size();
   }
-
 }

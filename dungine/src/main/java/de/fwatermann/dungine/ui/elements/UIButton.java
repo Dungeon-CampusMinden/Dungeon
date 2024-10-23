@@ -37,9 +37,9 @@ public class UIButton extends UIContainer<UIButton> {
   public UIButton() {
     super();
     this.layout
-      .flow(FlexDirection.COLUMN, FlexWrap.NO_WRAP)
-      .justifyContent(JustifyContent.CENTER)
-      .alignContent(AlignContent.STRETCH);
+        .flow(FlexDirection.COLUMN, FlexWrap.NO_WRAP)
+        .justifyContent(JustifyContent.CENTER)
+        .alignContent(AlignContent.STRETCH);
   }
 
   /**

@@ -29,7 +29,11 @@ public class StatePlayerTest extends GameState {
   public void init() {
 
     this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 12, TextAlignment.LEFT);
-    DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird das PlayerComponent getestet. Mit 'W','A','S','D' kann der Hero durch das Level bewegt werden.");
+    DemoUI.init(
+        this.window,
+        this.ui,
+        this.fpsText,
+        "In dieser Szene wird das PlayerComponent getestet. Mit 'W','A','S','D' kann der Hero durch das Level bewegt werden.");
 
     this.hero = HeroFactory.create();
     HeroFactory.makeControlled(this.window, this.hero);

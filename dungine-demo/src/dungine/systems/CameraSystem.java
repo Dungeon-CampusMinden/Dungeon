@@ -16,16 +16,22 @@ public class CameraSystem extends System<CameraSystem> {
 
   @Override
   public void update(ECS ecs) {
-    ecs.entities(stream -> {
-      stream.findAny().ifPresentOrElse(e -> {
-        this.camera.position(e.position());
-        this.camera.move(0, 5, 2);
-        this.camera.lookAt(e.position());
-      }, () -> {
-        this.camera.position(0, 5, 2);
-        this.camera.lookAt(0, 0, 0);
-      });
-    }, CameraComponent.class);
+    ecs.entities(
+        stream -> {
+          stream
+              .findAny()
+              .ifPresentOrElse(
+                  e -> {
+                    this.camera.position(e.position());
+                    this.camera.move(0, 5, 2);
+                    this.camera.lookAt(e.position());
+                  },
+                  () -> {
+                    this.camera.position(0, 5, 2);
+                    this.camera.lookAt(0, 0, 0);
+                  });
+        },
+        CameraComponent.class);
   }
 
   public Camera<?> camera() {

@@ -86,12 +86,14 @@ public class UILayouter {
               if (e.layout().bottom().type() != Unit.UnitType.AUTO) {
                 pos.y = e.layout().bottom().toPixels(viewport, container.size().y);
               } else if (e.layout().top().type() != Unit.UnitType.AUTO) {
-                pos.y = viewport.y - e.layout().top().toPixels(viewport, container.size().y) - size.y;
+                pos.y =
+                    viewport.y - e.layout().top().toPixels(viewport, container.size().y) - size.y;
               }
               if (e.layout().left().type() != Unit.UnitType.AUTO) {
                 pos.x = e.layout().left().toPixels(viewport, container.size().x);
               } else if (e.layout().right().type() != Unit.UnitType.AUTO) {
-                pos.x = viewport.x - e.layout().right().toPixels(viewport, container.size().x) - size.x;
+                pos.x =
+                    viewport.x - e.layout().right().toPixels(viewport, container.size().x) - size.x;
               }
               e.position().set(pos);
             });
@@ -210,7 +212,10 @@ public class UILayouter {
 
       for (UIElement<?> element : elements) {
         if (element.layout().position() != Position.RELATIVE) continue;
-        if (lines.getLast().mainSizeNoGap + element.size().x + columnGap * (lines.getLast().elements.size() - 1) > container.size().x) {
+        if (lines.getLast().mainSizeNoGap
+                + element.size().x
+                + columnGap * (lines.getLast().elements.size() - 1)
+            > container.size().x) {
           lines.getLast().mainSize =
               lines.getLast().mainSizeNoGap + columnGap * (lines.getLast().elements.size() - 1);
           lines.add(new FlexLine());
@@ -239,7 +244,10 @@ public class UILayouter {
 
       for (UIElement<?> element : elements) {
         if (element.layout().position() != Position.RELATIVE) continue;
-        if (lines.getLast().mainSizeNoGap + element.size().y + rowGap * (lines.getLast().elements.size() - 1) > container.size().y) {
+        if (lines.getLast().mainSizeNoGap
+                + element.size().y
+                + rowGap * (lines.getLast().elements.size() - 1)
+            > container.size().y) {
           lines.getLast().mainSize =
               lines.getLast().mainSizeNoGap + rowGap * (lines.getLast().elements.size() - 1);
           lines.add(new FlexLine());

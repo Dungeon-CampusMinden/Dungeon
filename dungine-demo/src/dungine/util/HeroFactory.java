@@ -18,8 +18,9 @@ public class HeroFactory {
 
   public static Entity create() {
     Entity entity = new Entity();
-    Animation animation = new BatchAnimation(Resource.load("/animations/hero.png"), 4, BatchAnimation.Direction.DOWN)
-      .frameDuration(200);
+    Animation animation =
+        new BatchAnimation(Resource.load("/animations/hero.png"), 4, BatchAnimation.Direction.DOWN)
+            .frameDuration(200);
     animation.frameDuration(200);
     Sprite sprite = new Sprite(animation, BillboardMode.SPHERICAL);
     entity.addComponent(new RenderableComponent(sprite));
@@ -32,36 +33,59 @@ public class HeroFactory {
   public static void makeControlled(GameWindow window, Entity entity) {
     float speedMultiplier = 7.5f * 4;
     PlayerComponent playerComponent = new PlayerComponent();
-    playerComponent.registerCallback(GLFW.GLFW_KEY_W, (e) -> {
-      entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(0, 0, -speedMultiplier * window.renderDeltaTime());
-      }, () -> {
-        entity.position().add(0, 0, -speedMultiplier * window.renderDeltaTime());
-      });
-    });
-    playerComponent.registerCallback(GLFW.GLFW_KEY_S, (e) -> {
-      entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(0, 0, speedMultiplier * window.renderDeltaTime());
-      }, () -> {
-        entity.position().add(0, 0, speedMultiplier * window.renderDeltaTime());
-      });
-    });
-    playerComponent.registerCallback(GLFW.GLFW_KEY_A, (e) -> {
-      entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(-speedMultiplier * window.renderDeltaTime(), 0, 0);
-      }, () -> {
-        entity.position().add(-speedMultiplier * window.renderDeltaTime(), 0, 0);
-      });
-    });
-    playerComponent.registerCallback(GLFW.GLFW_KEY_D, (e) -> {
-      entity.component(VelocityComponent.class).ifPresentOrElse((vc) -> {
-        vc.force.add(speedMultiplier * window.renderDeltaTime(), 0, 0);
-      }, () -> {
-        entity.position().add(speedMultiplier * window.renderDeltaTime(), 0, 0);
-      });
-    });
+    playerComponent.registerCallback(
+        GLFW.GLFW_KEY_W,
+        (e) -> {
+          entity
+              .component(VelocityComponent.class)
+              .ifPresentOrElse(
+                  (vc) -> {
+                    vc.force.add(0, 0, -speedMultiplier * window.renderDeltaTime());
+                  },
+                  () -> {
+                    entity.position().add(0, 0, -speedMultiplier * window.renderDeltaTime());
+                  });
+        });
+    playerComponent.registerCallback(
+        GLFW.GLFW_KEY_S,
+        (e) -> {
+          entity
+              .component(VelocityComponent.class)
+              .ifPresentOrElse(
+                  (vc) -> {
+                    vc.force.add(0, 0, speedMultiplier * window.renderDeltaTime());
+                  },
+                  () -> {
+                    entity.position().add(0, 0, speedMultiplier * window.renderDeltaTime());
+                  });
+        });
+    playerComponent.registerCallback(
+        GLFW.GLFW_KEY_A,
+        (e) -> {
+          entity
+              .component(VelocityComponent.class)
+              .ifPresentOrElse(
+                  (vc) -> {
+                    vc.force.add(-speedMultiplier * window.renderDeltaTime(), 0, 0);
+                  },
+                  () -> {
+                    entity.position().add(-speedMultiplier * window.renderDeltaTime(), 0, 0);
+                  });
+        });
+    playerComponent.registerCallback(
+        GLFW.GLFW_KEY_D,
+        (e) -> {
+          entity
+              .component(VelocityComponent.class)
+              .ifPresentOrElse(
+                  (vc) -> {
+                    vc.force.add(speedMultiplier * window.renderDeltaTime(), 0, 0);
+                  },
+                  () -> {
+                    entity.position().add(speedMultiplier * window.renderDeltaTime(), 0, 0);
+                  });
+        });
     entity.addComponent(playerComponent);
     entity.addComponent(new VelocityComponent());
   }
-
 }

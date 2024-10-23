@@ -149,7 +149,7 @@ public class EventManager {
               LOGGER.debug(
                   "Registered static event handler for event type {} by {}",
                   eventType.getName(),
-                pClazz.getName());
+                  pClazz.getName());
             });
   }
 

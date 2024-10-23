@@ -829,6 +829,7 @@ public abstract class GameWindow implements Disposable {
 
   /**
    * Get the last render delta time. The delta time is the time since the last frame in seconds.
+   *
    * @return the last render delta time in seconds
    */
   public float renderDeltaTime() {
@@ -837,6 +838,7 @@ public abstract class GameWindow implements Disposable {
 
   /**
    * Get the last update delta time. The delta time is the time since the last update in seconds.
+   *
    * @return the last update delta time in seconds
    */
   public float updateDeltaTime() {

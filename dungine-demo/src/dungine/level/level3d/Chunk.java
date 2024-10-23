@@ -25,24 +25,24 @@ import org.lwjgl.BufferUtils;
  * The `Chunk` class represents a segment of a 3D level in the game. It is responsible for managing
  * the blocks within the chunk, handling the chunk's mesh, and rendering the chunk.
  *
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
+ *
  * <ul>
- *   <li>Managing the blocks within the chunk, including setting, removing, and retrieving blocks.</li>
- *   <li>Rebuilding the chunk's mesh to reflect changes in the blocks.</li>
- *   <li>Rendering the chunk using a shader program.</li>
- *   <li>Handling chunk coordinates and converting world positions to chunk-relative positions.</li>
+ *   <li>Managing the blocks within the chunk, including setting, removing, and retrieving blocks.
+ *   <li>Rebuilding the chunk's mesh to reflect changes in the blocks.
+ *   <li>Rendering the chunk using a shader program.
+ *   <li>Handling chunk coordinates and converting world positions to chunk-relative positions.
  * </ul>
  *
- * <p>Usage example:</p>
- * <pre>
- * {@code
+ * <p>Usage example:
+ *
+ * <pre>{@code
  * Level3D level = new Level3D();
  * Vector3i chunkCoordinates = new Vector3i(0, 0, 0);
  * Chunk chunk = new Chunk(level, chunkCoordinates);
  * chunk.setBlock(new Block(...));
  * chunk.render(camera);
- * }
- * </pre>
+ * }</pre>
  */
 public class Chunk {
 
@@ -70,7 +70,7 @@ public class Chunk {
   public Chunk(Level3D level, Vector3i chunkCoordinates) {
     this.position = chunkCoordinates;
     this.vertices = BufferUtils.createByteBuffer(CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 16);
-    for(int i = 0; i < CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 16; i++) {
+    for (int i = 0; i < CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 16; i++) {
       this.vertices.put((byte) 0);
     }
     this.level = level;
@@ -78,13 +78,19 @@ public class Chunk {
   }
 
   public static void initShader() {
-    if(SHADER != null) return;
+    if (SHADER != null) return;
     try {
-      Shader vertexShader = Shader.loadShader(Resource.load("/shaders/level3d/chunk.vsh"), Shader.ShaderType.VERTEX_SHADER);
-      Shader geometryShader = Shader.loadShader(Resource.load("/shaders/level3d/chunk.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-      Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/level3d/chunk.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+      Shader vertexShader =
+          Shader.loadShader(
+              Resource.load("/shaders/level3d/chunk.vsh"), Shader.ShaderType.VERTEX_SHADER);
+      Shader geometryShader =
+          Shader.loadShader(
+              Resource.load("/shaders/level3d/chunk.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+      Shader fragmentShader =
+          Shader.loadShader(
+              Resource.load("/shaders/level3d/chunk.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
       SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
-    } catch(IOException ex) {
+    } catch (IOException ex) {
       throw new RuntimeException("Failed to load chunk shader", ex);
     }
   }
@@ -147,6 +153,7 @@ public class Chunk {
 
   /**
    * Rebuild the chunk mesh.
+   *
    * @param updateNeighbours Whether to update the neighbouring chunks
    */
   public void rebuild(boolean updateNeighbours) {
@@ -158,24 +165,31 @@ public class Chunk {
         }
       }
     }
-    if(updateNeighbours) {
-      Optional.ofNullable(this.level.chunk(this.position.x + 1, this.position.y, this.position.z, false))
-        .ifPresent(Chunk::rebuild);
-      Optional.ofNullable(this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false))
-        .ifPresent(Chunk::rebuild);
-      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y + 1, this.position.z, false))
-        .ifPresent(Chunk::rebuild);
-      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false))
-        .ifPresent(Chunk::rebuild);
-      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y, this.position.z + 1, false))
-        .ifPresent(Chunk::rebuild);
-      Optional.ofNullable(this.level.chunk(this.position.x, this.position.y, this.position.z - 1, false))
-        .ifPresent(Chunk::rebuild);
+    if (updateNeighbours) {
+      Optional.ofNullable(
+              this.level.chunk(this.position.x + 1, this.position.y, this.position.z, false))
+          .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(
+              this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false))
+          .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(
+              this.level.chunk(this.position.x, this.position.y + 1, this.position.z, false))
+          .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(
+              this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false))
+          .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(
+              this.level.chunk(this.position.x, this.position.y, this.position.z + 1, false))
+          .ifPresent(Chunk::rebuild);
+      Optional.ofNullable(
+              this.level.chunk(this.position.x, this.position.y, this.position.z - 1, false))
+          .ifPresent(Chunk::rebuild);
     }
   }
 
   /**
    * Update the mesh for the block at the given position.
+   *
    * @param x X coordinate
    * @param y Y coordinate
    * @param z Z coordinate
@@ -210,39 +224,44 @@ public class Chunk {
         (short) this.level.textureAtlas.getIndex(block.getFaceResource(BlockFace.EAST)));
     this.vertices.position(0);
 
-    if(this.mesh != null) {
+    if (this.mesh != null) {
       this.mesh.markVerticesDirty();
     }
 
-    if(updateNeighbours) {
+    if (updateNeighbours) {
       if (x + 1 < CHUNK_SIZE_X) {
         this.updateMesh(x + 1, y, z, false);
       } else {
-        Optional.ofNullable(this.level.chunk(this.position.x + 1, this.position.y, this.position.z, false))
+        Optional.ofNullable(
+                this.level.chunk(this.position.x + 1, this.position.y, this.position.z, false))
             .ifPresent(chunk -> chunk.updateMesh(0, y, z, false));
       }
       if (x - 1 >= 0) {
         this.updateMesh(x - 1, y, z, false);
       } else {
-        Optional.ofNullable(this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false))
+        Optional.ofNullable(
+                this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false))
             .ifPresent(chunk -> chunk.updateMesh(CHUNK_SIZE_X - 1, y, z, false));
       }
       if (y + 1 < CHUNK_SIZE_Y) {
         this.updateMesh(x, y + 1, z, false);
       } else {
-        Optional.ofNullable(this.level.chunk(this.position.x, this.position.y + 1, this.position.z, false))
+        Optional.ofNullable(
+                this.level.chunk(this.position.x, this.position.y + 1, this.position.z, false))
             .ifPresent(chunk -> chunk.updateMesh(x, 0, z, false));
       }
       if (y - 1 >= 0) {
         this.updateMesh(x, y - 1, z, false);
       } else {
-        Optional.ofNullable(this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false))
+        Optional.ofNullable(
+                this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false))
             .ifPresent(chunk -> chunk.updateMesh(x, CHUNK_SIZE_Y - 1, z, false));
       }
       if (z + 1 < CHUNK_SIZE_Z) {
         this.updateMesh(x, y, z + 1, false);
       } else {
-        Optional.ofNullable(this.level.chunk(this.position.x, this.position.y, this.position.z + 1, false))
+        Optional.ofNullable(
+                this.level.chunk(this.position.x, this.position.y, this.position.z + 1, false))
             .ifPresent(chunk -> chunk.updateMesh(x, y, 0, false));
       }
       if (z - 1 >= 0) {
@@ -253,11 +272,11 @@ public class Chunk {
             .ifPresent(chunk -> chunk.updateMesh(x, y, CHUNK_SIZE_Z - 1, false));
       }
     }
-
   }
 
   /**
    * Check which faces of the block at the given position are visible.
+   *
    * @param x X coordinate
    * @param y Y coordinate
    * @param z Z coordinate
@@ -285,7 +304,8 @@ public class Chunk {
     } else {
       Chunk chunk = this.level.chunk(this.position.x - 1, this.position.y, this.position.z, false);
       if (chunk != null) {
-        if (chunk.getBlockAt(CHUNK_SIZE_X - 1, y, z) == null || !chunk.getBlockAt(CHUNK_SIZE_X - 1, y, z).isSolid())
+        if (chunk.getBlockAt(CHUNK_SIZE_X - 1, y, z) == null
+            || !chunk.getBlockAt(CHUNK_SIZE_X - 1, y, z).isSolid())
           mask |= BlockFace.WEST.bitMask();
       } else mask |= BlockFace.WEST.bitMask();
     }
@@ -309,7 +329,8 @@ public class Chunk {
     } else {
       Chunk chunk = this.level.chunk(this.position.x, this.position.y, this.position.z - 1, false);
       if (chunk != null) {
-        if (chunk.getBlockAt(x, y, CHUNK_SIZE_Z - 1) == null || !chunk.getBlockAt(x, y, CHUNK_SIZE_Z - 1).isSolid())
+        if (chunk.getBlockAt(x, y, CHUNK_SIZE_Z - 1) == null
+            || !chunk.getBlockAt(x, y, CHUNK_SIZE_Z - 1).isSolid())
           mask |= BlockFace.SOUTH.bitMask();
       } else mask |= BlockFace.SOUTH.bitMask();
     }
@@ -333,7 +354,8 @@ public class Chunk {
     } else {
       Chunk chunk = this.level.chunk(this.position.x, this.position.y - 1, this.position.z, false);
       if (chunk != null) {
-        if (chunk.getBlockAt(x, CHUNK_SIZE_Y - 1, z) == null || !chunk.getBlockAt(x, CHUNK_SIZE_Y - 1, z).isSolid())
+        if (chunk.getBlockAt(x, CHUNK_SIZE_Y - 1, z) == null
+            || !chunk.getBlockAt(x, CHUNK_SIZE_Y - 1, z).isSolid())
           mask |= BlockFace.DOWN.bitMask();
       } else mask |= BlockFace.DOWN.bitMask();
     }
@@ -349,14 +371,17 @@ public class Chunk {
             new VertexAttribute(3, DataType.UNSIGNED_BYTE, "aPosition"),
             new VertexAttribute(1, DataType.UNSIGNED_BYTE, "aFaces"),
             new VertexAttribute(3, DataType.UNSIGNED_INT, "aAtlasEntries"));
-    this.mesh.position(new Vector3f(this.position.x * CHUNK_SIZE_X, this.position.y * CHUNK_SIZE_Y, this.position.z * CHUNK_SIZE_Z));
+    this.mesh.position(
+        new Vector3f(
+            this.position.x * CHUNK_SIZE_X,
+            this.position.y * CHUNK_SIZE_Y,
+            this.position.z * CHUNK_SIZE_Z));
   }
 
   public void render(Camera<?> camera) {
-    if(this.mesh == null) {
+    if (this.mesh == null) {
       this.initMesh();
     }
     this.mesh.render(camera, SHADER);
   }
-
 }

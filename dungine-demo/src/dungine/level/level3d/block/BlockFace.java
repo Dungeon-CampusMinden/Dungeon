@@ -1,13 +1,12 @@
 package dungine.level.level3d.block;
 
 public enum BlockFace {
-
-  UP, //Y+
-  DOWN, //Y-
-  NORTH, //Z+
-  SOUTH, //Z-
-  WEST, //X-
-  EAST; //X+
+  UP, // Y+
+  DOWN, // Y-
+  NORTH, // Z+
+  SOUTH, // Z-
+  WEST, // X-
+  EAST; // X+
 
   public BlockFace opposite() {
     return switch (this) {
@@ -43,5 +42,4 @@ public enum BlockFace {
       default -> throw new IllegalArgumentException("Invalid bit mask: " + bitMask);
     };
   }
-
 }

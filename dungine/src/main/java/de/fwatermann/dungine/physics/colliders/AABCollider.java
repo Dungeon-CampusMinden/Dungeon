@@ -1,10 +1,9 @@
 package de.fwatermann.dungine.physics.colliders;
 
 import de.fwatermann.dungine.ecs.Entity;
+import java.util.Set;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import java.util.Set;
 
 /**
  * A collider that represents an axis-aligned bounding box. This collider is used to check for

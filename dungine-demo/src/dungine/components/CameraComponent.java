@@ -7,5 +7,4 @@ public class CameraComponent extends Component {
   public CameraComponent() {
     super(false);
   }
-
 }

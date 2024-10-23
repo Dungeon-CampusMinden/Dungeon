@@ -37,7 +37,11 @@ public class StateCameraTest extends GameState {
   @Override
   public void init() {
     this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 12, TextAlignment.LEFT);
-    DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird das CameraComponent getestet. Die Kamera verfolgt den Hero mit einem definierten Offset. Außerdem kann zwischen der einfachen und der optimierten Methode zum rendern der Tiles gewechselt werden (M)");
+    DemoUI.init(
+        this.window,
+        this.ui,
+        this.fpsText,
+        "In dieser Szene wird das CameraComponent getestet. Die Kamera verfolgt den Hero mit einem definierten Offset. Außerdem kann zwischen der einfachen und der optimierten Methode zum rendern der Tiles gewechselt werden (M)");
 
     this.hero = HeroFactory.create();
     this.level = this.createLevel();
@@ -47,7 +51,8 @@ public class StateCameraTest extends GameState {
     this.addEntity(this.level);
     this.addEntity(this.hero);
 
-    this.target = new Vector3f((float) Math.random() * 32 - 16, 0.5f, (float) Math.random() * 32 - 16);
+    this.target =
+        new Vector3f((float) Math.random() * 32 - 16, 0.5f, (float) Math.random() * 32 - 16);
   }
 
   private Entity createLevel() {
@@ -60,13 +65,17 @@ public class StateCameraTest extends GameState {
 
   @Override
   public void renderState(float deltaTime) {
-    this.fpsText.text("FPS: " + this.window.frameCounter().currentFPS() + "\n" + (this.levelRenderable instanceof SimpleLevel ? "Simple" : "Optimized"));
+    this.fpsText.text(
+        "FPS: "
+            + this.window.frameCounter().currentFPS()
+            + "\n"
+            + (this.levelRenderable instanceof SimpleLevel ? "Simple" : "Optimized"));
   }
 
   @Override
   public void updateState(float deltaTime) {
     Vector3f toTarget = this.target.sub(this.hero.position(), new Vector3f());
-    if(toTarget.length() < 0.1f) {
+    if (toTarget.length() < 0.1f) {
       this.target.set((float) Math.random() * 32 - 16, 0.5f, (float) Math.random() * 32 - 16);
     } else {
       toTarget.normalize();
@@ -76,9 +85,9 @@ public class StateCameraTest extends GameState {
 
   @EventHandler
   private void onKeyboard(KeyboardEvent event) {
-    if(event.action == KeyboardEvent.KeyAction.PRESS) {
+    if (event.action == KeyboardEvent.KeyAction.PRESS) {
       if (event.key == GLFW.GLFW_KEY_M) {
-        if(this.levelRenderable instanceof SimpleLevel) {
+        if (this.levelRenderable instanceof SimpleLevel) {
           this.levelRenderable = new OptimizedLevel();
           this.level.component(RenderableComponent.class).ifPresent(this.level::removeComponent);
           this.level.addComponent(new RenderableComponent(this.levelRenderable));

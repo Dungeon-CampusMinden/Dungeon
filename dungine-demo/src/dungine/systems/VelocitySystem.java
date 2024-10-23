@@ -19,7 +19,7 @@ public class VelocitySystem extends System<VelocitySystem> {
   @Override
   public void update(ECS ecs) {
     float tmpTime = 0.0f;
-    if(this.lastExecution != 0L) {
+    if (this.lastExecution != 0L) {
       tmpTime = (java.lang.System.nanoTime() - this.lastExecution) / 1000000000.0f;
     }
     this.lastExecution = java.lang.System.nanoTime();

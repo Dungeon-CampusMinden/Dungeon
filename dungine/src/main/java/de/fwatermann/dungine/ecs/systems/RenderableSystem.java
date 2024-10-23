@@ -91,7 +91,9 @@ public class RenderableSystem extends System<RenderableSystem> {
     this.latestRenderCount = this.renderCount;
     this.renderCount = 0;
 
-    renderables.stream().sorted((r1, r2) -> Integer.compare(r1.order(), r2.order())).forEach(r -> r.render(this.camera));
+    renderables.stream()
+        .sorted((r1, r2) -> Integer.compare(r1.order(), r2.order()))
+        .forEach(r -> r.render(this.camera));
 
     if (this.sceneShader != null) {
       SceneRenderer.renderScene(this.camera, models, lights, this.sceneShader);

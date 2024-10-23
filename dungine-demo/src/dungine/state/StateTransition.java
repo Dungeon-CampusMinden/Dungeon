@@ -13,8 +13,8 @@ import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
 
 /**
- * The `StateTransition` class represents a state transition in the game. It is used to display a loading
- * screen while transitioning from one game state to another.
+ * The `StateTransition` class represents a state transition in the game. It is used to display a
+ * loading screen while transitioning from one game state to another.
  */
 public class StateTransition extends GameStateTransition {
 
@@ -36,8 +36,10 @@ public class StateTransition extends GameStateTransition {
     this.loadingText = new UIText(Font.defaultMonoFont(), "Loading...", 24, TextAlignment.LEFT);
     this.loadingText.layout().width(Unit.vW(45));
 
-    this.ui.layout()
-      .justifyContent(JustifyContent.SPACE_BETWEEN).alignContent(AlignContent.FLEX_START);
+    this.ui
+        .layout()
+        .justifyContent(JustifyContent.SPACE_BETWEEN)
+        .alignContent(AlignContent.FLEX_START);
 
     this.ui.add(this.loadingText);
     this.ui.add(spinner);

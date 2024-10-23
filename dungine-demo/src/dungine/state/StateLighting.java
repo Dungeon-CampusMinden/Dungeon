@@ -29,7 +29,11 @@ public class StateLighting extends GameState {
   @Override
   public void init() {
     this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 12, TextAlignment.LEFT);
-    DemoUI.init(this.window, this.ui, this.fpsText, "In dieser Szene wird die Beleuchtung getestet. Die Kamera kann mit 'W', 'A', 'S', 'D', 'SHIFT' und ' SPACE' durch den Raum bewegt werden. Durch Klicken und ziehen kann die Kamera geschwenkt werden.");
+    DemoUI.init(
+        this.window,
+        this.ui,
+        this.fpsText,
+        "In dieser Szene wird die Beleuchtung getestet. Die Kamera kann mit 'W', 'A', 'S', 'D', 'SHIFT' und ' SPACE' durch den Raum bewegt werden. Durch Klicken und ziehen kann die Kamera geschwenkt werden.");
 
     this.camera.position(0, 5, 5);
     this.camera.lookAt(0, 0, 0);
@@ -46,25 +50,33 @@ public class StateLighting extends GameState {
     this.blueEntity.position().set(0, 2, 5);
     this.blueEntity.size(new Vector3f(0.1f, 0.1f, 0.1f));
     this.blueEntity.addComponent(new RenderableComponent(new Cuboid(0x0000FFFF)));
-    this.blueEntity.addComponent(new LightComponent(new PointLight(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), 2f, 0.8f, 0.9f, 0.1f)));
+    this.blueEntity.addComponent(
+        new LightComponent(
+            new PointLight(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), 2f, 0.8f, 0.9f, 0.1f)));
 
     this.redEntity = new Entity();
     this.redEntity.position().set(0, 2, -5);
     this.redEntity.size(new Vector3f(0.1f, 0.1f, 0.1f));
     this.redEntity.addComponent(new RenderableComponent(new Cuboid(0xFF0000FF)));
-    this.redEntity.addComponent(new LightComponent(new PointLight(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), 2f, 0.8f, 0.9f, 0.1f)));
+    this.redEntity.addComponent(
+        new LightComponent(
+            new PointLight(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), 2f, 0.8f, 0.9f, 0.1f)));
 
     this.greenEntity = new Entity();
     this.greenEntity.position().set(-5, 2, 0);
     this.greenEntity.size(new Vector3f(0.1f, 0.1f, 0.1f));
     this.greenEntity.addComponent(new RenderableComponent(new Cuboid(0x00FF00FF)));
-    this.greenEntity.addComponent(new LightComponent(new PointLight(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0), 2f, 0.8f, 0.9f, 0.1f)));
+    this.greenEntity.addComponent(
+        new LightComponent(
+            new PointLight(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0), 2f, 0.8f, 0.9f, 0.1f)));
 
     this.yellowEntity = new Entity();
     this.yellowEntity.position().set(5, 2, 0);
     this.yellowEntity.size(new Vector3f(0.1f, 0.1f, 0.1f));
     this.yellowEntity.addComponent(new RenderableComponent(new Cuboid(0xFFFF00FF)));
-    this.yellowEntity.addComponent(new LightComponent(new PointLight(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0), 2f, 0.8f, 0.9f, 0.1f)));
+    this.yellowEntity.addComponent(
+        new LightComponent(
+            new PointLight(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0), 2f, 0.8f, 0.9f, 0.1f)));
 
     AmbientLight ambientLight = new AmbientLight(new Vector3f(0.8f, 0.8f, 1.0f), 0.15f);
     Entity lightEntity = new Entity();
@@ -79,7 +91,6 @@ public class StateLighting extends GameState {
     this.addEntity(lightEntity);
 
     this.grid(true);
-
   }
 
   @Override
@@ -100,5 +111,4 @@ public class StateLighting extends GameState {
   public boolean loaded() {
     return true;
   }
-
 }

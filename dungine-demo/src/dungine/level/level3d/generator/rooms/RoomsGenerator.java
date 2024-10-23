@@ -221,9 +221,9 @@ public class RoomsGenerator implements IGenerator {
   }
 
   /**
-   * Baue die Räume in die Level-Chunk-Struktur.
-   * Die Methode iteriert über alle Räume und platziert entsprechend der Raumgröße Bodenblöcke in
-   * den Chunk-Objekten. Die Ränder der Räume werden mit Wandblöcken versehen.
+   * Baue die Räume in die Level-Chunk-Struktur. Die Methode iteriert über alle Räume und platziert
+   * entsprechend der Raumgröße Bodenblöcke in den Chunk-Objekten. Die Ränder der Räume werden mit
+   * Wandblöcken versehen.
    */
   private void buildRooms() {
     for (Room room : this.rooms) {
@@ -243,8 +243,8 @@ public class RoomsGenerator implements IGenerator {
   }
 
   /**
-   * Baue die Hallways, die die Räume miteinander verbinden, in die Level-Chunk-Struktur.
-   * Die Methode iteriert über alle Räume und verbindet sie mit Hallways.
+   * Baue die Hallways, die die Räume miteinander verbinden, in die Level-Chunk-Struktur. Die
+   * Methode iteriert über alle Räume und verbindet sie mit Hallways.
    */
   public void buildHallways() {
 

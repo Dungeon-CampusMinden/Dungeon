@@ -6,14 +6,13 @@ import de.fwatermann.dungine.utils.annotations.Null;
 import dungine.systems.HealthSystem;
 import dungine.util.health.Damage;
 import dungine.util.health.DamageType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HealthComponent extends Component {
 
@@ -105,7 +104,10 @@ public class HealthComponent extends Component {
    */
   public int calculateDamageOf(final DamageType dt) {
     int damageSum =
-      this.damageToGet.stream().filter(d -> d.damageType() == dt).mapToInt(Damage::damageAmount).sum();
+        this.damageToGet.stream()
+            .filter(d -> d.damageType() == dt)
+            .mapToInt(Damage::damageAmount)
+            .sum();
     LOGGER.debug("{} processed damage: '{}", this.getClass().getSimpleName(), damageSum);
 
     return damageSum;

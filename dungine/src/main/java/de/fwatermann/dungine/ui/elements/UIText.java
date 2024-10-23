@@ -142,7 +142,7 @@ public class UIText extends UIElement<UIText> {
     Vector3f basePos = new Vector3f(this.absolutePosition());
     basePos.add(0.0f, this.size.y() - this.fontSize, 0.0f);
 
-    if(debug) {
+    if (debug) {
       this.boundingBox.position().set(this.absolutePosition());
       this.boundingBox.size().set(this.size);
       this.boundingBox.render(camera);
@@ -208,7 +208,7 @@ public class UIText extends UIElement<UIText> {
     this.renderSteps.add(new RenderStep(this.font.getPage(page).glHandle(), count, offset));
     this.mesh.vertexBuffer(buffer);
     BoundingBox2D bb = this.font.calculateBoundingBox(this.layoutElements);
-    if(this.layout.height().type() == Unit.UnitType.AUTO) {
+    if (this.layout.height().type() == Unit.UnitType.AUTO) {
       this.size.setComponent(1, bb.height());
     }
   }

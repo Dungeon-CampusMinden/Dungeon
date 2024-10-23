@@ -41,8 +41,8 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
 
     float seed = (float) Math.random();
 
-    for(int x = 0; x < LEVEL_SIZE_X; x++) {
-      for(int y = 0; y < LEVEL_SIZE_Y; y++) {
+    for (int x = 0; x < LEVEL_SIZE_X; x++) {
+      for (int y = 0; y < LEVEL_SIZE_Y; y++) {
         float sx = x * 0.1f;
         float sy = y * 0.1f;
 
@@ -55,13 +55,18 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
 
   @Override
   public void render(Camera<?> camera) {
-    if(DEFAULT_SHADER == null) {
+    if (DEFAULT_SHADER == null) {
       try {
-        Shader vertexShader = Shader.loadShader(Resource.load("/shaders/level.vsh"), Shader.ShaderType.VERTEX_SHADER);
-        Shader geometryShader = Shader.loadShader(Resource.load("/shaders/level.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
-        Shader fragmentShader = Shader.loadShader(Resource.load("/shaders/level.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
+        Shader vertexShader =
+            Shader.loadShader(Resource.load("/shaders/level.vsh"), Shader.ShaderType.VERTEX_SHADER);
+        Shader geometryShader =
+            Shader.loadShader(
+                Resource.load("/shaders/level.gsh"), Shader.ShaderType.GEOMETRY_SHADER);
+        Shader fragmentShader =
+            Shader.loadShader(
+                Resource.load("/shaders/level.fsh"), Shader.ShaderType.FRAGMENT_SHADER);
         DEFAULT_SHADER = new ShaderProgram(vertexShader, geometryShader, fragmentShader);
-      } catch(IOException ex) {
+      } catch (IOException ex) {
         LOGGER.error("Could not load shaders for level rendering", ex);
       }
     }
@@ -70,14 +75,14 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
 
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
-    if(this.mesh == null) {
+    if (this.mesh == null) {
       this.mesh =
-        new ArrayMesh(
-          BufferUtils.createByteBuffer(LEVEL_SIZE_X * LEVEL_SIZE_Y * 4 * 4),
-          PrimitiveType.POINTS,
-          GLUsageHint.DRAW_STATIC,
-          new VertexAttribute(3, DataType.FLOAT, "aPosition"),
-          new VertexAttribute(1, DataType.UNSIGNED_INT, "aAtlasEntry"));
+          new ArrayMesh(
+              BufferUtils.createByteBuffer(LEVEL_SIZE_X * LEVEL_SIZE_Y * 4 * 4),
+              PrimitiveType.POINTS,
+              GLUsageHint.DRAW_STATIC,
+              new VertexAttribute(3, DataType.FLOAT, "aPosition"),
+              new VertexAttribute(1, DataType.UNSIGNED_INT, "aAtlasEntry"));
       this.createMesh();
     }
     this.mesh.transformation(this.position(), this.rotation(), this.scaling());
@@ -88,8 +93,8 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
   }
 
   private void createMesh() {
-    for(int x = 0; x < LEVEL_SIZE_X; x++) {
-      for(int y = 0; y < LEVEL_SIZE_Y; y++) {
+    for (int x = 0; x < LEVEL_SIZE_X; x++) {
+      for (int y = 0; y < LEVEL_SIZE_Y; y++) {
         this.updateMesh(x, y);
       }
     }
@@ -130,5 +135,4 @@ public class OptimizedLevel extends Renderable<OptimizedLevel> {
       return this.entry;
     }
   }
-
 }

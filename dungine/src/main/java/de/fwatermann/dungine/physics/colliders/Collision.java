@@ -1,9 +1,8 @@
 package de.fwatermann.dungine.physics.colliders;
 
-import org.joml.Vector3f;
-
 import java.util.Objects;
 import java.util.Set;
+import org.joml.Vector3f;
 
 /**
  * The `Collision` record represents a collision event in the physics engine. It contains

@@ -4,12 +4,11 @@ import de.fwatermann.dungine.ecs.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 /**
  * Exception stating that a component is missing.
  *
- * <p>This exception is thrown by (e.g. a {@link de.fwatermann.dungine.ecs.System System}) when a required component is
- * missing on an entity that is being processed.
+ * <p>This exception is thrown by (e.g. a {@link de.fwatermann.dungine.ecs.System System}) when a
+ * required component is missing on an entity that is being processed.
  */
 public final class MissingComponentException extends NullPointerException {
 

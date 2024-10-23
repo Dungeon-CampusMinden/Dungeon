@@ -283,6 +283,7 @@ public abstract class Renderable<T extends Renderable<?>> {
 
   /**
    * Gets the order of the object for rendering.
+   *
    * @return order number
    */
   public int order() {

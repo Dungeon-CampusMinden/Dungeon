@@ -16,8 +16,8 @@ import de.fwatermann.dungine.ui.layout.Unit;
 import de.fwatermann.dungine.window.GameWindow;
 
 /**
- * The `StateMainMenu` class represents the main menu state in the game. It is used to display the main
- * menu screen and handle user input for navigating to other game states.
+ * The `StateMainMenu` class represents the main menu state in the game. It is used to display the
+ * main menu screen and handle user input for navigating to other game states.
  */
 public class StateMainMenu extends GameState {
 
@@ -75,10 +75,10 @@ public class StateMainMenu extends GameState {
 
     UIButton button5 = new UIButton();
     button5.attachComponent(
-      new UIComponentClickable(
-        (element, button, action) -> {
-          this.window.setState(new State3dLevel(this.window));
-        }));
+        new UIComponentClickable(
+            (element, button, action) -> {
+              this.window.setState(new State3dLevel(this.window));
+            }));
     button5.add(new UIText(Font.defaultMonoFont(), "3D-Level", 24, TextAlignment.CENTER));
     button5.layout().width(Unit.vW(33)).height(Unit.vH(20));
     button5.borderRadius(20).borderWidth(5).fillColor(0x3071f2FF);

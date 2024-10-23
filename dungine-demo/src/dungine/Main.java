@@ -11,5 +11,4 @@ public class Main {
     dungine.setStateTransition(new StateTransition(dungine));
     dungine.start();
   }
-
 }

@@ -40,12 +40,12 @@ public class DemoUI {
     back.layout().width(Unit.vH(5)).height(Unit.vH(5));
     back.fillColor(0x3071f2FF).borderRadius(5).borderWidth(0);
     back.attachComponent(
-      new UIComponentClickable(
-        (element, button, action) -> {
-          if (action == MouseButtonEvent.MouseButtonAction.PRESS) {
-            window.setState(new StateMainMenu(window));
-          }
-        }));
+        new UIComponentClickable(
+            (element, button, action) -> {
+              if (action == MouseButtonEvent.MouseButtonAction.PRESS) {
+                window.setState(new StateMainMenu(window));
+              }
+            }));
 
     fpsText.layout().position(Position.FIXED);
     fpsText.layout().top(Unit.px(10)).left(Unit.px(10));
@@ -55,5 +55,4 @@ public class DemoUI {
     root.add(back);
     root.add(fpsText);
   }
-
 }

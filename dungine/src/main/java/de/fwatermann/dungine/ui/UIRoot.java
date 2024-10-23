@@ -83,7 +83,8 @@ public class UIRoot extends UIContainer<UIRoot> implements EventListener, Dispos
     this.initialized = true;
     UILayouter.layout(this, this.window.size(), true);
     this.allChildElements(true).stream()
-      .filter(e -> e instanceof UIText).forEach(e -> e.render(this.camera()));
+        .filter(e -> e instanceof UIText)
+        .forEach(e -> e.render(this.camera()));
     UILayouter.layout(this, this.window.size(), true);
   }
 

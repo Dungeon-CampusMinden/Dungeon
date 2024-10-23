@@ -11,10 +11,9 @@ import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.ui.UIElement;
 import de.fwatermann.dungine.ui.layout.Unit;
-import org.lwjgl.BufferUtils;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import org.lwjgl.BufferUtils;
 
 /**
  * Represents a UI spinner element that can be rendered with OpenGL. The UISpinner class extends

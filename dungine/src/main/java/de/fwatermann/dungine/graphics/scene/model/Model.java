@@ -81,7 +81,8 @@ public class Model extends Renderable<Model> {
         material.normalTexture.bind(shader, Animation.AnimationSlot.ANIMATION_3, GL33.GL_TEXTURE6);
       }
 
-      shader.setUniform1i(shader.configuration().uniformForceIlluminate, this.forceIlluminate ? 1 : 0);
+      shader.setUniform1i(
+          shader.configuration().uniformForceIlluminate, this.forceIlluminate ? 1 : 0);
 
       material.meshes.forEach(
           meshEntry -> {
@@ -140,6 +141,7 @@ public class Model extends Renderable<Model> {
 
   /**
    * Determines whether the model should be force-illuminated.
+   *
    * @return true if the model should be force-illuminated, false otherwise
    */
   public boolean forceIlluminate() {
@@ -148,6 +150,7 @@ public class Model extends Renderable<Model> {
 
   /**
    * Sets whether the model should be force illuminated.
+   *
    * @param forceIlluminate the forceIlluminate to set
    * @return this model for method chaining
    */

@@ -281,12 +281,11 @@ public class TextureAtlas {
     if (this.glTBO == -1) {
       this.glTBO = GL33.glGenTextures();
       GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, this.glTBO);
-      GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I,this.glBO);
+      GL33.glTexBuffer(GL33.GL_TEXTURE_BUFFER, GL33.GL_R32I, this.glBO);
       GL33.glBindTexture(GL33.GL_TEXTURE_BUFFER, 0);
       GL33.glBindBuffer(GL33.GL_TEXTURE_BUFFER, 0);
       GLUtils.checkError();
     }
-
 
     int firstUnit = 11;
     for (int i = 0; i < this.pages.size(); i++) {

@@ -12,5 +12,4 @@ public class VelocityComponent extends Component {
   public VelocityComponent() {
     super(false);
   }
-
 }

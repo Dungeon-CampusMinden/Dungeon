@@ -3,7 +3,6 @@ package dungine.components;
 import de.fwatermann.dungine.ecs.Component;
 import de.fwatermann.dungine.ecs.Entity;
 import de.fwatermann.dungine.utils.functions.IVoidFunction1P;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +32,8 @@ public class PlayerComponent extends Component {
    *     pressed.
    * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
-  public Optional<IVoidFunction1P<Entity>> registerCallback(int key, final IVoidFunction1P<Entity> callback) {
+  public Optional<IVoidFunction1P<Entity>> registerCallback(
+      int key, final IVoidFunction1P<Entity> callback) {
     IVoidFunction1P<Entity> oldCallback = null;
     if (this.callbacks.containsKey(key)) {
       oldCallback = this.callbacks.get(key).callback();
@@ -55,7 +55,7 @@ public class PlayerComponent extends Component {
    * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<IVoidFunction1P<Entity>> registerCallback(
-    int key, final IVoidFunction1P<Entity> callback, boolean repeat, boolean pauseable) {
+      int key, final IVoidFunction1P<Entity> callback, boolean repeat, boolean pauseable) {
     IVoidFunction1P<Entity> oldCallback = null;
     if (this.callbacks.containsKey(key)) {
       oldCallback = this.callbacks.get(key).callback();
@@ -69,8 +69,8 @@ public class PlayerComponent extends Component {
    *
    * <p>If a callback is already registered on this key, the old callback will be replaced.
    *
-   * <p>This method exists for compatibility reasons. Use {@link #registerCallback(int, IVoidFunction1P,
-   * boolean, boolean)} instead.
+   * <p>This method exists for compatibility reasons. Use {@link #registerCallback(int,
+   * IVoidFunction1P, boolean, boolean)} instead.
    *
    * @param key The integer value of the key on which the callback should be executed.
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
@@ -79,7 +79,7 @@ public class PlayerComponent extends Component {
    * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<IVoidFunction1P<Entity>> registerCallback(
-    int key, final IVoidFunction1P<Entity> callback, boolean repeat) {
+      int key, final IVoidFunction1P<Entity> callback, boolean repeat) {
     return this.registerCallback(key, callback, repeat, false);
   }
 
@@ -128,5 +128,4 @@ public class PlayerComponent extends Component {
    *     pressed.
    */
   public record InputData(boolean repeat, IVoidFunction1P<Entity> callback) {}
-
 }

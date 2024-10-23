@@ -18,6 +18,7 @@ public abstract class Block {
 
   /**
    * Defines if the tile is solid. Solid tiles can not be walked on.
+   *
    * @return True if the tile is solid, false otherwise.
    */
   public abstract boolean isSolid();
@@ -37,5 +38,4 @@ public abstract class Block {
   public final void update(boolean updateNeighbours) {
     this.chunk.update(this.chunkPosition);
   }
-
 }

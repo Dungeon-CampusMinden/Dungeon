@@ -40,9 +40,18 @@ public class State3dLevel extends GameState {
   public void init() {
     this.fpsText = new UIText(Font.defaultMonoFont(), "FPS: 0", 12, TextAlignment.LEFT);
     this.chunksText = new UIText(Font.defaultMonoFont(), "Chunks: 0", 12, TextAlignment.LEFT);
-    this.chunksText.layout().position(Position.FIXED).top(Unit.px(32)).left(Unit.px(10)).width(Unit.vW(45));
+    this.chunksText
+        .layout()
+        .position(Position.FIXED)
+        .top(Unit.px(32))
+        .left(Unit.px(10))
+        .width(Unit.vW(45));
     this.ui.add(this.chunksText);
-    DemoUI.init(this.window, this.ui, this.fpsText, "Ein 3D-Level im Dungeon-Stil. Mehr muss ich dazu glaube ich nicht sagen ;)\nEs existieren nur noch keine Gegner die einen hier erwarten könnten... Die Fortbewegung funktioniert hier auch wieder mit 'W','A','S','D'.");
+    DemoUI.init(
+        this.window,
+        this.ui,
+        this.fpsText,
+        "Ein 3D-Level im Dungeon-Stil. Mehr muss ich dazu glaube ich nicht sagen ;)\nEs existieren nur noch keine Gegner die einen hier erwarten könnten... Die Fortbewegung funktioniert hier auch wieder mit 'W','A','S','D'.");
 
     VelocitySystem velocitySystem = new VelocitySystem();
 
@@ -79,13 +88,15 @@ public class State3dLevel extends GameState {
 
   @EventHandler
   private void onKeyboard(KeyboardEvent event) {
-    if(event.action == KeyboardEvent.KeyAction.PRESS ){
-      if(event.key == GLFW.GLFW_KEY_R) {
-        this.level.chunkByWorldCoordinates(
-                (int)Math.floor(this.camera.position().x),
-                (int)Math.floor(this.camera.position().y),
-                (int)Math.floor(this.camera.position().z),
-                false).rebuild();
+    if (event.action == KeyboardEvent.KeyAction.PRESS) {
+      if (event.key == GLFW.GLFW_KEY_R) {
+        this.level
+            .chunkByWorldCoordinates(
+                (int) Math.floor(this.camera.position().x),
+                (int) Math.floor(this.camera.position().y),
+                (int) Math.floor(this.camera.position().z),
+                false)
+            .rebuild();
       }
     }
   }
@@ -94,6 +105,4 @@ public class State3dLevel extends GameState {
   public boolean loaded() {
     return true;
   }
-
-
 }

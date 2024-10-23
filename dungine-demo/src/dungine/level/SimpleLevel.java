@@ -30,17 +30,18 @@ public class SimpleLevel extends Renderable<SimpleLevel> {
 
     float seed = (float) Math.random();
 
-    for(int x = 0; x < LEVEL_SIZE_X; x++) {
-      for(int y = 0; y < LEVEL_SIZE_Y; y++) {
+    for (int x = 0; x < LEVEL_SIZE_X; x++) {
+      for (int y = 0; y < LEVEL_SIZE_Y; y++) {
         float sx = x * 0.1f;
         float sy = y * 0.1f;
 
         int variant = (int) (Math.floor(Math.abs(SimplexNoise.noise(sx, sy, seed)) * 3));
-        Texture tex = switch(variant) {
-          case 1 -> floor_dmg;
-          case 2 -> floor_hole;
-          default -> floor;
-        };
+        Texture tex =
+            switch (variant) {
+              case 1 -> floor_dmg;
+              case 2 -> floor_hole;
+              default -> floor;
+            };
         this.tiles[x][y] = new Sprite(ArrayAnimation.of(tex), BillboardMode.NONE);
         this.tiles[x][y].position(this.position().x + x, this.position().y, this.position().z + y);
         this.tiles[x][y].rotate(1, 0, 0, -90);
@@ -50,8 +51,8 @@ public class SimpleLevel extends Renderable<SimpleLevel> {
 
   @Override
   public void render(Camera<?> camera) {
-    for(int x = 0; x < LEVEL_SIZE_X; x++) {
-      for(int y = 0; y < LEVEL_SIZE_Y; y++) {
+    for (int x = 0; x < LEVEL_SIZE_X; x++) {
+      for (int y = 0; y < LEVEL_SIZE_Y; y++) {
         this.tiles[x][y].render(camera);
       }
     }
@@ -59,8 +60,8 @@ public class SimpleLevel extends Renderable<SimpleLevel> {
 
   @Override
   public void render(Camera<?> camera, ShaderProgram shader) {
-    for(int x = 0; x < LEVEL_SIZE_X; x++) {
-      for(int y = 0; y < LEVEL_SIZE_Y; y++) {
+    for (int x = 0; x < LEVEL_SIZE_X; x++) {
+      for (int y = 0; y < LEVEL_SIZE_Y; y++) {
         this.tiles[x][y].render(camera, shader);
       }
     }
@@ -68,15 +69,14 @@ public class SimpleLevel extends Renderable<SimpleLevel> {
 
   @Override
   protected void transformationChanged() {
-    if(this.tiles == null) return;
+    if (this.tiles == null) return;
     for (int x = 0; x < LEVEL_SIZE_X; x++) {
       for (int y = 0; y < LEVEL_SIZE_Y; y++) {
-        if(this.tiles[x][y] == null) {
+        if (this.tiles[x][y] == null) {
           continue;
         }
         this.tiles[x][y].position(this.position().x + x, this.position().y, this.position().z + y);
       }
     }
   }
-
 }

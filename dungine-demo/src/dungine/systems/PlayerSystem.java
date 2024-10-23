@@ -7,9 +7,8 @@ import de.fwatermann.dungine.input.Keyboard;
 import de.fwatermann.dungine.input.Mouse;
 import dungine.components.PlayerComponent;
 import dungine.exception.MissingComponentException;
-import org.lwjgl.glfw.GLFW;
-
 import java.util.Map;
+import org.lwjgl.glfw.GLFW;
 
 public class PlayerSystem extends System<PlayerSystem> {
 
@@ -24,9 +23,9 @@ public class PlayerSystem extends System<PlayerSystem> {
 
   private void execute(final Entity entity) {
     PlayerComponent pc =
-      entity
-        .component(PlayerComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class));
+        entity
+            .component(PlayerComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class));
     this.execute(pc.callbacks(), entity);
   }
 
@@ -40,12 +39,11 @@ public class PlayerSystem extends System<PlayerSystem> {
    * @param entity associated entity of this component.
    */
   private void execute(
-    final Map<Integer, PlayerComponent.InputData> callbacks,
-    final Entity entity) {
+      final Map<Integer, PlayerComponent.InputData> callbacks, final Entity entity) {
     callbacks.forEach(
-      (key, value) -> {
-        this.execute(entity, key, value);
-      });
+        (key, value) -> {
+          this.execute(entity, key, value);
+        });
   }
 
   private void execute(final Entity entity, int key, final PlayerComponent.InputData data) {
@@ -53,14 +51,12 @@ public class PlayerSystem extends System<PlayerSystem> {
         key == GLFW.GLFW_MOUSE_BUTTON_LEFT
             || key == GLFW.GLFW_MOUSE_BUTTON_RIGHT
             || key == GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
-    boolean isPressed =
-      isMouseButton ? Mouse.buttonPressed(key) : Keyboard.keyPressed(key);
+    boolean isPressed = isMouseButton ? Mouse.buttonPressed(key) : Keyboard.keyPressed(key);
     boolean isJustPressed =
-      isMouseButton ? Mouse.buttonJustPressed(key) : Keyboard.keyJustPressed(key);
+        isMouseButton ? Mouse.buttonJustPressed(key) : Keyboard.keyJustPressed(key);
 
     if ((isJustPressed && !data.repeat()) || (isPressed && data.repeat())) {
       data.callback().run(entity);
     }
   }
-
 }
