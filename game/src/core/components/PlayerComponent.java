@@ -1,5 +1,6 @@
 package core.components;
 
+import com.badlogic.gdx.Input;
 import core.Component;
 import core.Entity;
 import java.util.HashMap;

@@ -21,6 +21,7 @@ sourceSets.test.resources.srcDirs = ['test_resources/']
 application.mainClass = "dungine.Main"
 
 jar {
+    dependsOn ":dungine:jar"
     manifest.attributes.put("Main-Class", "dungine.Main")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {

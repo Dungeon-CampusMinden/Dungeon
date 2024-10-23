@@ -1,5 +1,7 @@
 package core.game;
 
+import static com.badlogic.gdx.graphics.GL20.GL_COLOR_BUFFER_BIT;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -14,12 +16,7 @@ import core.System;
 import core.components.PositionComponent;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
-import core.systems.CameraSystem;
-import core.systems.DrawSystem;
-import core.systems.LevelSystem;
-import core.systems.PlayerSystem;
-import core.systems.PositionSystem;
-import core.systems.VelocitySystem;
+import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;
