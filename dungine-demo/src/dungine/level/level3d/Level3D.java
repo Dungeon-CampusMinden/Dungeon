@@ -1,6 +1,8 @@
 package dungine.level.level3d;
 
+import de.fwatermann.dungine.graphics.Renderable;
 import de.fwatermann.dungine.graphics.camera.Camera;
+import de.fwatermann.dungine.graphics.shader.ShaderProgram;
 import de.fwatermann.dungine.graphics.texture.atlas.TextureAtlas;
 import de.fwatermann.dungine.resource.Resource;
 import dungine.level.level3d.generator.IGenerator;
@@ -8,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.joml.Vector3i;
 
-public class Level3D {
+public class Level3D extends Renderable<Level3D> {
 
   private final Map<Vector3i, Chunk> chunks = new HashMap<>();
 
@@ -19,6 +21,7 @@ public class Level3D {
 
   protected Level3D(long seed) {
     this.seed = seed;
+    this.order = 0;
     this.textureAtlas = new TextureAtlas();
     this.textureAtlas.add(Resource.load("/textures/floor_1.png"));
     this.textureAtlas.add(Resource.load("/textures/wall.png"));
@@ -49,7 +52,17 @@ public class Level3D {
     return this;
   }
 
+  @Override
   public void render(Camera<?> camera) {
+    Chunk.initShader();
+    this.textureAtlas.use(Chunk.SHADER);
+    for(Chunk chunk : this.chunks.values()) {
+      chunk.render(camera);
+    }
+  }
+
+  @Override
+  public void render(Camera<?> camera, ShaderProgram shader) {
     Chunk.initShader();
     this.textureAtlas.use(Chunk.SHADER);
     for(Chunk chunk : this.chunks.values()) {

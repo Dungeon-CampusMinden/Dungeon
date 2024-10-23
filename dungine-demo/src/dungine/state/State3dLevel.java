@@ -1,6 +1,7 @@
 package dungine.state;
 
 import de.fwatermann.dungine.ecs.Entity;
+import de.fwatermann.dungine.ecs.components.RenderableComponent;
 import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
@@ -27,6 +28,7 @@ public class State3dLevel extends GameState {
   private Level3D level;
 
   private Entity hero;
+  private Entity levelEntity;
 
   public State3dLevel(GameWindow window) {
     super(window);
@@ -58,7 +60,11 @@ public class State3dLevel extends GameState {
     HeroFactory.makeControlled(this.window, this.hero);
     this.hero.position(generator.getStartPosition());
 
+    this.levelEntity = new Entity();
+    this.levelEntity.addComponent(new RenderableComponent(this.level));
+
     this.addEntity(this.hero);
+    this.addEntity(this.levelEntity);
 
     this.grid(true);
   }
@@ -67,7 +73,6 @@ public class State3dLevel extends GameState {
   public void renderState(float deltaTime) {
     this.fpsText.text("FPS: " + this.window.frameCounter().currentFPS());
     this.chunksText.text("Chunks: " + this.level.chunkCount());
-    this.level.render(this.camera);
   }
 
   @EventHandler
