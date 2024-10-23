@@ -75,6 +75,7 @@ public class ArrayAnimation extends Animation {
    * @param minFilter the minification filter to be applied to the textures
    * @param wrapMode the wrap mode to be applied to the textures
    * @param resources the resources to load the textures from
+   * @return the created `ArrayAnimation` instance
    * @throws IllegalArgumentException if no resources or no valid resources are provided
    */
   private static ArrayAnimation loadFromMultipleResources(

@@ -107,6 +107,7 @@ public class Texture implements Disposable {
 
   /**
    * Constructs a new Texture with the specified width and height and default values for format,
+   * minFilter, maxFilter, wrapS, wrapT, and pixels.
    *
    * @param width the width of the texture
    * @param height the height of the texture

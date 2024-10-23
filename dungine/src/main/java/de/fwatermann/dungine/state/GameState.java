@@ -26,7 +26,7 @@ public abstract class GameState extends ECS implements Disposable, EventListener
   /** The game window. */
   protected GameWindow window;
 
-  /** The user interface root element */
+  /** The user interface root element. */
   protected UIRoot ui;
 
   /** The skybox. */

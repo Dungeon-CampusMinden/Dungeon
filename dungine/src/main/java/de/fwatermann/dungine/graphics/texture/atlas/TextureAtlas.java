@@ -51,18 +51,18 @@ public class TextureAtlas {
    */
   public static int MAX_ENTRIES = 65536;
 
-  /** The uniform buffer binding point for the TextureAtlas UBO */
+  /** The uniform buffer binding point for the TextureAtlas UBO. */
   public static final int UNIFORM_BUFFER_BINDING = 35;
 
   private final int width, height;
 
-  /** The pages of the atlas */
+  /** The pages of the atlas. */
   protected final List<AtlasPage> pages = new ArrayList<>();
 
-  /** The entries in the atlas */
+  /** The entries in the atlas. */
   protected final Map<Integer, AtlasEntry> entries = new HashMap<>();
 
-  /** The indices of the resources in the atlas */
+  /** The indices of the resources in the atlas. */
   protected final Map<Resource, Integer> indices = new HashMap<>();
 
   private int glTBO = -1;

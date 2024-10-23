@@ -36,22 +36,22 @@ public class WindowResizeEvent extends Event implements Cancelable {
     this.window = window;
   }
 
-  @Override
   /**
    * Checks if the window resize event has been canceled.
    *
    * @return the cancel state of the window resize event
    */
+  @Override
   public boolean isCanceled() {
     return this.canceled;
   }
 
-  @Override
   /**
    * Sets the cancel state of the window resize event.
    *
    * @param canceled the cancel state to set
    */
+  @Override
   public void setCanceled(boolean canceled) {
     this.canceled = canceled;
   }

@@ -20,10 +20,10 @@ public abstract class ECS {
   private final ReentrantReadWriteLock entityLock = new ReentrantReadWriteLock(true);
   private final ReentrantReadWriteLock systemLock = new ReentrantReadWriteLock(true);
 
-  /** Set holding all entities within the ECS */
+  /** Set holding all entities within the ECS. */
   private final Set<Entity> entities = new HashSet<>();
 
-  /** Map holding all systems withing the ECS, associated each system with their interval */
+  /** Map holding all systems withing the ECS, associated each system with their interval. */
   private final Map<System<?>, Integer> systems = new HashMap<>();
 
   /** Default constructor for the ECS class. */

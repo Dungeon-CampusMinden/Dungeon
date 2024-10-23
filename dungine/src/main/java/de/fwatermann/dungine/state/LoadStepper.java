@@ -367,6 +367,11 @@ public class LoadStepper {
     return this.steps.size();
   }
 
-  /** The `Step` record represents a single step in the `LoadStepper`. */
+  /**
+   * The `Step` record represents a single step in the `LoadStepper`.
+   *
+   * @param func the step function
+   * @param mainThread whether the step should run on the main thread
+   */
   private record Step(StepFunction.IWithResults<?> func, boolean mainThread) {}
 }

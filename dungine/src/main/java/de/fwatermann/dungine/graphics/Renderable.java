@@ -12,7 +12,7 @@ import org.joml.Vector3f;
  * graphics context. It provides methods for setting and getting the position, scale, and rotation
  * of the object, as well as for rendering the object using a camera and shader program.
  *
- * @param <T> the type of the subclass extending {@link Renderable<T>} used for method chaining
+ * @param <T> the type of the subclass extending {@link Renderable} used for method chaining
  */
 public abstract class Renderable<T extends Renderable<?>> {
 

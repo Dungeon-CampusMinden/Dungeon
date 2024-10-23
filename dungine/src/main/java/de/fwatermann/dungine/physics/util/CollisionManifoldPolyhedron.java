@@ -39,6 +39,10 @@ public class CollisionManifoldPolyhedron {
    * normal) 3. Clipping 3.1 Clip the incident face against the adjacent faces of the reference
    * face. 3.2 Clip the resulting polygon against the reference face.
    *
+   * @param c1 The first collider.
+   * @param c2 The second collider.
+   * @param normal The normal of the collision.
+   * @param depth The depth of the collision.
    * @return The contact points between the two colliders.
    */
   static Set<Vector3f> calculateContactPoints(

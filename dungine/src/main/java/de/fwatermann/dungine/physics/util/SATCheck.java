@@ -23,7 +23,7 @@ public class SATCheck {
    *
    * @param edgesA The first set of edges.
    * @param edgesB The second set of edges.
-   * @return A list of axes.
+   * @param dest The set to store the axes in.
    */
   private static void getAxes(Vector3f[] edgesA, Vector3f[] edgesB, Set<Vector3f> dest) {
     for (Vector3f edgeA : edgesA) {

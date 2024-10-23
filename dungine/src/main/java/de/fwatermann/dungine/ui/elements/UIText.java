@@ -27,6 +27,7 @@ import org.lwjgl.opengl.GL33;
 /** Represents a UI element for rendering text. */
 public class UIText extends UIElement<UIText> {
 
+  /** Whether to render debug bounding boxes. */
   public static boolean debug = false;
 
   private static ShaderProgram SHADER;
@@ -299,7 +300,13 @@ public class UIText extends UIElement<UIText> {
     return this;
   }
 
-  /** Represents a render step for a specific texture page. */
+  /**
+   * Represents a render step for a specific texture page.
+   *
+   * @param pageGLHandle the OpenGL handle of the texture page
+   * @param count the number of elements to render
+   * @param offset the offset of the first element to render
+   */
   private record RenderStep(int pageGLHandle, int count, int offset) {}
 
   @Override

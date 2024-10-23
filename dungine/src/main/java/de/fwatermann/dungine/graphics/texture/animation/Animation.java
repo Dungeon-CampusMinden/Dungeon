@@ -41,7 +41,7 @@ public abstract class Animation {
   }
 
   /**
-   * Create AnimationFrame based on index
+   * Create AnimationFrame based on index.
    *
    * @param index index of the frame
    * @return AnimationFrame

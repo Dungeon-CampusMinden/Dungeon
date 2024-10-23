@@ -3,7 +3,7 @@ package de.fwatermann.dungine.graphics.shader;
 /** The ShaderProgramConfiguration class represents a configuration for a ShaderProgram object. */
 public class ShaderProgramConfiguration {
 
-  /** The ShaderProgramConfigurationMaterial class represents a configuration for the material */
+  /** The ShaderProgramConfigurationMaterial class represents a configuration for the material. */
   public final ShaderProgramConfigurationMaterial material =
       new ShaderProgramConfigurationMaterial();
 

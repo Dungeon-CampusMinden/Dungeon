@@ -10,7 +10,7 @@ package de.fwatermann.dungine.utils.functions;
 public interface IFunction<R> {
 
   /**
-   * The function
+   * The function to execute.
    *
    * @return the result of the function
    */

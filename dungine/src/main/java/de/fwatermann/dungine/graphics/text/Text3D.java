@@ -464,6 +464,12 @@ public class Text3D extends Renderable<Text3D> {
     TOP_LEFT
   }
 
-  /** Represents a render step for a specific texture page. */
+  /**
+   * Represents a render step for a specific texture page.
+   *
+   * @param pageGLHandle the OpenGL handle of the texture page
+   * @param count the number of elements to render
+   * @param offset the offset of the elements to render
+   */
   private record RenderStep(int pageGLHandle, int count, int offset) {}
 }

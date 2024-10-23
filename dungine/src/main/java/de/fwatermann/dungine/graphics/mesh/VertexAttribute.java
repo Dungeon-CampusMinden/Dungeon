@@ -7,16 +7,16 @@ package de.fwatermann.dungine.graphics.mesh;
  */
 public class VertexAttribute {
 
-  /** The number of Components this attribute has */
+  /** The number of Components this attribute has. */
   public final int numComponents;
 
-  /** The data type of this attribute */
+  /** The data type of this attribute. */
   public final DataType dataType;
 
-  /** The name of this attribute */
+  /** The name of this attribute. */
   public final String name;
 
-  /** The offset of this attribute */
+  /** The offset of this attribute. */
   protected int offset;
 
   /**

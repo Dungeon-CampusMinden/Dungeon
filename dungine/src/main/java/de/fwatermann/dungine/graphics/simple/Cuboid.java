@@ -35,7 +35,7 @@ import org.lwjgl.BufferUtils;
  */
 public class Cuboid extends Model {
 
-  /** The mesh of any cuboid */
+  /** The mesh of any cuboid. */
   protected static IndexedMesh MESH;
 
   private BoundingBox boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
