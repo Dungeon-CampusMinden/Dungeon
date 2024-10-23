@@ -24,6 +24,8 @@ public class Level3D extends Renderable<Level3D> {
     this.order = 0;
     this.textureAtlas = new TextureAtlas();
     this.textureAtlas.add(Resource.load("/textures/floor_1.png"));
+    this.textureAtlas.add(Resource.load("/textures/floor_damaged.png"));
+    this.textureAtlas.add(Resource.load("/textures/floor_hole.png"));
     this.textureAtlas.add(Resource.load("/textures/wall.png"));
   }
 

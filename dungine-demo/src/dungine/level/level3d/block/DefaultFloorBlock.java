@@ -4,10 +4,10 @@ import de.fwatermann.dungine.resource.Resource;
 import dungine.level.level3d.Chunk;
 import org.joml.Vector3i;
 
-public abstract class FloorBlock extends Block {
+public class DefaultFloorBlock extends FloorBlock {
 
-  public FloorBlock(Chunk chunk, Vector3i chunkPosition, Resource resource) {
-    super(chunk, chunkPosition, resource);
+  public DefaultFloorBlock(Chunk chunk, Vector3i chunkPosition) {
+    super(chunk, chunkPosition, Resource.load("/textures/floor_1.png"));
   }
 
   @Override

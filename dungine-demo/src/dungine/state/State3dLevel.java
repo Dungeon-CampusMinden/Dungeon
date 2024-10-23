@@ -5,8 +5,10 @@ import de.fwatermann.dungine.ecs.components.RenderableComponent;
 import de.fwatermann.dungine.ecs.systems.RenderableSystem;
 import de.fwatermann.dungine.event.EventHandler;
 import de.fwatermann.dungine.event.input.KeyboardEvent;
+import de.fwatermann.dungine.graphics.SkyBox;
 import de.fwatermann.dungine.graphics.text.Font;
 import de.fwatermann.dungine.graphics.text.TextAlignment;
+import de.fwatermann.dungine.resource.Resource;
 import de.fwatermann.dungine.state.GameState;
 import de.fwatermann.dungine.ui.elements.UIText;
 import de.fwatermann.dungine.ui.layout.Position;
@@ -40,7 +42,7 @@ public class State3dLevel extends GameState {
     this.chunksText = new UIText(Font.defaultMonoFont(), "Chunks: 0", 12, TextAlignment.LEFT);
     this.chunksText.layout().position(Position.FIXED).top(Unit.px(32)).left(Unit.px(10)).width(Unit.vW(45));
     this.ui.add(this.chunksText);
-    DemoUI.init(this.window, this.ui, this.fpsText, "Ein 3D-Level im Dungeon-Stil. Mehr muss ich dazu glaube ich nicht sagen ;)\nEs existieren nur noch keine Gegner die einen hier erwarten könnten...");
+    DemoUI.init(this.window, this.ui, this.fpsText, "Ein 3D-Level im Dungeon-Stil. Mehr muss ich dazu glaube ich nicht sagen ;)\nEs existieren nur noch keine Gegner die einen hier erwarten könnten... Die Fortbewegung funktioniert hier auch wieder mit 'W','A','S','D'.");
 
     VelocitySystem velocitySystem = new VelocitySystem();
 
@@ -56,6 +58,8 @@ public class State3dLevel extends GameState {
 
     velocitySystem.level = this.level;
 
+    this.skyBox = new SkyBox(Resource.load("/textures/skybox.png"));
+
     this.hero = HeroFactory.create();
     HeroFactory.makeControlled(this.window, this.hero);
     this.hero.position(generator.getStartPosition());
@@ -65,8 +69,6 @@ public class State3dLevel extends GameState {
 
     this.addEntity(this.hero);
     this.addEntity(this.levelEntity);
-
-    this.grid(true);
   }
 
   @Override

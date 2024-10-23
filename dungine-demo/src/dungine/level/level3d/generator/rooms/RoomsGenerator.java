@@ -2,7 +2,10 @@ package dungine.level.level3d.generator.rooms;
 
 import dungine.level.level3d.Chunk;
 import dungine.level.level3d.Level3D;
+import dungine.level.level3d.block.DefaultFloorBlock;
 import dungine.level.level3d.block.FloorBlock;
+import dungine.level.level3d.block.FloorDamagedBlock;
+import dungine.level.level3d.block.FloorHoleBlock;
 import dungine.level.level3d.block.WallBlock;
 import dungine.level.level3d.generator.IGenerator;
 import dungine.level.level3d.utils.ChunkUtils;
@@ -13,6 +16,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Random;
+import org.joml.SimplexNoise;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
@@ -55,6 +59,7 @@ public class RoomsGenerator implements IGenerator {
 
   private Set<Room> rooms = new HashSet<>();
   private Vector2f meanSize = new Vector2f();
+  private final float floorNoiseSeed;
 
   private Level3D level;
   private Random random;
@@ -62,6 +67,7 @@ public class RoomsGenerator implements IGenerator {
   public RoomsGenerator(Level3D level, long seed) {
     this.level = level;
     this.random = new Random(seed);
+    this.floorNoiseSeed = this.random.nextFloat();
   }
 
   private void generateRooms(int numRooms, Vector2i minSize, Vector2i maxSize, int radius) {
@@ -194,15 +200,12 @@ public class RoomsGenerator implements IGenerator {
       for(int x = 0; x < room.size.x; x++) {
         for(int z = 0; z < room.size.y; z++) {
           Vector3i pos = new Vector3i(room.position.x + x, room.position.y, room.position.z + z);
-          Vector3i inChunkPos = ChunkUtils.worldToChunkRelative(pos);
-          Chunk chunk = this.level.chunkByWorldCoordinates (room.position.x + x, room.position.y, room.position.z + z, true);
-          if(chunk == null) continue;
           if(x == 0 || x == room.size.x -1 || z == 0 || z == room.size.y -1) {
-            chunk.setBlock(new WallBlock(chunk, inChunkPos.add(0, 1, 0, new Vector3i())));
-            chunk.setBlock(new WallBlock(chunk, inChunkPos.add(0, 2, 0, new Vector3i())));
-            chunk.setBlock(new WallBlock(chunk, inChunkPos.add(0, 3, 0, new Vector3i())));
+            this.makeWall(pos.x, pos.y + 1, pos.z);
+            this.makeWall(pos.x, pos.y + 2, pos.z);
+            this.makeWall(pos.x, pos.y + 3, pos.z);
           } else {
-            chunk.setBlock(new FloorBlock(chunk, inChunkPos));
+            this.makeFloor(pos.x, pos.y, pos.z);
           }
         }
       }
@@ -268,15 +271,23 @@ public class RoomsGenerator implements IGenerator {
         this.makeWall(pos.x, pos.y + 3, pos.z - 1);
       }
     }
-
-
-
   }
 
   private void makeFloor(int x, int y, int z) {
     Chunk chunk = this.level.chunkByWorldCoordinates(x, y, z, true);
     if(chunk == null) return;
-    chunk.setBlock(new FloorBlock(chunk, ChunkUtils.worldToChunkRelative(x, y, z)));
+    int variant = (int) (Math.floor(Math.abs(SimplexNoise.noise(x * 0.1f, z * 0.1f, this.floorNoiseSeed)) * 3));
+    switch(variant) {
+      case 1 -> {
+        chunk.setBlock(new FloorDamagedBlock(chunk, ChunkUtils.worldToChunkRelative(x, y, z)));
+      }
+      case 2 -> {
+        chunk.setBlock(new FloorHoleBlock(chunk, ChunkUtils.worldToChunkRelative(x, y, z)));
+      }
+      default -> {
+        chunk.setBlock(new DefaultFloorBlock(chunk, ChunkUtils.worldToChunkRelative(x, y, z)));
+      }
+    }
   }
 
   private void makeWall(int x, int y, int z) {
