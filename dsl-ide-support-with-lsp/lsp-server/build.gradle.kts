@@ -23,7 +23,7 @@ checkstyle {
     // Default version vs. current version? The default version is quite old (9.3 from
     // Jan 30, 2022), so let's go with the current version (10.17).
     // However, this needs to be updated manually as Dependabot won't deal with this!
-    toolVersion = "10.17.0"
+    toolVersion = "10.19.0"
     isIgnoreFailures = false
     maxWarnings = 0
 }
