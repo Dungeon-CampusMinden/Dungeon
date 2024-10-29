@@ -135,6 +135,9 @@ public abstract class GameWindow implements Disposable {
     }
 
     glfwDefaultWindowHints();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_VISIBLE, this.visible ? GLFW_TRUE : GLFW_FALSE);
     glfwWindowHint(GLFW_RESIZABLE, this.resizable ? GLFW_TRUE : GLFW_FALSE);
     if (this.debug) {
@@ -259,6 +262,7 @@ public abstract class GameWindow implements Disposable {
 
   private void _initOpenGL() {
     GL.createCapabilities();
+    LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));
     if (!GLUtils.checkVersion(3, 3)) {
       throw new GLFWException("OpenGL 3.3 or higher is required!");
     }
@@ -273,8 +277,6 @@ public abstract class GameWindow implements Disposable {
     GL33.glEnable(GL33.GL_BLEND);
     GL33.glBlendFunc(GL33.GL_SRC_ALPHA, GL33.GL_ONE_MINUS_SRC_ALPHA);
     GL33.glEnable(GL33.GL_CULL_FACE);
-
-    LOGGER.info("OpenGL Version: {}", GL33.glGetString(GL33.GL_VERSION));
 
     if (GLUtils.checkVersion(4, 3) && this.debug) {
       LOGGER.info("OpenGL Version is greater than 4.3 -> Enabling Debugging");

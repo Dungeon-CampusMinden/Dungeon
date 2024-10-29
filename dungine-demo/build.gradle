@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id 'application'
 }
@@ -19,6 +21,11 @@ sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
 application.mainClass = "dungine.Main"
+
+OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
+if(os.isMacOsX()) {
+    applicationDefaultJvmArgs = ["-XstartOnFirstThread"] // Required for MacOS
+}
 
 jar {
     dependsOn ":dungine:jar"
