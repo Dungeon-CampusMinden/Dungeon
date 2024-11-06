@@ -38,10 +38,10 @@ public class TextureAtlas {
   /**
    * The maximum number of pages in the atlas. Each page is a separat texture.
    *
-   * <p>Set to 32 as OpenGL 3.3 must support at least 48 texture units, and we may need some for
-   * other textures. The first 10 (GL_TEXTURE0 - GL_TEXTURE9) texture units are left free.
+   * <p>Set to 10 as OpenGL 3.3 must support at least 16 active texture units, and we may need some for
+   * other textures. The first 6 (GL_TEXTURE0 - GL_TEXTURE5) texture units are left free.
    */
-  public static int MAX_PAGES = 32;
+  public static int MAX_PAGES = 10;
 
   /**
    * The maximum number of entries in the atlas
@@ -287,7 +287,7 @@ public class TextureAtlas {
       GLUtils.checkError();
     }
 
-    int firstUnit = 11;
+    int firstUnit = 6;
     for (int i = 0; i < this.pages.size(); i++) {
       this.pages.get(i).texture.bind(GL33.GL_TEXTURE0 + firstUnit + i);
       program.setUniform1i(uniformPagesSamplerName + "[" + i + "]", firstUnit + i);

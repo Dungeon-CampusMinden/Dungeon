@@ -1,4 +1,4 @@
-#define ATLAS_MAX_PAGES 32
+#define ATLAS_MAX_PAGES 10
 #define ATLAS_MAX_ENTRIES 65536
 
 uniform ivec2 uTextureAtlasSize;
