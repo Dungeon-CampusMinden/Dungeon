@@ -52,8 +52,8 @@ vec4 calcLightColor(Material material, Light light, vec3 normal, vec3 worldPos, 
   specFactor = pow(specFactor, SPECULAR_POWER);
   specColor = inSpecColor * light.intensity * specFactor * material.reflectivity * vec4(light.color, 1.0f);
 
-  vec4 output = (diffColor + specColor);
-  return output;
+  vec4 outColor = (diffColor + specColor);
+  return outColor;
 }
 
 vec4 calcAmbientLight(Light light, Material material, vec2 texCoord) {
