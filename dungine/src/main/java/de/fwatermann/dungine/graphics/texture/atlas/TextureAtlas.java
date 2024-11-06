@@ -38,8 +38,8 @@ public class TextureAtlas {
   /**
    * The maximum number of pages in the atlas. Each page is a separat texture.
    *
-   * <p>Set to 10 as OpenGL 3.3 must support at least 16 active texture units, and we may need some for
-   * other textures. The first 6 (GL_TEXTURE0 - GL_TEXTURE5) texture units are left free.
+   * <p>Set to 10 as OpenGL 3.3 must support at least 16 active texture units, and we may need some
+   * for other textures. The first 6 (GL_TEXTURE0 - GL_TEXTURE5) texture units are left free.
    */
   public static int MAX_PAGES = 10;
 
