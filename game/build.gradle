@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
 }
 
-
 dependencies {
     // LibGDX: expose this API to users because of core.level.elements.ILevel
     api supportDependencies.gdx
@@ -10,6 +9,10 @@ dependencies {
     api supportDependencies.gdx_backend_lwjgl3
     api supportDependencies.gdx_lwjgl3_glfw_awt_macos
     api supportDependencies.gdx_ai
+
+    // Jython for executing Python code
+    implementation 'org.python:jython-slim:2.7.3'
+    implementation 'org.scilab.forge:jlatexmath:1.0.7'
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit

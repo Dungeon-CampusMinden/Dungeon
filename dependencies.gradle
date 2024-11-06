@@ -9,23 +9,31 @@ ext {
     junitLauncherVersion = '1.11.3'
     mockitoVersion = '5.14.2'
     antlrVersion = '4.13.2'
+    jythonVersion = '2.7.4';
+    jlatexVersion = '1.0.7';
 
     supportDependencies = [
         // LibGDX
-        gdx                       : "com.badlogicgames.gdx:gdx:$gdxVersion",
-        gdx_platform              : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
-        gdx_backend_lwjgl3        : "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion",
-        gdx_lwjgl3_glfw_awt_macos : "com.badlogicgames.gdx:gdx-lwjgl3-glfw-awt-macos:$gdxVersion",
-        gdx_ai                    : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
-        gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
-        gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
+        gdx                      : "com.badlogicgames.gdx:gdx:$gdxVersion",
+        gdx_platform             : "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop",
+        gdx_backend_lwjgl3       : "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion",
+        gdx_lwjgl3_glfw_awt_macos: "com.badlogicgames.gdx:gdx-lwjgl3-glfw-awt-macos:$gdxVersion",
+        gdx_ai                   : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
+        gdx_freetype             : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
+        gdx_freetype_platform    : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
 
         // JUnit and Mockito for testing
-        junit                     : "org.junit.jupiter:junit-jupiter:$junitVersion",
-        junitLauncher             : "org.junit.platform:junit-platform-launcher:$junitLauncherVersion",
-        mockito_core              : "org.mockito:mockito-core:$mockitoVersion",
+        junit                    : "org.junit.jupiter:junit-jupiter:$junitVersion",
+        junitLauncher            : "org.junit.platform:junit-platform-launcher:$junitLauncherVersion",
+        mockito_core             : "org.mockito:mockito-core:$mockitoVersion",
 
         // ANTLR version 4 for DSL Grammar
-        antlr                     : "org.antlr:antlr4:$antlrVersion",
+        antlr                    : "org.antlr:antlr4:$antlrVersion",
+
+        // Jython for executing Python code
+        jython                   : "org.python:jython-slim:$jythonVersion",
+
+        // Jlatex
+        jlatexmath               : "org.scilab.forge:jlatexmath:$jlatexVersion",
     ]
 }

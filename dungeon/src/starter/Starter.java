@@ -15,9 +15,9 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import dsl.interpreter.DSLEntryPointFinder;
 import dsl.interpreter.DSLInterpreter;
-import entrypoint.DSLEntryPoint;
-import entrypoint.DSLFileLoader;
-import entrypoint.DungeonConfig;
+import newdsl.entrypoint.DSLEntryPoint;
+import newdsl.entrypoint.DSLFileLoader;
+import newdsl.entrypoint.DungeonConfig;
 import graph.TaskGraphConverter;
 import java.io.File;
 import java.io.IOException;
@@ -180,11 +180,11 @@ public class Starter {
           if (!realGameStarted && TaskSelector.selectedDSLEntryPoint != null) {
             realGameStarted = true;
 
-            DungeonConfig config =
-                dslInterpreter.interpretEntryPoint(TaskSelector.selectedDSLEntryPoint);
-            ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
+//            DungeonConfig config =
+//                dslInterpreter.interpretEntryPoint(TaskSelector.selectedDSLEntryPoint);
+//            ILevel level = TaskGraphConverter.convert(config.dependencyGraph(), dslInterpreter);
 
-            Game.currentLevel(level);
+            Game.currentLevel(null);
           }
         });
   }
@@ -223,8 +223,8 @@ public class Starter {
   private static Set<DSLEntryPoint> processCLIArguments(String[] args) throws ParseException {
     Set<DSLEntryPoint> entryPoints = new HashSet<>();
     DSLEntryPointFinder finder = new DSLEntryPointFinder();
-    DSLFileLoader.processArguments(args)
-        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll)); // WTF?
+//    DSLFileLoader.processArguments(args)
+//        .forEach(path -> finder.getEntryPoints(path).ifPresent(entryPoints::addAll)); // WTF?
 
     if (entryPoints.isEmpty()) throw new ParseException("No entry points found.", 0);
     else return entryPoints;

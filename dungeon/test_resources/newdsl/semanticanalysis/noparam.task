@@ -1,0 +1,5 @@
+task calc Task1:
+"Berechne <<a>> + <<b>>"
+<<x>> "1"
+<<y>> "2"
+solution: <<lambda a,b: a + b>>

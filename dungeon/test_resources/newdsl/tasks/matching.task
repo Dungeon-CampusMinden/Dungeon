@@ -1,0 +1,6 @@
+task matching Erdkunde:
+"Match the capitals"
+"Berlin" <-> "Germany"
+"Madrid" <-> "Spain"
+_ <-> "USA" as usa
+"Ottawa" <-> _
