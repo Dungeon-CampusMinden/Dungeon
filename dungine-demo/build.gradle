@@ -1,0 +1,37 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
+plugins {
+    id 'application'
+}
+
+
+dependencies {
+    implementation project(":dungine")
+
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testImplementation supportDependencies.mockito_core
+}
+
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+sourceSets.test.java.srcDirs = ['test/']
+sourceSets.test.resources.srcDirs = ['test_resources/']
+
+application.mainClass = "dungine.Main"
+
+OperatingSystem os = DefaultNativePlatform.currentOperatingSystem;
+if(os.isMacOsX()) {
+    applicationDefaultJvmArgs = ["-XstartOnFirstThread"] // Required for MacOS
+}
+
+jar {
+    dependsOn ":dungine:jar"
+    manifest.attributes.put("Main-Class", "dungine.Main")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
