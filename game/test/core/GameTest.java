@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.level.elements.ILevel;
+import core.level.utils.LevelElement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -70,6 +71,16 @@ public class GameTest {
   public void find_nonExisting() {
     DummyComponent dc = new DummyComponent();
     assertTrue(Game.find(dc).isEmpty());
+  }
+
+  /** Test for the new randomTile(LevelElement elementType) method in Game class. */
+  @Test
+  public void testRandomTileWithElementType() {
+    ILevel level = Mockito.mock(ILevel.class);
+    Game.currentLevel(level);
+    LevelElement elementType = LevelElement.FLOOR;
+    Game.randomTile(elementType);
+    Mockito.verify(level).randomTile(elementType);
   }
 
   private static class DummyComponent implements Component {}

@@ -403,6 +403,16 @@ public final class Game {
   }
 
   /**
+   * Get a random tile of the given type in the level.
+   *
+   * @param elementType The type of tile to retrieve.
+   * @return A random tile of the specified type in the level.
+   */
+  public static Optional<Tile> randomTile(LevelElement elementType) {
+    return currentLevel().randomTile(elementType);
+  }
+
+  /**
    * Get the neighbors of the given Tile.
    *
    * <p>Neighbors are the tiles directly above, below, left, and right of the given Tile.
