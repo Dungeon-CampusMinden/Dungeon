@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "typescript": "^5.7.2",
-    "vite": "^6.0.6"
+    "vite": "^6.0.7"
   },
   "dependencies": {
     "blockly": "^11.2.0"
