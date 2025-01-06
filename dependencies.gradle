@@ -7,7 +7,7 @@ ext {
     aiVersion = '1.8.2'
     junitVersion = '5.11.4'
     junitLauncherVersion = '1.11.4'
-    mockitoVersion = '5.14.2'
+    mockitoVersion = '5.15.2'
     antlrVersion = '4.13.2'
 
     supportDependencies = [
