@@ -139,7 +139,7 @@ licensed under [Apache 2.0].
   [`blockly`]: blockly
   [Google's Blockly]: https://github.com/google/blockly
   [6]: blockly/doc/
-  [7]: blockly/doc/img/examples/komplexes_beispiel.png
+  [7]: blockly/doc/img/examples/blockly_gif.gif
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
   [Stiftung für Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de
   ["Freiraum 2022"]: https://stiftung-hochschullehre.de/foerderung/freiraum2022/
