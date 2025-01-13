@@ -37,7 +37,13 @@ npm install
 
 ## Schritt 4: Starten der Applikation
 
-Starten Sie den Vite.js-Entwicklungsserver, um "Blocky" lokal auszuführen:
+Starten Sie das Blockly-Dungeon mit:
+
+```bash
+gradlew runBlockly
+```
+
+Starten Sie dann den Vite.js-Entwicklungsserver, um "Blocky" lokal auszuführen:
 
 ```bash
 npm run dev
