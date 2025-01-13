@@ -37,7 +37,7 @@ npm install
 
 ## Schritt 4: Starten der Applikation
 
-Starten Sie das Blockly-Dungeon mit:
+Starten Sie zuerst das Blockly-Dungeon mit:
 
 ```bash
 gradlew runBlockly
