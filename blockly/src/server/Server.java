@@ -1053,7 +1053,7 @@ public class Server {
       case "unten();" -> down();
       case "links();" -> left();
       case "rechts();" -> right();
-        // case "interagieren();" -> interact();
+      // case "interagieren();" -> interact();
       case "feuerballOben();" -> fireballUp();
       case "feuerballUnten();" -> fireballDown();
       case "feuerballLinks();" -> fireballLeft();

@@ -33,7 +33,8 @@ public class TestRuntimeObjectTranslator {
     entity.add(new HealthComponent());
     Game.add(entity);
 
-    String program = """
+    String program =
+        """
             dungeon_config my_quest_config {}
             """;
 
@@ -66,7 +67,8 @@ public class TestRuntimeObjectTranslator {
     entity.add(new HealthComponent());
     Game.add(entity);
 
-    String program = """
+    String program =
+        """
             dungeon_config my_quest_config {}
             """;
 
@@ -94,7 +96,8 @@ public class TestRuntimeObjectTranslator {
   /** WTF? . */
   @Test
   public void testIsolatedComponentTranslationPODAdapted() {
-    String program = """
+    String program =
+        """
             quest_config my_quest_config {}
             """;
 
@@ -128,7 +131,8 @@ public class TestRuntimeObjectTranslator {
   /** WTF? . */
   @Test
   public void testIsolatedComponentTranslationAggregateAdapted() {
-    String program = """
+    String program =
+        """
             quest_config my_quest_config {}
             """;
 

@@ -336,7 +336,8 @@ public class TestDungeonASTConverter {
   /** WTF? . */
   @Test
   public void funcDefMinimal() {
-    String program = """
+    String program =
+        """
             fn test_func() { }
             """;
 
