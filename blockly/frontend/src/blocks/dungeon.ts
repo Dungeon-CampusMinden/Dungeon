@@ -25,7 +25,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     args0: [
       {
         type: "field_number",
-        name: "REPEAT_NUMBER",
+        name: "amount",
         value: 1,
         min: 1,
         max: config.CHARACTER_MAX_MOVEMENT,
@@ -57,7 +57,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     args0: [
       {
         type: "field_number",
-        name: "REPEAT_NUMBER",
+        name: "amount",
         value: 1,
         min: 1,
         max: config.CHARACTER_MAX_MOVEMENT,
@@ -89,7 +89,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     args0: [
       {
         type: "field_number",
-        name: "REPEAT_NUMBER",
+        name: "amount",
         value: 1,
         min: 1,
         max: config.CHARACTER_MAX_MOVEMENT,
@@ -121,7 +121,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     args0: [
       {
         type: "field_number",
-        name: "REPEAT_NUMBER",
+        name: "amount",
         value: 1,
         min: 1,
         max: config.CHARACTER_MAX_MOVEMENT,
