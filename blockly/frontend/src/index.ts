@@ -7,9 +7,8 @@ import { toolbox } from "./toolbox.ts";
 import { Api } from "./api/api.ts";
 import { config } from "./config.ts";
 import "./style.css";
-import { Character } from "./character/character.ts";
 
-Blockly.setLocale(De);
+Blockly.setLocale(De as any);
 
 // Register the blocks and generator with Blockly
 Blockly.common.defineBlocks(blocks);
@@ -22,22 +21,29 @@ const workspace =
   Blockly.inject(blocklyDiv, {
     toolbox: toolbox,
     trashcan: true,
+    zoom: {
+      controls: true,
+      wheel: true,
+      startScale: 1.0,
+      maxScale: 3,
+      minScale: 0.3,
+      scaleSpeed: 1.2,
+    },
   });
 const api = new Api();
 const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
-const delay = document.getElementById("delay");
+const delay = document.getElementById("delay") as HTMLInputElement;
 const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
 const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
-const responseStatusDiv = document.getElementById("responseStatus");
-const characterPositionDiv = document.getElementById("characterPosition");
-const character = new Character();
 
 // Disable all blocks that aren't connected to the start block.
-if (workspace) {
+if (workspace !== null) {
   workspace.addChangeListener(Blockly.Events.disableOrphans);
   workspace.registerButtonCallback("createVariable", () => {
     Blockly.Variables.createVariableButtonHandler(workspace);
   });
+} else {
+  throw new Error("No workspace available");
 }
 
 
@@ -83,35 +89,30 @@ if (workspace) {
   });
 }
 
-function isNumber(str) {
-  if (typeof str != "string") return false // we only process strings!
-  // could also coerce to string: str = ""+str
-  return !isNaN(str) && !isNaN(parseFloat(str))
-}
-
 async function call_clear_route(){
   const clear_response = await api.post("clear");
   if (!clear_response.ok) {
-    console.log(clear_response.status);
+    console.error("Fehler beim Zurücksetzen der Werte", clear_response);
   }
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
-    var sleepingTime = delay.value;
-    if (sleepingTime === "") {
-      sleepingTime = "1";
+    let sleepingTimeStr = delay.value;
+    if (sleepingTimeStr === "") {
+      sleepingTimeStr = "1";
     }
-    if (!isNumber(sleepingTime)) {
+    const sleepingTime = Number(sleepingTimeStr);
+    if (isNaN(sleepingTime)) {
       alert("Die konfigurierte Verzögerung muss eine Zahl sein");
       return;
     }
+
     startBtn.disabled = true;
     stepBtn.disabled = true;
     workspace.highlightBlock(null);
-    var startBlock = getStartBlock();
-    var currentBlock = startBlock;
+    let currentBlock = getStartBlock(workspace);
     while (currentBlock !== null) {
       // Highlight current block
       if (currentBlock) {
@@ -124,9 +125,9 @@ if (startBtn) {
       }
 
       // Get code of the current block
-      var currentCode = javaGenerator.blockToCode(currentBlock, true);
+      const currentCode = javaGenerator.blockToCode(currentBlock, true);
 
-      const response = await api.post("start", currentCode);
+      const response = await api.post("start", currentCode as string);
 
       // Check if response was not ok
       if (!response.ok) {
@@ -156,10 +157,10 @@ if (startBtn) {
   });
 }
 
-function getStartBlock() {
-  var allBlocks = workspace.getAllBlocks();
-  for (var i = 0; i < allBlocks.length; i++) {
-      var block = allBlocks[i];
+function getStartBlock(workspace: Blockly.Workspace) {
+  const allBlocks = workspace.getAllBlocks();
+  for (let i = 0; i < allBlocks.length; i++) {
+      const block = allBlocks[i];
       if (block.type == "start") {
         return block;
       }
@@ -167,10 +168,10 @@ function getStartBlock() {
   return null;
 }
 
-var startBlock = getStartBlock();
-var currentBlock = startBlock;
+const startBlock = getStartBlock(workspace);
+let currentBlock = startBlock;
 
-if (stepBtn) {
+if (stepBtn !== null) {
   workspace.highlightBlock(null);
   stepBtn.addEventListener("click", async () => {
       if (currentBlock === null) {
@@ -194,9 +195,9 @@ if (stepBtn) {
       stepBtn.disabled = true;
       startBtn.disabled = true;
       // Get code of the current block
-      var currentCode = javaGenerator.blockToCode(currentBlock, true);
+      const currentCode = javaGenerator.blockToCode(currentBlock, true);
       // Send code to server
-      const response = await api.post("start", currentCode);
+      const response = await api.post("start", currentCode as string);
 
       // Check if response was not ok
       if (!response.ok) {
@@ -232,8 +233,7 @@ if (resetBtn) {
     workspace.highlightBlock(null);
     // Reset currentBlock for step button
     currentBlock = startBlock;
-    const response = await api.post("reset");
-
+    await api.post("reset");
   });
 }
 
@@ -249,4 +249,14 @@ if (config.HIDE_RESPONSE_INFO) {
   if (responseDiv) {
     responseDiv.style.visibility = "hidden";
   }
+}
+
+workspace.clear(); // clearing workspace
+workspace.scrollCenter(); // centering workspace
+
+if (workspace) { // placing default start block
+  const startBlock = workspace.newBlock("start");
+  startBlock.initSvg();
+  startBlock.render();
+  startBlock.setDeletable(false);
 }
