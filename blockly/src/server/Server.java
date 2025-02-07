@@ -129,8 +129,8 @@ public class Server {
    * Start the server and listen on the start, reset, clear interfaces. This server will be started
    * by the client.
    *
-   * @throws IOException
    * @return Returns the server object.
+   * @throws IOException Throws an IOException if the server could not be started.
    */
   public HttpServer start() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
