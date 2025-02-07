@@ -9,7 +9,7 @@ export function func_def(
   const funcName = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
 
   const funcBody = generator.prefixLines(
-      generator.blockToCode(block.getInputTargetBlock("DO")),
+      generator.blockToCode(block.getInputTargetBlock("DO")) as string,
       generator.INDENT
     );
 

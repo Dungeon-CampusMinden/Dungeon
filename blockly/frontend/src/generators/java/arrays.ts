@@ -46,7 +46,7 @@ export function array_get(
 
 export function array_length(
   block: Blockly.Block,
-  generator: Blockly.Generator
+  _generator: Blockly.Generator
 ) {
 
   const variable_id = block.getFieldValue("VAR");

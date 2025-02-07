@@ -9,7 +9,7 @@ import * as arrays from "./java/arrays.ts";
 import * as functions from "./java/functions.ts";
 
 class JavaGenerator extends Blockly.Generator {
-  public variables: Map<string, number>;
+  public variables: Map<string, any>;
 
   constructor() {
     super("JAVA");
@@ -17,13 +17,13 @@ class JavaGenerator extends Blockly.Generator {
     this.variables = new Map();
   }
 
-  protected scrub_(
+  public scrub_(
     block: Blockly.Block,
     code: string,
     thisOnly?: boolean | undefined
   ): string {
     const nextBlock =
-      block.nextConnection && block.nextConnection.targetBlock();
+      block.nextConnection?.targetBlock() || null;
 
     if (block.type === "start") {
       return code + javaGenerator.blockToCode(nextBlock);
