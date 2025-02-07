@@ -42,6 +42,32 @@ tasks.register('runBlockly', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('buildBlocklyJar', Jar) {
+    dependsOn ':game:jar', ':dungeon:jar', ':devDungeon:jar'
+    archiveBaseName = 'Blockly'
+    from sourceSets.main.output
+    from project(':game').sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': 'client.Client'
+    }
+
+    archiveFileName = 'Blockly.jar'
+
+    into('assets') {
+        from new File(project(':game').projectDir, '/assets')
+        from new File(project(':dungeon').projectDir, '/assets')
+        from new File(project(':devDungeon').projectDir, '/assets')
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}
+
 tasks.named('test', Test) {
     useJUnitPlatform()
 }
