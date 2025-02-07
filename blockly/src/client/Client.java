@@ -1,5 +1,6 @@
 package client;
 
+import com.sun.net.httpserver.HttpServer;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
@@ -190,10 +191,15 @@ public class Client {
 
   private static void startServer() {
     blocklyServer = new Server(Game.hero().orElseThrow(MissingHeroException::new));
+    HttpServer httpServer = null;
     try {
-      blocklyServer.start();
+      httpServer = blocklyServer.start();
     } catch (IOException e) {
       throw new RuntimeException();
+    } finally {
+      if (httpServer != null) {
+        httpServer.stop(0);
+      }
     }
   }
 }

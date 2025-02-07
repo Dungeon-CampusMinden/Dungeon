@@ -130,8 +130,9 @@ public class Server {
    * by the client.
    *
    * @throws IOException
+   * @return Returns the server object.
    */
-  public void start() throws IOException {
+  public HttpServer start() throws IOException {
     HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
     HttpContext startContext = server.createContext("/start");
     startContext.setHandler(Server::handleStartRequest);
@@ -140,6 +141,7 @@ public class Server {
     HttpContext clearContext = server.createContext("/clear");
     clearContext.setHandler(Server::handleClearRequest);
     server.start();
+    return server;
   }
 
   /**
