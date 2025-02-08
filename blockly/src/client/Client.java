@@ -14,7 +14,6 @@ import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.systems.LevelSystem;
-import core.utils.MissingHeroException;
 import core.utils.components.path.SimpleIPath;
 import entities.VariableHUD;
 import java.io.IOException;
@@ -74,7 +73,10 @@ public class Client {
           createSystems();
           createHero();
           Crafting.loadRecipes();
+
+          blocklyServer = Server.Instance();
           startServer();
+
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(Client::loadNextLevel);
@@ -85,7 +87,7 @@ public class Client {
           VariableHUD variableHUD = new VariableHUD(Game.stage());
           Game.add(variableHUD.createEntity());
 
-          Server.variableHUD = variableHUD;
+          blocklyServer.variableHUD = variableHUD;
         });
   }
 
@@ -114,7 +116,7 @@ public class Client {
    * the player finished all level generated a random level layout and call it sandbox mode.
    */
   public static void loadNextLevel() {
-    Server.interruptExecution = true;
+    blocklyServer.interruptExecution = true;
     currentLevel++;
     if (currentLevel >= levels.size()) {
       createRoomBasedLevel(10, 5, 1);
@@ -190,7 +192,6 @@ public class Client {
   }
 
   private static void startServer() {
-    blocklyServer = new Server(Game.hero().orElseThrow(MissingHeroException::new));
     HttpServer httpServer = null;
     try {
       httpServer = blocklyServer.start();

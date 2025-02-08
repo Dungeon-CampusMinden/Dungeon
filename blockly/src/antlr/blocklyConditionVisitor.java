@@ -14,6 +14,8 @@ import server.Variable;
 @SuppressWarnings("CheckReturnValue")
 public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
 
+  private final Server httpServer;
+
   /**
    * Calculate the boolean value of an integer compare operation. Returns the result of the
    * comparison.
@@ -33,6 +35,20 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       case "<" -> left < right;
       default -> throw new IllegalArgumentException("Unknown operator " + op);
     };
+  }
+
+  /** Create a new blocklyConditionVisitor. */
+  public blocklyConditionVisitor() {
+    this.httpServer = Server.Instance();
+  }
+
+  /**
+   * Create a new blocklyConditionVisitor with a server.
+   *
+   * @param httpServer Server to use
+   */
+  public blocklyConditionVisitor(Server httpServer) {
+    this.httpServer = httpServer;
   }
 
   /**
@@ -169,15 +185,14 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
    */
   @Override
   public INode visitFunc_call(blocklyParser.Func_callContext ctx) {
-    String id = ctx.id.getText();
-    // Get boolean value
+    String id = ctx.id.getText(); // Get boolean value
     boolean boolVal =
         switch (id) {
-          case "naheWand" -> Server.isNearWall();
-          case "WandOben" -> Server.isNearWallUp();
-          case "WandUnten" -> Server.isNearWallDown();
-          case "WandLinks" -> Server.isNearWallLeft();
-          case "WandRechts" -> Server.isNearWallRight();
+          case "naheWand" -> httpServer.isNearWall();
+          case "WandOben" -> httpServer.isNearWallUp();
+          case "WandUnten" -> httpServer.isNearWallDown();
+          case "WandLinks" -> httpServer.isNearWallLeft();
+          case "WandRechts" -> httpServer.isNearWallRight();
           default -> false;
         };
     BaseNode node = new BaseNode(Types.BOOLEAN);
@@ -237,7 +252,7 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
   @Override
   public INode visitVar(blocklyParser.VarContext ctx) {
     String id = ctx.getText();
-    Variable value = Server.variables.get(id);
+    Variable value = httpServer.variables.get(id);
     if (value == null) {
       throw new NoSuchElementException("Variable " + id + " could not be found");
     }

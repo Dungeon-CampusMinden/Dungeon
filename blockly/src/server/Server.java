@@ -14,6 +14,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.VariableHUD;
@@ -51,49 +52,58 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * Don't forget to add a test to the TestServer class for your new block.
  */
 public class Server {
-  private static Entity hero;
+
+  // Singleton
+
+  // We save one instance per port (key: port, value: server)
+  private static final Map<Integer, Server> instances = new HashMap<>();
+
+  /** Default port for the server. */
+  private static final int DEFAULT_PORT = 8080;
+
+  private final Entity hero;
 
   /**
    * This variable holds all active scopes in a stack. The value at the top of the stack is the
    * current scope. It can hold the following values: if, while, repeat, function.
    */
-  public static final Stack<String> active_scopes = new Stack<>();
+  public final Stack<String> active_scopes = new Stack<>();
 
   /**
    * Hashmap storing all variables. This is public, so we can easily access it in the
    * blocklyConditionVisitor
    */
-  public static final HashMap<String, Variable> variables = new HashMap<>();
+  public final HashMap<String, Variable> variables = new HashMap<>();
 
   /** Hashmap storing all functions. */
-  private static final HashMap<String, FuncStats> functions = new HashMap<>();
+  private final HashMap<String, FuncStats> functions = new HashMap<>();
 
   /** Stack containing all active scopes. */
-  public static final Stack<RepeatStats> active_repeats = new Stack<>();
+  public final Stack<RepeatStats> active_repeats = new Stack<>();
 
   /** Stack containing all active while loops. */
-  public static final Stack<WhileStats> active_whiles = new Stack<>();
+  public final Stack<WhileStats> active_whiles = new Stack<>();
 
   /** Stack containing all active ifs. */
-  public static final Stack<IfStats> active_ifs = new Stack<>();
+  public final Stack<IfStats> active_ifs = new Stack<>();
 
   /** Stack containing all active func defs. */
-  public static final Stack<FuncStats> active_func_defs = new Stack<>();
+  public final Stack<FuncStats> active_func_defs = new Stack<>();
 
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
    * blockly frontend. The execution of the current program will stop if this variable is true.
    */
-  public static boolean interruptExecution = false;
+  public boolean interruptExecution = false;
 
   /** This boolean will be set to true on error. */
-  public static boolean errorOccurred = false;
+  public boolean errorOccurred = false;
 
   /** This variable cotnains the error message if an error occured during the execution. */
-  public static String errorMsg = "";
+  public String errorMsg = "";
 
-  private static boolean clearHUD = false;
-  private static final String[] reservedFunctions = {
+  private boolean clearHUD = false;
+  private final String[] reservedFunctions = {
     "oben",
     "unten",
     "links",
@@ -108,21 +118,67 @@ public class Server {
     "WandUnten",
     "naheWand"
   };
-  private static final Stack<String> currently_repeating_scope = new Stack<>();
+  private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /**
    * Object containing the variable HUD in the dungeon. This object is used to add new variables to
    * the HUD. It will add int variables and arrays to the HUD and update existing varaible values.
    */
-  public static VariableHUD variableHUD = null;
+  public VariableHUD variableHUD = null;
 
   /**
    * Constructor of the server. Sets the hero.
    *
    * @param hero The hero entity. Used to control the movement of the hero.
    */
-  public Server(Entity hero) {
-    Server.hero = hero;
+  private Server(Entity hero) {
+    this.hero = hero;
+  }
+
+  /**
+   * Singleton pattern. Get the instance of the server. If the server does not exist, create a new
+   * server object. The servers run on the {@link #DEFAULT_PORT}.
+   *
+   * @return Returns the server object.
+   * @throws MissingHeroException Throws a MissingHeroException if the hero entity could not be
+   *     found.
+   * @see #Server(Entity)
+   * @see #instances
+   * @see Game#hero()
+   */
+  public static Server Instance() {
+    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    return Instance(hero);
+  }
+
+  /**
+   * Singleton pattern. Get the instance of the server. If the server does not exist, create a new
+   * server object. The servers run on the {@link #DEFAULT_PORT}.
+   *
+   * @param hero The hero entity. Used to control the movement of the hero.
+   * @return Returns the server object.
+   * @see #Server(Entity)
+   * @see #instances
+   */
+  public static Server Instance(Entity hero) {
+    return Instance(hero, DEFAULT_PORT);
+  }
+
+  /**
+   * Singleton pattern. Get the instance of the server. If the server does not exist, create a new
+   * server object. The servers run on the given port.
+   *
+   * @param hero The hero entity. Used to control the movement of the hero.
+   * @param port The port on which the server should run.
+   * @return Returns the server object.
+   * @see #Server(Entity)
+   * @see #instances
+   */
+  public static Server Instance(Entity hero, int port) {
+    if (!instances.containsKey(port)) {
+      instances.put(port, new Server(hero));
+    }
+    return instances.get(port);
   }
 
   /**
@@ -133,13 +189,13 @@ public class Server {
    * @throws IOException Throws an IOException if the server could not be started.
    */
   public HttpServer start() throws IOException {
-    HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 8080), 0);
+    HttpServer server = HttpServer.create(new InetSocketAddress("localhost", DEFAULT_PORT), 0);
     HttpContext startContext = server.createContext("/start");
-    startContext.setHandler(Server::handleStartRequest);
+    startContext.setHandler(this::handleStartRequest);
     HttpContext resetContext = server.createContext("/reset");
-    resetContext.setHandler(Server::handleResetRequest);
+    resetContext.setHandler(this::handleResetRequest);
     HttpContext clearContext = server.createContext("/clear");
-    clearContext.setHandler(Server::handleClearRequest);
+    clearContext.setHandler(this::handleClearRequest);
     server.start();
     return server;
   }
@@ -154,7 +210,7 @@ public class Server {
    * @param exchange
    * @throws IOException
    */
-  private static void handleStartRequest(HttpExchange exchange) throws IOException {
+  private void handleStartRequest(HttpExchange exchange) throws IOException {
     if (clearHUD) {
       clearHUDValues();
       clearHUD = false;
@@ -199,7 +255,7 @@ public class Server {
   }
 
   /** Clear the variable and array HUD in the dungeon. */
-  private static void clearHUDValues() {
+  private void clearHUDValues() {
     if (variableHUD == null) {
       return;
     }
@@ -215,7 +271,7 @@ public class Server {
    *     frontend
    * @throws IOException
    */
-  private static void handleResetRequest(HttpExchange exchange) throws IOException {
+  private void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
     interruptExecution = true;
 
@@ -240,7 +296,7 @@ public class Server {
    *     frontend
    * @throws IOException
    */
-  private static void handleClearRequest(HttpExchange exchange) throws IOException {
+  private void handleClearRequest(HttpExchange exchange) throws IOException {
     clearGlobalValues();
 
     PositionComponent pc = getHeroPosition();
@@ -258,7 +314,7 @@ public class Server {
    * all global variables to their default value. Also clear the variable and array HUD in the
    * dungeon.
    */
-  public static void clearGlobalValues() {
+  public void clearGlobalValues() {
     // Reset values
     active_scopes.clear();
     currently_repeating_scope.clear();
@@ -282,7 +338,7 @@ public class Server {
    *
    * @param errMsg Error message that will be sent to the blockly frontend.
    */
-  private static void setError(String errMsg) {
+  private void setError(String errMsg) {
     interruptExecution = true;
     errorOccurred = true;
     errorMsg = errMsg;
@@ -293,7 +349,7 @@ public class Server {
    * or repeat loops. It will process the actions of the loop until the condition of the loop is
    * false.
    */
-  private static void repeatHook() {
+  private void repeatHook() {
     if (!currently_repeating_scope.isEmpty()) {
       String currentLoop = currently_repeating_scope.peek();
       switch (currentLoop) {
@@ -341,7 +397,7 @@ public class Server {
    *
    * @param action
    */
-  public static void processAction(String action) {
+  public void processAction(String action) {
     System.out.print("Processing action: ");
     System.out.println(action);
     // Make sure we close the right scope
@@ -421,7 +477,7 @@ public class Server {
    *
    * @return Returns true if actions may be performed. Returns false if no action may be performed.
    */
-  private static boolean evalActionsExecute() {
+  private boolean evalActionsExecute() {
     return evalIfConditions() && evalWhileConditions() && active_func_defs.isEmpty();
   }
 
@@ -431,7 +487,7 @@ public class Server {
    * @return Returns true if all conditions are true or no if is currently active. Otherwise,
    *     returns false.
    */
-  private static boolean evalIfConditions() {
+  private boolean evalIfConditions() {
     if (active_ifs.isEmpty()) {
       return true;
     }
@@ -449,7 +505,7 @@ public class Server {
    * @return Returns true if all conditions are true or no while-loop is currently active.
    *     Otherwise, returns false.
    */
-  private static boolean evalWhileConditions() {
+  private boolean evalWhileConditions() {
     if (active_whiles.isEmpty()) {
       return true;
     }
@@ -462,7 +518,7 @@ public class Server {
   }
 
   /** Prints all current scopes, repeating scopes, variables and functions. */
-  private static void printScopes() {
+  private void printScopes() {
     System.out.print("Current scopes: ");
     System.out.println(active_scopes);
     System.out.print("Currently repeating scopes: ");
@@ -482,7 +538,7 @@ public class Server {
    * @return Returns the variable from the hashmap
    * @throws IllegalAccessException
    */
-  private static Variable getArrayVariable(String varName) throws IllegalAccessException {
+  private Variable getArrayVariable(String varName) throws IllegalAccessException {
     Variable array_var = variables.get(varName);
     // Throw exception if nothing found
     if (array_var == null) {
@@ -507,7 +563,7 @@ public class Server {
    * @param value Value of the expression
    * @return Returns the value as an integer
    */
-  public static int getActualValueFromExpression(String value) throws IllegalAccessException {
+  public int getActualValueFromExpression(String value) throws IllegalAccessException {
     // Process array access
     Pattern pattern = Pattern.compile("(\\w+)\\[(\\d+)]");
     Matcher matcher = pattern.matcher(value);
@@ -548,7 +604,7 @@ public class Server {
    * @param op Operator of the expression
    * @return Returns the result of the expression
    */
-  private static int executeExpression(int leftValue, int rightValue, String op) {
+  private int executeExpression(int leftValue, int rightValue, String op) {
     try {
       return switch (op) {
         case "+" -> leftValue + rightValue;
@@ -569,7 +625,7 @@ public class Server {
    *
    * @param action The current action that should be evaluated.
    */
-  private static void funcCallEvaluation(String action) {
+  private void funcCallEvaluation(String action) {
     Pattern pattern = Pattern.compile("(\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
@@ -597,7 +653,7 @@ public class Server {
    *
    * @param action
    */
-  private static void closeFunc(String action) {
+  private void closeFunc(String action) {
     if (action.equals("}") && active_scopes.peek().equals("function")) {
       FuncStats finishedFunc = active_func_defs.pop();
       active_scopes.pop();
@@ -610,7 +666,7 @@ public class Server {
    *
    * @param action Current action that will be added to the function body of all active func defs.
    */
-  private static void addActionToFunc(String action) {
+  private void addActionToFunc(String action) {
     if (!active_func_defs.isEmpty()) {
       for (FuncStats func : active_func_defs) {
         func.funcBody.add(action);
@@ -624,7 +680,7 @@ public class Server {
    *
    * @param action Current action that needs to be evaluated.
    */
-  private static void funcEvaluation(String action) {
+  private void funcEvaluation(String action) {
     Pattern pattern = Pattern.compile("public void (\\w+)\\(\\)");
     Matcher matcher = pattern.matcher(action);
     // If pattern matches we have a new func definition
@@ -641,7 +697,7 @@ public class Server {
    * @param name Name of the variable.
    * @param value Integer value of the variable.
    */
-  private static void addBaseVar(String name, int value) {
+  private void addBaseVar(String name, int value) {
     variables.put(name, new Variable(value));
     if (variableHUD != null) {
       variableHUD.addVariable(name, value);
@@ -654,7 +710,7 @@ public class Server {
    * @param name Name of the array variable.
    * @param value Integer array value of the array variable
    */
-  private static void updateArrayHUD(String name, int[] value) {
+  private void updateArrayHUD(String name, int[] value) {
     if (variableHUD != null) {
       variableHUD.addArrayVariable(name, value);
     }
@@ -666,7 +722,7 @@ public class Server {
    *
    * @param action Current action that needs to be evaluated.
    */
-  private static void variableEvaluation(String action) {
+  private void variableEvaluation(String action) {
     // Check array creation
     Pattern patternArray = Pattern.compile("int\\[] (\\w+) = new int\\[(\\d+)]");
     Matcher matcherArray = patternArray.matcher(action);
@@ -698,7 +754,7 @@ public class Server {
    * @return Returns true if the current action matched the regex for variable assignments. Returns
    *     false if the regex did not match.
    */
-  private static boolean checkAssign(String action) {
+  private boolean checkAssign(String action) {
     // Check expression with operator
     Pattern pattern =
         Pattern.compile(
@@ -753,7 +809,7 @@ public class Server {
    * @param action Current action.
    * @return Returns true if the pattern von array assign matched. Otherwise, returns false.
    */
-  private static boolean checkArrayAssign(String action) {
+  private boolean checkArrayAssign(String action) {
     Pattern pattern =
         Pattern.compile(
             "((\\w+)\\[(\\d+)]) = (\\w+(\\[\\d+])?(\\.length)?) (\\+|-|\\*|/) (\\w+(\\[\\d+])?(\\.length)?)");
@@ -817,7 +873,7 @@ public class Server {
    * @return Returns the result of the expression as an integer
    * @throws IllegalAccessException
    */
-  private static int executeOperatorExpression(String leftVal, String rightVal, String op)
+  private int executeOperatorExpression(String leftVal, String rightVal, String op)
       throws IllegalAccessException {
     // Get left and right value
     int leftValue = getActualValueFromExpression(leftVal);
@@ -836,7 +892,7 @@ public class Server {
    * @return Returns true if the current while loop is repeating. Returns false if the current while
    *     loop was closed.
    */
-  private static boolean closeWhile(String action) {
+  private boolean closeWhile(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
     // Check if loop must be ended
     if (action.equals("}") && active_scopes.peek().equals("while")) {
@@ -868,7 +924,7 @@ public class Server {
    *
    * @param action Current action
    */
-  private static void addActionToWhileBody(String action) {
+  private void addActionToWhileBody(String action) {
     if (!active_whiles.isEmpty()) {
       if (active_whiles.peek().isRepeating) {
         return;
@@ -887,7 +943,7 @@ public class Server {
    *
    * @param action Current action
    */
-  private static void whileEvaluation(String action) {
+  private void whileEvaluation(String action) {
     Pattern pattern = Pattern.compile("solange \\((.*)\\)");
 
     if (action.contains("solange")) {
@@ -907,7 +963,7 @@ public class Server {
    * @return Returns true if the current repeat loop is repeating. Returns false if the repeat loop
    *     was closed.
    */
-  private static boolean closeRepeat(String action) {
+  private boolean closeRepeat(String action) {
     // Check if repeat loop must end
     if (action.equals("}") && active_scopes.peek().equals("repeat")) {
       RepeatStats currentRepeat = active_repeats.peek();
@@ -939,7 +995,7 @@ public class Server {
    *
    * @param action Current action
    */
-  private static void addActionToRepeatBody(String action) {
+  private void addActionToRepeatBody(String action) {
     if (!active_repeats.isEmpty()) {
       if (active_repeats.peek().isRepeating) {
         return;
@@ -959,7 +1015,7 @@ public class Server {
    *
    * @param action Current action
    */
-  private static void repeatEvaluation(String action) {
+  private void repeatEvaluation(String action) {
     Pattern pattern = Pattern.compile("wiederhole (\\w+) Mal");
     Matcher matcher = pattern.matcher(action);
     if (matcher.find()) {
@@ -986,7 +1042,7 @@ public class Server {
    *
    * @param action Current action
    */
-  private static void ifEvaluation(String action) {
+  private void ifEvaluation(String action) {
     if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("if")) {
       active_ifs.pop();
       active_scopes.pop();
@@ -1015,7 +1071,7 @@ public class Server {
    * @param pattern Regex pattern that can be used to extract the condition from the action.
    * @return Returns the result of the condition or false on error.
    */
-  public static boolean evalComplexCondition(String action, Pattern pattern) {
+  public boolean evalComplexCondition(String action, Pattern pattern) {
     if (!active_func_defs.isEmpty()) {
       return false;
     }
@@ -1026,7 +1082,7 @@ public class Server {
       blocklyParser parser = new blocklyParser(tokens);
 
       ParseTree tree = parser.start();
-      blocklyConditionVisitor eval = new blocklyConditionVisitor();
+      blocklyConditionVisitor eval = new blocklyConditionVisitor(this);
       try {
         StartNode ast = (StartNode) eval.visit(tree);
         boolean result = ast.getBoolValue();
@@ -1049,7 +1105,7 @@ public class Server {
    *
    * @param action Current action
    */
-  private static void performAction(String action) {
+  private void performAction(String action) {
     switch (action) {
       case "oben();" -> up();
       case "unten();" -> down();
@@ -1064,7 +1120,7 @@ public class Server {
   }
 
   /** Move the hero up. */
-  private static void up() {
+  private void up() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
@@ -1074,7 +1130,7 @@ public class Server {
   }
 
   /** Move the hero down. */
-  private static void down() {
+  private void down() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
@@ -1084,7 +1140,7 @@ public class Server {
   }
 
   /** Move the hero to the left. */
-  private static void left() {
+  private void left() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
@@ -1094,7 +1150,7 @@ public class Server {
   }
 
   /** Move the hero to the right. */
-  private static void right() {
+  private void right() {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
@@ -1103,7 +1159,7 @@ public class Server {
     waitDelta();
   }
 
-  private static void waitDelta() {
+  private void waitDelta() {
     long timeout = (long) (Gdx.graphics.getDeltaTime() * 1000);
     try {
       TimeUnit.MILLISECONDS.sleep(timeout - 1);
@@ -1117,7 +1173,7 @@ public class Server {
    *
    * @return Returns true if the hero is near to a wall. Otherwise, returns false.
    */
-  public static boolean isNearWall() {
+  public boolean isNearWall() {
     boolean isNearWall;
 
     isNearWall = isNearWallUp() || isNearWallDown() || isNearWallLeft() || isNearWallRight();
@@ -1129,7 +1185,7 @@ public class Server {
    *
    * @return Returns true if a wall is above the hero. Otherwise, returns false.
    */
-  public static boolean isNearWallUp() {
+  public boolean isNearWallUp() {
     boolean isNearWallUp;
 
     PositionComponent pc = getHeroPosition();
@@ -1144,7 +1200,7 @@ public class Server {
    *
    * @return Returns true if a wall is below the hero. Otherwise, returns false.
    */
-  public static boolean isNearWallDown() {
+  public boolean isNearWallDown() {
     boolean isNearWallDown;
 
     PositionComponent pc = getHeroPosition();
@@ -1159,7 +1215,7 @@ public class Server {
    *
    * @return Returns true if a wall is to the left the hero. Otherwise, returns false.
    */
-  public static boolean isNearWallLeft() {
+  public boolean isNearWallLeft() {
     boolean isNearWallLeft;
 
     PositionComponent pc = getHeroPosition();
@@ -1174,7 +1230,7 @@ public class Server {
    *
    * @return Returns true if a wall is to the right the hero. Otherwise, returns false.
    */
-  public static boolean isNearWallRight() {
+  public boolean isNearWallRight() {
     boolean isNearWallRight;
 
     PositionComponent pc = getHeroPosition();
@@ -1190,13 +1246,13 @@ public class Server {
    * @return Returns a position component which contains the x and y coordinates of the hero in the
    *     dungeon.
    */
-  public static PositionComponent getHeroPosition() {
+  public PositionComponent getHeroPosition() {
     return hero.fetch(PositionComponent.class)
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
 
   /** Throw a fireball upwards. */
-  public static void fireballUp() {
+  public void fireballUp() {
     Skill fireball =
         new Skill(
             new FireballSkill(
@@ -1215,7 +1271,7 @@ public class Server {
   }
 
   /** Throw a fireball downwards. */
-  public static void fireballDown() {
+  public void fireballDown() {
     Skill fireball =
         new Skill(
             new FireballSkill(
@@ -1234,7 +1290,7 @@ public class Server {
   }
 
   /** Throw a fireball to the left. */
-  public static void fireballLeft() {
+  public void fireballLeft() {
     Skill fireball =
         new Skill(
             new FireballSkill(
@@ -1253,7 +1309,7 @@ public class Server {
   }
 
   /** Throw a fireball to the right. */
-  public static void fireballRight() {
+  public void fireballRight() {
     Skill fireball =
         new Skill(
             new FireballSkill(
@@ -1270,9 +1326,4 @@ public class Server {
     fireball.execute(hero);
     waitDelta();
   }
-
-  /*public static void interact() {
-      InteractionTool.interactWithClosestInteractable(hero);
-      waitDelta();
-  }*/
 }
