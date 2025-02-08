@@ -37,11 +37,6 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     };
   }
 
-  /** Create a new blocklyConditionVisitor. */
-  public blocklyConditionVisitor() {
-    this.httpServer = Server.Instance();
-  }
-
   /**
    * Create a new blocklyConditionVisitor with a server.
    *
