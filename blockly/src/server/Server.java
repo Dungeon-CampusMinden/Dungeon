@@ -1,6 +1,6 @@
 package server;
 
-import antlr.blocklyConditionVisitor;
+import antlr.BlocklyConditionVisitor;
 import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
 import com.badlogic.gdx.Gdx;
@@ -69,7 +69,7 @@ public class Server {
 
   /**
    * Hashmap storing all variables. This is public, so we can easily access it in the
-   * blocklyConditionVisitor
+   * BlocklyConditionVisitor
    */
   public final HashMap<String, Variable> variables = new HashMap<>();
 
@@ -1044,7 +1044,7 @@ public class Server {
   }
 
   /**
-   * Evaluate a given condition. This function will use the blocklyConditionVisitor to evaluate the
+   * Evaluate a given condition. This function will use the BlocklyConditionVisitor to evaluate the
    * given condition. The visitor will eventually throw a NoSuchElementException when a variable
    * could not be found. This function will set the error flag if an error occurred while parsing
    * the condition.
@@ -1064,7 +1064,7 @@ public class Server {
       blocklyParser parser = new blocklyParser(tokens);
 
       ParseTree tree = parser.start();
-      blocklyConditionVisitor eval = new blocklyConditionVisitor(this);
+      BlocklyConditionVisitor eval = new BlocklyConditionVisitor(this);
       try {
         StartNode ast = (StartNode) eval.visit(tree);
         boolean result = ast.getBoolValue();

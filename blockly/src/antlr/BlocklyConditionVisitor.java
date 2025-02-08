@@ -10,9 +10,11 @@ import nodes.INode;
 import server.Server;
 import server.Variable;
 
-/** */
-@SuppressWarnings("CheckReturnValue")
-public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
+/**
+ * This class defines the visitor for the condition part of the blockly language. It is used to
+ * evaluate the boolean value of a condition.
+ */
+public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
 
   private final Server httpServer;
 
@@ -38,11 +40,11 @@ public class blocklyConditionVisitor extends blocklyBaseVisitor<INode> {
   }
 
   /**
-   * Create a new blocklyConditionVisitor with a server.
+   * Create a new BlocklyConditionVisitor with a server.
    *
    * @param httpServer Server to use
    */
-  public blocklyConditionVisitor(Server httpServer) {
+  public BlocklyConditionVisitor(Server httpServer) {
     this.httpServer = httpServer;
   }
 
