@@ -55,8 +55,7 @@ public class Server {
 
   // Singleton
 
-  // We save one instance per port (key: port, value: server)
-  private static final Map<Integer, Server> instances = new HashMap<>();
+  private static Server instance;
 
   /** Default port for the server. */
   private static final int DEFAULT_PORT = 8080;
@@ -143,12 +142,11 @@ public class Server {
    * @throws MissingHeroException Throws a MissingHeroException if the hero entity could not be
    *     found.
    * @see #Server(Entity)
-   * @see #instances
    * @see Game#hero()
    */
-  public static Server Instance() {
+  public static Server instance() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    return Instance(hero);
+    return instance(hero);
   }
 
   /**
@@ -158,27 +156,12 @@ public class Server {
    * @param hero The hero entity. Used to control the movement of the hero.
    * @return Returns the server object.
    * @see #Server(Entity)
-   * @see #instances
    */
-  public static Server Instance(Entity hero) {
-    return Instance(hero, DEFAULT_PORT);
-  }
-
-  /**
-   * Singleton pattern. Get the instance of the server. If the server does not exist, create a new
-   * server object. The servers run on the given port.
-   *
-   * @param hero The hero entity. Used to control the movement of the hero.
-   * @param port The port on which the server should run.
-   * @return Returns the server object.
-   * @see #Server(Entity)
-   * @see #instances
-   */
-  public static Server Instance(Entity hero, int port) {
-    if (!instances.containsKey(port)) {
-      instances.put(port, new Server(hero));
+  public static Server instance(Entity hero) {
+    if (instance == null) {
+      instance = new Server(hero);
     }
-    return instances.get(port);
+    return instance;
   }
 
   /**

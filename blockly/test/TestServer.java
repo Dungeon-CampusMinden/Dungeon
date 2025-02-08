@@ -14,7 +14,7 @@ public class TestServer {
   /** Reset all global values before each test. */
   @BeforeEach
   public void setUp() throws IOException {
-    server = Server.Instance(HeroFactory.newHero());
+    server = Server.instance(HeroFactory.newHero());
     server.clearGlobalValues();
   }
 
