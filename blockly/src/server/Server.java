@@ -54,7 +54,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class Server {
 
   // Singleton
-
   private static Server instance;
 
   /** Default port for the server. */
