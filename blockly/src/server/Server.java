@@ -140,7 +140,7 @@ public class Server {
    *
    * @return Returns the server object.
    * @throws MissingHeroException Throws a MissingHeroException if the hero entity could not be
-   *     found.
+   *     found in the {@link Game} object.
    * @see #Server(Entity)
    * @see Game#hero()
    */
