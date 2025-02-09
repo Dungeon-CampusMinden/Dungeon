@@ -4,8 +4,8 @@ import { Order } from "../java.ts";
 export function repeat(block: Blockly.Block, generator: Blockly.Generator) {
   const times = generator.valueToCode(block, "TIMES", Order.NONE);
 
-  var repeat_body = generator.prefixLines(
-    generator.blockToCode(block.getInputTargetBlock("DO")),
+  const repeat_body = generator.prefixLines(
+    generator.blockToCode(block.getInputTargetBlock("DO")) as string,
     generator.INDENT
   );
 
@@ -17,7 +17,7 @@ export function while_loop(block: Blockly.Block, generator: Blockly.Generator) {
   const condition = generator.valueToCode(block, "CONDITION", Order.NONE);
 
   const while_body = generator.prefixLines(
-    generator.blockToCode(block.getInputTargetBlock("DO")),
+    generator.blockToCode(block.getInputTargetBlock("DO")) as string,
     generator.INDENT
   );
   const code = "solange (" + condition + ") {\n" + while_body + "\n}";

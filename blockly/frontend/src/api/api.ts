@@ -4,13 +4,18 @@ export class Api {
   public async post(endpoint: string, text: string = ""): Promise<Response> {
     const url = new URL(config.API_URL + endpoint);
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain",
-      },
-      body: text,
-    });
-    return response;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: text,
+      });
+      return response;
+    } catch (error) {
+      alert("Fehler beim Senden der Anfrage");
+      return new Response(null, { status: 500 });
+    }
   }
 }

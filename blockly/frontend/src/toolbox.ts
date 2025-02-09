@@ -3,17 +3,6 @@ export const toolbox = {
   contents: [
     {
       kind: "category",
-      name: "Start",
-      colour: "120",
-      contents: [
-        {
-          kind: "block",
-          type: "start",
-        },
-      ],
-    },
-    {
-      kind: "category",
       name: "Bewegung",
       colour: "290",
       contents: [

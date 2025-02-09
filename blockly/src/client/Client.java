@@ -1,5 +1,6 @@
 package client;
 
+import com.sun.net.httpserver.HttpServer;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
@@ -13,7 +14,6 @@ import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.systems.LevelSystem;
-import core.utils.MissingHeroException;
 import core.utils.components.path.SimpleIPath;
 import entities.VariableHUD;
 import java.io.IOException;
@@ -36,8 +36,6 @@ public class Client {
 
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
-
-  private static Server blocklyServer;
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -73,7 +71,9 @@ public class Client {
           createSystems();
           createHero();
           Crafting.loadRecipes();
+
           startServer();
+
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(Client::loadNextLevel);
@@ -84,7 +84,7 @@ public class Client {
           VariableHUD variableHUD = new VariableHUD(Game.stage());
           Game.add(variableHUD.createEntity());
 
-          Server.variableHUD = variableHUD;
+          Server.instance().variableHUD = variableHUD;
         });
   }
 
@@ -113,7 +113,7 @@ public class Client {
    * the player finished all level generated a random level layout and call it sandbox mode.
    */
   public static void loadNextLevel() {
-    Server.interruptExecution = true;
+    Server.instance().interruptExecution = true;
     currentLevel++;
     if (currentLevel >= levels.size()) {
       createRoomBasedLevel(10, 5, 1);
@@ -189,11 +189,15 @@ public class Client {
   }
 
   private static void startServer() {
-    blocklyServer = new Server(Game.hero().orElseThrow(MissingHeroException::new));
+    HttpServer httpServer = null;
     try {
-      blocklyServer.start();
+      httpServer = Server.instance().start();
     } catch (IOException e) {
       throw new RuntimeException();
+    } finally {
+      if (httpServer != null) {
+        httpServer.stop(0);
+      }
     }
   }
 }
