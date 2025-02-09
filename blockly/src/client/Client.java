@@ -10,6 +10,7 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.game.ECSManagment;
+import core.game.GameLoop;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
@@ -189,15 +190,15 @@ public class Client {
   }
 
   private static void startServer() {
-    HttpServer httpServer = null;
+    HttpServer httpServer;
     try {
       httpServer = Server.instance().start();
-    } catch (IOException e) {
-      throw new RuntimeException();
-    } finally {
-      if (httpServer != null) {
-        httpServer.stop(0);
+      if (httpServer == null) {
+        throw new RuntimeException("Server could not be started");
       }
+    } catch (IOException e) {
+      throw new RuntimeException("Server could not be started");
     }
+    GameLoop.setUserOnWindowDispose(() -> httpServer.stop(0));
   }
 }

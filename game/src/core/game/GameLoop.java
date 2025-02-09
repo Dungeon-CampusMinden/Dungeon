@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 public final class GameLoop extends ScreenAdapter {
   private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
   private static Stage stage;
+  private static IVoidFunction userOnWindowDispose = () -> {};
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
 
@@ -103,6 +104,12 @@ public final class GameLoop extends ScreenAdapter {
           @Override
           public void create() {
             setScreen(new GameLoop());
+          }
+
+          @Override
+          public void dispose() {
+            super.dispose();
+            userOnWindowDispose.execute();
           }
         },
         config);
@@ -253,5 +260,17 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new DrawSystem());
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new PlayerSystem());
+  }
+
+  /**
+   * Set the userOnWindowDispose function. The function will be called when the window is disposed.
+   *
+   * @param userOnWindowDispose The function to set, cannot be null.
+   */
+  public static void setUserOnWindowDispose(IVoidFunction userOnWindowDispose) {
+    if (userOnWindowDispose == null) {
+      throw new IllegalArgumentException("userOnWindowDispose cannot be null");
+    }
+    GameLoop.userOnWindowDispose = userOnWindowDispose;
   }
 }
