@@ -190,15 +190,14 @@ public class Client {
   }
 
   private static void startServer() {
-    HttpServer httpServer;
     try {
-      httpServer = Server.instance().start();
+      HttpServer httpServer = Server.instance().start();
       if (httpServer == null) {
         throw new RuntimeException("Server could not be started");
       }
+      PostRunManagement.addUserOnWindowDisposeFunction(() -> httpServer.stop(0));
     } catch (IOException e) {
       throw new RuntimeException("Server could not be started");
     }
-    PostRunManagement.addUserOnWindowDisposeFunction(() -> httpServer.stop(0));
   }
 }
