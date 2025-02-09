@@ -10,7 +10,7 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.game.ECSManagment;
-import core.game.GameLoop;
+import core.game.PostRunManagement;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
@@ -199,6 +199,6 @@ public class Client {
     } catch (IOException e) {
       throw new RuntimeException("Server could not be started");
     }
-    GameLoop.setUserOnWindowDispose(() -> httpServer.stop(0));
+    PostRunManagement.addUserOnWindowDisposeFunction(() -> httpServer.stop(0));
   }
 }
