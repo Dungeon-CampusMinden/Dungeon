@@ -36,6 +36,7 @@ public class Client {
 
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
+  private static HttpServer httpServer;
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -59,6 +60,8 @@ public class Client {
 
     // build and start game
     Game.run();
+
+    httpServer.stop(0);
   }
 
   private static void onFrame(Debugger debugger) {
@@ -189,15 +192,10 @@ public class Client {
   }
 
   private static void startServer() {
-    HttpServer httpServer = null;
     try {
       httpServer = Server.instance().start();
     } catch (IOException e) {
       throw new RuntimeException();
-    } finally {
-      if (httpServer != null) {
-        httpServer.stop(0);
-      }
     }
   }
 }
