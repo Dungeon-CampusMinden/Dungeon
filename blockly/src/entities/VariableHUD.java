@@ -3,6 +3,7 @@ package entities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -90,6 +91,18 @@ public class VariableHUD extends BlocklyHUD {
     this.stage.addActor(arrayLabels);
 
     loadMonsterTextures();
+  }
+
+  /**
+   * Deconstructs the variable HUD. This function will remove all tables and labels from the stage.
+   * This function will be called when the screen size has changed.
+   */
+  public void deconstruct() {
+    for (Actor actor : stage.getActors()) {
+      if (actor == varTable || actor == arrayTable || actor == varLabels || actor == arrayLabels) {
+        actor.remove();
+      }
+    }
   }
 
   /** Load all textures for the monsters. This will be called initially once. */

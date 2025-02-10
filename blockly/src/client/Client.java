@@ -37,6 +37,8 @@ public class Client {
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
   private static HttpServer httpServer;
+
+  private static VariableHUD variableHUD;
   private static Entity hud;
 
   /**
@@ -130,11 +132,16 @@ public class Client {
    * window is changed.
    */
   public static void recreateHud() {
+    if (variableHUD != null) {
+      variableHUD.deconstruct();
+    }
+    variableHUD = new VariableHUD(Game.stage());
+
     if (hud != null) {
       Game.remove(hud);
     }
-    VariableHUD variableHUD = new VariableHUD(Game.stage());
     hud = variableHUD.createEntity();
+
     Game.add(hud);
     Server.instance().variableHUD = variableHUD;
   }

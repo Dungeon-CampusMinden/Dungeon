@@ -98,6 +98,9 @@ public abstract class System {
   /** Implements the functionality of the system. */
   public abstract void execute();
 
+  /** Will be called when the window is resized. Must not be implemented if not needed. */
+  public void windowResize(int width, int height) {}
+
   /**
    * Triggers the action associated with adding an Entity to this System's corresponding {@link
    * EntitySystemMapper}. This method calls the {@code onEntityAdd} Consumer, executing the logic

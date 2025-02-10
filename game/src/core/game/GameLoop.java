@@ -235,6 +235,9 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void resize(int width, int height) {
     super.resize(width, height);
+    for (System system : ECSManagment.systems().values()) {
+      system.windowResize(width, height);
+    }
     stage()
         .ifPresent(
             x -> {

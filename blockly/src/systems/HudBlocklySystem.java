@@ -1,9 +1,6 @@
 package systems;
 
 import client.Client;
-import com.badlogic.gdx.Gdx;
-import components.BlocklyUIComponent;
-import core.Entity;
 import core.System;
 
 /**
@@ -12,36 +9,20 @@ import core.System;
  * will compare it to the current screen size.
  */
 public class HudBlocklySystem extends System {
-  private int lastWidth;
-  private int lastHeight;
-  private boolean firstTick = true;
+  /** True if the screen size is currently adjusting. */
+  private boolean isSizeAdjusting = false;
 
   @Override
   public void execute() {
-    if (firstTick) {
-      lastWidth = Gdx.graphics.getWidth();
-      lastHeight = Gdx.graphics.getHeight();
-      firstTick = false;
-      return;
+    if (isSizeAdjusting) {
+      Client.recreateHud();
+      isSizeAdjusting = false;
     }
-    int currentWidth = Gdx.graphics.getWidth();
-    int currentHeight = Gdx.graphics.getHeight();
-    if (currentWidth == lastWidth && currentHeight == lastHeight) {
-      return;
-    }
-    filteredEntityStream(BlocklyUIComponent.class).forEach(this::handleChangedScreenSize);
-    lastWidth = currentWidth;
-    lastHeight = currentHeight;
   }
 
-  /**
-   * Handler for changed screen size. Will call the updateActors function of the BlocklyUIComponent
-   * of the given entity.
-   *
-   * @param entity Entity that has a BlocklyUIComponent and needs to update the size of its actors
-   *     due to screen size change.
-   */
-  public void handleChangedScreenSize(Entity entity) {
+  @Override
+  public void windowResize(int width, int height) {
     Client.recreateHud();
+    isSizeAdjusting = true;
   }
 }
