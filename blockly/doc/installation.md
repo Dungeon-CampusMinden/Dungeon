@@ -9,7 +9,7 @@ title: "Blockly: How to install"
 Bevor mit der Installation begonnen werden kann, müssen folgende Voraussetzungen erfüllt sein:
 
 1. **Node.js und npm:** Blockly benötigt Node.js und npm, um die Applikation zu installieren und zu starten. Node.js und npm können von der [offiziellen Website](https://nodejs.org/en/) heruntergeladen werden. Die Installation von Node.js beinhaltet auch die Installation von npm.
-2. **Git:** Blockly benötigt Git, um das Repository zu klonen. Git kann von der [offiziellen Website](https://git-scm.com/downloads) heruntergeladen werden.
+2. **Git:** Blockly benötigt Git, um das Repository zu klonen. Git kann von der [offiziellen Website](https://git-scm.com/downloads) heruntergeladen werden. Alternativ kann auch das Repository als ZIP-Datei [heruntergeladen](https://github.com/Dungeon-CampusMinden/Dungeon/archive/refs/heads/master.zip) werden.
 
 ## Schritt 1: Repository klonen
 
@@ -60,3 +60,29 @@ npm run build
 ```
 
 Dieser Schritt kompiliert und optimiert die Anwendung für die Bereitstellung. Die resultierenden Dateien werden im `dist`-Verzeichnis gespeichert.
+
+## Nutzung mit Deno und Erstellen einer Executable
+
+Zusätzlich zur Verwendung von Node.js und npm, kann Deno genutzt werden, um eine ausführbare Datei zu erstellen. Damit sind folgende Schritte zu beachten:
+
+### Deno Installation
+
+- Installieren Sie Deno, wenn Sie eine ausführbare Datei für verschiedene Plattformen erstellen wollen. Weitere Informationen finden Sie unter [https://deno.land](https://deno.land).
+- Deno kann auch Pakete verwalten, z.B. mit `deno add` oder `deno install`. Dadurch entfällt in vielen Fällen die Nutzung von Node.js und npm.
+
+### Executable erstellen
+
+1. **Windows (x86_64):**
+```bash
+deno compile --target x86_64-pc-windows-msvc --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.exe --icon ./content/favicon.ico webserver.ts
+```
+> Bitte beachten Sie, dass in der aktuellen Deno-Version das Icon nicht korrekt übernommen wird und daher in der Exe nicht erscheint.
+
+2.**Linux (x86_64):**
+```bash
+deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.bin webserver.ts
+```
+
+Weitere unterstützte Zielplattformen finden Sie in der [Deno Dokumentation](https://docs.deno.com/runtime/reference/cli/compile/#supported-targets).
+
+Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.

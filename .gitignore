@@ -63,3 +63,7 @@ replay_pid*
 *.zip
 *.tgz
 *.tar.gz
+
+# Executable binaries
+*.exe
+*.bin
