@@ -1,7 +1,5 @@
 package entities;
 
-import static com.badlogic.gdx.scenes.scene2d.actions.Actions.removeActor;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -92,14 +90,6 @@ public class VariableHUD extends BlocklyHUD {
     this.stage.addActor(arrayLabels);
 
     loadMonsterTextures();
-  }
-
-  /** Remove all tables from the stage. This function will be called when the HUD is recreated. */
-  public void deconstruct() {
-    removeActor(arrayLabels);
-    removeActor(arrayTable);
-    removeActor(varLabels);
-    removeActor(varTable);
   }
 
   /** Load all textures for the monsters. This will be called initially once. */
