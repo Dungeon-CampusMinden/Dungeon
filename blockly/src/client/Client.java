@@ -37,6 +37,8 @@ public class Client {
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
   private static HttpServer httpServer;
+  private static VariableHUD variableHUD;
+  private static Entity hud;
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -84,10 +86,7 @@ public class Client {
           TileLevel firstLevel = initLevels();
           Game.currentLevel(firstLevel);
 
-          VariableHUD variableHUD = new VariableHUD(Game.stage());
-          Game.add(variableHUD.createEntity());
-
-          Server.instance().variableHUD = variableHUD;
+          recreateHud();
         });
   }
 
@@ -125,6 +124,18 @@ public class Client {
       return;
     }
     Game.currentLevel(levels.get(currentLevel));
+  }
+
+  /** Recreate the HUD. This function will be called when the screen size changed. */
+  public static void recreateHud() {
+    if (variableHUD != null) {
+      Game.remove(hud);
+      variableHUD.deconstruct();
+    }
+    variableHUD = new VariableHUD(Game.stage());
+    hud = variableHUD.createEntity();
+    Game.add(hud);
+    Server.instance().variableHUD = variableHUD;
   }
 
   private static void configGame() throws IOException {

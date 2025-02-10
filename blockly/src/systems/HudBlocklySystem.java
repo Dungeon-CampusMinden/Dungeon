@@ -1,5 +1,6 @@
 package systems;
 
+import client.Client;
 import com.badlogic.gdx.Gdx;
 import components.BlocklyUIComponent;
 import core.Entity;
@@ -41,6 +42,6 @@ public class HudBlocklySystem extends System {
    *     due to screen size change.
    */
   public void handleChangedScreenSize(Entity entity) {
-    entity.fetch(BlocklyUIComponent.class).ifPresent(BlocklyUIComponent::updateActors);
+    Client.recreateHud();
   }
 }

@@ -9,9 +9,6 @@ import core.Entity;
  * abstract class.
  */
 public abstract class BlocklyHUD {
-  /** Update all actors depending on the screen size. */
-  public abstract void updateActors();
-
   /**
    * Create a new entity with a BlocklyUIComponent holding the hud object with a class inheriting
    * from this abstract class.
