@@ -126,7 +126,10 @@ public class Client {
     Game.currentLevel(levels.get(currentLevel));
   }
 
-  /** Recreate the HUD. This function will be called when the screen size changed. */
+  /**
+   * Recreates the HUD. This function is called up when a new HUD is created or when the size of the
+   * window is changed.
+   */
   public static void recreateHud() {
     if (variableHUD != null) {
       Game.remove(hud);
