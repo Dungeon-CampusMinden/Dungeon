@@ -1,8 +1,8 @@
 package systems;
 
-import com.badlogic.gdx.Gdx;
 import components.BlocklyUIComponent;
 import core.Entity;
+import core.Game;
 import core.System;
 
 /**
@@ -18,13 +18,13 @@ public class HudBlocklySystem extends System {
   @Override
   public void execute() {
     if (firstTick) {
-      lastWidth = Gdx.graphics.getWidth();
-      lastHeight = Gdx.graphics.getHeight();
+      lastWidth = Game.windowWidth();
+      lastHeight = Game.windowHeight();
       firstTick = false;
       return;
     }
-    int currentWidth = Gdx.graphics.getWidth();
-    int currentHeight = Gdx.graphics.getHeight();
+    int currentWidth = Game.windowWidth();
+    int currentHeight = Game.windowHeight();
     if (currentWidth == lastWidth && currentHeight == lastHeight) {
       return;
     }
