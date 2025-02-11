@@ -28,6 +28,9 @@ public class HudBlocklySystem extends System {
     if (currentWidth == lastWidth && currentHeight == lastHeight) {
       return;
     }
+    if (currentWidth == 0 || currentHeight == 0) {
+      return;
+    }
     filteredEntityStream(BlocklyUIComponent.class).forEach(this::handleChangedScreenSize);
     lastWidth = currentWidth;
     lastHeight = currentHeight;
