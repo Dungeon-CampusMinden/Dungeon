@@ -3,7 +3,6 @@ package entities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -98,10 +97,20 @@ public class VariableHUD extends BlocklyHUD {
    * This function will be called when the window size has changed.
    */
   public void deconstruct() {
-    for (Actor actor : stage.getActors()) {
-      if (actor == varTable || actor == arrayTable || actor == varLabels || actor == arrayLabels) {
-        actor.remove();
-      }
+    if (varTable != null) {
+      varTable.remove();
+    }
+    if (varLabels != null) {
+      varLabels.remove();
+    }
+    if (arrayTable != null) {
+      arrayTable.remove();
+    }
+    if (arrayLabels != null) {
+      arrayLabels.remove();
+    }
+    if (monsterTable != null) {
+      monsterTable.remove();
     }
   }
 
