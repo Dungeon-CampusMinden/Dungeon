@@ -279,6 +279,15 @@ public class VariableHUD extends BlocklyHUD {
       updateVariableCell(tableCells, counter, var);
       counter++;
     }
+
+    updateMonsterTable();
+  }
+
+  private void updateMonsterTable() {
+    this.stage.getActors().removeValue(monsterTable, true);
+    monsterTable.remove();
+    monsterTable = createMonsterTable();
+    this.stage.addActor(monsterTable);
   }
 
   /**
