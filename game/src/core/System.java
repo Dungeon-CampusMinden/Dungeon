@@ -98,7 +98,12 @@ public abstract class System {
   /** Implements the functionality of the system. */
   public abstract void execute();
 
-  /** Will be called when the window is resized. Must not be implemented if not needed. */
+  /**
+   * Will be called when the window is resized. Must not be implemented if not needed.
+   *
+   * @param width the new window width in actually pixels
+   * @param height the new window height in actually pixels
+   */
   public void windowResize(int width, int height) {}
 
   /**

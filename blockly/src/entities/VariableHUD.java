@@ -95,7 +95,7 @@ public class VariableHUD extends BlocklyHUD {
 
   /**
    * Deconstructs the variable HUD. This function will remove all tables and labels from the stage.
-   * This function will be called when the screen size has changed.
+   * This function will be called when the window size has changed.
    */
   public void deconstruct() {
     for (Actor actor : stage.getActors()) {
