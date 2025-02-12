@@ -16,6 +16,7 @@ import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.VMStatsLogging;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
@@ -638,6 +639,12 @@ public final class Game {
    */
   public static void levelSize(final LevelSize levelSize) {
     LevelSystem.levelSize(levelSize);
+  }
+
+  public static Optional<System> enableVMStatsLogging() {
+    System newSystem = new VMStatsLogging();
+    Optional<System> oldSystem = Game.add(newSystem);
+    return oldSystem.isPresent() ? oldSystem : Optional.of(newSystem);
   }
 
   /** Exits the GDX application. */

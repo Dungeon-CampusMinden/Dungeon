@@ -58,6 +58,9 @@ public class Client {
 
     onFrame(debugger);
 
+    // enable VM stats logging for debugging
+    Game.enableVMStatsLogging();
+
     // build and start game
     Game.run();
 
