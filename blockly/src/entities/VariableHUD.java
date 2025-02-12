@@ -89,6 +89,9 @@ public class VariableHUD extends BlocklyHUD {
     updateArrayLabelCells(false);
     this.stage.addActor(arrayLabels);
 
+    this.monsterTable = createMonsterTable();
+    this.stage.addActor(monsterTable);
+
     loadMonsterTextures();
   }
 
@@ -276,11 +279,13 @@ public class VariableHUD extends BlocklyHUD {
       updateVariableCell(tableCells, counter, var);
       counter++;
     }
-    Table tmpMonsterTable = createMonsterTable();
-    if (this.monsterTable != null) {
-      monsterTable.remove();
-    }
-    this.monsterTable = tmpMonsterTable;
+
+    updateMonsterTable();
+  }
+
+  private void updateMonsterTable() {
+    monsterTable.remove();
+    monsterTable = createMonsterTable();
     this.stage.addActor(monsterTable);
   }
 
@@ -295,9 +300,7 @@ public class VariableHUD extends BlocklyHUD {
       Label label = (Label) cell.getActor();
       label.setText("");
     }
-    if (this.monsterTable != null) {
-      monsterTable.remove();
-    }
+    monsterTable.remove();
   }
 
   /**
