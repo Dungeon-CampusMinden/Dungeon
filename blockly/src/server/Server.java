@@ -1233,45 +1233,82 @@ public class Server {
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
 
-  private void shootFireBall(final Point direction) {
+  private void shootFireBall(final Direction direction) {
     Skill fireball =
         new Skill(
-            new FireballSkill(
-                () -> {
-                  Point heroPoint = EntityUtils.getHeroPosition();
-                  if (direction.x < 0) {
-                    heroPoint.x = Integer.MIN_VALUE;
-                  } else if (direction.y < 0) {
-                    heroPoint.y = Integer.MIN_VALUE;
-                  } else if (direction.x > 0) {
-                    heroPoint.x = Integer.MAX_VALUE;
-                  } else if (direction.y > 0) {
-                    heroPoint.y = Integer.MAX_VALUE;
-                  }
-                  return heroPoint;
-                }),
-            1);
+            new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
     fireball.execute(hero);
     waitDelta();
   }
 
   /** Throw a fireball upwards. */
   public void fireballUp() {
-    shootFireBall(new Point(0, 1));
+    shootFireBall(Direction.UP);
   }
 
   /** Throw a fireball downwards. */
   public void fireballDown() {
-    shootFireBall(new Point(0, -1));
+    shootFireBall(Direction.DOWN);
   }
 
   /** Throw a fireball to the left. */
   public void fireballLeft() {
-    shootFireBall(new Point(-1, 0));
+    shootFireBall(Direction.LEFT);
   }
 
   /** Throw a fireball to the right. */
   public void fireballRight() {
-    shootFireBall(new Point(1, 0));
+    shootFireBall(Direction.RIGHT);
+  }
+
+  private enum Direction {
+    UP(0, 1),
+    DOWN(0, -1),
+    LEFT(-1, 0),
+    RIGHT(1, 0);
+
+    private final int x;
+    private final int y;
+
+    Direction(int x, int y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    /**
+     * Get the x coordinate of the direction.
+     *
+     * @return The x coordinate.
+     */
+    public int x() {
+      return x;
+    }
+
+    /**
+     * Get the y coordinate of the direction.
+     *
+     * @return The y coordinate.
+     */
+    public int y() {
+      return y;
+    }
+
+    /**
+     * Apply the direction to a point.
+     *
+     * <p>When the x coordinate of the direction is not 0, the x coordinate of the point will be
+     * moved by the maximum integer value. When the y coordinate of the direction is not 0, the y
+     * coordinate of the point will be moved by the maximum integer value.
+     *
+     * @param point Point that should be moved in the direction.
+     * @return The new point after applying the direction.
+     * @see Integer#MAX_VALUE
+     * @see #shootFireBall(Direction)
+     */
+    public Point applyDirection(Point point) {
+      float newX = this.x == 0 ? point.x : this.x * Integer.MAX_VALUE;
+      float newY = this.y == 0 ? point.y : this.y * Integer.MAX_VALUE;
+      return new Point(newX, newY);
+    }
   }
 }
