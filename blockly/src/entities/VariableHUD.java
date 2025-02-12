@@ -284,7 +284,6 @@ public class VariableHUD extends BlocklyHUD {
   }
 
   private void updateMonsterTable() {
-    this.stage.getActors().removeValue(monsterTable, true);
     monsterTable.remove();
     monsterTable = createMonsterTable();
     this.stage.addActor(monsterTable);
