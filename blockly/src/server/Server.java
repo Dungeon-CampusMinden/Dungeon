@@ -25,13 +25,13 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import utils.EntityUtils;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
@@ -1233,79 +1233,45 @@ public class Server {
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
 
-  /** Throw a fireball upwards. */
-  public void fireballUp() {
+  private void shootFireBall(final Point direction) {
     Skill fireball =
         new Skill(
             new FireballSkill(
-                new Supplier<Point>() {
-                  @Override
-                  public Point get() {
-                    Point heroPoint =
-                        new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                    heroPoint.y += 1;
-                    return heroPoint;
+                () -> {
+                  Point heroPoint = EntityUtils.getHeroPosition();
+                  if (direction.x < 0) {
+                    heroPoint.x = Integer.MIN_VALUE;
+                  } else if (direction.y < 0) {
+                    heroPoint.y = Integer.MIN_VALUE;
+                  } else if (direction.x > 0) {
+                    heroPoint.x = Integer.MAX_VALUE;
+                  } else if (direction.y > 0) {
+                    heroPoint.y = Integer.MAX_VALUE;
                   }
+                  return heroPoint;
                 }),
             1);
     fireball.execute(hero);
     waitDelta();
+  }
+
+  /** Throw a fireball upwards. */
+  public void fireballUp() {
+    shootFireBall(new Point(0, 1));
   }
 
   /** Throw a fireball downwards. */
   public void fireballDown() {
-    Skill fireball =
-        new Skill(
-            new FireballSkill(
-                new Supplier<Point>() {
-                  @Override
-                  public Point get() {
-                    Point heroPoint =
-                        new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                    heroPoint.y -= 1;
-                    return heroPoint;
-                  }
-                }),
-            1);
-    fireball.execute(hero);
-    waitDelta();
+    shootFireBall(new Point(0, -1));
   }
 
   /** Throw a fireball to the left. */
   public void fireballLeft() {
-    Skill fireball =
-        new Skill(
-            new FireballSkill(
-                new Supplier<Point>() {
-                  @Override
-                  public Point get() {
-                    Point heroPoint =
-                        new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                    heroPoint.x -= 1;
-                    return heroPoint;
-                  }
-                }),
-            1);
-    fireball.execute(hero);
-    waitDelta();
+    shootFireBall(new Point(-1, 0));
   }
 
   /** Throw a fireball to the right. */
   public void fireballRight() {
-    Skill fireball =
-        new Skill(
-            new FireballSkill(
-                new Supplier<Point>() {
-                  @Override
-                  public Point get() {
-                    Point heroPoint =
-                        new Point(getHeroPosition().position().x, getHeroPosition().position().y);
-                    heroPoint.x += 1;
-                    return heroPoint;
-                  }
-                }),
-            1);
-    fireball.execute(hero);
-    waitDelta();
+    shootFireBall(new Point(1, 0));
   }
 }
