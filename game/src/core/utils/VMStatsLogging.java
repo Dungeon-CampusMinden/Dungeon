@@ -81,9 +81,11 @@ public final class VMStatsLogging extends System {
 
   private void checkPossibleMemoryLeaks(long usedMemory) {
     if (usedMemory < maxUsedMemory) {
+      boolean localMinimumCountIncreased = false;
       if (localMinimumMemory != 0 && usedMemory > localMinimumMemory) {
         if (localMinimumCount < localMinimumCountThreshold) {
           localMinimumCount++;
+          localMinimumCountIncreased = true;
         } else {
           logger.warning(
               String.format(
@@ -91,8 +93,10 @@ public final class VMStatsLogging extends System {
                   "Possible memory leak discovered: %.2f MB (was %.2f MB)",
                   usedMemory / 1024.0 / 1024.0,
                   localMinimumMemory / 1024.0 / 1024.0));
-          localMinimumCount = 0;
         }
+      }
+      if (!localMinimumCountIncreased) {
+        localMinimumCount = 0;
       }
       localMinimumMemory = Math.max(localMinimumMemory, usedMemory);
     }
