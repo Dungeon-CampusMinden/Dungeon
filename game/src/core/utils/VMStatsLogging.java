@@ -53,7 +53,7 @@ public final class VMStatsLogging extends System {
 
     setGranularityInMilliseconds(1000);
 
-    logInfo("Index,Frame,TotalMemory,FreeMemory,UsedMemory,MaxUsedMemory," + "LocalMinimumMemory");
+    logInfo("Index,Frame,TotalMemory,FreeMemory,UsedMemory,MaxUsedMemory,LocalMinimumMemory");
   }
 
   @Override
