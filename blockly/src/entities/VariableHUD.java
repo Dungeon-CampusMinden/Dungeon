@@ -19,7 +19,6 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import entities.utility.HUDVariable;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.Random;
 import java.util.TreeSet;
 
@@ -29,8 +28,7 @@ import java.util.TreeSet;
  * were created in blockly.
  */
 public class VariableHUD extends BlocklyHUD {
-
-  private Stage stage;
+  private Table hudContainer;
   // General numbers used for table creation and scaling
   private final int xTiles = 28;
   private int yTiles = 16;
@@ -65,32 +63,35 @@ public class VariableHUD extends BlocklyHUD {
    * Initialize the variable and array HUD. It will add 4 tables to the stage. The variable tiles
    * table, the variable labels table, the array tiles table and the array labels table.
    *
-   * @param stage The variable HUD will be added to the given stage if it is not empty.
+   * @param stage The variable HUD will be added to the given stage.
    */
-  public VariableHUD(Optional<Stage> stage) {
-    if (stage.isEmpty()) {
-      return;
-    }
-    this.stage = stage.get();
+  public VariableHUD(Stage stage) {
+    this.hudContainer = new Table();
+    this.hudContainer.setFillParent(true);
+    stage.addActor(hudContainer);
+
+    // Initial size
+    this.hudContainer.setHeight(stage.getHeight());
+    this.hudContainer.setWidth(stage.getWidth());
 
     this.textureWall = createTexture(LevelElement.WALL, DesignLabel.FOREST);
     this.textureFloor = createTexture(LevelElement.FLOOR, DesignLabel.FOREST);
 
     this.varTable = createVariableTable(textureWall, textureFloor);
-    this.stage.addActor(varTable);
+    this.hudContainer.addActor(varTable);
 
     this.varLabels = createVariableLabels();
-    this.stage.addActor(varLabels);
+    this.hudContainer.addActor(varLabels);
 
     this.arrayTable = createArrayTable(textureWall, textureFloor);
-    this.stage.addActor(arrayTable);
+    this.hudContainer.addActor(arrayTable);
 
     this.arrayLabels = createArrayLabels();
     updateArrayLabelCells(false);
-    this.stage.addActor(arrayLabels);
+    this.hudContainer.addActor(arrayLabels);
 
     this.monsterTable = createMonsterTable();
-    this.stage.addActor(monsterTable);
+    this.hudContainer.addActor(monsterTable);
 
     loadMonsterTextures();
   }
@@ -121,7 +122,7 @@ public class VariableHUD extends BlocklyHUD {
    * @return Returns the widht for one tile.
    */
   private float getWidth() {
-    return this.stage.getWidth() / xTiles;
+    return this.hudContainer.getWidth() / xTiles;
   }
 
   /**
@@ -130,8 +131,8 @@ public class VariableHUD extends BlocklyHUD {
    * @return Returns the height for one tile.
    */
   private float getHeight() {
-    yTiles = (int) (this.stage.getHeight() / getWidth());
-    return this.stage.getHeight() / (float) yTiles;
+    yTiles = (int) (this.hudContainer.getHeight() / getWidth());
+    return this.hudContainer.getHeight() / (float) yTiles;
   }
 
   /**
@@ -286,7 +287,7 @@ public class VariableHUD extends BlocklyHUD {
   private void updateMonsterTable() {
     monsterTable.remove();
     monsterTable = createMonsterTable();
-    this.stage.addActor(monsterTable);
+    this.hudContainer.addActor(monsterTable);
   }
 
   /**
@@ -671,9 +672,9 @@ public class VariableHUD extends BlocklyHUD {
       // Create new table first
       Table newTable = createArrayTable(this.textureWall, this.textureFloor);
       // Remove old table
-      this.stage.getActors().removeValue(arrayTable, true);
+      this.hudContainer.getChildren().removeValue(arrayTable, true);
       // Set new table
-      this.stage.addActor(newTable);
+      this.hudContainer.addActor(newTable);
       arrayTable = newTable;
       return;
     }
@@ -700,9 +701,9 @@ public class VariableHUD extends BlocklyHUD {
       // Create new table first
       Table newTable = createArrayLabels();
       // Remove old table
-      this.stage.getActors().removeValue(arrayLabels, true);
+      this.hudContainer.getChildren().removeValue(arrayLabels, true);
       // Set new table
-      this.stage.addActor(newTable);
+      this.hudContainer.addActor(newTable);
       arrayLabels = newTable;
       updateArrayLabelCells(false);
       return;
@@ -729,6 +730,25 @@ public class VariableHUD extends BlocklyHUD {
         label.setFontScale(varNameScaling * scaling);
       }
     }
+  }
+
+  /**
+   * Set the visibility of the variable HUD. If the visibility is set to false, the HUD will not be
+   * displayed.
+   *
+   * @param visible True if the HUD should be visible, false otherwise.
+   */
+  public void visible(boolean visible) {
+    hudContainer.setVisible(visible);
+  }
+
+  /**
+   * Check if the variable HUD is currently visible.
+   *
+   * @return Returns true if the HUD is visible, false otherwise.
+   */
+  public boolean visible() {
+    return hudContainer.isVisible();
   }
 
   /**
