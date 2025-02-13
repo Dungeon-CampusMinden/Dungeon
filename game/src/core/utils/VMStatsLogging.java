@@ -1,11 +1,14 @@
 package core.utils;
 
+import static java.util.logging.Level.WARNING;
+
 import core.System;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Locale;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
 public final class VMStatsLogging extends System {
@@ -14,8 +17,12 @@ public final class VMStatsLogging extends System {
   private int granularity = 30;
   private long frameCount = 0;
   private long maxUsedMemory = 0;
+  private long localMinimumMemory = 0;
 
   public VMStatsLogging() {
+    logger.addHandler(new ConsoleHandler());
+    logger.setLevel(WARNING);
+
     try {
       fileLogger =
           new PrintWriter(
@@ -36,6 +43,20 @@ public final class VMStatsLogging extends System {
       long totalMemory = Runtime.getRuntime().totalMemory();
       long freeMemory = Runtime.getRuntime().freeMemory();
       long usedMemory = totalMemory - freeMemory;
+
+      // Check for possible memory leaks
+      if (usedMemory < maxUsedMemory) {
+        if (localMinimumMemory != 0 && usedMemory > localMinimumMemory) {
+          logger.warning(
+              String.format(
+                  Locale.ENGLISH,
+                  "Possible memory leak discovered: %.2f MB (was %.2f MB)",
+                  usedMemory / 1024.0 / 1024.0,
+                  localMinimumMemory / 1024.0 / 1024.0));
+        }
+        localMinimumMemory = Math.max(localMinimumMemory, usedMemory);
+      }
+
       maxUsedMemory = Math.max(maxUsedMemory, usedMemory);
       log(
           String.format(
