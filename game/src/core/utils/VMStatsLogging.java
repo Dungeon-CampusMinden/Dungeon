@@ -14,10 +14,12 @@ import java.util.logging.Logger;
 public final class VMStatsLogging extends System {
   private final Logger logger = Logger.getLogger(VMStatsLogging.class.getName());
   private final PrintWriter fileLogger;
+  private final int localMinimumCountThreshold = 3;
   private int granularity = 30;
   private long frameCount = 0;
   private long maxUsedMemory = 0;
   private long localMinimumMemory = 0;
+  private int localMinimumCount = 0;
 
   public VMStatsLogging() {
     logger.addHandler(new ConsoleHandler());
@@ -30,10 +32,11 @@ public final class VMStatsLogging extends System {
                   String.format("vmstats_%d.log.csv", java.lang.System.currentTimeMillis() / 1000)),
               true,
               Charset.defaultCharset());
-      log("Frame,TotalMemory,FreeMemory,UsedMemory,MaxUsedMemory");
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
+
+    log("Frame,TotalMemory,FreeMemory,UsedMemory,MaxUsedMemory");
   }
 
   @Override
@@ -45,17 +48,7 @@ public final class VMStatsLogging extends System {
       long usedMemory = totalMemory - freeMemory;
 
       // Check for possible memory leaks
-      if (usedMemory < maxUsedMemory) {
-        if (localMinimumMemory != 0 && usedMemory > localMinimumMemory) {
-          logger.warning(
-              String.format(
-                  Locale.ENGLISH,
-                  "Possible memory leak discovered: %.2f MB (was %.2f MB)",
-                  usedMemory / 1024.0 / 1024.0,
-                  localMinimumMemory / 1024.0 / 1024.0));
-        }
-        localMinimumMemory = Math.max(localMinimumMemory, usedMemory);
-      }
+      checkPossibleMemoryLeaks(usedMemory);
 
       maxUsedMemory = Math.max(maxUsedMemory, usedMemory);
       log(
@@ -83,6 +76,25 @@ public final class VMStatsLogging extends System {
     }
     if (fileLogger != null) {
       fileLogger.println(line);
+    }
+  }
+
+  private void checkPossibleMemoryLeaks(long usedMemory) {
+    if (usedMemory < maxUsedMemory) {
+      if (localMinimumMemory != 0 && usedMemory > localMinimumMemory) {
+        if (localMinimumCount < localMinimumCountThreshold) {
+          localMinimumCount++;
+        } else {
+          logger.warning(
+              String.format(
+                  Locale.ENGLISH,
+                  "Possible memory leak discovered: %.2f MB (was %.2f MB)",
+                  usedMemory / 1024.0 / 1024.0,
+                  localMinimumMemory / 1024.0 / 1024.0));
+          localMinimumCount = 0;
+        }
+      }
+      localMinimumMemory = Math.max(localMinimumMemory, usedMemory);
     }
   }
 }
