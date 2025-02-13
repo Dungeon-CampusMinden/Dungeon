@@ -1,7 +1,6 @@
 package core.utils;
 
-import static java.util.logging.Level.WARNING;
-
+import core.Game;
 import core.System;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -12,18 +11,33 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
 public final class VMStatsLogging extends System {
-  private final Logger logger = Logger.getLogger(VMStatsLogging.class.getName());
+  public enum ConsoleLogLevel {
+    INFO,
+    WARNING,
+    OFF
+  }
+
+  public enum FileLogLevel {
+    INFO,
+    WARNING,
+    OFF
+  }
+
+  private final Logger consoleLogger = Logger.getLogger(VMStatsLogging.class.getName());
   private final PrintWriter fileLogger;
+  // Number of sequentially minima increments before warning about possible memory leak
   private final int localMinimumCountThreshold = 3;
-  private int granularity = 30;
+  private FileLogLevel fileLogLevel;
+  private int granularity;
+  private int index = 0;
   private long frameCount = 0;
   private long maxUsedMemory = 0;
   private long localMinimumMemory = 0;
   private int localMinimumCount = 0;
 
   public VMStatsLogging() {
-    logger.addHandler(new ConsoleHandler());
-    logger.setLevel(WARNING);
+    consoleLogger.addHandler(new ConsoleHandler());
+    setConsoleLogLevel(ConsoleLogLevel.WARNING);
 
     try {
       fileLogger =
@@ -35,14 +49,20 @@ public final class VMStatsLogging extends System {
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
+    setFileLogLevel(FileLogLevel.INFO);
 
-    log("Frame,TotalMemory,FreeMemory,UsedMemory,MaxUsedMemory");
+    setGranularityInMilliseconds(1000);
+
+    logInfo("Index,Frame,TotalMemory,FreeMemory,UsedMemory,MaxUsedMemory," + "LocalMinimumMemory");
   }
 
   @Override
   public void execute() {
     frameCount++;
     if (frameCount % granularity == 0) {
+      // New checkpoint reached
+      index++;
+
       long totalMemory = Runtime.getRuntime().totalMemory();
       long freeMemory = Runtime.getRuntime().freeMemory();
       long usedMemory = totalMemory - freeMemory;
@@ -51,30 +71,72 @@ public final class VMStatsLogging extends System {
       checkPossibleMemoryLeaks(usedMemory);
 
       maxUsedMemory = Math.max(maxUsedMemory, usedMemory);
-      log(
+      logInfo(
           String.format(
               Locale.ENGLISH,
-              "%d,%.2f,%.2f,%.2f,%.2f",
+              "%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f",
+              index,
               frameCount,
               totalMemory / 1024.0 / 1024.0,
               freeMemory / 1024.0 / 1024.0,
               usedMemory / 1024.0 / 1024.0,
-              maxUsedMemory / 1024.0 / 1024.0));
+              maxUsedMemory / 1024.0 / 1024.0,
+              localMinimumMemory / 1024.0 / 1024.0));
     }
   }
 
-  public void setGranularity(int granularity) {
-    if (granularity < 1) {
-      throw new IllegalArgumentException("Granularity must be at least 1");
+  public void setConsoleLogLevel(ConsoleLogLevel level) {
+    if (level == null) {
+      throw new IllegalArgumentException("Level must not be null");
     }
-    this.granularity = granularity;
+    switch (level) {
+      case INFO:
+        consoleLogger.setLevel(java.util.logging.Level.INFO);
+        break;
+      case WARNING:
+        consoleLogger.setLevel(java.util.logging.Level.WARNING);
+        break;
+      case OFF:
+        consoleLogger.setLevel(java.util.logging.Level.OFF);
+        break;
+    }
   }
 
-  private void log(String line) {
-    if (logger != null) {
-      logger.info(line);
+  public void setFileLogLevel(FileLogLevel level) {
+    if (level == null) {
+      throw new IllegalArgumentException("Level must not be null");
     }
-    if (fileLogger != null) {
+    fileLogLevel = level;
+  }
+
+  public void setGranularityInFrames(int frames) {
+    if (frames < 1) {
+      throw new IllegalArgumentException("Frames must be at least 1");
+    }
+    granularity = frames;
+  }
+
+  public void setGranularityInMilliseconds(int milliseconds) {
+    if (milliseconds < 500) {
+      throw new IllegalArgumentException("Milliseconds must be at least 500");
+    }
+    setGranularityInFrames(milliseconds * Game.frameRate() / 1000);
+  }
+
+  private void logInfo(String line) {
+    if (consoleLogger != null) {
+      consoleLogger.info(line);
+    }
+    if (fileLogger != null && fileLogLevel.ordinal() == FileLogLevel.INFO.ordinal()) {
+      fileLogger.println(line);
+    }
+  }
+
+  private void logWarning(String line) {
+    if (consoleLogger != null) {
+      consoleLogger.warning(line);
+    }
+    if (fileLogger != null && fileLogLevel.ordinal() <= FileLogLevel.WARNING.ordinal()) {
       fileLogger.println(line);
     }
   }
@@ -87,7 +149,7 @@ public final class VMStatsLogging extends System {
           localMinimumCount++;
           localMinimumCountIncreased = true;
         } else {
-          logger.warning(
+          logWarning(
               String.format(
                   Locale.ENGLISH,
                   "Possible memory leak discovered: %.2f MB (was %.2f MB)",
