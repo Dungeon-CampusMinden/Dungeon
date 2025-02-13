@@ -58,6 +58,8 @@ public class Client {
 
     onFrame(debugger);
 
+    onLevelLoad();
+
     // build and start game
     Game.run();
 
@@ -83,11 +85,20 @@ public class Client {
 
           TileLevel firstLevel = initLevels();
           Game.currentLevel(firstLevel);
+        });
+  }
 
-          VariableHUD variableHUD = new VariableHUD(Game.stage());
+  private static void onLevelLoad() {
+    Game.userOnLevelLoad(
+        (firstLoad) -> {
+          VariableHUD variableHUD = Server.instance().variableHUD;
+          if (variableHUD == null) { // should only be on first level load
+            variableHUD = new VariableHUD(Game.stage());
+            Server.instance().variableHUD = variableHUD;
+          }
+
+          // (Re-)add the variable HUD to the game
           Game.add(variableHUD.createEntity());
-
-          Server.instance().variableHUD = variableHUD;
         });
   }
 
