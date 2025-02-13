@@ -641,10 +641,17 @@ public final class Game {
     LevelSystem.levelSize(levelSize);
   }
 
-  public static Optional<System> enableVMStatsLogging() {
-    System newSystem = new VMStatsLogging();
-    Optional<System> oldSystem = Game.add(newSystem);
-    return oldSystem.isPresent() ? oldSystem : Optional.of(newSystem);
+  /**
+   * Enables a new debug system to log the game stats, and returns the system, for further
+   * configuration. You can set for example the granularity (the logging every nth frame) of the
+   * system, and disable the system later with {@link #remove(Class)}.
+   *
+   * @return The new added and enabled debug system.
+   */
+  public static VMStatsLogging enableVMStatsLogging() {
+    VMStatsLogging newSystem = new VMStatsLogging();
+    Game.add(newSystem);
+    return newSystem;
   }
 
   /** Exits the GDX application. */
