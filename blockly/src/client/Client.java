@@ -95,6 +95,13 @@ public class Client {
   public static void toggleBlocklyHUD() {
     if (firstTimeBlocklyHUD) {
       firstTimeBlocklyHUD = false;
+      if (blocklyHUDEnabled) {
+        Game.userOnLevelLoad(
+            (firstLoad) -> {
+              toggleBlocklyHUD();
+              Game.userOnLevelLoad((firstLoad1) -> {});
+            });
+      }
       return;
     }
     if (blocklyHUDEnabled) {
