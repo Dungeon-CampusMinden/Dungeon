@@ -1,7 +1,6 @@
 package systems;
 
-import components.BlocklyUIComponent;
-import core.Entity;
+import client.Client;
 import core.Game;
 import core.System;
 
@@ -31,19 +30,10 @@ public class HudBlocklySystem extends System {
     if (currentWidth == 0 || currentHeight == 0) {
       return;
     }
-    filteredEntityStream(BlocklyUIComponent.class).forEach(this::handleChangedScreenSize);
+
+    Client.resetBlocklyHUD();
+
     lastWidth = currentWidth;
     lastHeight = currentHeight;
-  }
-
-  /**
-   * Handler for changed screen size. Will call the updateActors function of the BlocklyUIComponent
-   * of the given entity.
-   *
-   * @param entity Entity that has a BlocklyUIComponent and needs to update the size of its actors
-   *     due to screen size change.
-   */
-  public void handleChangedScreenSize(Entity entity) {
-    entity.fetch(BlocklyUIComponent.class).ifPresent(BlocklyUIComponent::updateActors);
   }
 }

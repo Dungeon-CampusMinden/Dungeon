@@ -117,6 +117,17 @@ public class Client {
   }
 
   /**
+   * Reset the blockly hud. This function will be called when the screen size changed. It will
+   * disable the hud and enable it again to reset the hud.
+   */
+  public static void resetBlocklyHUD() {
+    blocklyHUDEnabled = !blocklyHUDEnabled;
+    toggleBlocklyHUD();
+    blocklyHUDEnabled = !blocklyHUDEnabled;
+    toggleBlocklyHUD();
+  }
+
+  /**
    * Init levels. Load your levels here with the LevelParser and add them to the levels list in the
    * order that they should be played
    *
