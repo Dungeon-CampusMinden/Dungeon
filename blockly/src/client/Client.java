@@ -9,6 +9,7 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
@@ -92,8 +93,9 @@ public class Client {
     Game.userOnLevelLoad(
         (firstLoad) -> {
           VariableHUD variableHUD = Server.instance().variableHUD;
-          if (variableHUD == null) { // should only be on first level load
-            variableHUD = new VariableHUD(Game.stage());
+          if (variableHUD == null
+              && Game.stage().isPresent()) { // should only be on first level load
+            variableHUD = new VariableHUD(Game.stage().get());
             Server.instance().variableHUD = variableHUD;
           }
 
@@ -184,6 +186,17 @@ public class Client {
     Entity hero;
     try {
       hero = (EntityFactory.newHero());
+      hero.fetch(PlayerComponent.class)
+          .flatMap(
+              fetch ->
+                  fetch.registerCallback(
+                      KeyboardConfig.TOGGLE_BLOCKLY_HUD.value(),
+                      (e) ->
+                          Server.instance()
+                              .variableHUD
+                              .visible(!Server.instance().variableHUD.visible()),
+                      false,
+                      true));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
