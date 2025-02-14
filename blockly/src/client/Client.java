@@ -121,10 +121,12 @@ public class Client {
    * disable the hud and enable it again to reset the hud.
    */
   public static void resetBlocklyHUD() {
-    blocklyHUDEnabled = !blocklyHUDEnabled;
-    toggleBlocklyHUD();
-    blocklyHUDEnabled = !blocklyHUDEnabled;
-    toggleBlocklyHUD();
+    if (blocklyHUDEnabled) {
+      blocklyHUDEnabled = false;
+      toggleBlocklyHUD();
+      blocklyHUDEnabled = true;
+      toggleBlocklyHUD();
+    }
   }
 
   /**
