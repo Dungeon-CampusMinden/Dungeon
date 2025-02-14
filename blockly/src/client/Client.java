@@ -39,7 +39,6 @@ public class Client {
   private static int currentLevel = 0;
   private static HttpServer httpServer;
   private static boolean blocklyHUDEnabled = false;
-  private static boolean firstTimeBlocklyHUD = true;
   private static Entity hudEntity;
 
   /**
@@ -62,7 +61,11 @@ public class Client {
 
     onFrame(debugger);
 
-    toggleBlocklyHUD();
+    Game.userOnLevelLoad(
+        (firstLoad) -> {
+          toggleBlocklyHUD();
+          Game.userOnLevelLoad((firstLoad1) -> {});
+        });
 
     // build and start game
     Game.run();
@@ -93,17 +96,6 @@ public class Client {
   }
 
   public static void toggleBlocklyHUD() {
-    if (firstTimeBlocklyHUD) {
-      firstTimeBlocklyHUD = false;
-      if (blocklyHUDEnabled) {
-        Game.userOnLevelLoad(
-            (firstLoad) -> {
-              toggleBlocklyHUD();
-              Game.userOnLevelLoad((firstLoad1) -> {});
-            });
-      }
-      return;
-    }
     if (blocklyHUDEnabled) {
       VariableHUD variableHUD = new VariableHUD(Game.stage().orElseThrow());
       Server.instance().variableHUD = variableHUD;
