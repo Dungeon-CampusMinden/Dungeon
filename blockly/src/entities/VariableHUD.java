@@ -96,6 +96,27 @@ public class VariableHUD extends BlocklyHUD {
     loadMonsterTextures();
   }
 
+  public void destroy() {
+    if (monsterTable != null) {
+      monsterTable.remove();
+    }
+    if (arrayLabels != null) {
+      arrayLabels.remove();
+    }
+    if (arrayTable != null) {
+      arrayTable.remove();
+    }
+    if (varLabels != null) {
+      varLabels.remove();
+    }
+    if (varTable != null) {
+      varTable.remove();
+    }
+    if (hudContainer != null) {
+      hudContainer.remove();
+    }
+  }
+
   /** Load all textures for the monsters. This will be called initially once. */
   private void loadMonsterTextures() {
     monsterTextures = new ArrayList<>();

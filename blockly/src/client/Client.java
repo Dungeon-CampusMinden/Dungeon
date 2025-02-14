@@ -38,6 +38,9 @@ public class Client {
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
   private static HttpServer httpServer;
+  private static boolean blocklyHUDEnabled = false;
+  private static boolean firstTimeBlocklyHUD = true;
+  private static Entity hudEntity;
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -59,7 +62,7 @@ public class Client {
 
     onFrame(debugger);
 
-    onLevelLoad();
+    toggleBlocklyHUD();
 
     // build and start game
     Game.run();
@@ -89,19 +92,25 @@ public class Client {
         });
   }
 
-  private static void onLevelLoad() {
-    Game.userOnLevelLoad(
-        (firstLoad) -> {
-          VariableHUD variableHUD = Server.instance().variableHUD;
-          if (variableHUD == null
-              && Game.stage().isPresent()) { // should only be on first level load
-            variableHUD = new VariableHUD(Game.stage().get());
-            Server.instance().variableHUD = variableHUD;
-          }
-
-          // (Re-)add the variable HUD to the game
-          Game.add(variableHUD.createEntity());
-        });
+  public static void toggleBlocklyHUD() {
+    if (firstTimeBlocklyHUD) {
+      firstTimeBlocklyHUD = false;
+      return;
+    }
+    if (blocklyHUDEnabled) {
+      VariableHUD variableHUD = new VariableHUD(Game.stage().orElseThrow());
+      Server.instance().variableHUD = variableHUD;
+      Game.add(hudEntity = variableHUD.createEntity());
+    } else {
+      if (hudEntity != null) {
+        Game.remove(hudEntity);
+        hudEntity = null;
+      }
+      if (Server.instance().variableHUD != null) {
+        Server.instance().variableHUD.destroy();
+        Server.instance().variableHUD = null;
+      }
+    }
   }
 
   /**
@@ -191,10 +200,10 @@ public class Client {
               fetch ->
                   fetch.registerCallback(
                       KeyboardConfig.TOGGLE_BLOCKLY_HUD.value(),
-                      (e) ->
-                          Server.instance()
-                              .variableHUD
-                              .visible(!Server.instance().variableHUD.visible()),
+                      (e) -> {
+                        blocklyHUDEnabled = !blocklyHUDEnabled;
+                        toggleBlocklyHUD();
+                      },
                       false,
                       true));
     } catch (IOException e) {
