@@ -95,6 +95,10 @@ public class Client {
         });
   }
 
+  /**
+   * Toggle the visibility of the blockly hud. If the hud is enabled, the hud will be disabled and
+   * vice versa.
+   */
   public static void toggleBlocklyHUD() {
     if (blocklyHUDEnabled) {
       VariableHUD variableHUD = new VariableHUD(Game.stage().orElseThrow());
