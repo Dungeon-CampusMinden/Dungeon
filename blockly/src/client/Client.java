@@ -110,7 +110,7 @@ public class Client {
         hudEntity = null;
       }
       if (Server.instance().variableHUD != null) {
-        Server.instance().variableHUD.destroy();
+        Server.instance().variableHUD.dispose();
         Server.instance().variableHUD = null;
       }
     }

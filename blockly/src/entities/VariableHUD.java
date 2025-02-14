@@ -96,7 +96,11 @@ public class VariableHUD extends BlocklyHUD {
     loadMonsterTextures();
   }
 
-  public void destroy() {
+  /**
+   * Dispose the variable HUD. This will remove all tables and labels from the stage in reverse
+   * order of creation.
+   */
+  public void dispose() {
     if (monsterTable != null) {
       monsterTable.remove();
     }
