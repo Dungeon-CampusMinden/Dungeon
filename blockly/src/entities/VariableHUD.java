@@ -29,7 +29,8 @@ import java.util.TreeSet;
  */
 public class VariableHUD extends BlocklyHUD {
   // Default label style
-  private static final Label.LabelStyle default_labelStyle = new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+  private static final Label.LabelStyle default_labelStyle =
+      new Label.LabelStyle(new BitmapFont(), Color.WHITE);
 
   private Table hudContainer;
   // General numbers used for table creation and scaling
