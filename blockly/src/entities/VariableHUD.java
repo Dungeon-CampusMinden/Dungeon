@@ -29,6 +29,8 @@ import java.util.TreeSet;
  */
 public class VariableHUD extends BlocklyHUD {
   private Table hudContainer;
+  private Stage stage;
+
   // General numbers used for table creation and scaling
   private final int xTiles = 28;
   private int yTiles = 16;
@@ -66,13 +68,15 @@ public class VariableHUD extends BlocklyHUD {
    * @param stage The variable HUD will be added to the given stage.
    */
   public VariableHUD(Stage stage) {
+    this.stage = stage;
+
     this.hudContainer = new Table();
     this.hudContainer.setFillParent(true);
-    stage.addActor(hudContainer);
+    this.stage.addActor(hudContainer);
 
     // Initial size
-    this.hudContainer.setHeight(stage.getHeight());
-    this.hudContainer.setWidth(stage.getWidth());
+    this.hudContainer.setHeight(this.stage.getHeight());
+    this.hudContainer.setWidth(this.stage.getWidth());
 
     this.textureWall = createTexture(LevelElement.WALL, DesignLabel.FOREST);
     this.textureFloor = createTexture(LevelElement.FLOOR, DesignLabel.FOREST);
@@ -637,6 +641,8 @@ public class VariableHUD extends BlocklyHUD {
    */
   @Override
   public void updateActors() {
+    this.hudContainer.setHeight(this.stage.getHeight());
+    this.hudContainer.setWidth(this.stage.getWidth());
     // yTiles might change after the first call of getHeight(). Save current value here to track if
     // array tables must be
     // adjusted
