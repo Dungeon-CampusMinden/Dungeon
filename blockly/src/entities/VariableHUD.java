@@ -189,11 +189,15 @@ public class VariableHUD extends BlocklyHUD {
     table.bottom();
     table.setFillParent(true);
 
-    createVarRow(table, textureWall);
+    for (int i = 0; i < xTiles; i++) {
+      createVarRow(table, textureWall);
+    }
     table.row();
 
-    for (int i = 0; i < varTiles - 1; i++) {
-      createVarRow(table, textureFloor);
+    for (int j = 0; j < varTiles - 1; j++) {
+      for (int i = 0; i < xTiles; i++) {
+        createVarRow(table, textureFloor);
+      }
       table.row();
     }
     return table;
