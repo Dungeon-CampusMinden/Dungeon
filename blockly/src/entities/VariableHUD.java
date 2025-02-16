@@ -28,6 +28,10 @@ import java.util.TreeSet;
  * were created in blockly.
  */
 public class VariableHUD extends BlocklyHUD {
+  // Default label style
+  private static final Label.LabelStyle default_labelStyle =
+      new Label.LabelStyle(new BitmapFont(), Color.WHITE);
+
   private Table hudContainer;
   // General numbers used for table creation and scaling
   private final int xTiles = 28;
@@ -227,7 +231,7 @@ public class VariableHUD extends BlocklyHUD {
 
     for (int j = 0; j < 2; j++) {
       for (int i = 0; i < xTiles / 2; i++) {
-        Label label = new Label("", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        Label label = new Label("", default_labelStyle);
         if (j == 0) {
           label.setFontScale(varNameScaling);
         } else {
@@ -401,7 +405,7 @@ public class VariableHUD extends BlocklyHUD {
     float scaling = getFontScaling();
 
     for (int i = 0; i < 2; i++) {
-      Label arrayLabel = new Label("", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+      Label arrayLabel = new Label("", default_labelStyle);
       arrayLabel.setAlignment(Align.center);
       arrayLabel.setFontScale(varNameScaling * scaling);
 
@@ -429,11 +433,11 @@ public class VariableHUD extends BlocklyHUD {
     float paddingLeft = getWidth() * (xTiles - 4);
     float scaling = getFontScaling();
     for (int i = 0; i < 2; i++) {
-      Label labelValue = new Label("", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+      Label labelValue = new Label("", default_labelStyle);
       labelValue.setFontScale(valueScaling * scaling);
       labelValue.setAlignment(Align.center);
 
-      Label labelIndex = new Label("", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+      Label labelIndex = new Label("", default_labelStyle);
       labelIndex.setFontScale(indexScaling * scaling);
       labelIndex.setAlignment(Align.center);
 
