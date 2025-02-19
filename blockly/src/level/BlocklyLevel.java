@@ -3,7 +3,6 @@ package level;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.Point;
 import java.util.List;
 
 /**
@@ -11,40 +10,31 @@ import java.util.List;
  * tiles), the design label, the hero start position and the custom points. This class is used in
  * the LevelParser.
  */
-public class BlocklyLevel {
-
-  /** Layout of the level. Will be passed to the dungeon. */
-  public LevelElement[][] layout;
-
-  /** Design label of the dungeon. Will be passed to the dungeon. */
-  public DesignLabel designLabel;
-
-  /** Initial starting point of the hero in the level. */
-  public Point heroPos;
+public abstract class BlocklyLevel extends DevDungeonLevel {
 
   /**
-   * Custom points. Can be used in a level class to define custom events when the hero is at one of
-   * the custom points.
-   */
-  public List<Coordinate> customPoints;
-
-  /**
-   * Store the given values in this class.
+   * Call the parent constructor of a tile level with the given layout and design label. Set the
+   * start tile of the hero to the given heroPos.
    *
-   * @param layout Layout of the level.
-   * @param designLabel Design label of the dungeon.
-   * @param heroPos Initial starting point of the hero in the level.
-   * @param customPoints Custom points. Can be used in a level class to define custom events when
-   *     the hero is at one of the custom points.
+   * @param layout 2D array containing the tile layout.
+   * @param designLabel The design label for the level.
+   * @param customPoints The custom points of the level.
+   * @param name The name of the level.
    */
   public BlocklyLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
-      Point heroPos,
-      List<Coordinate> customPoints) {
-    this.layout = layout;
-    this.designLabel = designLabel;
-    this.heroPos = heroPos;
-    this.customPoints = customPoints;
+      List<Coordinate> customPoints,
+      String name) {
+    super(layout, designLabel, customPoints, name, "");
+  }
+
+  @Override
+  public void onTick(boolean isFirstTick) {
+    if (isFirstTick) {
+      onFirstTick();
+    } else {
+      onTick();
+    }
   }
 }

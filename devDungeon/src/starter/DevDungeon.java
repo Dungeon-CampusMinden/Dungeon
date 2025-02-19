@@ -20,6 +20,7 @@ import core.Game;
 import core.System;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
+import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.BurningFireballSkill;
 import item.concreteItem.ItemPotionWater;
@@ -27,6 +28,7 @@ import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.logging.Level;
+import level.devlevel.*;
 import level.utils.DungeonLoader;
 import systems.*;
 import systems.DevHealthSystem;
@@ -34,18 +36,6 @@ import systems.EventScheduler;
 
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
-
-  /**
-   * The {@link DungeonLoader} that loads the levels of the game.
-   *
-   * <p>It defines the order of the levels and the levels themselves.
-   */
-  public static final DungeonLoader DUNGEON_LOADER =
-      new DungeonLoader(
-          new String[] {
-            "tutorial", "damagedBridge", "torchRiddle", "illusionRiddle", "bridgeGuard", "finalBoss"
-          });
-
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
@@ -84,8 +74,16 @@ public class DevDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          DungeonLoader.instance()
+              .addLevel(
+                  new Tuple("tutorial", TutorialLevel.class),
+                  new Tuple("damagedBridge", DamagedBridgeRiddleLevel.class),
+                  new Tuple("torchRiddle", TorchRiddleLevel.class),
+                  new Tuple("illusionRiddle", IllusionRiddleLevel.class),
+                  new Tuple("bridgeGuard", BridgeGuardRiddleLevel.class),
+                  new Tuple("finalBoss", BossLevel.class));
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DUNGEON_LOADER::loadNextLevel);
+          levelSystem.onEndTile(() -> DungeonLoader.instance().loadNextLevel());
 
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
@@ -102,9 +100,9 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[1]); // First Level
+            DungeonLoader.instance().loadLevel(1); // First Level
           } else {
-            DUNGEON_LOADER.loadLevel(DUNGEON_LOADER.levelOrder()[0]); // Tutorial
+            DungeonLoader.instance().loadLevel(0); // Tutorial
           }
         });
   }

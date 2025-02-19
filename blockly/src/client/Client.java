@@ -15,6 +15,7 @@ import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.systems.LevelSystem;
+import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.VariableHUD;
 import java.io.IOException;
@@ -22,10 +23,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-import level.BlocklyLevel;
-import level.LevelParser;
 import level.MazeLevel;
+import level.utils.DungeonLoader;
 import server.Server;
+import systems.DevHealthSystem;
 import systems.HudBlocklySystem;
 import systems.LevelTickSystem;
 
@@ -34,7 +35,6 @@ import systems.LevelTickSystem;
  * have any effect
  */
 public class Client {
-
   private static final ArrayList<TileLevel> levels = new ArrayList<>();
   private static int currentLevel = 0;
   private static HttpServer httpServer;
@@ -47,9 +47,6 @@ public class Client {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException {
-    // toggle this to off, if you want to use the default level generator
-    boolean useRoomBasedLevel = false;
-
     Game.initBaseLogger(Level.WARNING);
     Debugger debugger = new Debugger();
     // start the game
@@ -74,6 +71,7 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          DungeonLoader.instance().addLevel(new Tuple<>("maze", MazeLevel.class));
           createSystems();
           createHero();
           Crafting.loadRecipes();
@@ -82,10 +80,9 @@ public class Client {
 
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(Client::loadNextLevel);
+          levelSystem.onEndTile(() -> DungeonLoader.instance().loadNextLevel());
 
-          TileLevel firstLevel = initLevels();
-          Game.currentLevel(firstLevel);
+          DungeonLoader.instance().loadLevel("maze");
         });
   }
 
@@ -102,26 +99,6 @@ public class Client {
           // (Re-)add the variable HUD to the game
           Game.add(variableHUD.createEntity());
         });
-  }
-
-  /**
-   * Init levels. Load your levels here with the LevelParser and add them to the levels list in the
-   * order that they should be played
-   *
-   * @return Returns the first level
-   */
-  public static TileLevel initLevels() {
-    LevelParser.getAllLevelFilePaths();
-    // Add all levels here
-    // Add maze level
-    BlocklyLevel mazeLevel = LevelParser.getRandomVariant("maze", "easy");
-    levels.add(new MazeLevel(mazeLevel.layout, mazeLevel.designLabel, mazeLevel.heroPos));
-
-    BlocklyLevel mazeLevelHard = LevelParser.getRandomVariant("maze", "hard");
-    levels.add(
-        new MazeLevel(mazeLevelHard.layout, mazeLevelHard.designLabel, mazeLevelHard.heroPos));
-
-    return levels.get(currentLevel);
   }
 
   /**
@@ -206,7 +183,7 @@ public class Client {
   private static void createSystems() {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
-    Game.add(new HealthSystem());
+    Game.add(new DevHealthSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new ProjectileSystem());

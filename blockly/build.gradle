@@ -26,6 +26,7 @@ sourceSets.test.java.srcDirs = ['test/']
 processResources {
     from new File(project(':game').projectDir, '/assets')
     from new File(project(':dungeon').projectDir, '/assets')
+    from new File(project(':devDungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
@@ -49,6 +50,7 @@ tasks.register('buildBlocklyJar', Jar) {
     from sourceSets.main.output
     from project(':game').sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
+    from project(':devDungeon').sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }

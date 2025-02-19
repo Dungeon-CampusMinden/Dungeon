@@ -12,14 +12,12 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 import level.devlevel.*;
+import level.utils.DungeonLoader;
 import level.utils.ITickable;
 import level.utils.MissingLevelException;
-import starter.DevDungeon;
 
 /**
  * Represents a level in the DevDungeon game. This class extends the {@link TileLevel} class and
@@ -27,7 +25,6 @@ import starter.DevDungeon;
  * logic or any other custom logic to the level.
  */
 public abstract class DevDungeonLevel extends TileLevel implements ITickable {
-
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> customPoints = new ArrayList<>();
   private final List<Coordinate> tpTargets = new ArrayList<>();
@@ -57,11 +54,11 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
   }
 
   @Override
-  public final void onTick(boolean isFirstTick) {
+  public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       DialogUtils.showTextPopup(
           description,
-          "Level " + DevDungeon.DUNGEON_LOADER.currentLevelIndex() + ": " + levelName,
+          "Level " + DungeonLoader.instance().currentLevelIndex() + ": " + levelName,
           () -> {
             // Workaround for tutorial popup
             if (levelName.equalsIgnoreCase("tutorial")) {
@@ -142,7 +139,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
 
       DevDungeonLevel newLevel;
       newLevel =
-          getDevLevel(DevDungeon.DUNGEON_LOADER.currentLevel(), layout, designLabel, customPoints);
+          getDevLevel(DungeonLoader.instance().currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -259,16 +256,18 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    return switch (levelName) {
-      case "tutorial" -> new TutorialLevel(layout, designLabel, customPoints);
-      case "torchriddle" -> new TorchRiddleLevel(layout, designLabel, customPoints);
-      case "damagedbridge" -> new DamagedBridgeRiddleLevel(layout, designLabel, customPoints);
-      case "illusionriddle" -> new IllusionRiddleLevel(layout, designLabel, customPoints);
-      case "bridgeguard" -> new BridgeGuardRiddleLevel(layout, designLabel, customPoints);
-      case "finalboss" -> new BossLevel(layout, designLabel, customPoints);
-      default ->
-          throw new IllegalArgumentException("Invalid level name for levelHandler: " + levelName);
-    };
+    Class<? extends DevDungeonLevel> levelHandler =
+        DungeonLoader.instance().levelHandler(levelName);
+    if (levelHandler != null) {
+      try {
+        return levelHandler
+            .getConstructor(LevelElement[][].class, DesignLabel.class, List.class)
+            .newInstance(layout, designLabel, customPoints);
+      } catch (Exception e) {
+        throw new RuntimeException("Error creating level handler", e);
+      }
+    }
+    throw new RuntimeException("No level handler found for level: " + levelName);
   }
 
   /**

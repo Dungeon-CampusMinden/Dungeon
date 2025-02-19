@@ -2,6 +2,7 @@ package level.utils;
 
 import core.Game;
 import core.level.elements.ILevel;
+import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import level.DevDungeonLevel;
 
@@ -22,6 +24,9 @@ import level.DevDungeonLevel;
  */
 public class DungeonLoader {
 
+  // Singleton instance
+  private static DungeonLoader instance;
+
   private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "/levels";
@@ -31,24 +36,22 @@ public class DungeonLoader {
     getAllLevelFilePaths();
   }
 
-  private final String[] levelOrder;
+  private final List<Tuple<String, Class<? extends DevDungeonLevel>>> levelOrder =
+      new ArrayList<>();
   private int currentLevel = 0;
 
-  /**
-   * Constructs a new DungeonLoader with the specified level order.
-   *
-   * <p>This constructor takes an array of level names and converts them to lowercase. This is done
-   * because all level names in the game are expected to be in lowercase. The level order array is
-   * used to determine the order in which levels are loaded in the game.
-   *
-   * @param levelOrder An array of level names in the order they should be loaded.
-   */
-  public DungeonLoader(String[] levelOrder) {
-    for (int i = 0; i < levelOrder.length; i++) {
-      levelOrder[i] = levelOrder[i].toLowerCase(); // all level names should be lowercase
-    }
+  private DungeonLoader() {}
 
-    this.levelOrder = levelOrder;
+  /**
+   * Returns the instance of the DungeonLoader.
+   *
+   * @return The instance of the DungeonLoader.
+   */
+  public static DungeonLoader instance() {
+    if (instance == null) {
+      instance = new DungeonLoader();
+    }
+    return instance;
   }
 
   private static void getAllLevelFilePaths() {
@@ -68,8 +71,7 @@ public class DungeonLoader {
   }
 
   private static boolean isRunningFromJar() {
-    return Objects.requireNonNull(
-            DungeonLoader.class.getResource(DungeonLoader.class.getSimpleName() + ".class"))
+    return Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX))
         .toString()
         .startsWith("jar:");
   }
@@ -111,21 +113,51 @@ public class DungeonLoader {
   }
 
   /**
+   * Adds a level to the level order.
+   *
+   * @param level The name of the level. (it will be converted to lowercase)
+   * @see #levelOrder()
+   * @see #loadNextLevel()
+   */
+  public void addLevel(Tuple<String, Class<? extends DevDungeonLevel>>... level) {
+    for (Tuple<String, Class<? extends DevDungeonLevel>> levelEntry : level) {
+      levelOrder.add(levelEntry);
+    }
+  }
+
+  /**
    * Returns the current level order.
    *
    * @return The current level order.
    */
-  public String[] levelOrder() {
-    return levelOrder;
+  public Set<String> levelOrder() {
+    return levelOrder.stream().map(Tuple::a).collect(Collectors.toSet());
   }
 
   /**
    * Returns the name of the current level (in lowercase).
    *
    * @return The name of the current level.
+   * @throws IndexOutOfBoundsException If the current level index is out of bounds.
    */
   public String currentLevel() {
-    return levelOrder()[currentLevel];
+    return levelOrder.get(currentLevel).a().toLowerCase();
+  }
+
+  /**
+   * Returns the level handler for the given level name.
+   *
+   * @param levelName The name of the level.
+   * @return The level handler for the given level name. (null if not found)
+   * @see DevDungeonLevel
+   */
+  public Class<? extends DevDungeonLevel> levelHandler(String levelName) {
+    for (Tuple<String, Class<? extends DevDungeonLevel>> level : levelOrder) {
+      if (level.a().equalsIgnoreCase(levelName)) {
+        return level.b();
+      }
+    }
+    return null;
   }
 
   private ILevel getRandomVariant(String levelName) {
@@ -151,7 +183,7 @@ public class DungeonLoader {
   public void loadNextLevel() {
     this.currentLevel++;
     try {
-      Game.currentLevel(getRandomVariant(levelOrder[currentLevel]));
+      Game.currentLevel(getRandomVariant(currentLevel()));
     } catch (MissingLevelException | ArrayIndexOutOfBoundsException e) {
       System.out.println("Game Over!");
       System.out.println("You have passed all " + currentLevel + " levels!");
@@ -167,6 +199,19 @@ public class DungeonLoader {
   public void loadLevel(String levelName) {
     setCurrentLevelByLevelName(levelName);
     Game.currentLevel(getRandomVariant(levelName));
+  }
+
+  /**
+   * Loads a specific level (with a random variant).
+   *
+   * @param levelIndex The index of the level.
+   * @throws IndexOutOfBoundsException If the level index is out of bounds.
+   */
+  public void loadLevel(int levelIndex) {
+    if (levelIndex < 0 || levelIndex >= levelOrder.size()) {
+      throw new IndexOutOfBoundsException("Level index is out of bounds: " + levelIndex);
+    }
+    loadLevel(levelOrder.get(levelIndex).a());
   }
 
   /**
@@ -187,8 +232,8 @@ public class DungeonLoader {
 
   private void setCurrentLevelByLevelName(String levelName) {
     this.currentLevel = -1;
-    for (int i = 0; i < levelOrder.length; i++) {
-      if (levelOrder[i].equals(levelName)) {
+    for (int i = 0; i < levelOrder.size(); i++) {
+      if (levelOrder.get(i).a().equals(levelName)) {
         this.currentLevel = i;
         break;
       }
