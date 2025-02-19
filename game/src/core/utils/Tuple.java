@@ -8,4 +8,16 @@ package core.utils;
  * @param <A> foo
  * @param <B> foo
  */
-public record Tuple<A, B>(A a, B b) {}
+public record Tuple<A, B>(A a, B b) {
+
+  /**
+   * Create a new tuple.
+   *
+   * @param first The first value.
+   * @param second The second value.
+   * @return The new tuple.
+   */
+  public static <A, B> Tuple<A, B> of(A first, B second) {
+    return new Tuple<>(first, second);
+  }
+}
