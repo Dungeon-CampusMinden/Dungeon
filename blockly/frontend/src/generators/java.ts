@@ -9,7 +9,7 @@ import * as arrays from "./java/arrays.ts";
 import * as functions from "./java/functions.ts";
 
 class JavaGenerator extends Blockly.Generator {
-  public variables: Map<string, any>;
+  public variables: Map<string, number|string>;
 
   constructor() {
     super("JAVA");
