@@ -2,6 +2,7 @@ package level.utils;
 
 import core.Game;
 import core.level.elements.ILevel;
+import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -39,6 +40,12 @@ public class DungeonLoader {
   private final List<Tuple<String, Class<? extends DevDungeonLevel>>> levelOrder =
       new ArrayList<>();
   private int currentLevel = 0;
+  private IVoidFunction afterAllLevels =
+      () -> {
+        System.out.println("Game Over!");
+        System.out.println("You have passed all " + currentLevel + " levels!");
+        Game.exit();
+      };
 
   private DungeonLoader() {}
 
@@ -178,7 +185,9 @@ public class DungeonLoader {
   /**
    * Loads the next level in the level order.
    *
-   * <p>If the current level is the last level in the level order, the game will exit.
+   * <p>If the current level is the last level in the level order, it will execute the callback
+   * function set by {@link #afterAllLevels(IVoidFunction)}. Default is to close the game with a
+   * "Game Over!" message.
    *
    * <p>It chooses a random variant of the next level.
    */
@@ -187,10 +196,21 @@ public class DungeonLoader {
     try {
       Game.currentLevel(getRandomVariant(currentLevel()));
     } catch (MissingLevelException | IndexOutOfBoundsException e) {
-      System.out.println("Game Over!");
-      System.out.println("You have passed all " + currentLevel + " levels!");
-      Game.exit();
+      afterAllLevels.execute();
     }
+  }
+
+  /**
+   * Sets the callback function that will be executed after all levels are completed.
+   *
+   * <p>Default is to close the game with a "Game Over!" message.
+   *
+   * @param afterAllLevels
+   * @see IVoidFunction
+   * @see #loadNextLevel()
+   */
+  public void afterAllLevels(IVoidFunction afterAllLevels) {
+    this.afterAllLevels = afterAllLevels;
   }
 
   /**
