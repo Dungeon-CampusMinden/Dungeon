@@ -238,6 +238,7 @@ if (stepBtn !== null) {
       // Check if response was not ok
       const ok = await handleResponse(response, currentBlock);
       if (!ok) {
+        currentBlock = startBlock;
         call_clear_route();
         workspace.highlightBlock(null);
       }
