@@ -129,7 +129,7 @@ jobs:
       - name: Checkout frontend
         uses: actions/checkout@v4
         with:
-          path: blockly/frontend
+          filter: blockly/frontend
       - name: Node.js setup
         uses: actions/setup-node@v4
         with:
