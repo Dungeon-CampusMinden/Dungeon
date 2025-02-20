@@ -9,7 +9,7 @@ import { config } from "./config.ts";
 import "./style.css";
 import {sleep} from "./utils/utils.ts";
 
-Blockly.setLocale(De as any);
+Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
 // Register the blocks and generator with Blockly
 Blockly.common.defineBlocks(blocks);
@@ -65,8 +65,8 @@ if (workspace) {
   runCode();
 
   // Every time the workspace changes state, save the changes to storage.
-  // @ts-ignore
-  workspace.addChangeListener((e: Blockly.Events.UiBase) => {
+
+  workspace.addChangeListener((e : Blockly.Events.Abstract) => {
     // UI events are things like scrolling, zooming, etc.
     // No need to save after one of these.
     if (e.isUiEvent) return;
@@ -74,8 +74,7 @@ if (workspace) {
   });
 
   // Whenever the workspace changes meaningfully, run the code again.
-  // @ts-ignore
-  workspace.addChangeListener((e: Blockly.Events.UiBase) => {
+  workspace.addChangeListener((e: Blockly.Events.Abstract) => {
     // Don't run the code when the workspace finishes loading; we're
     // already running it once when the application starts.
     // Don't run the code during drags; we might have invalid state.
@@ -98,7 +97,7 @@ async function call_clear_route(){
 }
 
 const displayErrorOnBlock = (block: Blockly.Block, error: string) => {
-    let errorArray = error.split("Fehlermeldung: ");
+    const errorArray = error.split("Fehlermeldung: ");
     let errorText;
     if (errorArray.length > 1) {
         errorText = errorArray[1];
@@ -175,7 +174,7 @@ if (startBtn) {
 
       const response = await api.post("start", currentCode as string);
 
-      let ok = await handleResponse(response, currentBlock);
+      const ok = await handleResponse(response, currentBlock);
       if (!ok) break;
 
       // Get next block and sleep x seconds
