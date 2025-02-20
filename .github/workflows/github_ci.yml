@@ -129,7 +129,8 @@ jobs:
       - name: Checkout frontend
         uses: actions/checkout@v4
         with:
-          filter: blockly/frontend
+          sparse-checkout: blockly/frontend
+          sparse-checkout-cone-mode: true
       - name: Node.js setup
         uses: actions/setup-node@v4
         with:
