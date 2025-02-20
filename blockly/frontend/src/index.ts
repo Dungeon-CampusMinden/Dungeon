@@ -7,6 +7,7 @@ import { toolbox } from "./toolbox.ts";
 import { Api } from "./api/api.ts";
 import { config } from "./config.ts";
 import "./style.css";
+import {sleep} from "./utils/utils.ts";
 
 Blockly.setLocale(De as any);
 
@@ -96,17 +97,62 @@ async function call_clear_route(){
   }
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const displayErrorOnBlock = (block: Blockly.Block, error: string) => {
+    let errorArray = error.split("Fehlermeldung: ");
+    let errorText;
+    if (errorArray.length > 1) {
+        errorText = errorArray[1];
+    } else {
+        errorText = error;
+    }
+    block.setWarningText(errorText);
+}
+
+const clearAllWarnings = (workspace: Blockly.Workspace) => {
+    const allBlocks = workspace.getAllBlocks();
+    for (let i = 0; i < allBlocks.length; i++) {
+        const block = allBlocks[i];
+        block.setWarningText(null);
+    }
+}
+
+/**
+ * Handle the response from the server
+ *
+ * This function checks if the response from the server was ok or
+ * the program got interrupted. If the response was not ok, an
+ * error message is displayed on the current block.
+ *
+ * @param response The response from the server
+ * @param currentBlock The current block
+ * @returns true if the response was ok, false otherwise
+ */
+const handleResponse = async (response: Response, currentBlock: Blockly.Block): Promise<boolean> => {
+    if (!response.ok) {
+        const errorMessage = await response.text();
+        displayErrorOnBlock(currentBlock, errorMessage);
+        console.error("Fehler beim Ausführen des Codes", response);
+        return false;
+    }
+    // Status 205 means program was interrupted
+    if (response.status === 205) {
+        console.log("Programm unterbrochen!");
+        return false;
+    }
+    return true;
+}
+
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
+    clearAllWarnings(workspace);
+
     let sleepingTimeStr = delay.value;
     if (sleepingTimeStr === "") {
       sleepingTimeStr = "1";
     }
     const sleepingTime = Number(sleepingTimeStr);
     if (isNaN(sleepingTime)) {
-      alert("Die konfigurierte Verzögerung muss eine Zahl sein");
-      return;
+      throw new Error("Die konfigurierte Verzögerung muss eine Zahl sein");
     }
 
     startBtn.disabled = true;
@@ -129,23 +175,12 @@ if (startBtn) {
 
       const response = await api.post("start", currentCode as string);
 
-      // Check if response was not ok
-      if (!response.ok) {
-        currentBlock = null;
-        const text = await response.text();
-        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
-        continue;
-      }
-      // Status 205 means program was interrupted
-      if (response.status === 205) {
-        currentBlock = null;
-        alert("Programm unterbrochen!");
-        continue;
-      }
+      let ok = await handleResponse(response, currentBlock);
+      if (!ok) break;
 
       // Get next block and sleep x seconds
       currentBlock = currentBlock.getNextBlock();
-      await sleep(sleepingTime * 1000);
+      await sleep(sleepingTime);
     }
     // Reset values in backend
     call_clear_route();
@@ -174,8 +209,9 @@ let currentBlock = startBlock;
 if (stepBtn !== null) {
   workspace.highlightBlock(null);
   stepBtn.addEventListener("click", async () => {
+      clearAllWarnings(workspace);
+
       if (currentBlock === null) {
-        alert("Alle Schritte ausgeführt.");
         workspace.highlightBlock(null);
         currentBlock = startBlock;
         // Reset values in backend
@@ -200,22 +236,13 @@ if (stepBtn !== null) {
       const response = await api.post("start", currentCode as string);
 
       // Check if response was not ok
-      if (!response.ok) {
+      const ok = await handleResponse(response, currentBlock);
+      if (!ok) {
         currentBlock = startBlock;
-        workspace.highlightBlock(null);
-
-        const text = await response.text();
-        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
-
         call_clear_route();
-      }
-      // Status 205 means program was interrupted
-      if (response.status === 205) {
-        currentBlock = startBlock;
         workspace.highlightBlock(null);
-        alert("Programm unterbrochen!");
-        call_clear_route();
       }
+
       // Enable button again
       startBtn.disabled = false;
       stepBtn.disabled = false;
@@ -229,6 +256,7 @@ if (stepBtn !== null) {
 
 if (resetBtn) {
   resetBtn.addEventListener("click", async () => {
+    clearAllWarnings(workspace);
     // Reset code highlighting
     workspace.highlightBlock(null);
     // Reset currentBlock for step button
