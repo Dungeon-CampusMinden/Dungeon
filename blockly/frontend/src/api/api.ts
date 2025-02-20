@@ -15,6 +15,7 @@ export class Api {
       return response;
     } catch (error) {
       alert("Fehler beim Senden der Anfrage");
+      console.error("Fehler beim Senden der Anfrage", error);
       return new Response(null, { status: 500 });
     }
   }

@@ -139,7 +139,7 @@ if (startBtn) {
       // Status 205 means program was interrupted
       if (response.status === 205) {
         currentBlock = null;
-        alert("Programm unterbrochen!");
+        console.log("Programm unterbrochen!");
         continue;
       }
 
@@ -204,8 +204,8 @@ if (stepBtn !== null) {
         currentBlock = startBlock;
         workspace.highlightBlock(null);
 
-        const text = await response.text();
-        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.\n" + text );
+        alert("Bei der Ausführung des Programms ist ein Fehler aufgetreten.");
+        console.error("Fehler beim Ausführen des Codes", response);
 
         call_clear_route();
       }
@@ -213,7 +213,7 @@ if (stepBtn !== null) {
       if (response.status === 205) {
         currentBlock = startBlock;
         workspace.highlightBlock(null);
-        alert("Programm unterbrochen!");
+        console.log("Programm unterbrochen!");
         call_clear_route();
       }
       // Enable button again
