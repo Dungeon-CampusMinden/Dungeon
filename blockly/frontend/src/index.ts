@@ -8,6 +8,7 @@ import { Api } from "./api/api.ts";
 import { config } from "./config.ts";
 import "./style.css";
 import {sleep} from "./utils/utils.ts";
+import * as LimitUtils from "./limits.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -87,7 +88,31 @@ if (workspace) {
     }
     runCode();
   });
+
+  // Limits
+  // Update counts of each blockType
+  workspace.addChangeListener((e: Blockly.Events.Abstract) => {
+    let update = false;
+    if (e.type == Blockly.Events.BLOCK_CREATE) {
+      const newBlockId = (e as Blockly.Events.BlockCreate).blockId;
+      if (newBlockId === undefined) return;
+      const newBlock = workspace.getBlockById(newBlockId);
+      if (newBlock === null) return;
+      LimitUtils.onNewBlock(newBlock);
+      update = true;
+    } else if (e.type == Blockly.Events.BLOCK_DELETE) {
+      const oldBlockState = (e as Blockly.Events.BlockDelete).oldJson;
+      if (oldBlockState === undefined) return;
+      LimitUtils.onDeleteBlock(oldBlockState);
+      update = true;
+    }
+    // disable block if limit is reached
+    if (update) {
+      LimitUtils.updateToolbox(workspace);
+    }
+  });
 }
+
 
 async function call_clear_route(){
   const clear_response = await api.post("clear");

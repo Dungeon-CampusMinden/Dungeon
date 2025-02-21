@@ -6,6 +6,9 @@ interface Config {
   HIDE_GENERATED_CODE: boolean;
   HIDE_RESPONSE_INFO: boolean;
   ARRAY_MAX_VALUE: number;
+  LIMITS: {
+    [key: string]: number;
+  };
 }
 
 export const config: Config = {
@@ -16,4 +19,7 @@ export const config: Config = {
   HIDE_GENERATED_CODE: false,
   HIDE_RESPONSE_INFO: true,
   ARRAY_MAX_VALUE: 10,
+  LIMITS: {
+    //"fireball_.*": 1, // max 1 fireball
+  }
 };
