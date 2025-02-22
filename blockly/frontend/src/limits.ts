@@ -8,9 +8,45 @@ const blockCounts: Record<string, number> = {};
  * Increases the count for a newly added block type.
  * @param block - The Blockly block that was added.
  */
-export function registerBlockAdded(block: Blockly.Block): void {
+function addBlock(block: Blockly.serialization.blocks.State): void {
   const type = block.type;
   blockCounts[type] = (blockCounts[type] ?? 0) + 1;
+  console.debug(`Added block of type: '${type}' -> ${blockCounts[type]}`);
+}
+
+function removeBlock(block: Blockly.serialization.blocks.State): void {
+  const type = block.type;
+  if (type in blockCounts) {
+    blockCounts[type]--;
+  }
+  console.debug(`Removed block of type: '${type}' -> ${blockCounts[type]}`);
+}
+
+/**
+ * Recursively retrieves all sub-blocks of a given block.
+ * @param block - The Blockly block to retrieve sub-blocks from.
+ * @returns An array of all sub-blocks.
+ */
+function getAllSubBlocks(block: Blockly.serialization.blocks.State) {
+  const blocks = [block];
+  if (block.inputs !== undefined) {
+    for (const inputBlock of Object.values(block.inputs)) {
+      blocks.push(...getAllSubBlocks(inputBlock.block!));
+    }
+  }
+  if (block.next !== undefined) {
+    blocks.push(...getAllSubBlocks(block.next.block!));
+  }
+
+  return blocks;
+}
+
+/**
+ * Increases the count for a newly added block type.
+ * @param block - The Blockly block that was added.
+ */
+export function registerBlockAdded(block: Blockly.serialization.blocks.State): void {
+  getAllSubBlocks(block).forEach(addBlock);
 }
 
 /**
@@ -18,10 +54,7 @@ export function registerBlockAdded(block: Blockly.Block): void {
  * @param block - The Blockly block state that was removed.
  */
 export function registerBlockRemoved(block: Blockly.serialization.blocks.State): void {
-  const type = block.type;
-  if (type in blockCounts) {
-    blockCounts[type]--;
-  }
+  getAllSubBlocks(block).forEach(removeBlock);
 }
 
 /**
@@ -61,11 +94,14 @@ function extractBlockItems(items: Blockly.utils.toolbox.ToolboxItemInfo[]): Bloc
  * @param blocks - The array of block information objects to update.
  */
 function applyDisablingToBlocks(blocks: Blockly.utils.toolbox.BlockInfo[]): void {
-  const compiledRules = getReachedLimitRules().filter(({rule, regex}) =>
-    Object.entries(blockCounts).some(
-      ([type, count]) => regex.test(type) && count >= config.LIMITS[rule]
-    )
-  );
+  const compiledRules = getReachedLimitRules().filter(({rule, regex}) => {
+    for (const type in blockCounts) {
+      if (regex.test(type) && blockCounts[type] >= config.LIMITS[rule]) {
+        return true;
+      }
+    }
+    return false;
+  });
 
   for (const blockItem of blocks) {
     blockItem.enabled = true;

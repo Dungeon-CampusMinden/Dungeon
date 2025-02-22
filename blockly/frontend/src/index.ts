@@ -90,7 +90,6 @@ if (workspace) {
   });
 
   // Limits
-  // Update counts of each blockType
   workspace.addChangeListener((e: Blockly.Events.Abstract) => {
     let update = false;
     if (e.type == Blockly.Events.BLOCK_CREATE) {
@@ -98,7 +97,7 @@ if (workspace) {
       if (newBlockId === undefined) return;
       const newBlock = workspace.getBlockById(newBlockId);
       if (newBlock === null) return;
-      LimitUtils.registerBlockAdded(newBlock);
+      LimitUtils.registerBlockAdded(newBlock as unknown as Blockly.serialization.blocks.State);
       update = true;
     } else if (e.type == Blockly.Events.BLOCK_DELETE) {
       const oldBlockState = (e as Blockly.Events.BlockDelete).oldJson;
@@ -109,6 +108,7 @@ if (workspace) {
     // disable block if limit is reached
     if (update) {
       LimitUtils.refreshToolbox(workspace);
+      workspace.getToolbox()?.refreshSelection();
     }
   });
 }
