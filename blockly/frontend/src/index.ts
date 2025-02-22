@@ -98,17 +98,17 @@ if (workspace) {
       if (newBlockId === undefined) return;
       const newBlock = workspace.getBlockById(newBlockId);
       if (newBlock === null) return;
-      LimitUtils.onNewBlock(newBlock);
+      LimitUtils.registerBlockAdded(newBlock);
       update = true;
     } else if (e.type == Blockly.Events.BLOCK_DELETE) {
       const oldBlockState = (e as Blockly.Events.BlockDelete).oldJson;
       if (oldBlockState === undefined) return;
-      LimitUtils.onDeleteBlock(oldBlockState);
+      LimitUtils.registerBlockRemoved(oldBlockState);
       update = true;
     }
     // disable block if limit is reached
     if (update) {
-      LimitUtils.updateToolbox(workspace);
+      LimitUtils.refreshToolbox(workspace);
     }
   });
 }
