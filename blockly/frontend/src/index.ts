@@ -8,7 +8,7 @@ import { Api } from "./api/api.ts";
 import { config } from "./config.ts";
 import "./style.css";
 import {sleep} from "./utils/utils.ts";
-import * as LimitUtils from "./limits.ts";
+import * as LimitUtils from "./utils/limits.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -89,7 +89,7 @@ if (workspace) {
     runCode();
   });
 
-  // Limits
+  // Limiting Blocks Logic
   workspace.addChangeListener((e: Blockly.Events.Abstract) => {
     let update = false;
     if (e.type == Blockly.Events.BLOCK_CREATE) {
@@ -105,7 +105,7 @@ if (workspace) {
       LimitUtils.registerBlockRemoved(oldBlockState);
       update = true;
     }
-    // disable block if limit is reached
+    // Enable/disable affected blocks
     if (update) {
       LimitUtils.refreshToolbox(workspace);
       workspace.getToolbox()?.refreshSelection();

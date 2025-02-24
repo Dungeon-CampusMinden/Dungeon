@@ -1,6 +1,6 @@
 import * as Blockly from "blockly";
-import {config} from "./config";
-import {toolbox} from "./toolbox";
+import {config} from "../config.ts";
+import {toolbox} from "../toolbox.ts";
 
 const blockCounts: Record<string, number> = {};
 
@@ -13,6 +13,10 @@ function addBlock(block: Blockly.serialization.blocks.State): void {
   blockCounts[type] = (blockCounts[type] ?? 0) + 1;
 }
 
+/**
+ * Decreases the count for a removed block type.
+ * @param block - The Blockly block state that was removed.
+ */
 function removeBlock(block: Blockly.serialization.blocks.State): void {
   const type = block.type;
   if (type in blockCounts) {
