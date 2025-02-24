@@ -1,7 +1,7 @@
 import { serveFile } from "jsr:@std/http/file-server";
 
 const BASE_DIR = "/content";
-const PORT = 6969;
+const PORT = 8080;
 
 const handler = async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
@@ -9,7 +9,7 @@ const handler = async (request: Request): Promise<Response> => {
     if (filepath === "/") {
         filepath = "/index.html";
     }
-    
+
     try {
         return await serveFile(request, `.${BASE_DIR + filepath}`);
     } catch {
@@ -25,7 +25,7 @@ const openLink = (url: string) => {
         return new Deno.Command("open", { args: [url] }).output();
     } else if (os === "linux") {
         return new Deno.Command("xdg-open", { args: [url] }).output();
-    } 
+    }
     console.error("Unsupported OS");
     return null;
 };
