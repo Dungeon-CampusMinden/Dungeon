@@ -11,7 +11,6 @@ const blockCounts: Record<string, number> = {};
 function addBlock(block: Blockly.serialization.blocks.State): void {
   const type = block.type;
   blockCounts[type] = (blockCounts[type] ?? 0) + 1;
-  console.debug(`Added block of type: '${type}' -> ${blockCounts[type]}`);
 }
 
 function removeBlock(block: Blockly.serialization.blocks.State): void {
@@ -19,7 +18,6 @@ function removeBlock(block: Blockly.serialization.blocks.State): void {
   if (type in blockCounts) {
     blockCounts[type]--;
   }
-  console.debug(`Removed block of type: '${type}' -> ${blockCounts[type]}`);
 }
 
 /**
