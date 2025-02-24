@@ -68,15 +68,23 @@ Zusätzlich zur Verwendung von Node.js und npm, kann Deno genutzt werden, um ein
 ### Deno Installation
 
 - Installieren Sie Deno, wenn Sie eine ausführbare Datei für verschiedene Plattformen erstellen wollen. Weitere Informationen finden Sie unter [https://deno.land](https://deno.land).
-- Deno kann auch Pakete verwalten, z.B. mit `deno add` oder `deno install`. Dadurch entfällt in vielen Fällen die Nutzung von Node.js und npm.
+- Deno kann auch Pakete verwalten, z.B. mit `deno add` oder `deno install`. Dadurch entfällt die Nutzung von Node.js und npm.
 
 ### Executable erstellen
+
+Bevor die Executable erstellt werden kann, muss Schritt 5 (Optional) durchgeführt werden, um die Applikation zu bauen. Dannach muss in das `webserver`-Verzeichnis gewechselt werden:
+
+```bash
+cd webserver
+```
+
+Nun kann die Executable erstellt werden. Hier sind zwei Beispiele für verschiedene Plattformen:
 
 1. **Windows (x86_64):**
 ```bash
 deno compile --target x86_64-pc-windows-msvc --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.exe --icon ./content/favicon.ico webserver.ts
 ```
-> Bitte beachten Sie, dass in der aktuellen Deno-Version das Icon nicht korrekt übernommen wird und daher in der Exe nicht erscheint.
+> Bitte beachten Sie, dass in der aktuellen Deno-Version das Icon nicht korrekt übernommen wird und daher in der .exe nicht erscheint.
 
 2.**Linux (x86_64):**
 ```bash
@@ -85,4 +93,21 @@ deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-read --allow-
 
 Weitere unterstützte Zielplattformen finden Sie in der [Deno Dokumentation](https://docs.deno.com/runtime/reference/cli/compile/#supported-targets).
 
-Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
+Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordner kopiert werden:
+- `index.html`
+- `favicon.ico`
+- `cat_logo.png`
+```bash
+cp ../dist/* ./content
+```
+- `blockly.jar`
+1. Zuerst muss die `blockly.jar`-Datei erstellt werden.
+```bash
+gradlew buildBlocklyJar
+```
+2. Danach muss die `blockly.jar`-Datei in den `content`-Ordner kopiert werden.
+```bash
+cp ../../build/libs/Blockly.jar ./content/blockly.jar
+```
+
+Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
