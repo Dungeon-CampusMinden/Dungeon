@@ -1,4 +1,6 @@
-export const toolbox = {
+import * as Blockly from "blockly";
+
+export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
   kind: "categoryToolbox",
   contents: [
     {
@@ -56,7 +58,7 @@ export const toolbox = {
         {
           kind: "button",
           text: "Variable erstellen",
-          callbackKey: "createVariable",
+          callbackkey: "createVariable",
         },
         {
 
