@@ -5,8 +5,8 @@ ext {
     // -- DEPENDENCIES
     gdxVersion = '1.12.1'
     aiVersion = '1.8.2'
-    junitVersion = '5.11.4'
-    junitLauncherVersion = '1.11.4'
+    junitVersion = '5.12.0'
+    junitLauncherVersion = '1.12.0'
     mockitoVersion = '5.15.2'
     antlrVersion = '4.13.2'
 
