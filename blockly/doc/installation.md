@@ -106,9 +106,9 @@ Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordn
 - `index.html`
 - `favicon.ico`
 - `cat_logo.png`
-```bash
-cp ../dist/* ./content
-```
+    ```bash
+    cp ../dist/* ./content
+    ```
 - `blockly.jar`
 1. Für die Erstellung der `blockly.jar`-Datei muss in das Hauptverzeichnis gewechselt werden:
 ```bash
