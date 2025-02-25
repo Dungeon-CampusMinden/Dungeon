@@ -10,7 +10,9 @@ Bevor mit der Installation begonnen werden kann, müssen folgende Voraussetzunge
 
 * **JavaScript Runtime:**
   1. **Node.js und npm:** Blockly benötigt Node.js und npm, um die Applikation zu installieren und zu starten. Node.js und npm können von der [offiziellen Website](https://nodejs.org/en/) heruntergeladen werden. Die Installation von Node.js beinhaltet auch die Installation von npm.
-  #### **oder**
+
+    **oder**
+
   2. **Deno:** Deno kann als Alternative zu Node.js und npm verwendet werden. Weitere Informationen finden Sie unter [https://deno.land](https://deno.land). Falls Sie Deno verwenden möchten, ersetzen Sie in den folgenden Schritten `npm` durch `deno`.
   Deno wird benötigt, um eine ausführbare Datei (.exe) zu erstellen.
 
