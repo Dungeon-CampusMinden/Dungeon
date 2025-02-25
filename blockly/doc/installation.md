@@ -110,17 +110,17 @@ Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordn
     cp ../dist/* ./content
     ```
 - `blockly.jar`
-1. Für die Erstellung der `blockly.jar`-Datei muss in das Hauptverzeichnis gewechselt werden:
-```bash
-cd ../../../
-```
-2. Dann kann per Gradle die `Blockly.jar`-Datei erstellt werden:
-```bash
-gradlew buildBlocklyJar
-```
-3. Danach muss die `blockly.jar`-Datei in den `content`-Ordner kopiert werden.
-```bash
-cp ./blockly/build/libs/Blockly.jar ./blockly/frontend/webserver/content/blockly.jar
-```
+    1. Für die Erstellung der `blockly.jar`-Datei muss in das Hauptverzeichnis gewechselt werden:
+        ```bash
+        cd ../../../
+        ```
+    2. Dann kann per Gradle die `Blockly.jar`-Datei erstellt werden:
+        ```bash
+        ./gradlew buildBlocklyJar
+        ```
+    3. Danach muss die `blockly.jar`-Datei in den `content`-Ordner kopiert werden.
+        ```bash
+        cp ./blockly/build/libs/Blockly.jar ./blockly/frontend/webserver/content/blockly.jar
+        ```
 
 Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
