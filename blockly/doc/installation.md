@@ -72,7 +72,7 @@ Für die Erstellung einer ausführbaren Datei ist [Deno](https://deno.land) erfo
 
 ### Executable erstellen
 
-Bevor die Executable erstellt werden kann, muss Schritt 5 (Optional) durchgeführt werden, um die Applikation zu bauen. Dannach muss in das `webserver`-Verzeichnis gewechselt werden:
+Bevor die Executable erstellt werden kann, muss Schritt 5 (Optional) durchgeführt werden, um die Applikation zu bauen. Dannach muss in das `webserver`-Verzeichnis im Blockly-Subprojekt gewechselt werden:
 
 ```bash
 cd webserver
