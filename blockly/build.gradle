@@ -15,6 +15,7 @@ dependencies {
 
   // JUnit 4 and Mockito for testing
   testImplementation supportDependencies.junit
+  testRuntimeOnly supportDependencies.junitLauncher
 }
 
 sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
