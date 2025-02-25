@@ -96,9 +96,9 @@ Nun kann die Executable erstellt werden. Hier sind zwei Beispiele für verschied
     > Bitte beachten Sie, dass in der aktuellen Deno-Version das Icon nicht korrekt übernommen wird und daher in der .exe nicht erscheint.
 
 2. **Linux (x86_64):**
-```bash
-deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.bin webserver.ts
-```
+    ```bash
+    deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.bin webserver.ts
+    ```
 
 Weitere unterstützte Zielplattformen finden Sie in der [Deno Dokumentation](https://docs.deno.com/runtime/reference/cli/compile/#supported-targets).
 
