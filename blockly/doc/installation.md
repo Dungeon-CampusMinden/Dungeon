@@ -114,11 +114,11 @@ cp ../dist/* ./content
 ```bash
 cd ../../../
 ```
-1. Dann kann per Gradle die `Blockly.jar`-Datei erstellt werden:
+2. Dann kann per Gradle die `Blockly.jar`-Datei erstellt werden:
 ```bash
 gradlew buildBlocklyJar
 ```
-2. Danach muss die `blockly.jar`-Datei in den `content`-Ordner kopiert werden.
+3. Danach muss die `blockly.jar`-Datei in den `content`-Ordner kopiert werden.
 ```bash
 cp ./blockly/build/libs/Blockly.jar ./blockly/frontend/webserver/content/blockly.jar
 ```
