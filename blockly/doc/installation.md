@@ -11,7 +11,8 @@ Bevor mit der Installation begonnen werden kann, müssen folgende Voraussetzunge
 * **JavaScript Runtime:**
   1. **Node.js und npm:** Blockly benötigt Node.js und npm, um die Applikation zu installieren und zu starten. Node.js und npm können von der [offiziellen Website](https://nodejs.org/en/) heruntergeladen werden. Die Installation von Node.js beinhaltet auch die Installation von npm.
   #### **oder**
-  2. **Deno:** Deno kann als Alternative zu Node.js und npm verwendet werden. Weitere Informationen finden Sie unter [https://deno.land](https://deno.land). Deno wird benötigt, um eine ausführbare Datei (.exe) zu erstellen.
+  2. **Deno:** Deno kann als Alternative zu Node.js und npm verwendet werden. Weitere Informationen finden Sie unter [https://deno.land](https://deno.land). Falls Sie Deno verwenden möchten, ersetzen Sie in den folgenden Schritten `npm` durch `deno`.
+  Deno wird benötigt, um eine ausführbare Datei (.exe) zu erstellen.
 
 
 * **Git:** Blockly benötigt Git, um das Repository zu klonen. Git kann von der [offiziellen Website](https://git-scm.com/downloads) heruntergeladen werden.
@@ -74,9 +75,9 @@ npm run build
 
 Dieser Schritt kompiliert und optimiert die Anwendung für die Bereitstellung. Die resultierenden Dateien werden im `dist`-Verzeichnis gespeichert.
 
-## Erstellen einer Executable per Deno
+## Erstellen einer Executable
 
-Für die Erstellung einer ausführbaren Datei ist [Deno](https://deno.land) erforderlich.
+Für die Erstellung einer ausführbaren Datei ist **[Deno](https://deno.land) erforderlich**.
 
 ### Executable erstellen
 
