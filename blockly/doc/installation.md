@@ -42,14 +42,22 @@ npm install
 
 ## Schritt 4: Starten der Applikation
 
-Starten Sie zuerst das Blockly-Dungeon mit:
-
+Um die Applikation zu starten, wechseln Sie in das Hauptverzeichnis des Projekts:
+```bash
+cd ../..
+```
+Führen Sie dann den folgenden Befehl aus, um die Java-Anwendung zu starten:
 ```bash
 gradlew runBlockly
 ```
 
 Starten Sie dann den Vite.js-Entwicklungsserver, um "Blocky" lokal auszuführen:
 
+Dafür müssen Sie in das `frontend`-Verzeichnis wechseln:
+```bash
+cd blockly/frontend
+```
+Und führen Sie den folgenden Befehl aus:
 ```bash
 npm run dev
 ```
@@ -101,13 +109,17 @@ Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordn
 cp ../dist/* ./content
 ```
 - `blockly.jar`
-1. Zuerst muss die `blockly.jar`-Datei erstellt werden.
+1. Für die Erstellung der `blockly.jar`-Datei muss in das Hauptverzeichnis gewechselt werden:
+```bash
+cd ../../../
+```
+1. Dann kann per Gradle die `Blockly.jar`-Datei erstellt werden:
 ```bash
 gradlew buildBlocklyJar
 ```
 2. Danach muss die `blockly.jar`-Datei in den `content`-Ordner kopiert werden.
 ```bash
-cp ../../build/libs/Blockly.jar ./content/blockly.jar
+cp ./blockly/build/libs/Blockly.jar ./blockly/frontend/webserver/content/blockly.jar
 ```
 
 Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
