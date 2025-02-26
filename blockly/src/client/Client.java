@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import level.utils.DungeonLoader;
 import server.Server;
-import systems.DevHealthSystem;
 import systems.HudBlocklySystem;
 import systems.LevelTickSystem;
 
@@ -183,7 +182,7 @@ public class Client {
   private static void createSystems() {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
-    Game.add(new DevHealthSystem());
+    Game.add(new HealthSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new ProjectileSystem());

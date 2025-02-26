@@ -115,13 +115,15 @@ public class DungeonLoader {
   /**
    * Adds a level to the level order.
    *
-   * @param level The name of the level. (it will be converted to lowercase)
+   * @param level A {@link Tuple} containing the level name and the level handler class. The
+   *              level name is converted to lowercase.
    * @see #levelOrder()
    * @see #loadNextLevel()
    */
-  public void addLevel(Tuple<String, Class<? extends DevDungeonLevel>>... level) {
-    for (Tuple<String, Class<? extends DevDungeonLevel>> levelEntry : level) {
-      levelOrder.add(levelEntry);
+  @SafeVarargs
+  public final void addLevel(Tuple<String, Class<? extends DevDungeonLevel>>... level) {
+    for (Tuple<String, Class<? extends DevDungeonLevel>> t : level) {
+      levelOrder.add(new Tuple<>(t.a().toLowerCase(), t.b()));
     }
   }
 
