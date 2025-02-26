@@ -191,26 +191,24 @@ public final class HeroFactory {
           false);
     }
 
+    // UI controls
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (e) -> {
-          if (pc.openDialogs()) {
-            return; // do not open inventory if dialogs are open
-          }
-
-          UIComponent uiComponent = e.fetch(UIComponent.class).orElse(null);
-          if (uiComponent != null) {
-            if (uiComponent.dialog() instanceof GUICombination) {
-              InventoryGUI.inHeroInventory = false;
-              e.remove(UIComponent.class);
-            }
-          } else {
-            InventoryGUI.inHeroInventory = true;
-            e.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
-          }
+        (entity) -> {
+          toggleInventory(entity, pc, ic);
         },
         false,
         true);
+
+    if (ENABLE_MOUSE_MOVEMENT) {
+      pc.registerCallback(
+          KeyboardConfig.MOUSE_INVENTORY_TOGGLE.value(),
+          (entity) -> {
+            toggleInventory(entity, pc, ic);
+          },
+          false,
+          true);
+    }
 
     pc.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
@@ -268,6 +266,23 @@ public final class HeroFactory {
         KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
 
     return hero;
+  }
+
+  private static void toggleInventory(Entity entity, PlayerComponent pc, InventoryComponent ic) {
+    if (pc.openDialogs()) {
+      return;
+    }
+
+    UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
+    if (uiComponent != null) {
+      if (uiComponent.dialog() instanceof GUICombination) {
+        InventoryGUI.inHeroInventory = false;
+        entity.remove(UIComponent.class);
+      }
+    } else {
+      InventoryGUI.inHeroInventory = true;
+      entity.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+    }
   }
 
   private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
