@@ -18,7 +18,7 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import level.utils.DungeonLoader;
 import server.Server;
-import systems.HudBlocklySystem;
+import starter.RoomBasedDungeon;
 import systems.LevelTickSystem;
 
 /**
@@ -29,11 +29,10 @@ public class Client {
   private static HttpServer httpServer;
 
   /**
-   * Setup and run the game. Also start the server that is listening to the requests from blockly
-   * frontend.
+   * Main method to start the game.
    *
-   * @param args
-   * @throws IOException
+   * @param args The arguments passed to the game.
+   * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
@@ -134,15 +133,8 @@ public class Client {
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
-    Game.add(new FallingSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
-    Game.add(new PitSystem());
-    Game.add(new TeleporterSystem());
-    Game.add(EventScheduler.getInstance());
-    Game.add(new LeverSystem());
-    Game.add(new MobSpawnerSystem());
-    Game.add(new MagicShieldSystem());
   }
 
   private static void startServer() {
