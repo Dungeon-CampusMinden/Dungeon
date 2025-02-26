@@ -373,7 +373,16 @@ public class InventoryGUI extends CombinableGUI {
               @Override
               public boolean touchDown(
                   InputEvent event, float x, float y, int pointer, int button) {
-                if (inHeroInventory) return false;
+                if (inHeroInventory) {
+                  if (KeyboardConfig.MOUSE_USE_ITEM.value() == button) {
+                    // if in hero inventory, allow using items if key is pressed
+                    InventoryGUI.this.useItem(
+                        InventoryGUI.this.inventoryComponent.get(
+                            InventoryGUI.this.getSlotByMousePosition()));
+                    return true;
+                  }
+                  return false;
+                }
 
                 UIComponent uiComponent =
                     Game.hero().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);

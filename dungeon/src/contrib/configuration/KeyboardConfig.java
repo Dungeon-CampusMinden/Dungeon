@@ -14,6 +14,15 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> INVENTORY_OPEN =
       new ConfigKey<>(new String[] {"inventory", "open"}, new ConfigIntValue(Input.Keys.I));
 
+  /**
+   * If Mouse Movement is enabled. This key is used to open and close the inventory.
+   *
+   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
+   */
+  public static final ConfigKey<Integer> MOUSE_INVENTORY_TOGGLE =
+      new ConfigKey<>(
+          new String[] {"inventory", "mouse"}, new ConfigIntValue(Input.Buttons.MIDDLE));
+
   /** WTF? . */
   public static final ConfigKey<Integer> CLOSE_UI =
       new ConfigKey<>(new String[] {"ui", "close"}, new ConfigIntValue(Input.Keys.ESCAPE));
@@ -33,6 +42,16 @@ public class KeyboardConfig {
   /** WTF? . */
   public static final ConfigKey<Integer> USE_ITEM =
       new ConfigKey<>(new String[] {"item", "use"}, new ConfigIntValue(Input.Keys.E));
+
+  /**
+   * If Mouse Movement is enabled. This key is used to use an item. Only works if in Hero's
+   * inventory.
+   *
+   * @see contrib.entities.HeroFactory#ENABLE_MOUSE_MOVEMENT
+   * @see contrib.hud.inventory.InventoryGUI#inHeroInventory
+   */
+  public static final ConfigKey<Integer> MOUSE_USE_ITEM =
+      new ConfigKey<>(new String[] {"item", "mouse"}, new ConfigIntValue(Input.Buttons.RIGHT));
 
   /**
    * Quickly transfers an item from one inventory to another. E.g. chest to player or player to
