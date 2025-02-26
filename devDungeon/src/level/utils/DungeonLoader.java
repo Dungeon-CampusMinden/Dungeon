@@ -12,7 +12,6 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import level.DevDungeonLevel;
 
@@ -122,8 +121,8 @@ public class DungeonLoader {
   /**
    * Adds a level to the level order.
    *
-   * @param level A {@link Tuple} containing the level name and the level handler class. The
-   *              level name is converted to lowercase.
+   * @param level A {@link Tuple} containing the level name and the level handler class. The level
+   *     name is converted to lowercase.
    * @see #levelOrder()
    * @see #loadNextLevel()
    */
@@ -139,8 +138,8 @@ public class DungeonLoader {
    *
    * @return The current level order.
    */
-  public Set<String> levelOrder() {
-    return levelOrder.stream().map(Tuple::a).collect(Collectors.toSet());
+  public List<String> levelOrder() {
+    return levelOrder.stream().map(Tuple::a).toList();
   }
 
   /**
