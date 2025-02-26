@@ -58,7 +58,7 @@ public class RoomBasedDungeon {
         });
   }
 
-  private static void createRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
+  public static void createRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
     // create entity sets
     Set<Set<Entity>> entities = new HashSet<>();
     for (int i = 0; i < roomcount; i++) {
