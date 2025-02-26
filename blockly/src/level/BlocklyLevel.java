@@ -3,18 +3,22 @@ package level;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+
 import java.util.List;
 
 /**
- * This class is used to store the values from a parsed level file. It contains the layout (the
- * tiles), the design label, the hero start position and the custom points. This class is used in
- * the LevelParser.
+ * A level that uses blockly. This class is abstract and should be extended by specific levels.
+ *
+ * <p>
+ * This class extends the {@link DevDungeonLevel} class and provides a framework for creating, it overrides the DevDungeon
+ * specific `onTick` method to provide a more general implementation.
+ *
+ * @see DevDungeonLevel
  */
 public abstract class BlocklyLevel extends DevDungeonLevel {
 
   /**
-   * Call the parent constructor of a tile level with the given layout and design label. Set the
-   * start tile of the hero to the given heroPos.
+   * Create a new blockly level.
    *
    * @param layout 2D array containing the tile layout.
    * @param designLabel The design label for the level.
@@ -22,10 +26,10 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
    * @param name The name of the level.
    */
   public BlocklyLevel(
-      LevelElement[][] layout,
-      DesignLabel designLabel,
-      List<Coordinate> customPoints,
-      String name) {
+    LevelElement[][] layout,
+    DesignLabel designLabel,
+    List<Coordinate> customPoints,
+    String name) {
     super(layout, designLabel, customPoints, name, "");
   }
 
