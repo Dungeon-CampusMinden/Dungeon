@@ -58,6 +58,17 @@ public class RoomBasedDungeon {
         });
   }
 
+  /**
+   * Creates a room based level with the given number of rooms, monsters and chests.
+   *
+   * <p>This method creates a room based level with the given number of rooms, monsters and chests.
+   * It generates a random design label for the level and adds a crafting cauldron to the middle
+   * room. It also adds the specified number of monsters and chests to each room.
+   *
+   * @param roomcount The amount of rooms in the level.
+   * @param monstercount The amount of monsters in each room.
+   * @param chestcount The amount of chests in each room.
+   */
   public static void createRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
     // create entity sets
     Set<Set<Entity>> entities = new HashSet<>();
