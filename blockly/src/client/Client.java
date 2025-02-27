@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
+import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -18,7 +19,6 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import level.utils.DungeonLoader;
 import server.Server;
-import starter.RoomBasedDungeon;
 import systems.LevelTickSystem;
 
 /**
@@ -83,7 +83,7 @@ public class Client {
   }
 
   private static void startRoomBasedLevel() {
-    RoomBasedDungeon.createRoomBasedLevel(10, 5, 1);
+    GeneratorUtils.createRoomBasedLevel(10, 5, 1);
     DialogUtils.showTextPopup(
         "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
 

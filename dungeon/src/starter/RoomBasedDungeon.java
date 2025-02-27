@@ -4,17 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
-import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
+import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.level.elements.ILevel;
-import core.level.utils.DesignLabel;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Level;
 
 /** WTF? . */
@@ -54,51 +50,8 @@ public class RoomBasedDungeon {
           }
           setupMusic();
           Crafting.loadRecipes();
-          createRoomBasedLevel(roomcount, monstercount, chestcount);
+          GeneratorUtils.createRoomBasedLevel(roomcount, monstercount, chestcount);
         });
-  }
-
-  /**
-   * Creates a room based level with the given number of rooms, monsters and chests.
-   *
-   * <p>This method creates a room based level with the given number of rooms, monsters and chests.
-   * It generates a random design label for the level and adds a crafting cauldron to the middle
-   * room. It also adds the specified number of monsters and chests to each room.
-   *
-   * @param roomcount The amount of rooms in the level.
-   * @param monstercount The amount of monsters in each room.
-   * @param chestcount The amount of chests in each room.
-   */
-  public static void createRoomBasedLevel(int roomcount, int monstercount, int chestcount) {
-    // create entity sets
-    Set<Set<Entity>> entities = new HashSet<>();
-    for (int i = 0; i < roomcount; i++) {
-      Set<Entity> set = new HashSet<>();
-      entities.add(set);
-      if (i == roomcount / 2) {
-        try {
-          set.add(EntityFactory.newCraftingCauldron());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
-      for (int j = 0; j < monstercount; j++) {
-        try {
-          set.add(EntityFactory.randomMonster());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
-      for (int k = 0; k < chestcount; k++) {
-        try {
-          set.add(EntityFactory.newChest());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
-    }
-    ILevel level = RoomBasedLevelGenerator.level(entities, DesignLabel.randomDesign());
-    Game.currentLevel(level);
   }
 
   private static void createHero() throws IOException {
