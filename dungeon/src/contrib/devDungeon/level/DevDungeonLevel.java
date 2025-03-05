@@ -1,9 +1,12 @@
-package level;
+package contrib.devDungeon.level;
 
 import contrib.hud.DialogUtils;
-import core.Game;
+import contrib.utils.components.skill.TPBallSkill;
+import contrib.utils.level.ITickable;
+import contrib.utils.level.MissingLevelException;
 import core.level.Tile;
 import core.level.TileLevel;
+import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
@@ -14,10 +17,6 @@ import core.utils.components.path.IPath;
 import java.io.*;
 import java.util.*;
 import java.util.stream.IntStream;
-import level.devlevel.*;
-import level.utils.DungeonLoader;
-import level.utils.ITickable;
-import level.utils.MissingLevelException;
 
 /**
  * Represents a level in the DevDungeon game. This class extends the {@link TileLevel} class and
@@ -58,7 +57,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
     if (isFirstTick) {
       DialogUtils.showTextPopup(
           description,
-          "Level " + DungeonLoader.instance().currentLevelIndex() + ": " + levelName,
+          "Level " + DungeonLoader.currentLevelIndex() + ": " + levelName,
           () -> {
             // Workaround for tutorial popup
             if (levelName.equalsIgnoreCase("tutorial")) {
@@ -70,7 +69,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       pitTiles()
           .forEach(
               pit -> {
-                pit.timeToOpen(50L * Game.currentLevel().RANDOM.nextInt(1, 5));
+                pit.timeToOpen(50L * ILevel.RANDOM.nextInt(1, 5));
                 pit.close();
               });
 
@@ -138,8 +137,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DevDungeonLevel newLevel;
-      newLevel =
-          getDevLevel(DungeonLoader.instance().currentLevel(), layout, designLabel, customPoints);
+      newLevel = getDevLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -256,8 +254,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    Class<? extends DevDungeonLevel> levelHandler =
-        DungeonLoader.instance().levelHandler(levelName);
+    Class<? extends DevDungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
     if (levelHandler != null) {
       try {
         return levelHandler
@@ -323,11 +320,11 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
   /**
    * Adds a new teleport target to the list.
    *
-   * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
-   * teleport the entity to if it hits an entity.
+   * <p>The teleport target is a point where the {@link TPBallSkill TPBallSkill} will teleport the
+   * entity to if it hits an entity.
    *
    * @param points The teleport target to be added. Multiple points can be added at once.
-   * @see entities.TPBallSkill TPBallSkill
+   * @see TPBallSkill TPBallSkill
    */
   public void addTPTarget(Coordinate... points) {
     tpTargets.addAll(List.of(points));
@@ -336,11 +333,11 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
   /**
    * Removes a teleport target from the list.
    *
-   * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
-   * teleport the entity to if it hits an entity.
+   * <p>The teleport target is a point where the {@link TPBallSkill TPBallSkill} will teleport the
+   * entity to if it hits an entity.
    *
    * @param point The teleport target to be removed. Multiple points can be removed at once.
-   * @see entities.TPBallSkill TPBallSkill
+   * @see TPBallSkill TPBallSkill
    */
   public void removeTPTarget(Coordinate... point) {
     tpTargets.removeAll(List.of(point));
@@ -349,8 +346,8 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
   /**
    * Gets a random teleport target from the list.
    *
-   * <p>The teleport target is a point where the {@link entities.TPBallSkill TPBallSkill} will
-   * teleport the entity to if it hits an entity.
+   * <p>The teleport target is a point where the {@link TPBallSkill TPBallSkill} will teleport the
+   * entity to if it hits an entity.
    *
    * @return A random teleport target from the list. If the list is empty, null is returned.
    */

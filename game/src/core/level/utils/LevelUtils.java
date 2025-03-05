@@ -377,4 +377,85 @@ public final class LevelUtils {
   public static boolean isFreeTile(final Tile tile) {
     return tile.isAccessible() && Game.entityAtTile(tile).findAny().isEmpty();
   }
+
+  /**
+   * Changes the visibility of a rectangular area within the level. The area is defined by the top
+   * left and bottom right coordinates. If a tile within the specified area is null, it is skipped.
+   *
+   * @param topLeft The top left coordinate of the area.
+   * @param bottomRight The bottom right coordinate of the area.
+   * @param visible The visibility status to be set for the area.
+   */
+  public static void changeVisibilityForArea(
+      Coordinate topLeft, Coordinate bottomRight, boolean visible) {
+    for (int x = topLeft.x; x <= bottomRight.x; x++) {
+      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+        Tile tile = Game.tileAT(new Coordinate(x, y));
+        if (tile != null) {
+          tile.visible(visible);
+        }
+      }
+    }
+  }
+
+  /**
+   * Checks if a given Tile is within a given area.
+   *
+   * @param tile The tile to check.
+   * @param topLeft The top left coordinate of the area.
+   * @param bottomRight The bottom right coordinate of the area.
+   * @return true if the tile is within the area, false if not.
+   */
+  public static boolean isTileWithinArea(Tile tile, Coordinate topLeft, Coordinate bottomRight) {
+    return tile.coordinate().x >= topLeft.x
+        && tile.coordinate().x <= bottomRight.x
+        && tile.coordinate().y >= bottomRight.y
+        && tile.coordinate().y <= topLeft.y;
+  }
+
+  /**
+   * Checks if the hero is in a given area.
+   *
+   * @param topLeft The top left coordinate of the area.
+   * @param bottomRight The bottom right coordinate of the area.
+   * @return true if the hero is in the area, false if not.
+   * @see #isTileWithinArea(Tile, Coordinate, Coordinate)
+   */
+  public static boolean isHeroInArea(Coordinate topLeft, Coordinate bottomRight) {
+    Entity hero = Game.hero().orElse(null);
+    if (hero == null) {
+      return false;
+    }
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    Tile heroTile = Game.currentLevel().tileAt(pc.position().toCoordinate());
+    if (heroTile == null) {
+      return false;
+    }
+
+    return LevelUtils.isTileWithinArea(heroTile, topLeft, bottomRight);
+  }
+
+  /**
+   * Returns a list of tiles within a specified rectangular area in the level.
+   *
+   * <p>The method iterates over the tiles in the level layout within the bounds specified by the
+   * top-left and bottom-right coordinates. It adds each tile within these bounds to a list, which
+   * is then returned.
+   *
+   * @param topLeft The top-left coordinate of the rectangular area.
+   * @param bottomRight The bottom-right coordinate of the rectangular area.
+   * @return A list of tiles within the specified rectangular area in the level.
+   */
+  public static List<Tile> tilesInArea(Coordinate topLeft, Coordinate bottomRight) {
+    Tile[][] layout = Game.currentLevel().layout();
+    List<Tile> tiles = new java.util.ArrayList<>();
+    for (int x = topLeft.x; x <= bottomRight.x; x++) {
+      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+        tiles.add(layout[y][x]);
+      }
+    }
+    return tiles;
+  }
 }

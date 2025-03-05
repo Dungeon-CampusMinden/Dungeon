@@ -1,6 +1,7 @@
 package systems;
 
 import components.TorchComponent;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -12,7 +13,6 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.*;
-import utils.EntityUtils;
 
 /**
  * The FogOfWarSystem class is responsible for controlling the fog of war in the game.

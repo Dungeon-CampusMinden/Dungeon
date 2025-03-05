@@ -4,10 +4,12 @@ import com.badlogic.gdx.Input;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
+import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -27,8 +29,6 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.List;
-import level.DevDungeonLevel;
-import utils.EntityUtils;
 
 /** The Tutorial Level. */
 public class TutorialLevel extends DevDungeonLevel {
@@ -74,7 +74,7 @@ public class TutorialLevel extends DevDungeonLevel {
         "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
     buildBridge();
-    Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
+    Entity mob = utils.EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }

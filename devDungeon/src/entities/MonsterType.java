@@ -15,6 +15,7 @@ import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.TPBallSkill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -218,7 +219,7 @@ public enum MonsterType {
               new Skill(
                   new TPBallSkill(
                       SkillTools::heroPositionAsPoint,
-                      LevelUtils.getRandomTPTargetForCurrentLevel()),
+                      () -> LevelUtils.getRandomTPTargetForCurrentLevel()),
                   AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(6, false),

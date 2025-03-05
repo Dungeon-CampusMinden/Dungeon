@@ -1,5 +1,7 @@
 package level.utils;
 
+import contrib.devDungeon.level.DevDungeonLevel;
+import contrib.devDungeon.level.DungeonLoader;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -10,7 +12,6 @@ import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import level.DevDungeonLevel;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"

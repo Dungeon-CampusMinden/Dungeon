@@ -2,6 +2,7 @@ package client;
 
 import com.sun.net.httpserver.HttpServer;
 import contrib.crafting.Crafting;
+import contrib.devDungeon.level.DungeonLoader;
 import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
 import contrib.level.generator.GeneratorUtils;
@@ -17,9 +18,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.MazeLevel;
-import level.utils.DungeonLoader;
 import server.Server;
-import systems.LevelTickSystem;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -59,7 +58,7 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DungeonLoader.instance().addLevel(new Tuple<>("maze", MazeLevel.class));
+          DungeonLoader.addLevel(new Tuple<>("maze", MazeLevel.class));
           createSystems();
           createHero();
           Crafting.loadRecipes();
@@ -68,10 +67,10 @@ public class Client {
 
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(() -> DungeonLoader.instance().loadNextLevel());
-          DungeonLoader.instance().afterAllLevels(Client::startRoomBasedLevel);
+          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
+          DungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
 
-          DungeonLoader.instance().loadLevel("maze");
+          DungeonLoader.loadLevel("maze");
         });
   }
 
@@ -133,8 +132,6 @@ public class Client {
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
-    Game.add(new PathSystem());
-    Game.add(new LevelTickSystem());
   }
 
   private static void startServer() {

@@ -5,8 +5,8 @@ import contrib.components.AIComponent;
 import core.Entity;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import java.util.List;
-import level.utils.LevelUtils;
 import utils.EntityUtils;
 
 /**

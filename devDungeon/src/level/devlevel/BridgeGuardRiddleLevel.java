@@ -1,12 +1,12 @@
 package level.devlevel;
 
+import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import entities.MonsterType;
 import java.util.List;
-import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import utils.EntityUtils;
 

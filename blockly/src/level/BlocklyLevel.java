@@ -1,5 +1,6 @@
 package level;
 
+import contrib.devDungeon.level.DevDungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;

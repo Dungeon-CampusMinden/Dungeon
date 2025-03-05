@@ -5,9 +5,11 @@ import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
+import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.ai.fight.RangeAI;
 import core.Entity;
 import core.Game;
@@ -23,12 +25,10 @@ import entities.levercommands.OpenPassageCommand;
 import item.concreteItem.ItemPotionSpeed;
 import java.util.*;
 import java.util.function.Consumer;
-import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.IllusionRiddleHandler;
 import level.utils.Teleporter;
 import systems.FogOfWarSystem;
 import systems.TeleporterSystem;
-import utils.EntityUtils;
 
 /** The Illusion Riddle Level. TODO: Refactor this class */
 public class IllusionRiddleLevel extends DevDungeonLevel {
@@ -200,7 +200,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
         .forEach((tp) -> tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
 
     Entity b =
-        EntityUtils.spawnBoss(
+        utils.EntityUtils.spawnBoss(
             BOSS_TYPE,
             levelBossSpawn,
             (e) -> {

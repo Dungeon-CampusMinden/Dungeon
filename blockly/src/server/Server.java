@@ -31,7 +31,6 @@ import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import utils.EntityUtils;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
@@ -1234,9 +1233,9 @@ public class Server {
   }
 
   private void shootFireBall(final Direction direction) {
+    PositionComponent heroPc = getHeroPosition();
     Skill fireball =
-        new Skill(
-            new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
+        new Skill(new FireballSkill(() -> direction.applyDirection(heroPc.position())), 1);
     fireball.execute(hero);
     waitDelta();
   }

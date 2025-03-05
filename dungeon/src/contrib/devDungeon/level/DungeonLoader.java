@@ -1,5 +1,6 @@
-package level.utils;
+package contrib.devDungeon.level;
 
+import contrib.utils.level.MissingLevelException;
 import core.Game;
 import core.level.elements.ILevel;
 import core.utils.IVoidFunction;
@@ -13,7 +14,6 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import level.DevDungeonLevel;
 
 /**
  * The DungeonLoader class is used to load levels in the game. It is used to load levels in a
@@ -24,9 +24,6 @@ import level.DevDungeonLevel;
  */
 public class DungeonLoader {
 
-  // Singleton instance
-  private static DungeonLoader instance;
-
   private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "/levels";
@@ -36,29 +33,18 @@ public class DungeonLoader {
     getAllLevelFilePaths();
   }
 
-  private final List<Tuple<String, Class<? extends DevDungeonLevel>>> levelOrder =
+  private static final List<Tuple<String, Class<? extends DevDungeonLevel>>> levelOrder =
       new ArrayList<>();
-  private int currentLevel = 0;
-  private IVoidFunction afterAllLevels =
+  private static int currentLevel = 0;
+  private static IVoidFunction afterAllLevels =
       () -> {
         System.out.println("Game Over!");
         System.out.println("You have passed all " + currentLevel + " levels!");
         Game.exit();
       };
 
+  // Private constructor to prevent instantiation, as this class is a static utility class.
   private DungeonLoader() {}
-
-  /**
-   * Returns the instance of the DungeonLoader.
-   *
-   * @return The instance of the DungeonLoader.
-   */
-  public static DungeonLoader instance() {
-    if (instance == null) {
-      instance = new DungeonLoader();
-    }
-    return instance;
-  }
 
   private static void getAllLevelFilePaths() {
     if (isRunningFromJar()) {
@@ -127,7 +113,7 @@ public class DungeonLoader {
    * @see #loadNextLevel()
    */
   @SafeVarargs
-  public final void addLevel(Tuple<String, Class<? extends DevDungeonLevel>>... level) {
+  public static void addLevel(Tuple<String, Class<? extends DevDungeonLevel>>... level) {
     for (Tuple<String, Class<? extends DevDungeonLevel>> t : level) {
       levelOrder.add(new Tuple<>(t.a().toLowerCase(), t.b()));
     }
@@ -138,7 +124,7 @@ public class DungeonLoader {
    *
    * @return The current level order.
    */
-  public List<String> levelOrder() {
+  public static List<String> levelOrder() {
     return levelOrder.stream().map(Tuple::a).toList();
   }
 
@@ -148,7 +134,7 @@ public class DungeonLoader {
    * @return The name of the current level.
    * @throws IndexOutOfBoundsException If the current level index is out of bounds.
    */
-  public String currentLevel() {
+  public static String currentLevel() {
     return levelOrder.get(currentLevel).a().toLowerCase();
   }
 
@@ -159,7 +145,7 @@ public class DungeonLoader {
    * @return The level handler for the given level name. (null if not found)
    * @see DevDungeonLevel
    */
-  public Class<? extends DevDungeonLevel> levelHandler(String levelName) {
+  public static Class<? extends DevDungeonLevel> levelHandler(String levelName) {
     for (Tuple<String, Class<? extends DevDungeonLevel>> level : levelOrder) {
       if (level.a().equalsIgnoreCase(levelName)) {
         return level.b();
@@ -168,7 +154,7 @@ public class DungeonLoader {
     return null;
   }
 
-  private ILevel getRandomVariant(String levelName) {
+  private static ILevel getRandomVariant(String levelName) {
     List<String> levelVariants = LEVELS.get(levelName);
 
     if (levelVariants == null || levelVariants.isEmpty()) {
@@ -190,8 +176,8 @@ public class DungeonLoader {
    *
    * <p>It chooses a random variant of the next level.
    */
-  public void loadNextLevel() {
-    this.currentLevel++;
+  public static void loadNextLevel() {
+    DungeonLoader.currentLevel++;
     try {
       Game.currentLevel(getRandomVariant(currentLevel()));
     } catch (MissingLevelException | IndexOutOfBoundsException e) {
@@ -204,12 +190,12 @@ public class DungeonLoader {
    *
    * <p>Default is to close the game with a "Game Over!" message.
    *
-   * @param afterAllLevels
+   * @param afterAllLevels The callback function to execute after all levels are completed.
    * @see IVoidFunction
    * @see #loadNextLevel()
    */
-  public void afterAllLevels(IVoidFunction afterAllLevels) {
-    this.afterAllLevels = afterAllLevels;
+  public static void afterAllLevels(IVoidFunction afterAllLevels) {
+    DungeonLoader.afterAllLevels = afterAllLevels;
   }
 
   /**
@@ -217,7 +203,7 @@ public class DungeonLoader {
    *
    * @param levelName The name of the level.
    */
-  public void loadLevel(String levelName) {
+  public static void loadLevel(String levelName) {
     setCurrentLevelByLevelName(levelName);
     Game.currentLevel(getRandomVariant(levelName));
   }
@@ -228,7 +214,7 @@ public class DungeonLoader {
    * @param levelIndex The index of the level.
    * @throws IndexOutOfBoundsException If the level index is out of bounds.
    */
-  public void loadLevel(int levelIndex) {
+  public static void loadLevel(int levelIndex) {
     if (levelIndex < 0 || levelIndex >= levelOrder.size()) {
       throw new IndexOutOfBoundsException("Level index is out of bounds: " + levelIndex);
     }
@@ -241,7 +227,7 @@ public class DungeonLoader {
    * @param levelName The name of the level.
    * @param variant The index of the level variant.
    */
-  public void loadLevel(String levelName, int variant) {
+  public static void loadLevel(String levelName, int variant) {
     setCurrentLevelByLevelName(levelName);
     List<String> levelVariants = LEVELS.get(levelName);
     if (levelVariants == null || levelVariants.isEmpty() || variant >= levelVariants.size()) {
@@ -251,11 +237,11 @@ public class DungeonLoader {
     Game.currentLevel(DevDungeonLevel.loadFromPath(levelPath));
   }
 
-  private void setCurrentLevelByLevelName(String levelName) {
-    this.currentLevel = -1;
+  private static void setCurrentLevelByLevelName(String levelName) {
+    DungeonLoader.currentLevel = -1;
     for (int i = 0; i < levelOrder.size(); i++) {
       if (levelOrder.get(i).a().equals(levelName)) {
-        this.currentLevel = i;
+        DungeonLoader.currentLevel = i;
         break;
       }
     }
@@ -270,7 +256,7 @@ public class DungeonLoader {
    *
    * @return The index of the current level.
    */
-  public int currentLevelIndex() {
+  public static int currentLevelIndex() {
     return currentLevel;
   }
 }

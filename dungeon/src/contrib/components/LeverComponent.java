@@ -1,7 +1,7 @@
-package components;
+package contrib.components;
 
+import contrib.utils.ICommand;
 import core.Component;
-import utils.ICommand;
 
 /**
  * The LeverComponent class implements the Component interface. It represents a lever that can be

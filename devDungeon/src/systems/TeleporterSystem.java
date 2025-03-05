@@ -1,7 +1,6 @@
 package systems;
 
-import static utils.EntityUtils.getHeroCoordinate;
-
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -13,7 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import level.utils.Teleporter;
-import utils.EntityUtils;
 
 /**
  * This class represents a system that handles teleportation in the game. It keeps track of all
@@ -68,7 +66,7 @@ public class TeleporterSystem extends System {
    * @return True if the hero has moved, false otherwise.
    */
   private boolean heroMoved() {
-    return lastHeroPos != null && !lastHeroPos.equals(getHeroCoordinate());
+    return lastHeroPos != null && !lastHeroPos.equals(EntityUtils.getHeroCoordinate());
   }
 
   /**

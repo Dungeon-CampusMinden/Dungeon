@@ -1,6 +1,7 @@
 package level.devlevel;
 
 import contrib.components.InventoryComponent;
+import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -15,7 +16,6 @@ import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import java.util.*;
-import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import utils.EntityUtils;
 

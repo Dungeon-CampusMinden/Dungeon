@@ -2,24 +2,24 @@ package level.devlevel;
 
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
+import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import item.concreteItem.ItemResourceBerry;
 import java.util.*;
-import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.TorchRiddleRiddleHandler;
-import level.utils.LevelUtils;
-import utils.EntityUtils;
 
 /** The Torch Riddle Level. */
 public class TorchRiddleLevel extends DevDungeonLevel {
@@ -81,8 +81,8 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
     // Spawn all entities and it's content
     spawnTorches();
-    EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
-    EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn);
+    utils.EntityUtils.spawnMobs(MOB_COUNT, MONSTER_TYPES, mobSpawns);
+    utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn);
     spawnChestsAndCauldrons();
   }
 
@@ -98,7 +98,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
   private void spawnRiddleRoomTorches() {
     for (Coordinate riddleRoomTorch : riddleRoomTorches) {
       Point torchPos = new Point(riddleRoomTorch.x + 0.5f, riddleRoomTorch.y + 0.25f);
-      EntityUtils.spawnTorch(torchPos, true, false, 0);
+      utils.EntityUtils.spawnTorch(torchPos, true, false, 0);
     }
   }
 
@@ -116,7 +116,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
       Coordinate torchPosition = positions[i];
       Point torchPos = torchPosition.toCenteredPoint();
       Entity torch =
-          EntityUtils.spawnTorch(
+          utils.EntityUtils.spawnTorch(
               torchPos,
               i == 0,
               true,
