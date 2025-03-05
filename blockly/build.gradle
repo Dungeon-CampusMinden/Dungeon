@@ -1,20 +1,21 @@
 plugins {
-  id 'antlr'
+    id 'antlr'
 }
 
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-  implementation project(':dungeon')
+    implementation project(':dungeon')
+    implementation project(':devDungeon')
 
-  // ANTLR version 4 for DSL Grammar
-  antlr supportDependencies.antlr
+    // ANTLR version 4 for DSL Grammar
+    antlr supportDependencies.antlr
 
-  // JUnit 4 and Mockito for testing
-  testImplementation supportDependencies.junit
-  testRuntimeOnly supportDependencies.junitLauncher
+    // JUnit 4 and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
 }
 
 sourceSets.main.java.srcDirs = ['src/', "$buildDir/generated-src/"]
@@ -32,8 +33,8 @@ sourceSets.main.antlr.srcDirs = ['src']
 
 // generate ANTLR visitor and listener classes from grammar
 generateGrammarSource {
-  maxHeapSize = '64m'
-  arguments += ['-visitor', '-listener', '-long-messages']
+    maxHeapSize = '64m'
+    arguments += ['-visitor', '-listener', '-long-messages']
 }
 
 
@@ -43,7 +44,7 @@ tasks.register('runBlockly', JavaExec) {
 }
 
 tasks.register('buildBlocklyJar', Jar) {
-    dependsOn ':game:jar', ':dungeon:jar'
+    dependsOn ':game:jar', ':dungeon:jar', ':devDungeon:jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
     from project(':game').sourceSets.main.output
@@ -62,6 +63,7 @@ tasks.register('buildBlocklyJar', Jar) {
     into('assets') {
         from new File(project(':game').projectDir, '/assets')
         from new File(project(':dungeon').projectDir, '/assets')
+        from new File(project(':devDungeon').projectDir, '/assets')
     }
 
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')

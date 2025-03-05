@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -1233,9 +1234,9 @@ public class Server {
   }
 
   private void shootFireBall(final Direction direction) {
-    PositionComponent heroPc = getHeroPosition();
     Skill fireball =
-        new Skill(new FireballSkill(() -> direction.applyDirection(heroPc.position())), 1);
+        new Skill(
+            new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
     fireball.execute(hero);
     waitDelta();
   }
