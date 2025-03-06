@@ -4,28 +4,13 @@ export function interact(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "interagieren();";
 }
 
-export function fireball_up(
-  _block: Blockly.Block,
+export function fireball_direction(
+  block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return "feuerballOben();";
-}
-
-export function fireball_down(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  return "feuerballUnten();";
-}
-export function fireball_left(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  return "feuerballLinks();";
-}
-export function fireball_right(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  return "feuerballRechts();";
+  const dir = block.getFieldValue("DIRECTION");
+  if (dir === null) {
+    //throw new Error("Direction is null");
+  }
+  return "feuerball(\""+ dir + "\");";
 }
