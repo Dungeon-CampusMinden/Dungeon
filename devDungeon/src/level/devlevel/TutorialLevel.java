@@ -100,20 +100,20 @@ public class TutorialLevel extends DevDungeonLevel {
 
   @Override
   protected void onTick() {
-    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
+    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoordinate())) {
       // Only handle text popups if the hero has moved
       handleTextPopups();
     }
     handleDoors();
-    this.lastHeroCoords = EntityUtils.getHeroCoords();
+    this.lastHeroCoords = EntityUtils.getHeroCoordinate();
   }
 
   private void handleTextPopups() {
     DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4));
     DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
     DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6));
-    if (EntityUtils.getHeroCoords() == null) return;
-    Tile heroTile = tileAt(EntityUtils.getHeroCoords());
+    if (EntityUtils.getHeroCoordinate() == null) return;
+    Tile heroTile = tileAt(EntityUtils.getHeroCoordinate());
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {

@@ -101,7 +101,7 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DevDungeonLoader.loadLevel(1); // First Level
           } else {
-            DevDungeonLoader.loadLevel(3); // Tutorial
+            DevDungeonLoader.loadLevel(0); // Tutorial
           }
         });
   }

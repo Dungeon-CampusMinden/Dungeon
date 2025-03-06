@@ -2,12 +2,10 @@ package contrib.utils;
 
 import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
-import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
-import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.function.BiConsumer;
@@ -74,21 +72,6 @@ public class EntityUtils {
     Entity lever = LeverFactory.createLever(pos, onInteract);
     Game.add(lever);
     return lever;
-  }
-
-  /**
-   * This method is used to get the coordinates of the hero in the game. It uses the SkillTools
-   * class to get the hero's position as a point and then converts it to a coordinate. If the hero
-   * is missing, it catches the MissingHeroException and returns null.
-   *
-   * @return Coordinate of the hero's position. If the hero is missing, returns null.
-   */
-  public static Coordinate getHeroCoords() {
-    try {
-      return SkillTools.heroPositionAsPoint().toCoordinate();
-    } catch (MissingHeroException e) {
-      return null;
-    }
   }
 
   /**
