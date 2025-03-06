@@ -13,14 +13,14 @@ expr        : '(' ex=expr ')'                                  #Parenthese_Expr
             | right_value                                      #Atom_Expr
             ;
 
-right_value : value
+right_value : func_call
+            | value
             | var
-            | func_call
             ;
 
 func_call   : id=ID '(' args=arguments? ')';
 var         : ID;
-value   : BOOLEAN | INT;
+value   : BOOLEAN | INT | STRING;
 arguments    : (expr ','?)+;
 
 // Lexer

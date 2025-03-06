@@ -1,10 +1,17 @@
 import * as Blockly from "blockly";
-import { config } from "../config.ts";
+import {config} from "../config.ts";
 
 // delete predefined blocks
 delete Blockly.Blocks["logic_boolean"];
 delete Blockly.Blocks["controls_if"];
 delete Blockly.Blocks["controls_ifelse"];
+
+export const DIRECTIONS = [
+  ["Oben", "oben"],
+  ["Unten", "unten"],
+  ["Links", "links"],
+  ["Rechts", "rechts"],
+]
 
 export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   {
@@ -16,131 +23,23 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   // ---------------------- Movement ----------------------
   {
-    type: "move_up",
-    message0: "Oben %1",
+    type: "move",
+    message0: "Gehe nach %1 Schritte nach %2",
     previousStatement: null,
     nextStatement: null,
     colour: 290,
-    tooltip: "Nach oben gehen",
-    args0: [
-      {
-        type: "field_number",
-        name: "amount",
-        value: 1,
-        min: 1,
-        max: config.CHARACTER_MAX_MOVEMENT,
-      },
-    ],
-  },
-  {
-    type: "move_up_var",
-    message0: "Oben %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach oben gehen",
+    tooltip: "In eine Richtung gehen",
     args0: [
       {
         type: "input_value",
         name: "amount",
         check: "Move",
       },
-    ],
-  },
-  {
-    type: "move_down",
-    message0: "Unten %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach unten gehen",
-    args0: [
       {
-        type: "field_number",
-        name: "amount",
-        value: 1,
-        min: 1,
-        max: config.CHARACTER_MAX_MOVEMENT,
-      },
-    ],
-  },
-  {
-    type: "move_down_var",
-    message0: "Unten %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach unten gehen",
-    args0: [
-      {
-        type: "input_value",
-        name: "amount",
-        check: "Move",
-      },
-    ],
-  },
-  {
-    type: "move_left",
-    message0: "Links %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach links gehen",
-    args0: [
-      {
-        type: "field_number",
-        name: "amount",
-        value: 1,
-        min: 1,
-        max: config.CHARACTER_MAX_MOVEMENT,
-      },
-    ],
-  },
-  {
-    type: "move_left_var",
-    message0: "Links %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach links gehen",
-    args0: [
-      {
-        type: "input_value",
-        name: "amount",
-        check: "Move",
-      },
-    ],
-  },
-  {
-    type: "move_right",
-    message0: "Rechts %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach rechts gehen",
-    args0: [
-      {
-        type: "field_number",
-        name: "amount",
-        value: 1,
-        min: 1,
-        max: config.CHARACTER_MAX_MOVEMENT,
-      },
-    ],
-  },
-  {
-    type: "move_right_var",
-    message0: "Rechts %1",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 290,
-    tooltip: "Nach rechts gehen",
-    args0: [
-      {
-        type: "input_value",
-        name: "amount",
-        check: "Move",
-      },
+        type: "field_dropdown",
+        name: "DIRECTION",
+        options: DIRECTIONS,
+      }
     ],
   },
   // ---------------------- Variables ----------------------
@@ -196,18 +95,18 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 230,
   },
   {
-      type: "get_variable",
-      message0: "%1",
-      args0: [
-        {
-          type: "field_variable",
-          name: "VAR",
-          variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-        },
-      ],
-      output: "Variable",
-      colour: 260,
-    },
+    type: "get_variable",
+    message0: "%1",
+    args0: [
+      {
+        type: "field_variable",
+        name: "VAR",
+        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+      },
+    ],
+    output: "Variable",
+    colour: 260,
+  },
   {
     type: "expression",
     message0: "%1 %2 %3",
@@ -259,7 +158,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     message0: "Array erstellen %1",
     args0: [
-       {
+      {
         type: "field_variable",
         name: "VAR",
         variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
@@ -268,12 +167,12 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message1: "mit der Größe %1",
     args1: [
       {
-         type: "field_number",
-         name: "INPUT_A",
-         value: 1,
-         min: 1,
-         max: config.ARRAY_MAX_VALUE,
-       },
+        type: "field_number",
+        name: "INPUT_A",
+        value: 1,
+        min: 1,
+        max: config.ARRAY_MAX_VALUE,
+      },
     ],
     colour: 200,
     output: "array_set",
@@ -284,7 +183,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     message0: "In Array %1",
     args0: [
-       {
+      {
         type: "field_variable",
         name: "VAR",
         variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
@@ -293,19 +192,19 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message1: "den Wert %1",
     args1: [
       {
-         type: "input_value",
-         name: "INPUT_VALUE",
-         check: ["Variable", "Number", "Expression"],
-       },
+        type: "input_value",
+        name: "INPUT_VALUE",
+        check: ["Variable", "Number", "Expression"],
+      },
     ],
     message2: "an Index %1 setzen",
-      args2: [
-        {
-           type: "input_value",
-           name: "INPUT_INDEX",
-           check: ["Variable", "Number", "Expression"],
-         },
-      ],
+    args2: [
+      {
+        type: "input_value",
+        name: "INPUT_INDEX",
+        check: ["Variable", "Number", "Expression"],
+      },
+    ],
     colour: 200,
     output: "array_set",
   },
@@ -313,7 +212,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     type: "array_get",
     message0: "Hole Wert aus Array %1",
     args0: [
-       {
+      {
         type: "field_variable",
         name: "VAR",
         variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
@@ -322,27 +221,27 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message1: "von dem Index %1",
     args1: [
       {
-         type: "input_value",
-         name: "INPUT_INDEX",
-         check: ["Variable", "Number", "Expression"],
-       },
+        type: "input_value",
+        name: "INPUT_INDEX",
+        check: ["Variable", "Number", "Expression"],
+      },
     ],
     output: 'Array_get',
     colour: 200,
   },
   {
-      type: "array_length",
-      message0: "Länge von Array %1",
-      args0: [
-         {
-          type: "field_variable",
-          name: "VAR",
-          variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-        },
-      ],
-      output: 'Array_get',
-      colour: 200,
-    },
+    type: "array_length",
+    message0: "Länge von Array %1",
+    args0: [
+      {
+        type: "field_variable",
+        name: "VAR",
+        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
+      },
+    ],
+    output: 'Array_get',
+    colour: 200,
+  },
   // ---------------------- Loops ----------------------
   {
     type: "repeat",
@@ -468,31 +367,31 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 60,
   },
   {
-      type: "logic_operator",
-      message0: "%1 %2 %3",
-      args0: [
-        {
-          type: "input_value",
-          name: "CONDITION_A",
-          check: "Boolean",
-        },
-        {
-          type: "field_dropdown",
-          name: "LOGIC_OPERATOR",
-          options: [
-            ["und", "&&"],
-            ["oder", "||"],
-          ],
-        },
-        {
-          type: "input_value",
-          name: "CONDITION_B",
-          check: "Boolean",
-        },
-      ],
-      inputsInline: true,
-      output: "Boolean",
-      colour: 60,
+    type: "logic_operator",
+    message0: "%1 %2 %3",
+    args0: [
+      {
+        type: "input_value",
+        name: "CONDITION_A",
+        check: "Boolean",
+      },
+      {
+        type: "field_dropdown",
+        name: "LOGIC_OPERATOR",
+        options: [
+          ["und", "&&"],
+          ["oder", "||"],
+        ],
+      },
+      {
+        type: "input_value",
+        name: "CONDITION_B",
+        check: "Boolean",
+      },
+    ],
+    inputsInline: true,
+    output: "Boolean",
+    colour: 60,
   },
   {
     type: "logic_wall",
@@ -501,27 +400,17 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 60,
   },
   {
-    type: "logic_wall_up",
-    message0: "Wand oben",
+    type: "logic_wall_direction",
+    message0: "Wand %1",
     output: "Boolean",
-    colour: 60,
-  },
-  {
-    type: "logic_wall_down",
-    message0: "Wand unten",
-    output: "Boolean",
-    colour: 60,
-  },
-  {
-    type: "logic_wall_left",
-    message0: "Wand links",
-    output: "Boolean",
-    colour: 60,
-  },
-  {
-    type: "logic_wall_right",
-    message0: "Wand rechts",
-    output: "Boolean",
+    tooltip: "Überprüfe, ob eine Wand in die Richtung ist",
+    args0: [
+      {
+        type: "field_dropdown",
+        name: "DIRECTION",
+        options: DIRECTIONS,
+      },
+    ],
     colour: 60,
   },
   // ---------------------- If statement ----------------------
@@ -589,39 +478,19 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Skill",
   },
   {
-    type: "fireball_up",
-    message0: "Feuerball oben",
+    type: "fireball_direction",
+    message0: "Feuerball %1",
     previousStatement: null,
     nextStatement: null,
     colour: 0,
-    tooltip: "Feuerball nach oben schießen",
-    output: "Skill",
-  },
-  {
-    type: "fireball_down",
-    message0: "Feuerball unten",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 0,
-    tooltip: "Feuerball nach unten schießen",
-    output: "Skill",
-  },
-  {
-    type: "fireball_left",
-    message0: "Feuerball links",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 0,
-    tooltip: "Feuerball nach links schießen",
-    output: "Skill",
-  },
-  {
-    type: "fireball_right",
-    message0: "Feuerball rechts",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 0,
-    tooltip: "Feuerball nach rechts schießen",
+    tooltip: "Feuerball in Richtung schießen",
+    args0: [
+      {
+        type: "field_dropdown",
+        name: "DIRECTION",
+        options: DIRECTIONS,
+      },
+    ],
     output: "Skill",
   },
   //  ---------------------- Functions ----------------------

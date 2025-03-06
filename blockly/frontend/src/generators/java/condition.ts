@@ -48,35 +48,12 @@ export function logic_wall(
   return [code, Order.NONE];
 }
 
-export function logic_wall_up(
-  _block: Blockly.Block,
+export function logic_wall_direction(
+  block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  const code = "WandOben()";
-  return [code, Order.NONE];
-}
-
-export function logic_wall_down(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  const code = "WandUnten()";
-  return [code, Order.NONE];
-}
-
-export function logic_wall_left(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  const code = "WandLinks()";
-  return [code, Order.NONE];
-}
-
-export function logic_wall_right(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  const code = "WandRechts()";
+  const dir = block.getFieldValue("DIRECTION");
+  const code = "naheWand(\"" + dir + "\")";
   return [code, Order.NONE];
 }
 

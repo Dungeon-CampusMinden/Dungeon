@@ -190,12 +190,16 @@ if (startBtn) {
       }
       // Do nothing except highlighting on start block
       if (currentBlock.type === "start") {
+        console.log("Start block id: ", currentBlock.id);
         currentBlock = currentBlock.getNextBlock();
         continue;
       }
 
+      console.log("Current block: ", currentBlock);
+
       // Get code of the current block
       const currentCode = javaGenerator.blockToCode(currentBlock, true);
+      console.log("Code: ", currentCode);
 
       const response = await api.post("start", currentCode as string);
 
@@ -227,8 +231,7 @@ function getStartBlock(workspace: Blockly.Workspace) {
   return null;
 }
 
-const startBlock = getStartBlock(workspace);
-let currentBlock = startBlock;
+let currentBlock: Blockly.Block | null = null;
 
 if (stepBtn !== null) {
   workspace.highlightBlock(null);
@@ -237,21 +240,22 @@ if (stepBtn !== null) {
 
       if (currentBlock === null) {
         workspace.highlightBlock(null);
-        currentBlock = startBlock;
+        currentBlock = getStartBlock(workspace)
         // Reset values in backend
         call_clear_route();
         return;
       }
+
       // Highlight current block
-      if (currentBlock) {
-          workspace.highlightBlock(currentBlock.id);
-      }
+      workspace.highlightBlock(currentBlock.id);
+
       // Do nothing except highlighting on start block
       if (currentBlock.type === "start") {
         currentBlock = currentBlock.getNextBlock();
         return;
       }
-      // Disable button
+
+      // Disable buttons
       stepBtn.disabled = true;
       startBtn.disabled = true;
       // Get code of the current block
@@ -262,7 +266,7 @@ if (stepBtn !== null) {
       // Check if response was not ok
       const ok = await handleResponse(response, currentBlock);
       if (!ok) {
-        currentBlock = startBlock;
+        currentBlock = getStartBlock(workspace);
         call_clear_route();
         workspace.highlightBlock(null);
       }
@@ -284,7 +288,7 @@ if (resetBtn) {
     // Reset code highlighting
     workspace.highlightBlock(null);
     // Reset currentBlock for step button
-    currentBlock = startBlock;
+    currentBlock = getStartBlock(workspace);
     await api.post("reset");
   });
 }
@@ -311,4 +315,5 @@ if (workspace) { // placing default start block
   startBlock.initSvg();
   startBlock.render();
   startBlock.setDeletable(false);
+  currentBlock = startBlock;
 }
