@@ -34,16 +34,23 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.VariableHUD;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import level.BlocklyLevel;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -79,6 +86,12 @@ public class Server {
 
   /** Default port for the server. */
   private static final int DEFAULT_PORT = 8080;
+
+  /**
+   * This variable is used to set a timeout (in seconds) for the execution of the code. If the code
+   * does not finish within the timeout, an error will be thrown.
+   */
+  private static final int CODE_TIMEOUT = 5;
 
   /**
    * This variable holds all active scopes in a stack. The value at the top of the stack is the
@@ -179,6 +192,10 @@ public class Server {
     levelsContext.setHandler(this::handleLevelsRequest);
     HttpContext levelContext = server.createContext("/level");
     levelContext.setHandler(this::handleLevelRequest);
+    HttpContext codeContext = server.createContext("/code");
+    codeContext.setHandler(this::handleCodeRequest);
+    HttpContext languageContext = server.createContext("/language");
+    languageContext.setHandler(this::handleLanguageRequest);
     server.start();
     return server;
   }
@@ -395,6 +412,53 @@ public class Server {
   }
 
   /**
+   * Handles the code request. This function will execute the given java code. The code must be
+   * formatted as a string and will be executed in the dungeon.
+   *
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   * @throws IOException
+   */
+  private void handleCodeRequest(HttpExchange exchange) throws IOException {
+    InputStream inStream = exchange.getRequestBody();
+    String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
+    try {
+      executeJavaCode(text);
+    } catch (Exception e) {
+      setError(e.getMessage());
+    }
+
+    String response;
+    if (interruptExecution) {
+      response = errorMsg;
+      exchange.sendResponseHeaders(400, response.getBytes().length);
+    } else {
+      response = "OK";
+      exchange.sendResponseHeaders(200, response.getBytes().length);
+    }
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the language request. This function will return the current language of the dungeon.
+   *
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   * @throws IOException
+   */
+  private void handleLanguageRequest(HttpExchange exchange) throws IOException {
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+
+    String response = LanguageServer.GenerateCompletionItems(this.getClass());
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
    * Clear all global variables that may have been modified. Empty all stacks, hashmaps and reset
    * all global variables to their default value. Also clear the variable and array HUD in the
    * dungeon.
@@ -552,6 +616,67 @@ public class Server {
     printScopes();
 
     performAction(action);
+  }
+
+  /**
+   * Execute the given java code.
+   *
+   * @param code Java code that should be executed.
+   */
+  private void executeJavaCode(String code) throws Exception {
+    code =
+        "import server.Server;\n"
+            + "public class UserScript {\n"
+            + "    public static void execute(Server game) {\n"
+            + "        "
+            + code
+            + "\n"
+            + "    }\n"
+            + "}\n";
+
+    Path sourceFile = Paths.get("UserScript.java");
+    Files.writeString(sourceFile, code);
+
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+
+    int compilationResult = compiler.run(null, null, errorStream, sourceFile.toString());
+
+    if (compilationResult != 0) {
+      String errors = errorStream.toString();
+      System.err.println(errors);
+      setError("Compilation error:\n" + errors);
+      return;
+    }
+
+    URLClassLoader classLoader =
+        URLClassLoader.newInstance(new URL[] {new File("").toURI().toURL()});
+    Class<?> scriptClass = Class.forName("UserScript", true, classLoader);
+    Method method = scriptClass.getMethod("execute", this.getClass());
+
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<?> future =
+        executor.submit(
+            () -> {
+              try {
+                method.invoke(null, this);
+              } catch (Exception e) {
+                Throwable cause = e.getCause();
+                String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
+                System.err.println(errorMessage);
+                setError("Execution error: " + errorMessage);
+                throw new RuntimeException(e);
+              }
+            });
+
+    try {
+      future.get(CODE_TIMEOUT, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      future.cancel(true);
+      setError("Execution timed out (" + CODE_TIMEOUT + " seconds)");
+    } finally {
+      executor.shutdownNow();
+    }
   }
 
   /**
