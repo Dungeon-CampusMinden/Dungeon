@@ -1,4 +1,4 @@
-package contrib.devDungeon.level;
+package contrib.level;
 
 import contrib.hud.DialogUtils;
 import contrib.utils.components.skill.TPBallSkill;
@@ -57,7 +57,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
     if (isFirstTick) {
       DialogUtils.showTextPopup(
           description,
-          "Level " + DungeonLoader.currentLevelIndex() + ": " + levelName,
+          "Level " + DevDungeonLoader.currentLevelIndex() + ": " + levelName,
           () -> {
             // Workaround for tutorial popup
             if (levelName.equalsIgnoreCase("tutorial")) {
@@ -137,7 +137,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DevDungeonLevel newLevel;
-      newLevel = getDevLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
+      newLevel = getDevLevel(DevDungeonLoader.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -254,7 +254,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    Class<? extends DevDungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
+    Class<? extends DevDungeonLevel> levelHandler = DevDungeonLoader.levelHandler(levelName);
     if (levelHandler != null) {
       try {
         return levelHandler

@@ -1,4 +1,4 @@
-package contrib.devDungeon.level;
+package contrib.level;
 
 import contrib.utils.level.MissingLevelException;
 import core.Game;
@@ -16,15 +16,15 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * The DungeonLoader class is used to load levels in the game. It is used to load levels in a
- * specific order or to load a specific level. The DungeonLoader class is used to load levels from
- * the file system or from a jar file.
+ * The DevDungeonLoader class is used to load {@link DevDungeonLevel} in the game. It is used to
+ * load levels in a specific order or to load a specific level. The DungeonLoader class is used to
+ * load levels from the file system or from a jar file.
  *
  * @see DevDungeonLevel
  */
-public class DungeonLoader {
+public class DevDungeonLoader {
 
-  private static final Logger LOGGER = Logger.getLogger(DungeonLoader.class.getSimpleName());
+  private static final Logger LOGGER = Logger.getLogger(DevDungeonLoader.class.getSimpleName());
   private static final Random RANDOM = new Random();
   private static final String LEVEL_PATH_PREFIX = "/levels";
   private static final Map<String, List<String>> LEVELS = new HashMap<>();
@@ -44,7 +44,7 @@ public class DungeonLoader {
       };
 
   // Private constructor to prevent instantiation, as this class is a static utility class.
-  private DungeonLoader() {}
+  private DevDungeonLoader() {}
 
   private static void getAllLevelFilePaths() {
     if (isRunningFromJar()) {
@@ -63,19 +63,19 @@ public class DungeonLoader {
   }
 
   private static boolean isRunningFromJar() {
-    return Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX))
+    return Objects.requireNonNull(DevDungeonLoader.class.getResource(LEVEL_PATH_PREFIX))
         .toString()
         .startsWith("jar:");
   }
 
   private static void getAllLevelFilePathsFromFileSystem() throws IOException, URISyntaxException {
-    URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
+    URI uri = Objects.requireNonNull(DevDungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
     Path path = Paths.get(uri);
     parseLevelFiles(path, false);
   }
 
   private static void getAllLevelFilePathsFromJar() throws IOException, URISyntaxException {
-    URI uri = Objects.requireNonNull(DungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
+    URI uri = Objects.requireNonNull(DevDungeonLoader.class.getResource(LEVEL_PATH_PREFIX)).toURI();
     FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
     Path path = fileSystem.getPath(LEVEL_PATH_PREFIX);
     parseLevelFiles(path, true);
@@ -177,7 +177,7 @@ public class DungeonLoader {
    * <p>It chooses a random variant of the next level.
    */
   public static void loadNextLevel() {
-    DungeonLoader.currentLevel++;
+    DevDungeonLoader.currentLevel++;
     try {
       Game.currentLevel(getRandomVariant(currentLevel()));
     } catch (MissingLevelException | IndexOutOfBoundsException e) {
@@ -195,7 +195,7 @@ public class DungeonLoader {
    * @see #loadNextLevel()
    */
   public static void afterAllLevels(IVoidFunction afterAllLevels) {
-    DungeonLoader.afterAllLevels = afterAllLevels;
+    DevDungeonLoader.afterAllLevels = afterAllLevels;
   }
 
   /**
@@ -238,10 +238,10 @@ public class DungeonLoader {
   }
 
   private static void setCurrentLevelByLevelName(String levelName) {
-    DungeonLoader.currentLevel = -1;
+    DevDungeonLoader.currentLevel = -1;
     for (int i = 0; i < levelOrder.size(); i++) {
       if (levelOrder.get(i).a().equals(levelName)) {
-        DungeonLoader.currentLevel = i;
+        DevDungeonLoader.currentLevel = i;
         break;
       }
     }

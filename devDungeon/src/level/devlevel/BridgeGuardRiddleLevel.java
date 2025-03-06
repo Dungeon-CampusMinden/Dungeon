@@ -1,7 +1,7 @@
 package level.devlevel;
 
-import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.hud.DialogUtils;
+import contrib.level.DevDungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;

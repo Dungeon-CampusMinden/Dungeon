@@ -1,7 +1,7 @@
 package level.utils;
 
-import contrib.devDungeon.level.DevDungeonLevel;
-import contrib.devDungeon.level.DungeonLoader;
+import contrib.level.DevDungeonLevel;
+import contrib.level.DevDungeonLoader;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -17,9 +17,9 @@ import java.util.NoSuchElementException;
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"
  * is done by printing the design label of the current level, the position of the hero, and the
  * layout of the current level to the console. This String can then be copied and pasted into a
- * .level file to be loaded later by the {@link DungeonLoader}.
+ * .level file to be loaded later by the {@link DevDungeonLoader}.
  *
- * @see DungeonLoader
+ * @see DevDungeonLoader
  */
 public class DungeonSaver {
 

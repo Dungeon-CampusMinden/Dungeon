@@ -1,10 +1,10 @@
 package level.devlevel;
 
 import contrib.components.InventoryComponent;
-import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.level.DevDungeonLevel;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;

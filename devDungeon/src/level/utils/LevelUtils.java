@@ -1,6 +1,6 @@
 package level.utils;
 
-import contrib.devDungeon.level.DevDungeonLevel;
+import contrib.level.DevDungeonLevel;
 import contrib.utils.components.skill.TPBallSkill;
 import core.Game;
 import core.level.Tile;

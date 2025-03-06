@@ -5,13 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
-import contrib.devDungeon.level.DungeonLoader;
 import contrib.entities.HeroFactory;
 import contrib.entities.MiscFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
@@ -74,7 +74,7 @@ public class DevDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DungeonLoader.addLevel(
+          DevDungeonLoader.addLevel(
               new Tuple<>("tutorial", TutorialLevel.class),
               new Tuple<>("damagedBridge", DamagedBridgeRiddleLevel.class),
               new Tuple<>("torchRiddle", TorchRiddleLevel.class),
@@ -82,7 +82,7 @@ public class DevDungeon {
               new Tuple<>("bridgeGuard", BridgeGuardRiddleLevel.class),
               new Tuple<>("finalBoss", BossLevel.class));
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
+          levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
 
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
@@ -99,9 +99,9 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DungeonLoader.loadLevel(1); // First Level
+            DevDungeonLoader.loadLevel(1); // First Level
           } else {
-            DungeonLoader.loadLevel(3); // Tutorial
+            DevDungeonLoader.loadLevel(3); // Tutorial
           }
         });
   }

@@ -2,10 +2,10 @@ package level.devlevel;
 
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
-import contrib.devDungeon.level.DevDungeonLevel;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.level.DevDungeonLevel;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;

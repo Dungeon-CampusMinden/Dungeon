@@ -2,7 +2,7 @@ package systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import contrib.devDungeon.level.DevDungeonLevel;
+import contrib.level.DevDungeonLevel;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;
