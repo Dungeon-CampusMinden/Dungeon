@@ -1,4 +1,4 @@
-package level.utils;
+package contrib.utils.level;
 
 /** ITickable interface for objects that need to perform actions on each tick. */
 public interface ITickable {

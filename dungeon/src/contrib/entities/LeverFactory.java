@@ -1,7 +1,8 @@
-package entities;
+package contrib.entities;
 
-import components.LeverComponent;
 import contrib.components.InteractionComponent;
+import contrib.components.LeverComponent;
+import contrib.utils.ICommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -11,7 +12,6 @@ import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Map;
-import utils.ICommand;
 
 /** The LeverFactory class is responsible for creating lever entities. */
 public class LeverFactory {
@@ -27,8 +27,8 @@ public class LeverFactory {
    * @param pos The position where the lever will be created.
    * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
    * @return The created lever entity.
-   * @see components.LeverComponent LeverComponent
-   * @see systems.LeverSystem LeverSystem
+   * @see LeverComponent LeverComponent
+   * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos, ICommand onInteract) {
     Entity lever = new Entity("lever");

@@ -1,9 +1,9 @@
 package systems;
 
+import contrib.utils.level.ITickable;
 import core.Game;
 import core.System;
 import core.level.elements.ILevel;
-import level.utils.ITickable;
 
 /**
  * The LevelTickSystem is responsible for ticking the current level. It checks if the current level

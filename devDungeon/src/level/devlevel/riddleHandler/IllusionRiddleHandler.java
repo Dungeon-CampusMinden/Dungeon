@@ -2,6 +2,7 @@ package level.devlevel.riddleHandler;
 
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -13,7 +14,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
 import java.util.List;
-import utils.EntityUtils;
 
 /**
  * The IllusionRiddleHandler class is used to handle the riddle of the illusion. The riddle consists

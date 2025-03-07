@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
+import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.level.utils.LevelSize;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -40,14 +40,7 @@ public class RandomDungeon {
     Game.userOnLevelLoad(
         (firstTime) -> {
           if (firstTime) {
-            try {
-              for (int i = 0; i < monstercount; i++) Game.add(EntityFactory.randomMonster());
-              for (int i = 0; i < chestcount; i++) Game.add(EntityFactory.newChest());
-              Game.add(EntityFactory.newCraftingCauldron());
-            } catch (IOException e) {
-              throw new RuntimeException();
-            }
-            Game.levelSize(LevelSize.randomSize());
+            GeneratorUtils.createRandomDungeon(monstercount, chestcount);
           }
         });
   }

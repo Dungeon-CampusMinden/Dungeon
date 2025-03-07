@@ -1,6 +1,7 @@
 package systems;
 
 import contrib.components.HealthComponent;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -16,7 +17,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import utils.EntityUtils;
 
 /**
  * The FallingSystem is responsible for handling entities that fall into {@link PitTile}s. Falling

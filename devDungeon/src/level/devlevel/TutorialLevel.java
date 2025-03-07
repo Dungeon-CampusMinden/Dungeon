@@ -8,6 +8,8 @@ import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.level.DevDungeonLevel;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -27,8 +29,6 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.List;
-import level.DevDungeonLevel;
-import utils.EntityUtils;
 
 /** The Tutorial Level. */
 public class TutorialLevel extends DevDungeonLevel {
@@ -74,7 +74,7 @@ public class TutorialLevel extends DevDungeonLevel {
         "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
     buildBridge();
-    Entity mob = EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
+    Entity mob = utils.EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
@@ -100,20 +100,20 @@ public class TutorialLevel extends DevDungeonLevel {
 
   @Override
   protected void onTick() {
-    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoords())) {
+    if (lastHeroCoords != null && !lastHeroCoords.equals(EntityUtils.getHeroCoordinate())) {
       // Only handle text popups if the hero has moved
       handleTextPopups();
     }
     handleDoors();
-    this.lastHeroCoords = EntityUtils.getHeroCoords();
+    this.lastHeroCoords = EntityUtils.getHeroCoordinate();
   }
 
   private void handleTextPopups() {
     DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4));
     DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
     DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6));
-    if (EntityUtils.getHeroCoords() == null) return;
-    Tile heroTile = tileAt(EntityUtils.getHeroCoords());
+    if (EntityUtils.getHeroCoordinate() == null) return;
+    Tile heroTile = tileAt(EntityUtils.getHeroCoordinate());
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {

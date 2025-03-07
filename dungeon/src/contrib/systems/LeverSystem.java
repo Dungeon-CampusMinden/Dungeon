@@ -1,6 +1,8 @@
-package systems;
+package contrib.systems;
 
-import components.LeverComponent;
+import contrib.components.LeverComponent;
+import contrib.entities.LeverFactory;
+import contrib.utils.ICommand;
 import core.Entity;
 import core.System;
 import core.utils.components.MissingComponentException;
@@ -12,9 +14,9 @@ import java.util.function.Consumer;
  * The LeverSystem class is responsible for managing the state of levers in the game. It listens for
  * changes in the state of levers and executes the appropriate command when a lever is toggled.
  *
- * @see entities.LeverFactory LeverFactory
- * @see components.LeverComponent LeverComponent
- * @see utils.ICommand ICommand
+ * @see LeverFactory LeverFactory
+ * @see LeverComponent LeverComponent
+ * @see ICommand ICommand
  */
 public class LeverSystem extends System {
 
@@ -23,8 +25,8 @@ public class LeverSystem extends System {
   /**
    * Constructs a new LeverSystem.
    *
-   * @see entities.LeverFactory LeverFactory
-   * @see components.LeverComponent LeverComponent
+   * @see LeverFactory LeverFactory
+   * @see LeverComponent LeverComponent
    */
   public LeverSystem() {
     super(LeverComponent.class);

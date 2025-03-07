@@ -1,80 +1,18 @@
 package level.utils;
 
-import core.Entity;
+import contrib.level.DevDungeonLevel;
+import contrib.utils.components.skill.TPBallSkill;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import level.DevDungeonLevel;
 import systems.EventScheduler;
 
 /** Utility class for level-related operations. */
 public class LevelUtils {
-
-  /**
-   * Changes the visibility of a rectangular area within the level. The area is defined by the top
-   * left and bottom right coordinates. If a tile within the specified area is null, it is skipped.
-   *
-   * @param topLeft The top left coordinate of the area.
-   * @param bottomRight The bottom right coordinate of the area.
-   * @param visible The visibility status to be set for the area.
-   */
-  public static void changeVisibilityForArea(
-      Coordinate topLeft, Coordinate bottomRight, boolean visible) {
-    for (int x = topLeft.x; x <= bottomRight.x; x++) {
-      for (int y = bottomRight.y; y <= topLeft.y; y++) {
-        Tile tile = Game.tileAT(new Coordinate(x, y));
-        if (tile != null) {
-          tile.visible(visible);
-        }
-      }
-    }
-  }
-
-  /**
-   * Checks if a given Tile is within a given area.
-   *
-   * @param tile The tile to check.
-   * @param topLeft The top left coordinate of the area.
-   * @param bottomRight The bottom right coordinate of the area.
-   * @return true if the tile is within the area, false if not.
-   */
-  public static boolean isTileWithinArea(Tile tile, Coordinate topLeft, Coordinate bottomRight) {
-    return tile.coordinate().x >= topLeft.x
-        && tile.coordinate().x <= bottomRight.x
-        && tile.coordinate().y >= bottomRight.y
-        && tile.coordinate().y <= topLeft.y;
-  }
-
-  /**
-   * Checks if the hero is in a given area.
-   *
-   * @param topLeft The top left coordinate of the area.
-   * @param bottomRight The bottom right coordinate of the area.
-   * @return true if the hero is in the area, false if not.
-   * @see #isTileWithinArea(Tile, Coordinate, Coordinate)
-   */
-  public static boolean isHeroInArea(Coordinate topLeft, Coordinate bottomRight) {
-    Entity hero = Game.hero().orElse(null);
-    if (hero == null) {
-      return false;
-    }
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile heroTile = Game.currentLevel().tileAt(pc.position().toCoordinate());
-    if (heroTile == null) {
-      return false;
-    }
-
-    return LevelUtils.isTileWithinArea(heroTile, topLeft, bottomRight);
-  }
 
   /**
    * Returns a random teleportation target for the current level.
@@ -86,7 +24,7 @@ public class LevelUtils {
    *     the current level is not a DevDungeonLevel, or if no random teleportation target is
    *     available, null is returned.
    * @see DevDungeonLevel#randomTPTarget()
-   * @see entities.TPBallSkill TPBallSkill
+   * @see TPBallSkill TPBallSkill
    */
   public static Point getRandomTPTargetForCurrentLevel() {
     DevDungeonLevel level;
@@ -184,27 +122,5 @@ public class LevelUtils {
     }
 
     return true; // Line of sight is clear if we reach this point
-  }
-
-  /**
-   * Returns a list of tiles within a specified rectangular area in the level.
-   *
-   * <p>The method iterates over the tiles in the level layout within the bounds specified by the
-   * top-left and bottom-right coordinates. It adds each tile within these bounds to a list, which
-   * is then returned.
-   *
-   * @param topLeft The top-left coordinate of the rectangular area.
-   * @param bottomRight The bottom-right coordinate of the rectangular area.
-   * @return A list of tiles within the specified rectangular area in the level.
-   */
-  public static List<Tile> tilesInArea(Coordinate topLeft, Coordinate bottomRight) {
-    Tile[][] layout = Game.currentLevel().layout();
-    List<Tile> tiles = new java.util.ArrayList<>();
-    for (int x = topLeft.x; x <= bottomRight.x; x++) {
-      for (int y = bottomRight.y; y <= topLeft.y; y++) {
-        tiles.add(layout[y][x]);
-      }
-    }
-    return tiles;
   }
 }
