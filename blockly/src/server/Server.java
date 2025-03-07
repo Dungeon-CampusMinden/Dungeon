@@ -15,8 +15,9 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.VariableHUD;
 import java.io.IOException;
@@ -1086,6 +1087,9 @@ public class Server {
    * @param action Current action
    */
   private void performAction(String action) {
+    if (!action.contains("(") || !action.contains(")")) {
+      return;
+    }
     Object[] args = convertActionToArguments(action);
     String actionName = action.substring(0, action.indexOf("("));
     switch (actionName) {
@@ -1126,6 +1130,9 @@ public class Server {
    * @return Array of arguments extracted from the action string.
    */
   private Object[] convertActionToArguments(String action) {
+    if (!action.contains("(") || !action.contains(")")) {
+      return new Object[0];
+    }
     String[] argumentsString =
         action.substring(action.indexOf("(") + 1, action.lastIndexOf(")")).split(",");
     Object[] arguments = new Object[argumentsString.length];
@@ -1144,7 +1151,12 @@ public class Server {
       } // String
       else {
         // literal string starts and end with ", so we remove them
-        arguments[i] = argument.substring(1, argument.length() - 1);
+        if (argument.startsWith("\"") && argument.endsWith("\"")) {
+          arguments[i] = argument.substring(1, argument.length() - 1);
+        } // Variable name or empty
+        else {
+          arguments[i] = argument;
+        }
       }
     }
     return arguments;
@@ -1185,89 +1197,38 @@ public class Server {
   public boolean isNearWall() {
     boolean isNearWall;
 
-    isNearWall = isNearWallUp() || isNearWallDown() || isNearWallLeft() || isNearWallRight();
-    return isNearWall;
+    for (Direction direction : Direction.values()) {
+      isNearWall = isNearWall(direction);
+      if (isNearWall) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
    * Check if the hero is near a wall in a specific direction.
    *
+   * <p>This method checks if the hero is near a wall in the specified direction. It retrieves the
+   * hero's current coordinates and calculates the target coordinates based on the direction. It
+   * then checks if the target tile is accessible. If the hero or the target tile is null or not
+   * accessible, it returns true, indicating that the hero is near a wall.
+   *
    * @param direction Direction in which the hero will be moved.
-   * @return Returns true if the hero is near to a wall in the given direction. Otherwise, returns
-   *     false.
+   * @return Returns true if the hero is null or the target tile is not accessible. Otherwise,
+   *     returns false.
    */
   public boolean isNearWall(final Direction direction) {
-    boolean isNearWall;
-    float constant = 0.3f;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPosition =
-        new Point(
-            pc.position().x + (direction.x() * constant),
-            pc.position().y + (direction.y() * constant));
-
-    isNearWall = !Game.tileAT(newPosition).isAccessible();
-    return isNearWall;
-  }
-
-  /**
-   * Check if a wall is above the hero.
-   *
-   * @return Returns true if a wall is above the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallUp() {
-    boolean isNearWallUp;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionUp = new Point(pc.position().x, pc.position().y + 0.3f);
-
-    isNearWallUp = !Game.tileAT(newPositionUp).isAccessible();
-    return isNearWallUp;
-  }
-
-  /**
-   * Check if a wall is below the hero.
-   *
-   * @return Returns true if a wall is below the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallDown() {
-    boolean isNearWallDown;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionDown = new Point(pc.position().x, pc.position().y - 0.3f);
-
-    isNearWallDown = !Game.tileAT(newPositionDown).isAccessible();
-    return isNearWallDown;
-  }
-
-  /**
-   * Check if a wall is to the left of the hero.
-   *
-   * @return Returns true if a wall is to the left the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallLeft() {
-    boolean isNearWallLeft;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionLeft = new Point(pc.position().x - 0.3f, pc.position().y);
-
-    isNearWallLeft = !Game.tileAT(newPositionLeft).isAccessible();
-    return isNearWallLeft;
-  }
-
-  /**
-   * Check if a wall is to the right of the hero.
-   *
-   * @return Returns true if a wall is to the right the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallRight() {
-    boolean isNearWallRight;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionRight = new Point(pc.position().x + 0.3f, pc.position().y);
-
-    isNearWallRight = !Game.tileAT(newPositionRight).isAccessible();
-    return isNearWallRight;
+    Coordinate heroCoords = EntityUtils.getHeroCoordinate();
+    if (heroCoords == null) {
+      return true;
+    }
+    Coordinate targetCoords = heroCoords.add(new Coordinate(direction.x(), direction.y()));
+    Tile targetTile = Game.tileAT(targetCoords);
+    if (targetTile == null) {
+      return true;
+    }
+    return !targetTile.isAccessible();
   }
 
   /**
