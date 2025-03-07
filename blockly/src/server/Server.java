@@ -1117,18 +1117,18 @@ public class Server {
   /**
    * Convert the action to an array of arguments.
    *
-   * <p>
-   *   This method is used to convert the action string to an array of arguments. The action
-   *   string is expected to be in the format "actionName(arg1, arg2, ...)".
-   * <p>
-   * The method extracts the arguments from the action string and returns them as an array of
+   * <p>This method is used to convert the action string to an array of arguments. The action string
+   * is expected to be in the format "actionName(arg1, arg2, ...)".
+   *
+   * <p>The method extracts the arguments from the action string and returns them as an array of
    * fitting types.
    *
    * @param action Action string to be converted.
    * @return Array of arguments extracted from the action string.
    */
   private Object[] convertActionToArguments(String action) {
-    String[] argumentsString = action.substring(action.indexOf("(") + 1, action.lastIndexOf(")")).split(",");
+    String[] argumentsString =
+        action.substring(action.indexOf("(") + 1, action.lastIndexOf(")")).split(",");
     Object[] arguments = new Object[argumentsString.length];
 
     for (int i = 0; i < argumentsString.length; i++) {
@@ -1190,7 +1190,11 @@ public class Server {
     return isNearWall;
   }
 
-  /** Check if the hero is near a wall in a specific direction. */
+  /** Check if the hero is near a wall in a specific direction.
+   *
+   * @param direction Direction in which the hero will be moved.
+   * @return Returns true if the hero is near to a wall in the given direction. Otherwise, returns false.
+   */
   public boolean isNearWall(final Direction direction) {
     boolean isNearWall;
     float constant = 0.3f;
@@ -1283,8 +1287,8 @@ public class Server {
    */
   public void shootFireBall(final Direction direction) {
     Skill fireball =
-      new Skill(
-        new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
+        new Skill(
+            new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
     fireball.execute(hero);
     waitDelta();
   }
