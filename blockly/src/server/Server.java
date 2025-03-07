@@ -33,7 +33,6 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import utils.Direction;
-import utils.EntityUtils;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
