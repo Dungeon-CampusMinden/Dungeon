@@ -1,7 +1,8 @@
 package entities.levercommands;
 
+import contrib.utils.ICommand;
 import core.level.utils.Coordinate;
-import utils.ICommand;
+import level.utils.LevelUtils;
 
 /**
  * The BridgeControlCommand class is responsible for controlling the bridge in the Bridge Guard
@@ -28,7 +29,7 @@ public class BridgeControlCommand implements ICommand {
    * Raises the bridge. By opening the pits, the bridge is raised.
    *
    * @see core.level.elements.tile.PitTile#open() PitTile.open
-   * @see core.level.elements.ILevel#tilesInArea(Coordinate, Coordinate) tilesInArea
+   * @see LevelUtils#tilesInArea(Coordinate, Coordinate) tilesInArea
    */
   @Override
   public void execute() {
@@ -39,7 +40,7 @@ public class BridgeControlCommand implements ICommand {
    * Lowers the bridge. By closing the pits, the bridge is lowered.
    *
    * @see core.level.elements.tile.PitTile#close() PitTile.close
-   * @see core.level.elements.ILevel#tilesInArea(Coordinate, Coordinate) tilesInArea
+   * @see LevelUtils#tilesInArea(Coordinate, Coordinate) tilesInArea
    */
   @Override
   public void undo() {

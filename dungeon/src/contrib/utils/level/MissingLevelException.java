@@ -1,4 +1,4 @@
-package level.utils;
+package contrib.utils.level;
 
 /** Exception thrown when a level is not found at the specified path. */
 public class MissingLevelException extends RuntimeException {

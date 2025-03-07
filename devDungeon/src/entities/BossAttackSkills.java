@@ -5,6 +5,7 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.SpikyComponent;
 import contrib.entities.AIFactory;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
 import contrib.utils.components.skill.FireballSkill;
@@ -15,6 +16,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
@@ -28,7 +30,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import level.utils.LevelUtils;
 import systems.EventScheduler;
-import utils.EntityUtils;
 
 /**
  * A utility class for building different boss attack skills. The boss will use different attacks
@@ -362,7 +363,7 @@ public class BossAttackSkills {
    */
   private static boolean getBossAttackChance(Entity boss) {
     double healthPercentage = calculateBossHealthPercentage(boss);
-    Random random = Game.currentLevel().RANDOM;
+    Random random = ILevel.RANDOM;
 
     if (healthPercentage > 75) {
       return random.nextDouble() < 0.4;

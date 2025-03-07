@@ -2,6 +2,7 @@ package systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import contrib.level.DevDungeonLevel;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;
@@ -11,7 +12,6 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import java.util.Queue;
-import level.DevDungeonLevel;
 import level.utils.DungeonSaver;
 
 /**

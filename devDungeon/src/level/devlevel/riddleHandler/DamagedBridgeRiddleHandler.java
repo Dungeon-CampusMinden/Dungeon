@@ -4,6 +4,7 @@ import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -13,13 +14,12 @@ import core.level.TileLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import item.concreteItem.ItemPotionRegeneration;
 import item.concreteItem.ItemPotionSpeed;
 import java.util.List;
-import level.utils.LevelUtils;
-import utils.EntityUtils;
 
 /**
  * The DamagedBridgeRiddleHandler class is used to handle the riddle of the damaged bridge. The

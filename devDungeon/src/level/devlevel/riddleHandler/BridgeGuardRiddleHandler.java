@@ -10,6 +10,7 @@ import contrib.hud.dialogs.OkDialog;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
@@ -24,19 +25,18 @@ import core.level.elements.tile.PitTile;
 import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.level.utils.LevelUtils;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import entities.levercommands.BridgeControlCommand;
 import item.concreteItem.ItemPotionAttackSpeed;
 import java.util.ArrayList;
 import java.util.List;
-import level.utils.LevelUtils;
 import systems.DevHealthSystem;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
 import task.tasktype.Quiz;
 import task.tasktype.quizquestion.SingleChoice;
-import utils.EntityUtils;
 import utils.RegexRiddle;
 
 /**
@@ -118,7 +118,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
         .forEach(
             tile -> {
-              EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
+              utils.EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
             });
 
     LevelUtils.tilesInArea(bridgeBounds[0], bridgeBounds[1]).stream()
@@ -140,7 +140,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         "Bridge Control",
         bridgeLeverSign.toCenteredPoint());
     this.bridgeGuard =
-        EntityUtils.spawnBridgeGuard(bridgeGuardSpawn.toCenteredPoint(), riddles, lastTask());
+        utils.EntityUtils.spawnBridgeGuard(bridgeGuardSpawn.toCenteredPoint(), riddles, lastTask());
     bridgeGuard
         .fetch(HealthComponent.class)
         .ifPresent(

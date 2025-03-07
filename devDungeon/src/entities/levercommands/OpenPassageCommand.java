@@ -2,6 +2,9 @@ package entities.levercommands;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import contrib.components.LeverComponent;
+import contrib.systems.LeverSystem;
+import contrib.utils.ICommand;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
@@ -10,10 +13,9 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import systems.EventScheduler;
 import systems.FogOfWarSystem;
-import utils.ICommand;
 
 /**
- * A {@link systems.LeverSystem Lever}-Command that opens a passage in the dungeon.
+ * A {@link LeverSystem Lever}-Command that opens a passage in the dungeon.
  *
  * <p>The OpenPassageCommand is a command that can be executed by a lever entity. When executed, it
  * will open a passage in the dungeon by changing the tiles in the specified area to floor tiles.
@@ -21,8 +23,8 @@ import utils.ICommand;
  * <p>The command can be undone, which will revert the changes made to the tiles. The command also
  * plays a sound effect when executed.
  *
- * @see systems.LeverSystem LeverSystem
- * @see components.LeverComponent LeverComponent
+ * @see LeverSystem LeverSystem
+ * @see LeverComponent LeverComponent
  */
 public class OpenPassageCommand implements ICommand {
   private static final IPath OPEN_PASSAGE =

@@ -1,17 +1,15 @@
-package entities;
+package contrib.utils.components.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.DamageProjectile;
 import core.components.PlayerComponent;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
-import level.utils.LevelUtils;
-import utils.EntityUtils;
 
 /**
  * Subclass of {@link DamageProjectile}.
@@ -37,11 +35,10 @@ public final class TPBallSkill extends DamageProjectile {
    * teleport the entity to a random or specific location.
    *
    * @param targetSelection A function used to select the point where the projectile should fly to.
-   * @param tpTarget The target point to teleport the entity to. If null, a random point will be
-   *     selected.
+   * @param tpTarget A supplier that provides the target point for teleportation.
    * @see DamageProjectile
    */
-  public TPBallSkill(final Supplier<Point> targetSelection, Point tpTarget) {
+  public TPBallSkill(final Supplier<Point> targetSelection, Supplier<Point> tpTarget) {
     super(
         "tpball",
         PROJECTILE_TEXTURES,
@@ -57,11 +54,7 @@ public final class TPBallSkill extends DamageProjectile {
           if (entity.fetch(PlayerComponent.class).isEmpty()) {
             return;
           }
-          Point targetPos = tpTarget;
-          if (targetPos == null) {
-            targetPos = LevelUtils.getRandomTPTargetForCurrentLevel();
-          }
-          EntityUtils.teleportEntityTo(entity, targetPos);
+          EntityUtils.teleportEntityTo(entity, tpTarget.get());
         });
     tintColor(0xFF00FFFF);
   }

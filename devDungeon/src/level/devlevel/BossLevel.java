@@ -7,7 +7,9 @@ import contrib.entities.AIFactory;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.level.DevDungeonLevel;
 import contrib.systems.HealthSystem;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
@@ -15,6 +17,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -26,9 +29,7 @@ import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
-import level.DevDungeonLevel;
 import systems.DevHealthSystem;
-import utils.EntityUtils;
 
 /** The Final Boss Level. */
 public class BossLevel extends DevDungeonLevel implements IHealthObserver {
@@ -74,7 +75,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   @Override
   protected void onFirstTick() {
-    this.boss = EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn, this::handleBossDeath);
+    this.boss = utils.EntityUtils.spawnBoss(BOSS_TYPE, levelBossSpawn, this::handleBossDeath);
     ((DevHealthSystem) Game.systems().get(DevHealthSystem.class)).registerObserver(this);
     spawnChestsAndCauldrons();
   }
@@ -176,7 +177,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    *
    * @param boss The boss entity.
    * @see #onFirstTick()
-   * @see EntityUtils#spawnBoss(MonsterType, Coordinate, Consumer)
+   * @see utils.EntityUtils#spawnBoss(MonsterType, Coordinate, Consumer)
    */
   private void handleBossDeath(Entity boss) {
     InventoryComponent invComp = new InventoryComponent();
@@ -205,10 +206,8 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
             .map(Tile::coordinate)
             .filter(c -> c.distance(levelBossSpawn) > 3)
             .toArray(Coordinate[]::new);
-    EntityUtils.spawnMobs(
-        Game.currentLevel().RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT),
-        MOB_TYPES,
-        tilesAroundBoss);
+    utils.EntityUtils.spawnMobs(
+        ILevel.RANDOM.nextInt(MIN_MOB_COUNT, MAX_MOB_COUNT), MOB_TYPES, tilesAroundBoss);
 
     // Destroy pillars
     for (Coordinate pillarTopLeftCoord : pillars) {

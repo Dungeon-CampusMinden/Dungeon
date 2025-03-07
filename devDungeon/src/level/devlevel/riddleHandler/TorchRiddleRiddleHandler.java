@@ -8,15 +8,16 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.level.TileLevel;
+import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import level.utils.LevelUtils;
 import utils.ArrayUtils;
 
 /**
@@ -197,7 +198,7 @@ public class TorchRiddleRiddleHandler {
    * @return the sum of the random elements
    */
   private int getRandomSumOfNElements(List<Integer> numbers) {
-    int amount = level.RANDOM.nextInt(2, numbers.size());
+    int amount = ILevel.RANDOM.nextInt(2, numbers.size());
     List<Integer> randomNumbers =
         ArrayUtils.getRandomElements(numbers.toArray(new Integer[0]), amount);
     return randomNumbers.stream().mapToInt(Integer::intValue).sum();
