@@ -4,9 +4,21 @@ import core.utils.Point;
 
 /** Direction enum for the four cardinal directions. */
 public enum Direction {
+  /**
+   * The direction up.
+   */
   UP(0, 1),
+  /**
+   * The direction down.
+   */
   DOWN(0, -1),
+  /**
+   * The direction left.
+   */
   LEFT(-1, 0),
+  /**
+   * The direction right.
+   */
   RIGHT(1, 0);
 
   private final int x;
