@@ -1190,10 +1190,12 @@ public class Server {
     return isNearWall;
   }
 
-  /** Check if the hero is near a wall in a specific direction.
+  /**
+   * Check if the hero is near a wall in a specific direction.
    *
    * @param direction Direction in which the hero will be moved.
-   * @return Returns true if the hero is near to a wall in the given direction. Otherwise, returns false.
+   * @return Returns true if the hero is near to a wall in the given direction. Otherwise, returns
+   *     false.
    */
   public boolean isNearWall(final Direction direction) {
     boolean isNearWall;
