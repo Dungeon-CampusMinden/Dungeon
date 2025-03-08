@@ -8,7 +8,6 @@ repositories {
 
 dependencies {
   implementation project(':dungeon')
-  implementation project(':devDungeon')
 
   // ANTLR version 4 for DSL Grammar
   antlr supportDependencies.antlr
@@ -44,7 +43,7 @@ tasks.register('runBlockly', JavaExec) {
 }
 
 tasks.register('buildBlocklyJar', Jar) {
-    dependsOn ':game:jar', ':dungeon:jar', ':devDungeon:jar'
+    dependsOn ':game:jar', ':dungeon:jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
     from project(':game').sourceSets.main.output
@@ -63,7 +62,6 @@ tasks.register('buildBlocklyJar', Jar) {
     into('assets') {
         from new File(project(':game').projectDir, '/assets')
         from new File(project(':dungeon').projectDir, '/assets')
-        from new File(project(':devDungeon').projectDir, '/assets')
     }
 
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
