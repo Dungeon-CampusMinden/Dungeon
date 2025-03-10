@@ -1,7 +1,5 @@
 package utils;
 
-import core.utils.Point;
-
 /** Direction enum for the four cardinal directions. */
 public enum Direction {
   /** The direction up. */
@@ -33,38 +31,27 @@ public enum Direction {
   }
 
   /**
-   * Get the x coordinate of the direction.
+   * Get the x direction of the direction.
    *
-   * @return The x coordinate.
+   * <p>X represents the horizontal direction, where -1 is left, 0 is no movement in the x
+   * direction, and 1 is right.
+   *
+   * @return The x direction.
    */
   public int x() {
     return x;
   }
 
   /**
-   * Get the y coordinate of the direction.
+   * Get the y direction of the direction.
    *
-   * @return The y coordinate.
+   * <p>Y represents the vertical direction, where -1 is down, 0 is no movement in the y direction,
+   * and 1 is up.
+   *
+   * @return The y direction.
    */
   public int y() {
     return y;
-  }
-
-  /**
-   * Apply the direction to a point.
-   *
-   * <p>When the x coordinate of the direction is not 0, the x coordinate of the point will be moved
-   * by the maximum integer value. When the y coordinate of the direction is not 0, the y coordinate
-   * of the point will be moved by the maximum integer value.
-   *
-   * @param point Point that should be moved in the direction.
-   * @return The new point after applying the direction.
-   * @see Integer#MAX_VALUE
-   */
-  public Point applyDirection(Point point) {
-    float newX = this.x == 0 ? point.x : this.x * Integer.MAX_VALUE;
-    float newY = this.y == 0 ? point.y : this.y * Integer.MAX_VALUE;
-    return new Point(newX, newY);
   }
 
   /**

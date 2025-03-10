@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import contrib.components.CollideComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
@@ -18,6 +19,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.VariableHUD;
 import java.io.IOException;
@@ -1239,7 +1241,17 @@ public class Server {
   public void shootFireBall(final Direction direction) {
     Skill fireball =
         new Skill(
-            new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
+            new FireballSkill(
+                () -> {
+                  CollideComponent collider =
+                      hero.fetch(CollideComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(hero, CollideComponent.class));
+
+                  Point start = collider.center(hero);
+                  return start.add(new Point(direction.x(), direction.y()));
+                }),
+            1);
     fireball.execute(hero);
     waitDelta();
   }
