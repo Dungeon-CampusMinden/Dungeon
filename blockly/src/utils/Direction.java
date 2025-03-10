@@ -5,20 +5,30 @@ import core.utils.Point;
 /** Direction enum for the four cardinal directions. */
 public enum Direction {
   /** The direction up. */
-  UP(0, 1),
+  UP("oben", 0, 1),
   /** The direction down. */
-  DOWN(0, -1),
+  DOWN("unten", 0, -1),
   /** The direction left. */
-  LEFT(-1, 0),
+  LEFT("links", -1, 0),
   /** The direction right. */
-  RIGHT(1, 0);
+  RIGHT("rechts", 1, 0);
 
+  private final String dirName;
   private final int x;
   private final int y;
 
-  Direction(int x, int y) {
+  Direction(String name, int x, int y) {
+    this.dirName = name;
     this.x = x;
     this.y = y;
+  }
+
+  /**
+   * Get the name of the direction.
+   * @return The name of the direction.
+   */
+  public String dirName() {
+    return dirName;
   }
 
   /**
@@ -64,12 +74,12 @@ public enum Direction {
    */
   public static Direction fromString(String direction) {
     direction = direction.toLowerCase();
-    return switch (direction) {
-      case "oben" -> UP;
-      case "unten" -> DOWN;
-      case "links" -> LEFT;
-      case "rechts" -> RIGHT;
-      default -> throw new IllegalArgumentException("Invalid direction: " + direction);
-    };
+
+    for (Direction dir : Direction.values()) {
+      if (dir.dirName.equals(direction)) {
+        return dir;
+      }
+    }
+    throw new IllegalArgumentException("Invalid direction: " + direction);
   }
 }
