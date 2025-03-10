@@ -7,5 +7,5 @@ export function move(
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
 
-  return "gehe(" + dir + ");\n";
+  return "gehe(" + dir + ");";
 }
