@@ -1,10 +1,11 @@
 import * as Blockly from "blockly";
+import {Order} from "../java.ts";
 
 export function move(
   block: Blockly.Block,
-  _generator: Blockly.Generator
+  generator: Blockly.Generator
 ) {
-  const dir = block.getFieldValue("DIRECTION");
+  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
 
-  return "gehe(\"" + dir + "\");\n";
+  return "gehe(" + dir + ");\n";
 }

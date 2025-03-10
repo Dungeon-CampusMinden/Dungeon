@@ -6,13 +6,6 @@ delete Blockly.Blocks["logic_boolean"];
 delete Blockly.Blocks["controls_if"];
 delete Blockly.Blocks["controls_ifelse"];
 
-export const DIRECTIONS = [
-  ["Oben", "oben"],
-  ["Unten", "unten"],
-  ["Links", "links"],
-  ["Rechts", "rechts"],
-]
-
 export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   {
     type: "start",
@@ -31,9 +24,9 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     tooltip: "Bewegt den Spieler in eine Richtung",
     args0: [
       {
-        type: "field_dropdown",
+        type: "input_value",
         name: "DIRECTION",
-        options: DIRECTIONS,
+        check: "Direction",
       }
     ],
   },
@@ -146,6 +139,30 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Number",
     colour: 230,
   },
+  {
+    type: "direction_up",
+    message0: "oben",
+    output: "Direction",
+    colour: 230,
+  },
+  {
+    type: "direction_down",
+    message0: "unten",
+    output: "Direction",
+    colour: 230
+  },
+  {
+    type: "direction_left",
+    message0: "links",
+    output: "Direction",
+    colour: 230
+  },
+  {
+    type: "direction_right",
+    message0: "rechts",
+    output: "Direction",
+    colour: 230
+  },
   // ---------------------- Arrays ----------------------
   {
     type: "var_array",
@@ -245,7 +262,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "TIMES",
-        check: "Move",
+        check: "Number",
       },
     ],
     message1: "%{BKY_CONTROLS_REPEAT_INPUT_DO} %1",
@@ -296,7 +313,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         max: config.REPEAT_MAX_VALUE,
       },
     ],
-    output: "Move",
+    output: "Number",
     colour: 30,
   },
   // ---------------------- Conditions ----------------------
@@ -323,7 +340,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_A",
-        check: "Move",
+        check: "Number",
       },
       {
         type: "field_dropdown",
@@ -340,7 +357,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_B",
-        check: "Move",
+        check: "Number",
       },
     ],
     inputsInline: true,
@@ -389,21 +406,15 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 60,
   },
   {
-    type: "logic_wall",
-    message0: "nahe Wand",
-    output: "Boolean",
-    colour: 60,
-  },
-  {
     type: "logic_wall_direction",
     message0: "Wand %1",
     output: "Boolean",
     tooltip: "Überprüfe, ob eine Wand in die Richtung ist",
     args0: [
       {
-        type: "field_dropdown",
+        type: "input_value",
         name: "DIRECTION",
-        options: DIRECTIONS,
+        check: "Direction",
       },
     ],
     colour: 60,
@@ -481,12 +492,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     tooltip: "Feuerball in Richtung schießen",
     args0: [
       {
-        type: "field_dropdown",
+        type: "input_value",
         name: "DIRECTION",
-        options: DIRECTIONS,
+        check: "Direction",
       },
-    ],
-    output: "Skill",
+    ]
   },
   //  ---------------------- Functions ----------------------
   {

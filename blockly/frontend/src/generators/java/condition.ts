@@ -40,20 +40,12 @@ export function not_condition(
   return [code, Order.NONE];
 }
 
-export function logic_wall(
-  _block: Blockly.Block,
-  _generator: Blockly.Generator
-) {
-  const code = "naheWand()";
-  return [code, Order.NONE];
-}
-
 export function logic_wall_direction(
   block: Blockly.Block,
-  _generator: Blockly.Generator
+  generator: Blockly.Generator
 ) {
-  const dir = block.getFieldValue("DIRECTION");
-  const code = "naheWand(\"" + dir + "\")";
+  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
+  const code = "naheWand(" + dir + ")";
   return [code, Order.NONE];
 }
 

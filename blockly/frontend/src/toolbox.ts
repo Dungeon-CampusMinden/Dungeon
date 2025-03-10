@@ -24,7 +24,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Variablen erstellen",
+      name: "Variablen",
       colour: "230",
       contents: [
         {
@@ -52,6 +52,22 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         {
           kind: "block",
           type: "array_get",
+        },
+        {
+          kind: "block",
+          type: "direction_up",
+        },
+        {
+          kind: "block",
+          type: "direction_down",
+        },
+        {
+          kind: "block",
+          type: "direction_left",
+        },
+        {
+          kind: "block",
+          type: "direction_right",
         },
       ],
     },
@@ -121,10 +137,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
-          type: "logic_wall",
-        },
-        {
-          kind: "block",
           type: "logic_wall_direction"
         },
       ],
@@ -157,10 +169,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         {
           kind: "block",
           type: "logic_operator",
-        },
-        {
-          kind: "block",
-          type: "logic_wall",
         },
         {
           kind: "block",
