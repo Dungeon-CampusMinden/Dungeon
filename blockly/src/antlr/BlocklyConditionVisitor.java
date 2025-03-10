@@ -5,6 +5,7 @@ package antlr;
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 import nodes.*;
 import nodes.INode;
 import server.Server;
@@ -16,6 +17,9 @@ import utils.Direction;
  * evaluate the boolean value of a condition.
  */
 public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
+
+  private static final Logger LOGGER =
+      Logger.getLogger(BlocklyConditionVisitor.class.getSimpleName());
 
   private final Server httpServer;
 
@@ -193,7 +197,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
               if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
                 direction = ((BaseNode) argNode).strVal;
               } else {
-                System.out.println("Expected string argument for naheWand");
+                LOGGER.warning("Expected string argument for naheWand");
                 yield false;
               }
 
@@ -201,7 +205,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
             }
           }
           default -> {
-            System.out.println("Unknown function " + id);
+            LOGGER.warning("Unknown function " + id);
             yield false;
           }
         };

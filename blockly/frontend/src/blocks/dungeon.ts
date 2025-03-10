@@ -1,5 +1,5 @@
 import * as Blockly from "blockly";
-import {config} from "../config.ts";
+import { config } from "../config.ts";
 
 // delete predefined blocks
 delete Blockly.Blocks["logic_boolean"];
