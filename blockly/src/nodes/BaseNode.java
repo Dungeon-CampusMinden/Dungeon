@@ -11,6 +11,9 @@ public class BaseNode extends INode {
   /** Integer value of the node. */
   public int intVal;
 
+  /** String value of the node. */
+  public String strVal;
+
   /**
    * Create a new base node. The general type of the node will be set to "base". The base type can
    * either be integer or boolean.
@@ -33,6 +36,8 @@ public class BaseNode extends INode {
         } else {
           return "False";
         }
+      case STRING:
+        return strVal;
       default:
         System.out.println("Unsupported base type.");
         return "ERROR_WRONG_TYPE";

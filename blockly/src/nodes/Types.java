@@ -5,5 +5,7 @@ public enum Types {
   /** Boolean type. */
   BOOLEAN,
   /** Integer type. */
-  INTEGER
+  INTEGER,
+  /** String type. */
+  STRING,
 }

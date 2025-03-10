@@ -160,7 +160,7 @@ const handleResponse = async (response: Response, currentBlock: Blockly.Block): 
     }
     // Status 205 means program was interrupted
     if (response.status === 205) {
-        console.log("Programm unterbrochen!");
+        console.info("Programm unterbrochen!");
         return false;
     }
     return true;
@@ -227,8 +227,7 @@ function getStartBlock(workspace: Blockly.Workspace) {
   return null;
 }
 
-const startBlock = getStartBlock(workspace);
-let currentBlock = startBlock;
+let currentBlock: Blockly.Block | null = null;
 
 if (stepBtn !== null) {
   workspace.highlightBlock(null);
@@ -237,21 +236,22 @@ if (stepBtn !== null) {
 
       if (currentBlock === null) {
         workspace.highlightBlock(null);
-        currentBlock = startBlock;
+        currentBlock = getStartBlock(workspace)
         // Reset values in backend
         call_clear_route();
         return;
       }
+
       // Highlight current block
-      if (currentBlock) {
-          workspace.highlightBlock(currentBlock.id);
-      }
+      workspace.highlightBlock(currentBlock.id);
+
       // Do nothing except highlighting on start block
       if (currentBlock.type === "start") {
         currentBlock = currentBlock.getNextBlock();
         return;
       }
-      // Disable button
+
+      // Disable buttons
       stepBtn.disabled = true;
       startBtn.disabled = true;
       // Get code of the current block
@@ -262,7 +262,7 @@ if (stepBtn !== null) {
       // Check if response was not ok
       const ok = await handleResponse(response, currentBlock);
       if (!ok) {
-        currentBlock = startBlock;
+        currentBlock = getStartBlock(workspace);
         call_clear_route();
         workspace.highlightBlock(null);
       }
@@ -284,7 +284,7 @@ if (resetBtn) {
     // Reset code highlighting
     workspace.highlightBlock(null);
     // Reset currentBlock for step button
-    currentBlock = startBlock;
+    currentBlock = getStartBlock(workspace);
     await api.post("reset");
   });
 }
@@ -311,4 +311,5 @@ if (workspace) { // placing default start block
   startBlock.initSvg();
   startBlock.render();
   startBlock.setDeletable(false);
+  currentBlock = startBlock;
 }

@@ -7,6 +7,7 @@ import * as logic from "./java/condition.ts";
 import * as skills from "./java/skills.ts";
 import * as arrays from "./java/arrays.ts";
 import * as functions from "./java/functions.ts";
+import * as directions from "./java/directions.ts";
 
 class JavaGenerator extends Blockly.Generator {
   public variables: Map<string, number|string>;
@@ -48,7 +49,8 @@ Object.assign(
   logic,
   skills,
   arrays,
-  functions
+  functions,
+  directions
 );
 
 export const Order = {
