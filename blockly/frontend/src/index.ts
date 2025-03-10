@@ -160,7 +160,7 @@ const handleResponse = async (response: Response, currentBlock: Blockly.Block): 
     }
     // Status 205 means program was interrupted
     if (response.status === 205) {
-        console.log("Programm unterbrochen!");
+        console.info("Programm unterbrochen!");
         return false;
     }
     return true;
@@ -190,16 +190,12 @@ if (startBtn) {
       }
       // Do nothing except highlighting on start block
       if (currentBlock.type === "start") {
-        console.log("Start block id: ", currentBlock.id);
         currentBlock = currentBlock.getNextBlock();
         continue;
       }
 
-      console.log("Current block: ", currentBlock);
-
       // Get code of the current block
       const currentCode = javaGenerator.blockToCode(currentBlock, true);
-      console.log("Code: ", currentCode);
 
       const response = await api.post("start", currentCode as string);
 
