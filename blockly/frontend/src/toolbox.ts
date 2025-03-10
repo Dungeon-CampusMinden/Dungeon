@@ -11,13 +11,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         {
           kind: "block",
           type: "move",
-          inputs: {
-            amount: {
-              block: {
-                type: "repeat_number"
-              }
-            }
-          }
         },
         {
           kind: "block",
