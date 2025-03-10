@@ -103,18 +103,7 @@ public class Server {
   public String errorMsg = "";
 
   private boolean clearHUD = false;
-  private final String[] reservedFunctions = {
-    "oben",
-    "unten",
-    "links",
-    "rechts",
-    "feuerball",
-    "WandRechts",
-    "WandLinks",
-    "WandOben",
-    "WandUnten",
-    "naheWand"
-  };
+  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand"};
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /**
