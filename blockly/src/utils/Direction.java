@@ -25,6 +25,7 @@ public enum Direction {
 
   /**
    * Get the name of the direction.
+   *
    * @return The name of the direction.
    */
   public String dirName() {

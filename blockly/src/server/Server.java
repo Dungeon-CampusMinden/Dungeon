@@ -1093,7 +1093,7 @@ public class Server {
     Object[] args = convertActionToArguments(action);
     String actionName = action.substring(0, action.indexOf("("));
     switch (actionName) {
-      case "bewegen" -> {
+      case "gehe" -> {
         String firstArg;
         if (args[0] instanceof String) {
           firstArg = (String) args[0];

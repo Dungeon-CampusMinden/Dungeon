@@ -24,11 +24,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   // ---------------------- Movement ----------------------
   {
     type: "move",
-    message0: "Gehe nach %1 Schritte nach %2",
+    message0: "Gehe %1 Schritte nach %2",
     previousStatement: null,
     nextStatement: null,
     colour: 290,
-    tooltip: "In eine Richtung gehen",
+    tooltip: "Bewegt den Spieler in eine Richtung",
     args0: [
       {
         type: "input_value",

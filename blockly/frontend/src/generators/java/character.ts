@@ -12,7 +12,7 @@ export function move(
   let code = "";
 
   for (let i = 0; i < amount; i++) {
-    code += "bewegen(\"" + dir + "\");" + (i < amount - 1 ? "\n" : "");
+    code += "gehe(\"" + dir + "\");" + (i < amount - 1 ? "\n" : "");
   }
 
   return code;
