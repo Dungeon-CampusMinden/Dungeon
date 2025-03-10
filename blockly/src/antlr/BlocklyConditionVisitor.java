@@ -188,21 +188,22 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "naheWand" -> {
             // Check if arguments exist
             if (ctx.args == null) {
-              yield httpServer.isNearWall();
-            } else {
-              // Get the first argument and visit it
-              INode argNode = visit(ctx.args.expr(0));
-              String direction;
-
-              if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
-                direction = ((BaseNode) argNode).strVal;
-              } else {
-                LOGGER.warning("Expected string argument for naheWand");
-                yield false;
-              }
-
-              yield httpServer.isNearWall(Direction.fromString(direction));
+              LOGGER.warning("naheWand function: Expected 1 argument, got 0");
+              yield false;
             }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for naheWand");
+              yield false;
+            }
+
+            yield httpServer.isNearWall(Direction.fromString(direction));
           }
           default -> {
             LOGGER.warning("Unknown function " + id);

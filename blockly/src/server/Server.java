@@ -1181,23 +1181,6 @@ public class Server {
   }
 
   /**
-   * Check if the hero is near a wall.
-   *
-   * @return Returns true if the hero is near to a wall. Otherwise, returns false.
-   */
-  public boolean isNearWall() {
-    boolean isNearWall;
-
-    for (Direction direction : Direction.values()) {
-      isNearWall = isNearWall(direction);
-      if (isNearWall) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
    * Check if the hero is near a wall in a specific direction.
    *
    * <p>This method checks if the hero is near a wall in the specified direction. It retrieves the
