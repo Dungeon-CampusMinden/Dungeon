@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import axios from 'axios';
+import {CompletionItem} from 'vscode';
+import axios, {AxiosError} from 'axios';
 
 export default async function fetchLanguageConfig(): Promise<vscode.CompletionItem[]> {
     const config = vscode.workspace.getConfiguration('blocklyServer');
@@ -8,7 +9,7 @@ export default async function fetchLanguageConfig(): Promise<vscode.CompletionIt
     console.log(`Requesting language config from: ${url}`);
 
     try {
-        const response = await axios.get(url, { timeout: 5000 }); // Add timeout
+        const response = await axios.get(url, {timeout: 5000}); // Add timeout
         console.log('Server responded with status:', response.status);
 
         if (!Array.isArray(response.data)) {
@@ -16,14 +17,16 @@ export default async function fetchLanguageConfig(): Promise<vscode.CompletionIt
             throw new Error("Invalid language response format");
         }
 
-        console.log(`Processing ${response.data.length} language items`);
-        return response.data.map((entry: any) => {
+        return response.data.map((entry: CompletionItem) => {
             const item = new vscode.CompletionItem(entry.label, vscode.CompletionItemKind.Function);
-            item.detail = entry.description;
-            item.insertText = new vscode.SnippetString(entry.snippet || entry.label + "()");
+            item.detail = entry.detail;
+            item.insertText = new vscode.SnippetString(entry.insertText as string || entry.label + "()");
             return item;
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (!(error instanceof AxiosError))
+            throw error; // rethrow if not an AxiosError
+
         console.error('Error fetching language config:', error.message);
         vscode.window.showErrorMessage("Failed to load Blockly language: " + error.message);
         return [];

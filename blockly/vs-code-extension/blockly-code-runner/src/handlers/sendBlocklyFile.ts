@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import axios from 'axios';
-import { showMessageWithTimeout } from '../utils/utils';
-import { BLOCKLY_URL } from '../extension';
+import axios, {AxiosError} from 'axios';
+import {showMessageWithTimeout} from '../utils/utils';
+import {BLOCKLY_URL} from '../extension';
 
 // Create a diagnostic collection to manage error diagnostics
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('blockly');
@@ -24,9 +24,12 @@ export default async function sendBlocklyFile() {
     const code: string = editor.document.getText();
 
     try {
-        await axios.post(BLOCKLY_URL() + "/code", code, { headers: { 'Content-Type': 'text/plain' } });
-            showMessageWithTimeout('Blockly file sent successfully!');
-    } catch (error: any) {
+        await axios.post(BLOCKLY_URL() + "/code", code, {headers: {'Content-Type': 'text/plain'}});
+        showMessageWithTimeout('Blockly file sent successfully!');
+    } catch (error: unknown) {
+        if (!(error instanceof AxiosError))
+            throw error; // rethrow if not an AxiosError
+
         if (error.response?.status.toString().startsWith('4')) {
             const errorMessage = error.response.data;
             vscode.window.showErrorMessage('Execution failed');
@@ -52,7 +55,10 @@ export async function stopBlocklyExecution() {
     try {
         await axios.get(url);
         showMessageWithTimeout('Blockly execution stopped');
-    } catch (error: any) {
+    } catch (error: unknown) {
+        if (!(error instanceof AxiosError))
+            throw error; // rethrow if not an AxiosError
+
         vscode.window.showErrorMessage(`Failed to stop Java execution: ${error.message}`);
     }
 }
