@@ -46,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import level.BlocklyLevel;
@@ -313,6 +314,10 @@ public class Server {
     os.close();
   }
 
+  private final AtomicBoolean codeRunning = new AtomicBoolean(false);
+  private ExecutorService executor;
+  private Future<?> currentExecution;
+
   /**
    * Handles the variable request. This function will send the current variables to the blockly
    * frontend.
@@ -415,27 +420,104 @@ public class Server {
    * Handles the code request. This function will execute the given java code. The code must be
    * formatted as a string and will be executed in the dungeon.
    *
-   * @param exchange Exchange object. The function will send a success response to the blockly
-   *     frontend
+   * @param exchange Exchange object
    * @throws IOException
    */
   private void handleCodeRequest(HttpExchange exchange) throws IOException {
-    InputStream inStream = exchange.getRequestBody();
-    String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
-    try {
-      executeJavaCode(text);
-    } catch (Exception e) {
-      setError(e.getMessage());
+    // Check if this is a stop request
+    String query = exchange.getRequestURI().getQuery();
+    boolean isStopRequest = query != null && query.contains("stop=1");
+
+    if (isStopRequest) {
+      handleStopCodeExecution(exchange);
+      return;
     }
 
-    String response;
-    if (interruptExecution) {
-      response = errorMsg;
+    // Handle normal code execution request
+    if (codeRunning.get()) {
+      String response = "Another code execution is already running. Please stop it first.";
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
       exchange.sendResponseHeaders(400, response.getBytes().length);
-    } else {
-      response = "OK";
-      exchange.sendResponseHeaders(200, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+      return;
     }
+
+    InputStream inStream = exchange.getRequestBody();
+    String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
+
+    // Start code execution
+    interruptExecution = false;
+    codeRunning.set(true);
+    try {
+      executeJavaCode(text);
+
+      // Wait 1 second to check for errors or completion
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        // Ignore
+      }
+
+      String response;
+      int statusCode;
+
+      if (interruptExecution) {
+        response = errorMsg;
+        statusCode = 400;
+        codeRunning.set(false); // Reset the flag since execution encountered an error
+      } else if (!codeRunning.get()) {
+        // Code completed execution within 1 second
+        response = "OK - Code executed successfully";
+        statusCode = 200;
+      } else {
+        // Code is still running after 1 second
+        response = "OK - Code execution started";
+        statusCode = 200;
+      }
+
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+    } catch (Exception e) {
+      setError("Failed to execute code: " + e.getMessage());
+      String response = errorMsg;
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      exchange.sendResponseHeaders(400, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+      codeRunning.set(false);
+    }
+  }
+
+  /**
+   * Handles stop request for currently running code execution.
+   *
+   * @param exchange Exchange object
+   * @throws IOException
+   */
+  private void handleStopCodeExecution(HttpExchange exchange) throws IOException {
+    String response;
+    int statusCode = 200;
+
+    if (codeRunning.get() && currentExecution != null && !currentExecution.isDone()) {
+      currentExecution.cancel(true);
+      if (executor != null) {
+        executor.shutdownNow();
+      }
+      codeRunning.set(false);
+      interruptExecution = true;
+      response = "Code execution stopped";
+    } else {
+      response = "No code execution running";
+    }
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(statusCode, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
@@ -464,6 +546,15 @@ public class Server {
    * dungeon.
    */
   public void clearGlobalValues() {
+    // Stop any running code
+    if (codeRunning.get() && currentExecution != null && !currentExecution.isDone()) {
+      currentExecution.cancel(true);
+      if (executor != null) {
+        executor.shutdownNow();
+      }
+      codeRunning.set(false);
+    }
+
     // Reset values
     active_scopes.clear();
     currently_repeating_scope.clear();
@@ -488,6 +579,9 @@ public class Server {
    * @param errMsg Error message that will be sent to the blockly frontend.
    */
   private void setError(String errMsg) {
+    if (errMsg.trim().isEmpty()) {
+      errMsg = "Unknown error";
+    }
     interruptExecution = true;
     errorOccurred = true;
     errorMsg = errMsg;
@@ -625,14 +719,14 @@ public class Server {
    */
   private void executeJavaCode(String code) throws Exception {
     code =
-        "import server.Server;\n"
-            + "public class UserScript {\n"
-            + "    public static void execute(Server game) {\n"
-            + "        "
-            + code
-            + "\n"
-            + "    }\n"
-            + "}\n";
+      "import server.Server;\n"
+        + "public class UserScript {\n"
+        + "    public static void execute(Server game) {\n"
+        + "        "
+        + code
+        + "\n"
+        + "    }\n"
+        + "}\n";
 
     Path sourceFile = Paths.get("UserScript.java");
     Files.writeString(sourceFile, code);
@@ -646,37 +740,32 @@ public class Server {
       String errors = errorStream.toString();
       System.err.println(errors);
       setError("Compilation error:\n" + errors);
+      codeRunning.set(false);
       return;
     }
 
     URLClassLoader classLoader =
-        URLClassLoader.newInstance(new URL[] {new File("").toURI().toURL()});
+      URLClassLoader.newInstance(new URL[] {new File("").toURI().toURL()});
     Class<?> scriptClass = Class.forName("UserScript", true, classLoader);
     Method method = scriptClass.getMethod("execute", this.getClass());
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<?> future =
-        executor.submit(
-            () -> {
-              try {
-                method.invoke(null, this);
-              } catch (Exception e) {
-                Throwable cause = e.getCause();
-                String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
-                System.err.println(errorMessage);
-                setError("Execution error: " + errorMessage);
-                throw new RuntimeException(e);
-              }
-            });
-
-    try {
-      future.get(CODE_TIMEOUT, TimeUnit.SECONDS);
-    } catch (TimeoutException e) {
-      future.cancel(true);
-      setError("Execution timed out (" + CODE_TIMEOUT + " seconds)");
-    } finally {
-      executor.shutdownNow();
-    }
+    executor = Executors.newSingleThreadExecutor();
+    currentExecution =
+      executor.submit(
+        () -> {
+          try {
+            method.invoke(null, this);
+            // Code executed successfully
+            codeRunning.set(false);
+          } catch (Exception e) {
+            Throwable cause = e.getCause();
+            String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
+            System.err.println(errorMessage);
+            setError("Execution error: " + errorMessage);
+            codeRunning.set(false);
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   /**
