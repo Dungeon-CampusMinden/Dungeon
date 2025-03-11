@@ -10,35 +10,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
       contents: [
         {
           kind: "block",
-          type: "move_up",
-        },
-        {
-          kind: "block",
-          type: "move_up_var",
-        },
-        {
-          kind: "block",
-          type: "move_down",
-        },
-        {
-          kind: "block",
-          type: "move_down_var",
-        },
-        {
-          kind: "block",
-          type: "move_left",
-        },
-        {
-          kind: "block",
-          type: "move_left_var",
-        },
-        {
-          kind: "block",
-          type: "move_right",
-        },
-        {
-          kind: "block",
-          type: "move_right_var",
+          type: "move",
         },
         {
           kind: "block",
@@ -52,7 +24,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Variablen erstellen",
+      name: "Variablen",
       colour: "230",
       contents: [
         {
@@ -80,6 +52,22 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         {
           kind: "block",
           type: "array_get",
+        },
+        {
+          kind: "block",
+          type: "direction_up",
+        },
+        {
+          kind: "block",
+          type: "direction_down",
+        },
+        {
+          kind: "block",
+          type: "direction_left",
+        },
+        {
+          kind: "block",
+          type: "direction_right",
         },
       ],
     },
@@ -149,23 +137,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
-          type: "logic_wall",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_up",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_down",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_left",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_right",
+          type: "logic_wall_direction"
         },
       ],
     },
@@ -200,23 +172,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
-          type: "logic_wall",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_up",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_down",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_left",
-        },
-        {
-          kind: "block",
-          type: "logic_wall_right",
+          type: "logic_wall_direction"
         },
         {
           kind: "block",
@@ -239,19 +195,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         }, */
         {
           kind: "block",
-          type: "fireball_up",
-        },
-        {
-          kind: "block",
-          type: "fireball_down",
-        },
-        {
-          kind: "block",
-          type: "fireball_left",
-        },
-        {
-          kind: "block",
-          type: "fireball_right",
+          type: "fireball_direction",
         },
       ],
     },

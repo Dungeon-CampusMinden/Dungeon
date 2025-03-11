@@ -5,16 +5,21 @@ package antlr;
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 import nodes.*;
 import nodes.INode;
 import server.Server;
 import server.Variable;
+import utils.Direction;
 
 /**
  * This class defines the visitor for the condition part of the blockly language. It is used to
  * evaluate the boolean value of a condition.
  */
 public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
+
+  private static final Logger LOGGER =
+      Logger.getLogger(BlocklyConditionVisitor.class.getSimpleName());
 
   private final Server httpServer;
 
@@ -174,65 +179,71 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     return visitChildren(ctx);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
-   * ctx}.
-   */
+  /** {@inheritDoc} */
   @Override
   public INode visitFunc_call(blocklyParser.Func_callContext ctx) {
-    String id = ctx.id.getText(); // Get boolean value
+    String id = ctx.id.getText();
     boolean boolVal =
         switch (id) {
-          case "naheWand" -> httpServer.isNearWall();
-          case "WandOben" -> httpServer.isNearWallUp();
-          case "WandUnten" -> httpServer.isNearWallDown();
-          case "WandLinks" -> httpServer.isNearWallLeft();
-          case "WandRechts" -> httpServer.isNearWallRight();
-          default -> false;
+          case "naheWand" -> {
+            // Check if arguments exist
+            if (ctx.args == null) {
+              LOGGER.warning("naheWand function: Expected 1 argument, got 0");
+              yield false;
+            }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for naheWand");
+              yield false;
+            }
+
+            yield httpServer.isNearWall(Direction.fromString(direction));
+          }
+          default -> {
+            LOGGER.warning("Unknown function " + id);
+            yield false;
+          }
         };
     BaseNode node = new BaseNode(Types.BOOLEAN);
     node.boolVal = boolVal;
     return node;
   }
 
-  private boolean checkIfInteger(String token) {
-    try {
-      Integer.valueOf(token);
-      return true;
-    } catch (NumberFormatException e) {
-      return false;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
-   * ctx}.
-   */
+  /** {@inheritDoc} */
   @Override
   public INode visitValue(blocklyParser.ValueContext ctx) {
-    String value = ctx.getText();
-
-    if (checkIfInteger(value)) {
-      int val = Integer.parseInt(value);
+    if (ctx.INT() != null) {
+      int val = Integer.parseInt(ctx.INT().getText());
       BaseNode node = new BaseNode(Types.INTEGER);
       node.intVal = val;
       return node;
+    } else if (ctx.STRING() != null) {
+      // Get the string text and remove surrounding quotes
+      String text = ctx.STRING().getText();
+      String strVal = text.substring(1, text.length() - 1);
+      BaseNode node = new BaseNode(Types.STRING);
+      node.strVal = strVal;
+      return node;
+    } else if (ctx.BOOLEAN() != null) {
+      String value = ctx.BOOLEAN().getText();
+      BaseNode node = new BaseNode(Types.BOOLEAN);
+      if (value.equals("wahr")) {
+        node.boolVal = true;
+      } else if (value.equals("falsch")) {
+        node.boolVal = false;
+      } else {
+        throw new IllegalArgumentException("Invalid boolean value: " + value);
+      }
+      return node;
     }
 
-    BaseNode node = new BaseNode(Types.BOOLEAN);
-    if (value.equals("wahr")) {
-      node.boolVal = true;
-    } else if (value.equals("falsch")) {
-      node.boolVal = false;
-    } else {
-      throw new IllegalArgumentException("Value node has invalid value.");
-    }
-
-    return node;
+    throw new IllegalArgumentException("Value node has invalid value.");
   }
 
   /**

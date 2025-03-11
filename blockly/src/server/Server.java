@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import contrib.components.CollideComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
@@ -15,6 +16,8 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -32,6 +35,7 @@ import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import utils.Direction;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
@@ -101,21 +105,7 @@ public class Server {
   public String errorMsg = "";
 
   private boolean clearHUD = false;
-  private final String[] reservedFunctions = {
-    "oben",
-    "unten",
-    "links",
-    "rechts",
-    "feuerballOben",
-    "feuerballUnten",
-    "feuerballLinks",
-    "feuerballRechts",
-    "WandRechts",
-    "WandLinks",
-    "WandOben",
-    "WandUnten",
-    "naheWand"
-  };
+  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand"};
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /**
@@ -1088,56 +1078,96 @@ public class Server {
    * @param action Current action
    */
   private void performAction(String action) {
-    switch (action) {
-      case "oben();" -> up();
-      case "unten();" -> down();
-      case "links();" -> left();
-      case "rechts();" -> right();
-      // case "interagieren();" -> interact();
-      case "feuerballOben();" -> fireballUp();
-      case "feuerballUnten();" -> fireballDown();
-      case "feuerballLinks();" -> fireballLeft();
-      case "feuerballRechts();" -> fireballRight();
+    if (!action.contains("(") || !action.contains(")")) {
+      return;
+    }
+    Object[] args = convertActionToArguments(action);
+    String actionName = action.substring(0, action.indexOf("("));
+    switch (actionName) {
+      case "gehe" -> {
+        String firstArg;
+        if (args[0] instanceof String) {
+          firstArg = (String) args[0];
+        } else {
+          setError("Unexpected type for direction " + args[0]);
+          return;
+        }
+        move(Direction.fromString(firstArg));
+      }
+      case "feuerball" -> {
+        String firstArg;
+        if (args[0] instanceof String) {
+          firstArg = (String) args[0];
+        } else {
+          setError("Unexpected type for direction " + args[0]);
+          return;
+        }
+        shootFireBall(Direction.fromString(firstArg));
+      }
+      default -> System.out.println("Unknown action: " + action);
     }
   }
 
-  /** Move the hero up. */
-  private void up() {
-    VelocityComponent vc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    vc.currentYVelocity(1 * vc.yVelocity());
+  /**
+   * Convert the action to an array of arguments.
+   *
+   * <p>This method is used to convert the action string to an array of arguments. The action string
+   * is expected to be in the format "actionName(arg1, arg2, ...)".
+   *
+   * <p>The method extracts the arguments from the action string and returns them as an array of
+   * fitting types.
+   *
+   * @param action Action string to be converted.
+   * @return Array of arguments extracted from the action string.
+   */
+  private Object[] convertActionToArguments(String action) {
+    if (!action.contains("(") || !action.contains(")")) {
+      return new Object[0];
+    }
+    String[] argumentsString =
+        action.substring(action.indexOf("(") + 1, action.lastIndexOf(")")).split(",");
+    Object[] arguments = new Object[argumentsString.length];
 
-    waitDelta();
+    for (int i = 0; i < argumentsString.length; i++) {
+      String argument = argumentsString[i].trim();
+      // Int
+      if (argument.matches("-?\\d+")) {
+        arguments[i] = Integer.parseInt(argument);
+      } // Float
+      else if (argument.matches("-?\\d+\\.\\d+")) {
+        arguments[i] = Float.parseFloat(argument);
+      } // Boolean
+      else if (argument.equals("true") || argument.equals("false")) {
+        arguments[i] = Boolean.parseBoolean(argument);
+      } // String
+      else {
+        // literal string starts and end with ", so we remove them
+        if (argument.startsWith("\"") && argument.endsWith("\"")) {
+          arguments[i] = argument.substring(1, argument.length() - 1);
+        } // Variable name or empty
+        else {
+          arguments[i] = argument;
+        }
+      }
+    }
+    return arguments;
   }
 
-  /** Move the hero down. */
-  private void down() {
+  /**
+   * Move the hero in a specific direction.
+   *
+   * @param direction Direction in which the hero will be moved.
+   */
+  public void move(final Direction direction) {
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    vc.currentYVelocity(-1 * vc.yVelocity());
-
-    waitDelta();
-  }
-
-  /** Move the hero to the left. */
-  private void left() {
-    VelocityComponent vc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    vc.currentXVelocity(-1 * vc.xVelocity());
-
-    waitDelta();
-  }
-
-  /** Move the hero to the right. */
-  private void right() {
-    VelocityComponent vc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    vc.currentXVelocity(1 * vc.xVelocity());
-
+    switch (direction) {
+      case UP -> vc.currentYVelocity(1 * vc.yVelocity());
+      case DOWN -> vc.currentYVelocity(-1 * vc.yVelocity());
+      case LEFT -> vc.currentXVelocity(-1 * vc.xVelocity());
+      case RIGHT -> vc.currentXVelocity(1 * vc.xVelocity());
+    }
     waitDelta();
   }
 
@@ -1151,75 +1181,28 @@ public class Server {
   }
 
   /**
-   * Check if the hero is near a wall.
+   * Check if the hero is near a wall in a specific direction.
    *
-   * @return Returns true if the hero is near to a wall. Otherwise, returns false.
-   */
-  public boolean isNearWall() {
-    boolean isNearWall;
-
-    isNearWall = isNearWallUp() || isNearWallDown() || isNearWallLeft() || isNearWallRight();
-    return isNearWall;
-  }
-
-  /**
-   * Check if a wall is above the hero.
+   * <p>This method checks if the hero is near a wall in the specified direction. It retrieves the
+   * hero's current coordinates and calculates the target coordinates based on the direction. It
+   * then checks if the target tile is accessible. If the hero or the target tile is null or not
+   * accessible, it returns true, indicating that the hero is near a wall.
    *
-   * @return Returns true if a wall is above the hero. Otherwise, returns false.
+   * @param direction Direction in which the hero will be moved.
+   * @return Returns true if the hero is null or the target tile is not accessible. Otherwise,
+   *     returns false.
    */
-  public boolean isNearWallUp() {
-    boolean isNearWallUp;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionUp = new Point(pc.position().x, pc.position().y + 0.3f);
-
-    isNearWallUp = !Game.tileAT(newPositionUp).isAccessible();
-    return isNearWallUp;
-  }
-
-  /**
-   * Check if a wall is below the hero.
-   *
-   * @return Returns true if a wall is below the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallDown() {
-    boolean isNearWallDown;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionDown = new Point(pc.position().x, pc.position().y - 0.3f);
-
-    isNearWallDown = !Game.tileAT(newPositionDown).isAccessible();
-    return isNearWallDown;
-  }
-
-  /**
-   * Check if a wall is to the left of the hero.
-   *
-   * @return Returns true if a wall is to the left the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallLeft() {
-    boolean isNearWallLeft;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionLeft = new Point(pc.position().x - 0.3f, pc.position().y);
-
-    isNearWallLeft = !Game.tileAT(newPositionLeft).isAccessible();
-    return isNearWallLeft;
-  }
-
-  /**
-   * Check if a wall is to the right of the hero.
-   *
-   * @return Returns true if a wall is to the right the hero. Otherwise, returns false.
-   */
-  public boolean isNearWallRight() {
-    boolean isNearWallRight;
-
-    PositionComponent pc = getHeroPosition();
-    Point newPositionRight = new Point(pc.position().x + 0.3f, pc.position().y);
-
-    isNearWallRight = !Game.tileAT(newPositionRight).isAccessible();
-    return isNearWallRight;
+  public boolean isNearWall(final Direction direction) {
+    Coordinate heroCoords = EntityUtils.getHeroCoordinate();
+    if (heroCoords == null) {
+      return true;
+    }
+    Coordinate targetCoords = heroCoords.add(new Coordinate(direction.x(), direction.y()));
+    Tile targetTile = Game.tileAT(targetCoords);
+    if (targetTile == null) {
+      return true;
+    }
+    return !targetTile.isAccessible();
   }
 
   /**
@@ -1233,82 +1216,26 @@ public class Server {
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
 
-  private void shootFireBall(final Direction direction) {
+  /**
+   * Shoots a fireball in a specific direction.
+   *
+   * @param direction Direction in which the fireball will be thrown.
+   */
+  public void shootFireBall(final Direction direction) {
     Skill fireball =
         new Skill(
-            new FireballSkill(() -> direction.applyDirection(EntityUtils.getHeroPosition())), 1);
+            new FireballSkill(
+                () -> {
+                  CollideComponent collider =
+                      hero.fetch(CollideComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(hero, CollideComponent.class));
+
+                  Point start = collider.center(hero);
+                  return start.add(new Point(direction.x(), direction.y()));
+                }),
+            1);
     fireball.execute(hero);
     waitDelta();
-  }
-
-  /** Throw a fireball upwards. */
-  public void fireballUp() {
-    shootFireBall(Direction.UP);
-  }
-
-  /** Throw a fireball downwards. */
-  public void fireballDown() {
-    shootFireBall(Direction.DOWN);
-  }
-
-  /** Throw a fireball to the left. */
-  public void fireballLeft() {
-    shootFireBall(Direction.LEFT);
-  }
-
-  /** Throw a fireball to the right. */
-  public void fireballRight() {
-    shootFireBall(Direction.RIGHT);
-  }
-
-  private enum Direction {
-    UP(0, 1),
-    DOWN(0, -1),
-    LEFT(-1, 0),
-    RIGHT(1, 0);
-
-    private final int x;
-    private final int y;
-
-    Direction(int x, int y) {
-      this.x = x;
-      this.y = y;
-    }
-
-    /**
-     * Get the x coordinate of the direction.
-     *
-     * @return The x coordinate.
-     */
-    public int x() {
-      return x;
-    }
-
-    /**
-     * Get the y coordinate of the direction.
-     *
-     * @return The y coordinate.
-     */
-    public int y() {
-      return y;
-    }
-
-    /**
-     * Apply the direction to a point.
-     *
-     * <p>When the x coordinate of the direction is not 0, the x coordinate of the point will be
-     * moved by the maximum integer value. When the y coordinate of the direction is not 0, the y
-     * coordinate of the point will be moved by the maximum integer value.
-     *
-     * @param point Point that should be moved in the direction.
-     * @return The new point after applying the direction.
-     * @see Integer#MAX_VALUE
-     * @see #shootFireBall(Direction)
-     */
-    public Point applyDirection(Point point) {
-      float newX = this.x == 0 ? point.x : this.x * Integer.MAX_VALUE;
-      float newY = this.y == 0 ? point.y : this.y * Integer.MAX_VALUE;
-      return new Point(newX, newY);
-    }
   }
 }
