@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import fetchLanguageConfig from './handlers/languageProvider';
-import sendBlocklyFile, { stopBlocklyExecution } from './handlers/sendBlocklyFile';
+import sendBlocklyFile, {stopBlocklyExecution} from './handlers/sendBlocklyFile';
 
 export const BLOCKLY_URL = () => vscode.workspace.getConfiguration('blocklyServer').get('url', 'http://localhost:8080');
 
@@ -11,13 +11,13 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register the command
     const runCommandDisposable = vscode.commands.registerCommand('blockly-code-runner.sendBlocklyFile', () => sendBlocklyFile());
-    
+
     // Register stop command
     const stopCommandDisposable = vscode.commands.registerCommand('blockly-code-runner.stopBlocklyExecution', () => stopBlocklyExecution());
 
     // Register the completion provider for multiple languages/extensions
     const completionProvider = vscode.languages.registerCompletionItemProvider(
-        { scheme: 'file', language: 'java' },
+        {scheme: 'file', language: 'java'},
         {
             async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
                 const linePrefix = document.lineAt(position).text.substring(0, position.character);

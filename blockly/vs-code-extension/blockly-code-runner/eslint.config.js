@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 
 export default [
     {
-        ignores: ['dist/**/*'],
+        ignores: ['out/**/*'],
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
