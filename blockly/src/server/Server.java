@@ -1154,21 +1154,47 @@ public class Server {
   }
 
   /**
-   * Move the hero in a specific direction.
+   * Moves the hero in a specific direction.
+   *
+   * <p>One move equals one tile.
    *
    * @param direction Direction in which the hero will be moved.
    */
   public void move(final Direction direction) {
+    double distanceThreshold = 0.1;
+    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    PositionComponent hpc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+
+    Coordinate targetedPosition =
+        hpc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
+    Tile targetedTile = Game.tileAT(targetedPosition);
+    if (targetedTile == null) return;
+    if (!targetedTile.isAccessible()) return;
+
     VelocityComponent vc =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    switch (direction) {
-      case UP -> vc.currentYVelocity(1 * vc.yVelocity());
-      case DOWN -> vc.currentYVelocity(-1 * vc.yVelocity());
-      case LEFT -> vc.currentXVelocity(-1 * vc.xVelocity());
-      case RIGHT -> vc.currentXVelocity(1 * vc.xVelocity());
+
+    // placing the Hero in the middle of the current tile before moving
+    hpc.position(hpc.position().toCoordinate().toCenteredPoint());
+
+    double distance = hpc.position().distance(targetedPosition.toCenteredPoint());
+    double distanceLast;
+    // moves the Hero towards the targeted center Point
+    while (true) {
+      vc.currentXVelocity(direction.x() * vc.xVelocity());
+      vc.currentYVelocity(direction.y() * vc.yVelocity());
+      distanceLast = distance;
+      distance = hpc.position().distance(targetedPosition.toCenteredPoint());
+      // check if the hero is close enough to the center or already over
+      if (distance <= distanceThreshold || distance > distanceLast) break;
+      waitDelta();
     }
-    waitDelta();
+    // stop any movement immediately
+    vc.currentXVelocity(0);
+    vc.currentYVelocity(0);
   }
 
   private void waitDelta() {
