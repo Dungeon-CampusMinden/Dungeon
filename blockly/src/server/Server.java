@@ -1154,7 +1154,9 @@ public class Server {
   }
 
   /**
-   * Move the hero in a specific direction. One Move equals one Tile
+   * Moves the hero in a specific direction.
+   *
+   * <p>One move equals one tile.
    *
    * @param direction Direction in which the hero will be moved.
    */
@@ -1187,7 +1189,7 @@ public class Server {
       distanceLast = distance;
       distance = hpc.position().distance(targetedPosition.toCenteredPoint());
       // check if the hero is close enough to the center or already over
-      if (!(distance > distanceThreshold && distanceLast >= distance)) break;
+      if (distance <= distanceThreshold || distance > distanceLast) break;
       waitDelta();
     }
     // stop any movement immediately
