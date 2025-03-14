@@ -504,7 +504,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     colour: 0,
-    tooltip: "Warte für einen kurzen moment.",
+    tooltip: "Warte für einen kurzen Moment.",
   },
   //  ---------------------- Functions ----------------------
   {

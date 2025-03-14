@@ -1105,7 +1105,6 @@ public class Server {
         shootFireBall(Direction.fromString(firstArg));
       }
       case "warte" -> {
-        System.out.println("TEST");
         waitDelta();
       }
       default -> System.out.println("Unknown action: " + action);
