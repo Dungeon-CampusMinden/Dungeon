@@ -16,3 +16,4 @@ export function fireball_direction(
 export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "warte();";
 }
+
