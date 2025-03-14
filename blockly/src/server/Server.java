@@ -105,7 +105,7 @@ public class Server {
   public String errorMsg = "";
 
   private boolean clearHUD = false;
-  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand","warte"};
+  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand", "warte"};
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /**
