@@ -498,6 +498,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ]
   },
+  {
+    type: "wait",
+    message0: "warte",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 0,
+    tooltip: "Warte für einen kurzen moment.",
+  },
   //  ---------------------- Functions ----------------------
   {
     type: "func_def",

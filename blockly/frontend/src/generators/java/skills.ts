@@ -12,3 +12,7 @@ export function fireball_direction(
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
   return "feuerball(" + dir + ");";
 }
+
+export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "warte();";
+}

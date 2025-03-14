@@ -197,6 +197,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "fireball_direction",
         },
+        {
+          kind: "block",
+          type: "wait",
+        },
       ],
     },
     {
