@@ -18,6 +18,8 @@ export default [
                     argsIgnorePattern: '^_',
                 },
             ],
+            // Enforce newline at the end of files
+            'eol-last': ['error', 'always'],
         },
     },
 ];
