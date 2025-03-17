@@ -3,7 +3,6 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.utils.Point;
-import core.utils.components.position.Direction;
 import dsl.annotation.DSLType;
 
 /**
@@ -23,9 +22,9 @@ import dsl.annotation.DSLType;
  *
  * <p>Use {@link #position()} to get a copy of the position.
  *
- * <p>Use {@link #direction_of_view} to get the direction the entity is currently looking in.
+ * <p>Use {@link #viewDirection} to get the direction the entity is currently looking in.
  *
- * <p>Use {@link #direction_of_view(Direction)} to set the direction the entity should look towards.
+ * <p>Use {@link #viewDirection(Direction)} to set the direction the entity should look towards.
  *
  * @see core.systems.PositionSystem
  * @see Point
@@ -37,7 +36,7 @@ public final class PositionComponent implements Component {
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 
   private Point position;
-  private Direction direction_of_view;
+  private Direction viewDirection;
 
   /**
    * Create a new PositionComponent with given position.
@@ -45,11 +44,11 @@ public final class PositionComponent implements Component {
    * <p>Sets the position to the given point.
    *
    * @param position The position in the level.
-   * @param direction_of_view Direction the entity is looking to.
+   * @param viewDirection Direction the entity is looking to.
    */
-  public PositionComponent(final Point position, final Direction direction_of_view) {
+  public PositionComponent(final Point position, final Direction viewDirection) {
     this.position = position;
-    this.direction_of_view = direction_of_view;
+    this.viewDirection = viewDirection;
   }
 
   /**
@@ -74,10 +73,10 @@ public final class PositionComponent implements Component {
    *
    * @param x x-position
    * @param y y-position
-   * @param direction_of_view Direction the entity is looking to.
+   * @param viewDirection Direction the entity is looking to.
    */
-  public PositionComponent(float x, float y, final Direction direction_of_view) {
-    this(new Point(x, y), direction_of_view);
+  public PositionComponent(float x, float y, final Direction viewDirection) {
+    this(new Point(x, y), viewDirection);
   }
 
   /**
@@ -138,8 +137,8 @@ public final class PositionComponent implements Component {
    *
    * @return current direction of view
    */
-  public Direction direction_of_view() {
-    return direction_of_view;
+  public Direction viewDirection() {
+    return viewDirection;
   }
 
   /**
@@ -147,7 +146,19 @@ public final class PositionComponent implements Component {
    *
    * @param direction new direction of view
    */
-  public void direction_of_view(final Direction direction) {
-    this.direction_of_view = direction;
+  public void viewDirection(final Direction direction) {
+    this.viewDirection = direction;
+  }
+
+  /** Represents the possible directions an entity can face. */
+  public enum Direction {
+    /** Direction up (away from camera). */
+    UP,
+    /** Direction down (facing camera). */
+    DOWN,
+    /** Direction left. */
+    LEFT,
+    /** Direction right. */
+    RIGHT;
   }
 }

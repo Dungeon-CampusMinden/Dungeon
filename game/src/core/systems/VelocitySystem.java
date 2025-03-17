@@ -14,7 +14,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
-import core.utils.components.position.Direction;
 
 /**
  * The VelocitySystem controls the movement of the entities in the game.
@@ -136,16 +135,16 @@ public final class VelocitySystem extends System {
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
       if (x > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        vsd.pc.direction_of_view(Direction.RIGHT);
+        vsd.pc.viewDirection(PositionComponent.Direction.RIGHT);
       } else if (x < 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        vsd.pc.direction_of_view(Direction.LEFT);
+        vsd.pc.viewDirection(PositionComponent.Direction.LEFT);
       } else if (y > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        vsd.pc.direction_of_view(Direction.UP);
+        vsd.pc.viewDirection(PositionComponent.Direction.UP);
       } else if (y < 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-        vsd.pc.direction_of_view(Direction.DOWN);
+        vsd.pc.viewDirection(PositionComponent.Direction.DOWN);
       }
 
       vsd.vc.previousXVelocity(x);
@@ -156,7 +155,7 @@ public final class VelocitySystem extends System {
     // idle
     else {
       // each drawComponent has an idle animation, so no check is needed
-      switch (vsd.pc.direction_of_view()) {
+      switch (vsd.pc.viewDirection()) {
         case UP ->
             vsd.dc.queueAnimation(
                 DEFAULT_FRAME_TIME,
