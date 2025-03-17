@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.utils.Point;
+import core.utils.components.position.Direction;
 import dsl.annotation.DSLType;
 
 /**
@@ -10,8 +11,8 @@ import dsl.annotation.DSLType;
  *
  * <p>Various systems access the position of an entity through this component, e.g., the {@link
  * core.systems.DrawSystem} uses the position to draw an entity in the right place, and the {@link
- * core.systems.VelocitySystem} updates the position values based on the velocity and the previous
- * position of an entity.
+ * core.systems.VelocitySystem} updates the position and direction of view values based on the
+ * velocity and the previous position of an entity.
  *
  * <p>If the position is the {@link #ILLEGAL_POSITION}, the {@link core.systems.PositionSystem} will
  * change the position to a random position of an accessible tile in the current level.
@@ -21,6 +22,10 @@ import dsl.annotation.DSLType;
  * <p>Use {@link #position(Point)} to set the position to the given position.
  *
  * <p>Use {@link #position()} to get a copy of the position.
+ *
+ * <p>Use {@link #direction_of_view} to get the direction the entity is currently looking in.
+ *
+ * <p>Use {@link #direction_of_view(Direction)} to set the direction the entity should look towards.
  *
  * @see core.systems.PositionSystem
  * @see Point
@@ -32,6 +37,7 @@ public final class PositionComponent implements Component {
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 
   private Point position;
+  private Direction direction_of_view;
 
   /**
    * Create a new PositionComponent with given position.
@@ -39,9 +45,39 @@ public final class PositionComponent implements Component {
    * <p>Sets the position to the given point.
    *
    * @param position The position in the level.
+   * @param direction_of_view Direction the entity is looking to.
+   */
+  public PositionComponent(final Point position, final Direction direction_of_view) {
+    this.position = position;
+    this.direction_of_view = direction_of_view;
+  }
+
+  /**
+   * Create a new PositionComponent with given position.
+   *
+   * <p>Sets the position to the given point.
+   *
+   * <p>The Entity will look down.
+   *
+   * @param position The position in the level.
    */
   public PositionComponent(final Point position) {
-    this.position = position;
+    this(position, Direction.DOWN);
+  }
+
+  /**
+   * Create a new PositionComponent with given position.
+   *
+   * <p>Sets the position to the given point.
+   *
+   * <p>The Entity will look down.
+   *
+   * @param x x-position
+   * @param y y-position
+   * @param direction_of_view Direction the entity is looking to.
+   */
+  public PositionComponent(float x, float y, final Direction direction_of_view) {
+    this(new Point(x, y), direction_of_view);
   }
 
   /**
@@ -49,11 +85,13 @@ public final class PositionComponent implements Component {
    *
    * <p>Sets the position to a point with the given x and y positions.
    *
+   * <p>The Entity will look down.
+   *
    * @param x x-position
    * @param y y-position
    */
   public PositionComponent(float x, float y) {
-    this(new Point(x, y));
+    this(new Point(x, y), Direction.DOWN);
   }
 
   /**
@@ -93,5 +131,23 @@ public final class PositionComponent implements Component {
    */
   public void position(final Tile tile) {
     position(tile.position());
+  }
+
+  /**
+   * Get the direction of view
+   *
+   * @return current direction of view
+   */
+  public Direction direction_of_view() {
+    return direction_of_view;
+  }
+
+  /**
+   * Set directon of view
+   *
+   * @param direction new direction of view
+   */
+  public void direction_of_view(final Direction direction) {
+    this.direction_of_view = direction;
   }
 }

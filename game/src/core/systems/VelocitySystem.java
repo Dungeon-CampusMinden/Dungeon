@@ -14,6 +14,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.position.Direction;
 
 /**
  * The VelocitySystem controls the movement of the entities in the game.
@@ -133,10 +134,20 @@ public final class VelocitySystem extends System {
     // move
     if (x != 0 || y != 0) {
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-      if (x > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-      else if (x < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-      else if (y > 0) vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-      else if (y < 0) vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+      if (x > 0) {
+        vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+        vsd.pc.direction_of_view(Direction.RIGHT);
+      } else if (x < 0) {
+        vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+        vsd.pc.direction_of_view(Direction.LEFT);
+      } else if (y > 0) {
+        vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+        vsd.pc.direction_of_view(Direction.UP);
+      } else if (y < 0) {
+        vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+        vsd.pc.direction_of_view(Direction.DOWN);
+      }
+
       vsd.vc.previousXVelocity(x);
       vsd.vc.previousYVelocity(y);
 
@@ -145,38 +156,40 @@ public final class VelocitySystem extends System {
     // idle
     else {
       // each drawComponent has an idle animation, so no check is needed
-      if (vsd.vc.previousXVelocity() < 0)
-        vsd.dc.queueAnimation(
-            DEFAULT_FRAME_TIME,
-            CoreAnimations.IDLE_LEFT,
-            CoreAnimations.IDLE,
-            CoreAnimations.IDLE_RIGHT,
-            CoreAnimations.IDLE_DOWN,
-            CoreAnimations.IDLE_UP);
-      else if (vsd.vc.previousXVelocity() > 0)
-        vsd.dc.queueAnimation(
-            DEFAULT_FRAME_TIME,
-            CoreAnimations.IDLE_RIGHT,
-            CoreAnimations.IDLE,
-            CoreAnimations.IDLE_LEFT,
-            CoreAnimations.IDLE_DOWN,
-            CoreAnimations.IDLE_UP);
-      else if (vsd.vc.previousYVelocity() > 0)
-        vsd.dc.queueAnimation(
-            DEFAULT_FRAME_TIME,
-            CoreAnimations.IDLE_UP,
-            CoreAnimations.IDLE,
-            CoreAnimations.IDLE_DOWN,
-            CoreAnimations.IDLE_LEFT,
-            CoreAnimations.IDLE_RIGHT);
-      else
-        vsd.dc.queueAnimation(
-            DEFAULT_FRAME_TIME,
-            CoreAnimations.IDLE_DOWN,
-            CoreAnimations.IDLE,
-            CoreAnimations.IDLE_UP,
-            CoreAnimations.IDLE_LEFT,
-            CoreAnimations.IDLE_RIGHT);
+      switch (vsd.pc.direction_of_view()) {
+        case UP ->
+            vsd.dc.queueAnimation(
+                DEFAULT_FRAME_TIME,
+                CoreAnimations.IDLE_UP,
+                CoreAnimations.IDLE,
+                CoreAnimations.IDLE_DOWN,
+                CoreAnimations.IDLE_LEFT,
+                CoreAnimations.IDLE_RIGHT);
+        case LEFT ->
+            vsd.dc.queueAnimation(
+                DEFAULT_FRAME_TIME,
+                CoreAnimations.IDLE_LEFT,
+                CoreAnimations.IDLE,
+                CoreAnimations.IDLE_RIGHT,
+                CoreAnimations.IDLE_DOWN,
+                CoreAnimations.IDLE_UP);
+        case DOWN ->
+            vsd.dc.queueAnimation(
+                DEFAULT_FRAME_TIME,
+                CoreAnimations.IDLE_DOWN,
+                CoreAnimations.IDLE,
+                CoreAnimations.IDLE_UP,
+                CoreAnimations.IDLE_LEFT,
+                CoreAnimations.IDLE_RIGHT);
+        case RIGHT ->
+            vsd.dc.queueAnimation(
+                DEFAULT_FRAME_TIME,
+                CoreAnimations.IDLE_RIGHT,
+                CoreAnimations.IDLE,
+                CoreAnimations.IDLE_LEFT,
+                CoreAnimations.IDLE_DOWN,
+                CoreAnimations.IDLE_UP);
+      }
     }
   }
 
