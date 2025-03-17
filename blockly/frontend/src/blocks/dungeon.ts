@@ -506,6 +506,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 0,
     tooltip: "Warte für einen kurzen Moment.",
   },
+  {
+    type: "use",
+    message0: "benutzen",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 0,
+    tooltip: "Benutze den Gegenstand vor dir.",
+  },
   //  ---------------------- Functions ----------------------
   {
     type: "func_def",
