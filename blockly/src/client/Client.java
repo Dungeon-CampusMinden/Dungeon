@@ -70,9 +70,7 @@ public class Client {
           Crafting.loadRecipes();
 
           if (KEYBOARD_DEACTIVATION) {
-            PlayerSystem playerSystem =
-                (PlayerSystem) ECSManagment.systems().get(PlayerSystem.class);
-            Game.remove(playerSystem.getClass());
+            Game.remove(PlayerSystem.class);
           }
 
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
