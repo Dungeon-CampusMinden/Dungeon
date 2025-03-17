@@ -394,6 +394,35 @@ public final class Game {
   }
 
   /**
+   * Get the next tile in the given direction from the specified coordinate.
+   *
+   * @param coordinate The starting coordinate
+   * @param direction The direction in which to find the next tile
+   * @return The tile that is the next tile from the given coordinate in the specified direction.
+   */
+  public static Tile tileAT(final Coordinate coordinate, PositionComponent.Direction direction) {
+    Coordinate c = new Coordinate(coordinate);
+    switch (direction) {
+      case UP -> c.y += 1;
+      case LEFT -> c.x -= 1;
+      case DOWN -> c.y -= 1;
+      case RIGHT -> c.x += 1;
+    }
+    return tileAT(c);
+  }
+
+  /**
+   * Get the next tile in the given direction from the specified point.
+   *
+   * @param point The starting point
+   * @param direction The direction in which to find the next tile
+   * @return The tile that is the next tile from the given point in the specified direction.
+   */
+  public static Tile tileAT(final Point point, PositionComponent.Direction direction) {
+    return tileAT(point.toCoordinate(), direction);
+  }
+
+  /**
    * Get a random tile in the level.
    *
    * @return a random Tile in the Level

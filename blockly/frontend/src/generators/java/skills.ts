@@ -17,3 +17,7 @@ export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "warte();";
 }
 
+export function use(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "benutzen();";
+}
+

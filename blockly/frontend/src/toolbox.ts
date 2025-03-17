@@ -201,6 +201,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "wait",
         },
+        {
+          kind: "block",
+          type: "use",
+        },
       ],
     },
     {

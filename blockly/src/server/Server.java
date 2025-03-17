@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
@@ -105,7 +106,7 @@ public class Server {
   public String errorMsg = "";
 
   private boolean clearHUD = false;
-  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand", "warte"};
+  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand", "warte", "benutzen"};
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /**
@@ -1107,6 +1108,9 @@ public class Server {
       case "warte" -> {
         waitDelta();
       }
+      case "benutzen" -> {
+        interact();
+      }
       default -> System.out.println("Unknown action: " + action);
     }
   }
@@ -1266,5 +1270,21 @@ public class Server {
             1);
     fireball.execute(hero);
     waitDelta();
+  }
+
+  /** Triggers each interactable in front of the hero. */
+  public void interact() {
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
+    Game.entityAtTile(inFront)
+        .forEach(
+            entity ->
+                entity
+                    .fetch(InteractionComponent.class)
+                    .ifPresent(
+                        interactionComponent ->
+                            interactionComponent.triggerInteraction(entity, hero)));
   }
 }
