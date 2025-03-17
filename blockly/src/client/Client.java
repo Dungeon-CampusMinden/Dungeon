@@ -10,9 +10,9 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
+import core.systems.PlayerSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -25,6 +25,7 @@ import server.Server;
  * have any effect
  */
 public class Client {
+  private static final boolean KEYBOARD_DEACTIVATION = true;
   private static HttpServer httpServer;
 
   /**
@@ -67,6 +68,11 @@ public class Client {
           startServer();
 
           Crafting.loadRecipes();
+
+          if (KEYBOARD_DEACTIVATION) {
+            Game.remove(PlayerSystem.class);
+          }
+
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
           DevDungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
@@ -105,17 +111,6 @@ public class Client {
     Entity hero;
     try {
       hero = (EntityFactory.newHero());
-      hero.fetch(PlayerComponent.class)
-          .flatMap(
-              fetch ->
-                  fetch.registerCallback(
-                      KeyboardConfig.TOGGLE_BLOCKLY_HUD.value(),
-                      (e) ->
-                          Server.instance()
-                              .variableHUD
-                              .visible(!Server.instance().variableHUD.visible()),
-                      false,
-                      true));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
