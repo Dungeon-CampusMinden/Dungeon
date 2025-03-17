@@ -99,9 +99,12 @@ public final class PositionComponent implements Component {
    * <p>Sets the position of this entity to {@link #ILLEGAL_POSITION}. Keep in mind that if the
    * associated entity is processed by the {@link core.systems.PositionSystem}, {@link
    * #ILLEGAL_POSITION} will be replaced with a random accessible position.
+   *
+   * <p>The Entity will look down.
    */
   public PositionComponent() {
     position = ILLEGAL_POSITION;
+    viewDirection = Direction.DOWN;
   }
 
   /**
