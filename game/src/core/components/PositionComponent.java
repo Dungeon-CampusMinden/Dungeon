@@ -134,7 +134,7 @@ public final class PositionComponent implements Component {
   }
 
   /**
-   * Get the direction of view
+   * Get the direction of view.
    *
    * @return current direction of view
    */
@@ -143,7 +143,7 @@ public final class PositionComponent implements Component {
   }
 
   /**
-   * Set directon of view
+   * Set direction of view.
    *
    * @param direction new direction of view
    */
