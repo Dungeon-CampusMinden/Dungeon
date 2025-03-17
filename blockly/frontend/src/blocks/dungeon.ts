@@ -17,18 +17,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   // ---------------------- Movement ----------------------
   {
     type: "move",
-    message0: "Gehe nach %1",
+    message0: "Gehe",
     previousStatement: null,
     nextStatement: null,
     colour: 290,
-    tooltip: "Bewegt den Spieler in eine Richtung",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      }
-    ],
+    tooltip: "Bewegt den Spieler in die Richtung in die er schaut",
   },
   {
     type: "goToExit",

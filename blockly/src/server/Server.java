@@ -36,6 +36,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import entities.utility.HeroTankController;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -1092,14 +1094,7 @@ public class Server {
     String actionName = action.substring(0, action.indexOf("("));
     switch (actionName) {
       case "gehe" -> {
-        String firstArg;
-        if (args[0] instanceof String) {
-          firstArg = (String) args[0];
-        } else {
-          setError("Unexpected type for direction " + args[0]);
-          return;
-        }
-        move(Direction.fromString(firstArg));
+        move();
       }
       case "feuerball" -> {
         String firstArg;
