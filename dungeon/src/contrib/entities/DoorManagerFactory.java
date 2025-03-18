@@ -98,7 +98,7 @@ public class DoorManagerFactory {
    * <p>This will close the door initially.
    *
    * @param door the {@link DoorTile} to be controlled
-   * @param logic the {@link Supplier<Boolean>} that provides the logic for opening/closing the door
+   * @param logic the Boolean-Supplier that provides the logic for opening/closing the door
    * @return an {@link Entity} that controls the door based on the specified logic
    */
   public static Entity doorOpener(DoorTile door, Supplier<Boolean> logic) {

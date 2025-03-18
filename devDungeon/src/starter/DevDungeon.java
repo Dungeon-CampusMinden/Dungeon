@@ -75,7 +75,7 @@ public class DevDungeon {
     Game.userOnSetup(
         () -> {
           DevDungeonLoader.addLevel(
-              Tuple.of("tutorial", TutorialLevel.class),
+              Tuple.of("torchRiddle", TorchRiddleLevel.class),
               Tuple.of("damagedBridge", DamagedBridgeRiddleLevel.class),
               Tuple.of("torchRiddle", TorchRiddleLevel.class),
               Tuple.of("illusionRiddle", IllusionRiddleLevel.class),

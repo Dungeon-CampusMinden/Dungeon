@@ -7,10 +7,10 @@ import java.util.function.Supplier;
 /**
  * Represents a component that encapsulates a boolean logic operation and an associated action.
  *
- * <p>The {@link PredicateComponent} combines a {@link Supplier<Boolean>} that evaluates a boolean
- * logic condition with an {@link ICommand} that performs an action. The component allows for
- * executing and undoing the action based on the boolean logic result. The state of the component
- * can be managed separately.
+ * <p>The {@link PredicateComponent} combines a Boolean-Supplier that evaluates a boolean logic
+ * condition with an {@link ICommand} that performs an action. The component allows for executing
+ * and undoing the action based on the boolean logic result. The state of the component can be
+ * managed separately.
  *
  * @see contrib.utils.PredicateFactory
  * @see contrib.systems.PredicateSystem
@@ -24,7 +24,7 @@ public final class PredicateComponent implements Component {
   /**
    * Constructs a {@link PredicateComponent} with the specified logic and action.
    *
-   * @param logic the {@link Supplier<Boolean>} that provides the boolean logic result
+   * @param logic the Boolean-Supplier that provides the boolean logic result
    * @param action the {@link ICommand} to be executed based on the logic result
    */
   public PredicateComponent(Supplier<Boolean> logic, ICommand action) {
