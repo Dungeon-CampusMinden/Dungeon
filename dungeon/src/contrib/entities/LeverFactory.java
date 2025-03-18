@@ -62,16 +62,30 @@ public class LeverFactory {
     return lever;
   }
 
-    public static Entity createLever(Point pos) {
-      return createLever(pos, new ICommand() {
+  /**
+   * Creates a lever entity at a given position with a default interaction behavior.
+   *
+   * <p>The lever is initially off. This method provides a default behavior where no action is
+   * performed when the lever is interacted with (empty command).
+   *
+   * @param pos The position where the lever will be created.
+   * @return The created lever entity.
+   * @see LeverComponent LeverComponent
+   * @see contrib.systems.LeverSystem LeverSystem
+   */
+  public static Entity createLever(Point pos) {
+    return createLever(
+        pos,
+        new ICommand() {
           @Override
           public void execute() {
-              return;
+            return;
           }
+
           @Override
           public void undo() {
-return;
+            return;
           }
-      });
-    }
+        });
+  }
 }
