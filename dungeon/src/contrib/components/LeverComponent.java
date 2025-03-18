@@ -2,12 +2,13 @@ package contrib.components;
 
 import contrib.utils.ICommand;
 import core.Component;
+import java.util.function.Supplier;
 
 /**
  * The LeverComponent class implements the Component interface. It represents a lever that can be
  * either on or off.
  */
-public class LeverComponent implements Component {
+public class LeverComponent implements Component, Supplier<Boolean> {
   /** The command that will be executed when the lever is toggled. */
   private final ICommand command;
 
@@ -76,5 +77,10 @@ public class LeverComponent implements Component {
         + ", Command="
         + command.getClass().getSimpleName()
         + '}';
+  }
+
+  @Override
+  public Boolean get() {
+    return isOn();
   }
 }

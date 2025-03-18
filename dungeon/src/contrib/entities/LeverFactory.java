@@ -61,4 +61,17 @@ public class LeverFactory {
             }));
     return lever;
   }
+
+    public static Entity createLever(Point pos) {
+      return createLever(pos, new ICommand() {
+          @Override
+          public void execute() {
+              return;
+          }
+          @Override
+          public void undo() {
+return;
+          }
+      });
+    }
 }
