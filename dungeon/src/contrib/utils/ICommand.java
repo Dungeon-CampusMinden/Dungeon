@@ -16,5 +16,4 @@ public interface ICommand {
 
   /** Undoes the command. */
   default void undo() {}
-  ;
 }
