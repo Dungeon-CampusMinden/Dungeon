@@ -95,6 +95,9 @@ public class Server {
   /** Stack containing all active func defs. */
   public final Stack<FuncStats> active_func_defs = new Stack<>();
 
+  /** Default time an Animation should be enqueued */
+  private static final int DEFAULT_FRAME_TIME = 1;
+
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
    * blockly frontend. The execution of the current program will stop if this variable is true.
@@ -1434,18 +1437,19 @@ public class Server {
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
+    PositionComponent.Direction viewDirection = pc.viewDirection();
+    Tile inFront = Game.tileAT(pc.position(), viewDirection);
     // assumption only one pushable per tile
     Optional<Entity> pushable =
         Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).findFirst();
     if (pushable.isPresent()) {
       // check if the hero can move back
-      Tile nextTile = Game.tileAT(pc.position(), pc.viewDirection().opposite());
+      Tile nextTile = Game.tileAT(pc.position(), viewDirection.opposite());
 
       if (nextTile.isAccessible()
           && !Game.entityAtTile(nextTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
         Direction dir;
-        switch (pc.viewDirection().opposite()) {
+        switch (viewDirection.opposite()) {
           case LEFT -> dir = Direction.LEFT;
           case RIGHT -> dir = Direction.RIGHT;
           case UP -> dir = Direction.UP;
@@ -1456,6 +1460,11 @@ public class Server {
         pushable.get().remove(BlockComponent.class);
         moveSimultaneously(hero, pushable.get(), dir);
         pushable.get().add(new BlockComponent());
+
+        // turn hero back after movement
+        // TODO: WHY DOES THIS NOT WORK FOR THE DRAWING?
+        pc.viewDirection(viewDirection);
+        waitDelta();
       }
     }
   }
