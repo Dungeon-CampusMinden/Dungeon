@@ -26,4 +26,3 @@ public final class BlocklyUIComponent implements Component {
     hud.updateActors();
   }
 }
-
