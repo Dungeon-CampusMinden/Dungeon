@@ -76,4 +76,3 @@ public class MiscFactory {
     return pressurePlate;
   }
 }
-
