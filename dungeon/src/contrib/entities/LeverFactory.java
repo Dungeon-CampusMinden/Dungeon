@@ -18,14 +18,6 @@ import java.util.Map;
 public class LeverFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
-  private static final ICommand EMPTY_COMMAND =
-      new ICommand() {
-        @Override
-        public void execute() {}
-
-        @Override
-        public void undo() {}
-      };
 
   /**
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
@@ -114,7 +106,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos) {
-    return createLever(pos, EMPTY_COMMAND);
+    return createLever(pos, ICommand.EMPTY_COMMAND);
   }
 
   /**
@@ -132,7 +124,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createTorch(Point pos) {
-    return createTorch(pos, EMPTY_COMMAND);
+    return createTorch(pos, ICommand.EMPTY_COMMAND);
   }
 
   /**
