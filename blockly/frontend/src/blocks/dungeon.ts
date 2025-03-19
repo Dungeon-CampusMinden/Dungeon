@@ -514,6 +514,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 0,
     tooltip: "Benutze den Gegenstand vor dir.",
   },
+  {
+    type: "goToExit",
+    message0: "geheZumAusgang",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 0,
+    tooltip: "Bewege dich zum Ausgang des Levels.",
+  },
   //  ---------------------- Functions ----------------------
   {
     type: "func_def",

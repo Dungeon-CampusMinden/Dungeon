@@ -21,3 +21,7 @@ export function use(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "benutzen();";
 }
 
+export function goToExit(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "geheZumAusgang();";
+}
+
