@@ -8,9 +8,13 @@ package contrib.utils;
  */
 public interface ICommand {
 
+  /** Command that does nothing. */
+  ICommand EMPTY_COMMAND = () -> {};
+
   /** Executes the command. */
   void execute();
 
   /** Undoes the command. */
-  void undo();
+  default void undo() {}
+  ;
 }
