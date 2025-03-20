@@ -27,7 +27,6 @@ import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.VariableHUD;
-import entities.utility.HeroTankController;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -1103,7 +1102,7 @@ public class Server {
           setError("Unexpected type for direction " + args[0]);
           return;
         }
-        rotateHero(convertUtilsDirectionToPosCompDirection(firstArg));
+        rotateHero(firstArg);
       }
       case "feuerball" -> {
         String firstArg;
@@ -1257,8 +1256,21 @@ public class Server {
    */
   public void move() {
     Direction viewDirection =
-        convertPosCompDirectionToUtilsDirection(HeroTankController.getViewDirection(hero));
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
     move(viewDirection, hero);
+  }
+
+  /**
+   * Moves the given entity in it's viewing direction.
+   *
+   * <p>One move equals one tile.
+   *
+   * @param entity Entity to move in its viewing direction.
+   */
+  public void move(final Entity entity) {
+    Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(entity));
+    move(viewDirection, entity);
   }
 
   /**
@@ -1266,8 +1278,20 @@ public class Server {
    *
    * @param direction Direction in which the hero will be rotated.
    */
-  public void rotateHero(final PositionComponent.Direction direction) {
-    HeroTankController.rotateEntity(hero, direction);
+  public void rotateHero(final Direction direction) {
+    if (direction == Direction.UP || direction == Direction.DOWN) {
+      return; // no rotation
+    }
+    Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+    Direction newDirection =
+        switch (viewDirection) {
+          case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
+          case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
+          case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
+          case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
+        };
+    turnEntity(hero, newDirection);
     waitDelta();
   }
 
@@ -1435,31 +1459,32 @@ public class Server {
         entity -> {
           entity.add(new BlockComponent());
         });
-
-    turnHero(convertPosCompDirectionToUtilsDirection(viewDirection));
+    turnEntity(hero, convertPosCompDirectionToUtilsDirection(viewDirection));
     waitDelta();
   }
 
   /**
-   * Turns the hero around.
+   * Turns the given entity in a specific direction.
    *
    * <p>This will also update the animation.
    *
    * <p>This does not call {@link #waitDelta()}.
    *
-   * @param viewDirection direction to turn to.
+   * @param entity Entity to turn.
+   * @param direction direction to turn to.
    */
-  private void turnHero(Direction viewDirection) {
+  public void turnEntity(Entity entity, Direction direction) {
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Point oldP = new Point(pc.position());
-    hero.fetch(VelocityComponent.class)
-        .ifPresent(
-            vc -> {
-              vc.currentXVelocity(viewDirection.x());
-              vc.currentYVelocity(viewDirection.y());
-            });
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    VelocityComponent vc =
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+    Point oldP = pc.position();
+    vc.currentXVelocity(direction.x());
+    vc.currentYVelocity(direction.y());
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }
