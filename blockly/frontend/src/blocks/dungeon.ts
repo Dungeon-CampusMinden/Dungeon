@@ -521,7 +521,15 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Nur einmal feste drücken!",
-    },
+  },
+  {
+    type: "pull",
+    message0: "ziehen",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 0,
+    tooltip: "Nur einmal feste ziehen!",
+   },
   //  ---------------------- Functions ----------------------
   {
     type: "func_def",

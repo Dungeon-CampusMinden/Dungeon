@@ -25,3 +25,7 @@ export function push(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "schieben();";
 }
 
+export function pull(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "ziehen();";
+}
+

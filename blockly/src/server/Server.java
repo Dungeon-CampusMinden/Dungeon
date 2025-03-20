@@ -95,6 +95,9 @@ public class Server {
   /** Stack containing all active func defs. */
   public final Stack<FuncStats> active_func_defs = new Stack<>();
 
+  /** Default time an Animation should be enqueued */
+  private static final int DEFAULT_FRAME_TIME = 1;
+
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
    * blockly frontend. The execution of the current program will stop if this variable is true.
@@ -109,7 +112,7 @@ public class Server {
 
   private boolean clearHUD = false;
   private final String[] reservedFunctions = {
-    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben"
+    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben", "ziehen"
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -1119,6 +1122,9 @@ public class Server {
       case "schieben" -> {
         push();
       }
+      case "ziehen" -> {
+        pull();
+      }
       default -> System.out.println("Unknown action: " + action);
     }
   }
@@ -1399,7 +1405,8 @@ public class Server {
               .orElseThrow(
                   () -> MissingComponentException.build(pushable.get(), PositionComponent.class));
       Tile nextTile = Game.tileAT(epc.position(), pc.viewDirection());
-      if (nextTile.isAccessible()) {
+      if (nextTile.isAccessible()
+          && !Game.entityAtTile(nextTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
         Direction dir;
         switch (pc.viewDirection()) {
           case LEFT -> dir = Direction.LEFT;
@@ -1412,6 +1419,65 @@ public class Server {
         pushable.get().remove(BlockComponent.class);
         moveSimultaneously(hero, pushable.get(), dir);
         pushable.get().add(new BlockComponent());
+      }
+    }
+  }
+
+  /**
+   * Attempts to pull an entity in front of the hero.
+   *
+   * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
+   * the player is accessible. If accessible, the hero and the entity are moved simultaneously in
+   * the opposite direction the hero is facing.
+   *
+   * <p>The pulled entity temporarily loses its blocking component while moving and regains it
+   * after.
+   */
+  public void pull() {
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent.Direction viewDirection = pc.viewDirection();
+    Tile inFront = Game.tileAT(pc.position(), viewDirection);
+    // assumption only one pushable per tile
+    Optional<Entity> pushable =
+        Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).findFirst();
+    if (pushable.isPresent()) {
+      // check if the hero can move back
+      Tile nextTile = Game.tileAT(pc.position(), viewDirection.opposite());
+
+      if (nextTile.isAccessible()
+          && !Game.entityAtTile(nextTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
+        Direction dir;
+        switch (viewDirection.opposite()) {
+          case LEFT -> dir = Direction.LEFT;
+          case RIGHT -> dir = Direction.RIGHT;
+          case UP -> dir = Direction.UP;
+          default -> dir = Direction.DOWN;
+        }
+
+        // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+        pushable.get().remove(BlockComponent.class);
+        moveSimultaneously(hero, pushable.get(), dir);
+        pushable.get().add(new BlockComponent());
+
+        // turn hero back after movement
+        pc.viewDirection(viewDirection);
+        int x =
+            viewDirection == PositionComponent.Direction.LEFT
+                ? -1
+                : viewDirection == PositionComponent.Direction.RIGHT ? 1 : 0;
+        int y =
+            viewDirection == PositionComponent.Direction.UP
+                ? 1
+                : viewDirection == PositionComponent.Direction.DOWN ? -1 : 0;
+        hero.fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.currentXVelocity(x);
+                  vc.currentYVelocity(y);
+                });
+        waitDelta();
       }
     }
   }
