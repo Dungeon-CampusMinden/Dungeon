@@ -1407,28 +1407,27 @@ public class Server {
       moveDirection = positionDirectionToBlocklyDirection(viewDirection.opposite());
     }
 
-    if (checkTile.isAccessible()) {
-      List<Entity> toMove =
-          Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
-      if (toMove.size() > 0) {
-        // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
-        toMove.forEach(entity -> entity.remove(BlockComponent.class));
-        move(moveDirection, toMove);
-        // give BlockComponent back
-        toMove.forEach(
-            entity -> {
-              PositionComponent epc =
-                  entity
-                      .fetch(PositionComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, PositionComponent.class));
-              entity.add(new BlockComponent(epc));
-            });
+    if (!checkTile.isAccessible()) return;
+    List<Entity> toMove =
+        Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
+    if (toMove.isEmpty()) return;
+    ;
+    // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+    toMove.forEach(entity -> entity.remove(BlockComponent.class));
+    move(moveDirection, toMove);
+    // give BlockComponent back
+    toMove.forEach(
+        entity -> {
+          PositionComponent epc =
+              entity
+                  .fetch(PositionComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(entity, PositionComponent.class));
+          entity.add(new BlockComponent(epc));
+        });
 
-        turnHero(viewDirection);
-        waitDelta();
-      }
-    }
+    turnHero(viewDirection);
+    waitDelta();
   }
 
   /**
