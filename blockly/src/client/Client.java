@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
+import systems.BlockSystem;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -129,6 +130,7 @@ public class Client {
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
+    Game.add(new BlockSystem());
   }
 
   private static void startServer() {

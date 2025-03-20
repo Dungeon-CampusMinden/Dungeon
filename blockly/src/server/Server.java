@@ -7,6 +7,8 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import components.BlockComponent;
+import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.utils.EntityUtils;
@@ -106,7 +108,9 @@ public class Server {
   public String errorMsg = "";
 
   private boolean clearHUD = false;
-  private final String[] reservedFunctions = {"gehe", "feuerball", "naheWand", "warte", "benutzen"};
+  private final String[] reservedFunctions = {
+    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben", "ziehen"
+  };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /**
@@ -1111,6 +1115,12 @@ public class Server {
       case "benutzen" -> {
         interact();
       }
+      case "schieben" -> {
+        push();
+      }
+      case "ziehen" -> {
+        pull();
+      }
       default -> System.out.println("Unknown action: " + action);
     }
   }
@@ -1161,47 +1171,85 @@ public class Server {
   }
 
   /**
+   * Moves the given entities simultaneously in a specific direction.
+   *
+   * <p>One move equals one tile.
+   *
+   * @param direction Direction in which the entities will be moved.
+   * @param entities Entities to move simultaneously.
+   */
+  public void move(final Direction direction, final Entity... entities) {
+    double distanceThreshold = 0.1;
+
+    record EntityComponents(
+        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
+
+    List<EntityComponents> entityComponents = new ArrayList<>();
+
+    for (Entity entity : entities) {
+      PositionComponent pc =
+          entity
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+      VelocityComponent vc =
+          entity
+              .fetch(VelocityComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+
+      Tile targetTile =
+          Game.tileAT(pc.position(), convertUtilsDirectionToPosCompDirection(direction));
+      if (targetTile == null
+          || !targetTile.isAccessible()
+          || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
+        return; // if any target tile is not accessible, don't move anyone
+      }
+
+      entityComponents.add(new EntityComponents(pc, vc, targetTile.coordinate()));
+    }
+
+    double[] distances =
+        entityComponents.stream()
+            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toCenteredPoint()))
+            .toArray();
+    double[] lastDistances = new double[entities.length];
+
+    while (true) {
+      boolean allEntitiesArrived = true;
+      for (int i = 0; i < entities.length; i++) {
+        EntityComponents comp = entityComponents.get(i);
+        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
+        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
+
+        lastDistances[i] = distances[i];
+        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
+
+        if (!(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+          allEntitiesArrived = false;
+        }
+      }
+
+      if (allEntitiesArrived) break;
+
+      waitDelta();
+    }
+
+    for (EntityComponents ec : entityComponents) {
+      ec.vc.currentXVelocity(0);
+      ec.vc.currentYVelocity(0);
+      ec.pc.position(ec.targetPosition.toCenteredPoint()); // snap to grid
+    }
+  }
+
+  /**
    * Moves the hero in a specific direction.
    *
    * <p>One move equals one tile.
    *
-   * @param direction Direction in which the hero will be moved.
+   * @param direction Direction in which the entity will be moved.
    */
   public void move(final Direction direction) {
-    double distanceThreshold = 0.1;
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    PositionComponent hpc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    Coordinate targetedPosition =
-        hpc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
-    Tile targetedTile = Game.tileAT(targetedPosition);
-    if (targetedTile == null) return;
-    if (!targetedTile.isAccessible()) return;
-
-    VelocityComponent vc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-
-    // placing the Hero in the middle of the current tile before moving
-    hpc.position(hpc.position().toCoordinate().toCenteredPoint());
-
-    double distance = hpc.position().distance(targetedPosition.toCenteredPoint());
-    double distanceLast;
-    // moves the Hero towards the targeted center Point
-    while (true) {
-      vc.currentXVelocity(direction.x() * vc.xVelocity());
-      vc.currentYVelocity(direction.y() * vc.yVelocity());
-      distanceLast = distance;
-      distance = hpc.position().distance(targetedPosition.toCenteredPoint());
-      // check if the hero is close enough to the center or already over
-      if (distance <= distanceThreshold || distance > distanceLast) break;
-      waitDelta();
-    }
-    // stop any movement immediately
-    vc.currentXVelocity(0);
-    vc.currentYVelocity(0);
+    move(direction, hero);
   }
 
   private void waitDelta() {
@@ -1286,5 +1334,120 @@ public class Server {
                     .ifPresent(
                         interactionComponent ->
                             interactionComponent.triggerInteraction(entity, hero)));
+  }
+
+  /** Attempts to push entities in front of the hero. */
+  public void push() {
+    movePushable(true);
+  }
+
+  /** Attempts to pull entities in front of the hero. */
+  public void pull() {
+    movePushable(false);
+  }
+
+  /**
+   * Attempts to pull or push entities in front of the hero.
+   *
+   * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
+   * the player (for pull) or in front of the entities (for push) is accessible. If accessible, the
+   * hero and the entity are moved simultaneously in the corresponding direction.
+   *
+   * <p>The pulled/pushed entity temporarily loses its blocking component while moving and regains
+   * it after.
+   *
+   * @param push True if you want to push, false if you want to pull.
+   */
+  private void movePushable(boolean push) {
+    PositionComponent heroPC =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent.Direction viewDirection = heroPC.viewDirection();
+    Tile inFront = Game.tileAT(heroPC.position(), viewDirection);
+    Tile checkTile;
+    Direction moveDirection;
+    if (push) {
+      checkTile = Game.tileAT(inFront.position(), viewDirection);
+      moveDirection = convertPosCompDirectionToUtilsDirection(viewDirection);
+    } else {
+      checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
+      moveDirection = convertPosCompDirectionToUtilsDirection(viewDirection.opposite());
+    }
+    if (!checkTile.isAccessible()
+        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
+    ArrayList<Entity> toMove =
+        new ArrayList<>(
+            Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
+    if (toMove.isEmpty()) return;
+
+    // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+    toMove.forEach(entity -> entity.remove(BlockComponent.class));
+    toMove.add(hero);
+    move(moveDirection, toMove.toArray(Entity[]::new));
+    toMove.remove(hero);
+    // give BlockComponent back
+    toMove.forEach(
+        entity -> {
+          entity.add(new BlockComponent());
+        });
+
+    turnHero(convertPosCompDirectionToUtilsDirection(viewDirection));
+    waitDelta();
+  }
+
+  /**
+   * Turns the hero around.
+   *
+   * <p>This will also update the animation.
+   *
+   * <p>This does not call {@link #waitDelta()}.
+   *
+   * @param viewDirection direction to turn to.
+   */
+  private void turnHero(Direction viewDirection) {
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    Point oldP = new Point(pc.position());
+    hero.fetch(VelocityComponent.class)
+        .ifPresent(
+            vc -> {
+              vc.currentXVelocity(viewDirection.x());
+              vc.currentYVelocity(viewDirection.y());
+            });
+    // so the player can not glitch inside the next tile
+    pc.position(oldP);
+  }
+
+  /**
+   * Converts a {@link Direction} into a {@link PositionComponent.Direction}.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  private PositionComponent.Direction convertUtilsDirectionToPosCompDirection(
+      Direction viewDirection) {
+    return switch (viewDirection) {
+      case LEFT -> PositionComponent.Direction.LEFT;
+      case RIGHT -> PositionComponent.Direction.RIGHT;
+      case UP -> PositionComponent.Direction.UP;
+      default -> PositionComponent.Direction.DOWN;
+    };
+  }
+
+  /**
+   * Converts a {@link PositionComponent.Direction} into a {@link Direction}.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  private Direction convertPosCompDirectionToUtilsDirection(
+      PositionComponent.Direction viewDirection) {
+    return switch (viewDirection) {
+      case LEFT -> Direction.LEFT;
+      case RIGHT -> Direction.RIGHT;
+      case UP -> Direction.UP;
+      default -> Direction.DOWN;
+    };
   }
 }
