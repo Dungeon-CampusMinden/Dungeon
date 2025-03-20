@@ -19,13 +19,14 @@ import java.io.IOException;
 import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
+import systems.BlockSystem;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = true;
+  private static final boolean KEYBOARD_DEACTIVATION = false;
   private static HttpServer httpServer;
 
   /**
@@ -129,6 +130,7 @@ public class Client {
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
+    Game.add(new BlockSystem());
   }
 
   private static void startServer() {

@@ -1,9 +1,11 @@
 package level;
 
 import contrib.hud.DialogUtils;
+import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import entities.MiscFactory;
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public class MazeLevel extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     DialogUtils.showTextPopup("Finde des Ausgang des Labyrinths!", "Ziel");
+    Game.add(MiscFactory.stone(Game.randomTilePoint(LevelElement.FLOOR).get()));
   }
 
   @Override

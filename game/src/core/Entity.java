@@ -90,10 +90,8 @@ public final class Entity implements Comparable<Entity> {
    * @param klass the Class of the component
    */
   public void remove(final Class<? extends Component> klass) {
-    Component c = components.remove(klass);
-    if (c != null) {
+    if (components.remove(klass) != null) {
       ECSManagment.informAboutChanges(this);
-      c.discard();
       LOGGER.info(klass.getName() + " from " + name + " was removed.");
     }
   }

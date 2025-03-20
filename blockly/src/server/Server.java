@@ -1097,7 +1097,6 @@ public class Server {
           setError("Unexpected type for direction " + args[0]);
           return;
         }
-        Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
         move(Direction.fromString(firstArg));
       }
       case "feuerball" -> {
@@ -1270,21 +1269,6 @@ public class Server {
     move(direction, hero);
   }
 
-  /**
-   * Moves the hero and all entties in the given collection.
-   *
-   * <p>One move equals one tile.
-   *
-   * @param direction Direction in which the entity will be moved.
-   * @param entities Collection of entities to move (without the hero)
-   */
-  public void move(final Direction direction, final Collection<Entity> entities) {
-    List<Entity> all = new ArrayList<>();
-    all.add(hero);
-    all.addAll(entities);
-    move(direction, all.toArray(Entity[]::new));
-  }
-
   private void waitDelta() {
     long timeout = (long) (Gdx.graphics.getDeltaTime() * 1000);
     try {
@@ -1408,13 +1392,15 @@ public class Server {
     }
 
     if (!checkTile.isAccessible()) return;
-    List<Entity> toMove =
-        Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
+    ArrayList<Entity> toMove =
+        (ArrayList<Entity>)
+            Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
     if (toMove.isEmpty()) return;
-    ;
     // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    move(moveDirection, toMove);
+    toMove.add(hero);
+    move(moveDirection, toMove.toArray(Entity[]::new));
+    toMove.remove(hero);
     // give BlockComponent back
     toMove.forEach(
         entity -> {
@@ -1426,7 +1412,7 @@ public class Server {
           entity.add(new BlockComponent(epc));
         });
 
-    turnHero(viewDirection);
+    turnHero(positionDirectionToBlocklyDirection(viewDirection));
     waitDelta();
   }
 
@@ -1439,25 +1425,12 @@ public class Server {
    *
    * @param viewDirection direction to turn to.
    */
-  private void turnHero(PositionComponent.Direction viewDirection) {
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    // turn hero back after movement
-    heroPC.viewDirection(viewDirection);
-    int x =
-        viewDirection == PositionComponent.Direction.LEFT
-            ? -1
-            : viewDirection == PositionComponent.Direction.RIGHT ? 1 : 0;
-    int y =
-        viewDirection == PositionComponent.Direction.UP
-            ? 1
-            : viewDirection == PositionComponent.Direction.DOWN ? -1 : 0;
+  private void turnHero(Direction viewDirection) {
     hero.fetch(VelocityComponent.class)
         .ifPresent(
             vc -> {
-              vc.currentXVelocity(x);
-              vc.currentYVelocity(y);
+              vc.currentXVelocity(viewDirection.x());
+              vc.currentYVelocity(viewDirection.y());
             });
   }
 
