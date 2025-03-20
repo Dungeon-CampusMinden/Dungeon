@@ -12,7 +12,6 @@ import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
@@ -1302,13 +1301,23 @@ public class Server {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
+    if (Game.currentLevel().exitTiles().isEmpty()) return;
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     GraphPath<Tile> pathToExit =
         LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.position().toCoordinate());
 
-    while (!AIUtils.pathFinished(hero, pathToExit)) {
-      AIUtils.move(hero, pathToExit);
+    for (Tile nextTile : pathToExit) {
+      Tile currentTile = Game.tileAT(pc.position());
+
+      if (currentTile != nextTile) {
+        switch (currentTile.directionTo(nextTile)[0]) {
+          case E -> move(Direction.RIGHT);
+          case W -> move(Direction.LEFT);
+          case N -> move(Direction.UP);
+          case S -> move(Direction.DOWN);
+        }
+      }
     }
   }
 }
