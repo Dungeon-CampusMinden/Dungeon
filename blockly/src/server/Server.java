@@ -27,6 +27,7 @@ import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.VariableHUD;
+import entities.utility.HeroTankController;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,8 +37,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import entities.utility.HeroTankController;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -1096,6 +1095,16 @@ public class Server {
       case "gehe" -> {
         move();
       }
+      case "drehe" -> {
+        Direction firstArg;
+        if (args[0] instanceof String firstArgStr) {
+          firstArg = Direction.fromString(firstArgStr);
+        } else {
+          setError("Unexpected type for direction " + args[0]);
+          return;
+        }
+        rotateHero(convertUtilsDirectionToPosCompDirection(firstArg));
+      }
       case "feuerball" -> {
         String firstArg;
         if (args[0] instanceof String) {
@@ -1242,14 +1251,24 @@ public class Server {
   }
 
   /**
-   * Moves the hero in a specific direction.
+   * Moves the hero in it's viewing direction.
    *
    * <p>One move equals one tile.
-   *
-   * @param direction Direction in which the entity will be moved.
    */
-  public void move(final Direction direction) {
-    move(direction, hero);
+  public void move() {
+    Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(HeroTankController.getViewDirection(hero));
+    move(viewDirection, hero);
+  }
+
+  /**
+   * Rotate the hero in a specific direction.
+   *
+   * @param direction Direction in which the hero will be rotated.
+   */
+  public void rotateHero(final PositionComponent.Direction direction) {
+    HeroTankController.rotateEntity(hero, direction);
+    waitDelta();
   }
 
   private void waitDelta() {

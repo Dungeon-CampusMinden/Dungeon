@@ -31,6 +31,22 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 290,
     tooltip: "Bewege dich zum Ausgang des Levels.",
   },
+  {
+    type: "rotate",
+    message0: "Drehe %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    previousStatement: null,
+    nextStatement: null,
+    colour: 290,
+    tooltip: "Dreht den Spieler nach links oder rechts",
+>>>>>>> a547cda9 (add rotate and blockly logic)
+  },
   // ---------------------- Variables ----------------------
   {
     type: "get_number",
