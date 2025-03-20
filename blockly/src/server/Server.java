@@ -1181,10 +1181,12 @@ public class Server {
   public void move(final Direction direction, final Entity... entities) {
     double distanceThreshold = 0.1;
 
-    record EntityComponents(
-        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
+    record EntityData(PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 
-    List<EntityComponents> entityComponents = new ArrayList<>();
+    List<EntityData> entityData = new ArrayList<>();
+    Map<EntityData, Double> distance = new HashMap<>();
+    Map<EntityData, Double> lastDistance = new HashMap<>();
+
     // build data objects
     for (Entity entity : entities) {
       PositionComponent pc =
@@ -1199,7 +1201,8 @@ public class Server {
 
       Coordinate targetPosition =
           pc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
-      entityComponents.add(new EntityComponents(pc, vc, targetPosition));
+      EntityData data = new EntityData(pc, vc, targetPosition);
+      entityData.add(data);
 
       // Check if all targeted tiles are accessible
       Tile targetedTile = Game.tileAT(targetPosition);
@@ -1211,48 +1214,27 @@ public class Server {
 
       // center position
       pc.position(pc.position().toCoordinate().toCenteredPoint());
+      // calculate distances each entity has to move
+      distance.put(data, pc.position().distance(targetPosition.toCenteredPoint()));
     }
-
-    // calculate distances each entity has to move
-    double[] distances = new double[entities.length];
-    double[] lastDistances = new double[entities.length];
-    for (int i = 0; i < entities.length; i++) {
-      distances[i] =
-          entityComponents
-              .get(i)
-              .pc
-              .position()
-              .distance(entityComponents.get(i).targetPosition.toCenteredPoint());
-    }
-
     // move the entities
-    while (true) {
-      for (int i = 0; i < entities.length; i++) {
-        EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
 
-        lastDistances[i] = distances[i];
-        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
+    boolean allEntitiesArrived = true;
+    while (!allEntitiesArrived) {
+      allEntitiesArrived = true;
+      for (EntityData data : entityData) {
+        lastDistance.put(data, distance.get(data));
+        data.vc.currentXVelocity(direction.x() * data.vc.xVelocity());
+        data.vc.currentYVelocity(direction.y() * data.vc.yVelocity());
+        waitDelta();
+        data.vc.currentXVelocity(0);
+        data.vc.currentYVelocity(0);
+        distance.put(data, data.pc.position().distance(data.targetPosition.toCenteredPoint()));
+        // check if targetlocation is reached
+        if (allEntitiesArrived
+            && (!(distance.get(data) <= distanceThreshold
+                || distance.get(data) > lastDistance.get(data)))) allEntitiesArrived = false;
       }
-
-      boolean allEntitiesArrived = true;
-      for (int i = 0; i < entities.length; i++) {
-        if (!(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
-          allEntitiesArrived = false;
-          break;
-        }
-      }
-
-      if (allEntitiesArrived) break;
-
-      waitDelta();
-    }
-
-    // reset velocity
-    for (EntityComponents comp : entityComponents) {
-      comp.vc.currentXVelocity(0);
-      comp.vc.currentYVelocity(0);
     }
   }
 
