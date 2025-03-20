@@ -34,7 +34,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -1370,99 +1369,65 @@ public class Server {
                             interactionComponent.triggerInteraction(entity, hero)));
   }
 
-  /**
-   * Attempts to push an entity in front of the hero.
-   *
-   * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
-   * it is accessible. If accessible, the hero and the entity are moved simultaneously in the
-   * direction the hero is facing.
-   *
-   * <p>The pushed entity temporarily loses its blocking component while moving and regains it
-   * after.
-   */
+  /** Attempts to push entities in front of the hero. */
   public void push() {
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    PositionComponent.Direction pushDirection = heroPC.viewDirection();
-    Tile inFront = Game.tileAT(heroPC.position(), pushDirection);
-    List<Entity> toPush =
-        Game.entityAtTile(inFront)
-            .filter(e -> e.isPresent(PushableComponent.class))
-            .flatMap(
-                pushable ->
-                    pushable
-                        .fetch(PositionComponent.class)
-                        .map(
-                            epc -> {
-                              Tile nextTile = Game.tileAT(epc.position(), pushDirection);
-                              return nextTile.isAccessible()
-                                  ? Stream.of(pushable)
-                                  : Stream.<Entity>empty();
-                            })
-                        .orElseGet(Stream::empty))
-            .toList();
+    movePushable(true);
+  }
 
-    if (toPush.size() > 0) {
-      // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
-      toPush.forEach(e -> e.remove(BlockComponent.class));
-      move(positionDirectionToBlocklyDirection(pushDirection), toPush);
-
-      // give BlockComponent back
-      toPush.forEach(
-          entity -> {
-            PositionComponent epc =
-                entity
-                    .fetch(PositionComponent.class)
-                    .orElseThrow(
-                        () -> MissingComponentException.build(entity, PositionComponent.class));
-            entity.add(new BlockComponent(epc));
-          });
-
-      waitDelta();
-    }
+  /** Attempts to pull entities in front of the hero. */
+  public void pull() {
+    movePushable(false);
   }
 
   /**
-   * Attempts to pull an entity in front of the hero.
+   * Attempts to pull or push entities in front of the hero.
    *
    * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
-   * the player is accessible. If accessible, the hero and the entity are moved simultaneously in
-   * the opposite direction the hero is facing.
+   * the player (for pull) or infront of the entities (for push) is accessible. If accessible, the
+   * hero and the entity are moved simultaneously in the corresponding direction..
    *
-   * <p>The pulled entity temporarily loses its blocking component while moving and regains it
-   * after.
+   * <p>The pulled/pushed entity temporarily loses its blocking component while moving and regains
+   * it after.
+   *
+   * @param push True if you want to push, false if you want to pull.
    */
-  public void pull() {
+  private void movePushable(boolean push) {
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     PositionComponent.Direction viewDirection = heroPC.viewDirection();
     Tile inFront = Game.tileAT(heroPC.position(), viewDirection);
-    Tile nextTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
+    Tile checkTile;
+    Direction moveDirection;
+    if (push) {
+      checkTile = Game.tileAT(inFront.position(), viewDirection);
+      moveDirection = positionDirectionToBlocklyDirection(viewDirection);
+    } else {
+      checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
+      moveDirection = positionDirectionToBlocklyDirection(viewDirection.opposite());
+    }
 
-    if (nextTile.isAccessible()) {
-
-      List<Entity> toPull =
+    if (checkTile.isAccessible()) {
+      List<Entity> toMove =
           Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
-      Direction pullDirection = positionDirectionToBlocklyDirection(viewDirection.opposite());
+      if (toMove.size() > 0) {
+        // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+        toMove.forEach(entity -> entity.remove(BlockComponent.class));
+        move(moveDirection, toMove);
+        // give BlockComponent back
+        toMove.forEach(
+            entity -> {
+              PositionComponent epc =
+                  entity
+                      .fetch(PositionComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(entity, PositionComponent.class));
+              entity.add(new BlockComponent(epc));
+            });
 
-      // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
-      toPull.forEach(entity -> entity.remove(BlockComponent.class));
-      move(pullDirection, toPull);
-      // give BlockComponent back
-      toPull.forEach(
-          entity -> {
-            PositionComponent epc =
-                entity
-                    .fetch(PositionComponent.class)
-                    .orElseThrow(
-                        () -> MissingComponentException.build(entity, PositionComponent.class));
-            entity.add(new BlockComponent(epc));
-          });
-
-      turnHero(viewDirection);
-      waitDelta();
+        turnHero(viewDirection);
+        waitDelta();
+      }
     }
   }
 
