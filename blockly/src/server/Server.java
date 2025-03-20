@@ -1217,8 +1217,8 @@ public class Server {
       // calculate distances each entity has to move
       distance.put(data, pc.position().distance(targetPosition.toCenteredPoint()));
     }
-    // move the entities
 
+    // move the entities
     boolean allEntitiesArrived = true;
     while (!allEntitiesArrived) {
       allEntitiesArrived = true;
