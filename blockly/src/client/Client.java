@@ -26,7 +26,7 @@ import systems.BlockSystem;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = false;
+  private static final boolean KEYBOARD_DEACTIVATION = true;
   private static HttpServer httpServer;
 
   /**

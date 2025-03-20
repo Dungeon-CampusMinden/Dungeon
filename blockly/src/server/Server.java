@@ -1182,10 +1182,10 @@ public class Server {
     double distanceThreshold = 0.1;
 
     record EntityComponents(
-        PositionComponent position, VelocityComponent velocity, Coordinate targetPosition) {}
+        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 
     List<EntityComponents> entityComponents = new ArrayList<>();
-
+    // build data objects
     for (Entity entity : entities) {
       PositionComponent pc =
           entity
@@ -1200,43 +1200,40 @@ public class Server {
       Coordinate targetPosition =
           pc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
       entityComponents.add(new EntityComponents(pc, vc, targetPosition));
-    }
 
-    // Check if all targeted tiles are accessible
-    for (EntityComponents comp : entityComponents) {
-      Tile targetedTile = Game.tileAT(comp.targetPosition);
+      // Check if all targeted tiles are accessible
+      Tile targetedTile = Game.tileAT(targetPosition);
       if (targetedTile == null
           || !targetedTile.isAccessible()
           || Game.entityAtTile(targetedTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
         return;
       }
+
+      // center position
+      pc.position(pc.position().toCoordinate().toCenteredPoint());
     }
 
-    // Center positions
-    for (EntityComponents comp : entityComponents) {
-      comp.position.position(comp.position.position().toCoordinate().toCenteredPoint());
-    }
-
+    // calculate distances each entity has to move
     double[] distances = new double[entities.length];
     double[] lastDistances = new double[entities.length];
-
     for (int i = 0; i < entities.length; i++) {
       distances[i] =
           entityComponents
               .get(i)
-              .position
+              .pc
               .position()
               .distance(entityComponents.get(i).targetPosition.toCenteredPoint());
     }
 
+    // move the entities
     while (true) {
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.velocity.currentXVelocity(direction.x() * comp.velocity.xVelocity());
-        comp.velocity.currentYVelocity(direction.y() * comp.velocity.yVelocity());
+        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
+        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
 
         lastDistances[i] = distances[i];
-        distances[i] = comp.position.position().distance(comp.targetPosition.toCenteredPoint());
+        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
       }
 
       boolean allEntitiesArrived = true;
@@ -1252,9 +1249,10 @@ public class Server {
       waitDelta();
     }
 
+    // reset velocity
     for (EntityComponents comp : entityComponents) {
-      comp.velocity.currentXVelocity(0);
-      comp.velocity.currentYVelocity(0);
+      comp.vc.currentXVelocity(0);
+      comp.vc.currentYVelocity(0);
     }
   }
 
@@ -1390,12 +1388,13 @@ public class Server {
       checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
       moveDirection = positionDirectionToBlocklyDirection(viewDirection.opposite());
     }
-
-    if (!checkTile.isAccessible()) return;
+    if (!checkTile.isAccessible()
+        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
     ArrayList<Entity> toMove =
-        (ArrayList<Entity>)
-            Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
+        new ArrayList<>(
+            Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
     if (toMove.isEmpty()) return;
+
     // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
     toMove.add(hero);
@@ -1404,12 +1403,7 @@ public class Server {
     // give BlockComponent back
     toMove.forEach(
         entity -> {
-          PositionComponent epc =
-              entity
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, PositionComponent.class));
-          entity.add(new BlockComponent(epc));
+          entity.add(new BlockComponent());
         });
 
     turnHero(positionDirectionToBlocklyDirection(viewDirection));
@@ -1426,12 +1420,18 @@ public class Server {
    * @param viewDirection direction to turn to.
    */
   private void turnHero(Direction viewDirection) {
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    Point oldP = new Point(pc.position());
     hero.fetch(VelocityComponent.class)
         .ifPresent(
             vc -> {
               vc.currentXVelocity(viewDirection.x());
               vc.currentYVelocity(viewDirection.y());
             });
+    // so the player can not glitch inside the next tile
+    pc.position(oldP);
   }
 
   /**

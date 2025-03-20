@@ -38,9 +38,8 @@ public class MiscFactory {
   public static Entity stone(Point position) {
     Entity stone = new Entity("stone");
     stone.add(new PushableComponent());
-    PositionComponent pc = new PositionComponent(position.toCoordinate().toCenteredPoint());
-    stone.add(pc);
-    stone.add(new BlockComponent(pc));
+    stone.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    stone.add(new BlockComponent());
     stone.add(new VelocityComponent(STONE_SPEED, STONE_SPEED));
     stone.add(new CollideComponent());
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));
