@@ -1219,7 +1219,7 @@ public class Server {
     }
 
     // move the entities
-    boolean allEntitiesArrived = true;
+    boolean allEntitiesArrived = false;
     while (!allEntitiesArrived) {
       allEntitiesArrived = true;
       for (EntityData data : entityData) {
