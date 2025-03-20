@@ -106,7 +106,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos) {
-    return createLever(pos, ICommand.EMPTY_COMMAND);
+    return createLever(pos, ICommand.NOOP);
   }
 
   /**
@@ -124,7 +124,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createTorch(Point pos) {
-    return createTorch(pos, ICommand.EMPTY_COMMAND);
+    return createTorch(pos, ICommand.NOOP);
   }
 
   /**
