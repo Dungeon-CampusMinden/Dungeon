@@ -1462,8 +1462,21 @@ public class Server {
         pushable.get().add(new BlockComponent());
 
         // turn hero back after movement
-        // TODO: WHY DOES THIS NOT WORK FOR THE DRAWING?
         pc.viewDirection(viewDirection);
+        int x =
+            viewDirection == PositionComponent.Direction.LEFT
+                ? -1
+                : viewDirection == PositionComponent.Direction.RIGHT ? 1 : 0;
+        int y =
+            viewDirection == PositionComponent.Direction.UP
+                ? 1
+                : viewDirection == PositionComponent.Direction.DOWN ? -1 : 0;
+        hero.fetch(VelocityComponent.class)
+            .ifPresent(
+                vc -> {
+                  vc.currentXVelocity(x);
+                  vc.currentYVelocity(y);
+                });
         waitDelta();
       }
     }
