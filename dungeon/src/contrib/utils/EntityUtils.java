@@ -140,4 +140,18 @@ public class EntityUtils {
     Point heroPos = getHeroPosition();
     return heroPos == null ? null : heroPos.toCoordinate();
   }
+
+  /**
+   * Returns the direction the entity is facing.
+   *
+   * @param entity the entity to get the direction of
+   * @return the direction the entity is facing
+   */
+  public static PositionComponent.Direction getViewDirection(Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return pc.viewDirection();
+  }
 }
