@@ -9,12 +9,22 @@ package contrib.utils;
 public interface ICommand {
 
   /** Command that does nothing. */
-  ICommand EMPTY_COMMAND = () -> {};
+  ICommand NOOP =
+      new ICommand() {
+        @Override
+        public void execute() {}
+
+        @Override
+        public void undo() {}
+      };
 
   /** Executes the command. */
   void execute();
 
-  /** Undoes the command. */
-  default void undo() {}
-  ;
+  /**
+   * Undoes the command.
+   *
+   * <p>The default implementation does nothing.
+   */
+  void undo();
 }

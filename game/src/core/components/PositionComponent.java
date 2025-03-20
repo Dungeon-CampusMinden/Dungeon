@@ -163,5 +163,19 @@ public final class PositionComponent implements Component {
     LEFT,
     /** Direction right. */
     RIGHT;
+
+    /**
+     * Returns the opposite direction.
+     *
+     * @return the opposite Direction
+     */
+    public Direction opposite() {
+      return switch (this) {
+        case UP -> DOWN;
+        case DOWN -> UP;
+        case LEFT -> RIGHT;
+        case RIGHT -> LEFT;
+      };
+    }
   }
 }
