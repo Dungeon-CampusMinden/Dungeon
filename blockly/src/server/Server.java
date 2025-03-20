@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -1270,6 +1271,21 @@ public class Server {
     move(direction, hero);
   }
 
+  /**
+   * Moves the hero and all entties in the given collection.
+   *
+   * <p>One move equals one tile.
+   *
+   * @param direction Direction in which the entity will be moved.
+   * @param entities Collection of entities to move (without the hero)
+   */
+  public void move(final Direction direction, final Collection<Entity> entities) {
+    List<Entity> all = new ArrayList<>();
+    all.add(hero);
+    all.addAll(entities);
+    move(direction, all.toArray(Entity[]::new));
+  }
+
   private void waitDelta() {
     long timeout = (long) (Gdx.graphics.getDeltaTime() * 1000);
     try {
@@ -1365,36 +1381,45 @@ public class Server {
    * after.
    */
   public void push() {
-    PositionComponent pc =
+    PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
-    // assumption only one pushable per tile
-    Optional<Entity> pushable =
-        Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).findFirst();
-    if (pushable.isPresent()) {
-      PositionComponent epc =
-          pushable
-              .get()
-              .fetch(PositionComponent.class)
-              .orElseThrow(
-                  () -> MissingComponentException.build(pushable.get(), PositionComponent.class));
-      Tile nextTile = Game.tileAT(epc.position(), pc.viewDirection());
-      if (nextTile.isAccessible()
-          && !Game.entityAtTile(nextTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
-        Direction dir;
-        switch (pc.viewDirection()) {
-          case LEFT -> dir = Direction.LEFT;
-          case RIGHT -> dir = Direction.RIGHT;
-          case UP -> dir = Direction.UP;
-          default -> dir = Direction.DOWN;
-        }
+    PositionComponent.Direction pushDirection = heroPC.viewDirection();
+    Tile inFront = Game.tileAT(heroPC.position(), pushDirection);
+    List<Entity> toPush =
+        Game.entityAtTile(inFront)
+            .filter(e -> e.isPresent(PushableComponent.class))
+            .flatMap(
+                pushable ->
+                    pushable
+                        .fetch(PositionComponent.class)
+                        .map(
+                            epc -> {
+                              Tile nextTile = Game.tileAT(epc.position(), pushDirection);
+                              return nextTile.isAccessible()
+                                  ? Stream.of(pushable)
+                                  : Stream.<Entity>empty();
+                            })
+                        .orElseGet(Stream::empty))
+            .toList();
 
-        // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
-        pushable.get().remove(BlockComponent.class);
-        move(dir, hero, pushable.get());
-        pushable.get().add(new BlockComponent());
-      }
+    if (toPush.size() > 0) {
+      // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+      toPush.forEach(e -> e.remove(BlockComponent.class));
+      move(positionDirectionToBlocklyDirection(pushDirection), toPush);
+
+      // give BlockComponent back
+      toPush.forEach(
+          entity -> {
+            PositionComponent epc =
+                entity
+                    .fetch(PositionComponent.class)
+                    .orElseThrow(
+                        () -> MissingComponentException.build(entity, PositionComponent.class));
+            entity.add(new BlockComponent(epc));
+          });
+
+      waitDelta();
     }
   }
 
@@ -1409,51 +1434,83 @@ public class Server {
    * after.
    */
   public void pull() {
-    PositionComponent pc =
+    PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    PositionComponent.Direction viewDirection = pc.viewDirection();
-    Tile inFront = Game.tileAT(pc.position(), viewDirection);
-    // assumption only one pushable per tile
-    Optional<Entity> pushable =
-        Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).findFirst();
-    if (pushable.isPresent()) {
-      // check if the hero can move back
-      Tile nextTile = Game.tileAT(pc.position(), viewDirection.opposite());
+    PositionComponent.Direction viewDirection = heroPC.viewDirection();
+    Tile inFront = Game.tileAT(heroPC.position(), viewDirection);
+    Tile nextTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
 
-      if (nextTile.isAccessible()
-          && !Game.entityAtTile(nextTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
-        Direction dir;
-        switch (viewDirection.opposite()) {
-          case LEFT -> dir = Direction.LEFT;
-          case RIGHT -> dir = Direction.RIGHT;
-          case UP -> dir = Direction.UP;
-          default -> dir = Direction.DOWN;
-        }
+    if (nextTile.isAccessible()) {
 
-        // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
-        pushable.get().remove(BlockComponent.class);
-        move(dir, hero, pushable.get());
-        pushable.get().add(new BlockComponent());
+      List<Entity> toPull =
+          Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList();
+      Direction pullDirection = positionDirectionToBlocklyDirection(viewDirection.opposite());
 
-        // turn hero back after movement
-        pc.viewDirection(viewDirection);
-        int x =
-            viewDirection == PositionComponent.Direction.LEFT
-                ? -1
-                : viewDirection == PositionComponent.Direction.RIGHT ? 1 : 0;
-        int y =
-            viewDirection == PositionComponent.Direction.UP
-                ? 1
-                : viewDirection == PositionComponent.Direction.DOWN ? -1 : 0;
-        hero.fetch(VelocityComponent.class)
-            .ifPresent(
-                vc -> {
-                  vc.currentXVelocity(x);
-                  vc.currentYVelocity(y);
-                });
-        waitDelta();
-      }
+      // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+      toPull.forEach(entity -> entity.remove(BlockComponent.class));
+      move(pullDirection, toPull);
+      // give BlockComponent back
+      toPull.forEach(
+          entity -> {
+            PositionComponent epc =
+                entity
+                    .fetch(PositionComponent.class)
+                    .orElseThrow(
+                        () -> MissingComponentException.build(entity, PositionComponent.class));
+            entity.add(new BlockComponent(epc));
+          });
+
+      turnHero(viewDirection);
+      waitDelta();
     }
+  }
+
+  /**
+   * Turns the hero around.
+   *
+   * <p>This will also update the animation.
+   *
+   * <p>This does not call {@link #waitDelta()}.
+   *
+   * @param viewDirection direction to turn to.
+   */
+  private void turnHero(PositionComponent.Direction viewDirection) {
+    PositionComponent heroPC =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    // turn hero back after movement
+    heroPC.viewDirection(viewDirection);
+    int x =
+        viewDirection == PositionComponent.Direction.LEFT
+            ? -1
+            : viewDirection == PositionComponent.Direction.RIGHT ? 1 : 0;
+    int y =
+        viewDirection == PositionComponent.Direction.UP
+            ? 1
+            : viewDirection == PositionComponent.Direction.DOWN ? -1 : 0;
+    hero.fetch(VelocityComponent.class)
+        .ifPresent(
+            vc -> {
+              vc.currentXVelocity(x);
+              vc.currentYVelocity(y);
+            });
+  }
+
+  /**
+   * Converts a {@link PositionComponent.Direction} into a {@link Direction}.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  private Direction positionDirectionToBlocklyDirection(PositionComponent.Direction viewDirection) {
+    Direction pullDirection;
+    switch (viewDirection) {
+      case LEFT -> pullDirection = Direction.LEFT;
+      case RIGHT -> pullDirection = Direction.RIGHT;
+      case UP -> pullDirection = Direction.UP;
+      default -> pullDirection = Direction.DOWN;
+    }
+    return pullDirection;
   }
 }

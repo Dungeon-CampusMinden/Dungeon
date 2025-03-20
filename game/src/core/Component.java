@@ -12,6 +12,18 @@ package core;
  * entity and decide if they want to process the entity. The systems will then modify the values of
  * the data stored in the components.
  *
+ * <p>Use {@link #discard()} if your component hase to do some cleanup after it gets removed from
+ * the entity.
+ *
  * <p>Remember that an entity can only store one component of each component class.
  */
-public interface Component {}
+public interface Component {
+
+  /**
+   * Operation to execute, if this component gets removed from the entity.
+   *
+   * <p>Default implementation is empty.
+   */
+  default void discard() {}
+  ;
+}
