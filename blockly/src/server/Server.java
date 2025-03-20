@@ -1181,13 +1181,11 @@ public class Server {
   public void move(final Direction direction, final Entity... entities) {
     double distanceThreshold = 0.1;
 
-    record EntityData(PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
+    record EntityComponents(
+        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 
-    List<EntityData> entityData = new ArrayList<>();
-    Map<EntityData, Double> distance = new HashMap<>();
-    Map<EntityData, Double> lastDistance = new HashMap<>();
+    List<EntityComponents> entityComponents = new ArrayList<>();
 
-    // build data objects
     for (Entity entity : entities) {
       PositionComponent pc =
           entity
@@ -1199,42 +1197,47 @@ public class Server {
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-      Coordinate targetPosition =
-          pc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
-      EntityData data = new EntityData(pc, vc, targetPosition);
-      entityData.add(data);
-
-      // Check if all targeted tiles are accessible
-      Tile targetedTile = Game.tileAT(targetPosition);
-      if (targetedTile == null
-          || !targetedTile.isAccessible()
-          || Game.entityAtTile(targetedTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
-        return;
+      Tile targetTile =
+          Game.tileAT(pc.position(), convertUtilsDirectionToPosCompDirection(direction));
+      if (targetTile == null
+          || !targetTile.isAccessible()
+          || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
+        return; // if any target tile is not accessible, don't move anyone
       }
 
-      // center position
-      pc.position(pc.position().toCoordinate().toCenteredPoint());
-      // calculate distances each entity has to move
-      distance.put(data, pc.position().distance(targetPosition.toCenteredPoint()));
+      entityComponents.add(new EntityComponents(pc, vc, targetTile.coordinate()));
     }
 
-    // move the entities
-    boolean allEntitiesArrived = false;
-    while (!allEntitiesArrived) {
-      allEntitiesArrived = true;
-      for (EntityData data : entityData) {
-        lastDistance.put(data, distance.get(data));
-        data.vc.currentXVelocity(direction.x() * data.vc.xVelocity());
-        data.vc.currentYVelocity(direction.y() * data.vc.yVelocity());
-        waitDelta();
-        data.vc.currentXVelocity(0);
-        data.vc.currentYVelocity(0);
-        distance.put(data, data.pc.position().distance(data.targetPosition.toCenteredPoint()));
-        // check if targetlocation is reached
-        if (allEntitiesArrived
-            && (!(distance.get(data) <= distanceThreshold
-                || distance.get(data) > lastDistance.get(data)))) allEntitiesArrived = false;
+    double[] distances =
+        entityComponents.stream()
+            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toCenteredPoint()))
+            .toArray();
+    double[] lastDistances = new double[entities.length];
+
+    while (true) {
+      boolean allEntitiesArrived = true;
+      for (int i = 0; i < entities.length; i++) {
+        EntityComponents comp = entityComponents.get(i);
+        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
+        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
+
+        lastDistances[i] = distances[i];
+        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
+
+        if (!(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+          allEntitiesArrived = false;
+        }
       }
+
+      if (allEntitiesArrived) break;
+
+      waitDelta();
+    }
+
+    for (EntityComponents ec : entityComponents) {
+      ec.vc.currentXVelocity(0);
+      ec.vc.currentYVelocity(0);
+      ec.pc.position(ec.targetPosition.toCenteredPoint()); // snap to grid
     }
   }
 
@@ -1347,8 +1350,8 @@ public class Server {
    * Attempts to pull or push entities in front of the hero.
    *
    * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
-   * the player (for pull) or infront of the entities (for push) is accessible. If accessible, the
-   * hero and the entity are moved simultaneously in the corresponding direction..
+   * the player (for pull) or in front of the entities (for push) is accessible. If accessible, the
+   * hero and the entity are moved simultaneously in the corresponding direction.
    *
    * <p>The pulled/pushed entity temporarily loses its blocking component while moving and regains
    * it after.
@@ -1365,10 +1368,10 @@ public class Server {
     Direction moveDirection;
     if (push) {
       checkTile = Game.tileAT(inFront.position(), viewDirection);
-      moveDirection = positionDirectionToBlocklyDirection(viewDirection);
+      moveDirection = convertPosCompDirectionToUtilsDirection(viewDirection);
     } else {
       checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
-      moveDirection = positionDirectionToBlocklyDirection(viewDirection.opposite());
+      moveDirection = convertPosCompDirectionToUtilsDirection(viewDirection.opposite());
     }
     if (!checkTile.isAccessible()
         || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
@@ -1388,7 +1391,7 @@ public class Server {
           entity.add(new BlockComponent());
         });
 
-    turnHero(positionDirectionToBlocklyDirection(viewDirection));
+    turnHero(convertPosCompDirectionToUtilsDirection(viewDirection));
     waitDelta();
   }
 
@@ -1417,19 +1420,34 @@ public class Server {
   }
 
   /**
+   * Converts a {@link Direction} into a {@link PositionComponent.Direction}.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  private PositionComponent.Direction convertUtilsDirectionToPosCompDirection(
+      Direction viewDirection) {
+    return switch (viewDirection) {
+      case LEFT -> PositionComponent.Direction.LEFT;
+      case RIGHT -> PositionComponent.Direction.RIGHT;
+      case UP -> PositionComponent.Direction.UP;
+      default -> PositionComponent.Direction.DOWN;
+    };
+  }
+
+  /**
    * Converts a {@link PositionComponent.Direction} into a {@link Direction}.
    *
    * @param viewDirection Direction to convert.
    * @return Converted direction.
    */
-  private Direction positionDirectionToBlocklyDirection(PositionComponent.Direction viewDirection) {
-    Direction pullDirection;
-    switch (viewDirection) {
-      case LEFT -> pullDirection = Direction.LEFT;
-      case RIGHT -> pullDirection = Direction.RIGHT;
-      case UP -> pullDirection = Direction.UP;
-      default -> pullDirection = Direction.DOWN;
-    }
-    return pullDirection;
+  private Direction convertPosCompDirectionToUtilsDirection(
+      PositionComponent.Direction viewDirection) {
+    return switch (viewDirection) {
+      case LEFT -> Direction.LEFT;
+      case RIGHT -> Direction.RIGHT;
+      case UP -> Direction.UP;
+      default -> Direction.DOWN;
+    };
   }
 }
