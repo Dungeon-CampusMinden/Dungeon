@@ -64,7 +64,7 @@ public class MiscFactory {
     dc.animationMap(animationMap);
     dc.currentAnimation("off");
     pressurePlate.add(dc);
-    LeverComponent lc = new LeverComponent(false, ICommand.EMPTY_COMMAND);
+    LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
     pressurePlate.add(lc);
     TriConsumer<Entity, Entity, Tile.Direction> collide =
         (entity, entity2, direction) -> {
