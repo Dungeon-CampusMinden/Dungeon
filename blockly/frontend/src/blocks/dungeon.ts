@@ -23,6 +23,21 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 290,
     tooltip: "Bewegt den Spieler in die Richtung in die er schaut",
   },
+  {
+    type: "rotate",
+    message0: "Drehe %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    previousStatement: null,
+    nextStatement: null,
+    colour: 290,
+    tooltip: "Dreht den Spieler nach links oder rechts",
+  },
   // ---------------------- Variables ----------------------
   {
     type: "get_number",

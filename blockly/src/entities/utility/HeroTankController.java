@@ -2,13 +2,11 @@ package entities.utility;
 
 import contrib.entities.EntityFactory;
 import core.Entity;
-import core.Game;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
-import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimations;
 import java.io.IOException;
@@ -38,7 +36,8 @@ public class HeroTankController {
     pc.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
 
     // Add tank controls
-    pc.registerCallback(KeyboardConfig.MOVEMENT_UP.value(), HeroTankController::moveEntityInFacingDirection);
+    pc.registerCallback(
+        KeyboardConfig.MOVEMENT_UP.value(), HeroTankController::moveEntityInFacingDirection);
 
     // Add rotation controls
     pc.registerCallback(
@@ -58,13 +57,16 @@ public class HeroTankController {
         || direction == PositionComponent.Direction.DOWN) return;
 
     PositionComponent pc =
-        entity.fetch(PositionComponent.class)
+        entity
+            .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     DrawComponent dc =
-        entity.fetch(DrawComponent.class)
+        entity
+            .fetch(DrawComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
     VelocityComponent vc =
-        entity.fetch(VelocityComponent.class)
+        entity
+            .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
     // Stop the hero from moving when rotating
@@ -118,14 +120,16 @@ public class HeroTankController {
     return newDirection;
   }
 
-  public static void moveEntityInFacingDirection(Entity hero) {
+  public static void moveEntityInFacingDirection(Entity entity) {
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     PositionComponent.Direction direction = pc.viewDirection();
     VelocityComponent vc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
     switch (direction) {
       case UP -> vc.currentYVelocity(vc.yVelocity());
@@ -133,5 +137,13 @@ public class HeroTankController {
       case LEFT -> vc.currentXVelocity(-vc.xVelocity());
       case RIGHT -> vc.currentXVelocity(vc.xVelocity());
     }
+  }
+
+  public static PositionComponent.Direction getViewDirection(Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return pc.viewDirection();
   }
 }
