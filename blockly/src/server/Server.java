@@ -95,9 +95,6 @@ public class Server {
   /** Stack containing all active func defs. */
   public final Stack<FuncStats> active_func_defs = new Stack<>();
 
-  /** Default time an Animation should be enqueued */
-  private static final int DEFAULT_FRAME_TIME = 1;
-
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
    * blockly frontend. The execution of the current program will stop if this variable is true.
@@ -1101,7 +1098,7 @@ public class Server {
           return;
         }
         Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-        move(hero, Direction.fromString(firstArg));
+        move(Direction.fromString(firstArg));
       }
       case "feuerball" -> {
         String firstArg;
@@ -1175,124 +1172,102 @@ public class Server {
   }
 
   /**
-   * Moves the given entity in a specific direction.
-   *
-   * <p>One move equals one tile.
-   *
-   * @param entity Entity to move
-   * @param direction Direction in which the entity will be moved.
-   */
-  public void move(final Entity entity, final Direction direction) {
-    double distanceThreshold = 0.1;
-
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-
-    Coordinate targetedPosition =
-        pc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
-    Tile targetedTile = Game.tileAT(targetedPosition);
-    if (targetedTile == null) return;
-    if (!targetedTile.isAccessible()) return;
-    if (Game.entityAtTile(targetedTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
-
-    VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-
-    // placing the Hero in the middle of the current tile before moving
-    pc.position(pc.position().toCoordinate().toCenteredPoint());
-
-    double distance = pc.position().distance(targetedPosition.toCenteredPoint());
-    double distanceLast;
-    // moves the Hero towards the targeted center Point
-    while (true) {
-      vc.currentXVelocity(direction.x() * vc.xVelocity());
-      vc.currentYVelocity(direction.y() * vc.yVelocity());
-      distanceLast = distance;
-      distance = pc.position().distance(targetedPosition.toCenteredPoint());
-      // check if the hero is close enough to the center or already over
-      if (distance <= distanceThreshold || distance > distanceLast) break;
-      waitDelta();
-    }
-    // stop any movement immediately
-    vc.currentXVelocity(0);
-    vc.currentYVelocity(0);
-  }
-
-  /**
    * Moves the given entities simultaneously in a specific direction.
    *
    * <p>One move equals one tile.
    *
-   * @param entity1 First entity to move
-   * @param entity2 Second entity to move
    * @param direction Direction in which the entities will be moved.
+   * @param entities Entities to move simultaneously.
    */
-  public void moveSimultaneously(
-      final Entity entity1, final Entity entity2, final Direction direction) {
+  public void move(final Direction direction, final Entity... entities) {
     double distanceThreshold = 0.1;
 
-    PositionComponent pc1 =
-        entity1
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity1, PositionComponent.class));
-    PositionComponent pc2 =
-        entity2
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity2, PositionComponent.class));
+    record EntityComponents(
+        PositionComponent position, VelocityComponent velocity, Coordinate targetPosition) {}
 
-    Coordinate targetedPosition1 =
-        pc1.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
-    Coordinate targetedPosition2 =
-        pc2.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
+    List<EntityComponents> entityComponents = new ArrayList<>();
 
-    Tile targetedTile1 = Game.tileAT(targetedPosition1);
-    Tile targetedTile2 = Game.tileAT(targetedPosition2);
-    if (targetedTile1 == null || targetedTile2 == null) return;
-    if (!targetedTile1.isAccessible() || !targetedTile2.isAccessible()) return;
-    if (Game.entityAtTile(targetedTile1).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
-    if (Game.entityAtTile(targetedTile2).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
+    for (Entity entity : entities) {
+      PositionComponent pc =
+          entity
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    VelocityComponent vc1 =
-        entity1
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity1, VelocityComponent.class));
-    VelocityComponent vc2 =
-        entity2
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity2, VelocityComponent.class));
+      VelocityComponent vc =
+          entity
+              .fetch(VelocityComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-    pc1.position(pc1.position().toCoordinate().toCenteredPoint());
-    pc2.position(pc2.position().toCoordinate().toCenteredPoint());
+      Coordinate targetPosition =
+          pc.position().toCoordinate().add(new Coordinate(direction.x(), direction.y()));
+      entityComponents.add(new EntityComponents(pc, vc, targetPosition));
+    }
 
-    double distance1 = pc1.position().distance(targetedPosition1.toCenteredPoint());
-    double distance2 = pc2.position().distance(targetedPosition2.toCenteredPoint());
-    double distanceLast1, distanceLast2;
+    // Check if all targeted tiles are accessible
+    for (EntityComponents comp : entityComponents) {
+      Tile targetedTile = Game.tileAT(comp.targetPosition);
+      if (targetedTile == null
+          || !targetedTile.isAccessible()
+          || Game.entityAtTile(targetedTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
+        return;
+      }
+    }
+
+    // Center positions
+    for (EntityComponents comp : entityComponents) {
+      comp.position.position(comp.position.position().toCoordinate().toCenteredPoint());
+    }
+
+    double[] distances = new double[entities.length];
+    double[] lastDistances = new double[entities.length];
+
+    for (int i = 0; i < entities.length; i++) {
+      distances[i] =
+          entityComponents
+              .get(i)
+              .position
+              .position()
+              .distance(entityComponents.get(i).targetPosition.toCenteredPoint());
+    }
 
     while (true) {
-      vc1.currentXVelocity(direction.x() * vc1.xVelocity());
-      vc1.currentYVelocity(direction.y() * vc1.yVelocity());
-      vc2.currentXVelocity(direction.x() * vc2.xVelocity());
-      vc2.currentYVelocity(direction.y() * vc2.yVelocity());
+      for (int i = 0; i < entities.length; i++) {
+        EntityComponents comp = entityComponents.get(i);
+        comp.velocity.currentXVelocity(direction.x() * comp.velocity.xVelocity());
+        comp.velocity.currentYVelocity(direction.y() * comp.velocity.yVelocity());
 
-      distanceLast1 = distance1;
-      distanceLast2 = distance2;
-      distance1 = pc1.position().distance(targetedPosition1.toCenteredPoint());
-      distance2 = pc2.position().distance(targetedPosition2.toCenteredPoint());
+        lastDistances[i] = distances[i];
+        distances[i] = comp.position.position().distance(comp.targetPosition.toCenteredPoint());
+      }
 
-      if ((distance1 <= distanceThreshold || distance1 > distanceLast1)
-          && (distance2 <= distanceThreshold || distance2 > distanceLast2)) break;
+      boolean allEntitiesArrived = true;
+      for (int i = 0; i < entities.length; i++) {
+        if (!(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+          allEntitiesArrived = false;
+          break;
+        }
+      }
+
+      if (allEntitiesArrived) break;
 
       waitDelta();
     }
 
-    vc1.currentXVelocity(0);
-    vc1.currentYVelocity(0);
-    vc2.currentXVelocity(0);
-    vc2.currentYVelocity(0);
+    for (EntityComponents comp : entityComponents) {
+      comp.velocity.currentXVelocity(0);
+      comp.velocity.currentYVelocity(0);
+    }
+  }
+
+  /**
+   * Moves the hero in a specific direction.
+   *
+   * <p>One move equals one tile.
+   *
+   * @param direction Direction in which the entity will be moved.
+   */
+  public void move(final Direction direction) {
+    move(direction, hero);
   }
 
   private void waitDelta() {
@@ -1417,7 +1392,7 @@ public class Server {
 
         // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
         pushable.get().remove(BlockComponent.class);
-        moveSimultaneously(hero, pushable.get(), dir);
+        move(dir, hero, pushable.get());
         pushable.get().add(new BlockComponent());
       }
     }
@@ -1458,7 +1433,7 @@ public class Server {
 
         // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
         pushable.get().remove(BlockComponent.class);
-        moveSimultaneously(hero, pushable.get(), dir);
+        move(dir, hero, pushable.get());
         pushable.get().add(new BlockComponent());
 
         // turn hero back after movement
