@@ -30,6 +30,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       }
     ],
   },
+  {
+    type: "goToExit",
+    message0: "Gehe Zum Ausgang",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 290,
+    tooltip: "Bewege dich zum Ausgang des Levels.",
+  },
   // ---------------------- Variables ----------------------
   {
     type: "get_number",
@@ -513,14 +521,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Benutze den Gegenstand vor dir.",
-  },
-  {
-    type: "goToExit",
-    message0: "geheZumAusgang",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 0,
-    tooltip: "Bewege dich zum Ausgang des Levels.",
   },
   //  ---------------------- Functions ----------------------
   {
