@@ -1,7 +1,7 @@
 package contrib.utils;
 
 /**
- * ICommand is an interface that represents a command that can be executed and (optional) undone.
+ * ICommand is an interface that represents a command that can be executed and undone.
  *
  * @see contrib.entities.LeverFactory LeverFactory
  * @see contrib.systems.LeverSystem LeverSystem
@@ -9,7 +9,14 @@ package contrib.utils;
 public interface ICommand {
 
   /** Command that does nothing. */
-  ICommand EMPTY_COMMAND = () -> {};
+  ICommand NOOP =
+      new ICommand() {
+        @Override
+        public void execute() {}
+
+        @Override
+        public void undo() {}
+      };
 
   /** Executes the command. */
   void execute();
@@ -19,5 +26,5 @@ public interface ICommand {
    *
    * <p>The default implementation does nothing.
    */
-  default void undo() {}
+  void undo();
 }
