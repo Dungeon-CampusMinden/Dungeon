@@ -1351,7 +1351,7 @@ public class Server {
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     GraphPath<Tile> pathToExit =
-        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.position().toCoordinate());
+        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
       Tile currentTile = Game.tileAT(pc.position());

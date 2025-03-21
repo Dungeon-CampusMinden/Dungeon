@@ -13,3 +13,4 @@ export function move(
 export function goToExit(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "geheZumAusgang();";
 }
+
