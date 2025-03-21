@@ -20,13 +20,16 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
 import systems.BlockSystem;
+import utils.CheckPatternPainter;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = true;
+  private static final boolean KEYBOARD_DEACTIVATION = false;
+  private static final boolean DRAW_CHECKER_PATTERN = true;
+
   private static HttpServer httpServer;
 
   /**
@@ -85,6 +88,8 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
+          if (DRAW_CHECKER_PATTERN)
+            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           Server.instance().interruptExecution = true;
         });
   }
