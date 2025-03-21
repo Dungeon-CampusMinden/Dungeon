@@ -4,6 +4,7 @@ import antlr.BlocklyConditionVisitor;
 import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -21,6 +22,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -109,7 +111,7 @@ public class Server {
 
   private boolean clearHUD = false;
   private final String[] reservedFunctions = {
-    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben", "ziehen"
+    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben", "ziehen", "geheZumAusgang"
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -1121,6 +1123,9 @@ public class Server {
       case "ziehen" -> {
         pull();
       }
+      case "geheZumAusgang" -> {
+        moveToExit();
+      }
       default -> System.out.println("Unknown action: " + action);
     }
   }
@@ -1334,6 +1339,32 @@ public class Server {
                     .ifPresent(
                         interactionComponent ->
                             interactionComponent.triggerInteraction(entity, hero)));
+  }
+
+  /** Moves the Hero to the Exit Block of the current Level. */
+  public void moveToExit() {
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+
+    if (Game.currentLevel().exitTiles().isEmpty()) return;
+    Tile exitTile = Game.currentLevel().exitTiles().getFirst();
+
+    GraphPath<Tile> pathToExit =
+        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
+
+    for (Tile nextTile : pathToExit) {
+      Tile currentTile = Game.tileAT(pc.position());
+
+      if (currentTile != nextTile) {
+        switch (currentTile.directionTo(nextTile)[0]) {
+          case E -> move(Direction.RIGHT);
+          case W -> move(Direction.LEFT);
+          case N -> move(Direction.UP);
+          case S -> move(Direction.DOWN);
+        }
+      }
+    }
   }
 
   /** Attempts to push entities in front of the hero. */

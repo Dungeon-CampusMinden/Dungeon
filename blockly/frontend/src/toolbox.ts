@@ -20,6 +20,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "repeat_number",
         },
+        {
+          kind: "block",
+          type: "goToExit"
+        },
       ],
     },
     {
