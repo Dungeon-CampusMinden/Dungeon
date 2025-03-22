@@ -1,3 +1,5 @@
+const DEFAULT_VALUE = 'NO SET';
+
 export const setupVariableDisplay = (addVarCallback: () => void) => {
   const toolboxDiv = document.getElementsByClassName('blocklyToolboxDiv')[0] as HTMLDivElement;
   toolboxDiv.style.display = 'flex';
@@ -56,8 +58,7 @@ const showNoVariablesMessage = () => {
   }
 };
 
-export const addVariable = (name: string, value: string, removeVarCallback: (varName: string) => void) => {
-  console.log('Adding variable:', name, value);
+export const addVariable = (name: string, removeVarCallback: (varName: string) => void) => {
   const variableList = document.getElementById('variableList') as HTMLDivElement;
 
   // Remove the "no variables" message if it exists
@@ -85,12 +86,10 @@ export const addVariable = (name: string, value: string, removeVarCallback: (var
 
   const innerVariableValue = document.createElement('p');
   innerVariableValue.className = 'variable-value';
-  innerVariableValue.innerText = value;
+  innerVariableValue.innerText = DEFAULT_VALUE;
   exampleVariable.appendChild(innerVariableValue);
 
   variableList.appendChild(exampleVariable);
-
-  console.log('Added variable:', name, value);
 }
 
 export const updateVariable = (name: string, value: string) => {
@@ -106,8 +105,6 @@ export const updateVariable = (name: string, value: string) => {
       break;
     }
   }
-
-  console.log('Updated variable:', name, value);
 };
 
 export const removeVariable = (name: string) => {
@@ -123,9 +120,7 @@ export const removeVariable = (name: string) => {
     }
   }
 
-  console.log('Removed variable:', name);
-
-  // Show "no variables" message if the list is now empty
+  // Shows "no variables" if the list is now empty
   showNoVariablesMessage();
 };
 
@@ -141,7 +136,14 @@ export const renameVariable = (oldName: string, newName: string) => {
       break;
     }
   }
-
-  console.log('Renamed variable:', oldName, 'to', newName);
 }
 
+export const resetVariables = () => {
+  const variableList = document.getElementById('variableList') as HTMLDivElement;
+  const variableItems = variableList.getElementsByClassName('variable-item');
+  for (let i = 0; i < variableItems.length; i++) {
+    const item = variableItems[i];
+    const innerVariableValue = item.getElementsByClassName('variable-value')[0] as HTMLParagraphElement;
+    innerVariableValue.innerText = DEFAULT_VALUE;
+  }
+}

@@ -131,7 +131,7 @@ if (workspace) {
     if (e.type == Blockly.Events.VAR_CREATE) {
       const newVariableName = (e as Blockly.Events.VarCreate).varName;
       if (newVariableName === undefined) return;
-      VariableListUtils.addVariable(newVariableName, "NOT SET", removeVarCallback);
+      VariableListUtils.addVariable(newVariableName, removeVarCallback);
     } else if (e.type == Blockly.Events.VAR_DELETE) {
       const oldVariableName = (e as Blockly.Events.VarDelete).varName;
       if (oldVariableName === undefined) return;
@@ -198,6 +198,19 @@ const handleResponse = async (response: Response, currentBlock: Blockly.Block): 
     return true;
 }
 
+const updateVariables = async () => {
+  const varResponse = await api.post("variables");
+  if (varResponse.ok) {
+    const variableData = await varResponse.text();
+    variableData.split("\n").forEach((line) => {
+      const [name, value] = line.split("=");
+      VariableListUtils.updateVariable(name, value);
+    });
+  } else {
+    console.error("Fehler beim Abrufen der Variablen", varResponse);
+  }
+}
+
 if (startBtn) {
   startBtn.addEventListener("click", async () => {
     clearAllWarnings(workspace);
@@ -233,6 +246,8 @@ if (startBtn) {
 
       const ok = await handleResponse(response, currentBlock);
       if (!ok) break;
+
+      await updateVariables();
 
       // Get next block and sleep x seconds
       currentBlock = currentBlock.getNextBlock();
@@ -299,6 +314,8 @@ if (stepBtn !== null) {
         workspace.highlightBlock(null);
       }
 
+      await updateVariables();
+
       // Enable button again
       startBtn.disabled = false;
       stepBtn.disabled = false;
@@ -317,6 +334,7 @@ if (resetBtn) {
     workspace.highlightBlock(null);
     // Reset currentBlock for step button
     currentBlock = getStartBlock(workspace);
+    VariableListUtils.resetVariables();
     await api.post("reset");
   });
 }
