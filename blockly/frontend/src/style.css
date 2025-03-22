@@ -144,3 +144,106 @@ header {
   align-items: start;
   height: 10%;
 }
+
+.variableDiv {
+    width: 200px;
+    margin-block: 15px;
+    text-align: center;
+    overflow-x: hidden;
+}
+
+#variableText {
+    color: black;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 10px;
+    border-bottom: 1px solid black;
+    margin-bottom: 5px;
+}
+
+#variableList {
+    padding: 0;
+    margin: 0;
+    color: black;
+    font-size: 16px;
+}
+
+.variable-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.variable-name {
+    display: inline-block;
+    color: black;
+    font-size: 16px;
+    text-align: left;
+    margin: 0;
+    padding-inline: 5px;
+    text-overflow: ellipsis;
+    overflow:hidden;
+    white-space:nowrap;
+    flex-shrink: 999;
+}
+
+.variable-value {
+    display: inline-block;
+    color: black;
+    font-size: 16px;
+    text-align: right;
+    margin: 0;
+    flex-grow: 1;
+    padding-inline: 5px;
+    text-wrap: nowrap;
+}
+
+.delete-variable-btn {
+    position: absolute;
+    width: 0;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #d83838;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateX(-5px);
+    transition: opacity 0.2s, transform 0.2s, width 0.2s;
+    border: none;
+    padding: 0;
+    margin-left: 2px;
+}
+
+.variable-item:hover .delete-variable-btn {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    width: 16px;
+}
+
+.delete-variable-btn:hover {
+    background-color: #ac2424;
+}
+
+.no-variables-message {
+    color: #777;
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    margin: 10px 0;
+    width: 100%;
+}
+
+#addVariableButton {
+    border-radius: 5px;
+    color: black;
+    text-align: center;
+    cursor: pointer;
+    margin-inline: 5px;
+}
+
