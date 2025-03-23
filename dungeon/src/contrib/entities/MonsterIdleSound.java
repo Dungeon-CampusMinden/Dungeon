@@ -1,4 +1,4 @@
-package entities;
+package contrib.entities;
 
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -28,11 +28,12 @@ public enum MonsterIdleSound {
   }
 
   /**
-   * Returns the path to the sound of the monster's idle sound.
+   * Returns the monster's idle path.
    *
-   * @return The path to the sound of the monster's idle sound. If the monster has no sound, returns
+   * @return The path of the monster's while idling sound. If the monster has no sound, returns an
+   *     empty path.
    */
-  public IPath getPath() {
+  public IPath path() {
     return path;
   }
 }
