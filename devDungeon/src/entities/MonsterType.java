@@ -5,7 +5,9 @@ import components.ReviveComponent;
 import contrib.components.AIComponent;
 import contrib.components.InteractionComponent;
 import contrib.entities.AIFactory;
+import contrib.entities.MonsterDeathSound;
 import contrib.entities.MonsterFactory;
+import contrib.entities.MonsterIdleSound;
 import contrib.hud.DialogUtils;
 import contrib.utils.components.ai.fight.CollideAI;
 import contrib.utils.components.ai.fight.RangeAI;
@@ -345,14 +347,14 @@ public enum MonsterType {
     this.health = health;
     this.speed = speed;
     this.itemChance = canHaveItems;
-    this.deathSound = deathSound.getSound();
+    this.deathSound = deathSound.sound();
     this.reviveCount = reviveCount;
     this.fightAISupplier = fightAISupplier;
     this.idleAISupplier = idleAISupplier;
     this.transitionAISupplier = transitionAISupplier;
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
-    this.idleSoundPath = idleSound.getPath();
+    this.idleSoundPath = idleSound.path();
   }
 
   /**

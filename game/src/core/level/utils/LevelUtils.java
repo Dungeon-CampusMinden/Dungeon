@@ -458,4 +458,27 @@ public final class LevelUtils {
     }
     return tiles;
   }
+
+  /**
+   * Tints a given area with a specified color.
+   *
+   * @param start The starting coordinate of the area to tint. (top left)
+   * @param end The ending coordinate of the area to tint. (bottom right)
+   * @param color The color to tint the area with.
+   */
+  public static void tintArea(Coordinate start, Coordinate end, int color) {
+    int minX = Math.min(start.x, end.x);
+    int maxX = Math.max(start.x, end.x);
+    int minY = Math.min(start.y, end.y);
+    int maxY = Math.max(start.y, end.y);
+
+    for (int x = minX; x <= maxX; x++) {
+      for (int y = minY; y <= maxY; y++) {
+        Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
+        if (tile != null) {
+          tile.tintColor(color);
+        }
+      }
+    }
+  }
 }

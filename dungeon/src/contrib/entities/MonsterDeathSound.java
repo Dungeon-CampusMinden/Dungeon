@@ -1,4 +1,4 @@
-package entities;
+package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -35,7 +35,7 @@ public enum MonsterDeathSound {
    *
    * @return The sound of the monster's death. If the monster has no sound, returns null.
    */
-  public Sound getSound() {
+  public Sound sound() {
     return sound;
   }
 }

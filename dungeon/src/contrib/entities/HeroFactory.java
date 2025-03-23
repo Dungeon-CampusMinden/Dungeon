@@ -51,6 +51,15 @@ public final class HeroFactory {
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
   /**
+   * The default speed of the hero.
+   *
+   * @return Copy of the default speed of the hero.
+   */
+  public static Vector2 defaultHeroSpeed() {
+    return new Vector2(SPEED_HERO.x, SPEED_HERO.y);
+  }
+
+  /**
    * Gets the current skill of the hero.
    *
    * @return The current skill of the hero.
