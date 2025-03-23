@@ -32,6 +32,13 @@ import java.util.logging.Logger;
 public abstract class DamageProjectile implements Consumer<Entity> {
 
   /**
+   * The default behavior when the projectile gets spawned.
+   *
+   * <p>The default behavior is to do nothing.
+   */
+  public static final Consumer<Entity> DEFAULT_ON_SPAWN = (a) -> {};
+
+  /**
    * The default behavior when a wall is hit by the projectile.
    *
    * <p>The default behavior is to remove the projectile from the game.
@@ -54,6 +61,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Point projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
+  private final Consumer<Entity> onSpawn;
   private final String name;
   private static int nextId = 0;
   private final List<Entity> ignoreEntities = new ArrayList<>();
@@ -95,7 +103,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Supplier<Point> selectionFunction,
       float projectileRange,
       final Consumer<Entity> onWallHit,
-      final BiConsumer<Entity, Entity> onEntityHit) {
+      final BiConsumer<Entity, Entity> onEntityHit,
+      final Consumer<Entity> onSpawn) {
     this.name = name + "_" + nextId++;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
@@ -106,6 +115,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     this.selectionFunction = selectionFunction;
     this.onWallHit = onWallHit;
     this.onEntityHit = onEntityHit;
+    this.onSpawn = onSpawn;
   }
 
   /**
@@ -143,7 +153,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         selectionFunction,
         projectileRange,
         DEFAULT_ON_WALL_HIT,
-        DEFAULT_ON_ENTITY_HIT);
+        DEFAULT_ON_ENTITY_HIT,
+        DEFAULT_ON_SPAWN);
   }
 
   /**
@@ -262,6 +273,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         new CollideComponent(CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, collide, null));
     Game.add(projectile);
     playSound();
+    onSpawn.accept(projectile);
   }
 
   /**

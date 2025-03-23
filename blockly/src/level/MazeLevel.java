@@ -1,9 +1,14 @@
 package level;
 
 import contrib.hud.DialogUtils;
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import entities.BlocklyMonster;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -29,6 +34,17 @@ public class MazeLevel extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     DialogUtils.showTextPopup("Finde des Ausgang des Labyrinths!", "Ziel");
+
+    this.randomTile(LevelElement.FLOOR)
+        .ifPresent(
+            tile -> {
+              try {
+                Entity guard = BlocklyMonster.GUARD.buildMonster(tile.coordinate().toCenteredPoint());
+                Game.add(guard);
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   @Override
