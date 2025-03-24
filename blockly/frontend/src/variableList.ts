@@ -1,4 +1,4 @@
-const DEFAULT_VALUE = 'NO SET';
+const DEFAULT_VALUE = '?';
 
 export const setupVariableDisplay = (addVarCallback: () => void) => {
   const toolboxDiv = document.getElementsByClassName('blocklyToolboxDiv')[0] as HTMLDivElement;
