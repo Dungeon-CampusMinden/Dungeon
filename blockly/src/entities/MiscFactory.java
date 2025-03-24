@@ -3,9 +3,12 @@ package entities;
 import components.BlockComponent;
 import components.PushableComponent;
 import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
+import contrib.hud.DialogUtils;
 import contrib.utils.ICommand;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -25,6 +28,8 @@ public class MiscFactory {
       new SimpleIPath("objects/pressureplate/on/pressureplate_0.png");
   private static final IPath PRESSURE_PLATE_OFF =
       new SimpleIPath("objects/pressureplate/off/pressureplate_0.png");
+
+  private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final float STONE_SPEED = 7.5f;
 
   /**
@@ -74,5 +79,32 @@ public class MiscFactory {
         };
     pressurePlate.add(new CollideComponent(collide, collide));
     return pressurePlate;
+  }
+
+  /**
+   * Creates a book pickup entity at the given position.
+   *
+   * <p>The book pickup is an entity that, upon interaction, displays a text popup and removes
+   * itself from the game world. This can be used for storytelling purposes or to unlock new
+   * features in a Blockly-based level.
+   *
+   * @param position The initial position of the book pickup.
+   * @param title The title displayed in the popup dialog.
+   * @param pickupText The text content of the popup dialog shown to the player upon interaction.
+   * @return A new book pickup entity with interaction behavior.
+   */
+  public static Entity bookPickup(Point position, String title, String pickupText) {
+    Entity pickup = new Entity("Book Pickup");
+    pickup.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
+    pickup.add(
+        new InteractionComponent(
+            1,
+            false,
+            (entity, entity2) -> {
+              DialogUtils.showTextPopup(pickupText, title);
+              Game.remove(pickup);
+            }));
+    return pickup;
   }
 }
