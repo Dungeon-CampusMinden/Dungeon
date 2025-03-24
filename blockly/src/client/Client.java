@@ -1,6 +1,7 @@
 package client;
 
 import com.sun.net.httpserver.HttpServer;
+import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
@@ -117,6 +118,7 @@ public class Client {
     Entity hero;
     try {
       hero = HeroTankControlledFactory.newTankControlledHero();
+      hero.add(new AmmunitionComponent());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
