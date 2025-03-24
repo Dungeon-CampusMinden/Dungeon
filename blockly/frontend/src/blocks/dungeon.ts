@@ -508,7 +508,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "pickup",
-    message0: "Aufheben",
+    message0: "aufheben",
     previousStatement: null,
     nextStatement: null,
     colour: 0,
