@@ -33,3 +33,11 @@ export function pickup(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "aufsammeln();";
 }
 
+export function drop_item(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const item = generator.valueToCode(block, "ITEM", Order.NONE);
+  return "fallen_lassen(" + item + ");";
+}
+

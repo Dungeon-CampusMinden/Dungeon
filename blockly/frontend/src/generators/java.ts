@@ -8,6 +8,7 @@ import * as skills from "./java/skills.ts";
 import * as arrays from "./java/arrays.ts";
 import * as functions from "./java/functions.ts";
 import * as directions from "./java/directions.ts";
+import * as directions from "./java/items.ts";
 
 class JavaGenerator extends Blockly.Generator {
   public variables: Map<string, number|string>;

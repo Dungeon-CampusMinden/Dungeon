@@ -114,24 +114,24 @@ public class MiscFactory {
   /**
    * Creates a breadcrumb entity at the given position.
    *
-   * <p>The breadcrumb is a temporary item that can be picked up and removed upon interaction.
-   * It can be used for marking paths.
+   * <p>The breadcrumb is a temporary item that can be picked up and removed upon interaction. It
+   * can be used for marking paths.
    *
    * @param position The initial position of the breadcrumb.
    * @return A new breadcrumb entity.
    */
-  public static Entity breadcrumb (Point position){
+  public static Entity breadcrumb(Point position) {
     Entity breadcrumb = new Entity("breadcrumb");
     breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
     breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
     breadcrumb.add(new ItemComponent(null));
     breadcrumb.add(
-            new InteractionComponent(
-                    0,
-                    false,
-                    (entity, entity2) -> {
-                      Game.remove(breadcrumb);
-                    }));
+        new InteractionComponent(
+            0,
+            false,
+            (entity, entity2) -> {
+              Game.remove(breadcrumb);
+            }));
     return breadcrumb;
   }
 }

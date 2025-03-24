@@ -515,6 +515,21 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     tooltip: "Sammel den Gegenstand unter dir auf.",
   },
   {
+    type: "drop_item",
+    message0: "fallen lassen %1",
+    previousStatement: null,
+    nextStatement: null,
+    colour: 0,
+    tooltip: "Gegenstand auf den Boden werfen.",
+    args0: [
+      {
+        type: "input_value",
+        name: "ITEM",
+        check: "Item",
+      },
+    ]
+  },
+  {
     type: "wait",
     message0: "warte",
     previousStatement: null,
@@ -545,7 +560,14 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 0,
     tooltip: "Nur einmal feste ziehen!",
-   },
+  },
+  {
+    type: "item_breadcrumbs",
+    message0: "Brotkrumen",
+    output: "Item",
+    colour: 230
+  },
+
   //  ---------------------- Functions ----------------------
   {
     type: "func_def",

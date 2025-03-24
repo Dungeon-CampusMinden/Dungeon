@@ -27,6 +27,7 @@ import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.MiscFactory;
 import entities.VariableHUD;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,7 +121,8 @@ public class Server {
     "schieben",
     "ziehen",
     "geheZumAusgang",
-    "aufsammeln"
+    "aufsammeln",
+    "fallen_lassen",
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -1135,6 +1137,16 @@ public class Server {
       case "aufsammeln" -> {
         pickup();
       }
+      case "fallen_lassen" -> {
+        String firstArg;
+        if (args[0] instanceof String) {
+          firstArg = (String) args[0];
+        } else {
+          setError("Unexpected type for item " + args[0]);
+          return;
+        }
+        dropItem(firstArg);
+      }
       case "geheZumAusgang" -> {
         moveToExit();
       }
@@ -1364,6 +1376,17 @@ public class Server {
             item ->
                 item.fetch(InteractionComponent.class)
                     .ifPresent(ic -> ic.triggerInteraction(item, hero)));
+  }
+
+  /**
+   * Drop an Blockly-Item at the heros position.
+   *
+   * @param item Name of the item to drop
+   */
+  public void dropItem(String item) {
+    if (item.equals("Brotkrumen")) {
+      Game.add(MiscFactory.breadcrumb(getHeroPosition().position()));
+    }
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */
