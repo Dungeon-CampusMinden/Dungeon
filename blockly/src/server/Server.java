@@ -9,9 +9,11 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.BlockComponent;
+import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
+import contrib.components.ItemComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
@@ -26,6 +28,7 @@ import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import entities.MiscFactory;
 import entities.VariableHUD;
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,7 +114,16 @@ public class Server {
 
   private boolean clearHUD = false;
   private final String[] reservedFunctions = {
-    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben", "ziehen", "geheZumAusgang"
+    "gehe",
+    "feuerball",
+    "naheWand",
+    "warte",
+    "benutzen",
+    "schieben",
+    "ziehen",
+    "geheZumAusgang",
+    "aufsammeln",
+    "fallen_lassen",
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -1126,6 +1138,19 @@ public class Server {
       case "ziehen" -> {
         pull();
       }
+      case "aufsammeln" -> {
+        pickup();
+      }
+      case "fallen_lassen" -> {
+        String firstArg;
+        if (args[0] instanceof String) {
+          firstArg = (String) args[0];
+        } else {
+          setError("Unexpected type for item " + args[0]);
+          return;
+        }
+        dropItem(firstArg);
+      }
       case "geheZumAusgang" -> {
         moveToExit();
       }
@@ -1377,6 +1402,30 @@ public class Server {
                     .ifPresent(
                         interactionComponent ->
                             interactionComponent.triggerInteraction(entity, hero)));
+  }
+
+  /**
+   * Triggers the interaction (normally a pickup action) for each Entity with an {@link
+   * ItemComponent} at the same tile as the hero.
+   */
+  public void pickup() {
+    Game.entityAtTile(Game.tileAT(EntityUtils.getHeroCoordinate()))
+        .filter(e -> e.isPresent(BlocklyItemComponent.class))
+        .forEach(
+            item ->
+                item.fetch(InteractionComponent.class)
+                    .ifPresent(ic -> ic.triggerInteraction(item, hero)));
+  }
+
+  /**
+   * Drop an Blockly-Item at the heros position.
+   *
+   * @param item Name of the item to drop
+   */
+  public void dropItem(String item) {
+    if (item.equals("Brotkrumen")) {
+      Game.add(MiscFactory.breadcrumb(getHeroPosition().position()));
+    }
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */

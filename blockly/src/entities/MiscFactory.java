@@ -1,6 +1,7 @@
 package entities;
 
 import components.BlockComponent;
+import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
@@ -30,6 +31,7 @@ public class MiscFactory {
       new SimpleIPath("objects/pressureplate/off/pressureplate_0.png");
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
+  private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/resource/leaf.png");
   private static final float STONE_SPEED = 7.5f;
 
   /**
@@ -106,5 +108,29 @@ public class MiscFactory {
               Game.remove(pickup);
             }));
     return pickup;
+  }
+
+  /**
+   * Creates a breadcrumb entity at the given position.
+   *
+   * <p>The breadcrumb is a temporary item that can be picked up and removed upon interaction. It
+   * can be used for marking paths.
+   *
+   * @param position The initial position of the breadcrumb.
+   * @return A new breadcrumb entity.
+   */
+  public static Entity breadcrumb(Point position) {
+    Entity breadcrumb = new Entity("breadcrumb");
+    breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
+    breadcrumb.add(new BlocklyItemComponent());
+    breadcrumb.add(
+        new InteractionComponent(
+            0,
+            false,
+            (entity, entity2) -> {
+              Game.remove(breadcrumb);
+            }));
+    return breadcrumb;
   }
 }

@@ -77,6 +77,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "direction_right",
         },
+        {
+          kind: "block",
+          type: "item_breadcrumbs",
+        },
       ],
     },
     {
@@ -215,11 +219,19 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
+          type: "pickup",
+        },
+        {
+          kind: "block",
           type: "push",
         },
         {
           kind: "block",
           type: "pull",
+        },
+        {
+          kind: "block",
+          type: "drop_item",
         },
       ],
     },
