@@ -45,7 +45,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 290,
     tooltip: "Dreht den Spieler nach links oder rechts",
->>>>>>> a547cda9 (add rotate and blockly logic)
   },
   // ---------------------- Variables ----------------------
   {
