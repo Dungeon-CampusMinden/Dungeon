@@ -1,10 +1,10 @@
 package entities;
 
 import components.BlockComponent;
+import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
-import contrib.components.ItemComponent;
 import contrib.components.LeverComponent;
 import contrib.hud.DialogUtils;
 import contrib.utils.ICommand;
@@ -124,7 +124,7 @@ public class MiscFactory {
     Entity breadcrumb = new Entity("breadcrumb");
     breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
     breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
-    breadcrumb.add(new ItemComponent(null));
+    breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(
         new InteractionComponent(
             0,

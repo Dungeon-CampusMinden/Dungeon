@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.BlockComponent;
+import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
@@ -1371,7 +1372,7 @@ public class Server {
    */
   public void pickup() {
     Game.entityAtTile(Game.tileAT(EntityUtils.getHeroCoordinate()))
-        .filter(e -> e.isPresent(ItemComponent.class))
+        .filter(e -> e.isPresent(BlocklyItemComponent.class))
         .forEach(
             item ->
                 item.fetch(InteractionComponent.class)
