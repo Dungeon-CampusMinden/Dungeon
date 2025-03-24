@@ -12,6 +12,7 @@ import components.BlockComponent;
 import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
+import contrib.components.ItemComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
@@ -111,7 +112,15 @@ public class Server {
 
   private boolean clearHUD = false;
   private final String[] reservedFunctions = {
-    "gehe", "feuerball", "naheWand", "warte", "benutzen", "schieben", "ziehen", "geheZumAusgang"
+    "gehe",
+    "feuerball",
+    "naheWand",
+    "warte",
+    "benutzen",
+    "schieben",
+    "ziehen",
+    "geheZumAusgang",
+    "aufsammeln"
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -1123,6 +1132,9 @@ public class Server {
       case "ziehen" -> {
         pull();
       }
+      case "aufsammeln" -> {
+        pickup();
+      }
       case "geheZumAusgang" -> {
         moveToExit();
       }
@@ -1339,6 +1351,19 @@ public class Server {
                     .ifPresent(
                         interactionComponent ->
                             interactionComponent.triggerInteraction(entity, hero)));
+  }
+
+  /**
+   * Triggers the interaction (normally a pickup action) for each Entity with an {@link
+   * ItemComponent} at the same tile as the hero.
+   */
+  public void pickup() {
+    Game.entityAtTile(Game.tileAT(EntityUtils.getHeroCoordinate()))
+        .filter(e -> e.isPresent(ItemComponent.class))
+        .forEach(
+            item ->
+                item.fetch(InteractionComponent.class)
+                    .ifPresent(ic -> ic.triggerInteraction(item, hero)));
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */

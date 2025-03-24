@@ -211,6 +211,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
+          type: "pickup",
+        },
+        {
+          kind: "block",
           type: "push",
         },
         {

@@ -29,3 +29,7 @@ export function pull(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "ziehen();";
 }
 
+export function pickup(_block: Blockly.Block, _generator: Blockly.Generator) {
+  return "aufsammeln();";
+}
+
