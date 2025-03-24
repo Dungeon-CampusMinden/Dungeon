@@ -1384,11 +1384,15 @@ public class Server {
     if (Game.currentLevel().exitTiles().isEmpty()) return;
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+
     GraphPath<Tile> pathToExit =
-        LevelUtils.calculatePath(EntityUtils.getHeroCoordinate(), exitTile.coordinate());
+        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      Tile currentTile = Game.tileAT(pc.position().toCoordinate());
       if (currentTile != nextTile) {
         PositionComponent.Direction viewDirection = EntityUtils.getViewDirection(hero);
         PositionComponent.Direction targetDirection =
