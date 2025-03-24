@@ -96,19 +96,18 @@ public class MiscFactory {
    * @return A new book pickup entity with interaction behavior.
    */
   public static Entity bookPickup(Point position, String title, String pickupText) {
-      Entity pickup = new Entity("Book Pickup");
-      pickup.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
-      pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
-      pickup.add(
-              new InteractionComponent(
-                      1,
-                      false,
-                      (entity, entity2) -> {
-                          DialogUtils.showTextPopup(pickupText, title);
-                          Game.remove(pickup);
-                      }));
-      return pickup;
-
+    Entity pickup = new Entity("Book Pickup");
+    pickup.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
+    pickup.add(
+        new InteractionComponent(
+            1,
+            false,
+            (entity, entity2) -> {
+              DialogUtils.showTextPopup(pickupText, title);
+              Game.remove(pickup);
+            }));
+    return pickup;
   }
 
   /**
