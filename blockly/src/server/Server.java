@@ -1381,26 +1381,23 @@ public class Server {
 
   /** Moves the Hero to the Exit Block of the current Level. */
   public void moveToExit() {
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
     if (Game.currentLevel().exitTiles().isEmpty()) return;
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     GraphPath<Tile> pathToExit =
-        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
+        LevelUtils.calculatePath(EntityUtils.getHeroCoordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(pc.position());
-
+      Tile currentTile = Game.tileAT(EntityUtils.getHeroCoordinate());
       if (currentTile != nextTile) {
-        switch (currentTile.directionTo(nextTile)[0]) {
-          case E -> move(Direction.RIGHT);
-          case W -> move(Direction.LEFT);
-          case N -> move(Direction.UP);
-          case S -> move(Direction.DOWN);
+        PositionComponent.Direction viewDirection = EntityUtils.getViewDirection(hero);
+        PositionComponent.Direction targetDirection =
+            convertTileDirectionToPosDirection(currentTile.directionTo(nextTile)[0]);
+        while (viewDirection != targetDirection) {
+          rotateHero(Direction.RIGHT);
+          viewDirection = EntityUtils.getViewDirection(hero);
         }
+        move();
       }
     }
   }
@@ -1518,6 +1515,21 @@ public class Server {
       case RIGHT -> Direction.RIGHT;
       case UP -> Direction.UP;
       default -> Direction.DOWN;
+    };
+  }
+
+  /**
+   * Converts a {@link Tile.Direction} into a {@link PositionComponent.Direction}.
+   *
+   * @param direction Direction to convert.
+   * @return Converted direction.
+   */
+  private PositionComponent.Direction convertTileDirectionToPosDirection(Tile.Direction direction) {
+    return switch (direction) {
+      case W -> PositionComponent.Direction.LEFT;
+      case E -> PositionComponent.Direction.RIGHT;
+      case N -> PositionComponent.Direction.UP;
+      default -> PositionComponent.Direction.DOWN;
     };
   }
 }
