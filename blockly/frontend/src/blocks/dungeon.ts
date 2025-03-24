@@ -17,18 +17,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   // ---------------------- Movement ----------------------
   {
     type: "move",
-    message0: "Gehe nach %1",
+    message0: "Gehe",
     previousStatement: null,
     nextStatement: null,
     colour: 290,
-    tooltip: "Bewegt den Spieler in eine Richtung",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      }
-    ],
+    tooltip: "Bewegt den Spieler in die Richtung in die er schaut",
   },
   {
     type: "goToExit",
@@ -37,6 +30,21 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     colour: 290,
     tooltip: "Bewege dich zum Ausgang des Levels.",
+  },
+  {
+    type: "rotate",
+    message0: "Drehe %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    previousStatement: null,
+    nextStatement: null,
+    colour: 290,
+    tooltip: "Dreht den Spieler nach links oder rechts",
   },
   // ---------------------- Variables ----------------------
   {

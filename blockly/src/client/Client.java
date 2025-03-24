@@ -2,7 +2,6 @@ package client;
 
 import com.sun.net.httpserver.HttpServer;
 import contrib.crafting.Crafting;
-import contrib.entities.EntityFactory;
 import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
 import contrib.level.generator.GeneratorUtils;
@@ -15,6 +14,7 @@ import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
+import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.MazeLevel;
@@ -116,7 +116,7 @@ public class Client {
   private static void createHero() {
     Entity hero;
     try {
-      hero = (EntityFactory.newHero());
+      hero = HeroTankControlledFactory.newTankControlledHero();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

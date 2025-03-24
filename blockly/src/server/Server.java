@@ -1092,14 +1092,17 @@ public class Server {
     String actionName = action.substring(0, action.indexOf("("));
     switch (actionName) {
       case "gehe" -> {
-        String firstArg;
-        if (args[0] instanceof String) {
-          firstArg = (String) args[0];
+        move();
+      }
+      case "drehe" -> {
+        Direction firstArg;
+        if (args[0] instanceof String firstArgStr) {
+          firstArg = Direction.fromString(firstArgStr);
         } else {
           setError("Unexpected type for direction " + args[0]);
           return;
         }
-        move(Direction.fromString(firstArg));
+        rotateHero(firstArg);
       }
       case "feuerball" -> {
         String firstArg;
@@ -1247,14 +1250,49 @@ public class Server {
   }
 
   /**
-   * Moves the hero in a specific direction.
+   * Moves the hero in it's viewing direction.
+   *
+   * <p>One move equals one tile.
+   */
+  public void move() {
+    Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+    move(viewDirection, hero);
+  }
+
+  /**
+   * Moves the given entity in it's viewing direction.
    *
    * <p>One move equals one tile.
    *
-   * @param direction Direction in which the entity will be moved.
+   * @param entity Entity to move in its viewing direction.
    */
-  public void move(final Direction direction) {
-    move(direction, hero);
+  public void move(final Entity entity) {
+    Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(entity));
+    move(viewDirection, entity);
+  }
+
+  /**
+   * Rotate the hero in a specific direction.
+   *
+   * @param direction Direction in which the hero will be rotated.
+   */
+  public void rotateHero(final Direction direction) {
+    if (direction == Direction.UP || direction == Direction.DOWN) {
+      return; // no rotation
+    }
+    Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+    Direction newDirection =
+        switch (viewDirection) {
+          case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
+          case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
+          case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
+          case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
+        };
+    turnEntity(hero, newDirection);
+    waitDelta();
   }
 
   private void waitDelta() {
@@ -1343,26 +1381,27 @@ public class Server {
 
   /** Moves the Hero to the Exit Block of the current Level. */
   public void moveToExit() {
+    if (Game.currentLevel().exitTiles().isEmpty()) return;
+    Tile exitTile = Game.currentLevel().exitTiles().getFirst();
+
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    if (Game.currentLevel().exitTiles().isEmpty()) return;
-    Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     GraphPath<Tile> pathToExit =
         LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(pc.position());
-
+      Tile currentTile = Game.tileAT(pc.position().toCoordinate());
       if (currentTile != nextTile) {
-        switch (currentTile.directionTo(nextTile)[0]) {
-          case E -> move(Direction.RIGHT);
-          case W -> move(Direction.LEFT);
-          case N -> move(Direction.UP);
-          case S -> move(Direction.DOWN);
+        PositionComponent.Direction viewDirection = EntityUtils.getViewDirection(hero);
+        PositionComponent.Direction targetDirection =
+            convertTileDirectionToPosDirection(currentTile.directionTo(nextTile)[0]);
+        while (viewDirection != targetDirection) {
+          rotateHero(Direction.RIGHT);
+          viewDirection = EntityUtils.getViewDirection(hero);
         }
+        move();
       }
     }
   }
@@ -1421,31 +1460,32 @@ public class Server {
         entity -> {
           entity.add(new BlockComponent());
         });
-
-    turnHero(convertPosCompDirectionToUtilsDirection(viewDirection));
+    turnEntity(hero, convertPosCompDirectionToUtilsDirection(viewDirection));
     waitDelta();
   }
 
   /**
-   * Turns the hero around.
+   * Turns the given entity in a specific direction.
    *
    * <p>This will also update the animation.
    *
    * <p>This does not call {@link #waitDelta()}.
    *
-   * @param viewDirection direction to turn to.
+   * @param entity Entity to turn.
+   * @param direction direction to turn to.
    */
-  private void turnHero(Direction viewDirection) {
+  public void turnEntity(Entity entity, Direction direction) {
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Point oldP = new Point(pc.position());
-    hero.fetch(VelocityComponent.class)
-        .ifPresent(
-            vc -> {
-              vc.currentXVelocity(viewDirection.x());
-              vc.currentYVelocity(viewDirection.y());
-            });
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    VelocityComponent vc =
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+    Point oldP = pc.position();
+    vc.currentXVelocity(direction.x());
+    vc.currentYVelocity(direction.y());
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }
@@ -1479,6 +1519,21 @@ public class Server {
       case RIGHT -> Direction.RIGHT;
       case UP -> Direction.UP;
       default -> Direction.DOWN;
+    };
+  }
+
+  /**
+   * Converts a {@link Tile.Direction} into a {@link PositionComponent.Direction}.
+   *
+   * @param direction Direction to convert.
+   * @return Converted direction.
+   */
+  private PositionComponent.Direction convertTileDirectionToPosDirection(Tile.Direction direction) {
+    return switch (direction) {
+      case W -> PositionComponent.Direction.LEFT;
+      case E -> PositionComponent.Direction.RIGHT;
+      case N -> PositionComponent.Direction.UP;
+      default -> PositionComponent.Direction.DOWN;
     };
   }
 }
