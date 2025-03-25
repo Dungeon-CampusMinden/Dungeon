@@ -14,6 +14,7 @@ import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
@@ -92,6 +93,17 @@ public class Client {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           Server.instance().interruptExecution = true;
+          if (Game.hero().isPresent()) {
+            AmmunitionComponent ac =
+                Game.hero()
+                    .get()
+                    .fetch(AmmunitionComponent.class)
+                    .orElseThrow(
+                        () ->
+                            MissingComponentException.build(
+                                Game.hero().get(), AmmunitionComponent.class));
+            ac.setCurrentAmmunition(0);
+          }
         });
   }
 
