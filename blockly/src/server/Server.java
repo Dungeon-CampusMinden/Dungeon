@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
@@ -1117,14 +1118,7 @@ public class Server {
         rotateHero(firstArg);
       }
       case "feuerball" -> {
-        String firstArg;
-        if (args[0] instanceof String) {
-          firstArg = (String) args[0];
-        } else {
-          setError("Unexpected type for direction " + args[0]);
-          return;
-        }
-        shootFireBall(Direction.fromString(firstArg));
+        shootFireBall();
       }
       case "warte" -> {
         waitDelta();
@@ -1366,26 +1360,36 @@ public class Server {
   }
 
   /**
-   * Shoots a fireball in a specific direction.
+   * Shoots a fireball in direction the hero is facing.
    *
-   * @param direction Direction in which the fireball will be thrown.
+   * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
-  public void shootFireBall(final Direction direction) {
-    Skill fireball =
-        new Skill(
-            new FireballSkill(
-                () -> {
-                  CollideComponent collider =
-                      hero.fetch(CollideComponent.class)
-                          .orElseThrow(
-                              () -> MissingComponentException.build(hero, CollideComponent.class));
+  public void shootFireBall() {
+    AmmunitionComponent heroAC =
+        hero.fetch(AmmunitionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, AmmunitionComponent.class));
 
-                  Point start = collider.center(hero);
-                  return start.add(new Point(direction.x(), direction.y()));
-                }),
-            1);
-    fireball.execute(hero);
-    waitDelta();
+    if (heroAC.checkAmmunition()) {
+      utils.Direction viewDirection =
+          convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+      Skill fireball =
+          new Skill(
+              new FireballSkill(
+                  () -> {
+                    CollideComponent collider =
+                        hero.fetch(CollideComponent.class)
+                            .orElseThrow(
+                                () ->
+                                    MissingComponentException.build(hero, CollideComponent.class));
+
+                    Point start = collider.center(hero);
+                    return start.add(new Point(viewDirection.x(), viewDirection.y()));
+                  }),
+              1);
+      fireball.execute(hero);
+      heroAC.spendAmmo();
+      waitDelta();
+    }
   }
 
   /** Triggers each interactable in front of the hero. */

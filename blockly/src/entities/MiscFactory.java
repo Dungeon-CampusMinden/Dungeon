@@ -1,5 +1,6 @@
 package entities;
 
+import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
@@ -16,6 +17,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -32,6 +34,7 @@ public class MiscFactory {
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/resource/leaf.png");
+  private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
   private static final float STONE_SPEED = 7.5f;
 
   /**
@@ -132,5 +135,35 @@ public class MiscFactory {
               Game.remove(breadcrumb);
             }));
     return breadcrumb;
+  }
+
+  /**
+   * Creates a fireballScroll at the given position.
+   *
+   * <p>The fireballScroll is a temporary item that can be picked up to increase the current
+   * ammunition.
+   *
+   * @param position The initial position of the fireballScroll.
+   * @return A new fireballScroll entity.
+   */
+  public static Entity fireballScroll(Point position) {
+    Entity fireballScroll = new Entity("fireballScroll");
+    fireballScroll.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    fireballScroll.add(new DrawComponent(Animation.fromSingleImage(SCROLL_PATH)));
+    fireballScroll.add(new BlocklyItemComponent());
+    fireballScroll.add(
+        new InteractionComponent(
+            0,
+            false,
+            (entity, hero) -> {
+              AmmunitionComponent heroAC =
+                  hero.fetch(AmmunitionComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(hero, AmmunitionComponent.class));
+              heroAC.collectAmmo();
+
+              Game.remove(fireballScroll);
+            }));
+    return fireballScroll;
   }
 }

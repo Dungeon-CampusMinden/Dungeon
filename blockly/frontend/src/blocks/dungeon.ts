@@ -500,19 +500,12 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Skill",
   },
   {
-    type: "fireball_direction",
-    message0: "Feuerball %1",
+    type: "fireball",
+    message0: "Feuerball",
     previousStatement: null,
     nextStatement: null,
     colour: 0,
     tooltip: "Feuerball in Richtung schießen",
-    args0: [
-      {
-        type: "input_value",
-        name: "DIRECTION",
-        check: "Direction",
-      },
-    ]
   },
   {
     type: "pickup",
