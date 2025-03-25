@@ -44,6 +44,15 @@ public final class AmmunitionComponent implements Component {
   }
 
   /**
+   * Reset the current amount of ammunition to zero.
+   *
+   * @return the new ammunition value (0)
+   */
+  public int resetCurrentAmmunition() {
+    return setCurrentAmmunition(0);
+  }
+
+  /**
    * Get the current amount of ammunition.
    *
    * @return Current amount of ammunition

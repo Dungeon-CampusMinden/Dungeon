@@ -14,7 +14,6 @@ import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
@@ -95,8 +94,7 @@ public class Client {
           Server.instance().interruptExecution = true;
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
-              .map(ac -> ac.setCurrentAmmunition(0));
-          }
+              .map(AmmunitionComponent::resetCurrentAmmunition);
         });
   }
 
