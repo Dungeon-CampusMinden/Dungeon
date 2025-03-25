@@ -19,7 +19,8 @@ import editor.LevelEditorSystem;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.logging.Level;
-import level.MazeLevel;
+
+import level.produs.chapter1.*;
 import server.Server;
 import systems.BlockSystem;
 import utils.CheckPatternPainter;
@@ -29,7 +30,7 @@ import utils.CheckPatternPainter;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = true;
+  private static final boolean KEYBOARD_DEACTIVATION = false;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -66,7 +67,16 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("chapter11", MazeLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter14", Chapter14Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter16", Chapter16Level.class));
+         // DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
           createSystems();
           createHero();
           Crafting.loadRecipes();
