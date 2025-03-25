@@ -29,4 +29,9 @@ public class BlocklyMonsterFactory {
     }
     return entity;
   }
+
+  public static Entity guard(Coordinate coordinate, String name, PositionComponent.Direction viewDirection){
+    //TODO REPLACE WITH GUARD
+    return hedgehog(coordinate,name);
+  }
 }
