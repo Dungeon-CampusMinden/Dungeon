@@ -19,7 +19,6 @@ import editor.LevelEditorSystem;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.logging.Level;
-
 import level.produs.chapter1.*;
 import server.Server;
 import systems.BlockSystem;
@@ -73,7 +72,7 @@ public class Client {
           DevDungeonLoader.addLevel(Tuple.of("chapter14", Chapter14Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter16", Chapter16Level.class));
-         // DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
+          // DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
