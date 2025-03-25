@@ -1,8 +1,8 @@
 package level.produs.chapter1;
 
-import core.Entity;
+import static level.Utils.cameraFocusOn;
+
 import core.Game;
-import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -29,11 +29,7 @@ public class Chapter14Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.hero().get().remove(CameraComponent.class);
-    Entity focusPoint = new Entity();
-    focusPoint.add(new PositionComponent(7, 6));
-    focusPoint.add(new CameraComponent());
-    Game.add(focusPoint);
+    cameraFocusOn(new Coordinate(7, 6));
 
     Coordinate stone1C = customPoints().get(1);
     Coordinate stone2C = customPoints().get(5);
