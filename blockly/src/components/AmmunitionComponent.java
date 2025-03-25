@@ -5,7 +5,7 @@ import core.Component;
 /**
  * Allow an associated entity to collect and spend ammunition.
  *
- * <p>If an entity has this component, it can use skills that require ammunition.
+ * <p>Use this component to store and manage ammunition, represented by a simple integer counter.
  */
 public final class AmmunitionComponent implements Component {
   private int currentAmmunition;
