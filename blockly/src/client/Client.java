@@ -93,16 +93,9 @@ public class Client {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           Server.instance().interruptExecution = true;
-          if (Game.hero().isPresent()) {
-            AmmunitionComponent ac =
-                Game.hero()
-                    .get()
-                    .fetch(AmmunitionComponent.class)
-                    .orElseThrow(
-                        () ->
-                            MissingComponentException.build(
-                                Game.hero().get(), AmmunitionComponent.class));
-            ac.setCurrentAmmunition(0);
+          Game.hero()
+              .flatMap(e -> e.fetch(AmmunitionComponent.class))
+              .map(ac -> ac.setCurrentAmmunition(0));
           }
         });
   }
