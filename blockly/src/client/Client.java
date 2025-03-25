@@ -65,7 +65,7 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("maze", MazeLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter11", MazeLevel.class));
           createSystems();
           createHero();
           Crafting.loadRecipes();
