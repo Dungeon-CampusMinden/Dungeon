@@ -49,7 +49,6 @@ public class HeroTankControlledFactory {
         KeyboardConfig.MOVEMENT_RIGHT.value(),
         (entity) -> Server.instance().rotateHero(Direction.RIGHT),
         false);
-
     return hero;
   }
 
