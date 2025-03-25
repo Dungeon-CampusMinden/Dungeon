@@ -66,16 +66,16 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          // DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter14", Chapter14Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter14", Chapter14Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter16", Chapter16Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
+          //DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
+          //DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
+          //DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
           createSystems();
           createHero();
           Crafting.loadRecipes();
