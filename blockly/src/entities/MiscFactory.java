@@ -137,6 +137,15 @@ public class MiscFactory {
     return breadcrumb;
   }
 
+  /**
+   * Creates a fireballScroll at the given position.
+   *
+   * <p>The fireballScroll is a temporary item that can be picked up to increase the current
+   * ammunition.
+   *
+   * @param position The initial position of the fireballScroll.
+   * @return A new fireballScroll entity.
+   */
   public static Entity fireballScroll(Point position) {
     Entity fireballScroll = new Entity("fireballScroll");
     fireballScroll.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
