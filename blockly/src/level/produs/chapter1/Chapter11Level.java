@@ -25,7 +25,8 @@ public class Chapter11Level extends BlocklyLevel {
 
     @Override
     protected void onFirstTick() {
-        DialogUtils.showTextPopup("Du bist frei, los flieh!", "Kapitel 1: Ausbruch");
+        DialogUtils.showTextPopup("Schau! Die Wache hat vergessen die Tür zu verriegeln Zeit für die Flucht. Lauf!", "Kapitel 1: Ausbruch");
+
     }
 
     @Override
