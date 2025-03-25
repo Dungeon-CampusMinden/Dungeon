@@ -31,7 +31,7 @@ public final class AmmunitionComponent implements Component {
 
   /** Spend one Ammunition. */
   public void spendAmmo() {
-    currentAmmunition--;
+    currentAmmunition = Math.max(0, currentAmmunition - 1);
   }
 
   /**
