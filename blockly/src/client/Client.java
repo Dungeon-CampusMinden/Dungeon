@@ -15,6 +15,7 @@ import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
+import editor.LevelEditorSystem;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -130,6 +131,7 @@ public class Client {
   }
 
   private static void createSystems() {
+    Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new HealthSystem());
