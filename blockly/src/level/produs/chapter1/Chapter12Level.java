@@ -1,12 +1,18 @@
 package level.produs.chapter1;
 
+import contrib.entities.EntityFactory;
+import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
+import core.Entity;
+import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import entities.BlocklyMonsterFactory;
 import level.BlocklyLevel;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Chapter12Level extends BlocklyLevel {
 
@@ -25,7 +31,13 @@ public class Chapter12Level extends BlocklyLevel {
 
     @Override
     protected void onFirstTick() {
-
+        DialogUtils.showTextPopup("Pass auf, die Monster sind angekettet und könnsen sich nicht bewegen, aber wenn du sie berührst wird es eng für dich.", "Kapitel 1: Ausbruch");
+        customPoints().forEach(new Consumer<Coordinate>() {
+            @Override
+            public void accept(Coordinate coordinate) {
+                Game.add(BlocklyMonsterFactory.hedgehog(coordinate,"Monster"));
+            }
+        });
     }
 
     @Override
