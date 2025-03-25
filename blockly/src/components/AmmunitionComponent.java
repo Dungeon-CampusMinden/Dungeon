@@ -21,7 +21,7 @@ public final class AmmunitionComponent implements Component {
 
   /** Create a AmmunitionComponent with default values. */
   public AmmunitionComponent() {
-    this.currentAmmunition = 2;
+    this.currentAmmunition = 0;
   }
 
   /** Pick up one Ammunition. */
