@@ -188,6 +188,22 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
+          type: "logic_floor_direction"
+        },
+        {
+          kind: "block",
+          type: "logic_pit_direction"
+        },
+        {
+          kind: "block",
+          type: "logic_monster_direction"
+        },
+        {
+          kind: "block",
+          type: "logic_switch_direction"
+        },
+        {
+          kind: "block",
           type: "controls_if",
         },
         {
