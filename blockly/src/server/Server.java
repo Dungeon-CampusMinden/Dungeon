@@ -66,6 +66,10 @@ import utils.Direction;
  */
 public class Server {
 
+  private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
+  private static final float FIREBALL_SPEED = 15f;
+  private static final int FIREBALL_DMG = 1;
+
   // Singleton
   private static Server instance;
 
@@ -1118,7 +1122,7 @@ public class Server {
         rotateHero(firstArg);
       }
       case "feuerball" -> {
-        shootFireBall();
+        shootFireball();
       }
       case "warte" -> {
         waitDelta();
@@ -1364,32 +1368,36 @@ public class Server {
    *
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
-  public void shootFireBall() {
-    AmmunitionComponent heroAC =
-        hero.fetch(AmmunitionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, AmmunitionComponent.class));
+  public void shootFireball() {
+    hero.fetch(AmmunitionComponent.class).stream()
+        .filter(AmmunitionComponent::checkAmmunition)
+        .forEach(ac -> aimAndShoot(ac));
+  }
 
-    if (heroAC.checkAmmunition()) {
-      utils.Direction viewDirection =
-          convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
-      Skill fireball =
-          new Skill(
-              new FireballSkill(
-                  () -> {
-                    CollideComponent collider =
-                        hero.fetch(CollideComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(hero, CollideComponent.class));
-
-                    Point start = collider.center(hero);
-                    return start.add(new Point(viewDirection.x(), viewDirection.y()));
-                  }),
-              1);
-      fireball.execute(hero);
-      heroAC.spendAmmo();
-      waitDelta();
-    }
+  /**
+   * Shoots a fireball in direction the hero is facing.
+   *
+   * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
+   */
+  private void aimAndShoot(AmmunitionComponent ac) {
+    utils.Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+    Skill fireball =
+        new Skill(
+            new FireballSkill(
+                () ->
+                    hero.fetch(CollideComponent.class)
+                        .map(cc -> cc.center(hero))
+                        .map(p -> p.add(viewDirection.toPoint()))
+                        .orElseThrow(
+                            () -> MissingComponentException.build(hero, CollideComponent.class)),
+                FIREBALL_RANGE,
+                FIREBALL_SPEED,
+                FIREBALL_DMG),
+            1);
+    fireball.execute(hero);
+    ac.spendAmmo();
+    waitDelta();
   }
 
   /** Triggers each interactable in front of the hero. */

@@ -1,5 +1,7 @@
 package utils;
 
+import core.utils.Point;
+
 /** Direction enum for the four cardinal directions. */
 public enum Direction {
   /** The direction up. */
@@ -52,6 +54,15 @@ public enum Direction {
    */
   public int y() {
     return y;
+  }
+
+  /**
+   * Convert this direction to a {@link Point}.
+   *
+   * @return Point with the x and y from this direction
+   */
+  public Point toPoint() {
+    return new Point(x, y);
   }
 
   /**

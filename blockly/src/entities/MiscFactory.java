@@ -17,7 +17,6 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -104,7 +103,7 @@ public class MiscFactory {
     pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
-            1,
+            0,
             false,
             (entity, entity2) -> {
               DialogUtils.showTextPopup(pickupText, title);
@@ -156,12 +155,7 @@ public class MiscFactory {
             0,
             false,
             (entity, hero) -> {
-              AmmunitionComponent heroAC =
-                  hero.fetch(AmmunitionComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(hero, AmmunitionComponent.class));
-              heroAC.collectAmmo();
-
+              hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
               Game.remove(fireballScroll);
             }));
     return fireballScroll;
