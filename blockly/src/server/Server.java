@@ -1369,27 +1369,25 @@ public class Server {
         hero.fetch(AmmunitionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, AmmunitionComponent.class));
 
-    if (heroAC.checkAmmunition()) {
-      utils.Direction viewDirection =
-          convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
-      Skill fireball =
-          new Skill(
-              new FireballSkill(
-                  () -> {
-                    CollideComponent collider =
-                        hero.fetch(CollideComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(hero, CollideComponent.class));
+    if (!heroAC.checkAmmunition()) return;
+    utils.Direction viewDirection =
+        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+    Skill fireball =
+        new Skill(
+            new FireballSkill(
+                () -> {
+                  CollideComponent collider =
+                      hero.fetch(CollideComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(hero, CollideComponent.class));
 
-                    Point start = collider.center(hero);
-                    return start.add(new Point(viewDirection.x(), viewDirection.y()));
-                  }),
-              1);
-      fireball.execute(hero);
-      heroAC.spendAmmo();
-      waitDelta();
-    }
+                  Point start = collider.center(hero);
+                  return start.add(new Point(viewDirection.x(), viewDirection.y()));
+                }),
+            1);
+    fireball.execute(hero);
+    heroAC.spendAmmo();
+    waitDelta();
   }
 
   /** Triggers each interactable in front of the hero. */

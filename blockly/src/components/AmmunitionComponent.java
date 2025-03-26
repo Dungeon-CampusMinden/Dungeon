@@ -24,9 +24,14 @@ public final class AmmunitionComponent implements Component {
     this.currentAmmunition = 0;
   }
 
-  /** Pick up one Ammunition. */
-  public void collectAmmo() {
+  /**
+   * Pick up one Ammunition.
+   *
+   * @return current ammunition amount after increase.
+   */
+  public int collectAmmo() {
     currentAmmunition++;
+    return currentAmmunition;
   }
 
   /** Spend one Ammunition. */
@@ -49,7 +54,7 @@ public final class AmmunitionComponent implements Component {
    * @return the new ammunition value (0)
    */
   public int resetCurrentAmmunition() {
-    return setCurrentAmmunition(0);
+    return currentAmmunition(0);
   }
 
   /**
@@ -57,7 +62,7 @@ public final class AmmunitionComponent implements Component {
    *
    * @return Current amount of ammunition
    */
-  public int getCurrentAmmunition() {
+  public int currentAmmunition() {
     return currentAmmunition;
   }
 
@@ -67,7 +72,7 @@ public final class AmmunitionComponent implements Component {
    * @param ammunitionAmount New amount of current ammunition
    * @return the new ammunition value
    */
-  public int setCurrentAmmunition(int ammunitionAmount) {
+  public int currentAmmunition(int ammunitionAmount) {
     currentAmmunition = ammunitionAmount;
     return currentAmmunition;
   }
