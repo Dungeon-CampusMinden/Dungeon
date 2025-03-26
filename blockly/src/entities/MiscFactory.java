@@ -1,9 +1,6 @@
 package entities;
 
-import components.AmmunitionComponent;
-import components.BlockComponent;
-import components.BlocklyItemComponent;
-import components.PushableComponent;
+import components.*;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
@@ -126,6 +123,7 @@ public class MiscFactory {
     breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
     breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
+    breadcrumb.add(new BreadcrumbComponent());
     breadcrumb.add(
         new InteractionComponent(
             0,

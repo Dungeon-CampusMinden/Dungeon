@@ -4,6 +4,12 @@ package antlr;
 
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
+import components.BlocklyMonsterComponent;
+import components.BreadcrumbComponent;
+import contrib.components.LeverComponent;
+import core.level.elements.tile.FloorTile;
+import core.level.elements.tile.PitTile;
+import core.level.elements.tile.WallTile;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import nodes.*;
@@ -203,7 +209,109 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
               yield false;
             }
 
-            yield httpServer.isNearWall(Direction.fromString(direction));
+            yield httpServer.isNearTile(WallTile.class, Direction.fromString(direction));
+          }
+          case "naheBoden" -> {
+            // Check if arguments exist
+            if (ctx.args == null) {
+              LOGGER.warning("naheBoden function: Expected 1 argument, got 0");
+              yield false;
+            }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for naheBoden");
+              yield false;
+            }
+
+            yield httpServer.isNearTile(FloorTile.class, Direction.fromString(direction));
+          }
+          case "nahePit" -> {
+            // Check if arguments exist
+            if (ctx.args == null) {
+              LOGGER.warning("nahePit function: Expected 1 argument, got 0");
+              yield false;
+            }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for nahePit");
+              yield false;
+            }
+
+            yield httpServer.isNearTile(PitTile.class, Direction.fromString(direction));
+          }
+          case "naheMonster" -> {
+            // Check if arguments exist
+            if (ctx.args == null) {
+              LOGGER.warning("naheMonster function: Expected 1 argument, got 0");
+              yield false;
+            }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for naheMonster");
+              yield false;
+            }
+
+            yield httpServer.isNearComponent(
+                BlocklyMonsterComponent.class, Direction.fromString(direction));
+          }
+          case "naheSchalter" -> {
+            // Check if arguments exist
+            if (ctx.args == null) {
+              LOGGER.warning("naheSchalter function: Expected 1 argument, got 0");
+              yield false;
+            }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for naheSchalter");
+              yield false;
+            }
+
+            yield httpServer.isNearComponent(LeverComponent.class, Direction.fromString(direction));
+          }
+          case "naheBrotkrume" -> {
+            // Check if arguments exist
+            if (ctx.args == null) {
+              LOGGER.warning("naheBrotkrume function: Expected 1 argument, got 0");
+              yield false;
+            }
+
+            // Get the first argument and visit it
+            INode argNode = visit(ctx.args.expr(0));
+            String direction;
+
+            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+              direction = ((BaseNode) argNode).strVal;
+            } else {
+              LOGGER.warning("Expected string argument for naheBrotkrume");
+              yield false;
+            }
+
+            yield httpServer.isNearComponent(
+                BreadcrumbComponent.class, Direction.fromString(direction));
           }
           default -> {
             LOGGER.warning("Unknown function " + id);

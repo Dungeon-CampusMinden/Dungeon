@@ -491,6 +491,20 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     colour: 60,
   },
+  {
+    type: "logic_breadcrumbs_direction",
+    message0: "Brotkrume %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob eine Brotkrume in die Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
   // ---------------------- If statement ----------------------
   {
     type: "controls_if",

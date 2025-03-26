@@ -84,6 +84,14 @@ export function logic_switch_direction(
   return [code, Order.NONE];
 }
 
+export function logic_breadcrumbs_direction(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
+  const code = "naheBrotkrume(" + dir + ")";
+  return [code, Order.NONE];
+}
 
 export function controls_if(
   block: Blockly.Block,
