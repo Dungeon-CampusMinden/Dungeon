@@ -12,7 +12,8 @@ public enum Direction {
   LEFT("links", -1, 0),
   /** The direction right. */
   RIGHT("rechts", 1, 0),
-  /** Current Position */
+
+  /** The current Position. */
   HERE("hier", 0, 0);
 
   private final String dirName;
