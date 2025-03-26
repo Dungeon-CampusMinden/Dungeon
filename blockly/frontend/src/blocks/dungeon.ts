@@ -179,6 +179,12 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Direction",
     colour: 230
   },
+  {
+    type: "direction_here",
+    message0: "hier",
+    output: "Direction",
+    colour: 230
+  },
   // ---------------------- Arrays ----------------------
   {
     type: "var_array",

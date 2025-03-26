@@ -79,6 +79,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         },
         {
           kind: "block",
+          type: "direction_here",
+        },
+        {
+          kind: "block",
           type: "item_breadcrumbs",
         },
       ],
