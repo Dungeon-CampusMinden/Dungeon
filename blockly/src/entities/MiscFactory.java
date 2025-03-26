@@ -156,7 +156,6 @@ public class MiscFactory {
             false,
             (entity, hero) -> {
               hero.fetch(AmmunitionComponent.class).map(AmmunitionComponent::collectAmmo);
-
               Game.remove(fireballScroll);
             }));
     return fireballScroll;
