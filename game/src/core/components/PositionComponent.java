@@ -128,11 +128,13 @@ public final class PositionComponent implements Component {
   /**
    * Set the position.
    *
+   * <p>Will center the entity on the given tile.
+   *
    * @param tile The tile where the new position is located.
    * @see Tile
    */
   public void position(final Tile tile) {
-    position(tile.position());
+    position(tile.position().toCoordinate().toCenteredPoint());
   }
 
   /**
