@@ -1380,7 +1380,6 @@ public class Server {
    * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
    */
   private void aimAndShoot(AmmunitionComponent ac) {
-    if (!ac.checkAmmunition()) return;
     utils.Direction viewDirection =
         convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
     Skill fireball =
