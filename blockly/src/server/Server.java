@@ -1387,7 +1387,8 @@ public class Server {
             new FireballSkill(
                 () ->
                     hero.fetch(CollideComponent.class)
-                        .map(cc -> cc.center(hero).add(viewDirection.toPoint()))
+                        .map(cc -> cc.center(hero))
+                        .map(p -> p.add(viewDirection.toPoint()))
                         .orElseThrow(
                             () -> MissingComponentException.build(hero, CollideComponent.class)),
                 FIREBALL_RANGE,
