@@ -1315,6 +1315,7 @@ public class Server {
           case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
           case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
           case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
+          default -> throw new IllegalArgumentException("Can not rotate in " + viewDirection);
         };
     turnEntity(hero, newDirection);
     waitDelta();
@@ -1584,7 +1585,10 @@ public class Server {
       case LEFT -> PositionComponent.Direction.LEFT;
       case RIGHT -> PositionComponent.Direction.RIGHT;
       case UP -> PositionComponent.Direction.UP;
-      default -> PositionComponent.Direction.DOWN;
+      case DOWN -> PositionComponent.Direction.DOWN;
+      default ->
+          throw new IllegalArgumentException(
+              "Can not convert " + viewDirection + " to PositionComponent.Direction.");
     };
   }
 
@@ -1600,7 +1604,7 @@ public class Server {
       case LEFT -> Direction.LEFT;
       case RIGHT -> Direction.RIGHT;
       case UP -> Direction.UP;
-      default -> Direction.DOWN;
+      case DOWN -> Direction.DOWN;
     };
   }
 
@@ -1615,7 +1619,7 @@ public class Server {
       case W -> PositionComponent.Direction.LEFT;
       case E -> PositionComponent.Direction.RIGHT;
       case N -> PositionComponent.Direction.UP;
-      default -> PositionComponent.Direction.DOWN;
+      case S -> PositionComponent.Direction.DOWN;
     };
   }
 }
