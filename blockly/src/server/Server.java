@@ -133,7 +133,7 @@ public class Server {
     "geheZumAusgang",
     "aufsammeln",
     "fallen_lassen",
-    "aktiv",
+    "active",
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
