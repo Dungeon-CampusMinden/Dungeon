@@ -77,9 +77,9 @@ public class Client {
           // DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
           // DevDungeonLoader.addLevel(Tuple.of("chapter16", Chapter16Level.class));
           // DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
-          //DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
-           DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
+          // DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
+          // DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
           createSystems();
 
           HeroFactory.heroDeath(

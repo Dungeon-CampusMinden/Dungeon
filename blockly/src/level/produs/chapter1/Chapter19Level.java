@@ -4,10 +4,9 @@ import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import java.util.List;
-
 import entities.BlocklyMonsterFactory;
 import entities.MiscFactory;
+import java.util.List;
 import level.BlocklyLevel;
 
 public class Chapter19Level extends BlocklyLevel {
@@ -29,10 +28,9 @@ public class Chapter19Level extends BlocklyLevel {
   protected void onFirstTick() {
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2),"guard 1"));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(3),"guard 2"));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(4),"guard 3"));
-
+    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2), "guard 1"));
+    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(3), "guard 2"));
+    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(4), "guard 3"));
   }
 
   @Override
