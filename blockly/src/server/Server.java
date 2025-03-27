@@ -1269,7 +1269,8 @@ public class Server {
       ec.vc.currentXVelocity(0);
       ec.vc.currentYVelocity(0);
       // check the position-tile via new request in case a new level was loaded
-      ec.pc.position(Game.tileAT(ec.pc.position()).coordinate().toCenteredPoint()); // snap to grid
+      Tile endTile = Game.tileAT(ec.pc.position());
+      if (endTile != null) ec.pc.position(endTile); // snap to grid
     }
   }
 
