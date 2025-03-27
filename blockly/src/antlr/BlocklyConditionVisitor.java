@@ -199,6 +199,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "naheMonster" -> nearComponent(ctx, BlocklyMonsterComponent.class);
           case "naheSchalter" -> nearComponent(ctx, LeverComponent.class);
           case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
+          case "aktiv" -> activ(ctx);
           default -> {
             LOGGER.warning("Unknown function " + id);
             yield false;
@@ -207,6 +208,26 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     BaseNode node = new BaseNode(Types.BOOLEAN);
     node.boolVal = boolVal;
     return node;
+  }
+
+  private boolean active(blocklyParser.Func_callContext ctx) {
+    if (ctx.args == null) {
+      LOGGER.warning("active operation function: Expected 1 argument, got 0");
+      return false;
+    }
+
+    // Get the first argument and visit it
+    INode argNode = visit(ctx.args.expr(0));
+    String direction;
+
+    if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+      direction = ((BaseNode) argNode).strVal;
+    } else {
+      LOGGER.warning("Expected string argument for active operation");
+      return false;
+    }
+
+    return httpServer.active(Direction.fromString(direction));
   }
 
   private boolean nearComponent(

@@ -511,6 +511,20 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     colour: 60,
   },
+  {
+    type: "logic_active_direction",
+    message0: "aktiv %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob ein aktives Objekt in der Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
   // ---------------------- If statement ----------------------
   {
     type: "controls_if",

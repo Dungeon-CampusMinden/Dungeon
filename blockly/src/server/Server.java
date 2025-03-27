@@ -15,6 +15,7 @@ import components.PushableComponent;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
+import contrib.components.LeverComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
@@ -25,6 +26,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
@@ -131,6 +133,7 @@ public class Server {
     "geheZumAusgang",
     "aufsammeln",
     "fallen_lassen",
+    "aktiv",
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
@@ -1374,6 +1377,27 @@ public class Server {
     }
 
     return Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(componentClass));
+  }
+
+  /**
+   * Determines whether the specified direction leads to an active state.
+   *
+   * <p>A tile in the given direction is considered active if:
+   *
+   * <p>It is a {@link DoorTile} and is open.
+   *
+   * <p>It contains at least one {@link LeverComponent}, and all found levers are in the "on" state.
+   *
+   * @param direction the direction to check relative to the hero's position.
+   * @return {@code true} if the tile in the given direction is active, {@code false} otherwise.
+   */
+  public boolean active(final Direction direction) {
+    Tile targetTile = Game.tileAT(EntityUtils.getHeroPosition().add(direction.toPoint()));
+    if (targetTile instanceof DoorTile) return ((DoorTile) targetTile).isOpen();
+    else
+      return Game.entityAtTile(targetTile)
+          .flatMap(e -> e.fetch(LeverComponent.class).stream())
+          .allMatch(LeverComponent::isOn);
   }
 
   /**

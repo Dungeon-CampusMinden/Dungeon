@@ -11,11 +11,13 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.game.ECSManagment;
+import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+import entities.MiscFactory;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.MazeLevel;
@@ -28,7 +30,7 @@ import utils.CheckPatternPainter;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = true;
+  private static final boolean KEYBOARD_DEACTIVATION = false;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -89,6 +91,7 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
+          Game.add(MiscFactory.pressurePlate(Game.randomTilePoint(LevelElement.FLOOR).get()));
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           Server.instance().interruptExecution = true;
