@@ -1268,7 +1268,9 @@ public class Server {
     for (EntityComponents ec : entityComponents) {
       ec.vc.currentXVelocity(0);
       ec.vc.currentYVelocity(0);
-      ec.pc.position(ec.targetPosition.toCenteredPoint()); // snap to grid
+      // check the position-tile via new request in case a new level was loaded
+      Tile endTile = Game.tileAT(ec.pc.position());
+      if (endTile != null) ec.pc.position(endTile); // snap to grid
     }
   }
 
