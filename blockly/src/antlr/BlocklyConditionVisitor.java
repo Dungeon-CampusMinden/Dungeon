@@ -199,7 +199,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "naheMonster" -> nearComponent(ctx, BlocklyMonsterComponent.class);
           case "naheSchalter" -> nearComponent(ctx, LeverComponent.class);
           case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
-          case "aktiv" -> activ(ctx);
+          case "aktiv" -> active(ctx);
           default -> {
             LOGGER.warning("Unknown function " + id);
             yield false;
