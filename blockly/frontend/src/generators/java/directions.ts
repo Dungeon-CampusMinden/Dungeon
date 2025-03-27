@@ -14,15 +14,25 @@ export function direction_down(
 ) {
   return ["\"unten\"", Order.ATOMIC];
 }
+
 export function direction_left(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
   return ["\"links\"", Order.ATOMIC];
 }
+
 export function direction_right(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
   return ["\"rechts\"", Order.ATOMIC];
 }
+
+export function direction_here(
+  _block: Blockly.Block,
+  _generator: Blockly.Generator
+) {
+  return ["\"hier\"", Order.ATOMIC];
+}
+

@@ -19,6 +19,7 @@ import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -121,7 +122,8 @@ public class Server {
   private final String[] reservedFunctions = {
     "gehe",
     "feuerball",
-    "naheWand",
+    "naheTile",
+    "naheComponent",
     "warte",
     "benutzen",
     "schieben",
@@ -1315,6 +1317,7 @@ public class Server {
           case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
           case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
           case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
+          default -> throw new IllegalArgumentException("Can not rotate in " + viewDirection);
         };
     turnEntity(hero, newDirection);
     waitDelta();
@@ -1330,18 +1333,14 @@ public class Server {
   }
 
   /**
-   * Check if the hero is near a wall in a specific direction.
+   * Check if the next tile in the given direction is an instance from the given class.
    *
-   * <p>This method checks if the hero is near a wall in the specified direction. It retrieves the
-   * hero's current coordinates and calculates the target coordinates based on the direction. It
-   * then checks if the target tile is accessible. If the hero or the target tile is null or not
-   * accessible, it returns true, indicating that the hero is near a wall.
-   *
-   * @param direction Direction in which the hero will be moved.
-   * @return Returns true if the hero is null or the target tile is not accessible. Otherwise,
+   * @param tileClass Tile-Class to check for.
+   * @param direction Direction to check
+   * @return Returns true if the hero is null or the target tile is from the given class. Otherwise,
    *     returns false.
    */
-  public boolean isNearWall(final Direction direction) {
+  public boolean isNearTile(Class<? extends Tile> tileClass, final Direction direction) {
     Coordinate heroCoords = EntityUtils.getHeroCoordinate();
     if (heroCoords == null) {
       return true;
@@ -1349,9 +1348,32 @@ public class Server {
     Coordinate targetCoords = heroCoords.add(new Coordinate(direction.x(), direction.y()));
     Tile targetTile = Game.tileAT(targetCoords);
     if (targetTile == null) {
+      return false;
+    }
+    return tileClass.isInstance(targetTile);
+  }
+
+  /**
+   * Check if on the next tile in the given direction an entity with the given component exist.
+   *
+   * @param componentClass Component-Class to check for.
+   * @param direction Direction to check
+   * @return Returns true if the hero is null or a entity with the given component was detected.
+   *     Otherwise, returns false.
+   */
+  public boolean isNearComponent(
+      Class<? extends Component> componentClass, final Direction direction) {
+    Coordinate heroCoords = EntityUtils.getHeroCoordinate();
+    if (heroCoords == null) {
       return true;
     }
-    return !targetTile.isAccessible();
+    Coordinate targetCoords = heroCoords.add(direction.toPoint().toCoordinate());
+    Tile targetTile = Game.tileAT(targetCoords);
+    if (targetTile == null) {
+      return false;
+    }
+
+    return Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(componentClass));
   }
 
   /**
@@ -1565,7 +1587,10 @@ public class Server {
       case LEFT -> PositionComponent.Direction.LEFT;
       case RIGHT -> PositionComponent.Direction.RIGHT;
       case UP -> PositionComponent.Direction.UP;
-      default -> PositionComponent.Direction.DOWN;
+      case DOWN -> PositionComponent.Direction.DOWN;
+      default ->
+          throw new IllegalArgumentException(
+              "Can not convert " + viewDirection + " to PositionComponent.Direction.");
     };
   }
 
@@ -1581,7 +1606,7 @@ public class Server {
       case LEFT -> Direction.LEFT;
       case RIGHT -> Direction.RIGHT;
       case UP -> Direction.UP;
-      default -> Direction.DOWN;
+      case DOWN -> Direction.DOWN;
     };
   }
 
@@ -1596,7 +1621,7 @@ public class Server {
       case W -> PositionComponent.Direction.LEFT;
       case E -> PositionComponent.Direction.RIGHT;
       case N -> PositionComponent.Direction.UP;
-      default -> PositionComponent.Direction.DOWN;
+      case S -> PositionComponent.Direction.DOWN;
     };
   }
 }

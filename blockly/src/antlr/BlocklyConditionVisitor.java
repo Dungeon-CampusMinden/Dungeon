@@ -4,6 +4,14 @@ package antlr;
 
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
+import components.BlocklyMonsterComponent;
+import components.BreadcrumbComponent;
+import contrib.components.LeverComponent;
+import core.Component;
+import core.level.Tile;
+import core.level.elements.tile.FloorTile;
+import core.level.elements.tile.PitTile;
+import core.level.elements.tile.WallTile;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import nodes.*;
@@ -185,26 +193,12 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     String id = ctx.id.getText();
     boolean boolVal =
         switch (id) {
-          case "naheWand" -> {
-            // Check if arguments exist
-            if (ctx.args == null) {
-              LOGGER.warning("naheWand function: Expected 1 argument, got 0");
-              yield false;
-            }
-
-            // Get the first argument and visit it
-            INode argNode = visit(ctx.args.expr(0));
-            String direction;
-
-            if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
-              direction = ((BaseNode) argNode).strVal;
-            } else {
-              LOGGER.warning("Expected string argument for naheWand");
-              yield false;
-            }
-
-            yield httpServer.isNearWall(Direction.fromString(direction));
-          }
+          case "naheWand" -> nearTile(ctx, WallTile.class);
+          case "naheBoden" -> nearTile(ctx, FloorTile.class);
+          case "nahePit" -> nearTile(ctx, PitTile.class);
+          case "naheMonster" -> nearComponent(ctx, BlocklyMonsterComponent.class);
+          case "naheSchalter" -> nearComponent(ctx, LeverComponent.class);
+          case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
           default -> {
             LOGGER.warning("Unknown function " + id);
             yield false;
@@ -213,6 +207,48 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     BaseNode node = new BaseNode(Types.BOOLEAN);
     node.boolVal = boolVal;
     return node;
+  }
+
+  private boolean nearComponent(
+      blocklyParser.Func_callContext ctx, Class<? extends Component> comonentType) {
+    if (ctx.args == null) {
+      LOGGER.warning("naheComponent operation function: Expected 1 argument, got 0");
+      return false;
+    }
+
+    // Get the first argument and visit it
+    INode argNode = visit(ctx.args.expr(0));
+    String direction;
+
+    if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+      direction = ((BaseNode) argNode).strVal;
+    } else {
+      LOGGER.warning("Expected string argument for naheComponent operation");
+      return false;
+    }
+
+    return httpServer.isNearComponent(comonentType, Direction.fromString(direction));
+  }
+
+  private Boolean nearTile(blocklyParser.Func_callContext ctx, Class<? extends Tile> tileType) {
+    // Check if arguments exist
+    if (ctx.args == null) {
+      LOGGER.warning("naheTile operation function: Expected 1 argument, got 0");
+      return false;
+    }
+
+    // Get the first argument and visit it
+    INode argNode = visit(ctx.args.expr(0));
+    String direction;
+
+    if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+      direction = ((BaseNode) argNode).strVal;
+    } else {
+      LOGGER.warning("Expected string argument for naheTile operation");
+      return false;
+    }
+
+    return httpServer.isNearTile(tileType, Direction.fromString(direction));
   }
 
   /** {@inheritDoc} */

@@ -179,6 +179,12 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     output: "Direction",
     colour: 230
   },
+  {
+    type: "direction_here",
+    message0: "hier",
+    output: "Direction",
+    colour: 230
+  },
   // ---------------------- Arrays ----------------------
   {
     type: "var_array",
@@ -426,6 +432,76 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "Wand %1",
     output: "Boolean",
     tooltip: "Überprüfe, ob eine Wand in die Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
+  {
+    type: "logic_floor_direction",
+    message0: "Boden %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob ein Boden in die Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
+  {
+    type: "logic_pit_direction",
+    message0: "Loch %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob ein Loch in die Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
+  {
+    type: "logic_monster_direction",
+    message0: "Monster %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob ein Monster in die Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
+  {
+    type: "logic_switch_direction",
+    message0: "Schalter/Fackel %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob ein Schalter in die Richtung ist",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
+    colour: 60,
+  },
+  {
+    type: "logic_breadcrumbs_direction",
+    message0: "Brotkrume %1",
+    output: "Boolean",
+    tooltip: "Überprüfe, ob eine Brotkrume in die Richtung ist",
     args0: [
       {
         type: "input_value",
