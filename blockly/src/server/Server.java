@@ -1365,7 +1365,7 @@ public class Server {
     if (heroCoords == null) {
       return true;
     }
-    Coordinate targetCoords = heroCoords.add(new Coordinate(direction.x(), direction.y()));
+    Coordinate targetCoords = heroCoords.add(direction.toPoint().toCoordinate());
     Tile targetTile = Game.tileAT(targetCoords);
     if (targetTile == null) {
       return false;
