@@ -1394,10 +1394,9 @@ public class Server {
   public boolean active(final Direction direction) {
     Tile targetTile = Game.tileAT(EntityUtils.getHeroPosition().add(direction.toPoint()));
     if (targetTile instanceof DoorTile) return ((DoorTile) targetTile).isOpen();
-    else
-      return Game.entityAtTile(targetTile)
-          .flatMap(e -> e.fetch(LeverComponent.class).stream())
-          .allMatch(LeverComponent::isOn);
+    return Game.entityAtTile(targetTile)
+        .flatMap(e -> e.fetch(LeverComponent.class).stream())
+        .allMatch(LeverComponent::isOn);
   }
 
   /**
