@@ -98,7 +98,7 @@ export function logic_active_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "active(" + dir + ")";
+  const code = "aktiv(" + dir + ")";
   return [code, Order.NONE];
 }
 
