@@ -10,6 +10,7 @@ import core.level.utils.LevelElement;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
+import level.Utils;
 
 public class Chapter131Level extends BlocklyLevel {
 
@@ -31,6 +32,7 @@ public class Chapter131Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Utils.cameraFocusOn(new Coordinate(13,5));
     DialogUtils.showTextPopup(
         "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
         "Kapitel 1: Ausbruch");
