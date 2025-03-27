@@ -2,16 +2,14 @@ package level.produs.chapter1;
 
 import contrib.components.LeverComponent;
 import contrib.hud.DialogUtils;
-import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import entities.MiscFactory;
-import level.BlocklyLevel;
-
 import java.util.List;
+import level.BlocklyLevel;
 
 public class Chapter131Level extends BlocklyLevel {
 
@@ -34,8 +32,8 @@ public class Chapter131Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     DialogUtils.showTextPopup(
-      "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
-      "Kapitel 1: Ausbruch");
+        "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
+        "Kapitel 1: Ausbruch");
     Coordinate stone1C = customPoints().get(0);
     Coordinate stone2C = customPoints().get(1);
     Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
@@ -45,6 +43,5 @@ public class Chapter131Level extends BlocklyLevel {
   }
 
   @Override
-  protected void onTick() {
-  }
+  protected void onTick() {}
 }
