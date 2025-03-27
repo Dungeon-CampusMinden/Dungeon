@@ -4,6 +4,7 @@ import components.*;
 import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
+import contrib.components.ProjectileComponent;
 import contrib.hud.DialogUtils;
 import contrib.utils.ICommand;
 import core.Entity;
@@ -74,6 +75,8 @@ public class MiscFactory {
     pressurePlate.add(lc);
     TriConsumer<Entity, Entity, Tile.Direction> collide =
         (entity, entity2, direction) -> {
+          // dont trigger for projectiles
+          if (entity2.isPresent(ProjectileComponent.class)) return;
           lc.toggle();
           if (lc.isOn()) dc.currentAnimation("on");
           else dc.currentAnimation("off");
