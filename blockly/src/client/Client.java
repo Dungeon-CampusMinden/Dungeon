@@ -76,6 +76,7 @@ public class Client {
           // DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
           // DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
+
           createSystems();
           createHero();
           Crafting.loadRecipes();
