@@ -1,6 +1,7 @@
 package entities;
 
 import com.badlogic.gdx.audio.Sound;
+import components.TintRangeComponent;
 import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.MonsterDeathSound;
@@ -8,22 +9,17 @@ import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.SkillTools;
 import core.Entity;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.utils.Coordinate;
-import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
+import utils.Direction;
 import utils.components.ai.fight.StraightRangeAI;
 import utils.components.skill.InevitableFireballSkill;
 
@@ -47,7 +43,8 @@ import utils.components.skill.InevitableFireballSkill;
  *   <li>An idle sound path
  * </ul>
  *
- * <p>Each monster type can be built into an entity using the {@link #buildMonster(Point, PositionComponent.Direction)} method.
+ * <p>Each monster type can be built into an entity using the {@link #buildMonster(Point,
+ * PositionComponent.Direction)} method.
  */
 public enum BlocklyMonster {
   /** A static non-moving guard monster. */
@@ -132,13 +129,13 @@ public enum BlocklyMonster {
    *
    * @param spawnPos The position where the monster should spawn.
    * @param viewDirection The direction the monster should face.
-   *
    * @return A new Entity representing the monster.
    * @throws IOException if the animation could not be loaded.
    * @see MonsterFactory#buildMonster(String, IPath, int, float, float, Sound, AIComponent, int,
    *     int, IPath) MonsterFactory.buildMonster
    */
-  public Entity buildMonster(Point spawnPos, PositionComponent.Direction viewDirection) throws IOException {
+  public Entity buildMonster(Point spawnPos, PositionComponent.Direction viewDirection)
+      throws IOException {
     Entity monster =
         MonsterFactory.buildMonster(
             name,
@@ -152,14 +149,18 @@ public enum BlocklyMonster {
             collideDamage,
             collideCooldown,
             idleSoundPath);
-    PositionComponent pc = monster
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(monster, PositionComponent.class));
+    PositionComponent pc =
+        monster
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(monster, PositionComponent.class));
     pc.viewDirection(viewDirection);
     pc.position(spawnPos);
     if (fightAISupplier.get() instanceof StraightRangeAI straightRangeAI) {
-      straightRangeAI.user(monster);
-      straightRangeAI.paintRange();
+      monster.add(
+          new TintRangeComponent(
+              pc.position().toCoordinate(),
+              straightRangeAI.range(),
+              Direction.convertPosCompDirectionToUtilsDirection(pc.viewDirection())));
     }
     return monster;
   }
@@ -168,7 +169,6 @@ public enum BlocklyMonster {
    * Builds a monster entity with the given parameters.
    *
    * @param spawnPos The position where the monster should spawn.
-   *
    * @return A new Entity representing the monster.
    * @throws IOException if the animation could not be loaded.
    * @see MonsterFactory#buildMonster(String, IPath, int, float, float, Sound, AIComponent, int,

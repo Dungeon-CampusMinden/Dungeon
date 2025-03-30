@@ -3,7 +3,6 @@ package level;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -39,7 +38,8 @@ public class MazeLevel extends BlocklyLevel {
         .ifPresent(
             tile -> {
               try {
-                Entity guard = BlocklyMonster.GUARD.buildMonster(tile.coordinate().toCenteredPoint());
+                Entity guard =
+                    BlocklyMonster.GUARD.buildMonster(tile.coordinate().toCenteredPoint());
                 Game.add(guard);
               } catch (IOException e) {
                 throw new RuntimeException(e);
