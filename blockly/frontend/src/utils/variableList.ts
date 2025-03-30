@@ -59,6 +59,8 @@ const showNoVariablesMessage = () => {
 };
 
 export const addVariable = (name: string, removeVarCallback: (varName: string) => void) => {
+  if (name === 'Element') return; // Skip adding the "Element" variable
+
   const variableList = document.getElementById('variableList') as HTMLDivElement;
 
   // Remove the "no variables" message if it exists

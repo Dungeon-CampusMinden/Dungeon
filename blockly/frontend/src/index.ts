@@ -9,7 +9,7 @@ import { config } from "./config.ts";
 import "./style.css";
 import {sleep} from "./utils/utils.ts";
 import * as LimitUtils from "./utils/limits.ts";
-import * as VariableListUtils from "./variableList.ts";
+import * as VariableListUtils from "./utils/variableList.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
