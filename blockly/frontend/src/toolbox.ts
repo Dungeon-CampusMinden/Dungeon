@@ -36,12 +36,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
       colour: "230",
       contents: [
         {
-          kind: "button",
-          text: "Variable erstellen",
-          callbackkey: "createVariable",
-        },
-        {
-
           kind: "block",
           type: "var_number",
         },

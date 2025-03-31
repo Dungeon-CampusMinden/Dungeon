@@ -197,6 +197,8 @@ public class Server {
     resetContext.setHandler(this::handleResetRequest);
     HttpContext clearContext = server.createContext("/clear");
     clearContext.setHandler(this::handleClearRequest);
+    HttpContext variableContext = server.createContext("/variables");
+    variableContext.setHandler(this::handleVariableRequest);
     server.start();
     return server;
   }
@@ -307,6 +309,32 @@ public class Server {
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the variable request. This function will send the current variables to the blockly
+   * frontend.
+   *
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   * @throws IOException
+   */
+  private void handleVariableRequest(HttpExchange exchange) throws IOException {
+    StringBuilder response = new StringBuilder();
+    for (Map.Entry<String, Variable> entry : variables.entrySet()) {
+      String name = entry.getKey();
+      Variable var = entry.getValue();
+      if (var.type.equals("base")) {
+        response.append(name).append("=").append(var.intVal).append("\n");
+      } else if (var.type.equals("array")) {
+        response.append(name).append("=").append(Arrays.toString(var.arrayVal)).append("\n");
+      }
+    }
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.toString().getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.toString().getBytes());
     os.close();
   }
 
