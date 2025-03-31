@@ -33,6 +33,6 @@ public class EntityUtils {
         Direction.convertPosCompDirectionToUtilsDirection(entityPos.viewDirection());
 
     return LevelUtils.canSee(entityCoordinate, otherCoordinate, viewDirectionEntity)
-        && otherCoordinate.distance(otherCoordinate) < viewDistance;
+        && entityCoordinate.distance(otherCoordinate) < viewDistance;
   }
 }
