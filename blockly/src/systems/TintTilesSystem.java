@@ -1,6 +1,6 @@
 package systems;
 
-import components.TintRangeComponent;
+import components.TintViewDirectionComponent;
 import core.Entity;
 import core.System;
 import core.utils.components.MissingComponentException;
@@ -9,9 +9,9 @@ import core.utils.components.MissingComponentException;
  * The TintTilesSystem is responsible for applying a tinting effect to tiles in the range of an
  * entity.
  *
- * <p>Entities with the {@link TintRangeComponent} will be processed by this system.
+ * <p>Entities with the {@link TintViewDirectionComponent} will be processed by this system.
  *
- * @see TintRangeComponent
+ * @see TintViewDirectionComponent
  * @see utils.components.ai.fight.StraightRangeAI StraightRangeAI
  */
 public class TintTilesSystem extends System {
@@ -19,13 +19,13 @@ public class TintTilesSystem extends System {
   /**
    * Creates a new TintTilesSystem.
    *
-   * <p>This system processes all entities with a {@link TintRangeComponent} and applies the tinting
-   * effect to the tiles in the range of the entity.
+   * <p>This system processes all entities with a {@link TintViewDirectionComponent} and applies the
+   * tinting effect to the tiles in the range of the entity.
    *
    * <p>It also removes the tinting effect when the entity is removed.
    */
   public TintTilesSystem() {
-    super(TintRangeComponent.class);
+    super(TintViewDirectionComponent.class);
 
     onEntityRemove = this::removeTint;
   }
@@ -37,16 +37,19 @@ public class TintTilesSystem extends System {
         .map(
             entity ->
                 entity
-                    .fetch(TintRangeComponent.class)
+                    .fetch(TintViewDirectionComponent.class)
                     .orElseThrow(
-                        () -> MissingComponentException.build(entity, TintRangeComponent.class)))
-        .forEach(TintRangeComponent::applyTint);
+                        () ->
+                            MissingComponentException.build(
+                                entity, TintViewDirectionComponent.class)))
+        .forEach(TintViewDirectionComponent::applyTint);
   }
 
   private void removeTint(Entity entity) {
     entity
-        .fetch(TintRangeComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, TintRangeComponent.class))
+        .fetch(TintViewDirectionComponent.class)
+        .orElseThrow(
+            () -> MissingComponentException.build(entity, TintViewDirectionComponent.class))
         .removeTint();
   }
 }
