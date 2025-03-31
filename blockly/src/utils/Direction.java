@@ -97,7 +97,10 @@ public enum Direction {
       case LEFT -> PositionComponent.Direction.LEFT;
       case RIGHT -> PositionComponent.Direction.RIGHT;
       case UP -> PositionComponent.Direction.UP;
-      default -> PositionComponent.Direction.DOWN;
+      case DOWN -> PositionComponent.Direction.DOWN;
+      default ->
+          throw new IllegalArgumentException(
+              "Can not convert " + viewDirection + " to PositionComponent.Direction.");
     };
   }
 
@@ -112,7 +115,7 @@ public enum Direction {
       case LEFT -> Direction.LEFT;
       case RIGHT -> Direction.RIGHT;
       case UP -> Direction.UP;
-      default -> Direction.DOWN;
+      case DOWN -> Direction.DOWN;
     };
   }
 }

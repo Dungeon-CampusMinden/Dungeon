@@ -15,6 +15,13 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
+/**
+ * Subclass of {@link DamageProjectile}.
+ *
+ * <p>This skill is inevitable, meaning that it will always hit the target. Once fired, the intended
+ * target will get frozen in place and the projectile will fly towards the target. The target will
+ * not be able to move or dodge the projectile.
+ */
 public class InevitableFireballSkill extends DamageProjectile {
   private static final String SKILL_NAME = "inevitable_fireball";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");

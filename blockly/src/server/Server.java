@@ -1601,7 +1601,6 @@ public class Server {
         entity -> {
           entity.add(new BlockComponent());
         });
-
     turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
     waitDelta();
   }

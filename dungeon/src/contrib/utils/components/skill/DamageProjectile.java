@@ -92,6 +92,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
    * @param projectileRange Range in which the projectile is effective.
    * @param onWallHit Behavior when a wall is hit.
    * @param onEntityHit Behavior when an entity is hit before the damage is applied.
+   * @param onSpawn Behavior when the projectile is spawned.
    */
   public DamageProjectile(
       final String name,
