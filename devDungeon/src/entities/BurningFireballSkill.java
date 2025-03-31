@@ -60,7 +60,8 @@ public final class BurningFireballSkill extends DamageProjectile {
         DamageProjectile.DEFAULT_ON_WALL_HIT,
         (projectile, entity) -> {
           if (UNLOCKED) BURNING_EFFECT.applyBurning(entity);
-        });
+        },
+        DEFAULT_ON_SPAWN);
   }
 
   @Override

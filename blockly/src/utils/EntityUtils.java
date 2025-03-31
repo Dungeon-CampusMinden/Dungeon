@@ -29,8 +29,7 @@ public class EntityUtils {
     Coordinate entityCoordinate = entityPos.position().toCoordinate();
     Coordinate otherCoordinate = otherPos.position().toCoordinate();
     if (entityCoordinate.equals(otherCoordinate)) return true;
-    Direction viewDirectionEntity =
-        Direction.convertPosCompDirectionToUtilsDirection(entityPos.viewDirection());
+    Direction viewDirectionEntity = Direction.fromPositionCompDirection(entityPos.viewDirection());
 
     return LevelUtils.canSee(entityCoordinate, otherCoordinate, viewDirectionEntity)
         && entityCoordinate.distance(otherCoordinate) < viewDistance;
