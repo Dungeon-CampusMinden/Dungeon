@@ -27,6 +27,8 @@ public final class PreRunConfiguration {
   private static int WINDOW_HEIGHT = 720;
   private static int FRAME_RATE = 30;
   private static boolean FULL_SCREEN = false;
+
+  private static boolean RESIZEABLE = false;
   private static String WINDOW_TITLE = "PM-Dungeon";
   private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
   private static boolean DISABLE_AUDIO = false;
@@ -104,6 +106,24 @@ public final class PreRunConfiguration {
    */
   public static void fullScreen(boolean fullscreen) {
     FULL_SCREEN = fullscreen;
+  }
+
+  /**
+   * Checks if the game-window can be resized.
+   *
+   * @return True if the game-window can be resized. , false otherwise.
+   */
+  public static boolean resizeable() {
+    return RESIZEABLE;
+  }
+
+  /**
+   * Sets whether the game-window can be resized..
+   *
+   * @param resizeable True to enable resizing, false otherwise.
+   */
+  public static void resizeable(boolean resizeable) {
+    RESIZEABLE = resizeable;
   }
 
   /**
