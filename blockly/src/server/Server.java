@@ -1262,8 +1262,7 @@ public class Server {
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-      Tile targetTile =
-          Game.tileAT(pc.position(), Direction.convertUtilsDirectionToPosCompDirection(direction));
+      Tile targetTile = Game.tileAT(pc.position(), Direction.toPositionCompDirection(direction));
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
@@ -1315,7 +1314,7 @@ public class Server {
    */
   public void move() {
     Direction viewDirection =
-        Direction.convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     move(viewDirection, hero);
   }
 
@@ -1328,7 +1327,7 @@ public class Server {
    */
   public void move(final Entity entity) {
     Direction viewDirection =
-        Direction.convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(entity));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(entity));
     move(viewDirection, entity);
   }
 
@@ -1342,7 +1341,7 @@ public class Server {
       return; // no rotation
     }
     Direction viewDirection =
-        Direction.convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Direction newDirection =
         switch (viewDirection) {
           case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
@@ -1459,7 +1458,7 @@ public class Server {
    */
   private void aimAndShoot(AmmunitionComponent ac) {
     utils.Direction viewDirection =
-        Direction.convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Skill fireball =
         new Skill(
             new FireballSkill(
@@ -1580,10 +1579,10 @@ public class Server {
     Direction moveDirection;
     if (push) {
       checkTile = Game.tileAT(inFront.position(), viewDirection);
-      moveDirection = Direction.convertPosCompDirectionToUtilsDirection(viewDirection);
+      moveDirection = Direction.fromPositionCompDirection(viewDirection);
     } else {
       checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
-      moveDirection = Direction.convertPosCompDirectionToUtilsDirection(viewDirection.opposite());
+      moveDirection = Direction.fromPositionCompDirection(viewDirection.opposite());
     }
     if (!checkTile.isAccessible()
         || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
@@ -1603,7 +1602,7 @@ public class Server {
           entity.add(new BlockComponent());
         });
 
-    turnEntity(hero, Direction.convertPosCompDirectionToUtilsDirection(viewDirection));
+    turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
     waitDelta();
   }
 

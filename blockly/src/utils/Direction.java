@@ -92,8 +92,7 @@ public enum Direction {
    * @param viewDirection Direction to convert.
    * @return Converted direction.
    */
-  public static PositionComponent.Direction convertUtilsDirectionToPosCompDirection(
-      Direction viewDirection) {
+  public static PositionComponent.Direction toPositionCompDirection(Direction viewDirection) {
     return switch (viewDirection) {
       case LEFT -> PositionComponent.Direction.LEFT;
       case RIGHT -> PositionComponent.Direction.RIGHT;
@@ -108,8 +107,7 @@ public enum Direction {
    * @param viewDirection Direction to convert.
    * @return Converted direction.
    */
-  public static Direction convertPosCompDirectionToUtilsDirection(
-      PositionComponent.Direction viewDirection) {
+  public static Direction fromPositionCompDirection(PositionComponent.Direction viewDirection) {
     return switch (viewDirection) {
       case LEFT -> Direction.LEFT;
       case RIGHT -> Direction.RIGHT;

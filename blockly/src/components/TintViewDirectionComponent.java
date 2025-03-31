@@ -127,7 +127,7 @@ public class TintViewDirectionComponent implements Component {
   }
 
   private Direction direction() {
-    return Direction.convertPosCompDirectionToUtilsDirection(positionComponent.viewDirection());
+    return Direction.fromPositionCompDirection(positionComponent.viewDirection());
   }
 
   private void tintTile(Tile tile, int color) {
