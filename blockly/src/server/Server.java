@@ -27,6 +27,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
@@ -1264,7 +1265,7 @@ public class Server {
       Tile targetTile =
           Game.tileAT(pc.position(), convertUtilsDirectionToPosCompDirection(direction));
       if (targetTile == null
-          || !targetTile.isAccessible()
+          || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
         return; // if any target tile is not accessible, don't move anyone
       }
