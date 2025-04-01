@@ -16,8 +16,8 @@ import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
 import contrib.components.LeverComponent;
+import contrib.level.DevDungeonLoader;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import core.Component;
@@ -286,7 +286,7 @@ public class Server {
     // Reset values
     interruptExecution = true;
 
-    Debugger.TELEPORT_TO_START();
+    DevDungeonLoader.reloadCurrentLevel();
 
     PositionComponent pc = getHeroPosition();
     String response = pc.position().x + "," + pc.position().y;
