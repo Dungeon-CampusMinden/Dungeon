@@ -50,7 +50,7 @@ public enum BlocklyMonster {
   GUARD(
       "Blockly Guard",
       "character/monster/big_daemon",
-      99999, // immortal
+      1,
       0.0f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
