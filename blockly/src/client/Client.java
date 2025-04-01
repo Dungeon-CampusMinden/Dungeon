@@ -141,6 +141,7 @@ public class Client {
     Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
     Game.add(new BlockSystem());
+    Game.add(new FallingSystem());
   }
 
   private static void startServer() {
