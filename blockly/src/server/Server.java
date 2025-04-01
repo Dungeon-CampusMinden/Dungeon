@@ -219,6 +219,13 @@ public class Server {
       clearHUDValues();
       clearHUD = false;
     }
+
+    String query = exchange.getRequestURI().getQuery();
+    boolean start = query != null && query.equals("first=true");
+    if (start) {
+      interruptExecution = false;
+    }
+
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
 
@@ -227,11 +234,11 @@ public class Server {
     String errAction = null;
     for (String action : actions) {
       action = action.trim();
-      processAction(action);
       if (interruptExecution) {
         errAction = action;
         break;
       }
+      processAction(action);
     }
     // Build response for blockly frontend
     String response;

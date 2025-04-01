@@ -98,7 +98,7 @@ public class Debugger {
    * @param targetLocation the tile to teleport to
    */
   public static void TELEPORT(Tile targetLocation) {
-    TELEPORT(targetLocation.position());
+    TELEPORT(targetLocation.coordinate().toCenteredPoint());
   }
 
   /**
