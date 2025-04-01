@@ -1,0 +1,11 @@
+solange (naheWand("unten")) {
+  gehe();
+  gehe();
+}
+
+=> 
+
+while(nearWall("unten")) {
+  move();
+  move();
+}
