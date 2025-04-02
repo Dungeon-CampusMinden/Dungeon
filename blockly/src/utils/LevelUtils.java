@@ -20,14 +20,19 @@ public class LevelUtils {
       Coordinate coordinateA, Coordinate CoordinateB, Direction direction) {
     if (coordinateA.equals(CoordinateB)) return true;
 
+    Tile firstTile = Game.currentLevel().tileAt(coordinateA);
     Tile currentTile = Game.currentLevel().tileAt(coordinateA);
     Tile targetTile = Game.currentLevel().tileAt(CoordinateB);
     if (targetTile == null || !targetTile.canSeeThrough()) return false;
     while (!targetTile.equals(currentTile)) {
       if (currentTile == null || !currentTile.canSeeThrough()) return false;
 
-      if (Game.entityAtTile(currentTile).anyMatch(e -> e.isPresent(BlockFireBallComponent.class)))
-        return false;
+      if (!currentTile.equals(firstTile)
+          && !currentTile.equals(targetTile)
+          && Game.entityAtTile(currentTile)
+              .anyMatch(e -> e.isPresent(BlockFireBallComponent.class))) {
+        return false; // if there is a blockFireball in the way, we can't see through
+      }
 
       currentTile =
           currentTile
