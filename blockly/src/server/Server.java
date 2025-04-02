@@ -1511,8 +1511,11 @@ public class Server {
    * @param item Name of the item to drop
    */
   public void dropItem(String item) {
-    if (item.equals("Brotkrumen")) {
-      Game.add(MiscFactory.breadcrumb(getHeroPosition().position()));
+    switch (item) {
+      case "Brotkrumen" -> Game.add(MiscFactory.breadcrumb(getHeroPosition().position()));
+      case "Kleeblatt" -> Game.add(MiscFactory.clover(getHeroPosition().position()));
+      default ->
+          throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
     }
   }
 
