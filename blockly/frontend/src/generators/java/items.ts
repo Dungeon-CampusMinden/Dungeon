@@ -8,3 +8,11 @@ export function item_breadcrumbs(
   return ["\"Brotkrumen\"", Order.ATOMIC];
 }
 
+export function item_clover(
+  _block: Blockly.Block,
+  _generator: Blockly.Generator
+) {
+  return ["\"Kleeblatt\"", Order.ATOMIC];
+}
+
+
