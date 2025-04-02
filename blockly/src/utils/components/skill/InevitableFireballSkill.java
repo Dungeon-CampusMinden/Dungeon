@@ -60,10 +60,13 @@ public class InevitableFireballSkill extends DamageProjectile {
         },
         (projectile) -> {
           // Set the velocity to zero to freeze the entity (hero only)
-          Game.hero().flatMap(hero -> hero.fetch(VelocityComponent.class)).ifPresent(velocityComponent -> {
-            velocityComponent.xVelocity(0);
-            velocityComponent.yVelocity(0);
-          });
+          Game.hero()
+              .flatMap(hero -> hero.fetch(VelocityComponent.class))
+              .ifPresent(
+                  velocityComponent -> {
+                    velocityComponent.xVelocity(0);
+                    velocityComponent.yVelocity(0);
+                  });
         });
   }
 

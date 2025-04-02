@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
 import systems.BlockSystem;
+import systems.TintTilesSystem;
 import utils.CheckPatternPainter;
 
 /**
@@ -141,6 +142,7 @@ public class Client {
     Game.add(new LeverSystem());
     Game.add(new BlockSystem());
     Game.add(new FallingSystem());
+    Game.add(new TintTilesSystem());
   }
 
   private static void startServer() {
