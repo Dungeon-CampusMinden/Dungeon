@@ -222,7 +222,12 @@ public enum BlocklyMonster {
       return this;
     }
 
-    /** Add this entity to the {@link core.Game Game} upon building it. */
+    /**
+     * Add this entity to the {@link core.Game Game} upon building it.
+     *
+     * @return This builder for method chaining.
+     * @see Game#add(Entity)
+     */
     public BlocklyMonsterBuilder addToGame() {
       this.addToGame = true;
       return this;
