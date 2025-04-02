@@ -1,5 +1,6 @@
 package entities;
 
+import antlr.BlocklyConditionVisitor;
 import com.badlogic.gdx.audio.Sound;
 import components.BlockFireBallComponent;
 import components.TintDirectionComponent;
@@ -11,15 +12,18 @@ import contrib.entities.MonsterIdleSound;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
+import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import utils.components.ai.fight.StraightRangeAI;
 import utils.components.skill.InevitableFireballSkill;
 
@@ -43,10 +47,13 @@ import utils.components.skill.InevitableFireballSkill;
  *   <li>An idle sound path
  * </ul>
  *
- * <p>Each monster type can be built into an entity using the {@link #buildMonster(Point,
- * PositionComponent.Direction)} method.
+ * <p>Each monster type can be built into an entity using the builder pattern with {@link
+ * #builder()}.
+ *
+ * @see BlocklyMonsterBuilder
  */
 public enum BlocklyMonster {
+
   /** A static non-moving guard monster. */
   GUARD(
       "Blockly Guard",
@@ -67,6 +74,9 @@ public enum BlocklyMonster {
       0,
       MonsterIdleSound.BURP);
 
+  private static final Logger LOGGER =
+      Logger.getLogger(BlocklyConditionVisitor.class.getSimpleName());
+
   private final String name;
   private final IPath texture;
   private final Sound deathSound;
@@ -76,16 +86,18 @@ public enum BlocklyMonster {
   private final int collideDamage;
   private final int collideCooldown;
   private final IPath idleSoundPath;
-  private final int health;
+  private final int maxHealth;
   private final float speed;
   private final float itemChance; // 0.0f means no items, 1.0f means always items
 
   /**
    * Creates a new MonsterType with the given parameters.
    *
+   * <p>You can use the {@link #builder()} method to create a new instance of this monster type.
+   *
    * @param name The name of the monster.
    * @param texture The path to the texture to use for the monster.
-   * @param health The amount of health the monster has.
+   * @param maxHealth The amount of health the monster has.
    * @param speed The speed of the monster.
    * @param canHaveItems The chance that the monster will drop an item upon death. If 0, no item
    *     will be dropped. If 1, an item will always be dropped.
@@ -100,7 +112,7 @@ public enum BlocklyMonster {
   BlocklyMonster(
       String name,
       String texture,
-      int health,
+      int maxHealth,
       float speed,
       float canHaveItems,
       MonsterDeathSound deathSound,
@@ -112,7 +124,7 @@ public enum BlocklyMonster {
       MonsterIdleSound idleSound) {
     this.name = name;
     this.texture = new SimpleIPath(texture);
-    this.health = health;
+    this.maxHealth = maxHealth;
     this.speed = speed;
     this.itemChance = canHaveItems;
     this.deathSound = deathSound.sound();
@@ -125,54 +137,150 @@ public enum BlocklyMonster {
   }
 
   /**
-   * Builds a monster entity with the given parameters.
+   * Creates a builder for this monster type.
    *
-   * @param spawnPos The position where the monster should spawn.
-   * @param viewDirection The direction the monster should face.
-   * @return A new Entity representing the monster.
-   * @throws IOException if the animation could not be loaded.
-   * @see MonsterFactory#buildMonster(String, IPath, int, float, float, Sound, AIComponent, int,
-   *     int, IPath) MonsterFactory.buildMonster
+   * @return A new MonsterBuilder for this monster type.
    */
-  public Entity buildMonster(Point spawnPos, PositionComponent.Direction viewDirection)
-      throws IOException {
-    Entity monster =
-        MonsterFactory.buildMonster(
-            name,
-            texture,
-            health,
-            speed,
-            itemChance,
-            deathSound,
-            new AIComponent(
-                fightAISupplier.get(), idleAISupplier.get(), transitionAISupplier.get()),
-            collideDamage,
-            collideCooldown,
-            idleSoundPath);
-    monster.add(new BlockFireBallComponent());
-    PositionComponent pc =
-        monster
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(monster, PositionComponent.class));
-    pc.viewDirection(viewDirection);
-    pc.position(spawnPos);
-    if (fightAISupplier.get() instanceof StraightRangeAI straightRangeAI) {
-      monster.add(
-          new TintDirectionComponent(pc.position().toCoordinate(), straightRangeAI.range()));
-    }
-    return monster;
+  public BlocklyMonsterBuilder builder() {
+    return new BlocklyMonsterBuilder(this);
   }
 
-  /**
-   * Builds a monster entity with the given parameters.
-   *
-   * @param spawnPos The position where the monster should spawn.
-   * @return A new Entity representing the monster.
-   * @throws IOException if the animation could not be loaded.
-   * @see MonsterFactory#buildMonster(String, IPath, int, float, float, Sound, AIComponent, int,
-   *     int, IPath) MonsterFactory.buildMonster
-   */
-  public Entity buildMonster(Point spawnPos) throws IOException {
-    return buildMonster(spawnPos, PositionComponent.Direction.DOWN);
+  /** Builder class for creating Blockly monsters. */
+  public static class BlocklyMonsterBuilder {
+    private final BlocklyMonster monsterType;
+    private Point spawnPoint = new Point(0, 0);
+    private PositionComponent.Direction viewDirection = PositionComponent.Direction.DOWN;
+    private int range = -1; // -1 means use default range
+    private int maxHealth;
+    private int collideDamage;
+    private boolean addToGame = false;
+
+    /**
+     * Creates a new builder for the specified monster type.
+     *
+     * @param monsterType The type of monster to build.
+     */
+    BlocklyMonsterBuilder(BlocklyMonster monsterType) {
+      this.monsterType = monsterType;
+      this.maxHealth = monsterType.maxHealth;
+      this.collideDamage = monsterType.collideDamage;
+    }
+
+    /**
+     * Sets the spawn position for the monster.
+     *
+     * @param position The position where the monster should spawn.
+     * @return This builder for method chaining.
+     */
+    public BlocklyMonsterBuilder spawnPoint(Point position) {
+      this.spawnPoint = position;
+      return this;
+    }
+
+    /**
+     * Sets the view direction for the monster.
+     *
+     * @param viewDirection The direction the monster should face.
+     * @return This builder for method chaining.
+     */
+    public BlocklyMonsterBuilder viewDirection(PositionComponent.Direction viewDirection) {
+      this.viewDirection = viewDirection;
+      return this;
+    }
+
+    /**
+     * Sets the attack range for the monster (if it uses {@link StraightRangeAI}).
+     *
+     * @param range The range for the monster's attacks.
+     * @return This builder for method chaining.
+     */
+    public BlocklyMonsterBuilder range(int range) {
+      this.range = range;
+      return this;
+    }
+
+    /**
+     * Sets the maximum health for the monster.
+     *
+     * @param maxHealth The maximum health of the monster.
+     * @return This builder for method chaining.
+     */
+    public BlocklyMonsterBuilder maxHealth(int maxHealth) {
+      this.maxHealth = maxHealth;
+      return this;
+    }
+
+    /**
+     * Sets the collide damage for the monster.
+     *
+     * @param collideDamage The damage the monster inflicts upon collision.
+     * @return This builder for method chaining.
+     * @see contrib.components.SpikyComponent SpikyComponent
+     */
+    public BlocklyMonsterBuilder collideDamage(int collideDamage) {
+      this.collideDamage = collideDamage;
+      return this;
+    }
+
+    /** Add this entity to the {@link core.Game Game} upon building it. */
+    public BlocklyMonsterBuilder addToGame() {
+      this.addToGame = true;
+      return this;
+    }
+
+    /**
+     * Builds the monster entity with the configured parameters.
+     *
+     * @return An Optional containing the built monster entity, or an empty Optional if the build
+     *     failed.
+     */
+    public Optional<Entity> build() {
+      Entity monster;
+      try {
+        monster =
+            MonsterFactory.buildMonster(
+                monsterType.name,
+                monsterType.texture,
+                this.maxHealth,
+                monsterType.speed,
+                monsterType.itemChance,
+                monsterType.deathSound,
+                new AIComponent(
+                    monsterType.fightAISupplier.get(),
+                    monsterType.idleAISupplier.get(),
+                    monsterType.transitionAISupplier.get()),
+                this.collideDamage,
+                monsterType.collideCooldown,
+                monsterType.idleSoundPath);
+      } catch (IOException e) {
+        LOGGER.severe("Failed to load monster animation: " + e.getMessage());
+        return Optional.empty();
+      }
+
+      monster.add(new BlockFireBallComponent());
+
+      PositionComponent pc =
+          monster
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(monster, PositionComponent.class));
+
+      pc.viewDirection(viewDirection);
+      pc.position(spawnPoint);
+
+      Consumer<Entity> fightAI = monsterType.fightAISupplier.get();
+      if (fightAI instanceof StraightRangeAI straightRangeAI) {
+        if (range == -1) {
+          range = straightRangeAI.range();
+        }
+        straightRangeAI.range(this.range);
+        monster.add(new TintDirectionComponent(pc.position().toCoordinate(), this.range));
+      }
+
+      if (addToGame) {
+        Game.add(monster);
+      }
+
+      return Optional.of(monster);
+    }
   }
 }
