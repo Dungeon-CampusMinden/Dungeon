@@ -18,13 +18,15 @@ public class LevelUtils {
   public static boolean canSee(
       Coordinate coordinateA, Coordinate CoordinateB, Direction direction) {
     if (coordinateA.equals(CoordinateB)) return true;
-
+    Tile startTile = Game.currentLevel().tileAt(coordinateA);
     Tile currentTile = Game.currentLevel().tileAt(coordinateA);
     Tile targetTile = Game.currentLevel().tileAt(CoordinateB);
     if (targetTile == null || !targetTile.canSeeThrough()) return false;
     while (!targetTile.equals(currentTile)) {
       if (currentTile == null || !currentTile.canSeeThrough()) return false;
-
+      if (currentTile != startTile
+          && currentTile != targetTile
+          && Game.entityAtTile(currentTile).anyMatch(e -> e != Game.hero().get())) return false;
       currentTile =
           currentTile
               .level()

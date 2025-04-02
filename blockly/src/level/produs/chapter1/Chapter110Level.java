@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.Utils;
 
+/** WTF */
 public class Chapter110Level extends BlocklyLevel {
 
   private DoorTile door1, door2;

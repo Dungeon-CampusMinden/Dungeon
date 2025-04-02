@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import server.Server;
 import utils.components.ai.fight.StraightRangeAI;
 import utils.components.skill.InevitableFireballSkill;
 
@@ -50,22 +51,34 @@ public enum BlocklyMonster {
   GUARD(
       "Blockly Guard",
       "character/monster/big_daemon",
-      99999, // immortal
+      1, // immortal
       0.0f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
       () ->
           new StraightRangeAI(
-              6,
+              5,
               new Skill(
                   new InevitableFireballSkill(EntityUtils::getHeroPosition),
                   AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
-      () -> entity -> true, // instant fight
+      () -> entity -> !Server.DONT_SHOOT, // instant fight
+      99999, // one hit kill
+      0,
+      MonsterIdleSound.BURP),
+  HEDGEHOG(
+      "Blockly Guard",
+      "character/monster/big_zombie",
+      1, // immortal
+      0.0f,
+      0.0f,
+      MonsterDeathSound.LOWER_PITCH,
+      () -> entity -> {},
+      () -> entity -> {}, // no idle needed
+      () -> entity -> false, // instant fight
       99999, // one hit kill
       0,
       MonsterIdleSound.BURP);
-
   private final String name;
   private final IPath texture;
   private final Sound deathSound;

@@ -12,6 +12,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.Utils;
 
+/** WTF */
 public class Chapter16Level extends BlocklyLevel {
 
   DoorTile door1, door2, door3, door4;

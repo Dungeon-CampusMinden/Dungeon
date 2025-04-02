@@ -4,6 +4,7 @@ import static level.Utils.cameraFocusOn;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
+import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
@@ -14,6 +15,7 @@ import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 
+/** WTF */
 public class Chapter15Level extends BlocklyLevel {
 
   private LeverComponent switch1, switch2;
@@ -34,6 +36,8 @@ public class Chapter15Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    DialogUtils.showTextPopup(
+        "Verwende Schalter oder schiebe Steine auf die Bodenplatten.", "Kapitel 1: Ausbruch");
     cameraFocusOn(new Coordinate(12, 5));
     door1 = (DoorTile) Game.tileAT(new Coordinate(8, 3));
     door1.close();

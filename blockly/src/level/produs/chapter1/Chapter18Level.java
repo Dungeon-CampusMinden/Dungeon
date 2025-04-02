@@ -11,6 +11,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.Utils;
 
+/** WTF */
 public class Chapter18Level extends BlocklyLevel {
 
   /**
@@ -28,7 +29,9 @@ public class Chapter18Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+
     Utils.cameraFocusOn(new Coordinate(8, 6));
+
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(2).toCenteredPoint()));

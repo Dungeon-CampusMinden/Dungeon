@@ -1,5 +1,6 @@
 package level.produs.chapter1;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -9,6 +10,7 @@ import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 
+/** WTF */
 public class Chapter19Level extends BlocklyLevel {
 
   /**
@@ -26,6 +28,8 @@ public class Chapter19Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    DialogUtils.showTextPopup(
+        "Mit diesen Spruchrollen kannst du einen Feuerball werfen.", "Kapitel 1: Ausbruch");
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
     Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2), "guard 1"));

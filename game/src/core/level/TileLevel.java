@@ -249,6 +249,7 @@ public class TileLevel implements ILevel {
    * @param tile Tile to add to pathfinding.
    */
   public void addToPathfinding(Tile tile) {
+    if (tile == null) return;
     if (!tile.isAccessible()) return;
     this.addConnectionsToNeighbours(tile);
     tile.connections()

@@ -1,6 +1,7 @@
 package level.produs.chapter1;
 
 import contrib.components.LeverComponent;
+import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
@@ -10,7 +11,9 @@ import core.level.utils.LevelElement;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
+import level.Utils;
 
+/** WTF */
 public class Chapter13Level extends BlocklyLevel {
 
   private DoorTile door;
@@ -31,6 +34,9 @@ public class Chapter13Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    DialogUtils.showTextPopup(
+        "Dieses Level kannst du ganz einfach mit der for schleife lösen.", "Kapitel 1: Ausbruch");
+    Utils.cameraFocusOn(new Coordinate(4, 8));
     Coordinate stone1C = customPoints().get(0);
     Coordinate stone2C = customPoints().get(1);
     Coordinate switch1C = customPoints().get(2);

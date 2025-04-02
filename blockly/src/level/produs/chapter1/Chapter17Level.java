@@ -2,6 +2,7 @@ package level.produs.chapter1;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
+import contrib.hud.DialogUtils;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -16,6 +17,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.Utils;
 
+/** WTF */
 public class Chapter17Level extends BlocklyLevel {
 
   private LeverComponent switch1, switch2, switch3, switch4, switch5;
@@ -36,8 +38,8 @@ public class Chapter17Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
+    DialogUtils.showTextPopup(
+        "Manchmal braucht es logische Schaltungen um ein Rätsel zu lösen", "Kapitel 1: Ausbruch");
     Game.add(
         BlocklyMonsterFactory.guard(
             customPoints().get(7), "Guard 1", PositionComponent.Direction.UP));
@@ -50,6 +52,8 @@ public class Chapter17Level extends BlocklyLevel {
     Entity s3 = LeverFactory.createLever(customPoints().get(4).toCenteredPoint());
     Entity s4 = LeverFactory.createLever(customPoints().get(5).toCenteredPoint());
     Entity s5 = LeverFactory.createLever(customPoints().get(6).toCenteredPoint());
+    Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
+    Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
     switch1 = s1.fetch(LeverComponent.class).get();
     switch2 = s2.fetch(LeverComponent.class).get();
     switch3 = s3.fetch(LeverComponent.class).get();

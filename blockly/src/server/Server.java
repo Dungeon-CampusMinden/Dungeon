@@ -70,6 +70,9 @@ import utils.Direction;
  */
 public class Server {
 
+  /** WTF */
+  public static boolean DONT_SHOOT = false;
+
   private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
   private static final float FIREBALL_SPEED = 15f;
   private static final int FIREBALL_DMG = 1;
@@ -1244,6 +1247,7 @@ public class Server {
    * @param entities Entities to move simultaneously.
    */
   public void move(final Direction direction, final Entity... entities) {
+    DONT_SHOOT = true;
     double distanceThreshold = 0.1;
 
     record EntityComponents(
@@ -1305,6 +1309,8 @@ public class Server {
       Tile endTile = Game.tileAT(ec.pc.position());
       if (endTile != null) ec.pc.position(endTile); // snap to grid
     }
+
+    DONT_SHOOT = false;
   }
 
   /**
@@ -1674,7 +1680,7 @@ public class Server {
             case RIGHT -> Direction.LEFT;
             case LEFT -> Direction.RIGHT;
           };
-      case UP -> convertPosCompDirectionToUtilsDirection(heroViewDirection);
+      case UP -> Direction.fromPositionCompDirection(heroViewDirection);
       case HERE -> Direction.HERE;
     };
   }

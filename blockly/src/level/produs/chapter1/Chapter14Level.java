@@ -12,6 +12,7 @@ import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 
+/** WTF */
 public class Chapter14Level extends BlocklyLevel {
 
   /**
@@ -29,6 +30,7 @@ public class Chapter14Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+
     cameraFocusOn(new Coordinate(7, 6));
 
     Coordinate stone1C = customPoints().get(1);

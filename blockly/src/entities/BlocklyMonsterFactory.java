@@ -1,5 +1,6 @@
 package entities;
 
+import components.BlocklyMonsterComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.SpikyComponent;
@@ -15,31 +16,37 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+/** WTF */
 public class BlocklyMonsterFactory {
   private static final IPath HEDGEHOG = new SimpleIPath("character/monster/big_daemon");
   private static final IPath KNIGHT = new SimpleIPath("character/knight");
 
+  /** WTF */
   public static Entity hedgehog(Coordinate coordinate, String name) {
-    Entity entity = new Entity(name);
-    PositionComponent pc = new PositionComponent();
-    pc.position(Game.tileAT(coordinate));
-    entity.add(pc);
-    entity.add(new CollideComponent());
-    entity.add(new SpikyComponent(100, DamageType.PHYSICAL, 0));
+    Entity entity = null;
     try {
-      entity.add(new DrawComponent(HEDGEHOG));
+      entity = BlocklyMonster.HEDGEHOG.buildMonster(coordinate.toCenteredPoint());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    entity.add(new BlocklyMonsterComponent());
     return entity;
   }
 
+  /** WTF */
   public static Entity guard(
       Coordinate coordinate, String name, PositionComponent.Direction viewDirection) {
-    // TODO REPLACE WITH GUARD
-    return hedgehog(coordinate, name);
+    Entity monster;
+    try {
+      monster = BlocklyMonster.GUARD.buildMonster(coordinate.toCenteredPoint(), viewDirection);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    monster.add(new BlocklyMonsterComponent());
+    return monster;
   }
 
+  /** WTF */
   public static Entity knight(
       Coordinate coordinate,
       String name,
