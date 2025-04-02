@@ -30,7 +30,7 @@ public class MiscFactory {
       new SimpleIPath("objects/pressureplate/off/pressureplate_0.png");
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
-  private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/resource/leaf.png");
+  private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
   private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
   private static final float STONE_SPEED = 7.5f;
 
