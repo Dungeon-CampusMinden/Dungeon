@@ -1674,7 +1674,7 @@ public class Server {
             case RIGHT -> Direction.LEFT;
             case LEFT -> Direction.RIGHT;
           };
-      case UP -> convertPosCompDirectionToUtilsDirection(heroViewDirection);
+      case UP -> Direction.fromPositionCompDirection(heroViewDirection);
       case HERE -> Direction.HERE;
     };
   }
