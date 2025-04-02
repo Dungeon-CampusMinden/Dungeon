@@ -157,13 +157,13 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "direction_up",
-    message0: "oben",
+    message0: "vorne",
     output: "Direction",
     colour: 230,
   },
   {
     type: "direction_down",
-    message0: "unten",
+    message0: "hinten",
     output: "Direction",
     colour: 230
   },

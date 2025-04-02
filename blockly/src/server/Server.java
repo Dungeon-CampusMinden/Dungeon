@@ -1377,7 +1377,8 @@ public class Server {
     if (heroCoords == null) {
       return true;
     }
-    Coordinate targetCoords = heroCoords.add(new Coordinate(direction.x(), direction.y()));
+    Direction toCheck = directionBasedOnViewdirection(direction);
+    Coordinate targetCoords = heroCoords.add(new Coordinate(toCheck.x(), toCheck.y()));
     Tile targetTile = Game.tileAT(targetCoords);
     if (targetTile == null) {
       return false;
@@ -1399,7 +1400,8 @@ public class Server {
     if (heroCoords == null) {
       return true;
     }
-    Coordinate targetCoords = heroCoords.add(direction.toPoint().toCoordinate());
+    Direction toCheck = directionBasedOnViewdirection(direction);
+    Coordinate targetCoords = heroCoords.add(new Coordinate(toCheck.x(), toCheck.y()));
     Tile targetTile = Game.tileAT(targetCoords);
     if (targetTile == null) {
       return false;
@@ -1677,6 +1679,45 @@ public class Server {
       case E -> PositionComponent.Direction.RIGHT;
       case N -> PositionComponent.Direction.UP;
       case S -> PositionComponent.Direction.DOWN;
+    };
+  }
+
+  /**
+   * Transforms a relative direction into a world direction based on the hero's current view
+   * direction.
+   *
+   * <p>For example, if the hero is looking to the RIGHT and wants to check LEFT (relative to their
+   * view), the resulting direction would be UP in world coordinates.
+   *
+   * @param direction The direction to check relative to the hero's current view.
+   * @return The translated direction in world coordinates.
+   */
+  private Direction directionBasedOnViewdirection(Direction direction) {
+    PositionComponent.Direction heroViewDirection = EntityUtils.getViewDirection(hero);
+    return switch (direction) {
+      case LEFT ->
+          switch (heroViewDirection) {
+            case UP -> Direction.LEFT;
+            case DOWN -> Direction.RIGHT;
+            case RIGHT -> Direction.UP;
+            case LEFT -> Direction.DOWN;
+          };
+      case RIGHT ->
+          switch (heroViewDirection) {
+            case UP -> Direction.RIGHT;
+            case DOWN -> Direction.LEFT;
+            case RIGHT -> Direction.DOWN;
+            case LEFT -> Direction.UP;
+          };
+      case DOWN ->
+          switch (heroViewDirection) {
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.UP;
+            case RIGHT -> Direction.LEFT;
+            case LEFT -> Direction.RIGHT;
+          };
+      case UP -> convertPosCompDirectionToUtilsDirection(heroViewDirection);
+      case HERE -> Direction.HERE;
     };
   }
 }
