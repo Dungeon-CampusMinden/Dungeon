@@ -31,6 +31,7 @@ public class MiscFactory {
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
+  private static final IPath CLOVER_PATH = new SimpleIPath("items/clover.png");
   private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
   private static final float STONE_SPEED = 7.5f;
 
@@ -127,6 +128,31 @@ public class MiscFactory {
     breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new BreadcrumbComponent());
+    breadcrumb.add(
+        new InteractionComponent(
+            0,
+            false,
+            (entity, entity2) -> {
+              Game.remove(breadcrumb);
+            }));
+    return breadcrumb;
+  }
+
+  /**
+   * Creates a Clover entity at the given position.
+   *
+   * <p>The Clover is a temporary item that can be picked up and removed upon interaction. It can be
+   * used for marking paths.
+   *
+   * @param position The initial position of the clover.
+   * @return A new clover entity.
+   */
+  public static Entity clover(Point position) {
+    Entity breadcrumb = new Entity("clover");
+    breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    breadcrumb.add(new DrawComponent(Animation.fromSingleImage(CLOVER_PATH)));
+    breadcrumb.add(new BlocklyItemComponent());
+    breadcrumb.add(new CloverComponent());
     breadcrumb.add(
         new InteractionComponent(
             0,

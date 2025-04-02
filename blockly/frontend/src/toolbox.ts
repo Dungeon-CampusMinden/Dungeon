@@ -79,6 +79,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "item_breadcrumbs",
         },
+        {
+          kind: "block",
+          type: "item_clover",
+        },
       ],
     },
     {
@@ -203,6 +207,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
         {
           kind: "block",
           type: "logic_breadcrumbs_direction"
+        },
+        {
+          kind: "block",
+          type: "logic_clover_direction"
         },
         {
           kind: "block",

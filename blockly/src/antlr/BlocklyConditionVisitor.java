@@ -6,6 +6,7 @@ import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
 import components.BlocklyMonsterComponent;
 import components.BreadcrumbComponent;
+import components.CloverComponent;
 import contrib.components.LeverComponent;
 import core.Component;
 import core.level.Tile;
@@ -199,6 +200,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "naheMonster" -> nearComponent(ctx, BlocklyMonsterComponent.class);
           case "naheSchalter" -> nearComponent(ctx, LeverComponent.class);
           case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
+          case "naheKleeblatt" -> nearComponent(ctx, CloverComponent.class);
           case "aktiv" -> active(ctx);
           default -> {
             LOGGER.warning("Unknown function " + id);
