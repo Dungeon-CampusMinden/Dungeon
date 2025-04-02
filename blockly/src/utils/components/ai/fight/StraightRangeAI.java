@@ -15,7 +15,7 @@ import utils.EntityUtils;
  * <p>This AI is used for ranged entities that can only attack in a straight line.
  */
 public class StraightRangeAI implements Consumer<Entity>, ISkillUser {
-  private final int range;
+  private int range;
   private Skill skill;
 
   /**
@@ -36,6 +36,15 @@ public class StraightRangeAI implements Consumer<Entity>, ISkillUser {
    */
   public int range() {
     return range;
+  }
+
+  /**
+   * Set the range of the AI.
+   *
+   * @param range The new range of the AI.
+   */
+  public void range(int range) {
+    this.range = range;
   }
 
   @Override
