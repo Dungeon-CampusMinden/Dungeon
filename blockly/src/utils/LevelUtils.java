@@ -1,5 +1,6 @@
 package utils;
 
+import components.BlockFireBallComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
@@ -24,6 +25,10 @@ public class LevelUtils {
     if (targetTile == null || !targetTile.canSeeThrough()) return false;
     while (!targetTile.equals(currentTile)) {
       if (currentTile == null || !currentTile.canSeeThrough()) return false;
+
+      if (Game.entityAtTile(currentTile).anyMatch(e -> e.isPresent(BlockFireBallComponent.class)))
+        return false;
+        
 
       currentTile =
           currentTile

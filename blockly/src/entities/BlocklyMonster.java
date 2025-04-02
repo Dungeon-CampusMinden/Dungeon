@@ -1,6 +1,7 @@
 package entities;
 
 import com.badlogic.gdx.audio.Sound;
+import components.BlockFireBallComponent;
 import components.TintViewDirectionComponent;
 import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
@@ -148,6 +149,7 @@ public enum BlocklyMonster {
             collideDamage,
             collideCooldown,
             idleSoundPath);
+    monster.add(new BlockFireBallComponent());
     PositionComponent pc =
         monster
             .fetch(PositionComponent.class)

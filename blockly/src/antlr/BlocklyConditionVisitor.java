@@ -4,8 +4,8 @@ package antlr;
 
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
-import components.BlocklyMonsterComponent;
 import components.BreadcrumbComponent;
+import contrib.components.AIComponent;
 import components.CloverComponent;
 import contrib.components.LeverComponent;
 import core.Component;
@@ -197,7 +197,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "naheWand" -> nearTile(ctx, WallTile.class);
           case "naheBoden" -> nearTile(ctx, FloorTile.class);
           case "nahePit" -> nearTile(ctx, PitTile.class);
-          case "naheMonster" -> nearComponent(ctx, BlocklyMonsterComponent.class);
+          case "naheMonster" -> nearComponent(ctx, AIComponent.class);
           case "naheSchalter" -> nearComponent(ctx, LeverComponent.class);
           case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
           case "naheKleeblatt" -> nearComponent(ctx, CloverComponent.class);
