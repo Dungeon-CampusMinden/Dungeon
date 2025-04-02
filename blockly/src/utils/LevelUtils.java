@@ -28,7 +28,6 @@ public class LevelUtils {
 
       if (Game.entityAtTile(currentTile).anyMatch(e -> e.isPresent(BlockFireBallComponent.class)))
         return false;
-        
 
       currentTile =
           currentTile

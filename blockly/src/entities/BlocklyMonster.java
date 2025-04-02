@@ -2,7 +2,7 @@ package entities;
 
 import com.badlogic.gdx.audio.Sound;
 import components.BlockFireBallComponent;
-import components.TintViewDirectionComponent;
+import components.TintDirectionComponent;
 import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.MonsterDeathSound;
@@ -158,8 +158,7 @@ public enum BlocklyMonster {
     pc.position(spawnPos);
     if (fightAISupplier.get() instanceof StraightRangeAI straightRangeAI) {
       monster.add(
-          new TintViewDirectionComponent(
-              pc.position().toCoordinate(), straightRangeAI.range(), pc));
+          new TintDirectionComponent(pc.position().toCoordinate(), straightRangeAI.range()));
     }
     return monster;
   }
