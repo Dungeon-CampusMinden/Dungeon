@@ -12,10 +12,7 @@ import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.ItemComponent;
-import contrib.components.LeverComponent;
+import contrib.components.*;
 import contrib.level.DevDungeonLoader;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
@@ -287,7 +284,14 @@ public class Server {
     interruptExecution = true;
 
     DevDungeonLoader.reloadCurrentLevel();
-
+    HealthComponent hc =
+        hero.fetch(HealthComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, HealthComponent.class));
+    hc.currentHealthpoints(25);
+    AmmunitionComponent ac =
+        hero.fetch(AmmunitionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, AmmunitionComponent.class));
+    ac.resetCurrentAmmunition();
     PositionComponent pc = getHeroPosition();
     String response = pc.position().x + "," + pc.position().y;
 
