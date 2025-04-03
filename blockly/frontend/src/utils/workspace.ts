@@ -4,13 +4,19 @@ import {sleep} from "./utils.ts";
 import * as VariableListUtils from "./variableList.ts";
 import {call_clear_route, call_reset_route, call_start_route, call_variables_route} from "../api/api.ts";
 
+let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
 export const getStartBlock = (workspace: Blockly.Workspace) => {
+  if (startBlock !== null && !startBlock.isDeadOrDying()) {
+    return startBlock;
+  }
+
   const allBlocks = workspace.getAllBlocks();
   for (let i = 0; i < allBlocks.length; i++) {
     const block = allBlocks[i];
-    if (block.type == "start") {
+    if (block.type == "start" && !block.isDeadOrDying()) {
+      startBlock = block;
       return block;
     }
   }
@@ -163,7 +169,7 @@ const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
         currentBlock = currentBlock.getNextBlock();
         return;
       }
-      let first = currentBlock.getParent()?.type === "start";
+      const first = currentBlock.getParent()?.type === "start";
 
       // Disable buttons
       buttons.stepBtn.disabled = true;
