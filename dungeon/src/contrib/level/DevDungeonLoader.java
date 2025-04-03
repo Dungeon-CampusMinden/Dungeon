@@ -36,6 +36,7 @@ public class DevDungeonLoader {
   private static final List<Tuple<String, Class<? extends DevDungeonLevel>>> levelOrder =
       new ArrayList<>();
   private static int currentLevel = 0;
+  private static int currentVariant = 0;
   private static IVoidFunction afterAllLevels =
       () -> {
         System.out.println("Game Over!");
@@ -162,7 +163,8 @@ public class DevDungeonLoader {
     }
 
     // Random Level Variant Path
-    IPath levelPath = new SimpleIPath(levelVariants.get(RANDOM.nextInt(levelVariants.size())));
+    currentVariant = RANDOM.nextInt(levelVariants.size());
+    IPath levelPath = new SimpleIPath(levelVariants.get(currentVariant));
 
     return DevDungeonLevel.loadFromPath(levelPath);
   }
@@ -233,6 +235,8 @@ public class DevDungeonLoader {
     if (levelVariants == null || levelVariants.isEmpty() || variant >= levelVariants.size()) {
       throw new MissingLevelException(levelName);
     }
+
+    currentVariant = variant;
     IPath levelPath = new SimpleIPath(levelVariants.get(variant));
     Game.currentLevel(DevDungeonLevel.loadFromPath(levelPath));
   }
@@ -252,11 +256,32 @@ public class DevDungeonLoader {
   }
 
   /**
+   * Reloads the current level with the current variant.
+   *
+   * <p>This method is useful for resetting the level state without changing the level itself.
+   */
+  public static void reloadCurrentLevel() {
+    if (currentLevel < 0 || currentLevel >= levelOrder.size()) {
+      throw new IndexOutOfBoundsException("Current level index is out of bounds: " + currentLevel);
+    }
+    loadLevel(levelOrder.get(currentLevel).a(), currentVariant);
+  }
+
+  /**
    * Returns the index of the current level.
    *
    * @return The index of the current level.
    */
   public static int currentLevelIndex() {
     return currentLevel;
+  }
+
+  /**
+   * Returns the current variant index of the level.
+   *
+   * @return The current variant index of the level.
+   */
+  public static int currentVariantIndex() {
+    return currentVariant;
   }
 }

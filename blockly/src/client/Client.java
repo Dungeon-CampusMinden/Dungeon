@@ -3,6 +3,7 @@ package client;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
+import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
 import contrib.level.generator.GeneratorUtils;
@@ -68,6 +69,14 @@ public class Client {
         () -> {
           DevDungeonLoader.addLevel(Tuple.of("maze", MazeLevel.class));
           createSystems();
+
+          HeroFactory.setHeroDeath(
+              entity -> {
+                // respawn the hero and restart the currentLevel
+                createHero();
+                DevDungeonLoader.reloadCurrentLevel();
+              });
+
           createHero();
           Crafting.loadRecipes();
 

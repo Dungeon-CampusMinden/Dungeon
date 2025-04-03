@@ -12,12 +12,9 @@ import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.ItemComponent;
-import contrib.components.LeverComponent;
+import contrib.components.*;
+import contrib.level.DevDungeonLoader;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import core.Component;
@@ -219,6 +216,13 @@ public class Server {
       clearHUDValues();
       clearHUD = false;
     }
+
+    String query = exchange.getRequestURI().getQuery();
+    boolean start = query != null && query.equals("first=true");
+    if (start) {
+      interruptExecution = false;
+    }
+
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
 
@@ -227,11 +231,11 @@ public class Server {
     String errAction = null;
     for (String action : actions) {
       action = action.trim();
-      processAction(action);
       if (interruptExecution) {
         errAction = action;
         break;
       }
+      processAction(action);
     }
     // Build response for blockly frontend
     String response;
@@ -279,8 +283,15 @@ public class Server {
     // Reset values
     interruptExecution = true;
 
-    Debugger.TELEPORT_TO_START();
-
+    DevDungeonLoader.reloadCurrentLevel();
+    HealthComponent hc =
+        hero.fetch(HealthComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, HealthComponent.class));
+    hc.currentHealthpoints(25);
+    AmmunitionComponent ac =
+        hero.fetch(AmmunitionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, AmmunitionComponent.class));
+    ac.resetCurrentAmmunition();
     PositionComponent pc = getHeroPosition();
     String response = pc.position().x + "," + pc.position().y;
 
