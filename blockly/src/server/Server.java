@@ -1262,8 +1262,7 @@ public class Server {
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-      Tile targetTile =
-          Game.tileAT(pc.position(), convertUtilsDirectionToPosCompDirection(direction));
+      Tile targetTile = Game.tileAT(pc.position(), Direction.toPositionCompDirection(direction));
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
@@ -1315,7 +1314,7 @@ public class Server {
    */
   public void move() {
     Direction viewDirection =
-        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     move(viewDirection, hero);
   }
 
@@ -1328,7 +1327,7 @@ public class Server {
    */
   public void move(final Entity entity) {
     Direction viewDirection =
-        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(entity));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(entity));
     move(viewDirection, entity);
   }
 
@@ -1342,7 +1341,7 @@ public class Server {
       return; // no rotation
     }
     Direction viewDirection =
-        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Direction newDirection =
         switch (viewDirection) {
           case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
@@ -1459,7 +1458,7 @@ public class Server {
    */
   private void aimAndShoot(AmmunitionComponent ac) {
     utils.Direction viewDirection =
-        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero));
+        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Skill fireball =
         new Skill(
             new FireballSkill(
@@ -1580,10 +1579,10 @@ public class Server {
     Direction moveDirection;
     if (push) {
       checkTile = Game.tileAT(inFront.position(), viewDirection);
-      moveDirection = convertPosCompDirectionToUtilsDirection(viewDirection);
+      moveDirection = Direction.fromPositionCompDirection(viewDirection);
     } else {
       checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
-      moveDirection = convertPosCompDirectionToUtilsDirection(viewDirection.opposite());
+      moveDirection = Direction.fromPositionCompDirection(viewDirection.opposite());
     }
     if (!checkTile.isAccessible()
         || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
@@ -1602,7 +1601,7 @@ public class Server {
         entity -> {
           entity.add(new BlockComponent());
         });
-    turnEntity(hero, convertPosCompDirectionToUtilsDirection(viewDirection));
+    turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
     waitDelta();
   }
 
@@ -1632,47 +1631,6 @@ public class Server {
     pc.position(oldP);
   }
 
-  /**
-   * Converts a {@link Direction} into a {@link PositionComponent.Direction}.
-   *
-   * @param viewDirection Direction to convert.
-   * @return Converted direction.
-   */
-  private PositionComponent.Direction convertUtilsDirectionToPosCompDirection(
-      Direction viewDirection) {
-    return switch (viewDirection) {
-      case LEFT -> PositionComponent.Direction.LEFT;
-      case RIGHT -> PositionComponent.Direction.RIGHT;
-      case UP -> PositionComponent.Direction.UP;
-      case DOWN -> PositionComponent.Direction.DOWN;
-      default ->
-          throw new IllegalArgumentException(
-              "Can not convert " + viewDirection + " to PositionComponent.Direction.");
-    };
-  }
-
-  /**
-   * Converts a {@link PositionComponent.Direction} into a {@link Direction}.
-   *
-   * @param viewDirection Direction to convert.
-   * @return Converted direction.
-   */
-  private Direction convertPosCompDirectionToUtilsDirection(
-      PositionComponent.Direction viewDirection) {
-    return switch (viewDirection) {
-      case LEFT -> Direction.LEFT;
-      case RIGHT -> Direction.RIGHT;
-      case UP -> Direction.UP;
-      case DOWN -> Direction.DOWN;
-    };
-  }
-
-  /**
-   * Converts a {@link Tile.Direction} into a {@link PositionComponent.Direction}.
-   *
-   * @param direction Direction to convert.
-   * @return Converted direction.
-   */
   private PositionComponent.Direction convertTileDirectionToPosDirection(Tile.Direction direction) {
     return switch (direction) {
       case W -> PositionComponent.Direction.LEFT;
@@ -1716,7 +1674,7 @@ public class Server {
             case RIGHT -> Direction.LEFT;
             case LEFT -> Direction.RIGHT;
           };
-      case UP -> convertPosCompDirectionToUtilsDirection(heroViewDirection);
+      case UP -> Direction.fromPositionCompDirection(heroViewDirection);
       case HERE -> Direction.HERE;
     };
   }

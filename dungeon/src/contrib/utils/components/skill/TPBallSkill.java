@@ -55,7 +55,8 @@ public final class TPBallSkill extends DamageProjectile {
             return;
           }
           EntityUtils.teleportEntityTo(entity, tpTarget.get());
-        });
+        },
+        DEFAULT_ON_SPAWN);
     tintColor(0xFF00FFFF);
   }
 

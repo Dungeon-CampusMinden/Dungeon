@@ -1,5 +1,6 @@
 package utils;
 
+import core.components.PositionComponent;
 import core.utils.Point;
 
 /** Direction enum for the four cardinal directions. */
@@ -83,5 +84,38 @@ public enum Direction {
       }
     }
     throw new IllegalArgumentException("Invalid direction: " + direction);
+  }
+
+  /**
+   * Converts a {@link Direction} into a {@link PositionComponent.Direction}.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  public static PositionComponent.Direction toPositionCompDirection(Direction viewDirection) {
+    return switch (viewDirection) {
+      case LEFT -> PositionComponent.Direction.LEFT;
+      case RIGHT -> PositionComponent.Direction.RIGHT;
+      case UP -> PositionComponent.Direction.UP;
+      case DOWN -> PositionComponent.Direction.DOWN;
+      default ->
+          throw new IllegalArgumentException(
+              "Can not convert " + viewDirection + " to PositionComponent.Direction.");
+    };
+  }
+
+  /**
+   * Converts a {@link PositionComponent.Direction} into a {@link Direction}.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  public static Direction fromPositionCompDirection(PositionComponent.Direction viewDirection) {
+    return switch (viewDirection) {
+      case LEFT -> Direction.LEFT;
+      case RIGHT -> Direction.RIGHT;
+      case UP -> Direction.UP;
+      case DOWN -> Direction.DOWN;
+    };
   }
 }
