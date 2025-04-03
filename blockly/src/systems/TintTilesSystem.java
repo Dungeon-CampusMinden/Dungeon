@@ -34,7 +34,7 @@ public class TintTilesSystem extends System {
    * <p>It also removes the tinting effect when the entity is removed.
    */
   public TintTilesSystem() {
-    super(TintDirectionComponent.class);
+    super(TintDirectionComponent.class, PositionComponent.class);
 
     onEntityRemove = this::removeTint;
   }
