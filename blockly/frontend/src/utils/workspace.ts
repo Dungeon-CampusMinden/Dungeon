@@ -17,6 +17,10 @@ export const getStartBlock = (workspace: Blockly.Workspace) => {
   return null;
 }
 
+/**
+ * Clear all warnings from all blocks in the workspace
+ * @param workspace The workspace to clear warnings from
+ */
 export const clearAllWarnings = (workspace: Blockly.Workspace) => {
   const allBlocks = workspace.getAllBlocks();
   for (let i = 0; i < allBlocks.length; i++) {
@@ -25,6 +29,11 @@ export const clearAllWarnings = (workspace: Blockly.Workspace) => {
   }
 }
 
+/**
+ * Display an error message on a block
+ * @param block The block to display the error on
+ * @param error The error message to display
+ */
 export const displayErrorOnBlock = (block: Blockly.Block | null, error: string) => {
   if (block === null) {
     console.error("Cannot display error on block: block is null");
@@ -194,6 +203,14 @@ const setupResetButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => 
   });
 }
 
+/**
+ * Place the default start block in the workspace
+ *
+ * <p> This function creates a new block of type "start" and places it in the workspace.
+ * The block is not deletable and is rendered immediately. Also, the currentBlock variable is set to the new block.
+ *
+ * @param workspace The workspace to place the block in
+ */
 export const placeDefaultStartBlock = (workspace: Blockly.WorkspaceSvg) => {
   const startBlock = workspace.newBlock("start");
   startBlock.initSvg();

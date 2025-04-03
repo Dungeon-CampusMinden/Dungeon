@@ -72,7 +72,6 @@ load(workspace);
 updateCodeDiv();
 
 // Every time the workspace changes state, save the changes to storage.
-
 workspace.addChangeListener((e: Blockly.Events.Abstract) => {
   // UI events are things like scrolling, zooming, etc.
   // No need to save after one of these.
