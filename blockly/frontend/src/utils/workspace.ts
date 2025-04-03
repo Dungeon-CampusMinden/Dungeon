@@ -4,29 +4,19 @@ import {sleep} from "./utils.ts";
 import * as VariableListUtils from "./variableList.ts";
 import {call_clear_route, call_reset_route, call_start_route, call_variables_route} from "../api/api.ts";
 
-let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
 export const getStartBlock = (workspace: Blockly.Workspace) => {
-  if (startBlock !== null && !startBlock.isDeadOrDying()) {
-    return startBlock;
-  }
-
   const allBlocks = workspace.getAllBlocks();
   for (let i = 0; i < allBlocks.length; i++) {
     const block = allBlocks[i];
-    if (block.type == "start" && !block.isDeadOrDying()) {
-      startBlock = block;
+    if (block.type == "start") {
       return block;
     }
   }
   return null;
 }
 
-/**
- * Clear all warnings from all blocks in the workspace
- * @param workspace The workspace to clear warnings from
- */
 export const clearAllWarnings = (workspace: Blockly.Workspace) => {
   const allBlocks = workspace.getAllBlocks();
   for (let i = 0; i < allBlocks.length; i++) {
@@ -35,11 +25,6 @@ export const clearAllWarnings = (workspace: Blockly.Workspace) => {
   }
 }
 
-/**
- * Display an error message on a block
- * @param block The block to display the error on
- * @param error The error message to display
- */
 export const displayErrorOnBlock = (block: Blockly.Block | null, error: string) => {
   if (block === null) {
     console.error("Cannot display error on block: block is null");
@@ -169,7 +154,7 @@ const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
         currentBlock = currentBlock.getNextBlock();
         return;
       }
-      const first = currentBlock.getParent()?.type === "start";
+      let first = currentBlock.getParent()?.type === "start";
 
       // Disable buttons
       buttons.stepBtn.disabled = true;
@@ -209,14 +194,6 @@ const setupResetButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => 
   });
 }
 
-/**
- * Place the default start block in the workspace
- *
- * <p> This function creates a new block of type "start" and places it in the workspace.
- * The block is not deletable and is rendered immediately. Also, the currentBlock variable is set to the new block.
- *
- * @param workspace The workspace to place the block in
- */
 export const placeDefaultStartBlock = (workspace: Blockly.WorkspaceSvg) => {
   const startBlock = workspace.newBlock("start");
   startBlock.initSvg();
