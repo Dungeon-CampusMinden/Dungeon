@@ -9,7 +9,7 @@ interface ApiResponse {
 }
 
 class Api {
-  public async post(endpoint: string, text: string = ""): Promise<Response> {
+  public async post(endpoint: string, text: string = "", ignoreError:boolean = false): Promise<Response> {
     const url = new URL(config.API_URL + endpoint);
 
     try {
@@ -21,9 +21,12 @@ class Api {
         body: text,
       });
     } catch (error) {
-      alert("Fehler beim Senden der Anfrage");
-      console.error("Fehler beim Senden der Anfrage", error);
-      return new Response(null, { status: 500 });
+      const response = new Response(null, { status: 500 });
+      if (!ignoreError) {
+        alert("Fehler beim Senden der Anfrage");
+        console.error("Fehler beim Senden der Anfrage", error);
+      }
+      return response;
     }
   }
 }
@@ -41,8 +44,8 @@ const api = new Api();
  * @returns true if the response was ok, false otherwise
  */
 const handleResponse = async (response: Response): Promise<ApiResponse> => {
-  if (!response.ok) {
-    const errorMessage = await response.text();
+  if (response == null || !response.ok) {
+    const errorMessage = await response?.text() || "Fehler beim Abrufen der Antwort vom Server";
     return {
       data: "",
       error: errorMessage,
@@ -108,4 +111,53 @@ export const call_clear_route = async () => {
   if (!clear_response.ok) {
     console.error("Fehler beim Zurücksetzen der Werte", clear_response);
   }
+}
+
+/**
+ * Call the level route of the server
+ *
+ * <p> This route is used to get all available levels from the server.
+ *
+ * @Returns A list of all levels.
+ */
+export const call_levels_route = async () => {
+  const level_response = await api.post("levels", "", true);
+  const response = await handleResponse(level_response);
+  if (response.error !== "") {
+    console.error("Fehler beim Abrufen der Level", response);
+    return [];
+  }
+  return response.data.split("\n");
+}
+
+interface Level {
+  name: string;
+  block_blocks?: string[];
+}
+
+/**
+ * Call the level route of the server
+ *
+ * <p> This route is used to get the level from the server and the block blocks for blockly.
+ *
+ * @param levelName If given, the Server will change the level to this level, before returning the level.
+ *
+ * @Returns The current level or the level list, with the block blocks
+  */
+export const call_level_route = async (levelName = ""): Promise<Level> => {
+  const url = "level" + (levelName ? `?levelName=${levelName}` : "");
+  const level_response = await api.post(url, "", true);
+  const response = await handleResponse(level_response);
+  if (response.error !== "") {
+    console.error("Fehler beim Abrufen des Levels", response);
+    return {
+      name: "",
+      block_blocks: [],
+    }
+  }
+  const data = response.data.split(" ");
+  return {
+    name: data[0],
+    block_blocks: data.length > 1 ? data.slice(1) : undefined,
+  };
 }

@@ -4,7 +4,10 @@ import contrib.level.DevDungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
@@ -13,20 +16,22 @@ import java.util.List;
  */
 public abstract class BlocklyLevel extends DevDungeonLevel {
 
+  private final Set<String> blockedBlocks = new HashSet<>();
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
    *
-   * @param layout 2D array containing the tile layout.
-   * @param designLabel The design label for the level.
+   * @param layout       2D array containing the tile layout.
+   * @param designLabel  The design label for the level.
    * @param customPoints The custom points of the level.
-   * @param name The name of the level.
+   * @param name         The name of the level.
    */
   public BlocklyLevel(
-      LevelElement[][] layout,
-      DesignLabel designLabel,
-      List<Coordinate> customPoints,
-      String name) {
+    LevelElement[][] layout,
+    DesignLabel designLabel,
+    List<Coordinate> customPoints,
+    String name) {
     super(layout, designLabel, customPoints, name, "");
   }
 
@@ -37,5 +42,29 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
     } else {
       onTick();
     }
+  }
+
+  /**
+   * Adds a block to the list of blocked blocks. This is used to determine which blocks are not
+   * allowed to be used in the level.
+   *
+   * <p> Will be sent to the blockly frontend upon loading the level.
+   *
+   * @param block The name of the block to be added to the list of blocked blocks.
+   */
+  public void blockBlock(String ...block) {
+    blockedBlocks.addAll(List.of(block));
+  }
+
+  /**
+   * This returns the set of blocks that are blocked by the level. This is used to determine which
+   * blocks are not allowed to be used in the level.
+   *
+   * <p> Will be sent to the blockly frontend upon loading the level.
+   *
+   * @return A set of strings containing the names of the blocks that are blocked.
+   */
+  public Set<String> blockedBlocks() {
+    return blockedBlocks;
   }
 }

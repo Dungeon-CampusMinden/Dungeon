@@ -7,8 +7,14 @@ import { toolbox } from "./toolbox.ts";
 import { config } from "./config.ts";
 import "./style.css";
 import * as LimitUtils from "./utils/limits.ts";
-import {getStartBlock, placeDefaultStartBlock, setupButtons} from "./utils/workspace.ts";
+import {
+  getAllBlocksFromToolboxDefinition,
+  getStartBlock,
+  placeDefaultStartBlock,
+  setupButtons
+} from "./utils/workspace.ts";
 import * as VariableListUtils from "./utils/variableList.ts";
+import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -42,6 +48,28 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
+// Disable the toolbox flyout auto-close
+const toolboxFlyout = workspace.getToolbox()?.getFlyout();
+if (toolboxFlyout) {
+  toolboxFlyout.autoClose = false;
+}
+
+const levelSelector = setupLevelSelector();
+levelSelector.addEventListener("levelChanged", (event) => {
+  const levelChangedEvent = (event as CustomEvent).detail as LevelChangedEvent;
+  const blockedBlockTypes = levelChangedEvent.blockBlocks;
+  const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
+  allBlocks.forEach((block) => {
+    block["disabled"] = false;
+  });
+  const regex = new RegExp(`^${blockedBlockTypes.join("|")}$`);
+  const blockedBlocks = allBlocks.filter(block => regex.test(block.type));
+  blockedBlocks.forEach((blockedBlock) => {
+    blockedBlock["disabled"] = true;
+  });
+  workspace.updateToolbox(toolbox);
+});
+
 // Variable List
 const addVarCallback = () => {
   Blockly.Variables.createVariableButtonHandler(workspace);
@@ -66,9 +94,6 @@ const updateCodeDiv = () => {
     codeDiv.textContent = code;
   }
 };
-
-// Load the initial state from storage and run the code.
-load(workspace);
 updateCodeDiv();
 
 // Every time the workspace changes state, save the changes to storage.
@@ -77,7 +102,7 @@ workspace.addChangeListener((e: Blockly.Events.Abstract) => {
   // UI events are things like scrolling, zooming, etc.
   // No need to save after one of these.
   if (e.isUiEvent) return;
-  save(workspace);
+  save(workspace, getCurrentLevel());
 });
 
 // Whenever the workspace changes meaningfully, run the code again.
@@ -149,6 +174,10 @@ if (config.HIDE_RESPONSE_INFO) {
     responseDiv.style.visibility = "hidden";
   }
 }
+
+await updateLevelList();
+
+load(workspace, getCurrentLevel()); // load initial state if available
 
 workspace.scrollCenter(); // centering workspace
 

@@ -2,7 +2,13 @@ import * as Blockly from "blockly";
 import {javaGenerator} from "../generators/java.ts";
 import {sleep} from "./utils.ts";
 import * as VariableListUtils from "./variableList.ts";
-import {call_clear_route, call_reset_route, call_start_route, call_variables_route} from "../api/api.ts";
+import {
+  call_clear_route,
+  call_reset_route,
+  call_start_route,
+  call_variables_route
+} from "../api/api.ts";
+import {FlyoutItem} from "blockly/core/flyout_base";
 
 export let currentBlock: Blockly.Block | null = null;
 
@@ -17,6 +23,36 @@ export const getStartBlock = (workspace: Blockly.Workspace) => {
   return null;
 }
 
+export const getAllBlocksFromToolboxDefinition = (toolbox: unknown) => {
+  const blocks: FlyoutItem[] = [];
+  // @ts-ignore We don't know the correct type of toolbox
+  for (const content of (toolbox.contents as FlyoutItem[])) {
+    if (content.kind === "category") {
+      blocks.push(...getAllBlocksFromCategory(content));
+    } else if (content.kind === "block") {
+      blocks.push(content);
+    }
+  }
+  return blocks;
+}
+
+const getAllBlocksFromCategory = (category: unknown) => {
+  const blocks: FlyoutItem[] = [];
+  // @ts-ignore We don't know the correct type of category
+  for (const block of (category.contents as FlyoutItem[])) {
+    if (block.kind === "block") {
+      blocks.push(block);
+    } else if (block.kind === "category") {
+      blocks.push(...getAllBlocksFromCategory(block));
+    }
+  }
+  return blocks;
+}
+
+/**
+ * Clear all warnings from all blocks in the workspace
+ * @param workspace The workspace to clear warnings from
+ */
 export const clearAllWarnings = (workspace: Blockly.Workspace) => {
   const allBlocks = workspace.getAllBlocks();
   for (let i = 0; i < allBlocks.length; i++) {
@@ -124,6 +160,11 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       currentBlock = currentBlock.getNextBlock();
       await sleep(sleepingTime);
     }
+
+    // Check if we reach next level
+    await sleep(1);
+    //await updateLevelList();
+
     // Reset values in backend
     await call_clear_route();
 

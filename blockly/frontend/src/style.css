@@ -17,6 +17,10 @@ header {
   height: var(--header-height);
 }
 
+header h1 {
+  flex-grow: 1;
+}
+
 #page-title {
   padding-left: 10px;
 }
