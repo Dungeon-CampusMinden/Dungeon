@@ -49,7 +49,8 @@ public final class HeroFactory {
   private static final int HERO_HP = 25;
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
-  public static Consumer<Entity> HERO_DEATH =
+
+  private static Consumer<Entity> HERO_DEATH =
       (entity) -> {
         DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
       };
@@ -85,7 +86,12 @@ public final class HeroFactory {
     HERO_SKILL = new Skill(skillCallback, FIREBALL_COOL_DOWN);
   }
 
-  public static void setHeroDeath(Consumer<Entity> deathCallback) {
+  /**
+   * Sets the callback to execute when the hero dies.
+   *
+   * @param deathCallback Callback that will be executed on the hero's death.
+   */
+  public static void heroDeath(Consumer<Entity> deathCallback) {
     HERO_DEATH = deathCallback;
   }
 

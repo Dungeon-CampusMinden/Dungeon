@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class MazeLevel extends BlocklyLevel {
 
+  private static boolean showText = true;
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -28,7 +30,10 @@ public class MazeLevel extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    DialogUtils.showTextPopup("Finde des Ausgang des Labyrinths!", "Ziel");
+    if (showText) {
+      DialogUtils.showTextPopup("Finde des Ausgang des Labyrinths!", "Ziel");
+      showText = false;
+    }
   }
 
   @Override

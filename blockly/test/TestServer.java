@@ -1,6 +1,5 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import contrib.entities.HeroFactory;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +13,7 @@ public class TestServer {
   /** Reset all global values before each test. */
   @BeforeEach
   public void setUp() throws IOException {
-    server = Server.instance(HeroFactory.newHero());
+    server = Server.instance();
     server.clearGlobalValues();
   }
 
