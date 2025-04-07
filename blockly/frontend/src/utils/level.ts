@@ -5,6 +5,19 @@ import {
 let currentLevelIndex = 0
 const levelNames: string[] = [];
 
+const getLevelProgress = () => {
+  const levelProgress = localStorage.getItem("levelProgress") || "0";
+  const levelProgressNumber = parseInt(levelProgress, 10);
+  if (isNaN(levelProgressNumber)) {
+    return 0;
+  }
+  return levelProgressNumber;
+}
+
+const setLevelProgress = (levelIndex: number) => {
+  localStorage.setItem("levelProgress", levelIndex.toString());
+}
+
 /**
  * Interface for the level changed event
  *
@@ -17,15 +30,36 @@ export interface LevelChangedEvent {
 }
 
 /**
+ * Returns if the given level is available based on the current level progress
+ *
+ * <p> This function checks if the level is in the level list and if the level progress is enough to unlock the level.
+ *
+ * @param levelName The name of the level to check
+ * @return true if the level is available, false otherwise
+ */
+export const isLevelAvailable = (levelName: string) => {
+  if (!levelNames.includes(levelName)) {
+    return false;
+  }
+  const levelIndex = levelNames.indexOf(levelName);
+  return getLevelProgress() >= levelIndex;
+}
+
+/**
  * Sets the current level to the given level name
  *
  * <p> If the level name is not in the level list, this function does nothing.
  *
  * @param newLevelName The name of the new level
+ * @param force If true, the level will be set even if the levelProgress is not enough
  */
-export const setCurrentLevel = (newLevelName: string)=> {
+export const setCurrentLevel = (newLevelName: string, force: boolean = false)=> {
   if (!levelNames.includes(newLevelName)) {
     console.error(`Level ${newLevelName} not found in level list`);
+    return;
+  }
+
+  if (!force && !isLevelAvailable(newLevelName)) {
     return;
   }
 
@@ -45,6 +79,24 @@ export const setCurrentLevel = (newLevelName: string)=> {
     );
     currentLevelIndex = levelNames.indexOf(newLevelName);
   });
+}
+
+/**
+ * Sets the current level to the next level
+ *
+ * <p> If the current level is the last level, this function does nothing.
+ *
+ * <p> This function is used to complete the current level and move to the next level.
+ */
+export const completeLevel = () => {
+  const newLevelIndex = currentLevelIndex + 1;
+  if (newLevelIndex >= levelNames.length) {
+    console.info("[CompleteLevel] No more levels available");
+    return;
+  }
+  setLevelProgress(newLevelIndex);
+  setCurrentLevel(levelNames[newLevelIndex]);
+  console.debug("[CompleteLevel] Level completed");
 }
 
 /**
@@ -95,8 +147,10 @@ const updateLevelListUI = () => {
   // add option for each level
   levelNames.forEach((levelName) => {
     const option = document.createElement("option");
+    const isAvailable = isLevelAvailable(levelName);
     option.value = levelName;
     option.innerText = levelName;
+    option.disabled = !isAvailable;
     select.appendChild(option);
   });
 }

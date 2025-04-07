@@ -8,6 +8,10 @@ const storageKey = "dungeonWorkspace/";
  * @param level Level name to save the workspace state under.
  */
 export const save = function (workspace: Blockly.Workspace, level: string) {
+  if (level === undefined) {
+    console.error("Level name is undefined");
+    return;
+  }
   const data = Blockly.serialization.workspaces.save(workspace);
   window.localStorage?.setItem(storageKey + level, JSON.stringify(data));
 };

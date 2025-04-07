@@ -3,12 +3,13 @@ import {javaGenerator} from "../generators/java.ts";
 import {sleep} from "./utils.ts";
 import * as VariableListUtils from "./variableList.ts";
 import {
-  call_clear_route,
+  call_clear_route, call_level_route,
   call_reset_route,
   call_start_route,
   call_variables_route
 } from "../api/api.ts";
 import {FlyoutItem} from "blockly/core/flyout_base";
+import {completeLevel, getCurrentLevel} from "./level.ts";
 
 export let currentBlock: Blockly.Block | null = null;
 
@@ -120,7 +121,7 @@ export const setupButtons = (workspace: Blockly.WorkspaceSvg) => {
 
 const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, delayInput: HTMLInputElement) => {
   buttons.startBtn.addEventListener("click", async () => {
-    buttons.resetBtn.click();
+    //buttons.resetBtn.click();
 
     let sleepingTimeStr = delayInput.value;
     if (sleepingTimeStr === "") {
@@ -163,7 +164,10 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
     // Check if we reach next level
     await sleep(1);
-    //await updateLevelList();
+    const levelResponse = await call_level_route();
+    if (getCurrentLevel() !== levelResponse.name) {
+      completeLevel();
+    }
 
     // Reset values in backend
     await call_clear_route();

@@ -369,13 +369,13 @@ public class Server {
     String query = exchange.getRequestURI().getQuery();
     String levelName = query != null && query.contains("levelName=") ? query.split("=")[1] : null;
 
-    System.out.println("Level " + levelName + " requested");
     if (levelName != null && !levelName.equals(DevDungeonLoader.currentLevel())) {
       // if given and the level is not the current one, load it
       System.out.println("Loading level " + levelName);
       DevDungeonLoader.loadLevel(levelName);
       waitDelta();
     }
+
     response.append(DevDungeonLoader.currentLevel()).append(" ");
     for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel())) {
       response.append(blockedBlock).append(" ");
