@@ -139,7 +139,7 @@ const updateLevelListUI = () => {
   if (levelNames.length === 0) {
     const option = document.createElement("option");
     option.value = "";
-    option.innerText = "No levels available";
+    option.innerText = "Keine Level gefunden";
     select.appendChild(option);
     return;
   }
@@ -153,22 +153,73 @@ const updateLevelListUI = () => {
     option.disabled = !isAvailable;
     select.appendChild(option);
   });
+
+  // Update arrow buttons
+  const prevButton = document.getElementById("prev-level") as HTMLButtonElement;
+  const nextButton = document.getElementById("next-level") as HTMLButtonElement;
+  const selectedIndex = select.selectedIndex;
+  prevButton.disabled = selectedIndex === 0;
+  nextButton.disabled = selectedIndex === levelNames.length - 1 || !isLevelAvailable(levelNames[selectedIndex + 1]);
 }
 
 export const setupLevelSelector = () => {
   const header = document.getElementsByTagName("header")[0];
-  // new select element
+
+  const selectorContainer = document.createElement("div");
+  selectorContainer.id = "level-selector-container";
+  selectorContainer.classList.add("level-selector-container");
+
+  const prevButton = document.createElement("button");
+  prevButton.innerHTML = "◀";
+  prevButton.id = "prev-level";
+  prevButton.classList.add("level-nav-button");
+  prevButton.disabled = true;
+
   const select = document.createElement("select");
   select.id = "levelSelector";
-  // add event listener to select element
+  select.classList.add("level-selector");
+
+  const nextButton = document.createElement("button");
+  nextButton.innerHTML = "▶";
+  nextButton.id = "next-level";
+  nextButton.classList.add("level-nav-button");
+  nextButton.disabled = levelNames.length <= 1;
+
+  selectorContainer.append(prevButton, select, nextButton);
+
   select.addEventListener("change", (event) => {
     const target = event.target as HTMLSelectElement;
+    const selectedIndex = target.selectedIndex;
     const selectedLevelName = target.value;
+
+    prevButton.disabled = selectedIndex === 0;
+    nextButton.disabled = selectedIndex === levelNames.length - 1 || !isLevelAvailable(levelNames[selectedIndex + 1]);
+
     setCurrentLevel(selectedLevelName);
   });
-  // add select element to header
-  header.appendChild(select);
+
+  prevButton.addEventListener("click", () => {
+    if (select.selectedIndex > 0) {
+      select.selectedIndex -= 1;
+      select.dispatchEvent(new Event("change"));
+    }
+  });
+
+  nextButton.addEventListener("click", () => {
+    if (select.selectedIndex < levelNames.length - 1 && isLevelAvailable(levelNames[select.selectedIndex + 1])) {
+      select.selectedIndex += 1;
+      select.dispatchEvent(new Event("change"));
+    }
+  });
+
+  header.insertBefore(selectorContainer, header.lastElementChild || null);
+
   updateLevelListUI();
+
+  if (select.options.length > 0) {
+    prevButton.disabled = select.selectedIndex === 0;
+    nextButton.disabled = select.selectedIndex === levelNames.length - 1 || !isLevelAvailable(levelNames[select.selectedIndex + 1]);
+  }
 
   return select;
 }
