@@ -143,6 +143,7 @@ public class Client {
     Game.add(new LeverSystem());
     Game.add(new BlockSystem());
     Game.add(new FallingSystem());
+    Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
   }
 

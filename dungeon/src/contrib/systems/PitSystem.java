@@ -1,7 +1,6 @@
-package systems;
+package contrib.systems;
 
 import contrib.components.ProjectileComponent;
-import contrib.systems.FallingSystem;
 import core.Entity;
 import core.Game;
 import core.System;
