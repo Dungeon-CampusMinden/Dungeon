@@ -1,4 +1,8 @@
-# Anforderungen an die Multiplayer-Implementierung
+---
+title: "Anforderungen an das Spiel"
+---
+
+# Multiplayer-Implementierung
 
 Annahme: wir brauchen Netzwerk-Multiplayer
 

@@ -6,3 +6,4 @@ Hier sollen die Informationen zu Findung, Implementierung und Benutzung der Esca
 
 [Erarbeitung des zu verwendenden Escape-Room-Konzepts](concept.md)
 [Recherche zu relevanten Projekten](research.md)
+[Sammlung (möglicher) Anforderungen an die Ziellösung](requirements.md)
