@@ -1277,7 +1277,7 @@ public class Server {
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
-        if (!comp.hc().isDead() && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+        if (Game.findEntity(entities[i]) && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
           allEntitiesArrived = false;
         }
       }
