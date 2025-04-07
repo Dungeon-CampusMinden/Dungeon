@@ -57,28 +57,30 @@ if (toolboxFlyout) {
 const levelSelector = setupLevelSelector();
 levelSelector.addEventListener("levelChanged", (event) => {
   const levelChangedEvent = (event as CustomEvent).detail as LevelChangedEvent;
+
   save(workspace, levelChangedEvent.oldLevelName);
+
   const blockedBlockTypes = levelChangedEvent.blockBlocks;
   const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
   allBlocks.forEach((block) => {
-    delete block['disabledReasons'];
-    delete block['disabled'];
-    delete block['enabled'];
+    block["disabled"] = false;
+    delete block["disabledReasons"];
+    delete block["enabled"];
   });
   const regex = new RegExp(`^${blockedBlockTypes.join("|")}$`);
   const blockedBlocks = allBlocks.filter(block => regex.test(block.type));
   blockedBlocks.forEach((blockedBlock) => {
     blockedBlock["disabled"] = true;
   });
-  workspace.updateToolbox(toolbox);
-  workspace.getToolbox()?.refreshSelection()
-  workspace.clear();
+
   load(workspace, levelChangedEvent.newLevelName);
   workspace.scrollCenter();
   const startBlock = getStartBlock(workspace);
   if (!startBlock) {
     placeDefaultStartBlock(workspace);
   }
+  workspace.updateToolbox(toolbox);
+  workspace.getToolbox()?.refreshSelection()
 });
 
 // Variable List
