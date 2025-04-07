@@ -1299,11 +1299,7 @@ public class Server {
   public void move() {
     Entity hero = hero();
     Direction viewDirection =
-<<<<<<< HEAD
         Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
-=======
-        convertPosCompDirectionToUtilsDirection(EntityUtils.getViewDirection(hero()));
->>>>>>> cfcfdb94 (fix bugs)
     move(viewDirection, hero);
   }
 
@@ -1636,9 +1632,8 @@ public class Server {
   }
 
   /**
-<<<<<<< HEAD
-   * Transforms a relative direction into a world direction based on the hero's current view
-   * direction.
+   * <<<<<<< HEAD Transforms a relative direction into a world direction based on the hero's current
+   * view direction.
    *
    * <p>For example, if the hero is looking to the RIGHT and wants to check LEFT (relative to their
    * view), the resulting direction would be UP in world coordinates.
@@ -1647,7 +1642,7 @@ public class Server {
    * @return The translated direction in world coordinates.
    */
   private Direction directionBasedOnViewdirection(Direction direction) {
-    PositionComponent.Direction heroViewDirection = EntityUtils.getViewDirection(hero);
+    PositionComponent.Direction heroViewDirection = EntityUtils.getViewDirection(hero());
     return switch (direction) {
       case LEFT ->
           switch (heroViewDirection) {
@@ -1674,7 +1669,8 @@ public class Server {
       case HERE -> Direction.HERE;
     };
   }
-    /*
+
+  /*
    * Get the hero from the game.
    *
    * @return The hero.
