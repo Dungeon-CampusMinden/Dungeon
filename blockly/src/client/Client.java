@@ -16,10 +16,9 @@ import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
+import entities.BlocklyMonster;
 import java.io.IOException;
 import java.util.logging.Level;
-
-import entities.BlocklyMonster;
 import level.MazeLevel;
 import server.Server;
 import systems.BlockSystem;
@@ -99,10 +98,10 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
-            BlocklyMonster.BlocklyMonsterBuilder b = BlocklyMonster.GUARD.builder();
-            b.addToGame();
-            b.spawnPoint(Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
-            b.build();
+          BlocklyMonster.BlocklyMonsterBuilder b = BlocklyMonster.GUARD.builder();
+          b.addToGame();
+          b.spawnPoint(Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
+          b.build();
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           Server.instance().interruptExecution = true;

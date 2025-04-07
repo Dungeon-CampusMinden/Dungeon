@@ -1231,7 +1231,10 @@ public class Server {
     double distanceThreshold = 0.1;
 
     record EntityComponents(
-        PositionComponent pc, VelocityComponent vc, HealthComponent hc, Coordinate targetPosition) {}
+        PositionComponent pc,
+        VelocityComponent vc,
+        HealthComponent hc,
+        Coordinate targetPosition) {}
 
     List<EntityComponents> entityComponents = new ArrayList<>();
 
@@ -1277,7 +1280,8 @@ public class Server {
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
-        if (Game.findEntity(entities[i]) && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+        if (Game.findEntity(entities[i])
+            && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
           allEntitiesArrived = false;
         }
       }
