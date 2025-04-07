@@ -115,7 +115,8 @@ export const updateVariable = (name: string, value: string) => {
     }
   }
   if (!found) {
-    addVariable(name, value);
+    addVariable(name,disableRemoveVariable);
+    updateVariable(name,value);
   }
 };
 
@@ -136,6 +137,8 @@ export const removeVariable = (name: string) => {
   // Shows "no variables" if the list is now empty
   showNoVariablesMessage();
 };
+
+export const disableRemoveVariable = (_ : string) => {}
 
 export const renameVariable = (oldName: string, newName: string) => {
   const variableList = document.getElementById('variableList') as HTMLDivElement;
