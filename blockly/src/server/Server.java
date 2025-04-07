@@ -1231,7 +1231,7 @@ public class Server {
     double distanceThreshold = 0.1;
 
     record EntityComponents(
-        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
+        PositionComponent pc, VelocityComponent vc, HealthComponent hc, Coordinate targetPosition) {}
 
     List<EntityComponents> entityComponents = new ArrayList<>();
 
@@ -1246,6 +1246,11 @@ public class Server {
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
+      HealthComponent hc =
+          entity
+              .fetch(HealthComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, HealthComponent.class));
+
       Tile targetTile = Game.tileAT(pc.position(), Direction.toPositionCompDirection(direction));
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
@@ -1253,7 +1258,7 @@ public class Server {
         return; // if any target tile is not accessible, don't move anyone
       }
 
-      entityComponents.add(new EntityComponents(pc, vc, targetTile.coordinate()));
+      entityComponents.add(new EntityComponents(pc, vc, hc, targetTile.coordinate()));
     }
 
     double[] distances =
@@ -1272,7 +1277,7 @@ public class Server {
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
-        if (!(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+        if (!comp.hc().isDead() && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
           allEntitiesArrived = false;
         }
       }
