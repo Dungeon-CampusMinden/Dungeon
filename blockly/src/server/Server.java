@@ -392,7 +392,7 @@ public class Server {
   private Set<String> blockedBlocksForLevel(ILevel level) {
     Set<String> blockedBlocks = new HashSet<>();
     if (level instanceof BlocklyLevel currentLevel) {
-      blockedBlocks.addAll(currentLevel.blockedBlocks());
+      blockedBlocks.addAll(currentLevel.blockedBlocklyElements());
     }
     return blockedBlocks;
   }

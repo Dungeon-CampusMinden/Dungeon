@@ -20,7 +20,7 @@ public class TestLevel extends BlocklyLevel {
    */
   public TestLevel(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "TestLevel");
-    blockBlock("move", "goToExit");
+    blockBlocklyElement("move", "goToExit");
   }
 
   /**

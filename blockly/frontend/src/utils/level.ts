@@ -26,7 +26,7 @@ const setLevelProgress = (levelIndex: number) => {
 export interface LevelChangedEvent {
   oldLevelName: string;
   newLevelName: string;
-  blockBlocks: string[];
+  blockedElements: string[];
 }
 
 /**
@@ -72,7 +72,7 @@ export const setCurrentLevel = (newLevelName: string, force: boolean = false)=> 
     const event: LevelChangedEvent = {
       oldLevelName: levelNames[currentLevelIndex],
       newLevelName: newLevelName,
-      blockBlocks: blockBlocks,
+      blockedElements: blockBlocks,
     }
     document.getElementById("levelSelector")!.dispatchEvent(
       new CustomEvent("levelChanged", { detail: event })

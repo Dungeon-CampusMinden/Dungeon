@@ -37,6 +37,59 @@ export const getAllBlocksFromToolboxDefinition = (toolbox: unknown) => {
   return blocks;
 }
 
+export const getAllCategoriesFromToolboxDefinition = (toolbox: unknown) => {
+  const categories: FlyoutItem[] = [];
+  // @ts-ignore We don't know the correct type of toolbox
+  for (const content of (toolbox.contents as FlyoutItem[])) {
+    if (content.kind === "category") {
+      categories.push(content);
+      categories.push(...getAllCategoriesFromToolboxDefinition(content));
+    }
+  }
+  return categories;
+}
+
+export const resetBlocksAndCategories = (allBlocks: any[], allCategories: any[])=> {
+  // Enable all blocks
+  allBlocks.forEach((block) => {
+    block["disabled"] = false;
+    delete block["disabledReasons"];
+    delete block["enabled"];
+  });
+
+  // Enable all categories
+  allCategories.forEach((category) => {
+    delete category["hidden"];
+  });
+}
+
+export const blockElementsFromToolbox = (toolbox: any, blockedElements: string[])=> {
+  const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
+  const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
+
+  // Reset all blocks and categories to enabled state
+  resetBlocksAndCategories(allBlocks, allCategories);
+
+  // Create regex to match blocked elements
+  const blockedItemsRegex = new RegExp(`^${blockedElements.join("|")}$`);
+
+  // Disable blocked categories
+  const blockedCategories = allCategories.filter(
+    (category) => blockedItemsRegex.test(category.name)
+  );
+  blockedCategories.forEach((category) => {
+    category["hidden"] = "true";
+  });
+
+  // Disable blocked blocks
+  const blockedBlocks = allBlocks.filter(
+    block => blockedItemsRegex.test(block.type)
+  );
+  blockedBlocks.forEach((blockedBlock) => {
+    blockedBlock["disabled"] = true;
+  });
+}
+
 const getAllBlocksFromCategory = (category: unknown) => {
   const blocks: FlyoutItem[] = [];
   // @ts-ignore We don't know the correct type of category

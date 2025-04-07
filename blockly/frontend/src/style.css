@@ -251,3 +251,6 @@ header h1 {
     margin-inline: 5px;
 }
 
+.blocklyDisabled {
+    display: none;
+}

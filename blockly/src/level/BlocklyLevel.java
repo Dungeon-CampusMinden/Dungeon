@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public abstract class BlocklyLevel extends DevDungeonLevel {
 
-  private final Set<String> blockedBlocks = new HashSet<>();
+  private final Set<String> blockedBlocklyElements = new HashSet<>();
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -45,26 +45,26 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
   }
 
   /**
-   * Adds a block to the list of blocked blocks. This is used to determine which blocks are not
+   * Adds a block to the list of blocked blockly elements. This is used to determine which blocks or categories are not
    * allowed to be used in the level.
    *
    * <p> Will be sent to the blockly frontend upon loading the level.
    *
-   * @param block The name of the block to be added to the list of blocked blocks.
+   * @param block The name of the element to be added to the list of blocked blockly elements.
    */
-  public void blockBlock(String ...block) {
-    blockedBlocks.addAll(List.of(block));
+  public void blockBlocklyElement(String ...block) {
+    blockedBlocklyElements.addAll(List.of(block));
   }
 
   /**
-   * This returns the set of blocks that are blocked by the level. This is used to determine which
-   * blocks are not allowed to be used in the level.
+   * This returns the set of blockly elements that are blocked by the level. This is used to determine which
+   * elements are not allowed to be used in the level.
    *
    * <p> Will be sent to the blockly frontend upon loading the level.
    *
-   * @return A set of strings containing the names of the blocks that are blocked.
+   * @return A set of strings containing the names of the elements that are blocked.
    */
-  public Set<String> blockedBlocks() {
-    return blockedBlocks;
+  public Set<String> blockedBlocklyElements() {
+    return blockedBlocklyElements;
   }
 }

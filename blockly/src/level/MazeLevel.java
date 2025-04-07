@@ -26,7 +26,7 @@ public class MazeLevel extends BlocklyLevel {
   public MazeLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Maze");
-    blockBlock("move");
+    blockBlocklyElement("move", "Skills");
   }
 
   @Override

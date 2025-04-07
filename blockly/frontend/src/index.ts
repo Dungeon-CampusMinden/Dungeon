@@ -8,7 +8,7 @@ import { config } from "./config.ts";
 import "./style.css";
 import * as LimitUtils from "./utils/limits.ts";
 import {
-  getAllBlocksFromToolboxDefinition,
+  blockElementsFromToolbox,
   getStartBlock,
   placeDefaultStartBlock,
   setupButtons
@@ -58,29 +58,25 @@ const levelSelector = setupLevelSelector();
 levelSelector.addEventListener("levelChanged", (event) => {
   const levelChangedEvent = (event as CustomEvent).detail as LevelChangedEvent;
 
+  // Save current workspace state with old level name
   save(workspace, levelChangedEvent.oldLevelName);
 
-  const blockedBlockTypes = levelChangedEvent.blockBlocks;
-  const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
-  allBlocks.forEach((block) => {
-    block["disabled"] = false;
-    delete block["disabledReasons"];
-    delete block["enabled"];
-  });
-  const regex = new RegExp(`^${blockedBlockTypes.join("|")}$`);
-  const blockedBlocks = allBlocks.filter(block => regex.test(block.type));
-  blockedBlocks.forEach((blockedBlock) => {
-    blockedBlock["disabled"] = true;
-  });
+  // Configure blocks and categories based on level restrictions
+  blockElementsFromToolbox(toolbox, levelChangedEvent.blockedElements);
 
+  // Load new level and initialize workspace
   load(workspace, levelChangedEvent.newLevelName);
   workspace.scrollCenter();
+
+  // Check for start block and add if missing
   const startBlock = getStartBlock(workspace);
   if (!startBlock) {
     placeDefaultStartBlock(workspace);
   }
+
+  // Update toolbox
   workspace.updateToolbox(toolbox);
-  workspace.getToolbox()?.refreshSelection()
+  workspace.getToolbox()?.refreshSelection();
 });
 
 // Variable List
