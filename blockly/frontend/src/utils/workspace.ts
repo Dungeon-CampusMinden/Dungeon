@@ -26,7 +26,7 @@ export const getStartBlock = (workspace: Blockly.Workspace) => {
 
 export const getAllBlocksFromToolboxDefinition = (toolbox: unknown) => {
   const blocks: FlyoutItem[] = [];
-  // @ts-ignore We don't know the correct type of toolbox
+  // @ts-expect-error We don't know the correct type of toolbox
   for (const content of (toolbox.contents as FlyoutItem[])) {
     if (content.kind === "category") {
       blocks.push(...getAllBlocksFromCategory(content));
@@ -39,7 +39,7 @@ export const getAllBlocksFromToolboxDefinition = (toolbox: unknown) => {
 
 export const getAllCategoriesFromToolboxDefinition = (toolbox: unknown) => {
   const categories: FlyoutItem[] = [];
-  // @ts-ignore We don't know the correct type of toolbox
+  // @ts-expect-error We don't know the correct type of toolbox
   for (const content of (toolbox.contents as FlyoutItem[])) {
     if (content.kind === "category") {
       categories.push(content);
@@ -49,7 +49,7 @@ export const getAllCategoriesFromToolboxDefinition = (toolbox: unknown) => {
   return categories;
 }
 
-export const resetBlocksAndCategories = (allBlocks: any[], allCategories: any[])=> {
+export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories: FlyoutItem[])=> {
   // Enable all blocks
   allBlocks.forEach((block) => {
     block["disabled"] = false;
@@ -63,7 +63,7 @@ export const resetBlocksAndCategories = (allBlocks: any[], allCategories: any[])
   });
 }
 
-export const blockElementsFromToolbox = (toolbox: any, blockedElements: string[])=> {
+export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[])=> {
   const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
   const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
 
@@ -92,7 +92,7 @@ export const blockElementsFromToolbox = (toolbox: any, blockedElements: string[]
 
 const getAllBlocksFromCategory = (category: unknown) => {
   const blocks: FlyoutItem[] = [];
-  // @ts-ignore We don't know the correct type of category
+  // @ts-expect-error We don't know the correct type of category
   for (const block of (category.contents as FlyoutItem[])) {
     if (block.kind === "block") {
       blocks.push(block);
