@@ -33,14 +33,6 @@ Die Anforderungen sind in Aspekte aufgeteilt.
   - Versuch einer umfassenden Liste ist das MDA-Framework ([Paper](https://users.cs.northwestern.edu/~hunicke/pubs/MDA.pdf)/[Wikipedia](https://en.wikipedia.org/wiki/MDA_framework))
 
 
-# Anforderungen an die Multiplayer-Implementierung
-
-Annahme: wir brauchen Netzwerk-Multiplayer
-
-- verteilte Simulation
-- Client-Server (geringster Aufwand, inhaltlicher Nutzen von P2P für diesen Einsatzzweck unklar)
-- ..
-- parallel läuft ein Projekt mit dem Ziel, hier mehr Anhaltspunkte zu finden und einen PoC zu erstellen
 
 ## Lehre
 
