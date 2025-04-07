@@ -265,6 +265,7 @@ public class Server {
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
+    interruptExecution=false;
   }
 
   /**
