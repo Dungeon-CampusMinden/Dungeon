@@ -95,8 +95,14 @@ export const addVariable = (name: string, removeVarCallback: (varName: string) =
 }
 
 export const updateVariable = (name: string, value: string) => {
+  if (!name.trim()) {
+    console.warn('Variable name is empty. Skipping update.');
+    return;
+  }
   const variableList = document.getElementById('variableList') as HTMLDivElement;
   const variableItems = variableList.getElementsByClassName('variable-item');
+
+  let found = false;
 
   for (let i = 0; i < variableItems.length; i++) {
     const item = variableItems[i];
@@ -104,10 +110,16 @@ export const updateVariable = (name: string, value: string) => {
     if (innerVariableName.innerText === name) {
       const innerVariableValue = item.getElementsByClassName('variable-value')[0] as HTMLParagraphElement;
       innerVariableValue.innerText = value;
+      found = true;
       break;
     }
   }
+  if (!found) {
+    addVariable(name,disableRemoveVariable);
+    updateVariable(name,value);
+  }
 };
+
 
 export const removeVariable = (name: string) => {
   const variableList = document.getElementById('variableList') as HTMLDivElement;
@@ -125,6 +137,8 @@ export const removeVariable = (name: string) => {
   // Shows "no variables" if the list is now empty
   showNoVariablesMessage();
 };
+
+export const disableRemoveVariable = (_ : string) => {}
 
 export const renameVariable = (oldName: string, newName: string) => {
   const variableList = document.getElementById('variableList') as HTMLDivElement;
