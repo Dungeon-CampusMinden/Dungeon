@@ -18,7 +18,7 @@ public class TestLevel extends BlocklyLevel {
    * @param customPoints The custom points of the level.
    * @param name         The name of the level.
    */
-  public TestLevel(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints, String name) {
+  public TestLevel(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "TestLevel");
     blockBlock("move", "goToExit");
   }

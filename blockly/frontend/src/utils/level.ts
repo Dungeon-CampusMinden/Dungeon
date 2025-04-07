@@ -4,7 +4,6 @@ import {
 
 let currentLevelIndex = 0
 const levelNames: string[] = [];
-const blockedBlocks: string[] = [];
 
 /**
  * Interface for the level changed event
@@ -12,7 +11,8 @@ const blockedBlocks: string[] = [];
  * <p> This event is dispatched when the level is changed.
  */
 export interface LevelChangedEvent {
-  levelName: string;
+  oldLevelName: string;
+  newLevelName: string;
   blockBlocks: string[];
 }
 
@@ -28,23 +28,22 @@ export const setCurrentLevel = (newLevelName: string)=> {
     console.error(`Level ${newLevelName} not found in level list`);
     return;
   }
-  currentLevelIndex = levelNames.indexOf(newLevelName);
 
   call_level_route(newLevelName).then((response) => {
     const blockBlocks = response.block_blocks ?? [];
     if (blockBlocks.length === 0) {
-      console.log(`No block blocks found for level ${newLevelName}`);
       return;
     }
-    blockedBlocks.push(...blockBlocks);
 
     const event: LevelChangedEvent = {
-      levelName: newLevelName,
-      blockBlocks: blockedBlocks,
+      oldLevelName: levelNames[currentLevelIndex],
+      newLevelName: newLevelName,
+      blockBlocks: blockBlocks,
     }
     document.getElementById("levelSelector")!.dispatchEvent(
       new CustomEvent("levelChanged", { detail: event })
     );
+    currentLevelIndex = levelNames.indexOf(newLevelName);
   });
 }
 
