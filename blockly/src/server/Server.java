@@ -332,6 +332,14 @@ public class Server {
         response.append(name).append("=").append(Arrays.toString(var.arrayVal)).append("\n");
       }
     }
+    hero.fetch(AmmunitionComponent.class)
+        .ifPresent(
+            ammunitionComponent ->
+                response
+                    .append("Feuerball")
+                    .append("=")
+                    .append(ammunitionComponent.currentAmmunition())
+                    .append("\n"));
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.toString().getBytes().length);
     OutputStream os = exchange.getResponseBody();
