@@ -41,10 +41,10 @@ public class Chapter15Level extends BlocklyLevel {
     Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
     Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
     // TODO replace with guards
-    Game.add(BlocklyMonsterFactory.guard(m1C, "Monster 1", PositionComponent.Direction.LEFT));
-    Game.add(BlocklyMonsterFactory.guard(m2C, "Monster 2", PositionComponent.Direction.RIGHT));
-    Game.add(BlocklyMonsterFactory.guard(m3C, "Monster 3", PositionComponent.Direction.UP));
-    Game.add(BlocklyMonsterFactory.guard(m4C, "Monster 4", PositionComponent.Direction.UP));
+    Game.add(BlocklyMonsterFactory.guard(m1C, PositionComponent.Direction.LEFT, 5));
+    Game.add(BlocklyMonsterFactory.guard(m2C, PositionComponent.Direction.RIGHT, 5));
+    Game.add(BlocklyMonsterFactory.guard(m3C, PositionComponent.Direction.UP, 5));
+    Game.add(BlocklyMonsterFactory.guard(m4C, PositionComponent.Direction.UP, 5));
   }
 
   @Override

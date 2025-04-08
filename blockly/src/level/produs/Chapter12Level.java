@@ -35,7 +35,7 @@ public class Chapter12Level extends BlocklyLevel {
             new Consumer<Coordinate>() {
               @Override
               public void accept(Coordinate coordinate) {
-                Game.add(BlocklyMonsterFactory.hedgehog(coordinate, "Monster"));
+                Game.add(BlocklyMonsterFactory.hedgehog(coordinate));
               }
             });
   }
