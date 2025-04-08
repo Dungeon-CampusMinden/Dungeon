@@ -19,25 +19,20 @@ public class BlocklyMonsterFactory {
   private static final IPath HEDGEHOG = new SimpleIPath("character/monster/big_daemon");
   private static final IPath KNIGHT = new SimpleIPath("character/knight");
 
-  public static Entity hedgehog(Coordinate coordinate, String name) {
-    Entity entity = new Entity(name);
-    PositionComponent pc = new PositionComponent();
-    pc.position(Game.tileAT(coordinate));
-    entity.add(pc);
-    entity.add(new CollideComponent());
-    entity.add(new SpikyComponent(100, DamageType.PHYSICAL, 0));
-    try {
-      entity.add(new DrawComponent(HEDGEHOG));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    return entity;
+  public static Entity hedgehog(Coordinate coordinate) {
+    BlocklyMonster.BlocklyMonsterBuilder builder = BlocklyMonster.HEDGEHOG.builder();
+    builder.spawnPoint(coordinate.toCenteredPoint());
+    builder.range(0);
+    return builder.build().orElseThrow();
   }
 
   public static Entity guard(
-      Coordinate coordinate, String name, PositionComponent.Direction viewDirection) {
-    // TODO REPLACE WITH GUARD
-    return hedgehog(coordinate, name);
+      Coordinate coordinate, PositionComponent.Direction viewDirection, int range) {
+    BlocklyMonster.BlocklyMonsterBuilder builder = BlocklyMonster.GUARD.builder();
+    builder.spawnPoint(coordinate.toCenteredPoint());
+    builder.range(range);
+    builder.viewDirection(viewDirection);
+    return builder.build().orElseThrow();
   }
 
   public static Entity knight(

@@ -36,20 +36,15 @@ public class Chapter19Level extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(4).toCenteredPoint()));
 
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(5), "guard 1", PositionComponent.Direction.DOWN));
+        BlocklyMonsterFactory.guard(customPoints().get(5), PositionComponent.Direction.DOWN, 5));
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(6), "guard 2", PositionComponent.Direction.RIGHT));
+        BlocklyMonsterFactory.guard(customPoints().get(6), PositionComponent.Direction.RIGHT, 5));
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(7), "guard 3", PositionComponent.Direction.RIGHT));
+        BlocklyMonsterFactory.guard(customPoints().get(7), PositionComponent.Direction.RIGHT, 5));
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(8), "guard 4", PositionComponent.Direction.DOWN));
+        BlocklyMonsterFactory.guard(customPoints().get(8), PositionComponent.Direction.DOWN, 5));
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(9), "guard 5", PositionComponent.Direction.DOWN));
+        BlocklyMonsterFactory.guard(customPoints().get(9), PositionComponent.Direction.DOWN, 5));
   }
 
   @Override

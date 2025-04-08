@@ -62,8 +62,7 @@ public class Chapter111Level extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(9).toCenteredPoint()));
 
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(10), "guard 1", PositionComponent.Direction.LEFT));
+        BlocklyMonsterFactory.guard(customPoints().get(10), PositionComponent.Direction.LEFT, 5));
     Game.add(
         BlocklyMonsterFactory.knight(
             customPoints().get(11),
