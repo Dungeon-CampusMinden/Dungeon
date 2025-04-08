@@ -1,4 +1,4 @@
-package level.produs.chapter1;
+package level.produs;
 
 import static level.Utils.cameraFocusOn;
 
@@ -14,7 +14,7 @@ import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 
-public class Chapter15Level extends BlocklyLevel {
+public class Chapter16Level extends BlocklyLevel {
 
   private LeverComponent switch1, switch2;
   private DoorTile door1, door2;
@@ -27,9 +27,9 @@ public class Chapter15Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter15Level(
+  public Chapter16Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Chapter15");
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 6");
   }
 
   @Override
