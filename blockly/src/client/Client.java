@@ -11,12 +11,10 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Game;
 import core.game.ECSManagment;
-import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import entities.BlocklyMonster;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.MazeLevel;
@@ -31,7 +29,7 @@ import utils.Util;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = false;
+  private static final boolean KEYBOARD_DEACTIVATION = true;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -98,10 +96,6 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
-          BlocklyMonster.BlocklyMonsterBuilder b = BlocklyMonster.GUARD.builder();
-          b.addToGame();
-          b.spawnPoint(Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
-          b.build();
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           Server.instance().interruptExecution = true;
