@@ -1,4 +1,4 @@
-package level.produs.chapter1;
+package level.produs;
 
 import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
@@ -19,7 +19,7 @@ public class Chapter11Level extends BlocklyLevel {
    */
   public Chapter11Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Chapter11");
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 1");
   }
 
   @Override
