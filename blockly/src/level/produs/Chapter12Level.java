@@ -1,15 +1,16 @@
-package level.produs.chapter1;
+package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import entities.BlocklyMonsterFactory;
-import entities.MiscFactory;
 import java.util.List;
+import java.util.function.Consumer;
 import level.BlocklyLevel;
 
-public class Chapter19Level extends BlocklyLevel {
+public class Chapter12Level extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -19,18 +20,24 @@ public class Chapter19Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter19Level(
+  public Chapter12Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Chapter19");
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 2");
   }
 
   @Override
   protected void onFirstTick() {
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2), "guard 1"));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(3), "guard 2"));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(4), "guard 3"));
+    DialogUtils.showTextPopup(
+        "Pass auf, die Monster sind angekettet und könnsen sich nicht bewegen, aber wenn du sie berührst wird es eng für dich.",
+        "Kapitel 1: Ausbruch");
+    customPoints()
+        .forEach(
+            new Consumer<Coordinate>() {
+              @Override
+              public void accept(Coordinate coordinate) {
+                Game.add(BlocklyMonsterFactory.hedgehog(coordinate, "Monster"));
+              }
+            });
   }
 
   @Override

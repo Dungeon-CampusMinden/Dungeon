@@ -1,4 +1,4 @@
-package level.produs.chapter1;
+package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
@@ -12,7 +12,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.Utils;
 
-public class Chapter16Level extends BlocklyLevel {
+public class Chapter17Level extends BlocklyLevel {
 
   DoorTile door1, door2, door3, door4;
   LeverComponent switch1, switch2, switch3, switch4;
@@ -25,9 +25,9 @@ public class Chapter16Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter16Level(
+  public Chapter17Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Chapter16");
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 7");
   }
 
   @Override

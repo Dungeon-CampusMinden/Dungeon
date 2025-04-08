@@ -1,4 +1,4 @@
-package level.produs.chapter1;
+package level.produs;
 
 import core.Game;
 import core.components.PositionComponent;
@@ -11,7 +11,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.Utils;
 
-public class Chapter18Level extends BlocklyLevel {
+public class Chapter19Level extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -21,9 +21,9 @@ public class Chapter18Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter18Level(
+  public Chapter19Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Chapter18");
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 9");
   }
 
   @Override

@@ -22,7 +22,7 @@ import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
-import level.produs.chapter1.*;
+import level.produs.*;
 import server.Server;
 import systems.BlockSystem;
 import systems.TintTilesSystem;
@@ -70,17 +70,17 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          // DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter131", Chapter131Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter14", Chapter14Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter16", Chapter16Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter14", Chapter14Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter15", Chapter15Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter16", Chapter16Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter17", Chapter17Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter18", Chapter18Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter111", Chapter111Level.class));
 
           createSystems();
 
