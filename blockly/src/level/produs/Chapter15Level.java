@@ -1,6 +1,6 @@
 package level.produs;
 
-import static level.Utils.cameraFocusOn;
+import static level.LevelManagementUtils.cameraFocusOn;
 
 import core.Game;
 import core.components.PositionComponent;

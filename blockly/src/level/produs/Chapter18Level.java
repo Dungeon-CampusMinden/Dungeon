@@ -14,7 +14,7 @@ import entities.BlocklyMonsterFactory;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
-import level.Utils;
+import level.LevelManagementUtils;
 
 public class Chapter18Level extends BlocklyLevel {
 
@@ -76,8 +76,8 @@ public class Chapter18Level extends BlocklyLevel {
 
   @Override
   protected void onTick() {
-    if (EntityUtils.getHeroCoordinate().y < 10) Utils.cameraFocusOn(new Coordinate(10, 5));
-    else Utils.cameraFocusOn(new Coordinate(10, 15));
+    if (EntityUtils.getHeroCoordinate().y < 10) LevelManagementUtils.cameraFocusOn(new Coordinate(10, 5));
+    else LevelManagementUtils.cameraFocusOn(new Coordinate(10, 15));
 
     if (switch1.isOn()) door1.open();
     else door1.close();

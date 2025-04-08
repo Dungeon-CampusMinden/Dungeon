@@ -89,11 +89,12 @@ public class Client {
           DevDungeonLoader.addLevel(Tuple.of("chapter23", Chapter23Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter24", Chapter24Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter25", Chapter25Level.class));
+
           // chapter 3
-          DevDungeonLoader.addLevel(Tuple.of("chapter21", Chapter31Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter22", Chapter32Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter23", Chapter33Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter24", Chapter34Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter31", Chapter31Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter32", Chapter32Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter33", Chapter33Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter34", Chapter34Level.class));
 
           createSystems();
 

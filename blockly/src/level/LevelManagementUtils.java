@@ -6,7 +6,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 
-public class Utils {
+public class LevelManagementUtils {
 
   public static void cameraFocusOn(Coordinate coordinate) {
     Game.entityStream()
