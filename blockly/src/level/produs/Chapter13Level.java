@@ -1,4 +1,4 @@
-package level.produs.chapter1;
+package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.hud.DialogUtils;
@@ -12,7 +12,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.Utils;
 
-public class Chapter131Level extends BlocklyLevel {
+public class Chapter13Level extends BlocklyLevel {
 
   private DoorTile door;
   private LeverComponent switch1, switch2;
@@ -25,14 +25,14 @@ public class Chapter131Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter131Level(
+  public Chapter13Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Chapter131");
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 3");
   }
 
   @Override
   protected void onFirstTick() {
-    Utils.cameraFocusOn(new Coordinate(13,5));
+    Utils.cameraFocusOn(new Coordinate(13, 5));
     DialogUtils.showTextPopup(
         "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
         "Kapitel 1: Ausbruch");
