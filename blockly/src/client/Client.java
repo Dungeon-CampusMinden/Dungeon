@@ -70,6 +70,7 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          // chapter 1
           DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
@@ -81,6 +82,18 @@ public class Client {
           DevDungeonLoader.addLevel(Tuple.of("chapter19", Chapter19Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter110", Chapter110Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter111", Chapter111Level.class));
+
+          // chapter 2
+          DevDungeonLoader.addLevel(Tuple.of("chapter21", Chapter21Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter22", Chapter22Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter23", Chapter23Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter24", Chapter24Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter25", Chapter25Level.class));
+          // chapter 3
+          DevDungeonLoader.addLevel(Tuple.of("chapter21", Chapter31Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter22", Chapter32Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter23", Chapter33Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter24", Chapter34Level.class));
 
           createSystems();
 
