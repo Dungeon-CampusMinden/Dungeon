@@ -673,4 +673,14 @@ public final class Game {
   public static void exit() {
     Gdx.app.exit();
   }
+
+  /**
+   * Checks if the given entity is in {@link core.Game}.
+   *
+   * @param entity Entity to check.
+   * @return True if the entity is in the game, false otherwise.
+   */
+  public static boolean findEntity(final Entity entity) {
+    return ECSManagment.findEntity(entity);
+  }
 }

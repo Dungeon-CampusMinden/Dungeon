@@ -215,6 +215,8 @@ if (startBtn) {
   startBtn.addEventListener("click", async () => {
     clearAllWarnings(workspace);
 
+    resetBtn.click();
+
     let sleepingTimeStr = delay.value;
     if (sleepingTimeStr === "") {
       sleepingTimeStr = "1";
@@ -228,6 +230,7 @@ if (startBtn) {
     stepBtn.disabled = true;
     workspace.highlightBlock(null);
     let currentBlock = getStartBlock(workspace);
+    let first = true;
     while (currentBlock !== null) {
       // Highlight current block
       if (currentBlock) {
@@ -242,7 +245,8 @@ if (startBtn) {
       // Get code of the current block
       const currentCode = javaGenerator.blockToCode(currentBlock, true);
 
-      const response = await api.post("start", currentCode as string);
+      const response = await api.post(`start?first=${first}`, currentCode as string);
+      first = false;
 
       const ok = await handleResponse(response, currentBlock);
       if (!ok) break;
@@ -297,6 +301,7 @@ if (stepBtn !== null) {
         currentBlock = currentBlock.getNextBlock();
         return;
       }
+      const first = currentBlock.getParent()?.type === "start";
 
       // Disable buttons
       stepBtn.disabled = true;
@@ -304,7 +309,7 @@ if (stepBtn !== null) {
       // Get code of the current block
       const currentCode = javaGenerator.blockToCode(currentBlock, true);
       // Send code to server
-      const response = await api.post("start", currentCode as string);
+      const response = await api.post(`start?first=${first}`, currentCode as string);
 
       // Check if response was not ok
       const ok = await handleResponse(response, currentBlock);

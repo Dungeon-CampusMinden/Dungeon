@@ -3,6 +3,7 @@ package client;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
+import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
 import contrib.level.generator.GeneratorUtils;
@@ -10,6 +11,7 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
@@ -17,6 +19,7 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
+import java.util.Set;
 import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
@@ -68,6 +71,12 @@ public class Client {
         () -> {
           DevDungeonLoader.addLevel(Tuple.of("maze", MazeLevel.class));
           createSystems();
+
+          HeroFactory.heroDeath(
+              entity -> {
+                restart();
+              });
+
           createHero();
           Crafting.loadRecipes();
 
@@ -118,17 +127,6 @@ public class Client {
     Game.windowTitle("Blockly Dungeon");
   }
 
-  private static void createHero() {
-    Entity hero;
-    try {
-      hero = HeroTankControlledFactory.newTankControlledHero();
-      hero.add(new AmmunitionComponent());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    Game.add(hero);
-  }
-
   private static void createSystems() {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
@@ -153,5 +151,38 @@ public class Client {
     } catch (IOException e) {
       throw new RuntimeException();
     }
+  }
+
+  /**
+   * Creates and adds a new hero entity to the game.
+   *
+   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new hero is
+   * generated using the {@link HeroTankControlledFactory} and is equipped with an {@link
+   * AmmunitionComponent}.
+   *
+   * @throws RuntimeException if an {@link IOException} occurs during hero creation
+   */
+  public static void createHero() {
+    Game.entityStream(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
+    Entity hero;
+    try {
+      hero = HeroTankControlledFactory.newTankControlledHero();
+      hero.add(new AmmunitionComponent());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    Game.add(hero);
+  }
+
+  /**
+   * Restarts the game by removing all entities, recreating the hero, and reloading the current
+   * level.
+   *
+   * <p>This effectively resets the game state to its initial configuration.
+   */
+  public static void restart() {
+    Game.removeAllEntities();
+    createHero();
+    DevDungeonLoader.reloadCurrentLevel();
   }
 }

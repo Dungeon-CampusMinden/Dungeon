@@ -259,4 +259,14 @@ public final class ECSManagment {
         .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
         .findFirst();
   }
+
+  /**
+   * Try to find the entity in the game.
+   *
+   * @param entity The entity to search for.
+   * @return True if the entity is found, false otherwise.
+   */
+  public static boolean findEntity(Entity entity) {
+    return allEntities().anyMatch(entity1 -> entity1.equals(entity));
+  }
 }

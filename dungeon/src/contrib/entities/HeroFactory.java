@@ -50,6 +50,11 @@ public final class HeroFactory {
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
+  private static Consumer<Entity> HERO_DEATH =
+      (entity) -> {
+        DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
+      };
+
   /**
    * The default speed of the hero.
    *
@@ -82,6 +87,15 @@ public final class HeroFactory {
   }
 
   /**
+   * Sets the callback to execute when the hero dies.
+   *
+   * @param deathCallback Callback that will be executed on the hero's death.
+   */
+  public static void heroDeath(Consumer<Entity> deathCallback) {
+    HERO_DEATH = deathCallback;
+  }
+
+  /**
    * Get an Entity that can be used as a playable character.
    *
    * <p>The Entity is not added to the game yet.
@@ -94,6 +108,23 @@ public final class HeroFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero() throws IOException {
+    return newHero(HERO_DEATH);
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
+   * PositionComponent}, {@link VelocityComponent}, {@link core.components.DrawComponent}, {@link
+   * contrib.components.CollideComponent} and {@link HealthComponent}.
+   *
+   * @param deathCallback function that will be executed if the hero dies
+   * @return A new Entity.
+   * @throws IOException if the animation could not been loaded.
+   */
+  public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
     Entity hero = new Entity("hero");
     CameraComponent cc = new CameraComponent();
     hero.add(cc);
@@ -120,7 +151,7 @@ public final class HeroFactory {
               cameraDummy.add(poc);
               Game.add(cameraDummy);
 
-              DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
+              deathCallback.accept(entity);
             });
     hero.add(hc);
     hero.add(

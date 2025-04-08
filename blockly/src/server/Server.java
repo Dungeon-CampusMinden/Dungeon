@@ -3,6 +3,7 @@ package server;
 import antlr.BlocklyConditionVisitor;
 import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
+import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.sun.net.httpserver.HttpContext;
@@ -12,12 +13,8 @@ import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.ItemComponent;
-import contrib.components.LeverComponent;
+import contrib.components.*;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import core.Component;
@@ -79,8 +76,6 @@ public class Server {
 
   /** Default port for the server. */
   private static final int DEFAULT_PORT = 8080;
-
-  private final Entity hero;
 
   /**
    * This variable holds all active scopes in a stack. The value at the top of the stack is the
@@ -144,41 +139,18 @@ public class Server {
    */
   public VariableHUD variableHUD = null;
 
-  /**
-   * Constructor of the server. Sets the hero.
-   *
-   * @param hero The hero entity. Used to control the movement of the hero.
-   */
-  private Server(Entity hero) {
-    this.hero = hero;
-  }
+  /** Constructor of the server. */
+  private Server() {}
 
   /**
    * Singleton pattern. Get the instance of the server. If the server does not exist, create a new
    * server object. The servers run on the {@link #DEFAULT_PORT}.
    *
    * @return Returns the server object.
-   * @throws MissingHeroException Throws a MissingHeroException if the hero entity could not be
-   *     found in the {@link Game} object.
-   * @see #Server(Entity)
-   * @see Game#hero()
    */
   public static Server instance() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    return instance(hero);
-  }
-
-  /**
-   * Singleton pattern. Get the instance of the server. If the server does not exist, create a new
-   * server object. The servers run on the {@link #DEFAULT_PORT}.
-   *
-   * @param hero The hero entity. Used to control the movement of the hero.
-   * @return Returns the server object.
-   * @see #Server(Entity)
-   */
-  public static Server instance(Entity hero) {
     if (instance == null) {
-      instance = new Server(hero);
+      instance = new Server();
     }
     return instance;
   }
@@ -219,6 +191,13 @@ public class Server {
       clearHUDValues();
       clearHUD = false;
     }
+
+    String query = exchange.getRequestURI().getQuery();
+    boolean start = query != null && query.equals("first=true");
+    if (start) {
+      interruptExecution = false;
+    }
+
     InputStream inStream = exchange.getRequestBody();
     String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
 
@@ -227,11 +206,11 @@ public class Server {
     String errAction = null;
     for (String action : actions) {
       action = action.trim();
-      processAction(action);
       if (interruptExecution) {
         errAction = action;
         break;
       }
+      processAction(action);
     }
     // Build response for blockly frontend
     String response;
@@ -278,12 +257,9 @@ public class Server {
   private void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
     interruptExecution = true;
-
-    Debugger.TELEPORT_TO_START();
-
+    Client.restart();
     PositionComponent pc = getHeroPosition();
     String response = pc.position().x + "," + pc.position().y;
-
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
@@ -332,7 +308,8 @@ public class Server {
         response.append(name).append("=").append(Arrays.toString(var.arrayVal)).append("\n");
       }
     }
-    hero.fetch(AmmunitionComponent.class)
+    hero()
+        .fetch(AmmunitionComponent.class)
         .ifPresent(
             ammunitionComponent ->
                 response
@@ -1296,7 +1273,8 @@ public class Server {
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
-        if (!(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+        if (Game.findEntity(entities[i])
+            && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
           allEntitiesArrived = false;
         }
       }
@@ -1321,6 +1299,7 @@ public class Server {
    * <p>One move equals one tile.
    */
   public void move() {
+    Entity hero = hero();
     Direction viewDirection =
         Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     move(viewDirection, hero);
@@ -1348,6 +1327,7 @@ public class Server {
     if (direction == Direction.UP || direction == Direction.DOWN) {
       return; // no rotation
     }
+    Entity hero = hero();
     Direction viewDirection =
         Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Direction newDirection =
@@ -1444,6 +1424,7 @@ public class Server {
    *     dungeon.
    */
   public PositionComponent getHeroPosition() {
+    Entity hero = hero();
     return hero.fetch(PositionComponent.class)
         .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
   }
@@ -1454,7 +1435,7 @@ public class Server {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public void shootFireball() {
-    hero.fetch(AmmunitionComponent.class).stream()
+    hero().fetch(AmmunitionComponent.class).stream()
         .filter(AmmunitionComponent::checkAmmunition)
         .forEach(ac -> aimAndShoot(ac));
   }
@@ -1465,6 +1446,7 @@ public class Server {
    * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
    */
   private void aimAndShoot(AmmunitionComponent ac) {
+    Entity hero = hero();
     utils.Direction viewDirection =
         Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Skill fireball =
@@ -1487,6 +1469,7 @@ public class Server {
 
   /** Triggers each interactable in front of the hero. */
   public void interact() {
+    Entity hero = hero();
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -1511,7 +1494,7 @@ public class Server {
         .forEach(
             item ->
                 item.fetch(InteractionComponent.class)
-                    .ifPresent(ic -> ic.triggerInteraction(item, hero)));
+                    .ifPresent(ic -> ic.triggerInteraction(item, hero())));
   }
 
   /**
@@ -1531,6 +1514,7 @@ public class Server {
   /** Moves the Hero to the Exit Block of the current Level. */
   public void moveToExit() {
     if (Game.currentLevel().exitTiles().isEmpty()) return;
+    Entity hero = hero();
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     PositionComponent pc =
@@ -1578,6 +1562,7 @@ public class Server {
    * @param push True if you want to push, false if you want to pull.
    */
   private void movePushable(boolean push) {
+    Entity hero = hero();
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -1659,7 +1644,7 @@ public class Server {
    * @return The translated direction in world coordinates.
    */
   private Direction directionBasedOnViewdirection(Direction direction) {
-    PositionComponent.Direction heroViewDirection = EntityUtils.getViewDirection(hero);
+    PositionComponent.Direction heroViewDirection = EntityUtils.getViewDirection(hero());
     return switch (direction) {
       case LEFT ->
           switch (heroViewDirection) {
@@ -1685,5 +1670,14 @@ public class Server {
       case UP -> Direction.fromPositionCompDirection(heroViewDirection);
       case HERE -> Direction.HERE;
     };
+  }
+
+  /*
+   * Get the hero from the game.
+   *
+   * @return The hero.
+   */
+  private Entity hero() {
+    return Game.hero().orElseThrow(() -> new MissingHeroException());
   }
 }
