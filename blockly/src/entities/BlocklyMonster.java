@@ -86,6 +86,19 @@ public enum BlocklyMonster {
       () -> entity -> false, // instant fight
       99999, // one hit kill
       0,
+      MonsterIdleSound.BURP),
+  BLACK_KNIGHT(
+      "Blockly Hedgehog",
+      "character/knight",
+      3,
+      0.0f,
+      0.0f,
+      MonsterDeathSound.LOWER_PITCH,
+      () -> entity -> {},
+      () -> entity -> {}, // no idle needed
+      () -> entity -> false, // instant fight
+      99999, // one hit kill
+      0,
       MonsterIdleSound.BURP);
 
   private static final Logger LOGGER =
