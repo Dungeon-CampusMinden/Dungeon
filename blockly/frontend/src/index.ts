@@ -301,7 +301,7 @@ if (stepBtn !== null) {
         currentBlock = currentBlock.getNextBlock();
         return;
       }
-      let first = currentBlock.getParent()?.type === "start";
+      const first = currentBlock.getParent()?.type === "start";
 
       // Disable buttons
       stepBtn.disabled = true;
