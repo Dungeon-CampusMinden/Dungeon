@@ -13,7 +13,6 @@ import core.level.utils.LevelElement;
 import entities.BlocklyMonsterFactory;
 import entities.MiscFactory;
 import java.util.List;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -66,15 +65,8 @@ public class Chapter111Level extends BlocklyLevel {
     Game.add(
         BlocklyMonsterFactory.knight(
             customPoints().get(11),
-            "knight",
             PositionComponent.Direction.UP,
-            3,
-            new Consumer<Entity>() {
-              @Override
-              public void accept(Entity entity) {
-                DialogUtils.showTextPopup("AHHHH! Nein!", "FREIHEIT");
-              }
-            }));
+            entity -> DialogUtils.showTextPopup("AHHHH! Nein!", "FREIHEIT")));
 
     door1 = (DoorTile) Game.tileAT(new Coordinate(4, 9));
     door2 = (DoorTile) Game.tileAT(new Coordinate(14, 8));
