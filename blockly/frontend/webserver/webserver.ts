@@ -1,7 +1,7 @@
 import { serveFile } from "jsr:@std/http/file-server";
 
 const BASE_DIR = "/content";
-const PORT = 8080;
+const PORT = 8081;
 
 const handler = async (request: Request): Promise<Response> => {
     const url = new URL(request.url);
