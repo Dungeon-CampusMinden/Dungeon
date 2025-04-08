@@ -10,7 +10,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
-import level.Utils;
+import level.LevelManagementUtils;
 
 public class Chapter17Level extends BlocklyLevel {
 
@@ -32,7 +32,7 @@ public class Chapter17Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Utils.cameraFocusOn(new Coordinate(11, 7));
+    LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(1).toCenteredPoint());
     Entity s3 = LeverFactory.createLever(customPoints().get(2).toCenteredPoint());
