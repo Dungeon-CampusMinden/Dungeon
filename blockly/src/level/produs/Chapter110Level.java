@@ -28,9 +28,9 @@ public class Chapter110Level extends BlocklyLevel {
   protected void onFirstTick() {
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2), "guard 1"));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(3), "guard 2"));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(4), "guard 3"));
+    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2)));
+    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(3)));
+    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(4)));
   }
 
   @Override

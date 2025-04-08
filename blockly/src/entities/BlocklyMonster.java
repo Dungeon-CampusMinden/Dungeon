@@ -54,7 +54,7 @@ import utils.components.skill.InevitableFireballSkill;
  */
 public enum BlocklyMonster {
 
-  /** A static non-moving guard monster. */
+  /** A static non-moving guard and shooting monster. */
   GUARD(
       "Blockly Guard",
       "character/monster/big_daemon",
@@ -70,6 +70,20 @@ public enum BlocklyMonster {
                   AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
       () -> entity -> true, // instant fight
+      99999, // one hit kill
+      0,
+      MonsterIdleSound.BURP),
+  /** A static non-moving guard monster. */
+  HEDGEHOG(
+      "Blockly Hedgehog",
+      "character/monster/ogre",
+      1,
+      0.0f,
+      0.0f,
+      MonsterDeathSound.LOWER_PITCH,
+      () -> entity -> {},
+      () -> entity -> {}, // no idle needed
+      () -> entity -> false, // instant fight
       99999, // one hit kill
       0,
       MonsterIdleSound.BURP);

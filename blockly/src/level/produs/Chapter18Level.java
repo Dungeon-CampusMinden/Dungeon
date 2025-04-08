@@ -38,12 +38,9 @@ public class Chapter18Level extends BlocklyLevel {
   protected void onFirstTick() {
     Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
+    Game.add(BlocklyMonsterFactory.guard(customPoints().get(7), PositionComponent.Direction.UP, 5));
     Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(7), "Guard 1", PositionComponent.Direction.UP));
-    Game.add(
-        BlocklyMonsterFactory.guard(
-            customPoints().get(8), "Guard 2", PositionComponent.Direction.LEFT));
+        BlocklyMonsterFactory.guard(customPoints().get(8), PositionComponent.Direction.LEFT, 5));
 
     Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());
@@ -76,7 +73,8 @@ public class Chapter18Level extends BlocklyLevel {
 
   @Override
   protected void onTick() {
-    if (EntityUtils.getHeroCoordinate().y < 10) LevelManagementUtils.cameraFocusOn(new Coordinate(10, 5));
+    if (EntityUtils.getHeroCoordinate().y < 10)
+      LevelManagementUtils.cameraFocusOn(new Coordinate(10, 5));
     else LevelManagementUtils.cameraFocusOn(new Coordinate(10, 15));
 
     if (switch1.isOn()) door1.open();
