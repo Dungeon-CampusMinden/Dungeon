@@ -1634,8 +1634,8 @@ public class Server {
   }
 
   /**
-   * <<<<<<< HEAD Transforms a relative direction into a world direction based on the hero's current
-   * view direction.
+   * Transforms a relative direction into a world direction based on the hero's current view
+   * direction.
    *
    * <p>For example, if the hero is looking to the RIGHT and wants to check LEFT (relative to their
    * view), the resulting direction would be UP in world coordinates.
