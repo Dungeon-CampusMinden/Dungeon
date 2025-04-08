@@ -79,7 +79,7 @@ export const call_start_route = async (code: string, currentBlock: Block, first_
   if (response.error !== "" && response.error !== "Programm unterbrochen!") {
     displayErrorOnBlock(currentBlock, response.error);
   }
-  return response.error !== "";
+  return response.error === "";
 }
 
 /**
