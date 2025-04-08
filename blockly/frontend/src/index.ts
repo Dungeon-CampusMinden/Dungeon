@@ -1,14 +1,13 @@
 import * as Blockly from "blockly";
 import * as De from "blockly/msg/de";
-import { blocks } from "./blocks/dungeon.ts";
-import { javaGenerator } from "./generators/java.ts";
-import { save, load } from "./serialization.ts";
-import { toolbox } from "./toolbox.ts";
-import { Api } from "./api/api.ts";
-import { config } from "./config.ts";
+import {blocks} from "./blocks/dungeon.ts";
+import {javaGenerator} from "./generators/java.ts";
+import {load, save} from "./serialization.ts";
+import {toolbox} from "./toolbox.ts";
+import {config} from "./config.ts";
 import "./style.css";
-import {sleep} from "./utils/utils.ts";
 import * as LimitUtils from "./utils/limits.ts";
+import {getStartBlock, placeDefaultStartBlock, setupButtons} from "./utils/workspace.ts";
 import * as VariableListUtils from "./utils/variableList.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -33,19 +32,21 @@ const workspace =
       scaleSpeed: 1.2,
     },
   });
-const api = new Api();
-const startBtn = document.getElementById("startBtn") as HTMLButtonElement;
-const delay = document.getElementById("delay") as HTMLInputElement;
-const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
-const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
+
+if (!workspace) {
+  throw new Error("No workspace available");
+}
+
+setupButtons(workspace);
+
+// Disable all blocks that aren't connected to the start block.
+workspace.addChangeListener(Blockly.Events.disableOrphans);
 
 // Variable List
 const addVarCallback = () => {
-  if (workspace === null) throw new Error("No workspace available");
   Blockly.Variables.createVariableButtonHandler(workspace);
 }
 const removeVarCallback = (varName: string) => {
-  if (workspace === null) throw new Error("No workspace available");
   const variable = Blockly.Variables.getVariable(workspace, null, varName, '');
   if (variable === null) return;
   if (window.confirm(`Soll die Variable "${varName}" wirklich gelöscht werden?`)) {
@@ -53,296 +54,111 @@ const removeVarCallback = (varName: string) => {
   }
 }
 VariableListUtils.setupVariableDisplay(addVarCallback);
-
-// Disable all blocks that aren't connected to the start block.
-if (workspace !== null) {
-  workspace.addChangeListener(Blockly.Events.disableOrphans);
-  workspace.registerButtonCallback("createVariable", addVarCallback);
-} else {
-  throw new Error("No workspace available");
-}
-
+workspace.registerButtonCallback("createVariable", addVarCallback);
 
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
 // In a real application, you probably shouldn't use `eval`.
 let code = "";
-const runCode = () => {
+const updateCodeDiv = () => {
   code = javaGenerator.workspaceToCode(Blockly.getMainWorkspace());
   if (codeDiv) {
     codeDiv.textContent = code;
   }
 };
 
-if (workspace) {
-  // Load the initial state from storage and run the code.
-  load(workspace);
-  runCode();
+// Load the initial state from storage and run the code.
+load(workspace);
+updateCodeDiv();
 
-  // Every time the workspace changes state, save the changes to storage.
+// Every time the workspace changes state, save the changes to storage.
+workspace.addChangeListener((e: Blockly.Events.Abstract) => {
+  // UI events are things like scrolling, zooming, etc.
+  // No need to save after one of these.
+  if (e.isUiEvent) return;
+  save(workspace);
+});
 
-  workspace.addChangeListener((e: Blockly.Events.Abstract) => {
-    // UI events are things like scrolling, zooming, etc.
-    // No need to save after one of these.
-    if (e.isUiEvent) return;
-    save(workspace);
-  });
-
-  // Whenever the workspace changes meaningfully, run the code again.
-  workspace.addChangeListener((e: Blockly.Events.Abstract) => {
-    // Don't run the code when the workspace finishes loading; we're
-    // already running it once when the application starts.
-    // Don't run the code during drags; we might have invalid state.
-    if (
-      e.isUiEvent ||
-      e.type == Blockly.Events.FINISHED_LOADING ||
-      workspace.isDragging()
-    ) {
-      return;
-    }
-    runCode();
-  });
-
-  // Limiting Blocks Logic
-  workspace.addChangeListener((e: Blockly.Events.Abstract) => {
-    let update = false;
-    if (e.type == Blockly.Events.BLOCK_CREATE) {
-      const newBlockId = (e as Blockly.Events.BlockCreate).blockId;
-      if (newBlockId === undefined) return;
-      const newBlock = workspace.getBlockById(newBlockId);
-      if (newBlock === null) return;
-      LimitUtils.registerBlockAdded(newBlock as unknown as Blockly.serialization.blocks.State);
-      update = true;
-    } else if (e.type == Blockly.Events.BLOCK_DELETE) {
-      const oldBlockState = (e as Blockly.Events.BlockDelete).oldJson;
-      if (oldBlockState === undefined) return;
-      LimitUtils.registerBlockRemoved(oldBlockState);
-      update = true;
-    }
-    // Enable/disable affected blocks
-    if (update) {
-      LimitUtils.refreshToolbox(workspace);
-      workspace.getToolbox()?.refreshSelection();
-    }
-  });
-
-  // Link Variable List to the workspace
-  workspace.addChangeListener((e: Blockly.Events.Abstract) => {
-    if (e.type == Blockly.Events.VAR_CREATE) {
-      const newVariableName = (e as Blockly.Events.VarCreate).varName;
-      if (newVariableName === undefined) return;
-      VariableListUtils.addVariable(newVariableName, removeVarCallback);
-    } else if (e.type == Blockly.Events.VAR_DELETE) {
-      const oldVariableName = (e as Blockly.Events.VarDelete).varName;
-      if (oldVariableName === undefined) return;
-      VariableListUtils.removeVariable(oldVariableName);
-    } else if (e.type == Blockly.Events.VAR_RENAME) {
-      const oldVariableName = (e as Blockly.Events.VarRename).oldName;
-      const newVariableName = (e as Blockly.Events.VarRename).newName;
-      if (oldVariableName === undefined || newVariableName === undefined) return;
-      VariableListUtils.renameVariable(oldVariableName, newVariableName);
-    }
-  });
-}
-
-
-async function call_clear_route(){
-  const clear_response = await api.post("clear");
-  if (!clear_response.ok) {
-    console.error("Fehler beim Zurücksetzen der Werte", clear_response);
+// Whenever the workspace changes meaningfully, run the code again.
+workspace.addChangeListener((e: Blockly.Events.Abstract) => {
+  // Don't run the code when the workspace finishes loading; we're
+  // already running it once when the application starts.
+  // Don't run the code during drags; we might have invalid state.
+  if (
+    e.isUiEvent ||
+    e.type == Blockly.Events.FINISHED_LOADING ||
+    workspace.isDragging()
+  ) {
+    return;
   }
-}
+  updateCodeDiv();
+});
 
-const displayErrorOnBlock = (block: Blockly.Block, error: string) => {
-    const errorArray = error.split("Fehlermeldung: ");
-    let errorText;
-    if (errorArray.length > 1) {
-        errorText = errorArray[1];
-    } else {
-        errorText = error;
-    }
-    block.setWarningText(errorText);
-}
-
-const clearAllWarnings = (workspace: Blockly.Workspace) => {
-    const allBlocks = workspace.getAllBlocks();
-    for (let i = 0; i < allBlocks.length; i++) {
-        const block = allBlocks[i];
-        block.setWarningText(null);
-    }
-}
-
-/**
- * Handle the response from the server
- *
- * This function checks if the response from the server was ok or
- * the program got interrupted. If the response was not ok, an
- * error message is displayed on the current block.
- *
- * @param response The response from the server
- * @param currentBlock The current block
- * @returns true if the response was ok, false otherwise
- */
-const handleResponse = async (response: Response, currentBlock: Blockly.Block): Promise<boolean> => {
-    if (!response.ok) {
-        const errorMessage = await response.text();
-        displayErrorOnBlock(currentBlock, errorMessage);
-        console.error("Fehler beim Ausführen des Codes", response);
-        return false;
-    }
-    // Status 205 means program was interrupted
-    if (response.status === 205) {
-        console.info("Programm unterbrochen!");
-        return false;
-    }
-    return true;
-}
-
-const updateVariables = async () => {
-  const varResponse = await api.post("variables");
-  if (varResponse.ok) {
-    const variableData = await varResponse.text();
-    variableData.split("\n").forEach((line) => {
-      const [name, value] = line.split("=");
-      VariableListUtils.updateVariable(name, value);
-    });
-  } else {
-    console.error("Fehler beim Abrufen der Variablen", varResponse);
+// Limiting Blocks Logic
+workspace.addChangeListener((e: Blockly.Events.Abstract) => {
+  let update = false;
+  if (e.type == Blockly.Events.BLOCK_CREATE) {
+    const newBlockId = (e as Blockly.Events.BlockCreate).blockId;
+    if (newBlockId === undefined) return;
+    const newBlock = workspace.getBlockById(newBlockId);
+    if (newBlock === null) return;
+    LimitUtils.registerBlockAdded(newBlock as unknown as Blockly.serialization.blocks.State);
+    update = true;
+  } else if (e.type == Blockly.Events.BLOCK_DELETE) {
+    const oldBlockState = (e as Blockly.Events.BlockDelete).oldJson;
+    if (oldBlockState === undefined) return;
+    LimitUtils.registerBlockRemoved(oldBlockState);
+    update = true;
   }
-}
-
-if (startBtn) {
-  startBtn.addEventListener("click", async () => {
-    clearAllWarnings(workspace);
-
-    resetBtn.click();
-
-    let sleepingTimeStr = delay.value;
-    if (sleepingTimeStr === "") {
-      sleepingTimeStr = "1";
-    }
-    const sleepingTime = Number(sleepingTimeStr);
-    if (isNaN(sleepingTime)) {
-      throw new Error("Die konfigurierte Verzögerung muss eine Zahl sein");
-    }
-
-    startBtn.disabled = true;
-    stepBtn.disabled = true;
-    workspace.highlightBlock(null);
-    let currentBlock = getStartBlock(workspace);
-    let first = true;
-    while (currentBlock !== null) {
-      // Highlight current block
-      if (currentBlock) {
-        workspace.highlightBlock(currentBlock.id);
-      }
-      // Do nothing except highlighting on start block
-      if (currentBlock.type === "start") {
-        currentBlock = currentBlock.getNextBlock();
-        continue;
-      }
-
-      // Get code of the current block
-      const currentCode = javaGenerator.blockToCode(currentBlock, true);
-
-      const response = await api.post(`start?first=${first}`, currentCode as string);
-      first = false;
-
-      const ok = await handleResponse(response, currentBlock);
-      if (!ok) break;
-
-      await updateVariables();
-
-      // Get next block and sleep x seconds
-      currentBlock = currentBlock.getNextBlock();
-      await sleep(sleepingTime);
-    }
-    // Reset values in backend
-    call_clear_route();
-
-    workspace.highlightBlock(null);
-    // Enable button again
-    startBtn.disabled = false;
-    stepBtn.disabled = false;
-  });
-}
-
-function getStartBlock(workspace: Blockly.Workspace) {
-  const allBlocks = workspace.getAllBlocks();
-  for (let i = 0; i < allBlocks.length; i++) {
-      const block = allBlocks[i];
-      if (block.type == "start") {
-        return block;
-      }
+  // Enable/disable affected blocks
+  if (update) {
+    LimitUtils.refreshToolbox(workspace);
+    workspace.getToolbox()?.refreshSelection();
   }
-  return null;
-}
+});
 
-let currentBlock: Blockly.Block | null = null;
+// Link Variable List to the workspace
+workspace.addChangeListener((e: Blockly.Events.Abstract) => {
+  if (e.type == Blockly.Events.VAR_CREATE) {
+    const newVariableName = (e as Blockly.Events.VarCreate).varName;
+    if (newVariableName === undefined) return;
+    VariableListUtils.addVariable(newVariableName, removeVarCallback);
+  } else if (e.type == Blockly.Events.VAR_DELETE) {
+    const oldVariableName = (e as Blockly.Events.VarDelete).varName;
+    if (oldVariableName === undefined) return;
+    VariableListUtils.removeVariable(oldVariableName);
+  } else if (e.type == Blockly.Events.VAR_RENAME) {
+    const oldVariableName = (e as Blockly.Events.VarRename).oldName;
+    const newVariableName = (e as Blockly.Events.VarRename).newName;
+    if (oldVariableName === undefined || newVariableName === undefined) return;
+    VariableListUtils.renameVariable(oldVariableName, newVariableName);
+  }
+});
 
-if (stepBtn !== null) {
-  workspace.highlightBlock(null);
-  stepBtn.addEventListener("click", async () => {
-      clearAllWarnings(workspace);
+// Prevent restoring multiple start blocks
+workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
+  if (e.type !== Blockly.Events.BLOCK_CREATE) return;
 
-      if (currentBlock === null) {
-        workspace.highlightBlock(null);
-        currentBlock = getStartBlock(workspace)
-        // Reset values in backend
-        call_clear_route();
-        return;
-      }
+  const startBlock = getStartBlock(workspace);
+  if (!startBlock) return; // no start block, so we allow any block to be created
 
-      // Highlight current block
-      workspace.highlightBlock(currentBlock.id);
+  const newStartBlocks = (e as Blockly.Events.BlockCreate).ids
+    ?.map(id => workspace.getBlockById(id))
+    .filter(block => block?.type === "start") ?? [];
 
-      // Do nothing except highlighting on start block
-      if (currentBlock.type === "start") {
-        currentBlock = currentBlock.getNextBlock();
-        return;
-      }
-      const first = currentBlock.getParent()?.type === "start";
+  if (newStartBlocks.length === 0) return;
 
-      // Disable buttons
-      stepBtn.disabled = true;
-      startBtn.disabled = true;
-      // Get code of the current block
-      const currentCode = javaGenerator.blockToCode(currentBlock, true);
-      // Send code to server
-      const response = await api.post(`start?first=${first}`, currentCode as string);
+  const extraStartBlocks = newStartBlocks.filter(block => block?.id !== startBlock.id);
+  if (extraStartBlocks.length > 1) { // More than one extra start block, prevent adding at all (should never happen)
+    extraStartBlocks.forEach(block => block?.dispose());
+    return;
+  }
 
-      // Check if response was not ok
-      const ok = await handleResponse(response, currentBlock);
-      if (!ok) {
-        currentBlock = getStartBlock(workspace);
-        call_clear_route();
-        workspace.highlightBlock(null);
-      }
-
-      await updateVariables();
-
-      // Enable button again
-      startBtn.disabled = false;
-      stepBtn.disabled = false;
-
-    // Get next block. Current block may be null if program was interrupted
-    if (currentBlock) {
-      currentBlock = currentBlock.getNextBlock();
-    }
-  });
-}
-
-if (resetBtn) {
-  resetBtn.addEventListener("click", async () => {
-    clearAllWarnings(workspace);
-    // Reset code highlighting
-    workspace.highlightBlock(null);
-    // Reset currentBlock for step button
-    currentBlock = getStartBlock(workspace);
-    VariableListUtils.resetVariables();
-    await api.post("reset");
-  });
-}
+  if (extraStartBlocks.length === 1) { // delete the old start block, so we can restore the new one
+    workspace.removeBlockById(startBlock.id);
+    startBlock.dispose();
+  }
+});
 
 if (config.HIDE_GENERATED_CODE) {
   const generatedCodeDiv = document.getElementById("generatedCode");
@@ -358,13 +174,8 @@ if (config.HIDE_RESPONSE_INFO) {
   }
 }
 
-workspace.clear(); // clearing workspace
 workspace.scrollCenter(); // centering workspace
 
-if (workspace) { // placing default start block
-  const startBlock = workspace.newBlock("start");
-  startBlock.initSvg();
-  startBlock.render();
-  startBlock.setDeletable(false);
-  currentBlock = startBlock;
-}
+const startBlock = getStartBlock(workspace);
+if (!startBlock)
+  placeDefaultStartBlock(workspace);
