@@ -18,6 +18,7 @@ Die Anforderungen sind in Aspekte aufgeteilt.
   - etablierte Lösungsansätze:
     - parallele Lösungswege um ungewisse Pfade
     - ein Gamemaster kann kontaktiert werden, um Hilfe zu erhalten
+- keine Failure-States (es gibt immer einen Weg zum Ziel / keine Sackgassen)
 
 ## Motivation
 
