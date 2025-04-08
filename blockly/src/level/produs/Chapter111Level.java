@@ -15,7 +15,7 @@ import entities.MiscFactory;
 import java.util.List;
 import java.util.function.Consumer;
 import level.BlocklyLevel;
-import level.Utils;
+import level.LevelManagementUtils;
 
 public class Chapter111Level extends BlocklyLevel {
 
@@ -37,7 +37,7 @@ public class Chapter111Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Utils.cameraFocusOn(new Coordinate(10, 7));
+    LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     DialogUtils.showTextPopup(
         "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSSFIGHT: BLACK KNIGHT");
 
