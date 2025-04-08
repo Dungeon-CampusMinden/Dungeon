@@ -3,6 +3,7 @@ package server;
 import antlr.BlocklyConditionVisitor;
 import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
+import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.sun.net.httpserver.HttpContext;
@@ -45,7 +46,6 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import utils.Direction;
-import utils.Util;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
@@ -257,7 +257,7 @@ public class Server {
   private void handleResetRequest(HttpExchange exchange) throws IOException {
     // Reset values
     interruptExecution = true;
-    Util.restart();
+    Client.restart();
     PositionComponent pc = getHeroPosition();
     String response = pc.position().x + "," + pc.position().y;
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
