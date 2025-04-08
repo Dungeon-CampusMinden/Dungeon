@@ -308,7 +308,8 @@ public class Server {
         response.append(name).append("=").append(Arrays.toString(var.arrayVal)).append("\n");
       }
     }
-    hero.fetch(AmmunitionComponent.class)
+    hero()
+        .fetch(AmmunitionComponent.class)
         .ifPresent(
             ammunitionComponent ->
                 response
