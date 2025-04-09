@@ -1,12 +1,16 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
+import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter22Level extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -22,7 +26,18 @@ public class Chapter22Level extends BlocklyLevel {
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.UP);
+    LevelManagementUtils.zoomDefault();
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
+          "Kapitel 2: Flucht");
+      showText = false;
+    }
+  }
 
   @Override
   protected void onTick() {}

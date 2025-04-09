@@ -13,6 +13,8 @@ import java.util.List;
  */
 public abstract class BlocklyLevel extends DevDungeonLevel {
 
+  private final DesignLabel designLabel;
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -28,6 +30,7 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
       List<Coordinate> customPoints,
       String name) {
     super(layout, designLabel, customPoints, name, "");
+    this.designLabel = designLabel;
   }
 
   @Override
@@ -37,5 +40,9 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
     } else {
       onTick();
     }
+  }
+
+  public DesignLabel designLabel() {
+    return designLabel;
   }
 }
