@@ -68,6 +68,8 @@ export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories:
 }
 
 export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[], reason:string)=> {
+  if (blockedElements.length === 0) return;
+
   const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
   const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
 
@@ -252,7 +254,7 @@ const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
         workspace.highlightBlock(null);
         currentBlock = getStartBlock(workspace)
         // Reset values in backend
-        call_clear_route();
+        await call_clear_route();
         return;
       }
 
@@ -280,6 +282,16 @@ const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
       }
 
       await call_variables_route();
+
+      // Check if we reach next level
+      const levelResponse = await call_level_route();
+      if (getCurrentLevel() !== levelResponse.name) {
+        completeLevel();
+        workspace.highlightBlock(null);
+        currentBlock = getStartBlock(workspace)
+        // Reset values in backend
+        await call_clear_route();
+      }
 
       // Enable button again
       buttons.startBtn.disabled = false;

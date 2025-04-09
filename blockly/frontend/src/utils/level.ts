@@ -65,9 +65,6 @@ export const setCurrentLevel = (newLevelName: string, force: boolean = false)=> 
 
   call_level_route(newLevelName).then((response) => {
     const blockBlocks = response.block_blocks ?? [];
-    if (blockBlocks.length === 0) {
-      return;
-    }
 
     const event: LevelChangedEvent = {
       oldLevelName: levelNames[currentLevelIndex],
@@ -78,6 +75,10 @@ export const setCurrentLevel = (newLevelName: string, force: boolean = false)=> 
       new CustomEvent("levelChanged", { detail: event })
     );
     currentLevelIndex = levelNames.indexOf(newLevelName);
+    const select = document.getElementById("levelSelector") as HTMLSelectElement;
+    if (!select) { return; }
+    select.selectedIndex = currentLevelIndex;
+    updateLevelListUI();
   });
 }
 
@@ -130,6 +131,7 @@ export const updateLevelList = async () => {
 const updateLevelListUI = () => {
   const select = document.getElementById("levelSelector") as HTMLSelectElement;
   if (!select) { return; }
+  const oldIndex = select.selectedIndex;
   // remove all options
   while (select.firstChild) {
     select.removeChild(select.firstChild);
@@ -152,6 +154,7 @@ const updateLevelListUI = () => {
     option.disabled = !isAvailable;
     select.appendChild(option);
   });
+  select.selectedIndex = oldIndex; // restore old index
 
   // Update arrow buttons
   const prevButton = document.getElementById("prev-level") as HTMLButtonElement;
