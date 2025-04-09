@@ -138,6 +138,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Expression",
+    tooltip: "Rechenoperation",
     colour: 220,
   },
   {
@@ -337,6 +338,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Number",
+    tooltip: "Anzahl wiederholungen",
     colour: 280,
   },
   // ---------------------- truth expressions ----------------------
@@ -354,6 +356,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Boolean",
+    tooltip: "Gibt 'Wahr' oder 'Falsch' aus.",
     colour: 120,
   },
   {
@@ -385,6 +388,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
+    tooltip: "Vergleicht zwei Werte, z.B. ob sie gleich oder größer sind.",
     colour: 120,
   },
   {
@@ -399,6 +403,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
+    tooltip: "Verneint oder kehrt eine Bedingung um.",
     colour: 120,
   },
   {
@@ -426,6 +431,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
+    tooltip: "Verknüpfe zwei Bedingungen. 'Und' nur, wenn beide wahr sind. 'Oder', wenn mindestens eine wahr ist.",
     colour: 120,
   },
   // ---------------------- Conditions ----------------------
@@ -562,6 +568,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     output: "if",
+    tooltip: "Führt Anweisung aus, wenn die Bedingung wahr ist.",
     colour: 250,
     suppressPrefixSuffix: true,
   },
@@ -592,6 +599,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     output: "if",
+    tooltip: "Führt Anweisung aus, wenn die Bedingung wahr ist, sonst andere Anweisung.",
     colour: 250,
     suppressPrefixSuffix: true,
   },
@@ -658,7 +666,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Nur einmal feste drücken!",
+    tooltip: "Schieb ein bewegliches Objekt vorwärts.",
   },
   {
     type: "pull",
@@ -666,7 +674,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Nur einmal feste ziehen!",
+    tooltip: "Zieh ein bewegliches Objekt rückwärts.",
   },
   //  ---------------------- Items ----------------------
   {
