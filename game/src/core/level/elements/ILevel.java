@@ -454,9 +454,10 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * <p>If multiple Endtiles are in the game, this will only return one of them
    *
-   * @deprecated use {@link #endTiles()}
    * @return The end tile of the level.
+   * @deprecated use {@link #endTiles()}
    */
+  @Deprecated
   Tile endTile();
 
   /**
