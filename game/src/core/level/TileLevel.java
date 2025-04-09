@@ -161,9 +161,6 @@ public class TileLevel implements ILevel {
 
   @Override
   public void addExitTile(ExitTile tile) {
-    if (endTile() != null) {
-      changeTileElementType(endTile(), LevelElement.FLOOR);
-    }
     exitTiles.add(tile);
   }
 
