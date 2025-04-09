@@ -1,13 +1,17 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter11Level extends BlocklyLevel {
+
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -24,9 +28,15 @@ public class Chapter11Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    DialogUtils.showTextPopup(
-        "Schau! Die Wache hat vergessen die Tür zu verriegeln Zeit für die Flucht. Lauf!",
-        "Kapitel 1: Ausbruch");
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Schau! Die Wache hat vergessen die Tür zu verriegeln Zeit für die Flucht. Lauf!",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
   }
 
   @Override
