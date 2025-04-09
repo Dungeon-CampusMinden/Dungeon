@@ -18,6 +18,7 @@ import level.LevelManagementUtils;
 
 public class Chapter111Level extends BlocklyLevel {
 
+  public static boolean showText = true;
   private DoorTile door1, door2;
   private LeverComponent switch1, switch2, switch3, switch4;
 
@@ -37,9 +38,13 @@ public class Chapter111Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
-    DialogUtils.showTextPopup(
-        "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSSFIGHT: BLACK KNIGHT");
-
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");
+      showText = false;
+    }
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
 
     Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());

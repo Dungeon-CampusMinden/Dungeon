@@ -1679,7 +1679,7 @@ public class Server {
    * @param entity Entity to turn.
    * @param direction direction to turn to.
    */
-  public void turnEntity(Entity entity, Direction direction) {
+  public static void turnEntity(Entity entity, Direction direction) {
     PositionComponent pc =
         entity
             .fetch(PositionComponent.class)
