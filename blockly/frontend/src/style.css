@@ -247,7 +247,7 @@ header {
     margin-inline: 5px;
 }
 
-.blocklyDisabled {
+.blocklyFlyout .blocklyDisabled {
     display: none;
 }
 
