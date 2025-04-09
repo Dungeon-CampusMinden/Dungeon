@@ -73,6 +73,8 @@ const handleResponse = async (response: Response): Promise<ApiResponse> => {
  * @param code The code to send to the server
  * @param currentBlock The current block to highlight
  * @param first_step true if this is the first step, false otherwise. This is to check if were sending a new program or not.
+ *
+ * @returns true if the program was successfully started, false otherwise
  */
 export const call_start_route = async (code: string, currentBlock: Block, first_step: boolean = true) => {
   const start_response = await api.post(`start?first=${first_step}`, code);
@@ -81,7 +83,7 @@ export const call_start_route = async (code: string, currentBlock: Block, first_
     displayErrorOnBlock(currentBlock, response.error);
     console.error("Fehler beim Starten des Programms", response);
   }
-  return response.error == "";
+  return response.error === "";
 }
 
 export const call_variables_route = async () => {
@@ -89,22 +91,30 @@ export const call_variables_route = async () => {
   const response = await handleResponse(var_response);
   if (response.error !== "") {
     console.error("Fehler beim Abrufen der Variablen", response);
-    return;
+    return false;
   }
   const variableData = response.data;
   variableData.split("\n").forEach((line) => {
     const [name, value] = line.split("=");
     VariableListUtils.updateVariable(name, value);
   });
+  return true;
 }
 
-export const call_reset_route = async () => {
+/**
+ * Call the reset route of the server
+ *
+ * <p> This route is used to reset the game (current level)
+ *
+ * @returns true if the game was successfully reset, false otherwise
+ */
+export const call_reset_route = async (): Promise<boolean> => {
   const reset_response = await api.post("reset");
   const response = await handleResponse(reset_response);
   if (response.error !== "") {
     console.error("Fehler beim Zurücksetzen des Spiels", response);
-    return;
   }
+  return response.error === "";
 }
 
 export const call_clear_route = async () => {
@@ -112,6 +122,7 @@ export const call_clear_route = async () => {
   if (!clear_response.ok) {
     console.error("Fehler beim Zurücksetzen der Werte", clear_response);
   }
+  return clear_response.ok
 }
 
 /**

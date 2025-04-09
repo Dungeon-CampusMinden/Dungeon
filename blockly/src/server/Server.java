@@ -46,7 +46,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import level.BlocklyLevel;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
@@ -338,8 +337,9 @@ public class Server {
   /**
    * Handles the levels request. This function will send all available levels to the blockly
    * frontend.
+   *
    * @param exchange Exchange object. The function will send a success response to the blockly
-   *                 frontend
+   *     frontend
    */
   private void handleLevelsRequest(HttpExchange exchange) throws IOException {
     StringBuilder response = new StringBuilder();
@@ -357,10 +357,11 @@ public class Server {
 
   /**
    * Handles the level request. This function will send the current level with its blocked blocks or
-   * if give will first change the level to the given one and then send the current level with its blocked blocks.
+   * if give will first change the level to the given one and then send the current level with its
+   * blocked blocks.
    *
    * @param exchange Exchange object. The function will send a success response to the blockly
-   *                 frontend
+   *     frontend
    */
   private void handleLevelRequest(HttpExchange exchange) throws IOException {
     StringBuilder response = new StringBuilder();

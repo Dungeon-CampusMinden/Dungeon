@@ -1,10 +1,10 @@
 import * as Blockly from "blockly";
 import * as De from "blockly/msg/de";
-import { blocks } from "./blocks/dungeon.ts";
-import { javaGenerator } from "./generators/java.ts";
-import { save, load } from "./serialization.ts";
-import { toolbox } from "./toolbox.ts";
-import { config } from "./config.ts";
+import {blocks} from "./blocks/dungeon.ts";
+import {javaGenerator} from "./generators/java.ts";
+import {load, save} from "./serialization.ts";
+import {toolbox} from "./toolbox.ts";
+import {config} from "./config.ts";
 import "./style.css";
 import * as LimitUtils from "./utils/limits.ts";
 import {
@@ -167,6 +167,31 @@ workspace.addChangeListener((e: Blockly.Events.Abstract) => {
     const newVariableName = (e as Blockly.Events.VarRename).newName;
     if (oldVariableName === undefined || newVariableName === undefined) return;
     VariableListUtils.renameVariable(oldVariableName, newVariableName);
+  }
+});
+
+// Prevent restoring multiple start blocks
+workspace.addChangeListener(async (e: Blockly.Events.Abstract) => {
+  if (e.type !== Blockly.Events.BLOCK_CREATE) return;
+
+  const startBlock = getStartBlock(workspace);
+  if (!startBlock) return; // no start block, so we allow any block to be created
+
+  const newStartBlocks = (e as Blockly.Events.BlockCreate).ids
+    ?.map(id => workspace.getBlockById(id))
+    .filter(block => block?.type === "start") ?? [];
+
+  if (newStartBlocks.length === 0) return;
+
+  const extraStartBlocks = newStartBlocks.filter(block => block?.id !== startBlock.id);
+  if (extraStartBlocks.length > 1) { // More than one extra start block, prevent adding at all (should never happen)
+    extraStartBlocks.forEach(block => block?.dispose());
+    return;
+  }
+
+  if (extraStartBlocks.length === 1) { // delete the old start block, so we can restore the new one
+    workspace.removeBlockById(startBlock.id);
+    startBlock.dispose();
   }
 });
 
