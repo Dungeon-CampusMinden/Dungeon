@@ -21,12 +21,11 @@ class Api {
         body: text,
       });
     } catch (error) {
-      const response = new Response(null, { status: 500 });
       if (!ignoreError) {
         alert("Fehler beim Senden der Anfrage");
         console.error("Fehler beim Senden der Anfrage", error);
       }
-      return response;
+      return new Response(null, { status: 500 });
     }
   }
 }
@@ -43,7 +42,7 @@ const api = new Api();
  * @param response The response from the server
  * @returns true if the response was ok, false otherwise
  */
-const handleResponse = async (response: Response): Promise<ApiResponse> => {
+const handleResponse = async (response: Response | null): Promise<ApiResponse> => {
   if (response == null || !response.ok) {
     const errorMessage = await response?.text() || "Fehler beim Abrufen der Antwort vom Server";
     return {
@@ -86,7 +85,14 @@ export const call_start_route = async (code: string, currentBlock: Block, first_
   return response.error === "";
 }
 
-export const call_variables_route = async () => {
+/**
+ * Call the variables route of the server
+ *
+ * <p> This route is used to get the variables from the server and update the variable list.
+ *
+ * @returns true if the variables were successfully retrieved, false otherwise
+ */
+export const call_variables_route = async (): Promise<boolean> => {
   const var_response = await api.post("variables");
   const response = await handleResponse(var_response);
   if (response.error !== "") {
@@ -114,9 +120,17 @@ export const call_reset_route = async (): Promise<boolean> => {
   if (response.error !== "") {
     console.error("Fehler beim Zurücksetzen des Spiels", response);
   }
+
   return response.error === "";
 }
 
+/**
+ * Call the clear route of the server
+ *
+ * <p> This route is used to reset all variables and values
+ *
+ * @returns true if the values were successfully cleared, false otherwise
+ */
 export const call_clear_route = async () => {
   const clear_response = await api.post("clear");
   if (!clear_response.ok) {
