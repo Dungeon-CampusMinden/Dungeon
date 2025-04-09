@@ -372,9 +372,8 @@ public class Server {
 
     if (levelName != null && !levelName.equals(DevDungeonLoader.currentLevel())) {
       // if given and the level is not the current one, load it
-      System.out.println("Loading level " + levelName);
       DevDungeonLoader.loadLevel(levelName);
-      waitDelta();
+      waitDelta(); // waiting for all systems to update once
     }
 
     response.append(DevDungeonLoader.currentLevel()).append(" ");
@@ -392,8 +391,8 @@ public class Server {
 
   private Set<String> blockedBlocksForLevel(ILevel level) {
     Set<String> blockedBlocks = new HashSet<>();
-    if (level instanceof BlocklyLevel currentLevel) {
-      blockedBlocks.addAll(currentLevel.blockedBlocklyElements());
+    if (level instanceof BlocklyLevel blocklyLevel) {
+      blockedBlocks.addAll(blocklyLevel.blockedBlocklyElements());
     }
     return blockedBlocks;
   }

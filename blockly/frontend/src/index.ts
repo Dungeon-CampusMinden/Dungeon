@@ -63,7 +63,7 @@ levelSelector.addEventListener("levelChanged", (event) => {
   save(workspace, levelChangedEvent.oldLevelName);
 
   // Configure blocks and categories based on level restrictions
-  blockElementsFromToolbox(toolbox, levelChangedEvent.blockedElements);
+  blockElementsFromToolbox(toolbox, levelChangedEvent.blockedElements, "Not available in Level");
 
   // Load new level and initialize workspace
   load(workspace, levelChangedEvent.newLevelName);

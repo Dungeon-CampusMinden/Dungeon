@@ -55,12 +55,10 @@ export const getAllCategoriesFromToolboxDefinition = (toolbox: unknown) => {
   return categories;
 }
 
-export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories: FlyoutItem[])=> {
+export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories: FlyoutItem[], blockReason:string)=> {
   // Enable all blocks
   allBlocks.forEach((block) => {
-    block["disabled"] = false;
-    delete block["disabledReasons"];
-    delete block["enabled"];
+    block["disabledReasons"] = (block["disabledReasons"] || []).filter((reason: string) => reason !== blockReason);
   });
 
   // Enable all categories
@@ -69,12 +67,12 @@ export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories:
   });
 }
 
-export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[])=> {
+export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[], reason:string)=> {
   const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
   const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
 
   // Reset all blocks and categories to enabled state
-  resetBlocksAndCategories(allBlocks, allCategories);
+  resetBlocksAndCategories(allBlocks, allCategories, reason);
 
   // Create regex to match blocked elements
   const blockedItemsRegex = new RegExp(`^${blockedElements.join("|")}$`);
@@ -92,7 +90,10 @@ export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: stri
     block => blockedItemsRegex.test(block.type)
   );
   blockedBlocks.forEach((blockedBlock) => {
-    blockedBlock["disabled"] = true;
+    blockedBlock["disabledReasons"] = [
+      ...(blockedBlock["disabledReasons"] || []),
+      reason
+    ];
   });
 }
 

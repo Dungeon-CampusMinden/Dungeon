@@ -1,6 +1,7 @@
 import * as Blockly from "blockly";
 import {config} from "../config.ts";
 import {toolbox} from "../toolbox.ts";
+import {blockElementsFromToolbox, getAllBlocksFromToolboxDefinition} from "./workspace.ts";
 
 const blockCounts: Record<string, number> = {};
 
@@ -70,52 +71,14 @@ function getReachedLimitRules(): { rule: string; regex: RegExp }[] {
   }));
 }
 
-/**
- * Extracts all block items from the toolbox, including nested categories.
- * @param items - The toolbox item information array.
- * @returns An array of block information objects.
- */
-function extractBlockItems(items: Blockly.utils.toolbox.ToolboxItemInfo[]): Blockly.utils.toolbox.BlockInfo[] {
-  const result: Blockly.utils.toolbox.BlockInfo[] = [];
-  const stack: Blockly.utils.toolbox.ToolboxItemInfo[] = [...items];
+function getElementsToDisable(blockList: Blockly.utils.toolbox.BlockInfo[]): string[] {
+  const compiledRules = getReachedLimitRules().filter(({ rule, regex }) =>
+    Object.entries(blockCounts).some(([type, count]) => regex.test(type) && count >= config.LIMITS[rule])
+  );
 
-  while (stack.length) {
-    const item = stack.pop()! as Blockly.utils.toolbox.StaticCategoryInfo;
-    if (item.kind === "block") {
-      result.push(item);
-    } else if (item.kind === "category" && item.contents) {
-      stack.push(...item.contents);
-    }
-  }
-
-  return result;
-}
-
-/**
- * Updates the enabled state of each block item based on the reached limit rules.
- * @param blocks - The array of block information objects to update.
- */
-function applyDisablingToBlocks(blocks: Blockly.utils.toolbox.BlockInfo[]): void {
-  const compiledRules = getReachedLimitRules().filter(({rule, regex}) => {
-    for (const type in blockCounts) {
-      if (regex.test(type) && blockCounts[type] >= config.LIMITS[rule]) {
-        return true;
-      }
-    }
-    return false;
-  });
-
-  for (const blockItem of blocks) {
-    blockItem.enabled = true;
-    delete blockItem.disabledReasons;
-    for (const {rule, regex} of compiledRules) {
-      if (regex.test(blockItem.type!)) {
-        blockItem.enabled = false;
-        blockItem.disabledReasons = [`Limit ${rule} reached`];
-        break;
-      }
-    }
-  }
+  return blockList
+    .filter(blockItem => compiledRules.some(({ regex }) => regex.test(blockItem.type!)))
+    .map(blockItem => blockItem.type!);
 }
 
 /**
@@ -123,8 +86,7 @@ function applyDisablingToBlocks(blocks: Blockly.utils.toolbox.BlockInfo[]): void
  * @param workspace - The Blockly workspace where the toolbox should be updated.
  */
 export function refreshToolbox(workspace: Blockly.WorkspaceSvg): void {
-  const toolboxInfo = toolbox as Blockly.utils.toolbox.ToolboxInfo;
-  const blockItems = extractBlockItems(toolboxInfo.contents);
-  applyDisablingToBlocks(blockItems);
+  const allBlocks = getAllBlocksFromToolboxDefinition(toolbox)
+  blockElementsFromToolbox(toolbox, getElementsToDisable(allBlocks), "Limit Reached");
   workspace.updateToolbox(toolbox);
 }

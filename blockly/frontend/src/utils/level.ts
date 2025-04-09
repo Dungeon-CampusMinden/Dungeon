@@ -96,7 +96,6 @@ export const completeLevel = () => {
   }
   setLevelProgress(newLevelIndex);
   setCurrentLevel(levelNames[newLevelIndex]);
-  console.debug("[CompleteLevel] Level completed");
 }
 
 /**
