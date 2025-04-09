@@ -69,8 +69,7 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(
-              Tuple.of("maze", MazeLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("maze", MazeLevel.class));
           createSystems();
 
           HeroFactory.heroDeath(
