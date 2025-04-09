@@ -1,10 +1,12 @@
 package level.produs;
 
+import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter23Level extends BlocklyLevel {
 
@@ -22,7 +24,12 @@ public class Chapter23Level extends BlocklyLevel {
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.zoomDefault();
+  }
 
   @Override
   protected void onTick() {}

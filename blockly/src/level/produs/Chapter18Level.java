@@ -39,6 +39,7 @@ public class Chapter18Level extends BlocklyLevel {
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.zoomDefault();
     Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
     Game.add(BlocklyMonsterFactory.guard(customPoints().get(7), PositionComponent.Direction.UP, 5));

@@ -5,6 +5,7 @@ import core.Game;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
+import core.systems.CameraSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import server.Server;
@@ -41,5 +42,13 @@ public class LevelManagementUtils {
   public static void heroViewDiretion(PositionComponent.Direction viewDirection) {
     Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
     Server.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
+  }
+
+  public static void zoomIn() {
+    CameraSystem.camera().zoom -= 0.2f;
+  }
+
+  public static void zoomDefault() {
+    CameraSystem.camera().zoom = CameraSystem.DEFAULT_ZOOM_FACTOR;
   }
 }

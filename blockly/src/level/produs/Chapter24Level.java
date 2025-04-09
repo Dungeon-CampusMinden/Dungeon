@@ -1,12 +1,25 @@
 package level.produs;
 
+import components.AmmunitionComponent;
+import contrib.components.AIComponent;
+import contrib.hud.DialogUtils;
+import core.Game;
+import core.components.PositionComponent;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import entities.BlocklyMonsterFactory;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter24Level extends BlocklyLevel {
+  private Random random = new Random();
+  private static boolean showText = true;
+  private DoorTile door;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -22,8 +35,46 @@ public class Chapter24Level extends BlocklyLevel {
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Hier musst du mitzählen. Die Anzahl der Monster verrät dir welche Tür du nehmen musst. Ich geb dir noch ein paar Feuerballspruchrollen. Viel Erfolg!",
+          "Kapitel 2: Flucht");
+      showText = false;
+    }
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.UP);
+    LevelManagementUtils.zoomDefault();
+    Game.hero().get().fetch(AmmunitionComponent.class).orElseThrow().currentAmmunition(4);
+    final int[] counter = {0};
+    customPoints()
+        .forEach(
+            coordinate -> {
+              if (counter[0] == 0 || random.nextBoolean()) {
+                Game.add(BlocklyMonsterFactory.hedgehog(coordinate));
+                counter[0]++;
+              }
+            });
+
+    Coordinate[] coords = {
+      new Coordinate(12, 4), new Coordinate(17, 4), new Coordinate(22, 4), new Coordinate(27, 4)
+    };
+
+    DoorTile[] doors = new DoorTile[coords.length];
+    for (int i = 0; i < coords.length; i++) {
+      doors[i] = (DoorTile) Game.tileAT(coords[i]);
+    }
+
+    for (int i = 0; i < doors.length; i++) {
+      doors[i].close();
+      if (i == counter[0] - 1) door = doors[i];
+    }
+  }
 
   @Override
-  protected void onTick() {}
+  protected void onTick() {
+    if (Game.entityStream(Set.of(AIComponent.class)).findAny().isPresent()) door.close();
+    else door.open();
+  }
 }

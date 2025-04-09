@@ -33,6 +33,7 @@ public class Chapter19Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
           "Mit diesen Spruchrollen kannst du einen mächtigen Feuerball beschwören.",
