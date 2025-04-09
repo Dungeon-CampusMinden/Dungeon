@@ -209,12 +209,12 @@ if (config.HIDE_RESPONSE_INFO) {
   }
 }
 
-await updateLevelList();
+updateLevelList().then(() => {
+  load(workspace, getCurrentLevel()); // load initial state if available
 
-load(workspace, getCurrentLevel()); // load initial state if available
+  workspace.scrollCenter(); // centering workspace
 
-workspace.scrollCenter(); // centering workspace
-
-const startBlock = getStartBlock(workspace);
-if (!startBlock)
-  placeDefaultStartBlock(workspace);
+  const startBlock = getStartBlock(workspace);
+  if (!startBlock)
+    placeDefaultStartBlock(workspace);
+});

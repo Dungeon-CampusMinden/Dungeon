@@ -8,9 +8,7 @@ import {
   call_start_route,
   call_variables_route
 } from "../api/api.ts";
-import {FlyoutItem} from "blockly/core/flyout_base";
 import {completeLevel, getCurrentLevel} from "./level.ts";
-
 let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
@@ -53,6 +51,15 @@ export const getAllCategoriesFromToolboxDefinition = (toolbox: unknown) => {
     }
   }
   return categories;
+}
+
+interface FlyoutItem {
+  kind: string;
+  name: string;
+  type: string;
+  contents?: FlyoutItem[];
+  disabledReasons?: string[];
+  hidden?: string;
 }
 
 export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories: FlyoutItem[], blockReason:string)=> {
