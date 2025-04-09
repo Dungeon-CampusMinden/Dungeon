@@ -464,7 +464,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return Set containing the end tiles of the level.
    */
-  Set<Tile> endTiles();
+  Set<ExitTile> endTiles();
 
   /**
    * Retrieves the start tile of the level.

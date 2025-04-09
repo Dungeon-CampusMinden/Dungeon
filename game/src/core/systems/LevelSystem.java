@@ -239,11 +239,10 @@ public final class LevelSystem extends System {
     if (currentTile == null) {
       return false;
     }
-    if (!(Game.endTile() instanceof ExitTile endTile) || !endTile.isOpen()) {
-      return false;
-    }
 
-    return currentTile.position().equals(Game.endTile().position());
+    if (currentTile instanceof ExitTile endTile && endTile.isOpen()) return true;
+
+    return false;
   }
 
   private Optional<ILevel> isOnDoor(final Entity entity) {

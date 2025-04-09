@@ -303,7 +303,7 @@ public class TileLevel implements ILevel {
   }
 
   @Override
-  public Set<Tile> endTiles() {
+  public Set<ExitTile> endTiles() {
     return endTiles();
   }
 }
