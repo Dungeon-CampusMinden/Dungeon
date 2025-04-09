@@ -2,6 +2,7 @@ package level.produs;
 
 import contrib.hud.DialogUtils;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -9,8 +10,10 @@ import entities.BlocklyMonsterFactory;
 import java.util.List;
 import java.util.function.Consumer;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter12Level extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -27,9 +30,16 @@ public class Chapter12Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    DialogUtils.showTextPopup(
-        "Pass auf, die Monster sind angekettet und könnsen sich nicht bewegen, aber wenn du sie berührst wird es eng für dich.",
-        "Kapitel 1: Ausbruch");
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Pass auf, die Monster sind angekettet und könnsen sich nicht bewegen, aber wenn du sie berührst wird es eng für dich.",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
+
     customPoints()
         .forEach(
             new Consumer<Coordinate>() {
