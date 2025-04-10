@@ -75,7 +75,6 @@ export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories:
 }
 
 export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[], reason:string)=> {
-  if (blockedElements.length === 0) return;
 
   const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
   const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
@@ -83,6 +82,7 @@ export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: stri
   // Reset all blocks and categories to enabled state
   resetBlocksAndCategories(allBlocks, allCategories, reason);
 
+  if (blockedElements.length === 0) return;
   // Create regex to match blocked elements
   const blockedItemsRegex = new RegExp(`^${blockedElements.join("|")}$`);
 
