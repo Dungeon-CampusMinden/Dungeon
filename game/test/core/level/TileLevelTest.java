@@ -198,6 +198,7 @@ public class TileLevelTest {
     TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
     Tile oldEndTile = tileLevel.endTile();
     tileLevel.randomEnd();
+    tileLevel.removeTile(oldEndTile);
     assertNotSame(tileLevel.startTile(), tileLevel.endTile());
     assertNotSame(oldEndTile, tileLevel.endTile());
   }
