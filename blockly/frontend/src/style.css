@@ -247,3 +247,29 @@ header {
     margin-inline: 5px;
 }
 
+.blocklyFlyout .blocklyDisabled {
+    display: none;
+}
+
+.level-selector-container {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.level-selector {
+    margin: 0 10px;
+    padding: 5px;
+    text-transform: capitalize;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.level-nav-button {
+    cursor: pointer;
+}
+
+.level-nav-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}

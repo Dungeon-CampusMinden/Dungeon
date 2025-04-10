@@ -7,8 +7,14 @@ import {toolbox} from "./toolbox.ts";
 import {config} from "./config.ts";
 import "./style.css";
 import * as LimitUtils from "./utils/limits.ts";
-import {getStartBlock, placeDefaultStartBlock, setupButtons} from "./utils/workspace.ts";
+import {
+  blockElementsFromToolbox,
+  getStartBlock,
+  placeDefaultStartBlock,
+  setupButtons
+} from "./utils/workspace.ts";
 import * as VariableListUtils from "./utils/variableList.ts";
+import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -42,6 +48,39 @@ setupButtons(workspace);
 // Disable all blocks that aren't connected to the start block.
 workspace.addChangeListener(Blockly.Events.disableOrphans);
 
+// Disable the toolbox flyout auto-close
+const toolboxFlyout = workspace.getToolbox()?.getFlyout();
+if (toolboxFlyout) {
+  toolboxFlyout.autoClose = false;
+}
+
+// Level Selector
+const levelSelector = setupLevelSelector();
+levelSelector.addEventListener("levelChanged", (event) => {
+  const levelChangedEvent = (event as CustomEvent).detail as LevelChangedEvent;
+
+  // Save current workspace state with old level name
+  save(workspace, levelChangedEvent.oldLevelName);
+
+  // Configure blocks and categories based on level restrictions
+  blockElementsFromToolbox(toolbox, levelChangedEvent.blockedElements, "Not available in Level");
+
+  // Load new level and initialize workspace
+  load(workspace, levelChangedEvent.newLevelName);
+  updateCodeDiv();
+  workspace.scrollCenter();
+
+  // Check for start block and add if missing
+  const startBlock = getStartBlock(workspace);
+  if (!startBlock) {
+    placeDefaultStartBlock(workspace);
+  }
+
+  // Update toolbox
+  workspace.updateToolbox(toolbox);
+  workspace.getToolbox()?.refreshSelection();
+});
+
 // Variable List
 const addVarCallback = () => {
   Blockly.Variables.createVariableButtonHandler(workspace);
@@ -66,9 +105,6 @@ const updateCodeDiv = () => {
     codeDiv.textContent = code;
   }
 };
-
-// Load the initial state from storage and run the code.
-load(workspace);
 updateCodeDiv();
 
 // Every time the workspace changes state, save the changes to storage.
@@ -76,7 +112,7 @@ workspace.addChangeListener((e: Blockly.Events.Abstract) => {
   // UI events are things like scrolling, zooming, etc.
   // No need to save after one of these.
   if (e.isUiEvent) return;
-  save(workspace);
+  save(workspace, getCurrentLevel());
 });
 
 // Whenever the workspace changes meaningfully, run the code again.
@@ -174,8 +210,13 @@ if (config.HIDE_RESPONSE_INFO) {
   }
 }
 
-workspace.scrollCenter(); // centering workspace
+updateLevelList().then(() => {
+  load(workspace, getCurrentLevel()); // load initial state if available
+  updateCodeDiv();
 
-const startBlock = getStartBlock(workspace);
-if (!startBlock)
-  placeDefaultStartBlock(workspace);
+  workspace.scrollCenter(); // centering workspace
+
+  const startBlock = getStartBlock(workspace);
+  if (!startBlock)
+    placeDefaultStartBlock(workspace);
+});

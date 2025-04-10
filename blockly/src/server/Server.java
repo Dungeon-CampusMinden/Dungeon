@@ -13,7 +13,11 @@ import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
-import contrib.components.*;
+import contrib.components.CollideComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.ItemComponent;
+import contrib.components.LeverComponent;
+import contrib.level.DevDungeonLoader;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -23,6 +27,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
@@ -41,6 +46,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import level.BlocklyLevel;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -172,6 +178,10 @@ public class Server {
     clearContext.setHandler(this::handleClearRequest);
     HttpContext variableContext = server.createContext("/variables");
     variableContext.setHandler(this::handleVariableRequest);
+    HttpContext levelsContext = server.createContext("/levels");
+    levelsContext.setHandler(this::handleLevelsRequest);
+    HttpContext levelContext = server.createContext("/level");
+    levelContext.setHandler(this::handleLevelRequest);
     server.start();
     return server;
   }
@@ -322,6 +332,69 @@ public class Server {
     OutputStream os = exchange.getResponseBody();
     os.write(response.toString().getBytes());
     os.close();
+  }
+
+  /**
+   * Handles the levels request. This function will send all available levels to the blockly
+   * frontend.
+   *
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   */
+  private void handleLevelsRequest(HttpExchange exchange) throws IOException {
+    StringBuilder response = new StringBuilder();
+    for (String levelName : DevDungeonLoader.levelOrder()) {
+      response.append(levelName).append("\n");
+    }
+    response.deleteCharAt(response.length() - 1); // Remove last newline
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.toString().getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.toString().getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the level request. This function will send the current level with its blocked blocks or
+   * if give will first change the level to the given one and then send the current level with its
+   * blocked blocks.
+   *
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   */
+  private void handleLevelRequest(HttpExchange exchange) throws IOException {
+    StringBuilder response = new StringBuilder();
+
+    // Query parameter 'level'
+    String query = exchange.getRequestURI().getQuery();
+    String levelName = query != null && query.contains("levelName=") ? query.split("=")[1] : null;
+
+    if (levelName != null && !levelName.equals(DevDungeonLoader.currentLevel())) {
+      // if given and the level is not the current one, load it
+      DevDungeonLoader.loadLevel(levelName);
+      waitDelta(); // waiting for all systems to update once
+    }
+
+    response.append(DevDungeonLoader.currentLevel()).append(" ");
+    for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel())) {
+      response.append(blockedBlock).append(" ");
+    }
+    response.deleteCharAt(response.length() - 1); // Remove last space
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(200, response.length());
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.toString().getBytes());
+    os.close();
+  }
+
+  private Set<String> blockedBlocksForLevel(ILevel level) {
+    Set<String> blockedBlocks = new HashSet<>();
+    if (level instanceof BlocklyLevel blocklyLevel) {
+      blockedBlocks.addAll(blocklyLevel.blockedBlocklyElements());
+    }
+    return blockedBlocks;
   }
 
   /**

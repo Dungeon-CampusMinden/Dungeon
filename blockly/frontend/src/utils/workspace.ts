@@ -2,8 +2,13 @@ import * as Blockly from "blockly";
 import {javaGenerator} from "../generators/java.ts";
 import {sleep} from "./utils.ts";
 import * as VariableListUtils from "./variableList.ts";
-import {call_clear_route, call_reset_route, call_start_route, call_variables_route} from "../api/api.ts";
-
+import {
+  call_clear_route, call_level_route,
+  call_reset_route,
+  call_start_route,
+  call_variables_route
+} from "../api/api.ts";
+import {completeLevel, getCurrentLevel} from "./level.ts";
 let startBlock: Blockly.Block | null = null;
 export let currentBlock: Blockly.Block | null = null;
 
@@ -21,6 +26,97 @@ export const getStartBlock = (workspace: Blockly.Workspace) => {
     }
   }
   return null;
+}
+
+export const getAllBlocksFromToolboxDefinition = (toolbox: unknown) => {
+  const blocks: FlyoutItem[] = [];
+  // @ts-expect-error We don't know the correct type of toolbox
+  for (const content of (toolbox.contents as FlyoutItem[])) {
+    if (content.kind === "category") {
+      blocks.push(...getAllBlocksFromCategory(content));
+    } else if (content.kind === "block") {
+      blocks.push(content);
+    }
+  }
+  return blocks;
+}
+
+export const getAllCategoriesFromToolboxDefinition = (toolbox: unknown) => {
+  const categories: FlyoutItem[] = [];
+  // @ts-expect-error We don't know the correct type of toolbox
+  for (const content of (toolbox.contents as FlyoutItem[])) {
+    if (content.kind === "category") {
+      categories.push(content);
+      categories.push(...getAllCategoriesFromToolboxDefinition(content));
+    }
+  }
+  return categories;
+}
+
+interface FlyoutItem {
+  kind: string;
+  name: string;
+  type: string;
+  contents?: FlyoutItem[];
+  disabledReasons?: string[];
+  hidden?: string;
+}
+
+export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories: FlyoutItem[], blockReason:string)=> {
+  // Enable all blocks
+  allBlocks.forEach((block) => {
+    block["disabledReasons"] = (block["disabledReasons"] || []).filter((reason: string) => reason !== blockReason);
+  });
+
+  // Enable all categories
+  allCategories.forEach((category) => {
+    delete category["hidden"];
+  });
+}
+
+export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[], reason:string)=> {
+
+  const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
+  const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
+
+  // Reset all blocks and categories to enabled state
+  resetBlocksAndCategories(allBlocks, allCategories, reason);
+
+  if (blockedElements.length === 0) return;
+  // Create regex to match blocked elements
+  const blockedItemsRegex = new RegExp(`^${blockedElements.join("|")}$`);
+
+  // Disable blocked categories
+  const blockedCategories = allCategories.filter(
+    (category) => blockedItemsRegex.test(category.name)
+  );
+  blockedCategories.forEach((category) => {
+    category["hidden"] = "true";
+  });
+
+  // Disable blocked blocks
+  const blockedBlocks = allBlocks.filter(
+    block => blockedItemsRegex.test(block.type)
+  );
+  blockedBlocks.forEach((blockedBlock) => {
+    blockedBlock["disabledReasons"] = [
+      ...(blockedBlock["disabledReasons"] || []),
+      reason
+    ];
+  });
+}
+
+const getAllBlocksFromCategory = (category: unknown) => {
+  const blocks: FlyoutItem[] = [];
+  // @ts-expect-error We don't know the correct type of category
+  for (const block of (category.contents as FlyoutItem[])) {
+    if (block.kind === "block") {
+      blocks.push(block);
+    } else if (block.kind === "category") {
+      blocks.push(...getAllBlocksFromCategory(block));
+    }
+  }
+  return blocks;
 }
 
 /**
@@ -139,6 +235,14 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       currentBlock = currentBlock.getNextBlock();
       await sleep(sleepingTime);
     }
+
+    // Check if we reach next level
+    await sleep(1);
+    const levelResponse = await call_level_route();
+    if (getCurrentLevel() !== levelResponse.name) {
+      completeLevel();
+    }
+
     // Reset values in backend
     await call_clear_route();
 
@@ -157,7 +261,7 @@ const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
         workspace.highlightBlock(null);
         currentBlock = getStartBlock(workspace)
         // Reset values in backend
-        call_clear_route();
+        await call_clear_route();
         return;
       }
 
@@ -185,6 +289,16 @@ const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
       }
 
       await call_variables_route();
+
+      // Check if we reach next level
+      const levelResponse = await call_level_route();
+      if (getCurrentLevel() !== levelResponse.name) {
+        completeLevel();
+        workspace.highlightBlock(null);
+        currentBlock = getStartBlock(workspace)
+        // Reset values in backend
+        await call_clear_route();
+      }
 
       // Enable button again
       buttons.startBtn.disabled = false;
