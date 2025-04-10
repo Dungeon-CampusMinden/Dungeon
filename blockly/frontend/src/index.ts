@@ -67,6 +67,7 @@ levelSelector.addEventListener("levelChanged", (event) => {
 
   // Load new level and initialize workspace
   load(workspace, levelChangedEvent.newLevelName);
+  updateCodeDiv();
   workspace.scrollCenter();
 
   // Check for start block and add if missing
@@ -211,6 +212,7 @@ if (config.HIDE_RESPONSE_INFO) {
 
 updateLevelList().then(() => {
   load(workspace, getCurrentLevel()); // load initial state if available
+  updateCodeDiv();
 
   workspace.scrollCenter(); // centering workspace
 
