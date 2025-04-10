@@ -31,6 +31,7 @@ public class Chapter11Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
           "Schau! Die Wache hat vergessen die Tür zu verriegeln Zeit für die Flucht. Lauf!",

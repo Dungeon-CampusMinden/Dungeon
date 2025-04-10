@@ -71,6 +71,7 @@ public class Client {
     Game.userOnSetup(
         () -> {
           // chapter 1
+
           DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
@@ -117,7 +118,6 @@ public class Client {
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
           DevDungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
-
           DevDungeonLoader.loadLevel(0);
         });
   }

@@ -41,6 +41,7 @@ public class Chapter15Level extends BlocklyLevel {
     cameraFocusOn(new Coordinate(7, 6));
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.centerHero();
+    LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(1);
     Coordinate stone2C = customPoints().get(5);
     Coordinate m1C = customPoints().get(0);
