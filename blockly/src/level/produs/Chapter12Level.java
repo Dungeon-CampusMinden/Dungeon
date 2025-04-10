@@ -33,6 +33,7 @@ public class Chapter12Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
           "Pass auf, die Monster sind angekettet und könnsen sich nicht bewegen, aber wenn du sie berührst wird es eng für dich.",
