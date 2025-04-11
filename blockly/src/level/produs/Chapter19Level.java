@@ -12,8 +12,9 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
+/** PRODUS LEVEL. */
 public class Chapter19Level extends BlocklyLevel {
-  public static boolean showText = true;
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the

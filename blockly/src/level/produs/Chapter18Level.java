@@ -16,6 +16,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
+/** PRODUS LEVEL. */
 public class Chapter18Level extends BlocklyLevel {
 
   private LeverComponent switch1, switch2, switch3, switch4, switch5;

@@ -16,9 +16,10 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
+/** PRODUS LEVEL. */
 public class Chapter111Level extends BlocklyLevel {
 
-  public static boolean showText = true;
+  private static boolean showText = true;
   private DoorTile door1, door2;
   private LeverComponent switch1, switch2, switch3, switch4;
 

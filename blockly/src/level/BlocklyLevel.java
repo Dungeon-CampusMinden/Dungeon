@@ -69,6 +69,11 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
     return blockedBlocklyElements;
   }
 
+  /**
+   * Get the design of this level.
+   *
+   * @return The Design of this level.
+   */
   public DesignLabel designLabel() {
     return designLabel;
   }
