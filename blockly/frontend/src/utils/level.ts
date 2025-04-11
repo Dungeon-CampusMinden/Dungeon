@@ -95,7 +95,9 @@ export const completeLevel = () => {
     console.info("[CompleteLevel] No more levels available");
     return;
   }
-  setLevelProgress(newLevelIndex);
+  if (newLevelIndex > getLevelProgress()) {
+    setLevelProgress(newLevelIndex);
+  }
   setCurrentLevel(levelNames[newLevelIndex]);
 }
 
