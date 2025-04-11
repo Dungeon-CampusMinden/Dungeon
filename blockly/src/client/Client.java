@@ -33,7 +33,9 @@ import utils.CheckPatternPainter;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = false;
+
+  private static final boolean DEBUG_MODE = false;
+  private static final boolean KEYBOARD_DEACTIVATION = DEBUG_MODE;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -53,7 +55,7 @@ public class Client {
     // Set up components and level
     onSetup();
 
-    onFrame(debugger);
+    if (DEBUG_MODE) onFrame(debugger);
 
     onLevelLoad();
 
