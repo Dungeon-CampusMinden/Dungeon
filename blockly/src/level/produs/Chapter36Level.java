@@ -5,25 +5,20 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import entities.BlocklyMonsterFactory;
-import java.util.List;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
-import server.Server;
-import utils.Direction;
 
-public class Chapter34Level extends BlocklyLevel {
+import java.util.List;
+import java.util.function.Consumer;
+
+public class Chapter36Level extends BlocklyLevel {
   private static boolean showText = true;
-  private final int TICK_TIMER = 60;
   private Entity boss;
   private PositionComponent bosspc;
-  private int counter = 0;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -33,9 +28,9 @@ public class Chapter34Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter34Level(
+  public Chapter36Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 4");
+    super(layout, designLabel, customPoints, "Kapitel 3: Level 6");
   }
 
   @Override
@@ -44,12 +39,9 @@ public class Chapter34Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).get()).close();
-    Coordinate c = Game.randomTile(LevelElement.EXIT).get().coordinate();
-    c.x -= 1;
-    boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.LEFT, entity -> {});
-    bosspc = boss.fetch(PositionComponent.class).get();
-    Game.add(boss);
+   // boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.LEFT, entity -> {});
+   // bosspc = boss.fetch(PositionComponent.class).get();
+   // Game.add(boss);
     Game.allTiles(LevelElement.PIT)
         .forEach(
             new Consumer<Tile>() {
@@ -70,17 +62,5 @@ public class Chapter34Level extends BlocklyLevel {
 
   @Override
   protected void onTick() {
-    counter++;
-    if (counter >= TICK_TIMER) {
-      counter = 0;
-      if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
-        System.out.println("TURN RIGHT");
-        Server.turnEntity(boss, Direction.RIGHT);
-        // TODO CHECK IF HERO MOVES IF YES KILL HERO
-      } else {
-        Server.turnEntity(boss, Direction.LEFT);
-        System.out.println("TURN LEFT");
-      }
-    }
   }
 }
