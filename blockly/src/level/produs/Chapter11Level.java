@@ -1,6 +1,8 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -83,13 +85,14 @@ public class Chapter11Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Schau! Die Wache hat vergessen die Tür zu verriegeln Zeit für die Flucht. Lauf!",
+          "Schau! Die Wache hat vergessen die Tür zu verriegeln. Zeit für die Flucht. Lauf!",
           "Kapitel 1: Ausbruch");
       showText = false;
     }

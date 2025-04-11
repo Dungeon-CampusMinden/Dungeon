@@ -46,9 +46,10 @@ public class PitSystem extends System {
               Tile currentTile = Game.tileAT(positionComponent.position());
 
               if (currentTile instanceof PitTile pitTile) {
-                //camera focus point entity should not trigger pit
-                if(entity.isPresent(CameraComponent.class) && !entity.isPresent(PlayerComponent.class)
-                && !entity.isPresent(AIComponent.class)) return;
+                // camera focus point entity should not trigger pit
+                if (entity.isPresent(CameraComponent.class)
+                    && !entity.isPresent(PlayerComponent.class)
+                    && !entity.isPresent(AIComponent.class)) return;
                 pitTimes.putIfAbsent(pitTile, java.lang.System.currentTimeMillis());
               }
             });

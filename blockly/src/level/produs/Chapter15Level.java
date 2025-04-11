@@ -3,6 +3,7 @@ package level.produs;
 import static level.LevelManagementUtils.cameraFocusOn;
 
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
@@ -32,6 +33,7 @@ public class Chapter15Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     if (showText) {
       DialogUtils.showTextPopup(
           "Die Monster sehen böse aus, du solltest ihnen nicht zu nahe kommen.",

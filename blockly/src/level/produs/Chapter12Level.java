@@ -1,6 +1,7 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
@@ -8,7 +9,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import entities.BlocklyMonsterFactory;
 import java.util.List;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -30,25 +30,22 @@ public class Chapter12Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Pass auf, die Monster sind angekettet und können sich nicht bewegen, aber wenn du sie berührst wird es eng für dich.",
+          "Pass auf, die Monster sind angekettet und können sich nicht bewegen, aber wenn du ihnen zu nahe kommst, wird es eng für dich.",
           "Kapitel 1: Ausbruch");
       showText = false;
     }
 
-    customPoints()
-        .forEach(
-            new Consumer<Coordinate>() {
-              @Override
-              public void accept(Coordinate coordinate) {
-                Game.add(BlocklyMonsterFactory.hedgehog(coordinate));
-              }
-            });
+    Game.add(
+        BlocklyMonsterFactory.guard(customPoints().get(0), PositionComponent.Direction.LEFT, 3));
+    customPoints().remove(0);
+    customPoints().forEach(coordinate -> Game.add(BlocklyMonsterFactory.hedgehog(coordinate)));
   }
 
   @Override

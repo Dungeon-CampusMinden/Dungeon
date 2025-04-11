@@ -1,6 +1,7 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -14,8 +15,8 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonsterFactory;
+import entities.MiscFactory;
 import java.util.List;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -44,6 +45,7 @@ public class Chapter35Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 11));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
@@ -55,22 +57,24 @@ public class Chapter35Level extends BlocklyLevel {
         .forEach(
             tile -> {
               ((PitTile) tile).timeToOpen(30);
-
               ((PitTile) tile).close();
             });
 
     customPoints()
         .forEach(
-            new Consumer<Coordinate>() {
-              @Override
-              public void accept(Coordinate coordinate) {
-                Tile t = Game.tileAT(coordinate);
-                if (t instanceof PitTile pt) {
-                  pt.timeToOpen(5000);
-                  pt.close();
-                }
+            coordinate -> {
+              Tile t = Game.tileAT(coordinate);
+              if (t instanceof PitTile pt) {
+                pt.timeToOpen(22000);
+                pt.close();
               }
             });
+    Game.add(MiscFactory.breadcrumb(new Coordinate(25, 14).toCenteredPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(12, 4).toCenteredPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(11, 11).toCenteredPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(11, 16).toCenteredPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(9, 17).toCenteredPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
 
     // BOSS
     Coordinate c = Game.randomTile(LevelElement.EXIT).get().coordinate();

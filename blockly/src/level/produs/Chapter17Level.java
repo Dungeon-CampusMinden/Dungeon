@@ -2,6 +2,8 @@ package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
+import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -14,7 +16,7 @@ import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 public class Chapter17Level extends BlocklyLevel {
-
+  private static boolean showText = true;
   DoorTile door1, door2, door3, door4;
   LeverComponent switch1, switch2, switch3, switch4;
 
@@ -33,6 +35,14 @@ public class Chapter17Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Ganz schön viele Schalter, hätten wir doch nur einen Schaltplan.",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
+
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
     LevelManagementUtils.centerHero();

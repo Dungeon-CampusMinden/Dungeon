@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
@@ -28,6 +29,7 @@ public class Chapter110Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
