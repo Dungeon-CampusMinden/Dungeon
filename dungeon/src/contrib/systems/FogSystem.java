@@ -22,7 +22,7 @@ import java.util.*;
  * known position of the hero (player character) and whether the fog of war system is currently
  * active.
  */
-public class FogOfWarSystem extends System {
+public class FogSystem extends System {
     private static final int DISTANCE_TRANSITION_SIZE = 2; // size of distance transition (in tiles)
     private static final int HIDE_ENTITY_THRESHOLD =
             0xFFFFFF99; // tint color threshold for hiding entities
@@ -193,6 +193,7 @@ public class FogOfWarSystem extends System {
     }
 
     private void darkenTile(Tile tile, int maxDistance, float scale, Point heroPos) {
+        if(tile==null) return;
         int newTint = getTintColor(tile.coordinate().toPoint(), maxDistance, scale, heroPos);
         int orgTint = tile.tintColor();
         int mixedTint = orgTint == -1 ? newTint : (orgTint & 0xFFFFFF00) | (newTint & 0x000000FF);
