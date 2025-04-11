@@ -58,7 +58,6 @@ public class Chapter12Level extends BlocklyLevel {
           "Kapitel 1: Ausbruch");
       showText = false;
     }
-    System.out.println("FIRST TICK");
     Game.add(
         BlocklyMonsterFactory.guard(customPoints().get(0), PositionComponent.Direction.LEFT, 3));
     customPoints().remove(0);
