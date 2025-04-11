@@ -94,8 +94,8 @@ public class Chapter36Level extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss != null) {
-      bossVC.currentXVelocity(heroVC.currentXVelocity() * -1 * 16);
-      bossVC.currentYVelocity(heroVC.currentYVelocity() * -1 * 16);
+      bossVC.currentXVelocity(heroVC.currentXVelocity() * -1 * 14);
+      bossVC.currentYVelocity(heroVC.currentYVelocity() * -1 * 14);
     } else if (openExit) Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).open());
   }
 }
