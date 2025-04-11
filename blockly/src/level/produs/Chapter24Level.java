@@ -3,6 +3,7 @@ package level.produs;
 import components.AmmunitionComponent;
 import contrib.components.AIComponent;
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
@@ -36,6 +37,7 @@ public class Chapter24Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     if (showText) {
       DialogUtils.showTextPopup(
           "Hier musst du mitzählen. Die Anzahl der Monster verrät dir welche Tür du nehmen musst. Ich geb dir noch ein paar Feuerballspruchrollen. Viel Erfolg!",

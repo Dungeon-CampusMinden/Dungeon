@@ -2,6 +2,7 @@ package level.produs;
 
 import client.Client;
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -49,6 +50,7 @@ public class Chapter34Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 8));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();

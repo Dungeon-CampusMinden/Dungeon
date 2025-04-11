@@ -1,6 +1,7 @@
 package level.produs;
 
 import components.AmmunitionComponent;
+import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
@@ -28,9 +29,10 @@ public class Chapter31Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.add(new FogSystem());
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.zoomIn();
+    LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).get()).close();
     Game.hero().get().fetch(AmmunitionComponent.class).orElseThrow().currentAmmunition(20);

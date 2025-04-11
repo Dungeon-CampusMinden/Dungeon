@@ -1,6 +1,7 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
@@ -30,6 +31,7 @@ public class Chapter33Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();

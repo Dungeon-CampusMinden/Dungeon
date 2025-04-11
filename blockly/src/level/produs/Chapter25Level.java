@@ -1,6 +1,8 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -28,6 +30,7 @@ public class Chapter25Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     if (showText) {
       DialogUtils.showTextPopup(
           "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.", "Kapitel 2: Flucht");

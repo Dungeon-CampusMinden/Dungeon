@@ -4,6 +4,7 @@ import components.BlockComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -41,6 +42,7 @@ public class Chapter21Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);

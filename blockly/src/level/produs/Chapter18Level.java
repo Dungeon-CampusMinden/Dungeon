@@ -2,6 +2,7 @@ package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
+import contrib.systems.FogSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -36,6 +37,7 @@ public class Chapter18Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();

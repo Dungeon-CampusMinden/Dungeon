@@ -3,6 +3,7 @@ package level.produs;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
+import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -37,6 +38,7 @@ public class Chapter111Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.remove(FogSystem.class);
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
@@ -71,7 +73,7 @@ public class Chapter111Level extends BlocklyLevel {
         BlocklyMonsterFactory.knight(
             customPoints().get(11),
             PositionComponent.Direction.UP,
-            entity -> DialogUtils.showTextPopup("AHHHH! Nein!", "FREIHEIT")));
+            entity -> DialogUtils.showTextPopup("AHHHH! Nein! Ich krieg dich noch!", "FREIHEIT")));
 
     door1 = (DoorTile) Game.tileAT(new Coordinate(4, 9));
     door2 = (DoorTile) Game.tileAT(new Coordinate(14, 8));

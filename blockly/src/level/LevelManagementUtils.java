@@ -40,7 +40,6 @@ public class LevelManagementUtils {
   }
 
   public static void heroViewDirection(PositionComponent.Direction viewDirection) {
-    System.out.println("HERO VIEW DIRECTION");
     Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
     Server.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
   }
