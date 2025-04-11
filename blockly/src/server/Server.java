@@ -1300,7 +1300,6 @@ public class Server {
    */
   public void move(final Direction direction, final Entity... entities) {
     double distanceThreshold = 0.1;
-
     record EntityComponents(
         PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 
@@ -1679,7 +1678,7 @@ public class Server {
    * @param entity Entity to turn.
    * @param direction direction to turn to.
    */
-  public void turnEntity(Entity entity, Direction direction) {
+  public static void turnEntity(Entity entity, Direction direction) {
     PositionComponent pc =
         entity
             .fetch(PositionComponent.class)
