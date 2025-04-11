@@ -1,7 +1,6 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
@@ -41,11 +40,15 @@ public class Chapter12Level extends BlocklyLevel {
           "Kapitel 1: Ausbruch");
       showText = false;
     }
-
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(0), PositionComponent.Direction.LEFT, 3));
+    System.out.println("FIRST TICK");
+    //  Game.add(
+    //     BlocklyMonsterFactory.guard(customPoints().get(0), PositionComponent.Direction.LEFT, 3));
     customPoints().remove(0);
     customPoints().forEach(coordinate -> Game.add(BlocklyMonsterFactory.hedgehog(coordinate)));
+
+    System.out.println(
+        "View direction after first tick "
+            + Game.hero().get().fetch(PositionComponent.class).get().viewDirection());
   }
 
   @Override

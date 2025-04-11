@@ -57,9 +57,8 @@ public class LevelManagementUtils {
     CameraSystem.camera().zoom = CameraSystem.DEFAULT_ZOOM_FACTOR;
   }
 
-  public static void fog(boolean active){
+  public static void fog(boolean active) {
     FogSystem fs = (FogSystem) Game.systems().get(FogSystem.class);
-    if(fs!=null)
-     fs.active(active);
+    if (fs != null) fs.active(active);
   }
 }

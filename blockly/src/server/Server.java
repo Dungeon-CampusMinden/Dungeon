@@ -1196,6 +1196,7 @@ public class Server {
     }
     Object[] args = convertActionToArguments(action);
     String actionName = action.substring(0, action.indexOf("("));
+    waitDelta();
     switch (actionName) {
       case "gehe" -> {
         move();
@@ -1300,7 +1301,7 @@ public class Server {
    */
   public void move(final Direction direction, final Entity... entities) {
     double distanceThreshold = 0.1;
-
+    System.out.println("MOVE");
     record EntityComponents(
         PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 

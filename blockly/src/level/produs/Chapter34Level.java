@@ -2,7 +2,6 @@ package level.produs;
 
 import client.Client;
 import contrib.hud.DialogUtils;
-import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
