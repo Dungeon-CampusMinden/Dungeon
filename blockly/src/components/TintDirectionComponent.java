@@ -73,8 +73,8 @@ public class TintDirectionComponent implements Component {
   /**
    * Adds the original color of the tile at the given coordinate.
    *
-   * <p> If the coordinate already exists in the map, it will not be added again to keep the
-   * original color.
+   * <p>If the coordinate already exists in the map, it will not be added again to keep the original
+   * color.
    *
    * @param coordinate The coordinate of the tile.
    * @param color The original color of the tile.
