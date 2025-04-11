@@ -33,7 +33,7 @@ public class Chapter15Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.remove(FogSystem.class);
+    LevelManagementUtils.fog(false);
     if (showText) {
       DialogUtils.showTextPopup(
           "Die Monster sehen böse aus, du solltest ihnen nicht zu nahe kommen.",

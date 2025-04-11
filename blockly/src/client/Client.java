@@ -171,6 +171,7 @@ public class Client {
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
+    Game.add(new FogSystem());
   }
 
   private static void startServer() {

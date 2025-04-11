@@ -1,5 +1,6 @@
 package level;
 
+import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -54,5 +55,11 @@ public class LevelManagementUtils {
 
   public static void zoomDefault() {
     CameraSystem.camera().zoom = CameraSystem.DEFAULT_ZOOM_FACTOR;
+  }
+
+  public static void fog(boolean active){
+    FogSystem fs = (FogSystem) Game.systems().get(FogSystem.class);
+    if(fs!=null)
+     fs.active(active);
   }
 }
