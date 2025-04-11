@@ -24,7 +24,7 @@ import level.LevelManagementUtils;
 public class Chapter21Level extends BlocklyLevel {
   private static boolean showText = true;
 
-  private Set<LeverComponent> torches = new HashSet<>();
+  private final Set<LeverComponent> torches = new HashSet<>();
   private DoorTile door;
 
   /**
@@ -109,7 +109,7 @@ public class Chapter21Level extends BlocklyLevel {
 
   @Override
   protected void onTick() {
-    if (torches.stream().allMatch(t -> t.isOn())) door.open();
+    if (torches.stream().allMatch(LeverComponent::isOn)) door.open();
     else door.close();
   }
 }

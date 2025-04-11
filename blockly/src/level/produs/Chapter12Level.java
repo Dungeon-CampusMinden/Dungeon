@@ -6,6 +6,7 @@ import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.MissingHeroException;
 import entities.BlocklyMonsterFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -65,7 +66,11 @@ public class Chapter12Level extends BlocklyLevel {
 
     System.out.println(
         "View direction after first tick "
-            + Game.hero().get().fetch(PositionComponent.class).get().viewDirection());
+            + Game.hero()
+                .orElseThrow(MissingHeroException::new)
+                .fetch(PositionComponent.class)
+                .orElseThrow()
+                .viewDirection());
   }
 
   @Override

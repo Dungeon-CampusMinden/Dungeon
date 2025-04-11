@@ -10,6 +10,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.MissingComponentException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -73,10 +74,18 @@ public class Chapter17Level extends BlocklyLevel {
     Entity s2 = LeverFactory.createLever(customPoints().get(1).toCenteredPoint());
     Entity s3 = LeverFactory.createLever(customPoints().get(2).toCenteredPoint());
     Entity s4 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());
-    switch1 = s1.fetch(LeverComponent.class).get();
-    switch2 = s2.fetch(LeverComponent.class).get();
-    switch3 = s3.fetch(LeverComponent.class).get();
-    switch4 = s4.fetch(LeverComponent.class).get();
+    switch1 =
+        s1.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
+    switch2 =
+        s2.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
+    switch3 =
+        s3.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s3, LeverComponent.class));
+    switch4 =
+        s4.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s4, LeverComponent.class));
     Game.add(s1);
     Game.add(s2);
     Game.add(s3);

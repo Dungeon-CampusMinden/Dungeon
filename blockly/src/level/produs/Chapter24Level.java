@@ -9,6 +9,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.MissingHeroException;
 import entities.BlocklyMonsterFactory;
 import java.util.List;
 import java.util.Random;
@@ -18,7 +19,7 @@ import level.LevelManagementUtils;
 
 /** PRODUS LEVEL. */
 public class Chapter24Level extends BlocklyLevel {
-  private Random random = new Random();
+  private final Random random = new Random();
   private static boolean showText = true;
   private DoorTile door;
 
@@ -65,7 +66,11 @@ public class Chapter24Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
     LevelManagementUtils.zoomDefault();
-    Game.hero().get().fetch(AmmunitionComponent.class).orElseThrow().currentAmmunition(4);
+    Game.hero()
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(4);
     final int[] counter = {0};
     customPoints()
         .forEach(
