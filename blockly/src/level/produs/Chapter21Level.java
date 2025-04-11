@@ -38,6 +38,30 @@ public class Chapter21Level extends BlocklyLevel {
   public Chapter21Level(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 2: Level 1");
+    this.blockBlocklyElement(
+        // MOVEMENT
+        "goToExit",
+        // Richtungen
+        "direction_here",
+        // Schleifen
+        "while_loop",
+        // Inventar und Charakter
+        "wait",
+        "drop_item",
+        "Items",
+        // Bedingung
+        "logic_wall_direction",
+        "logic_floor_direction",
+        "logic_pit_direction",
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
+        // Wahrheitsausdruecke
+        "logic_operator",
+        "usual_condition",
+        // Kategorien
+        "Variablen",
+        "Sonstige");
   }
 
   @Override
