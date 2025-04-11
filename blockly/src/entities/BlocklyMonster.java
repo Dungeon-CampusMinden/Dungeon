@@ -273,9 +273,9 @@ public enum BlocklyMonster {
       pc.position(spawnPoint);
 
       AIComponent aic =
-        monster
-          .fetch(AIComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(monster, AIComponent.class));
+          monster
+              .fetch(AIComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(monster, AIComponent.class));
       if (aic.fightBehavior() instanceof StraightRangeAI straightRangeAI) {
         if (range == -1) {
           range = straightRangeAI.range();
