@@ -44,7 +44,7 @@ public class Chapter24Level extends BlocklyLevel {
     }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.UP);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
     LevelManagementUtils.zoomDefault();
     Game.hero().get().fetch(AmmunitionComponent.class).orElseThrow().currentAmmunition(4);
     final int[] counter = {0};

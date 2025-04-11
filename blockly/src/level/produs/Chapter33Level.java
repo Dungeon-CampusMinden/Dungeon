@@ -34,7 +34,7 @@ public class Chapter33Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.zoomIn();
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).get()).close();
     if (showText) {
       DialogUtils.showTextPopup(

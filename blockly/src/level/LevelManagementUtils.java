@@ -39,13 +39,18 @@ public class LevelManagementUtils {
     pc.position(pc.position().toCoordinate().toCenteredPoint());
   }
 
-  public static void heroViewDiretion(PositionComponent.Direction viewDirection) {
+  public static void heroViewDirection(PositionComponent.Direction viewDirection) {
+    System.out.println("HERO VIEW DIRECTION");
     Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
     Server.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
   }
 
   public static void zoomIn() {
     CameraSystem.camera().zoom -= 0.2f;
+  }
+
+  public static void zoomOut() {
+    CameraSystem.camera().zoom += 0.2f;
   }
 
   public static void zoomDefault() {

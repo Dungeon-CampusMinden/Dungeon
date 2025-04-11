@@ -85,7 +85,7 @@ public class Chapter11Level extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(

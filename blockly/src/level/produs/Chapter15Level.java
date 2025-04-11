@@ -39,7 +39,7 @@ public class Chapter15Level extends BlocklyLevel {
       showText = false;
     }
     cameraFocusOn(new Coordinate(7, 6));
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(1);

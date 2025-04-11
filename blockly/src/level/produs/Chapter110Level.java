@@ -29,7 +29,7 @@ public class Chapter110Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(2).toCenteredPoint()));

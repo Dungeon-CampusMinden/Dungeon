@@ -37,7 +37,7 @@ public class Chapter32Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
     customPoints().forEach(c -> Game.add(BlocklyMonsterFactory.hedgehog(c)));
   }
 

@@ -71,7 +71,7 @@ public class Client {
     Game.userOnSetup(
         () -> {
           // chapter 1
-
+          /*
           DevDungeonLoader.addLevel(Tuple.of("chapter11", Chapter11Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter12", Chapter12Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter13", Chapter13Level.class));
@@ -95,7 +95,7 @@ public class Client {
           DevDungeonLoader.addLevel(Tuple.of("chapter31", Chapter31Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter32", Chapter32Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter33", Chapter33Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("chapter34", Chapter34Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter34", Chapter34Level.class)); */
           DevDungeonLoader.addLevel(Tuple.of("chapter35", Chapter35Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter36", Chapter36Level.class));
 
