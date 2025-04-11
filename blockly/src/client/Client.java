@@ -96,6 +96,8 @@ public class Client {
           DevDungeonLoader.addLevel(Tuple.of("chapter32", Chapter32Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter33", Chapter33Level.class));
           DevDungeonLoader.addLevel(Tuple.of("chapter34", Chapter34Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter35", Chapter35Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("chapter36", Chapter36Level.class));
 
           createSystems();
 
