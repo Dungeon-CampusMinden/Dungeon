@@ -42,16 +42,15 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import level.BlocklyLevel;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import level.BlocklyLevel;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -533,7 +532,11 @@ public class Server {
   private void handleLanguageRequest(HttpExchange exchange) throws IOException {
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
-    String response = LanguageServer.GenerateCompletionItems(this.getClass());
+    // Query parameter 'object'
+    String query = exchange.getRequestURI().getQuery();
+    String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "server";
+
+    String response = LanguageServer.GenerateCompletionItems(objectName);
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
@@ -638,7 +641,8 @@ public class Server {
    * Execute actions in the dungeon -> Perform the desired actions in the dungeon. This can be
    * moving into a specific direction or throwing a fireball.
    *
-   * @param action
+   * @param action Action that should be processed. This action must not contain any whitespaces at
+   *     the
    */
   public void processAction(String action) {
     System.out.print("Processing action: ");
@@ -719,22 +723,24 @@ public class Server {
    */
   private void executeJavaCode(String code) throws Exception {
     code =
-      "import server.Server;\n"
-        + "public class UserScript {\n"
-        + "    public static void execute(Server game) {\n"
-        + "        "
-        + code
-        + "\n"
-        + "    }\n"
-        + "}\n";
+        "import server.Server;\n"
+            + "public class UserScript {\n"
+            + "    public static void execute(Server game) {\n"
+            + "        "
+            + code
+            + "\n"
+            + "    }\n"
+            + "}\n";
 
-    Path sourceFile = Paths.get("UserScript.java");
-    Files.writeString(sourceFile, code);
+    // In system temp directory
+    Path tempDir = Files.createTempDirectory("blockly");
+    Path tempFile = tempDir.resolve("UserScript.java");
+    Files.writeString(tempFile, code);
 
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-    int compilationResult = compiler.run(null, null, errorStream, sourceFile.toString());
+    int compilationResult = compiler.run(null, null, errorStream, tempFile.toFile().toString());
 
     if (compilationResult != 0) {
       String errors = errorStream.toString();
@@ -745,27 +751,27 @@ public class Server {
     }
 
     URLClassLoader classLoader =
-      URLClassLoader.newInstance(new URL[] {new File("").toURI().toURL()});
+        URLClassLoader.newInstance(new URL[] {new File("").toURI().toURL()});
     Class<?> scriptClass = Class.forName("UserScript", true, classLoader);
     Method method = scriptClass.getMethod("execute", this.getClass());
 
     executor = Executors.newSingleThreadExecutor();
     currentExecution =
-      executor.submit(
-        () -> {
-          try {
-            method.invoke(null, this);
-            // Code executed successfully
-            codeRunning.set(false);
-          } catch (Exception e) {
-            Throwable cause = e.getCause();
-            String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
-            System.err.println(errorMessage);
-            setError("Execution error: " + errorMessage);
-            codeRunning.set(false);
-            throw new RuntimeException(e);
-          }
-        });
+        executor.submit(
+            () -> {
+              try {
+                method.invoke(null, this);
+                // Code executed successfully
+                codeRunning.set(false);
+              } catch (Exception e) {
+                Throwable cause = e.getCause();
+                String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
+                System.err.println(errorMessage);
+                setError("Execution error: " + errorMessage);
+                codeRunning.set(false);
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   /**
