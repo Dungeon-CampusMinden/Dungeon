@@ -38,7 +38,7 @@ public class Chapter111Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
-    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
     if (showText) {
       DialogUtils.showTextPopup(

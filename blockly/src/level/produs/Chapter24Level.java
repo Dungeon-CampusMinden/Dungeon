@@ -43,7 +43,7 @@ public class Chapter24Level extends BlocklyLevel {
       showText = false;
     }
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.cameraFocusOn(new Coordinate(11,7));
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.UP);
     LevelManagementUtils.zoomDefault();
     Game.hero().get().fetch(AmmunitionComponent.class).orElseThrow().currentAmmunition(4);
@@ -74,6 +74,13 @@ public class Chapter24Level extends BlocklyLevel {
 
   @Override
   protected void onTick() {
+    if(Game.hero().isPresent()){
+      float x = Game.hero().get().fetch(PositionComponent.class).orElseThrow().position().x;
+      if(x>=11)
+        LevelManagementUtils.cameraFocusHero();
+    }
+
+
     if (Game.entityStream(Set.of(AIComponent.class)).findAny().isPresent()) door.close();
     else door.open();
   }

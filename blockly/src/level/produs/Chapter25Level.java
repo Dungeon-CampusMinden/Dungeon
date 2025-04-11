@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -10,6 +11,7 @@ import level.LevelManagementUtils;
 
 public class Chapter25Level extends BlocklyLevel {
 
+  private static boolean showText=true;
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -25,6 +27,12 @@ public class Chapter25Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    if (showText) {
+      DialogUtils.showTextPopup(
+              "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.",
+              "Kapitel 2: Flucht");
+      showText = false;
+    }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);

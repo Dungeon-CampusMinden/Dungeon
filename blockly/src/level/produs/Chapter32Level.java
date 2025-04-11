@@ -1,13 +1,20 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
+import core.Game;
+import core.components.PositionComponent;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
+
+import entities.BlocklyMonsterFactory;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter32Level extends BlocklyLevel {
-
+  private static boolean showText=true;
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -22,7 +29,20 @@ public class Chapter32Level extends BlocklyLevel {
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    if (showText) {
+      DialogUtils.showTextPopup(
+              "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!",
+              "Kapitel 3: Rache");
+      showText = false;
+    }
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.zoomDefault();
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.LEFT);
+    customPoints().forEach(c -> Game.add(BlocklyMonsterFactory.hedgehog(c)));
+
+  }
 
   @Override
   protected void onTick() {}
