@@ -18,10 +18,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -455,9 +452,20 @@ public interface ILevel extends IndexedGraph<Tile> {
   /**
    * Retrieves the end tile of the level.
    *
+   * <p>If multiple Endtiles are in the game, this will only return one of them
+   *
    * @return The end tile of the level.
+   * @deprecated use {@link #endTiles()}
    */
+  @Deprecated
   Tile endTile();
+
+  /**
+   * Retrieves a Set containing the end tiles of the level.
+   *
+   * @return Set containing the end tiles of the level.
+   */
+  Set<ExitTile> endTiles();
 
   /**
    * Retrieves the start tile of the level.

@@ -13,6 +13,7 @@ import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -161,9 +162,6 @@ public class TileLevel implements ILevel {
 
   @Override
   public void addExitTile(ExitTile tile) {
-    if (endTile() != null) {
-      changeTileElementType(endTile(), LevelElement.FLOOR);
-    }
     exitTiles.add(tile);
   }
 
@@ -302,5 +300,10 @@ public class TileLevel implements ILevel {
   @Override
   public Tile endTile() {
     return exitTiles.size() > 0 ? exitTiles.get(0) : null;
+  }
+
+  @Override
+  public Set<ExitTile> endTiles() {
+    return endTiles();
   }
 }
