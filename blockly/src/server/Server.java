@@ -13,10 +13,7 @@ import components.AmmunitionComponent;
 import components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.ItemComponent;
-import contrib.components.LeverComponent;
+import contrib.components.*;
 import contrib.level.DevDungeonLoader;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
@@ -1651,7 +1648,8 @@ public class Server {
       moveDirection = Direction.fromPositionCompDirection(viewDirection.opposite());
     }
     if (!checkTile.isAccessible()
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))) return;
+        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))
+        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(AIComponent.class))) return;
     ArrayList<Entity> toMove =
         new ArrayList<>(
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());

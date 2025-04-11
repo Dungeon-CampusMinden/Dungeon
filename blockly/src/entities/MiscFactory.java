@@ -5,6 +5,7 @@ import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
 import contrib.components.ProjectileComponent;
+import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import contrib.utils.ICommand;
 import core.Entity;
@@ -84,6 +85,30 @@ public class MiscFactory {
         };
     pressurePlate.add(new CollideComponent(collide, collide));
     return pressurePlate;
+  }
+
+  /**
+   * Create a Lever with a {@link BlockComponent}.
+   *
+   * @param position Position to place on (will be centered)
+   * @return lever entity
+   */
+  public static Entity blocklyLever(final Point position) {
+    Entity lever = LeverFactory.createLever(position.toCoordinate().toCenteredPoint());
+    lever.add(new BlockComponent());
+    return lever;
+  }
+
+  /**
+   * Create a Lever that looks like a torch with a {@link BlockComponent}.
+   *
+   * @param position Position to place on (will be centered)
+   * @return lever entity
+   */
+  public static Entity blocklyTorch(final Point position) {
+    Entity torch = LeverFactory.createTorch(position.toCoordinate().toCenteredPoint());
+    torch.add(new BlockComponent());
+    return torch;
   }
 
   /**
