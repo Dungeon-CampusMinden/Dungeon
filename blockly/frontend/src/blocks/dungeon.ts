@@ -20,7 +20,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "Gehe",
     previousStatement: null,
     nextStatement: null,
-    colour: 290,
+    colour: 180,
     tooltip: "Bewegt den Spieler in die Richtung in die er schaut",
   },
   {
@@ -28,7 +28,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "Gehe Zum Ausgang",
     previousStatement: null,
     nextStatement: null,
-    colour: 290,
+    colour: 180,
     tooltip: "Bewege dich zum Ausgang des Levels.",
   },
   {
@@ -43,7 +43,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     previousStatement: null,
     nextStatement: null,
-    colour: 290,
+    colour: 180,
     tooltip: "Dreht den Spieler nach links oder rechts",
   },
   // ---------------------- Variables ----------------------
@@ -96,7 +96,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: ["Expression", "Array_get", "Number"],
       },
     ],
-    colour: 230,
+    colour: 220,
   },
   {
     type: "get_variable",
@@ -109,7 +109,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Variable",
-    colour: 260,
+    colour: 220,
   },
   {
     type: "expression",
@@ -138,7 +138,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Expression",
-    colour: 260,
+    tooltip: "Rechenoperation",
+    colour: 220,
   },
   {
     type: "var_number",
@@ -153,37 +154,38 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Number",
-    colour: 230,
+    colour: 220,
   },
+  // ---------------------- Directions ----------------------
   {
     type: "direction_up",
     message0: "vorne",
     output: "Direction",
-    colour: 230,
+    colour: 200,
   },
   {
     type: "direction_down",
     message0: "hinten",
     output: "Direction",
-    colour: 230
+    colour: 200
   },
   {
     type: "direction_left",
     message0: "links",
     output: "Direction",
-    colour: 230
+    colour: 200
   },
   {
     type: "direction_right",
     message0: "rechts",
     output: "Direction",
-    colour: 230
+    colour: 200
   },
   {
     type: "direction_here",
     message0: "hier",
     output: "Direction",
-    colour: 230
+    colour: 200
   },
   // ---------------------- Arrays ----------------------
   {
@@ -298,7 +300,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     output: "loop",
     tooltip: "%{BKY_CONTROLS_REPEAT_TOOLTIP}",
-    colour: 30,
+    colour: 280,
   },
   {
     type: "while_loop",
@@ -321,7 +323,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     nextStatement: null,
     output: "loop",
     tooltip: "%{BKY_CONTROLS_WHILEUNTIL_TOOLTIP_WHILE}",
-    colour: 30,
+    colour: 280,
   },
   {
     type: "repeat_number",
@@ -336,9 +338,10 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Number",
-    colour: 30,
+    tooltip: "Anzahl wiederholungen",
+    colour: 280,
   },
-  // ---------------------- Conditions ----------------------
+  // ---------------------- truth expressions ----------------------
   {
     type: "logic_boolean",
     message0: "%1",
@@ -353,7 +356,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       },
     ],
     output: "Boolean",
-    colour: 60,
+    tooltip: "Gibt 'Wahr' oder 'Falsch' aus.",
+    colour: 120,
   },
   {
     type: "usual_condition",
@@ -384,7 +388,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
-    colour: 60,
+    tooltip: "Vergleicht zwei Werte, z.B. ob sie gleich oder größer sind.",
+    colour: 120,
   },
   {
     type: "not_condition",
@@ -398,7 +403,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
-    colour: 60,
+    tooltip: "Verneint oder kehrt eine Bedingung um.",
+    colour: 120,
   },
   {
     type: "logic_operator",
@@ -425,8 +431,10 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     ],
     inputsInline: true,
     output: "Boolean",
-    colour: 60,
+    tooltip: "Verknüpfe zwei Bedingungen. 'Und' nur, wenn beide wahr sind. 'Oder', wenn mindestens eine wahr ist.",
+    colour: 120,
   },
+  // ---------------------- Conditions ----------------------
   {
     type: "logic_wall_direction",
     message0: "Wand %1",
@@ -439,7 +447,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_floor_direction",
@@ -453,7 +461,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_pit_direction",
@@ -467,7 +475,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_monster_direction",
@@ -481,7 +489,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_switch_direction",
@@ -495,7 +503,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_breadcrumbs_direction",
@@ -509,7 +517,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_clover_direction",
@@ -523,7 +531,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   {
     type: "logic_active_direction",
@@ -537,7 +545,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
         check: "Direction",
       },
     ],
-    colour: 60,
+    colour: 0,
   },
   // ---------------------- If statement ----------------------
   {
@@ -560,7 +568,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     output: "if",
-    colour: 60,
+    tooltip: "Führt Anweisung aus, wenn die Bedingung wahr ist.",
+    colour: 250,
     suppressPrefixSuffix: true,
   },
   {
@@ -590,7 +599,8 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     output: "if",
-    colour: 60,
+    tooltip: "Führt Anweisung aus, wenn die Bedingung wahr ist, sonst andere Anweisung.",
+    colour: 250,
     suppressPrefixSuffix: true,
   },
   // ---------------------- Skills ----------------------
@@ -599,7 +609,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "Interagieren",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
+    colour: 30,
     tooltip: "Mit Items interagieren",
     output: "Skill",
   },
@@ -608,7 +618,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "Feuerball",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
+    colour: 30,
     tooltip: "Feuerball in Richtung schießen",
   },
   {
@@ -616,7 +626,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "aufheben",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
+    colour: 30,
     tooltip: "Sammel den Gegenstand unter dir auf.",
   },
   {
@@ -624,7 +634,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "fallen lassen %1",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
+    colour: 30,
     tooltip: "Gegenstand auf den Boden werfen.",
     args0: [
       {
@@ -639,7 +649,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "warte",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
+    colour: 30,
     tooltip: "Warte für einen kurzen Moment.",
   },
   {
@@ -647,7 +657,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "benutzen",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
+    colour: 30,
     tooltip: "Benutze den Gegenstand vor dir.",
   },
   {
@@ -655,28 +665,29 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     message0: "schiebe",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
-    tooltip: "Nur einmal feste drücken!",
+    colour: 30,
+    tooltip: "Schieb ein bewegliches Objekt vorwärts.",
   },
   {
     type: "pull",
     message0: "ziehen",
     previousStatement: null,
     nextStatement: null,
-    colour: 0,
-    tooltip: "Nur einmal feste ziehen!",
+    colour: 30,
+    tooltip: "Zieh ein bewegliches Objekt rückwärts.",
   },
+  //  ---------------------- Items ----------------------
   {
     type: "item_breadcrumbs",
     message0: "Brotkrumen",
     output: "Item",
-    colour: 230
+    colour: 50
   },
   {
     type: "item_clover",
     message0: "Kleeblatt",
     output: "Item",
-    colour: 230
+    colour: 50
   },
 
   //  ---------------------- Functions ----------------------
