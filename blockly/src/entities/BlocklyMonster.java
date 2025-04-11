@@ -87,6 +87,7 @@ public enum BlocklyMonster {
       99999, // one hit kill
       0,
       MonsterIdleSound.BURP),
+  /** The Boss of Produs Blockly. */
   BLACK_KNIGHT(
       "Blockly Hedgehog",
       "character/knight",

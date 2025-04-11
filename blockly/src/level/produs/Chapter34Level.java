@@ -22,6 +22,7 @@ import level.LevelManagementUtils;
 import server.Server;
 import utils.Direction;
 
+/** PRODUS LEVEL. */
 public class Chapter34Level extends BlocklyLevel {
   private static boolean showText = true;
   private static final int TICK_TIMER = 60;

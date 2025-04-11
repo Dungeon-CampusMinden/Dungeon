@@ -20,6 +20,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
+/** PRODUS LEVEL. */
 public class Chapter36Level extends BlocklyLevel {
   private static boolean showText = true;
   private PositionComponent heropc;

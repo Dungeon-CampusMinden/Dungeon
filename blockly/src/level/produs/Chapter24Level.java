@@ -16,6 +16,7 @@ import java.util.Set;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
+/** PRODUS LEVEL. */
 public class Chapter24Level extends BlocklyLevel {
   private Random random = new Random();
   private static boolean showText = true;
