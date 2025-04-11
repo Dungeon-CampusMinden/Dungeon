@@ -36,7 +36,7 @@ public class Chapter18Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.zoomDefault();

@@ -39,7 +39,7 @@ public class Chapter111Level extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     if (showText) {
       DialogUtils.showTextPopup(
           "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");

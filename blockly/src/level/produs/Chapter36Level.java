@@ -9,11 +9,10 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import level.BlocklyLevel;
-import level.LevelManagementUtils;
-
 import java.util.List;
 import java.util.function.Consumer;
+import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter36Level extends BlocklyLevel {
   private static boolean showText = true;
@@ -38,10 +37,10 @@ public class Chapter36Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 8));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
-   // boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.LEFT, entity -> {});
-   // bosspc = boss.fetch(PositionComponent.class).get();
-   // Game.add(boss);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    // boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.LEFT, entity -> {});
+    // bosspc = boss.fetch(PositionComponent.class).get();
+    // Game.add(boss);
     Game.allTiles(LevelElement.PIT)
         .forEach(
             new Consumer<Tile>() {
@@ -61,6 +60,5 @@ public class Chapter36Level extends BlocklyLevel {
   }
 
   @Override
-  protected void onTick() {
-  }
+  protected void onTick() {}
 }

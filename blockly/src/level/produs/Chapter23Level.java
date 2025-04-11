@@ -27,7 +27,7 @@ public class Chapter23Level extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
   }
 

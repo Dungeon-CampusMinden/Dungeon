@@ -34,7 +34,7 @@ public class Chapter17Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());

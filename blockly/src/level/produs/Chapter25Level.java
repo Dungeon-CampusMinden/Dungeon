@@ -35,7 +35,7 @@ public class Chapter25Level extends BlocklyLevel {
     }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
   }
 
