@@ -70,12 +70,14 @@ export const resetBlocksAndCategories = (allBlocks: FlyoutItem[], allCategories:
 
   // Enable all categories
   allCategories.forEach((category) => {
-    delete category["hidden"];
+    category["disabledReasons"] = (category["disabledReasons"] || []).filter((reason: string) => reason !== blockReason);
+    if (category["disabledReasons"]?.length === 0) {
+      category["hidden"] = "false"
+    }
   });
 }
 
 export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: string[], reason:string)=> {
-
   const allBlocks = getAllBlocksFromToolboxDefinition(toolbox);
   const allCategories = getAllCategoriesFromToolboxDefinition(toolbox);
 
@@ -92,6 +94,10 @@ export const blockElementsFromToolbox = (toolbox: unknown, blockedElements: stri
   );
   blockedCategories.forEach((category) => {
     category["hidden"] = "true";
+    category["disabledReasons"] = [
+      ...(category["disabledReasons"] || []),
+      reason
+    ];
   });
 
   // Disable blocked blocks
