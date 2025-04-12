@@ -13,12 +13,14 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.CoreAnimationPriorities;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -221,6 +223,14 @@ public final class GameLoop extends ScreenAdapter {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     pc.position(Game.startTile());
+    pc.viewDirection(PositionComponent.Direction.DOWN); // look down by default
+
+    // reset animations
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
   }
 
   /**
