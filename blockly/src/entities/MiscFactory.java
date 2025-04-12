@@ -51,6 +51,7 @@ public class MiscFactory {
     stone.add(new BlockComponent());
     stone.add(new VelocityComponent(STONE_SPEED, STONE_SPEED));
     stone.add(new CollideComponent());
+    stone.add(new BlockFireBallComponent());
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));
     stone.add(dc);
     return stone;
