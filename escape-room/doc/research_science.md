@@ -1,5 +1,5 @@
 ---
-title: "Recherche zu virtuellen Escape-Rooms in der Lehre"
+title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Wissenschaftliche Veröffentlichungen"
 ---
 
 # Ziele
