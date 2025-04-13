@@ -40,10 +40,32 @@ Die Anforderungen sind in Aspekte aufgeteilt.
     - leichter Widerspruch mit konventioneller Didaktiv (gleiches Wissen für alle Teilnehmer)
 - Spielästhetik (weiter gefasste Interpretation)
   - Neugier, Ausprobieren, Erforschung (das fürs Lernen Wichtige)
+  - Ausdruck eigener Ideen, Schlüpfen in eine Rolle
+    - Hund verscheuchen vs. Hund mit Wurst bestechen
   - Erzählung, Musik, Aussehen, etc.
   - Versuch einer umfassenden Liste ist z.B. das MDA-Framework ([Paper](https://users.cs.northwestern.edu/~hunicke/pubs/MDA.pdf)/[Wikipedia](https://en.wikipedia.org/wiki/MDA_framework))
 
+## Abhängigkeitsgraph
 
+- direktional
+- ein Startknoten
+- ein Zielknoten
+- Knoten sind (Teil-) Ziele und Ereignisse
+  - "Katze mit Fisch anlocken"
+  - "Hund mit Pfeife verscheuchen"
+- Ereignisse können die Möglichkeiten verändern
+  - bspw. ein durch einen Timer ausgelöstes Ereignis, wenn zu Zeit X ein Ziel noch nicht erreicht wurd
+- Ziele können weitere Bedingungen zur Laufzeit haben
+  - "zwei Personen müssen anwesend sein"
+  - "geht nur draußen"
+  - "Brechstange notwendig"
+  - "Radio muss auf bestimmte Frequenz eingestellt sein"
+  - "Kiste muss geöffnet sein"
+  - noch nicht "Katze mit Fisch anlocken" erreicht
+  - Interaktion für mehrere Gegenstände
+    - "zwei Hebel gleichzeitig halten"
+  - möglicherweise fehlschlagende Interaktionen
+    - "Ast bricht bei Versuch"
 
 ## Lehre
 
@@ -52,3 +74,13 @@ Die Anforderungen sind in Aspekte aufgeteilt.
   - Vorteil "eigenes Lerntempo" evtl. durch Timer im Escape-Room eingeschränkt
 2. Übung / Anwendung von Wissen und Fähigkeiten
 3. Überprüfung von Wissen und Fähigkeiten
+
+# Erwartete Schwierigkeiten
+
+- viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
+- die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
+- Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert
+- mögliche Konsequenz: Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
+- zeitlich begrenzte Förderung
+  - mögliches Ziel: Prototyp, mit dem man schon irgendwie arbeiten kann?
+
