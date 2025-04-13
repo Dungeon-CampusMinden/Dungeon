@@ -47,8 +47,8 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 
 ## Lehre
 
-Zwei Kernaufgaben:
 
 1. Vermittlung von Inhalten
   - Vorteil "eigenes Lerntempo" evtl. durch Timer im Escape-Room eingeschränkt
-2. Überprüfung von Wissen und Fähigkeiten
+2. Übung / Anwendung von Wissen und Fähigkeiten
+3. Überprüfung von Wissen und Fähigkeiten
