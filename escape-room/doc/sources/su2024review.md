@@ -5,7 +5,7 @@ title: "A systematic review of game-based assessment in education in the past de
 ## Bibtex
 
 ```
-@article{su_2024,
+@article{su2024review,
   title     = "A systematic review of game-based assessment in education in the
                past decade",
   journal   = "Knowl. Manag. E-learn.: Int. J.",

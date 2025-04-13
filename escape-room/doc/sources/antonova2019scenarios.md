@@ -5,7 +5,7 @@ title: "Designing Scenarios for Personalized Learning: Enabling Teachers to Appl
 ## Bibtex
 
 ```
-@article{antonova_2019,
+@article{antonova2019scenarios,
   title     = "Designing Scenarios for Personalized Learning:
                Enabling Teachers to Apply Educational Video Games in Class",
   author    = "Antonova A. and Bontchev B.",

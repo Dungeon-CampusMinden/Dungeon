@@ -5,7 +5,7 @@ title: "The learning outcomes achievement and user experience analysis of a cryp
 ## Bibtex
 
 ```
-@INPROCEEDINGS{susanto_2024,
+@inproceedings{susanto2024cryptowebgame,
   title           = "The learning outcomes achievement and user experience
                      analysis of a cryptography education web game",
   booktitle       = "2024 10th International {HCI} and {UX} Conference in
