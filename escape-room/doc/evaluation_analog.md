@@ -10,6 +10,15 @@ Bisher wurden gehandelt:
 - vlt. 5-10 Leute in 2 Gruppen
 - Ende Mai
 
+Die erste Evaluierung eines analoge Escape-Rooms soll ein niedrigschwelliges Experiment sein, um Erfahrungen zu sammeln, die im weiteren Verlauf des Projekts (digitale Escape-Rooms) nützlich sind.
+Am Ende des Testlaufs hoffen wir:
+
+- einen besseren Eindruck davon zu haben, wie Escape-Rooms in der Lehre überhaupt aussehen
+  - ist z.B. ein 90-Minütiger Lerntermin geeignet
+- den Stellenwert von immersiven Elementen gegenüber Lerninhalten besser einschätzen zu können
+- Feedback von Studenten zu erhalten
+- Fallstrick: Spielmechanik und Immersion funktionieren in einem Brettspiel anders als in einem Videospiel
+
 # Aufbau
 
 Da wir noch nicht wissen, welche konkreten Rätsel uns einfallen, haben wir für hier einen Bottom-Up-Ansatz angedacht. D.h. wir überlegen, welche Rätsel uns einfallen und versuchen, daraus etwas Gescheites zusammenzustellen.
