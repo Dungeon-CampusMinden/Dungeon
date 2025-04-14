@@ -4,7 +4,7 @@ title: "Exploring the fusion of mixed reality and digital game-based learning: T
 
 ## Bibtex
 
-```
+```bibtex
 @inproceedings{lee2023puzzlebox,
   title      = "Exploring the fusion of mixed reality and digital
                 game-based learning: The case of puzzle box games for

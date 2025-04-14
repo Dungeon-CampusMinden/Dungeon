@@ -4,7 +4,7 @@ title: "The learning outcomes achievement and user experience analysis of a cryp
 
 ## Bibtex
 
-```
+```bibtex
 @inproceedings{susanto2024cryptowebgame,
   title           = "The learning outcomes achievement and user experience
                      analysis of a cryptography education web game",

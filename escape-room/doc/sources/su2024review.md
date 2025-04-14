@@ -4,7 +4,7 @@ title: "A systematic review of game-based assessment in education in the past de
 
 ## Bibtex
 
-```
+```bibtex
 @article{su2024review,
   title     = "A systematic review of game-based assessment in education in the
                past decade",

@@ -4,7 +4,7 @@ title: "Beyond the traditional: A systematic review of digital game-based assess
 
 ## Bibtex
 
-```
+```bibtex
 @article{zhu2023review,
   title     = "Beyond the traditional: A systematic review of digital
                game-based assessment for students' knowledge, skills, and

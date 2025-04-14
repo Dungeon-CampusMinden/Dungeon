@@ -4,7 +4,7 @@ title: "Gamer-learner: Developing an engaging educational game"
 
 ## Bibtex
 
-```
+```bibtex
 @inproceedings{george2024engaging,
   title           = "Gamer-learner: Developing an engaging educational game",
   booktitle       = "2024 {IEEE} International Conference on Teaching,
