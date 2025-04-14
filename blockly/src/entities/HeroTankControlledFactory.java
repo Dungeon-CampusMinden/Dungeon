@@ -1,6 +1,6 @@
 package entities;
 
-import client.HeroCommands;
+import utils.HeroCommands;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.components.PlayerComponent;

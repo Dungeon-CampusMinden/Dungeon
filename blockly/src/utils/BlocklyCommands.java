@@ -1,7 +1,6 @@
-package client;
+package utils;
 
 import components.BlockComponent;
-import contrib.components.*;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
@@ -15,10 +14,9 @@ import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
 import server.Server;
-import utils.Direction;
 
 /**
- * This class contains all Blockly Block Commands that are available.
+ * A utility class that contains (helper) methods for Blockly Blocks.
  *
  * @see HeroCommands
  * @see LevelCommands

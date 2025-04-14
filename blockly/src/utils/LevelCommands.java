@@ -1,4 +1,4 @@
-package client;
+package utils;
 
 import contrib.components.LeverComponent;
 import contrib.utils.EntityUtils;
@@ -8,7 +8,6 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.utils.MissingHeroException;
-import utils.Direction;
 
 /**
  * This class contains all Level Commands that are available.

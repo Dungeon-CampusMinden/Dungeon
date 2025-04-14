@@ -4,7 +4,7 @@ import antlr.BlocklyConditionVisitor;
 import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
 import client.Client;
-import client.HeroCommands;
+import utils.HeroCommands;
 import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;

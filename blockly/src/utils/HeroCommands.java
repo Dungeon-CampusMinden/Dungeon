@@ -1,4 +1,4 @@
-package client;
+package utils;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import components.AmmunitionComponent;
@@ -23,7 +23,6 @@ import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.ArrayList;
 import server.Server;
-import utils.Direction;
 
 /**
  * This class implements all {@link BlocklyCommands} from the {@link contrib.entities.HeroFactory

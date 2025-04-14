@@ -4,7 +4,7 @@ package antlr;
 
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
-import client.LevelCommands;
+import utils.LevelCommands;
 import components.BreadcrumbComponent;
 import components.CloverComponent;
 import contrib.components.AIComponent;

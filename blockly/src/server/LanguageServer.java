@@ -1,7 +1,7 @@
 package server;
 
-import client.HeroCommands;
-import client.LevelCommands;
+import utils.HeroCommands;
+import utils.LevelCommands;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import java.io.BufferedReader;
