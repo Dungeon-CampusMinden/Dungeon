@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * This Class contains utility methods to generate completion items for the blockly language server.
@@ -277,13 +278,9 @@ public class LanguageServer {
 
       if (!parameters.isEmpty()) {
         sb.append("### Parameters:\n");
-        for (Map.Entry<String, String> entry : parameters.entrySet()) {
-          sb.append("- **")
-              .append(entry.getKey())
-              .append(":** ")
-              .append(entry.getValue())
-              .append("\n");
-        }
+        parameters.forEach(
+            (key, value) ->
+                sb.append("- **").append(key).append(":** ").append(value).append("\n"));
       }
 
       if (!returnDoc.isEmpty()) {
@@ -292,16 +289,19 @@ public class LanguageServer {
 
       if (!throwDoc.isEmpty()) {
         sb.append("### Throws:\n");
-        for (Map.Entry<String, String> entry : throwDoc.entrySet()) {
-          sb.append("- **")
-              .append(entry.getKey())
-              .append(":** ")
-              .append(entry.getValue())
-              .append("\n");
-        }
+        throwDoc.forEach(
+            (key, value) ->
+                sb.append("- **").append(key).append(":** ").append(value).append("\n"));
       }
 
-      return sb.toString();
+      // Replace {@code code} with markdown `code`
+      String codeText =
+          Pattern.compile("\\{@code\\s*([^}]+)}").matcher(sb.toString()).replaceAll("`$1`");
+
+      // Replace {@link Text} with Text
+      String finalText = Pattern.compile("\\{@link\\s*([^}]+)}").matcher(codeText).replaceAll("$1");
+
+      return finalText;
     }
   }
 
