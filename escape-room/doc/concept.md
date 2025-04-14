@@ -105,9 +105,21 @@ Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik 
 
 # Erwartete Schwierigkeiten
 
-- viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
-- die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
-- Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert
-- mögliche Konsequenz: Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
+- Spaß
+  - viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
+  - nicht nur Spaß, sondern auch der Ausdruck der eigenen Persönlichkeit im Lernprozess
+  - die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
+  - prinzipieller Widerspruch zwischen zweckgebundenem Lernen und dem Spiel als Selbstzweck
+    - Spiele werden häufig um ein spaßiges Element herum aufgebaut
+    - in der Lehre kommen die Inhalte zuerst
+  - für die Vermittlung neuer Inhalte sollte die Lösung vielleicht der Begrenztheit des 'Constructivist Teaching' bewusst sein oder sogar einen Rahmen vorgeben
+- Immersion
+  - individuelle Ansprüche an die Lernerfahrung
+    - Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert (wann geht es endlich los?)
+    - Kinder profitieren mehr vom Setting, halten aber nicht so lange durch (weniger Zeit für Inhalte)
+  - mögliche Konsequenzen:
+    - Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
+    - Sollen die Spieler den Zeitaufwand für die Immersion selber festsetzen können?
+    - Untescheidung von Vorgehen abhängig vom Zielalter, Rahmen, Themenfeld etc.
 - zeitlich begrenzte Förderung
-  - mögliches Ziel: Prototyp, mit dem man schon irgendwie arbeiten kann?
+  - mögliches Ziel: Prototyp, der sich bereits für den Einsatz eignet
