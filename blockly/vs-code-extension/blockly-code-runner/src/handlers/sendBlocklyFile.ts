@@ -24,6 +24,7 @@ export default async function sendBlocklyFile() {
     const code: string = editor.document.getText();
 
     try {
+        await axios.post(BLOCKLY_URL() + "/reset", {}, {headers: {'Content-Type': 'text/plain'}}); // reset before any input
         await axios.post(BLOCKLY_URL() + "/code", code, {headers: {'Content-Type': 'text/plain'}});
         showMessageWithTimeout('Blockly file sent successfully!');
     } catch (error: unknown) {
@@ -54,6 +55,7 @@ export async function stopBlocklyExecution() {
     const url = BLOCKLY_URL() + '/code?stop=1';
     try {
         await axios.get(url);
+        await axios.post(BLOCKLY_URL() + "/reset", {}, {headers: {'Content-Type': 'text/plain'}}); // reset before any input
         showMessageWithTimeout('Blockly execution stopped');
     } catch (error: unknown) {
         if (!(error instanceof AxiosError))

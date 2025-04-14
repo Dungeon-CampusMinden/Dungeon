@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import axios, {AxiosError} from 'axios';
+import { BLOCKLY_URL } from '../extension';
 
 export interface BlocklyCompletionItem {
     label: string;
@@ -14,8 +15,7 @@ export async function fetchLanguageConfig(objectToFetch: string): Promise<{
     rawItems: BlocklyCompletionItem[],
     completionItems: vscode.CompletionItem[]
 }> {
-    const config = vscode.workspace.getConfiguration('blocklyServer');
-    const url: string = config.get('url', 'http://localhost:8080') + '/language?object=' + objectToFetch;
+    const url: string = BLOCKLY_URL() + '/language?object=' + objectToFetch;
 
     try {
         const response = await axios.get(url, {timeout: 5000}); // Add timeout

@@ -1,7 +1,5 @@
 package server;
 
-import utils.HeroCommands;
-import utils.LevelCommands;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import java.io.BufferedReader;
@@ -17,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import utils.HeroCommands;
+import utils.LevelCommands;
 
 /**
  * This Class contains utility methods to generate completion items for the blockly language server.

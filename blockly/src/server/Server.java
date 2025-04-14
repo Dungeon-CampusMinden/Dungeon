@@ -4,7 +4,6 @@ import antlr.BlocklyConditionVisitor;
 import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
 import client.Client;
-import utils.HeroCommands;
 import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -28,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
@@ -38,6 +38,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import utils.Direction;
+import utils.HeroCommands;
+import utils.LevelCommands;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
@@ -58,6 +60,8 @@ import utils.Direction;
  * Don't forget to add a test to the TestServer class for your new block.
  */
 public class Server {
+
+  private static final Logger LOGGER = Logger.getLogger(Server.class.getSimpleName());
 
   // Singleton
   private static Server instance;
@@ -464,6 +468,7 @@ public class Server {
       os.write(response.getBytes());
       os.close();
     } catch (Exception e) {
+      LOGGER.severe("Error executing code: " + e);
       setError("Failed to execute code: " + e.getMessage());
       String response = errorMsg;
       exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
@@ -705,9 +710,10 @@ public class Server {
    */
   private void executeJavaCode(String code) throws Exception {
     code =
-        "import server.Server;\n"
+        "import utils.HeroCommands;\n"
+            + "import utils.LevelCommands;\n"
             + "public class UserScript {\n"
-            + "    public static void execute(Server game) {\n"
+            + "    public static void execute(HeroCommands hero, LevelCommands level) {\n"
             + "        "
             + code
             + "\n"
@@ -732,17 +738,16 @@ public class Server {
       return;
     }
 
-    URLClassLoader classLoader =
-        URLClassLoader.newInstance(new URL[] {new File("").toURI().toURL()});
+    URLClassLoader classLoader = new URLClassLoader(new URL[] {tempDir.toUri().toURL()});
     Class<?> scriptClass = Class.forName("UserScript", true, classLoader);
-    Method method = scriptClass.getMethod("execute", this.getClass());
+    Method method = scriptClass.getMethod("execute", HeroCommands.class, LevelCommands.class);
 
     executor = Executors.newSingleThreadExecutor();
     currentExecution =
         executor.submit(
             () -> {
               try {
-                method.invoke(null, this);
+                method.invoke(null, new HeroCommands(), new LevelCommands());
                 // Code executed successfully
                 codeRunning.set(false);
               } catch (Exception e) {

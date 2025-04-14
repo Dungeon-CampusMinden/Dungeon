@@ -4,7 +4,6 @@ package antlr;
 
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
-import utils.LevelCommands;
 import components.BreadcrumbComponent;
 import components.CloverComponent;
 import contrib.components.AIComponent;
@@ -21,6 +20,7 @@ import nodes.INode;
 import server.Server;
 import server.Variable;
 import utils.Direction;
+import utils.LevelCommands;
 
 /**
  * This class defines the visitor for the condition part of the blockly language. It is used to
