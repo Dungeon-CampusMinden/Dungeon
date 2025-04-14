@@ -28,4 +28,4 @@ Gegenüberstellung von "traditionellen Methoden" der Lehrevaluation ("student as
 
 ## Übertragung auf unsere Arbeit
 
-Vielleicht nicht super-nützlich für uns, aber neben Fachwissen gibt es noch drei andere Kategorien von Gegenständen der Leistungsbewertung, die vielleicht sonst nicht an einer Universität gelehrt werden (psychologisch, kognitiv). Alleine nur, die auf dem Schirm zu haben, ist wahrscheinlich eine gute Idee, weil die allein vom Medium her in tradionellen Prüfungsmethoden schwerer testbar sind.
+Vielleicht nicht super-nützlich für uns, aber neben Fachwissen gibt es noch drei andere Kategorien von Gegenständen der Leistungsbewertung, die vielleicht sonst nicht an einer Universität gelehrt werden (psychologisch, kognitiv). Die auf dem Schirm zu haben ist wahrscheinlich eine gute Idee, weil die allein vom Medium her in tradionellen Prüfungsmethoden schwerer testbar sind.
