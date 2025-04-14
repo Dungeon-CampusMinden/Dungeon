@@ -75,6 +75,17 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 2. Übung / Anwendung von Wissen und Fähigkeiten
 3. Überprüfung von Wissen und Fähigkeiten
 
+# Aspekte von Workflows zur Erstellung eines Escape-Rooms
+
+Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwarten wird, um damit Escape-Rooms zu erstellen.
+
+## [Interview mit Scoll Nicholson](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
+
+> I start by deciding on the genre (type of game) and setting (where it takes place). I outline the players’ goals and the obstacles they’ll face. These decisions let me create “beats,” or major points in the game’s narrative. Next I start thinking of challenges—math and word puzzles, searching activities, or physical tasks—that could fit within the story. We want a variety of challenges. That way, every player gets a chance to solve something and feel like a hero.
+>
+> I work with a team. We sketch out ideas on paper or using digital drawing tools and 3-D design programs. Once we have our prototypes, or early versions, of the puzzles, we test and rework them. This process is known as iteration, and it’s the most important part of game development. The next step is to construct the actual room that will make players feel immersed in the game.
+
+
 # Erwartete Schwierigkeiten
 
 - viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
@@ -83,4 +94,3 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 - mögliche Konsequenz: Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
 - zeitlich begrenzte Förderung
   - mögliches Ziel: Prototyp, mit dem man schon irgendwie arbeiten kann?
-
