@@ -1,6 +1,7 @@
 package server;
 
-import client.Client;
+import client.HeroCommands;
+import client.LevelCommands;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import java.io.BufferedReader;
@@ -26,11 +27,7 @@ public class LanguageServer {
   private static final Logger LOGGER = Logger.getLogger(LanguageServer.class.getName());
   private static final JavaParser javaParser = new JavaParser();
   private static final Map<String, Class<?>> classMap =
-      Map.of(
-          "level",
-          Server.class, // TODO: Change me
-          "hero",
-          Client.class); // TODO: Change me
+      Map.of("level", LevelCommands.class, "hero", HeroCommands.class);
 
   /**
    * Generates completion items for the given class.

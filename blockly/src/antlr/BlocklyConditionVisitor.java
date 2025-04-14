@@ -4,6 +4,7 @@ package antlr;
 
 import antlr.main.blocklyBaseVisitor;
 import antlr.main.blocklyParser;
+import client.LevelCommands;
 import components.BreadcrumbComponent;
 import components.CloverComponent;
 import contrib.components.AIComponent;
@@ -229,7 +230,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return httpServer.active(Direction.fromString(direction));
+    return LevelCommands.active(Direction.fromString(direction));
   }
 
   private boolean nearComponent(
@@ -250,7 +251,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return httpServer.isNearComponent(comonentType, Direction.fromString(direction));
+    return LevelCommands.isNearComponent(comonentType, Direction.fromString(direction));
   }
 
   private Boolean nearTile(blocklyParser.Func_callContext ctx, Class<? extends Tile> tileType) {
@@ -271,7 +272,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return httpServer.isNearTile(tileType, Direction.fromString(direction));
+    return LevelCommands.isNearTile(tileType, Direction.fromString(direction));
   }
 
   /** {@inheritDoc} */
