@@ -6,13 +6,13 @@ export const BLOCKLY_URL = () => vscode.workspace.getConfiguration('blocklyServe
 const codeObjects = ['hero', 'level', 'Direction', 'LevelElement'];
 const defaultObjects = {
     'hero': {
-        kind: vscode.CompletionItemKind.Variable,
+        kind: vscode.CompletionItemKind.Class,
         detail: 'The hero Character that you control',
         insertText: 'hero',
         onlyInRoot: true
     },
     'level': {
-        kind: vscode.CompletionItemKind.Variable,
+        kind: vscode.CompletionItemKind.Class,
         detail: 'The current level of the game',
         insertText: 'level',
         onlyInRoot: true
