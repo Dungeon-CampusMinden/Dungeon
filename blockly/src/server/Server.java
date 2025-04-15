@@ -75,7 +75,7 @@ public class Server {
    */
   private static final int CODE_TIMEOUT = 5;
 
-  // Remove Code Fields
+  // Code Fields
   private final AtomicBoolean codeRunning = new AtomicBoolean(false);
   private ExecutorService executor;
   private Future<?> currentExecution;

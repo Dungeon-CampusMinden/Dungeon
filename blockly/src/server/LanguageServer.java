@@ -105,11 +105,19 @@ public class LanguageServer {
 
     json.append("\n]");
 
-    System.out.println(json.toString());
-
     return json.toString();
   }
 
+  /**
+   * Generates completion items for the given enum.
+   *
+   * <p>This method returns a JSON array of completion items for the enum constants of the given
+   * class. This is used to provide code completion suggestions in the IDE via the {@link Server}
+   *
+   * @param enumClass the enum to generate completion items for
+   * @return a JSON array of completion items
+   * @see #GenerateCompletionItems(Class)
+   */
   public static String GenerateCompletionItems(Enum<?> enumClass) {
     StringBuilder json = new StringBuilder();
     json.append("[");
