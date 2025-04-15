@@ -40,3 +40,15 @@ Vielleicht gibt es auch Karten mit Instruktionen, die zum nächsten Rätsel füh
   - Klausuraufgaben, bei denen Zahlen rauskommen
   - zur Veranstaltung passende Lerninhalte
   - Anzahl der Vergleiche o.Ä. als überprüfbares Ergebnis
+
+# Vorgehen
+
+An die gesammelten Anleitungen und Richtlinien angelehntes Verfahren, besonders aber an EscapeIF und EscapED.
+
+- passenden Lerninhalt für Zielgruppe aussuchen
+- geeignet Rätsel identifizieren
+- Geschichte dazu grob skizzieren
+- Ziele festlegen
+- Geschichte und Rätsel ausschreiben
+- Produktion/Implementierung
+- Tests und Verfeinerung iterieren
