@@ -712,9 +712,10 @@ public class Server {
     code =
         "import utils.HeroCommands;\n"
             + "import utils.LevelCommands;\n"
+            + "import utils.Direction;\n"
+            + "import core.level.utils.LevelElement;\n"
             + "public class UserScript {\n"
             + "    public static void execute(HeroCommands hero, LevelCommands level) {\n"
-            + "        "
             + code
             + "\n"
             + "    }\n"

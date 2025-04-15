@@ -7,30 +7,31 @@ import core.Game;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 
 /**
  * This class contains all Level Commands that are available.
  *
  * <p>E.g. While {@link HeroCommands} contains methods to {@link HeroCommands#move()} this class
- * implements methods to check specific state inside the current level ({@link #isNearTile(Class,
- * Direction)}
+ * implements methods to check specific state inside the current level ({@link
+ * #isNearTile(LevelElement, Direction)}
  */
 public class LevelCommands {
   /**
-   * Check if the next tile in the given direction is an instance from the given class.
+   * Check if the next tile in the given direction is an {@link LevelElement} Type Tile.
    *
-   * @param tileClass Tile-Class to check for.
+   * @param tileElement Tile Type to check for.
    * @param direction Direction to check
-   * @return Returns true if the hero is null or the target tile is from the given class. Otherwise,
+   * @return Returns true if the hero is null or a tile of the given type was detected. Otherwise,
    *     returns false.
    */
-  public static boolean isNearTile(Class<? extends Tile> tileClass, final Direction direction) {
+  public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
     Tile targetTile = targetTile(direction);
     if (targetTile == null) {
       return false;
     }
-    return tileClass.isInstance(targetTile);
+    return targetTile.levelElement() == tileElement;
   }
 
   /**

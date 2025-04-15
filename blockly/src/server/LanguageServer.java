@@ -1,20 +1,12 @@
 package server;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import core.level.utils.LevelElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
+import utils.Direction;
 import utils.HeroCommands;
 import utils.LevelCommands;
 
@@ -26,9 +18,16 @@ import utils.LevelCommands;
 public class LanguageServer {
 
   private static final Logger LOGGER = Logger.getLogger(LanguageServer.class.getName());
-  private static final JavaParser javaParser = new JavaParser();
   private static final Map<String, Class<?>> classMap =
-      Map.of("level", LevelCommands.class, "hero", HeroCommands.class);
+      Map.of(
+          "level",
+          LevelCommands.class,
+          "hero",
+          HeroCommands.class,
+          "Direction",
+          Direction.class,
+          "LevelElement",
+          LevelElement.class);
 
   /**
    * Generates completion items for the given class.
@@ -44,6 +43,11 @@ public class LanguageServer {
     if (clazz == null) {
       LOGGER.warning("Class not found for object name: " + objectName);
       return "[]";
+    }
+
+    // Check if the class is an enum
+    if (clazz.isEnum()) {
+      return GenerateCompletionItems((Enum<?>) clazz.getEnumConstants()[0]);
     }
     return GenerateCompletionItems(clazz);
   }
@@ -62,7 +66,6 @@ public class LanguageServer {
     json.append("[");
 
     Method[] methods = clazz.getDeclaredMethods();
-    Map<String, LanguageServer.MethodJavadoc> docs = getJavadocForClass(clazz).methodDocs;
     boolean first = true;
 
     for (Method method : methods) {
@@ -72,16 +75,11 @@ public class LanguageServer {
         }
         first = false;
 
-        MethodJavadoc methodJavadoc = docs.get(method.getName() + method.getParameterCount());
-
-        if (methodJavadoc == null) {
-          System.out.println("No Javadoc found for method: " + method.getName());
-          continue;
+        String[] parameterNames = new String[method.getParameterCount()];
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+          parameterNames[i] = parameterTypes[i].getSimpleName();
         }
-
-        // Extract parameter names
-        String[] parameterNames = methodJavadoc.parameters.keySet().toArray(new String[0]);
-        String parameterNamesJson = getParameterNamesJson(parameterNames);
 
         json.append("\n  {")
             .append("\n    \"label\": \"")
@@ -92,10 +90,10 @@ public class LanguageServer {
             .append(escapeJson(getMethodDetailSignature(method, parameterNames)))
             .append("\",")
             .append("\n    \"documentation\": \"")
-            .append(escapeJson(methodJavadoc.toMarkdown()))
+            .append(escapeJson(getJavaDocForMethod(method)))
             .append("\",")
             .append("\n    \"parameters\": ")
-            .append(parameterNamesJson)
+            .append(getParameterNamesJson(parameterNames))
             .append(",")
             .append("\n    \"insertText\": \"")
             .append(escapeJson(getMethodSignature(method, parameterNames)))
@@ -106,6 +104,44 @@ public class LanguageServer {
     }
 
     json.append("\n]");
+
+    System.out.println(json.toString());
+
+    return json.toString();
+  }
+
+  public static String GenerateCompletionItems(Enum<?> enumClass) {
+    StringBuilder json = new StringBuilder();
+    json.append("[");
+
+    Enum<?>[] enumConstants = enumClass.getDeclaringClass().getEnumConstants();
+    boolean first = true;
+
+    for (Enum<?> constant : enumConstants) {
+      if (!first) {
+        json.append(",");
+      }
+      first = false;
+
+      json.append("\n  {")
+          .append("\n    \"label\": \"")
+          .append(escapeJson(constant.name()))
+          .append("\",")
+          .append("\n    \"kind\": 2,")
+          .append("\n    \"detail\": \"")
+          .append(escapeJson(constant.getDeclaringClass().getSimpleName()))
+          .append("\",")
+          .append("\n    \"documentation\": \"")
+          .append(escapeJson(getJavaDocForEnum(constant)))
+          .append("\",")
+          .append("\n    \"insertText\": \"")
+          .append(escapeJson(constant.name()))
+          .append("\"")
+          .append("\n  }");
+    }
+
+    json.append("\n]");
+
     return json.toString();
   }
 
@@ -179,148 +215,13 @@ public class LanguageServer {
     return signature.toString();
   }
 
-  private static ServerDocs getJavadocForClass(Class<?> clazz) {
-    String classPath =
-        clazz.getPackage().getName().replace('.', '/') + "/" + clazz.getSimpleName() + ".java";
-    ServerDocs serverDocs = new ServerDocs();
-
-    try (InputStream inputStream = getClassFileInputStream(classPath);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-
-      StringBuilder fileContent = new StringBuilder();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        fileContent.append(line).append("\n");
-      }
-
-      javaParser
-          .parse(fileContent.toString())
-          .getResult()
-          .ifPresent(
-              cu ->
-                  cu.findAll(MethodDeclaration.class)
-                      .forEach(
-                          method -> {
-                            method
-                                .getComment()
-                                .ifPresent(
-                                    comment -> {
-                                      String javadocContent = comment.getContent();
-                                      serverDocs.methodDocs.put(
-                                          method.getNameAsString() + method.getParameters().size(),
-                                          parseJavadoc(javadocContent));
-                                    });
-                          }));
-    } catch (IOException e) {
-      LOGGER.warning("Error reading class file: " + e.getMessage());
-    } catch (Exception e) {
-      LOGGER.warning("Error parsing class file: " + e.getMessage());
-    }
-    return serverDocs;
+  // TODO: Change to use Javadoc comments
+  private static String getJavaDocForMethod(Method method) {
+    return method.getDeclaringClass().getSimpleName() + "." + method.getName();
   }
 
-  private static MethodJavadoc parseJavadoc(String javadocContent) {
-    MethodJavadoc doc = new MethodJavadoc();
-    String[] lines = javadocContent.split("\n");
-    StringBuilder mainText = new StringBuilder();
-
-    String currentParam = "";
-    String currentException = "";
-
-    for (String line : lines) {
-      line = line.trim().replaceFirst("^\\s*\\*\\s*", "");
-      if (line.isEmpty()) continue;
-
-      if (line.startsWith("@param")) {
-        String[] parts = line.substring(6).trim().split("\\s+", 2);
-        if (parts.length >= 2) {
-          currentParam = parts[0];
-          doc.parameters.put(currentParam, parts[1]);
-        }
-      } else if (line.startsWith("@return")) {
-        doc.returnDoc = line.substring(7).trim();
-      } else if (line.startsWith("@throws")) {
-        String[] parts = line.substring(7).trim().split("\\s+", 2);
-        if (parts.length >= 2) {
-          currentException = parts[0];
-          doc.throwDoc.put(currentException, parts[1]);
-        }
-      } else {
-        if (!currentParam.isEmpty()) {
-          doc.parameters.put(currentParam, doc.parameters.get(currentParam) + " " + line);
-        } else if (!currentException.isEmpty()) {
-          doc.throwDoc.put(currentException, doc.throwDoc.get(currentException) + " " + line);
-        } else if (!doc.returnDoc.isEmpty()) {
-          doc.returnDoc += " " + line;
-        } else {
-          mainText.append(line).append(" ");
-        }
-      }
-    }
-
-    doc.mainText = mainText.toString().trim();
-    return doc;
-  }
-
-  private static class ServerDocs {
-    public Map<String, MethodJavadoc> methodDocs = new HashMap<>();
-  }
-
-  private static class MethodJavadoc {
-    public String mainText = "";
-    public Map<String, String> parameters = new HashMap<>();
-    public String returnDoc = "";
-    public Map<String, String> throwDoc = new HashMap<>();
-
-    public String toMarkdown() {
-      StringBuilder sb = new StringBuilder();
-      sb.append(mainText).append("\n\n");
-
-      if (!parameters.isEmpty()) {
-        sb.append("### Parameters:\n");
-        parameters.forEach(
-            (key, value) ->
-                sb.append("- **").append(key).append(":** ").append(value).append("\n"));
-      }
-
-      if (!returnDoc.isEmpty()) {
-        sb.append("### Returns:\n").append(returnDoc).append("\n");
-      }
-
-      if (!throwDoc.isEmpty()) {
-        sb.append("### Throws:\n");
-        throwDoc.forEach(
-            (key, value) ->
-                sb.append("- **").append(key).append(":** ").append(value).append("\n"));
-      }
-
-      // Replace {@code code} with markdown `code`
-      String codeText =
-          Pattern.compile("\\{@code\\s*([^}]+)}").matcher(sb.toString()).replaceAll("`$1`");
-
-      // Replace {@link Text} with Text
-      String finalText = Pattern.compile("\\{@link\\s*([^}]+)}").matcher(codeText).replaceAll("$1");
-
-      return finalText;
-    }
-  }
-
-  private static InputStream getClassFileInputStream(String classPath) throws IOException {
-    // First try to find the file in the classpath resources
-    InputStream inputStream = LanguageServer.class.getClassLoader().getResourceAsStream(classPath);
-    if (inputStream != null) {
-      return inputStream;
-    }
-
-    // If not found in resources, try to locate the file in the project directory or source paths
-    String[] sourcePaths = {"src/main/java", "src", "."};
-    for (String sourcePath : sourcePaths) {
-      java.nio.file.Path path = Paths.get(sourcePath, classPath);
-      if (Files.exists(path)) {
-        return Files.newInputStream(path);
-      }
-    }
-
-    throw new IOException("Could not find source file: " + classPath);
+  // TODO: Change to use Javadoc comments
+  private static String getJavaDocForEnum(Enum<?> enumConstant) {
+    return enumConstant.getDeclaringClass().getSimpleName();
   }
 }

@@ -9,10 +9,7 @@ import components.CloverComponent;
 import contrib.components.AIComponent;
 import contrib.components.LeverComponent;
 import core.Component;
-import core.level.Tile;
-import core.level.elements.tile.FloorTile;
-import core.level.elements.tile.PitTile;
-import core.level.elements.tile.WallTile;
+import core.level.utils.LevelElement;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import nodes.*;
@@ -195,9 +192,9 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     String id = ctx.id.getText();
     boolean boolVal =
         switch (id) {
-          case "naheWand" -> nearTile(ctx, WallTile.class);
-          case "naheBoden" -> nearTile(ctx, FloorTile.class);
-          case "nahePit" -> nearTile(ctx, PitTile.class);
+          case "naheWand" -> nearTile(ctx, LevelElement.WALL);
+          case "naheBoden" -> nearTile(ctx, LevelElement.FLOOR);
+          case "nahePit" -> nearTile(ctx, LevelElement.PIT);
           case "naheMonster" -> nearComponent(ctx, AIComponent.class);
           case "naheSchalter" -> nearComponent(ctx, LeverComponent.class);
           case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
@@ -254,7 +251,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
     return LevelCommands.isNearComponent(comonentType, Direction.fromString(direction));
   }
 
-  private Boolean nearTile(blocklyParser.Func_callContext ctx, Class<? extends Tile> tileType) {
+  private Boolean nearTile(blocklyParser.Func_callContext ctx, LevelElement tileType) {
     // Check if arguments exist
     if (ctx.args == null) {
       LOGGER.warning("naheTile operation function: Expected 1 argument, got 0");
