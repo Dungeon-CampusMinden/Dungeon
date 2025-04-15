@@ -4,6 +4,8 @@ title: "Evaluierung eines physischen Escape-Rooms"
 
 Hier sammeln wir die Ideen für einen physischen Escape-Room. Der genaue Zeitpunkt der Evaluierung steht noch nicht fest und hängt davon ab, in welchem Rahmen sie durchgeführt wird.
 
+# Ideensammlung
+
 Bisher wurden gehandelt:
 
 - Studenten von BC und Carsten
@@ -19,15 +21,14 @@ Am Ende des Testlaufs hoffen wir:
 - Feedback von Studenten zu erhalten
 - Fallstrick: Spielmechanik und Immersion funktionieren in einem Brettspiel anders als in einem Videospiel
 
-# Aufbau
+## Aufbau
 
 Da wir noch nicht wissen, welche konkreten Rätsel uns einfallen, haben wir für hier einen Bottom-Up-Ansatz angedacht. D.h. wir überlegen, welche Rätsel uns einfallen und versuchen, daraus etwas Gescheites zusammenzustellen.
 
 Für die Verknüpfung der Rätsel könnte man die Ergebnisse der Teilrätsel als Zahlen ausspucken. Zu jeder Zahl (und ein paar weiteren Decoy-Zahlen) gibt es eine Karte, auf der sowohl die Zahl als auch ein Buchstabe auf der anderen Seite steht. Wenn man die auf die richtige Art und Weise sortiert (vlt. eine Zahlkarte mit einem Sortierverfahren), steht auf den Rückseiten "Gewonnen!" oder so.
 Vielleicht gibt es auch Karten mit Instruktionen, die zum nächsten Rätsel führen.
 
-# Rätsel-Typen
-
+## Rätsel-Typen
 
 - Generische Logikrätsel
   - [Counterfeit Coin](https://www.quantamagazine.org/seeking-mathematical-truth-in-counterfeit-coin-puzzles-20220729/)
@@ -37,4 +38,5 @@ Vielleicht gibt es auch Karten mit Instruktionen, die zum nächsten Rätsel füh
       - konkrete Lösung (eine Zahl)
 - Aufgaben aus der Informatik
   - Klausuraufgaben, bei denen Zahlen rauskommen
-  - Anzahl der Vergleiche o.Ä.
+  - zur Veranstaltung passende Lerninhalte
+  - Anzahl der Vergleiche o.Ä. als überprüfbares Ergebnis
