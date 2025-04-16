@@ -10,6 +10,10 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 ## Grundlegende Eigenschaften
 
 - viele Gemeinsamkeiten mit Rätsel-Spielen/Adventures
+  - Abgrenzungen: (was macht den "Escape-Room" gegenüber dem Adventure aus?)
+    - Team-Gedanke eingebaut
+    - laterales Denken
+    - Dringlichkeit
 - Kombination von Rätseln zur Erreichung eines vorgegeben Ziels
 - ein oder mehrere Orte geben Raum zur Erkundung und schaffen Atmosphäre
   - Schiff
@@ -69,13 +73,18 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 
 ## Lehre
 
+NOTE im antrag steht "wird [..] um [..] Elemente [..] wie u.a. [..] Bewertungskonzept [..] ergänzt.
+rückmeldung dazu: überprüfung erstmal sein lassen
+
 
 1. Vermittlung von Inhalten
   - Vorteil "eigenes Lerntempo" evtl. durch Timer im Escape-Room eingeschränkt
 2. Übung / Anwendung von Wissen und Fähigkeiten
 3. Überprüfung von Wissen und Fähigkeiten
 
-# Aspekte von Workflows zur Erstellung eines Escape-Rooms
+Brauchen wir ein Learner-Model?
+
+# Was erwarten Nutzer für die Erstellung eines Escape-Rooms? (allgemein)
 
 Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwarten wird, um damit Escape-Rooms zu erstellen.
 
