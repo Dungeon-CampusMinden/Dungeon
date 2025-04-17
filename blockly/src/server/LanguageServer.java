@@ -6,9 +6,9 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
+import utils.BlocklyCommands;
 import utils.Direction;
-import utils.HeroCommands;
-import utils.LevelCommands;
+import utils.HideLanguage;
 
 /**
  * This Class contains utility methods to generate completion items for the blockly language server.
@@ -20,10 +20,8 @@ public class LanguageServer {
   private static final Logger LOGGER = Logger.getLogger(LanguageServer.class.getName());
   private static final Map<String, Class<?>> classMap =
       Map.of(
-          "level",
-          LevelCommands.class,
           "hero",
-          HeroCommands.class,
+          BlocklyCommands.class,
           "Direction",
           Direction.class,
           "LevelElement",
@@ -69,38 +67,41 @@ public class LanguageServer {
     boolean first = true;
 
     for (Method method : methods) {
-      if (Modifier.isPublic(method.getModifiers())) {
-        if (!first) {
-          json.append(",");
-        }
-        first = false;
-
-        String[] parameterNames = new String[method.getParameterCount()];
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        for (int i = 0; i < parameterTypes.length; i++) {
-          parameterNames[i] = parameterTypes[i].getSimpleName();
-        }
-
-        json.append("\n  {")
-            .append("\n    \"label\": \"")
-            .append(escapeJson(method.getName()))
-            .append("\",")
-            .append("\n    \"kind\": 2,")
-            .append("\n    \"detail\": \"")
-            .append(escapeJson(getMethodDetailSignature(method, parameterNames)))
-            .append("\",")
-            .append("\n    \"documentation\": \"")
-            .append(escapeJson(getJavaDocForMethod(method)))
-            .append("\",")
-            .append("\n    \"parameters\": ")
-            .append(getParameterNamesJson(parameterNames))
-            .append(",")
-            .append("\n    \"insertText\": \"")
-            .append(escapeJson(getMethodSignature(method, parameterNames)))
-            .append("\",")
-            .append("\n    \"insertTextFormat\": 2")
-            .append("\n  }");
+      if (!Modifier.isPublic(method.getModifiers())
+          || method.isAnnotationPresent(HideLanguage.class)) {
+        continue;
       }
+
+      if (!first) {
+        json.append(",");
+      }
+      first = false;
+
+      String[] parameterNames = new String[method.getParameterCount()];
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      for (int i = 0; i < parameterTypes.length; i++) {
+        parameterNames[i] = parameterTypes[i].getSimpleName();
+      }
+
+      json.append("\n  {")
+          .append("\n    \"label\": \"")
+          .append(escapeJson(method.getName()))
+          .append("\",")
+          .append("\n    \"kind\": 2,")
+          .append("\n    \"detail\": \"")
+          .append(escapeJson(getMethodDetailSignature(method, parameterNames)))
+          .append("\",")
+          .append("\n    \"documentation\": \"")
+          .append(escapeJson(getJavaDocForMethod(method)))
+          .append("\",")
+          .append("\n    \"parameters\": ")
+          .append(getParameterNamesJson(parameterNames))
+          .append(",")
+          .append("\n    \"insertText\": \"")
+          .append(escapeJson(getMethodSignature(method, parameterNames)))
+          .append("\",")
+          .append("\n    \"insertTextFormat\": 2")
+          .append("\n  }");
     }
 
     json.append("\n]");

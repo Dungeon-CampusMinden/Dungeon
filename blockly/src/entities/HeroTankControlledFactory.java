@@ -8,8 +8,8 @@ import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import utils.BlocklyCommands;
 import utils.Direction;
-import utils.HeroCommands;
 
 /**
  * This class is used to create a hero entity with tank controls. The hero can only move in the
@@ -43,11 +43,11 @@ public class HeroTankControlledFactory {
     // Add rotation controls
     pc.registerCallback(
         KeyboardConfig.MOVEMENT_LEFT.value(),
-        (entity) -> HeroCommands.rotate(Direction.LEFT),
+        (entity) -> BlocklyCommands.rotate(Direction.LEFT),
         false);
     pc.registerCallback(
         KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (entity) -> HeroCommands.rotate(Direction.RIGHT),
+        (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
         false);
 
     return hero;

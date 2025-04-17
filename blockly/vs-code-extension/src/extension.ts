@@ -11,12 +11,6 @@ const defaultObjects = {
         insertText: 'hero',
         onlyInRoot: true
     },
-    'level': {
-        kind: vscode.CompletionItemKind.Class,
-        detail: 'The current level of the game',
-        insertText: 'level',
-        onlyInRoot: true
-    },
     'Direction': {
         kind: vscode.CompletionItemKind.Enum,
         detail: 'A direction in the game',
@@ -96,7 +90,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
         '.' // Trigger on dot
     );
-    
+
     // Register the hover provider
     const hoverProvider = vscode.languages.registerHoverProvider(
         { scheme: 'file', language: 'java' },
@@ -106,27 +100,27 @@ export function activate(context: vscode.ExtensionContext) {
                 if (!wordRange) {
                     return null;
                 }
-                
+
                 const word = document.getText(wordRange);
-                
+
                 const apiData = await getApiData();
                 const apiItem = apiData.find(item => item.label === word);
                 console.log('API Item:', apiItem);
-                
+
                 if (apiItem?.documentation) {
                     const md = new vscode.MarkdownString();
                     md.supportHtml = true;
                     md.isTrusted = true;
-                    
+
                     // Append the method signature as a code block
                     if (apiItem.detail) {
                         md.appendCodeblock(apiItem.detail, 'java');
                         md.appendMarkdown('\n\n');
                     }
-                    
+
                     // Extract and append the documentation text (without any potential method signature part)
                     let docText = apiItem.documentation.replace(/\\n/g, '\n');
-                    
+
                     // If the documentation starts with the method name, it might include the signature
                     // We want to skip that part since we've already added it as a code block
                     if (docText.startsWith(apiItem.label)) {
@@ -135,12 +129,12 @@ export function activate(context: vscode.ExtensionContext) {
                             docText = docText.substring(endOfFirstLine + 1).trim();
                         }
                     }
-                    
+
                     md.appendMarkdown(docText);
-                    
+
                     return new vscode.Hover(md, wordRange);
                 }
-                
+
                 return null;
             }
         }

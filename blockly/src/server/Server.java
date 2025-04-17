@@ -37,9 +37,8 @@ import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import utils.BlocklyCommands;
 import utils.Direction;
-import utils.HeroCommands;
-import utils.LevelCommands;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three
@@ -710,12 +709,11 @@ public class Server {
    */
   private void executeJavaCode(String code) throws Exception {
     code =
-        "import utils.HeroCommands;\n"
-            + "import utils.LevelCommands;\n"
+        "import utils.BlocklyCommands;\n"
             + "import utils.Direction;\n"
             + "import core.level.utils.LevelElement;\n"
             + "public class UserScript {\n"
-            + "    public static void execute(HeroCommands hero, LevelCommands level) {\n"
+            + "    public static void execute(BlocklyCommands hero) {\n"
             + code
             + "\n"
             + "    }\n"
@@ -741,14 +739,14 @@ public class Server {
 
     URLClassLoader classLoader = new URLClassLoader(new URL[] {tempDir.toUri().toURL()});
     Class<?> scriptClass = Class.forName("UserScript", true, classLoader);
-    Method method = scriptClass.getMethod("execute", HeroCommands.class, LevelCommands.class);
+    Method method = scriptClass.getMethod("execute", BlocklyCommands.class);
 
     executor = Executors.newSingleThreadExecutor();
     currentExecution =
         executor.submit(
             () -> {
               try {
-                method.invoke(null, new HeroCommands(), new LevelCommands());
+                method.invoke(null, new BlocklyCommands());
                 // Code executed successfully
                 codeRunning.set(false);
               } catch (Exception e) {
@@ -1406,7 +1404,7 @@ public class Server {
     Object[] args = convertActionToArguments(action);
     String actionName = action.substring(0, action.indexOf("("));
     switch (actionName) {
-      case "gehe" -> HeroCommands.move();
+      case "gehe" -> BlocklyCommands.move();
       case "drehe" -> {
         Direction firstArg;
         if (args[0] instanceof String firstArgStr) {
@@ -1415,14 +1413,14 @@ public class Server {
           setError("Unexpected type for direction " + args[0]);
           return;
         }
-        HeroCommands.rotate(firstArg);
+        BlocklyCommands.rotate(firstArg);
       }
-      case "feuerball" -> HeroCommands.shootFireball();
+      case "feuerball" -> BlocklyCommands.shootFireball();
       case "warte" -> waitDelta();
-      case "benutzen" -> HeroCommands.interact();
-      case "schieben" -> HeroCommands.push();
-      case "ziehen" -> HeroCommands.pull();
-      case "aufsammeln" -> HeroCommands.pickup();
+      case "benutzen" -> BlocklyCommands.interact();
+      case "schieben" -> BlocklyCommands.push();
+      case "ziehen" -> BlocklyCommands.pull();
+      case "aufsammeln" -> BlocklyCommands.pickup();
       case "fallen_lassen" -> {
         String firstArg;
         if (args[0] instanceof String) {
@@ -1431,9 +1429,9 @@ public class Server {
           setError("Unexpected type for item " + args[0]);
           return;
         }
-        HeroCommands.dropItem(firstArg);
+        BlocklyCommands.dropItem(firstArg);
       }
-      case "geheZumAusgang" -> HeroCommands.moveToExit();
+      case "geheZumAusgang" -> BlocklyCommands.moveToExit();
       default -> System.out.println("Unknown action: " + action);
     }
   }

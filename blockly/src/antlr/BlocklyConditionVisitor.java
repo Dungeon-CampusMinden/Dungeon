@@ -16,8 +16,8 @@ import nodes.*;
 import nodes.INode;
 import server.Server;
 import server.Variable;
+import utils.BlocklyCommands;
 import utils.Direction;
-import utils.LevelCommands;
 
 /**
  * This class defines the visitor for the condition part of the blockly language. It is used to
@@ -227,7 +227,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return LevelCommands.active(Direction.fromString(direction));
+    return BlocklyCommands.active(Direction.fromString(direction));
   }
 
   private boolean nearComponent(
@@ -248,7 +248,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return LevelCommands.isNearComponent(comonentType, Direction.fromString(direction));
+    return BlocklyCommands.isNearComponent(comonentType, Direction.fromString(direction));
   }
 
   private Boolean nearTile(blocklyParser.Func_callContext ctx, LevelElement tileType) {
@@ -269,7 +269,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return LevelCommands.isNearTile(tileType, Direction.fromString(direction));
+    return BlocklyCommands.isNearTile(tileType, Direction.fromString(direction));
   }
 
   /** {@inheritDoc} */
