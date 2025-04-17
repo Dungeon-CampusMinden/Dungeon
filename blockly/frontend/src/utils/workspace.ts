@@ -202,7 +202,8 @@ export const setupButtons = (workspace: Blockly.WorkspaceSvg) => {
 const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, delayInput: HTMLInputElement) => {
   buttons.startBtn.addEventListener("click", async () => {
     buttons.resetBtn.click();
-
+    //workaround race condition #1887
+    await sleep(0.5);
     let sleepingTimeStr = delayInput.value;
     if (sleepingTimeStr === "") {
       sleepingTimeStr = "1";
