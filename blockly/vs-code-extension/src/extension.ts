@@ -3,8 +3,7 @@ import { fetchLanguageConfig, BlocklyCompletionItem } from './handlers/languageP
 import sendBlocklyFile, {stopBlocklyExecution} from './handlers/sendBlocklyFile';
 
 export const BLOCKLY_URL = () => vscode.workspace.getConfiguration('blocklyServer').get('url', 'http://localhost:8080');
-const codeObjects = ['hero', 'level', 'Direction', 'LevelElement'];
-const defaultObjects = {
+const codeObjects = {
     'hero': {
         kind: vscode.CompletionItemKind.Class,
         detail: 'The hero Character that you control',
@@ -31,7 +30,7 @@ let cachedApiData: BlocklyCompletionItem[] = [];
 // Function to get API data - fetches it if needed
 async function getApiData(): Promise<BlocklyCompletionItem[]> {
     if (cachedApiData.length === 0) {
-        for (const object of codeObjects) {
+        for (const object of Object.keys(codeObjects)) {
             try {
                 const result = await fetchLanguageConfig(object);
                 cachedApiData = result.rawItems;
@@ -64,8 +63,10 @@ export function activate(context: vscode.ExtensionContext) {
                 const returnedItems: vscode.CompletionItem[] = [];
 
                 // defaults
-                for (const [key, value] of Object.entries(defaultObjects)) {
-                    if (value.onlyInRoot && linePrefix.trim().length > 0) {
+                for (const [key, value] of Object.entries(codeObjects)) {
+                    const rootChars = ['(', '{', '[', '=', ';', '||', '&&', '!', '>', '<', '+', '-', '*', '/', '%'];
+                    // root objects are at the start of the line or after a rootChar
+                    if (value.onlyInRoot && (linePrefix.trim().length > 0 && !rootChars.some(char => linePrefix.trim().endsWith(char)))) {
                         continue;
                     }
                     const comp = new vscode.CompletionItem(key);
@@ -76,8 +77,8 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 // check if the line endswith codeObjects + '.'
-                if (codeObjects.some(object => linePrefix.trim().endsWith(object + '.'))) {
-                    const objectToFetch = codeObjects.find(object => linePrefix.trim().endsWith(object + '.'));
+                if (Object.keys(codeObjects).some(object => linePrefix.trim().endsWith(object + '.'))) {
+                    const objectToFetch = Object.keys(codeObjects).find(object => linePrefix.trim().endsWith(object + '.'));
                     if (objectToFetch) {
                         const result = await fetchLanguageConfig(objectToFetch);
                         cachedApiData = result.rawItems; // Update cached data
