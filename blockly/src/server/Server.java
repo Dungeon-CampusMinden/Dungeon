@@ -16,27 +16,19 @@ import core.level.elements.ILevel;
 import core.utils.Point;
 import entities.VariableHUD;
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 import level.BlocklyLevel;
 import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import utils.BlocklyCodeRunner;
 import utils.BlocklyCommands;
 import utils.Direction;
 
@@ -67,17 +59,6 @@ public class Server {
 
   /** Default port for the server. */
   private static final int DEFAULT_PORT = 8080;
-
-  /**
-   * This variable is used to set a timeout (in seconds) for the execution of the code. If the code
-   * does not finish within the timeout, an error will be thrown.
-   */
-  private static final int CODE_TIMEOUT = 5;
-
-  // Code Fields
-  private final AtomicBoolean codeRunning = new AtomicBoolean(false);
-  private ExecutorService executor;
-  private Future<?> currentExecution;
 
   /**
    * This variable holds all active scopes in a stack. The value at the top of the stack is the
@@ -266,6 +247,7 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleResetRequest(HttpExchange exchange) throws IOException {
+    BlocklyCodeRunner.instance().stopCode();
     // Reset values
     interruptExecution = true;
     Client.restart();
@@ -418,7 +400,7 @@ public class Server {
     }
 
     // Handle normal code execution request
-    if (codeRunning.get()) {
+    if (BlocklyCodeRunner.instance().isCodeRunning()) {
       String response = "Another code execution is already running. Please stop it first.";
       exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
       exchange.sendResponseHeaders(400, response.getBytes().length);
@@ -433,9 +415,8 @@ public class Server {
 
     // Start code execution
     interruptExecution = false;
-    codeRunning.set(true);
     try {
-      executeJavaCode(text);
+      BlocklyCodeRunner.instance().executeJavaCode(text);
 
       // Wait 1 second to check for errors or completion
       try {
@@ -450,8 +431,8 @@ public class Server {
       if (interruptExecution) {
         response = errorMsg;
         statusCode = 400;
-        codeRunning.set(false); // Reset the flag since execution encountered an error
-      } else if (!codeRunning.get()) {
+        BlocklyCodeRunner.instance().stopCode();
+      } else if (!BlocklyCodeRunner.instance().isCodeRunning()) {
         // Code completed execution within 1 second
         response = "OK - Code executed successfully";
         statusCode = 200;
@@ -468,14 +449,14 @@ public class Server {
       os.close();
     } catch (Exception e) {
       LOGGER.severe("Error executing code: " + e);
-      setError("Failed to execute code: " + e.getMessage());
+      setError(e.getMessage());
       String response = errorMsg;
       exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
       exchange.sendResponseHeaders(400, response.getBytes().length);
       OutputStream os = exchange.getResponseBody();
       os.write(response.getBytes());
       os.close();
-      codeRunning.set(false);
+      BlocklyCodeRunner.instance().stopCode();
     }
   }
 
@@ -489,12 +470,8 @@ public class Server {
     String response;
     int statusCode = 200;
 
-    if (codeRunning.get() && currentExecution != null && !currentExecution.isDone()) {
-      currentExecution.cancel(true);
-      if (executor != null) {
-        executor.shutdownNow();
-      }
-      codeRunning.set(false);
+    if (BlocklyCodeRunner.instance().isCodeRunning()) {
+      BlocklyCodeRunner.instance().stopCode();
       interruptExecution = true;
       response = "Code execution stopped";
     } else {
@@ -535,14 +512,7 @@ public class Server {
    * dungeon.
    */
   public void clearGlobalValues() {
-    // Stop any running code
-    if (codeRunning.get() && currentExecution != null && !currentExecution.isDone()) {
-      currentExecution.cancel(true);
-      if (executor != null) {
-        executor.shutdownNow();
-      }
-      codeRunning.set(false);
-    }
+    BlocklyCodeRunner.instance().stopCode();
 
     // Reset values
     active_scopes.clear();
@@ -700,64 +670,6 @@ public class Server {
     printScopes();
 
     performAction(action);
-  }
-
-  /**
-   * Execute the given java code.
-   *
-   * @param code Java code that should be executed.
-   */
-  private void executeJavaCode(String code) throws Exception {
-    code =
-        "import utils.BlocklyCommands;\n"
-            + "import utils.Direction;\n"
-            + "import core.level.utils.LevelElement;\n"
-            + "public class UserScript {\n"
-            + "    public static void execute(BlocklyCommands hero) {\n"
-            + code
-            + "\n"
-            + "    }\n"
-            + "}\n";
-
-    // In system temp directory
-    Path tempDir = Files.createTempDirectory("blockly");
-    Path tempFile = tempDir.resolve("UserScript.java");
-    Files.writeString(tempFile, code);
-
-    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
-
-    int compilationResult = compiler.run(null, null, errorStream, tempFile.toFile().toString());
-
-    if (compilationResult != 0) {
-      String errors = errorStream.toString();
-      System.err.println(errors);
-      setError("Compilation error:\n" + errors);
-      codeRunning.set(false);
-      return;
-    }
-
-    URLClassLoader classLoader = new URLClassLoader(new URL[] {tempDir.toUri().toURL()});
-    Class<?> scriptClass = Class.forName("UserScript", true, classLoader);
-    Method method = scriptClass.getMethod("execute", BlocklyCommands.class);
-
-    executor = Executors.newSingleThreadExecutor();
-    currentExecution =
-        executor.submit(
-            () -> {
-              try {
-                method.invoke(null, new BlocklyCommands());
-                // Code executed successfully
-                codeRunning.set(false);
-              } catch (Exception e) {
-                Throwable cause = e.getCause();
-                String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
-                System.err.println(errorMessage);
-                setError("Execution error: " + errorMessage);
-                codeRunning.set(false);
-                throw new RuntimeException(e);
-              }
-            });
   }
 
   /**

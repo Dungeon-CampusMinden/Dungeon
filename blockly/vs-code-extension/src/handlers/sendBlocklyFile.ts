@@ -43,6 +43,11 @@ export default async function sendBlocklyFile() {
             const errorMessage = error.response.data;
             vscode.window.showErrorMessage('Execution failed');
 
+            if (errorMessage === 'Another code execution is already running. Please stop it first.') {
+                vscode.window.showErrorMessage(errorMessage);
+                return;
+            }
+
             // Parse and display the error messages
             const amountOfErrors = displayErrorsInEditor(errorMessage, editor.document);
             if (amountOfErrors === 0) {
