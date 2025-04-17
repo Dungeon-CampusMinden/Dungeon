@@ -18,6 +18,14 @@ export default async function sendBlocklyFile() {
         return;
     }
 
+    if (editor.document.isDirty) {
+        const result = await editor.document.save();
+        if (!result) {
+            vscode.window.showErrorMessage('Failed to save the Java file!');
+            return;
+        }
+    }
+
     // Clear previous diagnostics
     diagnosticCollection.clear();
 
@@ -71,10 +79,11 @@ function displayErrorsInEditor(errorMessage: string, document: vscode.TextDocume
     // Parse Java compilation errors
     // Format is typically: "filename:line: error: message"
     const errorLines = errorMessage.split('\n');
-    const errorRegex = /UserScript\.java:(\d+): (Fehler|Error): (.+)/;
+    
+    const errorRegex = /UserScript\.java:(\d+): ([fF]ehler|[eE]rror): (.+)/;
     // Try to determine a more specific range for the error
     // For example, if the error message mentions a specific symbol
-    const symbolRegex = /Symbol: (Methode|Variable) ([^\s(]+)/;
+    const symbolRegex = /[sS]ymbol:\s+([mM]ethode|[vV]ariable)\s+([^\s(]+)/;
     const offsetRegex = /(\s*)\^/; // only spaces and one ^
 
     let currentLineNum: number = -1;
@@ -104,7 +113,9 @@ function displayErrorsInEditor(errorMessage: string, document: vscode.TextDocume
             currentError.symbol.name = '';
             currentError.symbol.type = '';
             currentError.errorOffset = -1;
-            currentLineNum = parseInt(errorMatch[1], 10) - 4; // Adjust for the wrapper code
+
+            currentLineNum = parseInt(errorMatch[1], 10) - 6; // Adjust for the wrapper code
+            currentLineNum = Math.max(0, Math.min(currentLineNum, document.lineCount - 1)); // Clamp to valid range
         }
 
         if (offsetMatch) {

@@ -32,9 +32,6 @@ export const showMessageWithTimeout = (message: string, timeout = 5000): void =>
 /**
  * Waits for a condition to become true.
  *
- * Orginiates from:
- * https://github.com/mysql/mysql-shell-plugins/blob/327afa871e6582c2a6c055d348bfd2f3894f0bcb/gui/frontend/src/utilities/helpers.ts#L300
- *
  * @param timeout The number of milliseconds to wait for the condition.
  * @param condition A function that checks if a condition has become true.
  *
@@ -52,9 +49,6 @@ export const waitFor = async (timeout: number, condition: () => boolean): Promis
 /**
  * A helper function to asynchronously wait for a specific time. The call allows to run other JS code
  * while waiting for the timeout.
- *
- * Orginiates from:
- * https://github.com/mysql/mysql-shell-plugins/blob/327afa871e6582c2a6c055d348bfd2f3894f0bcb/gui/frontend/src/utilities/helpers.ts#L286
  *
  * @param ms The duration in milliseconds to wait.
  *
