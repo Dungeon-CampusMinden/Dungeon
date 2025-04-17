@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to mark methods that should not be included in the language server
+ * This annotation is used to mark methods that should not be included in the language server.
  *
  * @see server.LanguageServer LanguageServer
  */
