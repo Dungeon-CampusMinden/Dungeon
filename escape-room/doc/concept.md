@@ -114,6 +114,9 @@ Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik 
 
 # Erwartete Schwierigkeiten
 
+- der Dungeon ist darauf ausgerichtet, dass Studenten eine eigene Instanz des Spiels starten und auch den Code ändern können.
+  - in einer Multiplayer-Variante muss es einen allen Teilnehmern gemeine Simulation geben
+  - um in diesem Rahmen weiter programmatisch Einfluss auf die Simulation nehmen zu können, müsste z.B. der Code Gegenstand des Spiels werden
 - Spaß
   - viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
   - nicht nur Spaß, sondern auch der Ausdruck der eigenen Persönlichkeit im Lernprozess
