@@ -1,6 +1,7 @@
 package utils;
 
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.utils.Point;
 
 /** Direction enum for the four cardinal directions. */
@@ -116,6 +117,62 @@ public enum Direction {
       case RIGHT -> Direction.RIGHT;
       case UP -> Direction.UP;
       case DOWN -> Direction.DOWN;
+    };
+  }
+
+  /**
+   * Transforms a relative direction into a world direction based on this view direction.
+   *
+   * <p>For example, if the hero is looking to the RIGHT and wants to check LEFT (relative to their
+   * view), the resulting direction would be UP in world coordinates.
+   *
+   * @param relativeDirection The relative direction to check.
+   * @return The translated direction in world coordinates.
+   */
+  public Direction relativeToAbsoluteDirection(Direction relativeDirection) {
+    return switch (relativeDirection) {
+      case LEFT ->
+          switch (this) {
+            case UP -> Direction.LEFT;
+            case DOWN -> Direction.RIGHT;
+            case RIGHT -> Direction.UP;
+            case LEFT -> Direction.DOWN;
+            case HERE -> this;
+          };
+      case RIGHT ->
+          switch (this) {
+            case UP -> Direction.RIGHT;
+            case DOWN -> Direction.LEFT;
+            case RIGHT -> Direction.DOWN;
+            case LEFT -> Direction.UP;
+            case HERE -> this;
+          };
+      case DOWN ->
+          switch (this) {
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.UP;
+            case RIGHT -> Direction.LEFT;
+            case LEFT -> Direction.RIGHT;
+            case HERE -> this;
+          };
+      case UP -> this;
+      case HERE -> Direction.HERE;
+    };
+  }
+
+  /**
+   * Converts a {@link Tile.Direction} to a {@link PositionComponent.Direction}.
+   *
+   * @param direction The direction to convert.
+   * @return The converted direction.
+   */
+  public static PositionComponent.Direction convertTileDirectionToPosDirection(
+      Tile.Direction direction) {
+    return switch (direction) {
+      case W -> PositionComponent.Direction.LEFT;
+      case E -> PositionComponent.Direction.RIGHT;
+      case N -> PositionComponent.Direction.UP;
+      case S -> PositionComponent.Direction.DOWN;
     };
   }
 }
