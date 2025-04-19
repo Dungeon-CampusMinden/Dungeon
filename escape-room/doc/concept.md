@@ -75,8 +75,12 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 
 1. Vermittlung von Inhalten
   - Vorteil "eigenes Lerntempo" evtl. durch Timer im Escape-Room eingeschränkt
+    - eigenständige Regulierung kognitiver Last
   - Interaktivität erlaubt Probieren
   - Möglichkeit der Ausrichtung auf verschiedene Lerntypen
+  - Motivation bspw. durch:
+    - Meisterung der Fähigkeiten
+    - spielerische Herausforderung (Wahl der Konfrontation)
 2. Übung / Anwendung von Wissen und Fähigkeiten
   - Wiederholung einzelner Puzzle sinnvoll?
 3. Überprüfung von Wissen und Fähigkeiten
