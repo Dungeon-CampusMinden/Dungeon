@@ -124,18 +124,21 @@ Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik 
 - der Dungeon ist darauf ausgerichtet, dass Studenten eine eigene Instanz des Spiels starten und auch den Code ändern können.
   - in einer Multiplayer-Variante muss es einen allen Teilnehmern gemeine Simulation geben
   - um in diesem Rahmen weiter programmatisch Einfluss auf die Simulation nehmen zu können, müsste z.B. der Code Gegenstand des Spiels werden
-- Spaß
-  - viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
-  - nicht nur Spaß, sondern auch der Ausdruck der eigenen Persönlichkeit im Lernprozess
-  - die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
-  - prinzipieller Widerspruch zwischen zweckgebundenem Lernen und dem Spiel als Selbstzweck
-    - Spiele werden häufig um ein spaßiges Element herum aufgebaut
-    - in der Lehre kommen die Inhalte zuerst
-  - für die Vermittlung neuer Inhalte sollte die Lösung vielleicht der Begrenztheit des 'Constructivist Teaching' bewusst sein oder sogar einen Rahmen vorgeben
-- Immersion
-  - individuelle Ansprüche an die Lernerfahrung
-    - Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert (wann geht es endlich los?)
-    - Kinder profitieren mehr vom Setting, halten aber nicht so lange durch (weniger Zeit für Inhalte)
+- Motivation
+  - Spaß
+    - viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
+    - nicht nur Spaß, sondern auch der Ausdruck der eigenen Persönlichkeit im Lernprozess
+    - die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
+    - prinzipieller Widerspruch zwischen zweckgebundenem Lernen und dem Spiel als Selbstzweck
+      - Spiele werden häufig um ein spaßiges Element herum aufgebaut
+      - in der Lehre kommen die Inhalte zuerst
+    - für die Vermittlung neuer Inhalte sollte die Lösung vielleicht der Begrenztheit des 'Constructivist Teaching' bewusst sein oder sogar einen Rahmen vorgeben
+  - Immersion
+    - mehr Absorption der Gegenwart im Spiel, weniger Ablenkung aus / Hinterfragung der Gegenwart außerhalb
+    - individuelle Ansprüche an die Lernerfahrung
+      - Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert (wann geht es endlich los?)
+      - Kinder profitieren mehr vom Setting, halten aber nicht so lange durch (weniger Zeit für Inhalte)
+      - unterschiedliche Lerntypen (vlt. abhängig vom Feld)
   - mögliche Konsequenzen:
     - Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
     - Sollen die Spieler den Zeitaufwand für die Immersion selber festsetzen können?
