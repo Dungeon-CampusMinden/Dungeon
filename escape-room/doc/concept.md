@@ -73,14 +73,17 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 
 ## Lehre
 
-NOTE im antrag steht "wird [..] um [..] Elemente [..] wie u.a. [..] Bewertungskonzept [..] ergänzt.
-rückmeldung dazu: überprüfung erstmal sein lassen
-
-
 1. Vermittlung von Inhalten
   - Vorteil "eigenes Lerntempo" evtl. durch Timer im Escape-Room eingeschränkt
+  - Interaktivität erlaubt Probieren
+  - Möglichkeit der Ausrichtung auf verschiedene Lerntypen
 2. Übung / Anwendung von Wissen und Fähigkeiten
+  - Wiederholung einzelner Puzzle sinnvoll?
 3. Überprüfung von Wissen und Fähigkeiten
+  - erstmal kein wichtiges Ziel dieses Projekts
+
+NOTE im antrag steht "wird [..] um [..] Elemente [..] wie u.a. [..] Bewertungskonzept [..] ergänzt.
+rückmeldung dazu: überprüfung erstmal sein lassen
 
 Brauchen wir ein Learner-Model?
 
