@@ -91,13 +91,13 @@ rückmeldung dazu: überprüfung erstmal sein lassen
 
 Brauchen wir ein Learner-Model?
 
-# Was erwarten Nutzer für die Erstellung eines Escape-Rooms? (allgemein)
+# Was erwarten Nutzer für die Erstellung eines Escape-Rooms? (außerhalb der Lehre)
 
 Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwarten wird, um damit Escape-Rooms zu erstellen.
 
 ## [Interview mit Escape-Rooms](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
 
-Es geht um das Design kommerzieller Escape-Rooms. Der Designer ist zufälligerweise unser alter Freund Scott Nicholson.
+Es geht um das Design kommerzieller Escape-Rooms.
 
 > I start by deciding on the genre (type of game) and setting (where it takes place). I outline the players’ goals and the obstacles they’ll face. These decisions let me create “beats,” or major points in the game’s narrative. Next I start thinking of challenges—math and word puzzles, searching activities, or physical tasks—that could fit within the story. We want a variety of challenges. That way, every player gets a chance to solve something and feel like a hero.
 >
@@ -117,6 +117,13 @@ Escape-Room-Anbieter schreibt über den Prozess im eigenen Blog.
 ## [Escape Room Design Blueprint](https://lockpaperscissors.co/escape-room-design-blueprint)
 
 Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik bis Essen alles dabei.
+
+TODO die fehlenden anleitungen abklappern
+
+## Häufige Aspekte von Workflows zur Erstellung eines Escape-Rooms
+
+- Geschichte/Setting/Thema steht weit am Anfang
+
 
 
 # Erwartete Schwierigkeiten
