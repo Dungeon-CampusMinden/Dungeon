@@ -105,12 +105,20 @@ $cards.concat([
 ])
 
 display_cards = $cards.each_with_index.map { |v,i|
-	if v.kind_of?(Card) and v.params.has_key?(:caption)
-		caption = "#{v.params[:caption]}"
+	caption = nil
+	front = nil
 
-		["*#{i}*<br>#{caption}", v.data]
+	if v.kind_of?(Card)
+		caption = "#{v.params[:caption]}" if v.params.has_key?(:caption)
+		front = v.data
 	else
-		["*#{i}*", v]
+		front = v
+	end
+
+	if caption
+		["*#{i}*<br>#{caption}", front]
+	else
+		["*#{i}*", front]
 	end
 }.to_h
 
