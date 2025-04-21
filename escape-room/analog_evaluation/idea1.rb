@@ -45,10 +45,15 @@ end
 # create a wrapper around the elements in 'data' and retain the index information in $c
 def part(data, **kw)
 	data.map { |d|
-		c = Card.new(d, **kw)
+		if ! d.kind_of?(Card)
+			c = Card.new(d, **kw)
 
-		key = $c.key(d)
-		$c[key] = c unless key.nil?
+			key = $c.key(d)
+			$c[key] = c unless key.nil?
+		else
+			d.params.merge(kw)
+			c = d
+		end
 
 		c
 	}
