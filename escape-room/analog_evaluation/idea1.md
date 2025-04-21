@@ -25,7 +25,8 @@ Der Computer akzeptiert das richtige Ergebnis aber nicht (sagen wir: 2) und beha
 > Die Zahlen werden anhand der Rückseite sortiert vom Stapel genommen, beginnend mit der obersten Karte (Rückseite x), auf den Tisch gelegt und dabei aufgedeckt.
 > Die nächste Karte wird ebenfalls gezogen. Um das Ergebnis "einzugeben", folgen die Studenten den Hinweisen darauf zu einer Auflösungskarte.
 > Damit es keinen Hänger in der Kalkulation gibt, kann das Muster auf einer Karte stehen: `z_1 + z_2 - z_3 + .. + c`
-> Die möglichen Ergebnisse werden "Auflösungsnummern" zugeordnet, die so konstruiert sind, dass der Modulo 3 der Quersumme der Auflösungsnummer auf eine von drei Karten verweist ohne direkt die falschen Ergebnisse zu offenbaren.
+
+> Mögliche Ergebnisse könnten "Auflösungsnummern" zugeordnet werden, die so konstruiert sind, dass der Modulo 3 der Quersumme der Auflösungsnummer auf eine von drei Karten verweist ohne direkt die falschen Ergebnisse zu offenbaren.
 
 Die Studenten haben abhängig vom eingegebenen Ergebnis folgende Möglichkeiten:
 
@@ -46,8 +47,7 @@ Die Studenten haben abhängig vom eingegebenen Ergebnis folgende Möglichkeiten:
 
 ## Interaktion 2 - Meldung beim Dozenten
 
-> `I2_0` wird gezogen
-> "Legt alle Karten für Interaktion 1 ab"
+> Karte `I2_0`: "*Legt alle Karten für Interaktion 1 ab*"
 > Je nach Ausgang der vorigen Interaktion
 > Karte `I2_2` (Abbruch): "*Nehmt `I2_4` und `I2_5`*"
 > Karte `I2_3` (Beendigung): "*Habt ihr Karte `I2_1` gefunden? Wenn ja, nehmt `I2_4` und `I2_7`", ansonsten nehmt `I2_4` und `I2_6`*".
@@ -55,10 +55,13 @@ Die Studenten haben abhängig vom eingegebenen Ergebnis folgende Möglichkeiten:
 Dr. K. Igel empfängt die Studenten. "Mir ist vorhin eingefallen, dass die Frist zur Einreichung meines Forschungsantrags heute um Mitternacht abläuft, also habe ich nicht viel Zeit. Lasst mich nur schnell euer Ergebnis angucken..." (`I2_4`)
 
 1. Abbruch (nach Eingabe des richtigen Ergebnisses)
-  - "Oje. Sowas blödes. *Nehmt `I2_8`*" (`I2_5`)
+  - "Hmm. Stimmt. Das ist nicht gut! Ich überlege mir etwas wegen der Anerkennung der Leistung, aber jetzt haben wir ein ganz anderes Problem! *Nehmt `I2_8`*" (`I2_5`)
 2. Beendigung ohne Eingabe des richtigen Ergebnisses
-  - "Das ist nicht die richtig. Dafür kann ich euch keine Punkte geben. Andererseits ist die Software kaputt. Können wir uns auf einen weiteren Kompromis einigen? (*Nehmt `I2_8`*)"
-3. Beendigung mit Eingabe des richtigen Ergebnisses
-  -
+  - "Das ist nicht die richtig. Dafür sollte ich euch eigentlich keine Punkte geben. Andererseits ist die Software kaputt und damit kriegen noch viel größere Probleme! *Nehmt `I2_8`*" (`I2_6`)
+3. Beendigung mit voriger Eingabe des richtigen Ergebnisses
+  - "Praktischerweise kann ich das als Leistung anerkennen. Nur muss der Fehler dringend behoben werden! *Nehmt `I2_8`*" (`I2_7`)
+
+> Karte `I2_8`: "In einer Stunde kommt ein Auditor vom BSI um die Assessments zu zertifizieren. Dieser Fehler muss behoben werden! Ohne die Zertifizierung werden alle damit abgenommen Prüfungen rückwirkend für ungültig erklärt - eine Katastrophe! Bald wird der nächste Studiengangsleiter gewählt und ich vermute, dass einer der Kandidaten dieses Debakel verwenden wird, um seine Wahl zu begünstigen. Deshalb bitte ich euch, den Fehler unauffällig zu beheben und der Ursache für den Bug diskret auf den Grund zu gehen. *Nehmt I2_9*"
+> Karte `I2_9`: "Hier habt ihr den Schlüssel zum Serverraum. Die Container-Images für das ILIAS werden dort an einem Computer generiert, der nur vor Ort bedient wird. *Nehmt I3_0* Eine Sache noch: Kürzlich wurde ein Feature für das Lernen in Gruppen eingebaut. Dabei hat jede Person eine eigene Eingabemaske. Das brauchen wir auch für den Audit, also könnt ihr nicht einfach alles zurückrollen. *Nehmt Hinweiskarte 1*"
 
 TODO git am, git gc, reflog, bisect
