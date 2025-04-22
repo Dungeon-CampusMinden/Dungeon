@@ -10,6 +10,7 @@ import core.Entity;
  * both the application of the speed increase and its later reversal.
  */
 public class SpeedEffect {
+
   private final float speedIncrease;
   private final int duration;
 
