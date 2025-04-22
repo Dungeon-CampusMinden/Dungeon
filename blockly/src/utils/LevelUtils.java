@@ -5,6 +5,7 @@ import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
+import java.util.List;
 
 /** Utility class for level-related operations. */
 public class LevelUtils {
@@ -40,5 +41,42 @@ public class LevelUtils {
               .tileAt(currentTile.position().add(new Point(direction.x(), direction.y())));
     }
     return true;
+  }
+
+  /**
+   * Checks if a given coordinate is walkable.
+   *
+   * @param coord The coordinate to check.
+   * @return true if the tile at the given coordinate is accessible, false otherwise.
+   */
+  public static boolean isWalkable(Coordinate coord) {
+    Tile tile = Game.tileAT(coord);
+    if (tile == null) {
+      return false;
+    }
+    return tile.isAccessible();
+  }
+
+  /**
+   * Retrieves a list of walkable neighboring coordinates for a given coordinate.
+   *
+   * @param coord The coordinate for which to find walkable neighbors.
+   * @return A list of walkable neighboring coordinates. Returns an empty list if the given
+   *     coordinate is not walkable.
+   */
+  public static List<Coordinate> walkableNeighbors(Coordinate coord) {
+    if (!isWalkable(coord)) {
+      return List.of();
+    }
+
+    List<Coordinate> neighbors =
+        List.of(
+            coord.add(new Coordinate(1, 0)), // Right
+            coord.add(new Coordinate(-1, 0)), // Left
+            coord.add(new Coordinate(0, 1)), // Down
+            coord.add(new Coordinate(0, -1)) // Up
+            );
+
+    return neighbors.stream().filter(LevelUtils::isWalkable).toList();
   }
 }
