@@ -5,6 +5,7 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.SpikyComponent;
 import contrib.entities.AIFactory;
+import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
@@ -29,7 +30,6 @@ import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import level.utils.LevelUtils;
-import systems.EventScheduler;
 
 /**
  * A utility class for building different boss attack skills. The boss will use different attacks
@@ -155,7 +155,7 @@ public class BossAttackSkills {
                         FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 4));
                 Game.add(entity);
 
-                EventScheduler.getInstance().scheduleAction(() -> Game.remove(entity), 2000);
+                EventScheduler.scheduleAction(() -> Game.remove(entity), 2000);
               }));
         },
         10 * 1000);
@@ -220,14 +220,13 @@ public class BossAttackSkills {
           launchFireBallWithDegree.accept(0);
 
           // Schedule another round of fireballs
-          EventScheduler.getInstance()
-              .scheduleAction(
-                  () -> {
-                    launchFireBallWithDegree.accept(degree - 5);
-                    launchFireBallWithDegree.accept(-(degree - 5));
-                    launchFireBallWithDegree.accept(0);
-                  },
-                  delayMillis);
+          EventScheduler.scheduleAction(
+              () -> {
+                launchFireBallWithDegree.accept(degree - 5);
+                launchFireBallWithDegree.accept(-(degree - 5));
+                launchFireBallWithDegree.accept(0);
+              },
+              delayMillis);
         },
         AIFactory.FIREBALL_COOL_DOWN * 2);
   }
@@ -252,16 +251,15 @@ public class BossAttackSkills {
 
           for (int i = 0; i < totalFireBalls; i++) {
             final int degree = i * 360 / totalFireBalls;
-            EventScheduler.getInstance()
-                .scheduleAction(
-                    () -> {
-                      Point target =
-                          new Point(
-                              (float) (bossPos.x + Math.cos(Math.toRadians(degree)) * 10),
-                              (float) (bossPos.y + Math.sin(Math.toRadians(degree)) * 10));
-                      launchFireBall(bossPos, target, bossPos, skillUser);
-                    },
-                    (long) i * delayBetweenFireballs);
+            EventScheduler.scheduleAction(
+                () -> {
+                  Point target =
+                      new Point(
+                          (float) (bossPos.x + Math.cos(Math.toRadians(degree)) * 10),
+                          (float) (bossPos.y + Math.sin(Math.toRadians(degree)) * 10));
+                  launchFireBall(bossPos, target, bossPos, skillUser);
+                },
+                (long) i * delayBetweenFireballs);
           }
         },
         AIFactory.FIREBALL_COOL_DOWN * 4);
@@ -417,21 +415,20 @@ public class BossAttackSkills {
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
           launchFireBall(bossPos, heroPos, bossPos, skillUser);
-          EventScheduler.getInstance()
-              .scheduleAction(
-                  () -> {
-                    Point heroPos2 = EntityUtils.getHeroPosition();
-                    if (heroPos2 == null) {
-                      return;
-                    }
-                    Vector2 heroDirection =
-                        new Vector2(heroPos2.x - heroPos.x, heroPos2.y - heroPos.y).nor();
-                    heroDirection.scl((float) (bossPos.distance(heroPos)) * 2);
-                    Point predictedHeroPos =
-                        new Point(heroPos2.x + heroDirection.x, heroPos2.y + heroDirection.y);
-                    launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
-                  },
-                  50L);
+          EventScheduler.scheduleAction(
+              () -> {
+                Point heroPos2 = EntityUtils.getHeroPosition();
+                if (heroPos2 == null) {
+                  return;
+                }
+                Vector2 heroDirection =
+                    new Vector2(heroPos2.x - heroPos.x, heroPos2.y - heroPos.y).nor();
+                heroDirection.scl((float) (bossPos.distance(heroPos)) * 2);
+                Point predictedHeroPos =
+                    new Point(heroPos2.x + heroDirection.x, heroPos2.y + heroDirection.y);
+                launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
+              },
+              50L);
         },
         coolDown);
   }

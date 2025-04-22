@@ -1,7 +1,7 @@
 package item.effects;
 
+import contrib.systems.EventScheduler;
 import core.Entity;
-import systems.EventScheduler;
 
 /**
  * Provides a mechanism to apply a temporary speed increase effect to an entity within the game.
@@ -10,7 +10,7 @@ import systems.EventScheduler;
  * application of the speed increase and its subsequent reversal.
  */
 public class SpeedEffect {
-  private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
+  private static final EventScheduler EVENT_SCHEDULER = new EventScheduler();
   private final float speedIncrease;
   private final int duration;
 

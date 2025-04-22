@@ -3,6 +3,7 @@ package entities.levercommands;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.LeverComponent;
+import contrib.systems.EventScheduler;
 import contrib.systems.LeverSystem;
 import contrib.utils.ICommand;
 import core.Game;
@@ -11,7 +12,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import systems.EventScheduler;
 import systems.FogOfWarSystem;
 
 /**
@@ -102,6 +102,6 @@ public class OpenPassageCommand implements ICommand {
     // Set the volume
     soundEffect.setVolume(soundId, 0.1f);
 
-    EventScheduler.getInstance().scheduleAction(soundEffect::dispose, 10000L);
+    EventScheduler.scheduleAction(soundEffect::dispose, 10000L);
   }
 }
