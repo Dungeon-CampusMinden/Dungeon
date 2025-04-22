@@ -24,8 +24,10 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
 import systems.BlockSystem;
+import systems.PathfindingSystem;
 import systems.TintTilesSystem;
 import utils.CheckPatternPainter;
+import utils.pathfinding.BFSPathFinding;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -105,6 +107,15 @@ public class Client {
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
+
+          PathfindingSystem pathfindingSystem =
+              (PathfindingSystem) ECSManagment.systems().get(PathfindingSystem.class);
+          if (pathfindingSystem != null) {
+            pathfindingSystem.updatePathfindingAlgorithm(
+                new BFSPathFinding(),
+                Game.currentLevel().startTile().coordinate(),
+                Game.currentLevel().endTile().coordinate());
+          }
         });
   }
 
