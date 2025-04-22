@@ -4,7 +4,7 @@ title: "Idee für Evaluierung eines physischen Escape-Rooms - Git und die Hochsc
 
 # Zusammenfassung
 
-Eine Gruppe von Studenten stellt beim Testen eines E-Assessments fest, dass nur um 1 verschobene Lösungen akzeptiert werden. Unter der Prämisse, dass es eine Manipulation gibt, suchen Sie den Täter anhand des Git-Repos aus dem das E-Assessment.
+Eine Gruppe von Studenten stellt beim Testen eines E-Learnings fest, dass nur um 1 verschobene Lösungen akzeptiert werden. Unter der Prämisse, dass es eine Manipulation gibt, suchen Sie den Täter anhand des Git-Repos aus dem das E-Learning.
 
 Als Spielmaterial dient ein Stapel nummerierter und sortierter Karten, die beidseitig bedruckt sind.
 Die Karten enthalten sowohl Weiterleitungen, Geschichte, Aufgaben als auch die Gegenstände der Aufgaben.
@@ -13,9 +13,9 @@ Das Spiel beginnt mit dem Zug der ersten Karte.
 
 # Story - Manipulatierte Prüfungsplattform
 
-Die Gruppe von Studenten hat eine Abgabe für ein Tutorium verpasst, weil sie bei einer kurzfristigen Verlegung des Tutoriums irrtümlicherweise in Bielefeld vor eine verschlossenen Tür gewartet haben, anstatt in Minden. Als Ersatz wird ihnen vom Dozenten (Frau Dr. Kordula Igel) angeboten, ein E-Assessment zu durchlaufen.
+Die Gruppe von Studenten hat eine Abgabe für ein Tutorium verpasst, weil sie bei einer kurzfristigen Verlegung des Tutoriums irrtümlicherweise in Bielefeld vor eine verschlossenen Tür gewartet haben, anstatt in Minden. Als Ersatz wird ihnen vom Dozenten (Frau Dr. Kordula Igel) angeboten, ein E-Learning zu durchlaufen.
 
-## Abschnitt 1 - Das E-Assessment
+## Abschnitt 1 - Das E-Learning
 
 > Das Einstiegsrätsel zum kennenlernen.
 
