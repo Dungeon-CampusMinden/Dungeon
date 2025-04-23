@@ -2,6 +2,15 @@
 title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Andere"
 ---
 
+# Anlaufpunkte
+
+## Escape-Rooms im Allgemeinen
+
+- itch.io
+- GDC (gdcvault.com)
+- gamasutra/gamedeveloper.com
+- Suchmaschinen
+
 # Fertige Lösungen
 
 Gibt es existierende Lösungen um ausreichend ähnliche Ziele zu erreichen?
