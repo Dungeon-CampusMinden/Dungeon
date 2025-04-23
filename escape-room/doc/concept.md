@@ -13,7 +13,18 @@ Die Anforderungen sind in Aspekte aufgeteilt.
   - Abgrenzungen: (was macht den "Escape-Room" gegenüber dem Adventure aus?)
     - Team-Gedanke eingebaut
     - laterales Denken
+      - Betrachtung/Lösungsfindung aus einer anderen Perspektive
+      - nicht analytisch und ohne begrenzten Rahmen
+      - Öffnung für kreative Lösungen statt Konvergenz innerhalb der Problemdomäne
+      - z.B. Bekämpfung eines Waldbrandes mit Kettensäge (Schneise) statt Löschschlauch
+      - z.B. Verwendung von Grafikhardware für den Betrieb von neuronalen Netzen
+      - z.B. "Möbel teuer wegen Logistik und Fertigung" - Montage durch den Käufer zuhause, Transport der Einzelteile mit PKW möglich
+      - in Escape-Room oft auch eher abwegig:
+        - Verwendung der Seriennummer im Türflügel als Code für ein digitales Schloss
+        - ein Zahnrad wird anstatt in einem Mechanismus als Magnet zum Lösen eines anderen Rätsels verwendet
+        - der Schaft eines Schraubendrehers dient als elektrischer Leiter
     - Dringlichkeit
+      - Begrenzung der Spielzeit in herkömmlichen Adventures unüblich, bei Escape-Rooms dagegen schon
 - Kombination von Rätseln zur Erreichung eines vorgegeben Ziels
 - ein oder mehrere Orte geben Raum zur Erkundung und schaffen Atmosphäre
   - Schiff
