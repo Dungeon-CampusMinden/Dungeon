@@ -74,9 +74,6 @@ public class EventScheduler extends System {
   @Override
   public void execute() {
     long currentTime = TimeUtils.millis();
-    if (scheduledActions.isEmpty()) {
-      return;
-    }
 
     for (int i = 0; i < scheduledActions.size(); i++) {
       ScheduledAction scheduledAction = scheduledActions.get(i);
