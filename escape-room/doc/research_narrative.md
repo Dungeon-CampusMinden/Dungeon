@@ -2,6 +2,14 @@
 title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Erzählung"
 ---
 
+> Video games is the most difficult medium to write for. [..] There is very little overlap between those who are good writers at a baseline, and those who are able to piece together a coherent story as the development process inevitably brutalizes their work.
+
+[via reddit](https://www.reddit.com/r/truegaming/comments/16fuqu5/comment/k04b4ri/)
+
+Die Erzählung in Videospielen erfüllt die Kriterien eines [komplexen Problems](https://de.wikipedia.org/wiki/Komplexes_Problem).
+
+Viele Resourcen zu Erzähltechniken in Videospielen sind auf große Produktionen ausgerichtet. Die prinzipiellen Probleme ("Die Geschichte muss sich den Anforderungen an das Spiel beugen") gelten aber auch im Kleinen.
+
 # <a name="video_game_means"></a>Mittel zur Erzählung in Spielen
 
 - explizit
