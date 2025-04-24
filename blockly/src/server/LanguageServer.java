@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import utils.BlocklyCommands;
 import utils.Direction;
 import utils.HideLanguage;
@@ -155,20 +156,10 @@ public class LanguageServer {
   }
 
   private static String getParameterNamesJson(String[] parameterNames) {
-    if (parameterNames.length == 0) {
-      return "[]";
-    }
-
-    StringBuilder sb = new StringBuilder();
-    sb.append("[");
-    for (int i = 0; i < parameterNames.length; i++) {
-      if (i > 0) {
-        sb.append(", ");
-      }
-      sb.append("\"").append(escapeJson(parameterNames[i])).append("\"");
-    }
-    sb.append("]");
-    return sb.toString();
+    return Arrays.stream(parameterNames)
+        .map(LanguageServer::escapeJson)
+        .map(s -> "\"" + s + "\"")
+        .collect(Collectors.joining(", ", "[", "]"));
   }
 
   private static String getMethodSignature(Method method, String[] parameterNames) {
