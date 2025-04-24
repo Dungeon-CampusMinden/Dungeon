@@ -5,12 +5,11 @@ import core.Entity;
 
 /**
  * Provides a mechanism to apply a temporary speed increase effect to an entity within the game.
- * Utilizing the EffectScheduler, this effect increases the entity's speed for a designated duration
- * before reverting it back to its original state. The implementation relies on scheduling both the
- * application of the speed increase and its subsequent reversal.
+ * Using the {@link EventScheduler}, this effect increases the entity's speed for a designated
+ * duration before reverting it back to its original state. The implementation relies on scheduling
+ * both the application of the speed increase and its later reversal.
  */
 public class SpeedEffect {
-  private static final EventScheduler EVENT_SCHEDULER = new EventScheduler();
   private final float speedIncrease;
   private final int duration;
 
@@ -34,6 +33,7 @@ public class SpeedEffect {
    * reversion.
    *
    * @param target The entity to which the speed effect will be applied.
+   * @see EventScheduler
    */
   public void applySpeedEffect(Entity target) {
     throw new UnsupportedOperationException("Method not implemented.");
