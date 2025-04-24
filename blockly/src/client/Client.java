@@ -111,6 +111,7 @@ public class Client {
           PathfindingSystem pathfindingSystem =
               (PathfindingSystem) ECSManagment.systems().get(PathfindingSystem.class);
           if (pathfindingSystem != null) {
+            pathfindingSystem.autoStep(true);
             pathfindingSystem.updatePathfindingAlgorithm(
                 new BFSPathFinding(),
                 Game.currentLevel().startTile().coordinate(),
