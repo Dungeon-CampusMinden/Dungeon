@@ -173,21 +173,7 @@ public class BlocklyCodeRunner {
 
   private String addSleepCalls(String code) {
     // after each line ending in ; add BlocklyRunner.sleep()
-    StringBuilder modifiedText = new StringBuilder();
-    String[] lines = code.split("\n");
-    for (String line : lines) {
-      modifiedText.append(line);
-      if (line.endsWith(";")) {
-        modifiedText.append("sleep();\n");
-      } else {
-        modifiedText.append("\n");
-      }
-    }
-    // Remove the last newline
-    if (!modifiedText.isEmpty()) {
-      modifiedText.setLength(modifiedText.length() - 1);
-    }
-    return modifiedText.toString();
+    return code.replaceAll(";", ";sleep();");
   }
 
   /**
