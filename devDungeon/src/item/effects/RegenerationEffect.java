@@ -1,11 +1,11 @@
 package item.effects;
 
 import contrib.components.HealthComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.utils.components.MissingComponentException;
-import systems.EventScheduler;
 
 /**
  * The RegenerationEffect class is used to apply a regeneration effect to an entity. The
@@ -13,7 +13,6 @@ import systems.EventScheduler;
  * duration.
  */
 public class RegenerationEffect {
-  private static final EventScheduler EVENT_SCHEDULER = EventScheduler.getInstance();
   private final int amountPerSecond;
   private final int duration;
 
@@ -38,7 +37,7 @@ public class RegenerationEffect {
    */
   public void applyRegeneration(Entity target) {
     for (int i = 1; i < duration + 1; i++) { // apply Regeneration every second for durationSec
-      EVENT_SCHEDULER.scheduleAction(
+      EventScheduler.scheduleAction(
           () -> {
             HealthComponent healthComponent =
                 target

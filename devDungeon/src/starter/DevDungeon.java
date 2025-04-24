@@ -32,7 +32,6 @@ import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
 import systems.DevHealthSystem;
-import systems.EventScheduler;
 
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
@@ -56,7 +55,7 @@ public class DevDungeon {
           // Resets FogOfWar on level change (prevent artifacts)
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.reset();
-          EventScheduler.getInstance().clear(); // Clear all scheduled actions
+          EventScheduler.clear(); // Clear all scheduled actions
           // Reset all levers
           LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
           leverSystem.clear();
@@ -153,7 +152,7 @@ public class DevDungeon {
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());
     Game.add(new TeleporterSystem());
-    Game.add(EventScheduler.getInstance());
+    Game.add(new EventScheduler());
     Game.add(new FogOfWarSystem());
     Game.add(new LeverSystem());
     Game.add(new MobSpawnerSystem());

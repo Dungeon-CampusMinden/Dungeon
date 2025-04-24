@@ -1,6 +1,7 @@
 package level.utils;
 
 import contrib.level.DevDungeonLevel;
+import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.TPBallSkill;
 import core.Game;
 import core.level.Tile;
@@ -9,7 +10,6 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.Optional;
 import java.util.function.Consumer;
-import systems.EventScheduler;
 
 /** Utility class for level-related operations. */
 public class LevelUtils {
@@ -55,26 +55,25 @@ public class LevelUtils {
       Coordinate center, int range, long delaySpread, Consumer<Tile> actionPerTile) {
     for (int i = 0; i <= range; i++) {
       final int radius = i;
-      EventScheduler.getInstance()
-          .scheduleAction(
-              () -> {
-                for (int dx = -radius; dx <= radius; dx++) {
-                  for (int dy = -radius; dy <= radius; dy++) {
-                    if (dx * dx + dy * dy > radius * radius) continue; // Ensure circular pattern
+      EventScheduler.scheduleAction(
+          () -> {
+            for (int dx = -radius; dx <= radius; dx++) {
+              for (int dy = -radius; dy <= radius; dy++) {
+                if (dx * dx + dy * dy > radius * radius) continue; // Ensure circular pattern
 
-                    Coordinate target = new Coordinate(center.x + dx, center.y + dy);
-                    if (!hasLineOfSight(center, target)) {
-                      continue; // Skip if no direct line of sight
-                    }
-
-                    Tile tile = Game.currentLevel().tileAt(target);
-                    if (tile != null) {
-                      actionPerTile.accept(tile);
-                    }
-                  }
+                Coordinate target = new Coordinate(center.x + dx, center.y + dy);
+                if (!hasLineOfSight(center, target)) {
+                  continue; // Skip if no direct line of sight
                 }
-              },
-              delaySpread * i);
+
+                Tile tile = Game.currentLevel().tileAt(target);
+                if (tile != null) {
+                  actionPerTile.accept(tile);
+                }
+              }
+            }
+          },
+          delaySpread * i);
     }
   }
 
