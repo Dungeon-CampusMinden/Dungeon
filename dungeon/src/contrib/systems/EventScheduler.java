@@ -80,7 +80,7 @@ public class EventScheduler extends System {
         break; // No more actions to execute
       }
       scheduledAction.action.execute();
-      scheduledActions.poll(); // Remove the action from the queue
+      scheduledActions.remove(scheduledAction); // Remove the action from the queue
     }
   }
 
