@@ -155,7 +155,14 @@ public enum Direction {
             case LEFT -> Direction.RIGHT;
             case HERE -> this;
           };
-      case UP -> this;
+      case UP ->
+          switch (this) {
+            case UP -> Direction.UP;
+            case DOWN -> Direction.DOWN;
+            case RIGHT -> Direction.RIGHT;
+            case LEFT -> Direction.LEFT;
+            case HERE -> this;
+          };
       case HERE -> Direction.HERE;
     };
   }
