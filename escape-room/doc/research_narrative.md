@@ -65,11 +65,11 @@ Für die Beantwortung dieser Fragen:
 > Welche Techniken werden für die Erzählung eingesetzt (Literatur, Software, analoges Testspiel)?
 > Welche Strukturen (Puzzle-Graph) kommen finden sich in den betrachteten Spielen (Literatur, Software, analoges Testspiel)?
 
-| Category | Conventional Literature (e.g. novella) | Software/Video Games | Analog Games| |
+| Category | Conventional Literature (e.g. novella) | Software/Video Games | Analog Games|
 | - | :-: | :-: | :-: |
 | key attributes | <ul><li>linear</li><li>passive</li></ul> | <ul><li>often dynamically structured to enhance player agency</li><li>narration optional (e.g. Minesweeper, Fifa, Pong, Bejeweled)</li><li>active through simulation</li></ul> | <ul><li>structure can be anything from linear to completely open</li><li>provide rules for player to make the game 'active'</li><li>narration optional (or completely in the hands of the players e.g. Dixit)</li><li>can have no story at all (e.g. Poker)</li><li>or story-through-mechanics (e.g. time progression in Secret Hitler/Werewolfs, induction of anxiety in losing players during the late stages of Monopoly)</li><ul> |
 | principal means for structuring | <ul><li>condense concept</li><li>create list of scenes</li><li>gradually fill in the parts</li><li>top-down</li></ul> | <ul><li>either 'story-first' (e.g. Call of Duty) or 'story-as-a-means' (e.g. XCOM)</li><li>story flow chart, storyboard, and/or puzzle dependency graph (distinct from the story flow chard)</li></ul> | <ul><li>most of the time: strong focus on mechanics</li><li>TODO</li><ul> |
-| means for storytelling | <ul><li>stylistic devices (from metaphors to dramaturgy)</li><li>illustrations</li><ul> | <ul><li>anything a text can have and much more</li><li>see [heading](#video_game_means)</li></ul> | |
+| means for storytelling | <ul><li>stylistic devices (from metaphors to dramaturgy)</li><li>illustrations</li><ul> | <ul><li>anything a text can have and much more</li><li>see [heading](#video_game_means)</li></ul> | TODO |
 
 Key points of Game narration:
 
