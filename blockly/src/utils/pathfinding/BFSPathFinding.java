@@ -62,22 +62,7 @@ public class BFSPathFinding implements IPathfindingLogic {
     }
 
     // Get valid neighbors (4-way movement)
-    List<Coordinate> neighbors = new ArrayList<>();
-
-    // Check all four directions (up, right, down, left)
-    int[] dx = {0, 1, 0, -1};
-    int[] dy = {-1, 0, 1, 0};
-
-    for (int i = 0; i < 4; i++) {
-      Coordinate neighbor = new Coordinate(current.x + dx[i], current.y + dy[i]);
-
-      // Skip if the neighbor is out of bounds or is a wall
-      if (!LevelUtils.isWalkable(neighbor) || closedSet.contains(neighbor)) {
-        continue;
-      }
-
-      neighbors.add(neighbor);
-    }
+    List<Coordinate> neighbors = LevelUtils.walkableNeighbors(current);
 
     // Process each valid neighbor
     for (Coordinate neighbor : neighbors) {
