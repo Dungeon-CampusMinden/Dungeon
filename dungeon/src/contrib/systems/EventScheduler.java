@@ -3,8 +3,7 @@ package contrib.systems;
 import com.badlogic.gdx.utils.TimeUtils;
 import contrib.utils.IAction;
 import core.System;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.PriorityQueue;
 
 /**
  * This class is responsible for scheduling and executing timed actions. It maintains a list of
@@ -16,7 +15,7 @@ import java.util.List;
  */
 public class EventScheduler extends System {
 
-  private static final List<ScheduledAction> scheduledActions = new ArrayList<>();
+  private static final PriorityQueue<ScheduledAction> scheduledActions = new PriorityQueue<>();
 
   /**
    * Schedules a new action to be executed after a specified delay.
@@ -75,18 +74,19 @@ public class EventScheduler extends System {
   public void execute() {
     long currentTime = TimeUtils.millis();
 
-    for (int i = 0; i < scheduledActions.size(); i++) {
-      ScheduledAction scheduledAction = scheduledActions.get(i);
-      if (currentTime >= scheduledAction.executeAt) {
-        scheduledAction.action.execute();
-        scheduledActions.remove(i);
-        i--;
+    while (!scheduledActions.isEmpty()) {
+      ScheduledAction scheduledAction = scheduledActions.peek();
+      if (currentTime < scheduledAction.executeAt) {
+        break; // No more actions to execute
       }
+      scheduledAction.action.execute();
+      scheduledActions.poll(); // Remove the action from the queue
     }
   }
 
   /**
-   * Represents a scheduled action with an associated action and execution time.
+   * Represents a scheduled action with an associated action and execution time. Implements
+   * Comparable to allow sorting within the PriorityQueue based on execution time.
    *
    * <p>This action is scheduled to be executed at a specific time in the future via the {@link
    * EventScheduler}.
@@ -94,5 +94,12 @@ public class EventScheduler extends System {
    * @param action The action to be executed.
    * @param executeAt The time at which the action should be executed, in milliseconds.
    */
-  public record ScheduledAction(IAction action, long executeAt) {}
+  public record ScheduledAction(IAction action, long executeAt)
+      implements Comparable<ScheduledAction> {
+    @Override
+    public int compareTo(ScheduledAction other) {
+      // Sort by execution time (earliest first)
+      return Long.compare(this.executeAt, other.executeAt);
+    }
+  }
 }
