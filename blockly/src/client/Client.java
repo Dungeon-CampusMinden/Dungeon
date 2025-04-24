@@ -107,15 +107,6 @@ public class Client {
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
-
-          PathfindingSystem pathfindingSystem =
-              (PathfindingSystem) ECSManagment.systems().get(PathfindingSystem.class);
-          if (pathfindingSystem != null) {
-            pathfindingSystem.updatePathfindingAlgorithm(
-                new BFSPathFinding(),
-                Game.currentLevel().startTile().coordinate(),
-                Game.currentLevel().endTile().coordinate());
-          }
         });
   }
 
