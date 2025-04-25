@@ -106,6 +106,4 @@ Key points of Game narration:
   - story needs to be enticing from the beginning (or the mechanics)
   - e.g. through unanswered questions
 
-For our analog evaluation:
-
-TODO
+For our analog evaluation: [see other file](./evaluation_analog.md)
