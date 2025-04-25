@@ -101,7 +101,7 @@ Key points of Game narration:
 - key moments of storytelling and play time often separated in games
   - e.g. cutscenes / narration by game master in DnD
   - no "mucking about" during dramatic climax
-  - easier to control with narration with superfluous parts of the simulation disabled
+  - easier to control narration with superfluous parts of the simulation disabled
 - critical commonalities with traditional writing
   - story needs to be enticing from the beginning (or the mechanics)
   - e.g. through unanswered questions
