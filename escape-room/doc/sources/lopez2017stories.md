@@ -38,7 +38,7 @@ Das konkrete Vorgehen wurde bei keinem der Durchläufe dokumentiert.
 Trotzdem ist plausibel, dass die Betrachtung der Erlebnisse der Spieler anhand der Entwicklung der Intensität bei der Verbesserung der Geschichte hilfreich sein kann.
 Eine Übertragung auf höhere Bildung sollte möglich sein, zumal die Anforderungen an z.B. Motivation und Einfachheit dort nicht so streng sind.
 Gerade in den frühen Phasen der Spielentwicklung gibt es selten Playtesting, also bietet es sich dort an, eine "sinnvolle Annahme" über die Spielerfahrung zu treffen.
-Der Test der nicht-linearen Geschichte zeigt, dass das Erleben des Spiels sehr wechselhaft sein kann, wenn die geschlossenen Elemente der Geschichte darauf bauen, in einer bestimmten Reihenfolge zu passieren.
+Der Test der nicht-linearen Geschichte zeigt, dass das Erleben des Spiels sehr wechselhaft sein kann, wenn die geschlossenen Elemente der Geschichte darauf bauen, in einer bestimmten Reihenfolge stattzufinden.
 
 Für uns heißt das vielleicht, dass (weil die Escape-Rooms mit verhältnismäßigem Aufwand erstellbar sein werden müssen) die starken Divergenzen durch entweder vorgebene Strukturen umgangen oder durch geeignetes Tooling sichtbar gemacht werden sollten.
 Wichtig ist dennoch, dass Escape-Rooms, die in Gruppen bearbeitet werden, die Teilgruppen der Spieler unterschiedliche Verläufe haben werden, und die Bearbeitung einzelner Puzzle möglicherweise pausiert wird.
