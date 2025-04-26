@@ -49,26 +49,29 @@ public class PathfindingSystem extends System {
       scheduledActions.add(
           EventScheduler.scheduleAction(
               () -> PathfindingVisualizer.colorTile(step), autoStep ? STEP_DELAY * i : 0));
-      stepCount++;
 
-      // if last
+      // on the last step, color the final path
       if (i == studentAlgorithm.steps().size() - 1) {
         isRunning = autoStep; // prevent autoStep from running again
-        scheduledActions.add(
-            EventScheduler.scheduleAction(
-                () ->
-                    studentAlgorithm
-                        .finalPath(endNode)
-                        .forEach(
-                            node ->
-                                PathfindingVisualizer.colorTile(Tuple.of(node, TileState.PATH))),
-                autoStep ? STEP_DELAY * (i + 1) : 0));
+        displayFinalPath(i);
       }
 
+      stepCount++;
       if (!autoStep) {
         break;
       }
     }
+  }
+
+  private void displayFinalPath(int delayStep) {
+    scheduledActions.add(
+        EventScheduler.scheduleAction(
+            () ->
+                studentAlgorithm
+                    .finalPath(endNode)
+                    .forEach(
+                        node -> PathfindingVisualizer.colorTile(Tuple.of(node, TileState.PATH))),
+            autoStep ? STEP_DELAY * delayStep : 0));
   }
 
   /**
