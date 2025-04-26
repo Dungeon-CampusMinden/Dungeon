@@ -6,6 +6,7 @@ import contrib.components.PathComponent;
 import core.Game;
 import core.System;
 import core.level.utils.Coordinate;
+import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 import utils.pathfinding.PathfindingLogic;

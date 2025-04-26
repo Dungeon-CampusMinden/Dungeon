@@ -34,7 +34,7 @@ import utils.pathfinding.BFSPathFinding;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = true;
+  private static final boolean KEYBOARD_DEACTIVATION = false;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -180,7 +180,7 @@ public class Client {
     Game.entityStream(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
     Entity hero;
     try {
-      hero = HeroTankControlledFactory.newTankControlledHero();
+      hero = HeroFactory.newHero();
       hero.add(new AmmunitionComponent());
     } catch (IOException e) {
       throw new RuntimeException(e);
