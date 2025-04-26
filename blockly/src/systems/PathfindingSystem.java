@@ -5,88 +5,69 @@ import com.badlogic.gdx.Gdx;
 import contrib.systems.EventScheduler;
 import core.System;
 import core.level.utils.Coordinate;
+import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import utils.pathfinding.IPathfindingLogic;
-import utils.pathfinding.PathfindingState;
+import utils.pathfinding.Node;
+import utils.pathfinding.PathfindingLogic;
 import utils.pathfinding.PathfindingVisualizer;
+import utils.pathfinding.TileState;
 
 /**
- * This class is responsible for managing the pathfinding process using a specified algorithm. It
- * initializes the algorithm with start and end coordinates, performs steps in the pathfinding
- * process, and visualizes the current state of the pathfinding.
+ * This class is responsible for managing the pathfinding logic and visualizing the pathfinding
+ * process.
  *
  * <p>It allows for both manual and automatic stepping through the pathfinding process.
  *
- * @see IPathfindingLogic
- * @see PathfindingState
+ * @see PathfindingLogic
+ * @see TileState
  * @see PathfindingVisualizer
  */
 public class PathfindingSystem extends System {
   private static final long STEP_DELAY = 100; // Delay in milliseconds
 
-  private IPathfindingLogic studentAlgorithm;
+  private PathfindingLogic studentAlgorithm;
   private Coordinate startNode;
   private Coordinate endNode;
 
-  private boolean isRunning = false;
-  private boolean isFinished = false;
   private boolean autoStep = false;
+  private boolean isRunning = false;
+  private int stepCount = 0;
   private final List<EventScheduler.ScheduledAction> scheduledActions = new ArrayList<>();
-
-  private void startPathfinding() {
-    if (isRunning || isFinished) {
-      return;
-    }
-
-    studentAlgorithm.initialize(startNode, endNode);
-    isRunning = true;
-    isFinished = false;
-  }
 
   @Override
   public void execute() {
     if (studentAlgorithm == null) return;
 
     if (!Gdx.input.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value())) return;
-    if (isRunning && autoStep) return; // no manual stepping if autoStep is enabled
+    if (isRunning && autoStep) return;
 
-    startPathfinding();
+    studentAlgorithm.performSearch(startNode, endNode);
 
-    scheduledActions.add(
-        EventScheduler.scheduleAction(this::stepVisualization, autoStep ? 0 : STEP_DELAY));
-  }
+    for (int i = stepCount; i < studentAlgorithm.steps().size(); i++) {
+      Tuple<Node, TileState> step = studentAlgorithm.steps().get(i);
+      scheduledActions.add(
+          EventScheduler.scheduleAction(
+              () -> PathfindingVisualizer.colorTile(step), autoStep ? STEP_DELAY * i : 0));
+      stepCount++;
 
-  private void stepVisualization() {
-    studentAlgorithm.performStep();
-
-    isFinished = studentAlgorithm.isSearchFinished();
-
-    Set<Coordinate> openSet = studentAlgorithm.openSetCoordinates();
-    Set<Coordinate> closedSet = studentAlgorithm.closedSetCoordinates();
-    Coordinate lastProcessed = studentAlgorithm.lastProcessedNode();
-    List<Coordinate> finalPath = List.of(); // Default empty
-
-    if (isFinished) {
-      List<Coordinate> resultPath = studentAlgorithm.finalPath();
-      if (resultPath != null) {
-        finalPath = resultPath;
+      // if last
+      if (i == studentAlgorithm.steps().size() - 1) {
+        isRunning = autoStep; // prevent autoStep from running again
+        scheduledActions.add(
+            EventScheduler.scheduleAction(
+                () ->
+                    studentAlgorithm
+                        .finalPath(endNode)
+                        .forEach(
+                            node ->
+                                PathfindingVisualizer.colorTile(Tuple.of(node, TileState.PATH))),
+                autoStep ? STEP_DELAY * (i + 1) : 0));
       }
-    }
 
-    PathfindingState currentState =
-        new PathfindingState(openSet, closedSet, finalPath, lastProcessed, isFinished);
-
-    PathfindingVisualizer.drawVisualization(currentState);
-
-    if (isFinished) {
-      isRunning = false;
-    }
-
-    // If autoStep is true, schedule the next step
-    if (autoStep && !isFinished) {
-      scheduledActions.add(EventScheduler.scheduleAction(this::stepVisualization, STEP_DELAY));
+      if (!autoStep) {
+        break;
+      }
     }
   }
 
@@ -110,9 +91,7 @@ public class PathfindingSystem extends System {
    * @param endCoordinate the ending coordinate
    */
   public void updatePathfindingAlgorithm(
-      IPathfindingLogic pathFindingAlgorithm,
-      Coordinate startCoordinate,
-      Coordinate endCoordinate) {
+      PathfindingLogic pathFindingAlgorithm, Coordinate startCoordinate, Coordinate endCoordinate) {
     this.studentAlgorithm = pathFindingAlgorithm;
     this.startNode = startCoordinate;
     this.endNode = endCoordinate;
@@ -127,9 +106,9 @@ public class PathfindingSystem extends System {
    * the state of the system.
    */
   private void reset() {
-    isRunning = false;
-    isFinished = false;
     scheduledActions.forEach(EventScheduler::cancelAction);
     scheduledActions.clear();
+    stepCount = 0;
+    isRunning = false;
   }
 }
