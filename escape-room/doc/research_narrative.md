@@ -19,16 +19,21 @@ Viele Resourcen zu Erzähltechniken in Videospielen sind auf große Produktionen
     - Interaktivität
     - konsumierbare Gegenstände (Bücher/Poster/Aushänge)
     - Artefakte
-      - Tassen in "Horizon: Zero Dawn": "bestimmt für religiöse Rituale verwendet"
+      - bspw. Tassen in "Horizon: Zero Dawn": "wurden bestimmt für religiöse Rituale verwendet"
     - Dialog
       - häufig gesprochen
       - nicht notwendigerweise an den Spieler gerichtet
+    - unzuverlässiges Erzählen
+      - bspw. Psychosen in "Hellblade: Senua's Sacrifice"
+      - bspw. Batman unter dem Einfluss von Scarecrows Gift
   - außerhalb der Simulation
     - "Star Wars Intro"
     - Cutscenes
     - Booklet
     - Erzählung vom Gamemaster
     - Website
+  - "4th-Wall-Breaking"
+    - "Absturz" des Spiels (Pony Island, Arkham Asylum)
 - implizit
   - Ereignisse/Begebenheiten in der Simulation
     - ein leeres, von Federn umgebenes Vogelnest
