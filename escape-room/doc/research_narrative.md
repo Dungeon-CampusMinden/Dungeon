@@ -93,6 +93,8 @@ Key points of Game narration:
   - narration might even be organised at runtime
     - simplistic variant: dynamic content generation with little impact on story
     - more involved approach: handing out elements from pre-defined story definition
+  - 'writing' focuses more on the world, the dialogue, character development, and making an enticing story
+  - 'design' focuses on the player, the branching, consequences, and making the stork work in the game
 - narration can be an 'intrusion' for the player, no matter how good it is
   - skipable cutscenes and dialog
   - gameplay and narration need to work together
