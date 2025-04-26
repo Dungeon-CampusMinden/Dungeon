@@ -2,8 +2,6 @@ package utils.pathfinding;
 
 import core.level.utils.Coordinate;
 import java.util.*;
-import java.util.stream.Collectors;
-
 import utils.LevelUtils;
 
 /**
@@ -64,7 +62,10 @@ public class BFSPathFinding implements IPathfindingLogic {
     }
 
     // Get valid neighbors (4-way movement)
-    List<Coordinate> neighbors = LevelUtils.walkableNeighbors(current).stream().filter(neighbor -> !closedSet.contains(neighbor)).toList();
+    List<Coordinate> neighbors =
+        LevelUtils.walkableNeighbors(current).stream()
+            .filter(neighbor -> !closedSet.contains(neighbor))
+            .toList();
 
     // Process each valid neighbor
     for (Coordinate neighbor : neighbors) {
