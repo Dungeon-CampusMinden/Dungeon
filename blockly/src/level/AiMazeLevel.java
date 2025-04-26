@@ -33,10 +33,10 @@ public class AiMazeLevel extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    float x = Game.currentLevel().layout().length/2.0f;
-    float y = Game.currentLevel().layout()[0].length/2.0f;
+    float x = Game.currentLevel().layout()[0].length/2.0f;
+    float y = Game.currentLevel().layout().length/2.0f;
     Entity cameraFocusPoint = new Entity();
-    cameraFocusPoint.add(new PositionComponent(x + 0.25f, y + 0.25f));
+    cameraFocusPoint.add(new PositionComponent(x + 0.5f, y + 0.25f));
     cameraFocusPoint.add(new CameraComponent());
     Debugger.ZOOM_CAMERA(0.20f);
     Game.add(cameraFocusPoint);
