@@ -39,3 +39,52 @@ Viel Aufmerksamkeit auf Anpassung an Spielsituation und Schwierigkeitsgrad zur L
 ### [Badaboom!](https://www.polyu.edu.hk/kteo/knowledge-transfer/innovations-and-technologies/technology-search/4-smart-cities-and-information-technology/4_ama_02_0920/)
 
 Lernplattform mit Ausrichtung auf mathematische Hochschulinhalte (TeX-Eingabe und Handschrifterkennung für Formeln). Das Forschungsprojekt dahinter legt die Verwendung von Spielelementen nahe (shroff2019immersion), im Endprodukt findet sich eher Gamification (Scoreboards etc.) rund um Multiple-Choice und Texteingaben.
+
+# <a name="tooling"></a> Tooling
+
+## Dependency Charts
+
+TODO übersetzen
+
+There's a [guide on dependency charts](https://grumpygamer.com/puzzle_dependency_charts/) from the personal blog of Ron Gilbert (games industry).
+[This blog post](https://heterogenoustasks.wordpress.com/2015/01/26/standard-patterns-in-choice-based-games/) attempts to categorize different graph layouts.
+
+### Puzzlon
+
+The [wiki page on the Puzzlon Editor](https://www.ifwiki.org/Puzzlon) of the Interactive Fiction Technology Foundation also details the concept and has an elaborate example from a real game.
+This wiki page also shows a snippet of code used to generate the graph:
+
+```
+end_of_part_one : goal {
+   depends_on      = [ gain_access_to_mansion ]
+   end_state       = positive
+}
+
+gain_access_to_mansion : goal {
+   depends_on = [ smash_lock_on_gate,  calm_dog ]
+}
+
+get_beer_mat           : action {
+   depends_on= [ talk_to_man, at_tavern ]
+}
+
+get_branch             : action {
+   depends_on = [ climb_tree ]
+}
+```
+
+There is also a version of the editor for [running inside the web browser](https://adventuron.io/puzzlon/).
+
+An escape room language that draws from both (DSL and more generic dependency graph) could be the basis for defining escape rooms for use with the dungeon.
+
+### PuzzleGraph
+
+A more interactive tool is [PuzzleGraph](https://hg.sr.ht/~runevision/puzzlegraph) (pre-built binaries linked). It reflects stateful game entities like switches, sensors, and doors. Probably out of scope for us.
+
+## <a name="story_tools"></a> Story/Narrative
+
+Mit den Puzzle-Dependency-Charts verwandt sind "Story-Graphs", die auch von Autoren passiver Geschichten (z.B. Buch) eingesetzt werden. Sie unterscheiden sich prinzipiell dadurch, dass sie der Strukturierung der Geschichte dienen und nicht der Lösung von Abhängigkeiten zur Erreichung eines Ziels.
+
+[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (Puzzlon mit "Ergonomie" und Text).
+
+[Storyspace](https://www.eastgate.com/storyspace/) ist ein ähnliches kommerzielles Werkzeug für macOS, das allerdings aus der Vermeidung von Plotlöchern entstanden zu sein scheint.

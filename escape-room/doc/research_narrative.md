@@ -63,12 +63,6 @@ In [All Choice No Consequence: Efficiently Branching Narrative ](https://gdcvaul
 
 Emily Short stellt in [Beyond Branching: Quality-Based, Salience-Based, and Waypoint Narrative Structures](https://emshort.blog/2016/04/12/beyond-branching-quality-based-and-salience-based-narrative-structures/) drei Paradigmen gegenüber. 'Quality-based' bezieht sich auf das Erlangen einer "Qualität" (Messlatte) auf verschiedenen unabhängigen Wegen (um ).
 
-### Werkzeuge
-
-[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (Puzzlon mit "Ergonomie" und Text).
-
-[Storyspace](https://www.eastgate.com/storyspace/) ist ein ähnliches kommerzielles Werkzeug für macOS, das allerdings aus der Vermeidung von Plotlöchern entstanden zu sein scheint.
-
 ## [The Art of Game Design: A Book of Lenses](https://doi.org/10.1201/b22101)
 
 Jesse Schell motiviert seine Leser, "Interest Curves" über den Verlauf der Geschichte zu malen, ähnlich bspw. einem Intensität-Graphen, den ein Musiker verwenden würde. [Hier](https://game-studies.fandom.com/wiki/Interest_Curve) gibt es ein Bild aus dem Buch dazu.
