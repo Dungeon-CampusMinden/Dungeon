@@ -62,4 +62,11 @@ Die zentralen Punkte des Vorgehens aus Kapitel 1.4.2 sind:
     - compete against others
     - mastery (SDT)
 
-Dort werden auch 6 Fragen aufgestellt, die bei der Orientierung helfen sollen.
+Dort werden auch 6 Fragen aufgestellt, die bei der Orientierung helfen sollen:
+
+- What are the core Play elements in the gamification system?
+- How can Exposition be used to help players connect the game activities to the real world?
+- How are the players given a Choice of activities?
+- What ways can the players be provided with Information about their actions?
+- How can the players become Engaged with each other?
+- How do players Reflect upon what they have done?
