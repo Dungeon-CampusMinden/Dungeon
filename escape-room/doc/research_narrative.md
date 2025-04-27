@@ -57,15 +57,17 @@ Viele Resourcen zu Erzähltechniken in Videospielen sind auf große Produktionen
 
 Die starken Parallelen einer [Veröffentlichung zu "Narrative Graph Models"](https://maetl.net/notes/storyboard/narrative-graph-models) und [Abhängigkeitsgraphen](./requirements_tooling.md) offenbaren die Verwandtschaft von Geschichte und der Verknüpfung der Puzzle.
 
-[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (Puzzlon mit "Ergonomie" und Text).
-
-[Storyspace](https://www.eastgate.com/storyspace/) ist ein ähnliches kommerzielles Werkzeug für macOS, das allerdings aus der Vermeidung von Plotlöchern entstanden zu sein scheint.
-
 In ["The Shapes in your Story"](https://gdcvault.com/play/1023095/The-Shapes-in-Your-Story) heißen die Graphen "Story Maps". Die Folien sind aus einer Veranstaltung an der Northeastern University - College of Professional Studies. Es wird das Konzept von "Narrative Mapping Framework" vorgestellt. Das beispielhafte Template heißt "Lock and Key" (40f) und es dient als Vehikel zur Präsentation von Puzzeln, um die herum eine Geschichte geschrieben wird.
 
 In [All Choice No Consequence: Efficiently Branching Narrative ](https://gdcvault.com/play/1023072/All-Choice-No-Consequence-Efficiently) werden sehr konkrete Anweisungen zum Umgang mit Story und Branching gegeben. Die Perspektive ist "Dating-Spiele auf dem Handy". Eine Auswahl nach Einordnung und Nutzen: "choices that FEEL impactful vs. those that ARE (too expensive)", "options with equal weight" (avoid clear right or wrong), "unavoidable Consequences - bury it in choices", "avoid false, misleading, or vague choices", "don't add branches until you have a great story", "write immediate actions", "never negate player agency". Hier wäre hervorzuheben, dass wahrscheinlich nichts davon Anwendung finden sollte, wenn es um Entscheidungen geht, die Lerninhalte betreffen.
 
 Emily Short stellt in [Beyond Branching: Quality-Based, Salience-Based, and Waypoint Narrative Structures](https://emshort.blog/2016/04/12/beyond-branching-quality-based-and-salience-based-narrative-structures/) drei Paradigmen gegenüber. 'Quality-based' bezieht sich auf das Erlangen einer "Qualität" (Messlatte) auf verschiedenen unabhängigen Wegen (um ).
+
+### Werkzeuge
+
+[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (Puzzlon mit "Ergonomie" und Text).
+
+[Storyspace](https://www.eastgate.com/storyspace/) ist ein ähnliches kommerzielles Werkzeug für macOS, das allerdings aus der Vermeidung von Plotlöchern entstanden zu sein scheint.
 
 ## [The Art of Game Design: A Book of Lenses](https://doi.org/10.1201/b22101)
 
