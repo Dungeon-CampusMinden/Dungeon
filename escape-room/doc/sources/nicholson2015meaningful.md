@@ -21,7 +21,7 @@ title: "Exploring the fusion of mixed reality and digital game-based learning: T
 
 Der Autor stellt Kriterien zusammen, die Gamification/Game-Design erreichen soll, um nachhaltige Veränderung zu bewirken.
 Es wird ausdrücklich davor gewarnt, unreflektiert Belohnungssysteme einzusetzen, da diese dem zunächst belohnten Verhalten langfristig sogar abträglich sein können.
-Stattdessen soll die "intrinsische Motivation" gefördert werden, was durch 6 (Spiel-)elemente und ein dazugehöriges Vorgehen erreicht werden sollt.
+Stattdessen soll die "intrinsische Motivation" gefördert werden, was durch 6 (Spiel-)elemente und ein dazugehöriges Vorgehen erreicht werden soll.
 Die Zusammenfassung der Elemente aus dem Paper im unveränderten Wortlaut:
 
 - Play
