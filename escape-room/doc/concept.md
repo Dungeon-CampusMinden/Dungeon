@@ -42,6 +42,7 @@ Die Anforderungen sind in Aspekte aufgeteilt.
       - z.B. Computer geht kaputt, wenn Raum unter Wasser gesetzt wird, aber schwimmend kann man einen Lüftungsschacht erreichen
     - ein Gamemaster kann kontaktiert werden, um Hilfe zu erhalten
 - keine Failure-States (es gibt immer einen Weg zum Ziel / keine Sackgassen)
+- Gegenstände werden gefunden und zur späteren Verwendung/Kombination mitgenommen
 
 ## Motivation
 
