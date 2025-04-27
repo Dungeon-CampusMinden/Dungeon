@@ -2,16 +2,25 @@
 title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Wissenschaftliche Veröffentlichungen"
 ---
 
-# Ziele
-
-- neuere Meta-Studien zur Verwendung von Spielen in der Lehre
-- erste Ideen für Zuordnung von Rätsel-Typen zu bestimmten didaktischen Inhalten?
-- gibt es schon Lernspiel-Frameworks?
-- wie können Tools aussehen?
-
-Ergebnisse liegen in sources/.
-
 # Recherche-Parameter
+
+Ausgewählte Ergebnisse liegen in sources/.
+
+## Einordnung des Escape-Rooms für den Dungeon
+
+### Begriffsklärung
+
+Die grundlegende Spielidee (Ausbruch aus einem begrenzten Raum) für Escape-Rooms geht auf ein Textbuch-Adventure (Interactive Fiction) aus 1988 zurück. Bis in die frühen 2000er werden diverse auf dem Konzept aufbauende "Point-And-Click" Videospiele und digitale Text-Adventures veröffentlicht, auf die der Begriff "Escape-Room" / "Escape Game" schließlich zurückgeht. In dieser Zeit werden die ersten direkt von diesen Spielen inspirierten Räume konstruiert, die auch für mehrere Spieler gedacht sind. Ab 2015 wächst das Interesse der breiteren Öffentlichkeit in das Genre "Escape Room", das sich vornehmlich auf die physischen Räume bezieht, nachdem kurze Zeit vorher in China das artverwandte "Jubensha" an Popularität gewonnen hat (Murder-Mystery-Rollenspiel im Team).
+
+### Einordnung in das Forschungsprojekt und den Dungeon
+
+Die Verwendung der Terminologie "digitale Escape-Rooms (dER)" im Antrag des `L<ESC>rod`-Projekts deutet auf eine explizite Anwendung der Ausprägungen physischer Escape-Rooms (Team, begrenzte Zeit etc.) im digitalen Medium. Es geht um eine Ergänzung um "zentrale Elemente aus dem Bereich analoger Escape-Rooms".
+
+Die Laufzeit des Dungeons umfasst die Echtzeit-Simulation (aus dem Antrag: "dynamisch auf das Spielgeschehen reagieren") einer "tile-basierten" Spielwelt, die von den Studenten selber ausgeführt und modifiziert werden kann.
+Daraus soll im Laufe des Projekts ein "fachunabhängiges" Framework entstehen.
+
+Diese Ausprägungen finden Anwendung bei der Festsetzung der Suchbegriffe und der Bewertung der Ergebnisse.
+Eine ausführlichere Sammlung der für dieses Projekt relevanten Ausprägun Escape-Rooms befindet sich im [Konzept-Dokument](./concept.md).
 
 ## Datenbanken
 
