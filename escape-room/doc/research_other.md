@@ -4,20 +4,20 @@ title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Andere"
 
 # Anlaufpunkte
 
-## Escape-Rooms im Allgemeinen
+Resourcen für Spiele, Anleitungen, Präsentationen, Erfahrungsberichte, etc.
 
-- itch.io
 - GDC (gdcvault.com)
 - gamasutra/gamedeveloper.com
-- Suchmaschinen
+- (Web-) Suchmaschinen
+- itch.io (Spiele)
 
-# Fertige Lösungen
+# <a name="solutions"></a> Fertige Lösungen
 
 Gibt es existierende Lösungen um ausreichend ähnliche Ziele zu erreichen?
 
 ## Analog
 
-### [EscapeIF](https://www.becauseplaymatters.com/escapeif)
+### <a name="escapeif"></a> [EscapeIF](https://www.becauseplaymatters.com/escapeif)
 
 Auf Kollaboration von Lehrenden ausgelegte Plattform zum Austausch von Spielen, die im Prinzip nur eine Tafel brauchen.
 Teil der [mEducation Alliance](https://meducationalliance.org/ed-storytelling-games/), die als Non-Profit das Ziel hat, das Ökosystem der Bildung insgesamt zu verbessern.
@@ -39,6 +39,16 @@ Viel Aufmerksamkeit auf Anpassung an Spielsituation und Schwierigkeitsgrad zur L
 ### [Badaboom!](https://www.polyu.edu.hk/kteo/knowledge-transfer/innovations-and-technologies/technology-search/4-smart-cities-and-information-technology/4_ama_02_0920/)
 
 Lernplattform mit Ausrichtung auf mathematische Hochschulinhalte (TeX-Eingabe und Handschrifterkennung für Formeln). Das Forschungsprojekt dahinter legt die Verwendung von Spielelementen nahe (shroff2019immersion), im Endprodukt findet sich eher Gamification (Scoreboards etc.) rund um Multiple-Choice und Texteingaben.
+
+### Cluevity
+
+Ein Outdoor-Escape-Spiel mit GPS und Augmented-Reality. Die Zielkunden können mit einer Lizenz vorgefertigte Spiele an ihrem Standort anbieten.
+Anpassungen sind oberflächlich (z.B. Bild und Text für Branding). Kein Hinweis darauf, dass die Rätsel selber veränderlich sind.
+Keine explizite Ausrichtung auf Lerninhalte.
+
+### Genially
+
+Eine Sammlung von so etwas wie Power-Point-Templates. Bei einer Stichprobe wurden nur Multiple-Choice-Fragen gesichtet (es gab auch Bilder als Optionen).
 
 # <a name="tooling"></a> Tooling
 
