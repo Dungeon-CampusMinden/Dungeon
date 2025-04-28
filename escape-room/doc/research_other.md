@@ -91,10 +91,10 @@ An escape room language that draws from both (DSL and more generic dependency gr
 
 A more interactive tool is [PuzzleGraph](https://hg.sr.ht/~runevision/puzzlegraph) (pre-built binaries linked). It reflects stateful game entities like switches, sensors, and doors. Probably out of scope for us.
 
-## <a name="story_tools"></a> Story/Narrative
+## <a name="story_tools"></a> Story/Narrative Mapping
 
 Mit den Puzzle-Dependency-Charts verwandt sind "Story-Graphs", die auch von Autoren passiver Geschichten (z.B. Buch) eingesetzt werden. Sie unterscheiden sich prinzipiell dadurch, dass sie der Strukturierung der Geschichte dienen und nicht der Lösung von Abhängigkeiten zur Erreichung eines Ziels.
 
-[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (Puzzlon mit "Ergonomie" und Text).
+[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (erlaubt Beschreibungen der Knoten).
 
 [Storyspace](https://www.eastgate.com/storyspace/) ist ein ähnliches kommerzielles Werkzeug für macOS, das allerdings aus der Vermeidung von Plotlöchern entstanden zu sein scheint.
