@@ -7,8 +7,8 @@ import java.util.*;
  * Depth-First Search (DFS) pathfinding algorithm implementation.
  *
  * <p>This class implements the PathfindingLogic interface and provides the logic for performing DFS
- * pathfinding. It maintains the open and closed sets as a LIFO stack, tracks the path, and provides methods to
- * initialize the search, perform steps, and retrieve the final path.
+ * pathfinding. It maintains the open and closed sets as a LIFO stack, tracks the path, and provides
+ * methods to initialize the search, perform steps, and retrieve the final path.
  *
  * @see PathfindingLogic
  * @see systems.PathfindingSystem PathfindingSystem
