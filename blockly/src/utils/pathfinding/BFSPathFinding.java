@@ -6,9 +6,27 @@ import java.util.*;
 /**
  * Breadth-First Search (BFS) pathfinding algorithm implementation.
  *
- * <p>This class implements the PathfindingLogic interface and provides the logic for performing BFS
- * pathfinding. It maintains the open and closed sets, tracks the path, and provides methods to
- * initialize the search, perform steps, and retrieve the final path.
+ * <p>It uses a queue (open set) to keep track of nodes to explore and a set (closed set) to keep
+ * track of visited nodes.
+ *
+ * <p>Pseudocode:
+ *
+ * <pre>
+ *   BFS(start, end):
+ *   openSet = new Queue()
+ *   closedSet = new Set()
+ *   openSet.add(start)
+ *   closedSet.add(start)
+ *   while openSet is not empty:
+ *     current = openSet.poll()
+ *     for each neighbor of current:
+ *       if neighbor is not in closedSet:
+ *         openSet.add(neighbor)
+ *         closedSet.add(neighbor)
+ *       if neighbor == end:
+ *         closedSet.add(neighbor)
+ *         return
+ * </pre>
  *
  * @see PathfindingLogic
  * @see systems.PathfindingSystem PathfindingSystem
