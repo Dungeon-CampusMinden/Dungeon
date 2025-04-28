@@ -2,6 +2,7 @@ package utils.pathfinding;
 
 import core.level.utils.Coordinate;
 import java.util.*;
+import utils.LevelUtils;
 
 /**
  * Depth-First Search (DFS) pathfinding algorithm implementation.
@@ -51,9 +52,9 @@ public class DFSPathFinding extends PathfindingLogic {
     addToClosedSet(startNode);
 
     while (hasOpenNodes()) {
-      Node current = pollNextNode();
-      addToClosedSet(current.coordinate());
-      for (Coordinate neighbor : current.neighbors()) {
+      Coordinate current = pollNextNode();
+      addToClosedSet(current);
+      for (Coordinate neighbor : LevelUtils.walkableNeighbors(current)) {
         if (!isClosed(neighbor)) {
           addToOpenSet(neighbor);
         }

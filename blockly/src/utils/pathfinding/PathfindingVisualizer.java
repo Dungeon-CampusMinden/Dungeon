@@ -3,6 +3,7 @@ package utils.pathfinding;
 import contrib.systems.EventScheduler;
 import core.Game;
 import core.level.Tile;
+import core.level.utils.Coordinate;
 import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,9 +70,9 @@ public class PathfindingVisualizer {
       return;
     }
 
-    List<Tuple<Node, TileState>> steps = pathfindingLogic.steps();
+    List<Tuple<Coordinate, TileState>> steps = pathfindingLogic.steps();
     for (int i = stepCount; i < steps.size(); i++) {
-      Tuple<Node, TileState> step = steps.get(i);
+      Tuple<Coordinate, TileState> step = steps.get(i);
 
       // Schedule coloring action for the current step
       long delay = stepDelay * i;
@@ -135,8 +136,8 @@ public class PathfindingVisualizer {
    *
    * @param blockToColor A tuple containing the node and its tile state
    */
-  private static void colorTile(Tuple<Node, TileState> blockToColor) {
-    Tile tile = Game.tileAT(blockToColor.a().coordinate());
+  private static void colorTile(Tuple<Coordinate, TileState> blockToColor) {
+    Tile tile = Game.tileAT(blockToColor.a());
     if (tile == null) {
       return;
     }

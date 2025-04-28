@@ -21,7 +21,6 @@ import java.util.*;
  * constructor parameter.
  *
  * @see PathfindingVisualizer
- * @see Node
  * @see systems.PathfindingSystem PathfindingSystem
  */
 public abstract class PathfindingLogic {
@@ -31,10 +30,10 @@ public abstract class PathfindingLogic {
   /** The ending coordinate for the pathfinding search. */
   protected final Coordinate endNode;
 
-  private final Deque<Node> openSet = new ArrayDeque<>();
+  private final Deque<Coordinate> openSet = new ArrayDeque<>();
   private final boolean fifo;
   private final Set<Coordinate> closedSet = new HashSet<>();
-  private final List<Tuple<Node, TileState>> steps = new ArrayList<>();
+  private final List<Tuple<Coordinate, TileState>> steps = new ArrayList<>();
   private final Map<Coordinate, Coordinate> cameFrom = new HashMap<>();
   private Coordinate lastParent = null;
 
@@ -62,10 +61,9 @@ public abstract class PathfindingLogic {
     if (lastParent != null && !cameFrom.containsKey(coord)) {
       cameFrom.put(coord, lastParent);
     }
-    Node node = new Node(coord);
-    steps.add(Tuple.of(node, TileState.OPEN));
-    if (fifo) openSet.addLast(node);
-    else openSet.push(node);
+    steps.add(Tuple.of(coord, TileState.OPEN));
+    if (fifo) openSet.addLast(coord);
+    else openSet.push(coord);
   }
 
   /**
@@ -75,10 +73,10 @@ public abstract class PathfindingLogic {
    *
    * @return The next node to be processed. Returns null if the open set is empty.
    */
-  protected Node pollNextNode() {
-    Node node = fifo ? openSet.pollFirst() : openSet.pop();
+  protected Coordinate pollNextNode() {
+    Coordinate node = fifo ? openSet.pollFirst() : openSet.pop();
     steps.add(Tuple.of(node, TileState.CURRENT));
-    lastParent = node != null ? node.coordinate() : null;
+    lastParent = node;
     return node;
   }
 
@@ -100,8 +98,7 @@ public abstract class PathfindingLogic {
    */
   protected void addToClosedSet(Coordinate coord) {
     // record the step, then mark this coord visited
-    Node node = new Node(coord);
-    steps.add(Tuple.of(node, TileState.CLOSED));
+    steps.add(Tuple.of(coord, TileState.CLOSED));
     closedSet.add(coord);
   }
 
@@ -122,11 +119,11 @@ public abstract class PathfindingLogic {
    *
    * @return A list of nodes representing the final path from start to end.
    */
-  public List<Node> finalPath() {
-    List<Node> path = new ArrayList<>();
+  public List<Coordinate> finalPath() {
+    List<Coordinate> path = new ArrayList<>();
     Coordinate curr = this.endNode;
     while (curr != null) {
-      path.add(new Node(curr));
+      path.add(curr);
       curr = cameFrom.get(curr);
     }
     Collections.reverse(path);
@@ -140,8 +137,8 @@ public abstract class PathfindingLogic {
    */
   public GraphPath<Tile> graphPath() {
     GraphPath<Tile> path = new DefaultGraphPath<>();
-    for (Node node : finalPath()) {
-      path.add(Game.tileAT(node.coordinate()));
+    for (Coordinate pathStep : finalPath()) {
+      path.add(Game.tileAT(pathStep));
     }
     return path;
   }
@@ -155,7 +152,7 @@ public abstract class PathfindingLogic {
    * @return A list of tuples containing the node and its state.
    * @see PathfindingVisualizer
    */
-  public List<Tuple<Node, TileState>> steps() {
+  public List<Tuple<Coordinate, TileState>> steps() {
     return steps;
   }
 
