@@ -21,6 +21,12 @@ import java.util.*;
  * @see systems.PathfindingSystem PathfindingSystem
  */
 public abstract class PathfindingLogic {
+  /** The starting coordinate for the pathfinding search. */
+  protected final Coordinate startNode;
+
+  /** The ending coordinate for the pathfinding search. */
+  protected final Coordinate endNode;
+
   private final Deque<Node> openSet = new ArrayDeque<>();
   private final boolean fifo;
   private final Set<Coordinate> closedSet = new HashSet<>();
@@ -31,9 +37,13 @@ public abstract class PathfindingLogic {
   /**
    * Constructor for PathfindingLogic.
    *
+   * @param startNode The starting coordinate for the pathfinding search.
+   * @param endNode The ending coordinate for the pathfinding search.
    * @param fifo True if the open set should be treated as a FIFO queue, false for LIFO.
    */
-  protected PathfindingLogic(boolean fifo) {
+  protected PathfindingLogic(Coordinate startNode, Coordinate endNode, boolean fifo) {
+    this.startNode = startNode;
+    this.endNode = endNode;
     this.fifo = fifo;
   }
 
@@ -109,9 +119,9 @@ public abstract class PathfindingLogic {
    * @param end The ending coordinate for the pathfinding search.
    * @return A list of nodes representing the final path from start to end.
    */
-  public List<Node> finalPath(Coordinate end) {
+  public List<Node> finalPath() {
     List<Node> path = new ArrayList<>();
-    Coordinate curr = end;
+    Coordinate curr = this.endNode;
     while (curr != null) {
       path.add(new Node(curr));
       curr = cameFrom.get(curr);
@@ -133,11 +143,6 @@ public abstract class PathfindingLogic {
     return steps;
   }
 
-  /**
-   * Perform the pathfinding search.
-   *
-   * @param start The starting coordinate for the pathfinding search.
-   * @param end The ending coordinate for the pathfinding search.
-   */
-  public abstract void performSearch(Coordinate start, Coordinate end);
+  /** Perform the pathfinding search. */
+  public abstract void performSearch();
 }

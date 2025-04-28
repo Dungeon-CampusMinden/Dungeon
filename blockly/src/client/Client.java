@@ -113,9 +113,9 @@ public class Client {
           if (pathfindingSystem != null) {
             pathfindingSystem.autoStep(true);
             pathfindingSystem.updatePathfindingAlgorithm(
-                new BFSPathFinding(),
-                Game.currentLevel().startTile().coordinate(),
-                Game.currentLevel().endTile().coordinate());
+                new BFSPathFinding(
+                    Game.currentLevel().startTile().coordinate(),
+                    Game.currentLevel().endTile().coordinate()));
           }
         });
   }
