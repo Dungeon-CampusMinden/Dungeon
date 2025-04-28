@@ -24,7 +24,6 @@ import java.util.logging.Level;
 import level.MazeLevel;
 import server.Server;
 import systems.BlockSystem;
-import systems.PathfindingSystem;
 import systems.TintTilesSystem;
 import utils.CheckPatternPainter;
 
@@ -145,7 +144,6 @@ public class Client {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
-    Game.add(new PathfindingSystem());
   }
 
   private static void startServer() {
