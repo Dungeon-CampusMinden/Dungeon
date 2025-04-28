@@ -67,6 +67,8 @@ Emily Short stellt in [Beyond Branching: Quality-Based, Salience-Based, and Wayp
 
 Jesse Schell motiviert seine Leser, "Interest Curves" über den Verlauf der Geschichte zu malen, ähnlich bspw. einem Intensität-Graphen, den ein Musiker verwenden würde. [Hier](https://game-studies.fandom.com/wiki/Interest_Curve) gibt es ein Bild aus dem Buch dazu.
 
+TODO noch einiges mehr
+
 # Aufstellung/Vergleich
 
 Für die Beantwortung dieser Fragen:
