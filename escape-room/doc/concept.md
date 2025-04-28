@@ -103,41 +103,6 @@ rückmeldung dazu: überprüfung erstmal sein lassen
 
 Brauchen wir ein Learner-Model?
 
-# Was erwarten Nutzer für die Erstellung eines Escape-Rooms? (außerhalb der Lehre)
-
-Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwarten wird, um damit Escape-Rooms zu erstellen.
-
-## [Interview mit Escape-Rooms](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
-
-Es geht um das Design kommerzieller Escape-Rooms.
-
-> I start by deciding on the genre (type of game) and setting (where it takes place). I outline the players’ goals and the obstacles they’ll face. These decisions let me create “beats,” or major points in the game’s narrative. Next I start thinking of challenges—math and word puzzles, searching activities, or physical tasks—that could fit within the story. We want a variety of challenges. That way, every player gets a chance to solve something and feel like a hero.
->
-> I work with a team. We sketch out ideas on paper or using digital drawing tools and 3-D design programs. Once we have our prototypes, or early versions, of the puzzles, we test and rework them. This process is known as iteration, and it’s the most important part of game development. The next step is to construct the actual room that will make players feel immersed in the game.
-
-## [The Process of Designing an Escape Room](https://reddoorescape.com/blog-the-process-of-designing-an-escape-room/)
-
-Escape-Room-Anbieter schreibt über den Prozess im eigenen Blog.
-
-> 1. CREATE YOUR SETTING AND THEME
-> ..
-> 2. DETERMINE HOW PLAYERS DISCOVER CLUES
-> ..
-> 3. DESIGN YOUR PUZZLES AND GAMEFLOW
-> ..
-
-## [Escape Room Design Blueprint](https://lockpaperscissors.co/escape-room-design-blueprint)
-
-Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik bis Essen alles dabei.
-
-TODO die fehlenden anleitungen abklappern
-
-## Häufige Aspekte von Workflows zur Erstellung eines Escape-Rooms
-
-- Geschichte/Setting/Thema steht weit am Anfang
-
-
-
 # Erwartete Schwierigkeiten
 
 - der Dungeon ist darauf ausgerichtet, dass Studenten eine eigene Instanz des Spiels starten und auch den Code ändern können.
