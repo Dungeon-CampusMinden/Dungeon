@@ -52,10 +52,7 @@ public class LevelUtils {
    */
   public static boolean isWalkable(Coordinate coord) {
     Tile tile = Game.tileAT(coord);
-    if (tile == null) {
-      return false;
-    }
-    return tile.isAccessible();
+    return tile != null && tile.isAccessible();
   }
 
   /**
@@ -66,10 +63,6 @@ public class LevelUtils {
    *     coordinate is not walkable.
    */
   public static List<Coordinate> walkableNeighbors(Coordinate coord) {
-    if (!isWalkable(coord)) {
-      return List.of();
-    }
-
     return Arrays.stream(Direction.values())
         .filter(direction -> direction != Direction.HERE)
         .map(direction -> coord.add(new Coordinate(direction.x(), direction.y())))
