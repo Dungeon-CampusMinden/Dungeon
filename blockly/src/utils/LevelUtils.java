@@ -5,6 +5,7 @@ import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
+import java.util.Arrays;
 import java.util.List;
 
 /** Utility class for level-related operations. */
@@ -69,14 +70,10 @@ public class LevelUtils {
       return List.of();
     }
 
-    List<Coordinate> neighbors =
-        List.of(
-            coord.add(new Coordinate(1, 0)), // Right
-            coord.add(new Coordinate(-1, 0)), // Left
-            coord.add(new Coordinate(0, 1)), // Down
-            coord.add(new Coordinate(0, -1)) // Up
-            );
-
-    return neighbors.stream().filter(LevelUtils::isWalkable).toList();
+    return Arrays.stream(Direction.values())
+        .filter(direction -> direction != Direction.HERE)
+        .map(direction -> coord.add(new Coordinate(direction.x(), direction.y())))
+        .filter(LevelUtils::isWalkable)
+        .toList();
   }
 }
