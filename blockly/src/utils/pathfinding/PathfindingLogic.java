@@ -63,7 +63,7 @@ public abstract class PathfindingLogic {
       cameFrom.put(coord, lastParent);
     }
     Node node = new Node(coord);
-    steps.add(Tuple.of(node, TileState.CURRENT));
+    steps.add(Tuple.of(node, TileState.OPEN));
     if (fifo) openSet.addLast(node);
     else openSet.push(node);
   }
@@ -77,7 +77,7 @@ public abstract class PathfindingLogic {
    */
   protected Node pollNextNode() {
     Node node = fifo ? openSet.pollFirst() : openSet.pop();
-    steps.add(Tuple.of(node, TileState.CLOSED));
+    steps.add(Tuple.of(node, TileState.CURRENT));
     lastParent = node != null ? node.coordinate() : null;
     return node;
   }
@@ -101,7 +101,7 @@ public abstract class PathfindingLogic {
   protected void addToClosedSet(Coordinate coord) {
     // record the step, then mark this coord visited
     Node node = new Node(coord);
-    steps.add(Tuple.of(node, TileState.OPEN));
+    steps.add(Tuple.of(node, TileState.CLOSED));
     closedSet.add(coord);
   }
 

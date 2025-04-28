@@ -19,12 +19,11 @@ import java.util.*;
  *   closedSet.add(start)
  *   while openSet is not empty:
  *     current = openSet.pop()
+ *     closedSet.add(current)
  *     for each neighbor of current:
  *       if neighbor is not in closedSet:
  *         openSet.add(neighbor)
- *         closedSet.add(neighbor)
  *       if neighbor == end:
- *         closedSet.add(neighbor)
  *         return
  * </pre>
  *
@@ -53,13 +52,12 @@ public class DFSPathFinding extends PathfindingLogic {
 
     while (hasOpenNodes()) {
       Node current = pollNextNode();
+      addToClosedSet(current.coordinate());
       for (Coordinate neighbor : current.neighbors()) {
         if (!isClosed(neighbor)) {
           addToOpenSet(neighbor);
-          addToClosedSet(neighbor);
         }
         if (neighbor.equals(endNode)) {
-          addToClosedSet(neighbor);
           return;
         }
       }
