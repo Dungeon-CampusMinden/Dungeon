@@ -1,39 +1,25 @@
 package starter;
 
-import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
-import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
-import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
-import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
-import core.systems.CameraSystem;
 import core.systems.LevelSystem;
-import core.systems.PlayerSystem;
-import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
+import java.io.IOException;
+import java.util.logging.Level;
 import level.AiMazeLevel;
-import level.MazeLevel;
-import server.Server;
-import systems.BlockSystem;
 import systems.LevelEditorSystem;
 import systems.PathfindingSystem;
-import systems.TintTilesSystem;
 import utils.CheckPatternPainter;
 import utils.pathfinding.BFSPathFinding;
-
-import java.io.IOException;
-import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -61,7 +47,6 @@ public class ClientKiStarter {
 
     // build and start game
     Game.run();
-
   }
 
   private static void onSetup() {
@@ -86,13 +71,13 @@ public class ClientKiStarter {
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
 
           PathfindingSystem pathfindingSystem =
-            (PathfindingSystem) ECSManagment.systems().get(PathfindingSystem.class);
+              (PathfindingSystem) ECSManagment.systems().get(PathfindingSystem.class);
           if (pathfindingSystem != null) {
             pathfindingSystem.autoStep(true);
             pathfindingSystem.updatePathfindingAlgorithm(
-              new BFSPathFinding(),
-              Game.currentLevel().startTile().coordinate(),
-              Game.currentLevel().endTile().coordinate());
+                new BFSPathFinding(
+                    Game.currentLevel().startTile().coordinate(),
+                    Game.currentLevel().endTile().coordinate()));
           }
         });
   }

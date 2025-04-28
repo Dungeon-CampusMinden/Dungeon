@@ -11,9 +11,8 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
-import utils.DungeonSaver;
-
 import java.util.Queue;
+import utils.DungeonSaver;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
