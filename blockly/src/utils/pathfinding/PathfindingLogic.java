@@ -120,7 +120,6 @@ public abstract class PathfindingLogic {
   /**
    * Build the final path from the end coordinate to the start coordinate.
    *
-   * @param end The ending coordinate for the pathfinding search.
    * @return A list of nodes representing the final path from start to end.
    */
   public List<Node> finalPath() {
