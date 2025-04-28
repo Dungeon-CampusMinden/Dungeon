@@ -1,0 +1,109 @@
+: diagram  {
+   events {
+      learn_about_bug_during_assignment : action {
+
+      }
+
+      complete_introduction : goal {
+         depends_on = [ learn_about_bug_during_assignment ]
+      }
+
+      find_cause : action {
+         depends_on  = [ complete_introduction ]
+      }
+
+      git_blame : action {
+         depends_on  = [ find_cause ]
+      }
+
+      git_bisect : action {
+         depends_on  = [ find_cause ]
+      }
+
+      find_commit : action {
+         depends_on  = [ git_blame, git_bisect ]
+         logic_gate_type = or
+      }
+
+      fix_bug : action {
+         depends_on  = [ find_cause ]
+      }
+
+      commit_bug_fix : action {
+         depends_on  = [ fix_bug ]
+      }
+
+      file_pull_request : action {
+         depends_on  = [ commit_bug_fix ]
+      }
+
+      report_success : action {
+         depends_on  = [ file_pull_request ]
+      }
+
+      receive_feedback : action {
+         description = "please add 'Fixes: ' and sign off"
+         depends_on  = [ file_pull_request ]
+      }
+
+      amend_commit : action {
+         depends_on  = [ receive_feedback, find_commit ]
+      }
+
+      force_push : action {
+         depends_on  = [ amend_commit ]
+      }
+
+      #at_foot_of_tree : condition;
+
+      complete_bug_fix : goal {
+         depends_on      = [ force_push, report_success ]
+      }
+
+      encounter_merge_conflict : action {
+         depends_on  = [ complete_bug_fix ]
+      }
+
+      pick_resolution_strategy : action {
+         depends_on  = [ encounter_merge_conflict ]
+      }
+
+      git_log_three_dots : action {
+         depends_on  = [ pick_resolution_strategy ]
+      }
+
+      format_patch : action {
+         depends_on  = [ git_log_three_dots ]
+      }
+
+      copy_patch_using_flash_drive : action {
+         depends_on  = [ format_patch ]
+      }
+
+      resolve_conflict_locally : action {
+         depends_on  = [ pick_resolution_strategy ]
+      }
+
+      resolve_conflict : action {
+         depends_on  = [ copy_patch_using_flash_drive ]
+      }
+
+      push_resolution : action {
+         depends_on  = [ resolve_conflict ]
+      }
+
+      notify_maintainer : action {
+         depends_on  = [ resolve_conflict_locally ]
+      }
+
+      deploy : action {
+         depends_on  = [ notify_maintainer, push_resolution ]
+         logic_gate_type = or
+      }
+
+      end_game : goal {
+         depends_on      = [ deploy ]
+         end_state       = positive
+      }
+   }
+}
