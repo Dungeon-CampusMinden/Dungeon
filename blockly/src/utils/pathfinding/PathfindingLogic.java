@@ -1,5 +1,9 @@
 package utils.pathfinding;
 
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
+import core.Game;
+import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Tuple;
 import java.util.*;
@@ -127,6 +131,19 @@ public abstract class PathfindingLogic {
       curr = cameFrom.get(curr);
     }
     Collections.reverse(path);
+    return path;
+  }
+
+  /**
+   * Returns the {@link com.badlogic.gdx.ai.pfa.GraphPath GraphPath} of the pathfinding search.
+   *
+   * @return A GraphPath object representing the path from start to end.
+   */
+  public GraphPath<Tile> graphPath() {
+    GraphPath<Tile> path = new DefaultGraphPath<>();
+    for (Node node : finalPath()) {
+      path.add(Game.tileAT(node.coordinate()));
+    }
     return path;
   }
 

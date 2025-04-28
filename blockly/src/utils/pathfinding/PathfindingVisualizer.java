@@ -23,6 +23,7 @@ public class PathfindingVisualizer {
   private final PathfindingLogic pathfindingLogic;
 
   private boolean isRunning = false;
+  private boolean isFinished = false;
   private int stepCount = 0;
 
   /**
@@ -100,6 +101,7 @@ public class PathfindingVisualizer {
     clearScheduledActions();
     stepCount = 0;
     isRunning = false;
+    isFinished = false;
   }
 
   /**
@@ -110,11 +112,22 @@ public class PathfindingVisualizer {
   private void displayFinalPath(long delay) {
     scheduledActions.add(
         EventScheduler.scheduleAction(
-            () ->
-                pathfindingLogic
-                    .finalPath()
-                    .forEach(node -> colorTile(Tuple.of(node, TileState.PATH))),
+            () -> {
+              pathfindingLogic
+                  .finalPath()
+                  .forEach(node -> colorTile(Tuple.of(node, TileState.PATH)));
+              isFinished = true;
+            },
             delay));
+  }
+
+  /**
+   * Returns whether the pathfinding process is finished.
+   *
+   * @return true if the pathfinding process is finished, false otherwise
+   */
+  public boolean isFinished() {
+    return isFinished;
   }
 
   /**

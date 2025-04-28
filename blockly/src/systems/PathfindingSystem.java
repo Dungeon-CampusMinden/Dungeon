@@ -2,7 +2,12 @@ package systems;
 
 import client.KeyboardConfig;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
+import com.badlogic.gdx.ai.pfa.GraphPath;
+import contrib.components.PathComponent;
+import core.Game;
 import core.System;
+import core.level.Tile;
 import utils.pathfinding.PathfindingLogic;
 import utils.pathfinding.PathfindingVisualizer;
 import utils.pathfinding.TileState;
@@ -19,13 +24,26 @@ import utils.pathfinding.TileState;
  */
 public class PathfindingSystem extends System {
   private PathfindingVisualizer visualizer = null;
+  private GraphPath<Tile> finalPathGraph = new DefaultGraphPath<>();
 
   private boolean autoStep = false;
-  private long stepDelay = 250; // Step delay in milliseconds if using autoStep
+  private long stepDelay = 100; // Step delay in milliseconds if using autoStep
+  private boolean isHeroMoving = false;
 
   @Override
   public void execute() {
     if (visualizer == null) return;
+
+    if (visualizer.isFinished() && !isHeroMoving) {
+      if (!Gdx.input.isKeyJustPressed(KeyboardConfig.START_MOVING_PATHFINDING.value())) return;
+      Game.hero()
+          .ifPresent(
+              hero -> {
+                isHeroMoving = true;
+                hero.add(new PathComponent(finalPathGraph));
+              });
+      return;
+    }
 
     if (!Gdx.input.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value())) return;
 
@@ -44,6 +62,22 @@ public class PathfindingSystem extends System {
   }
 
   /**
+   * Set the step delay.
+   *
+   * <p>This is the delay in milliseconds for each step in auto mode.
+   *
+   * @param stepDelay the delay in milliseconds. Must be non-negative.
+   * @throws IllegalArgumentException if the step delay is negative
+   */
+  public void stepDelay(long stepDelay) {
+    if (stepDelay < 0) {
+      throw new IllegalArgumentException("Step delay cannot be negative");
+    }
+
+    this.stepDelay = stepDelay;
+  }
+
+  /**
    * Update the pathfinding algorithm.
    *
    * <p>This method resets the current pathfinding process and initializes a new one with the
@@ -55,6 +89,7 @@ public class PathfindingSystem extends System {
     reset();
     pathFindingAlgorithm.performSearch();
     this.visualizer = new PathfindingVisualizer(pathFindingAlgorithm);
+    this.finalPathGraph = pathFindingAlgorithm.graphPath();
   }
 
   /**
