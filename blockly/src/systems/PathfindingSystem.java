@@ -72,17 +72,6 @@ public class PathfindingSystem extends System {
     return Gdx.input.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value());
   }
 
-  private void displayFinalPath(int delayStep) {
-    scheduledActions.add(
-        EventScheduler.scheduleAction(
-            () ->
-                studentAlgorithm
-                    .finalPath(endNode)
-                    .forEach(
-                        node -> PathfindingVisualizer.colorTile(Tuple.of(node, TileState.PATH))),
-            autoStep ? STEP_DELAY * delayStep : 0));
-  }
-
   /**
    * Change the autoStep state.
    *
