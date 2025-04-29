@@ -6,26 +6,22 @@ import utils.LevelUtils;
 /**
  * Breadth-First Search (BFS) pathfinding algorithm implementation.
  *
- * <p>It uses a queue (open set) to keep track of nodes to explore and a set (closed set) to keep
- * track of visited nodes.
+ * <p>It uses a {@link BFSQueue} (FIFO data structure) as the frontier set to keep track of nodes to
+ * explore and a set (explored set) to keep track of visited nodes.
  *
- * <p>Pseudocode:
+ * <p>The algorithm works as follows:
  *
- * <pre>
- *   BFS(start, end):
- *   openSet = new Queue()
- *   closedSet = new Set()
- *   openSet.add(start)
- *   closedSet.add(start)
- *   while openSet is not empty:
- *     current = openSet.poll()
- *     closedSet.add(current)
- *     for each neighbor of current:
- *       if neighbor is not in closedSet:
- *         openSet.add(neighbor)
- *       if neighbor == end:
- *         return
- * </pre>
+ * <ul>
+ *   <li>Initialize a queue for the frontier set (nodes to explore)
+ *   <li>Initialize a set for the explored set (visited nodes)
+ *   <li>Add the starting node to the frontier set and mark it as visited
+ *   <li>While there are nodes in the frontier set:
+ *   <li>Take the earliest added node from the queue
+ *   <li>Mark this node as visited if not already
+ *   <li>For each walkable neighboring node:
+ *   <li>If not already visited, add it to the frontier set
+ *   <li>If this neighbor is the destination, end the search
+ * </ul>
  *
  * @see PathfindingLogic
  * @see systems.PathfindingSystem PathfindingSystem
@@ -35,8 +31,8 @@ public class BFSPathFinding extends PathfindingLogic {
   /**
    * Constructor for BFSPathFinding.
    *
-   * <p>This constructor initializes the BFS pathfinding algorithm with a FIFO queue for the open
-   * set.
+   * <p>This constructor initializes the BFS pathfinding algorithm with a FIFO queue for the
+   * frontier set.
    *
    * @param start The starting coordinate for the pathfinding search.
    * @param end The ending coordinate for the pathfinding search.
@@ -47,15 +43,15 @@ public class BFSPathFinding extends PathfindingLogic {
 
   @Override
   public void performSearch() {
-    addToOpenSet(startNode);
-    addToClosedSet(startNode);
+    addFrontier(startNode);
+    addExplored(startNode);
 
-    while (hasOpenNodes()) {
+    while (isFrontierEmpty()) {
       Coordinate current = pollNextNode();
-      addToClosedSet(current);
+      addExplored(current);
       for (Coordinate neighbor : LevelUtils.walkableNeighbors(current)) {
-        if (!isClosed(neighbor)) {
-          addToOpenSet(neighbor);
+        if (!isExplored(neighbor)) {
+          addFrontier(neighbor);
         }
         if (neighbor.equals(endNode)) {
           return;
