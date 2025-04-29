@@ -10,23 +10,21 @@ import utils.LevelUtils;
  * <p>It uses a last-in-first-out (LIFO) stack for the open set and a set (closed set) to keep track
  * of visited nodes.
  *
- * <p>Pseudocode:
+ * <p>The algorithm works as follows:
+ * <ul>
+ *   <li>Initialize a stack for nodes to explore (open set)</li>
+ *   <li>Initialize a set to track visited nodes (closed set)</li>
+ *   <li>Add the starting node to both the open set and closed set</li>
+ *   <li>While there are nodes to explore in the open set:</li>
+ *   <li>  Take the most recently added node from the stack</li>
+ *   <li>  Mark this node as visited (add to closed set)</li>
+ *   <li>  For each neighboring node that can be traversed:</li>
+ *   <li>    If not already visited, add it to the open set</li>
+ *   <li>    If this neighbor is the destination, end the search</li>
+ * </ul>
  *
- * <pre>
- *   BFS(start, end):
- *   openSet = new Stack()
- *   closedSet = new Set()
- *   openSet.add(start)
- *   closedSet.add(start)
- *   while openSet is not empty:
- *     current = openSet.pop()
- *     closedSet.add(current)
- *     for each neighbor of current:
- *       if neighbor is not in closedSet:
- *         openSet.add(neighbor)
- *       if neighbor == end:
- *         return
- * </pre>
+ * <p>This approach explores as far as possible along each branch before backtracking,
+ * which is characteristic of depth-first search algorithms.
  *
  * @see PathfindingLogic
  * @see systems.PathfindingSystem PathfindingSystem
@@ -43,7 +41,7 @@ public class DFSPathFinding extends PathfindingLogic {
    * @param end The ending coordinate for the pathfinding search.
    */
   public DFSPathFinding(Coordinate start, Coordinate end) {
-    super(start, end, false);
+    super(start, end, new DFSStack());
   }
 
   @Override

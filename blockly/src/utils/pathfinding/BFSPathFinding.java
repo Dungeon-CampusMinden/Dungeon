@@ -1,7 +1,6 @@
 package utils.pathfinding;
 
 import core.level.utils.Coordinate;
-import java.util.*;
 import utils.LevelUtils;
 
 /**
@@ -43,7 +42,7 @@ public class BFSPathFinding extends PathfindingLogic {
    * @param end The ending coordinate for the pathfinding search.
    */
   public BFSPathFinding(Coordinate start, Coordinate end) {
-    super(start, end, true);
+    super(start, end, new BFSQueue());
   }
 
   @Override

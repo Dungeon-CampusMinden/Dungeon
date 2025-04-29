@@ -30,8 +30,7 @@ public abstract class PathfindingLogic {
   /** The ending coordinate for the pathfinding search. */
   protected final Coordinate endNode;
 
-  private final Deque<Coordinate> openSet = new ArrayDeque<>();
-  private final boolean fifo;
+  private final GraphSearchDataStructure<Coordinate> openSet;
   private final Set<Coordinate> closedSet = new HashSet<>();
   private final List<Tuple<Coordinate, TileState>> steps = new ArrayList<>();
   private final Map<Coordinate, Coordinate> cameFrom = new HashMap<>();
@@ -42,12 +41,13 @@ public abstract class PathfindingLogic {
    *
    * @param startNode The starting coordinate for the pathfinding search.
    * @param endNode The ending coordinate for the pathfinding search.
-   * @param fifo True if the open set should be treated as a FIFO queue, false for LIFO.
+   * @param openSet The data structure to use for the open set (FIFO or LIFO).
    */
-  protected PathfindingLogic(Coordinate startNode, Coordinate endNode, boolean fifo) {
+  protected PathfindingLogic(
+      Coordinate startNode, Coordinate endNode, GraphSearchDataStructure<Coordinate> openSet) {
     this.startNode = startNode;
     this.endNode = endNode;
-    this.fifo = fifo;
+    this.openSet = openSet;
   }
 
   /**
@@ -62,8 +62,7 @@ public abstract class PathfindingLogic {
       cameFrom.put(coord, lastParent);
     }
     steps.add(Tuple.of(coord, TileState.OPEN));
-    if (fifo) openSet.addLast(coord);
-    else openSet.push(coord);
+    openSet.push(coord);
   }
 
   /**
@@ -74,7 +73,7 @@ public abstract class PathfindingLogic {
    * @return The next node to be processed. Returns null if the open set is empty.
    */
   protected Coordinate pollNextNode() {
-    Coordinate node = fifo ? openSet.pollFirst() : openSet.pop();
+    Coordinate node = openSet.pop();
     steps.add(Tuple.of(node, TileState.CURRENT));
     lastParent = node;
     return node;
