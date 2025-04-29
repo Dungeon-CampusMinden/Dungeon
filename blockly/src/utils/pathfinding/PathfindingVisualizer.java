@@ -76,7 +76,6 @@ public class PathfindingVisualizer {
 
     List<Tuple<Coordinate, TileState>> steps = pathfindingLogic.steps();
     if (stepCount >= steps.size()) {
-      System.out.println("Pathfinding is finished.");
       return;
     }
 
@@ -88,14 +87,6 @@ public class PathfindingVisualizer {
     // If this was the last step, show the final path
     if (stepCount == steps.size()) {
       displayFinalPath(0);
-    }
-
-    // check if next step is also OPEN
-    if (step.b() == TileState.OPEN) {
-      step = steps.get(stepCount); // next step
-      if (step.b() == TileState.OPEN) {
-        stepManually(); // call stepManually again
-      }
     }
   }
 
