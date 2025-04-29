@@ -85,7 +85,7 @@ public abstract class PathfindingLogic {
    * @return True if the frontier set is empty, false otherwise.
    */
   protected boolean isFrontierEmpty() {
-    return !frontierSet.isEmpty();
+    return frontierSet.isEmpty();
   }
 
   /**
@@ -110,6 +110,18 @@ public abstract class PathfindingLogic {
    */
   protected boolean isExplored(Coordinate coord) {
     return exploredSet.contains(coord);
+  }
+
+  /**
+   * Check if the coordinate is in the frontier set.
+   *
+   * <p>A node is in the frontier set if it has been discovered but not yet processed.
+   *
+   * @param coord The coordinate to check.
+   * @return True if the coordinate is in the frontier set, false otherwise.
+   */
+  protected boolean isFrontier(Coordinate coord) {
+    return frontierSet.contains(coord);
   }
 
   /**

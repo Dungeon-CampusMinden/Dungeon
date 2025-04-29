@@ -44,13 +44,12 @@ public class BFSPathFinding extends PathfindingLogic {
   @Override
   public void performSearch() {
     addFrontier(startNode);
-    addExplored(startNode);
 
-    while (isFrontierEmpty()) {
+    while (!isFrontierEmpty()) {
       Coordinate current = pollNextNode();
       addExplored(current);
       for (Coordinate neighbor : LevelUtils.walkableNeighbors(current)) {
-        if (!isExplored(neighbor)) {
+        if (!isExplored(neighbor) && !isFrontier(neighbor)) {
           addFrontier(neighbor);
         }
         if (neighbor.equals(endNode)) {

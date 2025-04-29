@@ -40,4 +40,15 @@ public class DFSStack implements GraphSearchDataStructure<Coordinate> {
   public boolean isEmpty() {
     return stack.isEmpty();
   }
+
+  /**
+   * Returns whether the given element is present in the stack.
+   *
+   * @param element The element to check for.
+   * @return True if the element is present, false otherwise.
+   */
+  @Override
+  public boolean contains(Coordinate element) {
+    return stack.contains(element);
+  }
 }

@@ -27,4 +27,12 @@ public interface GraphSearchDataStructure<T> {
    * @return True if the data structure is empty, false otherwise.
    */
   boolean isEmpty();
+
+  /**
+   * Returns whether the given element is present in the data structure.
+   *
+   * @param element The element to check for.
+   * @return True if the element is present, false otherwise.
+   */
+  boolean contains(T element);
 }

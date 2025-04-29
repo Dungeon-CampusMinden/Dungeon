@@ -42,4 +42,15 @@ public class BFSQueue implements GraphSearchDataStructure<Coordinate> {
   public boolean isEmpty() {
     return queue.isEmpty();
   }
+
+  /**
+   * Returns whether the given element is present in the queue.
+   *
+   * @param element The element to check for.
+   * @return True if the element is present, false otherwise.
+   */
+  @Override
+  public boolean contains(Coordinate element) {
+    return queue.contains(element);
+  }
 }

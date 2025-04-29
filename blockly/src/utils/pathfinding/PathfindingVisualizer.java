@@ -37,58 +37,90 @@ public class PathfindingVisualizer {
   }
 
   /**
-   * Visualizes the pathfinding process.
+   * Visualizes a single step of the pathfinding process manually.
    *
    * <p>This method only steps one iteration at a time. It is intended for manual stepping through
    * the pathfinding process.
    *
-   * <p>For automatic stepping, use {@link #visualizePathfinding(boolean, long)}.
-   *
-   * @see EventScheduler
-   * @see #visualizePathfinding(boolean, long)
+   * @see #runAutomatically(long)
    */
   public void visualizePathfinding() {
-    visualizePathfinding(false, DEFAULT_STEP_DELAY);
+    stepManually();
   }
 
   /**
-   * Visualizes the pathfinding process.
-   *
-   * <p>If in manual mode, shows the next step. If in auto mode, schedule all remaining steps with
-   * appropriate delays.
+   * Visualizes the pathfinding process either manually or automatically.
    *
    * @param autoStep If true, the pathfinding will automatically step through each iteration,
    *     otherwise it will step manually
-   * @param stepDelay Delay in milliseconds for each step in auto mode, if not using autoStep it
-   *     will be ignored
-   * @see EventScheduler
-   * @see #visualizePathfinding()
+   * @param stepDelay Delay in milliseconds for each step in auto mode, ignored in manual mode
+   * @see #stepManually()
+   * @see #runAutomatically(long)
    */
   public void visualizePathfinding(boolean autoStep, long stepDelay) {
-    stepDelay = autoStep ? stepDelay : 0; // No delay in manual mode
-    if (autoStep && isRunning) {
+    if (autoStep) {
+      runAutomatically(stepDelay);
+    } else {
+      stepManually();
+    }
+  }
+
+  /**
+   * Takes a single step in the pathfinding visualization. Used for manual stepping through the
+   * algorithm.
+   */
+  private void stepManually() {
+    if (isFinished) {
       return;
     }
 
     List<Tuple<Coordinate, TileState>> steps = pathfindingLogic.steps();
-    for (int i = stepCount; i < steps.size(); i++) {
-      Tuple<Coordinate, TileState> step = steps.get(i);
+    if (stepCount >= steps.size()) {
+      System.out.println("Pathfinding is finished.");
+      return;
+    }
 
-      // Schedule coloring action for the current step
+    // Process just one step
+    Tuple<Coordinate, TileState> step = steps.get(stepCount);
+    PathfindingVisualizer.colorTile(step);
+    stepCount++;
+
+    // If this was the last step, show the final path
+    if (stepCount == steps.size()) {
+      displayFinalPath(0);
+    }
+
+    // check if next step is also OPEN
+    if (step.b() == TileState.OPEN) {
+      step = steps.get(stepCount); // next step
+      if (step.b() == TileState.OPEN) {
+        stepManually(); // call stepManually again
+      }
+    }
+  }
+
+  /**
+   * Runs the pathfinding visualization automatically with the specified delay.
+   *
+   * @param stepDelay Delay in milliseconds between steps
+   */
+  private void runAutomatically(long stepDelay) {
+    if (isRunning || isFinished) {
+      return;
+    }
+
+    isRunning = true;
+    List<Tuple<Coordinate, TileState>> steps = pathfindingLogic.steps();
+
+    // Schedule all remaining steps
+    for (int i = 0; i < steps.size(); i++) {
+      Tuple<Coordinate, TileState> step = steps.get(i);
       long delay = stepDelay * i;
       scheduledActions.add(
           EventScheduler.scheduleAction(() -> PathfindingVisualizer.colorTile(step), delay));
 
-      // On the last step, visualize the final path
       if (i == steps.size() - 1) {
-        isRunning = autoStep; // Prevent autoStep from running again
-        displayFinalPath(delay + 1); // ensure final path is shown after all steps
-      }
-
-      stepCount++;
-      // In manual mode, process only one step at a time
-      if (!autoStep) {
-        break;
+        displayFinalPath(delay + 1);
       }
     }
   }
