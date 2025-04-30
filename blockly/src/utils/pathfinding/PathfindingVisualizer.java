@@ -18,34 +18,33 @@ import java.util.List;
  * @see TileState
  */
 public class PathfindingVisualizer {
-  private static final long DEFAULT_STEP_DELAY = 100; // Delay in milliseconds
-
   private final List<EventScheduler.ScheduledAction> scheduledActions = new ArrayList<>();
-  private final PathfindingLogic pathfindingLogic;
+  private final List<Tuple<Coordinate, TileState>> path;
+  private final List<Coordinate> finalPath;
 
-  private boolean isRunning = false;
-  private boolean isFinished = false;
   private int stepCount = 0;
 
   /**
    * Creates a visualizer with default settings.
    *
-   * @param pathfindingLogic The pathfinding algorithm to visualize
+   * @param pathfindingLogic The pathfinding logic to visualize
    */
   public PathfindingVisualizer(PathfindingLogic pathfindingLogic) {
-    this.pathfindingLogic = pathfindingLogic;
+    pathfindingLogic.performSearch(); // Perform the search to populate the path
+
+    this.path = pathfindingLogic.steps();
+    this.finalPath = pathfindingLogic.finalPath();
   }
 
   /**
-   * Visualizes a single step of the pathfinding process manually.
+   * Returns the final path.
    *
-   * <p>This method only steps one iteration at a time. It is intended for manual stepping through
-   * the pathfinding process.
+   * <p>This is the path found by the pathfinding algorithm.
    *
-   * @see #runAutomatically(long)
+   * @return The final path as a list of coordinates
    */
-  public void visualizePathfinding() {
-    stepManually();
+  public List<Coordinate> finalPath() {
+    return finalPath;
   }
 
   /**
@@ -70,24 +69,22 @@ public class PathfindingVisualizer {
    * algorithm.
    */
   private void stepManually() {
-    if (isFinished) {
+    if (isFinished()) {
       return;
     }
 
-    List<Tuple<Coordinate, TileState>> steps = pathfindingLogic.steps();
-    if (stepCount >= steps.size()) {
+    if (stepCount >= path.size()) {
       return;
     }
 
     // Process just one step
-    Tuple<Coordinate, TileState> step = steps.get(stepCount);
+    Tuple<Coordinate, TileState> step = path.get(stepCount);
     PathfindingVisualizer.colorTile(step);
     stepCount++;
 
     // If this was the last step, show the final path
-    if (stepCount == steps.size()) {
-      displayFinalPath(0);
-    }
+    if (isFinished())
+      finalPath.forEach(coordinate -> colorTile(Tuple.of(coordinate, TileState.PATH)));
   }
 
   /**
@@ -96,24 +93,24 @@ public class PathfindingVisualizer {
    * @param stepDelay Delay in milliseconds between steps
    */
   private void runAutomatically(long stepDelay) {
-    if (isRunning || isFinished) {
+    if (isRunning() || isFinished()) {
       return;
     }
 
-    isRunning = true;
-    List<Tuple<Coordinate, TileState>> steps = pathfindingLogic.steps();
-
     // Schedule all remaining steps
-    for (int i = 0; i < steps.size(); i++) {
-      Tuple<Coordinate, TileState> step = steps.get(i);
+    for (int i = 0; i < path.size(); i++) {
+      Tuple<Coordinate, TileState> step = path.get(i);
       long delay = stepDelay * i;
       scheduledActions.add(
           EventScheduler.scheduleAction(() -> PathfindingVisualizer.colorTile(step), delay));
-
-      if (i == steps.size() - 1) {
-        displayFinalPath(delay + 1);
-      }
     }
+    // final path
+    scheduledActions.add(
+        EventScheduler.scheduleAction(
+            () -> finalPath.forEach(coordinate -> colorTile(Tuple.of(coordinate, TileState.PATH))),
+            stepDelay * path.size()));
+
+    stepCount = path.size(); // mark as finished
   }
 
   /**
@@ -124,25 +121,6 @@ public class PathfindingVisualizer {
   public void reset() {
     clearScheduledActions();
     stepCount = 0;
-    isRunning = false;
-    isFinished = false;
-  }
-
-  /**
-   * Schedules visualization of the final path found by the algorithm.
-   *
-   * @param delay Delay in milliseconds for the final path visualization
-   */
-  private void displayFinalPath(long delay) {
-    scheduledActions.add(
-        EventScheduler.scheduleAction(
-            () -> {
-              pathfindingLogic
-                  .finalPath()
-                  .forEach(node -> colorTile(Tuple.of(node, TileState.PATH)));
-              isFinished = true;
-            },
-            delay));
   }
 
   /**
@@ -151,7 +129,16 @@ public class PathfindingVisualizer {
    * @return true if the pathfinding process is finished, false otherwise
    */
   public boolean isFinished() {
-    return isFinished;
+    return stepCount == path.size();
+  }
+
+  /**
+   * Returns whether the pathfinding process is currently running.
+   *
+   * @return true if the pathfinding process is running, false otherwise
+   */
+  public boolean isRunning() {
+    return 0 < stepCount && stepCount < path.size();
   }
 
   /**

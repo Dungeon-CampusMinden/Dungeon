@@ -5,8 +5,6 @@ import com.badlogic.gdx.Gdx;
 import contrib.components.PathComponent;
 import core.Game;
 import core.System;
-import core.level.utils.Coordinate;
-import java.util.List;
 import utils.pathfinding.PathfindingLogic;
 import utils.pathfinding.PathfindingVisualizer;
 import utils.pathfinding.TileState;
@@ -22,24 +20,24 @@ import utils.pathfinding.TileState;
  * @see PathfindingVisualizer
  */
 public class PathfindingSystem extends System {
-  private PathfindingVisualizer visualizer = null;
+  private PathfindingVisualizer visualizer;
 
   private boolean autoStep = false;
   private long stepDelay = 100; // Step delay in milliseconds if using autoStep
   private boolean isHeroMoving = false;
-  private List<Coordinate> finalPath = List.of();
 
   @Override
   public void execute() {
     if (visualizer == null) return;
 
     if (visualizer.isFinished() && !isHeroMoving) {
+
       if (!Gdx.input.isKeyJustPressed(KeyboardConfig.START_MOVING_PATHFINDING.value())) return;
       Game.hero()
           .ifPresent(
               hero -> {
                 isHeroMoving = true;
-                hero.add(new PathComponent(finalPath));
+                hero.add(new PathComponent(visualizer.finalPath())); // TODO: Change me
               });
       return;
     }
@@ -86,9 +84,7 @@ public class PathfindingSystem extends System {
    */
   public void updatePathfindingAlgorithm(PathfindingLogic pathFindingAlgorithm) {
     reset();
-    pathFindingAlgorithm.performSearch();
     this.visualizer = new PathfindingVisualizer(pathFindingAlgorithm);
-    this.finalPath = pathFindingAlgorithm.finalPath();
   }
 
   /**
