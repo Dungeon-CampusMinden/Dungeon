@@ -16,11 +16,15 @@ import utils.LevelUtils;
  *   <li>Initialize a set for the explored set (visited nodes)
  *   <li>Add the starting node to the frontier set and mark it as visited
  *   <li>While there are nodes in the frontier set:
- *   <li>Take the most recently added node from the stack
- *   <li>Mark this node as visited if not already
- *   <li>For each walkable neighboring node:
- *   <li>If not already visited, add it to the frontier set
- *   <li>If this neighbor is the destination, end the search
+ *       <ul>
+ *         <li>Take the most recently added node from the stack
+ *         <li>Mark this node as visited if not already
+ *         <li>For each walkable neighboring node:
+ *             <ul>
+ *               <li>If not already visited, add it to the frontier set
+ *               <li>If this neighbor is the destination, end the search
+ *             </ul>
+ *       </ul>
  * </ul>
  *
  * @see PathfindingLogic
