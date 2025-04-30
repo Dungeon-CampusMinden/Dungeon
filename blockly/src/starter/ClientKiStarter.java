@@ -19,7 +19,7 @@ import level.AiMazeLevel;
 import systems.LevelEditorSystem;
 import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
-import utils.pathfinding.BFSPathFinding;
+import utils.pathfinding.DFSPathFinding;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -52,7 +52,7 @@ public class ClientKiStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("kilevel", AiMazeLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("dfs", AiMazeLevel.class));
           createSystems();
 
           createHero();
@@ -75,7 +75,7 @@ public class ClientKiStarter {
           if (pathfindingSystem != null) {
             pathfindingSystem.autoStep(true);
             pathfindingSystem.updatePathfindingAlgorithm(
-                new BFSPathFinding(
+                new DFSPathFinding(
                     Game.currentLevel().startTile().coordinate(),
                     Game.currentLevel().endTile().coordinate()));
           }
