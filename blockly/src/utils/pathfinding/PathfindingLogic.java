@@ -157,14 +157,13 @@ public abstract class PathfindingLogic {
   }
 
   /**
-   * All taken steps in the pathfinding search.
+   * All taken steps in the pathfinding search in the order they were taken.
    *
-   * <p>This method returns a list of tuples containing the node and its state (OPEN, CLOSED, or
-   * PATH).
+   * <p>This includes all nodes added to the frontier set or marked as explored and all nodes polled
+   * from the frontier set.
    *
-   * @return A list of tuples containing the node and its state.
+   * @return A list of tuples containing the node and its {@link TileState}.
    * @see PathfindingVisualizer
-   * @see TileState
    */
   public List<Tuple<Coordinate, TileState>> steps() {
     return steps;
