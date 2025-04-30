@@ -1,63 +1,3 @@
-#!/usr/bin/env ruby
-
-# collect objects from the list of cards that are referenced
-$c = {}
-
-# return an object that yields the index of the object belonging to the key 's' when .to_s is called
-# (to_s is called only after the array is constructed)
-def i(s)
-	o = Object.new
-	o.define_singleton_method(:to_s) {
-		index = $cards.index($c[s])
-		raise "unknown card: #{s}" if index.nil?
-		index.to_s
-	}
-	o
-end
-
-# copy $c to a local variable for ease of use
-c = $c
-
-# create a markdown table
-def redirection(m, columns = 1)
-	a = ["|:-|:-:" * columns + "|\n"]
-	m.each_slice(columns) { |e|
-		a.push("|")
-		e.each { |from,to|
-			a.push(from)
-			a.push("|")
-			a.push(to)
-			a.push("|")
-		}
-		a.push("\n")
-	}
-	a
-end
-
-class Card
-	attr_reader :data, :params
-	def initialize(data, **params)
-		@data = data
-		@params = params
-	end
-end
-
-# create a wrapper around the elements in 'data' and retain the index information in $c
-def part(data, **kw)
-	data.map { |d|
-		if ! d.kind_of?(Card)
-			c = Card.new(d, **kw)
-
-			key = $c.key(d)
-			$c[key] = c unless key.nil?
-		else
-			d.params.merge(kw)
-			c = d
-		end
-
-		c
-	}
-end
 
 $blanks = part(Array.new(8, ["Sackgasse."])).each_with_index.map { |b, index|
 	name = "blank_#{index}".to_sym
@@ -65,9 +5,7 @@ $blanks = part(Array.new(8, ["Sackgasse."])).each_with_index.map { |b, index|
 	[b, i(name)]
 }.to_h
 
-$cards = []
-
-$cards.concat([
+[\
 	*part([
 		["Hallo! Dieser Stapel ist bewusst sortiert und sollte mit der Rückseite zu euch gucken.\nDas Spiel fordert euch gezielt auf, neue Karten zu nehmen. *Stellt einen Timer auf 30 Minuten und nehmt die Karte ", i(:intro), " um zu beginnen.*"],
 		c[:intro] = ["Ihr seid eine Gruppe von Studenten, die bei der kurzfristigen Verlegung eines Tutoriums wegen Staatsbesuchs in den Raum C12 vergeblich auf den Beginn des Tutoriums gewartet haben. Die Raumnummer war schon richtig, nur ging es um Minden und nicht um Bielefeld. Da das nicht ganz eure Schuld war und damit ihr trotzdem eine anrechenbare Leistung erbringen könnt, bietet euch eure Dozentin Dr. Kordula Igel als Alternative die Ablegung eines kurzen E-Trainings an. *Nehmt die Karte ", i(:i1_intro), ".*"],
@@ -95,43 +33,23 @@ $cards.concat([
 		c[:i2_briefing2] = ['**"Hier habt ihr den Schlüssel zum Serverraum. Die Container-Images für das ÖLIAS werden dort an einem Computer generiert, der nur vor Ort bedient wird."**<br>*Nehmt die Karte ', i(:i3_intro), '.*<br>**"Eine Sache noch: Kürzlich wurde ein Feature für das Lernen in Gruppen eingebaut. Dabei hat jede Person eine eigene Eingabemaske. Das brauchen wir auch für den Audit, also könnt ihr nicht einfach alles zurückrollen."**'],
 	], caption: "Eine neue Aufgabe"),
 	*part([\
-		c[:i3_intro] = ['"Eisige Luft zieht an euren Ohren vorbei während die Tür hinter euch zufällt. Ein einzelner Bildschirm mit Maus und Tastatur steht zwischen den Racks. Nach dem Einschalten des Bildschirms zeigt sich euch ein Terminal. Jemand hat `git gc` eingegeben, aber noch nicht mit [Enter] bestätigt.<br>*Legt alle Karten für "Eine neue Aufgabe" ab und nehmt die Karte ', i(:i3_start), ".*"],
+		c[:i3_intro] = ['"Eisige Luft zieht an euren Ohren vorbei während die Tür hinter euch zufällt. Ein einzelner Bildschirm mit Maus und Tastatur steht auf einem ansonsten leeren Schreibtisch zwischen den Racks. Nach dem Einschalten des Bildschirms zeigt sich euch ein Terminal. Jemand hat `git gc` eingegeben, aber noch nicht mit [Enter] bestätigt.<br>*Legt alle Karten für "Eine neue Aufgabe" ab und nehmt die Karte ', i(:i3_start), ".*"],
 		c[:i3_start] = ["TODO mehrere Wege"],
 	], caption: "Bugsuche"),
 	*part([
 		# bild von der eingabemaske wäre klasse
+		# TODO die 'besonderen' karten erkennt man sofort:
+		c[:i1_enter_solution] = redirection({"2" => i(:i1_correct_solution), "3" => i(:i1_phony_solution)}.merge([-2,1,4,5,0].zip($blanks.values.shuffle[..4]).sort.to_h), 2),
+# 0ca0641 (HEAD -> main) qwer
+# 4df0584 add TODO
+# ad1b56e accept multiple answers per question
+# b9d38a1 fix typo
+# 6eb33e3 store answer list id before actual answers
+# 20cbf1d use function for parsing query
+# 409e423 read answer from array
+# 8e69d38 convert result handler
+		c[:i4_file_selection] = redirection({
+}),
     *$blanks.keys,
 	], caption: "?").shuffle,
-])
-
-display_cards = $cards.each_with_index.map { |v,i|
-	caption = nil
-	front = nil
-
-	if v.kind_of?(Card)
-		caption = "#{v.params[:caption]}" if v.params.has_key?(:caption)
-		front = v.data
-	else
-		front = v
-	end
-
-	if caption
-		["*#{i}*<br>#{caption}", front]
-	else
-		["*#{i}*", front]
-	end
-}.to_h
-
-display_cards.each { |i,v|
-	s = if v.kind_of?(Array)
-		v.map { |e|
-			e.to_s
-		}.join
-	else
-		v.to_s
-	end
-
-	# TODO render front and back using markdown for printing
-	puts "#{i}: #{s}"
-	puts
-}
+]
