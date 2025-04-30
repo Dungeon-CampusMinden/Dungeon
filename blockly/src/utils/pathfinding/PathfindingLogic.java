@@ -33,7 +33,7 @@ public abstract class PathfindingLogic {
   /** The ending coordinate for the pathfinding search. */
   protected final Coordinate endNode;
 
-  private final GraphSearchDataStructure<Coordinate> frontierSet;
+  private final ArrayDeque<Coordinate> frontierSet;
   private final Set<Coordinate> exploredSet = new HashSet<>();
   private final List<Tuple<Coordinate, TileState>> steps = new ArrayList<>();
   private final Map<Coordinate, Coordinate> cameFrom = new HashMap<>();
@@ -47,7 +47,7 @@ public abstract class PathfindingLogic {
    * @param frontierSet The data structure to use for the frontier set (FIFO or LIFO).
    */
   protected PathfindingLogic(
-      Coordinate startNode, Coordinate endNode, GraphSearchDataStructure<Coordinate> frontierSet) {
+      Coordinate startNode, Coordinate endNode, ArrayDeque<Coordinate> frontierSet) {
     this.startNode = startNode;
     this.endNode = endNode;
     this.frontierSet = frontierSet;

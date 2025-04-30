@@ -2,17 +2,14 @@ package utils.pathfinding;
 
 import core.level.utils.Coordinate;
 import java.util.ArrayDeque;
-import java.util.Deque;
 
 /**
- * A queue-based implementation of the GraphSearchDataStructure interface.
+ * A queue-based implementation of the {@link ArrayDeque} for breadth-first search (BFS).
  *
- * <p>This implementation uses a FIFO (First In, First Out) strategy, suitable for BFS
- * (Breadth-First Search).
+ * <p>This implementation uses {@link Coordinate} objects to represent nodes in the search space and
+ * follows a FIFO (First In, First Out) strategy, suitable for BFS.
  */
-public class BFSQueue implements GraphSearchDataStructure<Coordinate> {
-  private final Deque<Coordinate> queue = new ArrayDeque<>();
-
+public class BFSQueue extends ArrayDeque<Coordinate> {
   /**
    * Adds a coordinate to the end of the queue.
    *
@@ -20,7 +17,7 @@ public class BFSQueue implements GraphSearchDataStructure<Coordinate> {
    */
   @Override
   public void push(Coordinate coord) {
-    queue.addLast(coord);
+    this.addLast(coord);
   }
 
   /**
@@ -30,27 +27,9 @@ public class BFSQueue implements GraphSearchDataStructure<Coordinate> {
    */
   @Override
   public Coordinate pop() {
-    return queue.pollFirst();
-  }
-
-  /**
-   * Checks if the queue is empty.
-   *
-   * @return True if the queue is empty, false otherwise.
-   */
-  @Override
-  public boolean isEmpty() {
-    return queue.isEmpty();
-  }
-
-  /**
-   * Returns whether the given element is present in the queue.
-   *
-   * @param element The element to check for.
-   * @return True if the element is present, false otherwise.
-   */
-  @Override
-  public boolean contains(Coordinate element) {
-    return queue.contains(element);
+    if (isEmpty()) {
+      return null;
+    }
+    return this.removeFirst();
   }
 }
