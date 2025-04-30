@@ -15,7 +15,7 @@
     "@eslint/js": "^9.24.0",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.1",
-    "vite": "^6.3.3",
+    "vite": "^6.3.4",
     "vite-plugin-singlefile": "^2.2.0"
   },
   "dependencies": {
