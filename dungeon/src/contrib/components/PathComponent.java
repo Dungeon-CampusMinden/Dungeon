@@ -3,7 +3,10 @@ package contrib.components;
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.Component;
+import core.Game;
 import core.level.Tile;
+import core.level.utils.Coordinate;
+import java.util.List;
 
 /**
  * A PathComponent stores the path that an entity should follow. The path is represented by a {@link
@@ -31,6 +34,25 @@ public class PathComponent implements Component {
       throw new IllegalArgumentException("Path cannot be null.");
     }
     this.path = path;
+  }
+
+  /**
+   * Constructor with a path as a List of Coordinates.
+   *
+   * @param path The path to be represented by this component.
+   */
+  public PathComponent(List<Coordinate> path) {
+    if (path == null) {
+      throw new IllegalArgumentException("Path cannot be null.");
+    }
+    this.path = new DefaultGraphPath<>();
+    for (Coordinate coordinate : path) {
+      Tile tile = Game.tileAT(coordinate);
+      if (tile == null) {
+        throw new IllegalArgumentException("Path contains an invalid coordinate: " + coordinate);
+      }
+      this.path.add(tile);
+    }
   }
 
   /**

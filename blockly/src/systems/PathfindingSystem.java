@@ -2,12 +2,11 @@ package systems;
 
 import client.KeyboardConfig;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.PathComponent;
 import core.Game;
 import core.System;
-import core.level.Tile;
+import core.level.utils.Coordinate;
+import java.util.List;
 import utils.pathfinding.PathfindingLogic;
 import utils.pathfinding.PathfindingVisualizer;
 import utils.pathfinding.TileState;
@@ -24,11 +23,11 @@ import utils.pathfinding.TileState;
  */
 public class PathfindingSystem extends System {
   private PathfindingVisualizer visualizer = null;
-  private GraphPath<Tile> finalPathGraph = new DefaultGraphPath<>();
 
   private boolean autoStep = false;
   private long stepDelay = 100; // Step delay in milliseconds if using autoStep
   private boolean isHeroMoving = false;
+  private List<Coordinate> finalPath = List.of();
 
   @Override
   public void execute() {
@@ -40,7 +39,7 @@ public class PathfindingSystem extends System {
           .ifPresent(
               hero -> {
                 isHeroMoving = true;
-                hero.add(new PathComponent(finalPathGraph));
+                hero.add(new PathComponent(finalPath));
               });
       return;
     }
@@ -89,7 +88,7 @@ public class PathfindingSystem extends System {
     reset();
     pathFindingAlgorithm.performSearch();
     this.visualizer = new PathfindingVisualizer(pathFindingAlgorithm);
-    this.finalPathGraph = pathFindingAlgorithm.graphPath();
+    this.finalPath = pathFindingAlgorithm.finalPath();
   }
 
   /**
