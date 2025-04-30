@@ -10,6 +10,10 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 
+/**
+ * This class is used in the AiMaze level and adjusts the camera view to properly display the
+ * labyrinth.
+ */
 public class AiMazeLevel extends BlocklyLevel {
   private static boolean showText = true;
 
