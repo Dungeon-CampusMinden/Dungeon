@@ -64,4 +64,57 @@ Dr. K. Igel empfängt die Studenten. "Mir ist vorhin eingefallen, dass die Frist
 > Karte `I2_8`: "In einer Stunde kommt ein Auditor vom BSI um die Assessments zu zertifizieren. Dieser Fehler muss behoben werden! Ohne die Zertifizierung werden alle damit abgenommen Prüfungen rückwirkend für ungültig erklärt - eine Katastrophe! Bald wird der nächste Studiengangsleiter gewählt und ich vermute, dass einer der Kandidaten dieses Debakel verwenden wird, um seine Wahl zu begünstigen. Deshalb bitte ich euch, den Fehler unauffällig zu beheben und der Ursache für den Bug diskret auf den Grund zu gehen. *Nehmt I2_9*"
 > Karte `I2_9`: "Hier habt ihr den Schlüssel zum Serverraum. Die Container-Images für das ÖLIAS werden dort an einem Computer generiert, der nur vor Ort bedient wird. *Nehmt I3_0* Eine Sache noch: Kürzlich wurde ein Feature für das Lernen in Gruppen eingebaut. Dabei hat jede Person eine eigene Eingabemaske. Das brauchen wir auch für den Audit, also könnt ihr nicht einfach alles zurückrollen. *Nehmt Hinweiskarte 1*"
 
-TODO git am, git gc, reflog, bisect
+## Interaktion 3 - Bugsuche
+
+Eisige Luft zieht an euren Ohren vorbei während die Tür hinter euch zufällt. Ein einzelner Bildschirm mit Maus und Tastatur steht zwischen den Racks. Nach dem Einschalten des Bildschirms zeigt sich euch ein Terminal. Jemand hat `git gc` eingegeben, aber noch nicht mit [Enter] bestätigt.
+> Hinweiskarte 2:
+Am Bildschirm klebt ein Kärtchen, das den Entwicklungsprozess erklärt: "Merges in 'main' nur an diesem Computer. Legt eure Patches auf einen USB-Stick und spielt sie hier ein. Der USB-Stick wird automatisch unter /usb eingehängt. Alle zwei Wochen übertrage ich den Stand in das öffentliche Repo. Sorry für die Umstände. Ist für die Compliance. - euer Admin"
+
+### Bug finden
+
+- Datei identifizieren
+- Zeile finden
+- Entwicklungsprozess verstehen
+
+### funktionierenden Commit finden
+
+> Hier ist der Ansatz, die Spieler mit vielen unbrauchbaren Optionen zu überfordern. Sie müssen die brauchbaren Ansätze selbst identifizieren.
+
+### jemanden fragen?
+
+### history durchgehen
+
+> Sobald der letzte als funktionierend bekannte Commit gefunden wurde:
+Über 2000 Commits liegen zwischen euch und der funktionierenden Version. 
+> Ohne den Commit:
+ÖLIAS hat über 70.000 Commits - das wollt ihr doch nicht alles lesen?
+
+
+### branches
+
+Prinzipiell eine gute Idee. Aber hier gibt es nur den 'main'-Branch.
+
+### im dateisystem suchen
+
+> decoy-nummern
+
+
+### EDITMSG
+
+Immer wenn eine Commitnachricht editiert wird, wird dafür eine Textdatei `.git/COMMIT_EDITMSG` angelegt. Da die Datei nicht gelöscht wird, kann man dort gucken, ob vielleicht etwas spannendes editiert wurde. Mit etwas Hoffnung wurde der Bug hier auf dieser Maschine eingebaut und der dazugehörige Commit hier erstellt.
+
+```
+# Changes to be committed:
+# modified:   src/ResultHandler.php
+```
+
+### git gc
+
+Wollte hier jemand mit `git gc` seine Spuren verbergen?
+Dabei werden unerreichbare Commits gelöscht, die älter als 30 Tage sind.
+
+## Interaktion 4 - Der Bisect
+
+- Commit finden
+
+TODO git am, git gc, reflog
