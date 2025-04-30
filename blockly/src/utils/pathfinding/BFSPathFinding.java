@@ -1,7 +1,6 @@
 package utils.pathfinding;
 
 import core.level.utils.Coordinate;
-import utils.LevelUtils;
 
 /**
  * Breadth-First Search (BFS) pathfinding algorithm implementation.
@@ -11,21 +10,8 @@ import utils.LevelUtils;
  *
  * <p>The algorithm works as follows:
  *
- * <ul>
- *   <li>Initialize a queue for the frontier set (nodes to explore)
- *   <li>Initialize a set for the explored set (visited nodes)
- *   <li>Add the starting node to the frontier set and mark it as visited
- *   <li>While there are nodes in the frontier set:
- *       <ul>
- *         <li>Take the earliest added node from the queue
- *         <li>Mark this node as visited if not already
- *         <li>For each walkable neighboring node:
- *             <ul>
- *               <li>If not already visited, add it to the frontier set
- *               <li>If this neighbor is the destination, end the search
- *             </ul>
- *       </ul>
- * </ul>
+ * <p>This implementation provides a FIFO queue as the frontier data structure, with the core search
+ * algorithm implemented in the parent class using the Template Method pattern.
  *
  * @see PathfindingLogic
  * @see systems.PathfindingSystem PathfindingSystem
@@ -43,23 +29,5 @@ public class BFSPathFinding extends PathfindingLogic {
    */
   public BFSPathFinding(Coordinate start, Coordinate end) {
     super(start, end, new BFSQueue());
-  }
-
-  @Override
-  public void performSearch() {
-    addFrontier(startNode);
-
-    while (!isFrontierEmpty()) {
-      Coordinate current = pollNextNode();
-      addExplored(current);
-      for (Coordinate neighbor : LevelUtils.walkableNeighbors(current)) {
-        if (!isExplored(neighbor) && !isFrontier(neighbor)) {
-          addFrontier(neighbor);
-        }
-        if (neighbor.equals(endNode)) {
-          return;
-        }
-      }
-    }
   }
 }

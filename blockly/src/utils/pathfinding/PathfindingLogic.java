@@ -7,10 +7,10 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Tuple;
 import java.util.*;
+import utils.LevelUtils;
 
 /**
- * PathfindingLogic is an abstract class that provides the basic structure for pathfinding
- * algorithms.
+ * PathfindingLogic provides a basic structure for pathfinding algorithms.
  *
  * <p>This class maintains the frontier and explored sets, tracks the path, and provides methods to
  * initialize the search, perform steps, and retrieve the final path.
@@ -19,6 +19,9 @@ import java.util.*;
  *
  * <p>It uses a data structure for the frontier set that can be configured as either FIFO or LIFO
  * based on the implementation provided in the constructor.
+ *
+ * <p>The class implements the Template Method pattern for the core search algorithm, allowing
+ * subclasses to simply provide the appropriate data structure to determine traversal behavior.
  *
  * @see PathfindingVisualizer
  * @see systems.PathfindingSystem PathfindingSystem
@@ -167,6 +170,40 @@ public abstract class PathfindingLogic {
     return steps;
   }
 
-  /** Perform the pathfinding search. */
-  public abstract void performSearch();
+  /**
+   * Perform the pathfinding search.
+   *
+   * <p>This is a template method that implements the core search algorithm common to BFS, DFS, and
+   * other graph search approaches. The algorithm follows these steps:
+   *
+   * <ol>
+   *   <li>Add start node to frontier
+   *   <li>While frontier is not empty:
+   *       <ol>
+   *         <li>Get next node from frontier (order determined by frontier data structure)
+   *         <li>Mark node as explored
+   *         <li>For each neighbor:
+   *             <ol>
+   *               <li>If not explored or in frontier, add to frontier
+   *               <li>If neighbor is target, end search
+   *             </ol>
+   *       </ol>
+   * </ol>
+   */
+  public void performSearch() {
+    addFrontier(startNode);
+
+    while (!isFrontierEmpty()) {
+      Coordinate current = pollNextNode();
+      addExplored(current);
+      for (Coordinate neighbor : LevelUtils.walkableNeighbors(current)) {
+        if (!isExplored(neighbor) && !isFrontier(neighbor)) {
+          addFrontier(neighbor);
+        }
+        if (neighbor.equals(endNode)) {
+          return;
+        }
+      }
+    }
+  }
 }
