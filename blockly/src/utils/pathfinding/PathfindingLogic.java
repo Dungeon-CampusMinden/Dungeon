@@ -54,10 +54,12 @@ public abstract class PathfindingLogic {
    *
    * <p>A node is in the frontier set if it has been discovered but not yet processed.
    *
+   * <p>This method also keeps track of the last parent node for backtracking purposes.
+   *
    * @param coord The coordinate to add.
    */
   protected void addFrontier(Coordinate coord) {
-    if (lastParent != null && !cameFrom.containsKey(coord)) {
+    if (lastParent != null) {
       cameFrom.put(coord, lastParent);
     }
     steps.add(Tuple.of(coord, TileState.OPEN));
