@@ -30,9 +30,7 @@ public class PathfindingSystem extends System {
   public void execute() {
     if (visualizer == null) return;
 
-    if (visualizer.isFinished()
-        && !isHeroMoving
-        && Gdx.input.isKeyJustPressed(KeyboardConfig.START_MOVING_PATHFINDING.value())) {
+    if (visualizer.isFinished() && !isHeroMoving && isStartMovingKeyPressed()) {
       Game.hero()
           .ifPresent(
               hero -> {
@@ -42,8 +40,25 @@ public class PathfindingSystem extends System {
       return;
     }
 
-    if (Gdx.input.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value()))
-      visualizer.visualizePathfinding(autoStep, stepDelay);
+    if (isStepPathfindingKeyPressed()) visualizer.visualizePathfinding(autoStep, stepDelay);
+  }
+
+  /**
+   * Checks if the key for starting pathfinding movement is pressed.
+   *
+   * @return true if the key is just pressed, false otherwise
+   */
+  private boolean isStartMovingKeyPressed() {
+    return Gdx.input.isKeyJustPressed(KeyboardConfig.START_MOVING_PATHFINDING.value());
+  }
+
+  /**
+   * Checks if the key for stepping through pathfinding is pressed.
+   *
+   * @return true if the key is just pressed, false otherwise
+   */
+  private boolean isStepPathfindingKeyPressed() {
+    return Gdx.input.isKeyJustPressed(KeyboardConfig.STEP_PATHFINDING.value());
   }
 
   /**
