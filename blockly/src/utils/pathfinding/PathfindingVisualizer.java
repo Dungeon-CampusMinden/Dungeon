@@ -19,32 +19,37 @@ import java.util.List;
  */
 public class PathfindingVisualizer {
   private final List<EventScheduler.ScheduledAction> scheduledActions = new ArrayList<>();
-  private final List<Tuple<Coordinate, TileState>> path;
-  private final List<Coordinate> finalPath;
+  private List<Tuple<Coordinate, TileState>> path;
+  private List<Coordinate> finalPath;
 
   private int stepCount = 0;
 
   /**
-   * Creates a visualizer with default settings.
+   * Constructor for PathfindingVisualizer.
    *
-   * @param pathfindingLogic The pathfinding logic to visualize
+   * <p>Initializes the visualizer with the path steps and the final path.
+   *
+   * @param pathSteps A list of tuples containing coordinates and their corresponding tile states.
+   * @param finalPath The final path as a list of coordinates.
+   * @see PathfindingLogic
    */
-  public PathfindingVisualizer(PathfindingLogic pathfindingLogic) {
-    pathfindingLogic.performSearch(); // Perform the search to populate the path
-
-    this.path = pathfindingLogic.steps();
-    this.finalPath = pathfindingLogic.finalPath();
+  public PathfindingVisualizer(
+      List<Tuple<Coordinate, TileState>> pathSteps, List<Coordinate> finalPath) {
+    this.path = pathSteps;
+    this.finalPath = finalPath;
   }
 
   /**
-   * Returns the final path.
+   * Default constructor for PathfindingVisualizer.
    *
-   * <p>This is the path found by the pathfinding algorithm.
+   * <p>Initializes the visualizer with empty path steps and final path. Use {@link #updatePath} to
+   * later set the path and final path.
    *
-   * @return The final path as a list of coordinates
+   * @see PathfindingLogic
    */
-  public List<Coordinate> finalPath() {
-    return finalPath;
+  public PathfindingVisualizer() {
+    this.path = new ArrayList<>();
+    this.finalPath = new ArrayList<>();
   }
 
   /**
@@ -139,6 +144,20 @@ public class PathfindingVisualizer {
    */
   public boolean isRunning() {
     return 0 < stepCount && stepCount < path.size();
+  }
+
+  /**
+   * Updates the pathfinding visualization with a new path and final path.
+   *
+   * <p>This method resets the current visualization and sets the new path and final path.
+   *
+   * @param newPath A list of tuples containing coordinates and their corresponding tile states.
+   * @param finalPath The final path as a list of coordinates.
+   */
+  public void updatePath(List<Tuple<Coordinate, TileState>> newPath, List<Coordinate> finalPath) {
+    reset();
+    this.path = newPath;
+    this.finalPath = finalPath;
   }
 
   /**

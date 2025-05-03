@@ -5,6 +5,9 @@ import com.badlogic.gdx.Gdx;
 import contrib.components.PathComponent;
 import core.Game;
 import core.System;
+import core.level.utils.Coordinate;
+import java.util.ArrayList;
+import java.util.List;
 import utils.pathfinding.PathfindingLogic;
 import utils.pathfinding.PathfindingVisualizer;
 import utils.pathfinding.TileState;
@@ -15,12 +18,20 @@ import utils.pathfinding.TileState;
  *
  * <p>It allows for both manual and automatic stepping through the pathfinding process.
  *
+ * <p>It checks every frame 2 things: 1. If the pathfinding is finished and the hero is not moving,
+ * it will start moving the hero on the final path, and stop the system.2. If the step pathfinding
+ * key is pressed, it will visualize the pathfinding process.
+ *
+ * <p>Use {@link #updatePathfindingAlgorithm(PathfindingLogic)} to start the system and set a new
+ * pathfinding algorithm.
+ *
  * @see PathfindingLogic
  * @see TileState
  * @see PathfindingVisualizer
  */
 public class PathfindingSystem extends System {
-  private PathfindingVisualizer visualizer;
+  private final PathfindingVisualizer visualizer = new PathfindingVisualizer();
+  private List<Coordinate> finalPath = new ArrayList<>();
 
   private boolean autoStep = false;
   private long stepDelay = 100; // Step delay in milliseconds if using autoStep
@@ -35,8 +46,9 @@ public class PathfindingSystem extends System {
           .ifPresent(
               hero -> {
                 isHeroMoving = true;
-                hero.add(new PathComponent(visualizer.finalPath())); // TODO: Change me
+                hero.add(new PathComponent(finalPath));
               });
+      this.stop();
       return;
     }
 
@@ -89,16 +101,19 @@ public class PathfindingSystem extends System {
   }
 
   /**
-   * Update the pathfinding algorithm.
+   * Sets a new pathfinding algorithm and starts the pathfinding process.
    *
-   * <p>This method resets the current pathfinding process and initializes a new one with the
-   * provided pathfinding algorithm.
+   * <p>This method starts this system, resets the current pathfinding process, and initializes a
+   * new one with the provided pathfinding algorithm.
    *
    * @param pathFindingAlgorithm the pathfinding algorithm to use
    */
   public void updatePathfindingAlgorithm(PathfindingLogic pathFindingAlgorithm) {
+    this.run();
     reset();
-    this.visualizer = new PathfindingVisualizer(pathFindingAlgorithm);
+    pathFindingAlgorithm.performSearch(); // Perform the search to populate the path
+    this.finalPath = pathFindingAlgorithm.finalPath();
+    this.visualizer.updatePath(pathFindingAlgorithm.steps(), pathFindingAlgorithm.finalPath());
   }
 
   /**
