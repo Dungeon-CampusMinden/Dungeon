@@ -39,8 +39,6 @@ public class PathfindingSystem extends System {
 
   @Override
   public void execute() {
-    if (visualizer == null) return;
-
     if (visualizer.isFinished() && !isHeroMoving && isStartMovingKeyPressed()) {
       Game.hero()
           .ifPresent(
@@ -123,8 +121,6 @@ public class PathfindingSystem extends System {
    * the state of the system.
    */
   private void reset() {
-    if (visualizer == null) return;
-
     visualizer.reset();
   }
 }
