@@ -1,5 +1,5 @@
 
-$blanks = part(Array.new(8, ["Sackgasse."])).each_with_index.map { |b, index|
+$blanks = part(Array.new(8, ["Sackgasse. Bitte sortiert diese Karte zurück ins Deck ein."])).each_with_index.map { |b, index|
 	name = "blank_#{index}".to_sym
 	c[name] = b
 	[b, i(name)]
