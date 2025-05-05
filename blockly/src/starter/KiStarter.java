@@ -1,18 +1,15 @@
 package starter;
 
-import components.AmmunitionComponent;
 import contrib.entities.HeroFactory;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
-import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.AiMazeLevel;
@@ -21,10 +18,7 @@ import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
 import utils.pathfinding.DFSPathFinding;
 
-/**
- * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
- * have any effect
- */
+/** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class KiStarter {
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
@@ -103,9 +97,8 @@ public class KiStarter {
   /**
    * Creates and adds a new hero entity to the game.
    *
-   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new hero is
-   * generated using the {@link HeroTankControlledFactory} and is equipped with an {@link
-   * AmmunitionComponent}.
+   * <p>The new hero is generated using the {@link HeroFactory} and the {@link CameraComponent} of
+   * the hero is removed.
    *
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
