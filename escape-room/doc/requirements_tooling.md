@@ -2,6 +2,8 @@
 title: "Anforderungen an das Tooling"
 ---
 
+Dieses Dokument soll im weiteren Verlauf des Projektes mit konkreten Anforderungen an das Tooling für Lehrende gefüllt werden.
+
 # Welche Erwartungen werden an den Prozess gestellt?
 
 Lehrende interagieren voraussichtlich zur Erfüllung der folgenden Zwecke mit dem System:
