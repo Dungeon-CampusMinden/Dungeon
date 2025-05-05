@@ -82,11 +82,13 @@ TODO die fehlenden anleitungen abklappern/ausmisten
 
 ## Beobachtungen
 
-TODO hier die kriterien herausarbeiten
-- Geschichte/Setting/Thema steht weit am Anfang
+Der grobe Ablauf ist in etwa immer gleich:
+
+- Narrativ/Setting/Thema und Lernziele werden am Anfang definiert
+- Rätsel und Geschichte werden "ausgefüllt"
+- Playtesting
 
 Zusätzlich zu den Referenzprozessen, sollen die Erkenntnisse aus der Recherche (bspw. nicholson2015meaningful oder shroff2019immersion) berücksichtigt werden.
-TODO welche sind das noch?
 
 ## <a name="approach"></a> Abgeleitetes Vorgehen
 
@@ -109,3 +111,10 @@ TODO welche sind das noch?
     - "wie hilft mir das in meinem Beruf weiter?"
   - ggf. mit Feedback für Lehrende kombinierbar
 - iterative Verbesserungen durch Playtesting
+
+Als begleitende Orientierungshilfe werden folgende Aspekte und die [6 Fragen von Nicholson](sources/nicholson2015meaningful.md#questions) hervorgehoben.
+
+- unterschiedliche Lerntypen berücksichtigen
+- Erreichung der Lernziele und Spaß müssen vorsichtig gegeneinander abgewogen werden ("what makes or breaks a game")
+- "meaningful gaming elements and competitive game mechanics are central to facilitating successful learning outcomes"
+- Erhalt der Motivation durch Berücksichtigung der von den Spielenden erwarteten Schwierigkeiten und ihrer Einschätzung der eigenen Fähigkeiten
