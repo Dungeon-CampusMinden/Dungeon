@@ -1,4 +1,4 @@
-package systems;
+package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -12,7 +12,7 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import java.util.Queue;
-import utils.DungeonSaver;
+import contrib.level.DevDungeonSaver;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -83,7 +83,7 @@ public class LevelEditorSystem extends System {
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
       if (Game.currentLevel() instanceof DevDungeonLevel) {
-        DungeonSaver.saveCurrentDungeon();
+        DevDungeonSaver.saveCurrentDungeon();
       } else {
         java.lang.System.out.println(Game.currentLevel().printLevel());
       }
