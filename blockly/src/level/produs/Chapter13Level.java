@@ -36,48 +36,14 @@ public class Chapter13Level extends BlocklyLevel {
         "direction_here",
         // Schleifen
         "while_loop",
-        /* Kategorien
+        // Kategorien
         "Inventar & Charakter",
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
         "Bedingungen",
-        "Sonstige"*/
-        "fireball",
-        "wait",
-        "use",
-        "pickup",
-        "push",
-        "pull",
-        "drop_item",
-        "item_breadcrumbs",
-        "item_clover",
-        "controls_if",
-        "controls_ifelse",
-        "logic_wall_direction",
-        "logic_floor_direction",
-        "logic_pit_direction",
-        "logic_monster_direction",
-        "logic_switch_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
-        "logic_active_direction",
-        "logic_boolean",
-        "usual_condition",
-        "not_condition",
-        "logic_operator",
-        "var_number",
-        "set_number_expression",
-        "expression",
-        "get_variable",
-        "get_number",
-        "func_def",
-        "func_call",
-        "var_array",
-        "array_set",
-        "array_get",
-        "array_length");
+        "Sonstige");
   }
 
   @Override

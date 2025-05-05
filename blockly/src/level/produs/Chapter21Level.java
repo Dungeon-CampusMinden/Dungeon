@@ -59,20 +59,9 @@ public class Chapter21Level extends BlocklyLevel {
         // Wahrheitsausdruecke
         "logic_operator",
         "usual_condition",
-        /* Kategorien
+        // Kategorien
         "Variablen",
-        "Sonstige"*/
-        "var_number",
-        "set_number_expression",
-        "expression",
-        "get_variable",
-        "get_number",
-        "func_def",
-        "func_call",
-        "var_array",
-        "array_set",
-        "array_get",
-        "array_length");
+        "Sonstige");
   }
 
   @Override
