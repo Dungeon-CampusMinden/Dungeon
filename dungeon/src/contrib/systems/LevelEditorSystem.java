@@ -3,6 +3,7 @@ package contrib.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import contrib.level.DevDungeonLevel;
+import contrib.level.DevDungeonSaver;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;
@@ -12,7 +13,6 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
 import java.util.Queue;
-import contrib.level.DevDungeonSaver;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
