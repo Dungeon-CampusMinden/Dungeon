@@ -5,42 +5,22 @@ import antlr.main.blocklyLexer;
 import antlr.main.blocklyParser;
 import client.Client;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import components.BlockComponent;
-import components.BlocklyItemComponent;
-import components.PushableComponent;
-import contrib.components.*;
 import contrib.level.DevDungeonLoader;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.FireballSkill;
-import contrib.utils.components.skill.Skill;
-import core.Component;
-import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
-import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.PitTile;
-import core.level.utils.Coordinate;
-import core.level.utils.LevelUtils;
-import core.utils.MissingHeroException;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
-import entities.MiscFactory;
 import entities.VariableHUD;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import level.BlocklyLevel;
@@ -48,6 +28,8 @@ import nodes.StartNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import utils.BlocklyCodeRunner;
+import utils.BlocklyCommands;
 import utils.Direction;
 
 /**
@@ -70,9 +52,7 @@ import utils.Direction;
  */
 public class Server {
 
-  private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
-  private static final float FIREBALL_SPEED = 15f;
-  private static final int FIREBALL_DMG = 1;
+  private static final Logger LOGGER = Logger.getLogger(Server.class.getSimpleName());
 
   // Singleton
   private static Server instance;
@@ -179,6 +159,10 @@ public class Server {
     levelsContext.setHandler(this::handleLevelsRequest);
     HttpContext levelContext = server.createContext("/level");
     levelContext.setHandler(this::handleLevelRequest);
+    HttpContext codeContext = server.createContext("/code");
+    codeContext.setHandler(this::handleCodeRequest);
+    HttpContext languageContext = server.createContext("/language");
+    languageContext.setHandler(this::handleLanguageRequest);
     server.start();
     return server;
   }
@@ -190,8 +174,9 @@ public class Server {
    * variables and other values will be cleared. If the program run into an error the response to
    * the blockly frontend will contain an error message.
    *
-   * @param exchange
-   * @throws IOException
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   * @throws IOException If an error occurs while sending the response
    */
   private void handleStartRequest(HttpExchange exchange) throws IOException {
     if (clearHUD) {
@@ -259,19 +244,15 @@ public class Server {
    *
    * @param exchange Exchange object. The function will send a success response to the blockly
    *     frontend
-   * @throws IOException
+   * @throws IOException If an error occurs while sending the response
    */
   private void handleResetRequest(HttpExchange exchange) throws IOException {
+    BlocklyCodeRunner.instance().stopCode();
     // Reset values
     interruptExecution = true;
     Client.restart();
-    PositionComponent pc = getHeroPosition();
-    String response = pc.position().x + "," + pc.position().y;
-    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-    exchange.sendResponseHeaders(200, response.getBytes().length);
-    OutputStream os = exchange.getResponseBody();
-    os.write(response.getBytes());
-    os.close();
+
+    sendHeroPosition(exchange);
   }
 
   /**
@@ -281,14 +262,20 @@ public class Server {
    *
    * @param exchange Exchange object. The function will send a success response to the blockly
    *     frontend
-   * @throws IOException
+   * @throws IOException If an error occurs while sending the response
    */
   private void handleClearRequest(HttpExchange exchange) throws IOException {
     clearGlobalValues();
 
-    PositionComponent pc = getHeroPosition();
-    String response = pc.position().x + "," + pc.position().y;
+    sendHeroPosition(exchange);
+  }
 
+  private void sendHeroPosition(HttpExchange exchange) throws IOException {
+    Point heroPos = EntityUtils.getHeroPosition();
+    if (heroPos == null) {
+      heroPos = new Point(0, 0);
+    }
+    String response = heroPos.x + "," + heroPos.y;
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
@@ -302,7 +289,7 @@ public class Server {
    *
    * @param exchange Exchange object. The function will send a success response to the blockly
    *     frontend
-   * @throws IOException
+   * @throws IOException If an error occurs while sending the response
    */
   private void handleVariableRequest(HttpExchange exchange) throws IOException {
     StringBuilder response = new StringBuilder();
@@ -315,8 +302,8 @@ public class Server {
         response.append(name).append("=").append(Arrays.toString(var.arrayVal)).append("\n");
       }
     }
-    hero()
-        .fetch(AmmunitionComponent.class)
+    Game.hero()
+        .flatMap(hero -> hero.fetch(AmmunitionComponent.class))
         .ifPresent(
             ammunitionComponent ->
                 response
@@ -324,6 +311,7 @@ public class Server {
                     .append("=")
                     .append(ammunitionComponent.currentAmmunition())
                     .append("\n"));
+
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.toString().getBytes().length);
     OutputStream os = exchange.getResponseBody();
@@ -395,11 +383,137 @@ public class Server {
   }
 
   /**
+   * Handles the code request. This function will execute the given java code. The code must be
+   * formatted as a string and will be executed in the dungeon.
+   *
+   * @param exchange Exchange object
+   * @throws IOException If an error occurs while sending the response
+   */
+  private void handleCodeRequest(HttpExchange exchange) throws IOException {
+    // Check if this is a stop request
+    String query = exchange.getRequestURI().getQuery();
+    boolean isStopRequest = query != null && query.contains("stop=1");
+
+    if (isStopRequest) {
+      handleStopCodeExecution(exchange);
+      return;
+    }
+
+    // Handle normal code execution request
+    if (BlocklyCodeRunner.instance().isCodeRunning()) {
+      String response = "Another code execution is already running. Please stop it first.";
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      exchange.sendResponseHeaders(400, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+      return;
+    }
+
+    InputStream inStream = exchange.getRequestBody();
+    String text = new String(inStream.readAllBytes(), StandardCharsets.UTF_8);
+
+    // Start code execution
+    interruptExecution = false;
+    try {
+      BlocklyCodeRunner.instance().executeJavaCode(text);
+
+      // Wait 1 second to check for errors or completion
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {
+        // Ignore
+      }
+
+      String response;
+      int statusCode;
+
+      if (interruptExecution) {
+        response = errorMsg;
+        statusCode = 400;
+        BlocklyCodeRunner.instance().stopCode();
+      } else if (!BlocklyCodeRunner.instance().isCodeRunning()) {
+        // Code completed execution within 1 second
+        response = "OK - Code executed successfully";
+        statusCode = 200;
+      } else {
+        // Code is still running after 1 second
+        response = "OK - Code execution started";
+        statusCode = 200;
+      }
+
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+    } catch (Exception e) {
+      LOGGER.severe("Error executing code: " + e);
+      setError(e.getMessage());
+      String response = errorMsg;
+      exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+      exchange.sendResponseHeaders(400, response.getBytes().length);
+      OutputStream os = exchange.getResponseBody();
+      os.write(response.getBytes());
+      os.close();
+      BlocklyCodeRunner.instance().stopCode();
+    }
+  }
+
+  /**
+   * Handles stop request for currently running code execution.
+   *
+   * @param exchange Exchange object
+   * @throws IOException If an error occurs while sending the response
+   */
+  private void handleStopCodeExecution(HttpExchange exchange) throws IOException {
+    String response;
+    int statusCode = 200;
+
+    if (BlocklyCodeRunner.instance().isCodeRunning()) {
+      BlocklyCodeRunner.instance().stopCode();
+      interruptExecution = true;
+      response = "Code execution stopped";
+    } else {
+      response = "No code execution running";
+    }
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+    exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the language request. This function will return the current language of the dungeon.
+   *
+   * @param exchange Exchange object. The function will send a success response to the blockly
+   *     frontend
+   * @throws IOException If an error occurs while sending the response
+   */
+  private void handleLanguageRequest(HttpExchange exchange) throws IOException {
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+
+    // Query parameter 'object'
+    String query = exchange.getRequestURI().getQuery();
+    String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "server";
+
+    String response = LanguageServer.GenerateCompletionItems(objectName);
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
    * Clear all global variables that may have been modified. Empty all stacks, hashmaps and reset
    * all global variables to their default value. Also clear the variable and array HUD in the
    * dungeon.
    */
   public void clearGlobalValues() {
+    BlocklyCodeRunner.instance().stopCode();
+
     // Reset values
     active_scopes.clear();
     currently_repeating_scope.clear();
@@ -424,6 +538,9 @@ public class Server {
    * @param errMsg Error message that will be sent to the blockly frontend.
    */
   private void setError(String errMsg) {
+    if (errMsg.trim().isEmpty()) {
+      errMsg = "Unknown error";
+    }
     interruptExecution = true;
     errorOccurred = true;
     errorMsg = errMsg;
@@ -480,7 +597,8 @@ public class Server {
    * Execute actions in the dungeon -> Perform the desired actions in the dungeon. This can be
    * moving into a specific direction or throwing a fireball.
    *
-   * @param action
+   * @param action Action that should be processed. This action must not contain any whitespaces at
+   *     the
    */
   public void processAction(String action) {
     System.out.print("Processing action: ");
@@ -621,7 +739,7 @@ public class Server {
    *
    * @param varName Name of the variable that should be retrieved
    * @return Returns the variable from the hashmap
-   * @throws IllegalAccessException
+   * @throws IllegalAccessException If the variable is not an array
    */
   private Variable getArrayVariable(String varName) throws IllegalAccessException {
     Variable array_var = variables.get(varName);
@@ -736,7 +854,7 @@ public class Server {
    * Check if the scope of a function ends with current action. The function definition ends if the
    * current action is "}" and the active scope is "function".
    *
-   * @param action
+   * @param action Current action that should be evaluated.
    */
   private void closeFunc(String action) {
     if (action.equals("}") && active_scopes.peek().equals("function")) {
@@ -956,7 +1074,8 @@ public class Server {
    * @param rightVal Right value of the expression
    * @param op Operator of the expression
    * @return Returns the result of the expression as an integer
-   * @throws IllegalAccessException
+   * @throws IllegalAccessException If the left or right value is not a valid variable or
+   *     expression.
    */
   private int executeOperatorExpression(String leftVal, String rightVal, String op)
       throws IllegalAccessException {
@@ -1197,9 +1316,7 @@ public class Server {
     Object[] args = convertActionToArguments(action);
     String actionName = action.substring(0, action.indexOf("("));
     switch (actionName) {
-      case "gehe" -> {
-        move();
-      }
+      case "gehe" -> BlocklyCommands.move();
       case "drehe" -> {
         Direction firstArg;
         if (args[0] instanceof String firstArgStr) {
@@ -1208,26 +1325,14 @@ public class Server {
           setError("Unexpected type for direction " + args[0]);
           return;
         }
-        rotateHero(firstArg);
+        BlocklyCommands.rotate(firstArg);
       }
-      case "feuerball" -> {
-        shootFireball();
-      }
-      case "warte" -> {
-        waitDelta();
-      }
-      case "benutzen" -> {
-        interact();
-      }
-      case "schieben" -> {
-        push();
-      }
-      case "ziehen" -> {
-        pull();
-      }
-      case "aufsammeln" -> {
-        pickup();
-      }
+      case "feuerball" -> BlocklyCommands.shootFireball();
+      case "warte" -> waitDelta();
+      case "benutzen" -> BlocklyCommands.interact();
+      case "schieben" -> BlocklyCommands.push();
+      case "ziehen" -> BlocklyCommands.pull();
+      case "aufsammeln" -> BlocklyCommands.pickup();
       case "fallen_lassen" -> {
         String firstArg;
         if (args[0] instanceof String) {
@@ -1236,11 +1341,9 @@ public class Server {
           setError("Unexpected type for item " + args[0]);
           return;
         }
-        dropItem(firstArg);
+        BlocklyCommands.dropItem(firstArg);
       }
-      case "geheZumAusgang" -> {
-        moveToExit();
-      }
+      case "geheZumAusgang" -> BlocklyCommands.moveToExit();
       default -> System.out.println("Unknown action: " + action);
     }
   }
@@ -1291,464 +1394,16 @@ public class Server {
   }
 
   /**
-   * Moves the given entities simultaneously in a specific direction.
+   * Wait for the delta time of the current frame.
    *
-   * <p>One move equals one tile.
-   *
-   * @param direction Direction in which the entities will be moved.
-   * @param entities Entities to move simultaneously.
+   * <p>Used to wait for the game loop to finish the current frame before executing the next action.
    */
-  public void move(final Direction direction, final Entity... entities) {
-    double distanceThreshold = 0.1;
-
-    record EntityComponents(
-        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
-
-    List<EntityComponents> entityComponents = new ArrayList<>();
-
-    for (Entity entity : entities) {
-      PositionComponent pc =
-          entity
-              .fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-
-      VelocityComponent vc =
-          entity
-              .fetch(VelocityComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-
-      Tile targetTile = Game.tileAT(pc.position(), Direction.toPositionCompDirection(direction));
-      if (targetTile == null
-          || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
-          || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
-        return; // if any target tile is not accessible, don't move anyone
-      }
-
-      entityComponents.add(new EntityComponents(pc, vc, targetTile.coordinate()));
-    }
-
-    double[] distances =
-        entityComponents.stream()
-            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toCenteredPoint()))
-            .toArray();
-    double[] lastDistances = new double[entities.length];
-
-    while (true) {
-      boolean allEntitiesArrived = true;
-      for (int i = 0; i < entities.length; i++) {
-        EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
-
-        lastDistances[i] = distances[i];
-        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
-
-        if (Game.findEntity(entities[i])
-            && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
-          allEntitiesArrived = false;
-        }
-      }
-
-      if (allEntitiesArrived) break;
-
-      waitDelta();
-    }
-
-    for (EntityComponents ec : entityComponents) {
-      ec.vc.currentXVelocity(0);
-      ec.vc.currentYVelocity(0);
-      // check the position-tile via new request in case a new level was loaded
-      Tile endTile = Game.tileAT(ec.pc.position());
-      if (endTile != null) ec.pc.position(endTile); // snap to grid
-    }
-  }
-
-  /**
-   * Moves the hero in it's viewing direction.
-   *
-   * <p>One move equals one tile.
-   */
-  public void move() {
-    Entity hero = hero();
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
-    move(viewDirection, hero);
-  }
-
-  /**
-   * Moves the given entity in it's viewing direction.
-   *
-   * <p>One move equals one tile.
-   *
-   * @param entity Entity to move in its viewing direction.
-   */
-  public void move(final Entity entity) {
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(entity));
-    move(viewDirection, entity);
-  }
-
-  /**
-   * Rotate the hero in a specific direction.
-   *
-   * @param direction Direction in which the hero will be rotated.
-   */
-  public void rotateHero(final Direction direction) {
-    if (direction == Direction.UP || direction == Direction.DOWN) {
-      return; // no rotation
-    }
-    Entity hero = hero();
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
-    Direction newDirection =
-        switch (viewDirection) {
-          case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
-          case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
-          case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
-          case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
-          default -> throw new IllegalArgumentException("Can not rotate in " + viewDirection);
-        };
-    turnEntity(hero, newDirection);
-    waitDelta();
-  }
-
-  private void waitDelta() {
+  public static void waitDelta() {
     long timeout = (long) (Gdx.graphics.getDeltaTime() * 1000);
     try {
       TimeUnit.MILLISECONDS.sleep(timeout - 1);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  /**
-   * Check if the next tile in the given direction is an instance from the given class.
-   *
-   * @param tileClass Tile-Class to check for.
-   * @param direction Direction to check
-   * @return Returns true if the hero is null or the target tile is from the given class. Otherwise,
-   *     returns false.
-   */
-  public boolean isNearTile(Class<? extends Tile> tileClass, final Direction direction) {
-    Coordinate heroCoords = EntityUtils.getHeroCoordinate();
-    if (heroCoords == null) {
-      return true;
-    }
-    Direction toCheck = directionBasedOnViewdirection(direction);
-    Coordinate targetCoords = heroCoords.add(new Coordinate(toCheck.x(), toCheck.y()));
-    Tile targetTile = Game.tileAT(targetCoords);
-    if (targetTile == null) {
-      return false;
-    }
-    return tileClass.isInstance(targetTile);
-  }
-
-  /**
-   * Check if on the next tile in the given direction an entity with the given component exist.
-   *
-   * @param componentClass Component-Class to check for.
-   * @param direction Direction to check
-   * @return Returns true if the hero is null or a entity with the given component was detected.
-   *     Otherwise, returns false.
-   */
-  public boolean isNearComponent(
-      Class<? extends Component> componentClass, final Direction direction) {
-    Coordinate heroCoords = EntityUtils.getHeroCoordinate();
-    if (heroCoords == null) {
-      return true;
-    }
-    Direction toCheck = directionBasedOnViewdirection(direction);
-    Coordinate targetCoords = heroCoords.add(new Coordinate(toCheck.x(), toCheck.y()));
-    Tile targetTile = Game.tileAT(targetCoords);
-    if (targetTile == null) {
-      return false;
-    }
-
-    return Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(componentClass));
-  }
-
-  /**
-   * Determines whether the specified direction leads to an active state.
-   *
-   * <p>A tile in the given direction is considered active if:
-   *
-   * <p>It is a {@link DoorTile} and is open.
-   *
-   * <p>It contains at least one {@link LeverComponent}, and all found levers are in the "on" state.
-   *
-   * @param direction the direction to check relative to the hero's position.
-   * @return {@code true} if the tile in the given direction is active, {@code false} otherwise.
-   */
-  public boolean active(final Direction direction) {
-    Tile targetTile = Game.tileAT(EntityUtils.getHeroPosition().add(direction.toPoint()));
-    if (targetTile instanceof DoorTile) return ((DoorTile) targetTile).isOpen();
-    return Game.entityAtTile(targetTile)
-        .flatMap(e -> e.fetch(LeverComponent.class).stream())
-        .allMatch(LeverComponent::isOn);
-  }
-
-  /**
-   * Get the current position of the hero in the dungeon.
-   *
-   * @return Returns a position component which contains the x and y coordinates of the hero in the
-   *     dungeon.
-   */
-  public PositionComponent getHeroPosition() {
-    Entity hero = hero();
-    return hero.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-  }
-
-  /**
-   * Shoots a fireball in direction the hero is facing.
-   *
-   * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
-   */
-  public void shootFireball() {
-    hero().fetch(AmmunitionComponent.class).stream()
-        .filter(AmmunitionComponent::checkAmmunition)
-        .forEach(ac -> aimAndShoot(ac));
-  }
-
-  /**
-   * Shoots a fireball in direction the hero is facing.
-   *
-   * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
-   */
-  private void aimAndShoot(AmmunitionComponent ac) {
-    Entity hero = hero();
-    utils.Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
-    Skill fireball =
-        new Skill(
-            new FireballSkill(
-                () ->
-                    hero.fetch(CollideComponent.class)
-                        .map(cc -> cc.center(hero))
-                        .map(p -> p.add(viewDirection.toPoint()))
-                        .orElseThrow(
-                            () -> MissingComponentException.build(hero, CollideComponent.class)),
-                FIREBALL_RANGE,
-                FIREBALL_SPEED,
-                FIREBALL_DMG),
-            1);
-    fireball.execute(hero);
-    ac.spendAmmo();
-    waitDelta();
-  }
-
-  /** Triggers each interactable in front of the hero. */
-  public void interact() {
-    Entity hero = hero();
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
-    Game.entityAtTile(inFront)
-        .forEach(
-            entity ->
-                entity
-                    .fetch(InteractionComponent.class)
-                    .ifPresent(
-                        interactionComponent ->
-                            interactionComponent.triggerInteraction(entity, hero)));
-  }
-
-  /**
-   * Triggers the interaction (normally a pickup action) for each Entity with an {@link
-   * ItemComponent} at the same tile as the hero.
-   */
-  public void pickup() {
-    Game.entityAtTile(Game.tileAT(EntityUtils.getHeroCoordinate()))
-        .filter(e -> e.isPresent(BlocklyItemComponent.class))
-        .forEach(
-            item ->
-                item.fetch(InteractionComponent.class)
-                    .ifPresent(ic -> ic.triggerInteraction(item, hero())));
-  }
-
-  /**
-   * Drop an Blockly-Item at the heros position.
-   *
-   * @param item Name of the item to drop
-   */
-  public void dropItem(String item) {
-    switch (item) {
-      case "Brotkrumen" -> Game.add(MiscFactory.breadcrumb(getHeroPosition().position()));
-      case "Kleeblatt" -> Game.add(MiscFactory.clover(getHeroPosition().position()));
-      default ->
-          throw new IllegalArgumentException("Can not convert " + item + " to droppable Item.");
-    }
-  }
-
-  /** Moves the Hero to the Exit Block of the current Level. */
-  public void moveToExit() {
-    if (Game.currentLevel().exitTiles().isEmpty()) return;
-    Entity hero = hero();
-    Tile exitTile = Game.currentLevel().exitTiles().getFirst();
-
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    GraphPath<Tile> pathToExit =
-        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
-
-    for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(pc.position().toCoordinate());
-      if (currentTile != nextTile) {
-        PositionComponent.Direction viewDirection = EntityUtils.getViewDirection(hero);
-        PositionComponent.Direction targetDirection =
-            convertTileDirectionToPosDirection(currentTile.directionTo(nextTile)[0]);
-        while (viewDirection != targetDirection) {
-          rotateHero(Direction.RIGHT);
-          viewDirection = EntityUtils.getViewDirection(hero);
-        }
-        move();
-      }
-    }
-  }
-
-  /** Attempts to push entities in front of the hero. */
-  public void push() {
-    movePushable(true);
-  }
-
-  /** Attempts to pull entities in front of the hero. */
-  public void pull() {
-    movePushable(false);
-  }
-
-  /**
-   * Attempts to pull or push entities in front of the hero.
-   *
-   * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
-   * the player (for pull) or in front of the entities (for push) is accessible. If accessible, the
-   * hero and the entity are moved simultaneously in the corresponding direction.
-   *
-   * <p>The pulled/pushed entity temporarily loses its blocking component while moving and regains
-   * it after.
-   *
-   * @param push True if you want to push, false if you want to pull.
-   */
-  private void movePushable(boolean push) {
-    Entity hero = hero();
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    PositionComponent.Direction viewDirection = heroPC.viewDirection();
-    Tile inFront = Game.tileAT(heroPC.position(), viewDirection);
-    Tile checkTile;
-    Direction moveDirection;
-    if (push) {
-      checkTile = Game.tileAT(inFront.position(), viewDirection);
-      moveDirection = Direction.fromPositionCompDirection(viewDirection);
-    } else {
-      checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
-      moveDirection = Direction.fromPositionCompDirection(viewDirection.opposite());
-    }
-    if (!checkTile.isAccessible()
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(AIComponent.class))) return;
-    ArrayList<Entity> toMove =
-        new ArrayList<>(
-            Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
-    if (toMove.isEmpty()) return;
-
-    // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
-    toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    toMove.add(hero);
-    move(moveDirection, toMove.toArray(Entity[]::new));
-    toMove.remove(hero);
-    // give BlockComponent back
-    toMove.forEach(
-        entity -> {
-          entity.add(new BlockComponent());
-        });
-    turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
-    waitDelta();
-  }
-
-  /**
-   * Turns the given entity in a specific direction.
-   *
-   * <p>This will also update the animation.
-   *
-   * <p>This does not call {@link #waitDelta()}.
-   *
-   * @param entity Entity to turn.
-   * @param direction direction to turn to.
-   */
-  public void turnEntity(Entity entity, Direction direction) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Point oldP = pc.position();
-    vc.currentXVelocity(direction.x());
-    vc.currentYVelocity(direction.y());
-    // so the player can not glitch inside the next tile
-    pc.position(oldP);
-  }
-
-  private PositionComponent.Direction convertTileDirectionToPosDirection(Tile.Direction direction) {
-    return switch (direction) {
-      case W -> PositionComponent.Direction.LEFT;
-      case E -> PositionComponent.Direction.RIGHT;
-      case N -> PositionComponent.Direction.UP;
-      case S -> PositionComponent.Direction.DOWN;
-    };
-  }
-
-  /**
-   * Transforms a relative direction into a world direction based on the hero's current view
-   * direction.
-   *
-   * <p>For example, if the hero is looking to the RIGHT and wants to check LEFT (relative to their
-   * view), the resulting direction would be UP in world coordinates.
-   *
-   * @param direction The direction to check relative to the hero's current view.
-   * @return The translated direction in world coordinates.
-   */
-  private Direction directionBasedOnViewdirection(Direction direction) {
-    PositionComponent.Direction heroViewDirection = EntityUtils.getViewDirection(hero());
-    return switch (direction) {
-      case LEFT ->
-          switch (heroViewDirection) {
-            case UP -> Direction.LEFT;
-            case DOWN -> Direction.RIGHT;
-            case RIGHT -> Direction.UP;
-            case LEFT -> Direction.DOWN;
-          };
-      case RIGHT ->
-          switch (heroViewDirection) {
-            case UP -> Direction.RIGHT;
-            case DOWN -> Direction.LEFT;
-            case RIGHT -> Direction.DOWN;
-            case LEFT -> Direction.UP;
-          };
-      case DOWN ->
-          switch (heroViewDirection) {
-            case UP -> Direction.DOWN;
-            case DOWN -> Direction.UP;
-            case RIGHT -> Direction.LEFT;
-            case LEFT -> Direction.RIGHT;
-          };
-      case UP -> Direction.fromPositionCompDirection(heroViewDirection);
-      case HERE -> Direction.HERE;
-    };
-  }
-
-  /*
-   * Get the hero from the game.
-   *
-   * @return The hero.
-   */
-  private Entity hero() {
-    return Game.hero().orElseThrow(() -> new MissingHeroException());
   }
 }

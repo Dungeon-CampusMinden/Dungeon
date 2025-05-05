@@ -8,7 +8,7 @@ import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
-import server.Server;
+import utils.BlocklyCommands;
 import utils.Direction;
 
 /**
@@ -43,11 +43,11 @@ public class HeroTankControlledFactory {
     // Add rotation controls
     pc.registerCallback(
         KeyboardConfig.MOVEMENT_LEFT.value(),
-        (entity) -> Server.instance().rotateHero(Direction.LEFT),
+        (entity) -> BlocklyCommands.rotate(Direction.LEFT),
         false);
     pc.registerCallback(
         KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (entity) -> Server.instance().rotateHero(Direction.RIGHT),
+        (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
         false);
 
     return hero;
