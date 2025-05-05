@@ -1,9 +1,5 @@
 package utils.pathfinding;
 
-import com.badlogic.gdx.ai.pfa.DefaultGraphPath;
-import com.badlogic.gdx.ai.pfa.GraphPath;
-import core.Game;
-import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Tuple;
 import java.util.*;
