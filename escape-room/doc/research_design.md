@@ -73,10 +73,7 @@ Escape-Room-Anbieter schreibt über den Prozess im eigenen Blog.
 
 ### [Escape Room Design Blueprint](https://lockpaperscissors.co/escape-room-design-blueprint)
 
-Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik bis Essen alles dabei.
-Die Arbeitsanweisungen sind nur lose sortiert.
-
-TODO die fehlenden anleitungen abklappern/ausmisten
+Die Autoren verkaufen Escape-Room-Boxes für Feiern (und Unterricht, die Anleitung ist aber nicht darauf ausgerichtet). Die Anleitung ist nicht methodisch und nur lose strukturiert, dafür hat sie eine große Spannweite bis hin zu Musik und Essen. Für Ideenfindung und Orientierung lohnt sich ein Blick darein vielleicht trotzdem.
 
 # Zusammestellung des Workflows zur Erstellung eines Escape-Rooms
 
