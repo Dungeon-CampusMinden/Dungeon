@@ -2,10 +2,6 @@
 title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Design"
 ---
 
-# Welche Erwartungen werden an den Prozess gestellt?
-
-Lehrende starten vermutlich in erster Linie mit einem Lerninhalt. Die Findung der Geschichte und geeigneter Rätsel ist ein [komplexes Problem](https://de.wikipedia.org/wiki/Komplexes_Problem), das sich nicht allein mit Software lösen lassen wird. Eine einfache, aber beschränkte Lösung ist die Vorauswahl von Schablonen "von der Stange". Alternativ oder zusätzlich sollte es einen Prozess geben, der die Erstellung von "funktionierenden" Escape-Rooms begünstigt.
-
 # Wie funktioniert das Design bei existierenden Lösungen?
 
 Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwartet wird, um damit Escape-Rooms zu erstellen.
