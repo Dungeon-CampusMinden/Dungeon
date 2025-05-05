@@ -88,11 +88,11 @@ public class Chapter15Level extends BlocklyLevel {
     guardBuilder.build();
     guardBuilder.range(5);
     guardBuilder.viewDirection(PositionComponent.Direction.UP);
-    guardBuilder.spawnPoint(m2C.toCenteredPoint());
+    guardBuilder.spawnPoint(m3C.toCenteredPoint());
     guardBuilder.build();
     guardBuilder.range(5);
     guardBuilder.viewDirection(PositionComponent.Direction.UP);
-    guardBuilder.spawnPoint(m2C.toCenteredPoint());
+    guardBuilder.spawnPoint(m4C.toCenteredPoint());
     guardBuilder.build();
   }
 
