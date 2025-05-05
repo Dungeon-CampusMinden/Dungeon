@@ -6,13 +6,9 @@ title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Design"
 
 Lehrende starten vermutlich in erster Linie mit einem Lerninhalt. Die Findung der Geschichte und geeigneter Rätsel ist ein [komplexes Problem](https://de.wikipedia.org/wiki/Komplexes_Problem), das sich nicht allein mit Software lösen lassen wird. Eine einfache, aber beschränkte Lösung ist die Vorauswahl von Schablonen "von der Stange". Alternativ oder zusätzlich sollte es einen Prozess geben, der die Erstellung von "funktionierenden" Escape-Rooms begünstigt.
 
-TODO gibt's das in 'substanzieller'?
-
 # Wie funktioniert das Design bei existierenden Lösungen?
 
 Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwartet wird, um damit Escape-Rooms zu erstellen.
-
-TODO In su2024review gibt es eine Kategorie "Evidence-centered design". Die dort zitierten Paper von Song und Shute aus dieser Kategorie beziehen sich auf Lernspiele mit "8th and 9th graders" und "middle school". Die "Evidence" kommt von in die Spiele eingebauter Datensammlung.
 
 ## [EscapeIF](#escapeif)
 
