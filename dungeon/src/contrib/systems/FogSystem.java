@@ -130,7 +130,6 @@ public class FogSystem extends System {
     this.active = active;
 
     if (!active) {
-      revert();
       reset();
     }
   }
