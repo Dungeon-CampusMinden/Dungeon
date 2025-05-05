@@ -30,7 +30,7 @@ public class Chapter12Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.remove(FogSystem.class);
+    LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);

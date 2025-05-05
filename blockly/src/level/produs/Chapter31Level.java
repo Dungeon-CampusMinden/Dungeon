@@ -29,7 +29,7 @@ public class Chapter31Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.add(new FogSystem());
+    LevelManagementUtils.fog(true);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();

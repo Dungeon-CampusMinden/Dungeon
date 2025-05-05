@@ -30,7 +30,7 @@ public class Chapter32Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.remove(FogSystem.class);
+    LevelManagementUtils.fog(false);
     if (showText) {
       DialogUtils.showTextPopup(
           "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");

@@ -34,7 +34,7 @@ public class Chapter13Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.remove(FogSystem.class);
+    LevelManagementUtils.fog(false);
     if (showText) {
       DialogUtils.showTextPopup(
           "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",

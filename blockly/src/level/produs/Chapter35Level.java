@@ -45,7 +45,7 @@ public class Chapter35Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    Game.remove(FogSystem.class);
+    LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 11));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();

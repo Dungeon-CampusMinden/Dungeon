@@ -42,7 +42,7 @@ public class Chapter17Level extends BlocklyLevel {
       showText = false;
     }
 
-    Game.remove(FogSystem.class);
+    LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
     LevelManagementUtils.centerHero();
