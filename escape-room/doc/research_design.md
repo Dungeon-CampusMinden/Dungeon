@@ -52,7 +52,7 @@ Folgende abstrakte (und übertragbare) Schritte werden angegeben:
 
 ## Außerhalb der Lehre
 
-## [Interview mit Escape-Room-Designer](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
+### [Interview mit Escape-Room-Designer](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
 
 Es geht um das Design kommerzieller Escape-Rooms.
 
@@ -60,7 +60,7 @@ Es geht um das Design kommerzieller Escape-Rooms.
 >
 > I work with a team. We sketch out ideas on paper or using digital drawing tools and 3-D design programs. Once we have our prototypes, or early versions, of the puzzles, we test and rework them. This process is known as iteration, and it’s the most important part of game development. The next step is to construct the actual room that will make players feel immersed in the game.
 
-## [The Process of Designing an Escape Room](https://reddoorescape.com/blog-the-process-of-designing-an-escape-room/)
+### [The Process of Designing an Escape Room](https://reddoorescape.com/blog-the-process-of-designing-an-escape-room/)
 
 Escape-Room-Anbieter schreibt über den Prozess im eigenen Blog.
 
@@ -71,7 +71,7 @@ Escape-Room-Anbieter schreibt über den Prozess im eigenen Blog.
 > 3. DESIGN YOUR PUZZLES AND GAMEFLOW
 > ..
 
-## [Escape Room Design Blueprint](https://lockpaperscissors.co/escape-room-design-blueprint)
+### [Escape Room Design Blueprint](https://lockpaperscissors.co/escape-room-design-blueprint)
 
 Die Autoren verkaufen Escape-Room-Boxes für Feiern. Langes Dokument. Von Musik bis Essen alles dabei.
 Die Arbeitsanweisungen sind nur lose sortiert.

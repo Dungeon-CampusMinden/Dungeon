@@ -82,7 +82,7 @@ Hervorzuheben ist hier auch der etwas andere Ansatz zum Vermitteln von Inhalten 
 
 Das gemeinschaftliche Lernen findet in der Nachbesprechung statt - wie der Escape-Room genau aussieht steht nicht unbedingt im Mittelpunkt.
 
-### Ergebnisse außerhalb der Wissenschaft
+## Ergebnisse außerhalb der Wissenschaft
 
 Sammlung in [separatem Dokument](./research_other.md#solutions)
 
