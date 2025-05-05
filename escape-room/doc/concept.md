@@ -96,10 +96,8 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 2. Übung / Anwendung von Wissen und Fähigkeiten
   - Wiederholung einzelner Puzzle sinnvoll?
 3. Überprüfung von Wissen und Fähigkeiten
-  - erstmal kein wichtiges Ziel dieses Projekts
-
-NOTE im antrag steht "wird [..] um [..] Elemente [..] wie u.a. [..] Bewertungskonzept [..] ergänzt.
-rückmeldung dazu: überprüfung erstmal sein lassen
+  - aus dem Antrag: "wird [..] um [..] Elemente [..] wie u.a. [..] Bewertungskonzept [..] ergänzt"
+  - Absprache dazu: erstmal kein wichtiges Ziel dieses Projekts
 
 Brauchen wir ein Learner-Model?
 
