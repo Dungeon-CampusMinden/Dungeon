@@ -14,13 +14,14 @@ import core.utils.components.MissingComponentException;
 import java.util.*;
 
 /**
- * The FogOfWarSystem class is responsible for controlling the fog of war in the game.
+ * The FogSystem class is responsible for controlling the fog in the game.
  *
- * <p>The fog of war is a game mechanic where areas of the game world that are not in the player's
- * line of sight are obscured. This class maintains a set of tiles that are currently darkened (not
- * visible to the player) and a list of entities that are hidden. It also keeps track of the last
- * known position of the hero (player character) and whether the fog of war system is currently
- * active.
+ * <p>The fog is a game mechanic where areas of the game world that are not in the player's line of
+ * sight are obscured. This class maintains a set of tiles that are currently darkened (not visible
+ * to the player) and a list of entities that are hidden. It also keeps track of the last known
+ * position of the hero (player character) and whether the fog system is currently active.
+ *
+ * @author Flamtky (for the DevDungeon)
  */
 public class FogSystem extends System {
   private static final int DISTANCE_TRANSITION_SIZE = 2; // size of distance transition (in tiles)
@@ -45,11 +46,11 @@ public class FogSystem extends System {
   private boolean active = true;
 
   /**
-   * Resets the FogOfWarSystem.
+   * Resets the FogSystem.
    *
    * <p>This method clears the sets of darkened tiles and hidden entities.
    *
-   * @param revert If true, the FogOfWarSystem will also revert to its initial state.
+   * @param revert If true, the FogSystem will also revert to its initial state.
    * @see #reset()
    * @see #revert()
    */
@@ -62,11 +63,11 @@ public class FogSystem extends System {
   }
 
   /**
-   * Resets the FogOfWarSystem to its initial state.
+   * Resets the FogSystem to its initial state.
    *
    * <p>This method clears the sets of darkened tiles and hidden entities, and resets the last known
    * hero position. The last known hero position is set to the current hero's position if a hero
-   * exists, otherwise it is set to (0,0). This method also reverts the FogOfWarSystem to its
+   * exists, otherwise it is set to (0,0). This method also reverts the FogSystem to its
    *
    * @see #revert()
    */
@@ -74,21 +75,21 @@ public class FogSystem extends System {
     reset(true);
   }
 
-  /** Reverts the FogOfWarSystem. This reveals all darkened tiles and hidden entities. */
+  /** Reverts the FogSystem. This reveals all darkened tiles and hidden entities. */
   public void revert() {
     revertTilesBackToLight(darkenedTiles.keySet().stream().toList());
     revealHiddenEntities();
   }
 
   /**
-   * Sets the view distance of the FogOfWarSystem.
+   * Sets the view distance of the FogSystem.
    *
    * <p>The view distance is the range of tiles that are fully visible to the player. The view
    * distance is used to calculate the tint color of tiles that are beyond the view distance.
    *
    * <p>NOTE: it can't be greater than the {@link #MAX_VIEW_DISTANCE maximum view distance}.
    *
-   * @param newViewDistance The new view distance of the FogOfWarSystem.
+   * @param newViewDistance The new view distance of the FogSystem.
    * @throws IllegalArgumentException if the view distance is greater than the maximum view distance
    *     or less than 0.
    */
@@ -101,30 +102,29 @@ public class FogSystem extends System {
   }
 
   /**
-   * Returns the current view distance of the FogOfWarSystem.
+   * Returns the current view distance of the FogSystem.
    *
-   * @return The current view distance of the FogOfWarSystem.
+   * @return The current view distance of the FogSystem.
    */
   public static int currentViewDistance() {
     return currentViewDistance;
   }
 
   /**
-   * Checks if the FogOfWarSystem is active.
+   * Checks if the FogSystem is active.
    *
-   * @return true if the FogOfWarSystem is active, false otherwise.
+   * @return true if the FogSystem is active, false otherwise.
    */
   public boolean active() {
     return active;
   }
 
   /**
-   * Sets the active state of the FogOfWarSystem.
+   * Sets the active state of the FogSystem.
    *
-   * <p>If the FogOfWarSystem is set to inactive, it also resets the FogOfWarSystem to its initial
-   * state.
+   * <p>If the FogSystem is set to inactive, it also resets the FogSystem to its initial state.
    *
-   * @param active The new active state of the FogOfWarSystem.
+   * @param active The new active state of the FogSystem.
    */
   public void active(boolean active) {
     this.active = active;
@@ -285,7 +285,7 @@ public class FogSystem extends System {
     if (!active) return;
 
     Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) return; // no hero, no fog of war
+    if (heroPos == null) return; // no hero, no fog
 
     List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
     // Revert all darkened tiles back to light that are not in view
@@ -332,7 +332,7 @@ public class FogSystem extends System {
     // Revert all visible tiles back to light
     revertTilesBackToLight(visibleTiles);
 
-    // Hide entities in the fog of war
+    // Hide entities in the fog
     hideAllHiddenEntities();
 
     // Reveal entities in the visible area
@@ -340,10 +340,10 @@ public class FogSystem extends System {
   }
 
   /**
-   * Updates the tile in the fog of war system.
+   * Updates the tile in the fog system.
    *
-   * <p>This method updates the tile in the fog of war system. If the old tile is darkened, the tint
-   * color is transferred to the new tile. This happens after {@link
+   * <p>This method updates the tile in the fog system. If the old tile is darkened, the tint color
+   * is transferred to the new tile. This happens after {@link
    * core.level.elements.ILevel#changeTileElementType(Tile, LevelElement) changing the tile element
    * type}.
    *
