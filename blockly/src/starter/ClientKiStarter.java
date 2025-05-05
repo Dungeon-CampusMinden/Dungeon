@@ -25,7 +25,7 @@ import utils.pathfinding.DFSPathFinding;
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
  * have any effect
  */
-public class ClientKiStarter {
+public class KiStarter {
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   /**
