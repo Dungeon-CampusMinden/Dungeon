@@ -1,13 +1,11 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.MissingHeroException;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -58,18 +56,24 @@ public class Chapter12Level extends BlocklyLevel {
           "Kapitel 1: Ausbruch");
       showText = false;
     }
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(0), PositionComponent.Direction.LEFT, 3));
-    customPoints().remove(0);
-    customPoints().forEach(coordinate -> Game.add(BlocklyMonsterFactory.hedgehog(coordinate)));
 
-    System.out.println(
-        "View direction after first tick "
-            + Game.hero()
-                .orElseThrow(MissingHeroException::new)
-                .fetch(PositionComponent.class)
-                .orElseThrow()
-                .viewDirection());
+    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
+    guardBuilder.range(3);
+    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.addToGame();
+    guardBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
+    guardBuilder.build().orElseThrow();
+    customPoints().remove(0);
+
+    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    hedgehogBuilder.range(0);
+    customPoints()
+        .forEach(
+            coordinate -> {
+              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+              hedgehogBuilder.addToGame();
+              hedgehogBuilder.build();
+            });
   }
 
   @Override

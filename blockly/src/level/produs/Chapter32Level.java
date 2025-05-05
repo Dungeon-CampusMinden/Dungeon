@@ -1,12 +1,11 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -54,7 +53,16 @@ public class Chapter32Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
-    customPoints().forEach(c -> Game.add(BlocklyMonsterFactory.hedgehog(c)));
+    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    hedgehogBuilder.range(0);
+    hedgehogBuilder.addToGame();
+
+    customPoints()
+        .forEach(
+            coordinate -> {
+              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+              hedgehogBuilder.build();
+            });
   }
 
   @Override

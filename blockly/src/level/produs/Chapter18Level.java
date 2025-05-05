@@ -11,7 +11,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -65,9 +65,17 @@ public class Chapter18Level extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
-    Game.add(BlocklyMonsterFactory.guard(customPoints().get(7), PositionComponent.Direction.UP, 5));
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(8), PositionComponent.Direction.LEFT, 5));
+
+    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
+    guardBuilder.addToGame();
+    guardBuilder.range(5);
+    guardBuilder.viewDirection(PositionComponent.Direction.UP);
+    guardBuilder.spawnPoint(customPoints().get(7).toCenteredPoint());
+    guardBuilder.build();
+    guardBuilder.range(5);
+    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
+    guardBuilder.build();
 
     Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());

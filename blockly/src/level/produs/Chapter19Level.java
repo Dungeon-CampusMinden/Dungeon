@@ -6,7 +6,7 @@ import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -64,9 +64,16 @@ public class Chapter19Level extends BlocklyLevel {
     }
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(2)));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(3)));
-    Game.add(BlocklyMonsterFactory.hedgehog(customPoints().get(4)));
+
+    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    hedgehogBuilder.range(0);
+    hedgehogBuilder.addToGame();
+    hedgehogBuilder.spawnPoint(customPoints().get(2).toCenteredPoint());
+    hedgehogBuilder.build();
+    hedgehogBuilder.spawnPoint(customPoints().get(3).toCenteredPoint());
+    hedgehogBuilder.build();
+    hedgehogBuilder.spawnPoint(customPoints().get(4).toCenteredPoint());
+    hedgehogBuilder.build();
   }
 
   @Override

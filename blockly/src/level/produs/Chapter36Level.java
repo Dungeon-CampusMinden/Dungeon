@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
@@ -13,7 +14,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -58,15 +59,20 @@ public class Chapter36Level extends BlocklyLevel {
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
     Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).close());
 
-    boss =
-        BlocklyMonsterFactory.knight(
-            customPoints().get(0),
-            PositionComponent.Direction.LEFT,
+    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
+    bossBuilder.range(0);
+    bossBuilder.addToGame();
+    bossBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
+
+    boss = bossBuilder.build().orElseThrow();
+    boss.fetch(HealthComponent.class)
+        .orElseThrow()
+        .onDeath(
             entity -> {
               DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
               boss = null;
             });
-    Game.add(boss);
     bossVC =
         boss.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, VelocityComponent.class));

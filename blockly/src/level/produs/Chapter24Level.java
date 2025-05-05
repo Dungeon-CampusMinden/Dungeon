@@ -10,7 +10,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -72,11 +72,16 @@ public class Chapter24Level extends BlocklyLevel {
         .orElseThrow()
         .currentAmmunition(4);
     final int[] counter = {0};
+    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    hedgehogBuilder.range(0);
+    hedgehogBuilder.addToGame();
+
     customPoints()
         .forEach(
             coordinate -> {
               if (counter[0] == 0 || random.nextBoolean()) {
-                Game.add(BlocklyMonsterFactory.hedgehog(coordinate));
+                hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+                hedgehogBuilder.build();
                 counter[0]++;
               }
             });

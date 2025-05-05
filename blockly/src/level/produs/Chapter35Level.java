@@ -12,7 +12,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -85,8 +85,12 @@ public class Chapter35Level extends BlocklyLevel {
     // BOSS
     Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
     c.x -= 1;
-    boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.LEFT, entity -> {});
-    Game.add(boss);
+    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
+    bossBuilder.range(0);
+    bossBuilder.addToGame();
+    bossBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    bossBuilder.spawnPoint(c.toCenteredPoint());
+    boss = bossBuilder.build().orElseThrow();
     bossPC =
         boss.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));

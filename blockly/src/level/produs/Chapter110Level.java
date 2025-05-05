@@ -5,7 +5,7 @@ import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -58,16 +58,21 @@ public class Chapter110Level extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(4).toCenteredPoint()));
 
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(5), PositionComponent.Direction.DOWN, 5));
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(6), PositionComponent.Direction.RIGHT, 5));
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(7), PositionComponent.Direction.RIGHT, 5));
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(8), PositionComponent.Direction.DOWN, 5));
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(9), PositionComponent.Direction.DOWN, 5));
+    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
+    guardBuilder.addToGame();
+    guardBuilder.range(5);
+    guardBuilder.viewDirection(PositionComponent.Direction.DOWN);
+    guardBuilder.spawnPoint(customPoints().get(5).toCenteredPoint());
+    guardBuilder.build();
+    guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
+    guardBuilder.build();
+    guardBuilder.spawnPoint(customPoints().get(9).toCenteredPoint());
+    guardBuilder.build();
+    guardBuilder.viewDirection(PositionComponent.Direction.RIGHT);
+    guardBuilder.spawnPoint(customPoints().get(6).toCenteredPoint());
+    guardBuilder.build();
+    guardBuilder.spawnPoint(customPoints().get(7).toCenteredPoint());
+    guardBuilder.build();
   }
 
   @Override

@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.components.HealthComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
@@ -11,7 +12,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyMonsterFactory;
+import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -97,14 +98,25 @@ public class Chapter111Level extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(8).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(9).toCenteredPoint()));
 
-    Game.add(
-        BlocklyMonsterFactory.guard(customPoints().get(10), PositionComponent.Direction.LEFT, 5));
-    Game.add(
-        BlocklyMonsterFactory.knight(
-            customPoints().get(11),
-            PositionComponent.Direction.UP,
-            entity -> DialogUtils.showTextPopup("AHHHH! Nein! Ich krieg dich noch!", "FREIHEIT")));
+    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
+    guardBuilder.addToGame();
+    guardBuilder.range(5);
+    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.spawnPoint(customPoints().get(10).toCenteredPoint());
+    guardBuilder.build();
 
+    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
+    bossBuilder.range(0);
+    bossBuilder.addToGame();
+    bossBuilder.viewDirection(PositionComponent.Direction.UP);
+    bossBuilder.spawnPoint(customPoints().get(11).toCenteredPoint());
+    Entity boss = bossBuilder.build().orElseThrow();
+    boss.fetch(HealthComponent.class)
+        .orElseThrow()
+        .onDeath(
+            entity -> {
+              DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
+            });
     door1 = (DoorTile) Game.tileAT(new Coordinate(4, 9));
     door2 = (DoorTile) Game.tileAT(new Coordinate(14, 8));
     door1.close();
