@@ -101,6 +101,11 @@ Nun kann die Executable erstellt werden. Hier sind zwei Beispiele für verschied
     ```bash
     deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.bin webserver.ts
     ```
+3. *Mac (arm64):**
+    ```bash
+    deno compile --target aarch64-apple-darwin --allow-net --allow-read --allow-run --no-npm --output blockly_macos_arm64 webserver.ts
+    ```
+
 
 Weitere unterstützte Zielplattformen finden Sie in der [Deno Dokumentation](https://docs.deno.com/runtime/reference/cli/compile/#supported-targets).
 
@@ -126,3 +131,16 @@ Nach dem Erstellen der Executable müssen folgende Dateien in den `content`-Ordn
         ```
 
 Nun kann die Executable gestartet werden. Die erstellte Executable startet einen Webserver, welcher die Blockly-Oberfläche lädt und auch den Blockly-Dungeon in Java öffnet (dazu muss Java 21 oder höher installiert sein). Die Executable muss sich im selben Verzeichnis wie der `content`-Ordner befinden.
+
+Unter macOS (arm64) muss die Executable vorher freigegeben werden.  
+Dafür im Verzeichnis ein Terminal öffnen und:
+
+1. `sudo xattr -rd com.apple.quarantine blockly_macos_arm64` ausführen
+2. `chmod +x blockly_macos_arm64` ausführen
+
+Ab dann kann das Spiel mit  
+`./blockly_macos_arm64`  
+über das Terminal gestartet werden.
+
+Evtl. die Webseite einmal neu laden, damit die Verbindung zum Dungeon korrekt läuft.
+
