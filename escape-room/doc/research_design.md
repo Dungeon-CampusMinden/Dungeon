@@ -27,6 +27,29 @@ Hier gibt es eine eigene Sammlung von Anleitungen, die auf analoge Spiele mit Gr
 
 > For a one-hour game, it is recommended to have 1-3 learning outcomes (EscapeIF)
 
+## [EscapED](research_science.md#escaped)
+
+In dem Artikel zu dem Design von Escape-Rooms im Rahmen von EscapED werden unter Angabe der wissenschaftlichen Einflüsse, folgende Stufen des Designs festgelegt:
+
+- "Participants" (Publikum, Zeit, Schwierigkeit)
+- "Objectives" (Lernziele)
+- "Theme" (Narrativ)
+- "Puzzles" (Puzzles, Anweisungen, Hinweise)
+- "Equipment" (Einrichtung der Lokalität, benötigte Gegenstände, Akteure)
+- "Evaluation" (Testen, Reflektieren, Abgleich mit Lernzielen, Anpassen, Zurücksetzen)
+
+## Guideline to Creating a Virtual Escape Room
+
+Bei GameChangers (gchangers.org) veröffentlicher Artikel "A Guideline to Creating a Virtual Escape Room (VER) in Microsoft Teams and Zoom".
+Folgende abstrakte (und übertragbare) Schritte werden angegeben:
+
+> 1. Ideation – Determining what your game is about.
+> 2. Research – Researching the subject of your game.
+> 3. Conceptualisation – Creating the storyline and characters utilised within your game.
+> 4. Game Design – Designing puzzles and educational materials for inclusion within your game.
+> 5. Content Creation – Creating the content and forming the platform of your game.
+> 6. Quality Assurance – Testing and improving your game.
+
 ## Außerhalb der Lehre
 
 ## [Interview mit Escape-Room-Designer](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
