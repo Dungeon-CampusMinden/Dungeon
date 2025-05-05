@@ -52,13 +52,13 @@ public class FogSystem extends System {
    *
    * @param revert If true, the FogSystem will also revert to its initial state.
    * @see #reset()
-   * @see #revert()
+   * @see #revealAll()
    */
   public void reset(boolean revert) {
     darkenedTiles.clear();
     hiddenEntities.clear();
     if (revert) {
-      revert();
+      revealAll();
     }
   }
 
@@ -69,14 +69,14 @@ public class FogSystem extends System {
    * hero position. The last known hero position is set to the current hero's position if a hero
    * exists, otherwise it is set to (0,0). This method also reverts the FogSystem to its
    *
-   * @see #revert()
+   * @see #revealAll()
    */
   public void reset() {
     reset(true);
   }
 
   /** Reverts the FogSystem. This reveals all darkened tiles and hidden entities. */
-  public void revert() {
+  public void revealAll() {
     revertTilesBackToLight(darkenedTiles.keySet().stream().toList());
     revealHiddenEntities();
   }
