@@ -1,7 +1,6 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -18,7 +17,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonsterFactory;
 import java.util.List;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
@@ -59,12 +57,9 @@ public class Chapter36Level extends BlocklyLevel {
         BlocklyMonsterFactory.knight(
             customPoints().get(0),
             PositionComponent.Direction.LEFT,
-            new Consumer<Entity>() {
-              @Override
-              public void accept(Entity entity) {
-                DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
-                boss = null;
-              }
+            entity -> {
+              DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
+              boss = null;
             });
     Game.add(boss);
     bosspc = boss.fetch(PositionComponent.class).get();

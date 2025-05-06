@@ -2,7 +2,6 @@ package level.produs;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.systems.FogSystem;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;

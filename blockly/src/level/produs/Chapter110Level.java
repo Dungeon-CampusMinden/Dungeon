@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.systems.FogSystem;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;

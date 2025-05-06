@@ -1,8 +1,6 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import contrib.systems.FogSystem;
-import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;

@@ -3,7 +3,6 @@ package level.produs;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;

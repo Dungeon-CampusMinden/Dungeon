@@ -1315,6 +1315,7 @@ public class Server {
     }
     Object[] args = convertActionToArguments(action);
     String actionName = action.substring(0, action.indexOf("("));
+    waitDelta();
     switch (actionName) {
       case "gehe" -> BlocklyCommands.move();
       case "drehe" -> {
