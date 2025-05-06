@@ -273,6 +273,17 @@ public final class Game {
   }
 
   /**
+   * If a system instance of the specified type is present, performs the given action on it.
+   *
+   * @param <T> the type of the system, which must extend {@link System}
+   * @param s the class object of the desired system type
+   * @param c the {@link Consumer} to execute with the system instance if present
+   */
+  public static <T extends System> void system(Class<T> s, Consumer<T> c) {
+    ECSManagment.system(s, c);
+  }
+
+  /**
    * Remove all registered systems from the game.
    *
    * <p>Will trigger {@link System#onEntityRemove} for each entity in each system.

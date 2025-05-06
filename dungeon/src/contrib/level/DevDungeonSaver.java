@@ -1,7 +1,5 @@
-package level.utils;
+package contrib.level;
 
-import contrib.level.DevDungeonLevel;
-import contrib.level.DevDungeonLoader;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -21,7 +19,7 @@ import java.util.NoSuchElementException;
  *
  * @see DevDungeonLoader
  */
-public class DungeonSaver {
+public class DevDungeonSaver {
 
   /**
    * The saveCurrentDungeon method is responsible for saving the current state of the dungeon. It
