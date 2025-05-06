@@ -74,4 +74,23 @@ public class DynamicCompiler {
     System.out.println("Erstelle Instanz der Klasse: " + newClass.getName());
     return ctor.newInstance(paramValues);
   }
+
+  private static class MyClassLoader extends URLClassLoader {
+
+    private MyClassLoader(URL[] urls) {
+      super(urls, ClassLoader.getSystemClassLoader()); // System ClassLoader als Parent verwenden
+    }
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+      // Wenn die Klasse nicht im aktuellen ClassLoader gefunden wird, gehe auf den Parent
+      // ClassLoader
+      try {
+        return findClass(name); // Versuche, sie selbst zu finden
+
+      } catch (ClassNotFoundException e) {
+        return super.loadClass(name);
+      }
+    }
+  }
 }
