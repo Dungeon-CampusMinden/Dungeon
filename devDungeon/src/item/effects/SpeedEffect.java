@@ -9,7 +9,15 @@ import core.Entity;
  * duration before reverting it back to its original state. The implementation relies on scheduling
  * both the application of the speed increase and its later reversal.
  */
-public interface SpeedEffect {
+public abstract class SpeedEffect {
+
+  protected float speedIncrease;
+  protected int duration;
+
+  public SpeedEffect(float speedIncrease, int duration) {
+    this.speedIncrease = speedIncrease;
+    this.duration = duration;
+  }
 
   /**
    * Applies a temporary speed increase to the target entity, then reverts its speed to normal after
@@ -19,5 +27,5 @@ public interface SpeedEffect {
    * @param target The entity to which the speed effect will be applied.
    * @see EventScheduler
    */
-  void applySpeedEffect(Entity target);
+  public abstract void applySpeedEffect(Entity target);
 }

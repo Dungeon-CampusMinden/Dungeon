@@ -2,13 +2,9 @@ package hotload;
 
 import contrib.systems.EventScheduler;
 import core.Entity;
-import core.components.VelocityComponent;
 import item.effects.SpeedEffect;
 
-public class MySpeedEffect implements SpeedEffect {
-
-  private float speedIncrease;
-  private int duration;
+public class MySpeedEffect extends SpeedEffect {
 
   /**
    * Initializes a new instance of the SpeedEffect with a specified increase in speed and duration.
@@ -17,8 +13,7 @@ public class MySpeedEffect implements SpeedEffect {
    * @param duration The duration, in seconds, for which the speed increase is applied.
    */
   public MySpeedEffect(float speedIncrease, int duration) {
-    this.speedIncrease = speedIncrease;
-    this.duration = duration;
+    super(speedIncrease, duration);
   }
 
   /**

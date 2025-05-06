@@ -22,8 +22,11 @@ import item.effects.SpeedEffect;
 public class ItemPotionSpeed extends Item {
   private static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/potion/speed_potion.png");
   private static final SpeedEffect DEFAULT_EFFECT =
-      target -> {
-        throw new UnsupportedOperationException();
+      new SpeedEffect(0, 0) {
+        @Override
+        public void applySpeedEffect(Entity target) {
+          throw new UnsupportedOperationException();
+        }
       };
 
   static {
