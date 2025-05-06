@@ -69,9 +69,7 @@ public class PathfinderStarter {
           if (pathfindingSystem != null) {
             pathfindingSystem.autoStep(true);
             pathfindingSystem.updatePathfindingAlgorithm(
-                new DFSPathFinding(
-                    Game.currentLevel().startTile().coordinate(),
-                    Game.currentLevel().endTile().coordinate()));
+                new DFSPathFinding(Game.currentLevel().startTile(), Game.currentLevel().endTile()));
           }
         });
   }
@@ -102,14 +100,10 @@ public class PathfinderStarter {
    *
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
-  public static void createHero() {
+  public static void createHero() throws IOException {
     Entity hero;
-    try {
-      hero = HeroFactory.newHero();
-      hero.remove(CameraComponent.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    hero = HeroFactory.newHero();
+    hero.remove(CameraComponent.class);
     Game.add(hero);
   }
 }

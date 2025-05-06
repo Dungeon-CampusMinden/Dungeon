@@ -1,5 +1,6 @@
 package utils.pathfinding;
 
+import core.level.Tile;
 import core.level.utils.Coordinate;
 
 /**
@@ -29,5 +30,18 @@ public class DFSPathFinding extends PathfindingLogic {
    */
   public DFSPathFinding(Coordinate start, Coordinate end) {
     super(start, end, new DFSStack());
+  }
+
+  /**
+   * Constructor for DFSPathFinding.
+   *
+   * <p>This constructor initializes the DFS pathfinding algorithm with a LIFO stack for the
+   * frontier set.
+   *
+   * @param start The start tile for the pathfinding search.
+   * @param end The end tile for the pathfinding search.
+   */
+  public DFSPathFinding(Tile start, Tile end) {
+    this(start.coordinate(), end.coordinate());
   }
 }
