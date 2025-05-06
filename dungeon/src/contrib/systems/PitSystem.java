@@ -1,9 +1,12 @@
 package contrib.systems;
 
+import contrib.components.AIComponent;
 import contrib.components.ProjectileComponent;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.CameraComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
@@ -43,6 +46,10 @@ public class PitSystem extends System {
               Tile currentTile = Game.tileAT(positionComponent.position());
 
               if (currentTile instanceof PitTile pitTile) {
+                // camera focus point entity should not trigger pit
+                if (entity.isPresent(CameraComponent.class)
+                    && !entity.isPresent(PlayerComponent.class)
+                    && !entity.isPresent(AIComponent.class)) return;
                 pitTimes.putIfAbsent(pitTile, java.lang.System.currentTimeMillis());
               }
             });

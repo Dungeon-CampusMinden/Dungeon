@@ -49,7 +49,6 @@ public class HeroTankControlledFactory {
         KeyboardConfig.MOVEMENT_RIGHT.value(),
         (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
         false);
-
     return hero;
   }
 

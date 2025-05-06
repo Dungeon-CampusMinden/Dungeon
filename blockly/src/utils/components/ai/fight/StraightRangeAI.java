@@ -6,6 +6,7 @@ import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import java.util.function.Consumer;
+import utils.BlocklyCommands;
 import utils.EntityUtils;
 
 /**
@@ -49,9 +50,11 @@ public class StraightRangeAI implements Consumer<Entity>, ISkillUser {
 
   @Override
   public void accept(final Entity entity) {
+    if (BlocklyCommands.DISABLE_SHOOT_ON_HERO) return;
     boolean playerInRange =
         EntityUtils.canEntitySeeOther(
             entity, Game.hero().orElseThrow(MissingHeroException::new), range);
+
     if (!playerInRange) return;
 
     useSkill(skill, entity);

@@ -127,7 +127,7 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
     },
     {
       kind: "category",
-      name: "Wahrheitsausdrücke",
+      name: "Wahrheitsausdruecke",
       colour: "120",
       contents: [
         {

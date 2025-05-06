@@ -16,6 +16,7 @@ import java.util.Set;
 public abstract class BlocklyLevel extends DevDungeonLevel {
 
   private final Set<String> blockedBlocklyElements = new HashSet<>();
+  private final DesignLabel designLabel;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -32,6 +33,7 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
       List<Coordinate> customPoints,
       String name) {
     super(layout, designLabel, customPoints, name, "");
+    this.designLabel = designLabel;
   }
 
   @Override
@@ -65,5 +67,14 @@ public abstract class BlocklyLevel extends DevDungeonLevel {
    */
   public Set<String> blockedBlocklyElements() {
     return blockedBlocklyElements;
+  }
+
+  /**
+   * Get the design of this level.
+   *
+   * @return The Design of this level.
+   */
+  public DesignLabel designLabel() {
+    return designLabel;
   }
 }
