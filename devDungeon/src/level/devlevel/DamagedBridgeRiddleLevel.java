@@ -1,5 +1,7 @@
 package level.devlevel;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
@@ -15,7 +17,11 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
+import hotload.MySpeedEffectLoader;
+import item.concreteItem.ItemPotionSpeed;
+import item.effects.SpeedEffect;
 import java.util.*;
+import java.util.function.Supplier;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import utils.EntityUtils;
 
@@ -62,6 +68,10 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   @Override
   protected void onFirstTick() {
     prepareBridge();
+    Game.hero().get().fetch(InventoryComponent.class).get().add(new ItemPotionSpeed());
+    Game.hero().get().fetch(InventoryComponent.class).get().add(new ItemPotionSpeed());
+    Game.hero().get().fetch(InventoryComponent.class).get().add(new ItemPotionSpeed());
+    Game.hero().get().fetch(InventoryComponent.class).get().add(new ItemPotionSpeed());
 
     // Prepare the secret way
     for (int i = 0; i < secretWay.length - 1; i++) {
@@ -80,6 +90,21 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   @Override
   public void onTick() {
     riddleHandler.onTick();
+
+    // reload speed effect on button press
+    if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+      Game.hero()
+          .get()
+          .fetch(InventoryComponent.class)
+          .get()
+          .items(ItemPotionSpeed.class)
+          .forEach(
+              item ->
+                  ((ItemPotionSpeed) item)
+                      .setSpeedEffectSupplier(
+                          (Supplier<SpeedEffect>)
+                              MySpeedEffectLoader.loadUserSpeedEffectInstance()));
+    }
   }
 
   private void prepareBridge() {
