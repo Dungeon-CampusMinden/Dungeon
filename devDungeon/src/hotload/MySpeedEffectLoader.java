@@ -20,7 +20,6 @@ public class MySpeedEffectLoader {
 
       // Konstruktor holen
       Constructor<?> ctor = newClass.getConstructor();
-      ctor.setAccessible(true);
 
       System.out.println("Erstelle Instanz der Klasse: " + newClass.getName());
 
