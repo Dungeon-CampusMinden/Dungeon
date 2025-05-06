@@ -6,7 +6,6 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
@@ -16,7 +15,6 @@ import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonsterFactory;
 import java.util.List;
-import java.util.function.Consumer;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 import server.Server;
@@ -62,7 +60,7 @@ public class Chapter34Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
-    Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
+    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     heropc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -70,20 +68,19 @@ public class Chapter34Level extends BlocklyLevel {
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).get()).close();
-    Coordinate c = Game.randomTile(LevelElement.EXIT).get().coordinate();
+    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
     c.x -= 1;
     boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.RIGHT, entity -> {});
-    bosspc = boss.fetch(PositionComponent.class).get();
+    bosspc =
+        boss.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
     Game.add(boss);
     Game.allTiles(LevelElement.PIT)
         .forEach(
-            new Consumer<Tile>() {
-              @Override
-              public void accept(Tile tile) {
-                ((PitTile) tile).timeToOpen(120);
-                ((PitTile) tile).close();
-              }
+            tile -> {
+              ((PitTile) tile).timeToOpen(120);
+              ((PitTile) tile).close();
             });
 
     if (showText) {
@@ -109,11 +106,11 @@ public class Chapter34Level extends BlocklyLevel {
     // create save scone at stat of the level
     float x = heropc.position().x;
     float y = heropc.position().y;
-    if (x > 6 || (x > 3 && x <= 6 && y >= 6 && y <= 8)) {
+    if (x > 6 || x > 3 && y >= 6 && y <= 8) {
 
       if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
         if (herovc.currentXVelocity() > 0 || herovc.currentYVelocity() > 0) {
-          DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", () -> Client.restart());
+          DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }
       }
       if (x >= bosspc.position().x - ESCAPE_DISTANCE) {

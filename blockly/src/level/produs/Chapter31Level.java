@@ -7,6 +7,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.MissingHeroException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -47,8 +48,12 @@ public class Chapter31Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).get()).close();
-    Game.hero().get().fetch(AmmunitionComponent.class).orElseThrow().currentAmmunition(20);
+    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
+    Game.hero()
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(20);
   }
 
   @Override

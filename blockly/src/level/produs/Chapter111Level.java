@@ -10,6 +10,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.MissingComponentException;
 import entities.BlocklyMonsterFactory;
 import entities.MiscFactory;
 import java.util.List;
@@ -67,21 +68,30 @@ public class Chapter111Level extends BlocklyLevel {
           "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");
       showText = false;
     }
+
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
 
     Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
-    switch1 = s1.fetch(LeverComponent.class).get();
+    switch1 =
+        s1.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
 
     Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
     Entity s2 = MiscFactory.pressurePlate(customPoints().get(4).toCenteredPoint());
-    switch2 = s2.fetch(LeverComponent.class).get();
+    switch2 =
+        s2.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s2);
     Entity s3 = LeverFactory.createLever(customPoints().get(5).toCenteredPoint());
-    switch3 = s3.fetch(LeverComponent.class).get();
+    switch3 =
+        s3.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s3);
     Entity s4 = LeverFactory.createLever(customPoints().get(6).toCenteredPoint());
-    switch4 = s4.fetch(LeverComponent.class).get();
+    switch4 =
+        s4.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s4);
 
     Game.add(MiscFactory.fireballScroll(customPoints().get(8).toCenteredPoint()));

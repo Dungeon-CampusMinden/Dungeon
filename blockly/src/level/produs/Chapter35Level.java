@@ -4,7 +4,6 @@ import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
@@ -24,11 +23,10 @@ public class Chapter35Level extends BlocklyLevel {
   private static boolean showText = true;
   private static final int ESCAPE_DISTANCE = 2;
 
-  private PositionComponent heropc;
-  private VelocityComponent herovc;
+  private PositionComponent heroPC;
 
   private Entity boss;
-  private PositionComponent bosspc;
+  private PositionComponent bossPC;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -84,19 +82,18 @@ public class Chapter35Level extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
 
     // BOSS
-    Coordinate c = Game.randomTile(LevelElement.EXIT).get().coordinate();
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
     c.x -= 1;
     boss = BlocklyMonsterFactory.knight(c, PositionComponent.Direction.LEFT, entity -> {});
     Game.add(boss);
-    bosspc = boss.fetch(PositionComponent.class).get();
+    bossPC =
+        boss.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
 
-    Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
-    heropc =
+    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    herovc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
     if (showText) {
       DialogUtils.showTextPopup(
@@ -108,10 +105,8 @@ public class Chapter35Level extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss == null) return;
-    // create save scone at stat of the level
-    float x = heropc.position().x;
-    float y = heropc.position().y;
-    if (x >= bosspc.position().x - ESCAPE_DISTANCE) {
+    float x = heroPC.position().x;
+    if (x >= bossPC.position().x - ESCAPE_DISTANCE) {
       DialogUtils.showTextPopup(
           "Wie hast du das geschafft? Nur die besten Programmierer hätten dieses Rätsel lösen können.",
           "BOSS");

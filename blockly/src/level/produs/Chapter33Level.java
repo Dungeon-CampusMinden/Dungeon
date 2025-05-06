@@ -46,7 +46,7 @@ public class Chapter33Level extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.zoomIn();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).get()).close();
+    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
     if (showText) {
       DialogUtils.showTextPopup(
           "Nutz deinen Beutel mit Krumen und Kleeblättern, um deinen Weg hier raus zu finden.",

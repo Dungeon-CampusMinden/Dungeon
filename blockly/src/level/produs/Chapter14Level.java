@@ -12,6 +12,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -76,8 +77,12 @@ public class Chapter14Level extends BlocklyLevel {
     door2.close();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
     Entity s2 = MiscFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
-    switch1 = s1.fetch(LeverComponent.class).get();
-    switch2 = s2.fetch(LeverComponent.class).get();
+    switch1 =
+        s1.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
+    switch2 =
+        s2.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
     Game.add(MiscFactory.stone(customPoints().get(2).toCenteredPoint()));
     Game.add(s1);
     Game.add(s2);
