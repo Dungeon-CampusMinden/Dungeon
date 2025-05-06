@@ -15,9 +15,12 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import entities.MonsterType;
-import hotload.MySpeedEffectLoader;
+import hotload.DynamicCompiler;
 import item.concreteItem.ItemPotionSpeed;
 import item.effects.SpeedEffect;
 import java.util.*;
@@ -27,6 +30,9 @@ import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level. */
 public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
+
+  private static final IPath SOURCE_FILE = new SimpleIPath("src/hotload/MySpeedEffect.java");
+  private static final String CLASS_NAME = "hotload.MySpeedEffect";
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;
@@ -99,11 +105,38 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
           .ifPresent(
               s ->
                   s.forEach(
-                      i ->
+                      i -> {
+                        try {
                           ((ItemPotionSpeed) i)
                               .setSpeedEffectSupplier(
                                   (Supplier<SpeedEffect>)
-                                      MySpeedEffectLoader.loadUserSpeedEffectInstance())));
+                                      DynamicCompiler.loadUserInstance(SOURCE_FILE, CLASS_NAME));
+                        } catch (Exception e) {
+                          throw new RuntimeException(e);
+                        }
+                      }));
+    }
+    if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
+      Game.hero()
+          .flatMap(h -> h.fetch(InventoryComponent.class))
+          .map(ic -> ic.items(ItemPotionSpeed.class))
+          .ifPresent(
+              s ->
+                  s.forEach(
+                      i -> {
+                        try {
+                          ((ItemPotionSpeed) i)
+                              .setSpeedEffectSupplier(
+                                  (Supplier<SpeedEffect>)
+                                      DynamicCompiler.loadUserInstance(
+                                          SOURCE_FILE,
+                                          CLASS_NAME,
+                                          new Tuple<>(String.class, "Hello World"),
+                                          new Tuple<>(int.class, 3)));
+                        } catch (Exception e) {
+                          throw new RuntimeException(e);
+                        }
+                      }));
     }
   }
 

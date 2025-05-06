@@ -6,9 +6,15 @@ import item.effects.SpeedEffect;
 import java.util.function.Supplier;
 
 public class MySpeedEffect implements Supplier<SpeedEffect> {
-  public static String debug = "3";
+  public static String debug = "12";
 
-  public MySpeedEffect() {}
+  public MySpeedEffect() {
+    System.out.println("WITHOUT ARGS");
+  }
+
+  public MySpeedEffect(String debugValue, int number) {
+    System.out.println("With args " + debugValue + " " + number);
+  }
 
   @Override
   public SpeedEffect get() {
