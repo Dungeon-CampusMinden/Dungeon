@@ -2,6 +2,7 @@ package level.produs;
 
 import static level.LevelManagementUtils.cameraFocusOn;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
@@ -11,8 +12,10 @@ import entities.BlocklyMonsterFactory;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
+import level.LevelManagementUtils;
 
 public class Chapter15Level extends BlocklyLevel {
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -29,8 +32,15 @@ public class Chapter15Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Die Monster sehen böse aus, du solltest ihnen nicht zu nahe kommen.",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
     cameraFocusOn(new Coordinate(7, 6));
-
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.centerHero();
     Coordinate stone1C = customPoints().get(1);
     Coordinate stone2C = customPoints().get(5);
     Coordinate m1C = customPoints().get(0);
@@ -40,8 +50,8 @@ public class Chapter15Level extends BlocklyLevel {
 
     Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
     Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
-    // TODO replace with guards
-    Game.add(BlocklyMonsterFactory.guard(m1C, PositionComponent.Direction.LEFT, 5));
+
+    Game.add(BlocklyMonsterFactory.guard(m1C, PositionComponent.Direction.LEFT, 6));
     Game.add(BlocklyMonsterFactory.guard(m2C, PositionComponent.Direction.RIGHT, 5));
     Game.add(BlocklyMonsterFactory.guard(m3C, PositionComponent.Direction.UP, 5));
     Game.add(BlocklyMonsterFactory.guard(m4C, PositionComponent.Direction.UP, 5));

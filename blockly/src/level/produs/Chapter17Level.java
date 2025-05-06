@@ -4,6 +4,7 @@ import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -33,6 +34,8 @@ public class Chapter17Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
+    LevelManagementUtils.heroViewDiretion(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.centerHero();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(1).toCenteredPoint());
     Entity s3 = LeverFactory.createLever(customPoints().get(2).toCenteredPoint());
