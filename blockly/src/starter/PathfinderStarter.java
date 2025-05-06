@@ -7,7 +7,6 @@ import contrib.systems.LevelEditorSystem;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
-import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -49,11 +48,12 @@ public class PathfinderStarter {
           DevDungeonLoader.addLevel(Tuple.of("dfs", AiMazeLevel.class));
           createSystems();
 
-          createHero();
-
-          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-
+          try {
+            createHero();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          Game.system(LevelSystem.class, ls -> ls.onEndTile(DevDungeonLoader::loadNextLevel));
           DevDungeonLoader.loadLevel(0);
         });
   }
@@ -64,13 +64,15 @@ public class PathfinderStarter {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
 
-          PathfindingSystem pathfindingSystem =
-              (PathfindingSystem) ECSManagment.systems().get(PathfindingSystem.class);
-          if (pathfindingSystem != null) {
-            pathfindingSystem.autoStep(true);
-            pathfindingSystem.updatePathfindingAlgorithm(
-                new DFSPathFinding(Game.currentLevel().startTile(), Game.currentLevel().endTile()));
-          }
+          Game.system(
+              PathfindingSystem.class,
+              (pfs) -> {
+                pfs.autoStep(true);
+                pfs.updatePathfindingAlgorithm(
+                    new DFSPathFinding(
+                        Game.currentLevel().startTile().coordinate(),
+                        Game.currentLevel().endTile().coordinate()));
+              });
         });
   }
 

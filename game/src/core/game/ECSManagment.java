@@ -7,6 +7,7 @@ import core.components.PlayerComponent;
 import core.level.elements.ILevel;
 import core.utils.EntitySystemMapper;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -153,6 +154,19 @@ public final class ECSManagment {
    */
   public static Map<Class<? extends System>, System> systems() {
     return new LinkedHashMap<>(SYSTEMS);
+  }
+
+  /**
+   * If a system instance of the specified type is present, performs the given action on it.
+   *
+   * @param <T> the type of the system, which must extend {@link System}
+   * @param s the class object of the desired system type
+   * @param c the {@link Consumer} to execute with the system instance if present
+   * @return an {@link Optional} containing the system instance if present, or an empty Optional if
+   *     not
+   */
+  public static <T extends System> void system(Class<T> s, Consumer<T> c) {
+    if (SYSTEMS.containsKey(s)) c.accept((T) SYSTEMS.get(s));
   }
 
   /** Remove all registered systems from the game. */
