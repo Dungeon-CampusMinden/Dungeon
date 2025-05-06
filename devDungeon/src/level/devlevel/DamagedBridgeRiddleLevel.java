@@ -93,17 +93,10 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
     // reload speed effect on button press
     if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-      Game.hero()
-          .get()
-          .fetch(InventoryComponent.class)
-          .get()
-          .items(ItemPotionSpeed.class)
-          .forEach(
-              item ->
-                  ((ItemPotionSpeed) item)
-                      .setSpeedEffectSupplier(
-                          (Supplier<SpeedEffect>)
-                              MySpeedEffectLoader.loadUserSpeedEffectInstance()));
+    Game.hero()
+      .flatMap(h -> h.fetch(InventoryComponent.class))
+      .map(ic -> ic.items(ItemPotionSpeed.class))
+      .map(s -> s.forEach(i -> ((ItemPotionSpeed) i).setSpeedEffectSupplier((Supplier<SpeedEffect>) MySpeedEffectLoader.loadUserSpeedEffectInstance())));
     }
   }
 
