@@ -6,7 +6,7 @@ import item.effects.SpeedEffect;
 import java.util.function.Supplier;
 
 public class MySpeedEffect implements Supplier<SpeedEffect> {
-  public static String debug = "2";
+  public static String debug = "3";
 
   public MySpeedEffect() {}
 

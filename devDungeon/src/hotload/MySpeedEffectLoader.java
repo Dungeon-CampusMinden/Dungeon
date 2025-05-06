@@ -10,7 +10,7 @@ public class MySpeedEffectLoader {
   public static Object loadUserSpeedEffectInstance() {
     try {
       // Pfad zur Datei
-      Path filePath = Paths.get("MySpeedEffect.java");
+      Path filePath = Paths.get("src/hotload/MySpeedEffect.java");
       String userCode = Files.readString(filePath);
 
       System.out.println("Lese Quellcode von: " + filePath);
