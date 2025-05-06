@@ -8,11 +8,10 @@ public class DynamicCompiler {
 
   public static Class<?> compileAndLoad(String className, String sourceCode) throws Exception {
     // Temporäre Datei erstellen
-    File tempDir = new File(System.getProperty("java.io.tmpdir"));
-    File sourceFile = new File(tempDir, className.replace('.', '/') + ".java");
-
-    // Quelle in eine Datei schreiben
-    sourceFile.getParentFile().mkdirs(); // Verzeichnisse erstellen
+    File outputRoot = new File("build/hotload");
+    File sourceFile = new File(outputRoot, className.replace('.', '/') + ".java");
+    // Verzeichnisstruktur für die Datei sicherstellen
+    sourceFile.getParentFile().mkdirs();
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(sourceFile))) {
       writer.write(sourceCode);
     }
@@ -33,12 +32,11 @@ public class DynamicCompiler {
     }
 
     // URLClassLoader verwenden
-    MyClassLoader classLoader = new MyClassLoader(new URL[] {tempDir.toURI().toURL()});
+    MyClassLoader classLoader = new MyClassLoader(new URL[] {outputRoot.toURI().toURL()});
 
     // Klasse laden
     Class<?> loadedClass = classLoader.loadClass(className);
 
-    // Optionale Bereinigung: temporäre Datei löschen
     sourceFile.delete();
 
     return loadedClass;
