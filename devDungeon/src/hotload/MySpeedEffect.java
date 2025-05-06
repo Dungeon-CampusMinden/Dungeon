@@ -3,33 +3,23 @@ package hotload;
 import core.Entity;
 import core.components.VelocityComponent;
 import item.effects.SpeedEffect;
-import java.util.function.Supplier;
 
-public class MySpeedEffect implements Supplier<SpeedEffect> {
-  public static String debug = "12";
+public class MySpeedEffect extends SpeedEffect {
 
-  public MySpeedEffect() {
-    System.out.println("WITHOUT ARGS");
-  }
-
-  public MySpeedEffect(String debugValue, int number) {
-    System.out.println("With args " + debugValue + " " + number);
+  /**
+   * Initializes a new instance of the SpeedEffect with a specified increase in speed and duration.
+   *
+   * @param speedIncrease The amount to increase the entity's speed by.
+   * @param duration The duration, in seconds, for which the speed increase is applied.
+   */
+  public MySpeedEffect(float speedIncrease, int duration) {
+    super(speedIncrease, duration);
   }
 
   @Override
-  public SpeedEffect get() {
-    return new MyEffect();
-  }
-
-  class MyEffect extends SpeedEffect {
-    MyEffect() {
-      super(2, 2);
-    }
-
-    @Override
-    public void applySpeedEffect(Entity target) {
-      System.out.println("MY SUPP " + debug);
-      target.fetch(VelocityComponent.class).get().xVelocity(150);
-    }
+  public void applySpeedEffect(Entity target) {
+    VelocityComponent vc = target.fetch(VelocityComponent.class).get();
+    vc.xVelocity(vc.xVelocity() + speedIncrease);
+    vc.yVelocity(vc.yVelocity() + speedIncrease);
   }
 }

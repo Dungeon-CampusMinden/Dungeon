@@ -24,7 +24,6 @@ import hotload.DynamicCompiler;
 import item.concreteItem.ItemPotionSpeed;
 import item.effects.SpeedEffect;
 import java.util.*;
-import java.util.function.Supplier;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import utils.EntityUtils;
 
@@ -108,31 +107,13 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
                       i -> {
                         try {
                           ((ItemPotionSpeed) i)
-                              .setSpeedEffectSupplier(
-                                  (Supplier<SpeedEffect>)
-                                      DynamicCompiler.loadUserInstance(SOURCE_FILE, CLASS_NAME));
-                        } catch (Exception e) {
-                          throw new RuntimeException(e);
-                        }
-                      }));
-    }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
-      Game.hero()
-          .flatMap(h -> h.fetch(InventoryComponent.class))
-          .map(ic -> ic.items(ItemPotionSpeed.class))
-          .ifPresent(
-              s ->
-                  s.forEach(
-                      i -> {
-                        try {
-                          ((ItemPotionSpeed) i)
-                              .setSpeedEffectSupplier(
-                                  (Supplier<SpeedEffect>)
+                              .speedEffect(
+                                  (SpeedEffect)
                                       DynamicCompiler.loadUserInstance(
                                           SOURCE_FILE,
                                           CLASS_NAME,
-                                          new Tuple<>(String.class, "Hello World"),
-                                          new Tuple<>(int.class, 3)));
+                                          new Tuple<>(float.class, 10),
+                                          new Tuple<>(int.class, 120)));
                         } catch (Exception e) {
                           throw new RuntimeException(e);
                         }

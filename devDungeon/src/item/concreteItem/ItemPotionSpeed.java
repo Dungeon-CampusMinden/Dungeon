@@ -9,7 +9,6 @@ import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import item.effects.SpeedEffect;
-import java.util.function.Supplier;
 
 /**
  * A potion that increases the speed of the user.
@@ -27,8 +26,7 @@ public class ItemPotionSpeed extends Item {
     Item.registerItem(ItemPotionSpeed.class);
   }
 
-  private Supplier<SpeedEffect> speedEffectSupplier;
-  private static final Supplier<SpeedEffect> defaultSupplier = () -> new SpeedEffect(2, 2);
+  private SpeedEffect speedEffect;
 
   /** Constructs a new ItemPotionSpeed. */
   public ItemPotionSpeed() {
@@ -36,14 +34,14 @@ public class ItemPotionSpeed extends Item {
         "Speed Potion",
         "A potion that increases your speed",
         Animation.fromSingleImage(DEFAULT_TEXTURE));
-    speedEffectSupplier = defaultSupplier;
+    speedEffect = new SpeedEffect(2, 2);
     if (!testEffect()) {
       description("It looks like this potion is broken...");
     }
   }
 
-  public void setSpeedEffectSupplier(Supplier<SpeedEffect> speedEffectSupplier) {
-    this.speedEffectSupplier = speedEffectSupplier;
+  public void speedEffect(SpeedEffect speedEffect) {
+    this.speedEffect = speedEffect;
   }
 
   @Override
@@ -52,7 +50,7 @@ public class ItemPotionSpeed extends Item {
         .ifPresent(
             component -> {
               try {
-                speedEffectSupplier.get().applySpeedEffect(e);
+                speedEffect.applySpeedEffect(e);
                 component.remove(this);
               } catch (UnsupportedOperationException ignored) {
               }
@@ -75,7 +73,7 @@ public class ItemPotionSpeed extends Item {
     VelocityComponent vc = new VelocityComponent(1, 1);
     e.add(vc);
     try {
-      speedEffectSupplier.get().applySpeedEffect(e);
+      speedEffect.applySpeedEffect(e);
     } catch (UnsupportedOperationException ex) {
       return false;
     }
