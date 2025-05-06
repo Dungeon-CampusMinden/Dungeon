@@ -13,9 +13,10 @@ public class MyClassLoader extends URLClassLoader {
   public Class<?> loadClass(String name) throws ClassNotFoundException {
     // Wenn die Klasse nicht im aktuellen ClassLoader gefunden wird, gehe auf den Parent ClassLoader
     try {
-      return super.loadClass(name);
-    } catch (ClassNotFoundException e) {
       return findClass(name); // Versuche, sie selbst zu finden
+
+    } catch (ClassNotFoundException e) {
+      return super.loadClass(name);
     }
   }
 }
