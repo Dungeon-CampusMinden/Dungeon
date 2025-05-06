@@ -115,7 +115,7 @@ public class DynamicCompiler {
    *     must match the parameter order in the target constructor.
    * @return A new instance of the loaded and instantiated class.
    * @throws Exception If compilation, class loading, or instantiation fails.
-   *     <p><strong>Important:</strong> The target class must contain a constructor that exactly
+   *     <strong>Important:</strong> The target class must contain a constructor that exactly
    *     matches the parameter types and order given in {@code args}. Otherwise, a {@code
    *     NoSuchMethodException} will be thrown.
    */
