@@ -30,6 +30,14 @@ import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
+
+  /**
+   * If this is et to true, the Guard-Monster will not shoot on the hero.
+   *
+   * <p>Workaround for #1952
+   */
+  public static boolean DISABLE_SHOOT_ON_HERO = false;
+
   private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
   private static final float FIREBALL_SPEED = 15f;
   private static final int FIREBALL_DMG = 1;
@@ -215,6 +223,7 @@ public class BlocklyCommands {
    */
   private static void movePushable(boolean push) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    DISABLE_SHOOT_ON_HERO = true;
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -246,6 +255,7 @@ public class BlocklyCommands {
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
     Server.waitDelta();
+    DISABLE_SHOOT_ON_HERO = false;
   }
 
   /**

@@ -2,7 +2,7 @@ package entities;
 
 import antlr.BlocklyConditionVisitor;
 import com.badlogic.gdx.audio.Sound;
-import components.BlockFireBallComponent;
+import components.BlockViewComponent;
 import components.TintDirectionComponent;
 import contrib.components.AIComponent;
 import contrib.entities.AIFactory;
@@ -290,7 +290,7 @@ public enum BlocklyMonster {
         return Optional.empty();
       }
 
-      monster.add(new BlockFireBallComponent());
+      monster.add(new BlockViewComponent());
 
       PositionComponent pc =
           monster

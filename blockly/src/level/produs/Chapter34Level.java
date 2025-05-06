@@ -17,7 +17,7 @@ import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
-import server.Server;
+import utils.BlocklyCommands;
 import utils.Direction;
 
 /** PRODUS LEVEL. */
@@ -104,9 +104,9 @@ public class Chapter34Level extends BlocklyLevel {
     if (counter >= TICK_TIMER) {
       counter = 0;
       if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
-        Server.turnEntity(boss, Direction.RIGHT);
+        BlocklyCommands.turnEntity(boss, Direction.RIGHT);
       } else {
-        Server.turnEntity(boss, Direction.LEFT);
+        BlocklyCommands.turnEntity(boss, Direction.LEFT);
       }
     }
     // create save scone at stat of the level

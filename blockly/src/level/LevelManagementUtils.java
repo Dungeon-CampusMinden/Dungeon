@@ -9,7 +9,7 @@ import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import server.Server;
+import utils.BlocklyCommands;
 import utils.Direction;
 
 /**
@@ -70,7 +70,7 @@ public class LevelManagementUtils {
    */
   public static void heroViewDirection(PositionComponent.Direction viewDirection) {
     Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
-    Server.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
+    BlocklyCommands.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
   }
 
   /** Zooms the camera in by decreasing the zoom factor. */

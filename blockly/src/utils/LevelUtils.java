@@ -1,6 +1,6 @@
 package utils;
 
-import components.BlockFireBallComponent;
+import components.BlockViewComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
@@ -31,8 +31,7 @@ public class LevelUtils {
 
       if (!currentTile.equals(firstTile)
           && !currentTile.equals(targetTile)
-          && Game.entityAtTile(currentTile)
-              .anyMatch(e -> e.isPresent(BlockFireBallComponent.class))) {
+          && Game.entityAtTile(currentTile).anyMatch(e -> e.isPresent(BlockViewComponent.class))) {
         return false; // if there is a blockFireball in the way, we can't see through
       }
 
