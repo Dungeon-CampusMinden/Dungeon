@@ -21,6 +21,10 @@ import item.effects.SpeedEffect;
  */
 public class ItemPotionSpeed extends Item {
   private static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/potion/speed_potion.png");
+  private static final SpeedEffect DEFAULT_EFFECT =
+      target -> {
+        throw new UnsupportedOperationException();
+      };
 
   static {
     Item.registerItem(ItemPotionSpeed.class);
@@ -34,7 +38,7 @@ public class ItemPotionSpeed extends Item {
         "Speed Potion",
         "A potion that increases your speed",
         Animation.fromSingleImage(DEFAULT_TEXTURE));
-    speedEffect = new SpeedEffect(2, 2);
+    speedEffect = DEFAULT_EFFECT;
     if (!testEffect()) {
       description("It looks like this potion is broken...");
     }
@@ -42,6 +46,8 @@ public class ItemPotionSpeed extends Item {
 
   public void speedEffect(SpeedEffect speedEffect) {
     this.speedEffect = speedEffect;
+    if (!testEffect()) description("It looks like this potion is broken...");
+    else description("A potion that increases your speed.");
   }
 
   @Override
