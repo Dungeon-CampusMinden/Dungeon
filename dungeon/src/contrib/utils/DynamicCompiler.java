@@ -56,110 +56,110 @@ import javax.tools.*;
  */
 public class DynamicCompiler {
 
-    /** Where to save temporary generated files. */
-    private static final String OUTPUT_PATH = "build/relection";
+  /** Where to save temporary generated files. */
+  private static final String OUTPUT_PATH = "build/relection";
 
-    /**
-     * Compiles and loads a Java class from the specified source file.
-     *
-     * @param sourcePath Path to the source file containing the class.
-     * @param className Fully qualified class name (must match declaration inside file).
-     * @return The compiled and loaded {@link Class} object.
-     * @throws Exception If compilation or loading fails.
-     */
-    public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
-        File outputRoot = new File(OUTPUT_PATH);
-        File sourceFile = new File(outputRoot, className.replace('.', '/') + ".java");
-        sourceFile.getParentFile().mkdirs();
+  /**
+   * Compiles and loads a Java class from the specified source file.
+   *
+   * @param sourcePath Path to the source file containing the class.
+   * @param className Fully qualified class name (must match declaration inside file).
+   * @return The compiled and loaded {@link Class} object.
+   * @throws Exception If compilation or loading fails.
+   */
+  public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
+    File outputRoot = new File(OUTPUT_PATH);
+    File sourceFile = new File(outputRoot, className.replace('.', '/') + ".java");
+    sourceFile.getParentFile().mkdirs();
 
-        Path filePath = Paths.get(sourcePath.pathString());
-        String sourceCode = Files.readString(filePath);
+    Path filePath = Paths.get(sourcePath.pathString());
+    String sourceCode = Files.readString(filePath);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(sourceFile))) {
-            writer.write(sourceCode);
-        }
-
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-
-        Iterable<? extends JavaFileObject> compilationUnits =
-                fileManager.getJavaFileObjects(sourceFile);
-        JavaCompiler.CompilationTask task =
-                compiler.getTask(null, fileManager, null, null, null, compilationUnits);
-
-        boolean success = task.call();
-        if (!success) {
-            throw new Exception("Compilation failed.");
-        }
-
-        // Load compiled class using custom loader to override any previous versions
-        MyClassLoader classLoader = new MyClassLoader(new URL[] {outputRoot.toURI().toURL()});
-        Class<?> loadedClass = classLoader.loadClass(className);
-        sourceFile.delete();
-
-        return loadedClass;
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(sourceFile))) {
+      writer.write(sourceCode);
     }
 
-    /**
-     * Dynamically instantiates a class from a source file using an optional set of constructor
-     * arguments.
-     *
-     * <p>This method compiles the provided Java source file, loads the resulting class using a custom
-     * class loader, and creates a new instance using the specified constructor arguments.
-     *
-     * @param sourcePath Path to the Java source file.
-     * @param className Fully qualified name of the class to load (including package name). This must
-     *     exactly match the package and class declaration inside the file.
-     * @param args Optional constructor arguments as {@code Tuple<Class<?>, Object>}: each tuple
-     *     specifies the expected parameter type and the value to pass. The order of the arguments
-     *     must match the parameter order in the target constructor.
-     * @return A new instance of the loaded and instantiated class.
-     * @throws Exception If compilation, class loading, or instantiation fails.
-     *     <strong>Important:</strong> The target class must contain a constructor that exactly
-     *     matches the parameter types and order given in {@code args}. Otherwise, a {@code
-     *     NoSuchMethodException} will be thrown.
-     */
-    @SafeVarargs
-    public static Object loadUserInstance(
-            IPath sourcePath, String className, Tuple<Class<?>, Object>... args) throws Exception {
+    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
-        Class<?> newClass = DynamicCompiler.compileAndLoad(sourcePath, className);
+    Iterable<? extends JavaFileObject> compilationUnits =
+        fileManager.getJavaFileObjects(sourceFile);
+    JavaCompiler.CompilationTask task =
+        compiler.getTask(null, fileManager, null, null, null, compilationUnits);
 
-        Class<?>[] paramTypes;
-        Object[] paramValues;
-
-        if (args == null || args.length == 0) {
-            paramTypes = new Class<?>[0];
-            paramValues = new Object[0];
-        } else {
-            paramTypes = Arrays.stream(args).map(Tuple::a).toArray(Class[]::new);
-            paramValues = Arrays.stream(args).map(Tuple::b).toArray();
-        }
-
-        Constructor<?> ctor = newClass.getConstructor(paramTypes);
-        return ctor.newInstance(paramValues);
+    boolean success = task.call();
+    if (!success) {
+      throw new Exception("Compilation failed.");
     }
 
-    /**
-     * A custom class loader that prioritizes loading from a local compiled directory.
-     *
-     * <p>Tries to find and load a class from the given path before falling back to the system class
-     * loader. This ensures that dynamically compiled classes can override existing ones, which the
-     * standard class loader wouldn't allow.
-     */
-    private static class MyClassLoader extends URLClassLoader {
+    // Load compiled class using custom loader to override any previous versions
+    MyClassLoader classLoader = new MyClassLoader(new URL[] {outputRoot.toURI().toURL()});
+    Class<?> loadedClass = classLoader.loadClass(className);
+    sourceFile.delete();
 
-        private MyClassLoader(URL[] urls) {
-            super(urls, ClassLoader.getSystemClassLoader());
-        }
+    return loadedClass;
+  }
 
-        @Override
-        public Class<?> loadClass(String name) throws ClassNotFoundException {
-            try {
-                return findClass(name); // Try dynamic class first
-            } catch (ClassNotFoundException e) {
-                return super.loadClass(name); // Fallback to default classpath
-            }
-        }
+  /**
+   * Dynamically instantiates a class from a source file using an optional set of constructor
+   * arguments.
+   *
+   * <p>This method compiles the provided Java source file, loads the resulting class using a custom
+   * class loader, and creates a new instance using the specified constructor arguments.
+   *
+   * @param sourcePath Path to the Java source file.
+   * @param className Fully qualified name of the class to load (including package name). This must
+   *     exactly match the package and class declaration inside the file.
+   * @param args Optional constructor arguments as {@code Tuple<Class<?>, Object>}: each tuple
+   *     specifies the expected parameter type and the value to pass. The order of the arguments
+   *     must match the parameter order in the target constructor.
+   * @return A new instance of the loaded and instantiated class.
+   * @throws Exception If compilation, class loading, or instantiation fails.
+   *     <strong>Important:</strong> The target class must contain a constructor that exactly
+   *     matches the parameter types and order given in {@code args}. Otherwise, a {@code
+   *     NoSuchMethodException} will be thrown.
+   */
+  @SafeVarargs
+  public static Object loadUserInstance(
+      IPath sourcePath, String className, Tuple<Class<?>, Object>... args) throws Exception {
+
+    Class<?> newClass = DynamicCompiler.compileAndLoad(sourcePath, className);
+
+    Class<?>[] paramTypes;
+    Object[] paramValues;
+
+    if (args == null || args.length == 0) {
+      paramTypes = new Class<?>[0];
+      paramValues = new Object[0];
+    } else {
+      paramTypes = Arrays.stream(args).map(Tuple::a).toArray(Class[]::new);
+      paramValues = Arrays.stream(args).map(Tuple::b).toArray();
     }
+
+    Constructor<?> ctor = newClass.getConstructor(paramTypes);
+    return ctor.newInstance(paramValues);
+  }
+
+  /**
+   * A custom class loader that prioritizes loading from a local compiled directory.
+   *
+   * <p>Tries to find and load a class from the given path before falling back to the system class
+   * loader. This ensures that dynamically compiled classes can override existing ones, which the
+   * standard class loader wouldn't allow.
+   */
+  private static class MyClassLoader extends URLClassLoader {
+
+    private MyClassLoader(URL[] urls) {
+      super(urls, ClassLoader.getSystemClassLoader());
+    }
+
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+      try {
+        return findClass(name); // Try dynamic class first
+      } catch (ClassNotFoundException e) {
+        return super.loadClass(name); // Fallback to default classpath
+      }
+    }
+  }
 }
