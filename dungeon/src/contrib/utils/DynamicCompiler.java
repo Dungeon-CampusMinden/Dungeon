@@ -55,10 +55,6 @@ import javax.tools.*;
  * </ul>
  */
 public class DynamicCompiler {
-
-  /** Where to save temporary generated files. */
-  private static final String OUTPUT_PATH = "build/relection";
-
   /**
    * Compiles and loads a Java class from the specified source file.
    *
@@ -68,7 +64,7 @@ public class DynamicCompiler {
    * @throws Exception If compilation or loading fails.
    */
   public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
-    File outputRoot = new File(OUTPUT_PATH);
+    File outputRoot = new File(System.getProperty("BASEREFLECTIONDIR"));
     File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
     outputFile.getParentFile().mkdirs();
 
