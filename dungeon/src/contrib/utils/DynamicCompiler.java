@@ -69,13 +69,13 @@ public class DynamicCompiler {
    */
   public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
     File outputRoot = new File(OUTPUT_PATH);
-    File sourceFile = new File(outputRoot, className.replace('.', '/') + ".java");
-    sourceFile.getParentFile().mkdirs();
+    File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
+    outputFile.getParentFile().mkdirs();
 
     Path filePath = Paths.get(sourcePath.pathString());
     String sourceCode = Files.readString(filePath);
 
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(sourceFile))) {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
       writer.write(sourceCode);
     }
 
@@ -83,7 +83,7 @@ public class DynamicCompiler {
     StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
     Iterable<? extends JavaFileObject> compilationUnits =
-        fileManager.getJavaFileObjects(sourceFile);
+        fileManager.getJavaFileObjects(outputFile);
     JavaCompiler.CompilationTask task =
         compiler.getTask(null, fileManager, null, null, null, compilationUnits);
 
@@ -95,7 +95,7 @@ public class DynamicCompiler {
     // Load compiled class using custom loader to override any previous versions
     MyClassLoader classLoader = new MyClassLoader(new URL[] {outputRoot.toURI().toURL()});
     Class<?> loadedClass = classLoader.loadClass(className);
-    sourceFile.delete();
+    outputFile.delete();
 
     return loadedClass;
   }
