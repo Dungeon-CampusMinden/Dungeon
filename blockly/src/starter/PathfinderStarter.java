@@ -1,20 +1,21 @@
 package starter;
 
 import client.KeyboardConfig;
-import com.badlogic.gdx.Gdx;
 import contrib.entities.HeroFactory;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
+import core.components.PlayerComponent;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
-import javax.naming.OperationNotSupportedException;
+import java.util.logging.Logger;
 import level.AiMazeLevel;
 import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
@@ -23,8 +24,10 @@ import utils.pathfinding.DFSPathFinding;
 
 /** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class PathfinderStarter {
+  private static final Logger LOGGER = Logger.getLogger(PathfinderStarter.class.getName());
   private static final boolean DRAW_CHECKER_PATTERN = true;
-  private static boolean noPathfindingSelected = true;
+  private static Tuple<utils.pathfinding.PathfindingLogic, utils.pathfinding.PathfindingLogic>
+      pathfindings = Tuple.of(null, null);
   private static final boolean noSuSAlgorithmAvailable = true;
 
   /**
@@ -41,8 +44,6 @@ public class PathfinderStarter {
     configGame();
     // Set up components and level
     onSetup();
-    // be able to choose between the available pathfinding algorithms
-    Game.userOnFrame(PathfinderStarter::checkForAlgorithmSwitch);
 
     onLevelLoad();
 
@@ -71,6 +72,46 @@ public class PathfinderStarter {
         (firstLoad) -> {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
+
+          Coordinate startCoords = Game.currentLevel().startTile().coordinate();
+          Coordinate endTileCoords = Game.currentLevel().endTile().coordinate();
+          PlayerComponent pc =
+              Game.hero()
+                  .get()
+                  .fetch(PlayerComponent.class)
+                  .orElseThrow(
+                      () ->
+                          MissingComponentException.build(
+                              Game.hero().get(), PlayerComponent.class));
+          pc.registerCallback(
+              KeyboardConfig.SELECT_DFS.value(),
+              entity -> {
+                if (pathfindings.a() == null && pathfindings.b() == null) {
+                  pathfindings = Tuple.of(new DFSPathFinding(startCoords, endTileCoords), null);
+                  switchToAlgorithm(pathfindings.a(), "DFS-Pathfinding");
+                }
+              });
+          pc.registerCallback(
+              KeyboardConfig.SELECT_BFS.value(),
+              entity -> {
+                if (pathfindings.a() == null && pathfindings.b() == null) {
+                  pathfindings = Tuple.of(new BFSPathFinding(startCoords, endTileCoords), null);
+                  switchToAlgorithm(pathfindings.a(), "BFS-Pathfinding");
+                }
+              });
+          pc.registerCallback(
+              KeyboardConfig.SELECT_SUS_ALGO.value(),
+              entity -> {
+                if (pathfindings.a() == null && pathfindings.b() == null) {
+                  if (noSuSAlgorithmAvailable) {
+                    LOGGER.info("No sus algorithm available");
+                  } else {
+                    // pathfindings = Tuple.of(null, new SusPathFinding(startCoords,
+                    // endTileCoords));
+                    // switchToAlgorithm(pathfindings.b(), "Sus-Pathfinding");
+                  }
+                }
+              });
         });
   }
 
@@ -108,36 +149,6 @@ public class PathfinderStarter {
   }
 
   /**
-   * Checks if any key for selecting a pathfinding algorithm has been pressed.
-   *
-   * <p>This method listens for specific key presses for DFS, BFS, and other pathfinding algorithms.
-   * It switches the current algorithm accordingly and prevents further input until a new algorithm
-   * is selected. If the "SuS Pathfinding" algorithm is selected but not implemented, an {@link
-   * OperationNotSupportedException} is thrown to indicate the feature is not available.
-   */
-  private static void checkForAlgorithmSwitch() {
-    try {
-      Coordinate startCoords = Game.currentLevel().startTile().coordinate();
-      Coordinate endTileCoords = Game.currentLevel().endTile().coordinate();
-      if (noPathfindingSelected && Gdx.input.isKeyJustPressed(KeyboardConfig.SELECT_DFS.value())) {
-        switchToAlgorithm(new DFSPathFinding(startCoords, endTileCoords), "DFS-Pathfinding");
-      } else if (noPathfindingSelected
-          && Gdx.input.isKeyJustPressed(KeyboardConfig.SELECT_BFS.value())) {
-        switchToAlgorithm(new BFSPathFinding(startCoords, endTileCoords), "BFS-Pathfinding");
-      } else if (noPathfindingSelected
-          && Gdx.input.isKeyJustPressed(KeyboardConfig.SELECT_SUS_ALGO.value())) {
-        if (noSuSAlgorithmAvailable) {
-          throw new OperationNotSupportedException(
-              "The SuS Pathfinding algorithm is not implemented yet.");
-        }
-        // switchToAlgorithm(new SuSPathFinding(startCoords, endTileCoords), "SuS-Pathfinding");
-      }
-    } catch (OperationNotSupportedException e) {
-      System.err.println(e.getMessage());
-    }
-  }
-
-  /**
    * Changes the pathfinding algorithm used in the game to the specified one.
    *
    * <p>This method updates the active pathfinding algorithm in the {@link PathfindingSystem} and
@@ -154,7 +165,6 @@ public class PathfinderStarter {
           pfs.autoStep(true);
           pfs.updatePathfindingAlgorithm(algorithm);
         });
-    Gdx.graphics.setTitle("Blockly KI-Dungeon – " + name);
-    noPathfindingSelected = false;
+    Game.updateWindowTitle("Blockly KI-Dungeon – " + name);
   }
 }
