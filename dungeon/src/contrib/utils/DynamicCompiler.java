@@ -122,19 +122,11 @@ public class DynamicCompiler {
   @SafeVarargs
   public static Object loadUserInstance(
       IPath sourcePath, String className, Tuple<Class<?>, Object>... args) throws Exception {
+    if (args == null) throw new IllegalArgumentException("Args can not be null");
 
     Class<?> newClass = DynamicCompiler.compileAndLoad(sourcePath, className);
-
-    Class<?>[] paramTypes;
-    Object[] paramValues;
-
-    if (args == null || args.length == 0) {
-      paramTypes = new Class<?>[0];
-      paramValues = new Object[0];
-    } else {
-      paramTypes = Arrays.stream(args).map(Tuple::a).toArray(Class[]::new);
-      paramValues = Arrays.stream(args).map(Tuple::b).toArray();
-    }
+    Class<?>[] paramTypes = Arrays.stream(args).map(Tuple::a).toArray(Class[]::new);
+    Object[] paramValues = Arrays.stream(args).map(Tuple::b).toArray();
 
     Constructor<?> ctor = newClass.getConstructor(paramTypes);
     return ctor.newInstance(paramValues);
