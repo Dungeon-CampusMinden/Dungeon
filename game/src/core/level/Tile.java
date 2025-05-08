@@ -297,6 +297,21 @@ public abstract class Tile {
         + '}';
   }
 
+  /**
+   * Calculates the manhattan distance between this tile and the given tile.
+   *
+   * <p>The manhattan distance is the sum the absolute differences of the x and y coordinates. The
+   * manhattan distance is used in pathfinding algorithms when the movement is restricted to
+   * orthogonal directions.
+   *
+   * @param to The tile to which the distance is calculated.
+   * @return The distance between this tile and the given tile.
+   */
+  public int distance(Tile to) {
+    return Math.abs(globalPosition.x - to.globalPosition.x)
+        + Math.abs(globalPosition.y - to.globalPosition.y);
+  }
+
   /** The direction of a tile. */
   @DSLType(name = "tile_direction")
   public enum Direction {

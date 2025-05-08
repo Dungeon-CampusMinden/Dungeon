@@ -1,7 +1,6 @@
 package core.level.elements.astar;
 
 import com.badlogic.gdx.ai.pfa.Connection;
-import com.badlogic.gdx.math.Vector2;
 import core.level.Tile;
 
 /**
@@ -24,8 +23,7 @@ public class TileConnection implements Connection<Tile> {
   public TileConnection(Tile from, Tile to) {
     this.from = from;
     this.to = to;
-    this.cost =
-        Vector2.dst(from.coordinate().x, from.coordinate().y, to.coordinate().x, to.coordinate().y);
+    this.cost = from.distance(to);
   }
 
   @Override

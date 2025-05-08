@@ -1,7 +1,6 @@
 package core.level.elements.astar;
 
 import com.badlogic.gdx.ai.pfa.Heuristic;
-import com.badlogic.gdx.math.Vector2;
 import core.level.Tile;
 
 /**
@@ -18,7 +17,6 @@ public class TileHeuristic implements Heuristic<Tile> {
    */
   @Override
   public float estimate(Tile start, Tile goal) {
-    return Vector2.dst2(
-        start.coordinate().x, start.coordinate().y, goal.coordinate().x, goal.coordinate().y);
+    return start.distance(goal);
   }
 }
