@@ -126,6 +126,15 @@ public abstract class PathfindingLogic {
   }
 
   /**
+   * Provides direct access to the frontier set for subclasses.
+   *
+   * @return the deque used as the frontier.
+   */
+  protected ArrayDeque<Coordinate> frontierSet() {
+    return frontierSet;
+  }
+
+  /**
    * Build the final path from the end coordinate to the start coordinate.
    *
    * @return A list of nodes representing the final path from start to end.
