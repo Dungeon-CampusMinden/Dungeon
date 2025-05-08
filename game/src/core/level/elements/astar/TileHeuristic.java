@@ -13,7 +13,7 @@ public class TileHeuristic implements Heuristic<Tile> {
    *
    * @param start From
    * @param goal To
-   * @return Distance between from and to tile
+   * @return Manhattan Distance between from and to tile
    */
   @Override
   public float estimate(Tile start, Tile goal) {
