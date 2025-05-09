@@ -152,6 +152,7 @@ public class Client {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
+    Game.resizeable(true);
     Game.windowTitle("Blockly Dungeon");
   }
 
