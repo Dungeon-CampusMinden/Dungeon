@@ -21,9 +21,13 @@ import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
+
+import level.ArrayLevel;
 import level.MazeLevel;
+import level.SortArrayLevel;
 import server.Server;
 import systems.BlockSystem;
+import systems.LevelEditorSystem;
 import systems.TintTilesSystem;
 import utils.CheckPatternPainter;
 
@@ -32,7 +36,7 @@ import utils.CheckPatternPainter;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = true;
+  private static final boolean KEYBOARD_DEACTIVATION = false;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -69,8 +73,13 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("maze", MazeLevel.class));
+
           createSystems();
+
+
+          LevelEditorSystem.active(true);
+
+          DevDungeonLoader.addLevel(Tuple.of("advanced", ArrayLevel.class));
 
           HeroFactory.heroDeath(
               entity -> {
@@ -128,6 +137,8 @@ public class Client {
   }
 
   private static void createSystems() {
+    Game.add(new LevelEditorSystem());
+    Game.add(new PlayerSystem());
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new HealthSystem());
