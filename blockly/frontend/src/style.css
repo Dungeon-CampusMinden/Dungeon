@@ -56,10 +56,12 @@ header {
 }
 
 #buttons {
-  height: 30%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  position: fixed;
+  bottom: 15px;
+  width:100%;
+  left: 10%;
 }
 
 #config_div {
