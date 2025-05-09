@@ -114,6 +114,24 @@ public final class Game {
   }
 
   /**
+   * Checks if the game-window can be resized.
+   *
+   * @return True if the game-window can be resized. , false otherwise.
+   */
+  public static boolean resizeable() {
+    return PreRunConfiguration.resizeable();
+  }
+
+  /**
+   * Sets whether the game-window can be resized..
+   *
+   * @param resizeable True to enable resizing, false otherwise.
+   */
+  public static void resizeable(boolean resizeable) {
+    PreRunConfiguration.resizeable(resizeable);
+  }
+
+  /**
    * Sets the window title in the pre-run configuration.
    *
    * @param windowTitle The new window title.
