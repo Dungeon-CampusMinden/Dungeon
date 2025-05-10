@@ -5,7 +5,11 @@
   "author": {
     "name": "Flamtky"
   },
-  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dungeon-CampusMinden/Dungeon"
+  },
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.97.0"
   },
