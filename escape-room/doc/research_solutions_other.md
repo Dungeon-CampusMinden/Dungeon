@@ -1,5 +1,5 @@
 ---
-title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Andere"
+title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Andere Lösungen"
 ---
 
 # Anlaufpunkte
