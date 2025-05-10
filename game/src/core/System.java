@@ -214,6 +214,74 @@ public abstract class System {
     return filteredEntityStream(Set.of(filterRules));
   }
 
+  /*
+   * HERE BE DRAGONS
+   */
+
+  // some product types to avoid later filtering
+  public sealed interface Data
+      permits MyData.Data1, MyData.Data2, MyData.Data3 {} // needed only for V2a (Pattern Matching)
+
+  public interface MyData { // Simulate definition in some external file (interface/class)
+    record Data1<T1 extends Component>(Entity entity, T1 comp1) implements Data {}
+
+    record Data2<T1 extends Component, T2 extends Component>(Entity entity, T1 comp1, T2 comp2)
+        implements Data {}
+
+    record Data3<T1 extends Component, T2 extends Component, T3 extends Component>(
+        Entity entity, T1 comp1, T2 comp2, T3 comp3) implements Data {}
+  }
+
+  // (2) some filter functions using the new product types
+  // This would be implemented directly in GAME/ECSManagement!
+  public final <T1 extends Component> Stream<MyData.Data1<T1>> filteredEntityStreamV2(
+      Class<T1> c1) {
+    return filteredEntityStream(Set.of(c1))
+        .map(e -> new MyData.Data1<>(e, e.fetch(c1).orElseThrow()));
+  }
+
+  public final <T1 extends Component, T2 extends Component>
+      Stream<MyData.Data2<T1, T2>> filteredEntityStreamV2(Class<T1> c1, Class<T2> c2) {
+    return filteredEntityStream(Set.of(c1, c2))
+        .map(e -> new MyData.Data2<>(e, e.fetch(c1).orElseThrow(), e.fetch(c2).orElseThrow()));
+  }
+
+  public final <T1 extends Component, T2 extends Component, T3 extends Component>
+      Stream<MyData.Data3<T1, T2, T3>> filteredEntityStreamV2(
+          Class<T1> c1, Class<T2> c2, Class<T3> c3) {
+    return filteredEntityStream(Set.of(c1, c2, c3))
+        .map(
+            e ->
+                new MyData.Data3<>(
+                    e,
+                    e.fetch(c1).orElseThrow(),
+                    e.fetch(c2).orElseThrow(),
+                    e.fetch(c3).orElseThrow()));
+  }
+
+  // (2a) some filter functions using the new product types (pattern matching)
+  // same as (2), but Stream<Data> instead of Stream<Single>/Stream<Pair>/Stream<Triple>
+  public final <T1 extends Component> Stream<Data> filteredEntityStreamV2a(Class<T1> c1) {
+    return filteredEntityStream(Set.of(c1))
+        .map(e -> new MyData.Data1<>(e, e.fetch(c1).orElseThrow()));
+  }
+
+  public final <T1 extends Component, T2 extends Component> Stream<Data> filteredEntityStreamV2a(
+      Class<T1> c1, Class<T2> c2) {
+    return filteredEntityStream(Set.of(c1, c2))
+        .map(e -> new MyData.Data2<>(e, e.fetch(c1).orElseThrow(), e.fetch(c2).orElseThrow()));
+  }
+
+  // (3) produce a stream w/ the components itself
+  // This would work for one component only!
+  public final <T extends Component> Stream<T> filteredEntityStreamV3(Class<T> c) {
+    return filteredEntityStream(Set.of(c)).map(e -> e.fetch(c).orElseThrow());
+  }
+
+  /*
+   * HERE BE DRAGONS
+   */
+
   /**
    * @return the frame count the system should have between executes
    */
