@@ -3,17 +3,21 @@
   "displayName": "Blockly-Code-Runner",
   "description": "",
   "author": {
-    "name": "Flamtky"
+    "name": "Flamtky",
+    "url": "https://github.com/Flamtky"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Dungeon-CampusMinden/Dungeon"
   },
+  "publisher": "Flamtky",
+  "icon": "images/logo.png",
   "version": "1.0.0",
   "engines": {
     "vscode": "^1.97.0"
   },
   "categories": [
+    "Programming Languages",
     "Other"
   ],
   "activationEvents": [
