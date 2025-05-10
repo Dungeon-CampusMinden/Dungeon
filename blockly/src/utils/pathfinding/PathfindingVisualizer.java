@@ -101,7 +101,7 @@ public class PathfindingVisualizer {
     if (isRunning() || isFinished()) {
       return;
     }
-
+    stepCount = 1; // mark as running
     // Schedule all remaining steps
     for (int i = 0; i < path.size(); i++) {
       Tuple<Coordinate, TileState> step = path.get(i);
@@ -112,10 +112,13 @@ public class PathfindingVisualizer {
     // final path
     scheduledActions.add(
         EventScheduler.scheduleAction(
-            () -> finalPath.forEach(coordinate -> colorTile(Tuple.of(coordinate, TileState.PATH))),
+            () ->
+                finalPath.forEach(
+                    coordinate -> {
+                      colorTile(Tuple.of(coordinate, TileState.PATH));
+                      stepCount = path.size(); // mark as finished
+                    }),
             stepDelay * path.size()));
-
-    stepCount = path.size(); // mark as finished
   }
 
   /**

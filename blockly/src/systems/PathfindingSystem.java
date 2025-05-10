@@ -3,9 +3,10 @@ package systems;
 import client.KeyboardConfig;
 import com.badlogic.gdx.Gdx;
 import contrib.components.PathComponent;
-import core.Game;
+import core.Entity;
 import core.System;
 import core.level.utils.Coordinate;
+import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;
 import utils.pathfinding.PathfindingLogic;
@@ -22,35 +23,53 @@ import utils.pathfinding.TileState;
  * it will start moving the hero on the final path, and stop the system.2. If the step pathfinding
  * key is pressed, it will visualize the pathfinding process.
  *
- * <p>Use {@link #updatePathfindingAlgorithm(PathfindingLogic)} to start the system and set a new
- * pathfinding algorithm.
+ * <p>Use {@link #updatePathfindingAlgorithm(Tuple[])} to start the system and set a new pathfinding
+ * algorithm.
  *
  * @see PathfindingLogic
  * @see TileState
  * @see PathfindingVisualizer
  */
 public class PathfindingSystem extends System {
-  private final PathfindingVisualizer visualizer = new PathfindingVisualizer();
-  private List<Coordinate> finalPath = new ArrayList<>();
+  private final List<Helper> pathfindingAlgorithms = new ArrayList<>();
 
   private boolean autoStep = false;
-  private long stepDelay = 100; // Step delay in milliseconds if using autoStep
-  private boolean isHeroMoving = false;
+  private long stepDelay = 2; // Step delay in milliseconds if using autoStep
+  private int runningRunners = 0;
 
   @Override
   public void execute() {
-    if (visualizer.isFinished() && !isHeroMoving && isStartMovingKeyPressed()) {
-      Game.hero()
-          .ifPresent(
-              hero -> {
-                isHeroMoving = true;
-                hero.add(new PathComponent(finalPath));
-              });
-      this.stop();
-      return;
-    }
+    for (Helper helper : pathfindingAlgorithms) {
+      PathfindingVisualizer visualizer = helper.visualizer;
+      Entity runner = helper.runner;
 
-    if (isStepPathfindingKeyPressed()) visualizer.visualizePathfinding(autoStep, stepDelay);
+      if (runner.isPresent(PathComponent.class)) { // already moving?
+        continue;
+      }
+
+      if (isEveryAlgorithmFinished() && !isEveryRunnerRunning() && isStartMovingKeyPressed()) {
+        runner.add(new PathComponent(helper.finalPath));
+        runningRunners++;
+
+        if (isEveryRunnerRunning()) this.stop();
+        continue;
+      }
+
+      if (isStepPathfindingKeyPressed()) visualizer.visualizePathfinding(autoStep, stepDelay);
+    }
+  }
+
+  private boolean isEveryRunnerRunning() {
+    return runningRunners == pathfindingAlgorithms.size();
+  }
+
+  private boolean isEveryAlgorithmFinished() {
+    for (Helper helper : pathfindingAlgorithms) {
+      if (!helper.visualizer.isFinished()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -104,14 +123,23 @@ public class PathfindingSystem extends System {
    * <p>This method starts this system, resets the current pathfinding process, and initializes a
    * new one with the provided pathfinding algorithm.
    *
-   * @param pathFindingAlgorithm the pathfinding algorithm to use
+   * @param pathFindingAlgorithms the pathfinding algorithm to use
    */
-  public void updatePathfindingAlgorithm(PathfindingLogic pathFindingAlgorithm) {
+  @SafeVarargs
+  public final void updatePathfindingAlgorithm(
+      Tuple<PathfindingLogic, Entity>... pathFindingAlgorithms) {
     this.run();
     reset();
-    pathFindingAlgorithm.performSearch(); // Perform the search to populate the path
-    this.finalPath = pathFindingAlgorithm.finalPath();
-    this.visualizer.updatePath(pathFindingAlgorithm.steps(), pathFindingAlgorithm.finalPath());
+    for (Tuple<PathfindingLogic, Entity> pathFindingAlgorithm : pathFindingAlgorithms) {
+      pathFindingAlgorithm.a().performSearch(); // Perform the search to populate the path
+      Helper algo =
+          new Helper(
+              new PathfindingVisualizer(
+                  pathFindingAlgorithm.a().steps(), pathFindingAlgorithm.a().finalPath()),
+              pathFindingAlgorithm.a().finalPath(),
+              pathFindingAlgorithm.b());
+      this.pathfindingAlgorithms.add(algo);
+    }
   }
 
   /**
@@ -121,6 +149,12 @@ public class PathfindingSystem extends System {
    * the state of the system.
    */
   private void reset() {
-    visualizer.reset();
+    for (Helper helper : pathfindingAlgorithms) {
+      helper.visualizer.reset();
+    }
+    pathfindingAlgorithms.clear();
+    runningRunners = 0;
   }
+
+  record Helper(PathfindingVisualizer visualizer, List<Coordinate> finalPath, Entity runner) {}
 }
