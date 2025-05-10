@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.systems.LevelSystem;
+import core.utils.MissingHeroException;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.util.logging.Level;
 import level.AiMazeLevel;
 import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
+import utils.pathfinding.DFSPathFinding;
 
 /** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class PathfinderStarter {
@@ -62,6 +64,18 @@ public class PathfinderStarter {
         (firstLoad) -> {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
+
+          Game.system(
+              PathfindingSystem.class,
+              (pfs) -> {
+                pfs.autoStep(true);
+                pfs.updatePathfindingAlgorithm(
+                    Tuple.of(
+                        new DFSPathFinding(
+                            Game.currentLevel().startTile().coordinate(),
+                            Game.currentLevel().endTile().coordinate()),
+                        Game.hero().orElseThrow(MissingHeroException::new)));
+              });
         });
   }
 
