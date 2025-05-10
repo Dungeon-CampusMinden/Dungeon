@@ -1,7 +1,6 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
-import contrib.entities.HeroFactory;
 import contrib.level.DevDungeonLevel;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.EventScheduler;
@@ -12,16 +11,17 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
-import core.utils.MissingHeroException;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.BlocklyMonster;
+import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +42,10 @@ public class ComparePathfindigsStarter {
   private static final Class<? extends PathfindingLogic> pathFindingB = DFSPathFinding.class;
 
   /**
-   * Setup and run the game. Also start the server that is listening to the requests from blockly
-   * frontend.
+   * Starts the game and sets up the comparator for the pathfinding algorithms.
    *
-   * @param args
-   * @throws IOException
+   * @param args The command line arguments.
+   * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
@@ -73,12 +72,8 @@ public class ComparePathfindigsStarter {
           DevDungeonLoader.addLevel(Tuple.of("bfs", AiMazeLevel.class));
           createSystems();
 
-          try {
-            createHero();
-            RUNNERS[0] = Game.hero().orElseThrow(MissingHeroException::new);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          RUNNERS[0] = createHero();
+
           Game.system(
               LevelSystem.class, ls -> ls.onEndTile(ComparePathfindigsStarter::loadNextLevel));
           Game.remove(PlayerSystem.class);
@@ -89,29 +84,21 @@ public class ComparePathfindigsStarter {
   private static void loadNextLevel() {
     DevDungeonLoader.loadNextLevel();
     Tile[][] curLevel = Game.currentLevel().layout();
-    // copy the same layout below the current level with Wall Tiles between
-    LevelElement[][] newLevel = new LevelElement[curLevel.length * 2 + 1][curLevel[0].length];
-    for (int i = 0; i < curLevel.length; i++) {
-      for (int j = 0; j < curLevel[i].length; j++) {
-        LevelElement newElement = curLevel[i][j].levelElement();
-        newLevel[i][j] = newElement;
-        newLevel[i + curLevel.length + 1][j] = newElement;
-      }
-    }
-    for (int i = 0; i < newLevel.length; i++) {
-      for (int j = 0; j < newLevel[i].length; j++) {
-        if (newLevel[i][j] == null) {
-          newLevel[i][j] = LevelElement.WALL;
-        }
-      }
-    }
+
+    // Create duplicated level layout
+    LevelElement[][] newLevel = duplicateLevelVertically(curLevel);
+
+    // Set up new level with original and duplicated layouts
+    int rows = curLevel.length;
     Coordinate orgStart = Game.startTile().coordinate();
-    Coordinate newStart = orgStart.add(new Coordinate(0, curLevel.length + 1));
+    Coordinate newStart = orgStart.add(new Coordinate(0, rows + 1));
     Game.currentLevel(
         new AiMazeLevel(
             newLevel,
             Game.currentLevel().startTile().designLabel(),
             ((DevDungeonLevel) Game.currentLevel()).customPoints()));
+
+    // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());
     RUNNERS[1] =
         BlocklyMonster.RUNNER
@@ -119,34 +106,73 @@ public class ComparePathfindigsStarter {
             .spawnPoint(newStart.toCenteredPoint())
             .addToGame()
             .build()
-            .get();
+            .orElseThrow();
 
+    setupPathFindingSystem(rows);
+  }
+
+  /**
+   * Creates a new level with the original layout duplicated vertically below.
+   *
+   * @param curLevel The current level layout
+   * @return The new duplicated level layout
+   */
+  private static LevelElement[][] duplicateLevelVertically(Tile[][] curLevel) {
+    int rows = curLevel.length;
+    int cols = curLevel[0].length;
+    LevelElement[][] newLevel = new LevelElement[rows * 2 + 1][cols];
+
+    // Copy current level layout and duplicate it below
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        LevelElement element = curLevel[i][j].levelElement();
+        newLevel[i][j] = element;
+        newLevel[i + rows + 1][j] = element;
+      }
+    }
+
+    // Fill gaps with walls
+    for (int i = 0; i < newLevel.length; i++) {
+      for (int j = 0; j < newLevel[i].length; j++) {
+        if (newLevel[i][j] == null) {
+          newLevel[i][j] = LevelElement.WALL;
+        }
+      }
+    }
+
+    return newLevel;
+  }
+
+  /**
+   * Sets up the pathfinding system for both runners.
+   *
+   * @param rows The number of rows in the original level (used for offset calculation)
+   */
+  private static void setupPathFindingSystem(int rows) {
     Game.system(
         PathfindingSystem.class,
         (pfs) -> {
           pfs.autoStep(true);
 
-          List<Tuple<PathfindingLogic, Entity>> pathfindingAlgorithms = new ArrayList<>();
+          List<Tuple<PathfindingLogic, Entity>> algorithms = new ArrayList<>();
           for (int i = 0; i < RUNNERS.length; i++) {
             Entity runner = RUNNERS[i];
-            if (runner == null) {
-              continue;
-            }
+            if (runner == null) continue;
+
             Coordinate spawn =
-                runner.fetch(PositionComponent.class).get().position().toCoordinate();
+                runner.fetch(PositionComponent.class).orElseThrow().position().toCoordinate();
             Coordinate end = Game.currentLevel().endTile().coordinate();
-            PathfindingLogic algo;
-            if (i == 0) {
-              algo = instancePathfindingLogic(pathFindingA, spawn, end);
-            } else {
-              algo =
-                  instancePathfindingLogic(
-                      pathFindingB, spawn, end.add(new Coordinate(0, curLevel.length + 1)));
+
+            if (i == 1) {
+              end = end.add(new Coordinate(0, rows + 1));
             }
 
-            pathfindingAlgorithms.add(Tuple.of(algo, runner));
+            PathfindingLogic algo =
+                instancePathfindingLogic(i == 0 ? pathFindingA : pathFindingB, spawn, end);
+
+            algorithms.add(Tuple.of(algo, runner));
           }
-          pfs.updatePathfindingAlgorithm(pathfindingAlgorithms.toArray(new Tuple[0]));
+          pfs.updatePathfindingAlgorithm(algorithms.toArray(Tuple[]::new));
         });
   }
 
@@ -189,15 +215,21 @@ public class ComparePathfindigsStarter {
   /**
    * Creates and adds a new hero entity to the game.
    *
-   * <p>The new hero is generated using the {@link HeroFactory} and the {@link CameraComponent} of
-   * the hero is removed.
+   * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new hero is
+   * generated using the {@link HeroTankControlledFactory} and the {@link CameraComponent} of the
+   * hero is removed.
    *
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
-  public static void createHero() throws IOException {
+  public static Entity createHero() {
     Entity hero;
-    hero = HeroFactory.newHero();
-    hero.remove(CameraComponent.class);
+    try {
+      hero = HeroTankControlledFactory.newTankControlledHero();
+      hero.remove(CameraComponent.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     Game.add(hero);
+    return hero;
   }
 }
