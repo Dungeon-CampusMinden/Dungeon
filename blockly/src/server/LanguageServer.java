@@ -26,6 +26,9 @@ import utils.HideLanguage;
  * This Class contains utility methods to generate completion items for the blockly language server.
  * It uses reflection to inspect the methods of the classes and generate JSON objects that can be
  * later used by the IDE for code completion.
+ *
+ * <p>If you use a jar file, the source files must be copied to the jar file. The source files must
+ * be in the same package as the class files.
  */
 public class LanguageServer {
 

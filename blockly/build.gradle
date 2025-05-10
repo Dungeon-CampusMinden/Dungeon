@@ -51,6 +51,26 @@ tasks.register('buildBlocklyJar', Jar) {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    // Include source files from Language Server
+    from(project(':game').projectDir) {
+        include 'src/core/level/utils/LevelElement.java'
+        // Remove 'src/' prefix from paths
+        eachFile { file ->
+            file.path = file.path.replaceFirst('src/', '')
+        }
+        includeEmptyDirs = false
+    }
+    from(projectDir) {
+        include 'src/utils/Direction.java'
+        include 'src/utils/BlocklyCommands.java'
+        // Remove 'src/' prefix from paths
+        eachFile { file ->
+            file.path = file.path.replaceFirst('src/', '')
+        }
+        includeEmptyDirs = false
+    }
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
