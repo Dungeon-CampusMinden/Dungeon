@@ -34,7 +34,7 @@ import utils.pathfinding.DFSPathFinding;
 import utils.pathfinding.PathfindingLogic;
 
 /** This class starts a comparator for the pathfinding algorithms. */
-public class ComparePathfindigsStarter {
+public class ComparePathfindingStarter {
   private static final boolean DRAW_CHECKER_PATTERN = true;
   private static final Entity[] RUNNERS = new Entity[2];
 
@@ -75,7 +75,7 @@ public class ComparePathfindigsStarter {
           RUNNERS[0] = createHero();
 
           Game.system(
-              LevelSystem.class, ls -> ls.onEndTile(ComparePathfindigsStarter::loadNextLevel));
+              LevelSystem.class, ls -> ls.onEndTile(ComparePathfindingStarter::loadNextLevel));
           Game.remove(PlayerSystem.class);
           loadNextLevel();
         });

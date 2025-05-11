@@ -14,17 +14,16 @@ import utils.pathfinding.PathfindingVisualizer;
 import utils.pathfinding.TileState;
 
 /**
- * This class is responsible for managing the pathfinding logic and visualizing the pathfinding
- * process.
+ * This system is responsible for visualizing multiple pathfinding logics.
  *
  * <p>It allows for both manual and automatic stepping through the pathfinding process.
  *
- * <p>It checks every frame 2 things: 1. If the pathfinding is finished and the hero is not moving,
- * it will start moving the hero on the final path, and stop the system.2. If the step pathfinding
- * key is pressed, it will visualize the pathfinding process.
+ * <p>It checks every frame 2 things: 1. If all pathfindings are finished and the runners are not
+ * moving, it will start moving them on each final path, and stop the system.2. If the step
+ * pathfinding key is pressed, it will visualize the pathfinding process.
  *
- * <p>Use {@link #updatePathfindingAlgorithm(Tuple[])} to start the system and set a new pathfinding
- * algorithm.
+ * <p>Use {@link #updatePathfindingAlgorithm(Tuple[])} to start the system and set new pathfinding
+ * algorithms.
  *
  * @see PathfindingLogic
  * @see TileState
@@ -120,10 +119,10 @@ public class PathfindingSystem extends System {
   /**
    * Sets a new pathfinding algorithm and starts the pathfinding process.
    *
-   * <p>This method starts this system, resets the current pathfinding process, and initializes a
-   * new one with the provided pathfinding algorithm.
+   * <p>This method starts this system, resets the current pathfinding processes, and initializes
+   * new ones with the provided pathfinding algorithms.
    *
-   * @param pathFindingAlgorithms the pathfinding algorithm to use
+   * @param pathFindingAlgorithms the pathfinding algorithms to use
    */
   @SafeVarargs
   public final void updatePathfindingAlgorithm(
