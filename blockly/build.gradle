@@ -43,7 +43,7 @@ tasks.register('runBlockly', JavaExec) {
 }
 
 tasks.register('runPathFindingComparison', JavaExec) {
-    mainClass = 'start.ComparePathfindingStarter'
+    mainClass = 'starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
