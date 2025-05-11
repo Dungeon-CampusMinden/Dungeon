@@ -15,9 +15,11 @@ import java.util.List;
  * labyrinth.
  */
 public class AiMazeLevel extends BlocklyLevel {
+  /**
+   * The zoom level of the overview camera. This is used to adjust the camera view to properly
+   * display the labyrinth. (default: 0.20f)
+   */
   public static float ZOOM_LEVEL = 0.20f;
-
-  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the

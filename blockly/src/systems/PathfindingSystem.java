@@ -31,24 +31,24 @@ import utils.pathfinding.TileState;
  * @see PathfindingVisualizer
  */
 public class PathfindingSystem extends System {
-  private final List<Helper> pathfindingAlgorithms = new ArrayList<>();
+  private final List<PathfindingData> pathfindingAlgorithms = new ArrayList<>();
 
   private boolean autoStep = false;
-  private long stepDelay = 2; // Step delay in milliseconds if using autoStep
+  private long stepDelay = 100; // Step delay in milliseconds if using autoStep
   private int runningRunners = 0;
 
   @Override
   public void execute() {
-    for (Helper helper : pathfindingAlgorithms) {
-      PathfindingVisualizer visualizer = helper.visualizer;
-      Entity runner = helper.runner;
+    for (PathfindingData pathfindingData : pathfindingAlgorithms) {
+      PathfindingVisualizer visualizer = pathfindingData.visualizer;
+      Entity runner = pathfindingData.runner;
 
-      if (runner.isPresent(PathComponent.class)) { // already moving?
+      if (runner.isPresent(PathComponent.class)) {
         continue;
       }
 
       if (isEveryAlgorithmFinished() && !isEveryRunnerRunning() && isStartMovingKeyPressed()) {
-        runner.add(new PathComponent(helper.finalPath));
+        runner.add(new PathComponent(pathfindingData.finalPath));
         runningRunners++;
 
         if (isEveryRunnerRunning()) this.stop();
@@ -64,8 +64,8 @@ public class PathfindingSystem extends System {
   }
 
   private boolean isEveryAlgorithmFinished() {
-    for (Helper helper : pathfindingAlgorithms) {
-      if (!helper.visualizer.isFinished()) {
+    for (PathfindingData pathfindingData : pathfindingAlgorithms) {
+      if (!pathfindingData.visualizer.isFinished()) {
         return false;
       }
     }
@@ -132,8 +132,8 @@ public class PathfindingSystem extends System {
     reset();
     for (Tuple<PathfindingLogic, Entity> pathFindingAlgorithm : pathFindingAlgorithms) {
       pathFindingAlgorithm.a().performSearch(); // Perform the search to populate the path
-      Helper algo =
-          new Helper(
+      PathfindingData algo =
+          new PathfindingData(
               new PathfindingVisualizer(
                   pathFindingAlgorithm.a().steps(), pathFindingAlgorithm.a().finalPath()),
               pathFindingAlgorithm.a().finalPath(),
@@ -149,12 +149,13 @@ public class PathfindingSystem extends System {
    * the state of the system.
    */
   private void reset() {
-    for (Helper helper : pathfindingAlgorithms) {
-      helper.visualizer.reset();
+    for (PathfindingData pathfindingData : pathfindingAlgorithms) {
+      pathfindingData.visualizer.reset();
     }
     pathfindingAlgorithms.clear();
     runningRunners = 0;
   }
 
-  record Helper(PathfindingVisualizer visualizer, List<Coordinate> finalPath, Entity runner) {}
+  private record PathfindingData(
+      PathfindingVisualizer visualizer, List<Coordinate> finalPath, Entity runner) {}
 }
