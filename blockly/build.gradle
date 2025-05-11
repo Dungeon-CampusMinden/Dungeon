@@ -42,6 +42,11 @@ tasks.register('runBlockly', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runPathFindingComparison', JavaExec) {
+    mainClass = 'start.ComparePathfindingStarter'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('buildBlocklyJar', Jar) {
     dependsOn ':game:jar', ':dungeon:jar'
     archiveBaseName = 'Blockly'
