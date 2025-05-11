@@ -219,6 +219,7 @@ public class ComparePathfindingStarter {
    * generated using the {@link HeroTankControlledFactory} and the {@link CameraComponent} of the
    * hero is removed.
    *
+   * @return The newly created hero entity
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
   public static Entity createHero() {

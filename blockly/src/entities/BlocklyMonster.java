@@ -98,6 +98,10 @@ public enum BlocklyMonster {
       99999, // one hit kill
       0,
       MonsterIdleSound.BURP),
+  /**
+   * The Runner Mob for the {@link starter.ComparePathfindingStarter}. This monster looks and moves
+   * like the hero.
+   */
   RUNNER(
       "Blockly Runner",
       "character/wizard",
