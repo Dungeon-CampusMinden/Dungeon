@@ -2,13 +2,10 @@ package produsAdvanced;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
-import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
-import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import core.Entity;
@@ -27,13 +24,10 @@ import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import systems.BlockSystem;
 import systems.TintTilesSystem;
-import utils.CheckPatternPainter;
 
 public class AdvancedDungeon {
 
   public static Hero hero;
-  private static final boolean DRAW_CHECKER_PATTERN = true;
-
   private static final SimpleIPath CONTROLLER_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
@@ -59,15 +53,13 @@ public class AdvancedDungeon {
     configGame();
     onSetup();
     Game.userOnFrame(onFrame);
-    onLevelLoad();
     Game.run();
   }
 
   private static void onSetup() {
-    // TODO check file
     Game.userOnSetup(
         () -> {
-          // chapter 1
+          // TODO REPLACE WITH CORRECT LEVEL
           DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
@@ -81,40 +73,13 @@ public class AdvancedDungeon {
             throw new RuntimeException(e);
           }
           Crafting.loadRecipes();
-          Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-          DevDungeonLoader.afterAllLevels(AdvancedDungeon::startRoomBasedLevel);
           DevDungeonLoader.loadLevel(0);
         });
   }
 
-  private static void onLevelLoad() {
-    Game.userOnLevelLoad(
-        (firstLoad) -> {
-          if (DRAW_CHECKER_PATTERN)
-            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
-          Game.hero()
-              .flatMap(e -> e.fetch(AmmunitionComponent.class))
-              .map(AmmunitionComponent::resetCurrentAmmunition);
-        });
-  }
-
-  private static void startRoomBasedLevel() {
-    GeneratorUtils.createRoomBasedLevel(10, 5, 1);
-    DialogUtils.showTextPopup(
-        "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
-
-    LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-    levelSystem.onEndTile(
-        AdvancedDungeon::startRoomBasedLevel); // restart the level -> endless loop
-  }
-
   private static void configGame() throws IOException {
-    Game.loadConfig(
-        new SimpleIPath("dungeon_config.json"),
-        contrib.configuration.KeyboardConfig.class,
-        core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
     Game.resizeable(true);
