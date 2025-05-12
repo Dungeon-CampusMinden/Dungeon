@@ -137,7 +137,7 @@ public class PathfinderStarter {
    * Creates and adds a new hero entity to the game.
    *
    * <p>The new hero is generated using the {@link HeroFactory} and the {@link CameraComponent} of
-   * the hero is removed.
+   * the hero is removed. And movement callbacks are removed.
    *
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
@@ -146,6 +146,20 @@ public class PathfinderStarter {
     hero = HeroFactory.newHero();
     hero.remove(CameraComponent.class);
     Game.add(hero);
+
+    PlayerComponent pc =
+        Game.hero()
+            .get()
+            .fetch(PlayerComponent.class)
+            .orElseThrow(
+                () -> MissingComponentException.build(Game.hero().get(), PlayerComponent.class));
+    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_UP.value());
+    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_DOWN.value());
+    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value());
+    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
+    pc.removeCallback(contrib.configuration.KeyboardConfig.MOUSE_FIRST_SKILL.value());
+    pc.removeCallback(contrib.configuration.KeyboardConfig.MOUSE_MOVE.value());
+    pc.removeCallback(contrib.configuration.KeyboardConfig.FIRST_SKILL.value());
   }
 
   /**
