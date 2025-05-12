@@ -3,16 +3,17 @@ package starter;
 import contrib.entities.HeroFactory;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
-import contrib.systems.LevelEditorSystem;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.systems.LevelSystem;
+import core.utils.MissingHeroException;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
 import level.AiMazeLevel;
+import systems.MazeEditorSystem;
 import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
 import utils.pathfinding.DFSPathFinding;
@@ -69,9 +70,11 @@ public class PathfinderStarter {
               (pfs) -> {
                 pfs.autoStep(true);
                 pfs.updatePathfindingAlgorithm(
-                    new DFSPathFinding(
-                        Game.currentLevel().startTile().coordinate(),
-                        Game.currentLevel().endTile().coordinate()));
+                    Tuple.of(
+                        new DFSPathFinding(
+                            Game.currentLevel().startTile().coordinate(),
+                            Game.currentLevel().endTile().coordinate()),
+                        Game.hero().orElseThrow(MissingHeroException::new)));
               });
         });
   }
@@ -87,7 +90,7 @@ public class PathfinderStarter {
   }
 
   private static void createSystems() {
-    Game.add(new LevelEditorSystem());
+    Game.add(new MazeEditorSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new EventScheduler());
