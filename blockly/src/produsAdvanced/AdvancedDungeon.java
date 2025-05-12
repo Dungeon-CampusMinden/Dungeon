@@ -35,6 +35,7 @@ public class AdvancedDungeon {
       new IVoidFunction() {
         @Override
         public void execute() {
+          // TODO use filechecker
           if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
             try {
               Object o =
