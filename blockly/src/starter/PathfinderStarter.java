@@ -147,19 +147,8 @@ public class PathfinderStarter {
     hero.remove(CameraComponent.class);
     Game.add(hero);
 
-    PlayerComponent pc =
-        Game.hero()
-            .get()
-            .fetch(PlayerComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(Game.hero().get(), PlayerComponent.class));
-    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_UP.value());
-    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_DOWN.value());
-    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_LEFT.value());
-    pc.removeCallback(core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
-    pc.removeCallback(contrib.configuration.KeyboardConfig.MOUSE_FIRST_SKILL.value());
-    pc.removeCallback(contrib.configuration.KeyboardConfig.MOUSE_MOVE.value());
-    pc.removeCallback(contrib.configuration.KeyboardConfig.FIRST_SKILL.value());
+    hero.remove(PlayerComponent.class);
+    hero.add(new PlayerComponent());
   }
 
   /**
