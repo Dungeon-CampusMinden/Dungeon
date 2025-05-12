@@ -4,6 +4,8 @@ import contrib.components.PathComponent;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.System;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The PathSystem is responsible for moving entities along a path. It fetches the {@link
@@ -28,16 +30,27 @@ public class PathSystem extends System {
 
   /**
    * The execute method is responsible for moving the entity along the path. It fetches the
-   * PathComponent of the entity and throws an exception if it is missing. If the path is null or
-   * has no elements, the method returns without doing anything. Otherwise, it moves the entity
-   * along the path and updates the time since the last update.
+   * PathComponent of the entity and throws an exception if it is missing. Then it checks if the
+   * path is valid. If it is, it moves the entity along the path. If the path is finished, it
+   * removes the PathComponent from the entity.
    */
   @Override
   public void execute() {
-    filteredEntityStream(PathComponent.class)
-        .map(e -> new PSData(e, e.fetch(PathComponent.class).orElseThrow()))
-        .filter(psd -> psd.pathComponent.isValid())
-        .forEach(psd -> AIUtils.move(psd.entity, psd.pathComponent.path()));
+    List<Entity> finishedRunners =
+        filteredEntityStream(PathComponent.class)
+            .map(e -> new PSData(e, e.fetch(PathComponent.class).orElseThrow()))
+            .filter(psd -> psd.pathComponent.isValid())
+            .map(this::processEntity)
+            .flatMap(Optional::stream)
+            .toList();
+    finishedRunners.forEach(e -> e.remove(PathComponent.class));
+  }
+
+  private Optional<Entity> processEntity(PSData data) {
+    AIUtils.move(data.entity, data.pathComponent.path());
+    return AIUtils.pathFinished(data.entity, data.pathComponent.path())
+        ? Optional.of(data.entity)
+        : Optional.empty();
   }
 
   private record PSData(Entity entity, PathComponent pathComponent) {}
