@@ -158,16 +158,14 @@ public class PathfinderStarter {
    * updates the game window title to reflect the newly selected algorithm.
    *
    * @param algorithm The new pathfinding algorithm to be used (e.g., DFS, BFS, SuS).
-   * @param name The name of the algorithm to display in the window title for the player's
-   *     reference.
    */
-  private static void switchToAlgorithm(utils.pathfinding.PathfindingLogic algorithm, String name) {
+  private static void switchToAlgorithm(PathfindingLogic algorithm) {
     Game.system(
         PathfindingSystem.class,
         pfs -> {
           pfs.autoStep(true);
           pfs.updatePathfindingAlgorithm(algorithm);
         });
-    Game.updateWindowTitle("Blockly KI-Dungeon – " + name);
+    Game.updateWindowTitle("Blockly KI-Dungeon – " + algorithm.getClass().getSimpleName());
   }
 }
