@@ -21,6 +21,7 @@ import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
 import utils.pathfinding.BFSPathFinding;
 import utils.pathfinding.DFSPathFinding;
+import utils.pathfinding.SusPathFinding;
 
 /** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class PathfinderStarter {
@@ -28,7 +29,6 @@ public class PathfinderStarter {
   private static final boolean DRAW_CHECKER_PATTERN = true;
   private static Tuple<utils.pathfinding.PathfindingLogic, utils.pathfinding.PathfindingLogic>
       pathfindings = Tuple.of(null, null);
-  private static final boolean noSuSAlgorithmAvailable = true;
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -103,12 +103,12 @@ public class PathfinderStarter {
               KeyboardConfig.SELECT_SUS_ALGO.value(),
               entity -> {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
-                  if (noSuSAlgorithmAvailable) {
-                    LOGGER.info("No sus algorithm available");
-                  } else {
-                    // pathfindings = Tuple.of(null, new SusPathFinding(startCoords,
-                    // endTileCoords));
-                    // switchToAlgorithm(pathfindings.b(), "Sus-Pathfinding");
+                  try {
+                    pathfindings = Tuple.of(null, new SusPathFinding(startCoords, endTileCoords));
+                    switchToAlgorithm(pathfindings.b(), "Sus-Pathfinding");
+                  } catch (UnsupportedOperationException e) {
+                    LOGGER.info(e.getMessage());
+                    pathfindings = Tuple.of(null, null);
                   }
                 }
               });
@@ -126,7 +126,7 @@ public class PathfinderStarter {
   }
 
   private static void createSystems() {
-    // Game.add(new LevelEditorSystem());
+    Game.add(new LevelEditorSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new EventScheduler());
