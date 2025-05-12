@@ -21,14 +21,14 @@ import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
 import utils.pathfinding.BFSPathFinding;
 import utils.pathfinding.DFSPathFinding;
+import utils.pathfinding.PathfindingLogic;
 import utils.pathfinding.SusPathFinding;
 
 /** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class PathfinderStarter {
   private static final Logger LOGGER = Logger.getLogger(PathfinderStarter.class.getName());
   private static final boolean DRAW_CHECKER_PATTERN = true;
-  private static Tuple<utils.pathfinding.PathfindingLogic, utils.pathfinding.PathfindingLogic>
-      pathfindings = Tuple.of(null, null);
+  private static Tuple<PathfindingLogic, PathfindingLogic> pathfindings = Tuple.of(null, null);
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -88,7 +88,7 @@ public class PathfinderStarter {
               entity -> {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
                   pathfindings = Tuple.of(new DFSPathFinding(startCoords, endTileCoords), null);
-                  switchToAlgorithm(pathfindings.a(), "DFS-Pathfinding");
+                  switchToAlgorithm(pathfindings.a());
                 }
               });
           pc.registerCallback(
@@ -96,7 +96,7 @@ public class PathfinderStarter {
               entity -> {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
                   pathfindings = Tuple.of(new BFSPathFinding(startCoords, endTileCoords), null);
-                  switchToAlgorithm(pathfindings.a(), "BFS-Pathfinding");
+                  switchToAlgorithm(pathfindings.a());
                 }
               });
           pc.registerCallback(
@@ -105,7 +105,7 @@ public class PathfinderStarter {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
                   try {
                     pathfindings = Tuple.of(null, new SusPathFinding(startCoords, endTileCoords));
-                    switchToAlgorithm(pathfindings.b(), "Sus-Pathfinding");
+                    switchToAlgorithm(pathfindings.b());
                   } catch (UnsupportedOperationException e) {
                     LOGGER.info(e.getMessage());
                     pathfindings = Tuple.of(null, null);
