@@ -30,6 +30,7 @@ allprojects {
         standardInput = System.in
         ignoreExitValue true
         systemProperty 'BASELOGDIR', project.baseLogDir
+        systemProperty 'BASEREFLECTIONDIR', project.baseReflectionDir
     }
 
     clean {

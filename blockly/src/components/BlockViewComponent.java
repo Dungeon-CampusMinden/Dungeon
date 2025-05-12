@@ -3,4 +3,4 @@ package components;
 import core.Component;
 
 /** This component is used to prevent the fireball shooter from seeing through this entity. */
-public class BlockFireBallComponent implements Component {}
+public class BlockViewComponent implements Component {}

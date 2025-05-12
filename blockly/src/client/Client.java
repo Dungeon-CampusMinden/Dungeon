@@ -21,13 +21,9 @@ import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
-
-import level.ArrayLevel;
-import level.MazeLevel;
-import level.SortArrayLevel;
+import level.produs.*;
 import server.Server;
 import systems.BlockSystem;
-import systems.LevelEditorSystem;
 import systems.TintTilesSystem;
 import utils.CheckPatternPainter;
 
@@ -36,7 +32,9 @@ import utils.CheckPatternPainter;
  * have any effect
  */
 public class Client {
-  private static final boolean KEYBOARD_DEACTIVATION = false;
+
+  private static final boolean DEBUG_MODE = false;
+  private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
   private static final boolean DRAW_CHECKER_PATTERN = true;
 
   private static HttpServer httpServer;
@@ -56,7 +54,7 @@ public class Client {
     // Set up components and level
     onSetup();
 
-    onFrame(debugger);
+    if (DEBUG_MODE) onFrame(debugger);
 
     onLevelLoad();
 
@@ -73,13 +71,35 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          // chapter 1
+          DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level4", Chapter14Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level6", Chapter16Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level7", Chapter17Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level9", Chapter19Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level10", Chapter110Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level11", Chapter111Level.class));
+
+          // chapter 2
+          DevDungeonLoader.addLevel(Tuple.of("level12", Chapter21Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level13", Chapter22Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level14", Chapter23Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level15", Chapter24Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level16", Chapter25Level.class));
+
+          // chapter 3
+          DevDungeonLoader.addLevel(Tuple.of("level17", Chapter31Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level18", Chapter32Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level19", Chapter33Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level20", Chapter34Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level21", Chapter35Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level22", Chapter36Level.class));
 
           createSystems();
-
-
-          LevelEditorSystem.active(true);
-
-          DevDungeonLoader.addLevel(Tuple.of("advanced", ArrayLevel.class));
 
           HeroFactory.heroDeath(
               entity -> {
@@ -100,7 +120,6 @@ public class Client {
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
           DevDungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
-
           DevDungeonLoader.loadLevel(0);
         });
   }
@@ -133,12 +152,11 @@ public class Client {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
+    Game.resizeable(true);
     Game.windowTitle("Blockly Dungeon");
   }
 
   private static void createSystems() {
-    Game.add(new LevelEditorSystem());
-    Game.add(new PlayerSystem());
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
     Game.add(new HealthSystem());
@@ -155,6 +173,7 @@ public class Client {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
+    Game.add(new FogSystem());
   }
 
   private static void startServer() {

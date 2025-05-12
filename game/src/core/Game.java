@@ -114,6 +114,24 @@ public final class Game {
   }
 
   /**
+   * Checks if the game-window can be resized.
+   *
+   * @return True if the game-window can be resized. , false otherwise.
+   */
+  public static boolean resizeable() {
+    return PreRunConfiguration.resizeable();
+  }
+
+  /**
+   * Sets whether the game-window can be resized..
+   *
+   * @param resizeable True to enable resizing, false otherwise.
+   */
+  public static void resizeable(boolean resizeable) {
+    PreRunConfiguration.resizeable(resizeable);
+  }
+
+  /**
    * Sets the window title in the pre-run configuration.
    *
    * @param windowTitle The new window title.
@@ -270,6 +288,17 @@ public final class Game {
    */
   public static Map<Class<? extends System>, System> systems() {
     return ECSManagment.systems();
+  }
+
+  /**
+   * If a system instance of the specified type is present, performs the given action on it.
+   *
+   * @param <T> the type of the system, which must extend {@link System}
+   * @param s the class object of the desired system type
+   * @param c the {@link Consumer} to execute with the system instance if present
+   */
+  public static <T extends System> void system(Class<T> s, Consumer<T> c) {
+    ECSManagment.system(s, c);
   }
 
   /**
