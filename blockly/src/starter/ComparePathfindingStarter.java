@@ -1,10 +1,10 @@
 package starter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import contrib.level.DevDungeonLevel;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.EventScheduler;
-import contrib.systems.LevelEditorSystem;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
 import contrib.utils.components.Debugger;
@@ -16,8 +16,10 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.systems.CameraSystem;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.BlocklyMonster;
@@ -64,10 +66,7 @@ public class ComparePathfindingStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          Gdx.graphics.setWindowedMode(
-              Gdx.graphics.getWidth(), (int) (Gdx.graphics.getHeight() * 1.9f));
-
-          AiMazeLevel.ZOOM_LEVEL = 0.25f;
+          ((Lwjgl3Graphics) Gdx.graphics).getWindow().maximizeWindow();
 
           DevDungeonLoader.addLevel(Tuple.of("bfs", AiMazeLevel.class));
           createSystems();
@@ -78,7 +77,37 @@ public class ComparePathfindingStarter {
               LevelSystem.class, ls -> ls.onEndTile(ComparePathfindingStarter::loadNextLevel));
           Game.remove(PlayerSystem.class);
           loadNextLevel();
+
+          // Wait for Level to Load
+          EventScheduler.scheduleAction(ComparePathfindingStarter::adjustWindowSize, 10);
         });
+  }
+
+  private static void adjustWindowSize() {
+    Tile[][] layout = Game.currentLevel().layout();
+    int levelHeight = layout.length;
+
+    Point topTile = layout[0][0].coordinate().add(new Coordinate(0, 2)).toCenteredPoint();
+    Point bottomTile =
+        layout[levelHeight - 1][0].coordinate().add(new Coordinate(0, 2)).toCenteredPoint();
+
+    // Zoom out until the whole level is visible
+    int currentTries = 0;
+    int maxTries = 10000; // fail-safe
+    while (currentTries <= maxTries) {
+      if (CameraSystem.isPointInFrustum(topTile.x, topTile.y)
+          && CameraSystem.isPointInFrustum(bottomTile.x, bottomTile.y)) {
+        break;
+      }
+
+      CameraSystem.camera().zoom = CameraSystem.camera().zoom + 0.01f;
+
+      // Update rendering
+      Game.system(LevelSystem.class, LevelSystem::execute);
+      Game.system(CameraSystem.class, CameraSystem::execute);
+
+      currentTries++;
+    }
   }
 
   private static void loadNextLevel() {
@@ -200,12 +229,12 @@ public class ComparePathfindingStarter {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
+    Game.resizeable(true);
     Game.windowTitle(
         "Blockly " + pathFindingA.getSimpleName() + " vs " + pathFindingB.getSimpleName());
   }
 
   private static void createSystems() {
-    Game.add(new LevelEditorSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new EventScheduler());
