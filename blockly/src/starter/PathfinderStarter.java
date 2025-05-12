@@ -10,6 +10,7 @@ import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
+import core.utils.MissingHeroException;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import level.AiMazeLevel;
+import systems.MazeEditorSystem;
 import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
 import utils.pathfinding.BFSPathFinding;
@@ -126,7 +128,7 @@ public class PathfinderStarter {
   }
 
   private static void createSystems() {
-    Game.add(new LevelEditorSystem());
+    Game.add(new MazeEditorSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new EventScheduler());
