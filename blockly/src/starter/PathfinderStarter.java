@@ -8,6 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.systems.LevelSystem;
+import core.utils.MissingHeroException;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -69,9 +70,11 @@ public class PathfinderStarter {
               (pfs) -> {
                 pfs.autoStep(true);
                 pfs.updatePathfindingAlgorithm(
-                    new DFSPathFinding(
-                        Game.currentLevel().startTile().coordinate(),
-                        Game.currentLevel().endTile().coordinate()));
+                    Tuple.of(
+                        new DFSPathFinding(
+                            Game.currentLevel().startTile().coordinate(),
+                            Game.currentLevel().endTile().coordinate()),
+                        Game.hero().orElseThrow(MissingHeroException::new)));
               });
         });
   }

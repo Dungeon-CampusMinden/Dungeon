@@ -35,7 +35,7 @@ public class DevDungeonLoader {
 
   private static final List<Tuple<String, Class<? extends DevDungeonLevel>>> levelOrder =
       new ArrayList<>();
-  private static int currentLevel = 0;
+  private static int currentLevel = -1;
   private static int currentVariant = 0;
   private static IVoidFunction afterAllLevels =
       () -> {
