@@ -10,7 +10,6 @@ import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
-import core.utils.MissingHeroException;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
@@ -90,7 +89,7 @@ public class PathfinderStarter {
               entity -> {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
                   pathfindings = Tuple.of(new DFSPathFinding(startCoords, endTileCoords), null);
-                  switchToAlgorithm(pathfindings.a());
+                  switchToAlgorithm(pathfindings.a(), entity);
                 }
               });
           pc.registerCallback(
@@ -98,7 +97,7 @@ public class PathfinderStarter {
               entity -> {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
                   pathfindings = Tuple.of(new BFSPathFinding(startCoords, endTileCoords), null);
-                  switchToAlgorithm(pathfindings.a());
+                  switchToAlgorithm(pathfindings.a(), entity);
                 }
               });
           pc.registerCallback(
@@ -107,7 +106,7 @@ public class PathfinderStarter {
                 if (pathfindings.a() == null && pathfindings.b() == null) {
                   try {
                     pathfindings = Tuple.of(null, new SusPathFinding(startCoords, endTileCoords));
-                    switchToAlgorithm(pathfindings.b());
+                    switchToAlgorithm(pathfindings.b(), entity);
                   } catch (UnsupportedOperationException e) {
                     LOGGER.info(e.getMessage());
                     pathfindings = Tuple.of(null, null);
@@ -160,13 +159,14 @@ public class PathfinderStarter {
    * updates the game window title to reflect the newly selected algorithm.
    *
    * @param algorithm The new pathfinding algorithm to be used (e.g., DFS, BFS, SuS).
+   * @param hero The entity using the algorithm
    */
-  private static void switchToAlgorithm(PathfindingLogic algorithm) {
+  private static void switchToAlgorithm(PathfindingLogic algorithm, Entity hero) {
     Game.system(
         PathfindingSystem.class,
         pfs -> {
           pfs.autoStep(true);
-          pfs.updatePathfindingAlgorithm(algorithm);
+          pfs.updatePathfindingAlgorithm(Tuple.of(algorithm, hero));
         });
     Game.updateWindowTitle("Blockly KI-Dungeon – " + algorithm.getClass().getSimpleName());
   }
