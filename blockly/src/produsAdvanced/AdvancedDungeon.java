@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
+import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
@@ -22,6 +23,7 @@ import java.util.logging.Level;
 import level.produs.*;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
+import produsAdvanced.level.AdvancedBerryLevel;
 import systems.BlockSystem;
 import systems.TintTilesSystem;
 
@@ -37,17 +39,22 @@ public class AdvancedDungeon {
         public void execute() {
           // TODO use filechecker
           if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-            try {
-              Object o =
-                  DynamicCompiler.loadUserInstance(
-                      CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
-              hero.setController((PlayerController) o);
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            }
+            recompileHeroControl();
           }
         }
       };
+
+  private static void recompileHeroControl() {
+    try {
+      Object o =
+          DynamicCompiler.loadUserInstance(
+              CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
+      hero.setController((PlayerController) o);
+    } catch (Exception e) {
+      DialogUtils.showTextPopup(
+          "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.", "Code Error");
+    }
+  }
 
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
@@ -60,12 +67,8 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          // TODO REPLACE WITH CORRECT LEVEL
-          DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level4", Chapter14Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
+          // DevDungeonLoader.addLevel(Tuple.of("control", AdvancedControlLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
           createSystems();
           HeroFactory.heroDeath(entity -> restart());
           try {
@@ -104,7 +107,7 @@ public class AdvancedDungeon {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
-    Game.add(new FogSystem());
+    Game.add(new LevelEditorSystem());
   }
 
   private static void createHero() throws IOException {
@@ -124,6 +127,7 @@ public class AdvancedDungeon {
     Game.removeAllEntities();
     try {
       createHero();
+      recompileHeroControl();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

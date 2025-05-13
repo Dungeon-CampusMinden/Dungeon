@@ -1,5 +1,6 @@
 package produsAdvanced.riddles;
 
+import produsAdvanced.abstraction.Berry;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 
@@ -35,6 +36,27 @@ public class MyPlayerController extends PlayerController {
    */
   @Override
   protected void processKey(String key) {
+    System.out.println(key);
+    if (key.equals("W")) move(0, 10);
+    if (key.equals("S")) move(0, -10);
+    if (key.equals("A")) move(-10, 0);
+    if (key.equals("D")) move(10, 0);
+    if (key.equals("E")) hero.interact();
+    if (key.equals("P")) pickUpberry();
+    if (key.equals("I")) hero.openInventory();
     // TODO Verhalten für bestimmte Tasten ergänzt.
+  }
+
+  private void pickUpberry() {
+    Berry b = hero.getBerryAt(hero.getMousePosition());
+    if (b != null && b.isToxic()) {
+      b.changeTexture(Berry.DONUT_TEXTURE);
+      b.displayName("Die ist giftig.");
+    }
+  }
+
+  private void move(int x, int y) {
+    hero.setXSpeed(x);
+    hero.setYSpeed(y);
   }
 }
