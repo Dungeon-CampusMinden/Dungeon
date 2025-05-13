@@ -1,5 +1,6 @@
 package produsAdvanced.riddles;
 
+import java.awt.*;
 import produsAdvanced.abstraction.Berry;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
@@ -49,10 +50,7 @@ public class MyPlayerController extends PlayerController {
 
   private void pickUpberry() {
     Berry b = hero.getBerryAt(hero.getMousePosition());
-    if (b != null && b.isToxic()) {
-      b.changeTexture(Berry.DONUT_TEXTURE);
-      b.displayName("Die ist giftig.");
-    }
+    if (b != null && b.isToxic()) {}
   }
 
   private void move(int x, int y) {
