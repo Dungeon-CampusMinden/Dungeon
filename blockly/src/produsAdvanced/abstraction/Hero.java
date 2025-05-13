@@ -1,7 +1,10 @@
 package produsAdvanced.abstraction;
 
 import com.badlogic.gdx.Input;
+import contrib.components.InventoryComponent;
+import contrib.components.ItemComponent;
 import contrib.components.UIComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.interaction.InteractionTool;
@@ -9,9 +12,14 @@ import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
+import core.Game;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
 import core.utils.Point;
+import core.utils.Tuple;
+import core.utils.components.MissingComponentException;
+import java.util.Comparator;
 import java.util.function.Supplier;
 
 /**
@@ -63,6 +71,42 @@ public class Hero {
       int finalKey = key;
       pc.registerCallback(key, entity -> controller.processKey(Input.Keys.toString(finalKey)));
     }
+
+    pc.registerCallback(
+        KeyboardConfig.CLOSE_UI.value(),
+        (e) -> {
+          var firstUI =
+              Game.entityStream() // would be nice to directly access HudSystems
+                  // stream (no access to the System object)
+                  .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
+                  // which have a
+                  // UIComponent
+                  .map(
+                      x ->
+                          new Tuple<>(
+                              x,
+                              x.fetch(UIComponent.class)
+                                  .orElseThrow(
+                                      () ->
+                                          MissingComponentException.build(
+                                              x, UIComponent.class)))) // create a tuple to
+                  // still have access to
+                  // the UI Entity
+                  .filter(x -> x.b().closeOnUICloseKey())
+                  .max(Comparator.comparingInt(x -> x.b().dialog().getZIndex())) // find dialog
+                  // with highest
+                  // z-Index
+                  .orElse(null);
+          if (firstUI != null) {
+            InventoryGUI.inHeroInventory = false;
+            firstUI.a().remove(UIComponent.class);
+            if (firstUI.a().componentStream().findAny().isEmpty()) {
+              Game.remove(firstUI.a()); // delete unused Entity
+            }
+          }
+        },
+        false,
+        true);
   }
 
   /**
@@ -123,5 +167,44 @@ public class Hero {
     } else {
       InteractionTool.interactWithClosestInteractable(hero);
     }
+  }
+
+  public Berry getBerryAt(Point point) {
+    if (point == null) return null;
+    Tile t = Game.tileAT(point);
+    if (t == null) return null;
+    return Game.entityAtTile(Game.tileAT(point))
+        .findFirst()
+        .flatMap(e -> e.fetch(ItemComponent.class))
+        .map(ItemComponent::item)
+        .filter(item -> item instanceof Berry)
+        .map(item -> (Berry) item)
+        .orElse(null);
+  }
+
+  public void openInventory() {
+    if (hero.fetch(PlayerComponent.class).get().openDialogs()) {
+      return;
+    }
+
+    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
+    if (uiComponent != null) {
+      if (uiComponent.dialog() instanceof GUICombination) {
+        InventoryGUI.inHeroInventory = false;
+        hero.remove(UIComponent.class);
+      }
+    } else {
+      InventoryGUI.inHeroInventory = true;
+      hero.add(
+          new UIComponent(
+              new GUICombination(new InventoryGUI(hero.fetch(InventoryComponent.class).get())),
+              true));
+    }
+  }
+
+  public void destroyItemAt(Point point) {
+    if (point == null) return;
+    Entity e = Game.entityAtTile(Game.tileAT(point)).findFirst().orElse(null);
+    if (e != null && e.isPresent(ItemComponent.class)) Game.remove(e);
   }
 }
