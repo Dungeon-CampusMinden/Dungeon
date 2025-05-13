@@ -27,7 +27,6 @@ public class Berry extends Item {
   public void changeTexture(String texture) {
     this.worldAnimation(Animation.fromSingleImage(new SimpleIPath(texture)));
     this.inventoryAnimation(Animation.fromSingleImage(new SimpleIPath(texture)));
-    this.
   }
 
   @Override
