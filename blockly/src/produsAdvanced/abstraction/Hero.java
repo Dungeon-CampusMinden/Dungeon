@@ -27,10 +27,11 @@ import java.util.function.Supplier;
  * Interaktion bereit.
  *
  * <p>Diese Klasse bietet eine Abstraktion für Spielfiguren, die vom Spieler gesteuert werden
- * können. Sie unterstützt insbesondere Bewegung sowie das Ausführen einer Feuerball-Fähigkeit mit
- * Abklingzeit.
+ * können. Sie unterstützt insbesondere Bewegung, das Öffnen von Inventaren, Interaktionen mit
+ * Objekten sowie das Ausführen einer Feuerball-Fähigkeit mit Abklingzeit.
  */
 public class Hero {
+
   /** Die Entity, die diesen Helden repräsentiert. */
   private Entity hero;
 
@@ -40,7 +41,7 @@ public class Hero {
   /** Zielposition für den Feuerball, standardmäßig (0, 0). */
   private Supplier<Point> fireballTarget = () -> new Point(0, 0);
 
-  /** Instanz der Feuerball-Fähigkeit, die erneut erstellt wird, wenn sie ausgeführt wird. */
+  /** Instanz der Feuerball-Fähigkeit. */
   private Skill fireball = new Skill(new FireballSkill(fireballTarget), FIREBALL_COOL_DOWN);
 
   /**
@@ -58,8 +59,8 @@ public class Hero {
   /**
    * Setzt den Controller für die Spielfigur.
    *
-   * <p>Registriert Tastendrücke (Keys von 0 bis Z) und leitet sie an den übergebenen {@link
-   * PlayerController} weiter, der die Verarbeitung übernimmt.
+   * <p>Registriert Tastendrücke (von Taste 0 bis Z) und übergibt sie an den übergebenen {@link
+   * PlayerController}, der die Verarbeitung übernimmt.
    *
    * @param controller Ein {@link PlayerController}-Objekt, das die Eingaben verarbeitet. Wenn
    *     {@code null}, wird keine Aktion durchgeführt.
@@ -72,36 +73,28 @@ public class Hero {
       pc.registerCallback(key, entity -> controller.processKey(Input.Keys.toString(finalKey)));
     }
 
+    // Callback zum Schließen von UI-Dialogen
     pc.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
         (e) -> {
           var firstUI =
-              Game.entityStream() // would be nice to directly access HudSystems
-                  // stream (no access to the System object)
-                  .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
-                  // which have a
-                  // UIComponent
+              Game.entityStream()
+                  .filter(x -> x.isPresent(UIComponent.class))
                   .map(
                       x ->
                           new Tuple<>(
                               x,
                               x.fetch(UIComponent.class)
                                   .orElseThrow(
-                                      () ->
-                                          MissingComponentException.build(
-                                              x, UIComponent.class)))) // create a tuple to
-                  // still have access to
-                  // the UI Entity
+                                      () -> MissingComponentException.build(x, UIComponent.class))))
                   .filter(x -> x.b().closeOnUICloseKey())
-                  .max(Comparator.comparingInt(x -> x.b().dialog().getZIndex())) // find dialog
-                  // with highest
-                  // z-Index
+                  .max(Comparator.comparingInt(x -> x.b().dialog().getZIndex()))
                   .orElse(null);
           if (firstUI != null) {
             InventoryGUI.inHeroInventory = false;
             firstUI.a().remove(UIComponent.class);
             if (firstUI.a().componentStream().findAny().isEmpty()) {
-              Game.remove(firstUI.a()); // delete unused Entity
+              Game.remove(firstUI.a());
             }
           }
         },
@@ -130,7 +123,7 @@ public class Hero {
   /**
    * Gibt die aktuelle Mausposition im Spielfeld als {@link Point} zurück.
    *
-   * @return Die aktuelle Mauszeigerposition als {@link Point}.
+   * @return Die aktuelle Mauszeigerposition.
    */
   public Point getMousePosition() {
     return SkillTools.cursorPositionAsPoint();
@@ -139,9 +132,6 @@ public class Hero {
   /**
    * Führt die Feuerball-Fähigkeit in die angegebene Richtung aus, sofern die Abklingzeit abgelaufen
    * ist.
-   *
-   * <p>Die Fähigkeit wird mit einem neuen Zielpunkt ausgeführt und anschließend als "verwendet"
-   * markiert, um die Abklingzeit zu starten.
    *
    * @param direction Zielposition des Feuerballs.
    */
@@ -156,24 +146,34 @@ public class Hero {
     fireballTarget = newTarget;
   }
 
-  /** Führt eine Interaktion mit einem Objekt in der Nähe des Helden aus. */
+  /**
+   * Führt eine Interaktion mit einem Objekt in der Nähe des Helden aus.
+   *
+   * <p>Falls eine UI geöffnet ist, wird sie geschlossen. Andernfalls wird mit dem nächsten
+   * interagierbaren Objekt interagiert.
+   */
   public void interact() {
     UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null
         && uiComponent.dialog() instanceof GUICombination
         && !InventoryGUI.inHeroInventory) {
-      // if chest or cauldron
       hero.remove(UIComponent.class);
     } else {
       InteractionTool.interactWithClosestInteractable(hero);
     }
   }
 
+  /**
+   * Gibt ein {@link Berry}-Item zurück, das sich an der angegebenen Position befindet.
+   *
+   * @param point Die Position auf der Karte.
+   * @return Eine Instanz von {@link Berry}, falls vorhanden, sonst {@code null}.
+   */
   public Berry getBerryAt(Point point) {
     if (point == null) return null;
     Tile t = Game.tileAT(point);
     if (t == null) return null;
-    return Game.entityAtTile(Game.tileAT(point))
+    return Game.entityAtTile(t)
         .findFirst()
         .flatMap(e -> e.fetch(ItemComponent.class))
         .map(ItemComponent::item)
@@ -182,6 +182,12 @@ public class Hero {
         .orElse(null);
   }
 
+  /**
+   * Öffnet oder schließt das Inventar des Helden.
+   *
+   * <p>Wenn bereits eine Inventar-UI geöffnet ist, wird sie geschlossen. Andernfalls wird sie
+   * geöffnet.
+   */
   public void openInventory() {
     if (hero.fetch(PlayerComponent.class).get().openDialogs()) {
       return;
@@ -202,9 +208,16 @@ public class Hero {
     }
   }
 
+  /**
+   * Zerstört (löscht) ein Item an der angegebenen Position, sofern vorhanden.
+   *
+   * @param point Die Zielposition.
+   */
   public void destroyItemAt(Point point) {
     if (point == null) return;
     Entity e = Game.entityAtTile(Game.tileAT(point)).findFirst().orElse(null);
-    if (e != null && e.isPresent(ItemComponent.class)) Game.remove(e);
+    if (e != null && e.isPresent(ItemComponent.class)) {
+      Game.remove(e);
+    }
   }
 }
