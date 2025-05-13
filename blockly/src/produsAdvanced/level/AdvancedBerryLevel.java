@@ -19,6 +19,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import level.BlocklyLevel;
 import produsAdvanced.abstraction.Berry;
 
@@ -121,6 +122,20 @@ public class AdvancedBerryLevel extends BlocklyLevel {
                                                     "Satt!");
                                                 door.open();
                                                 npc.remove(InteractionComponent.class);
+                                                chest.remove(InteractionComponent.class);
+                                                chest.add(
+                                                    new InteractionComponent(
+                                                        1,
+                                                        true,
+                                                        new BiConsumer<Entity, Entity>() {
+                                                          @Override
+                                                          public void accept(
+                                                              Entity entity, Entity entity2) {
+                                                            DialogUtils.showTextPopup(
+                                                                "Ey lass die Finger davon!",
+                                                                "Meins!");
+                                                          }
+                                                        }));
                                               } else {
                                                 DialogUtils.showTextPopup(
                                                     "Willst du mich umbringen? Da sind giftige dabei!",
