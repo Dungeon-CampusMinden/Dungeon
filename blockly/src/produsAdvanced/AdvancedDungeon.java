@@ -27,23 +27,43 @@ import produsAdvanced.level.AdvancedBerryLevel;
 import systems.BlockSystem;
 import systems.TintTilesSystem;
 
+/**
+ * Entry point for the "Advanced Dungeon" game setup.
+ *
+ * <p>This class is responsible for initializing and launching the game. It configures the game
+ * environment, sets up levels, adds systems, creates the player hero, and integrates dynamic
+ * recompilation of user control code for live testing of custom hero controllers.
+ */
 public class AdvancedDungeon {
 
+  /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
+
+  /** Path to the Java source file of the custom player controller. */
   private static final SimpleIPath CONTROLLER_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
+
+  /** Fully qualified class name of the custom player controller. */
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
+
+  /**
+   * Function called every frame to check for manual recompilation trigger.
+   *
+   * <p>Pressing the 'M' key triggers recompilation of the user-defined player controller class.
+   */
   private static final IVoidFunction onFrame =
-      new IVoidFunction() {
-        @Override
-        public void execute() {
-          // TODO use filechecker
-          if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-            recompileHeroControl();
-          }
+      () -> {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+          recompileHeroControl();
         }
       };
 
+  /**
+   * Attempts to dynamically recompile and load the custom player controller class.
+   *
+   * <p>If compilation is successful, the hero's controller is updated at runtime. Otherwise, a
+   * dialog is shown to indicate an error.
+   */
   private static void recompileHeroControl() {
     try {
       Object o =
@@ -56,6 +76,12 @@ public class AdvancedDungeon {
     }
   }
 
+  /**
+   * Main method to launch the game.
+   *
+   * @param args Command-line arguments (not used).
+   * @throws IOException If game configuration or hero creation fails.
+   */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
     configGame();
@@ -64,10 +90,22 @@ public class AdvancedDungeon {
     Game.run();
   }
 
+  /**
+   * Configures game settings like frame rate, window title, and audio.
+   *
+   * @throws IOException If configuration fails.
+   */
+  private static void configGame() throws IOException {
+    Game.frameRate(30);
+    Game.disableAudio(true);
+    Game.resizeable(true);
+    Game.windowTitle("Advanced Dungeon");
+  }
+
+  /** Initializes the game by setting up levels, systems, the player character, and crafting. */
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          // DevDungeonLoader.addLevel(Tuple.of("control", AdvancedControlLevel.class));
           DevDungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
           createSystems();
           HeroFactory.heroDeath(entity -> restart());
@@ -83,13 +121,11 @@ public class AdvancedDungeon {
         });
   }
 
-  private static void configGame() throws IOException {
-    Game.frameRate(30);
-    Game.disableAudio(true);
-    Game.resizeable(true);
-    Game.windowTitle("Advanced Dungeon");
-  }
-
+  /**
+   * Adds all game-relevant systems to the ECS framework.
+   *
+   * <p>These include logic for AI, health, projectiles, level events, and more.
+   */
   private static void createSystems() {
     Game.add(new CollisionSystem());
     Game.add(new AISystem());
@@ -110,6 +146,13 @@ public class AdvancedDungeon {
     Game.add(new LevelEditorSystem());
   }
 
+  /**
+   * Creates the player hero entity and adds it to the game.
+   *
+   * <p>If a previous hero entity exists, it is removed.
+   *
+   * @throws IOException If hero creation fails.
+   */
   private static void createHero() throws IOException {
     Game.entityStream(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity heroEntity = EntityFactory.newHero();

@@ -6,6 +6,7 @@ import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
 
+/** Controller fpr the first level. */
 public class AdvancedControlLevel extends BlocklyLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
