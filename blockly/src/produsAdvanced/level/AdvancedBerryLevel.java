@@ -120,6 +120,7 @@ public class AdvancedBerryLevel extends BlocklyLevel {
                                                     "Ich danke dir, ich habe schon so lange nichts gegessen. Ich werde die Tür für dich öffnen,",
                                                     "Satt!");
                                                 door.open();
+                                                npc.remove(InteractionComponent.class);
                                               } else {
                                                 DialogUtils.showTextPopup(
                                                     "Willst du mich umbringen? Da sind giftige dabei!",
