@@ -46,7 +46,8 @@ public class PathfinderStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("dfs", AiMazeLevel.class));
+          DevDungeonLoader.addLevel(
+              Tuple.of("dfs", AiMazeLevel.class), Tuple.of("bfs", AiMazeLevel.class));
           createSystems();
 
           try {

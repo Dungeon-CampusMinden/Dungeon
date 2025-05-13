@@ -1,6 +1,5 @@
 package level;
 
-import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -8,6 +7,7 @@ import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.systems.CameraSystem;
 import java.util.List;
 
 /**
@@ -17,9 +17,9 @@ import java.util.List;
 public class AiMazeLevel extends BlocklyLevel {
   /**
    * The zoom level of the overview camera. This is used to adjust the camera view to properly
-   * display the labyrinth. (default: 0.20f)
+   * display the labyrinth. (default: 0.55f)
    */
-  public static float ZOOM_LEVEL = 0.20f;
+  public static float ZOOM_LEVEL = 0.55f;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -41,7 +41,7 @@ public class AiMazeLevel extends BlocklyLevel {
     Entity cameraFocusPoint = new Entity();
     cameraFocusPoint.add(new PositionComponent(x + 0.5f, y + 0.25f));
     cameraFocusPoint.add(new CameraComponent());
-    Debugger.ZOOM_CAMERA(ZOOM_LEVEL);
+    CameraSystem.camera().zoom = ZOOM_LEVEL;
     Game.add(cameraFocusPoint);
   }
 
