@@ -11,8 +11,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
-
-
 import java.util.Queue;
 
 /**

@@ -9,7 +9,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;

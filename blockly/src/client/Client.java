@@ -70,76 +70,76 @@ public class Client {
 
   private static void onSetup() {
     Game.userOnSetup(
-      () -> {
-        // chapter 1
-        DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level4", Chapter14Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level6", Chapter16Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level7", Chapter17Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level9", Chapter19Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level10", Chapter110Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level11", Chapter111Level.class));
+        () -> {
+          // chapter 1
+          DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level4", Chapter14Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level6", Chapter16Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level7", Chapter17Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level9", Chapter19Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level10", Chapter110Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level11", Chapter111Level.class));
 
-        // chapter 2
-        DevDungeonLoader.addLevel(Tuple.of("level12", Chapter21Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level13", Chapter22Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level14", Chapter23Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level15", Chapter24Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level16", Chapter25Level.class));
+          // chapter 2
+          DevDungeonLoader.addLevel(Tuple.of("level12", Chapter21Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level13", Chapter22Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level14", Chapter23Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level15", Chapter24Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level16", Chapter25Level.class));
 
-        // chapter 3
-        DevDungeonLoader.addLevel(Tuple.of("level17", Chapter31Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level18", Chapter32Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level19", Chapter33Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level20", Chapter34Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level21", Chapter35Level.class));
-        DevDungeonLoader.addLevel(Tuple.of("level22", Chapter36Level.class));
+          // chapter 3
+          DevDungeonLoader.addLevel(Tuple.of("level17", Chapter31Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level18", Chapter32Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level19", Chapter33Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level20", Chapter34Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level21", Chapter35Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level22", Chapter36Level.class));
 
-        createSystems();
+          createSystems();
 
-        HeroFactory.heroDeath(
-          entity -> {
-            restart();
-          });
+          HeroFactory.heroDeath(
+              entity -> {
+                restart();
+              });
 
-        createHero();
-        Crafting.loadRecipes();
+          createHero();
+          Crafting.loadRecipes();
 
-        startServer();
+          startServer();
 
-        Crafting.loadRecipes();
+          Crafting.loadRecipes();
 
-        if (KEYBOARD_DEACTIVATION) {
-          Game.remove(PlayerSystem.class);
-        }
+          if (KEYBOARD_DEACTIVATION) {
+            Game.remove(PlayerSystem.class);
+          }
 
-        LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-        levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-        DevDungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
-        DevDungeonLoader.loadLevel(0);
-      });
+          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
+          levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
+          DevDungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
+          DevDungeonLoader.loadLevel(0);
+        });
   }
 
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
-      (firstLoad) -> {
-        if (DRAW_CHECKER_PATTERN)
-          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
-        Server.instance().interruptExecution = true;
-        Game.hero()
-          .flatMap(e -> e.fetch(AmmunitionComponent.class))
-          .map(AmmunitionComponent::resetCurrentAmmunition);
-      });
+        (firstLoad) -> {
+          if (DRAW_CHECKER_PATTERN)
+            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
+          Server.instance().interruptExecution = true;
+          Game.hero()
+              .flatMap(e -> e.fetch(AmmunitionComponent.class))
+              .map(AmmunitionComponent::resetCurrentAmmunition);
+        });
   }
 
   private static void startRoomBasedLevel() {
     GeneratorUtils.createRoomBasedLevel(10, 5, 1);
     DialogUtils.showTextPopup(
-      "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
+        "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
 
     LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
     levelSystem.onEndTile(Client::startRoomBasedLevel); // restart the level -> endless loop
@@ -147,9 +147,9 @@ public class Client {
 
   private static void configGame() throws IOException {
     Game.loadConfig(
-      new SimpleIPath("dungeon_config.json"),
-      contrib.configuration.KeyboardConfig.class,
-      core.configuration.KeyboardConfig.class);
+        new SimpleIPath("dungeon_config.json"),
+        contrib.configuration.KeyboardConfig.class,
+        core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
     Game.resizeable(true);
