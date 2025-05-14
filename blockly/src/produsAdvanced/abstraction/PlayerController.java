@@ -24,5 +24,5 @@ public abstract class PlayerController {
    *
    * @param key The string representation of the key (e.g., "W", "A", "D").
    */
-  protected abstract void processKey(String key);
+  protected abstract void processKey(String key) throws Exception;
 }

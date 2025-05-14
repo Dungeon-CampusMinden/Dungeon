@@ -32,10 +32,10 @@ public class MyPlayerController extends PlayerController {
    * <p>Diese Methode wird von der Engine aufgerufen, wenn ein registrierter Tastendruck erfolgt.
    * Die konkrete Umsetzung kann Bewegungen, Aktionen oder andere Spiellogik auslösen.
    *
+   * <p>Maustasten werden als "LMB" (Linke Maustaste), "RMB" (Rechte Maustaste) und MMB (Mittlere
+   * Maustaste) angegeben
+   *
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
-  @Override
-  protected void processKey(String key) {
-    // TODO Verhalten für bestimmte Tasten ergänzt.
-  }
+  protected void processKey(String key) {}
 }
