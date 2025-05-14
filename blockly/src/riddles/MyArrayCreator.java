@@ -2,6 +2,11 @@ package riddles;
 
 import abstraction.ArrayCreator;
 
+/**
+ * Implementierung für das Erstellen eines Arrays mit Monsteranzahlen.
+ * Die Klasse zählt Monster in verschiedenen Räumen und erstellt ein entsprechendes Array.
+ */
+
 public class MyArrayCreator extends ArrayCreator {
 
   /**

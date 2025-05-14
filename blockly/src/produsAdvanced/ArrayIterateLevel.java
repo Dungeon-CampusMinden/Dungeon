@@ -19,6 +19,13 @@ import core.utils.components.path.SimpleIPath;
 import java.util.List;
 import level.BlocklyLevel;
 
+/**
+ * Ein Level-Design für das Array-Iterations-Puzzle.
+ * Diese Klasse implementiert ein Spiellevel, in dem der Spieler durch ein Array iterieren
+ * und Berechnungen durchführen muss.
+ */
+
+
 public class ArrayIterateLevel extends BlocklyLevel {
 
   private final Point doorPosition = new Point(18, 3); // Das erwartete Array
@@ -32,6 +39,13 @@ public class ArrayIterateLevel extends BlocklyLevel {
       new SimpleIPath("blockly/src/riddles/MyArraySummarizer.java");
   private static final String ARRAY_SUMMARIZER_CLASSNAME = "riddles.MyArraySummarizer";
 
+  /**
+   * Konstruktor für das Array-Iterations-Level.
+   *
+   * @param layout Das Layout des Levels, bestehend aus LevelElementen.
+   * @param designLabel Das Design-Label für das Level.
+   * @param customPoints Eine Liste von benutzerdefinierten Punkten für das Level.
+   */
   public ArrayIterateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Array-Iteration"); // Fester Name hier

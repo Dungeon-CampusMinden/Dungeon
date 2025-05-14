@@ -24,6 +24,12 @@ import java.util.List;
 import java.util.Map;
 import level.BlocklyLevel;
 
+/**
+ * Ein Level-Design für das Array-Entfernungs-Puzzle.
+ * Diese Klasse implementiert ein Spiellevel, in dem der Spieler Elemente aus einem Array
+ * entfernen und ein neues Array erstellen muss.
+ */
+
 public class ArrayRemoveLevel extends BlocklyLevel {
   private static boolean showText = true;
   private final int[] arrayToPass = {1, 5, 4, 3, 2}; // Summe = 44
@@ -35,6 +41,13 @@ public class ArrayRemoveLevel extends BlocklyLevel {
       new SimpleIPath("blockly/src/riddles/MyArrayRemover.java");
   private static final String ARRAY_REMOVER_CLASSNAME = "riddles.MyArrayRemover";
 
+  /**
+   * Konstruktor für das Array-Entfernungs-Level.
+   *
+   * @param layout Das Layout des Levels, bestehend aus LevelElementen.
+   * @param designLabel Das Design-Label für das Level.
+   * @param customPoints Eine Liste von benutzerdefinierten Punkten für das Level.
+   */
   public ArrayRemoveLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Array-Sortierung");

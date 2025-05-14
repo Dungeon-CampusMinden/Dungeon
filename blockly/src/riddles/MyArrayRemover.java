@@ -2,10 +2,21 @@ package riddles;
 
 import abstraction.ArrayRemover;
 
+/**
+ * Implementierung für das Entfernen und Ändern von Elementen eines Arrays mit Monsteranzahlen.
+ * Die Klasse erhält ein schon gefülltes Array und gibt das veränderte Array zurück.
+ */
+
 public class MyArrayRemover extends ArrayRemover {
 
   private final int[] monsterArray;
 
+  /**
+   * Konstruktor, der ein Array mit Monsteranzahlen entgegennimmt.
+   *
+   * @param monsterArray Ein Integer-Array, das die Anzahl der Monster in verschiedenen Räumen
+   *     enthält
+   */
   public MyArrayRemover(int[] monsterArray) {
     this.monsterArray = monsterArray;
   }

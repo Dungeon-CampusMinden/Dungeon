@@ -23,6 +23,13 @@ import java.util.List;
 import java.util.Map;
 import level.BlocklyLevel;
 
+
+/**
+ * Ein Level-Design für das Array-Erstellungs-Puzzle.
+ * Diese Klasse implementiert ein Spiellevel, in dem der Spieler ein Array mit Monsteranzahlen
+ * erstellen muss.
+ */
+
 public class ArrayCreateLevel extends BlocklyLevel {
   private static boolean showText = true;
   private final int[] correctArray = {1, 5, 4, 2, 3};
@@ -33,6 +40,14 @@ public class ArrayCreateLevel extends BlocklyLevel {
       new SimpleIPath("blockly/src/riddles/MyArrayCreator.java");
   private static final String ARRAY_CREATOR_CLASSNAME = "riddles.MyArrayCreator";
 
+
+  /**
+   * Konstruktor für das ArrayCreateLevel.
+   *
+   * @param layout Das Layout des Levels.
+   * @param designLabel Das Design-Label des Levels.
+   * @param customPoints Eine Liste von benutzerdefinierten Punkten.
+   */
   public ArrayCreateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Array-Sortierung");
