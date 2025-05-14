@@ -2,6 +2,7 @@ package produsAdvanced;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
@@ -20,7 +21,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
-import level.produs.*;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.AdvancedBerryLevel;
@@ -39,6 +39,13 @@ public class AdvancedDungeon {
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
 
+  /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled */
+  private static boolean recompilePaused = false;
+
+  private static boolean windowInFocus = false;
+  private static final String ERROR_MSG_CONTROLLER =
+      "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
+
   /** Path to the Java source file of the custom player controller. */
   private static final SimpleIPath CONTROLLER_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
@@ -53,9 +60,17 @@ public class AdvancedDungeon {
    */
   private static final IVoidFunction onFrame =
       () -> {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+        // TODO does not work on mac
+        boolean focus = ((Lwjgl3Graphics) Gdx.graphics).getWindow().isFocused();
+        if (focus && !windowInFocus) {
           recompileHeroControl();
         }
+        // Hidden Mac Workarround
+        if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
+          recompileHeroControl();
+        }
+
+        windowInFocus = focus;
       };
 
   /**
@@ -65,14 +80,15 @@ public class AdvancedDungeon {
    * dialog is shown to indicate an error.
    */
   private static void recompileHeroControl() {
+    if (recompilePaused) return;
     try {
       Object o =
           DynamicCompiler.loadUserInstance(
               CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
       hero.setController((PlayerController) o);
     } catch (Exception e) {
-      DialogUtils.showTextPopup(
-          "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.", "Code Error");
+      recompilePaused = true;
+      DialogUtils.showTextPopup(ERROR_MSG_CONTROLLER, "Code Error", () -> recompilePaused = false);
     }
   }
 
