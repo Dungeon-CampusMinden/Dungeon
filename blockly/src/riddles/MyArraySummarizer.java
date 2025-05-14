@@ -3,10 +3,9 @@ package riddles;
 import abstraction.ArraySummarizer;
 
 /**
- * Implementierung für das Iterieren eines gegebenen Arrays mit Monsteranzahlen.
- * Die Klasse erhält ein schon gefülltes Array und gibt das summierte Ergebnis der enthaltenen Anzahlen zurück.
+ * Implementierung für das Iterieren eines gegebenen Arrays mit Monsteranzahlen. Die Klasse erhält
+ * ein schon gefülltes Array und gibt das summierte Ergebnis der enthaltenen Anzahlen zurück.
  */
-
 public class MyArraySummarizer extends ArraySummarizer {
   private final int[] monsterArray;
 

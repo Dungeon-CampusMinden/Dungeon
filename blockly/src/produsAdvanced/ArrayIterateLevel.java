@@ -20,12 +20,9 @@ import java.util.List;
 import level.BlocklyLevel;
 
 /**
- * Ein Level-Design für das Array-Iterations-Puzzle.
- * Diese Klasse implementiert ein Spiellevel, in dem der Spieler durch ein Array iterieren
- * und Berechnungen durchführen muss.
+ * Ein Level-Design für das Array-Iterations-Puzzle. Diese Klasse implementiert ein Spiellevel, in
+ * dem der Spieler durch ein Array iterieren und Berechnungen durchführen muss.
  */
-
-
 public class ArrayIterateLevel extends BlocklyLevel {
 
   private final Point doorPosition = new Point(18, 3); // Das erwartete Array
