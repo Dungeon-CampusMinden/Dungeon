@@ -1,26 +1,35 @@
 package starter;
 
+import client.KeyboardConfig;
 import contrib.entities.HeroFactory;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
+import core.components.PlayerComponent;
+import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
-import core.utils.MissingHeroException;
 import core.utils.Tuple;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import level.AiMazeLevel;
 import systems.MazeEditorSystem;
 import systems.PathfindingSystem;
 import utils.CheckPatternPainter;
+import utils.pathfinding.BFSPathFinding;
 import utils.pathfinding.DFSPathFinding;
+import utils.pathfinding.PathfindingLogic;
+import utils.pathfinding.SusPathFinding;
 
 /** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class PathfinderStarter {
+  private static final Logger LOGGER = Logger.getLogger(PathfinderStarter.class.getName());
   private static final boolean DRAW_CHECKER_PATTERN = true;
+  private static Tuple<PathfindingLogic, PathfindingLogic> pathfindings = Tuple.of(null, null);
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -66,16 +75,44 @@ public class PathfinderStarter {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
 
-          Game.system(
-              PathfindingSystem.class,
-              (pfs) -> {
-                pfs.autoStep(true);
-                pfs.updatePathfindingAlgorithm(
-                    Tuple.of(
-                        new DFSPathFinding(
-                            Game.currentLevel().startTile().coordinate(),
-                            Game.currentLevel().endTile().coordinate()),
-                        Game.hero().orElseThrow(MissingHeroException::new)));
+          Coordinate startCoords = Game.currentLevel().startTile().coordinate();
+          Coordinate endTileCoords = Game.currentLevel().endTile().coordinate();
+          PlayerComponent pc =
+              Game.hero()
+                  .get()
+                  .fetch(PlayerComponent.class)
+                  .orElseThrow(
+                      () ->
+                          MissingComponentException.build(
+                              Game.hero().get(), PlayerComponent.class));
+          pc.registerCallback(
+              KeyboardConfig.SELECT_DFS.value(),
+              entity -> {
+                if (pathfindings.a() == null && pathfindings.b() == null) {
+                  pathfindings = Tuple.of(new DFSPathFinding(startCoords, endTileCoords), null);
+                  switchToAlgorithm(pathfindings.a(), entity);
+                }
+              });
+          pc.registerCallback(
+              KeyboardConfig.SELECT_BFS.value(),
+              entity -> {
+                if (pathfindings.a() == null && pathfindings.b() == null) {
+                  pathfindings = Tuple.of(new BFSPathFinding(startCoords, endTileCoords), null);
+                  switchToAlgorithm(pathfindings.a(), entity);
+                }
+              });
+          pc.registerCallback(
+              KeyboardConfig.SELECT_SUS_ALGO.value(),
+              entity -> {
+                if (pathfindings.a() == null && pathfindings.b() == null) {
+                  try {
+                    pathfindings = Tuple.of(null, new SusPathFinding(startCoords, endTileCoords));
+                    switchToAlgorithm(pathfindings.b(), entity);
+                  } catch (UnsupportedOperationException e) {
+                    LOGGER.info(e.getMessage());
+                    pathfindings = Tuple.of(null, null);
+                  }
+                }
               });
         });
   }
@@ -102,7 +139,7 @@ public class PathfinderStarter {
    * Creates and adds a new hero entity to the game.
    *
    * <p>The new hero is generated using the {@link HeroFactory} and the {@link CameraComponent} of
-   * the hero is removed.
+   * the hero is removed. And movement callbacks are removed.
    *
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
@@ -111,5 +148,27 @@ public class PathfinderStarter {
     hero = HeroFactory.newHero();
     hero.remove(CameraComponent.class);
     Game.add(hero);
+
+    hero.remove(PlayerComponent.class);
+    hero.add(new PlayerComponent());
+  }
+
+  /**
+   * Changes the pathfinding algorithm used in the game to the specified one.
+   *
+   * <p>This method updates the active pathfinding algorithm in the {@link PathfindingSystem} and
+   * updates the game window title to reflect the newly selected algorithm.
+   *
+   * @param algorithm The new pathfinding algorithm to be used (e.g., DFS, BFS, SuS).
+   * @param hero The entity using the algorithm
+   */
+  private static void switchToAlgorithm(PathfindingLogic algorithm, Entity hero) {
+    Game.system(
+        PathfindingSystem.class,
+        pfs -> {
+          pfs.autoStep(true);
+          pfs.updatePathfindingAlgorithm(Tuple.of(algorithm, hero));
+        });
+    Game.updateWindowTitle("Blockly KI-Dungeon – " + algorithm.getClass().getSimpleName());
   }
 }

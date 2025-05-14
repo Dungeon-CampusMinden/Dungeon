@@ -22,4 +22,22 @@ public class KeyboardConfig {
       new core.configuration.ConfigKey<>(
           new String[] {"pathfinding", "start_moving_pathfinding"},
           new core.configuration.values.ConfigIntValue(Input.Keys.SPACE));
+
+  /** Switch to DFS algorithm. */
+  public static final core.configuration.ConfigKey<Integer> SELECT_DFS =
+      new core.configuration.ConfigKey<>(
+          new String[] {"pathfinding", "select_dfs"},
+          new core.configuration.values.ConfigIntValue(Input.Keys.J));
+
+  /** Switch to BFS algorithm. */
+  public static final core.configuration.ConfigKey<Integer> SELECT_BFS =
+      new core.configuration.ConfigKey<>(
+          new String[] {"pathfinding", "select_bfs"},
+          new core.configuration.values.ConfigIntValue(Input.Keys.K));
+
+  /** Switch to the algorithm that the students will implement. */
+  public static final core.configuration.ConfigKey<Integer> SELECT_SUS_ALGO =
+      new core.configuration.ConfigKey<>(
+          new String[] {"pathfinding", "select_sus_algo"},
+          new core.configuration.values.ConfigIntValue(Input.Keys.L));
 }

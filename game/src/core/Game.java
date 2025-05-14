@@ -141,6 +141,15 @@ public final class Game {
   }
 
   /**
+   * Updates the window title.
+   *
+   * @param newTitle The new window title.
+   */
+  public static void updateWindowTitle(String newTitle) {
+    Gdx.graphics.setTitle(newTitle);
+  }
+
+  /**
    * Gets the path to the game logo.
    *
    * @return The path to the game logo.
