@@ -21,8 +21,6 @@ i = 3;
 String s = "i ist jetzt " + i;
 ```
 
----
-
 ### 🔀 if / else
 
 ```java
@@ -48,8 +46,6 @@ if (i > 10) {
 }
 ```
 
----
-
 ### 🔁 for-Schleife
 
 ```java
@@ -65,8 +61,6 @@ for (int i = 0; i < 10; i++) {
     System.out.println(i);
 }
 ```
-
----
 
 ### 🔁 while-Schleife
 
@@ -97,8 +91,6 @@ RÜCKGABETYP funktionsName(PARAMETER) {
 }
 ```
 
----
-
 #### 🟢 Beispiel: Funktion ohne Rückgabewert (`void`)
 
 ```java
@@ -113,8 +105,6 @@ public static void begruessung() {
 begruessung();
 ```
 
----
-
 #### 🔵 Beispiel: Funktion mit Rückgabewert
 
 ```java
@@ -128,8 +118,6 @@ public static int verdopple(int zahl) {
 ```java
 int ergebnis = verdopple(5); // ergibt 10
 ```
-
----
 
 #### 🟠 Beispiel: Funktion mit mehreren Parametern
 
