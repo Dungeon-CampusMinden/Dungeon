@@ -22,6 +22,7 @@ import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.Comparator;
 import java.util.function.Supplier;
+import produsAdvanced.AdvancedDungeon;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -53,8 +54,11 @@ public class Hero {
    */
   public Hero(Entity heroInstance) {
     this.hero = heroInstance;
-    PlayerComponent pc = heroInstance.fetch(PlayerComponent.class).get();
-    pc.removeCallbacks(); // Entfernt alle bisherigen Tastenzuweisungen
+
+    if (!AdvancedDungeon.DEBUG) {
+      PlayerComponent pc = heroInstance.fetch(PlayerComponent.class).get();
+      pc.removeCallbacks(); // Entfernt alle bisherigen Tastenzuweisungen
+    }
   }
 
   /**

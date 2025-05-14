@@ -26,7 +26,9 @@ import produsAdvanced.abstraction.Berry;
  * an NPC. Once enough safe berries are delivered, the NPC opens the exit door.
  */
 public class AdvancedBerryLevel extends BlocklyLevel {
-
+  private static boolean showMsg = true;
+  private static String msg = "Der Ork dort sieht verzweifelt aus, ob ich ihm helfen kann.";
+  private static String titel = "Level 5";
   private static final int BERRY_GOAL = 5;
   private static final String NPC_TEXTURE_PATH = "character/monster/orc_shaman";
   private static final String DIALOG_TITLE_HUNGER = "HUNGER!";
@@ -62,6 +64,7 @@ public class AdvancedBerryLevel extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
     createNPC();
     createChest();
     spawnBerries();
