@@ -5,6 +5,7 @@ import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
+import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.interaction.InteractionTool;
@@ -68,10 +69,48 @@ public class Hero {
   public void setController(PlayerController controller) {
     if (controller == null) return;
     PlayerComponent pc = hero.fetch(PlayerComponent.class).get();
+    // TODO also for buttons
     for (int key = 0; key <= Input.Keys.Z; key++) {
       int finalKey = key;
-      pc.registerCallback(key, entity -> controller.processKey(Input.Keys.toString(finalKey)));
+      pc.registerCallback(
+          key,
+          entity -> {
+            try {
+              controller.processKey(Input.Keys.toString(finalKey));
+            } catch (Exception e) {
+              DialogUtils.showTextPopup(
+                  "Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
+            }
+          });
     }
+
+    pc.registerCallback(
+        Input.Buttons.LEFT,
+        entity -> {
+          try {
+            controller.processKey("LMB");
+          } catch (Exception e) {
+            DialogUtils.showTextPopup("Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
+          }
+        });
+    pc.registerCallback(
+        Input.Buttons.RIGHT,
+        entity -> {
+          try {
+            controller.processKey("RMB");
+          } catch (Exception e) {
+            DialogUtils.showTextPopup("Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
+          }
+        });
+    pc.registerCallback(
+        Input.Buttons.MIDDLE,
+        entity -> {
+          try {
+            controller.processKey("MMB");
+          } catch (Exception e) {
+            DialogUtils.showTextPopup("Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
+          }
+        });
 
     // Callback zum Schließen von UI-Dialogen
     pc.registerCallback(
