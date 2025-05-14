@@ -10,6 +10,7 @@ import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
+import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -23,7 +24,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
-import produsAdvanced.level.AdvancedBerryLevel;
+import produsAdvanced.level.*;
 import systems.BlockSystem;
 import systems.TintTilesSystem;
 
@@ -35,6 +36,10 @@ import systems.TintTilesSystem;
  * recompilation of user control code for live testing of custom hero controllers.
  */
 public class AdvancedDungeon {
+
+  public static final boolean DEBUG = true;
+  public static final boolean DISABLE_RECOMPILE = DEBUG;
+  private static final Debugger DEBUGGER = new Debugger();
 
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
@@ -60,14 +65,16 @@ public class AdvancedDungeon {
    */
   private static final IVoidFunction onFrame =
       () -> {
+        if (DEBUG) DEBUGGER.execute();
+
         // TODO does not work on mac
         boolean focus = ((Lwjgl3Graphics) Gdx.graphics).getWindow().isFocused();
         if (focus && !windowInFocus) {
-          recompileHeroControl();
+          if (!DISABLE_RECOMPILE) recompileHeroControl();
         }
         // Hidden Mac Workarround
         if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-          recompileHeroControl();
+          if (!DISABLE_RECOMPILE) recompileHeroControl();
         }
 
         windowInFocus = focus;
@@ -122,6 +129,10 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          DevDungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          DevDungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+          DevDungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
+          DevDungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
           DevDungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
           createSystems();
           HeroFactory.heroDeath(entity -> restart());
@@ -159,7 +170,7 @@ public class AdvancedDungeon {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
-    Game.add(new LevelEditorSystem());
+    if (DEBUG) Game.add(new LevelEditorSystem());
   }
 
   /**
@@ -186,7 +197,7 @@ public class AdvancedDungeon {
     Game.removeAllEntities();
     try {
       createHero();
-      recompileHeroControl();
+      if (!DISABLE_RECOMPILE) recompileHeroControl();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

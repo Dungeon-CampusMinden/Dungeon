@@ -1,13 +1,19 @@
 package produsAdvanced.level;
 
+import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
 
-/** Controller fpr the first level. */
-public class AdvancedControlLevel extends BlocklyLevel {
+public class AdvancedControlLevel1 extends BlocklyLevel {
+
+  private static boolean showMsg = true;
+  private static String msg =
+      "Was ist los? Ich kann mich nicht bewegen! Jemand muss an meinen Steurrungscode rumgefuscht haben.";
+  private static String titel = "Level 1";
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -16,13 +22,15 @@ public class AdvancedControlLevel extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public AdvancedControlLevel(
+  public AdvancedControlLevel1(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Control");
   }
 
   @Override
-  protected void onFirstTick() {}
+  protected void onFirstTick() {
+    if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
+  }
 
   @Override
   protected void onTick() {}
