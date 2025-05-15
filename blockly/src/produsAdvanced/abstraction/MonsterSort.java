@@ -18,7 +18,7 @@ public abstract class MonsterSort {
    * @return an array with the sorted health values of the monsters
    * @throws UnsupportedOperationException if the method is not implemented by the subclass
    */
-  public int[] sortMonsters() {
+  public Monster[] sortMonsters() {
     throw new UnsupportedOperationException("This method must be implemented by the student");
   }
 }

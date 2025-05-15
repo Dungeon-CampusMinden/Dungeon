@@ -17,9 +17,11 @@ import core.utils.components.path.SimpleIPath;
 import entities.BlocklyMonster;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.BlocklyLevel;
+import produsAdvanced.abstraction.Monster;
 import produsAdvanced.abstraction.MonsterSort;
 
 /**
@@ -32,9 +34,9 @@ import produsAdvanced.abstraction.MonsterSort;
 public class AdvancedSortLevel extends BlocklyLevel {
 
   private static boolean showText = true;
-  private final List<Entity> mobs = new ArrayList<>();
+  private final List<Monster> mobs = new ArrayList<>();
   private final AtomicInteger counter = new AtomicInteger(0);
-  private final int[] monsterArray = {5, 7, 3, 6, 9, 2, 1};
+  private final int[] monsterHPArray = {5, 7, 3, 6, 9, 2, 1};
   private DoorTile door;
   private boolean isLeverActivated = false;
 
@@ -86,18 +88,19 @@ public class AdvancedSortLevel extends BlocklyLevel {
 
     BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
     hedgehogBuilder.range(0);
+    hedgehogBuilder.addToGame();
+
     customPoints()
         .forEach(
             coordinate -> {
               hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
-              hedgehogBuilder.addToGame();
               Entity mob = hedgehogBuilder.build().orElseThrow();
-              mobs.add(mob);
+              mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);
               int index = counter.getAndIncrement();
               mob.fetch(HealthComponent.class)
                   .orElseThrow()
-                  .currentHealthpoints(monsterArray[index]);
+                  .currentHealthpoints(monsterHPArray[index]);
             });
     door = (DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow();
     door.close();
@@ -108,16 +111,16 @@ public class AdvancedSortLevel extends BlocklyLevel {
   @Override
   protected void onTick() {}
 
-  private void checkPlayerSolution() {
-    int[] sortedArray;
+  Monster[] solution;
 
+  private void checkPlayerSolution() {
     try {
-      sortedArray =
+      solution =
           ((MonsterSort)
                   DynamicCompiler.loadUserInstance(
                       MONSTER_SORT_PATH,
                       MONSTER_SORT_CLASSNAME,
-                      new Tuple<>(int[].class, monsterArray)))
+                      new Tuple<>(Monster[].class, mobs.toArray(new Monster[0]))))
               .sortMonsters();
     } catch (UnsupportedOperationException e) {
       // Spezifische Behandlung für nicht implementierte Methode
@@ -131,15 +134,12 @@ public class AdvancedSortLevel extends BlocklyLevel {
       DialogUtils.showTextPopup("Ein Fehler ist aufgetreten: " + e.getMessage(), "Fehler");
       return;
     }
-
-    if (sortedArray == null) {
+    if (solution == null) {
       DialogUtils.showTextPopup("Die Methode 'sortMonsters' gibt null zurück!", "Fehler");
       return;
     }
 
-    changeMonsterHealth(sortedArray);
-
-    if (arrayIsSorted(sortedArray)) {
+    if (arrayIsSorted(solution)) {
       door.open();
       DialogUtils.showTextPopup(
           "Sehr gut! Die Monster sind korrekt sortiert. Nun kämpfe dich durch!", "Erfolg");
@@ -149,20 +149,21 @@ public class AdvancedSortLevel extends BlocklyLevel {
     }
   }
 
-  private boolean arrayIsSorted(int[] sortedArray) {
+  private boolean arrayIsSorted(Monster[] sortedArray) {
     if (sortedArray == null) {
       return false;
     }
-    int[] array = monsterArray;
-    Arrays.sort(array);
-    return sortedArray == array;
-  }
+    Monster[] checkArray = mobs.toArray(new Monster[0]);
+    Arrays.sort(checkArray, Comparator.comparingInt(Monster::getHealthPoints));
 
-  private void changeMonsterHealth(int[] sortedArray) {
-    for (int i = 0; i < mobs.size(); i++) {
-      Entity mob = mobs.get(i);
-      int health = sortedArray[i];
-      mob.fetch(HealthComponent.class).orElseThrow().currentHealthpoints(health);
+    if (Arrays.equals(sortedArray, checkArray)) {
+      for (int i = 0; i < sortedArray.length - 1; i++) {
+        if (sortedArray[i].getPosition().x >= sortedArray[i + 1].getPosition().x) {
+          return false;
+        }
+      }
+      return true;
     }
+    return false;
   }
 }

@@ -1,5 +1,6 @@
 package produsAdvanced.riddles;
 
+import produsAdvanced.abstraction.Monster;
 import produsAdvanced.abstraction.MonsterSort;
 
 /**
@@ -11,24 +12,25 @@ import produsAdvanced.abstraction.MonsterSort;
 public class MyMonsterSort extends MonsterSort {
 
   /** Array, das die Monstergesundheit repräsentiert. */
-  private final int[] monsterArray;
+  private final Monster[] monsterArray;
 
   /**
    * Erstellt eine neue Instanz von {@code MyMonsterSort}.
    *
    * @param monsterArray ein Array von Integer-Werten, das die Gesundheitswerte der Monster enthält
    */
-  public MyMonsterSort(int[] monsterArray) {
+  public MyMonsterSort(Monster[] monsterArray) {
     this.monsterArray = monsterArray;
   }
 
   /**
    * Implementiere hier einen Sortieralgorithmus, um die Monster nach ihren Gesundheitswerten zu
-   * sortieren. Sortiere dafür das Array {@code monsterArray} in aufsteigender Reihenfolge.
+   * sortieren. Sortiere dafür das Array {@code monsterArray} in aufsteigender Reihenfolge. Tausche
+   * auch die Position der Monster.
    *
    * @return ein Array mit den sortierten Gesundheitswerten der Monster
    */
-  public int[] sortMonsters() {
+  public Monster[] sortMonsters() {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }
