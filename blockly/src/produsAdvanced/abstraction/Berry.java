@@ -10,7 +10,7 @@ import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * Eine Beere, die als Item im Spiel verwendet werden kann.
