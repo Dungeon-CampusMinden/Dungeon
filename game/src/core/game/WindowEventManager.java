@@ -3,7 +3,7 @@ package core.game;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Vector;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,18 +16,13 @@ import java.util.function.Supplier;
  */
 public class WindowEventManager {
 
-  private static final List<WindowCreatedListener> windowCreatedListeners =
-      new CopyOnWriteArrayList<>();
-  private static final List<Consumer<Boolean>> windowIconifiedListeners =
-      new CopyOnWriteArrayList<>();
-  private static final List<Consumer<Boolean>> windowMaximizedListeners =
-      new CopyOnWriteArrayList<>();
-  private static final List<Consumer<Boolean>> windowFocusListeners = new CopyOnWriteArrayList<>();
-  private static final List<Supplier<Boolean>> closeRequestedListeners =
-      new CopyOnWriteArrayList<>();
-  private static final List<WindowFilesDroppedListener> filesDroppedListeners =
-      new CopyOnWriteArrayList<>();
-  private static final List<Runnable> windowRefreshListeners = new CopyOnWriteArrayList<>();
+  private static final List<WindowCreatedListener> windowCreatedListeners = new Vector<>();
+  private static final List<Consumer<Boolean>> windowIconifiedListeners = new Vector<>();
+  private static final List<Consumer<Boolean>> windowMaximizedListeners = new Vector<>();
+  private static final List<Consumer<Boolean>> windowFocusListeners = new Vector<>();
+  private static final List<Supplier<Boolean>> closeRequestedListeners = new Vector<>();
+  private static final List<WindowFilesDroppedListener> filesDroppedListeners = new Vector<>();
+  private static final List<Runnable> windowRefreshListeners = new Vector<>();
 
   private static final Lwjgl3WindowListener windowListener = createWindowListener();
 
@@ -62,9 +57,7 @@ public class WindowEventManager {
    * @param listener The listener to be called when a new window is created
    */
   public static void registerWindowCreatedListener(WindowCreatedListener listener) {
-    if (listener != null) {
-      windowCreatedListeners.add(listener);
-    }
+    register(windowCreatedListeners, listener);
   }
 
   /**
@@ -74,9 +67,7 @@ public class WindowEventManager {
    *     true when iconified, false when restored)
    */
   public static void registerIconificationListener(Consumer<Boolean> listener) {
-    if (listener != null) {
-      windowIconifiedListeners.add(listener);
-    }
+    register(windowIconifiedListeners, listener);
   }
 
   /**
@@ -86,9 +77,7 @@ public class WindowEventManager {
    *     true when maximized, false when restored)
    */
   public static void registerMaximizationListener(Consumer<Boolean> listener) {
-    if (listener != null) {
-      windowMaximizedListeners.add(listener);
-    }
+    register(windowMaximizedListeners, listener);
   }
 
   /**
@@ -98,9 +87,7 @@ public class WindowEventManager {
    *     when focus is gained, false when focus is lost)
    */
   public static void registerFocusChangeListener(Consumer<Boolean> listener) {
-    if (listener != null) {
-      windowFocusListeners.add(listener);
-    }
+    register(windowFocusListeners, listener);
   }
 
   /**
@@ -110,9 +97,7 @@ public class WindowEventManager {
    *     to allow the window to close, false to prevent closure)
    */
   public static void registerCloseRequestListener(Supplier<Boolean> listener) {
-    if (listener != null) {
-      closeRequestedListeners.add(listener);
-    }
+    register(closeRequestedListeners, listener);
   }
 
   /**
@@ -121,9 +106,7 @@ public class WindowEventManager {
    * @param listener The listener to be called when files are dropped onto the window
    */
   public static void registerFilesDroppedListener(WindowFilesDroppedListener listener) {
-    if (listener != null) {
-      filesDroppedListeners.add(listener);
-    }
+    register(filesDroppedListeners, listener);
   }
 
   /**
@@ -132,9 +115,11 @@ public class WindowEventManager {
    * @param listener The listener to be called when a window refresh is requested
    */
   public static void registerWindowRefreshListener(Runnable listener) {
-    if (listener != null) {
-      windowRefreshListeners.add(listener);
-    }
+    register(windowRefreshListeners, listener);
+  }
+
+  private static <T> void register(List<T> list, T listener) {
+    if (listener != null) list.add(listener);
   }
 
   /**
