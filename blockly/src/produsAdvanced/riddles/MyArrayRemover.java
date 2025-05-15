@@ -40,6 +40,6 @@ public class MyArrayRemover extends ArrayRemover {
    */
   @Override
   public int[] entfernePositionen() {
-    throw new UnsupportedOperationException("Diese Methode muss vom Schüler implementiert werden");
+    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }

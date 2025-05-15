@@ -37,5 +37,7 @@ public class MyPlayerController extends PlayerController {
    *
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
-  protected void processKey(String key) {}
+  protected void processKey(String key) {
+    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
+  }
 }

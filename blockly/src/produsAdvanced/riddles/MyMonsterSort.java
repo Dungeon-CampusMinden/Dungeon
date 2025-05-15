@@ -29,6 +29,6 @@ public class MyMonsterSort extends MonsterSort {
    * @return ein Array mit den sortierten Gesundheitswerten der Monster
    */
   public int[] sortMonsters() {
-    return monsterArray;
+    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }

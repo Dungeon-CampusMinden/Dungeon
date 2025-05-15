@@ -21,6 +21,6 @@ public class MyArrayCreator extends ArrayCreator {
    */
   @Override
   public int[] countMonstersInRooms() {
-    throw new UnsupportedOperationException("Diese Methode muss vom Schüler implementiert werden");
+    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }

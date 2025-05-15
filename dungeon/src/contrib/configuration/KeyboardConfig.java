@@ -119,4 +119,7 @@ public class KeyboardConfig {
   /** WTF? . */
   public static final ConfigKey<Integer> DEBUG_TELEPORT_TO_CURSOR =
       new ConfigKey<>(new String[] {"debug", "teleport_cursor"}, new ConfigIntValue(Input.Keys.O));
+
+  public static final ConfigKey<Integer> DEBUG_OPEN_DOORS =
+      new ConfigKey<>(new String[] {"open", "open_doors"}, new ConfigIntValue(Input.Keys.C));
 }

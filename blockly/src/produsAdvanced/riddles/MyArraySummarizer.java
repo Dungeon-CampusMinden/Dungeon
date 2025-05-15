@@ -37,6 +37,6 @@ public class MyArraySummarizer extends ArraySummarizer {
    */
   @Override
   public int summarizeArray() {
-    throw new UnsupportedOperationException("Diese Methode muss vom Schüler implementiert werden");
+    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }
