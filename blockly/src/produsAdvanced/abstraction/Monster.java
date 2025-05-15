@@ -37,7 +37,10 @@ public class Monster {
    * @return Anzahl der aktuellen Lebenspunkte.
    */
   public int getHealthPoints() {
-    return monster.fetch(HealthComponent.class).get().currentHealthpoints();
+    return monster
+        .fetch(HealthComponent.class)
+        .map(HealthComponent::currentHealthpoints)
+        .orElseThrow();
   }
 
   /**
