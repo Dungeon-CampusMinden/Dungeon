@@ -32,7 +32,7 @@ import level.BlocklyLevel;
  */
 public class ArrayCreateLevel extends BlocklyLevel {
   private static boolean showText = true;
-  private final int[] correctArray = {1, 5, 4, 2, 3};
+  private final int[] correctArray = {1, 5, 4, 3, 2};
   private final Point doorPosition = new Point(28, 11); // Das erwartete Array
   private boolean isLeverActivated = false;
 
