@@ -68,7 +68,6 @@ public class Berry extends Item {
     this.worldAnimation(Animation.fromSingleImage(new SimpleIPath(texture)));
     this.inventoryAnimation(Animation.fromSingleImage(new SimpleIPath(texture)));
     Entity b = getEntity();
-    System.out.println("CHANGE TEXTURE");
     b.remove(DrawComponent.class);
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(new SimpleIPath(texture)));
     dc.currentAnimation(CoreAnimations.IDLE);
