@@ -94,6 +94,7 @@ public final class GameLoop extends ScreenAdapter {
     config.setTitle(PreRunConfiguration.windowTitle());
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
     config.disableAudio(PreRunConfiguration.disableAudio());
+    config.setWindowListener(WindowEventManager.windowListener());
 
     if (PreRunConfiguration.fullScreen()) {
       config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
