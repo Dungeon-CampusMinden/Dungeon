@@ -225,67 +225,43 @@ public class WindowEventManager {
     return new Lwjgl3WindowListener() {
       @Override
       public void created(Lwjgl3Window window) {
-        for (WindowCreatedListener listener : windowCreatedListeners) {
-          listener.onWindowCreated(window);
-        }
+        windowCreatedListeners.forEach(listener -> listener.onWindowCreated(window));
       }
 
       @Override
       public void iconified(boolean isIconified) {
-        for (Consumer<Boolean> listener : windowIconifiedListeners) {
-          listener.accept(isIconified);
-        }
+        windowIconifiedListeners.forEach(listener -> listener.accept(isIconified));
       }
 
       @Override
       public void maximized(boolean isMaximized) {
-        for (Consumer<Boolean> listener : windowMaximizedListeners) {
-          listener.accept(isMaximized);
-        }
+        windowMaximizedListeners.forEach(listener -> listener.accept(isMaximized));
       }
 
       @Override
       public void focusLost() {
-        for (Consumer<Boolean> listener : windowFocusListeners) {
-          listener.accept(false);
-        }
+        windowFocusListeners.forEach(listener -> listener.accept(false));
       }
 
       @Override
       public void focusGained() {
-        for (Consumer<Boolean> listener : windowFocusListeners) {
-          listener.accept(true);
-        }
+        windowFocusListeners.forEach(listener -> listener.accept(true));
       }
 
       @Override
       public boolean closeRequested() {
-        // If no listeners are registered, allow the window to close by default
-        if (closeRequestedListeners.isEmpty()) {
-          return true;
-        }
-
-        // Only allow the window to close if ALL listeners approve (return true)
-        for (Supplier<Boolean> listener : closeRequestedListeners) {
-          if (!listener.get()) {
-            return false; // Any listener can veto the close request
-          }
-        }
-        return true;
+        return closeRequestedListeners.stream()
+            .allMatch(Supplier::get); // Check if all listeners approve the close request
       }
 
       @Override
       public void filesDropped(String[] filePaths) {
-        for (WindowFilesDroppedListener listener : filesDroppedListeners) {
-          listener.onFilesDropped(filePaths);
-        }
+        filesDroppedListeners.forEach(listener -> listener.onFilesDropped(filePaths));
       }
 
       @Override
       public void refreshRequested() {
-        for (Runnable listener : windowRefreshListeners) {
-          listener.run();
-        }
+        windowRefreshListeners.forEach(Runnable::run);
       }
     };
   }
