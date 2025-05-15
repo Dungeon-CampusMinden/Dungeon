@@ -100,16 +100,18 @@ public class Berry extends Item {
    * @return Die zugehörige {@link Entity}, oder null, wenn keine gefunden wurde
    */
   private Entity getEntity() {
-    Set<Entity> berrys =
-        Game.entityStream(Set.of(ItemComponent.class))
-            .filter(e -> e.fetch(ItemComponent.class).get().item() instanceof Berry)
-            .collect(Collectors.toSet());
+    Predicate<Entity> isThisBerry =
+        e ->
+            e.fetch(ItemComponent.class)
+                .map(ItemComponent::item)
+                .filter(i -> i instanceof Berry)
+                .filter(i -> i.equals(this))
+                .isPresent();
 
-    for (Entity b : berrys)
-      if (b.fetch(ItemComponent.class).get().item().equals(this)) {
-        return b;
-      }
-    return null;
+    return Game.entityStream(Set.of(ItemComponent.class))
+        .filter(isThisBerry::test)
+        .findFirst()
+        .orElse(null);
   }
 
   /** Entfernt diese Beere aus dem Spiel. */
