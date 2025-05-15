@@ -1,6 +1,6 @@
 package produsAdvanced.riddles;
 
-import abstraction.ArrayRemover;
+import produsAdvanced.abstraction.ArrayRemover;
 
 /**
  * Implementierung für das Entfernen und Ändern von Elementen eines Arrays mit Monsteranzahlen. Die

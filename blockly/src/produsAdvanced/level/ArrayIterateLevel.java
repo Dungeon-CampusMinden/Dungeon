@@ -1,6 +1,5 @@
 package produsAdvanced.level;
 
-import abstraction.ArraySummarizer;
 import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
@@ -18,6 +17,7 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
 import level.BlocklyLevel;
+import produsAdvanced.abstraction.ArraySummarizer;
 
 /**
  * Manager for an advanced dungeon level.

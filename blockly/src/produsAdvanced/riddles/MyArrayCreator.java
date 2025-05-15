@@ -1,6 +1,6 @@
 package produsAdvanced.riddles;
 
-import abstraction.ArrayCreator;
+import produsAdvanced.abstraction.ArrayCreator;
 
 /**
  * Implementierung für das Erstellen eines Arrays mit Monsteranzahlen. Die Klasse zählt Monster in

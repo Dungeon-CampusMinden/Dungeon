@@ -1,4 +1,4 @@
-package abstraction;
+package produsAdvanced.abstraction;
 
 /**
  * Eine abstrakte Klasse zur Bearbeitung von Arrays durch Entfernen von Elementen. Diese Klasse

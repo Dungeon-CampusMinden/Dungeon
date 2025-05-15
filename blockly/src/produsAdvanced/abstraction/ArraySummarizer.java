@@ -1,4 +1,4 @@
-package abstraction;
+package produsAdvanced.abstraction;
 
 /**
  * Eine abstrakte Klasse zur Berechnung von Array-Summen. Diese Klasse bietet eine Grundlage für die

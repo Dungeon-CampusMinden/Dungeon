@@ -1,7 +1,5 @@
 package produsAdvanced;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
@@ -15,6 +13,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
+import core.game.WindowEventManager;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
@@ -73,9 +72,6 @@ public class AdvancedDungeon {
   private static final IVoidFunction onFrame =
       () -> {
         if (DEBUG_MODE) DEBUGGER.execute();
-        if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-          if (!DEBUG_MODE) recompileHeroControl();
-        }
       };
 
   /**
@@ -137,6 +133,11 @@ public class AdvancedDungeon {
           DevDungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
           DevDungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
           createSystems();
+          WindowEventManager.registerFocusChangeListener(
+              isInFocus -> {
+                if (isInFocus) recompileHeroControl();
+              });
+
           HeroFactory.heroDeath(entity -> restart());
           try {
             createHero();

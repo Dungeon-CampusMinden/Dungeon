@@ -73,48 +73,23 @@ public class Hero {
   public void setController(PlayerController controller) {
     if (controller == null) return;
     PlayerComponent pc = hero.fetch(PlayerComponent.class).get();
-    // TODO also for buttons
+    String[] mousebuttons = {"LMB", "RMB", "MMB"};
+
     for (int key = 0; key <= Input.Keys.Z; key++) {
       int finalKey = key;
       pc.registerCallback(
           key,
           entity -> {
             try {
-              controller.processKey(Input.Keys.toString(finalKey));
+              if (finalKey <= 2) {
+                controller.processKey(mousebuttons[finalKey]);
+              } else controller.processKey(Input.Keys.toString(finalKey).toUpperCase());
             } catch (Exception e) {
               DialogUtils.showTextPopup(
                   "Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
             }
           });
     }
-
-    pc.registerCallback(
-        Input.Buttons.LEFT,
-        entity -> {
-          try {
-            controller.processKey("LMB");
-          } catch (Exception e) {
-            DialogUtils.showTextPopup("Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
-          }
-        });
-    pc.registerCallback(
-        Input.Buttons.RIGHT,
-        entity -> {
-          try {
-            controller.processKey("RMB");
-          } catch (Exception e) {
-            DialogUtils.showTextPopup("Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
-          }
-        });
-    pc.registerCallback(
-        Input.Buttons.MIDDLE,
-        entity -> {
-          try {
-            controller.processKey("MMB");
-          } catch (Exception e) {
-            DialogUtils.showTextPopup("Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
-          }
-        });
 
     // Callback zum Schließen von UI-Dialogen
     pc.registerCallback(

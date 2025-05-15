@@ -1,6 +1,5 @@
 package produsAdvanced.level;
 
-import abstraction.ArrayRemover;
 import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
@@ -23,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import level.BlocklyLevel;
+import produsAdvanced.abstraction.ArrayRemover;
 
 /**
  * Manager for an advanced dungeon level.

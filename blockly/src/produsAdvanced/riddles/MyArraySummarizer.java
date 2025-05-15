@@ -1,6 +1,6 @@
 package produsAdvanced.riddles;
 
-import abstraction.ArraySummarizer;
+import produsAdvanced.abstraction.ArraySummarizer;
 
 /**
  * Implementierung für das Iterieren eines gegebenen Arrays mit Monsteranzahlen. Die Klasse erhält

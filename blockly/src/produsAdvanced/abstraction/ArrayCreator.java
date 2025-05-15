@@ -1,4 +1,4 @@
-package abstraction;
+package produsAdvanced.abstraction;
 
 /**
  * Abstrakte Basisklasse für die Erstellung und Verarbeitung von Arrays mit Monster-Zählungen. Diese
