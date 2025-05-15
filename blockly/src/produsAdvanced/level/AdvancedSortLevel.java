@@ -70,7 +70,7 @@ public class AdvancedSortLevel extends BlocklyLevel {
   protected void onFirstTick() {
     if (showText) {
       DialogUtils.showTextPopup(
-          "Sortiere die Monster nach ihren Lebenspunkten. Das Kleinste sollte an erster Stelle stehen. Wenn du es geschafft hast betätige den Hebel!",
+          "Sortiere die Monster nach ihren Lebenspunkten. Das Schwächste sollte an erster Stelle stehen. Wenn du es geschafft hast, betätige den Hebel!",
           "Ziel");
       showText = false;
     }

@@ -127,7 +127,7 @@ public class ArrayIterateLevel extends BlocklyLevel {
     if (playerSolution == correctSolution) {
       openDoor(doorPosition);
       DialogUtils.showTextPopup(
-          "Sehr gut! Du hast die korrekte Summe zurück gegeben! Der Weg ist nun frei.", "Erfolg");
+          "Sehr gut! Du hast die korrekte Summe zurückgegeben! Der Weg ist nun frei.", "Erfolg");
     } else {
       DialogUtils.showTextPopup(
           "Deine Summe ist leider nicht korrekt. Versuche es nochmal!", "Fehler");
