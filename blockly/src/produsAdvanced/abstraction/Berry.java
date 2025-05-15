@@ -113,4 +113,9 @@ public class Berry extends Item {
       }
     return null;
   }
+
+  /** Entfernt diese Beere aus dem Spiel. */
+  public void destroy() {
+    Game.remove(getEntity());
+  }
 }

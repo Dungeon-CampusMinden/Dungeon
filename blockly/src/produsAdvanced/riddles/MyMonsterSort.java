@@ -6,31 +6,21 @@ import produsAdvanced.abstraction.MonsterSort;
 /**
  * Eine konkrete Implementierung von {@link MonsterSort}.
  *
- * <p>In dieser Klasse muss die Methode {@link #sortMonsters()} implementiert werden, um die Monster
- * nach ihrer Gesundheit zu sortieren. Diese wird im Array {@code monsterArray} gespeichert.
+ * <p>In dieser Klasse muss die Methode {@link #sortMonsters(Monster[])} implementiert werden, um
+ * die Monster nach ihrer Gesundheit zu sortieren. Diese wird im Array {@code monsterArray}
+ * gespeichert.
  */
 public class MyMonsterSort extends MonsterSort {
-
-  /** Array, das die Monstergesundheit repräsentiert. */
-  private final Monster[] monsterArray;
-
-  /**
-   * Erstellt eine neue Instanz von {@code MyMonsterSort}.
-   *
-   * @param monsterArray ein Array von Integer-Werten, das die Gesundheitswerte der Monster enthält
-   */
-  public MyMonsterSort(Monster[] monsterArray) {
-    this.monsterArray = monsterArray;
-  }
 
   /**
    * Implementiere hier einen Sortieralgorithmus, um die Monster nach ihren Gesundheitswerten zu
    * sortieren. Sortiere dafür das Array {@code monsterArray} in aufsteigender Reihenfolge. Tausche
    * auch die Position der Monster.
    *
+   * @param monsterArray Array mit den Monstern zum sortieren.
    * @return ein Array mit den sortierten Gesundheitswerten der Monster
    */
-  public Monster[] sortMonsters() {
+  public Monster[] sortMonsters(Monster[] monsterArray) {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }

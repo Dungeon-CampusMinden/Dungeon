@@ -1,24 +1,24 @@
 package produsAdvanced.level;
 
+import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.entities.LeverFactory;
+import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
+import contrib.systems.EventScheduler;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import entities.BlocklyMonster;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.BlocklyLevel;
 import produsAdvanced.abstraction.Monster;
@@ -32,6 +32,15 @@ import produsAdvanced.abstraction.MonsterSort;
  * @see produsAdvanced.riddles.MyMonsterSort
  */
 public class AdvancedSortLevel extends BlocklyLevel {
+
+  /** Delay for the {@link EventScheduler} to draw position swap. */
+  public static final int DELAY = 1000;
+
+  /** Delay for the {@link EventScheduler} to schedule tint remove. */
+  public static final int DELAY_UNTINT = DELAY + 200;
+
+  /** Delaymultiplicator for the {@link EventScheduler} to draw position swap. */
+  public static int delay_multiplication = 0;
 
   private static boolean showText = true;
   private final List<Monster> mobs = new ArrayList<>();
@@ -86,21 +95,24 @@ public class AdvancedSortLevel extends BlocklyLevel {
         LeverFactory.createLever(new Point(customPoints().get(0).toCenteredPoint()), leverAction);
     customPoints().remove(0);
 
-    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
-    hedgehogBuilder.range(0);
-    hedgehogBuilder.addToGame();
-
     customPoints()
         .forEach(
             coordinate -> {
-              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
-              Entity mob = hedgehogBuilder.build().orElseThrow();
+              Entity mob = null;
+              try {
+                mob = MonsterFactory.randomMonster();
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+              mob.fetch(PositionComponent.class).get().position(coordinate.toCenteredPoint());
+              mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);
               int index = counter.getAndIncrement();
               mob.fetch(HealthComponent.class)
                   .orElseThrow()
                   .currentHealthpoints(monsterHPArray[index]);
+              Game.add(mob);
             });
     door = (DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow();
     door.close();
@@ -117,11 +129,9 @@ public class AdvancedSortLevel extends BlocklyLevel {
     try {
       solution =
           ((MonsterSort)
-                  DynamicCompiler.loadUserInstance(
-                      MONSTER_SORT_PATH,
-                      MONSTER_SORT_CLASSNAME,
-                      new Tuple<>(Monster[].class, mobs.toArray(new Monster[0]))))
-              .sortMonsters();
+                  DynamicCompiler.loadUserInstance(MONSTER_SORT_PATH, MONSTER_SORT_CLASSNAME))
+              .sortMonsters(mobs.toArray(new Monster[0]));
+      sortListLikeArray(mobs, solution);
     } catch (UnsupportedOperationException e) {
       // Spezifische Behandlung für nicht implementierte Methode
       DialogUtils.showTextPopup(
@@ -139,14 +149,20 @@ public class AdvancedSortLevel extends BlocklyLevel {
       return;
     }
 
-    if (arrayIsSorted(solution)) {
-      door.open();
-      DialogUtils.showTextPopup(
-          "Sehr gut! Die Monster sind korrekt sortiert. Nun kämpfe dich durch!", "Erfolg");
-    } else {
-      DialogUtils.showTextPopup(
-          "Die Monster sind noch nicht korrekt sortiert. Versuche es nochmal!", "Fehler");
-    }
+    EventScheduler.scheduleAction(
+        () -> {
+          if (arrayIsSorted(solution)) {
+            door.open();
+            DialogUtils.showTextPopup(
+                "Sehr gut! Die Monster sind korrekt sortiert. Nun kämpfe dich durch!", "Erfolg");
+          } else {
+            DialogUtils.showTextPopup(
+                "Die Monster sind noch nicht korrekt sortiert. Versuche es nochmal!", "Fehler");
+          }
+          EventScheduler.clear();
+          delay_multiplication = 0;
+        },
+        DELAY_UNTINT * (delay_multiplication - 1) + 100);
   }
 
   private boolean arrayIsSorted(Monster[] sortedArray) {
@@ -165,5 +181,16 @@ public class AdvancedSortLevel extends BlocklyLevel {
       return true;
     }
     return false;
+  }
+
+  private void sortListLikeArray(List<Monster> mobs, Monster[] solution) {
+    // Build a map from Monster to its index in the solution array
+    Map<Monster, Integer> indexMap = new HashMap<>();
+    for (int i = 0; i < solution.length; i++) {
+      indexMap.put(solution[i], i);
+    }
+
+    // Sort the list using the index map
+    mobs.sort(Comparator.comparingInt(indexMap::get));
   }
 }

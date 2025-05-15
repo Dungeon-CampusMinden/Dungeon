@@ -38,7 +38,6 @@ public class MyArrayRemover extends ArrayRemover {
    * @return Ein neues Array, das nur die Anzahl der Monster aus den nicht-leeren Räumen enthält
    * @throws UnsupportedOperationException wenn die Methode nicht implementiert wurde
    */
-  @Override
   public int[] entfernePositionen() {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }

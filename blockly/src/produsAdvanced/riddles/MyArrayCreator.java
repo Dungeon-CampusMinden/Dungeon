@@ -19,7 +19,6 @@ public class MyArrayCreator extends ArrayCreator {
    *     entsprechenden Raum enthält
    * @throws UnsupportedOperationException wenn die Methode nicht implementiert wurde
    */
-  @Override
   public int[] countMonstersInRooms() {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }

@@ -1,9 +1,12 @@
 package produsAdvanced.abstraction;
 
 import contrib.components.HealthComponent;
+import contrib.systems.EventScheduler;
 import core.Entity;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
+import produsAdvanced.level.AdvancedSortLevel;
 
 /**
  * Die Klasse {@code Monster} stellt eine Abstraktion für ein Monster-Entity im Spiel dar. Sie
@@ -17,6 +20,7 @@ import core.utils.Point;
 public class Monster {
 
   private final Entity monster;
+  private static final int TINT_COLOR = 0xff5555ff;
 
   /**
    * Erstellt ein neues {@code Monster}-Objekt auf Basis einer bestehenden {@link Entity}.
@@ -55,6 +59,35 @@ public class Monster {
   }
 
   /**
+   * Tauscht die Position dieses Monsters mit der eines anderen Monsters.
+   *
+   * <p><b>Hinweis:</b> Derzeit erfolgt der Tausch ohne Animation.
+   *
+   * @param other Das andere Monster, mit dem die Position getauscht wird.
+   */
+  public void swapPosition(Monster other) {
+    EventScheduler.scheduleAction(
+        () -> {
+          Point p = getPosition();
+          this.setPosition(other.getPosition());
+          other.setPosition(p);
+          tintColor(TINT_COLOR);
+          other.tintColor(TINT_COLOR);
+          EventScheduler.scheduleAction(
+              () -> {
+                tintColor(-1);
+                other.tintColor(-1);
+              },
+              AdvancedSortLevel.DELAY_UNTINT);
+        },
+        AdvancedSortLevel.DELAY * AdvancedSortLevel.delay_multiplication++);
+  }
+
+  private void tintColor(int tintColor) {
+    monster.fetch(DrawComponent.class).get().tintColor(tintColor);
+  }
+
+  /**
    * Vergleicht dieses Monster mit einem anderen Objekt. Zwei Monster gelten als gleich, wenn sie
    * die gleiche Anzahl an Lebenspunkten haben.
    *
@@ -68,19 +101,5 @@ public class Monster {
     if (obj == null || getClass() != obj.getClass()) return false;
     Monster other = (Monster) obj;
     return this.getHealthPoints() == other.getHealthPoints();
-  }
-
-  /**
-   * Tauscht die Position dieses Monsters mit der eines anderen Monsters.
-   *
-   * <p><b>Hinweis:</b> Derzeit erfolgt der Tausch ohne Animation.
-   *
-   * @param other Das andere Monster, mit dem die Position getauscht wird.
-   */
-  public void swapPosition(Monster other) {
-    // TODO USE ANIMATION
-    Point p = getPosition();
-    this.setPosition(other.getPosition());
-    other.setPosition(p);
   }
 }

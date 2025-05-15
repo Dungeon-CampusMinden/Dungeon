@@ -15,10 +15,11 @@ public abstract class MonsterSort {
    * <p>The method returns an array of sorted health values. If a subclass does not implement this
    * method, an {@link UnsupportedOperationException} is thrown.
    *
+   * @param monsterArray Array mit den Monstern zum sortieren.
    * @return an array with the sorted health values of the monsters
    * @throws UnsupportedOperationException if the method is not implemented by the subclass
    */
-  public Monster[] sortMonsters() {
+  public Monster[] sortMonsters(Monster[] monsterArray) {
     throw new UnsupportedOperationException("This method must be implemented by the student");
   }
 }

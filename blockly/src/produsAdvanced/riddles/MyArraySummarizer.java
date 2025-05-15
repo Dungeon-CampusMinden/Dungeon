@@ -35,7 +35,6 @@ public class MyArraySummarizer extends ArraySummarizer {
    * @return Die Summe aller Monster im Array (nur Räume mit Monstern werden gezählt)
    * @throws UnsupportedOperationException wenn die Methode nicht implementiert wurde
    */
-  @Override
   public int summarizeArray() {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
