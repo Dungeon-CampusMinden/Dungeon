@@ -245,7 +245,7 @@ public class ArrayRemoveLevel extends BlocklyLevel {
     // Hier definieren wir die Positionen und Nachrichten für die Schilder
     signMessages.put(
         new Point(12, 54),
-        "Es scheint als währen einige Monster umgezogen! Zähle alle Monster, aber merke dir auch die Räume in denen sie waren!");
+        "Es scheint als wären einige Monster umgezogen! Zähle alle Monster, aber merke dir auch die Räume in denen sie waren!");
     signMessages.put(new Point(17, 44), "Erster Raum"); // chorts
     signMessages.put(new Point(25, 23), "Zweiter Raum"); // goblins
     signMessages.put(new Point(47, 52), "Dritter Raum"); // mini

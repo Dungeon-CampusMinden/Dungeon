@@ -18,7 +18,7 @@ public class AdvancedControlLevel1 extends BlocklyLevel {
 
   private static boolean showMsg = true;
   private static String msg =
-      "Was ist los? Ich kann mich nicht bewegen! Jemand muss an meinen Steurrungscode rumgefuscht haben.";
+      "Was ist los? Ich kann mich nicht bewegen! Jemand muss an meinem Steuerungscode rumgefuscht haben.";
   private static String titel = "Level 1";
 
   /**

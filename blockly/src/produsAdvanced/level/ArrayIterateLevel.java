@@ -58,7 +58,7 @@ public class ArrayIterateLevel extends BlocklyLevel {
     spawnLeverWithAction(leverPosition);
     spawnSign(
         signPosition,
-        "Um diese Tür zu öffnen brauche ich die Summe eines Arrays von dir! Gehe in den Code und Implementiere die Methode in der Klasse MyArraySummarizer.");
+        "Um diese Tür zu öffnen brauche ich die Summe eines Arrays von dir! Gehe in den Code und implementiere die Methode in der Klasse MyArraySummarizer.");
   }
 
   @Override

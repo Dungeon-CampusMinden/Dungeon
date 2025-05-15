@@ -24,7 +24,7 @@ import level.BlocklyLevel;
  */
 public class AdvancedControlLevel4 extends BlocklyLevel {
   private static boolean showMsg = true;
-  private static String msg = "Wenn ich hier zu langsam bin,fall ich runter.";
+  private static String msg = "Wenn ich hier zu langsam bin, fall ich runter.";
   private static String titel = "Level 4";
 
   private ExitTile exit;
