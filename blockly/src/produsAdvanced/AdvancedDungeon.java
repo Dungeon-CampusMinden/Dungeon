@@ -2,7 +2,6 @@ package produsAdvanced;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
@@ -47,7 +46,6 @@ public class AdvancedDungeon {
   /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled */
   private static boolean recompilePaused = false;
 
-  private static boolean windowInFocus = false;
   private static final String ERROR_MSG_CONTROLLER =
       "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
 
@@ -66,18 +64,9 @@ public class AdvancedDungeon {
   private static final IVoidFunction onFrame =
       () -> {
         if (DEBUG) DEBUGGER.execute();
-
-        // TODO does not work on mac
-        boolean focus = ((Lwjgl3Graphics) Gdx.graphics).getWindow().isFocused();
-        if (focus && !windowInFocus) {
-          if (!DISABLE_RECOMPILE) recompileHeroControl();
-        }
-        // Hidden Mac Workarround
         if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
           if (!DISABLE_RECOMPILE) recompileHeroControl();
         }
-
-        windowInFocus = focus;
       };
 
   /**
