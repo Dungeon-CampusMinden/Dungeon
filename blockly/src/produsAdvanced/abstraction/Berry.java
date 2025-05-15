@@ -102,8 +102,7 @@ public class Berry extends Item {
    */
   private Entity getEntity() {
     Set<Entity> berrys =
-        Game.allEntities()
-            .filter(e -> e.fetch(ItemComponent.class).isPresent())
+        Game.entityStream(Set.of(ItemComponent.class))
             .filter(e -> e.fetch(ItemComponent.class).get().item() instanceof Berry)
             .collect(Collectors.toSet());
 
