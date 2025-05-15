@@ -21,6 +21,8 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;
+import produsAdvanced.abstraction.Fireball;
+import produsAdvanced.abstraction.FireballSkill;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.*;
@@ -51,6 +53,9 @@ public class AdvancedDungeon {
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
 
+  /** Global reference to the {@link FireballSkill} instance used in the game. */
+  public static FireballSkill fireballSkill = new FireballSkill();
+
   /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled. */
   private static boolean recompilePaused = false;
 
@@ -58,11 +63,16 @@ public class AdvancedDungeon {
       "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
 
   /** Path to the Java source file of the custom player controller. */
-  private static final SimpleIPath CONTROLLER_PATH =
+  private static final SimpleIPath HERO_CONTROLLER_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
+
+  private static final SimpleIPath FIREBALL_PATH =
+      new SimpleIPath("src/produsAdvanced/riddles/MyFireball.java");
 
   /** Fully qualified class name of the custom player controller. */
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
+
+  private static final String FIREBALL_CLASSNAME = "produsAdvanced.riddles.MyFireball";
 
   /**
    * Function called every frame to check for manual recompilation trigger.
@@ -85,10 +95,16 @@ public class AdvancedDungeon {
     try {
       Object o =
           DynamicCompiler.loadUserInstance(
-              CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
+              FIREBALL_PATH, FIREBALL_CLASSNAME, new Tuple<>(FireballSkill.class, fireballSkill));
+      fireballSkill.setController((Fireball) o);
+
+      o =
+          DynamicCompiler.loadUserInstance(
+              HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
       hero.setController((PlayerController) o);
     } catch (Exception e) {
       recompilePaused = true;
+      if (DEBUG_MODE) e.printStackTrace();
       DialogUtils.showTextPopup(ERROR_MSG_CONTROLLER, "Code Error", () -> recompilePaused = false);
     }
   }
@@ -188,7 +204,7 @@ public class AdvancedDungeon {
     Game.entityStream(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity heroEntity = EntityFactory.newHero();
     Game.add(heroEntity);
-    hero = new Hero(heroEntity);
+    hero = new Hero(heroEntity, fireballSkill);
   }
 
   /**
