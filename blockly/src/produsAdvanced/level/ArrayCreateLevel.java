@@ -1,4 +1,4 @@
-package produsAdvanced;
+package produsAdvanced.level;
 
 import abstraction.ArrayCreator;
 import contrib.components.AIComponent;
@@ -34,8 +34,8 @@ public class ArrayCreateLevel extends BlocklyLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath ARRAY_CREATOR_PATH =
-      new SimpleIPath("blockly/src/riddles/MyArrayCreator.java");
-  private static final String ARRAY_CREATOR_CLASSNAME = "riddles.MyArrayCreator";
+      new SimpleIPath("src/produsAdvanced/riddles/MyArrayCreator.java");
+  private static final String ARRAY_CREATOR_CLASSNAME = "produsAdvanced.riddles.MyArrayCreator";
 
   /**
    * Konstruktor für das ArrayCreateLevel.

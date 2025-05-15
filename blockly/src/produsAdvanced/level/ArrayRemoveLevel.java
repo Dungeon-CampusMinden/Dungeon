@@ -1,4 +1,4 @@
-package produsAdvanced;
+package produsAdvanced.level;
 
 import abstraction.ArrayRemover;
 import contrib.components.AIComponent;
@@ -36,8 +36,8 @@ public class ArrayRemoveLevel extends BlocklyLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath ARRAY_REMOVER_PATH =
-      new SimpleIPath("blockly/src/riddles/MyArrayRemover.java");
-  private static final String ARRAY_REMOVER_CLASSNAME = "riddles.MyArrayRemover";
+      new SimpleIPath("src/produsAdvanced/riddles/MyArrayRemover.java");
+  private static final String ARRAY_REMOVER_CLASSNAME = "produsAdvanced.riddles.MyArrayRemover";
 
   /**
    * Konstruktor für das Array-Entfernungs-Level.

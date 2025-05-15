@@ -1,4 +1,4 @@
-package produsAdvanced;
+package produsAdvanced.level;
 
 import abstraction.ArraySummarizer;
 import contrib.entities.LeverFactory;
@@ -33,8 +33,9 @@ public class ArrayIterateLevel extends BlocklyLevel {
   private final int[] arrayToPass = {15, 5, 9, 7, 8}; // Summe = 44
 
   private static final SimpleIPath ARRAY_SUMMARIZER_PATH =
-      new SimpleIPath("blockly/src/riddles/MyArraySummarizer.java");
-  private static final String ARRAY_SUMMARIZER_CLASSNAME = "riddles.MyArraySummarizer";
+      new SimpleIPath("src/produsAdvanced/riddles/MyArraySummarizer.java");
+  private static final String ARRAY_SUMMARIZER_CLASSNAME =
+      "produsAdvanced.riddles.MyArraySummarizer";
 
   /**
    * Konstruktor für das Array-Iterations-Level.

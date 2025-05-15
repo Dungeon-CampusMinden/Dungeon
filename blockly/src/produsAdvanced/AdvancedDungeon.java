@@ -129,11 +129,15 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          /*  DevDungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DevDungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DevDungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
           DevDungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
           DevDungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("arraycreate", ArrayCreateLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
+          DevDungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));*/
+          DevDungeonLoader.addLevel(Tuple.of("arraysort", AdvancedSortLevel.class));
           createSystems();
           HeroFactory.heroDeath(entity -> restart());
           try {

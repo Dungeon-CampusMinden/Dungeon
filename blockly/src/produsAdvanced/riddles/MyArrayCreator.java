@@ -1,4 +1,4 @@
-package riddles;
+package produsAdvanced.riddles;
 
 import abstraction.ArrayCreator;
 
