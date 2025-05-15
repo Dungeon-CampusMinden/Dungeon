@@ -25,8 +25,11 @@ import java.util.Map;
 import level.BlocklyLevel;
 
 /**
- * Ein Level-Design für das Array-Entfernungs-Puzzle. Diese Klasse implementiert ein Spiellevel, in
- * dem der Spieler Elemente aus einem Array entfernen und ein neues Array erstellen muss.
+ * Manager for an advanced dungeon level.
+ *
+ * <p>Modify an array based on the monster count in each room.
+ *
+ * @see produsAdvanced.riddles.MyArrayRemover
  */
 public class ArrayRemoveLevel extends BlocklyLevel {
   private static boolean showText = true;

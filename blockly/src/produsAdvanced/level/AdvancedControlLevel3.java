@@ -18,6 +18,13 @@ import java.util.List;
 import java.util.Set;
 import level.BlocklyLevel;
 
+/**
+ * Manager for an advanced dungeon level.
+ *
+ * <p>Write your own interaction and combat controls.
+ *
+ * @see produsAdvanced.riddles.MyPlayerController
+ */
 public class AdvancedControlLevel3 extends BlocklyLevel {
   private static boolean showMsg = true;
   private static String msg =

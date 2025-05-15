@@ -22,8 +22,13 @@ import level.BlocklyLevel;
 import produsAdvanced.abstraction.Berry;
 
 /**
- * A custom level where the player must collect non-toxic berries and place them in a chest to feed
- * an NPC. Once enough safe berries are delivered, the NPC opens the exit door.
+ * Manager for an advanced dungeon level.
+ *
+ * <p>A custom level where the player must collect non-toxic berries and place them in a chest to
+ * feed an NPC. Once enough safe berries are delivered, the NPC opens the exit door.
+ *
+ * @see produsAdvanced.riddles.MyPlayerController
+ * @see Berry
  */
 public class AdvancedBerryLevel extends BlocklyLevel {
   private static boolean showMsg = true;

@@ -24,8 +24,11 @@ import java.util.Map;
 import level.BlocklyLevel;
 
 /**
- * Ein Level-Design für das Array-Erstellungs-Puzzle. Diese Klasse implementiert ein Spiellevel, in
- * dem der Spieler ein Array mit Monsteranzahlen erstellen muss.
+ * Manager for an advanced dungeon level.
+ *
+ * <p>Create an array based on the monster count in each room.
+ *
+ * @see produsAdvanced.riddles.MyArrayCreator
  */
 public class ArrayCreateLevel extends BlocklyLevel {
   private static boolean showText = true;

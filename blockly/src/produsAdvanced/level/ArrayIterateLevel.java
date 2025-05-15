@@ -20,8 +20,11 @@ import java.util.List;
 import level.BlocklyLevel;
 
 /**
- * Ein Level-Design für das Array-Iterations-Puzzle. Diese Klasse implementiert ein Spiellevel, in
- * dem der Spieler durch ein Array iterieren und Berechnungen durchführen muss.
+ * Manager for an advanced dungeon level.
+ *
+ * <p>Iterate over an array.
+ *
+ * @see produsAdvanced.riddles.MyArraySummarizer
  */
 public class ArrayIterateLevel extends BlocklyLevel {
 

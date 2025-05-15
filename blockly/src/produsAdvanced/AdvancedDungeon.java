@@ -7,6 +7,7 @@ import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
+import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
@@ -35,15 +36,23 @@ import systems.TintTilesSystem;
  * recompilation of user control code for live testing of custom hero controllers.
  */
 public class AdvancedDungeon {
+  /**
+   * Activate this to enable Debug mode.
+   *
+   * <p>Creates a classic Hero with standard controls; no custom implementation needed.
+   *
+   * <p>Activates the {@link Debugger}.
+   *
+   * <p>Also disables recompilation for player control.
+   */
+  public static final boolean DEBUG_MODE = false;
 
-  public static final boolean DEBUG = true;
-  public static final boolean DISABLE_RECOMPILE = DEBUG;
   private static final Debugger DEBUGGER = new Debugger();
 
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
 
-  /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled */
+  /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled. */
   private static boolean recompilePaused = false;
 
   private static final String ERROR_MSG_CONTROLLER =
@@ -63,9 +72,9 @@ public class AdvancedDungeon {
    */
   private static final IVoidFunction onFrame =
       () -> {
-        if (DEBUG) DEBUGGER.execute();
+        if (DEBUG_MODE) DEBUGGER.execute();
         if (Gdx.input.isKeyJustPressed(Input.Keys.U)) {
-          if (!DISABLE_RECOMPILE) recompileHeroControl();
+          if (!DEBUG_MODE) recompileHeroControl();
         }
       };
 
@@ -118,14 +127,14 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          /*  DevDungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          DevDungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DevDungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DevDungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
           DevDungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
           DevDungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
           DevDungeonLoader.addLevel(Tuple.of("arraycreate", ArrayCreateLevel.class));
           DevDungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
-          DevDungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));*/
+          DevDungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
           DevDungeonLoader.addLevel(Tuple.of("arraysort", AdvancedSortLevel.class));
           createSystems();
           HeroFactory.heroDeath(entity -> restart());
@@ -137,6 +146,7 @@ public class AdvancedDungeon {
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
+          DevDungeonLoader.afterAllLevels(AdvancedDungeon::startRoomBasedLevel);
           DevDungeonLoader.loadLevel(0);
         });
   }
@@ -163,7 +173,7 @@ public class AdvancedDungeon {
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
-    if (DEBUG) Game.add(new LevelEditorSystem());
+    if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 
   /**
@@ -190,10 +200,20 @@ public class AdvancedDungeon {
     Game.removeAllEntities();
     try {
       createHero();
-      if (!DISABLE_RECOMPILE) recompileHeroControl();
+      if (!DEBUG_MODE) recompileHeroControl();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     DevDungeonLoader.reloadCurrentLevel();
+  }
+
+  private static void startRoomBasedLevel() {
+    GeneratorUtils.createRoomBasedLevel(10, 5, 1);
+    DialogUtils.showTextPopup(
+        "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
+
+    LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
+    levelSystem.onEndTile(
+        AdvancedDungeon::startRoomBasedLevel); // restart the level -> endless loop
   }
 }

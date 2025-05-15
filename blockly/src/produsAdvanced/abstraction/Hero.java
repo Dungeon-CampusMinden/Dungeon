@@ -55,7 +55,7 @@ public class Hero {
   public Hero(Entity heroInstance) {
     this.hero = heroInstance;
 
-    if (!AdvancedDungeon.DEBUG) {
+    if (!AdvancedDungeon.DEBUG_MODE) {
       PlayerComponent pc = heroInstance.fetch(PlayerComponent.class).get();
       pc.removeCallbacks(); // Entfernt alle bisherigen Tastenzuweisungen
     }

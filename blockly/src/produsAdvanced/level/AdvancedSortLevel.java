@@ -22,7 +22,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import level.BlocklyLevel;
 import produsAdvanced.abstraction.MonsterSort;
 
-/** Ein Level, in dem der Spieler die Lebenspunkte von Monstern sortieren muss. */
+/**
+ * Manager for an advanced dungeon level.
+ *
+ * <p>Sort the monster in the Array.
+ *
+ * @see produsAdvanced.riddles.MyMonsterSort
+ */
 public class AdvancedSortLevel extends BlocklyLevel {
 
   private static boolean showText = true;

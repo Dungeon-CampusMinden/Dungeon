@@ -7,6 +7,13 @@ import core.level.utils.LevelElement;
 import java.util.List;
 import level.BlocklyLevel;
 
+/**
+ * Manager for an advanced dungeon level.
+ *
+ * <p>Write your own movement controls.
+ *
+ * @see produsAdvanced.riddles.MyPlayerController
+ */
 public class AdvancedControlLevel2 extends BlocklyLevel {
 
   private static boolean showMsg = true;
