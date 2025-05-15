@@ -1,11 +1,15 @@
 package produsAdvanced.level;
 
+import contrib.components.CollideComponent;
+import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -80,15 +84,37 @@ public class AdvancedBerryLevel extends BlocklyLevel {
   /** Spawns both toxic and non-toxic berries at random floor tiles. */
   private void spawnBerries() {
     for (int i = 0; i < BERRY_GOAL; i++) {
-      Game.add(
-          WorldItemBuilder.buildWorldItem(
-              new Berry(true),
-              Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint()));
-      Game.add(
-          WorldItemBuilder.buildWorldItem(
-              new Berry(false),
-              Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint()));
+      spawnBerry(true); // Toxic berry
+      spawnBerry(false); // Non-toxic berry
     }
+  }
+
+  private void spawnBerry(boolean isToxic) {
+    Entity berry =
+        WorldItemBuilder.buildWorldItem(
+            new Berry(isToxic),
+            Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
+    berry.name("Berry");
+    HealthComponent health = new HealthComponent(999, (entity -> {}));
+    berry.add(health);
+    makeInvincible(berry);
+    berry.add(new CollideComponent());
+    Game.add(berry);
+  }
+
+  private static void makeInvincible(Entity entity) {
+    entity
+        .fetch(HealthComponent.class)
+        .ifPresent(
+            hc -> {
+              hc.onHit(
+                  (cause, damage) -> {
+                    if (damage.damageType() != DamageType.HEAL
+                        && damage.damageType() != DamageType.FALL) {
+                      hc.receiveHit(new Damage(-damage.damageAmount(), DamageType.HEAL, entity));
+                    }
+                  });
+            });
   }
 
   /** Creates a chest at the second custom point. */
@@ -111,7 +137,9 @@ public class AdvancedBerryLevel extends BlocklyLevel {
     } catch (IOException e) {
       throw new RuntimeException("Failed to load NPC texture", e);
     }
-
+    npc.add(new CollideComponent());
+    npc.add(new HealthComponent(999, (entity -> {})));
+    makeInvincible(npc);
     npc.add(
         new InteractionComponent(
             1,

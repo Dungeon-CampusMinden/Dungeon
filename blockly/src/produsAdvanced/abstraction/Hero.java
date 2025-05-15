@@ -9,8 +9,6 @@ import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.interaction.InteractionTool;
-import contrib.utils.components.skill.FireballSkill;
-import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -21,7 +19,6 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.Comparator;
-import java.util.function.Supplier;
 import produsAdvanced.AdvancedDungeon;
 
 /**
@@ -37,28 +34,28 @@ public class Hero {
   /** Die Entity, die diesen Helden repräsentiert. */
   private Entity hero;
 
-  /** Abklingzeit (in Millisekunden) für das erneute Ausführen der Feuerball-Fähigkeit. */
-  private int FIREBALL_COOL_DOWN = 500;
-
-  /** Zielposition für den Feuerball, standardmäßig (0, 0). */
-  private Supplier<Point> fireballTarget = () -> new Point(0, 0);
-
-  /** Instanz der Feuerball-Fähigkeit. */
-  private Skill fireball = new Skill(new FireballSkill(fireballTarget), FIREBALL_COOL_DOWN);
+  /**
+   * Die Feuerball-Fähigkeit, die für diesen Helden verwendet wird.
+   *
+   * @see Fireball
+   */
+  private final FireballSkill fireballSkill;
 
   /**
    * Konstruktor.
    *
    * @param heroInstance Die Entity, die diesen Helden darstellt. Muss ein {@link PlayerComponent}
    *     enthalten.
+   * @param fireballSkill Die Feuerball-Fähigkeit, die für diesen Helden verwendet wird.
    */
-  public Hero(Entity heroInstance) {
+  public Hero(Entity heroInstance, FireballSkill fireballSkill) {
     this.hero = heroInstance;
 
     if (!AdvancedDungeon.DEBUG_MODE) {
       PlayerComponent pc = heroInstance.fetch(PlayerComponent.class).get();
       pc.removeCallbacks(); // Entfernt alle bisherigen Tastenzuweisungen
     }
+    this.fireballSkill = fireballSkill;
   }
 
   /**
@@ -154,14 +151,7 @@ public class Hero {
    * @param direction Zielposition des Feuerballs.
    */
   public void shootFireball(Point direction) {
-    Supplier<Point> newTarget = () -> direction;
-    Skill newFireball = new Skill(new FireballSkill(fireballTarget), FIREBALL_COOL_DOWN);
-    if (fireball.canBeUsedAgain()) {
-      newFireball.execute(hero);
-      newFireball.setLastUsedToNow();
-    }
-    fireball = newFireball;
-    fireballTarget = newTarget;
+    fireballSkill.shoot(hero, direction);
   }
 
   /**
