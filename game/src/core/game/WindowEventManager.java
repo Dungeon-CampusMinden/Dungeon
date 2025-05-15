@@ -13,6 +13,28 @@ import java.util.function.Supplier;
  * <p>This manager provides a centralized way to register, remove, and handle various window events
  * like creation, iconification, maximization, focus changes, close requests, file drops, and
  * refresh requests. It acts as a wrapper around the LibGDX window listener system.
+ *
+ * <p>Example usage:
+ *
+ * <pre>{@code
+ * // Listen for focus changes
+ * WindowEventManager.registerFocusChangeListener(focus -> System.out.println("Focus: " + focus));
+ *
+ * // Prevent window from closing
+ * WindowEventManager.registerCloseRequestListener(() -> false);
+ *
+ * // Handle window creation
+ * WindowEventManager.registerWindowCreatedListener(
+ *     window -> System.out.println("Window created: " + window));
+ *
+ * // Track window minimization state
+ * WindowEventManager.registerIconificationListener(
+ *     iconified -> System.out.println("Window iconified: " + iconified));
+ *
+ * // Track window maximization state
+ * WindowEventManager.registerMaximizationListener(
+ *     maximized -> System.out.println("Window maximized: " + maximized));
+ * }</pre>
  */
 public class WindowEventManager {
 
