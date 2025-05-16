@@ -8,6 +8,8 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.systems.EventScheduler;
+import contrib.utils.IAction;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -30,6 +32,11 @@ import produsAdvanced.AdvancedDungeon;
  * Objekten sowie das Ausführen einer Feuerball-Fähigkeit mit Abklingzeit.
  */
 public class Hero {
+
+  /** Erzeugt eine Pause zwischen Interaktionen. */
+  private static final IAction INTERACTION_COOLDOWN = () -> {};
+
+  private static EventScheduler.ScheduledAction cooldownEvent;
 
   /** Die Entity, die diesen Helden repräsentiert. */
   private Entity hero;
@@ -161,6 +168,7 @@ public class Hero {
    * interagierbaren Objekt interagiert.
    */
   public void interact() {
+    if (cooldownEvent != null && EventScheduler.isScheduled(cooldownEvent)) return;
     UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null
         && uiComponent.dialog() instanceof GUICombination
@@ -168,6 +176,7 @@ public class Hero {
       hero.remove(UIComponent.class);
     } else {
       InteractionTool.interactWithClosestInteractable(hero);
+      cooldownEvent = EventScheduler.scheduleAction(INTERACTION_COOLDOWN, 250);
     }
   }
 
