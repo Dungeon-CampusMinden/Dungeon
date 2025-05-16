@@ -6,9 +6,9 @@ public int[] countMonstersInRooms() {
      int[] monsterArray = new int[5];
      monsterArray[0] = 1;
      monsterArray[1] = 5;
-     monsterArray[2] = 3;
-     monsterArray[3] = 2;
-     monsterArray[4] = 4;
+     monsterArray[2] = 4;
+     monsterArray[3] = 3;
+     monsterArray[4] = 2;
 
     return monsterArray;
 }
