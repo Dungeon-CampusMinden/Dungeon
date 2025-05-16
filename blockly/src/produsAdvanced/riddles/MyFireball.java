@@ -32,7 +32,7 @@ public class MyFireball extends Fireball {
    *
    * <ul>
    *   <li>Die Beere verschwinden lassen
-   *   <li>Ausgeben ob die Beere giftig ist
+   *   <li>Ausgeben, ob die Beere giftig ist
    *   <li>Das Aussehen der Beere ändern
    * </ul>
    *

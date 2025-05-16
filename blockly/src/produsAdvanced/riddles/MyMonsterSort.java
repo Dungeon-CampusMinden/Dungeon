@@ -17,8 +17,8 @@ public class MyMonsterSort extends MonsterSort {
    * sortieren. Sortiere dafür das Array {@code monsterArray} in aufsteigender Reihenfolge. Tausche
    * auch die Position der Monster.
    *
-   * @param monsterArray Array mit den Monstern zum sortieren.
-   * @return ein Array mit den sortierten Gesundheitswerten der Monster
+   * @param monsterArray Array mit den Monstern, die sortiert werden sollen.
+   * @return Ein Array der Monster in sortierter Reihenfolge.
    */
   public Monster[] sortMonsters(Monster[] monsterArray) {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");

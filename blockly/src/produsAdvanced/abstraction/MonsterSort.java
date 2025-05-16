@@ -1,25 +1,26 @@
 package produsAdvanced.abstraction;
 
 /**
- * Abstract class for sorting monsters.
+ * Abstrakte Klasse zum Sortieren von Monstern.
  *
- * <p>This class defines a method to sort monsters, typically represented by their health values.
- * Subclasses must override the {@code sortMonsters} method to implement the desired sorting
- * behavior.
+ * <p>Diese Klasse definiert eine Methode zum Sortieren von Monstern, die typischerweise durch ihre
+ * Gesundheitswerte repräsentiert werden. Unterklassen müssen die Methode {@code sortMonsters}
+ * überschreiben, um das gewünschte Sortierverhalten zu implementieren.
  */
 public abstract class MonsterSort {
 
   /**
-   * Sorts the monsters based on their health values.
+   * Sortiert die Monster basierend auf ihren Gesundheitswerten.
    *
-   * <p>The method returns an array of sorted health values. If a subclass does not implement this
-   * method, an {@link UnsupportedOperationException} is thrown.
+   * <p>Die Methode gibt ein Array mit den Monstern sortiert nach ihren Gesundheitswerten zurück.
+   * Falls die Methode von der Unterklasse nicht implementiert wurde, wird eine {@link
+   * UnsupportedOperationException} geworfen.
    *
-   * @param monsterArray Array mit den Monstern zum sortieren.
-   * @return an array with the sorted health values of the monsters
-   * @throws UnsupportedOperationException if the method is not implemented by the subclass
+   * @param monsterArray Array mit den Monstern, die sortiert werden sollen.
+   * @return Ein Array der Monster in sortierter Reihenfolge.
+   * @throws UnsupportedOperationException Falls die Methode nicht implementiert wurde.
    */
   public Monster[] sortMonsters(Monster[] monsterArray) {
-    throw new UnsupportedOperationException("This method must be implemented by the student");
+    throw new UnsupportedOperationException("Diese Methode muss vom Schüler implementiert werden");
   }
 }
