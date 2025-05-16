@@ -61,7 +61,7 @@ public class AdvancedControlLevel4 extends BlocklyLevel {
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {
-              ((PitTile) tile).timeToOpen(90);
+              ((PitTile) tile).timeToOpen(120);
               ((PitTile) tile).close();
             });
   }
