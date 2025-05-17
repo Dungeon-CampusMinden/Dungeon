@@ -62,6 +62,16 @@ public class EventScheduler extends System {
   }
 
   /**
+   * Check if the given action is scheduled.
+   *
+   * @param action Action to check for
+   * @return true if the action is scheduled, false if not.
+   */
+  public static boolean isScheduled(ScheduledAction action) {
+    return scheduledActions.contains(action);
+  }
+
+  /**
    * Executes the scheduled actions.
    *
    * <p>This method is called to process all the scheduled actions. It first gets the current time,

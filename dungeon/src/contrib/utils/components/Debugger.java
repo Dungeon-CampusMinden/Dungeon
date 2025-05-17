@@ -17,7 +17,10 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
+import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
+import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
@@ -203,6 +206,11 @@ public class Debugger {
     return entity;
   }
 
+  private static void OPEN_DOORS() {
+    ((ExitTile) Game.endTile()).open();
+    Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
+  }
+
   /**
    * Checks for key input corresponding to Debugger functionalities, and executes the relevant
    * function if detected.
@@ -224,6 +232,7 @@ public class Debugger {
       Debugger.TOGGLE_LEVEL_SIZE();
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_SPAWN_MONSTER.value()))
       Debugger.SPAWN_MONSTER_ON_CURSOR();
+    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) Debugger.OPEN_DOORS();
     if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();
   }
