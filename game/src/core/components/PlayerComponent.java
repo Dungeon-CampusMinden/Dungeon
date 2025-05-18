@@ -102,6 +102,11 @@ public final class PlayerComponent implements Component {
     callbacks.remove(key);
   }
 
+  /** Removes all registed callbacks. */
+  public void removeCallbacks() {
+    callbacks.clear();
+  }
+
   /**
    * Gets the Key Configuration Map.
    *
