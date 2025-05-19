@@ -11,7 +11,6 @@ import core.components.PlayerComponent;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -30,6 +29,7 @@ public class PathfinderStarter {
   private static final Logger LOGGER = Logger.getLogger(PathfinderStarter.class.getName());
   private static final boolean DRAW_CHECKER_PATTERN = true;
   private static Tuple<PathfindingLogic, PathfindingLogic> pathfindings = Tuple.of(null, null);
+  private static final PathfindingSystem pathfindingSystem = new PathfindingSystem();
 
   /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
@@ -75,46 +75,63 @@ public class PathfinderStarter {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
 
+          // Rest pathfinding algos
+          pathfindingSystem.reset();
+          pathfindings = Tuple.of(null, null);
+          Game.updateWindowTitle("Blockly KI-Dungeon – No Algorithm selected");
+
           Coordinate startCoords = Game.currentLevel().startTile().coordinate();
           Coordinate endTileCoords = Game.currentLevel().endTile().coordinate();
-          PlayerComponent pc =
-              Game.hero()
-                  .get()
-                  .fetch(PlayerComponent.class)
-                  .orElseThrow(
-                      () ->
-                          MissingComponentException.build(
-                              Game.hero().get(), PlayerComponent.class));
-          pc.registerCallback(
-              KeyboardConfig.SELECT_DFS.value(),
-              entity -> {
-                if (pathfindings.a() == null && pathfindings.b() == null) {
-                  pathfindings = Tuple.of(new DFSPathFinding(startCoords, endTileCoords), null);
-                  switchToAlgorithm(pathfindings.a(), entity);
-                }
-              });
-          pc.registerCallback(
-              KeyboardConfig.SELECT_BFS.value(),
-              entity -> {
-                if (pathfindings.a() == null && pathfindings.b() == null) {
-                  pathfindings = Tuple.of(new BFSPathFinding(startCoords, endTileCoords), null);
-                  switchToAlgorithm(pathfindings.a(), entity);
-                }
-              });
-          pc.registerCallback(
-              KeyboardConfig.SELECT_SUS_ALGO.value(),
-              entity -> {
-                if (pathfindings.a() == null && pathfindings.b() == null) {
-                  try {
-                    pathfindings = Tuple.of(null, new SusPathFinding(startCoords, endTileCoords));
-                    switchToAlgorithm(pathfindings.b(), entity);
-                  } catch (UnsupportedOperationException e) {
-                    LOGGER.info(e.getMessage());
-                    pathfindings = Tuple.of(null, null);
-                  }
-                }
-              });
+
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    hero.fetch(PlayerComponent.class)
+                        .ifPresent(
+                            pc -> {
+                              pc.registerCallback(
+                                  KeyboardConfig.SELECT_DFS.value(),
+                                  caller -> {
+                                    selectPathfindingAlgorithm(
+                                        new DFSPathFinding(startCoords, endTileCoords),
+                                        false,
+                                        hero);
+                                  });
+                              pc.registerCallback(
+                                  KeyboardConfig.SELECT_BFS.value(),
+                                  caller -> {
+                                    selectPathfindingAlgorithm(
+                                        new BFSPathFinding(startCoords, endTileCoords),
+                                        false,
+                                        hero);
+                                  });
+                              pc.registerCallback(
+                                  KeyboardConfig.SELECT_SUS_ALGO.value(),
+                                  caller -> {
+                                    selectPathfindingAlgorithm(
+                                        new SusPathFinding(startCoords, endTileCoords), true, hero);
+                                  });
+                            });
+                  });
         });
+  }
+
+  private static void selectPathfindingAlgorithm(
+      PathfindingLogic pathfinding, boolean studyAlgo, Entity hero) {
+    if (pathfindingSystem.isEveryAlgorithmRunning() || pathfindingSystem.isEveryAlgorithmFinished())
+      return;
+
+    if (studyAlgo) {
+      pathfindings = Tuple.of(null, pathfinding);
+    } else {
+      pathfindings = Tuple.of(pathfinding, null);
+    }
+    try {
+      switchToAlgorithm(pathfinding, hero);
+    } catch (UnsupportedOperationException e) {
+      LOGGER.info(e.getMessage());
+      pathfindings = Tuple.of(null, null);
+    }
   }
 
   private static void configGame() throws IOException {
@@ -132,7 +149,7 @@ public class PathfinderStarter {
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new EventScheduler());
-    Game.add(new PathfindingSystem());
+    Game.add(pathfindingSystem);
   }
 
   /**
@@ -149,8 +166,7 @@ public class PathfinderStarter {
     hero.remove(CameraComponent.class);
     Game.add(hero);
 
-    hero.remove(PlayerComponent.class);
-    hero.add(new PlayerComponent());
+    hero.fetch(PlayerComponent.class).ifPresent(PlayerComponent::removeCallbacks);
   }
 
   /**

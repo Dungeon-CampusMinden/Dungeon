@@ -143,6 +143,8 @@ public class PathfindingVisualizer {
   /**
    * Returns whether the pathfinding process is currently running.
    *
+   * <p>If the Algo {@link #isFinished()} is true, it means the pathfinding process is not running.
+   *
    * @return true if the pathfinding process is running, false otherwise
    */
   public boolean isRunning() {
