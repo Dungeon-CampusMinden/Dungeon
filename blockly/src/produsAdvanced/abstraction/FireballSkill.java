@@ -89,6 +89,10 @@ public class FireballSkill extends DamageProjectile {
         DamageProjectile.DEFAULT_ON_WALL_HIT,
         (projectile, target) -> onHit.accept(target),
         DamageProjectile.DEFAULT_ON_SPAWN);
+    this.texture = texture;
+    this.range = range;
+    this.speed = speed;
+    this.damage = damageAmount;
     this.coolDown = Math.max(0, coolDown);
   }
 
