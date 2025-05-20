@@ -7,7 +7,7 @@ export function var_array(
 ) {
 
   const variable_id = block.getFieldValue("VAR");
-  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+  const variable_name = Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const input_a = block.getFieldValue("INPUT_A");
 
@@ -21,7 +21,7 @@ export function array_set(
 ) {
 
   const variable_id = block.getFieldValue("VAR");
-  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+  const variable_name = Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const input_index = generator.valueToCode(block, "INPUT_INDEX", Order.NONE);
   const input_value = generator.valueToCode(block, "INPUT_VALUE", Order.NONE);
@@ -36,7 +36,7 @@ export function array_get(
 ) {
 
   const variable_id = block.getFieldValue("VAR");
-  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+  const variable_name = Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const input_index = generator.valueToCode(block, "INPUT_INDEX", Order.NONE);
 
@@ -50,7 +50,7 @@ export function array_length(
 ) {
 
   const variable_id = block.getFieldValue("VAR");
-  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+  const variable_name = Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const code = variable_name + '.length';
   return [code, Order.NONE];

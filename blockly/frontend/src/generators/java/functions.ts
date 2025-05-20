@@ -6,7 +6,7 @@ export function func_def(
   generator: Blockly.Generator
 ) {
   const variable_id = block.getFieldValue("FUNC_NAME");
-  const funcName = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+  const funcName = Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const funcBody = generator.prefixLines(
       generator.blockToCode(block.getInputTargetBlock("DO")) as string,
