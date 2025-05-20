@@ -188,6 +188,7 @@ public class BlocklyCommands {
    * Shoots a fireball in direction the hero is facing.
    *
    * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
+   * @param hero Entity to be used as hero for positioning
    */
   private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
     newFireballSkill(hero).execute(hero);
@@ -195,6 +196,12 @@ public class BlocklyCommands {
     Server.waitDelta();
   }
 
+  /**
+   * Create a new fireball for the given entity.
+   *
+   * @param hero Entity to be used as hero for positioning
+   * @return Nice new fireball, ready to be launched.
+   */
   private static Skill newFireballSkill(Entity hero) {
     return new Skill(
         new FireballSkill(
