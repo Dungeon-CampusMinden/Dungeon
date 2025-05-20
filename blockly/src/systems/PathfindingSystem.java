@@ -59,16 +59,43 @@ public class PathfindingSystem extends System {
   }
 
   private boolean isEveryRunnerRunning() {
-    return runningRunners == pathfindingAlgorithms.size();
+    return runningRunners > 0 && runningRunners == pathfindingAlgorithms.size();
   }
 
-  private boolean isEveryAlgorithmFinished() {
+  /**
+   * Checks if every pathfinding algorithm is running.
+   *
+   * <p>A pathfinding algorithm is considered running if its visualizer is not finished.
+   *
+   * <p>If no pathfinding algorithms are present, it returns false.
+   *
+   * @return true if every pathfinding algorithm is running, false otherwise
+   */
+  public boolean isEveryAlgorithmRunning() {
+    for (PathfindingData pathfindingData : pathfindingAlgorithms) {
+      if (!pathfindingData.visualizer.isRunning()) {
+        return false;
+      }
+    }
+    return !pathfindingAlgorithms.isEmpty();
+  }
+
+  /**
+   * Checks if every pathfinding algorithm is finished.
+   *
+   * <p>A pathfinding algorithm is considered finished if its visualizer is finished.
+   *
+   * <p>If no pathfinding algorithms are present, it returns false.
+   *
+   * @return true if every pathfinding algorithm is finished, false otherwise
+   */
+  public boolean isEveryAlgorithmFinished() {
     for (PathfindingData pathfindingData : pathfindingAlgorithms) {
       if (!pathfindingData.visualizer.isFinished()) {
         return false;
       }
     }
-    return true;
+    return !pathfindingAlgorithms.isEmpty();
   }
 
   /**
@@ -147,7 +174,7 @@ public class PathfindingSystem extends System {
    * <p>This method stops the current pathfinding process, clears the scheduled actions, and resets
    * the state of the system.
    */
-  private void reset() {
+  public void reset() {
     for (PathfindingData pathfindingData : pathfindingAlgorithms) {
       pathfindingData.visualizer.reset();
     }
