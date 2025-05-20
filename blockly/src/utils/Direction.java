@@ -121,6 +121,22 @@ public enum Direction {
   }
 
   /**
+   * Convert a {@link PositionComponent.Direction} into a {@link Point}.
+   *
+   * <p>This is a convenience method to avoid unnecessary method calls/method chaining, i.e. instead
+   * of writing <code>
+   * Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero)).toPoint()</code> all
+   * the time we can just use <code>
+   * Direction.asPoint(EntityUtils.getViewDirection(hero))</code> now.
+   *
+   * @param viewDirection Direction to convert.
+   * @return Converted direction.
+   */
+  public static Point asPoint(PositionComponent.Direction viewDirection) {
+    return fromPositionCompDirection(viewDirection).toPoint();
+  }
+
+  /**
    * Transforms a relative direction into a world direction based on this view direction.
    *
    * <p>For example, if the hero is looking to the RIGHT and wants to check LEFT (relative to their
