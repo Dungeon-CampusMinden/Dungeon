@@ -149,6 +149,7 @@ public class AdvancedDungeon {
           DevDungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
           DevDungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
           createSystems();
+
           WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus) recompileHeroControl();
@@ -205,6 +206,8 @@ public class AdvancedDungeon {
     Entity heroEntity = EntityFactory.newHero();
     Game.add(heroEntity);
     hero = new Hero(heroEntity, fireballSkill);
+
+    if (!DEBUG_MODE) recompileHeroControl();
   }
 
   /**
@@ -217,7 +220,6 @@ public class AdvancedDungeon {
     Game.removeAllEntities();
     try {
       createHero();
-      if (!DEBUG_MODE) recompileHeroControl();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
