@@ -42,13 +42,19 @@ public class BlocklyCommands {
   private static final float FIREBALL_SPEED = 15f;
   private static final int FIREBALL_DMG = 1;
 
+  // Reference to our hero for all auxiliary methods defined in this class.
+  // This works only in single-player mode!
+  private static final Entity hero;
+  static {
+    hero = Game.hero().orElseThrow(MissingHeroException::new);
+  }
+
   /**
    * Moves the hero in it's viewing direction.
    *
    * <p>One move equals one tile.
    */
   public static void move() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection =
         Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     BlocklyCommands.move(viewDirection, hero);
@@ -57,7 +63,6 @@ public class BlocklyCommands {
   /** Moves the Hero to the Exit Block of the current Level. */
   public static void moveToExit() {
     if (Game.currentLevel().exitTiles().isEmpty()) return;
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     PositionComponent pc =
@@ -91,7 +96,6 @@ public class BlocklyCommands {
     if (direction == Direction.UP || direction == Direction.DOWN) {
       return; // no rotation
     }
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection =
         Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
     Direction newDirection =
@@ -112,8 +116,6 @@ public class BlocklyCommands {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public static void shootFireball() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-
     hero.fetch(AmmunitionComponent.class)
         .filter(AmmunitionComponent::checkAmmunition)
         .ifPresent(ac -> aimAndShoot(ac, hero));
@@ -121,7 +123,6 @@ public class BlocklyCommands {
 
   /** Triggers each interactable in front of the hero. */
   public static void interact() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -230,7 +231,6 @@ public class BlocklyCommands {
    * @param push True if you want to push, false if you want to pull.
    */
   private static void movePushable(boolean push) {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     DISABLE_SHOOT_ON_HERO = true;
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
