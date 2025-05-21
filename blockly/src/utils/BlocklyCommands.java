@@ -45,6 +45,7 @@ public class BlocklyCommands {
   // Reference to our hero for all auxiliary methods defined in this class.
   // This works only in single-player mode!
   private static final Entity hero;
+
   static {
     hero = Game.hero().orElseThrow(MissingHeroException::new);
   }
@@ -118,7 +119,7 @@ public class BlocklyCommands {
   public static void shootFireball() {
     hero.fetch(AmmunitionComponent.class)
         .filter(AmmunitionComponent::checkAmmunition)
-        .ifPresent(ac -> aimAndShoot(ac, hero));
+        .ifPresent(BlocklyCommands::aimAndShoot);
   }
 
   /** Triggers each interactable in front of the hero. */
@@ -189,10 +190,9 @@ public class BlocklyCommands {
    * Shoots a fireball in direction the hero is facing.
    *
    * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
-   * @param hero Entity to be used as hero for positioning
    */
-  private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
-    newFireballSkill(hero).execute(hero);
+  private static void aimAndShoot(AmmunitionComponent ac) {
+    newFireballSkill().execute(hero);
     ac.spendAmmo();
     Server.waitDelta();
   }
@@ -200,10 +200,9 @@ public class BlocklyCommands {
   /**
    * Create a new fireball for the given entity.
    *
-   * @param hero Entity to be used as hero for positioning
    * @return Nice new fireball, ready to be launched.
    */
-  private static Skill newFireballSkill(Entity hero) {
+  private static Skill newFireballSkill() {
     return new Skill(
         new FireballSkill(
             () ->
