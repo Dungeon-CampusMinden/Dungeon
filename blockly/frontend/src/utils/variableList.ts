@@ -1,7 +1,7 @@
 const DEFAULT_VALUE = '?';
 
 export const setupVariableDisplay = (addVarCallback: () => void) => {
-  const toolboxDiv = document.getElementsByClassName('blocklyToolboxDiv')[0] as HTMLDivElement;
+  const toolboxDiv = document.getElementsByClassName('blocklyToolbox')[0] as HTMLDivElement;
   toolboxDiv.style.display = 'flex';
   toolboxDiv.style.flexDirection = 'column';
   toolboxDiv.style.justifyContent = 'space-between';

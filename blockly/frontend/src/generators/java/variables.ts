@@ -4,7 +4,7 @@ import { javaGenerator, Order } from "../java.ts";
 export function set_number(block: Blockly.Block, generator: Blockly.Generator) {
   const variable_id = block.getFieldValue("VAR");
   const variable_name =
-    Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+    Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const field_value = generator.valueToCode(block, "VALUE", Order.NONE);
 
@@ -31,7 +31,7 @@ export function get_number(
 ) {
   const variable_id = block.getFieldValue("VAR");
   const variable_name =
-    Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+    Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   const code = String(javaGenerator.variables.get(variable_name!));
 
@@ -58,7 +58,7 @@ export function set_number_expression(
   const value = generator.valueToCode(block, "VALUE", Order.NONE);
 
   const variable_id = block.getFieldValue("VAR");
-  const variable_name = Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name ?? "UNKNOWN";
+    const variable_name = Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName() ?? "UNKNOWN";
 
   if (value) {
       javaGenerator.variables.set(variable_name, variable_name);
@@ -73,7 +73,7 @@ export function get_variable(
 ) {
   const variable_id = block.getFieldValue("VAR");
   const variable_name =
-      Blockly.getMainWorkspace()?.getVariableById(variable_id)?.name;
+      Blockly.getMainWorkspace()?.getVariableMap().getVariableById(variable_id)?.getName();
 
   return [variable_name, Order.NONE];
 }
