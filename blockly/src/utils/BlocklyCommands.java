@@ -112,9 +112,11 @@ public class BlocklyCommands {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public static void shootFireball() {
-    Game.hero().orElseThrow(MissingHeroException::new).fetch(AmmunitionComponent.class).stream()
+    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+
+    hero.fetch(AmmunitionComponent.class)
         .filter(AmmunitionComponent::checkAmmunition)
-        .forEach(BlocklyCommands::aimAndShoot);
+        .ifPresent(ac -> aimAndShoot(ac, hero));
   }
 
   /** Triggers each interactable in front of the hero. */
@@ -186,27 +188,33 @@ public class BlocklyCommands {
    * Shoots a fireball in direction the hero is facing.
    *
    * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
+   * @param hero Entity to be used as hero for positioning
    */
-  private static void aimAndShoot(AmmunitionComponent ac) {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
-    Skill fireball =
-        new Skill(
-            new FireballSkill(
-                () ->
-                    hero.fetch(CollideComponent.class)
-                        .map(cc -> cc.center(hero))
-                        .map(p -> p.add(viewDirection.toPoint()))
-                        .orElseThrow(
-                            () -> MissingComponentException.build(hero, CollideComponent.class)),
-                FIREBALL_RANGE,
-                FIREBALL_SPEED,
-                FIREBALL_DMG),
-            1);
-    fireball.execute(hero);
+  private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
+    newFireballSkill(hero).execute(hero);
     ac.spendAmmo();
     Server.waitDelta();
+  }
+
+  /**
+   * Create a new fireball for the given entity.
+   *
+   * @param hero Entity to be used as hero for positioning
+   * @return Nice new fireball, ready to be launched.
+   */
+  private static Skill newFireballSkill(Entity hero) {
+    return new Skill(
+        new FireballSkill(
+            () ->
+                hero.fetch(CollideComponent.class)
+                    .map(cc -> cc.center(hero))
+                    .map(p -> p.add(Direction.asPoint(EntityUtils.getViewDirection(hero))))
+                    .orElseThrow(
+                        () -> MissingComponentException.build(hero, CollideComponent.class)),
+            FIREBALL_RANGE,
+            FIREBALL_SPEED,
+            FIREBALL_DMG),
+        1);
   }
 
   /**
