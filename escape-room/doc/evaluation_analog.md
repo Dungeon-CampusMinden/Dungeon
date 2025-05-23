@@ -7,7 +7,7 @@ Hier sammeln wir die Ideen für einen physischen Escape-Room. Der genaue Zeitpun
 Bisher wurden gehandelt:
 
 - Studenten von BC und Carsten
-- vlt. 5-10 Leute in 2 Gruppen
+- bis zu vier Gruppen mit ungefähr 5 Teilnehmern
 - Ende Mai
 
 Die erste Evaluierung eines analoge Escape-Rooms soll ein niedrigschwelliges Experiment sein, um Erfahrungen zu sammeln, die im weiteren Verlauf des Projekts (digitale Escape-Rooms) nützlich sind.
@@ -21,20 +21,4 @@ Am Ende des Testlaufs hoffen wir:
 
 # Aufbau
 
-Da wir noch nicht wissen, welche konkreten Rätsel uns einfallen, haben wir für hier einen Bottom-Up-Ansatz angedacht. D.h. wir überlegen, welche Rätsel uns einfallen und versuchen, daraus etwas Gescheites zusammenzustellen.
-
-Für die Verknüpfung der Rätsel könnte man die Ergebnisse der Teilrätsel als Zahlen ausspucken. Zu jeder Zahl (und ein paar weiteren Decoy-Zahlen) gibt es eine Karte, auf der sowohl die Zahl als auch ein Buchstabe auf der anderen Seite steht. Wenn man die auf die richtige Art und Weise sortiert (vlt. eine Zahlkarte mit einem Sortierverfahren), steht auf den Rückseiten "Gewonnen!" oder so.
-Vielleicht gibt es auch Karten mit Instruktionen, die zum nächsten Rätsel führen.
-
-# Rätsel-Typen
-
-
-- Generische Logikrätsel
-  - [Counterfeit Coin](https://www.quantamagazine.org/seeking-mathematical-truth-in-counterfeit-coin-puzzles-20220729/)
-    - Unter einer Menge von gleichen Münzen ist eine Fälschung, die etwas weniger wiegt. Wie oft muss man eine Waage verwenden, um die falsche Münze zu identifizieren?
-    - zwei Varianten:
-      - generische Lösung (Formel aufstellen, da vielleicht eine Zahl reinstecken)
-      - konkrete Lösung (eine Zahl)
-- Aufgaben aus der Informatik
-  - Klausuraufgaben, bei denen Zahlen rauskommen
-  - Anzahl der Vergleiche o.Ä.
+Nachdem wir mit dem ersten Ansatz "Kartenspiel" nicht richtig in Fahrt gekommen sind, verwenden wir nun den "Cyber-Security" Escape-Raum von Rian als Basis.
