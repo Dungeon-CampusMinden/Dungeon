@@ -19,16 +19,21 @@ Viele Resourcen zu Erzähltechniken in Videospielen sind auf große Produktionen
     - Interaktivität
     - konsumierbare Gegenstände (Bücher/Poster/Aushänge)
     - Artefakte
-      - Tassen in "Horizon: Zero Dawn": "bestimmt für religiöse Rituale verwendet"
+      - bspw. Tassen in "Horizon: Zero Dawn": "wurden bestimmt für religiöse Rituale verwendet"
     - Dialog
       - häufig gesprochen
       - nicht notwendigerweise an den Spieler gerichtet
+    - unzuverlässiges Erzählen
+      - bspw. Psychosen in "Hellblade: Senua's Sacrifice"
+      - bspw. Batman unter dem Einfluss von Scarecrows Gift
   - außerhalb der Simulation
     - "Star Wars Intro"
     - Cutscenes
     - Booklet
     - Erzählung vom Gamemaster
     - Website
+  - "4th-Wall-Breaking"
+    - "Absturz" des Spiels (Pony Island, Arkham Asylum)
 - implizit
   - Ereignisse/Begebenheiten in der Simulation
     - ein leeres, von Federn umgebenes Vogelnest
@@ -52,10 +57,6 @@ Viele Resourcen zu Erzähltechniken in Videospielen sind auf große Produktionen
 
 Die starken Parallelen einer [Veröffentlichung zu "Narrative Graph Models"](https://maetl.net/notes/storyboard/narrative-graph-models) und [Abhängigkeitsgraphen](./requirements_tooling.md) offenbaren die Verwandtschaft von Geschichte und der Verknüpfung der Puzzle.
 
-[Twine](https://twinery.org/) ist ein auf Narrativ ausgerichtes interaktives Tool (Puzzlon mit "Ergonomie" und Text).
-
-[Storyspace](https://www.eastgate.com/storyspace/) ist ein ähnliches kommerzielles Werkzeug für macOS, das allerdings aus der Vermeidung von Plotlöchern entstanden zu sein scheint.
-
 In ["The Shapes in your Story"](https://gdcvault.com/play/1023095/The-Shapes-in-Your-Story) heißen die Graphen "Story Maps". Die Folien sind aus einer Veranstaltung an der Northeastern University - College of Professional Studies. Es wird das Konzept von "Narrative Mapping Framework" vorgestellt. Das beispielhafte Template heißt "Lock and Key" (40f) und es dient als Vehikel zur Präsentation von Puzzeln, um die herum eine Geschichte geschrieben wird.
 
 In [All Choice No Consequence: Efficiently Branching Narrative ](https://gdcvault.com/play/1023072/All-Choice-No-Consequence-Efficiently) werden sehr konkrete Anweisungen zum Umgang mit Story und Branching gegeben. Die Perspektive ist "Dating-Spiele auf dem Handy". Eine Auswahl nach Einordnung und Nutzen: "choices that FEEL impactful vs. those that ARE (too expensive)", "options with equal weight" (avoid clear right or wrong), "unavoidable Consequences - bury it in choices", "avoid false, misleading, or vague choices", "don't add branches until you have a great story", "write immediate actions", "never negate player agency". Hier wäre hervorzuheben, dass wahrscheinlich nichts davon Anwendung finden sollte, wenn es um Entscheidungen geht, die Lerninhalte betreffen.
@@ -65,6 +66,8 @@ Emily Short stellt in [Beyond Branching: Quality-Based, Salience-Based, and Wayp
 ## [The Art of Game Design: A Book of Lenses](https://doi.org/10.1201/b22101)
 
 Jesse Schell motiviert seine Leser, "Interest Curves" über den Verlauf der Geschichte zu malen, ähnlich bspw. einem Intensität-Graphen, den ein Musiker verwenden würde. [Hier](https://game-studies.fandom.com/wiki/Interest_Curve) gibt es ein Bild aus dem Buch dazu.
+
+TODO noch einiges mehr
 
 # Aufstellung/Vergleich
 
@@ -88,6 +91,8 @@ Key points of Game narration:
   - narration might even be organised at runtime
     - simplistic variant: dynamic content generation with little impact on story
     - more involved approach: handing out elements from pre-defined story definition
+  - 'writing' focuses more on the world, the dialogue, character development, and making an enticing story
+  - 'design' focuses on the player, the branching, consequences, and making the stork work in the game
 - narration can be an 'intrusion' for the player, no matter how good it is
   - skipable cutscenes and dialog
   - gameplay and narration need to work together
@@ -101,7 +106,7 @@ Key points of Game narration:
 - key moments of storytelling and play time often separated in games
   - e.g. cutscenes / narration by game master in DnD
   - no "mucking about" during dramatic climax
-  - easier to control with narration with superfluous parts of the simulation disabled
+  - easier to control narration with superfluous parts of the simulation disabled
 - critical commonalities with traditional writing
   - story needs to be enticing from the beginning (or the mechanics)
   - e.g. through unanswered questions
