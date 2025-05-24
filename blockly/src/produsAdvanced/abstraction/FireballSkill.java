@@ -13,6 +13,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import produsAdvanced.AdvancedDungeon;
 
 /**
@@ -32,6 +33,8 @@ import produsAdvanced.AdvancedDungeon;
  * @see Hero#shootFireball(Point)
  */
 public class FireballSkill extends DamageProjectile {
+  private static final Logger LOGGER = Logger.getLogger(FireballSkill.class.getName());
+
   /** Debug-Textur für den Feuerball. */
   public static final String DEBUG_TEXTURE = "character/monster/pumpkin_dude";
 
@@ -261,7 +264,11 @@ public class FireballSkill extends DamageProjectile {
           .fetch(ItemComponent.class)
           .ifPresent(
               itemComp -> {
-                onBerryHit.accept((Berry) itemComp.item());
+                try {
+                  onBerryHit.accept((Berry) itemComp.item());
+                } catch (UnsupportedOperationException e) {
+                  LOGGER.info(e.getMessage());
+                }
               });
     }
   }
