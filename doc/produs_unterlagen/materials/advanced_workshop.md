@@ -129,7 +129,7 @@ Ein Unternehmensvertreter gibt Einblicke in Berufsfelder oder Studiengänge, um 
 
 ### 5.5 Pathfinding-Implementierung
 
-Die Teilnehmenden setzen eigene Algorithmen in der **SOS-Klasse** um, begleitet durch Hilfestellung und Austausch zu Lösungsstrategien.
+Die Teilnehmenden setzen eigene Algorithmen in der `SusPathFinding.java` um, begleitet durch Hilfestellung und Austausch zu Lösungsstrategien.
 
 ### 5.6 GPT-Wizzard
 
