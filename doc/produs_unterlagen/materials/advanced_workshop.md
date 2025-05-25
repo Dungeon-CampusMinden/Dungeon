@@ -2,13 +2,13 @@
 
 ## Zielgruppe und Kurzbeschreibung des Inhalts
 
-Der Workshop *Produs: Advanced* richtet sich an Schüler\:innen ab der 10. Klasse mit Vorerfahrung in Java. Als Mindestvoraussetzung gelten grundlegende Kenntnisse in Kontrollstrukturen (z. B. `if`, `while`, `for`) und Datentypen. Objektorientierung und Methodenkenntnis sind hilfreich, aber nicht zwingend notwendig – die Teilnehmenden dieses Durchgangs konnten jedoch durchgehend mit Funktionen und OOP umgehen.
+Der Workshop *Produs: Advanced* richtet sich an Schüler:innen ab der 10. Klasse mit Vorerfahrung in Java. Als Mindestvoraussetzung gelten grundlegende Kenntnisse in Kontrollstrukturen (z. B. `if`, `while`, `for`) und Datentypen. Objektorientierung und Methodenkenntnis sind hilfreich, aber nicht zwingend notwendig – die Teilnehmenden dieses Durchgangs konnten jedoch durchgehend mit Funktionen und OOP umgehen.
 
 Ziel des Workshops ist es, den Teilnehmenden in einem begleiteten, aber selbstbestimmten Rahmen das Programmieren zu ermöglichen. Im Fokus steht das entdeckende Lernen: Die Teilnehmenden sollen eigene Ideen entwickeln, umsetzen und dabei gezielt an die Grenzen ihres bisherigen Wissens stoßen. Sobald mit dem aktuellen Skillset nicht mehr weitergekommen wird, werden gezielt neue Inhalte vermittelt – praxisnah und mit direktem Bezug zum Projekt. So ergibt sich eine motivierende Lernkurve, bei der der Wissenserwerb unmittelbar aus der Problemstellung heraus erfolgt.
 
 Inhaltlich basiert der Workshop auf dem *Advanced Dungeon*-Projekt. Am ersten Tag stehen spielerische Programmierrätsel im Vordergrund, die im Spielkontext gelöst werden. Am zweiten Tag wird ein Pathfinding Visualizer genutzt, um eigene Pathfinding-KIs zu entwickeln. Dabei kommen klassische Algorithmen wie Tiefensuche und Breitensuche zur Anwendung.
 
-## 2. Benötigte Unterlagen und Software
+## Benötigte Unterlagen und Software
 
 ### Software-Voraussetzungen
 
@@ -29,7 +29,7 @@ Inhaltlich basiert der Workshop auf dem *Advanced Dungeon*-Projekt. Am ersten Ta
 Arbeitsbereich: [`blockly/src/produsAdvanced`](https://github.com/Dungeon-CampusMinden/Dungeon/tree/master/blockly/src/produsAdvanced)
 
 * **Programmierbereich:**
-  Die Schüler\:innen schreiben ihre Lösungen im Package `riddle`.
+  Die Schüler:innen schreiben ihre Lösungen im Package `riddle`.
 
 * **Hilfsmethoden:**
   Optional können unterstützende Methoden aus dem Package `abstraction` verwendet werden.
@@ -60,22 +60,22 @@ Pfad: [`blockly/src/utils/pathfinding`](https://github.com/Dungeon-CampusMinden/
 * **Java-Cheat-Sheet:**
   [Java Cheat Sheet](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/java-cheat-sheet.md)
 
-## 4. Tag 1
+## Tag 1
 
-### 4.1 Begrüßung und Einstieg
+### Begrüßung und Einstieg
 
 Zum Einstieg in den Workshop werden die Teilnehmenden begrüßt und auf ihre Teilnahme an einem laufenden Forschungsprojekt hingewiesen.
 In einer Vorstellungsrunde nennen alle Name, Alter, Klassenstufe, Programmiererfahrung und ihr Lieblingsspiel. Auch das Workshopleitungsteam stellt sich vor.
 
-### 4.2 Vorerfahrungsumfrage
+### Vorerfahrungsumfrage
 
 Eine anonyme Umfrage (per QR-Code) wird durchgeführt, um ein realistisches Bild des Kenntnisstands vor dem Aufbau von Gruppendynamik zu erhalten.
 
-### 4.3 Status-Check
+### Status-Check
 
 Mit Hilfe des [Java Cheat Sheets](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/java-cheat-sheet.md) wird gemeinsam ermittelt, welche Konzepte bekannt sind. Im vorliegenden Durchlauf waren Kontrollstrukturen, Datentypen, Methoden und OOP bereits vertraut.
 
-### 4.4 Einstieg ins Projekt
+### Einstieg ins Projekt
 
 * Projektstart mit:
 
@@ -85,57 +85,57 @@ Mit Hilfe des [Java Cheat Sheets](https://github.com/Dungeon-CampusMinden/Dungeo
 
 * Hot-Reloading ist aktiviert – kein Neustart bei Codeänderung erforderlich.
 
-* Schüler\:innen arbeiten im Package `riddle`, optional unterstützt durch Methoden aus `abstraction`.
+* Schüler:innen arbeiten im Package `riddle`, optional unterstützt durch Methoden aus `abstraction`.
 
 * Das Lösen der Aufgaben erfolgt individuell und selbstgesteuert, begleitet durch situative Unterstützung.
 
 * Eigenständiges Erkunden außerhalb der Hauptaufgaben ist möglich und erwünscht.
 
-### 4.5 Bedarfsorientierte Wissensvermittlung
+### Bedarfsorientierte Wissensvermittlung
 
 Neue Konzepte werden bei Bedarf eingeführt, etwa zu Kontrollstrukturen, Sortierlogik oder methodischem Vorgehen – stets eingebettet in den aktuellen Kontext.
 
-### 4.6 Exkurs: Studium / Unternehmensbeitrag
+### Exkurs: Studium / Unternehmensbeitrag
 
 In der Pause wird ein kurzer Überblick über Studienmöglichkeiten im Bereich Informatik gegeben, verbunden mit Praxisbeispielen.
 
 Abschließend folgt ein unterhaltsamer Input:
 [**Bubble-sort mit ungarischem Volkstanz**](https://www.youtube.com/watch?v=Iv3vgjM8Pv4)
 
-## 5. Tag 2
+## Tag 2
 
-### 5.1 Einstieg
+### Einstieg
 
 Begrüßung und Vorstellung des Tagesprogramms.
 
-### 5.2 Status-Check
+### Status-Check
 
 Einstiegsfragen zur Wissensabfrage:
 
-* Was ist ein **Graf**, **Knoten**, **Kante**?
+* Was ist ein **Graph**, **Knoten**, **Kante**?
 * Bekanntheit von **ArrayLists**?
 * Vorwissen zu **Pfadsuchen**?
 
 *Falls wenig Vorwissen vorhanden ist, erfolgt eine Einführung.*
 
-### 5.3 Theorie: Tiefensuche & Breitensuche
+### Theorie: Tiefensuche & Breitensuche
 
 Anhand eines kurzen Spiels (z. B. Tic-Tac-Toe) wird die Denkweise beim Suchen im Spielverlauf als Tiefensuche dargestellt.
 Begriffe wie **gerichteter Graph**, **Stack**, **Queue** und **ArrayList** werden aus dem Kontext abgeleitet und erklärt.
 
-### 5.4 Unternehmensbeitrag
+### Unternehmensbeitrag
 
 Ein Unternehmensvertreter gibt Einblicke in Berufsfelder oder Studiengänge, um die Praxisrelevanz des Themas zu verdeutlichen.
 
-### 5.5 Pathfinding-Implementierung
+### Pathfinding-Implementierung
 
 Die Teilnehmenden setzen eigene Algorithmen in der `SusPathFinding.java` um, begleitet durch Hilfestellung und Austausch zu Lösungsstrategien.
 
-### 5.6 GPT-Wizzard
+### GPT-Wizzard
 
 Abschließend erhalten die Teilnehmenden Zugriff auf den [GPT-Wizzard](https://gandalf.lakera.ai/do-not-tell), um eigene Lösungen zu vergleichen, Varianten zu testen und kreativ zu experimentieren.
 
-### 5.7 Abschluss
+### Abschluss
 
 Es folgt eine abschließende Feedback-Umfrage sowie die Vergabe von Zertifikaten zur Bestätigung der erfolgreichen Teilnahme.
 
