@@ -5,7 +5,7 @@ author: André
 
 # Allgemeine Eindrücke
 
->u sechst im Raum wurde es stellenweise echt eng - der Platzmangel ist natürlich dem physischen Setup geschuldet. Ein digitaler Escape Room kann da eine echte Gegenwelt bieten: offener, freier, vielleicht sogar mit parallelen Wegen.
+Zu sechst im Raum wurde es stellenweise echt eng - der Platzmangel ist natürlich dem physischen Setup geschuldet. Ein digitaler Escape Room kann da eine echte Gegenwelt bieten: offener, freier, vielleicht sogar mit parallelen Wegen.
 Der Ablauf war ziemlich linear - wir haben uns nur getrennt, wenn wir zurückgegangen sind, um sicherzugehen, dass wir nichts übersehen haben. Im Grunde war das aber nicht nötig, weil alles, was man mitnehmen musste, klar gekennzeichnet war.
 
 # Deko vs. Relevanz
