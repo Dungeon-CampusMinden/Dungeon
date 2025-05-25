@@ -58,8 +58,6 @@ Eine Sammlung von so etwas wie Power-Point-Templates. Bei einer Stichprobe wurde
 
 ## Dependency Charts
 
-TODO übersetzen
-
 There's a [guide on dependency charts](https://grumpygamer.com/puzzle_dependency_charts/) from the personal blog of Ron Gilbert (games industry).
 [This blog post](https://heterogenoustasks.wordpress.com/2015/01/26/standard-patterns-in-choice-based-games/) attempts to categorize different graph layouts.
 
