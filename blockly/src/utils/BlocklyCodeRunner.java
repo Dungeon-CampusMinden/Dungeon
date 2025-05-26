@@ -180,7 +180,7 @@ public class BlocklyCodeRunner {
    * @return The modified Java code with sleep calls added.
    */
   private String addSleepCalls(String code) {
-    return code.replaceAll("(;)(\\s*)(\\r\\n|\\n|\\r|$)", "$1sleep();$2$3");
+    return code.replaceAll("(?<=;)(?=\\R|$)", " sleep();");
   }
 
   /**
