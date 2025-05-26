@@ -52,7 +52,7 @@ Eine Sammlung von so etwas wie Power-Point-Templates. Bei einer Stichprobe wurde
 
 # Testläufe von Spielen
 
-[Bericht eines Escape-Room-Durchlaufs](doc/research_field_trip_escape_room.md)
+[Bericht eines Escape-Room-Durchlaufs](doc/research/field_trip_escape_room.md)
 
 # <a name="tooling"></a> Tooling
 

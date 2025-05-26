@@ -70,4 +70,4 @@ Nicht wirklich. antonova2019puzzles stellt eine Taxonomie auf, allerdings bezieh
 
 ## Welche Rätsel-Typen werden für Lerninhalte in der höherqualifizierenden Lehre verwendet?
 
-Die Art der Rätsel selber ist nicht festgelegt oder direkt vom Lerninhalt abhängig. Bspw. werden die Rätsel für [APOGEE](research_solutions_other.md#apogee) außerhalb der in den Papern beschriebenen Arbeit festgelegt und hinsichtlich ihrer Eigenschaften betrachtet (ohne zu erwähnen, was der Gegenstand des Rätsels ist).
+Die Art der Rätsel selber ist nicht festgelegt oder direkt vom Lerninhalt abhängig. Bspw. werden die Rätsel für [APOGEE](research/solutions_other.md#apogee) außerhalb der in den Papern beschriebenen Arbeit festgelegt und hinsichtlich ihrer Eigenschaften betrachtet (ohne zu erwähnen, was der Gegenstand des Rätsels ist).

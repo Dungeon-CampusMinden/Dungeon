@@ -7,10 +7,10 @@ title: "Recherche zu virtuellen Escape-Rooms in der Lehre"
 ## Allgemeine Recherche
 
 - Wie funktionieren Escape-Rooms?
-  - [Design von Escape-Rooms](research_design.md)
-  - [Erzählung der Geschichte](research_narrative.md)
-  - [verwandte Lösungen in der Wissenschaft](./research_solutions_science.md)
-  - [andere Lösungen](./research_solutions_other.md)
+  - [Design von Escape-Rooms](research/design.md)
+  - [Erzählung der Geschichte](research/narrative.md)
+  - [verwandte Lösungen in der Wissenschaft](./research/solutions_science.md)
+  - [andere Lösungen](./research/solutions_other.md)
 - Was sind wiederkehrende Spielelemente?
   - „Funktioniert gut digital“
   - „Funktioniert digital eher nicht“

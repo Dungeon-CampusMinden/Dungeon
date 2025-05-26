@@ -27,7 +27,7 @@ Hier gibt es eine eigene Sammlung von Anleitungen, die auf analoge Spiele mit Gr
 
 > For a one-hour game, it is recommended to have 1-3 learning outcomes (EscapeIF)
 
-## [EscapED](research_science.md#escaped)
+## [EscapED](research/science.md#escaped)
 
 In dem Artikel zu dem Design von Escape-Rooms im Rahmen von EscapED werden unter Angabe der wissenschaftlichen Einflüsse, folgende Stufen des Designs festgelegt:
 
