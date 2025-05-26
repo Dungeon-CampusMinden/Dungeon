@@ -11,10 +11,12 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
+import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
@@ -210,10 +212,16 @@ public class Client {
    * level.
    *
    * <p>This effectively resets the game state to its initial configuration.
+   *
+   * <p>During the restart, the {@link PositionSystem} is stopped and then run again to ensure that
+   * the hero is placed correctly in the level. This prevents a race condition where the hero might
+   * be placed before the level is fully loaded.
    */
   public static void restart() {
     Game.removeAllEntities();
+    Game.system(PositionSystem.class, System::stop);
     createHero();
     DevDungeonLoader.reloadCurrentLevel();
+    Game.system(PositionSystem.class, System::run);
   }
 }
