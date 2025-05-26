@@ -171,9 +171,16 @@ public class BlocklyCodeRunner {
     codeRunning.set(false);
   }
 
+  /**
+   * Inserts "sleep();" after each semicolon at the end of line.
+   *
+   * <p>It considers CRLF, LF, CR line breaks or end of string.
+   *
+   * @param code The Java code to modify.
+   * @return The modified Java code with sleep calls added.
+   */
   private String addSleepCalls(String code) {
-    // after each line ending in ; add BlocklyRunner.sleep()
-    return code.replaceAll(";", ";sleep();");
+    return code.replaceAll("(;)(\\s*)(\\r\\n|\\n|\\r|$)", "$1sleep();$2$3");
   }
 
   /**
