@@ -1,14 +1,14 @@
 ---
-title: "Evaluierung eines physischen Escape-Rooms"
+title: "Evaluierung eines physischen Escape-Rooms zur Vorbereitung der Implementierungsphase"
 ---
 
-Hier sammeln wir die Ideen für einen physischen Escape-Room. Der genaue Zeitpunkt der Evaluierung steht noch nicht fest und hängt davon ab, in welchem Rahmen sie durchgeführt wird.
+Hier sammeln wir die Ideen für einen physischen Escape-Room.
 
 Bisher wurden gehandelt:
 
-- Studenten von BC und Carsten
-- vlt. 5-10 Leute in 2 Gruppen
-- Ende Mai
+- Studenten aus PM2
+- max. 4 Gruppen mit ~5 Teilnehmern
+- 20. Juni
 
 Die erste Evaluierung eines analoge Escape-Rooms soll ein niedrigschwelliges Experiment sein, um Erfahrungen zu sammeln, die im weiteren Verlauf des Projekts (digitale Escape-Rooms) nützlich sind.
 Am Ende des Testlaufs hoffen wir:
