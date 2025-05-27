@@ -10,12 +10,13 @@
 | `hero.dropItem("Brotkrumen");`                     | Lässt ein Item („Brotkrumen“) fallen.                                                                              |
 | `hero.dropItem("Kleeblatt");`                      | Lässt ein Item („Kleeblatt“) fallen.                                                                               |
 | `hero.pickup();`                                   | Nimmt ein Item vom Boden auf.                                                                                      |
+| `hero.isNearTile(tileType, direction);`            | Prüft, ob ein bestimmtes Levelelement-Objekt in der angegebenen Richtung in der Nähe (ein Feld vor dem Helden) ist. |
 | `hero.active(direction);`                          | Prüft, ob das Objekt in der gegebenen Richtung aktiv ist (z. B. Tür ist offen, Schalter ist aktiviert).            |
 | `hero.interact();`                                 | Interagiert mit einem Objekt vor dem Helden.                                                                       |
 | `hero.isNearComponent(componentClass, direction);` | Prüft, ob ein bestimmtes Komponenten-Objekt in der angegebenen Richtung in der Nähe (ein Feld vor dem Helden) ist. |
-| `hero.moveToExit();`                               | **Nur als Cheat-Block:** Bewegt den Helden direkt zum Ausgang. Nicht für Lösungen verwenden.                       |
 | `hero.pull();`                                     | Zieht ein ziehbares Objekt vor dem Helden ein Feld zurück; bewegt auch den Helden ein Feld zurück.                 |
 | `hero.push();`                                     | Schiebt ein schiebbares Objekt vor dem Helden ein Feld vor; bewegt auch den Helden ein Feld vor.                   |
+| `hero.moveToExit();`                               | **Nur als Cheat-Block:** Bewegt den Helden direkt zum Ausgang. Nicht für Lösungen verwenden.                       |
 
 ## Mögliche Richtungen (direction)
 
@@ -42,7 +43,7 @@ LevelElement.HOLE
 
 ```java
 AIComponent.class
-BreadrumbComponent.class
+BreadcrumbComponent.class
 CloverComponent.class
 PushableComponent.class
 ```
