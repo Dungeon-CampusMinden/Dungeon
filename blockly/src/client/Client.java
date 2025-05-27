@@ -81,7 +81,7 @@ public class Client {
           DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level6", Chapter16Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level7", Chapter17Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
+          //DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level9", Chapter19Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level10", Chapter110Level.class));
           DevDungeonLoader.addLevel(Tuple.of("level11", Chapter111Level.class));
