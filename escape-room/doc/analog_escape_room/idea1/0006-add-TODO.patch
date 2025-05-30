@@ -1,0 +1,25 @@
+From b9ab26ce647862408a20530fbf580f7224f60ea6 Mon Sep 17 00:00:00 2001
+From: "Some O. Dude" <some@other.dude>
+Date: Fri, 30 May 2025 12:31:55 +0200
+Subject: [PATCH 6/7] add TODO
+
+---
+ src/ResultHandler.php | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/ResultHandler.php b/src/ResultHandler.php
+index caa19b1..44066c5 100644
+--- a/src/ResultHandler.php
++++ b/src/ResultHandler.php
+@@ -1,6 +1,8 @@
+ <?php
+ class ResultHandler
+ {
++    # TODO merge with ExamController
++
+     public function parseInput($a_query): array
+     {
+         $parsed = $this->parser->parseQuery($a_query);
+-- 
+2.49.0
+

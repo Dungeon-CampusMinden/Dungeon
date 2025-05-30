@@ -29,7 +29,7 @@ Die Zeit zwischen der ersten brauchbaren Version des Vorgehens in KW16 und der V
 
 Als Maßnahme zur Verbesserung hat die Projektleitung die Aufgabe gestellt, [Techniken zur Erzählung](../research/narrative.md) zu recherchieren. Auch sollte die Struktur der Rätsel als Graph skizziert werden. Darüber hinaus sollten Strukturen von Rätseln in betrachteten Spielen recherchiert werden.
 
-Ebenfalls wurden weitere Anforderungen an die Lerninhalte gestellt (die Einbeziehung von regulären Git-Workflows). In dem Top-Down-Ansatz hätte das korrekterweise einen völligen Neuanfang bedingt.
+Ebenfalls wurden neue Anforderungen an die Lerninhalte gestellt (die Einbeziehung von regulären Git-Workflows). In dem Top-Down-Ansatz hätte das korrekterweise einen völligen Neuanfang bedingt.
 Abseits davon war die Erstellung des Rätselgraphs nur durch Vorziehen der Ausarbeitung der Rätsel möglich.
 Parallel dazu lief ein langwieriger Versuch der Klärung einer weiteren Anfrage und die Einarbeitung einer SHK.
 
@@ -41,3 +41,11 @@ Rätsel und Geschichte von Escape-Rooms sind ineinander verzahnte Strukturen, di
 Der Rätselgraph erklärt z.B. nicht unbedingt, warum Ereignisse stattfinden. Gleichermaßen trifft die "Story-Map" keine Aussage über nötige Reihenfolgen oder die Erfüllbarkeit von Bedingungen.
 
 Für die Vorstellung wurde ein Rätselgraph angefragt. Da die Geschichte bei der Betrachtung des Graphs im Meeting nicht ersichtlich war, gab es Schwierigkeiten beim Verständnis der Geschichte und es wurde vorgeschlagen, den Rätselgraphen zur Erklärung der Abläufe mit Knoten aus Ereignissen in der Geschichte zu ergänzen. Weiterhin gab es Mängel bei Vorstellung des Vorgehens und dem Austausch darüber. Vor dem Hintergrund des Ausbleibens einer Einigung auf eine Vision zur Umsetzung des analogen Escape-Rooms wurde dieser Versuch zugunsten der Adaption eines fertigen Escape-Rooms abgebrochen.
+
+# Verworfene technische Arbeit
+
+Im Rahmen der Arbeit an dem analogen Escape-Room mit dem Thema "Git" wurde ein Git-Repo konstruiert, in das den Fehler aus der Geschichte eingebaut wurde. Der Fehler ist ein Off-By-One auf numerischen Ergebnissen. Zwei parallele Entwicklungen fügen eine Möglichkeit zur Eingabe mehrerer Antworten einem Quiz-System hinzu. Eine für die Bearbeitung von Fragen im Team, eine um mehrere Antworten zu akzeptieren. Als Ablenkung bei der Fehlersuche wurde ein Anti-Pattern eingebaut, bei dem die Indizes für die Eingaben um 1 verschoben werden um Platz für eine andere Resource am Anfang der Liste zu machen. Diese Änderung soll den Entwickler beim Mergen der zweiten Änderung irritiert haben, sodass dabei ein Fehler gemacht wurde.
+
+Zur Hilfe bei der Veranschaulichung (und nachher zur Produktion der Karten) wurde ein Werkzeug gebaut, dass eine Liste von Karten-Definition einliest, diese numeriert und die Umleitungen anhand von Referenzen in Umleitungen anhand von Indizies umbaut. Die Vorder- und Rückseiten der Karten werden als Markdown ausgegeben, das programmatisch gerendert und leicht zum doppelseitigen Bedrucken von Kartonbögen angeordnet werden kann.
+
+Die Git-Patches, das Programm und die Definition der Karten bis zum Einführungsrätsel zur Überprüfung der Machbarkeit liegen in `idea1/`.

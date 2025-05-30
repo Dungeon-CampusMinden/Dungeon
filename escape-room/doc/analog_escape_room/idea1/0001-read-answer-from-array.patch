@@ -1,0 +1,44 @@
+From 409e423a25e6f7c27ae368c0552812e496f5e796 Mon Sep 17 00:00:00 2001
+From: "Leon M. Busch-George" <leon@georgemail.eu>
+Date: Mon, 21 Apr 2025 20:11:50 +0200
+Subject: [PATCH 1/7] read answer from array
+
+---
+ src/ResultHandler.php | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/src/ResultHandler.php b/src/ResultHandler.php
+index 886a091..7dc4e6a 100644
+--- a/src/ResultHandler.php
++++ b/src/ResultHandler.php
+@@ -10,21 +10,22 @@ class ResultHandler
+         return $a_query->input;
+     }
+ 
+-    public function checkSingleAnswer($a_question_id, string $a_answer): bool
++    public function checkAnswer($a_question_id, $a_user_id, string $a_answer): bool
+     {
+         $question = $this->questions[$a_question_id];
+ 
+-        if (strcmp($question->expected_answer, $a_answer) !== 0) {
++        # the expected answers are now kept separately to make swapping easier.
++        if (strcmp($this->expected_answers[$a_question_id], $a_answer) !== 0) {
+             return false;
+         }
+ 
+-        $question->answered = true;
++        $questions->answered[$a_user_id] = true;
+         return true;
+     }
+ 
+-    public function getAnswer(string $a_input): string
++    public function getFirstAnswer(string $a_input): string
+     {
+-        $parsed = $this->answerParser->parse($a_input);
++        $parsed = $this->parser->parseAnswer($a_input);
+ 
+         if ($parsed->count == 1) {
+             return $parsed->answers[0];
+-- 
+2.49.0
+
