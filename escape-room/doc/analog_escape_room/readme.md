@@ -10,4 +10,6 @@ Der Termin ist der 20. Juni und der erste Durchlauf soll ab 15 Uhr sein.
 
 [Ablauf und Beschreibung beider Varianten](rundown.md)
 
+[Evaluierung der Durchläufe](evaluation.md)
+
 [Vorangegangene Ansätze](previous_attempts.md)
