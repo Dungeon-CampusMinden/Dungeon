@@ -1,0 +1,155 @@
+// dot -Tpng petri_net_variant_2.gv -o petri_net_variant_2.png
+
+digraph G {
+	//graph [layout=dot rankdir=LR]
+
+	rankdir=LR
+	center=true
+	margin=1
+	subgraph puzzles {
+		node [shape=circle,fixedsize=true,label="", height=.3,width=.3]
+		# i [label="", fontsize=20]
+
+		r1 [label="&bull;",xlabel="start"]
+		r2
+		r3
+		r4a
+		r4b
+		r5a
+		r5b
+		r5c
+		r6
+		r7
+		goal
+	}
+
+	subgraph clues {
+		node [shape=circle,color=blue,fixedsize=true,label="", height=.3,width=.3]
+		# i [label="", fontsize=20]
+
+		c1 [label="🏦",xlabel="find safe"]
+		c2 [label=<<SUB>🗎</SUB>>,xlabel="find table"]
+	}
+
+	subgraph transitions {
+		node [shape=rect,height=0.4,width=.4]
+
+		t1 [label="unlock laptop"]
+		t2 [label="identify email"]
+		t3 [label="sort shades",xlabel="open safe"]
+		t4a [label="decode number"]
+		t4b [label="open safe"]
+		t5a [label="plug in pen drive"]
+		t5b [label="complete quiz"]
+		t5c [label="decrypt poem"]
+		t6 [label="obtain snippets"]
+		t7 [label="assemble document"]
+	}
+
+	// •★ &bull; ✉ <<SUB>🗎</SUB>>
+	//r1->t1->r2
+
+	subgraph cluster_p1 {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 1"
+
+		r1->t1 [label="&bull;"]
+	}
+
+	t1->r2 [label="&bull;"]
+
+	subgraph cluster_p2 {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 2"
+
+		r2->t2 [label="&bull;"]
+	}
+
+	t2->r3 [label="&bull;"]
+
+
+	subgraph cluster_p3 {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 3"
+
+		r3->t3 [label="&bull;"]
+		c1->t3 [label="🏦"]
+	}
+
+	t3->r4a [label="&bull;"]
+	t3->r5a [label="★"]
+
+	subgraph cluster_p4a {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 4a"
+
+		r4a->t4a [label="&bull;"]
+		c2->t4a [label="🏦"]
+	}
+
+	t4a->r4b [label="★"]
+
+	subgraph cluster_p4b {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 4b"
+
+		r4b->t4b [label="💨"]
+	}
+
+	t4b->r6 [label="💨"]
+
+	subgraph cluster_p5a {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 5a"
+
+		r5a->t5a [label="&bull;"]
+	}
+
+	t5a->r5b [label="&bull;"]
+
+	subgraph cluster_p5b {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 5b"
+
+		r5b->t5b [label="&bull;"]
+	}
+
+	t5b->r5c [label="&bull;"]
+
+	subgraph cluster_p5c {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 5c"
+
+		r5c->t5c [label="&bull;"]
+	}
+
+	t5c->r6 [label="&bull;"]
+
+	subgraph cluster_p6 {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 6"
+
+		r6->t6 [label="&bull;"]
+	}
+
+	t6->r7 [label="&bull;"]
+
+	subgraph cluster_p7 {
+		style = "rounded"
+		color = orange
+		label = "Rätsel 7"
+
+		r7->t7 [label="&bull;"]
+	}
+
+	t7->goal [label="&bull;"]
+}

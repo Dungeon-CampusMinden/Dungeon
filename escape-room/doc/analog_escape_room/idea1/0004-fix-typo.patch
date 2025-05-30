@@ -1,0 +1,25 @@
+From b9d38a1a19d33b0ca5462e86d7607b92a9372182 Mon Sep 17 00:00:00 2001
+From: "Leon M. Busch-George" <leon@georgemail.eu>
+Date: Mon, 21 Apr 2025 20:29:53 +0200
+Subject: [PATCH 4/7] fix typo
+
+---
+ src/ResultHandler.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ResultHandler.php b/src/ResultHandler.php
+index 09f2426..e262a6c 100644
+--- a/src/ResultHandler.php
++++ b/src/ResultHandler.php
+@@ -21,7 +21,7 @@ class ResultHandler
+             return false;
+         }
+ 
+-        $questions->answered[$a_user_id] = true;
++        $question->answered[$a_user_id] = true;
+         return true;
+     }
+ 
+-- 
+2.49.0
+
