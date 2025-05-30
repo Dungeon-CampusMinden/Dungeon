@@ -9,7 +9,7 @@ Als Grundlage zur Erstellung des Escape-Rooms wurde das [Vorgehen](../research/d
 Das Vorgehen zur Erstellung des analogen Escape-Rooms ist gleichermaßen auch für digitale Escape-Rooms anwendbar.
 
 Die beiden wissenschaftlichen Escape-Room-Plattformen aus der Lehre bringen dazu auch Schritte zur Gestaltung der Auswertung von Durchläufen mit.
-Im Projektantrag wird "die Steigerung der Motivation der Studierenden und eine verbesserte Begleitung und Strukturierung von Lernwegen in der Selbstlernphase [..]" als Projektziel vorgestellt. Als Wirkung werden "Zufriedenheit, Lernerfolg und Kompetenzerwerb" und "Erhöhung der Motivation [durch] Spielspaß [..] und kooperative/kompetitive Anreize" als erwartete Wirkungen aufgezählt. Auf diese Kriterien ließe sich die Evaluierung ausrichten.
+Im Projektantrag wird "die Steigerung der Motivation der Studierenden und eine verbesserte Begleitung und Strukturierung von Lernwegen in der Selbstlernphase [..]" als Projektziel vorgestellt. Als erwartete Wirkungen werden "Zufriedenheit, Lernerfolg und Kompetenzerwerb" und "Erhöhung der Motivation [durch] Spielspaß [..] und kooperative/kompetitive Anreize" aufgezählt. Auf diese Kriterien ließe sich die Evaluierung ausrichten.
 
 Sowohl A/B-Tests verschiedener Ausgestaltungen des Escape-Rooms als auch eine iterative Veränderung des Escape-Rooms sind damit möglich. Das Vorgehen sieht eine Verbesserung des Escape-Rooms mit iterativem Playtesting vor. Dies wäre mit den im Projektplan vorgesehenen mehrfachen Evaluierungen vereinbar gewesen.
 
@@ -29,7 +29,7 @@ Die Zeit zwischen der ersten brauchbaren Version des Vorgehens in KW16 und der V
 
 Als Maßnahme zur Verbesserung hat die Projektleitung die Aufgabe gestellt, [Techniken zur Erzählung](../research/narrative.md) zu recherchieren. Auch sollte die Struktur der Rätsel als Graph skizziert werden. Darüber hinaus sollten Strukturen von Rätseln in betrachteten Spielen recherchiert werden.
 
-Ebenfalls wurden neue Anforderungen an die Lerninhalte gestellt (die Einbeziehung von regulären Git-Workflows). In dem Top-Down-Ansatz hätte das korrekterweise einen völligen Neuanfang bedingt.
+Ebenfalls wurden neue Anforderungen an die Lerninhalte gestellt (die Einbeziehung von regulären Git-Workflows). In dem top-down-Ansatz hätte das korrekterweise einen völligen Neuanfang bedingt.
 Abseits davon war die Erstellung des Rätselgraphs nur durch Vorziehen der Ausarbeitung der Rätsel möglich.
 Parallel dazu lief ein langwieriger Versuch der Klärung einer weiteren Anfrage und die Einarbeitung einer SHK.
 
