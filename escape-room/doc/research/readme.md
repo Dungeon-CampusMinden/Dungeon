@@ -49,13 +49,8 @@ Die Laufzeit des Dungeons umfasst die Echtzeit-Simulation (aus dem Antrag: "dyna
 Daraus soll im Laufe des Projekts ein "fachunabhängiges" Framework entstehen.
 
 Diese Ausprägungen finden Anwendung bei der Festsetzung der Suchbegriffe und der Bewertung der Ergebnisse.
-Eine ausführlichere Sammlung der für dieses Projekt relevanten Ausprägun Escape-Rooms befindet sich im [Konzept-Dokument](./concept.md).
+Eine ausführlichere Sammlung der für dieses Projekt relevanten Ausprägungen von Escape-Rooms befindet sich im [Konzept-Dokument](../concept.md).
 
-## Wie wichtig ist Immersion für uns?
+# Andere Themen
 
-Viele Escape-Room-Design-Guides fangen mit der Story an. In der Lehre kommen die Lerninhalte zuerst.
-Warum sollen wir uns für Immersion interessieren?
-Bei Studenten im selbst-gewählten Studium gibt es hoffentlich ein bisschen mehr intrinsische Motivation als bei Kindern in einem obligatorischen Unterricht.
-
-Große Spannweite an Papern. Von Augentrackern an Mathestudenten bis Screen-Capture bei Grundschülern.
-Suche noch ein gutes Paper, das etwas über den Zusammenhang von Spaß/Immersion und Lernerfolg in höherer Bildung sagt. Große Effektstärke + statistische Signifikanz hilft uns wenig, wenn es um 9-bis-12-Jährige geht.
+[Spielspaß und Motivation](motivation.md)
