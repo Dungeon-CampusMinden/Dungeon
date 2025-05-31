@@ -1,6 +1,16 @@
 ---
 title: "Virtuelle Escape-Rooms in der Lehre - Glossar"
 ---
+
+# Escape-Room
+
+Die grundlegende Spielidee (Ausbruch aus einem begrenzten Raum) für Escape-Rooms geht auf ein Textbuch-Adventure (Interactive Fiction) aus 1988 zurück. Bis in die frühen 2000er werden diverse auf dem Konzept aufbauende "Point-And-Click" Videospiele und digitale Text-Adventures veröffentlicht, die den Begriff "Escape-Room" / "Escape Game" zunächst prägen. In dieser Zeit werden die ersten direkt von diesen Spielen inspirierten, physischen Räume konstruiert, die auch für mehrere Spieler gedacht sind. Ab 2015 wächst das Interesse der breiteren Öffentlichkeit in das Genre "Escape Room", das sich vornehmlich auf die physischen Räume bezieht, nachdem kurze Zeit vorher in China das artverwandte "Jubensha" an Popularität gewonnen hat (Murder-Mystery-Rollenspiel im Team).
+
+Im Kontext von Videospielen sind 'Escape-Rooms' ein Subgenre von Point-And-Click-Adventures oder Text-Adventures, die prinzipiell alleine und ohne Zeitdruck gespielt werden. Die Ästhetik dort ist nicht selten eine "zwanghafte Neugier", die von Befremdlichkeit oder auch Horror genährt wird. In der Öffentlichkeit sind "Escape Rooms" gemeinschaftliche Aktivitäten in gemieteten Räume
+n mit einem eher durchgeplanten Spielverlauf und einem (zunächst der Vermarktung geschuldeten) Zeitlimit.
+
+Die Anwendung des Konzeptes im Rahmen dieses Projektes wird im [Konzept-Dokument](concept.md) ausgeführt.
+
 # Geschichte
 
 Die Geschichte ist das, was die Spieler bei dem Durchlauf eines Escape-Rooms erleben.
