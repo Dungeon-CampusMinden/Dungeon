@@ -2,6 +2,19 @@
 title: "Escape-Room-Konzept"
 ---
 
+# Einordnung des Begriffs "Escape-Room" in das Forschungsprojekt und den Dungeon
+
+TODO glossar verlinken - separater PR
+
+Die Verwendung der Terminologie "digitale Escape-Rooms (dER)" im Antrag des `L<ESC>rod`-Projekts deutet auf eine explizite Anwendung der Ausprägungen physischer Escape-Rooms (Team, begrenzte Zeit etc.) im digitalen Medium. Es geht um eine Ergänzung um "zentrale Elemente aus dem Bereich analoger Escape-Rooms". Ausprägungen von physischen Escape-Rooms, die in der für Videospiele üblichen Interpretation nicht vorkommen, werden im Antrag explizit erwähnt (z.B. Gamifikation, Team/Multi-Team).
+
+Dieses Projekt stützt sich auf dem neueren und außerhalb der Spielwelt verbreiteten Verständnis von Escape-Rooms, die im Team gespielt werden und (neben der Lösung von Rätseln) auf Soft-Skills ausgerichtet sind. Das "digital" im "dER" ist eine Abgrenzung vom analogen Escape-Room in eine andere Richtung als die namensgebenden Point-And-Clicks.
+
+Die Laufzeit des Dungeons umfasst die Echtzeit-Simulation (aus dem Antrag: "dynamisch auf das Spielgeschehen reagieren") einer "tile-basierten" Spielwelt, die von den Studenten selber ausgeführt und modifiziert werden kann.
+Daraus soll im Laufe des Projekts ein "fachunabhängiges" Framework entstehen.
+
+Diese Ausprägungen finden Anwendung bei der Eingrenzung der Recherche und der Bewertung der Ergebnisse.
+
 # Eigenschaften
 
 Welche Eigenschaften von Escape-Room sind für dieses Projekt wichtig?
