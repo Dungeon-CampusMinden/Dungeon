@@ -4,7 +4,7 @@ title: "Virtuelle Escape-Rooms in der Lehre"
 
 Sammlung von Informationen zu Findung, Implementierung und Benutzung der Escape-Room-Ausprägung des Dungeons.
 
-[Recherche zu existierenden Lösungen](research/readme.md)
+[Recherche zu Prozessen und existierenden Lösungen](research/readme.md)
 
 [Evaluierung eines anologen Escape-Rooms](analog_escape_room/readme.md)
 

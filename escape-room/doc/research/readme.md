@@ -2,6 +2,8 @@
 title: "Recherche zu virtuellen Escape-Rooms in der Lehre"
 ---
 
+In diesem Ordner werden die Beobachtungen und Untersuchung zu Aspekten von Escape-Rooms, ihrer Erstellung und existierenden Lösungen gesammelt.
+
 # Arbeitsschritte
 
 ## Allgemeine Recherche

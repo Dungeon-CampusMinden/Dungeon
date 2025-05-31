@@ -1,5 +1,5 @@
 ---
-title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Design"
+title: "Recherche zu virtuellen Escape-Rooms in der Lehre - Erstellung eines Escape-Rooms in der Lehre"
 ---
 
 # Welche Erwartungen werden an den Prozess gestellt?
