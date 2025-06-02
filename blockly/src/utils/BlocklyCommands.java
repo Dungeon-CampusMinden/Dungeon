@@ -2,7 +2,7 @@ package utils;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import components.AmmunitionComponent;
-import components.BlockComponent;
+import contrib.components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;

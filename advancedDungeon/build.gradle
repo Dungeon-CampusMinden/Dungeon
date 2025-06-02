@@ -1,0 +1,56 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation project(':dungeon')
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+processResources {
+    from new File(project(':game').projectDir,    '/assets')
+    from new File(project(':dungeon').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.register('runAdvancedDungeon', JavaExec) {
+    mainClass = 'produsAdvanced.AdvancedDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runPathfinder', JavaExec) {
+    mainClass = 'starter.PathfinderStarter'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runPathFindingComparison', JavaExec) {
+    mainClass = 'starter.ComparePathfindingStarter'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('buildAdvancedDungeonJar', Jar) {
+    dependsOn ':game:jar', ':dungeon:jar'
+    archiveBaseName = 'AdvancedDungeon'
+    from sourceSets.main.output
+    from project(':game').sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': 'produsAdvanced.AdvancedDungeon'
+    }
+
+    archiveFileName = 'AdvancedDungeon.jar'
+
+    into('assets') {
+        from new File(project(':game').projectDir, '/assets')
+        from new File(project(':dungeon').projectDir, '/assets')
+    }
+
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+}

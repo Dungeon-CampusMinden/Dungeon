@@ -23,9 +23,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
-import systems.BlockSystem;
+import contrib.systems.BlockSystem;
 import systems.TintTilesSystem;
-import utils.CheckPatternPainter;
+import contrib.utils.CheckPatternPainter;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't

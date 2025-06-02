@@ -1,10 +1,7 @@
 package entities;
 
 import components.*;
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.LeverComponent;
-import contrib.components.ProjectileComponent;
+import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import contrib.utils.ICommand;
