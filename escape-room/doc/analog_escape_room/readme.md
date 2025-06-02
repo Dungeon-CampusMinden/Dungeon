@@ -14,4 +14,6 @@ Der Termin ist der 20. Juni und der erste Durchlauf soll ab 15 Uhr losgehen.
 
 [Mechaniken aus der Vorbereitung](mechanics.md)
 
+[Untersuchung zu Feedback & Spiellogik](game_logic.md)
+
 [Vorangegangene Ansatz "Git"](git/readme.md)
