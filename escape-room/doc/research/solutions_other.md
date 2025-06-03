@@ -50,6 +50,10 @@ Keine explizite Ausrichtung auf Lerninhalte.
 
 Eine Sammlung von so etwas wie Power-Point-Templates. Bei einer Stichprobe wurden nur Multiple-Choice-Fragen gesichtet (es gab auch Bilder als Optionen).
 
+# Testläufe von Spielen
+
+[Bericht eines Escape-Room-Durchlaufs](doc/research/field_trip_escape_room.md)
+
 # <a name="tooling"></a> Tooling
 
 ## Dependency Charts
