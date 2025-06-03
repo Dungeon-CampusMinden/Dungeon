@@ -1,5 +1,5 @@
 ---
-title: "Anforderungen an das Spiel"
+title: "Entwicklung des Designs der Implementierung von Escape-Rooms im Spiel"
 ---
 
 # Multiplayer-Implementierung
