@@ -201,6 +201,9 @@ export const setupButtons = (workspace: Blockly.WorkspaceSvg) => {
 
 const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, delayInput: HTMLInputElement) => {
   buttons.startBtn.addEventListener("click", async () => {
+    buttons.startBtn.disabled = true;
+    buttons.stepBtn.disabled = true;
+
     buttons.resetBtn.click();
     //workaround race condition #1887
     await sleep(0.5);
@@ -210,11 +213,12 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     }
     const sleepingTime = Number(sleepingTimeStr);
     if (isNaN(sleepingTime)) {
+      // Enable button again
+      buttons.startBtn.disabled = false;
+      buttons.stepBtn.disabled = false;
       throw new Error("Die konfigurierte Verzögerung muss eine Zahl sein");
     }
 
-    buttons.startBtn.disabled = true;
-    buttons.stepBtn.disabled = true;
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
     let first = true;
@@ -262,60 +266,60 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
 const setupStepButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {
   buttons.stepBtn.addEventListener("click", async () => {
-      clearAllWarnings(workspace);
+    clearAllWarnings(workspace);
 
-      if (currentBlock === null) {
-        workspace.highlightBlock(null);
-        currentBlock = getStartBlock(workspace)
-        // Reset values in backend
-        await call_clear_route();
-        return;
-      }
+    if (currentBlock === null) {
+      workspace.highlightBlock(null);
+      currentBlock = getStartBlock(workspace)
+      // Reset values in backend
+      await call_clear_route();
+      return;
+    }
 
-      // Highlight current block
-      workspace.highlightBlock(currentBlock.id);
+    // Highlight current block
+    workspace.highlightBlock(currentBlock.id);
 
-      // Do nothing except highlighting on start block
-      if (currentBlock.type === "start") {
-        currentBlock = currentBlock.getNextBlock();
-        return;
-      }
-      const first = currentBlock.getParent()?.type === "start";
+    // Do nothing except highlighting on start block
+    if (currentBlock.type === "start") {
+      currentBlock = currentBlock.getNextBlock();
+      return;
+    }
+    const first = currentBlock.getParent()?.type === "start";
 
-      // Disable buttons
-      buttons.stepBtn.disabled = true;
-      buttons.startBtn.disabled = true;
-      // Get code of the current block
-      const currentCode = javaGenerator.blockToCode(currentBlock, true);
-      // Send code to server
-      const response = await call_start_route(currentCode as string, currentBlock, first);
-      if (!response) {
-        currentBlock = getStartBlock(workspace);
-        await call_clear_route();
-        workspace.highlightBlock(null);
-      }
+    // Disable buttons
+    buttons.stepBtn.disabled = true;
+    buttons.startBtn.disabled = true;
+    // Get code of the current block
+    const currentCode = javaGenerator.blockToCode(currentBlock, true);
+    // Send code to server
+    const response = await call_start_route(currentCode as string, currentBlock, first);
+    if (!response) {
+      currentBlock = getStartBlock(workspace);
+      await call_clear_route();
+      workspace.highlightBlock(null);
+    }
 
-      await call_variables_route();
+    await call_variables_route();
 
-      // Check if we reach next level
-      const levelResponse = await call_level_route();
-      if (getCurrentLevel() !== levelResponse.name) {
-        completeLevel();
-        workspace.highlightBlock(null);
-        currentBlock = getStartBlock(workspace)
-        // Reset values in backend
-        await call_clear_route();
-      }
+    // Check if we reach next level
+    const levelResponse = await call_level_route();
+    if (getCurrentLevel() !== levelResponse.name) {
+      completeLevel();
+      workspace.highlightBlock(null);
+      currentBlock = getStartBlock(workspace)
+      // Reset values in backend
+      await call_clear_route();
+    }
 
-      // Enable button again
-      buttons.startBtn.disabled = false;
-      buttons.stepBtn.disabled = false;
+    // Enable button again
+    buttons.startBtn.disabled = false;
+    buttons.stepBtn.disabled = false;
 
-      // Get next block. Current block may be null if program was interrupted
-      if (currentBlock) {
-        currentBlock = currentBlock.getNextBlock();
-      }
-    });
+    // Get next block. Current block may be null if program was interrupted
+    if (currentBlock) {
+      currentBlock = currentBlock.getNextBlock();
+    }
+  });
 }
 
 const setupResetButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => {

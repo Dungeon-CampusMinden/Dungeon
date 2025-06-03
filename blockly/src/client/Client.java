@@ -38,6 +38,7 @@ public class Client {
   private static final boolean DEBUG_MODE = false;
   private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
   private static final boolean DRAW_CHECKER_PATTERN = true;
+  private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
 
@@ -73,33 +74,7 @@ public class Client {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          // chapter 1
-          DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level4", Chapter14Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level6", Chapter16Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level7", Chapter17Level.class));
-          // DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level9", Chapter19Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level10", Chapter110Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level11", Chapter111Level.class));
-
-          // chapter 2
-          DevDungeonLoader.addLevel(Tuple.of("level12", Chapter21Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level13", Chapter22Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level14", Chapter23Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level15", Chapter24Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level16", Chapter25Level.class));
-
-          // chapter 3
-          DevDungeonLoader.addLevel(Tuple.of("level17", Chapter31Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level18", Chapter32Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level19", Chapter33Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level20", Chapter34Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level21", Chapter35Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level22", Chapter36Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
 
           createSystems();
 
@@ -176,6 +151,16 @@ public class Client {
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
+    Game.add(
+        new System() {
+          @Override
+          public void execute() {
+            if (scheduleRestart) {
+              scheduleRestart = false;
+              restart();
+            }
+          }
+        });
   }
 
   private static void startServer() {
@@ -211,13 +196,22 @@ public class Client {
    * Restarts the game by removing all entities, recreating the hero, and reloading the current
    * level.
    *
-   * <p>This effectively resets the game state to its initial configuration.
+   * <p>If this method is called from a thread other than the main thread, the restart is scheduled
+   * to occur on the next game tick. This is to ensure thread safety and prevent race conditions.
    *
    * <p>During the restart, the {@link PositionSystem} is stopped and then run again to ensure that
    * the hero is placed correctly in the level. This prevents a race condition where the hero might
    * be placed before the level is fully loaded.
    */
   public static void restart() {
+
+    // if not the main thread, schedule restart
+    if (!Thread.currentThread().getName().equals("main")) {
+      scheduleRestart = true;
+      Server.waitDelta(); // wait for the next tick to execute the restart
+      return;
+    }
+
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
     createHero();
