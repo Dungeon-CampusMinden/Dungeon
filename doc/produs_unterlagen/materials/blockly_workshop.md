@@ -14,7 +14,7 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 
 ### Software-Voraussetzungen
 
-* **Java:** Eine aktuelle Java-Installation ist erforderlich, um das Dungeon-Spiel starten und Java-Code ausführen zu können.
+* **Java:** Die aktuelle vom [Dungeon-Projekt](https://github.com/Dungeon-CampusMinden/Dungeon) benötigte Java-Installation ist erforderlich, um das Dungeon-Spiel starten und Java-Code ausführen zu können.
 
 ### Blockly als ausführbare Datei (JAR oder EXE)
 
@@ -28,8 +28,8 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 
 ### Materialien für Teilnehmende
 
-* **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21.
-* **Blockly-Circuit-Diagram:** Zeigt, wie die Schalter in den Leveln verdrahtet sind.
+* **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21. |Leere-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_crossword_empty.pdf);  |Lösung](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blocky_crossword_solved.pdf).
+* **Blockly-Circuit-Diagram:** Zeigt, wie die Schalter in den Leveln verdrahtet sind. [PDF-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_circuit_diagram.pdf).
 
 ## Tag 1
 

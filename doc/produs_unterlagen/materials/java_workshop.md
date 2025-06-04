@@ -14,8 +14,8 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 
 ### Software-Voraussetzungen
 
-* **Java:** Eine aktuelle Java-Installation ist erforderlich, um das Dungeon-Spiel starten und Java-Code ausführen zu können.
-* **Visual Studio Code (VS Code):** Die Teilnehmenden schreiben ihren Java-Code in VS Code. Es wird empfohlen, die Software vor dem Workshop auf allen Geräten zu installieren.
+* **Java:** Die aktuelle vom [Dungeon-Projekt](https://github.com/Dungeon-CampusMinden/Dungeon) benötigte Java-Installation ist erforderlich, um das Dungeon-Spiel starten und Java-Code ausführen zu können.
+* **Visual Studio Code (VS Code):** Die Teilnehmenden schreiben ihren Java-Code in [VS Code](https://code.visualstudio.com/). Es wird empfohlen, die Software vor dem Workshop auf allen Geräten zu installieren.
 * **VS-Code-Extension:** Zusätzlich muss eine spezielle VS-Code-Erweiterung installiert werden, um den Blockly-Dungeon mit Java-Code zu verbinden. Die Anleitung zur Installation befindet sich unter:
   [https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/blockly/doc/install-extension.md](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/blockly/doc/install-extension.md)
 
@@ -29,10 +29,10 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 
 ### Materialien für Teilnehmende
 
-* **Java-Cheat-Sheet (simple):** Dieses Handout enthält alle grundlegenden Java-Konzepte, die im Workshop vermittelt werden.
-* **VS-Code-Befehls-Cheat-Sheet:** Dieses Cheat-Sheet listet alle Blockly-spezifischen VS-Code-Kommandos auf, mit denen die Teilnehmenden ihre Java-Lösungen testen und visualisieren können.
-* **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21.
-* **Blockly-Circuit-Diagram:** Zeigt, wie die Schalter in den Leveln verdrahtet sind.
+* **Java-Cheat-Sheet (simple):** Dieses Handout enthält alle grundlegenden Java-Konzepte, die im Workshop vermittelt werden. [Markdown Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/java-cheat-sheet_simple.md).
+* **VS-Code-Befehls-Cheat-Sheet:** Dieses Cheat-Sheet listet alle Blockly-spezifischen VS-Code-Kommandos auf, mit denen die Teilnehmenden ihre Java-Lösungen testen und visualisieren können. [Markdown Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/commandscheat_sheet.md).
+* **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21. |Leere-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_crossword_empty.pdf);  |Lösung](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blocky_crossword_solved.pdf).
+* **Blockly-Circuit-Diagram:** Zeigt, wie die Schalter in den Leveln verdrahtet sind. [PDF-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_circuit_diagram.pdf).
 
 ## Tag 1
 
