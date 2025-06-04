@@ -12,11 +12,10 @@ import java.util.Map;
  * <p><b>Writing JSON:</b>
  *
  * <ul>
- *   <li>Supports String, Number, Boolean, null, and nested Map values.
+ *   <li>Supports String, Number, Boolean, null, nested Map values, and List values.
+ *   <li>Lists are serialized as JSON arrays with recursive handling of nested structures.
  *   <li>Other value types are converted to strings using their {@code toString()} method and then
  *       JSON-escaped.
- *   <li>Does <em>not</em> recursively serialize Lists or arrays into JSON arrays. If a List is a
- *       value in the map, its {@code toString()} representation will be used.
  *   <li>Offers an option for pretty-printing the JSON output.
  * </ul>
  *
@@ -24,12 +23,11 @@ import java.util.Map;
  *
  * <ul>
  *   <li>Parses JSON objects ({@code {...}}) into {@code Map<String, Object>}.
+ *   <li>Parses JSON arrays ({@code [...]}) into {@code List<Object>}.
  *   <li>Supports JSON strings, numbers (parsed as Long or Double), booleans, and null.
- *   <li>JSON arrays (e.g., {@code [1, "two"]}) within the input JSON string are <em>not</em> parsed
- *       into Java Lists; instead, they are returned as their literal string representation (e.g.,
- *       the string {@code "[1, \"two\"]"}).
- *   <li>The parser is simplified and may not handle all JSON complexities or all forms of malformed
- *       JSON gracefully. It expects well-formed JSON objects as input.
+ *   <li>Supports nested objects and arrays with full recursive parsing.
+ *   <li>The parser expects well-formed JSON as input and provides detailed error messages for
+ *       malformed JSON.
  *   <li>Keys in JSON objects must be strings enclosed in double quotes.
  * </ul>
  */
@@ -58,6 +56,7 @@ public class JsonHandler {
    *
    * <ul>
    *   <li>{@code Map<String, Object>} (for nested objects)
+   *   <li>{@code List<Object>} (for arrays)
    *   <li>{@code String}
    *   <li>{@code Number} (e.g., Integer, Double, Long)
    *   <li>{@code Boolean}
@@ -65,8 +64,7 @@ public class JsonHandler {
    * </ul>
    *
    * <p>Other value types will be converted to their string representation using {@code toString()}
-   * and then properly JSON-escaped. Lists or arrays are not specially handled and will be
-   * stringified.
+   * and then properly JSON-escaped.
    *
    * @param data The map to convert. Must not be null.
    * @param prettyPrint If true, the JSON output will be formatted with indentation and newlines for
@@ -121,25 +119,7 @@ public class JsonHandler {
           .append("\":")
           .append(prettyPrint ? " " : "");
 
-      Object value = entry.getValue();
-      if (value instanceof Map) {
-        // We expect Map<String, Object> for nesting.
-        // If a Map with other key types is provided, it might lead to
-        // ClassCastException here or incorrect key serialization.
-        @SuppressWarnings("unchecked")
-        Map<String, Object> nestedMap = (Map<String, Object>) value;
-        writeJsonRecursive(jsonBuilder, nestedMap, prettyPrint, nextIndent, indentIncrement);
-      } else if (value instanceof String) {
-        jsonBuilder.append("\"").append(escapeString((String) value)).append("\"");
-      } else if (value instanceof Number || value instanceof Boolean) {
-        jsonBuilder.append(value);
-      } else if (value == null) {
-        jsonBuilder.append("null");
-      } else {
-        // Fallback for other types (e.g., List, custom objects):
-        // treat as string using toString().
-        jsonBuilder.append("\"").append(escapeString(value.toString())).append("\"");
-      }
+      writeValue(jsonBuilder, entry.getValue(), prettyPrint, nextIndent, indentIncrement);
       first = false;
     }
 
@@ -150,41 +130,144 @@ public class JsonHandler {
   }
 
   /**
+   * Writes a single value to the JSON string builder.
+   *
+   * @param jsonBuilder The StringBuilder to append to.
+   * @param value The value to write.
+   * @param prettyPrint Whether to format the output.
+   * @param currentIndent The current indentation string.
+   * @param indentIncrement The string used for one level of indentation.
+   */
+  private static void writeValue(
+      StringBuilder jsonBuilder,
+      Object value,
+      boolean prettyPrint,
+      String currentIndent,
+      String indentIncrement) {
+    if (value == null) {
+      jsonBuilder.append("null");
+    } else if (value instanceof String) {
+      jsonBuilder.append("\"").append(escapeString((String) value)).append("\"");
+    } else if (value instanceof Number || value instanceof Boolean) {
+      jsonBuilder.append(value);
+    } else if (value instanceof Map) {
+      if (isStringObjectMap(value)) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> nestedMap = (Map<String, Object>) value;
+        writeJsonRecursive(jsonBuilder, nestedMap, prettyPrint, currentIndent, indentIncrement);
+      } else {
+        // Non-String keys: convert to string representation
+        jsonBuilder.append("\"").append(escapeString(value.toString())).append("\"");
+      }
+    } else if (value instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<Object> list = (List<Object>) value;
+      writeArray(jsonBuilder, list, prettyPrint, currentIndent, indentIncrement);
+    } else {
+      // Fallback for other types: treat as string using toString()
+      jsonBuilder.append("\"").append(escapeString(value.toString())).append("\"");
+    }
+  }
+
+  /**
+   * Writes a JSON array to the string builder.
+   *
+   * @param jsonBuilder The StringBuilder to append to.
+   * @param list The list to serialize.
+   * @param prettyPrint Whether to format the output.
+   * @param currentIndent The current indentation string.
+   * @param indentIncrement The string used for one level of indentation.
+   */
+  private static void writeArray(
+      StringBuilder jsonBuilder,
+      List<Object> list,
+      boolean prettyPrint,
+      String currentIndent,
+      String indentIncrement) {
+    jsonBuilder.append("[");
+    if (prettyPrint && !list.isEmpty()) {
+      jsonBuilder.append("\n");
+    }
+    String nextIndent = prettyPrint ? currentIndent + indentIncrement : "";
+
+    for (int i = 0; i < list.size(); i++) {
+      if (i > 0) {
+        jsonBuilder.append(",");
+        if (prettyPrint) {
+          jsonBuilder.append("\n");
+        }
+      }
+      if (prettyPrint) {
+        jsonBuilder.append(nextIndent);
+      }
+      writeValue(jsonBuilder, list.get(i), prettyPrint, nextIndent, indentIncrement);
+    }
+
+    if (prettyPrint && !list.isEmpty()) {
+      jsonBuilder.append("\n").append(currentIndent);
+    }
+    jsonBuilder.append("]");
+  }
+
+  /**
+   * Checks if a Map has String keys and can be safely cast to Map<String, Object>.
+   *
+   * @param value The object to check.
+   * @return true if the object is a Map with String keys, false otherwise.
+   */
+  private static boolean isStringObjectMap(Object value) {
+    if (!(value instanceof Map)) {
+      return false;
+    }
+    Map<?, ?> map = (Map<?, ?>) value;
+    for (Object key : map.keySet()) {
+      if (!(key instanceof String)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Parses a JSON string representing a JSON object into a {@code Map<String, Object>}.
    *
    * <p>This parser supports:
    *
    * <ul>
    *   <li>Nested JSON objects (parsed as nested Maps).
+   *   <li>JSON arrays (parsed as Lists).
    *   <li>JSON strings (unescaped into Java Strings).
    *   <li>JSON numbers (parsed as Long or Double).
    *   <li>JSON booleans (true/false).
    *   <li>JSON null.
    * </ul>
    *
-   * <b>Important Limitation:</b> JSON arrays (e.g., {@code ["a", 1]}) are <em>not</em> parsed into
-   * Java Lists. Instead, the literal string representation of the array (e.g., {@code "[\"a\",
-   * 1]"}) will be returned as the value in the map.
-   *
    * <p>The parser expects the input string to be a valid JSON object (i.e., starting with '{' and
    * ending with '}'). Keys must be double-quoted strings.
    *
    * @param jsonString The JSON string to parse. Must be a representation of a JSON object.
    * @return A {@code Map<String, Object>} representing the parsed JSON object.
-   * @throws IllegalArgumentException if the jsonString is null, not a valid JSON object structure
-   *     (e.g., doesn't start/end with braces), or contains malformed elements (e.g., invalid key,
-   *     malformed pair).
+   * @throws IllegalArgumentException if the jsonString is null, not a valid JSON object structure,
+   *     or contains malformed elements with detailed error context.
    */
   public static Map<String, Object> readJson(String jsonString) {
     if (jsonString == null) {
       throw new IllegalArgumentException("Input JSON string cannot be null.");
     }
     String trimmedJson = jsonString.trim();
+    if (trimmedJson.isEmpty()) {
+      throw new IllegalArgumentException("Input JSON string cannot be empty.");
+    }
     if (!trimmedJson.startsWith("{") || !trimmedJson.endsWith("}")) {
       throw new IllegalArgumentException(
-          "JSON string must be an object (start with '{' and end with '}').");
+          "JSON string must be an object (start with '{' and end with '}'). Got: "
+              + truncateForError(trimmedJson));
     }
-    return parseObjectInternal(trimmedJson);
+    try {
+      return parseObjectInternal(trimmedJson);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Failed to parse JSON object: " + e.getMessage(), e);
+    }
   }
 
   /**
@@ -192,17 +275,26 @@ public class JsonHandler {
    *
    * @param jsonObjectString The string content of a JSON object, including braces.
    * @return A map representing the parsed object.
-   * @throws IllegalArgumentException for malformed JSON structures.
+   * @throws IllegalArgumentException for malformed JSON structures with detailed context.
    */
   private static Map<String, Object> parseObjectInternal(String jsonObjectString) {
     Map<String, Object> data = new HashMap<>();
-    // Remove surrounding braces for content processing
     String content = jsonObjectString.substring(1, jsonObjectString.length() - 1).trim();
     if (content.isEmpty()) {
       return data;
     }
 
-    List<String> pairs = getPairs(content);
+    List<String> pairs;
+    try {
+      pairs = getPairs(content);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Failed to split object content into key-value pairs: "
+              + e.getMessage()
+              + ". Content: "
+              + truncateForError(content),
+          e);
+    }
 
     for (String pair : pairs) {
       if (pair.isEmpty()) {
@@ -211,45 +303,111 @@ public class JsonHandler {
 
       int colonIndex = findTopLevelColon(pair);
 
-      if (colonIndex <= 0 || colonIndex >= pair.length() - 1) {
-        // colonIndex == 0 means key is missing or starts with colon.
-        // colonIndex == pair.length() - 1 means value is missing.
-        throw new IllegalArgumentException("Malformed JSON pair (invalid colon position): " + pair);
+      if (colonIndex <= 0) {
+        throw new IllegalArgumentException(
+            "Missing or invalid key in JSON pair (no colon found or colon at start): "
+                + truncateForError(pair));
+      }
+      if (colonIndex >= pair.length() - 1) {
+        throw new IllegalArgumentException(
+            "Missing value in JSON pair (colon at end): " + truncateForError(pair));
       }
 
       String keyString = pair.substring(0, colonIndex).trim();
       String valueString = pair.substring(colonIndex + 1).trim();
 
       String key;
-      if (keyString.startsWith("\"") && keyString.endsWith("\"")) {
-        key = unescapeString(keyString.substring(1, keyString.length() - 1));
+      if (keyString.startsWith("\"") && keyString.endsWith("\"") && keyString.length() >= 2) {
+        try {
+          key = unescapeString(keyString.substring(1, keyString.length() - 1));
+        } catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException(
+              "Failed to unescape JSON key: " + truncateForError(keyString) + ". " + e.getMessage(),
+              e);
+        }
       } else {
         throw new IllegalArgumentException(
-            "JSON key must be a string enclosed in double quotes: " + keyString);
+            "JSON key must be a string enclosed in double quotes. Got: "
+                + truncateForError(keyString));
       }
 
-      Object value = parseValue(valueString);
-      data.put(key, value);
+      try {
+        Object value = parseValue(valueString);
+        data.put(key, value);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Failed to parse value for key '"
+                + key
+                + "': "
+                + e.getMessage()
+                + ". Value: "
+                + truncateForError(valueString),
+            e);
+      }
     }
     return data;
+  }
+
+  /**
+   * Parses a JSON array string into a List<Object>.
+   *
+   * @param jsonArrayString The JSON array string, including brackets.
+   * @return A List representing the parsed array.
+   * @throws IllegalArgumentException for malformed JSON arrays.
+   */
+  private static List<Object> parseArrayInternal(String jsonArrayString) {
+    List<Object> list = new ArrayList<>();
+    String content = jsonArrayString.substring(1, jsonArrayString.length() - 1).trim();
+    if (content.isEmpty()) {
+      return list;
+    }
+
+    List<String> elements;
+    try {
+      elements = getArrayElements(content);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException(
+          "Failed to split array content into elements: "
+              + e.getMessage()
+              + ". Content: "
+              + truncateForError(content),
+          e);
+    }
+
+    for (String element : elements) {
+      if (element.isEmpty()) {
+        continue;
+      }
+      try {
+        Object value = parseValue(element);
+        list.add(value);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException(
+            "Failed to parse array element: "
+                + e.getMessage()
+                + ". Element: "
+                + truncateForError(element),
+            e);
+      }
+    }
+    return list;
   }
 
   /**
    * Finds the index of the top-level colon (':') character that separates a key from a value in a
    * JSON pair string. It correctly skips colons within nested JSON objects/arrays or strings.
    *
-   * @param pairString The string representing a single key-value pair (e.g., "\"name\":
-   *     \"value\"").
-   * @return The index of the top-level colon, or -1 if not found or if the structure is invalid for
-   *     this simple check.
+   * @param pairString The string representing a single key-value pair.
+   * @return The index of the top-level colon, or -1 if not found.
+   * @throws IllegalArgumentException if the string structure is invalid (unmatched
+   *     quotes/brackets).
    */
   private static int findTopLevelColon(String pairString) {
-    int nestingLevel = 0; // For tracking {} and []
+    int nestingLevel = 0;
     boolean inString = false;
     for (int i = 0; i < pairString.length(); i++) {
       char c = pairString.charAt(i);
       if (c == '"') {
-        // Toggle inString state if this quote is not escaped
         int backslashCount = 0;
         for (int k = i - 1; k >= 0 && pairString.charAt(k) == '\\'; k--) {
           backslashCount++;
@@ -262,37 +420,55 @@ public class JsonHandler {
           nestingLevel++;
         } else if (c == '}' || c == ']') {
           nestingLevel--;
+          if (nestingLevel < 0) {
+            throw new IllegalArgumentException(
+                "Unmatched closing bracket/brace in: " + truncateForError(pairString));
+          }
         } else if (c == ':' && nestingLevel == 0) {
-          return i; // Found
+          return i;
         }
       }
     }
-    return -1; // Colon not found
+    if (inString) {
+      throw new IllegalArgumentException(
+          "Unclosed string in JSON pair: " + truncateForError(pairString));
+    }
+    if (nestingLevel != 0) {
+      throw new IllegalArgumentException(
+          "Unmatched brackets/braces in JSON pair: " + truncateForError(pairString));
+    }
+    return -1;
   }
 
   /**
-   * Parses a JSON value string into its corresponding Java object. Supports strings, numbers
-   * (Long/Double), booleans, null, and nested objects. JSON arrays are returned as their string
-   * representation. Unquoted strings (not true, false, null, or numbers) are returned as strings.
+   * Parses a JSON value string into its corresponding Java object.
    *
    * @param valueString The string representation of the JSON value.
    * @return The parsed Java object.
-   * @throws IllegalArgumentException for malformed nested JSON objects.
+   * @throws IllegalArgumentException for malformed values with detailed context.
    */
   private static Object parseValue(String valueString) {
     valueString = valueString.trim();
+    if (valueString.isEmpty()) {
+      throw new IllegalArgumentException("Empty value string");
+    }
+
     if (valueString.startsWith("\"") && valueString.endsWith("\"")) {
+      if (valueString.length() < 2) {
+        throw new IllegalArgumentException("Invalid string value: " + valueString);
+      }
       return unescapeString(valueString.substring(1, valueString.length() - 1));
     } else if (valueString.startsWith("{") && valueString.endsWith("}")) {
-      return parseObjectInternal(valueString); // Recursive call for nested object
-    } else if ("true".equalsIgnoreCase(valueString)) {
+      return parseObjectInternal(valueString);
+    } else if (valueString.startsWith("[") && valueString.endsWith("]")) {
+      return parseArrayInternal(valueString);
+    } else if ("true".equals(valueString)) {
       return true;
-    } else if ("false".equalsIgnoreCase(valueString)) {
+    } else if ("false".equals(valueString)) {
       return false;
-    } else if ("null".equalsIgnoreCase(valueString)) {
+    } else if ("null".equals(valueString)) {
       return null;
     } else {
-      // Try to parse as number
       try {
         if (valueString.contains(".") || valueString.toLowerCase().contains("e")) {
           return Double.parseDouble(valueString);
@@ -300,34 +476,59 @@ public class JsonHandler {
           return Long.parseLong(valueString);
         }
       } catch (NumberFormatException e) {
-        // If not a recognized type, it might be an unquoted string or Array.
-        return valueString;
+        throw new IllegalArgumentException(
+            "Invalid JSON value (not a valid string, number, boolean, null, object, or array): "
+                + truncateForError(valueString));
       }
     }
   }
 
   /**
-   * Splits the content of a JSON object string (without the outer braces) into individual key-value
-   * pair strings. This method attempts to correctly handle commas within nested structures
-   * (objects, arrays treated as strings) and within quoted strings.
+   * Splits the content of a JSON object string into individual key-value pair strings.
    *
    * @param content The inner content of a JSON object string.
    * @return A list of strings, where each string is a raw key-value pair.
+   * @throws IllegalArgumentException if the content has structural issues.
    */
   private static List<String> getPairs(String content) {
     List<String> pairs = new ArrayList<>();
     if (content == null || content.isEmpty()) {
       return pairs;
     }
-    int nestingLevel = 0; // For { } and [ ]
+    return splitTopLevel(content, ',');
+  }
+
+  /**
+   * Splits the content of a JSON array string into individual element strings.
+   *
+   * @param content The inner content of a JSON array string.
+   * @return A list of strings, where each string is a raw array element.
+   * @throws IllegalArgumentException if the content has structural issues.
+   */
+  private static List<String> getArrayElements(String content) {
+    if (content == null || content.isEmpty()) {
+      return new ArrayList<>();
+    }
+    return splitTopLevel(content, ',');
+  }
+
+  /**
+   * Splits a string by a delimiter at the top level only (not within nested structures or strings).
+   *
+   * @param content The content to split.
+   * @param delimiter The delimiter character.
+   * @return A list of split segments.
+   * @throws IllegalArgumentException if the content has structural issues.
+   */
+  private static List<String> splitTopLevel(String content, char delimiter) {
+    List<String> segments = new ArrayList<>();
+    int nestingLevel = 0;
     boolean inString = false;
     int segmentStart = 0;
 
     for (int i = 0; i < content.length(); i++) {
       char c = content.charAt(i);
       if (c == '"') {
-        // Toggle inString state if this quote is not escaped.
-        // Counts preceding backslashes: if even, quote is active.
         int backslashCount = 0;
         for (int k = i - 1; k >= 0 && content.charAt(k) == '\\'; k--) {
           backslashCount++;
@@ -342,27 +543,41 @@ public class JsonHandler {
           nestingLevel++;
         } else if (c == '}' || c == ']') {
           nestingLevel--;
-        } else if (c == ',' && nestingLevel == 0) {
-          pairs.add(content.substring(segmentStart, i).trim());
+          if (nestingLevel < 0) {
+            throw new IllegalArgumentException(
+                "Unmatched closing bracket/brace at position "
+                    + i
+                    + " in: "
+                    + truncateForError(content));
+          }
+        } else if (c == delimiter && nestingLevel == 0) {
+          segments.add(content.substring(segmentStart, i).trim());
           segmentStart = i + 1;
         }
       }
     }
-    // Add the last segment after the last comma, or the only segment if no commas
-    pairs.add(content.substring(segmentStart).trim());
-    return pairs;
+
+    if (inString) {
+      throw new IllegalArgumentException("Unclosed string in: " + truncateForError(content));
+    }
+    if (nestingLevel != 0) {
+      throw new IllegalArgumentException(
+          "Unmatched brackets/braces in: " + truncateForError(content));
+    }
+
+    segments.add(content.substring(segmentStart).trim());
+    return segments;
   }
 
   /**
-   * Escapes special characters in a string for use in JSON. This includes quotes, backslashes, and
-   * control characters.
+   * Escapes special characters in a string for use in JSON.
    *
    * @param str The string to escape.
    * @return The escaped string, or null if input is null.
    */
   private static String escapeString(String str) {
     if (str == null) {
-      return null; // Or return "null" if it should be a JSON null literal
+      return null;
     }
     StringBuilder sb = new StringBuilder();
     for (char c : str.toCharArray()) {
@@ -388,13 +603,9 @@ public class JsonHandler {
         case '\t':
           sb.append("\\t");
           break;
-        // Forward slash ('/') may be escaped but is not required.
-        // For simplicity, not escaping '/' here.
         default:
-          // Control characters (U+0000 through U+001F) must be escaped.
           if (c < ' ') {
-            String hex = String.format("\\u%04x", (int) c);
-            sb.append(hex);
+            sb.append(String.format("\\u%04x", (int) c));
           } else {
             sb.append(c);
           }
@@ -404,12 +615,11 @@ public class JsonHandler {
   }
 
   /**
-   * Unescapes JSON-escaped characters in a string. Handles common escape sequences like \", \\, \b,
-   * \f, \n, \r, \t, and \\uXXXX unicode escapes. For invalid or truncated \\uXXXX sequences, it
-   * appends "\\u" literally and continues parsing.
+   * Unescapes JSON-escaped characters in a string.
    *
    * @param str The JSON-escaped string.
    * @return The unescaped string, or null if input is null.
+   * @throws IllegalArgumentException for invalid escape sequences with context.
    */
   private static String unescapeString(String str) {
     if (str == null) {
@@ -445,24 +655,25 @@ public class JsonHandler {
           case 't':
             sb.append('\t');
             break;
-          case 'u': // Unicode escape
+          case 'u':
             if (i + 4 < str.length()) {
               try {
                 String hex = str.substring(i + 1, i + 5);
                 sb.append((char) Integer.parseInt(hex, 16));
-                i += 4; // Advance past the 4 hex digits
+                i += 4;
               } catch (NumberFormatException e) {
-                // Invalid hex sequence
-                sb.append("\\u");
+                throw new IllegalArgumentException(
+                    "Invalid unicode escape sequence: \\u"
+                        + str.substring(i + 1, Math.min(i + 5, str.length())));
               }
             } else {
-              sb.append("\\u");
+              throw new IllegalArgumentException(
+                  "Incomplete unicode escape sequence at end of string: \\u"
+                      + str.substring(i + 1));
             }
             break;
           default:
-            // Unknown escape sequence, append the character itself
-            // (e.g., if input was an invalid "\z")
-            sb.append(c);
+            throw new IllegalArgumentException("Invalid escape sequence: \\" + c);
         }
         escaping = false;
       } else if (c == '\\') {
@@ -471,6 +682,28 @@ public class JsonHandler {
         sb.append(c);
       }
     }
+    if (escaping) {
+      throw new IllegalArgumentException("String ends with incomplete escape sequence");
+    }
     return sb.toString();
+  }
+
+  /**
+   * Truncates a string for error messages.
+   *
+   * <p>This method ensures that the string is no longer than 100 characters, appending an ellipsis
+   * if it exceeds that length. If the string is null, it returns "null".
+   *
+   * @param str The string to truncate.
+   * @return The truncated string with ellipsis if needed.
+   */
+  private static String truncateForError(String str) {
+    if (str == null) {
+      return "null";
+    }
+    if (str.length() <= 100) {
+      return str;
+    }
+    return str.substring(0, 100) + "...";
   }
 }
