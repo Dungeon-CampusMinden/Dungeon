@@ -9,6 +9,7 @@ In diesem Ordner werden die Beobachtungen und Untersuchung zu Aspekten von Escap
 ## Allgemeine Recherche
 
 - Wie funktionieren Escape-Rooms?
+  - [Design von Escape-Rooms](design.md)
   - [Erzählung der Geschichte](narrative.md)
   - [verwandte Lösungen in der Wissenschaft](solutions_science.md)
   - [andere Lösungen](solutions_other.md)
@@ -29,3 +30,7 @@ In diesem Ordner werden die Beobachtungen und Untersuchung zu Aspekten von Escap
 ## Anwendung des Gelernten auf die Planung der kommenden Schritte
 
 - erste Versionen von Vorgehen, Features und Evaluierungskonzepte anlegen
+
+# Andere Themen
+
+[Spielspaß und Motivation](motivation.md)
