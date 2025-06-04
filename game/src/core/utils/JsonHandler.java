@@ -210,7 +210,7 @@ public class JsonHandler {
   }
 
   /**
-   * Checks if a Map has String keys and can be safely cast to Map<String, Object>.
+   * Checks if a Map has String keys and can be safely cast to {@code Map<String, Object>}.
    *
    * @param value The object to check.
    * @return true if the object is a Map with String keys, false otherwise.
@@ -349,7 +349,7 @@ public class JsonHandler {
   }
 
   /**
-   * Parses a JSON array string into a List<Object>.
+   * Parses a JSON array string into a {@code List<Object>}.
    *
    * @param jsonArrayString The JSON array string, including brackets.
    * @return A List representing the parsed array.
