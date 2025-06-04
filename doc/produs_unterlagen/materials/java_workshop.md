@@ -31,7 +31,7 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 
 * **Java-Cheat-Sheet (simple):** Dieses Handout enthält alle grundlegenden Java-Konzepte, die im Workshop vermittelt werden. [Markdown Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/java-cheat-sheet_simple.md).
 * **VS-Code-Befehls-Cheat-Sheet:** Dieses Cheat-Sheet listet alle Blockly-spezifischen VS-Code-Kommandos auf, mit denen die Teilnehmenden ihre Java-Lösungen testen und visualisieren können. [Markdown Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/commandscheat_sheet.md).
-* **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21. |Leere-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_crossword_empty.pdf);  |Lösung](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blocky_crossword_solved.pdf).
+* **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21. [Leere-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_crossword_empty.pdf);  [Lösung](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blocky_crossword_solved.pdf).
 * **Blockly-Circuit-Diagram:** Zeigt, wie die Schalter in den Leveln verdrahtet sind. [PDF-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_circuit_diagram.pdf).
 
 ## Tag 1
