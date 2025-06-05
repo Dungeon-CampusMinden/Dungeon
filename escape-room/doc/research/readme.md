@@ -27,6 +27,8 @@ In diesem Ordner werden die Beobachtungen und Untersuchung zu Aspekten von Escap
 - Frage klären: Wie evaluieren wir das Ganze?
 - Fertig basteln, Studis spielen lassen, auswerten
 
+Die Umsetzung wird im [entsprechenden Unterordner](../analog_escape_room/readme.md) festgehalten.
+
 ## Anwendung des Gelernten auf die Planung der kommenden Schritte
 
 - erste Versionen von Vorgehen, Features und Evaluierungskonzepte anlegen
