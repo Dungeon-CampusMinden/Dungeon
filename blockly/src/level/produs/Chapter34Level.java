@@ -18,7 +18,7 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 import utils.BlocklyCommands;
-import utils.Direction;
+import contrib.utils.Direction;
 
 /** PRODUS LEVEL. */
 public class Chapter34Level extends BlocklyLevel {

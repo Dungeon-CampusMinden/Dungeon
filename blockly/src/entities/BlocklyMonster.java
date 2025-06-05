@@ -2,7 +2,7 @@ package entities;
 
 import antlr.BlocklyConditionVisitor;
 import com.badlogic.gdx.audio.Sound;
-import components.BlockViewComponent;
+import contrib.components.BlockViewComponent;
 import components.TintDirectionComponent;
 import contrib.components.AIComponent;
 import contrib.entities.*;

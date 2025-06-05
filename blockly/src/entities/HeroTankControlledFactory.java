@@ -9,7 +9,7 @@ import core.configuration.KeyboardConfig;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import utils.BlocklyCommands;
-import utils.Direction;
+import contrib.utils.Direction;
 
 /**
  * This class is used to create a hero entity with tank controls. The hero can only move in the

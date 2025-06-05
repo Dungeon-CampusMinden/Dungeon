@@ -1,4 +1,4 @@
-package utils;
+package contrib.utils;
 
 import core.components.PositionComponent;
 import core.level.Tile;

@@ -6,7 +6,7 @@ import core.level.elements.astar.TileConnection;
 import core.level.elements.astar.TileHeuristic;
 import core.level.utils.Coordinate;
 import java.util.*;
-import utils.LevelUtils;
+import contrib.utils.LevelUtils;
 
 /**
  * A* (A-Star) pathfinding algorithm implementation.

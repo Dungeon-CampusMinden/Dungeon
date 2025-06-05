@@ -6,6 +6,7 @@ import contrib.components.BlockComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
+import contrib.utils.Direction;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;

@@ -11,7 +11,7 @@ import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;
 import java.util.Set;
-import utils.Direction;
+import contrib.utils.Direction;
 import utils.components.ai.fight.StraightRangeAI;
 
 /**

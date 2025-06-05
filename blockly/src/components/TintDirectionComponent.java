@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import utils.Direction;
-import utils.LevelUtils;
+import contrib.utils.Direction;
+import contrib.utils.LevelUtils;
 
 /** This component is used to tint tiles of a view direction of an entity. */
 public class TintDirectionComponent implements Component {

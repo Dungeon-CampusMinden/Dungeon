@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import utils.BlocklyCommands;
-import utils.Direction;
+import contrib.utils.Direction;
 import utils.HideLanguage;
 
 /**

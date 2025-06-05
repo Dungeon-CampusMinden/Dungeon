@@ -10,7 +10,7 @@ import core.systems.CameraSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import utils.BlocklyCommands;
-import utils.Direction;
+import contrib.utils.Direction;
 
 /**
  * Utility class for managing level-related features such as camera control, hero positioning, zoom

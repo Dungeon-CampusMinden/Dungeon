@@ -17,7 +17,7 @@ import nodes.INode;
 import server.Server;
 import server.Variable;
 import utils.BlocklyCommands;
-import utils.Direction;
+import contrib.utils.Direction;
 
 /**
  * This class defines the visitor for the condition part of the blockly language. It is used to

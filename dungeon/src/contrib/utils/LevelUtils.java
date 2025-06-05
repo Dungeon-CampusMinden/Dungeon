@@ -1,6 +1,6 @@
-package utils;
+package contrib.utils;
 
-import components.BlockViewComponent;
+import contrib.components.BlockViewComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
