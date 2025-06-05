@@ -1,0 +1,64 @@
+From 4a82da088e3f2e2a75414e89772fe2884fbd24ed Mon Sep 17 00:00:00 2001
+From: "Some O. Dude" <some@other.dude>
+Date: Fri, 30 May 2025 12:31:45 +0200
+Subject: [PATCH 5/7] accept multiple answers per question
+
+---
+ src/ResultHandler.php | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/src/ResultHandler.php b/src/ResultHandler.php
+index e262a6c..caa19b1 100644
+--- a/src/ResultHandler.php
++++ b/src/ResultHandler.php
+@@ -1,7 +1,7 @@
+ <?php
+ class ResultHandler
+ {
+-    public function parseInput($a_query): string
++    public function parseInput($a_query): array
+     {
+         $parsed = $this->parser->parseQuery($a_query);
+ 
+@@ -12,28 +12,27 @@ class ResultHandler
+         return $parsed->input;
+     }
+ 
+-    public function checkAnswer($a_question_id, $a_user_id, string $a_answer): bool
++    public function checkAnswer($a_question_id, $a_user_id, array $a_answer): bool
+     {
+         $question = $this->questions[$a_question_id];
+ 
+-        # the expected answers are now kept separately to make swapping easier.
+-        if (strcmp($this->expected_answers[$a_question_id + 1], $a_answer) !== 0) {
+-            return false;
++        foreach ($this->expected_answers[$a_question_id + 1] as $answer_id => $answer) {
++            # the expected answers are now kept separately to make swapping easier.
++            # and, apparently, they're also offset by one? why?!
++            if (strcmp($answer + 1, $a_answers[$answer_id]) !== 0) {
++                return false;
++            }
+         }
+ 
+         $question->answered[$a_user_id] = true;
+         return true;
+     }
+ 
+-    public function getFirstAnswer(string $a_input): string
++    public function getAnswers(string $a_input): array
+     {
+-        $parsed = $this->parser->parseAnswer($a_input);
++        $parsed = $this->answerParser->parse($a_input);
+ 
+-        if ($parsed->count == 1) {
+-            return $parsed->answers[0];
+-        }
+-
+-        return "";
++        return $parsed->answers;
+     }
+ }
+ ?>
+-- 
+2.49.0
+
