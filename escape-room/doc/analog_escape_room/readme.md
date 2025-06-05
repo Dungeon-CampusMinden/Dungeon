@@ -8,4 +8,6 @@ Die Spieler sind Studenten aus PM2. Wir rechnen mit maximal 20 Teilnehmern, die 
 In zwei Räumen wird parallel in je zwei Durchläufen evaluiert.
 Der Termin ist der 20. Juni und der erste Durchlauf soll ab 15 Uhr losgehen.
 
+[Mechaniken aus der Vorbereitung](mechanics.md)
+
 [Vorangegangene Ansatz "Git"](git/readme.md)
