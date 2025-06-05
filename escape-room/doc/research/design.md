@@ -20,7 +20,7 @@ Eine einfach umzusetzende Lösung ist die Bereitstellung von vorgefertigten Scha
 
 Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwartet wird, um damit Escape-Rooms zu erstellen.
 
-## [EscapeIF](#escapeif)
+## <a name="escapeif"></a> [EscapeIF](#escapeif)
 
 Hier gibt es eine eigene Sammlung von Anleitungen, die auf analoge Spiele mit Grundschülern ausgerichtet sind. Das Konzept überträgt sich gut auf digitale Escape-Rooms und ist im Einklang mit Forschung, die höhere Bildung behandelt.
 
@@ -41,7 +41,7 @@ Hier gibt es eine eigene Sammlung von Anleitungen, die auf analoge Spiele mit Gr
 
 > For a one-hour game, it is recommended to have 1-3 learning outcomes (EscapeIF)
 
-## [EscapED](research/science.md#escaped)
+## <a name="escaped"></a> [EscapED](research/science.md#escaped)
 
 In dem Artikel zu dem Design von Escape-Rooms im Rahmen von EscapED werden unter Angabe der wissenschaftlichen Einflüsse, folgende Stufen des Designs festgelegt:
 
