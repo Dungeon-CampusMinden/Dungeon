@@ -8,6 +8,8 @@ Die Spieler sind Studenten aus PM2. Wir rechnen mit maximal 20 Teilnehmern, die 
 In zwei Räumen wird parallel in je zwei Durchläufen evaluiert.
 Der Termin ist der 20. Juni und der erste Durchlauf soll ab 15 Uhr losgehen.
 
+[Ablauf und Beschreibung des ausgewählten Escape-Rooms "Cyber-Security"](cyber_security/readme.md)
+
 [Mechaniken aus der Vorbereitung](mechanics.md)
 
 [Vorangegangene Ansatz "Git"](git/readme.md)
