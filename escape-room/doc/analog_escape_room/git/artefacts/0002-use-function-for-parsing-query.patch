@@ -1,0 +1,33 @@
+From 20cbf1d7dfc80df6c19f7328a08f0b4a9c8319e3 Mon Sep 17 00:00:00 2001
+From: "Leon M. Busch-George" <leon@georgemail.eu>
+Date: Mon, 21 Apr 2025 20:18:19 +0200
+Subject: [PATCH 2/7] use function for parsing query
+
+---
+ src/ResultHandler.php | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/src/ResultHandler.php b/src/ResultHandler.php
+index 7dc4e6a..8730e31 100644
+--- a/src/ResultHandler.php
++++ b/src/ResultHandler.php
+@@ -3,11 +3,13 @@ class ResultHandler
+ {
+     public function parseInput($a_query): string
+     {
+-        if ($this->depth[$a_xml_parser] > 0) {
+-            return $this->path[$this->depth[$a_xml_parser] - 1];
++        $parsed = $this->parser->parseQuery($a_query);
++
++        if (count($parsed->input) == 0) {
++            return "";
+         }
+ 
+-        return $a_query->input;
++        return $parsed->input;
+     }
+ 
+     public function checkAnswer($a_question_id, $a_user_id, string $a_answer): bool
+-- 
+2.49.0
+
