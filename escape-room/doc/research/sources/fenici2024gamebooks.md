@@ -33,4 +33,4 @@ Die Autoren postulieren ein Konzept "Branching Narrative Design-Based Learning (
 
 Direkt anwendbar ist das Vorgehen erstmal für die analoge Evaluierung. Vielleicht ist auch eine Ausweitung des Lernziels auf "Studenten diskutieren Problem X" sinnvoll. Ein so verändertes Verständnis des Escape-Rooms ändert wahrscheinlich auch die Ziele beim Schreiben der Geschichten dafür.
 
-Der herausstechende Punkt ist die Betrachtung der Geschichte des Lernmittels als den Gegenstand einer äußeren Geschichte (gerade zu lateral).
+Der herausstechende Punkt ist die Betrachtung der Geschichte des Lernmittels als den Gegenstand einer äußeren Geschichte (geradezu lateral).
