@@ -36,3 +36,5 @@ Die Umsetzung wird im [entsprechenden Unterordner](../analog_escape_room/readme.
 # Andere Themen
 
 [Spielspaß und Motivation](motivation.md)
+
+[Spielertypen](player_types.md)
