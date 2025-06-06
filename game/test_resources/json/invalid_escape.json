@@ -1,0 +1,4 @@
+{
+    "invalid_escape": "Hello \x World",
+    "incomplete_unicode": "Test \u12"
+}
