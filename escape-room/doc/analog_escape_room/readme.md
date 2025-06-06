@@ -10,6 +10,10 @@ Der Termin ist der 20. Juni und der erste Durchlauf soll ab 15 Uhr losgehen.
 
 [Ablauf und Beschreibung des ausgewählten Escape-Rooms "Cyber-Security"](cyber_security/readme.md)
 
+[Evaluierung der Durchläufe](evaluation.md)
+
 [Mechaniken aus der Vorbereitung](mechanics.md)
+
+[Untersuchung zu Feedback & Spiellogik](game_logic.md)
 
 [Vorangegangene Ansatz "Git"](git/readme.md)
