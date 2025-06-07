@@ -55,7 +55,7 @@ Möglichkeiten dafür:
 
 - im Rahmen eines Escape-Roomt-typischen "Debriefungs" die Gruppe interviewen
 - Ausfüllung eines Fragebogen (digital anbieten?)
-- Fragebogen für zuhause? (ich würde ja eine Email wollen, aber die sind jünger als ich)
+- Fragebogen für zuhause?
 	- verminderte Wahrscheinlichkeit, Daten zu erhalten
 
 ### Einschätzung der Affinität zu Spielen
