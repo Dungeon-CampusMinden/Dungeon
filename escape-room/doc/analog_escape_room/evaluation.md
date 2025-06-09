@@ -30,7 +30,7 @@ Möglichkeiten dafür:
 - im Rahmen eines Escape-Roomt-typischen "Debriefungs" die Gruppe interviewen
 - Ausfüllung eines Fragebogens
 	- Papier einfach umsetzbar
-		- ein Ausdruck pro Variante
+		- an die Variante angepasster Ausdruck
 	- digitale Ausfüllung vor Ort am besten mit ausliegenden Geräten
 	- mit einem QR-Code zur Verwendung an Privatgeräten ist die sofortige Bearbeitung schwerer umsetzbar
 - Fragebogen für zuhause?
@@ -71,13 +71,21 @@ Wenn etwas gut oder schlecht bewertet wurde, sollte der Grund für diese Einsch�
 
 ### Lernerfolge
 
-Hier könnte der Vorher/Nachher-Vergleich der Kenntnisstände der Teilnehmer gut passen. Für den analogen Escape-Room haben wir keine "natürliche" Vergleichsgruppe, die mit herkömmlichen Methoden die Inhalte lernt.
-Die Gestaltung der Varianten des Escape-Rooms ist nicht auf den Lernerfolg ausgerichtet. Sollten sich trotzdem Hinweise auf dahingehende Unterschiede ergeben, wären die Ursachen zu untersuchen.
+Die Gestaltung der Varianten des Escape-Rooms ist nicht auf den Lernerfolg ausgerichtet.
+Für den analogen Escape-Room haben wir keine "natürliche" Vergleichsgruppe, die mit herkömmlichen Methoden die Inhalte lernt.
+Der Lernerfolg ließe sich für jede Variante testen. Sollten sich Hinweise auf dahingehende Unterschiede ergeben, wären die Ursachen zu untersuchen.
 
-Die Kenntnisstände könnten mit einer Selbsteinschätzung erfasst werden. Teil des Escape-Rooms ist ein Quiz, das aus einer Frage nach dem Umgang mit einem gefundenen USB-Stick auf dem Firmenparkplatz und einer nach ungewöhnlicher Auslastungs des Computers besteht. Über die Beantwortung der Fragen kann (und soll) unter den Teilnehmern diskutiert werden und die korrekte Beantwortung ist für die Beendigung erforderlich.
-Diese Fragen bieten sich an, um sie von einer "Vorher"-Erfassung auszunehmen und nach dem Durchlauf danach zu fragen.
+#### Vorher-/Nachher-Vergleich
+
+Zur Bewertung des Lernerfolges könnte ein Vorher/Nachher-Vergleich durchgeführt werden.
 Um die Ergebnisse von Erfassungen vorher und nachher zuordnen zu können, muss es eine Form der Identifikation geben.
-Eine einfache Methode könnte zum Beispiel sein, die Fragebögen im verknüpften Zustand gleichzeitig auszuteilen.
+Eine einfache Methode könnte zum Beispiel sein, die Fragebögen vorher im verknüpften Zustand gleichzeitig auszuteilen und vorerst nur den ersten bearbeiten zu lassen.
+Die Ergebnisse vor und nach dem Durchlauf sollten vergleichbar sein. Gleichzeitig wird es schwer in geschlossenen Fragen nach dem Kenntnisstand fragen ohne die Rätsel vorwegzunehmen ("Was passiert, wenn der Mauscursor über einem Hyperlink schwebt?").
+
+Die Kenntnisstände könnten mit einer Selbsteinschätzung erfasst werden ("Wie sicher fühlst du dich mit der Stärke von Passwörtern?", Likert). Ein Problem dabei ist, dass die Einschätzung unverändert bleiben kann, selbst wenn etwas gelernt wurde. Etwas wie "Geistesgegenwart beim Betrachten einer Email" wird sich noch schwerer testen lassen.
+
+Teil des Escape-Rooms ist ein Quiz, das aus einer Frage nach dem Umgang mit einem gefundenen USB-Stick auf dem Firmenparkplatz und einer nach ungewöhnlicher Auslastungs des Computers besteht. Über die Beantwortung der Fragen kann (und soll) unter den Teilnehmern diskutiert werden und die korrekte Beantwortung ist für die Beendigung erforderlich.
+Diese Fragen bieten sich an, um sie von einer "Vorher"-Erfassung auszunehmen und nach dem Durchlauf danach zu fragen.
 
 Die folgenden anderen Sicherheitsthemen sind Teil des Escape-Rooms:
 
@@ -86,8 +94,8 @@ Die folgenden anderen Sicherheitsthemen sind Teil des Escape-Rooms:
 		- unkenntlich-gemachte Teile möglichst getrennt entsorgen
 		- (Passwort nach der Entsorgung ändern)
 	- Wie setzt sich ein sicheres Passwort zusammen?
-		- ausreichend viele schwer erratbare Teile
-		- zusammenhangslos
+		- ausreichend viele Teile/ausreichend lang
+		- zusammenhangslos/nicht ableitbar/zufällig
 - Phishing-Mails
 	- Woran lassen sich Phishing-Mails erkennen?
 		- Absender stimmt nicht genau, Domäne stimmt vielleicht nicht
@@ -106,6 +114,8 @@ Die folgenden anderen Sicherheitsthemen sind Teil des Escape-Rooms:
 		- Kontextmenü mit Rechtsklick
 		- Quellcode einer Email/Webseite
 		- 'text'-Multipart einer Email
+
+#### Qualititative Frage nach Lernerfolg
 
 Für eine kleine Erhebung im Rahmen einer explorativen Studie oder auch unserem Rahmen wäre auch angemessen, die Studenten ihren Lernerfolg selbst zu benennen.
 Z.B. "Hast du das Gefühl etwas gelernt zu haben? Wenn ja, was?".
