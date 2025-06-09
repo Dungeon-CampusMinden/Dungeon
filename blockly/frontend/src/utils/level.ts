@@ -1,6 +1,7 @@
 import {
   call_level_route, call_levels_route,
 } from "../api/api.ts";
+import {sleep} from "./utils.ts";
 
 let currentLevelIndex = 0
 const levelNames: string[] = [];
@@ -111,22 +112,31 @@ export const getCurrentLevel = () => {
 }
 
 /**
- * This function updates the level list using the API.
+ * Asynchronously retrieves and updates the list of levels from the server.
  *
- * <p> This function is used to get the level list from the server and update the level list.
+ * Clears existing `levelNames` and resets `currentLevelIndex` to 0.
+ * Repeatedly calls `call_levels_route()` every 5 seconds until a non-empty list
+ * is returned. After successfully loading levels, updates the UI and
+ * selects the first level.
  *
- * <p> Also sets the current level index to 0.
- *
- * @returns true if the level list was successfully retrieved, false otherwise
+ * @async
+ * @returns {Promise<void>}
  */
-export const updateLevelList = async () => {
+export const updateLevelList = async (): Promise<void> => {
   currentLevelIndex = 0;
-  const allLevels = await call_levels_route();
-  levelNames.push(...allLevels);
-  updateLevelListUI();
+  levelNames.length = 0; // Clear existing levels
 
-  if (levelNames.length > 0) {
-    setCurrentLevel(levelNames[0]);
+  while (true) {
+    const allLevels = await call_levels_route();
+    if (allLevels && allLevels.length > 0) {
+      levelNames.push(...allLevels);
+      updateLevelListUI();
+      setCurrentLevel(levelNames[0]);
+      break;
+    } else {
+      console.warn("No levels found. Retrying in 5 seconds...");
+      await sleep(5);
+    }
   }
 }
 
