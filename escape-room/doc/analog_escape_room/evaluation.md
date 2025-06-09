@@ -2,43 +2,20 @@
 title: "Evaluierung des physischen Escape-Rooms"
 ---
 
+Hier werden Anforderungen und das Vorgehen zu Auswertung des [Cyber-Security-Escape-Rooms](cyber_security/readme.md) ausgeführt.
+
+Die Anwendung für das Projekt im Allgemeinen wird [hier](../research/evaluation.md) ausgearbeitet.
+
 # Abgeleitetes Vorgehen
 
 Dieser Abschnitt wird noch befüllt.
 
-# Ziele der Evaluierung
+# Eingrenzung der Methodik
 
-Die Formulierung des Projektsziels im Antrag ist:
+Wegen der kleinen Zahl Teilnehmer (< ~20, < 10 pro Variante) wird es vielleicht schwer mit einer statistischen Auswertung eine angemessene Effektstärke zu erreichen. Daher bieten sich qualitative Untersuchungen an.
 
-> die Steigerung der Motivation der Studierenden und eine verbesserte Begleitung und Strukturierung von Lernwegen in der Selbstlernphase [..]
-
-Die erwarteten Wirkungen sind:
-
-- "Zufriedenheit, Lernerfolg und Kompetenzerwerb"
-- "Erlernen und Vertiefen von Future-Skills"
-- "Erhöhung der Motivation [durch] Spielspaß [..] und kooperative/kompetitive Anreize"
-
-Konkret wird ein "Vorher-/Nachher-Vergleich" angestrebt. Mit A/B-Tests sollen Unterschiede zwischen dem aktuellen Lehrkonzept und den Escape-Rooms erkannt werden.
-
-Folgende Zwecke des Projekts werden im Antrag aufgeführt, die für die Auswertung an dieser Stelle nicht betrachtet werden:
-
-- Unterstützung von Studierenden in der Selbstlernphase
-- "Unterstützung von Lehrenden"
-
-Für die Nicht-Betrachtung sprechen die folgenden Umstände:
-
-- die Studierenden nehmen als Ersatz für einen Veranstaltungstermin teil (kein Selbstlernen)
-- die Inhalte sind aus einer Lehrveranstaltung
-- der analoge Escape-Room wird nicht von Lehrenden gestaltet und durchgeführt
-
-
-Die beiden recherchierten wissenschaftlichen Escape-Room-Plattformen aus der Lehre haben jeweils eigene Sektionen zur Auswertung von Durchläufen - mit Ausrichtung auf den Lernerfolg.
-[EscapeIF](../research/design.md#escapeif) sieht für den Lernerfolg am Ende des Durchlaufs eine Reflektionsphase vor. Die Teilnehmer sollen selber erzählen, welchen Nutzen sie in der Erfahrung sehen.
-[EscapED](../research/design.md#escaped) knüpft eine formelle Überprüfung der Lerninhalte an die kontinuierliche Verbesserung des Escape-Rooms.
-
-Bisher ist nicht geplant, eine Iteration von Verbesserungen anhand der Rückmeldungen von Spielern durchzuführen. Möglicherweise wollen wir trotzdem danach fragen, alleine schon um Erfahrung damit zu sammeln ("Wie wäre der Escape-Room für dich besser gewesen?").
-
-Die Konkretisierung der Evaluierung bezieht sich auf den [Cyber-Security-Escape-Room](cyber_security/readme.md)
+Die Durchläufe der analogen Escape-Rooms finden an einem Freitag-Nachmittag nach den regulären Veranstaltungen statt.
+Wir sollten den Studenten für die Erhebung niedrigschwellige Optionen geben und uns kurz halten. Vor diesem Hintergrund sind geschlossene, Likert- oder Rating-Fragen vorteilhaft, weil sie leicht zu beantworten sind.
 
 # Ablauf/Fragen der Evaluierung
 
@@ -46,17 +23,20 @@ Die beiden Varianten unterscheiden sich hinsichtlich ihres Ablaufs und die einze
 
 Der Projektplan sieht die Kontaktierung von Prof. Knauf vor, um Didaktik- und Evaluierungskonzepte mit ihr abzustimmen.
 
-## Mögliche Fragen im Anschluss an die Teilnehmer
-
-Die Durchläufe der analogen Escape-Rooms finden an einem Freitag-Nachmittag nach den regulären Veranstaltungen statt.
-Wir sollten den Studenten für die Erhebung niedrigschwellige Optionen geben und uns kurz halten.
+## Fragen im Anschluss an die Teilnehmer
 
 Möglichkeiten dafür:
 
 - im Rahmen eines Escape-Roomt-typischen "Debriefungs" die Gruppe interviewen
-- Ausfüllung eines Fragebogen (digital anbieten?)
+- Ausfüllung eines Fragebogens
+	- Papier einfach umsetzbar
+		- ein Ausdruck pro Variante
+	- digitale Ausfüllung vor Ort am besten mit ausliegenden Geräten
+	- mit einem QR-Code zur Verwendung an Privatgeräten ist die sofortige Bearbeitung schwerer umsetzbar
 - Fragebogen für zuhause?
 	- verminderte Wahrscheinlichkeit, Daten zu erhalten
+
+Bisher ist nicht geplant, eine Iteration von Verbesserungen anhand der Rückmeldungen von Spielern durchzuführen. Möglicherweise wollen wir trotzdem danach fragen, alleine schon um Erfahrung damit zu sammeln ("Wie wäre der Escape-Room für dich besser gewesen?").
 
 ### Einschätzung der Affinität zu Spielen
 
@@ -85,6 +65,7 @@ Folgende Fragen wurden gesammelt:
 	- Wie fandest du Rätsel/Mechanik X?
 
 Möglicherweise ist den Studenten die Abgrenzung der einzelnen Rätsel nicht bewusst oder der Begriff der Mechanik bedarf einer Erklärung.
+Vor dem Hintergrund des Zeitpunktes sollten wir das vermeiden.
 
 Wenn etwas gut oder schlecht bewertet wurde, sollte der Grund für diese Einschätzung in einer offenen Frage abgegeben werden können.
 
@@ -95,15 +76,38 @@ Die Gestaltung der Varianten des Escape-Rooms ist nicht auf den Lernerfolg ausge
 
 Die Kenntnisstände könnten mit einer Selbsteinschätzung erfasst werden. Teil des Escape-Rooms ist ein Quiz, das aus einer Frage nach dem Umgang mit einem gefundenen USB-Stick auf dem Firmenparkplatz und einer nach ungewöhnlicher Auslastungs des Computers besteht. Über die Beantwortung der Fragen kann (und soll) unter den Teilnehmern diskutiert werden und die korrekte Beantwortung ist für die Beendigung erforderlich.
 Diese Fragen bieten sich an, um sie von einer "Vorher"-Erfassung auszunehmen und nach dem Durchlauf danach zu fragen.
+Um die Ergebnisse von Erfassungen vorher und nachher zuordnen zu können, muss es eine Form der Identifikation geben.
+Eine einfache Methode könnte zum Beispiel sein, die Fragebögen im verknüpften Zustand gleichzeitig auszuteilen.
 
-Die anderen folgenden anderen Sicherheitsthemen sind Teil des Escape-Rooms:
+Die folgenden anderen Sicherheitsthemen sind Teil des Escape-Rooms:
 
 - Umgang mit Passwörtern (Zettel/Bild vom Fussballer + Trikotnummer/Entsorgung)
+	- Wie wird ein Zettel auf einem Passwort richtig entsorgt?
+		- unkenntlich-gemachte Teile möglichst getrennt entsorgen
+		- (Passwort nach der Entsorgung ändern)
+	- Wie setzt sich ein sicheres Passwort zusammen?
+		- ausreichend viele schwer erratbare Teile
+		- zusammenhangslos
 - Phishing-Mails
+	- Woran lassen sich Phishing-Mails erkennen?
+		- Absender stimmt nicht genau, Domäne stimmt vielleicht nicht
+		- Links gehen nicht auf Firmenwebseite (tatsächliche URL am Besten schon im Mouse-Over kontrollieren)
+		- nicht-gezielte Angriffe enthalten oft bewusst, z.B. orthographische Fehler
+		- Dringlichkeit
+		- valides SPF oder DKIM fehlt
 - schadhafte Dokumente in Emails
+	- Wie ist mit Anhängen zweifelhafter Herkunft umzugehen?
+		- idealerweise nicht öffnen
+		- stimmt die Dateiendung (bitte nicht .exe..)
+		- Makro-Ausführung nicht erlauben
 - Überprüfung des Links im Mouse-Over vor einem Klick
+	- Lässt sich das Ziel eines Links vor der Benutzung überprüfen?
+		- Mouse-Over
+		- Kontextmenü mit Rechtsklick
+		- Quellcode einer Email/Webseite
+		- 'text'-Multipart einer Email
 
-Für eine kleine Erhebung im Rahmen einer explorativen Studie oder auch unserem Rahmen wäre sonst eine offene Frage angemessen.
+Für eine kleine Erhebung im Rahmen einer explorativen Studie oder auch unserem Rahmen wäre auch angemessen, die Studenten ihren Lernerfolg selbst zu benennen.
 Z.B. "Hast du das Gefühl etwas gelernt zu haben? Wenn ja, was?".
 
 ## Beobachtung durch den Game-Master

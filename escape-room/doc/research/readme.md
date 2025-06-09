@@ -35,4 +35,6 @@ Die Umsetzung wird im [entsprechenden Unterordner](../analog_escape_room/readme.
 
 # Andere Themen
 
+[Evaluierung](evaluation.md)
+
 [Spielspaß und Motivation](motivation.md)
