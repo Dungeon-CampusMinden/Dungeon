@@ -27,6 +27,7 @@ import level.produs.*;
 import server.Server;
 import systems.BlockSystem;
 import systems.TintTilesSystem;
+import utils.BlocklyCodeRunner;
 import utils.CheckPatternPainter;
 
 /**
@@ -132,7 +133,7 @@ public class Client {
         (firstLoad) -> {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
-          Server.instance().interruptExecution = true;
+          BlocklyCodeRunner.instance().stopCode();
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
