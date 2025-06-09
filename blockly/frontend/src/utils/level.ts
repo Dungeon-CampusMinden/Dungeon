@@ -225,5 +225,10 @@ export const setupLevelSelector = () => {
     nextButton.disabled = select.selectedIndex === levelNames.length - 1 || !isLevelAvailable(levelNames[select.selectedIndex + 1]);
   }
 
+  // Initialize level progress if not set
+  if (localStorage.getItem("levelProgress") === null) {
+    setLevelProgress(0);
+  }
+
   return select;
 }
