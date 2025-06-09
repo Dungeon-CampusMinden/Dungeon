@@ -47,6 +47,13 @@
           "type": "string",
           "default": "http://localhost:8080",
           "description": "Server-URL für Blockly"
+        },
+        "blocklyServer.sleepAfterEachLine": {
+          "type": "integer",
+          "default": 500,
+          "description": "Zeit in Millisekunden, die nach jeder Zeile gewartet wird, um die Ausführung zu verlangsamen. Setze auf 0, um keine Verzögerung zu haben.",
+          "minimum": 0,
+          "maximum": 10000
         }
       }
     },

@@ -393,6 +393,19 @@ public class Server {
     // Check if this is a stop request
     String query = exchange.getRequestURI().getQuery();
     boolean isStopRequest = query != null && query.contains("stop=1");
+    int sleepAfterEachLine = -1;
+    if (query != null && query.contains("sleep=")) {
+      String[] params = query.split("&");
+      for (String param : params) {
+        if (param.startsWith("sleep=")) {
+          try {
+            sleepAfterEachLine = Math.max(Integer.parseInt(param.split("=")[1]), 0);
+          } catch (NumberFormatException e) {
+            LOGGER.warning("Invalid sleep parameter: " + param);
+          }
+        }
+      }
+    }
 
     if (isStopRequest) {
       handleStopCodeExecution(exchange);
@@ -416,7 +429,11 @@ public class Server {
     // Start code execution
     interruptExecution = false;
     try {
-      BlocklyCodeRunner.instance().executeJavaCode(text);
+      if (sleepAfterEachLine >= 0) {
+        BlocklyCodeRunner.instance().executeJavaCode(text, sleepAfterEachLine);
+      } else {
+        BlocklyCodeRunner.instance().executeJavaCode(text);
+      }
 
       // Wait 1 second to check for errors or completion
       try {

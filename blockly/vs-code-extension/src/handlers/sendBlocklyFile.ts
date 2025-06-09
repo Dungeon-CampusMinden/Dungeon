@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import axios, {AxiosError} from 'axios';
 import {showMessageWithTimeout} from '../utils/utils';
-import {BLOCKLY_URL} from '../extension';
+import {BLOCKLY_URL, SLEEP_AFTER_EACH_LINE} from '../extension';
 
 // Create a diagnostic collection to manage error diagnostics
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('blockly');
@@ -33,7 +33,7 @@ export default async function sendBlocklyFile() {
 
     try {
         await axios.post(BLOCKLY_URL() + "/reset", {}, {headers: {'Content-Type': 'text/plain'}}); // reset before any input
-        await axios.post(BLOCKLY_URL() + "/code", code, {headers: {'Content-Type': 'text/plain'}});
+        await axios.post(BLOCKLY_URL() + "/code?sleep=" + SLEEP_AFTER_EACH_LINE(), code, {headers: {'Content-Type': 'text/plain'}});
         showMessageWithTimeout('Blockly file sent successfully!');
     } catch (error: unknown) {
         if (!(error instanceof AxiosError))
@@ -84,7 +84,7 @@ function displayErrorsInEditor(errorMessage: string, document: vscode.TextDocume
     // Parse Java compilation errors
     // Format is typically: "filename:line: error: message"
     const errorLines = errorMessage.split('\n');
-    
+
     const errorRegex = /UserScript\.java:(\d+): ([fF]ehler|[eE]rror): (.+)/;
     // Try to determine a more specific range for the error
     // For example, if the error message mentions a specific symbol
