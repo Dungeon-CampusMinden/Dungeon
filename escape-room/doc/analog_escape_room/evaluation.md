@@ -19,6 +19,12 @@ Wegen der kleinen Zahl Teilnehmer (< ~20, < 10 pro Variante) wird es vielleicht 
 Die Durchläufe der analogen Escape-Rooms finden an einem Freitag-Nachmittag nach den regulären Veranstaltungen statt.
 Wir sollten den Studenten für die Erhebung niedrigschwellige Optionen geben und uns kurz halten. Vor diesem Hintergrund sind geschlossene, Likert- oder Rating-Fragen vorteilhaft, weil sie leicht zu beantworten sind.
 
+Die Unterstützung von Studierenden in der Selbstlernphase und Lehrenden findet aus folgenden Gründen für den analogen Escape-Room nicht statt:
+
+- die Studierenden nehmen als Ersatz für einen Veranstaltungstermin teil (kein Selbstlernen)
+- die Inhalte nicht aus der Lehrveranstaltung kommen
+- der Escape-Room wird nicht von Lehrenden gestaltet und durchgeführt
+
 # Ablauf/Fragen der Evaluierung
 
 Die beiden Varianten unterscheiden sich hinsichtlich ihres Ablaufs und die einzelnen Rätsel sind teilweise unterschiedlich implementiert. Es besteht zusätzlich die Möglichkeit, in jeder Variante etwas zwischen den Durchläufen zu ändern (z.B. Gibt es ein Rätsel zum Betreten des Raumes oder nicht?).

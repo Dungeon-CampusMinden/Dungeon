@@ -21,12 +21,6 @@ Folgende Zwecke des Projekts werden im Antrag aufgeführt, die für die Auswertu
 - Unterstützung von Studierenden in der Selbstlernphase
 - "Unterstützung von Lehrenden"
 
-Für die Nicht-Betrachtung sprechen die folgenden Umstände:
-
-- die Studierenden nehmen als Ersatz für einen Veranstaltungstermin teil (kein Selbstlernen)
-- die Inhalte sind aus einer Lehrveranstaltung
-- der analoge Escape-Room wird nicht von Lehrenden gestaltet und durchgeführt
-
 # Verwandtes Material
 
 Die beiden recherchierten wissenschaftlichen Escape-Room-Plattformen aus der Lehre haben jeweils eigene Sektionen zur Auswertung von Durchläufen - mit Ausrichtung auf den Lernerfolg.
