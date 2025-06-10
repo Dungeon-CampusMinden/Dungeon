@@ -429,7 +429,7 @@ public class Server {
       int statusCode;
 
       if (interruptExecution) {
-        response = errorMsg;
+        response = errorMsg.isEmpty() ? "Code execution interrupted" : "Error: " + errorMsg;
         statusCode = 400;
         BlocklyCodeRunner.instance().stopCode();
       } else if (!BlocklyCodeRunner.instance().isCodeRunning()) {

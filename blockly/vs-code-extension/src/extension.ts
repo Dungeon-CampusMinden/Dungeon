@@ -21,7 +21,19 @@ const codeObjects = {
         detail: 'An element of an Tile in the game',
         insertText: 'LevelElement',
         onlyInRoot: false
-    }
+    },
+    'loadNextLevel()': {
+        kind: vscode.CompletionItemKind.Method,
+        detail: 'Loads the next level in the game',
+        insertText: 'loadNextLevel()',
+        onlyInRoot: true
+    },
+    'loadLevel(index: number)': {
+        kind: vscode.CompletionItemKind.Method,
+        detail: 'Loads a specific level by index',
+        insertText: new vscode.SnippetString('loadLevel(${1:index})'),
+        onlyInRoot: true
+    },
 }
 
 // Store API data for reuse

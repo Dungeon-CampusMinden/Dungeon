@@ -52,11 +52,25 @@ public class BlocklyCodeRunner {
           }
 
           private static void sleep() {
+            sleep(%d);
+          }
+
+          private static void sleep(int millis) {
             try {
-              Thread.sleep(%d * 1000);
+              Thread.sleep(millis);
             } catch (InterruptedException e) {
               Thread.currentThread().interrupt();
             }
+          }
+
+          private static void loadNextLevel() {
+            contrib.level.DevDungeonLoader.loadNextLevel();
+            sleep(1000);
+          }
+
+          private static void loadLevel(int index) {
+            contrib.level.DevDungeonLoader.loadLevel(index);
+            sleep(1000);
           }
       }
       """;
