@@ -3,10 +3,12 @@ title: "Evaluierung des physischen Escape-Rooms"
 ---
 
 Hier werden Anforderungen und das Vorgehen zu Auswertung des [Cyber-Security-Escape-Rooms](cyber_security/readme.md) ausgeführt.
+Die Anforderungen, Rahmenbedingungen und bereits gesammelte Gedanken werden in diesem Dokument aufgearbeitet und strukturiert.
+In einem zweiten Schritt erfolgt die Festlegung des [Vorgehens](#approach).
 
 Die Anwendung für das Projekt im Allgemeinen wird [hier](../research/evaluation.md) ausgearbeitet.
 
-# Abgeleitetes Vorgehen
+# <a name="approach"></a> Vorgehen
 
 Dieser Abschnitt wird noch befüllt.
 
