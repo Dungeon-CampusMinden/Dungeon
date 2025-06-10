@@ -39,7 +39,7 @@ public class BlocklyCodeRunner {
    */
   public static String TEMP_FOLDER_NAME = "blockly";
 
-  private static final int SLEEP_AFTER_EACH_LINE = 1; // seconds
+  private static final int DEFAULT_SLEEP_AFTER_EACH_LINE = 500; // milliseconds
 
   private static final String CodeWrapper =
       """
@@ -100,9 +100,20 @@ public class BlocklyCodeRunner {
    * @throws RuntimeException If an error occurs during execution.
    */
   public void executeJavaCode(String code) throws RuntimeException {
-    code = addSleepCalls(code);
+    executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
+  }
+
+  /**
+   * Executes the given Java code.
+   *
+   * @param code Java code that should be executed.
+   * @param sleepAfterEachLine The time to sleep after each line of code execution, in milliseconds.
+   * @throws RuntimeException If an error occurs during execution.
+   */
+  public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException {
+    if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
-    code = String.format(CodeWrapper, code, SLEEP_AFTER_EACH_LINE);
+    code = String.format(CodeWrapper, code, sleepAfterEachLine);
 
     // In system temp directory
     Path tempDir = tempFolder();
