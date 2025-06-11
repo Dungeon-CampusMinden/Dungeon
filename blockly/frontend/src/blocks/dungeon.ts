@@ -48,19 +48,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   // ---------------------- Variables ----------------------
   {
-    type: "get_number",
-    message0: "%1",
-    args0: [
-      {
-        type: "field_variable",
-        name: "VAR",
-        variable: "%{BKY_VARIABLES_DEFAULT_NAME}",
-      },
-    ],
-    output: "Move",
-    colour: 290,
-  },
-  {
     type: "set_number",
     previousStatement: null,
     nextStatement: null,
@@ -366,7 +353,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_A",
-        check: "Number",
+        check: ["Number",
+          "Variable",
+          "Array_get",
+          "Expression"
+        ],
       },
       {
         type: "field_dropdown",
@@ -383,7 +374,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "INPUT_B",
-        check: "Number",
+        check: ["Number",
+          "Variable",
+          "Array_get",
+          "Expression"
+        ],
       },
     ],
     inputsInline: true,
