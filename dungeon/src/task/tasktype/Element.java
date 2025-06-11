@@ -1,7 +1,5 @@
 package task.tasktype;
 
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import task.Task;
 import task.TaskContent;
 
@@ -10,15 +8,13 @@ import task.TaskContent;
  *
  * @param <T>
  */
-@DSLType(templateArguments = String.class)
 public class Element<T> extends TaskContent {
-  @DSLTypeMember private final T content;
+  private final T content;
 
   /**
    * Create a new element that can be used as {@link TaskContent}.
    *
-   * <p>This content will not automatically register itself with the task. Call {@link
-   * Task#addContent(TaskContent)} for that.
+   * <p>This content will not automatically register itself with the task.
    *
    * @param task Task to which this content belongs.
    * @param content Content to store in this element.
@@ -31,8 +27,7 @@ public class Element<T> extends TaskContent {
   /**
    * Create a new element that can be used as {@link TaskContent}.
    *
-   * <p>This content will not automatically register itself with the task. Call {@link
-   * Task#addContent(TaskContent)} for that.
+   * <p>This content will not automatically register itself with the task.
    *
    * @param content Content to store in this element.
    */

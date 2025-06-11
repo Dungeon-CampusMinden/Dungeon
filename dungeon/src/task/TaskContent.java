@@ -1,6 +1,5 @@
 package task;
 
-import dsl.annotation.DSLType;
 import task.game.components.TaskContentComponent;
 
 /**
@@ -12,15 +11,13 @@ import task.game.components.TaskContentComponent;
  * <p>A TaskContent can, for example, be an answer option for a quiz question or a rule for
  * replacement tasks.
  */
-@DSLType
 public abstract class TaskContent {
   private Task task;
 
   /**
    * Creates a new TaskContent.
    *
-   * <p>This Content will not automatically register itself at the Task. Call {@link
-   * Task#addContent(TaskContent)} for that.
+   * <p>This Content will not automatically register itself at the Task.
    *
    * @param task Task to which this content belongs.
    */

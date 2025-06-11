@@ -9,7 +9,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.IPath;
-import dsl.annotation.DSLType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -313,7 +312,6 @@ public abstract class Tile {
   }
 
   /** The direction of a tile. */
-  @DSLType(name = "tile_direction")
   public enum Direction {
     /** The tile is in the north direction. */
     N,
