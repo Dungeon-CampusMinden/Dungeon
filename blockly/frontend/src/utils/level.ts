@@ -112,6 +112,24 @@ export const getCurrentLevel = () => {
 }
 
 /**
+ * Handles the failure to load levels from the server.
+ *
+ * If the delay exceeds 60 seconds, it logs an error. Otherwise, it logs a warning.
+ *
+ * @param delay The current retry delay in seconds.
+ * @returns True if retrying should continue, false otherwise.
+ */
+const handleLevelLoadFailure = (delay: number): boolean => {
+  if (delay > 60) {
+    console.error("Failed to load levels after multiple retries. Stopping.");
+    return false; // Stop retrying
+  } else {
+    console.warn(`No levels found. Retrying in ${delay} seconds...`);
+    return true; // Continue retrying
+  }
+};
+
+/**
  * Asynchronously retrieves and updates the list of levels from the server.
  *
  * Clears existing `levelNames` and resets `currentLevelIndex` to 0.
@@ -125,6 +143,7 @@ export const getCurrentLevel = () => {
 export const updateLevelList = async (): Promise<void> => {
   currentLevelIndex = 0;
   levelNames.length = 0; // Clear existing levels
+  let delay = 5;
 
   while (true) {
     const allLevels = await call_levels_route();
@@ -134,8 +153,11 @@ export const updateLevelList = async (): Promise<void> => {
       setCurrentLevel(levelNames[0]);
       break;
     } else {
-      console.warn("No levels found. Retrying in 5 seconds...");
-      await sleep(5);
+      if (!handleLevelLoadFailure(delay)) {
+        break; // Stop retrying if the delay exceeds 60 seconds
+      }
+      await sleep(delay);
+      delay += 5;
     }
   }
 }
