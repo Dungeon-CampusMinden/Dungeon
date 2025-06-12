@@ -2,22 +2,7 @@
 title: "Gamebooks and branching narratives in education: fostering sustainability competences to promote positive social change"
 ---
 
-## Bibtex
-
-```bibtex
-@article{fenici2024gamebooks,
-  title     = "Gamebooks and branching narratives in education: fostering
-               sustainability competences to promote positive social change",
-  author    = "Fenici, Marco and Mosca, Ivan",
-  journal   = "Front. Educ.",
-  publisher = "Frontiers Media SA",
-  volume    =  8,
-  month     =  jan,
-  year      =  2024,
-  copyright = "https://creativecommons.org/licenses/by/4.0/"
-}
-
-```
+@fenici2024gamebooks
 
 ## Zusammenfassung
 

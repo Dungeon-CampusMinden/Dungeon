@@ -2,23 +2,7 @@
 title: "Gamer-learner: Developing an engaging educational game"
 ---
 
-## Bibtex
-
-```bibtex
-@inproceedings{george2024engaging,
-  title           = "Gamer-learner: Developing an engaging educational game",
-  booktitle       = "2024 {IEEE} International Conference on Teaching,
-                     Assessment and Learning for Engineering ({TALE})",
-  author          = "George, Rohan Rockie and {Veena}",
-  publisher       = "IEEE",
-  pages           = "1--7",
-  month           =  dec,
-  year            =  2024,
-  conference      = "2024 IEEE International Conference on Teaching, Assessment
-                     and Learning for Engineering (TALE)",
-  location        = "Bengaluru, India"
-}
-```
+@george2024engaging
 
 ## Zusammenfassung
 

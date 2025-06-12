@@ -2,22 +2,7 @@
 title: "Exploring the fusion of mixed reality and digital game-based learning: The case of puzzle box games for education"
 ---
 
-## Bibtex
-
-```bibtex
-@inproceedings{lee2023puzzlebox,
-  title      = "Exploring the fusion of mixed reality and digital
-                game-based learning: The case of puzzle box games for
-                education",
-  author     = "Lee, Boon Giin and Tang, Huimin and Wen, Xinlei",
-  publisher  = "IEEE",
-  month      =  nov,
-  year       =  2023,
-  conference = "2023 IEEE International Conference on Teaching, Assessment
-                and Learning for Engineering (TALE)",
-  location   = "Auckland, New Zealand"
-}
-```
+@lee2023puzzlebox
 
 ## Zusammenfassung
 

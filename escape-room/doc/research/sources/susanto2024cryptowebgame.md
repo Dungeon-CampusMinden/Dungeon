@@ -2,24 +2,7 @@
 title: "The learning outcomes achievement and user experience analysis of a cryptography education web game"
 ---
 
-## Bibtex
-
-```bibtex
-@inproceedings{susanto2024cryptowebgame,
-  title           = "The learning outcomes achievement and user experience
-                     analysis of a cryptography education web game",
-  booktitle       = "2024 10th International {HCI} and {UX} Conference in
-                     Indonesia ({CHIuXiD})",
-  author          = "Susanto, Helmi Yusuf and Arifin, Yulyani",
-  publisher       = "IEEE",
-  pages           = "30--35",
-  month           =  nov,
-  year            =  2024,
-  conference      = "2024 10th International HCI and UX Conference in Indonesia
-                     (CHIuXiD)",
-  location        = "Jakarta, Indonesia"
-}
-```
+@susanto2024cryptowebgame
 
 ## Zusammenfassung
 
