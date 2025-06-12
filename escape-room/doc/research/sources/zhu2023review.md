@@ -2,25 +2,7 @@
 title: "Beyond the traditional: A systematic review of digital game-based assessment for students' knowledge, skills, and affections"
 ---
 
-## Bibtex
-
-```bibtex
-@article{zhu2023review,
-  title     = "Beyond the traditional: A systematic review of digital
-               game-based assessment for students' knowledge, skills, and
-               affections",
-  author    = "Zhu, Sha and Guo, Qing and Yang, Harrison Hao",
-  journal   = "Sustainability",
-  publisher = "MDPI AG",
-  volume    =  15,
-  number    =  5,
-  pages     = "4693",
-  month     =  mar,
-  year      =  2023,
-  copyright = "https://creativecommons.org/licenses/by/4.0/",
-  language  = "en"
-}
-```
+@zhu2023review
 
 ## Zusammenfassung
 

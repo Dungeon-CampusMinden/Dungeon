@@ -2,24 +2,7 @@
 title: "Peer interactions during computer‐supported collaborative learning: A self‐determination perspective"
 ---
 
-## Bibtex
-
-```bibtex
-@article{Van_Leeuwen2025-in,
-  title     = "Peer interactions during computer‐supported collaborative
-               learning: A self‐determination perspective",
-  author    = "van Leeuwen, Anouschka and Hornstra, Lisette and Janssen, Jeroen
-               and Leow, En Ning",
-  journal   = "J. Comput. Assist. Learn.",
-  publisher = "Wiley",
-  volume    =  41,
-  number    =  3,
-  month     =  jun,
-  year      =  2025,
-  copyright = "http://creativecommons.org/licenses/by/4.0/",
-  language  = "en"
-}
-```
+@vanleeuwen2025collaborative
 
 ## Zusammenfassung
 

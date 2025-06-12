@@ -2,22 +2,7 @@
 title: "Designing Scenarios for Personalized Learning: Enabling Teachers to Apply Educational Video Games in Class"
 ---
 
-## Bibtex
-
-```bibtex
-@article{antonova2019scenarios,
-  title     = "Designing Scenarios for Personalized Learning:
-               Enabling Teachers to Apply Educational Video Games in Class",
-  author    = "Antonova A. and Bontchev B.",
-  journal   = "International Journal of Education and Learning Systems",
-  publisher = "IARAS",
-  volume    =  4,
-  pages     = "20-26",
-  month     =  may,
-  year      =  2019,
-  language  = "en"
-}
-```
+@antonova2019scenarios
 
 ## Zusammenfassung
 

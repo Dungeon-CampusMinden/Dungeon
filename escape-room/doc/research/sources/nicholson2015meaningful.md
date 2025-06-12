@@ -2,20 +2,7 @@
 title: "Exploring the fusion of mixed reality and digital game-based learning: The case of puzzle box games for education"
 ---
 
-## Bibtex
-
-```bibtex
-@incollection{nicholson2015meaningful,
-  title     = "A {RECIPE} for Meaningful Gamification",
-  booktitle = "Gamification in Education and Business",
-  author    = "Nicholson, Scott",
-  publisher = "Springer International Publishing",
-  pages     = "1--20",
-  year      =  2015,
-  address   = "Cham",
-  copyright = "https://www.springernature.com/gp/researchers/text-and-data-mining"
-}
-```
+@nicholson2015meaningful
 
 ## Zusammenfassung
 

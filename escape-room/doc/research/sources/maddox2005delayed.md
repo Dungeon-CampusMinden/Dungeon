@@ -2,22 +2,7 @@
 title: "Delayed Feedback Disrupts the Procedural-Learning System but Not the Hypothesis-Testing System in Perceptual Category Learning"
 ---
 
-## Bibtex
-
-```bibtex
-@article{maddox2005delayed,
-  title     = "Delayed feedback disrupts the procedural-learning system but not
-               the hypothesis-testing system in perceptual category learning",
-  author    = "Maddox, W Todd and Ing, A David",
-  journal   = "J. Exp. Psychol. Learn. Mem. Cogn.",
-  publisher = "American Psychological Association (APA)",
-  volume    =  31,
-  number    =  1,
-  pages     = "100--107",
-  month     =  jan,
-  year      =  2005
-}
-```
+@maddox2005delayed
 
 ## Zusammenfassung
 

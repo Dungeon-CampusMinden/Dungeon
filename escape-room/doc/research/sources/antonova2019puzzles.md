@@ -2,22 +2,7 @@
 title: "EXPLORING PUZZLE-BASED LEARNING FOR BUILDING EFFECTIVE AND MOTIVATIONAL MAZE VIDEO GAMES FOR EDUCATION"
 ---
 
-## Bibtex
-
-```bibtex
-@article{antonova2019puzzles,
-  title     = "EXPLORING PUZZLE-BASED LEARNING FOR BUILDING
-              EFFECTIVE AND MOTIVATIONAL MAZE VIDEO GAMES FOR
-              EDUCATION",
-  author    = "Antonova A. and Bontchev B.",
-  journal   = "EDULEARN19 Proceedings",
-  publisher = "IATED",
-  pages     = "2425-2434",
-  month     =  july,
-  year      =  2019,
-  language  = "en"
-}
-```
+@antonova2019puzzles
 
 ## Zusammenfassung
 

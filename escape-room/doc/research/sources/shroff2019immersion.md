@@ -2,22 +2,7 @@
 title: "A conceptual framework for immersion and flow in digital game-based learning: An example of a game-based classroom response system"
 ---
 
-## Bibtex
-
-```bibtex
-@article{shroff2019immersion,
-  title     = "A conceptual framework for immersion and flow in digital
-               game-based learning: An example of a game-based classroom
-               response system",
-  author    = "Shroff, Ronnie and Ting, Fridolin and Lam, Wai Hung",
-  journal   = "Ubiquitous Learn. Int. J.",
-  publisher = "Common Ground Research Networks",
-  volume    =  12,
-  number    =  3,
-  pages     = "41--60",
-  year      =  2019
-}
-```
+@shroff2019immersion
 
 ## Zusammenfassung
 

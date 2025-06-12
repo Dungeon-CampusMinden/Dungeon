@@ -2,23 +2,7 @@
 title: "Designing stories for educational video games"
 ---
 
-## Bibtex
-
-```bibtex
-@article{lopez2017stories,
-  title     = "Designing stories for educational video games",
-  author    = "L{\'o}pez-Arcos, J R and Padilla-Zea, N and Paderewski, P and
-               Guti{\'e}rrez, F L",
-  journal   = "Int. J. Web-based Learn. Teach. Technol.",
-  publisher = "IGI Global",
-  volume    =  12,
-  number    =  4,
-  pages     = "1--13",
-  month     =  oct,
-  year      =  2017,
-  language  = "en"
-}
-```
+@lopez2017stories
 
 ## Zusammenfassung
 

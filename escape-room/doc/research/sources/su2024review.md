@@ -2,20 +2,7 @@
 title: "A systematic review of game-based assessment in education in the past decade"
 ---
 
-## Bibtex
-
-```bibtex
-@article{su2024review,
-  title     = "A systematic review of game-based assessment in education in the
-               past decade",
-  journal   = "Knowl. Manag. E-learn.: Int. J.",
-  publisher = "Laboratory for Knowledge Management and E-Learning - The
-               University of Hong Kong",
-  pages     = "451--476",
-  month     =  sep,
-  year      =  2024
-}
-```
+@su2024review
 
 ## Zusammenfassung
 
