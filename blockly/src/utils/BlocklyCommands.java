@@ -316,10 +316,15 @@ public class BlocklyCommands {
     if (targetTile == null) {
       return false; // no tile in the given direction
     }
-    if (targetTile instanceof DoorTile) return ((DoorTile) targetTile).isOpen();
-    return Game.entityAtTile(targetTile)
-        .flatMap(e -> e.fetch(LeverComponent.class).stream())
-        .allMatch(LeverComponent::isOn);
+
+    if (targetTile instanceof DoorTile doorTile) {
+      return doorTile.isOpen();
+    }
+
+    List<LeverComponent> levers =
+        Game.entityAtTile(targetTile).flatMap(e -> e.fetch(LeverComponent.class).stream()).toList();
+
+    return !levers.isEmpty() && levers.stream().allMatch(LeverComponent::isOn);
   }
 
   /**
