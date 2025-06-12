@@ -1,4 +1,4 @@
-package dslinterop.nativescenariobuilder;
+package nativescenariobuilder;
 
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;

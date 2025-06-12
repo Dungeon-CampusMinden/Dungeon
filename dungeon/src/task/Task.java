@@ -6,7 +6,6 @@ import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import dsl.annotation.DSLType;
 import graph.petrinet.Place;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,7 +40,6 @@ import task.game.content.QuestItem;
  * <p>Using {@link #registerPlace(Place)}, {@link Place}s can be registered to this task. If the
  * task state changes, each registered place will be notified.
  */
-@DSLType
 public abstract class Task {
 
   private static final Logger LOGGER = Logger.getLogger(Task.class.getName());

@@ -1,7 +1,0 @@
-graph g {
-    A -> B
-}
-
-quest_config c {
-    levelgraph: g
-}

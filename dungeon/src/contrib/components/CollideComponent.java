@@ -8,8 +8,6 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
-import dsl.annotation.DSLCallback;
-import dsl.annotation.DSLType;
 import java.util.logging.Logger;
 
 /**
@@ -39,7 +37,6 @@ import java.util.logging.Logger;
  *
  * @see contrib.systems.CollisionSystem
  */
-@DSLType(name = "hitbox_component")
 public final class CollideComponent implements Component {
   /** The default offset of the hit box. */
   public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
@@ -54,7 +51,7 @@ public final class CollideComponent implements Component {
   private final Point offset;
   private final Point size;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-  @DSLCallback private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
+  private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
   private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
 
   /**
