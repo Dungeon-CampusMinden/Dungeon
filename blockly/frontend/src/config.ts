@@ -13,12 +13,12 @@ interface Config {
 
 export const config: Config = {
   API_URL: "http://localhost:8080/",
-  CHARACTER_MAX_MOVEMENT: 20,
-  VARIABLE_MAX_VALUE: 20,
-  REPEAT_MAX_VALUE: 10,
+  CHARACTER_MAX_MOVEMENT: 999,
+  VARIABLE_MAX_VALUE: 999,
+  REPEAT_MAX_VALUE: 999,
   HIDE_GENERATED_CODE: false,
   HIDE_RESPONSE_INFO: true,
-  ARRAY_MAX_VALUE: 10,
+  ARRAY_MAX_VALUE: 999,
   LIMITS: {
     //"fireball_.*": 1, // max 1 fireball
   }
