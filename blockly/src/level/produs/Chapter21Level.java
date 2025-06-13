@@ -46,7 +46,6 @@ public class Chapter21Level extends BlocklyLevel {
         // Schleifen
         "while_loop",
         // Inventar und Charakter
-        "wait",
         "drop_item",
         "Items",
         // Bedingung

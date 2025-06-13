@@ -32,14 +32,8 @@ public class Chapter32Level extends BlocklyLevel {
         // MOVEMENT
         "goToExit",
         // Inventar und Charakter
-        "wait",
-        // Item
-        "item_clover",
-        // Bedingung
-        "logic_clover_direction",
         // Variable
         "get_number",
-        // Kategorien
         // Kategorien
         "Sonstige");
   }
