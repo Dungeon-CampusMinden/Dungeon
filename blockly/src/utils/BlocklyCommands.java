@@ -312,11 +312,19 @@ public class BlocklyCommands {
    * @return {@code true} if the tile in the given direction is active, {@code false} otherwise.
    */
   public static boolean active(final Direction direction) {
-    Tile targetTile = Game.tileAT(EntityUtils.getHeroPosition().add(direction.toPoint()));
-    if (targetTile instanceof DoorTile) return ((DoorTile) targetTile).isOpen();
-    return Game.entityAtTile(targetTile)
-        .flatMap(e -> e.fetch(LeverComponent.class).stream())
-        .allMatch(LeverComponent::isOn);
+    Tile targetTile = targetTile(direction);
+    if (targetTile == null) {
+      return false; // no tile in the given direction
+    }
+
+    if (targetTile instanceof DoorTile doorTile) {
+      return doorTile.isOpen();
+    }
+
+    List<LeverComponent> levers =
+        Game.entityAtTile(targetTile).flatMap(e -> e.fetch(LeverComponent.class).stream()).toList();
+
+    return !levers.isEmpty() && levers.stream().allMatch(LeverComponent::isOn);
   }
 
   /**
