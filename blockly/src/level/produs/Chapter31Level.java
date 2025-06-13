@@ -50,11 +50,6 @@ public class Chapter31Level extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
-    Game.hero()
-        .orElseThrow(MissingHeroException::new)
-        .fetch(AmmunitionComponent.class)
-        .orElseThrow()
-        .currentAmmunition(20);
   }
 
   @Override
