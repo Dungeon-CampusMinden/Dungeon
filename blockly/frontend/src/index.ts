@@ -213,10 +213,7 @@ if (config.HIDE_RESPONSE_INFO) {
 updateLevelList().then(() => {
   load(workspace, getCurrentLevel()); // load initial state if available
   updateCodeDiv();
-
-  workspace.scrollCenter(); // centering workspace
-
-  const startBlock = getStartBlock(workspace);
-  if (!startBlock)
-    placeDefaultStartBlock(workspace);
 });
+
+placeDefaultStartBlock(workspace);
+workspace.scrollCenter(); // centering workspace
