@@ -1,9 +1,8 @@
 package contrib.crafting;
 
-import com.badlogic.gdx.utils.JsonReader;
-import com.badlogic.gdx.utils.JsonValue;
 import contrib.item.Item;
 import core.Game;
+import core.utils.JsonHandler;
 import core.utils.logging.CustomLogLevel;
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -14,6 +13,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Handles the crafting system.
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  *
  * <p>It will load the recipes from the files via {@link #loadRecipes()}. Recipes have to be in the
  * 'assets/recipes' directory. This will autmaticly happen an program start. Call this in your
- * {@link core.game.PreRunConfiguration#userOnSetup onSetup callback}.
+ * {@link core.game.PreRunConfiguration#userOnSetup() onSetup callback}.
  */
 public final class Crafting {
   private static final HashSet<Recipe> RECIPES = new HashSet<>();
@@ -143,109 +143,163 @@ public final class Crafting {
    * @param name The name of the file. Used for error logging only.
    * @return The parsed recipe.
    */
+  @SuppressWarnings("unchecked")
   private static Recipe parseRecipe(final InputStream stream, final String name) {
-    try {
-      BufferedReader reader =
-          new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-      StringBuilder builder = new StringBuilder();
-      reader.lines().forEach(builder::append);
+    try (BufferedReader reader =
+        new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+      String jsonText = reader.lines().collect(Collectors.joining());
+      Map<String, Object> root = JsonHandler.readJson(jsonText);
 
-      JsonReader jsonReader = new JsonReader();
-      JsonValue root = jsonReader.parse(builder.toString());
+      boolean orderedRecipe = Boolean.TRUE.equals(root.get("ordered"));
 
-      boolean orderedRecipe = root.getBoolean("ordered");
-      JsonValue ingredients = root.get("ingredients"); // Array of items
-      JsonValue results = root.get("results"); // Array of results
-
-      if (ingredients.size <= 0) {
+      Object ingredientsObj = root.get("ingredients");
+      if (!(ingredientsObj instanceof List) || ((List<?>) ingredientsObj).isEmpty()) {
         throw new InvalidRecipeException("Recipes with no ingredients are not allowed!");
+      }
+      List<Map<String, Object>> ingredientsList = new ArrayList<>();
+      for (Object ingObj : (List<?>) ingredientsObj) {
+        if (!(ingObj instanceof Map))
+          throw new IllegalArgumentException(
+              "Ingredient entry in 'ingredients' array must be an object. File: " + name);
+        ingredientsList.add((Map<String, Object>) ingObj);
+      }
+
+      Object resultsObj = root.get("results");
+      if (!(resultsObj instanceof List) || ((List<?>) resultsObj).isEmpty()) {
+        throw new InvalidRecipeException("Recipes with no results are not allowed! File: " + name);
+      }
+      List<Map<String, Object>> resultsList = new ArrayList<>();
+      for (Object resObj : (List<?>) resultsObj) {
+        if (!(resObj instanceof Map))
+          throw new IllegalArgumentException(
+              "Result entry in 'results' array must be an object. File: " + name);
+        resultsList.add((Map<String, Object>) resObj);
       }
 
       // Load Ingredients
-      CraftingIngredient[] ingredientsArray = new CraftingIngredient[ingredients.size];
-      for (int i = 0; i < ingredients.size; i++) {
+      CraftingIngredient[] ingredientsArray = new CraftingIngredient[ingredientsList.size()];
+      for (int i = 0; i < ingredientsList.size(); i++) {
+        Map<String, Object> ingredientMap = ingredientsList.get(i);
+        Map<String, Object> itemMap = (Map<String, Object>) ingredientMap.get("item");
+        if (itemMap == null)
+          throw new IllegalArgumentException("Ingredient missing 'item' object. File: " + name);
 
-        JsonValue ingredient = ingredients.get(i);
-        JsonValue item = ingredient.get("item");
-        String id = item.getString("id");
+        String id = (String) itemMap.get("id");
+        if (id == null)
+          throw new IllegalArgumentException(
+              "Ingredient 'item' missing 'id' string. File: " + name);
 
-        String type = ingredient.getString("type");
+        String type = (String) ingredientMap.get("type");
+        if (type == null)
+          throw new IllegalArgumentException("Ingredient missing 'type' string. File: " + name);
+
         if (type.equals("item")) {
-          if (item.has("param")) {
-            @SuppressWarnings("unchecked")
-            Constructor<? extends Item>[] itemConstructor =
+          if (itemMap.containsKey("param")) {
+            Object paramObj = itemMap.get("param");
+            if (!(paramObj instanceof List))
+              throw new IllegalArgumentException(
+                  "'param' must be an array of strings. File: " + name);
+            List<Object> paramList = (List<Object>) paramObj;
+            Constructor<? extends Item>[] itemConstructors =
                 (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
-            Object[] params = parseParams(item.get("param"));
-            Constructor<?> fittingCons = findFittingConstructor(itemConstructor, params);
+            Object[] params = parseParams(paramList, name);
+            Constructor<?> fittingCons = findFittingConstructor(itemConstructors, params);
             if (fittingCons == null) {
-              throw new RuntimeException("No fitting constructor found for item: " + id);
+              throw new RuntimeException(
+                  "No fitting constructor found for item: " + id + ". File: " + name);
             }
             ingredientsArray[i] = (CraftingIngredient) fittingCons.newInstance(params);
           } else {
-            CraftingIngredient ci = Item.getItem(id).getDeclaredConstructor().newInstance();
-            ingredientsArray[i] = ci;
+            ingredientsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
         } else {
-          throw new RuntimeException("Unknown ingredient type: " + type);
+          throw new RuntimeException("Unknown ingredient type: " + type + ". File: " + name);
         }
       }
 
       // Load Results
-      CraftingResult[] resultsArray = new CraftingResult[results.size];
-      for (int i = 0; i < results.size; i++) {
-        JsonValue result = results.get(i);
-        JsonValue item = result.get("item");
-        String id = item.getString("id");
+      CraftingResult[] resultsArray = new CraftingResult[resultsList.size()];
+      for (int i = 0; i < resultsList.size(); i++) {
+        Map<String, Object> resultMap = resultsList.get(i);
+        Map<String, Object> itemMap = (Map<String, Object>) resultMap.get("item");
+        if (itemMap == null)
+          throw new IllegalArgumentException("Result missing 'item' object. File: " + name);
 
-        String type = result.getString("type");
+        String id = (String) itemMap.get("id");
+        if (id == null)
+          throw new IllegalArgumentException("Result 'item' missing 'id' string. File: " + name);
+
+        String type = (String) resultMap.get("type");
+        if (type == null)
+          throw new IllegalArgumentException("Result missing 'type' string. File: " + name);
+
         if (type.equals("item")) {
-          if (item.has("param")) {
-            @SuppressWarnings("unchecked")
-            Constructor<? extends Item>[] itemConstructor =
+          if (itemMap.containsKey("param")) {
+            Object paramObj = itemMap.get("param");
+            if (!(paramObj instanceof List))
+              throw new IllegalArgumentException(
+                  "'param' must be an array of strings. File: " + name);
+            List<Object> paramList = (List<Object>) paramObj;
+
+            Constructor<? extends Item>[] itemConstructors =
                 (Constructor<? extends Item>[]) Item.getItem(id).getDeclaredConstructors();
-            Object[] params = parseParams(item.get("param"));
-            Constructor<?> fittingCons = findFittingConstructor(itemConstructor, params);
+            Object[] params = parseParams(paramList, name);
+            Constructor<?> fittingCons = findFittingConstructor(itemConstructors, params);
             if (fittingCons == null) {
-              throw new RuntimeException("No fitting constructor found for item: " + id);
+              throw new RuntimeException(
+                  "No fitting constructor found for item: " + id + ". File: " + name);
             }
             resultsArray[i] = (CraftingResult) fittingCons.newInstance(params);
           } else {
-            CraftingResult cr = Item.getItem(id).getDeclaredConstructor().newInstance();
-            resultsArray[i] = cr;
+            resultsArray[i] = Item.getItem(id).getDeclaredConstructor().newInstance();
           }
-
         } else {
-          throw new RuntimeException("Unknown result type: " + type);
+          throw new RuntimeException("Unknown result type: " + type + ". File: " + name);
         }
       }
-      Recipe recipe = new Recipe(orderedRecipe, ingredientsArray, resultsArray);
-      RECIPES.add(recipe);
+      // RECIPES.add(recipe); // Recipe is added by the calling methods loadFromJar/loadFromFile
 
-      reader.close();
-
-      return recipe;
+      return new Recipe(orderedRecipe, ingredientsArray, resultsArray);
     } catch (IOException
         | InvocationTargetException
         | InstantiationException
         | IllegalAccessException
         | NoSuchMethodException ex) {
       LOGGER.log(
-          CustomLogLevel.ERROR, "Error parsing recipe (" + name + "): " + ex.getMessage()); // Error
-    } catch (IllegalArgumentException ex) {
-      ex.printStackTrace();
+          CustomLogLevel.ERROR, "Error parsing recipe (" + name + "): " + ex.getMessage(), ex);
+    } catch (IllegalArgumentException | InvalidRecipeException | ClassCastException ex) {
+      // Catching more specific exceptions from JsonHandler or casting issues
       LOGGER.log(
-          CustomLogLevel.WARNING,
-          "Error parsing recipe (" + name + "): " + ex.getMessage()); // Warning
+          CustomLogLevel.WARNING, "Warning parsing recipe (" + name + "): " + ex.getMessage(), ex);
+    } catch (Exception ex) { // Catch any other unexpected errors
+      LOGGER.log(
+          CustomLogLevel.ERROR,
+          "Unexpected error parsing recipe (" + name + "): " + ex.getMessage(),
+          ex);
     }
-
     return null;
   }
 
-  private static Object[] parseParams(JsonValue param) {
-    Object[] params = new Object[param.size];
+  private static Object[] parseParams(List<Object> paramList, String recipeName) {
+    Object[] params = new Object[paramList.size()];
     for (int i = 0; i < params.length; i++) {
-      JsonValue p = param.get(i);
-      String[] split = p.asString().split(":");
+      Object pObj = paramList.get(i);
+      if (!(pObj instanceof String)) {
+        throw new IllegalArgumentException(
+            "Parameter in 'param' list must be a string. Found: "
+                + (pObj == null ? "null" : pObj.getClass().getName())
+                + " in recipe "
+                + recipeName);
+      }
+      String paramString = (String) pObj;
+      String[] split = paramString.split(":", 2);
+      if (split.length != 2) {
+        throw new IllegalArgumentException(
+            "Parameter string '"
+                + paramString
+                + "' must be in 'type:value' format. Recipe: "
+                + recipeName);
+      }
       String type = split[0];
       String value = split[1];
 
@@ -273,25 +327,40 @@ public final class Crafting {
           params[i] = Boolean.parseBoolean(value);
           break;
         case "char":
+          if (value.length() != 1)
+            throw new IllegalArgumentException(
+                "Char value must be a single character. Got: " + value);
           params[i] = value.charAt(0);
           break;
         default:
           try {
             Class<?> clazz = Class.forName(type);
-            Object[] constants = clazz.getEnumConstants();
-            boolean found = false;
-            for (Object constant : constants) {
-              if (constant.toString().equalsIgnoreCase(value)) {
-                params[i] = constant;
-                found = true;
-                break;
+            if (clazz.isEnum()) {
+              Object[] constants = clazz.getEnumConstants();
+              boolean found = false;
+              for (Object constant : constants) {
+                if (constant.toString().equalsIgnoreCase(value)) {
+                  params[i] = constant;
+                  found = true;
+                  break;
+                }
               }
-            }
-            if (!found) {
-              throw new RuntimeException("No Enum constant found for: " + value);
+              if (!found) {
+                throw new IllegalArgumentException(
+                    "No Enum constant found for: "
+                        + value
+                        + " in Enum "
+                        + type
+                        + ". Recipe: "
+                        + recipeName);
+              }
+            } else {
+              throw new IllegalArgumentException(
+                  "Unsupported parameter type: " + type + ". Recipe: " + recipeName);
             }
           } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("Error parsing param: " + p.asString());
+            throw new IllegalArgumentException(
+                "Class not found for parameter type: " + type + ". Recipe: " + recipeName, ex);
           }
       }
     }
