@@ -169,10 +169,6 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "get_variable",
         },
-        {
-          kind: "block",
-          type: "get_number",
-        },
       ],
     },
     {
