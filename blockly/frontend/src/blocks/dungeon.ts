@@ -273,7 +273,11 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "TIMES",
-        check: "Number",
+        check: ["Number",
+          "Variable",
+          "Array_get",
+          "Expression"
+        ]
       },
     ],
     message1: "%{BKY_CONTROLS_REPEAT_INPUT_DO} %1",
