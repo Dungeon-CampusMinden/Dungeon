@@ -142,16 +142,24 @@ public class EntityUtils {
   }
 
   /**
+   * Retrieves the direction the hero is facing.
+   *
+   * @return the direction the hero is facing, or null if there is no hero.
+   */
+  public static PositionComponent.Direction getHeroViewDirection() {
+    return Game.hero().map(EntityUtils::getViewDirection).orElse(null);
+  }
+
+  /**
    * Returns the direction the entity is facing.
    *
    * @param entity the entity to get the direction of
    * @return the direction the entity is facing
    */
   public static PositionComponent.Direction getViewDirection(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.viewDirection();
+    return entity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::viewDirection)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 }
