@@ -77,7 +77,7 @@ public enum Direction {
    * @return Coordinate with the x and y from this direction
    */
   public Coordinate toCoordinate() {
-    return new Coordinate(x, x);
+    return new Coordinate(x, y);
   }
 
   /**
