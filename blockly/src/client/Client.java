@@ -29,7 +29,6 @@ import level.produs.*;
 import server.Server;
 import systems.TintTilesSystem;
 import utils.BlocklyCodeRunner;
-import utils.CheckPatternPainter;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
