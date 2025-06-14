@@ -297,7 +297,7 @@ public class BlocklyCommands {
   /**
    * Determines whether the specified direction leads to an active state.
    *
-   * <p>A tile in the given direction is considered active iff
+   * <p>A tile in the given direction is considered active if:
    *
    * <ul>
    *   <li>it is a {@link DoorTile} and it is "open", or
