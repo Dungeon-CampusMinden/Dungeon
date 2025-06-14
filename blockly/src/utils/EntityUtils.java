@@ -1,5 +1,7 @@
 package utils;
 
+import contrib.utils.Direction;
+import contrib.utils.LevelUtils;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;

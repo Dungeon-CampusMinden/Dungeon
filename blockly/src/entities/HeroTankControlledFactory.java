@@ -1,6 +1,7 @@
 package entities;
 
 import contrib.entities.EntityFactory;
+import contrib.utils.Direction;
 import core.Entity;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -9,7 +10,6 @@ import core.configuration.KeyboardConfig;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import utils.BlocklyCommands;
-import utils.Direction;
 
 /**
  * This class is used to create a hero entity with tank controls. The hero can only move in the

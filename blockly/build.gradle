@@ -42,21 +42,6 @@ tasks.register('runBlockly', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('runPathfinder', JavaExec) {
-    mainClass = 'starter.PathfinderStarter'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runPathFindingComparison', JavaExec) {
-    mainClass = 'starter.ComparePathfindingStarter'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runAdvancedDungeon', JavaExec) {
-    mainClass = 'produsAdvanced.AdvancedDungeon'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.register('buildBlocklyJar', Jar) {
     dependsOn ':game:jar', ':dungeon:jar'
     archiveBaseName = 'Blockly'
