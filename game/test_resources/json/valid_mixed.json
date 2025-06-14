@@ -1,0 +1,11 @@
+{
+    "string": "Hello \"World\"",
+    "integer": 42,
+    "double": 3.14159,
+    "boolean_true": true,
+    "boolean_false": false,
+    "null_value": null,
+    "escaped_chars": "Line 1\nLine 2\tTabbed\r\nWindows line ending",
+    "unicode": "Unicode: \u00E9\u00F1\u00FC",
+    "special_chars": "Special: !@#$%^&*()_+-=[]{}|;':\",./<>?"
+}

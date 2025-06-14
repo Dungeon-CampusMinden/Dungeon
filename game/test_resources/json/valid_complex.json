@@ -1,0 +1,33 @@
+{
+    "dungeon": {
+        "name": "Dark Castle",
+        "level": 5,
+        "rooms": [
+            {
+                "id": "room1",
+                "type": "entrance",
+                "enemies": ["goblin", "orc"],
+                "treasure": {
+                    "gold": 100,
+                    "items": ["sword", "potion"]
+                },
+                "exits": ["north", "east"]
+            },
+            {
+                "id": "room2",
+                "type": "boss",
+                "enemies": ["dragon"],
+                "treasure": {
+                    "gold": 1000,
+                    "items": ["legendary_sword", "magic_ring"]
+                },
+                "exits": ["south"]
+            }
+        ],
+        "settings": {
+            "difficulty": "hard",
+            "allow_respawn": false,
+            "max_players": 4
+        }
+    }
+}

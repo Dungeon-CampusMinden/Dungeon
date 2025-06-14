@@ -1,0 +1,10 @@
+{
+    "numbers": [1, 2, 3, 4, 5],
+    "strings": ["hello", "world", "test"],
+    "mixed": [1, "two", true, null, 3.14],
+    "nested": [
+        {"id": 1, "name": "first"},
+        {"id": 2, "name": "second"}
+    ],
+    "empty": []
+}
