@@ -31,7 +31,7 @@ public class AdvancedControlLevel1 extends DevDungeonLevel {
    */
   public AdvancedControlLevel1(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control","");
+    super(layout, designLabel, customPoints, "Control", "");
   }
 
   @Override

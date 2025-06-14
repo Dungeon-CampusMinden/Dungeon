@@ -2,9 +2,9 @@ package entities;
 
 import antlr.BlocklyConditionVisitor;
 import com.badlogic.gdx.audio.Sound;
-import contrib.components.BlockViewComponent;
 import components.TintDirectionComponent;
 import contrib.components.AIComponent;
+import contrib.components.BlockViewComponent;
 import contrib.entities.*;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.Skill;
@@ -96,23 +96,6 @@ public enum BlocklyMonster {
       () -> entity -> {}, // no idle needed
       () -> entity -> false, // instant fight
       99999, // one hit kill
-      0,
-      MonsterIdleSound.BURP),
-  /**
-   * The Runner Mob for the {@link starter.ComparePathfindingStarter}. This monster looks and moves
-   * like the hero.
-   */
-  RUNNER(
-      "Blockly Runner",
-      "character/wizard",
-      1,
-      HeroFactory.defaultHeroSpeed().x, // same speed as hero
-      0.0f,
-      MonsterDeathSound.LOWER_PITCH,
-      () -> entity -> {},
-      () -> entity -> {},
-      () -> entity -> false, // no ai
-      0,
       0,
       MonsterIdleSound.BURP);
 

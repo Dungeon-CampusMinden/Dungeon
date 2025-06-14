@@ -8,6 +8,8 @@ import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
 import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
+import contrib.systems.BlockSystem;
+import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -23,9 +25,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
-import contrib.systems.BlockSystem;
 import systems.TintTilesSystem;
-import contrib.utils.CheckPatternPainter;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't

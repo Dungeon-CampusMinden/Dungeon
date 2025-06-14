@@ -8,6 +8,7 @@ import components.BreadcrumbComponent;
 import components.CloverComponent;
 import contrib.components.AIComponent;
 import contrib.components.LeverComponent;
+import contrib.utils.Direction;
 import core.Component;
 import core.level.utils.LevelElement;
 import java.util.NoSuchElementException;
@@ -17,7 +18,6 @@ import nodes.INode;
 import server.Server;
 import server.Variable;
 import utils.BlocklyCommands;
-import contrib.utils.Direction;
 
 /**
  * This class defines the visitor for the condition part of the blockly language. It is used to

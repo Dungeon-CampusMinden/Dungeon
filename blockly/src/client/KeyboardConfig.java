@@ -1,7 +1,5 @@
 package client;
 
-import com.badlogic.gdx.Input;
-
 /** Keyboard-configuration for blockly-package. */
 @core.configuration.ConfigMap(path = {"keyboard"})
 public class KeyboardConfig {

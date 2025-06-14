@@ -1,12 +1,23 @@
 package aiAdvanced.starter;
 
+import aiAdvanced.level.AiMazeLevel;
+import aiAdvanced.pathfinding.BFSPathFinding;
+import aiAdvanced.pathfinding.DFSPathFinding;
+import aiAdvanced.pathfinding.PathfindingLogic;
+import aiAdvanced.systems.PathfindingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
+import contrib.components.AIComponent;
+import contrib.entities.HeroFactory;
+import contrib.entities.MonsterDeathSound;
+import contrib.entities.MonsterFactory;
+import contrib.entities.MonsterIdleSound;
 import contrib.level.DevDungeonLevel;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
+import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -21,19 +32,12 @@ import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
-import entities.BlocklyMonster;
-import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import aiAdvanced.level.AiMazeLevel;
-import aiAdvanced.systems.PathfindingSystem;
-import contrib.utils.CheckPatternPainter;
-import aiAdvanced.pathfinding.BFSPathFinding;
-import aiAdvanced.pathfinding.DFSPathFinding;
-import aiAdvanced.pathfinding.PathfindingLogic;
 
 /** This class starts a comparator for the pathfinding algorithms. */
 public class ComparePathfindingStarter {
@@ -129,13 +133,14 @@ public class ComparePathfindingStarter {
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());
-    RUNNERS[1] =
-        BlocklyMonster.RUNNER
-            .builder()
-            .spawnPoint(newStart.toCenteredPoint())
-            .addToGame()
-            .build()
-            .orElseThrow();
+
+    RUNNERS[1] = createRunnerMob();
+    PositionComponent pc =
+        RUNNERS[1]
+            .fetch(PositionComponent.class)
+            .orElseThrow(
+                () -> MissingComponentException.build(RUNNERS[1], PositionComponent.class));
+    pc.position(newStart.toCenteredPoint());
 
     setupPathFindingSystem(rows);
   }
@@ -244,8 +249,7 @@ public class ComparePathfindingStarter {
    * Creates and adds a new hero entity to the game.
    *
    * <p>Any existing entities with a {@link PlayerComponent} will first be removed. The new hero is
-   * generated using the {@link HeroTankControlledFactory} and the {@link CameraComponent} of the
-   * hero is removed.
+   * generated using the {@link HeroFactory} and the {@link CameraComponent} of the hero is removed.
    *
    * @return The newly created hero entity
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
@@ -253,12 +257,41 @@ public class ComparePathfindingStarter {
   public static Entity createHero() {
     Entity hero;
     try {
-      hero = HeroTankControlledFactory.newTankControlledHero();
+      hero = HeroFactory.newHero();
       hero.remove(CameraComponent.class);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     Game.add(hero);
     return hero;
+  }
+
+  /**
+   * Creates and adds a new runnerMob entity to the game. This monster looks and moves like the
+   * hero.
+   *
+   * @return The newly created runnerMob
+   * @throws RuntimeException if an {@link IOException} occurs during runnerMob creation
+   */
+  public static Entity createRunnerMob() {
+    Entity runnerMob;
+    try {
+      runnerMob =
+          MonsterFactory.buildMonster(
+              "Blockly Runner",
+              new SimpleIPath("character/wizard"),
+              1,
+              HeroFactory.defaultHeroSpeed().x, // same speed as hero
+              0.0f,
+              MonsterDeathSound.LOWER_PITCH.sound(),
+              new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
+              0,
+              0,
+              MonsterIdleSound.BURP.path());
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to create monster entity as RUNNER", e);
+    }
+    Game.add(runnerMob);
+    return runnerMob;
   }
 }

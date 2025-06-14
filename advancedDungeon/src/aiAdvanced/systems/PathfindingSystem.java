@@ -1,5 +1,8 @@
 package aiAdvanced.systems;
 
+import aiAdvanced.pathfinding.PathfindingLogic;
+import aiAdvanced.pathfinding.PathfindingVisualizer;
+import aiAdvanced.pathfinding.TileState;
 import aiAdvanced.starter.KeyboardConfig;
 import com.badlogic.gdx.Gdx;
 import contrib.components.PathComponent;
@@ -9,9 +12,6 @@ import core.level.utils.Coordinate;
 import core.utils.Tuple;
 import java.util.ArrayList;
 import java.util.List;
-import aiAdvanced.pathfinding.PathfindingLogic;
-import aiAdvanced.pathfinding.PathfindingVisualizer;
-import aiAdvanced.pathfinding.TileState;
 
 /**
  * This system is responsible for visualizing multiple pathfinding logics.

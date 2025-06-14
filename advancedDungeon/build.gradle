@@ -21,12 +21,12 @@ tasks.register('runAdvancedDungeon', JavaExec) {
 }
 
 tasks.register('runPathfinder', JavaExec) {
-    mainClass = 'starter.PathfinderStarter'
+    mainClass = 'aiAdvanced.starter.PathfinderStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('runPathFindingComparison', JavaExec) {
-    mainClass = 'starter.ComparePathfindingStarter'
+    mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 

@@ -1,8 +1,16 @@
 package aiAdvanced.starter;
 
+import aiAdvanced.level.AiMazeLevel;
+import aiAdvanced.pathfinding.BFSPathFinding;
+import aiAdvanced.pathfinding.DFSPathFinding;
+import aiAdvanced.pathfinding.PathfindingLogic;
+import aiAdvanced.pathfinding.SusPathFinding;
+import aiAdvanced.systems.MazeEditorSystem;
+import aiAdvanced.systems.PathfindingSystem;
 import contrib.entities.HeroFactory;
 import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
+import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -14,14 +22,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import aiAdvanced.level.AiMazeLevel;
-import aiAdvanced.systems.MazeEditorSystem;
-import aiAdvanced.systems.PathfindingSystem;
-import contrib.utils.CheckPatternPainter;
-import aiAdvanced.pathfinding.BFSPathFinding;
-import aiAdvanced.pathfinding.DFSPathFinding;
-import aiAdvanced.pathfinding.PathfindingLogic;
-import aiAdvanced.pathfinding.SusPathFinding;
 
 /** This class starts the dungeon Ai level to visualize the DFS and BFS. */
 public class PathfinderStarter {

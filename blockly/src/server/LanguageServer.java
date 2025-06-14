@@ -3,6 +3,7 @@ package server;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import contrib.utils.Direction;
 import core.level.utils.LevelElement;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +20,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import utils.BlocklyCommands;
-import contrib.utils.Direction;
 import utils.HideLanguage;
 
 /**

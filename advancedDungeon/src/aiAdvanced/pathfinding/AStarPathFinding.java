@@ -1,12 +1,12 @@
 package aiAdvanced.pathfinding;
 
+import contrib.utils.LevelUtils;
 import core.Game;
 import core.level.Tile;
 import core.level.elements.astar.TileConnection;
 import core.level.elements.astar.TileHeuristic;
 import core.level.utils.Coordinate;
 import java.util.*;
-import contrib.utils.LevelUtils;
 
 /**
  * A* (A-Star) pathfinding algorithm implementation.
