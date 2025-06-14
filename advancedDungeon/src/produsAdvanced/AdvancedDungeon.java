@@ -27,9 +27,6 @@ import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.*;
 
-// import contrib.systems.BlockSystem;
-// import systems.TintTilesSystem;
-
 /**
  * Entry point for the "Advanced Dungeon" game setup.
  *
@@ -190,7 +187,6 @@ public class AdvancedDungeon {
     Game.add(new BlockSystem());
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
-    // Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }

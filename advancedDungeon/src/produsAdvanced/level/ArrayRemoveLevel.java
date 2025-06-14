@@ -3,7 +3,6 @@ package produsAdvanced.level;
 import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
@@ -22,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import level.AdvancedLevel;
 import produsAdvanced.abstraction.ArrayRemover;
 
 /**
@@ -31,7 +31,7 @@ import produsAdvanced.abstraction.ArrayRemover;
  *
  * @see produsAdvanced.riddles.MyArrayRemover
  */
-public class ArrayRemoveLevel extends DevDungeonLevel {
+public class ArrayRemoveLevel extends AdvancedLevel {
   private static boolean showText = true;
   private final int[] arrayToPass = {1, 5, 4, 3, 2}; // Summe = 44
   private final int[] correctArray = {2, 5, 3};
@@ -51,7 +51,7 @@ public class ArrayRemoveLevel extends DevDungeonLevel {
    */
   public ArrayRemoveLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Sortierung", "");
+    super(layout, designLabel, customPoints, "Array-Sortierung");
   }
 
   @Override

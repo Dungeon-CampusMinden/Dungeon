@@ -3,7 +3,6 @@ package produsAdvanced.level;
 import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
@@ -17,6 +16,7 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
+import level.AdvancedLevel;
 import produsAdvanced.abstraction.ArraySummarizer;
 
 /**
@@ -26,7 +26,7 @@ import produsAdvanced.abstraction.ArraySummarizer;
  *
  * @see produsAdvanced.riddles.MyArraySummarizer
  */
-public class ArrayIterateLevel extends DevDungeonLevel {
+public class ArrayIterateLevel extends AdvancedLevel {
 
   private final Point doorPosition = new Point(18, 3); // Das erwartete Array
   private final Point leverPosition = new Point(17, 2);
@@ -49,7 +49,7 @@ public class ArrayIterateLevel extends DevDungeonLevel {
    */
   public ArrayIterateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Iteration", ""); // Fester Name hier
+    super(layout, designLabel, customPoints, "Array-Iteration"); // Fester Name hier
   }
 
   @Override

@@ -3,7 +3,6 @@ package produsAdvanced.level;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.ExitTile;
@@ -14,6 +13,7 @@ import core.level.utils.LevelElement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import level.AdvancedLevel;
 
 /**
  * Manager for an advanced dungeon level.
@@ -22,7 +22,7 @@ import java.util.Set;
  *
  * @see produsAdvanced.riddles.MyPlayerController
  */
-public class AdvancedControlLevel4 extends DevDungeonLevel {
+public class AdvancedControlLevel4 extends AdvancedLevel {
   private static boolean showMsg = true;
   private static String msg = "Wenn ich hier zu langsam bin, fall ich runter.";
   private static String titel = "Level 4";
@@ -40,7 +40,7 @@ public class AdvancedControlLevel4 extends DevDungeonLevel {
    */
   public AdvancedControlLevel4(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control", "");
+    super(layout, designLabel, customPoints, "Control");
   }
 
   @Override

@@ -5,7 +5,6 @@ import contrib.components.LeverComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -17,6 +16,7 @@ import core.level.utils.LevelElement;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import level.AdvancedLevel;
 
 /**
  * Manager for an advanced dungeon level.
@@ -25,7 +25,7 @@ import java.util.Set;
  *
  * @see produsAdvanced.riddles.MyPlayerController
  */
-public class AdvancedControlLevel3 extends DevDungeonLevel {
+public class AdvancedControlLevel3 extends AdvancedLevel {
   private static boolean showMsg = true;
   private static String msg =
       "Ein Schalter, vielleicht einfach mal ziehen? Und sind das Monster?! Ich konnte doch mal zaubern...";
@@ -44,7 +44,7 @@ public class AdvancedControlLevel3 extends DevDungeonLevel {
    */
   public AdvancedControlLevel3(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control", "");
+    super(layout, designLabel, customPoints, "Control");
   }
 
   @Override

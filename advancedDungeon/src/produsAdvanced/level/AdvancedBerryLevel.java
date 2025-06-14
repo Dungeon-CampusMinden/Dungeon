@@ -8,7 +8,6 @@ import contrib.entities.EntityFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
-import contrib.level.DevDungeonLevel;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -23,6 +22,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import level.AdvancedLevel;
 import produsAdvanced.abstraction.Berry;
 
 /**
@@ -34,7 +34,7 @@ import produsAdvanced.abstraction.Berry;
  * @see produsAdvanced.riddles.MyPlayerController
  * @see Berry
  */
-public class AdvancedBerryLevel extends DevDungeonLevel {
+public class AdvancedBerryLevel extends AdvancedLevel {
   private static boolean showMsg = true;
   private static String msg =
       "Der Ork dort sieht verzweifelt aus. Mal schauen, ob ich ihm helfen kann.";
@@ -69,7 +69,7 @@ public class AdvancedBerryLevel extends DevDungeonLevel {
    */
   public AdvancedBerryLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Berry", "");
+    super(layout, designLabel, customPoints, "Berry");
   }
 
   @Override

@@ -2,7 +2,7 @@ package aiAdvanced.starter;
 
 import com.badlogic.gdx.Input;
 
-/** Keyboard-configuration for blockly-package. */
+/** Keyboard-configuration for aiAdvanced-package. */
 @core.configuration.ConfigMap(path = {"keyboard"})
 public class KeyboardConfig {
   /** Step through the pathfinding algorithm. */

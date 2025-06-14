@@ -3,7 +3,6 @@ package produsAdvanced.level;
 import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
@@ -21,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import level.AdvancedLevel;
 import produsAdvanced.abstraction.ArrayCreator;
 
 /**
@@ -30,7 +30,7 @@ import produsAdvanced.abstraction.ArrayCreator;
  *
  * @see produsAdvanced.riddles.MyArrayCreator
  */
-public class ArrayCreateLevel extends DevDungeonLevel {
+public class ArrayCreateLevel extends AdvancedLevel {
   private static boolean showText = true;
   private final int[] correctArray = {1, 5, 4, 3, 2};
   private final Point doorPosition = new Point(28, 11); // Das erwartete Array
@@ -49,7 +49,7 @@ public class ArrayCreateLevel extends DevDungeonLevel {
    */
   public ArrayCreateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Sortierung", "");
+    super(layout, designLabel, customPoints, "Array-Sortierung");
   }
 
   @Override

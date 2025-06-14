@@ -1,11 +1,11 @@
 package produsAdvanced.level;
 
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
+import level.AdvancedLevel;
 
 /**
  * Manager for an advanced dungeon level.
@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @see produsAdvanced.riddles.MyPlayerController
  */
-public class AdvancedControlLevel1 extends DevDungeonLevel {
+public class AdvancedControlLevel1 extends AdvancedLevel {
 
   private static boolean showMsg = true;
   private static String msg =
@@ -31,7 +31,7 @@ public class AdvancedControlLevel1 extends DevDungeonLevel {
    */
   public AdvancedControlLevel1(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Control", "");
+    super(layout, designLabel, customPoints, "Control");
   }
 
   @Override

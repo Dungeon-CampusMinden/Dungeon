@@ -5,7 +5,6 @@ import contrib.components.HealthComponent;
 import contrib.entities.LeverFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
 import contrib.systems.EventScheduler;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
@@ -21,6 +20,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import level.AdvancedLevel;
 import produsAdvanced.abstraction.Monster;
 import produsAdvanced.abstraction.MonsterSort;
 
@@ -31,7 +31,7 @@ import produsAdvanced.abstraction.MonsterSort;
  *
  * @see produsAdvanced.riddles.MyMonsterSort
  */
-public class AdvancedSortLevel extends DevDungeonLevel {
+public class AdvancedSortLevel extends AdvancedLevel {
 
   /** Delay for the {@link EventScheduler} to draw position swap. */
   public static final int DELAY = 1000;
@@ -63,7 +63,7 @@ public class AdvancedSortLevel extends DevDungeonLevel {
    */
   public AdvancedSortLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "SortArray", "");
+    super(layout, designLabel, customPoints, "SortArray");
   }
 
   @Override

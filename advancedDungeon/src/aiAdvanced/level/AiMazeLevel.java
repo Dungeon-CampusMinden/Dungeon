@@ -1,6 +1,5 @@
 package aiAdvanced.level;
 
-import contrib.level.DevDungeonLevel;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -10,12 +9,13 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import java.util.List;
+import level.AdvancedLevel;
 
 /**
  * This class is used in the AiMaze level and adjusts the camera view to properly display the
  * labyrinth.
  */
-public class AiMazeLevel extends DevDungeonLevel {
+public class AiMazeLevel extends AdvancedLevel {
   /**
    * The zoom level of the overview camera. This is used to adjust the camera view to properly
    * display the labyrinth. (default: 0.55f)
@@ -32,7 +32,7 @@ public class AiMazeLevel extends DevDungeonLevel {
    */
   public AiMazeLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "AiMaze", "");
+    super(layout, designLabel, customPoints, "AiMaze");
   }
 
   @Override
