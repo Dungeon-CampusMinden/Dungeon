@@ -16,7 +16,8 @@ allprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
-        sourceCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.toVersion(21)
+        targetCompatibility = JavaVersion.toVersion(21)
     }
 
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

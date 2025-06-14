@@ -30,11 +30,9 @@ public class Chapter22Level extends BlocklyLevel {
         // Richtungen
         "direction_here",
         // Inventar und Charakter
-        "wait",
         "drop_item",
         "Items",
         // Bedingung
-        "logic_pit_direction",
         "logic_monster_direction",
         "logic_breadcrumbs_direction",
         "logic_clover_direction",

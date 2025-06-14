@@ -1,0 +1,25 @@
+From 6eb33e3f704d659f39f34a58e0e6eae0800c4422 Mon Sep 17 00:00:00 2001
+From: "Leon M. Busch-George" <leon@georgemail.eu>
+Date: Mon, 21 Apr 2025 20:29:12 +0200
+Subject: [PATCH 3/7] store answer list id before actual answers
+
+---
+ src/ResultHandler.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/ResultHandler.php b/src/ResultHandler.php
+index 8730e31..09f2426 100644
+--- a/src/ResultHandler.php
++++ b/src/ResultHandler.php
+@@ -17,7 +17,7 @@ class ResultHandler
+         $question = $this->questions[$a_question_id];
+ 
+         # the expected answers are now kept separately to make swapping easier.
+-        if (strcmp($this->expected_answers[$a_question_id], $a_answer) !== 0) {
++        if (strcmp($this->expected_answers[$a_question_id + 1], $a_answer) !== 0) {
+             return false;
+         }
+ 
+-- 
+2.49.0
+

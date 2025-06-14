@@ -1,6 +1,7 @@
 import {
   call_level_route, call_levels_route,
 } from "../api/api.ts";
+import {sleep} from "./utils.ts";
 
 let currentLevelIndex = 0
 const levelNames: string[] = [];
@@ -111,22 +112,53 @@ export const getCurrentLevel = () => {
 }
 
 /**
- * This function updates the level list using the API.
+ * Handles the failure to load levels from the server.
  *
- * <p> This function is used to get the level list from the server and update the level list.
+ * If the delay exceeds 60 seconds, it logs an error. Otherwise, it logs a warning.
  *
- * <p> Also sets the current level index to 0.
- *
- * @returns true if the level list was successfully retrieved, false otherwise
+ * @param delay The current retry delay in seconds.
+ * @returns True if retrying should continue, false otherwise.
  */
-export const updateLevelList = async () => {
-  currentLevelIndex = 0;
-  const allLevels = await call_levels_route();
-  levelNames.push(...allLevels);
-  updateLevelListUI();
+const handleLevelLoadFailure = (delay: number): boolean => {
+  if (delay > 60) {
+    console.error("Failed to load levels after multiple retries. Stopping.");
+    return false; // Stop retrying
+  } else {
+    console.warn(`No levels found. Retrying in ${delay} seconds...`);
+    return true; // Continue retrying
+  }
+};
 
-  if (levelNames.length > 0) {
-    setCurrentLevel(levelNames[0]);
+/**
+ * Asynchronously retrieves and updates the list of levels from the server.
+ *
+ * Clears existing `levelNames` and resets `currentLevelIndex` to 0.
+ * Repeatedly calls `call_levels_route()` every 5 seconds until a non-empty list
+ * is returned. After successfully loading levels, updates the UI and
+ * selects the first level.
+ *
+ * @async
+ * @returns {Promise<void>}
+ */
+export const updateLevelList = async (): Promise<void> => {
+  currentLevelIndex = 0;
+  levelNames.length = 0; // Clear existing levels
+  let delay = 5;
+
+  while (true) {
+    const allLevels = await call_levels_route();
+    if (allLevels && allLevels.length > 0) {
+      levelNames.push(...allLevels);
+      updateLevelListUI();
+      setCurrentLevel(levelNames[0]);
+      break;
+    } else {
+      if (!handleLevelLoadFailure(delay)) {
+        break; // Stop retrying if the delay exceeds 60 seconds
+      }
+      await sleep(delay);
+      delay += 5;
+    }
   }
 }
 
@@ -223,6 +255,11 @@ export const setupLevelSelector = () => {
   if (select.options.length > 0) {
     prevButton.disabled = select.selectedIndex === 0;
     nextButton.disabled = select.selectedIndex === levelNames.length - 1 || !isLevelAvailable(levelNames[select.selectedIndex + 1]);
+  }
+
+  // Initialize level progress if not set
+  if (localStorage.getItem("levelProgress") === null) {
+    setLevelProgress(0);
   }
 
   return select;

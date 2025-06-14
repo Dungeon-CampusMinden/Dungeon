@@ -1,7 +1,5 @@
 package graph.petrinet;
 
-import graph.TaskGraphConverter;
-import graph.taskdependencygraph.TaskDependencyGraph;
 import graph.taskdependencygraph.TaskEdge;
 import java.util.Set;
 import task.Task;
@@ -16,9 +14,6 @@ import task.Task;
  *
  * <p>To add more dependencies, first add a new {@link TaskEdge.Type} and then extend the switch
  * statement in {@link #connect(PetriNet, PetriNet, TaskEdge.Type)}.
- *
- * <p>To get the PetriNet for a {@link TaskDependencyGraph}, use {@link
- * TaskGraphConverter#petriNetFor(TaskDependencyGraph)}.
  *
  * <p>See <a
  * href="https://github.com/Dungeon-CampusMinden/Dungeon/tree/master/doc/control_mechanisms/petri_net_parsing.md">documentation</a>

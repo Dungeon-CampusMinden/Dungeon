@@ -7,9 +7,6 @@ import contrib.utils.components.health.DamageType;
 import core.Component;
 import core.Entity;
 import core.utils.logging.CustomLogLevel;
-import dsl.annotation.DSLCallback;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,14 +30,13 @@ import java.util.logging.Logger;
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
-@DSLType(name = "health_component")
 public final class HealthComponent implements Component {
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
-  private @DSLCallback(name = "on_death") Consumer<Entity> onDeath;
+  private Consumer<Entity> onDeath;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-  private @DSLTypeMember(name = "max_health") int maximalHealthpoints;
-  private @DSLTypeMember(name = "start_health") int currentHealthpoints;
+  private int maximalHealthpoints;
+  private int currentHealthpoints;
   private @Null Entity lastCause = null;
 
   private boolean godMode = false;

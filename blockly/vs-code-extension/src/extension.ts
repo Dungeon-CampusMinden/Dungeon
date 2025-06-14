@@ -3,6 +3,7 @@ import { fetchLanguageConfig, BlocklyCompletionItem } from './handlers/languageP
 import sendBlocklyFile, {stopBlocklyExecution} from './handlers/sendBlocklyFile';
 
 export const BLOCKLY_URL = () => vscode.workspace.getConfiguration('blocklyServer').get('url', 'http://localhost:8080');
+export const SLEEP_AFTER_EACH_LINE = () => vscode.workspace.getConfiguration('blocklyServer').get('sleepAfterEachLine', 1000);
 const codeObjects = {
     'hero': {
         kind: vscode.CompletionItemKind.Class,
@@ -21,7 +22,19 @@ const codeObjects = {
         detail: 'An element of an Tile in the game',
         insertText: 'LevelElement',
         onlyInRoot: false
-    }
+    },
+    'loadNextLevel()': {
+        kind: vscode.CompletionItemKind.Method,
+        detail: 'Loads the next level in the game',
+        insertText: 'loadNextLevel()',
+        onlyInRoot: true
+    },
+    'loadLevel(index: number)': {
+        kind: vscode.CompletionItemKind.Method,
+        detail: 'Loads a specific level by index',
+        insertText: new vscode.SnippetString('loadLevel(${1:index})'),
+        onlyInRoot: true
+    },
 }
 
 // Store API data for reuse

@@ -2,8 +2,6 @@ package core.components;
 
 import core.Component;
 import core.Entity;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import java.util.function.Consumer;
 
 /**
@@ -28,14 +26,13 @@ import java.util.function.Consumer;
  * <p>Use {@link #onWallHit} to set a callback that will be executed if the entity runs against a
  * wall.
  */
-@DSLType(name = "velocity_component")
 public final class VelocityComponent implements Component {
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
   private float currentXVelocity;
   private float currentYVelocity;
-  private @DSLTypeMember(name = "x_velocity") float xVelocity;
-  private @DSLTypeMember(name = "y_velocity") float yVelocity;
+  private float xVelocity;
+  private float yVelocity;
   private float previousXVelocity;
   private float previousYVelocity;
   private Consumer<Entity> onWallHit;

@@ -45,7 +45,6 @@ public class Chapter36Level extends BlocklyLevel {
         // Variable
         "get_number",
         // Kategorien
-        // Kategorien
         "Sonstige");
   }
 

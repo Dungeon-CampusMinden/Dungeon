@@ -1,13 +1,11 @@
 package level.produs;
 
-import components.AmmunitionComponent;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.MissingHeroException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -29,15 +27,8 @@ public class Chapter31Level extends BlocklyLevel {
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
-        // Inventar und Charakter
-        "wait",
-        // Item
-        "item_clover",
-        // Bedingung
-        "logic_clover_direction",
         // Variable
         "get_number",
-        // Kategorien
         // Kategorien
         "Sonstige");
   }
@@ -50,11 +41,6 @@ public class Chapter31Level extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
-    Game.hero()
-        .orElseThrow(MissingHeroException::new)
-        .fetch(AmmunitionComponent.class)
-        .orElseThrow()
-        .currentAmmunition(20);
   }
 
   @Override

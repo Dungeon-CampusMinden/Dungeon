@@ -1,9 +1,6 @@
 package task.game.components;
 
 import core.Component;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import task.TaskContent;
 
 /**
@@ -16,7 +13,6 @@ import task.TaskContent;
  *
  * <p>The collection can be queried as a stream using {@link #content()}
  */
-@DSLType
 public final class TaskContentComponent implements Component {
 
   private TaskContent content;
@@ -52,21 +48,29 @@ public final class TaskContentComponent implements Component {
   }
 
   /** WTF? . */
-  @DSLTypeProperty(name = "content", extendedType = TaskContentComponent.class)
-  public static class ContentProperty
-      implements IDSLExtensionProperty<TaskContentComponent, TaskContent> {
+  public static class ContentProperty {
     /** WTF? . */
     public static TaskContentComponent.ContentProperty instance =
         new TaskContentComponent.ContentProperty();
 
     private ContentProperty() {}
 
-    @Override
+    /**
+     * WTF? .
+     *
+     * @param instance foo
+     * @param valueToSet foo
+     */
     public void set(TaskContentComponent instance, TaskContent valueToSet) {
       instance.content(valueToSet);
     }
 
-    @Override
+    /**
+     * WTF? .
+     *
+     * @param instance foo
+     * @return foo
+     */
     public TaskContent get(TaskContentComponent instance) {
       return instance.content();
     }

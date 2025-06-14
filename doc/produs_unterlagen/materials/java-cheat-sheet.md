@@ -1,5 +1,3 @@
-Hier ist dein Cheat Sheet in einer übersichtlichen und formatierten Version – ideal zum Ausdrucken oder Teilen mit Studierenden:
-
 ## 🧠 Java Cheat Sheet – Grundlagen
 
 ### 🔢 Variablen

@@ -39,7 +39,7 @@ public class BlocklyCodeRunner {
    */
   public static String TEMP_FOLDER_NAME = "blockly";
 
-  private static final int SLEEP_AFTER_EACH_LINE = 1; // seconds
+  private static final int DEFAULT_SLEEP_AFTER_EACH_LINE = 500; // milliseconds
 
   private static final String CodeWrapper =
       """
@@ -52,11 +52,25 @@ public class BlocklyCodeRunner {
           }
 
           private static void sleep() {
+            sleep(%d);
+          }
+
+          private static void sleep(int millis) {
             try {
-              Thread.sleep(%d * 1000);
+              Thread.sleep(millis);
             } catch (InterruptedException e) {
               Thread.currentThread().interrupt();
             }
+          }
+
+          private static void loadNextLevel() {
+            contrib.level.DevDungeonLoader.loadNextLevel();
+            sleep(1000);
+          }
+
+          private static void loadLevel(int index) {
+            contrib.level.DevDungeonLoader.loadLevel(index);
+            sleep(1000);
           }
       }
       """;
@@ -86,9 +100,20 @@ public class BlocklyCodeRunner {
    * @throws RuntimeException If an error occurs during execution.
    */
   public void executeJavaCode(String code) throws RuntimeException {
-    code = addSleepCalls(code);
+    executeJavaCode(code, DEFAULT_SLEEP_AFTER_EACH_LINE);
+  }
+
+  /**
+   * Executes the given Java code.
+   *
+   * @param code Java code that should be executed.
+   * @param sleepAfterEachLine The time to sleep after each line of code execution, in milliseconds.
+   * @throws RuntimeException If an error occurs during execution.
+   */
+  public void executeJavaCode(String code, int sleepAfterEachLine) throws RuntimeException {
+    if (sleepAfterEachLine > 0) code = addSleepCalls(code); // no sleep if time is 0
     codeRunning.set(true);
-    code = String.format(CodeWrapper, code, SLEEP_AFTER_EACH_LINE);
+    code = String.format(CodeWrapper, code, sleepAfterEachLine);
 
     // In system temp directory
     Path tempDir = tempFolder();
@@ -171,9 +196,16 @@ public class BlocklyCodeRunner {
     codeRunning.set(false);
   }
 
+  /**
+   * Inserts "sleep();" after each semicolon at the end of line.
+   *
+   * <p>It considers CRLF, LF, CR line breaks or end of string.
+   *
+   * @param code The Java code to modify.
+   * @return The modified Java code with sleep calls added.
+   */
   private String addSleepCalls(String code) {
-    // after each line ending in ; add BlocklyRunner.sleep()
-    return code.replaceAll(";", ";sleep();");
+    return code.replaceAll("(?<=;)(?=\\s*\\R|$)", " sleep();");
   }
 
   /**

@@ -269,7 +269,10 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return false;
     }
 
-    return BlocklyCommands.isNearTile(tileType, Direction.fromString(direction));
+    if (tileType == LevelElement.FLOOR) {
+      return BlocklyCommands.isNearTile(LevelElement.FLOOR, Direction.fromString(direction))
+          || BlocklyCommands.isNearTile(LevelElement.EXIT, Direction.fromString(direction));
+    } else return BlocklyCommands.isNearTile(tileType, Direction.fromString(direction));
   }
 
   /** {@inheritDoc} */

@@ -2,6 +2,17 @@
 title: "Escape-Room-Konzept"
 ---
 
+# Einordnung des Begriffs "Escape-Room" in das Forschungsprojekt und den Dungeon
+
+Die Verwendung der Terminologie "digitale Escape-Rooms (dER)" im Antrag des `L<ESC>rod`-Projekts deutet auf eine explizite Anwendung der Ausprägungen physischer Escape-Rooms (Team, begrenzte Zeit etc.) im digitalen Medium. Es geht um eine Ergänzung um "zentrale Elemente aus dem Bereich analoger Escape-Rooms". Ausprägungen von physischen Escape-Rooms, die in der für Videospiele üblichen Interpretation nicht vorkommen, werden im Antrag explizit erwähnt (z.B. Gamifikation, Team/Multi-Team).
+
+Dieses Projekt stützt sich auf dem neueren und außerhalb der Spielwelt verbreiteten Verständnis von Escape-Rooms, die im Team gespielt werden und (neben der Lösung von Rätseln) auf Soft-Skills ausgerichtet sind. Das "digital" im "dER" ist eine Abgrenzung vom analogen Escape-Room in eine andere Richtung als die namensgebenden Point-And-Clicks.
+
+Die Laufzeit des Dungeons umfasst die Echtzeit-Simulation (aus dem Antrag: "dynamisch auf das Spielgeschehen reagieren") einer "tile-basierten" Spielwelt, die von den Studenten selber ausgeführt und modifiziert werden kann.
+Daraus soll im Laufe des Projekts ein "fachunabhängiges" Framework entstehen.
+
+Diese Ausprägungen finden Anwendung bei der Eingrenzung der Recherche und der Bewertung der Ergebnisse.
+
 # Eigenschaften
 
 Welche Eigenschaften von Escape-Room sind für dieses Projekt wichtig?
@@ -10,6 +21,21 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 ## Grundlegende Eigenschaften
 
 - viele Gemeinsamkeiten mit Rätsel-Spielen/Adventures
+  - Abgrenzungen: (was macht den "Escape-Room" gegenüber dem Adventure aus?)
+    - Team-Gedanke eingebaut
+    - laterales Denken
+      - Betrachtung/Lösungsfindung aus einer anderen Perspektive
+      - nicht analytisch und ohne begrenzten Rahmen
+      - Öffnung für kreative Lösungen statt Konvergenz innerhalb der Problemdomäne
+      - z.B. Bekämpfung eines Waldbrandes mit Kettensäge (Schneise) statt Löschschlauch
+      - z.B. Verwendung von Grafikhardware für den Betrieb von neuronalen Netzen
+      - z.B. "Möbel teuer wegen Logistik und Fertigung" - Montage durch den Käufer zuhause, Transport der Einzelteile mit PKW möglich
+      - in Escape-Room oft auch eher abwegig:
+        - Verwendung der Seriennummer im Türflügel als Code für ein digitales Schloss
+        - ein Zahnrad wird anstatt in einem Mechanismus als Magnet zum Lösen eines anderen Rätsels verwendet
+        - der Schaft eines Schraubendrehers dient als elektrischer Leiter
+    - Dringlichkeit
+      - Begrenzung der Spielzeit in herkömmlichen Adventures unüblich, bei Escape-Rooms dagegen schon
 - Kombination von Rätseln zur Erreichung eines vorgegeben Ziels
 - ein oder mehrere Orte geben Raum zur Erkundung und schaffen Atmosphäre
   - Schiff
@@ -27,6 +53,7 @@ Die Anforderungen sind in Aspekte aufgeteilt.
       - z.B. Computer geht kaputt, wenn Raum unter Wasser gesetzt wird, aber schwimmend kann man einen Lüftungsschacht erreichen
     - ein Gamemaster kann kontaktiert werden, um Hilfe zu erhalten
 - keine Failure-States (es gibt immer einen Weg zum Ziel / keine Sackgassen)
+- Gegenstände werden gefunden und zur späteren Verwendung/Kombination mitgenommen
 
 ## Motivation
 
@@ -69,28 +96,45 @@ Die Anforderungen sind in Aspekte aufgeteilt.
 
 ## Lehre
 
-
 1. Vermittlung von Inhalten
   - Vorteil "eigenes Lerntempo" evtl. durch Timer im Escape-Room eingeschränkt
+    - eigenständige Regulierung kognitiver Last
+  - Interaktivität erlaubt Probieren
+  - Möglichkeit der Ausrichtung auf verschiedene Lerntypen
+  - Motivation bspw. durch:
+    - Meisterung der Fähigkeiten
+    - spielerische Herausforderung (Wahl der Konfrontation)
 2. Übung / Anwendung von Wissen und Fähigkeiten
+  - Wiederholung einzelner Puzzle sinnvoll?
 3. Überprüfung von Wissen und Fähigkeiten
+  - aus dem Antrag: "wird [..] um [..] Elemente [..] wie u.a. [..] Bewertungskonzept [..] ergänzt"
+  - Absprache dazu: erstmal kein wichtiges Ziel dieses Projekts
 
-# Aspekte von Workflows zur Erstellung eines Escape-Rooms
-
-Wir suchen Richtlinien dafür, was vom Dungeon und den Tools erwarten wird, um damit Escape-Rooms zu erstellen.
-
-## [Interview mit Scoll Nicholson](https://static1.squarespace.com/static/62bc928cda86cf2dcc7f378d/t/65a85086591a9e1f2a897b2b/1705529482357/CoolJobsEscapeRoom.pdf) am 20. November 2023 in ScienceWorld von Scholastic.
-
-> I start by deciding on the genre (type of game) and setting (where it takes place). I outline the players’ goals and the obstacles they’ll face. These decisions let me create “beats,” or major points in the game’s narrative. Next I start thinking of challenges—math and word puzzles, searching activities, or physical tasks—that could fit within the story. We want a variety of challenges. That way, every player gets a chance to solve something and feel like a hero.
->
-> I work with a team. We sketch out ideas on paper or using digital drawing tools and 3-D design programs. Once we have our prototypes, or early versions, of the puzzles, we test and rework them. This process is known as iteration, and it’s the most important part of game development. The next step is to construct the actual room that will make players feel immersed in the game.
-
+Brauchen wir ein Learner-Model?
 
 # Erwartete Schwierigkeiten
 
-- viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
-- die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
-- Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert
-- mögliche Konsequenz: Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
+- der Dungeon ist darauf ausgerichtet, dass Studenten eine eigene Instanz des Spiels starten und auch den Code ändern können.
+  - in einer Multiplayer-Variante muss es einen allen Teilnehmern gemeine Simulation geben
+  - um in diesem Rahmen weiter programmatisch Einfluss auf die Simulation nehmen zu können, müsste z.B. der Code Gegenstand des Spiels werden
+- Motivation
+  - Spaß
+    - viele Lernspiele (Gamification im Allgmeinen) kranken daran, dass das Ergebnis keinen Spaß mehr macht
+    - nicht nur Spaß, sondern auch der Ausdruck der eigenen Persönlichkeit im Lernprozess
+    - die grundsätzliche Überzeugung ist trotzdem, dass es möglich sein sollte, Spaß und Lernen zu verbinden
+    - prinzipieller Widerspruch zwischen zweckgebundenem Lernen und dem Spiel als Selbstzweck
+      - Spiele werden häufig um ein spaßiges Element herum aufgebaut
+      - in der Lehre kommen die Inhalte zuerst
+    - für die Vermittlung neuer Inhalte sollte die Lösung vielleicht der Begrenztheit des 'Constructivist Teaching' bewusst sein oder sogar einen Rahmen vorgeben
+  - Immersion
+    - mehr Absorption der Gegenwart im Spiel, weniger Ablenkung aus / Hinterfragung der Gegenwart außerhalb
+    - individuelle Ansprüche an die Lernerfahrung
+      - Mathe-Nerds sind vielleicht weniger an immersiven Elementen interessiert (wann geht es endlich los?)
+      - Kinder profitieren mehr vom Setting, halten aber nicht so lange durch (weniger Zeit für Inhalte)
+      - unterschiedliche Lerntypen (vlt. abhängig vom Feld)
+  - mögliche Konsequenzen:
+    - Sollte an der Erschaffung eines didaktischen Escape-Rooms auch ein Spieldesigner mitwirken?
+    - Sollen die Spieler den Zeitaufwand für die Immersion selber festsetzen können?
+    - Untescheidung von Vorgehen abhängig vom Zielalter, Rahmen, Themenfeld etc.
 - zeitlich begrenzte Förderung
-  - mögliches Ziel: Prototyp, mit dem man schon irgendwie arbeiten kann?
+  - mögliches Ziel: Prototyp, der sich bereits für den Einsatz eignet

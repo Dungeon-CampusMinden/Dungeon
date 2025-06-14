@@ -30,11 +30,8 @@ public class Chapter33Level extends BlocklyLevel {
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
-        // Inventar und Charakter
-        "wait",
         // Variable
         "get_number",
-        // Kategorien
         // Kategorien
         "Sonstige");
   }

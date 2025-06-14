@@ -23,7 +23,7 @@ import utils.BlocklyCommands;
 /** PRODUS LEVEL. */
 public class Chapter34Level extends BlocklyLevel {
   private static boolean showText = true;
-  private static final int TICK_TIMER = 60;
+  private static final int TICK_TIMER = 180;
   private static final int ESCAPE_DISTANCE = 2;
 
   private PositionComponent heropc;
@@ -49,7 +49,6 @@ public class Chapter34Level extends BlocklyLevel {
         "goToExit",
         // Variable
         "get_number",
-        // Kategorien
         // Kategorien
         "Sonstige");
   }

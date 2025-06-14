@@ -1,8 +1,6 @@
 package task.tasktype;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeMember;
 import java.util.*;
 import task.Task;
 import task.TaskContent;
@@ -155,11 +153,10 @@ public abstract class Quiz extends Task {
    *
    * <p>Is used as answer and question for a {@link Quiz}.
    */
-  @DSLType
   public static class Content extends TaskContent {
 
     private final Image image;
-    @DSLTypeMember private final String content;
+    private final String content;
 
     private final Type type;
 

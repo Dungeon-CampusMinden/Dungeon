@@ -3,7 +3,6 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.utils.Point;
-import dsl.annotation.DSLType;
 
 /**
  * Store the position of the associated entity in the level.
@@ -29,7 +28,6 @@ import dsl.annotation.DSLType;
  * @see core.systems.PositionSystem
  * @see Point
  */
-@DSLType(name = "position_component")
 public final class PositionComponent implements Component {
 
   /** The position of the entity in the level. */

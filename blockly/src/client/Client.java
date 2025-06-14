@@ -13,10 +13,12 @@ import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
+import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
+import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
@@ -26,6 +28,8 @@ import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
 import systems.TintTilesSystem;
+import utils.BlocklyCodeRunner;
+import utils.CheckPatternPainter;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
@@ -36,6 +40,7 @@ public class Client {
   private static final boolean DEBUG_MODE = false;
   private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
   private static final boolean DRAW_CHECKER_PATTERN = true;
+  private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
 
@@ -129,7 +134,7 @@ public class Client {
         (firstLoad) -> {
           if (DRAW_CHECKER_PATTERN)
             CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
-          Server.instance().interruptExecution = true;
+          BlocklyCodeRunner.instance().stopCode();
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
@@ -174,6 +179,16 @@ public class Client {
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
+    Game.add(
+        new System() {
+          @Override
+          public void execute() {
+            if (scheduleRestart) {
+              scheduleRestart = false;
+              restart();
+            }
+          }
+        });
   }
 
   private static void startServer() {
@@ -209,11 +224,26 @@ public class Client {
    * Restarts the game by removing all entities, recreating the hero, and reloading the current
    * level.
    *
-   * <p>This effectively resets the game state to its initial configuration.
+   * <p>If this method is called from a thread other than the main thread, the restart is scheduled
+   * to occur on the next game tick. This is to ensure thread safety and prevent race conditions.
+   *
+   * <p>During the restart, the {@link PositionSystem} is stopped and then run again to ensure that
+   * the hero is placed correctly in the level. This prevents a race condition where the hero might
+   * be placed before the level is fully loaded.
    */
   public static void restart() {
+
+    // if not the main thread, schedule restart
+    if (!Thread.currentThread().getName().equals("main")) {
+      scheduleRestart = true;
+      Server.waitDelta(); // wait for the next tick to execute the restart
+      return;
+    }
+
     Game.removeAllEntities();
+    Game.system(PositionSystem.class, System::stop);
     createHero();
     DevDungeonLoader.reloadCurrentLevel();
+    Game.system(PositionSystem.class, System::run);
   }
 }

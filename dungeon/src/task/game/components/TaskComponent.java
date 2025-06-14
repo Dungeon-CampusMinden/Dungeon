@@ -3,11 +3,6 @@ package task.game.components;
 import core.Component;
 import core.Entity;
 import core.level.elements.tile.DoorTile;
-import dsl.annotation.DSLCallback;
-import dsl.annotation.DSLContextMember;
-import dsl.annotation.DSLType;
-import dsl.annotation.DSLTypeProperty;
-import dsl.semanticanalysis.typesystem.extension.IDSLExtensionProperty;
 import java.util.function.Consumer;
 import task.Task;
 
@@ -22,7 +17,6 @@ import task.Task;
  *
  * <p>{@link TaskComponent} stores a reference to the corresponding {@link Task}
  */
-@DSLType
 public final class TaskComponent implements Component {
 
   private static final Consumer<Entity> EMPTY_ON_ACTIVATE = (taskmanager) -> {};
@@ -34,7 +28,7 @@ public final class TaskComponent implements Component {
               .fetch(DoorComponent.class)
               .ifPresent(component -> component.doors().forEach(DoorTile::open));
 
-  @DSLCallback private Consumer<Entity> onActivate;
+  private Consumer<Entity> onActivate;
   private Task task;
   private Entity my_entity;
 
@@ -43,7 +37,7 @@ public final class TaskComponent implements Component {
    *
    * @param entity foo
    */
-  public TaskComponent(@DSLContextMember(name = "entity") final Entity entity) {
+  public TaskComponent(final Entity entity) {
     this.my_entity = entity;
     onActivate = DOOR_OPENER;
   }
@@ -92,20 +86,29 @@ public final class TaskComponent implements Component {
   }
 
   /** WTF? . */
-  @DSLTypeProperty(name = "task", extendedType = TaskComponent.class)
-  public static class TaskProperty implements IDSLExtensionProperty<TaskComponent, Task> {
+  public static class TaskProperty {
     /** WTF? . */
     public static TaskComponent.TaskProperty instance = new TaskComponent.TaskProperty();
 
     private TaskProperty() {}
 
-    @Override
+    /**
+     * WTF? .
+     *
+     * @param instance foo
+     * @param valueToSet foo
+     */
     public void set(TaskComponent instance, Task valueToSet) {
       instance.task = valueToSet;
       instance.task.managerEntity(instance.my_entity);
     }
 
-    @Override
+    /**
+     * WTF? .
+     *
+     * @param instance foo
+     * @return foo
+     */
     public Task get(TaskComponent instance) {
       return instance.task();
     }
