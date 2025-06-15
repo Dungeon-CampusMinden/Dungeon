@@ -119,6 +119,8 @@ public class EntityUtils {
    * @return The current position of the hero, or a null value if the hero is not present.
    */
   public static Point getHeroPosition() {
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
     return Game.hero()
         .map(
             e ->
@@ -138,6 +140,8 @@ public class EntityUtils {
    */
   public static Coordinate getHeroCoordinate() {
     Point heroPos = getHeroPosition();
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
     return heroPos == null ? null : heroPos.toCoordinate();
   }
 
