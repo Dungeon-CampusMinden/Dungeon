@@ -147,6 +147,10 @@ public class EntityUtils {
    * @return the direction the hero is facing, or null if there is no hero.
    */
   public static PositionComponent.Direction getHeroViewDirection() {
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
+    // this approach has been chosen solely to ensure a symmetric modelling to the existing methods.
+    // when refactoring, *all* these methods here should be changed to return `Optional<>`.
     return Game.hero().map(EntityUtils::getViewDirection).orElse(null);
   }
 
