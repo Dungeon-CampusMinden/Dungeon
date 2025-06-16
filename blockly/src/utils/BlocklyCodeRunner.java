@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -161,12 +163,18 @@ public class BlocklyCodeRunner {
                 method.invoke(null, new BlocklyCommands());
                 // Code executed successfully
                 codeRunning.set(false);
-              } catch (Exception e) {
-                Throwable cause = e.getCause();
-                String errorMessage = cause != null ? cause.getMessage() : e.getMessage();
+              } catch (InvocationTargetException | IllegalAccessException e) {
                 codeRunning.set(false);
-                LOGGER.warning("Error executing code: " + errorMessage);
-                throw new RuntimeException("Execution error: " + errorMessage);
+                if (e.getCause() instanceof InterruptedException) {
+                  return; // ignore interruption exception
+                }
+
+                String causeMessage =
+                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
+                causeMessage = causeMessage != null ? causeMessage : e.toString();
+                LOGGER.log(
+                    Level.WARNING, String.format("Error executing code: %s", causeMessage), e);
+                throw new RuntimeException("Execution error: " + causeMessage);
               }
             });
   }
