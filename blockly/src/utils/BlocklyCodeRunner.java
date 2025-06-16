@@ -48,6 +48,9 @@ public class BlocklyCodeRunner {
       import utils.BlocklyCommands;
       import utils.Direction;
       import core.level.utils.LevelElement;
+      import contrib.components.*;
+      import components.*;
+      import core.components.*;
       public class UserScript {
           public static void execute(BlocklyCommands hero) {
             %s
