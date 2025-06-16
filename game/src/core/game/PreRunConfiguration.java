@@ -28,7 +28,7 @@ public final class PreRunConfiguration {
   private static int FRAME_RATE = 30;
   private static boolean FULL_SCREEN = false;
 
-  private static boolean RESIZEABLE = false;
+  private static boolean RESIZEABLE = true;
   private static String WINDOW_TITLE = "PM-Dungeon";
   private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
   private static boolean DISABLE_AUDIO = false;
