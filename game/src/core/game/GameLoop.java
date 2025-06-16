@@ -9,6 +9,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import core.Entity;
 import core.Game;
@@ -95,7 +96,9 @@ public final class GameLoop extends ScreenAdapter {
     config.setWindowIcon(PreRunConfiguration.logoPath().pathString());
     config.disableAudio(PreRunConfiguration.disableAudio());
     config.setWindowListener(WindowEventManager.windowListener());
-
+    if (SharedLibraryLoader.isMac && Gdx.app == null) {
+      org.lwjgl.system.Configuration.GLFW_LIBRARY_NAME.set("glfw_async");
+    }
     if (PreRunConfiguration.fullScreen()) {
       config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
     } else {
