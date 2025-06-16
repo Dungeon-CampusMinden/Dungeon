@@ -10,7 +10,19 @@ Die Anwendung für das Projekt im Allgemeinen wird [hier](../research/evaluation
 
 # <a name="approach"></a> Vorgehen
 
-Dieser Abschnitt wird noch befüllt.
+Von einer Überprüfung des Vorwissens wird abgesehen.
+
+Die Teilnehmer füllen im Anschluss an den Durchlauf jeweils einen Fragebogen aus.
+Die wesentlichen Interaktionen werden einzeln bewertet. Fünf weitere Fragen dienen der Erfassung vom Hintergrund der Teilnehmer was Videospiele und Escape-Rooms angeht.
+Ein Feld für allgemeine Hinweise erlaubt Rückmeldungen, die sich den anderen Punkten nicht unterordnen lassen.
+
+- [Fragebogen - Variante 1](cyber_security/questionnaire_variant_1.md)
+- [Fragebogen - Variante 2](cyber_security/questionnaire_variant_2.md)
+
+Die Gamemaster notieren während der Durchführung Zeitpunkte und Schwierigkeiten.
+
+- [Gamemaster - Variante 1](cyber_security/survey_variant_1.md)
+- [Gamemaster - Variante 2](cyber_security/survey_variant_1.md)
 
 # Eingrenzung der Methodik
 
