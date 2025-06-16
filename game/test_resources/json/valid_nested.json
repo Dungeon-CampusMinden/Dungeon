@@ -1,0 +1,15 @@
+{
+    "user": {
+        "id": 123,
+        "profile": {
+            "name": "Alice",
+            "settings": {
+                "theme": "dark",
+                "notifications": false
+            }
+        }
+    },
+    "metadata": {
+        "version": "1.0"
+    }
+}
