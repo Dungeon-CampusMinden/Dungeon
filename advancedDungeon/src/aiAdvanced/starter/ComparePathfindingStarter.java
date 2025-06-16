@@ -46,6 +46,7 @@ public class ComparePathfindingStarter {
 
   private static final Class<? extends PathfindingLogic> pathFindingA = BFSPathFinding.class;
   private static final Class<? extends PathfindingLogic> pathFindingB = DFSPathFinding.class;
+  private static final String GAME_TITEL = "KI_Dungeon";
 
   /**
    * Starts the game and sets up the comparator for the pathfinding algorithms.
@@ -235,7 +236,7 @@ public class ComparePathfindingStarter {
     Game.frameRate(30);
     Game.disableAudio(true);
     Game.windowTitle(
-        "Blockly " + pathFindingA.getSimpleName() + " vs " + pathFindingB.getSimpleName());
+        GAME_TITEL + " " + pathFindingA.getSimpleName() + " vs " + pathFindingB.getSimpleName());
   }
 
   private static void createSystems() {
@@ -278,7 +279,7 @@ public class ComparePathfindingStarter {
     try {
       runnerMob =
           MonsterFactory.buildMonster(
-              "Blockly Runner",
+              "KI Runner",
               new SimpleIPath("character/wizard"),
               1,
               HeroFactory.defaultHeroSpeed().x, // same speed as hero

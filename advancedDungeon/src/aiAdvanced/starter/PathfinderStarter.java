@@ -29,13 +29,14 @@ public class PathfinderStarter {
   private static final boolean DRAW_CHECKER_PATTERN = true;
   private static Tuple<PathfindingLogic, PathfindingLogic> pathfindings = Tuple.of(null, null);
   private static final PathfindingSystem pathfindingSystem = new PathfindingSystem();
+  private static final String GAME_TITEL = "KI_Dungeon";
 
   /**
-   * Setup and run the game. Also start the server that is listening to the requests from blockly
-   * frontend.
+   * This method sets up and runs the game. It allows the user to choose between various pathfinding
+   * algorithms and observe how they navigate through the maze.
    *
-   * @param args
-   * @throws IOException
+   * @param args The command line arguments.
+   * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
@@ -77,7 +78,7 @@ public class PathfinderStarter {
           // Rest pathfinding algos
           pathfindingSystem.reset();
           pathfindings = Tuple.of(null, null);
-          Game.updateWindowTitle("Blockly KI-Dungeon – No Algorithm selected");
+          Game.updateWindowTitle(GAME_TITEL + " – No Algorithm selected");
 
           Coordinate startCoords = Game.currentLevel().startTile().coordinate();
           Coordinate endTileCoords = Game.currentLevel().endTile().coordinate();
@@ -140,7 +141,7 @@ public class PathfinderStarter {
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
     Game.disableAudio(true);
-    Game.windowTitle("Blockly KI-Dungeon");
+    Game.windowTitle(GAME_TITEL);
   }
 
   private static void createSystems() {
@@ -184,6 +185,6 @@ public class PathfinderStarter {
           pfs.autoStep(true);
           pfs.updatePathfindingAlgorithm(Tuple.of(algorithm, hero));
         });
-    Game.updateWindowTitle("Blockly KI-Dungeon – " + algorithm.getClass().getSimpleName());
+    Game.updateWindowTitle(GAME_TITEL + " – " + algorithm.getClass().getSimpleName());
   }
 }
