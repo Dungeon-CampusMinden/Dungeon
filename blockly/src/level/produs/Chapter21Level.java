@@ -1,6 +1,6 @@
 package level.produs;
 
-import components.BlockComponent;
+import contrib.components.BlockComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;

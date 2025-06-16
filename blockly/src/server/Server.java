@@ -10,6 +10,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.level.DevDungeonLoader;
+import contrib.utils.Direction;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
@@ -30,7 +31,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import utils.BlocklyCodeRunner;
 import utils.BlocklyCommands;
-import utils.Direction;
 
 /**
  * This class controls the communication between the blockly frontend and the dungeon. It has three

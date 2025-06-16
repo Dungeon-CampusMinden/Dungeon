@@ -2,6 +2,7 @@ package level.produs;
 
 import client.Client;
 import contrib.hud.DialogUtils;
+import contrib.utils.Direction;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -18,7 +19,6 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 import utils.BlocklyCommands;
-import utils.Direction;
 
 /** PRODUS LEVEL. */
 public class Chapter34Level extends BlocklyLevel {

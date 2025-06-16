@@ -1,6 +1,7 @@
 package systems;
 
 import components.TintDirectionComponent;
+import contrib.utils.Direction;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -11,7 +12,6 @@ import core.level.utils.Coordinate;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;
 import java.util.Set;
-import utils.Direction;
 import utils.components.ai.fight.StraightRangeAI;
 
 /**

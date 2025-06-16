@@ -1,3 +1,3 @@
 rootProject.name = 'Dungeon Projekt'
 
-include 'game', 'dungeon', 'devDungeon', 'blockly'
+include 'game', 'dungeon', 'devDungeon', 'blockly', 'advancedDungeon'

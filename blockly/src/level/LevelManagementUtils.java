@@ -1,6 +1,7 @@
 package level;
 
 import contrib.systems.FogSystem;
+import contrib.utils.Direction;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
@@ -10,7 +11,6 @@ import core.systems.CameraSystem;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import utils.BlocklyCommands;
-import utils.Direction;
 
 /**
  * Utility class for managing level-related features such as camera control, hero positioning, zoom
