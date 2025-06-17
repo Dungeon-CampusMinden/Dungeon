@@ -25,8 +25,9 @@ import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
@@ -276,11 +277,7 @@ public class BlocklyCommands {
    *     returns false.
    */
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
-    Tile targetTile = targetTile(direction);
-    if (targetTile == null) {
-      return false;
-    }
-    return targetTile.levelElement() == tileElement;
+    return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
   }
 
   /**
@@ -293,11 +290,9 @@ public class BlocklyCommands {
    */
   public static boolean isNearComponent(
       Class<? extends Component> componentClass, final Direction direction) {
-    Tile targetTile = targetTile(direction);
-    if (targetTile == null) {
-      return false;
-    }
-    return Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(componentClass));
+    return targetTile(direction)
+        .map(tile -> Game.entityAtTile(tile).anyMatch(e -> e.isPresent(componentClass)))
+        .orElse(false);
   }
 
   /**
@@ -305,47 +300,67 @@ public class BlocklyCommands {
    *
    * <p>A tile in the given direction is considered active if:
    *
-   * <p>It is a {@link DoorTile} and is open.
-   *
-   * <p>It contains at least one {@link LeverComponent}, and all found levers are in the "on" state.
+   * <ul>
+   *   <li>it is a {@link DoorTile} and it is "open", or
+   *   <li>it contains at least one {@link LeverComponent}, and all found levers are in the "on"
+   *       state.
+   * </ul>
    *
    * @param direction the direction to check relative to the hero's position.
    * @return {@code true} if the tile in the given direction is active, {@code false} otherwise.
    */
   public static boolean active(final Direction direction) {
-    Tile targetTile = targetTile(direction);
-    if (targetTile == null) {
-      return false; // no tile in the given direction
-    }
+    return targetTile(direction).map(BlocklyCommands::checkTileForDoorOrLevers).orElse(false);
+  }
 
-    if (targetTile instanceof DoorTile doorTile) {
-      return doorTile.isOpen();
-    }
+  /**
+   * Determines whether the specified tile is in active state.
+   *
+   * <p>A tile in the given direction is considered active iff
+   *
+   * <ul>
+   *   <li>it is a {@link DoorTile} and it is "open", or
+   *   <li>it contains at least one {@link LeverComponent}, and all found levers are in the "on"
+   *       state.
+   * </ul>
+   *
+   * @param tile the direction to check
+   * @return {@code true} if the tile is active, {@code false} otherwise.
+   */
+  private static Boolean checkTileForDoorOrLevers(Tile tile) {
+    // is this a door? is it open?
+    if (tile instanceof DoorTile doorTile) return doorTile.isOpen();
 
-    List<LeverComponent> levers =
-        Game.entityAtTile(targetTile).flatMap(e -> e.fetch(LeverComponent.class).stream()).toList();
+    // find all levers on a given tile and split those into "isOn" (true) and "isOff" (false)
+    Map<Boolean, List<LeverComponent>> levers =
+        Game.entityAtTile(tile)
+            .flatMap(e -> e.fetch(LeverComponent.class).stream())
+            .collect(Collectors.partitioningBy(LeverComponent::isOn));
 
-    return !levers.isEmpty() && levers.stream().allMatch(LeverComponent::isOn);
+    // there needs to be at least one lever; all levers need to be "isOn" (true)
+    return levers.get(false).isEmpty() && !levers.get(true).isEmpty();
   }
 
   /**
    * Gets the target tile in the given direction relative to the hero.
    *
    * @param direction Direction to check relative to hero's view direction
-   * @return The target tile, or null if hero is not found or target tile doesn't exist
+   * @return The target tile, or empty if hero is not found or target tile doesn't exist
    */
-  private static Tile targetTile(final Direction direction) {
-    Coordinate heroCoords = EntityUtils.getHeroCoordinate();
-    if (heroCoords == null) {
-      return null;
-    }
-    Direction heroViewDir =
-        Direction.fromPositionCompDirection(
-            EntityUtils.getViewDirection(Game.hero().orElseThrow(MissingHeroException::new)));
-    Direction toCheck = heroViewDir.relativeToAbsoluteDirection(direction);
+  private static Optional<Tile> targetTile(final Direction direction) {
+    // find tile in a direction or empty
+    Function<Coordinate, Optional<Tile>> dirToCheck =
+        dtc ->
+            Optional.ofNullable(EntityUtils.getHeroCoordinate())
+                .map(coordinate -> coordinate.add(dtc))
+                .map(Game::tileAT);
 
-    Coordinate targetCoords = heroCoords.add(new Coordinate(toCheck.x(), toCheck.y()));
-    return Game.tileAT(targetCoords);
+    // calculate direction to check relative to hero's view direction
+    return Optional.ofNullable(EntityUtils.getHeroViewDirection())
+        .map(Direction::fromPositionCompDirection)
+        .map(d -> d.relativeToAbsoluteDirection(direction))
+        .map(Direction::toCoordinate)
+        .flatMap(dirToCheck::apply);
   }
 
   /**

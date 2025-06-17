@@ -425,9 +425,12 @@ public final class Game {
    * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
-   * @return the tile at the given coordinate.
+   * @return The tile at the specified coordinate, or null if there is no tile or the coordinate is
+   *     out of bounds.
    */
   public static Tile tileAT(final Coordinate coordinate) {
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no tile was found, but `Optional.empty()` instead!
     return currentLevel().tileAt(coordinate);
   }
 

@@ -119,6 +119,8 @@ public class EntityUtils {
    * @return The current position of the hero, or a null value if the hero is not present.
    */
   public static Point getHeroPosition() {
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
     return Game.hero()
         .map(
             e ->
@@ -138,7 +140,22 @@ public class EntityUtils {
    */
   public static Coordinate getHeroCoordinate() {
     Point heroPos = getHeroPosition();
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
     return heroPos == null ? null : heroPos.toCoordinate();
+  }
+
+  /**
+   * Retrieves the direction the hero is facing.
+   *
+   * @return the direction the hero is facing, or null if there is no hero.
+   */
+  public static PositionComponent.Direction getHeroViewDirection() {
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
+    // this approach has been chosen solely to ensure a symmetric modelling to the existing methods.
+    // when refactoring, *all* these methods here should be changed to return `Optional<>`.
+    return Game.hero().map(EntityUtils::getViewDirection).orElse(null);
   }
 
   /**
@@ -148,10 +165,9 @@ public class EntityUtils {
    * @return the direction the entity is facing
    */
   public static PositionComponent.Direction getViewDirection(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.viewDirection();
+    return entity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::viewDirection)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 }
