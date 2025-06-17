@@ -430,7 +430,7 @@ public final class Game {
    */
   public static Tile tileAT(final Coordinate coordinate) {
     // TODO: SMELL!
-    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
+    // we really shouldn't return `null` if no tile was found, but `Optional.empty()` instead!
     return currentLevel().tileAt(coordinate);
   }
 
