@@ -46,7 +46,7 @@ public class BlocklyCodeRunner {
   private static final String CodeWrapper =
       """
       import utils.BlocklyCommands;
-      import utils.Direction;
+      import contrib.utils.Direction;
       import core.level.utils.LevelElement;
       import contrib.components.*;
       import components.*;
