@@ -429,6 +429,8 @@ public final class Game {
    *     out of bounds.
    */
   public static Tile tileAT(final Coordinate coordinate) {
+    // TODO: SMELL!
+    // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
     return currentLevel().tileAt(coordinate);
   }
 
