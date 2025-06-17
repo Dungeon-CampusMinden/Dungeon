@@ -5,6 +5,7 @@ import {BLOCKLY_URL, SLEEP_AFTER_EACH_LINE} from '../extension';
 
 // Create a diagnostic collection to manage error diagnostics
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('blockly');
+const wrapperOffset = 9; // Offset for the wrapper code in Java
 
 export default async function sendBlocklyFile() {
     const editor = vscode.window.activeTextEditor;
@@ -119,7 +120,7 @@ function displayErrorsInEditor(errorMessage: string, document: vscode.TextDocume
             currentError.symbol.type = '';
             currentError.errorOffset = -1;
 
-            currentLineNum = parseInt(errorMatch[1], 10) - 6; // Adjust for the wrapper code
+            currentLineNum = parseInt(errorMatch[1], 10) - wrapperOffset;
             currentLineNum = Math.max(0, Math.min(currentLineNum, document.lineCount - 1)); // Clamp to valid range
         }
 
