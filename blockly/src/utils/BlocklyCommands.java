@@ -26,6 +26,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import server.Server;
 
@@ -347,18 +348,19 @@ public class BlocklyCommands {
    * @return The target tile, or empty if hero is not found or target tile doesn't exist
    */
   private static Optional<Tile> targetTile(final Direction direction) {
-    // calculate direction to check relative to hero's view direction
-    Coordinate dirToCheck =
-        Optional.ofNullable(EntityUtils.getHeroViewDirection())
-            .map(Direction::fromPositionCompDirection)
-            .map(d -> d.relativeToAbsoluteDirection(direction))
-            .map(Direction::toCoordinate)
-            .orElseThrow();
+    // find tile in a direction or empty
+    Function<Coordinate, Optional<Tile>> dirToCheck =
+        dtc ->
+            Optional.ofNullable(EntityUtils.getHeroCoordinate())
+                .map(coordinate -> coordinate.add(dtc))
+                .map(Game::tileAT);
 
-    // find tile in that direction
-    return Optional.ofNullable(EntityUtils.getHeroCoordinate())
-        .map(coordinate -> coordinate.add(dirToCheck))
-        .map(Game::tileAT);
+    // calculate direction to check relative to hero's view direction
+    return Optional.ofNullable(EntityUtils.getHeroViewDirection())
+        .map(Direction::fromPositionCompDirection)
+        .map(d -> d.relativeToAbsoluteDirection(direction))
+        .map(Direction::toCoordinate)
+        .flatMap(dirToCheck::apply);
   }
 
   /**
