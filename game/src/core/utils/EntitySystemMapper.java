@@ -5,6 +5,8 @@ import core.Entity;
 import core.System;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
@@ -39,6 +41,9 @@ public final class EntitySystemMapper {
   private final Set<Class<? extends Component>> filterRules;
   private final Set<Entity> entities;
   private final Set<System> systems;
+  private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+  private final Lock readLock = lock.readLock();
+  private final Lock writeLock = lock.writeLock();
 
   /**
    * Creates a new EntitySystemMapper with the given filter rules.
@@ -72,11 +77,16 @@ public final class EntitySystemMapper {
    *     the EntitySystemMapper and not added again.
    */
   public boolean add(final System system) {
-    if (systems.add(system)) {
-      entities.forEach(system::triggerOnAdd);
-      return true;
+    writeLock.lock();
+    try {
+      if (systems.add(system)) {
+        entities.forEach(system::triggerOnAdd);
+        return true;
+      }
+      return false;
+    } finally {
+      writeLock.unlock();
     }
-    return false;
   }
 
   /**
@@ -92,11 +102,16 @@ public final class EntitySystemMapper {
    *     EntitySystemMapper and no removal was performed.
    */
   public boolean remove(final System system) {
-    if (systems.remove(system)) {
-      entities.forEach(system::triggerOnRemove);
-      return true;
+    writeLock.lock();
+    try {
+      if (systems.remove(system)) {
+        entities.forEach(system::triggerOnRemove);
+        return true;
+      }
+      return false;
+    } finally {
+      writeLock.unlock();
     }
-    return false;
   }
 
   /**
@@ -112,12 +127,18 @@ public final class EntitySystemMapper {
    *     does not fulfill the filter rules.
    */
   public boolean add(final Entity entity) {
-    if (!entities.contains(entity) && accept(entity)) {
-      entities.add(entity);
-      systems.forEach(system -> system.triggerOnAdd(entity));
-      return true;
+    writeLock.lock();
+    try {
+      // accept() is called within the write lock to ensure consistency with entities.contains()
+      if (!entities.contains(entity) && accept(entity)) {
+        entities.add(entity);
+        systems.forEach(s -> s.triggerOnAdd(entity));
+        return true;
+      }
+      return false;
+    } finally {
+      writeLock.unlock();
     }
-    return false;
   }
 
   /**
@@ -132,12 +153,17 @@ public final class EntitySystemMapper {
    *     EntitySystemMapper and no removal was performed.
    */
   public boolean remove(final Entity entity) {
-    if (entities.contains(entity)) {
-      entities.remove(entity);
-      systems.forEach(system -> system.triggerOnRemove(entity));
-      return true;
+    writeLock.lock();
+    try {
+      if (entities.contains(entity)) {
+        entities.remove(entity);
+        systems.forEach(s -> s.triggerOnRemove(entity));
+        return true;
+      }
+      return false;
+    } finally {
+      writeLock.unlock();
     }
-    return false;
   }
 
   /**
@@ -161,7 +187,12 @@ public final class EntitySystemMapper {
    * @return A Stream of Entities currently present in the EntitySystemMapper.
    */
   public Stream<Entity> stream() {
-    return new HashSet<>(entities).stream();
+    readLock.lock();
+    try {
+      return new HashSet<>(entities).stream();
+    } finally {
+      readLock.unlock();
+    }
   }
 
   /**
@@ -177,10 +208,15 @@ public final class EntitySystemMapper {
    */
   @Override
   public boolean equals(final Object o) {
-    if (o == this) return true;
-    else if (o instanceof EntitySystemMapper)
-      return filterRules.equals(((EntitySystemMapper) o).filterRules);
-    return false;
+    readLock.lock();
+    try {
+      if (o == this) return true;
+      else if (o instanceof EntitySystemMapper)
+        return filterRules.equals(((EntitySystemMapper) o).filterRules);
+      return false;
+    } finally {
+      readLock.unlock();
+    }
   }
 
   /**
@@ -193,7 +229,12 @@ public final class EntitySystemMapper {
    *     otherwise.
    */
   public boolean equals(final Set<Class<? extends Component>> o) {
-    return o.equals(filterRules);
+    readLock.lock();
+    try {
+      return o.equals(filterRules);
+    } finally {
+      readLock.unlock();
+    }
   }
 
   /**
@@ -217,6 +258,11 @@ public final class EntitySystemMapper {
    * @return true if the System is present in the EntitySystemMapper, false otherwise.
    */
   public boolean has(final System system) {
-    return systems.contains(system);
+    readLock.lock();
+    try {
+      return systems.contains(system);
+    } finally {
+      readLock.unlock();
+    }
   }
 }
