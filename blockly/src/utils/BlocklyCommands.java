@@ -477,4 +477,22 @@ public class BlocklyCommands {
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }
+
+  /**
+   * Checks if the Bosses viewDirection equals the given direction.
+   *
+   * @param direction the direction to check for.
+   * @return {@code true} if the Bosses viewDirection equals the input direction.
+   */
+  public static boolean checkBossViewDirection(Direction direction) {
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
+    c.x -= 1;
+    Tile bossLocationTile = Game.tileAT(c);
+
+    Entity boss = Game.entityAtTile(bossLocationTile).findFirst().orElseThrow();
+    PositionComponent bosspc =
+        boss.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
+    return bosspc.viewDirection().equals(Direction.toPositionCompDirection(direction));
+  }
 }
