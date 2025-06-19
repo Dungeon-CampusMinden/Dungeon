@@ -128,14 +128,22 @@ public class BlocklyCommands {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
-    Game.entityAtTile(inFront)
-        .forEach(
-            entity ->
-                entity
-                    .fetch(InteractionComponent.class)
-                    .ifPresent(
-                        interactionComponent ->
-                            interactionComponent.triggerInteraction(entity, hero)));
+    Tile standingOn = Game.tileAT(pc.position());
+
+    List<Tile> tilesToCheck = List.of(inFront, standingOn);
+
+    for (Tile tile : tilesToCheck) {
+      if (tile == null) continue;
+
+      Game.entityAtTile(tile)
+          .forEach(
+              entity ->
+                  entity
+                      .fetch(InteractionComponent.class)
+                      .ifPresent(
+                          interactionComponent ->
+                              interactionComponent.triggerInteraction(entity, hero)));
+    }
   }
 
   /**
