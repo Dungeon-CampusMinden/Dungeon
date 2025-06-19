@@ -63,9 +63,14 @@ public class Client {
     onLevelLoad();
 
     // build and start game
-    Game.run();
-
-    httpServer.stop(0);
+    try {
+      Game.run();
+    } finally {
+      // Ensure that the server is stopped when the game ends
+      if (httpServer != null) {
+        httpServer.stop(0);
+      }
+    }
   }
 
   private static void onFrame(Debugger debugger) {
