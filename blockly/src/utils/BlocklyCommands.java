@@ -121,7 +121,7 @@ public class BlocklyCommands {
         .ifPresent(ac -> aimAndShoot(ac, hero));
   }
 
-  /** Triggers each interactable in front of the hero. */
+  /** Triggers each interactable both in front of and beneath the hero. */
   public static void interact() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     PositionComponent pc =
