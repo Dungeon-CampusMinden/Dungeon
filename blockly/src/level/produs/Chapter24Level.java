@@ -45,6 +45,7 @@ public class Chapter24Level extends BlocklyLevel {
         // Bedingung
         "logic_breadcrumbs_direction",
         "logic_clover_direction",
+        "logic_bossView_direction",
         // Variable
         "get_number",
         // Kategorien

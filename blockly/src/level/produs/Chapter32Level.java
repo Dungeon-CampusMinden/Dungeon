@@ -34,6 +34,8 @@ public class Chapter32Level extends BlocklyLevel {
         // Inventar und Charakter
         // Variable
         "get_number",
+        // Bedingung
+        "logic_bossView_direction",
         // Kategorien
         "Sonstige");
   }

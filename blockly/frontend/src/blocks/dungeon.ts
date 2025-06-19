@@ -548,7 +548,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "logic_bossView_direction",
-    message0: "bossView %1",
+    message0: "boss guckt %1",
     output: "Boolean",
     tooltip: "Überprüfe, ob der Boss in eine bestimmte Richtung guckt",
     args0: [
