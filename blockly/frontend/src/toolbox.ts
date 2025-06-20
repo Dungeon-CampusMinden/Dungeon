@@ -227,6 +227,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "logic_active_direction"
         },
+        {
+          kind: "block",
+          type: "logic_bossView_direction"
+        },
       ],
     },
     {

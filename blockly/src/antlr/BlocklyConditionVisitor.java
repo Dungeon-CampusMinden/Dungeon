@@ -200,6 +200,7 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
           case "naheBrotkrume" -> nearComponent(ctx, BreadcrumbComponent.class);
           case "naheKleeblatt" -> nearComponent(ctx, CloverComponent.class);
           case "aktiv" -> active(ctx);
+          case "bossBlickrichtung" -> checkBossViewDirection(ctx);
           default -> {
             LOGGER.warning("Unknown function " + id);
             yield false;
@@ -273,6 +274,26 @@ public class BlocklyConditionVisitor extends blocklyBaseVisitor<INode> {
       return BlocklyCommands.isNearTile(LevelElement.FLOOR, Direction.fromString(direction))
           || BlocklyCommands.isNearTile(LevelElement.EXIT, Direction.fromString(direction));
     } else return BlocklyCommands.isNearTile(tileType, Direction.fromString(direction));
+  }
+
+  private boolean checkBossViewDirection(blocklyParser.Func_callContext ctx) {
+    if (ctx.args == null) {
+      LOGGER.warning("checkBossViewDirection operation function: Expected 1 argument, got 0");
+      return false;
+    }
+
+    // Get the first argument and visit it
+    INode argNode = visit(ctx.args.expr(0));
+    String direction;
+
+    if (argNode instanceof BaseNode && ((BaseNode) argNode).baseType == Types.STRING) {
+      direction = ((BaseNode) argNode).strVal;
+    } else {
+      LOGGER.warning("Expected string argument for checkBossViewDirection operation");
+      return false;
+    }
+
+    return BlocklyCommands.checkBossViewDirection(Direction.fromString(direction));
   }
 
   /** {@inheritDoc} */

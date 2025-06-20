@@ -111,6 +111,15 @@ export function logic_active_direction(
   return [code, Order.NONE];
 }
 
+export function logic_bossView_direction(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
+  const code = "bossBlickrichtung(" + dir + ")";
+  return [code, Order.NONE];
+}
+
 export function controls_if(
   block: Blockly.Block,
   generator: Blockly.Generator

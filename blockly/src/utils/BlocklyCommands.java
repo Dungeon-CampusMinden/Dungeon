@@ -121,21 +121,29 @@ public class BlocklyCommands {
         .ifPresent(ac -> aimAndShoot(ac, hero));
   }
 
-  /** Triggers each interactable in front of the hero. */
+  /** Triggers each interactable both in front of and beneath the hero. */
   public static void interact() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
-    Game.entityAtTile(inFront)
-        .forEach(
-            entity ->
-                entity
-                    .fetch(InteractionComponent.class)
-                    .ifPresent(
-                        interactionComponent ->
-                            interactionComponent.triggerInteraction(entity, hero)));
+    Tile standingOn = Game.tileAT(pc.position());
+
+    List<Tile> tilesToCheck = List.of(inFront, standingOn);
+
+    for (Tile tile : tilesToCheck) {
+      if (tile == null) continue;
+
+      Game.entityAtTile(tile)
+          .forEach(
+              entity ->
+                  entity
+                      .fetch(InteractionComponent.class)
+                      .ifPresent(
+                          interactionComponent ->
+                              interactionComponent.triggerInteraction(entity, hero)));
+    }
   }
 
   /**
@@ -476,5 +484,24 @@ public class BlocklyCommands {
     vc.currentYVelocity(direction.y());
     // so the player can not glitch inside the next tile
     pc.position(oldP);
+  }
+
+  /**
+   * Checks whether the boss's view direction equals the given direction.
+   *
+   * <p>This method is specifically used for the boss in Blockly Chapter 3, Level 4.
+   *
+   * @param direction the direction to check against
+   * @return {@code true} if the boss's view direction equals the given direction; {@code false} if
+   *     the direction does not match, or if the boss or its PositionComponent is missing
+   */
+  public static boolean checkBossViewDirection(Direction direction) {
+    return Game.allEntities()
+        .filter(e -> e.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .flatMap(e -> e.fetch(PositionComponent.class))
+        .map(PositionComponent::viewDirection)
+        .map(d -> d.equals(Direction.toPositionCompDirection(direction)))
+        .orElse(false);
   }
 }

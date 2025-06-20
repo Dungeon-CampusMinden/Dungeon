@@ -29,6 +29,8 @@ public class Chapter31Level extends BlocklyLevel {
         "goToExit",
         // Variable
         "get_number",
+        // Bedingung
+        "logic_bossView_direction",
         // Kategorien
         "Sonstige");
   }

@@ -55,6 +55,7 @@ public class Chapter21Level extends BlocklyLevel {
         "logic_monster_direction",
         "logic_breadcrumbs_direction",
         "logic_clover_direction",
+        "logic_bossView_direction",
         // Wahrheitsausdruecke
         "logic_operator",
         "usual_condition",
