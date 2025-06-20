@@ -1,7 +1,6 @@
 package contrib.level.generator.graphBased;
 
 import contrib.level.generator.GeneratorUtils;
-import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelGraph;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.Entity;
@@ -16,6 +15,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,8 +130,9 @@ public final class RoomBasedLevelGenerator {
       LevelNode neighbour = node.neighbours()[doorDirection.value()];
       DoorTile neighbourDoor = null;
       for (DoorTile doorTile : neighbour.level().doorTiles())
-        if (Direction.opposite(doorDirection)
-            == GeneratorUtils.doorDirection(neighbour.level(), doorTile)) {
+        if (doorDirection
+            .opposite()
+            .equals(GeneratorUtils.doorDirection(neighbour.level(), doorTile))) {
           neighbourDoor = doorTile;
           break;
         }
@@ -139,19 +140,22 @@ public final class RoomBasedLevelGenerator {
 
       // place door steps
       Tile doorStep = null;
-      switch (doorDirection) {
-        case NORTH ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
-        case EAST ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
-        case SOUTH ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
-        case WEST ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
+      if (doorDirection == Direction.UP) {
+        doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
+      } else if (doorDirection == Direction.RIGHT) {
+        doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
+      } else if (doorDirection == Direction.DOWN) {
+        doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
+      } else if (doorDirection == Direction.LEFT) {
+        doorStep =
+            door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
+      } else {
+        LOGGER.warning(
+            "Invalid door direction: " + doorDirection + " for door at " + door.coordinate());
+        return;
       }
       door.doorstep(doorStep);
     }

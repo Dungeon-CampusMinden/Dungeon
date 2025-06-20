@@ -3,10 +3,10 @@ package level.produs;
 import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import entities.BlocklyMonster;
 import java.util.List;
@@ -49,7 +49,7 @@ public class Chapter32Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.heroViewDirection(Direction.LEFT);
     BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
     Game.hero()
         .orElseThrow(MissingHeroException::new)

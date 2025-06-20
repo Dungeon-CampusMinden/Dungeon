@@ -1,12 +1,12 @@
 package components;
 
-import contrib.utils.Direction;
 import contrib.utils.LevelUtils;
 import core.Component;
 import core.Game;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -119,7 +119,7 @@ public class TintDirectionComponent implements Component {
     if (level == null) return tiles;
 
     for (int i = 0; i < range; i++) {
-      Coordinate targetCoord = origin.add(new Coordinate(direction.x() * i, direction.y() * i));
+      Coordinate targetCoord = origin.add(new Coordinate(direction.dx() * i, direction.dy() * i));
 
       // Stop if we can't see further in this direction
       if (!LevelUtils.canSee(origin, targetCoord, direction)) {

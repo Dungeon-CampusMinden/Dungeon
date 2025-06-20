@@ -1,6 +1,7 @@
 package contrib.level.generator.graphBased.levelGraph;
 
 import core.Entity;
+import core.utils.Direction;
 import core.utils.Tuple;
 import java.util.*;
 
@@ -107,7 +108,7 @@ public final class LevelGraph {
       List<Direction> freeDirections = nodeA.freeDirections();
       for (Direction direction : freeDirections) {
         for (LevelNode nodeB : with) {
-          if (nodeB.at(Direction.opposite(direction)).isEmpty())
+          if (nodeB.at(direction.opposite()).isEmpty())
             return Optional.of(new Tuple<>(nodeA, nodeB));
         }
       }
@@ -138,12 +139,12 @@ public final class LevelGraph {
       Collections.shuffle(nodes);
       LevelNode on = nodes.get(0);
       Optional<LevelNode> old = on.forceNeighbor(adapter, direction);
-      adapter.forceNeighbor(on, Direction.opposite(direction));
+      adapter.forceNeighbor(on, direction.opposite());
 
       // re-add possible edge
       old.ifPresent(
           node -> {
-            node.forceNeighbor(adapter, Direction.opposite(direction));
+            node.forceNeighbor(adapter, direction.opposite());
             adapter.forceNeighbor(node, direction);
           });
     }
@@ -242,7 +243,7 @@ public final class LevelGraph {
 
     // could not create a connection because no node has a free edge where the other node has a
     // free edge
-    createAdapter(this, Direction.opposite(node.freeDirections().get(0)));
+    createAdapter(this, node.freeDirections().getFirst().opposite());
     return add(node);
   }
 

@@ -2,7 +2,6 @@ package contrib.level.generator;
 
 import contrib.entities.EntityFactory;
 import contrib.level.generator.graphBased.RoomBasedLevelGenerator;
-import contrib.level.generator.graphBased.levelGraph.Direction;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -12,6 +11,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.level.utils.TileTextureFactory;
+import core.utils.Direction;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
@@ -51,10 +51,10 @@ public final class GeneratorUtils {
    */
   public static Direction doorDirection(final ILevel level, final DoorTile door) {
     LevelElement[][] layout = parseToElementLayout(level.layout());
-    if (TileTextureFactory.isTopWall(door.coordinate(), layout)) return Direction.NORTH;
-    if (TileTextureFactory.isRightWall(door.coordinate(), layout)) return Direction.EAST;
-    if (TileTextureFactory.isBottomWall(door.coordinate(), layout)) return Direction.SOUTH;
-    return Direction.WEST;
+    if (TileTextureFactory.isTopWall(door.coordinate(), layout)) return Direction.UP;
+    if (TileTextureFactory.isRightWall(door.coordinate(), layout)) return Direction.RIGHT;
+    if (TileTextureFactory.isBottomWall(door.coordinate(), layout)) return Direction.DOWN;
+    return Direction.LEFT;
   }
 
   /**

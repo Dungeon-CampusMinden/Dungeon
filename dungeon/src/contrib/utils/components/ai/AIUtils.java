@@ -7,6 +7,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 
 /** Utility class for AI-related operations like calculating paths. */
@@ -46,19 +47,21 @@ public final class AIUtils {
       return;
     }
 
-    switch (currentTile.directionTo(nextTile)[0]) {
-      case N -> vc.currentYVelocity(vc.yVelocity());
-      case S -> vc.currentYVelocity(-vc.yVelocity());
-      case E -> vc.currentXVelocity(vc.xVelocity());
-      case W -> vc.currentXVelocity(-vc.xVelocity());
+    Direction[] dirs = currentTile.directionTo(nextTile);
+    if (dirs.length > 0) {
+      Direction d = dirs[0];
+      if (d == Direction.UP) vc.currentYVelocity(vc.yVelocity());
+      else if (d == Direction.DOWN) vc.currentYVelocity(-vc.yVelocity());
+      else if (d == Direction.RIGHT) vc.currentXVelocity(vc.xVelocity());
+      else if (d == Direction.LEFT) vc.currentXVelocity(-vc.xVelocity());
     }
-    if (currentTile.directionTo(nextTile).length > 1)
-      switch (currentTile.directionTo(nextTile)[1]) {
-        case N -> vc.currentYVelocity(vc.yVelocity());
-        case S -> vc.currentYVelocity(-vc.yVelocity());
-        case E -> vc.currentXVelocity(vc.xVelocity());
-        case W -> vc.currentXVelocity(-vc.xVelocity());
-      }
+    if (dirs.length > 1) {
+      Direction d = dirs[1];
+      if (d == Direction.UP) vc.currentYVelocity(vc.yVelocity());
+      else if (d == Direction.DOWN) vc.currentYVelocity(-vc.yVelocity());
+      else if (d == Direction.RIGHT) vc.currentXVelocity(vc.xVelocity());
+      else if (d == Direction.LEFT) vc.currentXVelocity(-vc.xVelocity());
+    }
   }
 
   /**

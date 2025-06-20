@@ -2,11 +2,11 @@ package contrib.level.generator.graphBased;
 
 import static core.level.elements.ILevel.RANDOM;
 
-import contrib.level.generator.graphBased.levelGraph.Direction;
 import contrib.level.generator.graphBased.levelGraph.LevelNode;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.Direction;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -414,10 +414,10 @@ public final class RoomGenerator {
       final Area maxArea,
       final LevelElement[][] layout,
       final LevelSize size) {
-    boolean north = doors[Direction.NORTH.value()] != null;
-    boolean south = doors[Direction.SOUTH.value()] != null;
-    boolean west = doors[Direction.WEST.value()] != null;
-    boolean east = doors[Direction.EAST.value()] != null;
+    boolean north = doors[Direction.UP.value()] != null;
+    boolean south = doors[Direction.DOWN.value()] != null;
+    boolean west = doors[Direction.LEFT.value()] != null;
+    boolean east = doors[Direction.RIGHT.value()] != null;
 
     if (north) {
       ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -437,7 +437,7 @@ public final class RoomGenerator {
         }
       }
       if (possibleDoorCoordinates.isEmpty())
-        throw new CantPlaceDoorException(layout, Direction.NORTH, size);
+        throw new CantPlaceDoorException(layout, Direction.UP, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
       layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -462,7 +462,7 @@ public final class RoomGenerator {
         }
       }
       if (possibleDoorCoordinates.isEmpty())
-        throw new CantPlaceDoorException(layout, Direction.SOUTH, size);
+        throw new CantPlaceDoorException(layout, Direction.DOWN, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
       layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -487,7 +487,7 @@ public final class RoomGenerator {
         }
       }
       if (possibleDoorCoordinates.isEmpty())
-        throw new CantPlaceDoorException(layout, Direction.WEST, size);
+        throw new CantPlaceDoorException(layout, Direction.LEFT, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
       layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
@@ -512,7 +512,7 @@ public final class RoomGenerator {
         }
       }
       if (possibleDoorCoordinates.isEmpty())
-        throw new CantPlaceDoorException(layout, Direction.EAST, size);
+        throw new CantPlaceDoorException(layout, Direction.RIGHT, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
       layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;

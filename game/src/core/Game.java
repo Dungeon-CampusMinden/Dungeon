@@ -14,6 +14,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -441,15 +442,8 @@ public final class Game {
    * @param direction The direction in which to find the next tile
    * @return The tile that is the next tile from the given coordinate in the specified direction.
    */
-  public static Tile tileAT(final Coordinate coordinate, PositionComponent.Direction direction) {
-    Coordinate c = new Coordinate(coordinate);
-    switch (direction) {
-      case UP -> c.y += 1;
-      case LEFT -> c.x -= 1;
-      case DOWN -> c.y -= 1;
-      case RIGHT -> c.x += 1;
-    }
-    return tileAT(c);
+  public static Tile tileAT(final Coordinate coordinate, Direction direction) {
+    return tileAT(new Coordinate(coordinate).add(direction.toCoordinate()));
   }
 
   /**
@@ -459,7 +453,7 @@ public final class Game {
    * @param direction The direction in which to find the next tile
    * @return The tile that is the next tile from the given point in the specified direction.
    */
-  public static Tile tileAT(final Point point, PositionComponent.Direction direction) {
+  public static Tile tileAT(final Point point, Direction direction) {
     return tileAT(point.toCoordinate(), direction);
   }
 

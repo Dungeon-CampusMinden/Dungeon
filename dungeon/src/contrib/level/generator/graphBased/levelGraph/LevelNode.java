@@ -2,6 +2,7 @@ package contrib.level.generator.graphBased.levelGraph;
 
 import core.Entity;
 import core.level.elements.ILevel;
+import core.utils.Direction;
 import java.util.*;
 
 /**
@@ -24,7 +25,7 @@ import java.util.*;
  */
 public class LevelNode {
 
-  static final int MAX_NEIGHBOURS = Direction.values().length;
+  static final int MAX_NEIGHBOURS = Direction.values().length - 1; // Exclude the NONE direction
 
   /**
    * A collection of entities stored in this node. Intended to be used to add new entities after
@@ -78,7 +79,7 @@ public class LevelNode {
     List<Direction> freeDirections = possibleConnectDirections(other);
     if (!freeDirections.isEmpty()) {
       Collections.shuffle(freeDirections);
-      if (other.connect(this, Direction.opposite(freeDirections.getFirst())))
+      if (other.connect(this, freeDirections.getFirst().opposite()))
         return connect(other, freeDirections.getFirst());
     }
     return false;
@@ -230,7 +231,7 @@ public class LevelNode {
   Optional<LevelNode> forceNeighbor(final LevelNode node, final Direction direction) {
     LevelNode old = neighbours[direction.value()];
     neighbours[direction.value()] = node;
-    if (old != null && old != node) old.forceNeighbor(null, Direction.opposite(direction));
+    if (old != null && old != node) old.forceNeighbor(null, direction.opposite());
     return Optional.ofNullable(old);
   }
 
@@ -242,7 +243,7 @@ public class LevelNode {
   List<Direction> freeDirections() {
     List<Direction> freeDirections = new ArrayList<>();
     for (Direction direction : Direction.values()) {
-      int directionValue = direction.value();
+      int directionValue = Arrays.asList(Direction.values()).indexOf(direction);
       if (neighbours[directionValue] == null) {
         freeDirections.add(direction);
       }

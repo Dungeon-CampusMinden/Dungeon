@@ -19,6 +19,7 @@ import core.components.PositionComponent;
 import core.level.generator.postGeneration.WallGenerator;
 import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
@@ -227,7 +228,7 @@ public final class GameLoop extends ScreenAdapter {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     pc.position(Game.startTile());
-    pc.viewDirection(PositionComponent.Direction.DOWN); // look down by default
+    pc.viewDirection(Direction.DOWN); // look down by default
 
     // reset animations
     DrawComponent dc =
