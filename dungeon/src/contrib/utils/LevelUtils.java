@@ -5,7 +5,6 @@ import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Direction;
-import core.utils.Point;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,10 +35,7 @@ public class LevelUtils {
         return false; // if there is a blockFireball in the way, we can't see through
       }
 
-      currentTile =
-          currentTile
-              .level()
-              .tileAt(currentTile.position().add(new Point(direction.dx(), direction.dy())));
+      currentTile = currentTile.level().tileAt(currentTile.position().add(direction.toPoint()));
     }
     return true;
   }
@@ -65,7 +61,7 @@ public class LevelUtils {
   public static List<Coordinate> walkableNeighbors(Coordinate coord) {
     return Arrays.stream(Direction.values())
         .filter(direction -> direction != Direction.NONE)
-        .map(direction -> coord.add(new Coordinate(direction.dx(), direction.dy())))
+        .map(direction -> coord.add(direction.toCoordinate()))
         .filter(LevelUtils::isWalkable)
         .toList();
   }

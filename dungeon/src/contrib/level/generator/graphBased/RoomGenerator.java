@@ -414,10 +414,10 @@ public final class RoomGenerator {
       final Area maxArea,
       final LevelElement[][] layout,
       final LevelSize size) {
-    boolean north = doors[Direction.UP.value()] != null;
-    boolean south = doors[Direction.DOWN.value()] != null;
-    boolean west = doors[Direction.LEFT.value()] != null;
-    boolean east = doors[Direction.RIGHT.value()] != null;
+    boolean north = doors[Direction.UP.ordinal()] != null;
+    boolean south = doors[Direction.DOWN.ordinal()] != null;
+    boolean west = doors[Direction.LEFT.ordinal()] != null;
+    boolean east = doors[Direction.RIGHT.ordinal()] != null;
 
     if (north) {
       ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();

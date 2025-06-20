@@ -127,7 +127,7 @@ public final class RoomBasedLevelGenerator {
       Direction doorDirection = GeneratorUtils.doorDirection(node.level(), door);
 
       // find neighbour door
-      LevelNode neighbour = node.neighbours()[doorDirection.value()];
+      LevelNode neighbour = node.neighbours()[doorDirection.ordinal()];
       DoorTile neighbourDoor = null;
       for (DoorTile doorTile : neighbour.level().doorTiles())
         if (doorDirection

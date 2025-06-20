@@ -8,6 +8,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 /** Utility class for AI-related operations like calculating paths. */
@@ -47,20 +48,10 @@ public final class AIUtils {
       return;
     }
 
-    Direction[] dirs = currentTile.directionTo(nextTile);
-    if (dirs.length > 0) {
-      Direction d = dirs[0];
-      if (d == Direction.UP) vc.currentYVelocity(vc.yVelocity());
-      else if (d == Direction.DOWN) vc.currentYVelocity(-vc.yVelocity());
-      else if (d == Direction.RIGHT) vc.currentXVelocity(vc.xVelocity());
-      else if (d == Direction.LEFT) vc.currentXVelocity(-vc.xVelocity());
-    }
-    if (dirs.length > 1) {
-      Direction d = dirs[1];
-      if (d == Direction.UP) vc.currentYVelocity(vc.yVelocity());
-      else if (d == Direction.DOWN) vc.currentYVelocity(-vc.yVelocity());
-      else if (d == Direction.RIGHT) vc.currentXVelocity(vc.xVelocity());
-      else if (d == Direction.LEFT) vc.currentXVelocity(-vc.xVelocity());
+    for (Direction direction : currentTile.directionTo(nextTile)) {
+      Point dirVec = direction.toPoint();
+      if (dirVec.x != 0) vc.currentXVelocity(dirVec.x * vc.xVelocity());
+      if (dirVec.y != 0) vc.currentYVelocity(dirVec.y * vc.yVelocity());
     }
   }
 

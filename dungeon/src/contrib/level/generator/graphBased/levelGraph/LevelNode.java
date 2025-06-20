@@ -4,6 +4,7 @@ import core.Entity;
 import core.level.elements.ILevel;
 import core.utils.Direction;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Node in the level graph.
@@ -24,6 +25,8 @@ import java.util.*;
  * nodes are connected.
  */
 public class LevelNode {
+
+  private static final Logger LOGGER = Logger.getLogger(LevelNode.class.getSimpleName());
 
   static final int MAX_NEIGHBOURS = Direction.values().length - 1; // Exclude the NONE direction
 
@@ -88,12 +91,16 @@ public class LevelNode {
   /**
    * Retrieves the neighbor at the given direction.
    *
-   * @param direction The direction to check.
+   * @param direction The direction to check. If the direction is {@link Direction#NONE}, no
+   *     neighbor can be found, and an empty Optional is returned.
    * @return An Optional containing the neighbor node in the given direction, or empty if there is
    *     no neighbor in that direction.
    */
   public Optional<LevelNode> at(final Direction direction) {
-    return Optional.ofNullable(neighbours[direction.value()]);
+    if (direction == Direction.NONE) {
+      return Optional.empty(); // NONE direction has no neighbor
+    }
+    return Optional.ofNullable(neighbours[direction.ordinal()]);
   }
 
   /**
@@ -178,12 +185,14 @@ public class LevelNode {
    *
    * @param node The neighbor to be added.
    * @param direction The direction at which the neighbor should be added from this node's
-   *     perspective (in the neighbor's context, this corresponds to the opposite direction).
+   *     perspective (in the neighbor's context, this corresponds to the opposite direction). If the
+   *     direction is {@link Direction#NONE}, no connection can be made.
    * @return true if the connection was successful, false if not.
    */
   public boolean connect(final LevelNode node, final Direction direction) {
-    if (this == node || neighbours[direction.value()] != null) return false;
-    neighbours[direction.value()] = node;
+    if (this == node || direction == Direction.NONE || neighbours[direction.ordinal()] != null)
+      return false;
+    neighbours[direction.ordinal()] = node;
     // if a node of another graph gets added, all nodes of the other graph a now part of
     // this graph
     if (originGraph != node.originGraph())
@@ -225,12 +234,23 @@ public class LevelNode {
    *
    * @param node The neighbor to be added.
    * @param direction The direction at which the neighbor should be added from this node's
-   *     perspective (in the neighbor's context, this corresponds to the opposite direction).
+   *     perspective (in the neighbor's context, this corresponds to the opposite direction). If the
+   *     direction is {@link Direction#NONE}, no connection can be made.
    * @return An Optional containing the old neighbor, if there was any.
    */
   Optional<LevelNode> forceNeighbor(final LevelNode node, final Direction direction) {
-    LevelNode old = neighbours[direction.value()];
-    neighbours[direction.value()] = node;
+    if (this == node || direction == Direction.NONE) {
+      LOGGER.warning(
+          "Cannot force neighbor to itself or in NONE direction: "
+              + this
+              + " -> "
+              + node
+              + " in direction "
+              + direction);
+      return Optional.empty(); // Cannot force neighbor to itself or in NONE direction
+    }
+    LevelNode old = neighbours[direction.ordinal()];
+    neighbours[direction.ordinal()] = node;
     if (old != null && old != node) old.forceNeighbor(null, direction.opposite());
     return Optional.ofNullable(old);
   }
@@ -243,8 +263,8 @@ public class LevelNode {
   List<Direction> freeDirections() {
     List<Direction> freeDirections = new ArrayList<>();
     for (Direction direction : Direction.values()) {
-      int directionValue = Arrays.asList(Direction.values()).indexOf(direction);
-      if (neighbours[directionValue] == null) {
+      if (direction == Direction.NONE) continue; // Skip NONE direction
+      if (neighbours[direction.ordinal()] == null) {
         freeDirections.add(direction);
       }
     }
@@ -263,7 +283,8 @@ public class LevelNode {
   public Set<Direction> whereNeighboursFromOtherGraphs() {
     Set<Direction> dirs = new HashSet<>();
     for (Direction direction : Direction.values()) {
-      int directionValue = direction.value();
+      if (direction == Direction.NONE) continue; // Skip NONE direction
+      int directionValue = direction.ordinal();
       if (neighbours[directionValue] != null
           && neighbours[directionValue].originGraph() != originGraph) {
         dirs.add(direction);

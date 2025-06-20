@@ -411,8 +411,8 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentXVelocity(direction.dx() * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(direction.dy() * comp.vc.yVelocity());
+        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
+        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -470,8 +470,8 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.currentXVelocity(direction.dx());
-    vc.currentYVelocity(direction.dy());
+    vc.currentXVelocity(direction.x());
+    vc.currentYVelocity(direction.y());
     // so the player cannot glitch inside the next tile
     pc.position(oldP);
   }
