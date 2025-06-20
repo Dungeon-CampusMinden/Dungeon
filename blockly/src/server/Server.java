@@ -1297,7 +1297,12 @@ public class Server {
       case "drehe" -> {
         Direction firstArg;
         if (args[0] instanceof String firstArgStr) {
-          firstArg = Direction.fromString(firstArgStr);
+          try {
+            firstArg = Direction.fromString(firstArgStr);
+          } catch (IllegalArgumentException e) {
+            setError("Invalid direction: " + firstArgStr);
+            return;
+          }
         } else {
           setError("Unexpected type for direction " + args[0]);
           return;

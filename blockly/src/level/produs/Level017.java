@@ -1,11 +1,11 @@
 package level.produs;
 
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -40,7 +40,7 @@ public class Level017 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
   }
 

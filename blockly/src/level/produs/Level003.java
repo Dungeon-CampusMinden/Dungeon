@@ -2,11 +2,11 @@ package level.produs;
 
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
@@ -59,7 +59,7 @@ public class Level003 extends BlocklyLevel {
     }
     LevelManagementUtils.cameraFocusOn(new Coordinate(13, 5));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(0);
     Coordinate stone2C = customPoints().get(1);

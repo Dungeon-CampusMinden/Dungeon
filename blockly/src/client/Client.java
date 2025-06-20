@@ -17,6 +17,7 @@ import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.systems.PositionSystem;
+import core.utils.Direction;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;

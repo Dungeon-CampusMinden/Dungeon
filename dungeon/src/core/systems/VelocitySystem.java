@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -140,16 +141,16 @@ public final class VelocitySystem extends System {
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
       if (x > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.RIGHT);
+        vsd.pc.viewDirection(Direction.RIGHT);
       } else if (x < 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.LEFT);
+        vsd.pc.viewDirection(Direction.LEFT);
       } else if (y > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.UP);
+        vsd.pc.viewDirection(Direction.UP);
       } else if (y < 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.DOWN);
+        vsd.pc.viewDirection(Direction.DOWN);
       }
 
       vsd.vc.previousVelocity(Vector2.of(x, y));
@@ -159,39 +160,39 @@ public final class VelocitySystem extends System {
     // idle
     else {
       // each drawComponent has an idle animation, so no check is needed
-      switch (vsd.pc.viewDirection()) {
-        case UP ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_UP,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_RIGHT);
-        case LEFT ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_RIGHT,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_UP);
-        case DOWN ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_UP,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_RIGHT);
-        case RIGHT ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_RIGHT,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_UP);
+
+      if (vsd.pc.viewDirection() == Direction.UP) {
+        vsd.dc.queueAnimation(
+            DEFAULT_FRAME_TIME,
+            CoreAnimations.IDLE_UP,
+            CoreAnimations.IDLE,
+            CoreAnimations.IDLE_DOWN,
+            CoreAnimations.IDLE_LEFT,
+            CoreAnimations.IDLE_RIGHT);
+      } else if (vsd.pc.viewDirection() == Direction.LEFT) {
+        vsd.dc.queueAnimation(
+            DEFAULT_FRAME_TIME,
+            CoreAnimations.IDLE_LEFT,
+            CoreAnimations.IDLE,
+            CoreAnimations.IDLE_RIGHT,
+            CoreAnimations.IDLE_DOWN,
+            CoreAnimations.IDLE_UP);
+      } else if (vsd.pc.viewDirection() == Direction.DOWN) {
+        vsd.dc.queueAnimation(
+            DEFAULT_FRAME_TIME,
+            CoreAnimations.IDLE_DOWN,
+            CoreAnimations.IDLE,
+            CoreAnimations.IDLE_UP,
+            CoreAnimations.IDLE_LEFT,
+            CoreAnimations.IDLE_RIGHT);
+      } else if (vsd.pc.viewDirection() == Direction.RIGHT) {
+        vsd.dc.queueAnimation(
+            DEFAULT_FRAME_TIME,
+            CoreAnimations.IDLE_RIGHT,
+            CoreAnimations.IDLE,
+            CoreAnimations.IDLE_LEFT,
+            CoreAnimations.IDLE_DOWN,
+            CoreAnimations.IDLE_UP);
       }
     }
   }

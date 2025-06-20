@@ -4,7 +4,6 @@ import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
@@ -12,6 +11,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -59,14 +59,14 @@ public class Level022 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 8));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
     Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).close());
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
     bossBuilder.addToGame();
-    bossBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    bossBuilder.viewDirection(Direction.LEFT);
     bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
 
     boss = bossBuilder.build().orElseThrow();

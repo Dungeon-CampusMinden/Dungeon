@@ -62,7 +62,7 @@ tasks.register('buildBlocklyJar', Jar) {
         includeEmptyDirs = false
     }
     from(projectDir) {
-        include 'src/utils/Direction.java'
+        include 'src/core/utils/Direction.java'
         include 'src/utils/BlocklyCommands.java'
         // Remove 'src/' prefix from paths
         eachFile { file ->

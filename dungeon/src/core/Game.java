@@ -14,6 +14,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -460,7 +461,7 @@ public final class Game {
    * @param direction The direction in which to find the next tile
    * @return The tile that is the next tile from the given point in the specified direction.
    */
-  public static Tile tileAT(final Point point, PositionComponent.Direction direction) {
+  public static Tile tileAT(final Point point, Direction direction) {
     return tileAT(point.toCoordinate(), direction);
   }
 

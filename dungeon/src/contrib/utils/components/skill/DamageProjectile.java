@@ -10,7 +10,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
@@ -250,7 +250,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(new ProjectileComponent(startPoint, targetPoint));
 
     // Create a collision handler for the projectile
-    TriConsumer<Entity, Entity, Tile.Direction> collide =
+    TriConsumer<Entity, Entity, Direction> collide =
         (a, b, from) -> {
           if (b != entity && !ignoreEntities.contains(b)) {
             b.fetch(HealthComponent.class)

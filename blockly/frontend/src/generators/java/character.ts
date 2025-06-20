@@ -12,7 +12,7 @@ export function rotate(
   block: Blockly.Block,
   generator: Blockly.Generator
 ) {
-  const ALLOWED_DIRECTIONS = ["links", "rechts"]
+  const ALLOWED_DIRECTIONS = ["left", "right"]
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
   if (dir === "") return "";
   // if not allowed, shows error and deconnects the input

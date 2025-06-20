@@ -1,12 +1,12 @@
 package components;
 
-import contrib.utils.Direction;
 import contrib.utils.LevelUtils;
 import core.Component;
 import core.Game;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

@@ -8,6 +8,7 @@ import core.level.elements.tile.SkipTile;
 import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
+import core.utils.Direction;
 import core.utils.components.path.SimpleIPath;
 import org.junit.jupiter.api.Test;
 
@@ -42,40 +43,40 @@ public class TileTest {
     Tile southWest =
         new FloorTile(new SimpleIPath(""), new Coordinate(-1, -1), DesignLabel.DEFAULT);
 
-    Tile.Direction[] northToSouth = north.directionTo(south);
+    Direction[] northToSouth = north.directionTo(south);
     assertEquals(1, northToSouth.length);
-    assertEquals(Tile.Direction.S, northToSouth[0]);
+    assertEquals(Direction.DOWN, northToSouth[0]);
 
-    Tile.Direction[] southToNorth = south.directionTo(north);
+    Direction[] southToNorth = south.directionTo(north);
     assertEquals(1, southToNorth.length);
-    assertEquals(Tile.Direction.N, southToNorth[0]);
+    assertEquals(Direction.UP, southToNorth[0]);
 
-    Tile.Direction[] eastToWest = east.directionTo(west);
+    Direction[] eastToWest = east.directionTo(west);
     assertEquals(1, eastToWest.length);
-    assertEquals(Tile.Direction.W, eastToWest[0]);
+    assertEquals(Direction.LEFT, eastToWest[0]);
 
-    Tile.Direction[] westToEast = west.directionTo(east);
+    Direction[] westToEast = west.directionTo(east);
     assertEquals(1, westToEast.length);
-    assertEquals(Tile.Direction.E, westToEast[0]);
+    assertEquals(Direction.RIGHT, westToEast[0]);
 
-    Tile.Direction[] southEastToNorthWest = southEast.directionTo(northWest);
+    Direction[] southEastToNorthWest = southEast.directionTo(northWest);
     assertEquals(2, southEastToNorthWest.length);
-    assertEquals(Tile.Direction.W, southEastToNorthWest[0]);
-    assertEquals(Tile.Direction.N, southEastToNorthWest[1]);
+    assertEquals(Direction.LEFT, southEastToNorthWest[0]);
+    assertEquals(Direction.UP, southEastToNorthWest[1]);
 
-    Tile.Direction[] southWestToNorthEast = southWest.directionTo(northEast);
+    Direction[] southWestToNorthEast = southWest.directionTo(northEast);
     assertEquals(2, southWestToNorthEast.length);
-    assertEquals(Tile.Direction.E, southWestToNorthEast[0]);
-    assertEquals(Tile.Direction.N, southWestToNorthEast[1]);
+    assertEquals(Direction.RIGHT, southWestToNorthEast[0]);
+    assertEquals(Direction.UP, southWestToNorthEast[1]);
 
-    Tile.Direction[] northEastToSouthWest = northEast.directionTo(southWest);
+    Direction[] northEastToSouthWest = northEast.directionTo(southWest);
     assertEquals(2, northEastToSouthWest.length);
-    assertEquals(Tile.Direction.W, northEastToSouthWest[0]);
-    assertEquals(Tile.Direction.S, northEastToSouthWest[1]);
+    assertEquals(Direction.LEFT, northEastToSouthWest[0]);
+    assertEquals(Direction.DOWN, northEastToSouthWest[1]);
 
-    Tile.Direction[] northWestToSouthEast = northWest.directionTo(southEast);
+    Direction[] northWestToSouthEast = northWest.directionTo(southEast);
     assertEquals(2, northWestToSouthEast.length);
-    assertEquals(Tile.Direction.E, northWestToSouthEast[0]);
-    assertEquals(Tile.Direction.S, northWestToSouthEast[1]);
+    assertEquals(Direction.RIGHT, northWestToSouthEast[0]);
+    assertEquals(Direction.DOWN, northWestToSouthEast[1]);
   }
 }

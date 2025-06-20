@@ -6,7 +6,6 @@ import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
 import contrib.components.BlockComponent;
-import contrib.utils.Direction;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -21,6 +20,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -52,8 +52,7 @@ public class BlocklyCommands {
    */
   public static void move() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
+    Direction viewDirection = EntityUtils.getViewDirection(hero);
     BlocklyCommands.move(viewDirection, hero);
   }
 
@@ -72,9 +71,8 @@ public class BlocklyCommands {
     for (Tile nextTile : pathToExit) {
       Tile currentTile = Game.tileAT(pc.position());
       if (currentTile != nextTile) {
-        PositionComponent.Direction viewDirection = EntityUtils.getViewDirection(hero);
-        PositionComponent.Direction targetDirection =
-            Direction.convertTileDirectionToPosDirection(currentTile.directionTo(nextTile)[0]);
+        Direction viewDirection = EntityUtils.getViewDirection(hero);
+        Direction targetDirection = currentTile.directionTo(nextTile)[0];
         while (viewDirection != targetDirection) {
           rotate(Direction.RIGHT);
           viewDirection = EntityUtils.getViewDirection(hero);
@@ -94,16 +92,19 @@ public class BlocklyCommands {
       return; // no rotation
     }
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(hero));
-    Direction newDirection =
-        switch (viewDirection) {
-          case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
-          case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
-          case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
-          case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
-          default -> throw new IllegalArgumentException("Can not rotate in " + viewDirection);
-        };
+    Direction viewDirection = EntityUtils.getViewDirection(hero);
+    Direction newDirection;
+    if (viewDirection == Direction.UP) {
+      newDirection = direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
+    } else if (viewDirection == Direction.DOWN) {
+      newDirection = direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
+    } else if (viewDirection == Direction.LEFT) {
+      newDirection = direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
+    } else if (viewDirection == Direction.RIGHT) {
+      newDirection = direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
+    } else {
+      newDirection = viewDirection; // no change
+    }
     BlocklyCommands.turnEntity(hero, newDirection);
     Server.waitDelta();
   }
@@ -256,16 +257,16 @@ public class BlocklyCommands {
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    PositionComponent.Direction viewDirection = heroPC.viewDirection();
+    Direction viewDirection = heroPC.viewDirection();
     Tile inFront = Game.tileAT(heroPC.position(), viewDirection);
     Tile checkTile;
     Direction moveDirection;
     if (push) {
       checkTile = Game.tileAT(inFront.position(), viewDirection);
-      moveDirection = Direction.fromPositionCompDirection(viewDirection);
+      moveDirection = viewDirection;
     } else {
       checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
-      moveDirection = Direction.fromPositionCompDirection(viewDirection.opposite());
+      moveDirection = viewDirection.opposite();
     }
     if (!checkTile.isAccessible()
         || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))
@@ -282,7 +283,7 @@ public class BlocklyCommands {
     toMove.remove(hero);
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
-    BlocklyCommands.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
+    BlocklyCommands.turnEntity(hero, viewDirection);
     Server.waitDelta();
     DISABLE_SHOOT_ON_HERO = false;
   }
@@ -409,7 +410,7 @@ public class BlocklyCommands {
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-      Tile targetTile = Game.tileAT(pc.position(), Direction.toPositionCompDirection(direction));
+      Tile targetTile = Game.tileAT(pc.position(), direction);
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
@@ -462,9 +463,7 @@ public class BlocklyCommands {
    */
   @HideLanguage
   public static void move(final Entity entity) {
-    Direction viewDirection =
-        Direction.fromPositionCompDirection(EntityUtils.getViewDirection(entity));
-    move(viewDirection, entity);
+    move(EntityUtils.getViewDirection(entity), entity);
   }
 
   /**

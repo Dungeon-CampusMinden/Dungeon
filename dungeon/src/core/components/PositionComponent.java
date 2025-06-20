@@ -171,30 +171,4 @@ public final class PositionComponent implements Component {
   public void viewDirection(final Direction direction) {
     this.viewDirection = direction;
   }
-
-  /** Represents the possible directions an entity can face. */
-  public enum Direction {
-    /** Direction up (away from camera). */
-    UP,
-    /** Direction down (facing camera). */
-    DOWN,
-    /** Direction left. */
-    LEFT,
-    /** Direction right. */
-    RIGHT;
-
-    /**
-     * Returns the opposite direction.
-     *
-     * @return the opposite Direction
-     */
-    public Direction opposite() {
-      return switch (this) {
-        case UP -> DOWN;
-        case DOWN -> UP;
-        case LEFT -> RIGHT;
-        case RIGHT -> LEFT;
-      };
-    }
-  }
 }
