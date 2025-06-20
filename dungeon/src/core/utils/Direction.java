@@ -6,44 +6,56 @@ import java.util.Random;
 /**
  * Represents a 2D direction as a vector with x and y components.
  *
- * <p>This record provides constants for the four cardinal directions and a 'NONE' direction for no
- * movement. It handles relative directions (left, right, back) through transformation methods like
- * {@link #turnLeft()}, {@link #turnRight()}, {@link #opposite()} and {@link #applyRelative(Direction)}.
- *
- * @param dx The change in the x-coordinate.
- * @param dy The change in the y-coordinate.
- * @param name The name of the direction, e.g., "up", "down", "left", "right", or "none".
+ * <p>This enum provides constants for the four cardinal directions (UP, RIGHT, DOWN, LEFT) and a
+ * 'NONE' direction for no movement. It handles relative directions (left, right, back) through
+ * transformation methods like {@link #turnLeft()}, {@link #turnRight()}, {@link #opposite()} and
+ * {@link #applyRelative(Direction)}.
  */
-public record Direction(int dx, int dy, String name) {
-
+public enum Direction {
   /** The constant representing the upward direction (0, 1). */
-  public static final Direction UP = new Direction(0, 1, "up");
-
+  UP(0, 1),
   /** The constant representing the rightward direction (1, 0). */
-  public static final Direction RIGHT = new Direction(1, 0, "right");
-
+  RIGHT(1, 0),
   /** The constant representing the downward direction (0, -1). */
-  public static final Direction DOWN = new Direction(0, -1, "down");
-
+  DOWN(0, -1),
   /** The constant representing the leftward direction (-1, 0). */
-  public static final Direction LEFT = new Direction(-1, 0, "left");
-
+  LEFT(-1, 0),
   /** The constant representing no direction (0, 0). */
-  public static final Direction NONE = new Direction(0, 0, "none");
+  NONE(0, 0);
 
-  private static final Direction[] VALUES = {UP, RIGHT, DOWN, LEFT};
+  private final int x;
+  private final int y;
+
+  private static final Direction[] CARDINAL_DIRECTIONS = {UP, RIGHT, DOWN, LEFT};
   private static final Random RANDOM = new Random();
 
-  private Direction(int dx, int dy) {
-    this(
-        dx,
-        dy,
-        switch (dx) {
-          case 0 -> (dy > 0) ? "up" : (dy < 0) ? "down" : "none";
-          case 1 -> "right";
-          case -1 -> "left";
-          default -> "none"; // For dx = 0 and dy = 0
-        });
+  /**
+   * Constructs a new Direction.
+   *
+   * @param x The change in the x-coordinate.
+   * @param y The change in the y-coordinate.
+   */
+  Direction(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  /**
+   * Gets the change in the x-coordinate.
+   *
+   * @return The x-component of the direction vector.
+   */
+  public int x() {
+    return x;
+  }
+
+  /**
+   * Gets the change in the y-coordinate.
+   *
+   * @return The y-component of the direction vector.
+   */
+  public int y() {
+    return y;
   }
 
   /**
@@ -52,7 +64,13 @@ public record Direction(int dx, int dy, String name) {
    * @return The opposite direction.
    */
   public Direction opposite() {
-    return new Direction(-dx, -dy);
+    return switch (this) {
+      case UP -> DOWN;
+      case DOWN -> UP;
+      case LEFT -> RIGHT;
+      case RIGHT -> LEFT;
+      default -> NONE;
+    };
   }
 
   /**
@@ -61,7 +79,13 @@ public record Direction(int dx, int dy, String name) {
    * @return The new direction after a left turn.
    */
   public Direction turnLeft() {
-    return new Direction(-dy, dx);
+    return switch (this) {
+      case UP -> LEFT;
+      case LEFT -> DOWN;
+      case DOWN -> RIGHT;
+      case RIGHT -> UP;
+      default -> NONE;
+    };
   }
 
   /**
@@ -70,7 +94,13 @@ public record Direction(int dx, int dy, String name) {
    * @return The new direction after a right turn.
    */
   public Direction turnRight() {
-    return new Direction(dy, -dx);
+    return switch (this) {
+      case UP -> RIGHT;
+      case RIGHT -> DOWN;
+      case DOWN -> LEFT;
+      case LEFT -> UP;
+      default -> NONE;
+    };
   }
 
   /**
@@ -90,118 +120,56 @@ public record Direction(int dx, int dy, String name) {
    * @return The new direction after applying the relative transformation.
    */
   public Direction applyRelative(Direction relative) {
-    if (relative.equals(DOWN)) {
-      return this.opposite();
-    } else if (relative.equals(LEFT)) {
-      return this.turnLeft();
-    } else if (relative.equals(RIGHT)) {
-      return this.turnRight();
-    }
-    return this; // If NONE or UP
-  }
-
-  /**
-   * Returns the name of this direction.
-   *
-   * @return The name of the direction, e.g., "up", "down", "left", "right", or "none".
-   */
-  public String name() {
-    return name;
-  }
-
-  /**
-   * Returns an array of all cardinal directions.
-   *
-   * @return An array containing the directions: UP, RIGHT, DOWN, LEFT.
-   */
-  public static Direction[] values() {
-    return VALUES.clone();
-  }
-
-  /**
-   * Returns the integer value representing this direction.
-   *
-   * <p>Returns:
-   *
-   * <ul>
-   *   <li>0 for UP
-   *   <li>1 for RIGHT
-   *   <li>2 for DOWN
-   *   <li>3 for LEFT
-   *   <li>-1 for NONE (not a cardinal direction)
-   * </ul>
-   *
-   * @return The integer value of the direction.
-   */
-  public int value() {
-    if (this.equals(UP)) {
-      return 0;
-    } else if (this.equals(RIGHT)) {
-      return 1;
-    } else if (this.equals(DOWN)) {
-      return 2;
-    } else if (this.equals(LEFT)) {
-      return 3;
-    } else {
-      return -1; // NONE is not a cardinal direction
-    }
+    return switch (relative) {
+      case DOWN -> this.opposite();
+      case LEFT -> this.turnLeft();
+      case RIGHT -> this.turnRight();
+      default -> this; // UP or NONE
+    };
   }
 
   /**
    * Returns a random cardinal direction.
    *
-   * @return A random direction from NORTH, EAST, SOUTH, WEST.
+   * @return A random direction from UP, RIGHT, DOWN, LEFT.
    */
   public static Direction random() {
-    return VALUES[RANDOM.nextInt(VALUES.length)];
+    return CARDINAL_DIRECTIONS[RANDOM.nextInt(CARDINAL_DIRECTIONS.length)];
   }
 
   /**
    * Converts this direction to a {@link Point}.
    *
-   * @return A new Point with the dx and dy from this direction.
+   * @return A new Point with the x and y from this direction.
    */
   public Point toPoint() {
-    return new Point(dx, dy);
+    return new Point(x, y);
   }
 
   /**
    * Converts this direction to a {@link Coordinate}.
    *
-   * @return A new Coordinate with the dx and dy from this direction.
+   * @return A new Coordinate with the x and y from this direction.
    */
   public Coordinate toCoordinate() {
-    return new Coordinate(dx, dy);
+    return new Coordinate(x, y);
   }
 
   /**
    * Converts a string representation to a {@link Direction}.
    *
    * @param direction The string representation of the direction, e.g., "up", "down", "left",
-   *     "right".
-   * @return The corresponding {@link Direction} value.
+   *     "right", "none".
+   * @return The corresponding {@link Direction} ordinal.
    * @throws IllegalArgumentException if the string does not match any direction.
    */
   public static Direction fromString(String direction) {
-    direction = direction.toLowerCase();
-
-    for (Direction dir : Direction.values()) {
-      if (dir.name.equals(direction)) {
+    String lowerCaseDirection = direction.toLowerCase();
+    for (Direction dir : values()) {
+      if (dir.name().toLowerCase().equals(lowerCaseDirection)) {
         return dir;
       }
     }
     throw new IllegalArgumentException("Invalid direction: " + direction);
-  }
-
-  @Override
-  public String toString() {
-    return "Direction{" + "dx=" + dx + ", dy=" + dy + ", name='" + name + '\'' + '}';
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) return true;
-    if (!(other instanceof Direction(int otherDx, int otherDy, String otherName))) return false;
-    return dx == otherDx && dy == otherDy && name.equals(otherName);
   }
 }
