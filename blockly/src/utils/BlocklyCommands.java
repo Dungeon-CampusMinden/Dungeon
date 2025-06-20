@@ -487,20 +487,21 @@ public class BlocklyCommands {
   }
 
   /**
-   * Checks if the Bosses viewDirection equals the given direction.
+   * Checks whether the boss's view direction equals the given direction.
    *
-   * @param direction the direction to check for.
-   * @return {@code true} if the Bosses viewDirection equals the input direction.
+   * <p>This method is specifically used for the boss in Blockly Chapter 3, Level 4.
+   *
+   * @param direction the direction to check against
+   * @return {@code true} if the boss's view direction equals the given direction; {@code false} if
+   *     the direction does not match, or if the boss or its PositionComponent is missing
    */
   public static boolean checkBossViewDirection(Direction direction) {
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
-    c.x -= 1;
-    Tile bossLocationTile = Game.tileAT(c);
-
-    Entity boss = Game.entityAtTile(bossLocationTile).findFirst().orElseThrow();
-    PositionComponent bosspc =
-        boss.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
-    return bosspc.viewDirection().equals(Direction.toPositionCompDirection(direction));
+    return Game.allEntities()
+        .filter(e -> e.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .flatMap(e -> e.fetch(PositionComponent.class))
+        .map(PositionComponent::viewDirection)
+        .map(d -> d.equals(Direction.toPositionCompDirection(direction)))
+        .orElse(false);
   }
 }
