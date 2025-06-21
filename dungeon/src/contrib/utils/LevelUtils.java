@@ -59,7 +59,7 @@ public class LevelUtils {
    */
   public static List<Coordinate> walkableNeighbors(Coordinate coord) {
     return Arrays.stream(Direction.values())
-        .filter(direction -> direction != Direction.HERE)
+        .filter(direction -> direction != Direction.NONE)
         .map(coord::translate)
         .filter(LevelUtils::isWalkable)
         .toList();

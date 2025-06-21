@@ -443,14 +443,7 @@ public final class Game {
    * @param direction The direction in which to find the next tile
    * @return The tile that is the next tile from the given coordinate in the specified direction.
    */
-  public static Tile tileAT(final Coordinate coordinate, PositionComponent.Direction direction) {
-    Vector2 vector =
-        switch (direction) {
-          case UP -> Vector2.UP;
-          case LEFT -> Vector2.LEFT;
-          case DOWN -> Vector2.DOWN;
-          case RIGHT -> Vector2.RIGHT;
-        };
+  public static Tile tileAT(final Coordinate coordinate, Direction direction) {
     return tileAT(coordinate.translate(vector));
   }
 

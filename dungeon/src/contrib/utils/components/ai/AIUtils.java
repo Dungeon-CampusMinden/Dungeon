@@ -47,14 +47,10 @@ public final class AIUtils {
       return;
     }
 
-    Vector2 direction = Vector2.ZERO;
-    for (Tile.Direction dir : currentTile.directionTo(nextTile)) {
-      switch (dir) {
-        case N -> direction = direction.add(Vector2.UP);
-        case S -> direction = direction.add(Vector2.DOWN);
-        case E -> direction = direction.add(Vector2.RIGHT);
-        case W -> direction = direction.add(Vector2.LEFT);
-      }
+    for (Direction direction : currentTile.directionTo(nextTile)) {
+      Point velocity = direction.translate(new Point(vc.currentXVelocity(), vc.currentYVelocity()));
+      if (velocity.x != 0) vc.currentXVelocity(velocity.x * vc.xVelocity());
+      if (velocity.y != 0) vc.currentYVelocity(velocity.y * vc.yVelocity());
     }
     vc.currentVelocity(direction.normalize().scale(vc.velocity()));
   }
