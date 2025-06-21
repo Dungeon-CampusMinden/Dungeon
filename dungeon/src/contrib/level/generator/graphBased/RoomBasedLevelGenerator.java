@@ -140,22 +140,26 @@ public final class RoomBasedLevelGenerator {
 
       // place door steps
       Tile doorStep = null;
-      if (doorDirection == Direction.UP) {
-        doorStep =
-            door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
-      } else if (doorDirection == Direction.RIGHT) {
-        doorStep =
-            door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
-      } else if (doorDirection == Direction.DOWN) {
-        doorStep =
-            door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
-      } else if (doorDirection == Direction.LEFT) {
-        doorStep =
-            door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
-      } else {
-        LOGGER.warning(
-            "Invalid door direction: " + doorDirection + " for door at " + door.coordinate());
-        return;
+      switch (doorDirection) {
+        case UP ->
+            doorStep =
+                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
+        case RIGHT ->
+            doorStep =
+                door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
+        case DOWN ->
+            doorStep =
+                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
+        case LEFT ->
+            doorStep =
+                door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
+        case NONE -> {
+          LOGGER.warning(
+              "Door at "
+                  + door.coordinate()
+                  + " has no direction, cannot set doorstep. Please check your level graph.");
+          continue; // skip this door
+        }
       }
       door.doorstep(doorStep);
     }

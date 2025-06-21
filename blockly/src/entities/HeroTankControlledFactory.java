@@ -63,14 +63,14 @@ public class HeroTankControlledFactory {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-    if (direction == Direction.UP) {
-      vc.currentYVelocity(vc.yVelocity());
-    } else if (direction == Direction.DOWN) {
-      vc.currentYVelocity(-vc.yVelocity());
-    } else if (direction == Direction.LEFT) {
-      vc.currentXVelocity(-vc.xVelocity());
-    } else if (direction == Direction.RIGHT) {
-      vc.currentXVelocity(vc.xVelocity());
+    switch (direction) {
+      case UP -> vc.currentYVelocity(vc.yVelocity());
+      case DOWN -> vc.currentYVelocity(-vc.yVelocity());
+      case LEFT -> vc.currentXVelocity(-vc.xVelocity());
+      case RIGHT -> vc.currentXVelocity(vc.xVelocity());
+      case NONE -> {
+        // No movement if direction is NONE
+      }
     }
   }
 }
