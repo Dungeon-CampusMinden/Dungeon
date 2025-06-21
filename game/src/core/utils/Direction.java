@@ -149,7 +149,7 @@ public enum Direction {
    *   <li>NONE is represented as (0, 0)
    * </ul>
    *
-   * * @return A {@link Vector2} representing the direction.
+   * @return A {@link Vector2} representing the direction.
    */
   private Vector<Integer> directionVector() {
     int x = 0;
