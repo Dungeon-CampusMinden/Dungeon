@@ -1,6 +1,7 @@
 package core.level.utils;
 
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
  * Coordinate in the dungeon, based on array index.
@@ -72,9 +73,33 @@ public class Coordinate {
    *
    * @param other which Coordinate to add
    * @return Coordinate where the values for x and y are added
+   * @deprecated A coordinate should not be added to another coordinate. Use {@link #add(Vector2)} to
+   *     move a coordinate or {@link #vectorTo(Coordinate)} to get the vector between two
+   *     coordinates.
    */
+  @Deprecated
   public Coordinate add(final Coordinate other) {
     return new Coordinate(this.x + other.x, this.y + other.y);
+  }
+
+  /**
+   * Moves this coordinate by a vector.
+   *
+   * @param vector The vector to move the coordinate by.
+   * @return A new coordinate that is the sum of this coordinate and the given vector.
+   */
+  public Coordinate add(final Vector2 vector) {
+    return new Coordinate(this.x + (int) vector.x(), this.y + (int) vector.y());
+  }
+
+  /**
+   * Calculates the vector from this coordinate to another coordinate.
+   *
+   * @param other The other coordinate.
+   * @return The vector from this coordinate to the other coordinate.
+   */
+  public Vector2 vectorTo(final Coordinate other) {
+    return new Vector2(other.x - this.x, other.y - this.y);
   }
 
   @Override

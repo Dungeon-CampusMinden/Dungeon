@@ -55,15 +55,17 @@ public final class Point {
    * @param a Point A
    * @param b Point B
    * @return the unit vector
+   * @deprecated please use {@link #vectorTo(Point)} and {@link Vector2#normalize()}
    */
+  @Deprecated
   public static Point unitDirectionalVector(final Point b, final Point a) {
     Point interactionDir = new Point(b);
     // (interactable - a) / len(interactable - a)
     interactionDir.x -= a.x;
     interactionDir.y -= a.y;
     double vecLength = calculateDistance(a, b);
-    interactionDir.x /= vecLength;
-    interactionDir.y /= vecLength;
+    interactionDir.x /= (float) vecLength;
+    interactionDir.y /= (float) vecLength;
     return interactionDir;
   }
 
@@ -94,9 +96,32 @@ public final class Point {
    *
    * @param other which point to add
    * @return Point where the values for x and y are added
+   * @deprecated A point should not be added to another point. Use {@link #add(Vector2)} to move a
+   *     point or {@link #vectorTo(Point)} to get the vector between two points.
    */
+  @Deprecated
   public Point add(final Point other) {
     return new Point(this.x + other.x, this.y + other.y);
+  }
+
+  /**
+   * Moves this point by a vector.
+   *
+   * @param vector The vector to move the point by.
+   * @return A new point that is the sum of this point and the given vector.
+   */
+  public Point add(final Vector2 vector) {
+    return new Point(this.x + vector.x(), this.y + vector.y());
+  }
+
+  /**
+   * Calculates the vector from this point to another point.
+   *
+   * @param other The other point.
+   * @return The vector from this point to the other point.
+   */
+  public Vector2 vectorTo(final Point other) {
+    return new Vector2(other.x - this.x, other.y - this.y);
   }
 
   /**
