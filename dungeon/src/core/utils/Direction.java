@@ -41,24 +41,6 @@ public enum Direction {
   }
 
   /**
-   * Gets the change in the x-coordinate.
-   *
-   * @return The x-component of the direction vector.
-   */
-  public int x() {
-    return x;
-  }
-
-  /**
-   * Gets the change in the y-coordinate.
-   *
-   * @return The y-component of the direction vector.
-   */
-  public int y() {
-    return y;
-  }
-
-  /**
    * Returns the opposite direction.
    *
    * @return The opposite direction.
