@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
@@ -135,16 +136,16 @@ public final class VelocitySystem extends System {
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
       if (x > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.RIGHT);
+        vsd.pc.viewDirection(Direction.RIGHT);
       } else if (x < 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.LEFT);
+        vsd.pc.viewDirection(Direction.LEFT);
       } else if (y > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.UP);
+        vsd.pc.viewDirection(Direction.UP);
       } else if (y < 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-        vsd.pc.viewDirection(PositionComponent.Direction.DOWN);
+        vsd.pc.viewDirection(Direction.DOWN);
       }
 
       vsd.vc.previousXVelocity(x);
@@ -188,6 +189,13 @@ public final class VelocitySystem extends System {
                 CoreAnimations.IDLE_LEFT,
                 CoreAnimations.IDLE_DOWN,
                 CoreAnimations.IDLE_UP);
+        case NONE -> // Invalid direction
+            LOGGER.warning(
+                "Entity "
+                    + vsd.e.id()
+                    + " has an invalid view direction: "
+                    + vsd.pc.viewDirection()
+                    + ". Cannot queue idle animation.");
       }
     }
   }

@@ -10,10 +10,10 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.level.DevDungeonLoader;
-import contrib.utils.Direction;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
+import core.utils.Direction;
 import core.utils.Point;
 import entities.VariableHUD;
 import java.io.*;
@@ -1337,7 +1337,12 @@ public class Server {
       case "drehe" -> {
         Direction firstArg;
         if (args[0] instanceof String firstArgStr) {
-          firstArg = Direction.fromString(firstArgStr);
+          try {
+            firstArg = Direction.fromString(firstArgStr);
+          } catch (IllegalArgumentException e) {
+            setError("Invalid direction: " + firstArgStr);
+            return;
+          }
         } else {
           setError("Unexpected type for direction " + args[0]);
           return;

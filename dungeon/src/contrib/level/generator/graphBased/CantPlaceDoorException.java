@@ -1,8 +1,8 @@
 package contrib.level.generator.graphBased;
 
-import contrib.level.generator.graphBased.levelGraph.Direction;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.Direction;
 
 /**
  * Exception to throw if a door cannot be place in a room.

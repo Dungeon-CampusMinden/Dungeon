@@ -1,9 +1,9 @@
 package level.produs;
 
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -47,7 +47,7 @@ public class Chapter23Level extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
   }
 

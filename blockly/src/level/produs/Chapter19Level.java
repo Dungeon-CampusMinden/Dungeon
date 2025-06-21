@@ -2,10 +2,10 @@ package level.produs;
 
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
@@ -53,7 +53,7 @@ public class Chapter19Level extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.heroViewDirection(Direction.LEFT);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(

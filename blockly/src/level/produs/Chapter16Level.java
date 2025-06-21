@@ -4,11 +4,11 @@ import contrib.components.LeverComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.List;
@@ -65,7 +65,7 @@ public class Chapter16Level extends BlocklyLevel {
     }
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(0);
     Coordinate stone2C = customPoints().get(1);
