@@ -93,18 +93,14 @@ public class BlocklyCommands {
     }
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
-    Direction newDirection;
-    if (viewDirection == Direction.UP) {
-      newDirection = direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
-    } else if (viewDirection == Direction.DOWN) {
-      newDirection = direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
-    } else if (viewDirection == Direction.LEFT) {
-      newDirection = direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
-    } else if (viewDirection == Direction.RIGHT) {
-      newDirection = direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
-    } else {
-      newDirection = viewDirection; // no change
-    }
+    Direction newDirection =
+        switch (viewDirection) {
+          case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
+          case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
+          case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
+          case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
+          case NONE -> viewDirection; // no change
+        };
     BlocklyCommands.turnEntity(hero, newDirection);
     Server.waitDelta();
   }
