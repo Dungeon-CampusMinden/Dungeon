@@ -443,7 +443,7 @@ public final class Game {
    * @return The tile that is the next tile from the given coordinate in the specified direction.
    */
   public static Tile tileAT(final Coordinate coordinate, Direction direction) {
-    return tileAT(new Coordinate(coordinate).add(direction.toCoordinate()));
+    return tileAT(direction.translate(coordinate));
   }
 
   /**

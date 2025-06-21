@@ -211,7 +211,7 @@ public class BlocklyCommands {
             () ->
                 hero.fetch(CollideComponent.class)
                     .map(cc -> cc.center(hero))
-                    .map(p -> p.add(EntityUtils.getViewDirection(hero).toPoint()))
+                    .map(p -> EntityUtils.getViewDirection(hero).translate(p))
                     .orElseThrow(
                         () -> MissingComponentException.build(hero, CollideComponent.class)),
             FIREBALL_RANGE,
@@ -350,17 +350,16 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<Coordinate, Optional<Tile>> dirToCheck =
-        dtc ->
+    Function<Direction, Optional<Tile>> dirToCheck =
+        dir ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
-                .map(coordinate -> coordinate.add(dtc))
+                .map(dir::translate)
                 .map(Game::tileAT);
 
     // calculate direction to check relative to hero's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
         .map(d -> d.applyRelative(direction))
-        .map(Direction::toCoordinate)
-        .flatMap(dirToCheck::apply);
+        .flatMap(dirToCheck);
   }
 
   /**
@@ -411,8 +410,9 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
+        Point dir = direction.translate(new Point(0,0));
+        comp.vc.currentXVelocity(dir.x * comp.vc.xVelocity());
+        comp.vc.currentYVelocity(dir.y * comp.vc.yVelocity());
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -470,8 +470,9 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.currentXVelocity(direction.x());
-    vc.currentYVelocity(direction.y());
+    Point velocity = direction.translate(new Point(0, 0));
+    vc.currentXVelocity(velocity.x);
+    vc.currentYVelocity(velocity.y);
     // so the player cannot glitch inside the next tile
     pc.position(oldP);
   }

@@ -49,9 +49,9 @@ public final class AIUtils {
     }
 
     for (Direction direction : currentTile.directionTo(nextTile)) {
-      Point dirVec = direction.toPoint();
-      if (dirVec.x != 0) vc.currentXVelocity(dirVec.x * vc.xVelocity());
-      if (dirVec.y != 0) vc.currentYVelocity(dirVec.y * vc.yVelocity());
+      Point velocity = direction.translate(new Point(vc.currentXVelocity(), vc.currentYVelocity()));
+      if (velocity.x != 0) vc.currentXVelocity(velocity.x * vc.xVelocity());
+      if (velocity.y != 0) vc.currentYVelocity(velocity.y * vc.yVelocity());
     }
   }
 

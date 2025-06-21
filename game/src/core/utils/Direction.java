@@ -1,7 +1,9 @@
 package core.utils;
 
+import com.badlogic.gdx.math.Vector2;
 import core.level.utils.Coordinate;
 import java.util.Random;
+import java.util.Vector;
 
 /**
  * Represents a 2D direction as a vector with x and y components.
@@ -12,33 +14,18 @@ import java.util.Random;
  * {@link #applyRelative(Direction)}.
  */
 public enum Direction {
-  /** The constant representing the upward direction (0, 1). */
-  UP(0, 1),
-  /** The constant representing the rightward direction (1, 0). */
-  RIGHT(1, 0),
-  /** The constant representing the downward direction (0, -1). */
-  DOWN(0, -1),
-  /** The constant representing the leftward direction (-1, 0). */
-  LEFT(-1, 0),
-  /** The constant representing no direction (0, 0). */
-  NONE(0, 0);
+  /** The constant representing the upward direction. */
+  UP,
+  /** The constant representing the rightward direction. */
+  RIGHT,
+  /** The constant representing the downward direction. */
+  DOWN,
+  /** The constant representing the leftward direction. */
+  LEFT,
+  /** The constant representing no direction. */
+  NONE;
 
-  private final int x;
-  private final int y;
-
-  private static final Direction[] CARDINAL_DIRECTIONS = {UP, RIGHT, DOWN, LEFT};
   private static final Random RANDOM = new Random();
-
-  /**
-   * Constructs a new Direction.
-   *
-   * @param x The change in the x-coordinate.
-   * @param y The change in the y-coordinate.
-   */
-  Direction(int x, int y) {
-    this.x = x;
-    this.y = y;
-  }
 
   /**
    * Returns the opposite direction.
@@ -116,25 +103,66 @@ public enum Direction {
    * @return A random direction from UP, RIGHT, DOWN, LEFT.
    */
   public static Direction random() {
-    return CARDINAL_DIRECTIONS[RANDOM.nextInt(CARDINAL_DIRECTIONS.length)];
+    Direction[] cardinalDirections = {UP, RIGHT, DOWN, LEFT};
+    return cardinalDirections[RANDOM.nextInt(cardinalDirections.length)];
   }
 
   /**
-   * Converts this direction to a {@link Point}.
+   * Translates the given coordinate by the direction vector of this Direction.
    *
-   * @return A new Point with the x and y from this direction.
+   * <p>This method calculates the new coordinate by adding the direction vector (derived from this
+   * Direction) to the provided coordinate.
+   *
+   * @param coordinate The original coordinate to be translated.
+   * @return A new Coordinate object representing the translated position.
    */
-  public Point toPoint() {
-    return new Point(x, y);
+  public Coordinate translate(Coordinate coordinate) {
+    Vector<Integer> dirVec = directionVector();
+    return coordinate.add(new Coordinate(dirVec.getFirst(), dirVec.getLast()));
   }
 
   /**
-   * Converts this direction to a {@link Coordinate}.
+   * Translates the given point by the direction vector of this Direction.
    *
-   * @return A new Coordinate with the x and y from this direction.
+   * <p>This method calculates the new point by adding the direction vector (derived from this
+   * Direction) to the provided point.
+   *
+   * @param point The original point to be translated.
+   * @return A new Point object representing the translated position.
    */
-  public Coordinate toCoordinate() {
-    return new Coordinate(x, y);
+  public Point translate(Point point) {
+    Vector<Integer> dirVec = directionVector();
+    return point.add(new Point(dirVec.getFirst(), dirVec.getLast()));
+  }
+
+  /**
+   * Returns a vector representation of the direction.
+   *
+   * <p>This method converts the direction into a {@link Vector2} where:
+   *
+   * <ul>
+   *   <li>UP is represented as (0, -1)
+   *   <li>DOWN is represented as (0, 1)
+   *   <li>LEFT is represented as (-1, 0)
+   *   <li>RIGHT is represented as (1, 0)
+   *   <li>NONE is represented as (0, 0)
+   * </ul>
+   *
+   * * @return A {@link Vector2} representing the direction.
+   */
+  private Vector<Integer> directionVector() {
+    int x = 0;
+    int y = 0;
+    switch (this) {
+      case UP -> y = -1;
+      case DOWN -> y = 1;
+      case LEFT -> x = -1;
+      case RIGHT -> x = 1;
+      case NONE -> {
+        // No change to x and y
+      }
+    }
+    return new Vector<>(x, y);
   }
 
   /**
