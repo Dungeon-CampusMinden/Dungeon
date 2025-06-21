@@ -425,7 +425,7 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        Point dir = direction.translate(new Point(0,0));
+        Point dir = direction.translate(new Point(0, 0));
         comp.vc.currentXVelocity(dir.x * comp.vc.xVelocity());
         comp.vc.currentYVelocity(dir.y * comp.vc.yVelocity());
 

@@ -6,12 +6,13 @@ import java.util.Random;
 import java.util.Vector;
 
 /**
- * Represents a 2D direction as a vector with x and y components.
+ * The {@code Direction} enum represents the four cardinal directions (UP, RIGHT, DOWN, LEFT) and a
+ * NONE direction.
  *
- * <p>This enum provides constants for the four cardinal directions (UP, RIGHT, DOWN, LEFT) and a
- * 'NONE' direction for no movement. It handles relative directions (left, right, back) through
- * transformation methods like {@link #turnLeft()}, {@link #turnRight()}, {@link #opposite()} and
- * {@link #applyRelative(Direction)}.
+ * <p>This enum provides methods to manipulate directions, such as turning left or right, applying
+ * relative transformations, and translating coordinates or points based on the direction. It also
+ * includes utility methods for random direction selection and converting string representations to
+ * {@code Direction} values.
  */
 public enum Direction {
   /** The constant representing the upward direction. */
