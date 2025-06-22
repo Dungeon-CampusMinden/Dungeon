@@ -1,10 +1,19 @@
 package produsAdvanced.level;
 
+import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
+import core.Entity;
+import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import core.utils.Point;
 import level.AdvancedLevel;
 
 /**
@@ -17,8 +26,9 @@ import level.AdvancedLevel;
 public class AdvancedControlLevel2 extends AdvancedLevel {
 
   private static boolean showMsg = true;
-  private static String msg = "Hier geht es tief runter. Jetzt ganz langsam.";
-  private static String titel = "Level 2";
+  private static final String msg = "Hier geht es tief runter. Jetzt ganz langsam.";
+  private static final String task = "Passe deinen Code so an, dass du dich langsamer bewegst.";
+  private static final String title = "Level 2";
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -35,7 +45,10 @@ public class AdvancedControlLevel2 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
+    if (showMsg) DialogUtils.showTextPopup(msg, title, () -> {
+      showMsg = false;
+      DialogUtils.showTextPopup(task, title);
+    });
   }
 
   @Override

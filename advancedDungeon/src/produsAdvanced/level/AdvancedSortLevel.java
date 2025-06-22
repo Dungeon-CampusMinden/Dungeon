@@ -2,8 +2,10 @@ package produsAdvanced.level;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
+import contrib.components.SignComponent;
 import contrib.entities.LeverFactory;
 import contrib.entities.MonsterFactory;
+import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
 import contrib.utils.DynamicCompiler;
@@ -42,7 +44,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
   /** Delaymultiplicator for the {@link EventScheduler} to draw position swap. */
   public static int delay_multiplication = 0;
 
-  private static boolean showText = true;
+  private static boolean showMsg = true;
   private final List<Monster> mobs = new ArrayList<>();
   private final AtomicInteger counter = new AtomicInteger(0);
   private final int[] monsterHPArray = {5, 7, 3, 6, 9, 2, 1};
@@ -52,6 +54,20 @@ public class AdvancedSortLevel extends AdvancedLevel {
   private static final SimpleIPath MONSTER_SORT_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyMonsterSort.java");
   private static final String MONSTER_SORT_CLASSNAME = "produsAdvanced.riddles.MyMonsterSort";
+
+  private static final String msg = "Da herrscht ja ein heilloses Durcheinander! Vielleicht öffnet sich ja die Tür, wenn ich hier für Ordnung sorge.";
+  private static final String title = "Level 9";
+  private static final List<String> messages = Arrays.asList(
+    "Betätige den Schalter und schau was passiert.",
+    "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht.",
+    "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
+    "Die Lebenspunkte der Monster erhältst du mit mit .hp() für ein Monster aus dem Array.");
+  private static final List<String> titles = Arrays.asList(
+    "noch drei Hinweise",
+    "noch zwei Hinweise",
+    "noch ein Hinweis",
+    "letzter Hinweis");
+  AtomicInteger currentIndex = new AtomicInteger(-1);
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -68,12 +84,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Sortiere die Monster nach ihren Lebenspunkten. Das Schwächste sollte an erster Stelle stehen. Wenn du es geschafft hast, betätige den Hebel!",
-          "Ziel");
-      showText = false;
-    }
+    if (showMsg) DialogUtils.showTextPopup(msg, title, () -> showMsg = false);
 
     ICommand leverAction =
         new ICommand() {
@@ -118,6 +129,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
     door.close();
 
     Game.add(lever);
+    addSign();
   }
 
   @Override
@@ -192,5 +204,35 @@ public class AdvancedSortLevel extends AdvancedLevel {
 
     // Sort the list using the index map
     mobs.sort(Comparator.comparingInt(indexMap::get));
+  }
+
+  private void addSign() {
+    Entity sign =
+      SignFactory.createSign(
+        "", // Der Text, der angezeigt werden soll
+        "", // Titel
+        new Point(3.5F, 7.5F), // Position des Schildes
+        (entity, hero) -> {
+
+          // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
+          if (currentIndex.get() < messages.size() - 1) {
+            currentIndex.incrementAndGet();
+            Game.entityStream(Set.of(SignComponent.class))
+              .filter(signEntity -> signEntity.equals(entity))
+              .findFirst()
+              .ifPresent(
+                signEntity -> {
+                  // Aktualisiere den Text des Schildes
+                  SignComponent signComponent =
+                    signEntity.fetch(SignComponent.class)
+                      .orElseThrow(() -> new RuntimeException("SignComponent not found"));
+                  signComponent.text(messages.get(currentIndex.get()));
+                  signComponent.title(titles.get(currentIndex.get()));
+                });
+
+          }
+        }
+      );
+    Game.add(sign);
   }
 }
