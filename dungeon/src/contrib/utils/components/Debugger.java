@@ -25,6 +25,7 @@ import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -69,10 +70,10 @@ public class Debugger {
     LOGGER.info("TELEPORT TO END");
     Coordinate endTile = Game.endTile().coordinate();
     Coordinate[] neighborTiles = {
-      new Coordinate(endTile.x + 1, endTile.y),
-      new Coordinate(endTile.x - 1, endTile.y),
-      new Coordinate(endTile.x, endTile.y + 1),
-      new Coordinate(endTile.x, endTile.y - 1)
+      endTile.add(Vector2.UP),
+      endTile.add(Vector2.DOWN),
+      endTile.add(Vector2.LEFT),
+      endTile.add(Vector2.RIGHT),
     };
     for (Coordinate neighborTile : neighborTiles) {
       Tile neighbor = Game.tileAT(neighborTile);
@@ -122,7 +123,7 @@ public class Debugger {
       // Attempt to teleport to targetLocation
       LOGGER.log(
           CustomLogLevel.DEBUG,
-          "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
+          "Trying to teleport to " + targetLocation.x() + ":" + targetLocation.y());
       Tile t = Game.tileAT(targetLocation);
       if (t == null || !t.isAccessible()) {
         LOGGER.info("Cannot teleport to non-existing or non-accessible tile");

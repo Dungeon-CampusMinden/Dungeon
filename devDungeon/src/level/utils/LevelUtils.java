@@ -61,7 +61,7 @@ public class LevelUtils {
               for (int dy = -radius; dy <= radius; dy++) {
                 if (dx * dx + dy * dy > radius * radius) continue; // Ensure circular pattern
 
-                Coordinate target = new Coordinate(center.x + dx, center.y + dy);
+                Coordinate target = new Coordinate(center.x() + dx, center.y() + dy);
                 if (!hasLineOfSight(center, target)) {
                   continue; // Skip if no direct line of sight
                 }
@@ -88,13 +88,13 @@ public class LevelUtils {
    *     obstructed by walls.
    */
   private static boolean hasLineOfSight(Coordinate center, Coordinate target) {
-    int x = center.x;
-    int y = center.y;
-    int dx = Math.abs(target.x - center.x);
-    int dy = Math.abs(target.y - center.y);
+    int x = center.x();
+    int y = center.y();
+    int dx = Math.abs(target.x() - center.x());
+    int dy = Math.abs(target.y() - center.y());
 
-    int sx = center.x < target.x ? 1 : -1;
-    int sy = center.y < target.y ? 1 : -1;
+    int sx = center.x() < target.x() ? 1 : -1;
+    int sy = center.y() < target.y() ? 1 : -1;
     int err = dx - dy;
     int e2;
 
@@ -105,7 +105,7 @@ public class LevelUtils {
         return false;
       }
 
-      if (x == target.x && y == target.y) {
+      if (x == target.x() && y == target.y()) {
         break;
       }
 

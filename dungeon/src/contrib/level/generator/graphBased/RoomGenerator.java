@@ -440,9 +440,9 @@ public final class RoomGenerator {
         throw new CantPlaceDoorException(layout, Direction.NORTH, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-      layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+      layout[doorCoordinate.y()][doorCoordinate.x()] = LevelElement.DOOR;
       // make sure the door is accessible
-      layout[doorCoordinate.y - 1][doorCoordinate.x] = LevelElement.FLOOR;
+      layout[doorCoordinate.y() - 1][doorCoordinate.x()] = LevelElement.FLOOR;
     }
     if (south) {
       ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -465,9 +465,9 @@ public final class RoomGenerator {
         throw new CantPlaceDoorException(layout, Direction.SOUTH, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-      layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+      layout[doorCoordinate.y()][doorCoordinate.x()] = LevelElement.DOOR;
       // make sure the door is accessible
-      layout[doorCoordinate.y + 1][doorCoordinate.x] = LevelElement.FLOOR;
+      layout[doorCoordinate.y() + 1][doorCoordinate.x()] = LevelElement.FLOOR;
     }
     if (west) {
       ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -490,9 +490,9 @@ public final class RoomGenerator {
         throw new CantPlaceDoorException(layout, Direction.WEST, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-      layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+      layout[doorCoordinate.y()][doorCoordinate.x()] = LevelElement.DOOR;
       // make sure the door is accessible
-      layout[doorCoordinate.y][doorCoordinate.x + 1] = LevelElement.FLOOR;
+      layout[doorCoordinate.y()][doorCoordinate.x() + 1] = LevelElement.FLOOR;
     }
     if (east) {
       ArrayList<Coordinate> possibleDoorCoordinates = new ArrayList<>();
@@ -515,9 +515,9 @@ public final class RoomGenerator {
         throw new CantPlaceDoorException(layout, Direction.EAST, size);
       int doorIndex = random.nextInt(possibleDoorCoordinates.size());
       Coordinate doorCoordinate = possibleDoorCoordinates.get(doorIndex);
-      layout[doorCoordinate.y][doorCoordinate.x] = LevelElement.DOOR;
+      layout[doorCoordinate.y()][doorCoordinate.x()] = LevelElement.DOOR;
       // make sure the door is accessible
-      layout[doorCoordinate.y][doorCoordinate.x - 1] = LevelElement.FLOOR;
+      layout[doorCoordinate.y()][doorCoordinate.x() - 1] = LevelElement.FLOOR;
     }
   }
 

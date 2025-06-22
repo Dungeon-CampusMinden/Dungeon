@@ -3,7 +3,6 @@ package contrib.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.math.Vector2;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
@@ -21,6 +20,7 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -61,7 +61,7 @@ public final class HeroFactory {
    * @return Copy of the default speed of the hero.
    */
   public static Vector2 defaultHeroSpeed() {
-    return new Vector2(SPEED_HERO.x, SPEED_HERO.y);
+    return new Vector2(SPEED_HERO);
   }
 
   /**
@@ -130,7 +130,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(SPEED_HERO.x, SPEED_HERO.y, (e) -> {}, true));
+    hero.add(new VelocityComponent(SPEED_HERO.x(), SPEED_HERO.y(), (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -195,9 +195,7 @@ public final class HeroFactory {
           KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
             // Small adjustment to get the correct tile
-            Point mousePos = SkillTools.cursorPositionAsPoint();
-            mousePos.x = mousePos.x - 0.5f;
-            mousePos.y = mousePos.y - 0.25f;
+            Point mousePos = SkillTools.cursorPositionAsPoint().add(new Vector2(-0.5f, -0.25f));
 
             Point heroPos =
                 innerHero
@@ -334,11 +332,11 @@ public final class HeroFactory {
                   .fetch(VelocityComponent.class)
                   .orElseThrow(
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
-          if (direction.x != 0) {
-            vc.currentXVelocity(direction.x * vc.xVelocity());
+          if (direction.x() != 0) {
+            vc.currentXVelocity(direction.x() * vc.xVelocity());
           }
-          if (direction.y != 0) {
-            vc.currentYVelocity(direction.y * vc.yVelocity());
+          if (direction.y() != 0) {
+            vc.currentYVelocity(direction.y() * vc.yVelocity());
           }
           // Abort any path finding on own movement
           if (ENABLE_MOUSE_MOVEMENT) {
@@ -405,8 +403,8 @@ public final class HeroFactory {
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
       throws MissingComponentException {
-    pos.x = pos.x - 0.5f;
-    pos.y = pos.y - 0.25f;
+    pos = pos.add(new Vector2(-0.5f, -0.25f));
+
     Tile mouseTile = Game.tileAT(pos);
     if (mouseTile == null) return Optional.empty();
 
