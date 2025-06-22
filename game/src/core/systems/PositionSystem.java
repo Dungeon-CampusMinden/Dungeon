@@ -5,6 +5,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.NoSuchElementException;
 
@@ -50,8 +51,7 @@ public final class PositionSystem extends System {
                     new NoSuchElementException(
                         "There is no free tile in the level; the entity can't be placed."));
     // place on center
-    position.x += 0.5f;
-    position.y += 0.5f;
+    position = position.add(new Vector2(0.5f, 0.5f));
     data.pc().position(position);
   }
 

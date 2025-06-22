@@ -254,7 +254,7 @@ public class Server {
     if (heroPos == null) {
       heroPos = new Point(0, 0);
     }
-    String response = heroPos.x + "," + heroPos.y;
+    String response = heroPos.x() + "," + heroPos.y();
     exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();

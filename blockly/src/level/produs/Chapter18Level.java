@@ -119,7 +119,7 @@ public class Chapter18Level extends BlocklyLevel {
     if (heroCoord == null) {
       return; // Hero not yet spawned
     }
-    if (heroCoord.y < 10) LevelManagementUtils.cameraFocusOn(new Coordinate(10, 5));
+    if (heroCoord.y() < 10) LevelManagementUtils.cameraFocusOn(new Coordinate(10, 5));
     else LevelManagementUtils.cameraFocusOn(new Coordinate(10, 15));
 
     if (switch1.isOn()) door1.open();

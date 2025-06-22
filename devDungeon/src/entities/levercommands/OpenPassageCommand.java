@@ -51,12 +51,12 @@ public class OpenPassageCommand implements ICommand {
   public void execute() {
     if (!isOpen) {
       this.originalTiles =
-          new LevelElement[bottomRight.x - topLeft.x + 1][topLeft.y - bottomRight.y + 1];
-      for (int x = topLeft.x; x <= bottomRight.x; x++) {
-        for (int y = bottomRight.y; y <= topLeft.y; y++) {
+          new LevelElement[bottomRight.x() - topLeft.x() + 1][topLeft.y() - bottomRight.y() + 1];
+      for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
+        for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
           Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
           if (tile == null) return;
-          originalTiles[x - topLeft.x][topLeft.y - y] = tile.levelElement();
+          originalTiles[x - topLeft.x()][topLeft.y() - y] = tile.levelElement();
           Game.currentLevel().changeTileElementType(tile, LevelElement.FLOOR);
           Tile newTile = Game.currentLevel().tileAt(new Coordinate(x, y));
           ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).updateTile(tile, newTile);
@@ -70,19 +70,19 @@ public class OpenPassageCommand implements ICommand {
   @Override
   public void undo() {
     if (isOpen) {
-      for (int x = topLeft.x; x <= bottomRight.x; x++) {
-        for (int y = bottomRight.y; y <= topLeft.y; y++) {
+      for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
+        for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
           Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
           if (tile == null) return;
-          LevelElement oldElement = originalTiles[x - topLeft.x][topLeft.y - y];
+          LevelElement oldElement = originalTiles[x - topLeft.x()][topLeft.y() - y];
           Game.currentLevel().changeTileElementType(tile, oldElement);
           Tile newTile = Game.currentLevel().tileAt(new Coordinate(x, y));
           ((FogOfWarSystem) Game.systems().get(FogOfWarSystem.class)).updateTile(tile, newTile);
         }
       }
       // Workaround to fix wall textures
-      for (int x = topLeft.x; x <= bottomRight.x; x++) {
-        for (int y = bottomRight.y; y <= topLeft.y; y++) {
+      for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
+        for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
           Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
           if (tile == null) return;
           Game.currentLevel().changeTileElementType(tile, tile.levelElement());

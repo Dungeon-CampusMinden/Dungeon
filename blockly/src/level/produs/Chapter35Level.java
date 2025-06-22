@@ -11,6 +11,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
@@ -84,8 +85,8 @@ public class Chapter35Level extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
 
     // BOSS
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
-    c.x -= 1;
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().add(Vector2.DOWN);
+
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
     bossBuilder.addToGame();
@@ -111,8 +112,8 @@ public class Chapter35Level extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss == null) return;
-    float x = heroPC.position().x;
-    if (x >= bossPC.position().x - ESCAPE_DISTANCE) {
+    float x = heroPC.position().x();
+    if (x >= bossPC.position().x() - ESCAPE_DISTANCE) {
       DialogUtils.showTextPopup(
           "Wie hast du das geschafft? Nur die besten Programmierer hätten dieses Rätsel lösen können.",
           "BOSS");

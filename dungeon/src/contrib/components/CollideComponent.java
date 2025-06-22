@@ -6,6 +6,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 import java.util.logging.Logger;
@@ -39,17 +40,17 @@ import java.util.logging.Logger;
  */
 public final class CollideComponent implements Component {
   /** The default offset of the hit box. */
-  public static final Point DEFAULT_OFFSET = new Point(0.25f, 0.25f);
+  public static final Vector2 DEFAULT_OFFSET = new Vector2(0.25f, 0.25f);
 
   /** The default size of the hit box. */
-  public static final Point DEFAULT_SIZE = new Point(0.5f, 0.5f);
+  public static final Vector2 DEFAULT_SIZE = new Vector2(0.5f, 0.5f);
 
   /** The default collision behaviour. */
   public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
       (a, b, c) -> {};
 
-  private final Point offset;
-  private final Point size;
+  private final Vector2 offset;
+  private final Vector2 size;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
   private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
@@ -66,8 +67,8 @@ public final class CollideComponent implements Component {
    *     empty function.
    */
   public CollideComponent(
-      final Point offset,
-      final Point size,
+      final Vector2 offset,
+      final Vector2 size,
       final TriConsumer<Entity, Entity, Tile.Direction> collideEnter,
       final TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
     this.offset = offset;
@@ -142,7 +143,7 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return new Point(pc.position().x + offset.x, pc.position().y + offset.y);
+    return pc.position().add(offset);
   }
 
   /**
@@ -156,7 +157,7 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return new Point(pc.position().x + offset.x + size.x, pc.position().y + offset.y + size.y);
+    return pc.position().add(offset).add(size);
   }
 
   /**
@@ -170,8 +171,7 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return new Point(
-        pc.position().x + offset.x + size.x / 2, pc.position().y + offset.y + size.y / 2);
+    return pc.position().add(offset).add(size.multiply(0.5f));
   }
 
   /**
@@ -197,7 +197,7 @@ public final class CollideComponent implements Component {
    *
    * @return the size of the component
    */
-  public Point size() {
-    return new Point(size);
+  public Vector2 size() {
+    return new Vector2(size);
   }
 }

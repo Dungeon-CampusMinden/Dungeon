@@ -114,7 +114,7 @@ public final class HealthBarSystem extends System {
    */
   private void updatePosition(ProgressBar pb, PositionComponent pc) {
     Point position = pc.position();
-    Vector3 conveered = new Vector3(position.x, position.y, 0);
+    Vector3 conveered = new Vector3(position.x(), position.y(), 0);
     // map Entity coordinates to window coordinates
     Vector3 screenPosition = CameraSystem.camera().project(conveered);
     // get the stage of the Game

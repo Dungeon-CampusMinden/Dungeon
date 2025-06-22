@@ -10,6 +10,7 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
  * This system is a mini version of {@link contrib.systems.LevelEditorSystem LevelEditorSystem} that
@@ -33,7 +34,7 @@ public class MazeEditorSystem extends System {
 
   private void setTile(LevelElement element) {
     Point mosPos = SkillTools.cursorPositionAsPoint();
-    mosPos = new Point(mosPos.x - 0.5f, mosPos.y - 0.25f);
+    mosPos = mosPos.add(new Vector2(-0.5f, -0.25f));
     Tile mouseTile = LevelSystem.level().tileAt(mosPos);
     if (mouseTile == null) {
       return;

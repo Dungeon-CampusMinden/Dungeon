@@ -61,7 +61,7 @@ public class DevDungeonSaver {
     }
     StringBuilder customPointsString = new StringBuilder();
     for (Coordinate customPoint : customPoints) {
-      customPointsString.append(customPoint.x).append(",").append(customPoint.y).append(";");
+      customPointsString.append(customPoint.x()).append(",").append(customPoint.y()).append(";");
     }
 
     // Compress the layout of the current level by removing all lines that only contain 'S'
@@ -70,9 +70,9 @@ public class DevDungeonSaver {
     String result =
         designLabel
             + "\n"
-            + heroPos.x
+            + heroPos.x()
             + ","
-            + heroPos.y
+            + heroPos.y()
             + "\n"
             + customPointsString
             + "\n"

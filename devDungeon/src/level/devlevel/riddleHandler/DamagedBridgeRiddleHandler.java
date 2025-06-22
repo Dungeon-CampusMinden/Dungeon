@@ -58,7 +58,7 @@ public class DamagedBridgeRiddleHandler {
     this.riddleEntranceSign = customPoints.get(3);
     this.riddlePitBounds = new Coordinate[] {customPoints.get(4), customPoints.get(5)};
     this.riddleChestSpawn = customPoints.get(6);
-    this.riddleRewardSpawn = new Coordinate(customPoints.get(6).x, customPoints.get(6).y - 1);
+    this.riddleRewardSpawn = new Coordinate(customPoints.get(6).x(), customPoints.get(6).y() - 1);
     this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
     this.speedPotionChest = customPoints.get(9);
     this.speedPotionChestHint = customPoints.get(10);
@@ -146,17 +146,17 @@ public class DamagedBridgeRiddleHandler {
     Coordinate bottomRight = riddlePitBounds[1];
     int timeToOpen = 500;
 
-    for (int x = bottomRight.x; x >= topLeft.x; x--) {
-      for (int y = bottomRight.y + 1; y <= topLeft.y - 1; y++) {
+    for (int x = bottomRight.x(); x >= topLeft.x(); x--) {
+      for (int y = bottomRight.y() + 1; y <= topLeft.y() - 1; y++) {
         PitTile pitTile = (PitTile) level.tileAt(new Coordinate(x, y));
         pitTile.timeToOpen(timeToOpen);
       }
       timeToOpen = Math.max(50, timeToOpen - 100); // force after 5 pits to be 50
     }
 
-    int[] bordersYs = new int[] {topLeft.y, bottomRight.y};
+    int[] bordersYs = new int[] {topLeft.y(), bottomRight.y()};
     for (int y : bordersYs) {
-      for (int x = topLeft.x; x <= bottomRight.x; x++) {
+      for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
         PitTile pitTile = (PitTile) level.tileAt(new Coordinate(x, y));
         pitTile.open();
       }

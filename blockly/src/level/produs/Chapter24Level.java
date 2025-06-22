@@ -102,7 +102,7 @@ public class Chapter24Level extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (Game.hero().isPresent()) {
-      float x = Game.hero().get().fetch(PositionComponent.class).orElseThrow().position().x;
+      float x = Game.hero().get().fetch(PositionComponent.class).orElseThrow().position().x();
       if (x >= 11) LevelManagementUtils.cameraFocusHero();
     }
 

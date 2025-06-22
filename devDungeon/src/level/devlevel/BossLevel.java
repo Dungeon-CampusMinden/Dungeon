@@ -84,7 +84,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
   protected void onTick() {
     Coordinate heroCoord = EntityUtils.getHeroCoordinate();
     if (heroCoord == null) return;
-    if (heroCoord.y > entrance.y) {
+    if (heroCoord.y() > entrance.y()) {
       changeTileElementType(tileAt(entrance), LevelElement.WALL);
     } else {
       changeTileElementType(tileAt(entrance), LevelElement.FLOOR);
@@ -213,13 +213,13 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     for (Coordinate pillarTopLeftCoord : pillars) {
       changeTileElementType(tileAt(pillarTopLeftCoord), LevelElement.FLOOR);
       changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y)),
+          tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y())),
           LevelElement.FLOOR);
       changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x, pillarTopLeftCoord.y - 1)),
+          tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1)),
           LevelElement.FLOOR);
       changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x + 1, pillarTopLeftCoord.y - 1)),
+          tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1)),
           LevelElement.FLOOR);
     }
   }
