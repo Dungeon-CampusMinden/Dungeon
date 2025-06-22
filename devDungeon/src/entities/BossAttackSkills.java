@@ -89,12 +89,9 @@ public class BossAttackSkills {
               launchFireBall(bossPos, heroPos, bossPos, skillUser);
             } else {
               launchFireBall(
-                  bossPos.add(right.multiply(i)),
-                  heroPos.add(right.multiply(i)),
-                  bossPos,
-                  skillUser);
+                  bossPos.add(right.scale(i)), heroPos.add(right.scale(i)), bossPos, skillUser);
               launchFireBall(
-                  bossPos.add(left.multiply(i)), heroPos.add(left.multiply(i)), bossPos, skillUser);
+                  bossPos.add(left.scale(i)), heroPos.add(left.scale(i)), bossPos, skillUser);
             }
           }
         },
@@ -196,7 +193,7 @@ public class BossAttackSkills {
                 Vector2 offset =
                     new Vector2(direction)
                         .rotateDeg(angle)
-                        .multiply(heroPos.vectorTo(bossPos).length());
+                        .scale(heroPos.vectorTo(bossPos).length());
                 return bossPos.add(offset);
               };
 
@@ -419,7 +416,7 @@ public class BossAttackSkills {
                   return;
                 }
                 Vector2 heroDirection = heroPos2.vectorTo(heroPos).normalize();
-                heroDirection = heroDirection.multiply((float) (bossPos.distance(heroPos)) * 2);
+                heroDirection = heroDirection.scale((float) (bossPos.distance(heroPos)) * 2);
                 Point predictedHeroPos = heroPos2.add(heroDirection);
                 launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
               },

@@ -63,8 +63,19 @@ public record Vector2(float x, float y) {
    * @param scalar The scalar.
    * @return A new vector that is this vector multiplied by the scalar.
    */
-  public Vector2 multiply(float scalar) {
+  public Vector2 scale(float scalar) {
     return new Vector2(this.x * scalar, this.y * scalar);
+  }
+
+  /**
+   * Multiplies this vector by two scalars.
+   *
+   * @param scalarX The scalar for the x component.
+   * @param scalarY The scalar for the y component.
+   * @return A new vector that is this vector multiplied by the scalars.
+   */
+  public Vector2 scale(float scalarX, float scalarY) {
+    return new Vector2(this.x * scalarX, this.y * scalarY);
   }
 
   /**
