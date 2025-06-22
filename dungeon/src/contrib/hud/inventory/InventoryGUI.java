@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -25,6 +24,8 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.MissingHeroException;
+import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -141,8 +142,8 @@ public class InventoryGUI extends CombinableGUI {
 
   private int getSlotByMousePosition() {
     Vector2 mousePos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-    Vector2 relMousePos = new Vector2(mousePos.x - this.x(), mousePos.y - this.y());
-    return getSlotByCoordinates(relMousePos.x, relMousePos.y);
+    Vector2 relMousePos = new Vector2(mousePos.x() - this.x(), mousePos.y() - this.y());
+    return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
   }
 
   private int getSlotByCoordinates(int x, int y) {
@@ -222,17 +223,17 @@ public class InventoryGUI extends CombinableGUI {
 
   private void drawItemInfo(Batch batch) {
     // Flip Y axis (mouse origin top left, batch origin bottom left)
-    Vector2 mousePos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-    Vector2 relMousePos = new Vector2(mousePos.x - this.x(), mousePos.y - this.y());
+    Point mousePos = new Point(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    Vector2 relMousePos = mousePos.vectorTo(new Point(this.x(), this.y()));
 
     // Check if mouse is in inventory bounds
-    if (mousePos.x < this.x() || mousePos.x > this.x() + this.width()) return;
-    if (mousePos.y < this.y() || mousePos.y > this.y() + this.height()) return;
+    if (mousePos.x() < this.x() || mousePos.x() > this.x() + this.width()) return;
+    if (mousePos.y() < this.y() || mousePos.y() > this.y() + this.height()) return;
 
     // Check if mouse is dragging an item
     if (this.dragAndDrop().isDragging()) return;
 
-    int hoveredSlot = this.getSlotByCoordinates(relMousePos.x, relMousePos.y);
+    int hoveredSlot = this.getSlotByCoordinates(relMousePos.x(), relMousePos.y());
     Item item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
     if (item == null) return;
 
@@ -241,14 +242,14 @@ public class InventoryGUI extends CombinableGUI {
     GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
     GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
 
-    float x = mousePos.x + HOVER_OFFSET.x;
-    float y = mousePos.y + HOVER_OFFSET.y;
-    float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x;
-    float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y + LINE_GAP;
+    float x = mousePos.x() + HOVER_OFFSET.x();
+    float y = mousePos.y() + HOVER_OFFSET.y();
+    float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x();
+    float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y() + LINE_GAP;
 
     // if out of bounds, move to the left of cursor
     if (x + width > Gdx.graphics.getWidth()) {
-      x = mousePos.x - width - HOVER_OFFSET.x;
+      x = mousePos.x() - width - HOVER_OFFSET.x();
     }
 
     batch.draw(hoverBackground, x, y, width, height);

@@ -12,11 +12,11 @@ import core.level.Tile;
 import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
-import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.utils.IVoidFunction;
+import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -138,22 +138,15 @@ public final class RoomBasedLevelGenerator {
       door.otherDoor(neighbourDoor);
 
       // place door steps
-      Tile doorStep = null;
-      switch (doorDirection) {
-        case NORTH ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y - 1));
-        case EAST ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x - 1, door.coordinate().y));
-        case SOUTH ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x, door.coordinate().y + 1));
-        case WEST ->
-            doorStep =
-                door.level().tileAt(new Coordinate(door.coordinate().x + 1, door.coordinate().y));
-      }
-      door.doorstep(doorStep);
+      Vector2 doorStepVector =
+          switch (doorDirection) {
+            case NORTH -> Vector2.DOWN; // TODO: Check if this is correct
+            case EAST -> Vector2.LEFT;
+            case SOUTH -> Vector2.UP; // TODO: Check if this is correct
+            case WEST -> Vector2.RIGHT;
+          };
+
+      door.doorstep(door.level().tileAt(door.coordinate().add(doorStepVector)));
     }
   }
 }

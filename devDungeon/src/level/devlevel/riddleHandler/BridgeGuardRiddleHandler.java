@@ -264,7 +264,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(new Coordinate(riddleRoomChest.x + 1, riddleRoomChest.y).toCenteredPoint());
+    pc.position(new Coordinate(riddleRoomChest.x() + 1, riddleRoomChest.y()).toCenteredPoint());
     Game.add(cauldron);
   }
 }

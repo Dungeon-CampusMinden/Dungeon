@@ -23,6 +23,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.*;
@@ -225,7 +226,12 @@ public class BlocklyCommands {
             () ->
                 hero.fetch(CollideComponent.class)
                     .map(cc -> cc.center(hero))
-                    .map(p -> p.add(Direction.asPoint(EntityUtils.getViewDirection(hero))))
+                    .map(
+                        p ->
+                            p.add(
+                                Direction.fromPositionCompDirection(
+                                        EntityUtils.getViewDirection(hero))
+                                    .toVector2()))
                     .orElseThrow(
                         () -> MissingComponentException.build(hero, CollideComponent.class)),
             FIREBALL_RANGE,
@@ -364,7 +370,7 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<Coordinate, Optional<Tile>> dirToCheck =
+    Function<Vector2, Optional<Tile>> dirToCheck =
         dtc ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
                 .map(coordinate -> coordinate.add(dtc))
@@ -374,7 +380,7 @@ public class BlocklyCommands {
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
         .map(Direction::fromPositionCompDirection)
         .map(d -> d.relativeToAbsoluteDirection(direction))
-        .map(Direction::toCoordinate)
+        .map(Direction::toVector2)
         .flatMap(dirToCheck::apply);
   }
 

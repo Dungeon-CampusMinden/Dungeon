@@ -11,6 +11,7 @@ import core.level.TileLevel;
 import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
 import java.util.List;
@@ -110,7 +111,7 @@ public class IllusionRiddleHandler {
    *
    * @param offset The offset to teleport the hero by.
    */
-  private void offsetHero(Coordinate offset) {
+  private void offsetHero(Vector2 offset) {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
       return;
@@ -119,7 +120,7 @@ public class IllusionRiddleHandler {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-    Point newPoint = new Point(heroPc.position().x + offset.x, heroPc.position().y + offset.y);
+    Point newPoint = heroPc.position().add(offset);
 
     EntityUtils.teleportHeroTo(newPoint);
   }
@@ -139,12 +140,12 @@ public class IllusionRiddleHandler {
     }
 
     if (lapCounter == -1 && lapProgress == 3) {
-      offsetHero(new Coordinate(-27, 0));
+      offsetHero(new Vector2(-27, 0));
       this.lapCounter = 0;
       this.lapProgress = 0;
       this.lastCheckpoint = -2;
     } else if (!thirdRoom && lapCounter == LAP_REWARD && lapProgress == 1) {
-      offsetHero(new Coordinate(24, 0));
+      offsetHero(new Vector2(24, 0));
       this.thirdRoom = true;
     } else {
       handleHiddenTeleporter(heroPos);
@@ -220,13 +221,13 @@ public class IllusionRiddleHandler {
   private void handleHiddenTeleporter(Coordinate heroPos) {
     for (Coordinate initTeleporterCoords : initTeleporterSpawns[0]) { // start teleporter -> in
       if (heroPos.equals(initTeleporterCoords)) {
-        offsetHero(new Coordinate(27, 0));
+        offsetHero(new Vector2(27, 0));
         return;
       }
     }
     for (Coordinate lastTeleporterCoords : lastTeleporterSpawns[1]) { // end teleporter -> out
       if (heroPos.equals(lastTeleporterCoords)) {
-        offsetHero(new Coordinate(-24, 0));
+        offsetHero(new Vector2(-24, 0));
         this.lastCheckpoint = 0;
         this.lapProgress = 0;
         this.thirdRoom = false;

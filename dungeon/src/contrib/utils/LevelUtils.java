@@ -4,7 +4,6 @@ import contrib.components.BlockViewComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
-import core.utils.Point;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,10 +34,7 @@ public class LevelUtils {
         return false; // if there is a blockFireball in the way, we can't see through
       }
 
-      currentTile =
-          currentTile
-              .level()
-              .tileAt(currentTile.position().add(new Point(direction.x(), direction.y())));
+      currentTile = currentTile.level().tileAt(currentTile.position().add(direction.toVector2()));
     }
     return true;
   }
@@ -64,7 +60,7 @@ public class LevelUtils {
   public static List<Coordinate> walkableNeighbors(Coordinate coord) {
     return Arrays.stream(Direction.values())
         .filter(direction -> direction != Direction.HERE)
-        .map(direction -> coord.add(new Coordinate(direction.x(), direction.y())))
+        .map(direction -> coord.add(direction.toVector2()))
         .filter(LevelUtils::isWalkable)
         .toList();
   }

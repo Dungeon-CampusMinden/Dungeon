@@ -96,11 +96,11 @@ public class LevelUtilsTest {
     var tiles = LevelUtils.tilesInRange(new Point(0, 0), 1.1f);
     assertEquals(3, tiles.size());
     assertTrue(
-        tiles.stream().anyMatch(tile -> tile.coordinate().x == 0 && tile.coordinate().y == 0));
+        tiles.stream().anyMatch(tile -> tile.coordinate().x() == 0 && tile.coordinate().y() == 0));
     assertTrue(
-        tiles.stream().anyMatch(tile -> tile.coordinate().x == 1 && tile.coordinate().y == 0));
+        tiles.stream().anyMatch(tile -> tile.coordinate().x() == 1 && tile.coordinate().y() == 0));
     assertTrue(
-        tiles.stream().anyMatch(tile -> tile.coordinate().x == 0 && tile.coordinate().y == 1));
+        tiles.stream().anyMatch(tile -> tile.coordinate().x() == 0 && tile.coordinate().y() == 1));
   }
 
   /** WTF? . */
@@ -109,10 +109,10 @@ public class LevelUtilsTest {
     var tiles = LevelUtils.tilesInRange(new Point(0.5f, 0.5f), 0.6f);
     assertEquals(3, tiles.size());
     assertTrue(
-        tiles.stream().anyMatch(tile -> tile.coordinate().x == 0 && tile.coordinate().y == 0));
+        tiles.stream().anyMatch(tile -> tile.coordinate().x() == 0 && tile.coordinate().y() == 0));
     assertTrue(
-        tiles.stream().anyMatch(tile -> tile.coordinate().x == 1 && tile.coordinate().y == 0));
+        tiles.stream().anyMatch(tile -> tile.coordinate().x() == 1 && tile.coordinate().y() == 0));
     assertTrue(
-        tiles.stream().anyMatch(tile -> tile.coordinate().x == 0 && tile.coordinate().y == 1));
+        tiles.stream().anyMatch(tile -> tile.coordinate().x() == 0 && tile.coordinate().y() == 1));
   }
 }

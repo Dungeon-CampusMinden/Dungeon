@@ -4,6 +4,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /** Direction enum for the four cardinal directions. */
 public enum Direction {
@@ -78,6 +79,15 @@ public enum Direction {
    */
   public Coordinate toCoordinate() {
     return new Coordinate(x, y);
+  }
+
+  /**
+   * Convert this direction to a {@link Vector2}.
+   *
+   * @return Vector2 with the x and y from this direction
+   */
+  public Vector2 toVector2() {
+    return new Vector2(x, y);
   }
 
   /**

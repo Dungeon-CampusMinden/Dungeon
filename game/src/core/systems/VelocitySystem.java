@@ -1,7 +1,6 @@
 package core.systems;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -11,6 +10,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
@@ -60,16 +60,16 @@ public final class VelocitySystem extends System {
     Vector2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
     float maxSpeed = Math.max(Math.abs(vsd.vc.xVelocity()), Math.abs(vsd.vc.yVelocity()));
     // Limit velocity to maxSpeed (primarily for diagonal movement)
-    if (velocity.len() > maxSpeed) {
-      velocity.nor();
-      velocity.scl(maxSpeed);
+    if (velocity.length() > maxSpeed) {
+      velocity = velocity.normalize();
+      velocity = velocity.multiply(maxSpeed);
     }
     if (Gdx.graphics != null) {
-      velocity.scl(Gdx.graphics.getDeltaTime());
+      velocity = velocity.multiply(Gdx.graphics.getDeltaTime());
     }
 
-    float newX = vsd.pc.position().x + velocity.x;
-    float newY = vsd.pc.position().y + velocity.y;
+    float newX = vsd.pc.position().x() + velocity.x();
+    float newY = vsd.pc.position().y() + velocity.y();
     boolean hitWall = false;
     boolean canEnterOpenPits =
         vsd.e.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
@@ -79,17 +79,17 @@ public final class VelocitySystem extends System {
         vsd.pc.position(new Point(newX, newY));
         this.movementAnimation(vsd);
       } else if (this.isAccessible(
-          Game.tileAT(new Point(newX, vsd.pc.position().y)), canEnterOpenPits)) {
+          Game.tileAT(new Point(newX, vsd.pc.position().y())), canEnterOpenPits)) {
         // redirect not moving along y
         hitWall = true;
-        vsd.pc.position(new Point(newX, vsd.pc.position().y));
+        vsd.pc.position(new Point(newX, vsd.pc.position().y()));
         this.movementAnimation(vsd);
         vsd.vc.currentYVelocity(0.0f);
       } else if (this.isAccessible(
-          Game.tileAT(new Point(vsd.pc.position().x, newY)), canEnterOpenPits)) {
+          Game.tileAT(new Point(vsd.pc.position().x(), newY)), canEnterOpenPits)) {
         // redirect not moving along x
         hitWall = true;
-        vsd.pc.position(new Point(vsd.pc.position().x, newY));
+        vsd.pc.position(new Point(vsd.pc.position().x(), newY));
         this.movementAnimation(vsd);
         vsd.vc.currentXVelocity(0.0f);
       } else {
