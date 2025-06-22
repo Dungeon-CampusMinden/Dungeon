@@ -55,18 +55,18 @@ public class AdvancedSortLevel extends AdvancedLevel {
       new SimpleIPath("src/produsAdvanced/riddles/MyMonsterSort.java");
   private static final String MONSTER_SORT_CLASSNAME = "produsAdvanced.riddles.MyMonsterSort";
 
-  private static final String msg = "Da herrscht ja ein heilloses Durcheinander! Vielleicht öffnet sich ja die Tür, wenn ich hier für Ordnung sorge.";
+  private static final String msg =
+      "Da herrscht ja ein heilloses Durcheinander! Vielleicht öffnet sich ja die Tür, wenn ich hier für Ordnung sorge.";
   private static final String title = "Level 9";
-  private static final List<String> messages = Arrays.asList(
-    "Betätige den Schalter und schau was passiert.",
-    "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht.",
-    "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
-    "Die Lebenspunkte der Monster erhältst du mit mit .hp() für ein Monster aus dem Array.");
-  private static final List<String> titles = Arrays.asList(
-    "noch drei Hinweise",
-    "noch zwei Hinweise",
-    "noch ein Hinweis",
-    "letzter Hinweis");
+  private static final List<String> messages =
+      Arrays.asList(
+          "Betätige den Schalter und schau was passiert.",
+          "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht.",
+          "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
+          "Die Lebenspunkte der Monster erhältst du mit mit .hp() für ein Monster aus dem Array.");
+  private static final List<String> titles =
+      Arrays.asList(
+          "noch drei Hinweise", "noch zwei Hinweise", "noch ein Hinweis", "letzter Hinweis");
   AtomicInteger currentIndex = new AtomicInteger(-1);
 
   /**
@@ -208,31 +208,31 @@ public class AdvancedSortLevel extends AdvancedLevel {
 
   private void addSign() {
     Entity sign =
-      SignFactory.createSign(
-        "", // Der Text, der angezeigt werden soll
-        "", // Titel
-        new Point(3.5F, 7.5F), // Position des Schildes
-        (entity, hero) -> {
+        SignFactory.createSign(
+            "", // Der Text, der angezeigt werden soll
+            "", // Titel
+            new Point(3.5F, 7.5F), // Position des Schildes
+            (entity, hero) -> {
 
-          // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
-          if (currentIndex.get() < messages.size() - 1) {
-            currentIndex.incrementAndGet();
-            Game.entityStream(Set.of(SignComponent.class))
-              .filter(signEntity -> signEntity.equals(entity))
-              .findFirst()
-              .ifPresent(
-                signEntity -> {
-                  // Aktualisiere den Text des Schildes
-                  SignComponent signComponent =
-                    signEntity.fetch(SignComponent.class)
-                      .orElseThrow(() -> new RuntimeException("SignComponent not found"));
-                  signComponent.text(messages.get(currentIndex.get()));
-                  signComponent.title(titles.get(currentIndex.get()));
-                });
-
-          }
-        }
-      );
+              // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
+              if (currentIndex.get() < messages.size() - 1) {
+                currentIndex.incrementAndGet();
+                Game.entityStream(Set.of(SignComponent.class))
+                    .filter(signEntity -> signEntity.equals(entity))
+                    .findFirst()
+                    .ifPresent(
+                        signEntity -> {
+                          // Aktualisiere den Text des Schildes
+                          SignComponent signComponent =
+                              signEntity
+                                  .fetch(SignComponent.class)
+                                  .orElseThrow(
+                                      () -> new RuntimeException("SignComponent not found"));
+                          signComponent.text(messages.get(currentIndex.get()));
+                          signComponent.title(titles.get(currentIndex.get()));
+                        });
+              }
+            });
     Game.add(sign);
   }
 }

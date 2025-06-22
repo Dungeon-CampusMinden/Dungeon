@@ -20,7 +20,7 @@ public class AdvancedControlLevel1 extends AdvancedLevel {
   private static String msg =
       "Was ist los? Ich kann mich nicht bewegen! Jemand muss an meinem Steuerungscode rumgefuscht haben.";
   private static String task =
-    "Gehe in die Datei MyPlayerController.java und implementiere die Steuerung deines Helden.\n";
+      "Gehe in die Datei MyPlayerController.java und implementiere die Steuerung deines Helden.\n";
   private static String title = "Level 1";
 
   /**
@@ -38,10 +38,14 @@ public class AdvancedControlLevel1 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showMsg) DialogUtils.showTextPopup(msg, title, () -> {
-      showMsg = false;
-      DialogUtils.showTextPopup(task, title);
-    });
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 
   @Override
