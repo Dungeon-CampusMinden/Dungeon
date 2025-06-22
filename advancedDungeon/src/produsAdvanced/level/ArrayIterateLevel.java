@@ -58,8 +58,9 @@ public class ArrayIterateLevel extends AdvancedLevel {
 
     if (showText) {
       DialogUtils.showTextPopup(
-        "Der Ausgang ist verschlossen! " + "Übergebe die richtige Lösung dieses Level zu Meistern.",
-        "Array-Aufgabe");
+          "Der Ausgang ist verschlossen! "
+              + "Übergebe die richtige Lösung dieses Level zu Meistern.",
+          "Array-Aufgabe");
       showText = false;
     }
 

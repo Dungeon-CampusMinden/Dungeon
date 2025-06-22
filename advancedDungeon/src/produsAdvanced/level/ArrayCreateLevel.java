@@ -62,7 +62,8 @@ public class ArrayCreateLevel extends AdvancedLevel {
 
     if (showText) {
       DialogUtils.showTextPopup(
-          "Finde den Ausgang des Levels! " + "Noch ist er verschlossen, doch er wird sich öffnen, wenn du die richtige Lösung übergibst.",
+          "Finde den Ausgang des Levels! "
+              + "Noch ist er verschlossen, doch er wird sich öffnen, wenn du die richtige Lösung übergibst.",
           "Array-Aufgabe");
       showText = false;
     }
