@@ -99,7 +99,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
     }
 
     if (playerArray == null) {
-      DialogUtils.showTextPopup("Die Methode 'countMonstersInRooms' gibt null zurück!", "Fehler");
+      DialogUtils.showTextPopup("Die Methode 'entfernePositionen' gibt null zurück!", "Fehler");
       return;
     }
 
