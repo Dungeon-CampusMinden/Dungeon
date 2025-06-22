@@ -62,10 +62,10 @@ public final class VelocitySystem extends System {
     // Limit velocity to maxSpeed (primarily for diagonal movement)
     if (velocity.length() > maxSpeed) {
       velocity = velocity.normalize();
-      velocity = velocity.multiply(maxSpeed);
+      velocity = velocity.scale(maxSpeed);
     }
     if (Gdx.graphics != null) {
-      velocity = velocity.multiply(Gdx.graphics.getDeltaTime());
+      velocity = velocity.scale(Gdx.graphics.getDeltaTime());
     }
 
     float newX = vsd.pc.position().x() + velocity.x();

@@ -24,7 +24,7 @@ public final class SkillTools {
    */
   public static Point calculateLastPositionInRange(
       final Point startPoint, final Point aimPoint, float range) {
-    return startPoint.add(startPoint.vectorTo(aimPoint).normalize().multiply(range));
+    return startPoint.add(startPoint.vectorTo(aimPoint).normalize().scale(range));
   }
 
   /**
@@ -40,7 +40,7 @@ public final class SkillTools {
     if (start.equals(goal)) {
       return Vector2.ZERO;
     }
-    return start.vectorTo(goal).normalize().multiply(speed);
+    return start.vectorTo(goal).normalize().scale(speed);
   }
 
   /**

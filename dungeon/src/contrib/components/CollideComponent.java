@@ -171,7 +171,7 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().add(offset).add(size.multiply(0.5f));
+    return pc.position().add(offset).add(size.scale(0.5f));
   }
 
   /**
