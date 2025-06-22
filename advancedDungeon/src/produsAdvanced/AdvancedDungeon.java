@@ -44,7 +44,7 @@ public class AdvancedDungeon {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = true;
+  public static final boolean DEBUG_MODE = false;
 
   private static final Debugger DEBUGGER = new Debugger();
 
@@ -163,7 +163,7 @@ public class AdvancedDungeon {
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
           DevDungeonLoader.afterAllLevels(AdvancedDungeon::startRoomBasedLevel);
-          DevDungeonLoader.loadLevel(7);
+          DevDungeonLoader.loadLevel(0);
         });
   }
 
