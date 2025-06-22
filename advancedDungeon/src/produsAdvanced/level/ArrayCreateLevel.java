@@ -49,7 +49,7 @@ public class ArrayCreateLevel extends AdvancedLevel {
    */
   public ArrayCreateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Sortierung");
+    super(layout, designLabel, customPoints, "Array-Erstellung");
   }
 
   @Override
@@ -62,7 +62,7 @@ public class ArrayCreateLevel extends AdvancedLevel {
 
     if (showText) {
       DialogUtils.showTextPopup(
-          "Implementiere die Methode 'createSortedArray' und erstelle ein Array mit den Zahlen von 1 bis 5 in der richtigen Reihenfolge.",
+          "Finde den Ausgang des Levels! " + "Noch ist er verschlossen, doch er wird sich öffnen, wenn du das richtige Lösung übergibst.",
           "Array-Aufgabe");
       showText = false;
     }

@@ -51,7 +51,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
    */
   public ArrayRemoveLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Sortierung");
+    super(layout, designLabel, customPoints, "Array-Entfernen");
   }
 
   @Override
@@ -64,7 +64,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
 
     if (showText) {
       DialogUtils.showTextPopup(
-          "Implementiere die Methode 'createSortedArray' und erstelle ein Array mit den Zahlen von 1 bis 5 in der richtigen Reihenfolge.",
+          "Schon wieder hier! Du bist wirklich hartnäckig! Finde wieder den Ausgang des Levels, die Lösung ist jetzt aber eine andere! ",
           "Array-Aufgabe");
       showText = false;
     }
@@ -88,7 +88,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
     } catch (UnsupportedOperationException e) {
       // Spezifische Behandlung für nicht implementierte Methode
       DialogUtils.showTextPopup(
-          "Die Methode 'countMonstersInRooms' wurde noch nicht implementiert. "
+          "Die Methode 'entfernePositionen' wurde noch nicht implementiert. "
               + "Bitte implementiere sie zuerst!",
           "Nicht implementiert");
       return; // Methode beenden, aber Spiel weiterlaufen lassen

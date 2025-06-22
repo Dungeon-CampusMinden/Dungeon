@@ -32,6 +32,7 @@ public class ArrayIterateLevel extends AdvancedLevel {
   private final Point leverPosition = new Point(17, 2);
   private final Point signPosition = new Point(16, 2);
   private boolean isLeverActivated = false;
+  private static boolean showText = true;
 
   private final int[] arrayToPass = {15, 5, 9, 7, 8}; // Summe = 44
 
@@ -49,13 +50,22 @@ public class ArrayIterateLevel extends AdvancedLevel {
    */
   public ArrayIterateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Iteration"); // Fester Name hier
+    super(layout, designLabel, customPoints, "Array-Iterieren");
   }
 
   @Override
   protected void onFirstTick() {
+
+    if (showText) {
+      DialogUtils.showTextPopup(
+        "Der Ausgang ist verschlossen! " + "Übergebe die richtige Lösung dieses Level zu Meistern.",
+        "Array-Aufgabe");
+      showText = false;
+    }
+
     closeDoor(doorPosition);
     spawnLeverWithAction(leverPosition);
+
     spawnSign(
         signPosition,
         "Um diese Tür zu öffnen brauche ich die Summe eines Arrays von dir! Gehe in den Code und implementiere die Methode in der Klasse MyArraySummarizer.");
