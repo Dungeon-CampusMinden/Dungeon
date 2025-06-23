@@ -121,29 +121,36 @@ public class BlocklyCommands {
         .ifPresent(ac -> aimAndShoot(ac, hero));
   }
 
-  /** Triggers each interactable both in front of and beneath the hero. */
-  public static void interact() {
+  /**
+   * Triggers an interactable in a direction related to the hero.
+   *
+   * @param direction Direction in which the hero will search for an interactable.
+   */
+  public static void interact(Direction direction) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
-    Tile standingOn = Game.tileAT(pc.position());
 
-    List<Tile> tilesToCheck = List.of(inFront, standingOn);
+    Tile inDirection;
 
-    for (Tile tile : tilesToCheck) {
-      if (tile == null) continue;
-
-      Game.entityAtTile(tile)
-          .forEach(
-              entity ->
-                  entity
-                      .fetch(InteractionComponent.class)
-                      .ifPresent(
-                          interactionComponent ->
-                              interactionComponent.triggerInteraction(entity, hero)));
+    if (direction == Direction.HERE) {
+      inDirection = Game.tileAT(pc.position());
+    } else {
+      Direction newDirection =
+          Direction.fromPositionCompDirection(pc.viewDirection())
+              .relativeToAbsoluteDirection(direction);
+      inDirection = Game.tileAT(pc.position(), Direction.toPositionCompDirection(newDirection));
     }
+
+    Game.entityAtTile(inDirection)
+        .forEach(
+            entity ->
+                entity
+                    .fetch(InteractionComponent.class)
+                    .ifPresent(
+                        interactionComponent ->
+                            interactionComponent.triggerInteraction(entity, hero)));
   }
 
   /**

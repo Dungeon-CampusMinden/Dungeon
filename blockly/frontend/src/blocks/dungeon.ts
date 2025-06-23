@@ -667,11 +667,18 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
   },
   {
     type: "use",
-    message0: "benutzen",
+    message0: "benutzen %1",
     previousStatement: null,
     nextStatement: null,
     colour: 30,
-    tooltip: "Benutze den Gegenstand vor dir.",
+    tooltip: "Benutze den Gegenstand in der gewünschten Richtung.",
+    args0: [
+      {
+        type: "input_value",
+        name: "DIRECTION",
+        check: "Direction",
+      },
+    ],
   },
   {
     type: "push",
