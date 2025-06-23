@@ -32,7 +32,7 @@ import produsAdvanced.abstraction.ArrayRemover;
  * @see produsAdvanced.riddles.MyArrayRemover
  */
 public class ArrayRemoveLevel extends AdvancedLevel {
-  private static boolean showText = true;
+  private static boolean showMsg = true;
   private final int[] arrayToPass = {1, 5, 4, 3, 2}; // Summe = 44
   private final int[] correctArray = {2, 5, 3};
   private final Point doorPosition = new Point(28, 11); // Das erwartete Array
@@ -41,6 +41,11 @@ public class ArrayRemoveLevel extends AdvancedLevel {
   private static final SimpleIPath ARRAY_REMOVER_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyArrayRemover.java");
   private static final String ARRAY_REMOVER_CLASSNAME = "produsAdvanced.riddles.MyArrayRemover";
+  private static String title = "Array-Aufgabe";
+  private static String msg =
+      "Schon wieder hier! Du bist wirklich hartnäckig! Finde wieder den Ausgang des Levels, die Lösung ist jetzt aber eine andere!.";
+  private static String task =
+      "Gehe in die Datei MyArrayRemover und Implementiere die Methode 'removePosition'.";
 
   /**
    * Konstruktor für das Array-Entfernungs-Level.
@@ -62,12 +67,14 @@ public class ArrayRemoveLevel extends AdvancedLevel {
     closeDoor(doorPosition);
     spawnLeverWithAction(new Point(30, 12));
 
-    if (showText) {
+    if (showMsg)
       DialogUtils.showTextPopup(
-          "Schon wieder hier! Du bist wirklich hartnäckig! Finde wieder den Ausgang des Levels, die Lösung ist jetzt aber eine andere! ",
-          "Array-Aufgabe");
-      showText = false;
-    }
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 
   @Override
@@ -83,7 +90,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
                       ARRAY_REMOVER_PATH,
                       ARRAY_REMOVER_CLASSNAME,
                       new Tuple<>(int[].class, arrayToPass)))
-              .entfernePositionen();
+              .removePosition();
 
     } catch (UnsupportedOperationException e) {
       // Spezifische Behandlung für nicht implementierte Methode

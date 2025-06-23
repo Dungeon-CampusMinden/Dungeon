@@ -1,10 +1,8 @@
 package produsAdvanced.level;
 
-import contrib.components.CollideComponent;
-import contrib.components.HealthComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
+import contrib.components.*;
 import contrib.entities.EntityFactory;
+import contrib.entities.SignFactory;
 import contrib.entities.WorldItemBuilder;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
@@ -18,10 +16,13 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.Berry;
 
@@ -38,6 +39,8 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   private static boolean showMsg = true;
   private static String msg =
       "Der Ork dort sieht verzweifelt aus. Mal schauen, ob ich ihm helfen kann.";
+
+  private static String task = "Finde einen Weg die giftigen Beeren zu erkennen.";
   private static String titel = "Level 5";
   private static final int BERRY_GOAL = 5;
   private static final String NPC_TEXTURE_PATH = "character/monster/orc_shaman";
@@ -56,6 +59,24 @@ public class AdvancedBerryLevel extends AdvancedLevel {
       "Willst du mich umbringen? Da sind giftige dabei!";
   private static final String DIALOG_MESSAGE_LATER = "Mach schnell, ich habe echt Hunger.";
   private static final String DIALOG_MESSAGE_CHEST = "Ey, lass die Finger davon!";
+
+  private static final List<String> messages =
+      Arrays.asList(
+          "Schau dir die Datei Berry an.",
+          "Mit hero.getBerryAt kannst du dir eine Beere an einer bestimmten Position in den Code holen",
+          "Mit .toxic() kannst du prüfen ob eine Beere giftig ist.",
+          "Vielleicht kannst du deinen Feuerball verbessern, damit er gifitige Beeren erkennt.",
+          "Du könntest giftige Beeren auch einfärben.");
+
+  // todo build dynamically
+  private static final List<String> titles =
+      Arrays.asList(
+          "noch vier Hinweise",
+          "noch drei Hinweise",
+          "noch zwei Hinweise",
+          "noch ein Hinweis",
+          "letzter Hinweis");
+  AtomicInteger currentIndex = new AtomicInteger(-1);
 
   private Entity chest;
   private ExitTile door;
@@ -80,6 +101,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
     spawnBerries();
     door = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     door.close();
+    addSign();
   }
 
   /** Spawns both toxic and non-toxic berries at random floor tiles. */
@@ -150,6 +172,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
                     String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
                     DIALOG_TITLE_HUNGER,
                     () -> {
+                      DialogUtils.showTextPopup(task, titel);
                       entity.remove(InteractionComponent.class);
                       entity.add(
                           new InteractionComponent(
@@ -211,6 +234,36 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   private int checkBerryCount() {
     InventoryComponent ic = chest.fetch(InventoryComponent.class).get();
     return (int) ic.items(Berry.class).stream().count();
+  }
+
+  private void addSign() {
+    Entity sign =
+        SignFactory.createSign(
+            "", // Der Text, der angezeigt werden soll
+            "", // Titel
+            new Point(3.5F, 7.5F), // Position des Schildes
+            (entity, hero) -> {
+
+              // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
+              if (currentIndex.get() < messages.size() - 1) {
+                currentIndex.incrementAndGet();
+                Game.entityStream(Set.of(SignComponent.class))
+                    .filter(signEntity -> signEntity.equals(entity))
+                    .findFirst()
+                    .ifPresent(
+                        signEntity -> {
+                          // Aktualisiere den Text des Schildes
+                          SignComponent signComponent =
+                              signEntity
+                                  .fetch(SignComponent.class)
+                                  .orElseThrow(
+                                      () -> new RuntimeException("SignComponent not found"));
+                          signComponent.text(messages.get(currentIndex.get()));
+                          signComponent.title(titles.get(currentIndex.get()));
+                        });
+              }
+            });
+    Game.add(sign);
   }
 
   @Override

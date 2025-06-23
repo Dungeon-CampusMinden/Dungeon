@@ -12,7 +12,7 @@ public abstract class ArrayRemover {
    * @return Ein neues Integer-Array ohne leere Positionen
    * @throws UnsupportedOperationException wenn die Methode nicht implementiert wurde
    */
-  public int[] entfernePositionen() {
+  public int[] removePosition() {
     throw new UnsupportedOperationException("Diese Methode muss vom Schüler implementiert werden");
   }
 }

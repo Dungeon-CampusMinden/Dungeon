@@ -31,7 +31,7 @@ import produsAdvanced.abstraction.ArrayCreator;
  * @see produsAdvanced.riddles.MyArrayCreator
  */
 public class ArrayCreateLevel extends AdvancedLevel {
-  private static boolean showText = true;
+  private static boolean showMsg = true;
   private final int[] correctArray = {1, 5, 4, 3, 2};
   private final Point doorPosition = new Point(28, 11); // Das erwartete Array
   private boolean isLeverActivated = false;
@@ -39,6 +39,12 @@ public class ArrayCreateLevel extends AdvancedLevel {
   private static final SimpleIPath ARRAY_CREATOR_PATH =
       new SimpleIPath("src/produsAdvanced/riddles/MyArrayCreator.java");
   private static final String ARRAY_CREATOR_CLASSNAME = "produsAdvanced.riddles.MyArrayCreator";
+
+  private static String title = "Array-Aufgabe";
+  private static String msg =
+      "Finde den Ausgang des Levels! Noch ist er verschlossen, doch er wird sich öffnen, wenn du die richtige Lösung übergibst.";
+  private static String task =
+      "Gehe in die Datei MyArrayCreator und Implementiere die Methode 'createSortedArray' und erstelle ein Array mit den Zahlen von 1 bis 5 in der richtigen Reihenfolge.";
 
   /**
    * Konstruktor für das ArrayCreateLevel.
@@ -60,13 +66,14 @@ public class ArrayCreateLevel extends AdvancedLevel {
     closeDoor(doorPosition);
     spawnLeverWithAction(new Point(30, 12));
 
-    if (showText) {
+    if (showMsg)
       DialogUtils.showTextPopup(
-          "Finde den Ausgang des Levels! "
-              + "Noch ist er verschlossen, doch er wird sich öffnen, wenn du die richtige Lösung übergibst.",
-          "Array-Aufgabe");
-      showText = false;
-    }
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 
   @Override
