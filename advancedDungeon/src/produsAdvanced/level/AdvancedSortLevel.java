@@ -63,7 +63,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
           "Betätige den Schalter und schau was passiert.",
           "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht.",
           "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
-          "Die Lebenspunkte der Monster erhältst du mit mit .hp() für ein Monster aus dem Array.",
+          "Die Lebenspunkte der Monster erhältst du mit .hp() für ein Monster aus dem Array.",
           "Du musst auch die Positionen der Monster tauschen.",
           "Mit .swapPosition() kannst du zwei Monster vertauschen..");
 
