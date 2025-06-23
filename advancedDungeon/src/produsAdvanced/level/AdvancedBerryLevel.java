@@ -62,6 +62,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
   private static final List<String> messages =
       Arrays.asList(
+          "Sprich mit dem NPC.",
           "Schau dir die Datei Berry an.",
           "Mit hero.getBerryAt kannst du dir eine Beere an einer bestimmten Position in den Code holen",
           "Mit .toxic() kannst du prüfen ob eine Beere giftig ist.",
@@ -71,6 +72,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   // todo build dynamically
   private static final List<String> titles =
       Arrays.asList(
+          "noch fünf Hinweise",
           "noch vier Hinweise",
           "noch drei Hinweise",
           "noch zwei Hinweise",
@@ -241,7 +243,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
         SignFactory.createSign(
             "", // Der Text, der angezeigt werden soll
             "", // Titel
-            new Point(3.5F, 7.5F), // Position des Schildes
+            new Point(5f, 19f), // Position des Schildes
             (entity, hero) -> {
 
               // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
