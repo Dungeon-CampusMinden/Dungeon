@@ -32,6 +32,7 @@ public class ArrayIterateLevel extends AdvancedLevel {
   private final Point leverPosition = new Point(17, 2);
   private final Point signPosition = new Point(16, 2);
   private boolean isLeverActivated = false;
+  private static boolean showMsg = true;
 
   private final int[] arrayToPass = {15, 5, 9, 7, 8}; // Summe = 44
 
@@ -39,6 +40,12 @@ public class ArrayIterateLevel extends AdvancedLevel {
       new SimpleIPath("src/produsAdvanced/riddles/MyArraySummarizer.java");
   private static final String ARRAY_SUMMARIZER_CLASSNAME =
       "produsAdvanced.riddles.MyArraySummarizer";
+
+  private static String title = "Array-Aufgabe";
+  private static String msg =
+      "Der Ausgang ist verschlossen! Übergebe die richtige Lösung, um dieses Level zu Meistern.";
+  private static String task =
+      "Gehe in die Datei 'MyArraySummarizer.java' und implementiere die Methode 'summarizeArray'. Berechne dort die Summe des Arrays.";
 
   /**
    * Konstruktor für das Array-Iterations-Level.
@@ -49,13 +56,24 @@ public class ArrayIterateLevel extends AdvancedLevel {
    */
   public ArrayIterateLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Array-Iteration"); // Fester Name hier
+    super(layout, designLabel, customPoints, "Array-Iterieren");
   }
 
   @Override
   protected void onFirstTick() {
+
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
+
     closeDoor(doorPosition);
     spawnLeverWithAction(leverPosition);
+
     spawnSign(
         signPosition,
         "Um diese Tür zu öffnen brauche ich die Summe eines Arrays von dir! Gehe in den Code und implementiere die Methode in der Klasse MyArraySummarizer.");

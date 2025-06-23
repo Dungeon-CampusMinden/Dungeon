@@ -26,7 +26,7 @@ public class MyArrayRemover extends ArrayRemover {
    *
    * <p>Die Aufgabe: - Du erhältst das Array 'monsterArray' mit Monstern in verschiedenen Räumen -
    * Ändere die Monsteranzahl in den Räumen, in denen jetzt neue Monster stehen - Räume ohne Monster
-   * sollen nicht im neuen Array vorkommen
+   * sollen NICHT im neuen Array vorkommen
    *
    * <p>Beispiel für das Array: monsterArray = [5, 0, 3, 0, 2] // 5 Monster in Raum 0, keine in Raum
    * 1, 3 in Raum 2, usw.
@@ -38,7 +38,7 @@ public class MyArrayRemover extends ArrayRemover {
    * @return Ein neues Array, das nur die Anzahl der Monster aus den nicht-leeren Räumen enthält
    * @throws UnsupportedOperationException wenn die Methode nicht implementiert wurde
    */
-  public int[] entfernePositionen() {
+  public int[] removePosition() {
     throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }
