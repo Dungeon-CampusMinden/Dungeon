@@ -43,9 +43,9 @@ public class ArrayIterateLevel extends AdvancedLevel {
 
   private static String title = "Array-Aufgabe";
   private static String msg =
-      "Der Ausgang ist verschlossen! Übergebe die richtige Lösung dieses Level zu Meistern.";
+      "Der Ausgang ist verschlossen! Übergebe die richtige Lösung, um dieses Level zu Meistern.";
   private static String task =
-      "Gehe in die Datei MyArraySummarizer und Implementiere die Methode 'summarizeArray', berechne dort die Summe des Arrays.";
+      "Gehe in die Datei MyArraySummarizer und implementiere die Methode 'summarizeArray'. Berechne dort die Summe des Arrays.";
 
   /**
    * Konstruktor für das Array-Iterations-Level.
