@@ -65,7 +65,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
           "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
           "Die Lebenspunkte der Monster erhältst du mit '.hp()' für ein Monster aus dem Array.",
           "Du musst auch die Positionen der Monster tauschen.",
-          "Mit .swapPosition() kannst du zwei Monster vertauschen..");
+          "Mit '.swapPosition()' kannst du zwei Monster vertauschen.");
 
   // todo build dynamically
   private static final List<String> titles =
