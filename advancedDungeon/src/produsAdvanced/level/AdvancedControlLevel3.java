@@ -2,8 +2,10 @@ package produsAdvanced.level;
 
 import contrib.components.AIComponent;
 import contrib.components.LeverComponent;
+import contrib.components.SignComponent;
 import contrib.entities.EntityFactory;
 import contrib.entities.LeverFactory;
+import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
@@ -13,9 +15,12 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Point;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
 
 /**
@@ -27,12 +32,21 @@ import level.AdvancedLevel;
  */
 public class AdvancedControlLevel3 extends AdvancedLevel {
   private static boolean showMsg = true;
-  private static String msg =
+  private static final String msg =
       "Ein Schalter, vielleicht einfach mal ziehen? Und sind das Monster?! Ich konnte doch mal zaubern...";
-  private static String titel = "Level 3";
+  private static final String task = "Füge deiner Steuerung eine Funktion zum Interagieren hinzu.";
+  private static final String title = "Level 3";
+  private static final List<String> messages =
+      Arrays.asList(
+          "Pass im nächsten Raum auf die Monster auf! Wenn du weitere Tips brauchst, um sie zu besiegen, interagiere nochmal mit diesem Schild.",
+          "Du musst einen Feuerball implementieren, um die Monster zu besiegen, schau mal ob du die passende Funktion findest.",
+          "Die Funktion die du suchst heißt 'shootFireball'. Es ist eine Methode des Heros.");
+  private static final List<String> titles =
+      Arrays.asList("noch zwei Hinweise", "noch ein Hinweis", "letzter Hinweis");
   private LeverComponent l1, l2, l3;
   private ExitTile exit;
   private DoorTile door1, door2;
+  AtomicInteger currentIndex = new AtomicInteger(-1);
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -49,7 +63,16 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
+    addSign();
+
     exit = (ExitTile) Game.endTile();
     exit.close();
     Entity lever1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
@@ -92,5 +115,35 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
     if (l2.isOn() && l3.isOn()) door2.open();
     else door2.close();
     if (Game.entityStream(Set.of(AIComponent.class)).findAny().isEmpty()) exit.open();
+  }
+
+  private void addSign() {
+    Entity sign =
+        SignFactory.createSign(
+            "", // Der Text, der angezeigt werden soll
+            "", // Titel
+            new Point(19.5F, 6.5F), // Position des Schildes
+            (entity, hero) -> {
+
+              // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
+              if (currentIndex.get() < messages.size() - 1) {
+                currentIndex.incrementAndGet();
+                Game.entityStream(Set.of(SignComponent.class))
+                    .filter(signEntity -> signEntity.equals(entity))
+                    .findFirst()
+                    .ifPresent(
+                        signEntity -> {
+                          // Aktualisiere den Text des Schildes
+                          SignComponent signComponent =
+                              signEntity
+                                  .fetch(SignComponent.class)
+                                  .orElseThrow(
+                                      () -> new RuntimeException("SignComponent not found"));
+                          signComponent.text(messages.get(currentIndex.get()));
+                          signComponent.title(titles.get(currentIndex.get()));
+                        });
+              }
+            });
+    Game.add(sign);
   }
 }

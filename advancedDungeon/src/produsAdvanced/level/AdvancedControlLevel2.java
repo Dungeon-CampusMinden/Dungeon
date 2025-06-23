@@ -17,8 +17,9 @@ import level.AdvancedLevel;
 public class AdvancedControlLevel2 extends AdvancedLevel {
 
   private static boolean showMsg = true;
-  private static String msg = "Hier geht es tief runter. Jetzt ganz langsam.";
-  private static String titel = "Level 2";
+  private static final String msg = "Hier geht es tief runter. Jetzt ganz langsam.";
+  private static final String task = "Passe deinen Code so an, dass du dich langsamer bewegst.";
+  private static final String title = "Level 2";
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -35,7 +36,14 @@ public class AdvancedControlLevel2 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 
   @Override

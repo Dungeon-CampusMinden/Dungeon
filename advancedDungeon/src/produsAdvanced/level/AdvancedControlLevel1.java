@@ -19,7 +19,9 @@ public class AdvancedControlLevel1 extends AdvancedLevel {
   private static boolean showMsg = true;
   private static String msg =
       "Was ist los? Ich kann mich nicht bewegen! Jemand muss an meinem Steuerungscode rumgefuscht haben.";
-  private static String titel = "Level 1";
+  private static String task =
+      "Gehe in die Datei MyPlayerController.java und implementiere die Steuerung deines Helden.\n";
+  private static String title = "Level 1";
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -36,7 +38,14 @@ public class AdvancedControlLevel1 extends AdvancedLevel {
 
   @Override
   protected void onFirstTick() {
-    if (showMsg) DialogUtils.showTextPopup(msg, titel, () -> showMsg = false);
+    if (showMsg)
+      DialogUtils.showTextPopup(
+          msg,
+          title,
+          () -> {
+            showMsg = false;
+            DialogUtils.showTextPopup(task, title);
+          });
   }
 
   @Override
