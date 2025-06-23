@@ -44,7 +44,7 @@ public class ArrayCreateLevel extends AdvancedLevel {
   private static String msg =
       "Finde den Ausgang des Levels! Noch ist er verschlossen, doch er wird sich öffnen, wenn du die richtige Lösung übergibst.";
   private static String task =
-      "Gehe in die Datei MyArrayCreator und Implementiere die Methode 'createSortedArray' und erstelle ein Array mit den Zahlen von 1 bis 5 in der richtigen Reihenfolge.";
+      "Gehe in die Datei 'MyArrayCreator.java' und implementiere die Methode 'createSortedArray' und erstelle ein Array mit den Zahlen von 1 bis 5 in der richtigen Reihenfolge.";
 
   /**
    * Konstruktor für das ArrayCreateLevel.

@@ -45,7 +45,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
   private static String msg =
       "Schon wieder hier! Du bist wirklich hartnäckig! Finde wieder den Ausgang des Levels, die Lösung ist jetzt aber eine andere!.";
   private static String task =
-      "Gehe in die Datei MyArrayRemover und Implementiere die Methode 'removePosition'.";
+      "Gehe in die Datei 'MyArrayRemover.java' und implementiere die Methode 'removePosition'.";
 
   /**
    * Konstruktor für das Array-Entfernungs-Level.

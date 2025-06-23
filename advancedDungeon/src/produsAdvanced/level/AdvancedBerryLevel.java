@@ -64,8 +64,8 @@ public class AdvancedBerryLevel extends AdvancedLevel {
       Arrays.asList(
           "Sprich mit dem NPC.",
           "Schau dir die Datei Berry an.",
-          "Mit hero.getBerryAt kannst du dir eine Beere an einer bestimmten Position in den Code holen",
-          "Mit .toxic() kannst du prüfen ob eine Beere giftig ist.",
+          "Mit 'hero.getBerryAt()' kannst du dir eine Beere an einer bestimmten Position in den Code holen",
+          "Mit '.toxic()' kannst du prüfen ob eine Beere giftig ist.",
           "Vielleicht kannst du deinen Feuerball verbessern, damit er gifitige Beeren erkennt.",
           "Du könntest giftige Beeren auch einfärben.");
 
