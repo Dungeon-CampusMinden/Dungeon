@@ -15,7 +15,6 @@ import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
 import core.utils.Point;
-import entities.VariableHUD;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -116,12 +115,6 @@ public class Server {
   };
   private final Stack<String> currently_repeating_scope = new Stack<>();
 
-  /**
-   * Object containing the variable HUD in the dungeon. This object is used to add new variables to
-   * the HUD. It will add int variables and arrays to the HUD and update existing varaible values.
-   */
-  public VariableHUD variableHUD = null;
-
   /** Constructor of the server. */
   private Server() {}
 
@@ -179,11 +172,6 @@ public class Server {
    * @throws IOException If an error occurs while sending the response
    */
   private void handleStartRequest(HttpExchange exchange) throws IOException {
-    if (clearHUD) {
-      clearHUDValues();
-      clearHUD = false;
-    }
-
     String query = exchange.getRequestURI().getQuery();
     boolean start = query != null && query.equals("first=true");
     if (start) {
@@ -227,15 +215,6 @@ public class Server {
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
     os.close();
-  }
-
-  /** Clear the variable and array HUD in the dungeon. */
-  private void clearHUDValues() {
-    if (variableHUD == null) {
-      return;
-    }
-    variableHUD.clearArrayVariables();
-    variableHUD.clearVariables();
   }
 
   /**
@@ -919,21 +898,6 @@ public class Server {
    */
   private void addBaseVar(String name, int value) {
     variables.put(name, new Variable(value));
-    if (variableHUD != null) {
-      variableHUD.addVariable(name, value);
-    }
-  }
-
-  /**
-   * Update the array HUD if not null.
-   *
-   * @param name Name of the array variable.
-   * @param value Integer array value of the array variable
-   */
-  private void updateArrayHUD(String name, int[] value) {
-    if (variableHUD != null) {
-      variableHUD.addArrayVariable(name, value);
-    }
   }
 
   /**
@@ -949,7 +913,6 @@ public class Server {
     if (matcherArray.find()) {
       int array_size = Integer.parseInt(matcherArray.group(2));
       variables.put(matcherArray.group(1), new Variable(new int[array_size]));
-      updateArrayHUD(matcherArray.group(1), new int[array_size]);
       return;
     }
     // Check array assign
@@ -1044,7 +1007,6 @@ public class Server {
         int value = executeOperatorExpression(leftVal, rightVal, op);
         Variable arrayVar = getArrayVariable(varName);
         arrayVar.arrayVal[index] = value;
-        updateArrayHUD(varName, arrayVar.arrayVal);
         return true;
       } catch (IllegalAccessException
           | NoSuchElementException
@@ -1069,7 +1031,6 @@ public class Server {
         int value = getActualValueFromExpression(rightValue);
         Variable arrayVar = getArrayVariable(varNameRightValue);
         arrayVar.arrayVal[indexRightValue] = value;
-        updateArrayHUD(varNameRightValue, arrayVar.arrayVal);
         return true;
       } catch (IllegalAccessException
           | NoSuchElementException
