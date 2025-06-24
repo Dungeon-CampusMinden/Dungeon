@@ -23,7 +23,7 @@
         <module name="JavadocTagContinuationIndentation"/>
         <module name="JavadocType"/>
         <module name="JavadocVariable">
-            <property name="scope" value="public"/>
+            <property name="accessModifiers" value="public"/>
         </module>
         <module name="MissingDeprecated"/>
         <module name="MissingJavadocMethod"/>

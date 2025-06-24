@@ -305,9 +305,16 @@ public class LanguageServer {
   }
 
   private static class MethodJavadoc {
+    /** TODO . */
     public String mainText = "";
+
+    /** TODO . */
     public Map<String, String> parameters = new HashMap<>();
+
+    /** TODO . */
     public String returnDoc = "";
+
+    /** TODO . */
     public Map<String, String> throwDoc = new HashMap<>();
 
     public String toMarkdown() {
