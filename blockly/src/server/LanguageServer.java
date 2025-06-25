@@ -266,10 +266,14 @@ public class LanguageServer {
   }
 
   private static MethodJavadoc parseJavadoc(String javadocContent) {
-    MethodJavadoc doc = new MethodJavadoc();
     String[] lines = javadocContent.split("\n");
     StringBuilder mainText = new StringBuilder();
-    String currentParam = "", currentException = "";
+    Map<String, String> parameters = new HashMap<>();
+    String returnDoc = "";
+    Map<String, String> throwDoc = new HashMap<>();
+
+    String currentTag = "";
+    String currentTagName = "";
 
     for (String line : lines) {
       line = line.trim().replaceFirst("^\\s*\\*\\s*", "");
@@ -277,46 +281,51 @@ public class LanguageServer {
 
       if (line.startsWith("@param")) {
         String[] parts = line.substring(6).trim().split("\\s+", 2);
-        if (parts.length >= 2) doc.parameters.put(parts[0], parts[1]);
-        currentParam = parts[0];
+        currentTag = "@param";
+        currentTagName = parts[0];
+        parameters.put(currentTagName, parts.length > 1 ? parts[1] : "");
       } else if (line.startsWith("@return")) {
-        doc.returnDoc = line.substring(7).trim();
+        currentTag = "@return";
+        returnDoc = line.substring(7).trim();
       } else if (line.startsWith("@throws")) {
         String[] parts = line.substring(7).trim().split("\\s+", 2);
-        if (parts.length >= 2) doc.throwDoc.put(parts[0], parts[1]);
-        currentException = parts[0];
+        currentTag = "@throws";
+        currentTagName = parts[0];
+        throwDoc.put(currentTagName, parts.length > 1 ? parts[1] : "");
+      } else if (line.startsWith("@")) {
+        currentTag = "";
       } else {
-        if (!currentParam.isEmpty())
-          doc.parameters.merge(currentParam, line, (a, b) -> a + " " + b);
-        else if (!currentException.isEmpty())
-          doc.throwDoc.merge(currentException, line, (a, b) -> a + " " + b);
-        else if (!doc.returnDoc.isEmpty()) doc.returnDoc += " " + line;
-        else mainText.append(line).append(" ");
+        switch (currentTag) {
+          case "@param" -> parameters.merge(currentTagName, " " + line, String::concat);
+          case "@return" -> returnDoc += " " + line;
+          case "@throws" -> throwDoc.merge(currentTagName, " " + line, String::concat);
+          default -> mainText.append(line).append(" ");
+        }
       }
     }
-    doc.mainText = mainText.toString().trim();
-    return doc;
+    return new MethodJavadoc(mainText.toString().trim(), parameters, returnDoc.trim(), throwDoc);
   }
 
   private record ClassDocs(Map<String, MethodJavadoc> methodDocs) {
-    public ClassDocs() {
+    ClassDocs() {
       this(new HashMap<>());
     }
   }
 
-  private static class MethodJavadoc {
-    /** TODO . */
-    public String mainText = "";
+  private record MethodJavadoc(
+      String mainText,
+      Map<String, String> parameters,
+      String returnDoc,
+      Map<String, String> throwDoc) {
 
-    /** TODO . */
-    public Map<String, String> parameters = new HashMap<>();
-
-    /** TODO . */
-    public String returnDoc = "";
-
-    /** TODO . */
-    public Map<String, String> throwDoc = new HashMap<>();
-
+    /**
+     * Converts the Javadoc to a Markdown format.
+     *
+     * <p>This method formats the main text, parameters, return documentation, and throw
+     * documentation into a Markdown string.
+     *
+     * @return the formatted Markdown string
+     */
     public String toMarkdown() {
       StringBuilder sb = new StringBuilder(mainText).append("\n\n");
       if (!parameters.isEmpty()) {
