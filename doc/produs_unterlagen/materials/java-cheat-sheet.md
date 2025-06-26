@@ -121,6 +121,8 @@ public static int verdopple(int zahl) {
 int ergebnis = verdopple(5); // ergibt 10
 ```
 
+<div style="page-break-after: always;"></div>
+
 #### 🟠 Beispiel: Funktion mit mehreren Parametern
 
 ```java
