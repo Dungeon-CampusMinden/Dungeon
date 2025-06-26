@@ -38,7 +38,6 @@ public class Chapter24Level extends BlocklyLevel {
         // MOVEMENT
         "goToExit",
         // Richtungen
-        "direction_here",
         // Inventar und Charakter
         "drop_item",
         "Items",

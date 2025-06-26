@@ -42,7 +42,6 @@ public class Chapter21Level extends BlocklyLevel {
         // MOVEMENT
         "goToExit",
         // Richtungen
-        "direction_here",
         // Schleifen
         "while_loop",
         // Inventar und Charakter

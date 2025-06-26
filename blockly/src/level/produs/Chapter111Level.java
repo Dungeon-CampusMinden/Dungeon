@@ -40,9 +40,6 @@ public class Chapter111Level extends BlocklyLevel {
         // MOVEMENT
         "goToExit",
         // Richtungen
-        "direction_up",
-        "direction_down",
-        "direction_here",
         // Schleifen
         "while_loop",
         // Inventar und Charakter
