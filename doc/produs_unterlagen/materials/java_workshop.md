@@ -36,7 +36,7 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 
 ### Hinweise
 * mit `loadLevel(INDEX)` oder `loadNextLevel()` kann im Code ein bestimmes Level geladen werden.
-* Endlosschleifen können zum abstürz führen => Neustart notwendig.
+* Endlosschleifen können zum Absturz führen => Neustart notwendig.
 
 ## Tag 1
 

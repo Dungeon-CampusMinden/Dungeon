@@ -35,10 +35,10 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 * Level können über das Webinterface freigeschaltet werden
   * `Rechtsklick` im Blockly Browserfenster -> `Untersuchen`
   * Reiter `Application` auswählen
-  * Unter `Localstorage` die Anwendung Blockly (z.B `localhost:5173`) auswählen
-  * Dem Key `levelProgress` den gewünschten Value (Levelindex) zuweisen (z.B 5 um Level 6 freizuschalten).
+  * Unter `Localstorage` die Anwendung Blockly (z.B. `localhost:5173`) auswählen
+  * Dem Key `levelProgress` den gewünschten Value (Levelindex) zuweisen (z.B. 5 um Level 6 freizuschalten).
   * Browserfenster neu laden.
-* Endlosschleifen können zum abstürz führen => Neustart notwendig.
+* Endlosschleifen können zum Absturz führen => Neustart notwendig.
 
 ## Tag 1
 
