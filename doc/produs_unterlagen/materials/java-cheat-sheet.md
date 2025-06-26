@@ -44,6 +44,8 @@ if (i > 10) {
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 ### 🔁 for-Schleife
 
 ```java
@@ -77,6 +79,8 @@ while (i < 10) {
     i++;
 }
 ```
+
+<div style="page-break-after: always;"></div>
 
 ### 🧩 Funktionen (Methoden) deklarieren und verwenden
 
