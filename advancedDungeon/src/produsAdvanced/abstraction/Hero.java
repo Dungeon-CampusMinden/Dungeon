@@ -68,8 +68,8 @@ public class Hero {
   /**
    * Setzt den Controller für die Spielfigur.
    *
-   * <p>Registriert Tastendrücke und übergibt sie an den übergebenen {@link
-   * PlayerController}, der die Verarbeitung übernimmt.
+   * <p>Registriert Tastendrücke und übergibt sie an den übergebenen {@link PlayerController}, der
+   * die Verarbeitung übernimmt.
    *
    * @param controller Ein {@link PlayerController}-Objekt, das die Eingaben verarbeitet. Wenn
    *     {@code null}, wird keine Aktion durchgeführt.
