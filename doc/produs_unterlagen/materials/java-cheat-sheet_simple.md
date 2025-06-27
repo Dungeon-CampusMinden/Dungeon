@@ -44,6 +44,8 @@ if (i > 10) {
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 ### 🔁 for-Schleife
 
 ```java

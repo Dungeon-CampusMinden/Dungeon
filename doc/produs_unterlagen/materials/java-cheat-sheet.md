@@ -44,6 +44,8 @@ if (i > 10) {
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 ### 🔁 for-Schleife
 
 ```java
@@ -77,6 +79,8 @@ while (i < 10) {
     i++;
 }
 ```
+
+<div style="page-break-after: always;"></div>
 
 ### 🧩 Funktionen (Methoden) deklarieren und verwenden
 
@@ -116,6 +120,8 @@ public static int verdopple(int zahl) {
 ```java
 int ergebnis = verdopple(5); // ergibt 10
 ```
+
+<div style="page-break-after: always;"></div>
 
 #### 🟠 Beispiel: Funktion mit mehreren Parametern
 

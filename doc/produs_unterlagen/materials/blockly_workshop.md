@@ -31,6 +31,15 @@ Damit der Workshop reibungslos funktioniert, sind folgende Software-Komponenten 
 * **Blockly-Crossword:** Ein Kreuzworträtsel mit IT-Begriffen; dient als Karte für Level 21. [Leere-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_crossword_empty.pdf);  [Lösung](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blocky_crossword_solved.pdf).
 * **Blockly-Circuit-Diagram:** Zeigt, wie die Schalter in den Leveln verdrahtet sind. [PDF-Version](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/produs_unterlagen/materials/blockly_circuit_diagram.pdf).
 
+### Hinweise
+* Level können über das Webinterface freigeschaltet werden
+  * `Rechtsklick` im Blockly Browserfenster -> `Untersuchen`
+  * Reiter `Application` auswählen
+  * Unter `Localstorage` die Anwendung Blockly (z.B. `localhost:5173`) auswählen
+  * Dem Key `levelProgress` den gewünschten Value (Levelindex) zuweisen (z.B. 5 um Level 6 freizuschalten).
+  * Browserfenster neu laden.
+* Endlosschleifen können zum Absturz führen => Neustart notwendig.
+
 ## Tag 1
 
 ### Begrüßung und Einstieg
