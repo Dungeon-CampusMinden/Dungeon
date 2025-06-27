@@ -32,25 +32,6 @@ quickly.
 
 ![][1]
 
-## Dungeon: Learning by Questing
-
-The sub-project [`dungeon`] extends "Game" and provides a wide range of game elements that can
-be used directly to create a rogue-like 2D role-playing game.
-
-Teachers can use the DSL provided by the project to conveniently devise typical exercises from
-the study context. The framework automatically translates these formally described exercises
-into various game scenarios and generates ready-to-play games as a result. There are also
-various control mechanisms that make it possible to devise customised learning paths. The
-exercises are presented as quests in the generated game. Teachers do not have to code the game
-mechanics themselves. (Well, of course you always can add your own mechanics using Java code.)
-
-The [Quickstart][2] (German) and the [Documentation][3] (German) should help you get started.
-
-The [Dungeon: StarterKit] provides you with everything you need to get started immediately
-without coding and/or compiling.
-
-![][4] ![][5]
-
 ## Blockly: Low Code Dungeon
 
 The sub-project [`blockly`] extends "Dungeon" and uses [Google's Blockly] to provide a
@@ -143,8 +124,6 @@ licensed under [Apache 2.0].
   [2]: dungeon/doc/quickstart.md
   [3]: dungeon/doc/
   [Dungeon: StarterKit]: https://github.com/Dungeon-CampusMinden/Dungeon-StarterKit
-  [4]: dungeon/doc/dsl/img/quickstart_select_config_level.png
-  [5]: dungeon/doc/dsl/img/quickstart_answer_menu.png
   [`blockly`]: blockly
   [Google's Blockly]: https://github.com/google/blockly
   [6]: blockly/doc/
