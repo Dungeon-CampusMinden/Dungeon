@@ -121,14 +121,29 @@ public class BlocklyCommands {
         .ifPresent(ac -> aimAndShoot(ac, hero));
   }
 
-  /** Triggers each interactable in front of the hero. */
-  public static void interact() {
+  /**
+   * Triggers an interactable in a direction related to the hero.
+   *
+   * @param direction Direction in which the hero will search for an interactable.
+   */
+  public static void interact(Direction direction) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile inFront = Game.tileAT(pc.position(), pc.viewDirection());
-    Game.entityAtTile(inFront)
+
+    Tile inDirection;
+
+    if (direction == Direction.HERE) {
+      inDirection = Game.tileAT(pc.position());
+    } else {
+      Direction newDirection =
+          Direction.fromPositionCompDirection(pc.viewDirection())
+              .relativeToAbsoluteDirection(direction);
+      inDirection = Game.tileAT(pc.position(), Direction.toPositionCompDirection(newDirection));
+    }
+
+    Game.entityAtTile(inDirection)
         .forEach(
             entity ->
                 entity
@@ -476,5 +491,24 @@ public class BlocklyCommands {
     vc.currentYVelocity(direction.y());
     // so the player can not glitch inside the next tile
     pc.position(oldP);
+  }
+
+  /**
+   * Checks whether the boss's view direction equals the given direction.
+   *
+   * <p>This method is specifically used for the boss in Blockly Chapter 3, Level 4.
+   *
+   * @param direction the direction to check against
+   * @return {@code true} if the boss's view direction equals the given direction; {@code false} if
+   *     the direction does not match, or if the boss or its PositionComponent is missing
+   */
+  public static boolean checkBossViewDirection(Direction direction) {
+    return Game.allEntities()
+        .filter(e -> e.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .flatMap(e -> e.fetch(PositionComponent.class))
+        .map(PositionComponent::viewDirection)
+        .map(d -> d.equals(Direction.toPositionCompDirection(direction)))
+        .orElse(false);
   }
 }

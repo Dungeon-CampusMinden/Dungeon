@@ -1307,7 +1307,16 @@ public class Server {
       }
       case "feuerball" -> BlocklyCommands.shootFireball();
       case "warte" -> waitDelta();
-      case "benutzen" -> BlocklyCommands.interact();
+      case "benutzen" -> {
+        Direction firstArg;
+        if (args[0] instanceof String firstArgStr) {
+          firstArg = Direction.fromString(firstArgStr);
+        } else {
+          setError("Unexpected type for direction " + args[0]);
+          return;
+        }
+        BlocklyCommands.interact(firstArg);
+      }
       case "schieben" -> BlocklyCommands.push();
       case "ziehen" -> BlocklyCommands.pull();
       case "aufsammeln" -> BlocklyCommands.pickup();

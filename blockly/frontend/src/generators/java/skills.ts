@@ -13,8 +13,12 @@ export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
   return "warte();";
 }
 
-export function use(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "benutzen();";
+export function use(
+  block: Blockly.Block,
+  generator: Blockly.Generator
+) {
+  const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
+  return "benutzen(" + dir + ");";
 }
 
 export function push(_block: Blockly.Block, _generator: Blockly.Generator) {
