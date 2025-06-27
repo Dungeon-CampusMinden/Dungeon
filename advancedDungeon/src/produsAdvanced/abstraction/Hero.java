@@ -68,8 +68,8 @@ public class Hero {
   /**
    * Setzt den Controller für die Spielfigur.
    *
-   * <p>Registriert Tastendrücke (von Taste 0 bis Z) und übergibt sie an den übergebenen {@link
-   * PlayerController}, der die Verarbeitung übernimmt.
+   * <p>Registriert Tastendrücke und übergibt sie an den übergebenen {@link PlayerController}, der
+   * die Verarbeitung übernimmt.
    *
    * @param controller Ein {@link PlayerController}-Objekt, das die Eingaben verarbeitet. Wenn
    *     {@code null}, wird keine Aktion durchgeführt.
@@ -79,7 +79,7 @@ public class Hero {
     PlayerComponent pc = hero.fetch(PlayerComponent.class).get();
     String[] mousebuttons = {"LMB", "RMB", "MMB"};
 
-    for (int key = 0; key <= Input.Keys.Z; key++) {
+    for (int key = 0; key <= Input.Keys.MAX_KEYCODE; key++) {
       int finalKey = key;
       pc.registerCallback(
           key,
