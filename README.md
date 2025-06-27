@@ -62,10 +62,45 @@ problems or suggestions, please feel free to contact us in English or German.
 
 This project is currently funded and has previously been supported by various funding programs.
 
-- Stiftung Innovation in der Hochschullehre: Freiraum 2025 (2025/26)
-- EFRE/JTF NRW 2021–27: Pakt für Informatik 2.0 (2025/26)
-- tiftung Innovation in der Hochschullehre: Freiraum 2022 (2022/23)
-- Stiftverband: Fellowships für Innovationen in der digitalen Hochschulbildung (2020/21)
+### L<ESC>ROD 
+
+* Funding source: [Stiftung Innovation in der Hochschullehre (Foundation for Innovation in Higher Education)](https://stiftung-hochschullehre.de/)
+* Funding program: [Freiraum 2025](https://stiftung-hochschullehre.de/foerderung/freiraum/)
+* Project title: Lehr-Escape-Rooms mit LowCode im Dungeon
+* Project number: 3003-1271
+* Ancillary provisions: Funding conditions for the Freiraum 2025 call
+* Project duration: 01.04.2025 – 31.03.2027
+
+* TODO INSERT DESCRIPTION
+
+### Produs 
+
+* Funding source: [EFRE/JTF NRW 2021–27](https://www.efre.nrw/)
+* Funding program: [Pakt für Informatik 2.0](https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20)
+* Project title: Programming Dungeon Adventures at School
+* Project number: 34.EFRE-20300105
+* Project duration: 01.12.2024 – 31.08.2026
+
+* TODO INSERT DESCRIPTION
+
+### Dungeon: Learning by Questing
+
+* Funding source: [Stiftung Innovation in der Hochschullehre (Foundation for Innovation in Higher Education)](https://stiftung-hochschullehre.de/)
+* Funding program: [Freiraum 2022](https://stiftung-hochschullehre.de/foerderung/freiraum/)
+* Project title: Spiele-Framework für Digital Game Based Learning
+* Funding number: FRFMM-623/2022
+* Project number: FR-925/2022
+* Project duration: 01.09.2022 – 30.11.2023
+
+* TODO INSERT DESCRIPTION
+
+### PM-Dungeon
+
+* Funding source: [Fellowships für Innovationen in der digitalen Hochschulbildung](https://www.stifterverband.org/digital-lehrfellows-nrw)
+* Project title: PM-Dungeon
+* Project duration: 01.10.2021 – 30.11.2022
+
+* TODO INSERT DESCRIPTION
 
 ## Credits
 
