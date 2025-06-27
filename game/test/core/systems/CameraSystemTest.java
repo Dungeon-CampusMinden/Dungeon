@@ -62,8 +62,8 @@ public class CameraSystemTest {
     entity.add(new CameraComponent());
 
     cameraSystem.execute();
-    assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
+    assertEquals(expectedFocusPoint.x(), CameraSystem.camera().position.x, 0.001);
+    assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
   }
 
   /** WTF? . */
@@ -75,8 +75,8 @@ public class CameraSystemTest {
 
     cameraSystem.execute();
 
-    assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
+    assertEquals(expectedFocusPoint.x(), CameraSystem.camera().position.x, 0.001);
+    assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
   }
 
   /** WTF? . */
@@ -85,8 +85,8 @@ public class CameraSystemTest {
     Game.currentLevel(null);
     Point expectedFocusPoint = new Point(0, 0);
     cameraSystem.execute();
-    assertEquals(expectedFocusPoint.x, CameraSystem.camera().position.x, 0.001);
-    assertEquals(expectedFocusPoint.y, CameraSystem.camera().position.y, 0.001);
+    assertEquals(expectedFocusPoint.x(), CameraSystem.camera().position.x, 0.001);
+    assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
   }
 
   /** WTF? . */

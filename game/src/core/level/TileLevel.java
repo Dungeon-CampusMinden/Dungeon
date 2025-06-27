@@ -9,6 +9,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.IVoidFunction;
+import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,8 +29,8 @@ import java.util.Set;
  */
 public class TileLevel implements ILevel {
 
-  private static final Coordinate[] CONNECTION_OFFSETS = {
-    new Coordinate(0, 1), new Coordinate(0, -1), new Coordinate(1, 0), new Coordinate(-1, 0),
+  private static final Vector2[] CONNECTION_OFFSETS = {
+    new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0),
   };
   protected final TileHeuristic tileHeuristic = new TileHeuristic();
   protected Tile startTile;
@@ -116,8 +117,8 @@ public class TileLevel implements ILevel {
    */
   @Override
   public void addConnectionsToNeighbours(Tile checkTile) {
-    for (Coordinate v : CONNECTION_OFFSETS) {
-      Coordinate c = new Coordinate(checkTile.coordinate().x + v.x, checkTile.coordinate().y + v.y);
+    for (Vector2 v : CONNECTION_OFFSETS) {
+      Coordinate c = checkTile.coordinate().add(v);
       Tile t = tileAt(c);
       if (t != null
           && t.isAccessible()

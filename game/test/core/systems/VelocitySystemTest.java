@@ -3,7 +3,6 @@ package core.systems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.badlogic.gdx.math.Vector2;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -12,6 +11,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -72,19 +72,21 @@ public class VelocitySystemTest {
 
     Vector2 velocity =
         new Vector2(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
-    if (velocity.len()
+    if (velocity.length()
         > Math.max(
             Math.abs(velocityComponent.xVelocity()), Math.abs(velocityComponent.yVelocity()))) {
-      velocity.setLength(
-          Math.max(
-              Math.abs(velocityComponent.xVelocity()), Math.abs(velocityComponent.yVelocity())));
+      velocity =
+          velocity.setLength(
+              Math.max(
+                  Math.abs(velocityComponent.xVelocity()),
+                  Math.abs(velocityComponent.yVelocity())));
     }
 
     velocitySystem.execute();
     Point position = positionComponent.position();
 
-    assertEquals(startXPosition + velocity.x, position.x, 0.001);
-    assertEquals(startYPosition + velocity.y, position.y, 0.001);
+    assertEquals(startXPosition + velocity.x(), position.x(), 0.001);
+    assertEquals(startYPosition + velocity.y(), position.y(), 0.001);
     assertEquals(xVelocity * (1.0f - tile.friction()), velocityComponent.currentXVelocity(), 0.001);
     assertEquals(yVelocity * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
@@ -100,20 +102,22 @@ public class VelocitySystemTest {
 
     Vector2 velocity =
         new Vector2(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
-    if (velocity.len()
+    if (velocity.length()
         > Math.max(
             Math.abs(velocityComponent.xVelocity()), Math.abs(velocityComponent.yVelocity()))) {
-      velocity.setLength(
-          Math.max(
-              Math.abs(velocityComponent.xVelocity()), Math.abs(velocityComponent.yVelocity())));
+      velocity =
+          velocity.setLength(
+              Math.max(
+                  Math.abs(velocityComponent.xVelocity()),
+                  Math.abs(velocityComponent.yVelocity())));
     }
 
     velocitySystem.execute();
     System.out.println(tile.friction());
     Point position = positionComponent.position();
 
-    assertEquals(startXPosition + velocity.x, position.x, 0.001);
-    assertEquals(startYPosition + velocity.y, position.y, 0.001);
+    assertEquals(startXPosition + velocity.x(), position.x(), 0.001);
+    assertEquals(startYPosition + velocity.y(), position.y(), 0.001);
     assertEquals(-4 * (1.0f - tile.friction()), velocityComponent.currentXVelocity(), 0.001);
     assertEquals(-8 * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
@@ -126,8 +130,8 @@ public class VelocitySystemTest {
     velocityComponent.currentYVelocity(yVelocity);
     velocitySystem.execute();
     Point position = positionComponent.position();
-    assertEquals(startXPosition, position.x, 0.001);
-    assertEquals(startYPosition, position.y, 0.001);
+    assertEquals(startXPosition, position.x(), 0.001);
+    assertEquals(startYPosition, position.y(), 0.001);
     assertEquals(xVelocity * (1.0f - tile.friction()), velocityComponent.currentXVelocity(), 0.001);
     assertEquals(yVelocity * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }
@@ -140,8 +144,8 @@ public class VelocitySystemTest {
     velocityComponent.currentYVelocity(-8);
     velocitySystem.execute();
     Point position = positionComponent.position();
-    assertEquals(startXPosition, position.x, 0.001);
-    assertEquals(startYPosition, position.y, 0.001);
+    assertEquals(startXPosition, position.x(), 0.001);
+    assertEquals(startYPosition, position.y(), 0.001);
     assertEquals(-4 * (1.0f - tile.friction()), velocityComponent.currentXVelocity(), 0.001);
     assertEquals(-8 * (1.0f - tile.friction()), velocityComponent.currentYVelocity(), 0.001);
   }

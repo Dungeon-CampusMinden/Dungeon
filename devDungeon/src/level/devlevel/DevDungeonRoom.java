@@ -159,10 +159,10 @@ public class DevDungeonRoom {
    * @return true if the coordinate is within the room, false otherwise.
    */
   public boolean contains(Coordinate coordinate) {
-    return coordinate.x >= topLeft.x
-        && coordinate.x <= bottomRight.x
-        && coordinate.y <= topLeft.y
-        && coordinate.y >= bottomRight.y;
+    return coordinate.x() >= topLeft.x()
+        && coordinate.x() <= bottomRight.x()
+        && coordinate.y() <= topLeft.y()
+        && coordinate.y() >= bottomRight.y();
   }
 
   /**

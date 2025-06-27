@@ -70,7 +70,7 @@ public class TileTextureFactory {
         elementLayout[y][x] = layout[y][x].levelElement();
       }
     }
-    elementLayout[element.coordinate().y][element.coordinate().x] = elementType;
+    elementLayout[element.coordinate().y()][element.coordinate().x()] = elementType;
     return findTexturePath(
         new LevelPart(elementType, element.designLabel(), elementLayout, element.coordinate()));
   }
@@ -415,7 +415,7 @@ public class TileTextureFactory {
    */
   private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x] == LevelElement.WALL;
+      return layout[p.y() + 1][p.x()] == LevelElement.WALL;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -431,7 +431,7 @@ public class TileTextureFactory {
    */
   private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x] == LevelElement.WALL;
+      return layout[p.y() - 1][p.x()] == LevelElement.WALL;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -447,7 +447,7 @@ public class TileTextureFactory {
    */
   private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x - 1] == LevelElement.WALL;
+      return layout[p.y()][p.x() - 1] == LevelElement.WALL;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -463,7 +463,7 @@ public class TileTextureFactory {
    */
   private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x + 1] == LevelElement.WALL;
+      return layout[p.y()][p.x() + 1] == LevelElement.WALL;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -479,7 +479,7 @@ public class TileTextureFactory {
    */
   private static boolean aboveIsDoor(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x] == LevelElement.DOOR;
+      return layout[p.y() + 1][p.x()] == LevelElement.DOOR;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -495,7 +495,7 @@ public class TileTextureFactory {
    */
   private static boolean belowIsDoor(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x] == LevelElement.DOOR;
+      return layout[p.y() - 1][p.x()] == LevelElement.DOOR;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -511,7 +511,7 @@ public class TileTextureFactory {
    */
   private static boolean leftIsDoor(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x - 1] == LevelElement.DOOR;
+      return layout[p.y()][p.x() - 1] == LevelElement.DOOR;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -527,7 +527,7 @@ public class TileTextureFactory {
    */
   private static boolean rightIsDoor(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x + 1] == LevelElement.DOOR;
+      return layout[p.y()][p.x() + 1] == LevelElement.DOOR;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -543,7 +543,7 @@ public class TileTextureFactory {
    */
   private static boolean aboveIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x].value() || layout[p.y + 1][p.x] == LevelElement.PIT;
+      return layout[p.y() + 1][p.x()].value() || layout[p.y() + 1][p.x()] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -559,7 +559,7 @@ public class TileTextureFactory {
    */
   private static boolean leftIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x - 1].value() || layout[p.y][p.x - 1] == LevelElement.PIT;
+      return layout[p.y()][p.x() - 1].value() || layout[p.y()][p.x() - 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -575,7 +575,7 @@ public class TileTextureFactory {
    */
   private static boolean rightIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x + 1].value() || layout[p.y][p.x + 1] == LevelElement.PIT;
+      return layout[p.y()][p.x() + 1].value() || layout[p.y()][p.x() + 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -591,7 +591,7 @@ public class TileTextureFactory {
    */
   private static boolean belowIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x].value() || layout[p.y - 1][p.x] == LevelElement.PIT;
+      return layout[p.y() - 1][p.x()].value() || layout[p.y() - 1][p.x()] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -607,7 +607,8 @@ public class TileTextureFactory {
    */
   private static boolean upperRightIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x + 1].value() || layout[p.y + 1][p.x + 1] == LevelElement.PIT;
+      return layout[p.y() + 1][p.x() + 1].value()
+          || layout[p.y() + 1][p.x() + 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -623,7 +624,8 @@ public class TileTextureFactory {
    */
   private static boolean bottomRightIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x + 1].value() || layout[p.y - 1][p.x + 1] == LevelElement.PIT;
+      return layout[p.y() - 1][p.x() + 1].value()
+          || layout[p.y() - 1][p.x() + 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -639,7 +641,8 @@ public class TileTextureFactory {
    */
   private static boolean bottomLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x - 1].value() || layout[p.y - 1][p.x - 1] == LevelElement.PIT;
+      return layout[p.y() - 1][p.x() - 1].value()
+          || layout[p.y() - 1][p.x() - 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -655,7 +658,8 @@ public class TileTextureFactory {
    */
   private static boolean upperLeftIsAccessible(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x - 1].value() || layout[p.y + 1][p.x - 1] == LevelElement.PIT;
+      return layout[p.y() + 1][p.x() - 1].value()
+          || layout[p.y() + 1][p.x() - 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -671,7 +675,8 @@ public class TileTextureFactory {
    */
   private static boolean aboveIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x] == LevelElement.HOLE || layout[p.y + 1][p.x] == LevelElement.PIT;
+      return layout[p.y() + 1][p.x()] == LevelElement.HOLE
+          || layout[p.y() + 1][p.x()] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -687,7 +692,8 @@ public class TileTextureFactory {
    */
   private static boolean leftIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x - 1] == LevelElement.HOLE || layout[p.y][p.x - 1] == LevelElement.PIT;
+      return layout[p.y()][p.x() - 1] == LevelElement.HOLE
+          || layout[p.y()][p.x() - 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -703,7 +709,8 @@ public class TileTextureFactory {
    */
   private static boolean rightIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y][p.x + 1] == LevelElement.HOLE || layout[p.y][p.x + 1] == LevelElement.PIT;
+      return layout[p.y()][p.x() + 1] == LevelElement.HOLE
+          || layout[p.y()][p.x() + 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -719,7 +726,8 @@ public class TileTextureFactory {
    */
   private static boolean belowIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x] == LevelElement.HOLE || layout[p.y - 1][p.x] == LevelElement.PIT;
+      return layout[p.y() - 1][p.x()] == LevelElement.HOLE
+          || layout[p.y() - 1][p.x()] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -735,8 +743,8 @@ public class TileTextureFactory {
    */
   private static boolean upperRightIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x + 1] == LevelElement.HOLE
-          || layout[p.y + 1][p.x + 1] == LevelElement.PIT;
+      return layout[p.y() + 1][p.x() + 1] == LevelElement.HOLE
+          || layout[p.y() + 1][p.x() + 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -752,8 +760,8 @@ public class TileTextureFactory {
    */
   private static boolean bottomRightIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x + 1] == LevelElement.HOLE
-          || layout[p.y - 1][p.x + 1] == LevelElement.PIT;
+      return layout[p.y() - 1][p.x() + 1] == LevelElement.HOLE
+          || layout[p.y() - 1][p.x() + 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -769,8 +777,8 @@ public class TileTextureFactory {
    */
   private static boolean bottomLeftIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y - 1][p.x - 1] == LevelElement.HOLE
-          || layout[p.y - 1][p.x - 1] == LevelElement.PIT;
+      return layout[p.y() - 1][p.x() - 1] == LevelElement.HOLE
+          || layout[p.y() - 1][p.x() - 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -786,8 +794,8 @@ public class TileTextureFactory {
    */
   private static boolean upperLeftIsHole(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y + 1][p.x - 1] == LevelElement.HOLE
-          || layout[p.y + 1][p.x - 1] == LevelElement.PIT;
+      return layout[p.y() + 1][p.x() - 1] == LevelElement.HOLE
+          || layout[p.y() + 1][p.x() - 1] == LevelElement.PIT;
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;

@@ -118,22 +118,22 @@ public class ChestTest {
     assertTrue(1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);
 
     assertEquals(
-        PositionComponent.ILLEGAL_POSITION.x,
+        PositionComponent.ILLEGAL_POSITION.x(),
         newChest
             .fetch(PositionComponent.class)
             .map(PositionComponent.class::cast)
             .get()
             .position()
-            .x,
+            .x(),
         0.00001f);
     assertEquals(
-        PositionComponent.ILLEGAL_POSITION.y,
+        PositionComponent.ILLEGAL_POSITION.y(),
         newChest
             .fetch(PositionComponent.class)
             .map(PositionComponent.class::cast)
             .get()
             .position()
-            .y,
+            .y(),
         0.00001f);
   }
 }
