@@ -67,9 +67,6 @@ This project is currently funded and has previously been supported by various fu
 
 ## Credits
 
-This project was funded by [Stiftung für Innovation in der Hochschullehre] (["Freiraum
-2022"]).
-
 The assets in [`game/assets/`], [`dungeon/assets/`], [`devDungeon/assets/`], and
 [`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`] are a mix from free and
 self created resources:
@@ -96,15 +93,9 @@ self created resources:
 
 ## Licenses
 
-This [work] by [André Matutat], [Malte Reinsch], and [contributors] is licensed under [MIT].
+This [work] by [contributors] is licensed under [MIT].
 
 All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
-
-All files in [`game/assets/`], [`dungeon/assets/`] and [`devDungeon/assets/`] are licensed
-under [CC0 1.0].
-
-All files in [`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`] are
-licensed under [Apache 2.0].
 
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
