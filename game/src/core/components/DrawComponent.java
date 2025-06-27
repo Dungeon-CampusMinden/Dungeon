@@ -55,6 +55,9 @@ import java.util.stream.Collectors;
 public final class DrawComponent implements Component {
   private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
 
+  /** Set of supported filetypes. */
+  private static final Set<String> IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg", "bmp");
+
   /** Allows only one Element from a certain priority and orders them. */
   private final Map<IPath, Integer> animationQueue =
       new TreeMap<>(Comparator.comparingInt(IPath::priority));
@@ -134,9 +137,30 @@ public final class DrawComponent implements Component {
             .filter(File::isFile)
             // File object needs to be converted to IPath
             .map(file -> new SimpleIPath(file.getPath()))
+            // only look for images
+            .filter(DrawComponent::hasImageExtension)
             // sort by name streams may lose the ordering by name
             .sorted(Comparator.comparing(SimpleIPath::pathString))
             .collect(Collectors.toList()));
+  }
+
+  /**
+   * Checks whether the given path is an image file based on its extension.
+   *
+   * <p>The method determines the file extension by looking at the substring after the last '.'
+   * character in the filename (case-insensitive). It returns {@code true} if the extension matches
+   * one of the predefined image extensions defined in {@link #IMAGE_EXTENSIONS}.
+   *
+   * @param path the {@link SimpleIPath} to check; must not be {@code null}
+   * @return {@code true} if the path has an image extension, {@code false} otherwise
+   */
+  private static boolean hasImageExtension(final SimpleIPath path) {
+    if (path == null) throw new IllegalArgumentException("Path can not be null");
+    String name = path.pathString();
+    int dotIndex = name.lastIndexOf('.');
+    if (dotIndex < 0) return false;
+    String ext = name.substring(dotIndex + 1);
+    return IMAGE_EXTENSIONS.contains(ext);
   }
 
   /**
@@ -441,7 +465,6 @@ public final class DrawComponent implements Component {
    * @throws IOException if the JAR file or the files in the JAR file cannot be read.
    */
   private void loadAnimationsFromJar(final IPath path, final File jarFile) throws IOException {
-
     JarFile jar = new JarFile(jarFile);
     Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
 
@@ -485,13 +508,16 @@ public final class DrawComponent implements Component {
           // For example: "idle"
 
           String lastDir = fileName.substring(secondLastSlashIndex + 1, lastSlashIndex);
-
-          // add animation-files to new or existing storage map
-          if (storage.containsKey(lastDir)) storage.get(lastDir).add(new SimpleIPath(fileName));
-          else {
-            LinkedList<IPath> list = new LinkedList<>();
-            list.add(new SimpleIPath(fileName));
-            storage.put(lastDir, list);
+          SimpleIPath simplepath = new SimpleIPath(fileName);
+          if (hasImageExtension(simplepath)) {
+            // add animation-files to new or existing storage map
+            if (storage.containsKey(lastDir)) {
+              storage.get(lastDir).add(simplepath);
+            } else {
+              LinkedList<IPath> list = new LinkedList<>();
+              list.add(simplepath);
+              storage.put(lastDir, list);
+            }
           }
         }
       }
