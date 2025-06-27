@@ -92,7 +92,13 @@ This project is currently funded and has previously been supported by various fu
 * Project number: FR-925/2022
 * Project duration: 01.09.2022 – 30.11.2023
 
-* TODO INSERT DESCRIPTION
+**Project Goal and Implementation**
+As part of the project, the principles of game-based learning were further explored and applied to the existing Dungeon framework. In contrast to the previous PM-Dungeon project, where students programmed their own games, the focus here was not on game development, but on learning through gameplay.
+
+Students were provided with a fully developed game in which they had to solve subject-specific challenges directly within the game world. Real academic problems were seamlessly integrated with game mechanics—such as crafting or puzzle-solving—to create an engaging and meaningful learning experience.
+To evaluate student performance, the game included an automated analysis system that detected whether solutions were correct or whether players encountered difficulties during the task.
+The in-game challenges and puzzles were defined using a custom domain-specific language (DSL). This DSL enables even non-programmers to create and integrate educational tasks and puzzles into the game. It supports a variety of input types, such as single-choice questions, matching tasks, and element combination exercises. Depending on the level of detail provided, the DSL can either generate a specific gameplay scenario or automatically create a diverse game environment in which players must solve tasks to progress.
+Additionally, a Petri net-based system was implemented to define alternative learning paths. This allows the game to dynamically adapt to the learner’s needs—for example, by revisiting topic areas where students previously struggled.
 
 ### PM-Dungeon
 
