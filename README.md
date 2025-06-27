@@ -100,7 +100,16 @@ This project is currently funded and has previously been supported by various fu
 * Project title: PM-Dungeon
 * Project duration: 01.10.2021 – 30.11.2022
 
-* TODO INSERT DESCRIPTION
+**Project Goal and Implementation**
+The goal of the project was to motivate computer science students to engage deeply with programming by providing exciting challenges and development environments. A particular focus was placed on promoting self-directed learning, enabling students to explore programming concepts at their own pace and based on their individual interests and progress.
+
+As part of the project:
+*   Open Educational Resources (OER) were created and published to support teaching programming with Java.
+*   The Java-based framework Dungeon, built on libGDX, was conceptualized and developed. This framework has since been extended, revised, and optimized through additional projects.
+
+The Dungeon framework was used in the "Programming Methods" course at Bielefeld University of Applied Sciences (HSBI) to teach students advanced programming techniques in Java. Students used the framework to develop their own 2D rogue-like games, applying key programming concepts in a creative and practical way.
+To support this, the framework provides essential functionalities to simplify complex development tasks. These include a built-in game loop, graphical rendering of textures, an animation system, and tools for level generation and loading.
+In addition, a submission process called "Deploy to Grading", based on GitHub Actions, was developed. This allows students to submit their code solutions via GitHub pull requests. The submitted code is automatically evaluated using a CI pipeline that includes JUnit tests, Checkstyle, and similar tools—providing immediate, formative feedback and reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 
