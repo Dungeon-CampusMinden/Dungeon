@@ -95,8 +95,6 @@ Nun kann die Executable erstellt werden. Hier sind zwei Beispiele für verschied
     ```bash
     deno compile --target x86_64-pc-windows-msvc --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.exe --icon ./content/favicon.ico webserver.ts
     ```
-    > Bitte beachten Sie, dass in der aktuellen Deno-Version das Icon nicht korrekt übernommen wird und daher in der .exe nicht erscheint.
-
 2. **Linux (x86_64):**
     ```bash
     deno compile --target x86_64-unknown-linux-gnu --allow-net --allow-read --allow-run --no-npm --output blockly_x86_64.bin webserver.ts
