@@ -18,6 +18,8 @@ comprises three parts: "Game", "Dungeon" and "Blockly":
 You can find an [interesting report] on our project in the news section of Bielefeld
 University of Applied Sciences (04 April 2024, in German).
 
+For more information about the PRODUS project, please visit the [project page](https://www.hsbi.de/minden/produs/home) on the Bielefeld University of Applied Sciences website.
+
 ## Game: Dungeon Platform
 
 The sub-project [`game`] is the foundation of the entire framework. It provides a programming
