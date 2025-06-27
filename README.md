@@ -71,7 +71,11 @@ This project is currently funded and has previously been supported by various fu
 * Ancillary provisions: Funding conditions for the Freiraum 2025 call
 * Project duration: 01.04.2025 – 31.03.2027
 
-* TODO INSERT DESCRIPTION
+**Project Goal and Implementation**
+This project builds upon the goals and insights of the earlier *"Dungeon: Learning by Questing"* initiative. It aims to combine **playful engagement with meaningful educational experiences** by using the *Dungeon* framework to design and implement **didactic escape rooms**.
+
+In these digital escape rooms, students must **collaborate to solve subject-related puzzles** in order to progress through the game. The approach fosters teamwork, critical thinking, and applied understanding of academic content in an interactive game environment. To support this, the *Dungeon* framework is being extended with **remote multiplayer capabilities**, allowing multiple students to participate in a shared escape room experience from different locations.
+Additionally, a **low-code approach** is being developed to enable educators—even those without programming experience—to easily design and create their own escape rooms. This makes the concept accessible and adaptable for a wide range of teaching contexts.
 
 ### Produs 
 
