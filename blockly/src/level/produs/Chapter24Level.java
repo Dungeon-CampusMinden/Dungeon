@@ -9,6 +9,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import entities.BlocklyMonster;
 import java.util.List;
@@ -62,7 +63,7 @@ public class Chapter24Level extends BlocklyLevel {
     }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
+    LevelManagementUtils.heroViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     Game.hero()
         .orElseThrow(MissingHeroException::new)
