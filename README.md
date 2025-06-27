@@ -75,6 +75,15 @@ This project is intended as supplementary teaching material for German-language 
 courses and is therefore aimed at German-speaking students. If you have any questions,
 problems or suggestions, please feel free to contact us in English or German.
 
+## Funding
+
+This project is currently funded and has previously been supported by various funding programs.
+
+- Stiftung Innovation in der Hochschullehre: Freiraum 2025 (2025/26)
+- EFRE/JTF NRW 2021–27: Pakt für Informatik 2.0 (2025/26)
+- tiftung Innovation in der Hochschullehre: Freiraum 2022 (2022/23)
+- Stiftverband: Fellowships für Innovationen in der digitalen Hochschulbildung (2020/21)
+
 ## Credits
 
 This project was funded by [Stiftung für Innovation in der Hochschullehre] (["Freiraum
