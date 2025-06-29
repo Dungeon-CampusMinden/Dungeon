@@ -190,7 +190,6 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [7]: blockly/doc/img/examples/blockly_gif.gif
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
   [Stiftung für Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de
-  ["Freiraum 2022"]: https://stiftung-hochschullehre.de/foerderung/freiraum2022/
   [`game/assets/`]: game/assets/
   [`dungeon/assets/`]: dungeon/assets/
   [`devDungeon/assets/`]: devDungeon/assets/
@@ -203,11 +202,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
   [`devDungeon/assets/objects/spawner/`]: devDungeon/assets/objects/spawner/
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
-  [André Matutat]: https://github.com/AMatutat
-  [Malte Reinsch]: https://github.com/malt-r
   [contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
   [MIT]: LICENSE.md
   [`doc/publication/`]: doc/publication/
   [CC BY-SA 4.0]: LICENSE-PAPER.md
-  [CC0 1.0]: LICENSE-ASSETS.md
-  [Apache 2.0]: LICENSE-ICONS.md
