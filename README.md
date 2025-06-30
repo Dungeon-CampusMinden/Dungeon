@@ -97,24 +97,24 @@ to different experience levels:
 
 -   **Workshop 1: Blockly-Dungeon**
 
-    This no-code workshop is designed for younger students with little to no prior programming
-    experience. Using Google's Blockly language, students guide a hero through various levels
+    This no-code workshop is designed for younger pupils with little to no prior programming
+    experience. Using Google's Blockly language, pupils guide a hero through various levels
     of a dungeon. Along the way, they solve puzzles that gradually increase in complexity,
     introducing programming concepts such as loops and boolean expressions in an intuitive,
     visual format.
 
 -   **Workshop 2: Java-Dungeon**
 
-    This low-code workshop targets students who are already familiar with visual programming
+    This low-code workshop targets pupils who are already familiar with visual programming
     (like Blockly) but have not yet written actual code. Using a custom-built Visual Studio
-    Code plugin, students control the dungeon hero by writing simple Java code. They combine
+    Code plugin, pupils control the dungeon hero by writing simple Java code. They combine
     basic programming constructs (like loops and variables) with game-specific commands (such
     as `move`, `use`, etc.), gaining their first experience with real syntax in a motivating,
     game-oriented environment.
 
 -   **Workshop 3: Advanced Dungeon**
 
-    This workshop is intended for students who already have some programming experience. Here,
+    This workshop is intended for pupils who already have some programming experience. Here,
     they solve complex in-game coding challenges and are introduced to selected topics in
     artificial intelligence. The workshop fosters analytical thinking and problem-solving at a
     more advanced level.
