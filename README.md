@@ -154,8 +154,8 @@ example, by revisiting topic areas where students previously struggled.
 
 ### PM-Dungeon
 
-10/2021 -- 11/2022, [Fellowships für Innovationen in der digitalen Hochschulbildung (Digi
-Fellowships)], Ministerium für Kultur und Wissenschaft (MKW) in NRW im Einvernehmen mit der
+10/2021 -- 11/2022, [Fellowships für Innovationen in der digitalen Hochschullehre
+(digi-Fellows)], Ministerium für Kultur und Wissenschaft (MKW) in NRW im Einvernehmen mit der
 Digitalen Hochschule NRW (DH.NRW)
 
 The goal of the project was to motivate computer science students to engage deeply with
@@ -210,7 +210,7 @@ self created resources:
 
 ## Licenses
 
-This [work] by [contributors] is licensed under [MIT].
+Unless otherwise noted, this [work] by [contributors] is licensed under [MIT].
 
 All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 
@@ -240,7 +240,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
   [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
-  [Fellowships für Innovationen in der digitalen Hochschulbildung (Digi Fellowships)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
+  [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
   [`game/assets/`]: game/assets/
   [`dungeon/assets/`]: dungeon/assets/
   [`devDungeon/assets/`]: devDungeon/assets/
