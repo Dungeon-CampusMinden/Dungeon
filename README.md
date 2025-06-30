@@ -5,7 +5,7 @@
 <p align="center"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/banner.png?raw=true" alt="Banner"></p>
 
 The Dungeon is a multifaceted project for the gamification of educational content. It
-comprises three parts: "Game", "Dungeon" and "Blockly":
+currently comprises three parts: "Game", "Dungeon" and "Blockly":
 
 1.  ["Game"] constitutes a basic gaming platform that can be used in class to learn and deepen
     Java skills and allows students to develop their own role-playing game.
@@ -18,7 +18,8 @@ comprises three parts: "Game", "Dungeon" and "Blockly":
 You can find an [interesting report] on our project in the news section of Bielefeld
 University of Applied Sciences (04 April 2024, in German).
 
-For more information about the PRODUS project, please visit the [project page](https://www.hsbi.de/minden/produs/home) on the Bielefeld University of Applied Sciences website.
+For more information about the [PRODUS project], please visit our [project page] on the
+Bielefeld University of Applied Sciences website.
 
 ## Game: Dungeon Platform
 
@@ -41,9 +42,9 @@ graphical low-code user interface. The character in the dungeon can be controlle
 interface (locally), allowing users without in-depth programming knowledge to take part in the
 experience.
 
-The [Documentation][6] (German) should help you get started.
+The [Documentation][2] (German) should help you get started.
 
-![][7]
+![][3]
 
 ## Requirements
 
@@ -60,79 +61,126 @@ problems or suggestions, please feel free to contact us in English or German.
 
 ## Funding
 
-This project is currently funded and has previously been supported by various funding programs.
+It is acknowledged that parts of the materials contained in this repository have been
+developed as part of various publicly funded projects.
 
-### L<ESC>ROD 
+### Lehr-Escape-Rooms mit LowCode im Dungeon (L<ESC>ROD)
 
-* Funding source: [Stiftung Innovation in der Hochschullehre (Foundation for Innovation in Higher Education)](https://stiftung-hochschullehre.de/)
-* Funding program: [Freiraum 2025](https://stiftung-hochschullehre.de/foerderung/freiraum/)
-* Project title: Lehr-Escape-Rooms mit LowCode im Dungeon
-* Project number: 3003-1271
-* Ancillary provisions: Funding conditions for the Freiraum 2025 call
-* Project duration: 01.04.2025 – 31.03.2027
+04/2025 -- 03/2027, 3003-1271, [Freiraum 2025], [Stiftung Innovation in der Hochschullehre]
 
-**Project Goal and Implementation**
-This project builds upon the goals and insights of the earlier *"Dungeon: Learning by Questing"* initiative. It aims to combine **playful engagement with meaningful educational experiences** by using the *Dungeon* framework to design and implement **didactic escape rooms**.
+This project builds upon the goals and insights of the earlier *"Dungeon: Learning by
+Questing"* initiative. It aims to combine **playful engagement with meaningful educational
+experiences** by using the *Dungeon* framework to design and implement **didactic escape
+rooms**.
 
-In these digital escape rooms, students must **collaborate to solve subject-related puzzles** in order to progress through the game. The approach fosters teamwork, critical thinking, and applied understanding of academic content in an interactive game environment. To support this, the *Dungeon* framework is being extended with **remote multiplayer capabilities**, allowing multiple students to participate in a shared escape room experience from different locations.
-Additionally, a **low-code approach** is being developed to enable educators—even those without programming experience—to easily design and create their own escape rooms. This makes the concept accessible and adaptable for a wide range of teaching contexts.
+In these digital escape rooms, students must **collaborate to solve subject-related puzzles**
+in order to progress through the game. The approach fosters teamwork, critical thinking, and
+applied understanding of academic content in an interactive game environment. To support this,
+the *Dungeon* framework is being extended with **remote multiplayer capabilities**, allowing
+multiple students to participate in a shared escape room experience from different locations.
+Additionally, a **low-code approach** is being developed to enable educators---even those
+without programming experience---to easily design and create their own escape rooms. This
+makes the concept accessible and adaptable for a wide range of teaching contexts.
 
-### Produs 
+### Programming Dungeon Adventures at School (PRODUS)
 
-* Funding source: [EFRE/JTF NRW 2021–27](https://www.efre.nrw/)
-* Funding program: [Pakt für Informatik 2.0](https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20)
-* Project title: Programming Dungeon Adventures at School
-* Project number: 34.EFRE-20300105
-* Project duration: 01.12.2024 – 31.08.2026
+12/2024 -- 08/2026, EFRE-20300105, [Pakt für Informatik 2.0], [EFRE/JTF NRW 2021--27]
 
-**Project Goal and Implementation**
-The project aims to promote interest in STEM subjects—especially computer science—among school students in the surrounding region. The primary goal is to inspire young learners to consider a future path in computer science by engaging them in hands-on, game-based learning experiences.
+The project aims to promote interest in STEM subjects---especially computer science---among
+school students in the surrounding region. The primary goal is to inspire young learners to
+consider a future path in computer science by engaging them in hands-on, game-based learning
+experiences.
 
-To this end, a series of programming workshops were designed, all based on the *Dungeon* framework and grounded in the principles of **game-based learning**. Each workshop is tailored to different experience levels:
-* **Workshop 1: Blockly-Dungeon**
-  This no-code workshop is designed for younger students with little to no prior programming experience. Using Google's Blockly language, students guide a hero through various levels of a dungeon. Along the way, they solve puzzles that gradually increase in complexity, introducing programming concepts such as loops and boolean expressions in an intuitive, visual format.
-* **Workshop 2: Java-Dungeon**
-  This low-code workshop targets students who are already familiar with visual programming (like Blockly) but have not yet written actual code. Using a custom-built Visual Studio Code plugin, students control the dungeon hero by writing simple Java code. They combine basic programming constructs (like loops and variables) with game-specific commands (such as `move`, `use`, etc.), gaining their first experience with real syntax in a motivating, game-oriented environment.
-* **Workshop 3: Advanced Dungeon**
-  This workshop is intended for students who already have some programming experience. Here, they solve complex in-game coding challenges and are introduced to selected topics in artificial intelligence. The workshop fosters analytical thinking and problem-solving at a more advanced level.
+To this end, a series of programming workshops were designed, all based on the *Dungeon*
+framework and grounded in the principles of **game-based learning**. Each workshop is tailored
+to different experience levels:
 
-Each workshop is complemented by **career-oriented elements**: professional software developers share insights into their daily work, and Bielefeld University of Applied Sciences (HSBI) provides information about studying computer science and career paths in tech.
+-   **Workshop 1: Blockly-Dungeon**
 
-The project is a **collaborative effort** between local schools and companies in the OWL (Ostwestfalen-Lippe) region, with HSBI providing both academic leadership and operational coordination.
+    This no-code workshop is designed for younger students with little to no prior programming
+    experience. Using Google's Blockly language, students guide a hero through various levels
+    of a dungeon. Along the way, they solve puzzles that gradually increase in complexity,
+    introducing programming concepts such as loops and boolean expressions in an intuitive,
+    visual format.
 
-### Dungeon: Learning by Questing
+-   **Workshop 2: Java-Dungeon**
 
-* Funding source: [Stiftung Innovation in der Hochschullehre (Foundation for Innovation in Higher Education)](https://stiftung-hochschullehre.de/)
-* Funding program: [Freiraum 2022](https://stiftung-hochschullehre.de/foerderung/freiraum/)
-* Project title: Spiele-Framework für Digital Game Based Learning
-* Funding number: FRFMM-623/2022
-* Project number: FR-925/2022
-* Project duration: 01.09.2022 – 30.11.2023
+    This low-code workshop targets students who are already familiar with visual programming
+    (like Blockly) but have not yet written actual code. Using a custom-built Visual Studio
+    Code plugin, students control the dungeon hero by writing simple Java code. They combine
+    basic programming constructs (like loops and variables) with game-specific commands (such
+    as `move`, `use`, etc.), gaining their first experience with real syntax in a motivating,
+    game-oriented environment.
 
-**Project Goal and Implementation**
-As part of the project, the principles of game-based learning were further explored and applied to the existing Dungeon framework. In contrast to the previous PM-Dungeon project, where students programmed their own games, the focus here was not on game development, but on learning through gameplay.
+-   **Workshop 3: Advanced Dungeon**
 
-Students were provided with a fully developed game in which they had to solve subject-specific challenges directly within the game world. Real academic problems were seamlessly integrated with game mechanics—such as crafting or puzzle-solving—to create an engaging and meaningful learning experience.
-To evaluate student performance, the game included an automated analysis system that detected whether solutions were correct or whether players encountered difficulties during the task.
-The in-game challenges and puzzles were defined using a custom domain-specific language (DSL). This DSL enables even non-programmers to create and integrate educational tasks and puzzles into the game. It supports a variety of input types, such as single-choice questions, matching tasks, and element combination exercises. Depending on the level of detail provided, the DSL can either generate a specific gameplay scenario or automatically create a diverse game environment in which players must solve tasks to progress.
-Additionally, a Petri net-based system was implemented to define alternative learning paths. This allows the game to dynamically adapt to the learner’s needs—for example, by revisiting topic areas where students previously struggled.
+    This workshop is intended for students who already have some programming experience. Here,
+    they solve complex in-game coding challenges and are introduced to selected topics in
+    artificial intelligence. The workshop fosters analytical thinking and problem-solving at a
+    more advanced level.
+
+Each workshop is complemented by **career-oriented elements**: professional software
+developers share insights into their daily work, and Bielefeld University of Applied Sciences
+(HSBI) provides information about studying computer science and career paths in tech.
+
+The project is a **collaborative effort** between local schools and companies in the OWL
+(Ostwestfalen-Lippe) region, with HSBI providing both academic leadership and operational
+coordination.
+
+### Spiele-Framework für Digital Game Based Learning
+
+09/2022 -- 11/2023, FRFMM-623/2022, [Freiraum 2022], [Stiftung Innovation in der
+Hochschullehre]
+
+As part of the project, the principles of game-based learning were further explored and
+applied to the existing Dungeon framework. In contrast to the previous PM-Dungeon project,
+where students programmed their own games, the focus here was not on game development, but on
+learning through gameplay.
+
+Students were provided with a fully developed game in which they had to solve subject-specific
+challenges directly within the game world. Real academic problems were seamlessly integrated
+with game mechanics---such as crafting or puzzle-solving---to create an engaging and
+meaningful learning experience. To evaluate student performance, the game included an
+automated analysis system that detected whether solutions were correct or whether players
+encountered difficulties during the task. The in-game challenges and puzzles were defined
+using a custom domain-specific language (DSL). This DSL enables even non-programmers to create
+and integrate educational tasks and puzzles into the game. It supports a variety of input
+types, such as single-choice questions, matching tasks, and element combination exercises.
+Depending on the level of detail provided, the DSL can either generate a specific gameplay
+scenario or automatically create a diverse game environment in which players must solve tasks
+to progress. Additionally, a Petri net-based system was implemented to define alternative
+learning paths. This allows the game to dynamically adapt to the learner's needs---for
+example, by revisiting topic areas where students previously struggled.
 
 ### PM-Dungeon
 
-* Funding source: [Fellowships für Innovationen in der digitalen Hochschulbildung](https://www.stifterverband.org/digital-lehrfellows-nrw)
-* Project title: PM-Dungeon
-* Project duration: 01.10.2021 – 30.11.2022
+10/2021 -- 11/2022, [Fellowships für Innovationen in der digitalen Hochschulbildung (Digi
+Fellowships)], Ministerium für Kultur und Wissenschaft (MKW) in NRW im Einvernehmen mit der
+Digitalen Hochschule NRW (DH.NRW)
 
-**Project Goal and Implementation**
-The goal of the project was to motivate computer science students to engage deeply with programming by providing exciting challenges and development environments. A particular focus was placed on promoting self-directed learning, enabling students to explore programming concepts at their own pace and based on their individual interests and progress.
+The goal of the project was to motivate computer science students to engage deeply with
+programming by providing exciting challenges and development environments. A particular focus
+was placed on promoting self-directed learning, enabling students to explore programming
+concepts at their own pace and based on their individual interests and progress.
 
 As part of the project:
-*   Open Educational Resources (OER) were created and published to support teaching programming with Java.
-*   The Java-based framework Dungeon, built on libGDX, was conceptualized and developed. This framework has since been extended, revised, and optimized through additional projects.
 
-The Dungeon framework was used in the "Programming Methods" course at Bielefeld University of Applied Sciences (HSBI) to teach students advanced programming techniques in Java. Students used the framework to develop their own 2D rogue-like games, applying key programming concepts in a creative and practical way.
-To support this, the framework provides essential functionalities to simplify complex development tasks. These include a built-in game loop, graphical rendering of textures, an animation system, and tools for level generation and loading.
-In addition, a submission process called "Deploy to Grading", based on GitHub Actions, was developed. This allows students to submit their code solutions via GitHub pull requests. The submitted code is automatically evaluated using a CI pipeline that includes JUnit tests, Checkstyle, and similar tools—providing immediate, formative feedback and reinforcing the idea of autonomous, feedback-driven learning.
+-   Open Educational Resources (OER) were created and published to support teaching
+    programming with Java.
+-   The Java-based framework Dungeon, built on libGDX, was conceptualized and developed. This
+    framework has since been extended, revised, and optimized through additional projects.
+
+The Dungeon framework was used in the "Programming Methods" course at Bielefeld University of
+Applied Sciences (HSBI) to teach students advanced programming techniques in Java. Students
+used the framework to develop their own 2D rogue-like games, applying key programming concepts
+in a creative and practical way. To support this, the framework provides essential
+functionalities to simplify complex development tasks. These include a built-in game loop,
+graphical rendering of textures, an animation system, and tools for level generation and
+loading. In addition, a submission process called "Deploy to Grading", based on GitHub
+Actions, was developed. This allows students to submit their code solutions via GitHub pull
+requests. The submitted code is automatically evaluated using a CI pipeline that includes
+JUnit tests, Checkstyle, and similar tools---providing immediate, formative feedback and
+reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 
@@ -169,9 +217,11 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
   ["Game"]: #game-dungeon-platform
-  ["Dungeon"]: #dungeon-learning-by-questing
+  ["Dungeon"]: dungeon
   ["Blockly"]: #blockly-low-code-dungeon
   [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
+  [PRODUS project]: #programming-dungeon-adventures-at-school-produs
+  [project page]: https://www.hsbi.de/minden/produs/home
   [`game`]: game
   [libGDX]: https://github.com/libgdx/libgdx
   [rogue-like 2D role-playing games]: https://en.wikipedia.org/wiki/Roguelike
@@ -180,16 +230,17 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Quickstart]: game/doc/quickstart.md
   [Documentation]: game/doc/
   [1]: game/doc/img/monster.gif
-  [`dungeon`]: dungeon
-  [2]: dungeon/doc/quickstart.md
-  [3]: dungeon/doc/
-  [Dungeon: StarterKit]: https://github.com/Dungeon-CampusMinden/Dungeon-StarterKit
   [`blockly`]: blockly
   [Google's Blockly]: https://github.com/google/blockly
-  [6]: blockly/doc/
-  [7]: blockly/doc/img/examples/blockly_gif.gif
+  [2]: blockly/doc/
+  [3]: blockly/doc/img/examples/blockly_gif.gif
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
-  [Stiftung für Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de
+  [Freiraum 2022]: https://stiftung-hochschullehre.de/foerderung/freiraum/
+  [Freiraum 2025]: https://stiftung-hochschullehre.de/foerderung/freiraum/
+  [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
+  [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
+  [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
+  [Fellowships für Innovationen in der digitalen Hochschulbildung (Digi Fellowships)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
   [`game/assets/`]: game/assets/
   [`dungeon/assets/`]: dungeon/assets/
   [`devDungeon/assets/`]: devDungeon/assets/
@@ -197,8 +248,8 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [\@Flamtky]: https://github.com/Flamtky
   [Health Potion]: dungeon/assets/items/potion/health_potion.png
   [`dungeon/assets/items/potion/`]: dungeon/assets/items/potion/
-  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
   [\@dkirshner]: https://github.com/dkirshner
+  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
   [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
   [`devDungeon/assets/objects/spawner/`]: devDungeon/assets/objects/spawner/
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
