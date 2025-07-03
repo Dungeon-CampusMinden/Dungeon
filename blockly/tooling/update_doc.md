@@ -45,6 +45,7 @@ Dieses Bash-Skript aktualisiert das vorhandene Workshop-Verzeichnis (`~/Desktop/
   - Wget (`wget`)  
   - Java (`java`)  
   - VS Code CLI (`code`)  
+- Externer Server/CDN, der die Workshop-Artefakte bereitstellt (`BASE_DOWNLOAD_URL` muss gesetzt sein)
 
 ---
 

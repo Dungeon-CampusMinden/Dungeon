@@ -24,6 +24,7 @@ Dieses Bash-Skript automatisiert die Einrichtung der Raspberry PIs und des Works
 - `sudo`-Rechte (script bricht ab, wenn keine vorhanden)  
 - Internetzugriff (Ping 8.8.8.8)  
 - Vorhandene Tools: `wget`, `curl`, `tar`, `gpg`, `file`, `gradle` (wird per Script installiert)  
+- Externer Server/CDN, der die Workshop-TAR-Datei bereitstellt (`PROJECT_TAR_URL` muss gesetzt sein)
 
 ### Externe Ressourcen  
 - Web-Server oder CDN, der folgende Dateien bereitstellt:  
