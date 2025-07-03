@@ -4,16 +4,7 @@
 <h1 align="center">Dungeon</h1>
 <p align="center"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/banner.png?raw=true" alt="Banner"></p>
 
-The Dungeon is a multifaceted project for the gamification of educational content. It
-currently comprises three parts: "Game", "Dungeon" and "Blockly":
-
-1.  ["Game"] constitutes a basic gaming platform that can be used in class to learn and deepen
-    Java skills and allows students to develop their own role-playing game.
-2.  ["Dungeon"] extends "Game" with numerous game elements and a Domain Specific Language
-    (*DSL*) that can be used to "code" classic exercises and automatically convert them into a
-    ready-made game. Players solve the exercises by playing the quests.
-3.  ["Blockly"] adds a block-based programming language to the project. It is primarily aimed
-    at programming beginners and can be used to visualise simple algorithms.
+The Dungeon is a multifaceted project for the gamification of educational content.
 
 You can find an [interesting report] on our project in the news section of Bielefeld
 University of Applied Sciences (04 April 2024, in German).
@@ -21,30 +12,7 @@ University of Applied Sciences (04 April 2024, in German).
 For more information about the [PRODUS project], please visit our [project page] on the
 Bielefeld University of Applied Sciences website.
 
-## Game: Dungeon Platform
-
-The sub-project [`game`] is the foundation of the entire framework. It provides a programming
-platform based on [libGDX], which is intended to support easy development of [rogue-like 2D
-role-playing games] in the [Java] programming language. It is particularly suitable for
-programming beginners, as it already provides solutions based on the [ECS architecture
-pattern] for complex tasks such as generating levels and drawing and animating characters.
-This allows the user to focus on Java programming.
-
-The [Quickstart] (German) and the [Documentation] (German) should help you get started
-quickly.
-
 ![][1]
-
-## Blockly: Low Code Dungeon
-
-The sub-project [`blockly`] extends "Dungeon" and uses [Google's Blockly] to provide a
-graphical low-code user interface. The character in the dungeon can be controlled via a web
-interface (locally), allowing users without in-depth programming knowledge to take part in the
-experience.
-
-The [Documentation][2] (German) should help you get started.
-
-![][3]
 
 ## Requirements
 
@@ -126,6 +94,8 @@ developers share insights into their daily work, and Bielefeld University of App
 The project is a **collaborative effort** between local schools and companies in the OWL
 (Ostwestfalen-Lippe) region, with HSBI providing both academic leadership and operational
 coordination.
+
+ ![][2]
 
 ### Spiele-Framework für Digital Game Based Learning
 
@@ -216,24 +186,11 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
 
 <p align="right"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/logo/cat_logo_64x64.png?raw=true" alt="Banner"></p>
 
-  ["Game"]: #game-dungeon-platform
-  ["Dungeon"]: dungeon
-  ["Blockly"]: #blockly-low-code-dungeon
   [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
-  [`game`]: game
-  [libGDX]: https://github.com/libgdx/libgdx
-  [rogue-like 2D role-playing games]: https://en.wikipedia.org/wiki/Roguelike
-  [Java]: https://jdk.java.net/
-  [ECS architecture pattern]: https://en.wikipedia.org/wiki/Entity_component_system
-  [Quickstart]: game/doc/quickstart.md
-  [Documentation]: game/doc/
   [1]: game/doc/img/monster.gif
-  [`blockly`]: blockly
-  [Google's Blockly]: https://github.com/google/blockly
-  [2]: blockly/doc/
-  [3]: blockly/doc/img/examples/blockly_gif.gif
+  [2]: blockly/doc/img/examples/blockly_gif.gif
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
   [Freiraum 2022]: https://stiftung-hochschullehre.de/foerderung/freiraum/
   [Freiraum 2025]: https://stiftung-hochschullehre.de/foerderung/freiraum/
