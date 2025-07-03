@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.utils.IVec2;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.CoreAnimations;
@@ -70,7 +71,7 @@ public class VelocitySystemTest {
     velocityComponent.currentXVelocity(xVelocity);
     velocityComponent.currentYVelocity(yVelocity);
 
-    Vector2 velocity =
+    IVec2 velocity =
         new Vector2(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
     if (velocity.length()
         > Math.max(
@@ -100,7 +101,7 @@ public class VelocitySystemTest {
     velocityComponent.currentXVelocity(-4);
     velocityComponent.currentYVelocity(-8);
 
-    Vector2 velocity =
+    IVec2 velocity =
         new Vector2(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
     if (velocity.length()
         > Math.max(

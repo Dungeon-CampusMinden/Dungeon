@@ -10,6 +10,7 @@ import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
+import core.utils.IVec2;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -111,7 +112,7 @@ public class IllusionRiddleHandler {
    *
    * @param offset The offset to teleport the hero by.
    */
-  private void offsetHero(Vector2 offset) {
+  private void offsetHero(IVec2 offset) {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
       return;

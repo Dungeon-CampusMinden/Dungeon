@@ -10,6 +10,7 @@ import core.System;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
+import core.utils.IVec2;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.Queue;
@@ -116,8 +117,8 @@ public class LevelEditorSystem extends System {
           || currentTile.levelElement() == LevelElement.FLOOR) {
         LevelSystem.level().changeTileElementType(currentTile, LevelElement.FLOOR);
 
-        Vector2[] directions = {Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT};
-        for (Vector2 direction : directions) {
+        IVec2[] directions = {IVec2.UP, IVec2.DOWN, IVec2.LEFT, IVec2.RIGHT};
+        for (IVec2 direction : directions) {
           Tile neighbourTile = currentTile.level().tileAt(currentTile.coordinate().add(direction));
           if (neighbourTile != null && !queue.contains(neighbourTile)) {
             queue.add(neighbourTile);

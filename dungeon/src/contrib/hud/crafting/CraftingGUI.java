@@ -20,6 +20,7 @@ import contrib.hud.elements.ImageButton;
 import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import core.Game;
+import core.utils.IVec2;
 import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.TextureMap;
@@ -185,7 +186,7 @@ public class CraftingGUI extends CombinableGUI {
   }
 
   @Override
-  protected Vector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
+  protected IVec2 preferredSize(GUICombination.AvailableSpace availableSpace) {
     int size =
         Math.round(
             Math.min(availableSpace.height(), (Game.stage().orElseThrow().getHeight() / 4) * 3));

@@ -10,7 +10,7 @@ import core.level.utils.Coordinate;
  *
  * @param x The x coordinate of the point.
  * @param y The y coordinate of the point.
- * @see Vector2
+ * @see IVec2
  * @see Coordinate
  */
 public record Point(float x, float y) {
@@ -63,7 +63,7 @@ public record Point(float x, float y) {
    * @param vector The vector to move the point by.
    * @return A new point that is the sum of this point and the given vector.
    */
-  public Point add(final Vector2 vector) {
+  public Point add(final IVec2 vector) {
     return new Point(this.x() + vector.x(), this.y() + vector.y());
   }
 
@@ -73,7 +73,7 @@ public record Point(float x, float y) {
    * @param other The other point.
    * @return The vector from this point to the other point.
    */
-  public Vector2 vectorTo(final Point other) {
+  public IVec2 vectorTo(final Point other) {
     return new Vector2(other.x() - this.x(), other.y() - this.y());
   }
 

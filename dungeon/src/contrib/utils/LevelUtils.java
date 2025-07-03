@@ -34,7 +34,7 @@ public class LevelUtils {
         return false; // if there is a blockFireball in the way, we can't see through
       }
 
-      currentTile = currentTile.level().tileAt(currentTile.position().add(direction.toVector2()));
+      currentTile = currentTile.level().tileAt(currentTile.position().add(direction));
     }
     return true;
   }
@@ -60,7 +60,7 @@ public class LevelUtils {
   public static List<Coordinate> walkableNeighbors(Coordinate coord) {
     return Arrays.stream(Direction.values())
         .filter(direction -> direction != Direction.HERE)
-        .map(direction -> coord.add(direction.toVector2()))
+        .map(coord::add)
         .filter(LevelUtils::isWalkable)
         .toList();
   }

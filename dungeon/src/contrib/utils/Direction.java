@@ -3,11 +3,11 @@ package contrib.utils;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.utils.IVec2;
 import core.utils.Point;
-import core.utils.Vector2;
 
 /** Direction enum for the four cardinal directions. */
-public enum Direction {
+public enum Direction implements IVec2 {
   /** The direction up. */
   UP("oben", 0, 1),
   /** The direction down. */
@@ -47,7 +47,7 @@ public enum Direction {
    *
    * @return The x direction.
    */
-  public int x() {
+  public float x() {
     return x;
   }
 
@@ -59,7 +59,7 @@ public enum Direction {
    *
    * @return The y direction.
    */
-  public int y() {
+  public float y() {
     return y;
   }
 
@@ -79,15 +79,6 @@ public enum Direction {
    */
   public Coordinate toCoordinate() {
     return new Coordinate(x, y);
-  }
-
-  /**
-   * Convert this direction to a {@link Vector2}.
-   *
-   * @return Vector2 with the x and y from this direction
-   */
-  public Vector2 toVector2() {
-    return new Vector2(x, y);
   }
 
   /**

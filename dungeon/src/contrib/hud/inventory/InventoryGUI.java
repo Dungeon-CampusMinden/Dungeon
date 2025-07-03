@@ -23,9 +23,8 @@ import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.utils.MissingHeroException;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
+import core.utils.IVec2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -41,7 +40,7 @@ public class InventoryGUI extends CombinableGUI {
   private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
   private static final int BORDER_PADDING = 5;
   private static final int LINE_GAP = 5;
-  private static final Vector2 HOVER_OFFSET = new Vector2(10, 10);
+  private static final IVec2 HOVER_OFFSET = new Vector2(10, 10);
   private static final BitmapFont bitmapFont;
   private static final Texture texture;
   private static final TextureRegion background, hoverBackground;
@@ -141,8 +140,8 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   private int getSlotByMousePosition() {
-    Vector2 mousePos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-    Vector2 relMousePos = new Vector2(mousePos.x() - this.x(), mousePos.y() - this.y());
+    IVec2 mousePos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    IVec2 relMousePos = new Vector2(mousePos.x() - this.x(), mousePos.y() - this.y());
     return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
   }
 
@@ -224,7 +223,7 @@ public class InventoryGUI extends CombinableGUI {
   private void drawItemInfo(Batch batch) {
     // Flip Y axis (mouse origin top left, batch origin bottom left)
     Point mousePos = new Point(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-    Vector2 relMousePos = mousePos.vectorTo(new Point(this.x(), this.y()));
+    Point relMousePos = new Point(mousePos.x() - this.x(), mousePos.y() - this.y());
 
     // Check if mouse is in inventory bounds
     if (mousePos.x() < this.x() || mousePos.x() > this.x() + this.width()) return;
@@ -423,7 +422,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   @Override
-  protected Vector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
+  protected IVec2 preferredSize(GUICombination.AvailableSpace availableSpace) {
     int rows =
         (int)
             Math.max(
