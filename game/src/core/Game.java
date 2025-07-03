@@ -452,7 +452,7 @@ public final class Game {
           case DOWN -> IVec2.DOWN;
           case RIGHT -> IVec2.RIGHT;
         };
-    return tileAT(c.add(vector));
+    return tileAT(c.translate(vector));
   }
 
   /**

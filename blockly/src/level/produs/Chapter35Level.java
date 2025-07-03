@@ -85,7 +85,7 @@ public class Chapter35Level extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
 
     // BOSS
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().add(IVec2.DOWN);
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(IVec2.DOWN);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);

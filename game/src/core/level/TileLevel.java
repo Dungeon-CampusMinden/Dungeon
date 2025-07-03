@@ -119,7 +119,7 @@ public class TileLevel implements ILevel {
   @Override
   public void addConnectionsToNeighbours(Tile checkTile) {
     for (IVec2 v : CONNECTION_OFFSETS) {
-      Coordinate c = checkTile.coordinate().add(v);
+      Coordinate c = checkTile.coordinate().translate(v);
       Tile t = tileAt(c);
       if (t != null
           && t.isAccessible()

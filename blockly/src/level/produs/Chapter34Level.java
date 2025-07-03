@@ -70,7 +70,7 @@ public class Chapter34Level extends BlocklyLevel {
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().add(IVec2.DOWN);
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(IVec2.DOWN);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);

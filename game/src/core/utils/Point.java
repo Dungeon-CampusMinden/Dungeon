@@ -63,7 +63,7 @@ public record Point(float x, float y) {
    * @param vector The vector to move the point by.
    * @return A new point that is the sum of this point and the given vector.
    */
-  public Point add(final IVec2 vector) {
+  public Point translate(final IVec2 vector) {
     return new Point(this.x() + vector.x(), this.y() + vector.y());
   }
 

@@ -89,9 +89,9 @@ public class BossAttackSkills {
               launchFireBall(bossPos, heroPos, bossPos, skillUser);
             } else {
               launchFireBall(
-                  bossPos.add(right.scale(i)), heroPos.add(right.scale(i)), bossPos, skillUser);
+                  bossPos.translate(right.scale(i)), heroPos.translate(right.scale(i)), bossPos, skillUser);
               launchFireBall(
-                  bossPos.add(left.scale(i)), heroPos.add(left.scale(i)), bossPos, skillUser);
+                  bossPos.translate(left.scale(i)), heroPos.translate(left.scale(i)), bossPos, skillUser);
             }
           }
         },
@@ -191,7 +191,7 @@ public class BossAttackSkills {
           Function<Integer, Point> calculateFireballTarget =
               (angle) -> {
                 IVec2 offset = direction.rotateDeg(angle).scale(heroPos.vectorTo(bossPos).length());
-                return bossPos.add(offset);
+                return bossPos.translate(offset);
               };
 
           Consumer<Integer> launchFireBallWithDegree =
@@ -414,7 +414,7 @@ public class BossAttackSkills {
                 }
                 IVec2 heroDirection = heroPos2.vectorTo(heroPos).normalize();
                 heroDirection = heroDirection.scale((float) (bossPos.distance(heroPos)) * 2);
-                Point predictedHeroPos = heroPos2.add(heroDirection);
+                Point predictedHeroPos = heroPos2.translate(heroDirection);
                 launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
               },
               50L);

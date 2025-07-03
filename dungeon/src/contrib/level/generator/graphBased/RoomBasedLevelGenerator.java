@@ -146,7 +146,7 @@ public final class RoomBasedLevelGenerator {
             case WEST -> IVec2.RIGHT;
           };
 
-      door.doorstep(door.level().tileAt(door.coordinate().add(doorStepVector)));
+      door.doorstep(door.level().tileAt(door.coordinate().translate(doorStepVector)));
     }
   }
 }
