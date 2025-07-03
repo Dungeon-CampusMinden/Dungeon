@@ -1,6 +1,6 @@
 (1) Jedes aus fremden Quellen stammende Artefakt (Textur, Logo, Sound, ...) erhält eine paralle Markdowdatei mit dem Namen `<artefaktdateiname>.license.md`. Beispiel: Artefakt `wuppie_die_hard.png` würde eine Lizenz-Datei `wuppie_die_hard.license.md` auf der selben Dateisystem-Ebene zugeordnet.
 
-(2) Aufbau der Datei (vgl ./template.md): 
+(2) Aufbau der Datei (vgl [mit.md](../.github/license-templates/mit.md)): 
 
 ```markdown
 - Quelle: <URL>
