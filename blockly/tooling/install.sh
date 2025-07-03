@@ -69,7 +69,6 @@ prompt_user_confirmation() {
     echo "- System updates"
     echo "- Java OpenJDK $JAVA_VERSION (Temurin from URL)"
     echo "- VS Code"
-    echo "- IntelliJ IDEA Community Edition"
     echo "- Workshop project from TAR file"
     echo "- VS Code extension"
     echo "=========================================================="
@@ -227,76 +226,6 @@ install_vscode() {
     log_message "VS Code installation completed."
 }
 
-install_intellij() {
-    log_message "Checking IntelliJ IDEA installation..."
-    
-    if command -v idea &>/dev/null; then
-        log_message "IntelliJ IDEA already installed. Skipping..."
-        return 0
-    fi
-    
-    log_message "Installing IntelliJ IDEA Community Edition..."
-    
-    IDEA_VERSION=$(curl -s "https://data.services.jetbrains.com/products/releases?code=IIC&latest=true&type=release" | grep -Po '"version":"\K[^"]*' | head -1)
-    if [ -z "$IDEA_VERSION" ]; then
-        error_exit "Could not determine latest IntelliJ IDEA version"
-    fi
-    
-    # Adjust for ARM64 if JetBrains provides specific builds, otherwise generic Linux
-    ARCH=$(dpkg --print-architecture)
-    IDEA_ARCH_SUFFIX=""
-    if [[ "$ARCH" == "arm64" ]]; then
-        # Check if JetBrains uses a suffix like -aarch64 for IDEA tarballs
-        # As of now, they often provide a single tar.gz that includes a JBR for aarch64
-        # Or a specific aarch64 tarball. Example: ideaIC-${IDEA_VERSION}-aarch64.tar.gz
-        # For now, assume generic, but this might need adjustment if specific aarch64 tarball is needed
-        # Example: IDEA_URL="https://download.jetbrains.com/idea/ideaIC-${IDEA_VERSION}-aarch64.tar.gz"
-        # For safety, let's try to find an aarch64 specific URL if available
-        ARM_IDEA_URL="https://download.jetbrains.com/idea/ideaIC-${IDEA_VERSION}-aarch64.tar.gz"
-        if curl --output /dev/null --silent --head --fail "$ARM_IDEA_URL"; then
-            IDEA_URL="$ARM_IDEA_URL"
-            log_message "Found ARM64 specific IntelliJ IDEA build."
-        else
-            IDEA_URL="https://download.jetbrains.com/idea/ideaIC-${IDEA_VERSION}.tar.gz"
-            log_message "Using generic IntelliJ IDEA build (may bundle ARM64 JRE)."
-        fi
-    else
-         IDEA_URL="https://download.jetbrains.com/idea/ideaIC-${IDEA_VERSION}.tar.gz"
-    fi
-
-    log_message "Downloading IntelliJ IDEA from $IDEA_URL"
-    wget -O /tmp/idea.tar.gz "$IDEA_URL"
-    
-    sudo mkdir -p /opt/idea # Ensure base directory exists
-    sudo tar -xzf /tmp/idea.tar.gz -C /opt/
-    # Find the extracted directory, which usually contains the version number
-    IDEA_DIR=$(sudo find /opt -maxdepth 1 -name "idea-IC-*" -type d | head -1) 
-    
-    if [ -z "$IDEA_DIR" ]; then
-        error_exit "Could not find extracted IntelliJ IDEA directory in /opt/"
-    fi
-    
-    sudo ln -sf "$IDEA_DIR/bin/idea.sh" /usr/local/bin/idea
-    sudo chmod +x /usr/local/bin/idea
-    
-# Create desktop entry
-    sudo tee /usr/share/applications/intellij-idea.desktop > /dev/null <<EOF
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=IntelliJ IDEA Community
-Icon=$IDEA_DIR/bin/idea.png
-Exec=$IDEA_DIR/bin/idea.sh %f
-Comment=Capable and Ergonomic IDE for JVM
-Categories=Development;IDE;
-Terminal=false
-StartupWMClass=jetbrains-idea-ce
-EOF
-
-    rm -f /tmp/idea.tar.gz
-    log_message "IntelliJ IDEA installation completed. Installed to $IDEA_DIR"
-}
-
 setup_project() {
     log_message "Setting up Workshop project..."
     
@@ -442,7 +371,6 @@ main() {
     update_system
     install_java
     install_vscode
-    install_intellij
     setup_project
     
     cleanup_temp_files
@@ -451,7 +379,6 @@ main() {
     echo "==================== INSTALLATION SUMMARY ===================="
     log_message "Java version: $( (export JAVA_HOME=$JAVA_HOME && $JAVA_HOME/bin/java -version 2>&1 | head -1) || echo 'Java not found or JAVA_HOME not set correctly in script summary' )"
     log_message "VS Code version: $(code --version 2>/dev/null | head -1 || echo 'VS Code installation needs verification')"
-    log_message "IntelliJ IDEA: Available as 'idea' command. Installed in /opt/idea-IC-*"
     log_message "Workshop project location: $DESKTOP_DIR/$PROJECT_DESKTOP_NAME"
     log_message "Logfile: $LOG_FILE"
     echo "=============================================================="
