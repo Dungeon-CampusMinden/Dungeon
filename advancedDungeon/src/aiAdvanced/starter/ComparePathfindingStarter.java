@@ -93,9 +93,9 @@ public class ComparePathfindingStarter {
     Tile[][] layout = Game.currentLevel().layout();
     int levelHeight = layout.length;
 
-    Point topTile = layout[0][0].coordinate().add(new Vector2(0, 2)).toCenteredPoint();
+    Point topTile = layout[0][0].coordinate().translate(new Vector2(0, 2)).toCenteredPoint();
     Point bottomTile =
-        layout[levelHeight - 1][0].coordinate().add(new Vector2(0, 2)).toCenteredPoint();
+        layout[levelHeight - 1][0].coordinate().translate(new Vector2(0, 2)).toCenteredPoint();
 
     // Zoom out until the whole level is visible
     int currentTries = 0;
@@ -126,7 +126,7 @@ public class ComparePathfindingStarter {
     // Set up new level with original and duplicated layouts
     int rows = curLevel.length;
     Coordinate orgStart = Game.startTile().coordinate();
-    Coordinate newStart = orgStart.add(new Vector2(0, rows + 1));
+    Coordinate newStart = orgStart.translate(new Vector2(0, rows + 1));
     Game.currentLevel(
         new AiMazeLevel(
             newLevel,
@@ -200,7 +200,7 @@ public class ComparePathfindingStarter {
             Coordinate end = Game.currentLevel().endTile().coordinate();
 
             if (i == 1) {
-              end = end.add(new Vector2(0, rows + 1));
+              end = end.translate(new Vector2(0, rows + 1));
             }
 
             PathfindingLogic algo =

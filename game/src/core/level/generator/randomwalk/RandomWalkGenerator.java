@@ -79,7 +79,7 @@ public class RandomWalkGenerator implements IGenerator {
         dir = RANDOM.nextBoolean() ? IVec2.UP : IVec2.DOWN;
       }
 
-      Coordinate moved = position.add(dir);
+      Coordinate moved = position.translate(dir);
       int clampedX = Math.min(Math.max(moved.x(), 0), xSize - 1);
       int clampedY = Math.min(Math.max(moved.y(), 0), ySize - 1);
       position = new Coordinate(clampedX, clampedY);

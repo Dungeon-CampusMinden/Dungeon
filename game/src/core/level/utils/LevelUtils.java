@@ -179,7 +179,7 @@ public final class LevelUtils {
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
         for (IVec2 offset : offsets) {
-          Tile tile = current.level().tileAt(current.coordinate().add(offset));
+          Tile tile = current.level().tileAt(current.coordinate().translate(offset));
           if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
       }
@@ -195,13 +195,13 @@ public final class LevelUtils {
 
   private static boolean isPointBarelyInTile(final Point center, float radius, final Tile tile) {
     // left max distance
-    Point xMin = center.add(new Vector2(-radius, 0));
+    Point xMin = center.translate(new Vector2(-radius, 0));
     // right max distance
-    Point xMax = center.add(new Vector2(radius, 0));
+    Point xMax = center.translate(new Vector2(radius, 0));
     // up max distance
-    Point yMin = center.add(new Vector2(0, -radius));
+    Point yMin = center.translate(new Vector2(0, -radius));
     // down max distance
-    Point yMax = center.add(new Vector2(0, radius));
+    Point yMax = center.translate(new Vector2(0, radius));
     return isPointInTile(xMin, tile)
         || isPointInTile(xMax, tile)
         || isPointInTile(yMin, tile)
@@ -220,7 +220,7 @@ public final class LevelUtils {
     Point origin = tile.coordinate().toPoint();
     IVec2[] cornerOffsets = {IVec2.ZERO, IVec2.RIGHT, IVec2.UP, IVec2.RIGHT.add(IVec2.UP)};
     for (IVec2 offset : cornerOffsets) {
-      if (Point.inRange(center, origin.add(offset), radius)) {
+      if (Point.inRange(center, origin.translate(offset), radius)) {
         return true;
       }
     }
@@ -351,7 +351,7 @@ public final class LevelUtils {
     Tile[][] layout = Game.currentLevel().layout();
     Coordinate coordinate = tile.coordinate();
     for (IVec2 deltaVector : DELTA_VECTORS) {
-      Coordinate newCoordinate = coordinate.add(deltaVector);
+      Coordinate newCoordinate = coordinate.translate(deltaVector);
       // Check if the new cell is within bounds and not yet visited
       if (newCoordinate.x() >= 0
           && newCoordinate.x() < levelSize.a()

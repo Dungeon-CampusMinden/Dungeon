@@ -51,7 +51,7 @@ public final class PositionSystem extends System {
                     new NoSuchElementException(
                         "There is no free tile in the level; the entity can't be placed."));
     // place on center
-    position = position.add(new Vector2(0.5f, 0.5f));
+    position = position.translate(new Vector2(0.5f, 0.5f));
     data.pc().position(position);
   }
 

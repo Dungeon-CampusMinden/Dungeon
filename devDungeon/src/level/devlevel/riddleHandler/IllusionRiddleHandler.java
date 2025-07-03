@@ -121,7 +121,7 @@ public class IllusionRiddleHandler {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-    Point newPoint = heroPc.position().add(offset);
+    Point newPoint = heroPc.position().translate(offset);
 
     EntityUtils.teleportHeroTo(newPoint);
   }

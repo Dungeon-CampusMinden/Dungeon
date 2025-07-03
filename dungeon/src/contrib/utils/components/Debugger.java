@@ -70,10 +70,10 @@ public class Debugger {
     LOGGER.info("TELEPORT TO END");
     Coordinate endTile = Game.endTile().coordinate();
     Coordinate[] neighborTiles = {
-      endTile.add(IVec2.UP),
-      endTile.add(IVec2.DOWN),
-      endTile.add(IVec2.LEFT),
-      endTile.add(IVec2.RIGHT),
+      endTile.translate(IVec2.UP),
+      endTile.translate(IVec2.DOWN),
+      endTile.translate(IVec2.LEFT),
+      endTile.translate(IVec2.RIGHT),
     };
     for (Coordinate neighborTile : neighborTiles) {
       Tile neighbor = Game.tileAT(neighborTile);

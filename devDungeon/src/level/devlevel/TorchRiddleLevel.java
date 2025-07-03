@@ -98,7 +98,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    */
   private void spawnRiddleRoomTorches() {
     for (Coordinate riddleRoomTorch : riddleRoomTorches) {
-      Point torchPos = riddleRoomTorch.toPoint().add(new Vector2(0, 0.25f));
+      Point torchPos = riddleRoomTorch.toPoint().translate(new Vector2(0, 0.25f));
       utils.EntityUtils.spawnTorch(torchPos, true, false, 0);
     }
   }

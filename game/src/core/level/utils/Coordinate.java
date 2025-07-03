@@ -51,7 +51,7 @@ public record Coordinate(int x, int y) {
    * @param vector The vector to move the coordinate by.
    * @return A new coordinate that is the sum of this coordinate and the given vector.
    */
-  public Coordinate add(final IVec2 vector) {
+  public Coordinate translate(final IVec2 vector) {
     return new Coordinate(this.x + (int) vector.x(), this.y + (int) vector.y());
   }
 

@@ -228,7 +228,7 @@ public class BlocklyCommands {
                     .map(cc -> cc.center(hero))
                     .map(
                         p ->
-                            p.add(
+                            p.translate(
                                 Direction.fromPositionCompDirection(
                                     EntityUtils.getViewDirection(hero))))
                     .orElseThrow(
@@ -372,7 +372,7 @@ public class BlocklyCommands {
     Function<IVec2, Optional<Tile>> dirToCheck =
         dtc ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
-                .map(coordinate -> coordinate.add(dtc))
+                .map(coordinate -> coordinate.translate(dtc))
                 .map(Game::tileAT);
 
     // calculate direction to check relative to hero's view direction

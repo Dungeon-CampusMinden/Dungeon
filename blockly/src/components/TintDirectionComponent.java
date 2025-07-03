@@ -119,7 +119,7 @@ public class TintDirectionComponent implements Component {
     if (level == null) return tiles;
 
     for (int i = 0; i < range; i++) {
-      Coordinate targetCoord = origin.add(direction.scale(i));
+      Coordinate targetCoord = origin.translate(direction.scale(i));
 
       // Stop if we can't see further in this direction
       if (!LevelUtils.canSee(origin, targetCoord, direction)) {
