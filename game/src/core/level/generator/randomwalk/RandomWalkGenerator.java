@@ -7,7 +7,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
-import core.utils.Vector2;
+import core.utils.IVec2;
 import java.util.Random;
 
 /** Generates levels using random walk algorithm. */
@@ -72,11 +72,11 @@ public class RandomWalkGenerator implements IGenerator {
     for (; steps > 0; steps--) {
       layout[position.y()][position.x()] = LevelElement.FLOOR;
 
-      Vector2 dir;
+      IVec2 dir;
       if (RANDOM.nextBoolean()) {
-        dir = RANDOM.nextBoolean() ? Vector2.RIGHT : Vector2.LEFT;
+        dir = RANDOM.nextBoolean() ? IVec2.RIGHT : IVec2.LEFT;
       } else {
-        dir = RANDOM.nextBoolean() ? Vector2.UP : Vector2.DOWN;
+        dir = RANDOM.nextBoolean() ? IVec2.UP : IVec2.DOWN;
       }
 
       Coordinate moved = position.add(dir);

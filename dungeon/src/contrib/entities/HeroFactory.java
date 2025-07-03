@@ -18,6 +18,7 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.IVec2;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -44,7 +45,7 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
+  private static final IVec2 SPEED_HERO = new Vector2(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
   private static Skill HERO_SKILL =
@@ -60,7 +61,7 @@ public final class HeroFactory {
    *
    * @return Copy of the default speed of the hero.
    */
-  public static Vector2 defaultHeroSpeed() {
+  public static IVec2 defaultHeroSpeed() {
     return new Vector2(SPEED_HERO);
   }
 
@@ -323,7 +324,7 @@ public final class HeroFactory {
     }
   }
 
-  private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
+  private static void registerMovement(PlayerComponent pc, int key, IVec2 direction) {
     pc.registerCallback(
         key,
         entity -> {

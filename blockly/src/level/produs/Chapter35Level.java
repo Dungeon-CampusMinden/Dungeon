@@ -10,8 +10,8 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.IVec2;
 import core.utils.MissingHeroException;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
@@ -85,7 +85,7 @@ public class Chapter35Level extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
 
     // BOSS
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().add(Vector2.DOWN);
+    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().add(IVec2.DOWN);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);

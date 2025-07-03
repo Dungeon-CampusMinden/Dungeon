@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
+import core.utils.IVec2;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -57,7 +58,7 @@ public final class VelocitySystem extends System {
   }
 
   private void updatePosition(VSData vsd) {
-    Vector2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
+    IVec2 velocity = new Vector2(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
     float maxSpeed = Math.max(Math.abs(vsd.vc.xVelocity()), Math.abs(vsd.vc.yVelocity()));
     // Limit velocity to maxSpeed (primarily for diagonal movement)
     if (velocity.length() > maxSpeed) {

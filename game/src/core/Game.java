@@ -14,9 +14,9 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
+import core.utils.IVec2;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
@@ -445,12 +445,12 @@ public final class Game {
   public static Tile tileAT(final Coordinate coordinate, PositionComponent.Direction direction) {
     // TODO: Change later to Direction.toVector2()
     Coordinate c = new Coordinate(coordinate);
-    Vector2 vector =
+    IVec2 vector =
         switch (direction) {
-          case UP -> Vector2.UP;
-          case LEFT -> Vector2.LEFT;
-          case DOWN -> Vector2.DOWN;
-          case RIGHT -> Vector2.RIGHT;
+          case UP -> IVec2.UP;
+          case LEFT -> IVec2.LEFT;
+          case DOWN -> IVec2.DOWN;
+          case RIGHT -> IVec2.RIGHT;
         };
     return tileAT(c.add(vector));
   }

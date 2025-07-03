@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
+import core.utils.IVec2;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -29,7 +30,7 @@ public final class FireballSkill extends DamageProjectile {
   private static final int DEFAULT_DAMAGE_AMOUNT = 2;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final Vector2 HIT_BOX_SIZE = new Vector2(1, 1);
+  private static final IVec2 HIT_BOX_SIZE = new Vector2(1, 1);
 
   /**
    * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.

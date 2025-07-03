@@ -7,9 +7,8 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
+import core.utils.IVec2;
 import core.utils.components.MissingComponentException;
 import java.util.*;
 
@@ -19,7 +18,7 @@ public final class LevelUtils {
   private static final Random RANDOM = new Random();
 
   /** These vectors can be used to calculate neighbor coordinates. */
-  private static final Vector2[] DELTA_VECTORS =
+  private static final IVec2[] DELTA_VECTORS =
       new Vector2[] {
         new Vector2(-1, 0), new Vector2(1, 0), new Vector2(0, -1), new Vector2(0, 1),
       };
@@ -157,7 +156,7 @@ public final class LevelUtils {
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
     // offset of neighbour Tiles which may not be accessible
-    Vector2[] offsets =
+    IVec2[] offsets =
         new Vector2[] {
           new Vector2(-1, -1),
           new Vector2(0, -1),
@@ -179,7 +178,7 @@ public final class LevelUtils {
       boolean added = tiles.add(current);
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
-        for (Vector2 offset : offsets) {
+        for (IVec2 offset : offsets) {
           Tile tile = current.level().tileAt(current.coordinate().add(offset));
           if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
@@ -219,10 +218,8 @@ public final class LevelUtils {
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
     Point origin = tile.coordinate().toPoint();
-    Vector2[] cornerOffsets = {
-      Vector2.ZERO, Vector2.RIGHT, Vector2.UP, Vector2.RIGHT.add(Vector2.UP)
-    };
-    for (Vector2 offset : cornerOffsets) {
+    IVec2[] cornerOffsets = {IVec2.ZERO, IVec2.RIGHT, IVec2.UP, IVec2.RIGHT.add(IVec2.UP)};
+    for (IVec2 offset : cornerOffsets) {
       if (Point.inRange(center, origin.add(offset), radius)) {
         return true;
       }
@@ -353,7 +350,7 @@ public final class LevelUtils {
     Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
     Tile[][] layout = Game.currentLevel().layout();
     Coordinate coordinate = tile.coordinate();
-    for (Vector2 deltaVector : DELTA_VECTORS) {
+    for (IVec2 deltaVector : DELTA_VECTORS) {
       Coordinate newCoordinate = coordinate.add(deltaVector);
       // Check if the new cell is within bounds and not yet visited
       if (newCoordinate.x() >= 0
