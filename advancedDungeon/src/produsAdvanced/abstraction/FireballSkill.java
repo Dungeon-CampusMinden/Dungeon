@@ -8,6 +8,7 @@ import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
+import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -44,13 +45,13 @@ public class FireballSkill extends DamageProjectile {
   private static final String SKILL_NAME = "fireball";
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final Point HIT_BOX_SIZE = new Point(1, 1);
+  private static final IVector2 HIT_BOX_SIZE = IVector2.of(1, 1);
   private static final int DEFAULT_DAMAGE = 5;
   private static final int DEFAULT_RANGE = 5;
   private static final float DEFAULT_SPEED = 5f;
   private static final int DEFAULT_COOL_DOWN = 500; // ms
 
-  private final Point target = new Point(0, 0);
+  private Point target = new Point(0, 0);
   private IPath texture = new SimpleIPath("skills/fireball");
   private int range;
   private float speed;
@@ -282,8 +283,7 @@ public class FireballSkill extends DamageProjectile {
   final void shoot(Entity user, Point target) {
     if (!skill.canBeUsedAgain()) return;
 
-    this.target.x = target.x;
-    this.target.y = target.y;
+    this.target = new Point(target);
 
     skill =
         new Skill(

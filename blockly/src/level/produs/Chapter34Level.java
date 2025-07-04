@@ -12,6 +12,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.IVector2;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
@@ -69,8 +70,8 @@ public class Chapter34Level extends BlocklyLevel {
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate();
-    c.x -= 1;
+    Coordinate c =
+        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(IVector2.DOWN);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
@@ -109,8 +110,8 @@ public class Chapter34Level extends BlocklyLevel {
       }
     }
     // create save scone at stat of the level
-    float x = heropc.position().x;
-    float y = heropc.position().y;
+    float x = heropc.position().x();
+    float y = heropc.position().y();
     if (x > 6 || x > 3 && y >= 6 && y <= 8) {
 
       if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
@@ -118,7 +119,7 @@ public class Chapter34Level extends BlocklyLevel {
           DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }
       }
-      if (x >= bosspc.position().x - ESCAPE_DISTANCE) {
+      if (x >= bosspc.position().x() - ESCAPE_DISTANCE) {
         DialogUtils.showTextPopup("Mich kriegst du nie!", "BOSS");
         Game.remove(boss);
         boss = null;

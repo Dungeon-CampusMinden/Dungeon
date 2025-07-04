@@ -3,13 +3,13 @@ package utils.components.skill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import contrib.entities.HeroFactory;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
+import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -30,7 +30,7 @@ public class InevitableFireballSkill extends DamageProjectile {
   private static final int DEFAULT_DAMAGE_AMOUNT = Integer.MAX_VALUE;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final Point HIT_BOX_SIZE = new Point(1, 1);
+  private static final IVector2 HIT_BOX_SIZE = IVector2.of(1, 1);
 
   /**
    * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
@@ -56,13 +56,13 @@ public class InevitableFireballSkill extends DamageProjectile {
         (projectile, entity) -> {
           // Set the velocity back to the original value (hero only)
           if (!entity.isPresent(PlayerComponent.class)) return;
-          Vector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
+          IVector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
           entity
               .fetch(VelocityComponent.class)
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.xVelocity(defaultHeroSpeed.x);
-                    velocityComponent.yVelocity(defaultHeroSpeed.y);
+                    velocityComponent.xVelocity(defaultHeroSpeed.x());
+                    velocityComponent.yVelocity(defaultHeroSpeed.y());
                   });
         },
         (projectile) -> {

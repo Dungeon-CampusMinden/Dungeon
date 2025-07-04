@@ -3,7 +3,6 @@ package contrib.entities;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.math.Vector2;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
@@ -19,6 +18,7 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -44,7 +44,7 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 SPEED_HERO = new Vector2(7.5f, 7.5f);
+  private static final IVector2 SPEED_HERO = IVector2.of(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
   private static Skill HERO_SKILL =
@@ -60,8 +60,8 @@ public final class HeroFactory {
    *
    * @return Copy of the default speed of the hero.
    */
-  public static Vector2 defaultHeroSpeed() {
-    return new Vector2(SPEED_HERO.x, SPEED_HERO.y);
+  public static IVector2 defaultHeroSpeed() {
+    return IVector2.of(SPEED_HERO);
   }
 
   /**
@@ -130,7 +130,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(SPEED_HERO.x, SPEED_HERO.y, (e) -> {}, true));
+    hero.add(new VelocityComponent(SPEED_HERO.x(), SPEED_HERO.y(), (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -178,13 +178,13 @@ public final class HeroFactory {
     hero.add(ic);
 
     // hero movement
-    registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), new Vector2(0, 1));
+    registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), IVector2.of(0, 1));
     registerMovement(
-        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), new Vector2(0, -1));
+        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), IVector2.of(0, -1));
     registerMovement(
-        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), new Vector2(1, 0));
+        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), IVector2.of(1, 0));
     registerMovement(
-        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), new Vector2(-1, 0));
+        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), IVector2.of(-1, 0));
 
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
@@ -195,9 +195,8 @@ public final class HeroFactory {
           KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
             // Small adjustment to get the correct tile
-            Point mousePos = SkillTools.cursorPositionAsPoint();
-            mousePos.x = mousePos.x - 0.5f;
-            mousePos.y = mousePos.y - 0.25f;
+            Point mousePos =
+                SkillTools.cursorPositionAsPoint().translate(IVector2.of(-0.5f, -0.25f));
 
             Point heroPos =
                 innerHero
@@ -325,7 +324,7 @@ public final class HeroFactory {
     }
   }
 
-  private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
+  private static void registerMovement(PlayerComponent pc, int key, IVector2 direction) {
     pc.registerCallback(
         key,
         entity -> {
@@ -334,11 +333,11 @@ public final class HeroFactory {
                   .fetch(VelocityComponent.class)
                   .orElseThrow(
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
-          if (direction.x != 0) {
-            vc.currentXVelocity(direction.x * vc.xVelocity());
+          if (direction.x() != 0) {
+            vc.currentXVelocity(direction.x() * vc.xVelocity());
           }
-          if (direction.y != 0) {
-            vc.currentYVelocity(direction.y * vc.yVelocity());
+          if (direction.y() != 0) {
+            vc.currentYVelocity(direction.y() * vc.yVelocity());
           }
           // Abort any path finding on own movement
           if (ENABLE_MOUSE_MOVEMENT) {
@@ -405,8 +404,8 @@ public final class HeroFactory {
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
       throws MissingComponentException {
-    pos.x = pos.x - 0.5f;
-    pos.y = pos.y - 0.25f;
+    pos = pos.translate(IVector2.of(-0.5f, -0.25f));
+
     Tile mouseTile = Game.tileAT(pos);
     if (mouseTile == null) return Optional.empty();
 

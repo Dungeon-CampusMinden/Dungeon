@@ -148,8 +148,8 @@ public class FogSystem extends System {
       while (dx <= 0) {
         dx += 1;
         // Translate the dx, dy coordinates into map coordinates
-        int X = (int) (heroPos.x + (dx * xx + dy * xy));
-        int Y = (int) (heroPos.y + (dx * yx + dy * yy));
+        int X = (int) (heroPos.x() + (dx * xx + dy * xy));
+        int Y = (int) (heroPos.y() + (dx * yx + dy * yy));
         // l_slope and r_slope store the slopes of the left and right extremities of the square
         // we're considering
         float lSlope = (dx - 0.5f) / (dy + 0.5f);

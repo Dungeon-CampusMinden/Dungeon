@@ -7,6 +7,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
+import core.utils.IVector2;
 import java.util.Random;
 
 /** Generates levels using random walk algorithm. */
@@ -69,21 +70,19 @@ public class RandomWalkGenerator implements IGenerator {
     int steps =
         RANDOM.nextInt((xSize * ySize) / MIN_STEPS_FACTOR, (xSize * ySize) / MAX_STEPS_FACTOR);
     for (; steps > 0; steps--) {
-      layout[position.y][position.x] = LevelElement.FLOOR;
+      layout[position.y()][position.x()] = LevelElement.FLOOR;
 
+      IVector2 dir;
       if (RANDOM.nextBoolean()) {
-        if (RANDOM.nextBoolean()) {
-          position.x = Math.min(position.x + 1, xSize - 1);
-        } else {
-          position.x = Math.max(position.x - 1, 0);
-        }
+        dir = RANDOM.nextBoolean() ? IVector2.RIGHT : IVector2.LEFT;
       } else {
-        if (RANDOM.nextBoolean()) {
-          position.y = Math.min(position.y + 1, ySize - 1);
-        } else {
-          position.y = Math.max(position.y - 1, 0);
-        }
+        dir = RANDOM.nextBoolean() ? IVector2.UP : IVector2.DOWN;
       }
+
+      Coordinate moved = position.translate(dir);
+      int clampedX = Math.min(Math.max(moved.x(), 0), xSize - 1);
+      int clampedY = Math.min(Math.max(moved.y(), 0), ySize - 1);
+      position = new Coordinate(clampedX, clampedY);
     }
     return layout;
   }

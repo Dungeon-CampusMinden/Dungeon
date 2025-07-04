@@ -109,6 +109,6 @@ public final class CameraSystem extends System {
   }
 
   private void focus(Point point) {
-    CAMERA.position.set(point.x, point.y, 0);
+    CAMERA.position.set(point.x(), point.y(), 0);
   }
 }

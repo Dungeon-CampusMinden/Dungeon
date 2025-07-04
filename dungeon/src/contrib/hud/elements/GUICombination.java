@@ -2,11 +2,11 @@ package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.UIComponent;
 import core.Game;
+import core.utils.IVector2;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -72,11 +72,11 @@ public final class GUICombination extends Group {
       AvailableSpace avs =
           new AvailableSpace(
               column * width + (column + 1) * GAP, row * height + (row + 1) * GAP, width, height);
-      Vector2 size = combinableGUI.preferredSize(avs);
-      combinableGUI.width((int) size.x);
-      combinableGUI.height((int) size.y);
-      combinableGUI.x(avs.x + (avs.width - (int) size.x) / 2);
-      combinableGUI.y(avs.y + (avs.height - (int) size.y) / 2);
+      IVector2 size = combinableGUI.preferredSize(avs);
+      combinableGUI.width((int) size.x());
+      combinableGUI.height((int) size.y());
+      combinableGUI.x(avs.x + (avs.width - (int) size.x()) / 2);
+      combinableGUI.y(avs.y + (avs.height - (int) size.y()) / 2);
       combinableGUI.boundsUpdate();
     }
   }

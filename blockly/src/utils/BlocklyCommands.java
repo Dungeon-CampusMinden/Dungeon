@@ -21,6 +21,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.utils.IVector2;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -225,7 +226,11 @@ public class BlocklyCommands {
             () ->
                 hero.fetch(CollideComponent.class)
                     .map(cc -> cc.center(hero))
-                    .map(p -> p.add(Direction.asPoint(EntityUtils.getViewDirection(hero))))
+                    .map(
+                        p ->
+                            p.translate(
+                                Direction.fromPositionCompDirection(
+                                    EntityUtils.getViewDirection(hero))))
                     .orElseThrow(
                         () -> MissingComponentException.build(hero, CollideComponent.class)),
             FIREBALL_RANGE,
@@ -364,18 +369,17 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<Coordinate, Optional<Tile>> dirToCheck =
+    Function<IVector2, Optional<Tile>> dirToCheck =
         dtc ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
-                .map(coordinate -> coordinate.add(dtc))
+                .map(coordinate -> coordinate.translate(dtc))
                 .map(Game::tileAT);
 
     // calculate direction to check relative to hero's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
         .map(Direction::fromPositionCompDirection)
         .map(d -> d.relativeToAbsoluteDirection(direction))
-        .map(Direction::toCoordinate)
-        .flatMap(dirToCheck::apply);
+        .flatMap(dirToCheck);
   }
 
   /**

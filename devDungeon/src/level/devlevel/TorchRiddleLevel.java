@@ -14,6 +14,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
@@ -97,7 +98,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
    */
   private void spawnRiddleRoomTorches() {
     for (Coordinate riddleRoomTorch : riddleRoomTorches) {
-      Point torchPos = new Point(riddleRoomTorch.x + 0.5f, riddleRoomTorch.y + 0.25f);
+      Point torchPos = riddleRoomTorch.toPoint().translate(IVector2.of(0, 0.25f));
       utils.EntityUtils.spawnTorch(torchPos, true, false, 0);
     }
   }
@@ -128,7 +129,8 @@ public class TorchRiddleLevel extends DevDungeonLevel {
               .fetch(TorchComponent.class)
               .orElseThrow(() -> MissingComponentException.build(torch, TorchComponent.class))
               .value();
-      EntityUtils.spawnSign("\n\n\n" + torchNumber, "Torch", new Point(torchPos.x + 1, torchPos.y));
+      EntityUtils.spawnSign(
+          "\n\n\n" + torchNumber, "Torch", new Point(torchPos.x() + 1, torchPos.y()));
       torchNumbers.add(torchNumber);
     }
 
