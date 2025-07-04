@@ -3,7 +3,7 @@ package contrib.hud.elements;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import core.utils.IVec2;
+import core.utils.IVector2;
 
 /**
  * A GUI element that can be combined with other GUI elements using {@link GUICombination}. Gui
@@ -19,7 +19,7 @@ import core.utils.IVec2;
  * <p>The method {@link CombinableGUI#preferredSize(GUICombination.AvailableSpace)} is called by the
  * parent {@link GUICombination} if the available space for a GUI element changes and the size needs
  * to be recalculated. The method should calculate the preferred size of the element based on the
- * available space and return it as a {@link IVec2}. It should not be greater than the available
+ * available space and return it as a {@link IVector2}. It should not be greater than the available
  * space.
  */
 public abstract class CombinableGUI {
@@ -96,7 +96,7 @@ public abstract class CombinableGUI {
    * @param availableSpace the available space for the element to be drawn in.
    * @return the preferred size of the element.
    */
-  protected abstract IVec2 preferredSize(final GUICombination.AvailableSpace availableSpace);
+  protected abstract IVector2 preferredSize(final GUICombination.AvailableSpace availableSpace);
 
   /** Called when the bounds of the element change. */
   protected void boundsUpdate() {}

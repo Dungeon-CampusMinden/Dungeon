@@ -11,14 +11,14 @@ package core.utils;
  * @see Point
  * @see core.level.utils.Coordinate Coordinate
  */
-public record Vector2(float x, float y) implements IVec2 {
+public record Vector2(float x, float y) implements IVector2 {
 
   /**
    * Create a new vector from another vector.
    *
    * @param other The other vector.
    */
-  public Vector2(IVec2 other) {
+  public Vector2(IVector2 other) {
     this(other.x(), other.y());
   }
 

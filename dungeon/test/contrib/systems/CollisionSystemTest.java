@@ -7,10 +7,9 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.Vector2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import testingUtils.SimpleCounter;
@@ -74,17 +73,17 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(.5f, 0));
 
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -107,18 +106,18 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(1.5f, 0));
 
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -140,16 +139,16 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(-.5f, 0));
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -174,16 +173,16 @@ public class CollisionSystemTest {
     Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(-1.5f, 0));
 
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -204,16 +203,16 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(0, .5f));
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -235,16 +234,16 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(0, 1.5f));
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -265,16 +264,16 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(0, -0.5f));
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -296,16 +295,16 @@ public class CollisionSystemTest {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
-    IVec2 offset = new Vector2(0, 0);
-    IVec2 size = new Vector2(1, 1);
+    IVector2 offset = IVector2.of(0, 0);
+    IVector2 size = IVector2.of(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(0, -1.5f));
     CollideComponent hb2 =
-        new CollideComponent(new Vector2(offset), new Vector2(size), collider, collider);
+        new CollideComponent(IVector2.of(offset), IVector2.of(size), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -329,15 +328,15 @@ public class CollisionSystemTest {
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(
-            new Vector2(new Vector2(0, 0)),
-            new Vector2(new Vector2(1.2f, 1.2f)),
+            IVector2.of(IVector2.of(0, 0)),
+            IVector2.of(IVector2.of(1.2f, 1.2f)),
             collider,
             collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(0, 0f));
     CollideComponent hb2 =
         new CollideComponent(
-            new Vector2(new Vector2(0, 0)), new Vector2(new Vector2(1, 1)), collider, collider);
+            IVector2.of(IVector2.of(0, 0)), IVector2.of(IVector2.of(1, 1)), collider, collider);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -360,13 +359,13 @@ public class CollisionSystemTest {
     TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(
-            new Vector2(new Vector2(0, 0)), new Vector2(new Vector2(1, 1)), collider, collider);
+            IVector2.of(IVector2.of(0, 0)), IVector2.of(IVector2.of(1, 1)), collider, collider);
 
     Entity e2 = prepareEntityWithPosition(new Point(-.1f, -.1f));
     CollideComponent hb2 =
         new CollideComponent(
-            new Vector2(new Vector2(0, 0)),
-            new Vector2(new Vector2(1.2f, 1.2f)),
+            IVector2.of(IVector2.of(0, 0)),
+            IVector2.of(IVector2.of(1.2f, 1.2f)),
             collider,
             collider);
 
@@ -452,8 +451,8 @@ public class CollisionSystemTest {
     SimpleCounter sc1OnLeave = new SimpleCounter();
     e1.add(
         new CollideComponent(
-            new Vector2(0, 0),
-            new Vector2(1, 1),
+            IVector2.of(0, 0),
+            IVector2.of(1, 1),
             (a, b, c) -> sc1OnEnter.inc(),
             (a, b, c) -> sc1OnLeave.inc()));
     cs.execute();
@@ -473,8 +472,8 @@ public class CollisionSystemTest {
     SimpleCounter sc1OnLeave = new SimpleCounter();
     e1.add(
         new CollideComponent(
-            new Vector2(0, 0),
-            new Vector2(1, 1),
+            IVector2.of(0, 0),
+            IVector2.of(1, 1),
             (a, b, c) -> sc1OnEnter.inc(),
             (a, b, c) -> sc1OnLeave.inc()));
     Entity e2 = prepareEntityWithPosition(new Point(1, 1));
@@ -482,8 +481,8 @@ public class CollisionSystemTest {
     SimpleCounter sc2OnLeave = new SimpleCounter();
     e2.add(
         new CollideComponent(
-            new Vector2(0, 0),
-            new Vector2(1, 1),
+            IVector2.of(0, 0),
+            IVector2.of(1, 1),
             (a, b, c) -> sc2OnEnter.inc(),
             (a, b, c) -> sc2OnLeave.inc()));
     cs.execute();

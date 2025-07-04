@@ -21,7 +21,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -369,7 +369,7 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<IVec2, Optional<Tile>> dirToCheck =
+    Function<IVector2, Optional<Tile>> dirToCheck =
         dtc ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
                 .map(coordinate -> coordinate.translate(dtc))

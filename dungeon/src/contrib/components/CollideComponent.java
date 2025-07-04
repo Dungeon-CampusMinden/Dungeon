@@ -4,10 +4,9 @@ import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 import java.util.logging.Logger;
@@ -41,17 +40,17 @@ import java.util.logging.Logger;
  */
 public final class CollideComponent implements Component {
   /** The default offset of the hit box. */
-  public static final IVec2 DEFAULT_OFFSET = new Vector2(0.25f, 0.25f);
+  public static final IVector2 DEFAULT_OFFSET = IVector2.of(0.25f, 0.25f);
 
   /** The default size of the hit box. */
-  public static final IVec2 DEFAULT_SIZE = new Vector2(0.5f, 0.5f);
+  public static final IVector2 DEFAULT_SIZE = IVector2.of(0.5f, 0.5f);
 
   /** The default collision behaviour. */
   public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
       (a, b, c) -> {};
 
-  private final IVec2 offset;
-  private final IVec2 size;
+  private final IVector2 offset;
+  private final IVector2 size;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
   private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
@@ -68,8 +67,8 @@ public final class CollideComponent implements Component {
    *     empty function.
    */
   public CollideComponent(
-      final IVec2 offset,
-      final IVec2 size,
+      final IVector2 offset,
+      final IVector2 size,
       final TriConsumer<Entity, Entity, Tile.Direction> collideEnter,
       final TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
     this.offset = offset;
@@ -198,7 +197,7 @@ public final class CollideComponent implements Component {
    *
    * @return the size of the component
    */
-  public IVec2 size() {
-    return new Vector2(size);
+  public IVector2 size() {
+    return IVector2.of(size);
   }
 }

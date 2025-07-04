@@ -12,7 +12,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
@@ -70,7 +70,8 @@ public class Chapter34Level extends BlocklyLevel {
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
-    Coordinate c = Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(IVec2.DOWN);
+    Coordinate c =
+        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(IVector2.DOWN);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);

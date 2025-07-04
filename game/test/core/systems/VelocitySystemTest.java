@@ -10,9 +10,8 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -71,8 +70,8 @@ public class VelocitySystemTest {
     velocityComponent.currentXVelocity(xVelocity);
     velocityComponent.currentYVelocity(yVelocity);
 
-    IVec2 velocity =
-        new Vector2(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
+    IVector2 velocity =
+        IVector2.of(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
     if (velocity.length()
         > Math.max(
             Math.abs(velocityComponent.xVelocity()), Math.abs(velocityComponent.yVelocity()))) {
@@ -101,8 +100,8 @@ public class VelocitySystemTest {
     velocityComponent.currentXVelocity(-4);
     velocityComponent.currentYVelocity(-8);
 
-    IVec2 velocity =
-        new Vector2(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
+    IVector2 velocity =
+        IVector2.of(velocityComponent.currentXVelocity(), velocityComponent.currentYVelocity());
     if (velocity.length()
         > Math.max(
             Math.abs(velocityComponent.xVelocity()), Math.abs(velocityComponent.yVelocity()))) {
