@@ -11,6 +11,7 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
@@ -174,7 +175,7 @@ public enum BlocklyMonster {
   public static class BlocklyMonsterBuilder {
     private final BlocklyMonster monsterType;
     private Point spawnPoint = new Point(0, 0);
-    private PositionComponent.Direction viewDirection = PositionComponent.Direction.DOWN;
+    private Direction viewDirection = Direction.DOWN;
     private int range = -1; // -1 means use default range
     private int maxHealth;
     private int collideDamage;
@@ -208,7 +209,7 @@ public enum BlocklyMonster {
      * @param viewDirection The direction the monster should face.
      * @return This builder for method chaining.
      */
-    public BlocklyMonsterBuilder viewDirection(PositionComponent.Direction viewDirection) {
+    public BlocklyMonsterBuilder viewDirection(Direction viewDirection) {
       this.viewDirection = viewDirection;
       return this;
     }

@@ -2,7 +2,6 @@ package level.produs;
 
 import client.Client;
 import contrib.hud.DialogUtils;
-import contrib.utils.Direction;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -12,6 +11,7 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
@@ -59,7 +59,7 @@ public class Chapter34Level extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(new Coordinate(15, 8));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     heropc =
         hero.fetch(PositionComponent.class)
@@ -75,7 +75,7 @@ public class Chapter34Level extends BlocklyLevel {
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
     bossBuilder.addToGame();
-    bossBuilder.viewDirection(PositionComponent.Direction.RIGHT);
+    bossBuilder.viewDirection(Direction.RIGHT);
     bossBuilder.spawnPoint(c.toCenteredPoint());
     boss = bossBuilder.build().orElseThrow();
     bosspc =
@@ -102,7 +102,7 @@ public class Chapter34Level extends BlocklyLevel {
     counter++;
     if (counter >= TICK_TIMER) {
       counter = 0;
-      if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
+      if (bosspc.viewDirection() == Direction.LEFT) {
         BlocklyCommands.turnEntity(boss, Direction.RIGHT);
       } else {
         BlocklyCommands.turnEntity(boss, Direction.LEFT);
@@ -113,7 +113,7 @@ public class Chapter34Level extends BlocklyLevel {
     float y = heropc.position().y;
     if (x > 6 || x > 3 && y >= 6 && y <= 8) {
 
-      if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
+      if (bosspc.viewDirection() == Direction.LEFT) {
         if (herovc.currentXVelocity() > 0 || herovc.currentYVelocity() > 0) {
           DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }

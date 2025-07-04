@@ -6,7 +6,7 @@ import contrib.components.CollideComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.Tile;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import org.junit.jupiter.api.AfterEach;
@@ -75,7 +75,7 @@ public class CollisionSystemTest {
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -89,7 +89,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.E, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -109,7 +109,7 @@ public class CollisionSystemTest {
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
 
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -123,7 +123,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.E, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -141,7 +141,7 @@ public class CollisionSystemTest {
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -154,7 +154,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -174,7 +174,7 @@ public class CollisionSystemTest {
 
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -188,7 +188,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.W, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -205,7 +205,7 @@ public class CollisionSystemTest {
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -218,7 +218,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -236,7 +236,7 @@ public class CollisionSystemTest {
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -249,7 +249,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.S, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -266,7 +266,7 @@ public class CollisionSystemTest {
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -279,7 +279,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -297,7 +297,7 @@ public class CollisionSystemTest {
     Point offset = new Point(0, 0);
     Point size = new Point(1, 1);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(new Point(offset), new Point(size), collider, collider);
 
@@ -310,7 +310,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Tile.Direction.N, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -324,7 +324,7 @@ public class CollisionSystemTest {
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(-.1f, -.1f));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(
             new Point(new Point(0, 0)), new Point(new Point(1.2f, 1.2f)), collider, collider);
@@ -352,7 +352,7 @@ public class CollisionSystemTest {
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
     Entity e1 = prepareEntityWithPosition(new Point(0, 0));
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(
             new Point(new Point(0, 0)), new Point(new Point(1, 1)), collider, collider);
@@ -367,46 +367,6 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    cleanUpEnvironment();
-  }
-
-  /** Checks the inverse Direction of the Tile.Direction N -> S. */
-  @Test
-  public void checkInverseN() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
-    assertEquals(Tile.Direction.S, cs.inverse(Tile.Direction.N));
-    cleanUpEnvironment();
-  }
-
-  /** Checks the inverse Direction of the Tile.Direction E -> W. */
-  @Test
-  public void checkInverseE() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
-    assertEquals(Tile.Direction.W, cs.inverse(Tile.Direction.E));
-    cleanUpEnvironment();
-  }
-
-  /** Checks the inverse Direction of the Tile.Direction S -> N. */
-  @Test
-  public void checkInverseS() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
-    assertEquals(Tile.Direction.N, cs.inverse(Tile.Direction.S));
-    cleanUpEnvironment();
-  }
-
-  /** Checks the inverse Direction of the Tile.Direction W -> E. */
-  @Test
-  public void checkInverseW() {
-    prepareEnvironment();
-    CollisionSystem cs = new CollisionSystem();
-    Game.add(cs);
-    assertEquals(Tile.Direction.E, cs.inverse(Tile.Direction.W));
     cleanUpEnvironment();
   }
 

@@ -7,6 +7,8 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 /** Utility class for AI-related operations like calculating paths. */
@@ -46,19 +48,11 @@ public final class AIUtils {
       return;
     }
 
-    switch (currentTile.directionTo(nextTile)[0]) {
-      case N -> vc.currentYVelocity(vc.yVelocity());
-      case S -> vc.currentYVelocity(-vc.yVelocity());
-      case E -> vc.currentXVelocity(vc.xVelocity());
-      case W -> vc.currentXVelocity(-vc.xVelocity());
+    for (Direction direction : currentTile.directionTo(nextTile)) {
+      Point velocity = direction.translate(new Point(vc.currentXVelocity(), vc.currentYVelocity()));
+      if (velocity.x != 0) vc.currentXVelocity(velocity.x * vc.xVelocity());
+      if (velocity.y != 0) vc.currentYVelocity(velocity.y * vc.yVelocity());
     }
-    if (currentTile.directionTo(nextTile).length > 1)
-      switch (currentTile.directionTo(nextTile)[1]) {
-        case N -> vc.currentYVelocity(vc.yVelocity());
-        case S -> vc.currentYVelocity(-vc.yVelocity());
-        case E -> vc.currentXVelocity(vc.xVelocity());
-        case W -> vc.currentXVelocity(-vc.xVelocity());
-      }
   }
 
   /**
