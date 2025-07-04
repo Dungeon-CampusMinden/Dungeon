@@ -24,7 +24,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.*;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -40,7 +40,7 @@ public class InventoryGUI extends CombinableGUI {
   private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
   private static final int BORDER_PADDING = 5;
   private static final int LINE_GAP = 5;
-  private static final IVec2 HOVER_OFFSET = new Vector2(10, 10);
+  private static final IVector2 HOVER_OFFSET = IVector2.of(10, 10);
   private static final BitmapFont bitmapFont;
   private static final Texture texture;
   private static final TextureRegion background, hoverBackground;
@@ -140,8 +140,8 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   private int getSlotByMousePosition() {
-    IVec2 mousePos = new Vector2(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-    IVec2 relMousePos = new Vector2(mousePos.x() - this.x(), mousePos.y() - this.y());
+    IVector2 mousePos = IVector2.of(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+    IVector2 relMousePos = IVector2.of(mousePos.x() - this.x(), mousePos.y() - this.y());
     return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
   }
 
@@ -422,7 +422,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   @Override
-  protected IVec2 preferredSize(GUICombination.AvailableSpace availableSpace) {
+  protected IVector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
     int rows =
         (int)
             Math.max(
@@ -437,7 +437,7 @@ public class InventoryGUI extends CombinableGUI {
     }
 
     this.slotSize = width / this.slotsPerRow;
-    return new Vector2(width, height);
+    return IVector2.of(width, height);
   }
 
   /**

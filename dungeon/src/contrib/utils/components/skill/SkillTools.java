@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import core.Game;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -36,9 +36,9 @@ public final class SkillTools {
    * @param speed The speed of movement.
    * @return The velocity vector as a Point.
    */
-  public static IVec2 calculateVelocity(final Point start, final Point goal, float speed) {
+  public static IVector2 calculateVelocity(final Point start, final Point goal, float speed) {
     if (start.equals(goal)) {
-      return IVec2.ZERO;
+      return IVector2.ZERO;
     }
     return start.vectorTo(goal).normalize().scale(speed);
   }

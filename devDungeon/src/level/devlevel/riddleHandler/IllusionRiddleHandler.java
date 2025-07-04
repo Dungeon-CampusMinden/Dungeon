@@ -10,9 +10,8 @@ import core.components.PositionComponent;
 import core.level.TileLevel;
 import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
 import java.util.List;
@@ -112,7 +111,7 @@ public class IllusionRiddleHandler {
    *
    * @param offset The offset to teleport the hero by.
    */
-  private void offsetHero(IVec2 offset) {
+  private void offsetHero(IVector2 offset) {
     Entity hero = Game.hero().orElse(null);
     if (hero == null) {
       return;
@@ -141,12 +140,12 @@ public class IllusionRiddleHandler {
     }
 
     if (lapCounter == -1 && lapProgress == 3) {
-      offsetHero(new Vector2(-27, 0));
+      offsetHero(IVector2.of(-27, 0));
       this.lapCounter = 0;
       this.lapProgress = 0;
       this.lastCheckpoint = -2;
     } else if (!thirdRoom && lapCounter == LAP_REWARD && lapProgress == 1) {
-      offsetHero(new Vector2(24, 0));
+      offsetHero(IVector2.of(24, 0));
       this.thirdRoom = true;
     } else {
       handleHiddenTeleporter(heroPos);
@@ -222,13 +221,13 @@ public class IllusionRiddleHandler {
   private void handleHiddenTeleporter(Coordinate heroPos) {
     for (Coordinate initTeleporterCoords : initTeleporterSpawns[0]) { // start teleporter -> in
       if (heroPos.equals(initTeleporterCoords)) {
-        offsetHero(new Vector2(27, 0));
+        offsetHero(IVector2.of(27, 0));
         return;
       }
     }
     for (Coordinate lastTeleporterCoords : lastTeleporterSpawns[1]) { // end teleporter -> out
       if (heroPos.equals(lastTeleporterCoords)) {
-        offsetHero(new Vector2(-24, 0));
+        offsetHero(IVector2.of(-24, 0));
         this.lastCheckpoint = 0;
         this.lapProgress = 0;
         this.thirdRoom = false;

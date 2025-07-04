@@ -6,9 +6,8 @@ import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import core.components.PlayerComponent;
-import core.utils.IVec2;
+import core.utils.IVector2;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -29,7 +28,7 @@ public final class TPBallSkill extends DamageProjectile {
   private static final float PROJECTILE_SPEED = 7.0f;
   private static final int DAMAGE_AMOUNT = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
-  private static final IVec2 HIT_BOX_SIZE = new Vector2(1, 1);
+  private static final IVector2 HIT_BOX_SIZE = IVector2.of(1, 1);
   private static final float PROJECTILE_RANGE = 7f;
 
   /**

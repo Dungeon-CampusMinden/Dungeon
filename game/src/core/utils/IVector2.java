@@ -7,38 +7,38 @@ package core.utils;
  * <p>Example usage:
  *
  * <pre>{@code
- * IVec2 position = IVec2.of(10.0f, 5.0f);
- * IVec2 velocity = IVec2.of(2.0f, 3.0f);
- * IVec2 newPosition = position.add(velocity);
+ * IVector2 position = IVector2.of(10.0f, 5.0f);
+ * IVector2 velocity = IVector2.of(2.0f, 3.0f);
+ * IVector2 newPosition = position.add(velocity);
  *
  * // Normalize a vector for direction
- * IVec2 direction = IVec2.of(3.0f, 4.0f).normalize();
+ * IVector2 direction = IVector2.of(3.0f, 4.0f).normalize();
  *
  * // Scale and rotate vectors
- * IVec2 scaled = position.scale(2.0f);
- * IVec2 rotated = direction.rotateDeg(90.0f);
+ * IVector2 scaled = position.scale(2.0f);
+ * IVector2 rotated = direction.rotateDeg(90.0f);
  * }</pre>
  */
-public interface IVec2 {
+public interface IVector2 {
 
   /** Zero vector representing no displacement or position at origin. */
-  Vector2 ZERO = new Vector2(0, 0);
+  IVector2 ZERO = IVector2.of(0, 0);
 
   /** Unit vector with both components set to 1. */
-  Vector2 ONE = new Vector2(1, 1);
+  IVector2 ONE = IVector2.of(1, 1);
 
   // TODO: Remove later with Direction enum
   /** Unit vector pointing upward in 2D space. */
-  Vector2 UP = new Vector2(0, 1);
+  IVector2 UP = IVector2.of(0, 1);
 
   /** Unit vector pointing downward in 2D space. */
-  Vector2 DOWN = new Vector2(0, -1);
+  IVector2 DOWN = IVector2.of(0, -1);
 
   /** Unit vector pointing left in 2D space. */
-  Vector2 LEFT = new Vector2(-1, 0);
+  IVector2 LEFT = IVector2.of(-1, 0);
 
   /** Unit vector pointing right in 2D space. */
-  Vector2 RIGHT = new Vector2(1, 0);
+  IVector2 RIGHT = IVector2.of(1, 0);
 
   /**
    * Creates a new vector with the specified components.
@@ -47,8 +47,18 @@ public interface IVec2 {
    * @param y The y component
    * @return A new vector with the given components
    */
-  static IVec2 of(float x, float y) {
+  static IVector2 of(float x, float y) {
     return new Vector2(x, y);
+  }
+
+  /**
+   * Copies the components of another vector into a new vector.
+   *
+   * @param other The vector to copy from
+   * @return A new vector with the same components as the other vector
+   */
+  static IVector2 of(IVector2 other) {
+    return new Vector2(other);
   }
 
   /**
@@ -71,8 +81,8 @@ public interface IVec2 {
    * @param other The other vector.
    * @return A new vector that is the sum of this and the other vector.
    */
-  default IVec2 add(IVec2 other) {
-    return new Vector2(x() + other.x(), y() + other.y());
+  default IVector2 add(IVector2 other) {
+    return IVector2.of(x() + other.x(), y() + other.y());
   }
 
   /**
@@ -81,8 +91,8 @@ public interface IVec2 {
    * @param other The other vector.
    * @return A new vector that is the difference of this and the other vector.
    */
-  default IVec2 subtract(IVec2 other) {
-    return new Vector2(x() - other.x(), y() - other.y());
+  default IVector2 subtract(IVector2 other) {
+    return IVector2.of(x() - other.x(), y() - other.y());
   }
 
   /**
@@ -91,8 +101,8 @@ public interface IVec2 {
    * @param scalar The scalar.
    * @return A new vector that is this vector multiplied by the scalar.
    */
-  default IVec2 scale(float scalar) {
-    return new Vector2(x() * scalar, y() * scalar);
+  default IVector2 scale(float scalar) {
+    return IVector2.of(x() * scalar, y() * scalar);
   }
 
   /**
@@ -102,8 +112,8 @@ public interface IVec2 {
    * @param scalarY The scalar for the y component.
    * @return A new vector that is this vector multiplied by the scalars.
    */
-  default IVec2 scale(float scalarX, float scalarY) {
-    return new Vector2(x() * scalarX, y() * scalarY);
+  default IVector2 scale(float scalarX, float scalarY) {
+    return IVector2.of(x() * scalarX, y() * scalarY);
   }
 
   /**
@@ -116,12 +126,12 @@ public interface IVec2 {
   /**
    * @return A new vector with the same direction but a length of 1.
    */
-  default IVec2 normalize() {
+  default IVector2 normalize() {
     float len = length();
     if (len == 0) {
       return this; // Return the same vector if length is zero
     }
-    return new Vector2(x() / len, y() / len);
+    return IVector2.of(x() / len, y() / len);
   }
 
   /**
@@ -131,7 +141,7 @@ public interface IVec2 {
    * @param other The other vector
    * @return The dot product as a scalar value
    */
-  default float dot(IVec2 other) {
+  default float dot(IVector2 other) {
     return x() * other.x() + y() * other.y();
   }
 
@@ -151,7 +161,7 @@ public interface IVec2 {
    * @param other The other vector
    * @return The distance between the two vectors
    */
-  default float distance(IVec2 other) {
+  default float distance(IVector2 other) {
     return subtract(other).length();
   }
 
@@ -161,11 +171,11 @@ public interface IVec2 {
    * @param degrees The angle in degrees to rotate the vector.
    * @return A new vector that is the result of rotating this vector by the specified angle.
    */
-  default IVec2 rotateDeg(float degrees) {
+  default IVector2 rotateDeg(float degrees) {
     float radians = (float) Math.toRadians(degrees);
     float cos = (float) Math.cos(radians);
     float sin = (float) Math.sin(radians);
-    return new Vector2(x() * cos - y() * sin, x() * sin + y() * cos);
+    return IVector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
   }
 
   /**
@@ -174,10 +184,10 @@ public interface IVec2 {
    * @param radians The angle in radians to rotate the vector
    * @return A new vector rotated by the specified angle
    */
-  default IVec2 rotateRad(float radians) {
+  default IVector2 rotateRad(float radians) {
     float cos = (float) Math.cos(radians);
     float sin = (float) Math.sin(radians);
-    return new Vector2(x() * cos - y() * sin, x() * sin + y() * cos);
+    return IVector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
   }
 
   /**
@@ -187,15 +197,15 @@ public interface IVec2 {
    * @return A new vector with the specified length, maintaining the original direction.
    * @throws IllegalArgumentException if the new length is negative.
    */
-  default Vector2 setLength(float newLength) {
+  default IVector2 setLength(float newLength) {
     if (newLength < 0) {
       throw new IllegalArgumentException("New length must be non-negative.");
     }
 
     float currentLength = length();
     if (currentLength == 0) {
-      return new Vector2(0, 0); // Avoid division by zero
+      return IVector2.of(0, 0); // Avoid division by zero
     }
-    return new Vector2(x() * newLength / currentLength, y() * newLength / currentLength);
+    return IVector2.of(x() * newLength / currentLength, y() * newLength / currentLength);
   }
 }
