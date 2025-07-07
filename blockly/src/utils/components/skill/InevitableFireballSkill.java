@@ -1,5 +1,6 @@
 package utils.components.skill;
 
+import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
@@ -52,7 +53,8 @@ public class InevitableFireballSkill extends DamageProjectile {
         HIT_BOX_SIZE,
         targetSelection,
         DEFAULT_PROJECTILE_RANGE,
-        DamageProjectile.DEFAULT_ON_WALL_HIT,
+        // If the fireball does not hit the player, still restart the level
+        entity -> Client.restart(),
         (projectile, entity) -> {
           // Set the velocity back to the original value (hero only)
           if (!entity.isPresent(PlayerComponent.class)) return;
