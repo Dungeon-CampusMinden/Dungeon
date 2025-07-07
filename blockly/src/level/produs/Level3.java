@@ -1,25 +1,23 @@
 package level.produs;
 
-import contrib.components.LeverComponent;
 import contrib.hud.DialogUtils;
-import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter16Level extends BlocklyLevel {
+/**
+ * In this level, the for-loop is unlocked and should be used to efficiently move along long paths.
+ * There are no monsters, but the layout encourages using loops to avoid repetitive code.
+ */
+public class Level3 extends BlocklyLevel {
   private static boolean showText = true;
-  private DoorTile door;
-  private LeverComponent switch1, switch2;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -29,22 +27,19 @@ public class Chapter16Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter16Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 6");
+  public Level3(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 3");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
         // Richtungen
+        "direction_up",
+        "direction_down",
+        "direction_here",
         // Schleifen
         "while_loop",
-        // Inventar und Charakter
-        "fireball",
-        "wait",
-        "pickup",
-        "drop_item",
-        "Items",
         // Kategorien
+        "Inventar & Charakter",
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
@@ -57,37 +52,23 @@ public class Chapter16Level extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup("Versuch mal die Schalter zu benutzen.", "Kapitel 1: Ausbruch");
+      DialogUtils.showTextPopup(
+          "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
+          "Kapitel 1: Ausbruch");
       showText = false;
     }
-    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.cameraFocusOn(new Coordinate(13, 5));
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(0);
     Coordinate stone2C = customPoints().get(1);
-    Coordinate switch1C = customPoints().get(2);
-    Coordinate switch2C = customPoints().get(3);
-    Entity s1 = MiscFactory.pressurePlate(switch1C.toCenteredPoint());
-    Entity s2 = MiscFactory.pressurePlate(switch2C.toCenteredPoint());
     Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
     Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
-
-    Game.add(s1);
-    Game.add(s2);
-    switch1 =
-        s1.fetch(LeverComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
-    switch2 =
-        s2.fetch(LeverComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
-    door = (DoorTile) Game.tileAT(new Coordinate(5, 12));
+    DoorTile door = (DoorTile) Game.tileAT(new Coordinate(0, 5));
     door.close();
   }
 
   @Override
-  protected void onTick() {
-    if (switch1.isOn() && switch2.isOn()) door.open();
-    else door.close();
-  }
+  protected void onTick() {}
 }

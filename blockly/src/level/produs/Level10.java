@@ -11,8 +11,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter110Level extends BlocklyLevel {
+/**
+ * This level builds on the previous one: fireball scrolls must be collected to defeat monsters.
+ * Now, clever positioning is essential to succeed.
+ */
+public class Level10 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -22,8 +25,7 @@ public class Chapter110Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter110Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level10(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 1: Level 10");
     this.blockBlocklyElement(
         // MOVEMENT

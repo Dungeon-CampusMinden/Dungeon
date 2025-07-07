@@ -20,8 +20,12 @@ import java.util.Set;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter21Level extends BlocklyLevel {
+/**
+ * In this level, random pairs of torches are lit—one torch of each pair is on, the other off. There
+ * are multiple pairs, and at the end, all torches must be lit to unlock the exit. Players can use
+ * if and if-else statements to define the necessary algorithms.
+ */
+public class Level12 extends BlocklyLevel {
   private static boolean showText = true;
 
   private final Set<LeverComponent> torches = new HashSet<>();
@@ -35,8 +39,7 @@ public class Chapter21Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter21Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level12(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 2: Level 1");
     this.blockBlocklyElement(
         // MOVEMENT
