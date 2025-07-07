@@ -1,17 +1,23 @@
 package level.produs;
 
+import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.MissingHeroException;
 import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter12Level extends BlocklyLevel {
+/**
+ * This level extends simple backtracking by adding monsters to the maze. The player must navigate
+ * carefully while avoiding or dealing with monsters.
+ */
+public class Level18 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -22,56 +28,45 @@ public class Chapter12Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter12Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 2");
+  public Level18(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Kapitel 3: Level 2");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
-        // Richtungen
-        "direction_up",
-        "direction_down",
-        "direction_here",
+        // Inventar und Charakter
+        // Variable
+        "get_number",
+        // Bedingung
+        "logic_bossView_direction",
         // Kategorien
-        "Inventar & Charakter",
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Schleife",
-        "Bedingungen",
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
-    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Pass auf, die Monster sind angekettet und können sich nicht bewegen, aber wenn du ihnen zu nahe kommst, wird es eng für dich.",
-          "Kapitel 1: Ausbruch");
+          "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");
       showText = false;
     }
-
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.range(3);
-    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
-    guardBuilder.addToGame();
-    guardBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
-    guardBuilder.build().orElseThrow();
-    customPoints().remove(0);
-
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.zoomDefault();
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
     BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    Game.hero()
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(20);
     hedgehogBuilder.range(0);
+    hedgehogBuilder.addToGame();
+
     customPoints()
         .forEach(
             coordinate -> {
               hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
-              hedgehogBuilder.addToGame();
               hedgehogBuilder.build();
             });
   }

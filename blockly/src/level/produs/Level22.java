@@ -20,8 +20,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter36Level extends BlocklyLevel {
+/**
+ * In this final level, the boss mirrors the hero's movements. The player must cleverly lure the
+ * boss into the abyss to win.
+ */
+public class Level22 extends BlocklyLevel {
   private static boolean showText = true;
   private VelocityComponent heroVC;
   boolean openExit = true;
@@ -37,8 +40,7 @@ public class Chapter36Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter36Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level22(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 3: Level 6");
     this.blockBlocklyElement(
         // MOVEMENT

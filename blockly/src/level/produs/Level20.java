@@ -21,8 +21,12 @@ import level.BlocklyLevel;
 import level.LevelManagementUtils;
 import utils.BlocklyCommands;
 
-/** PRODUS LEVEL. */
-public class Chapter34Level extends BlocklyLevel {
+/**
+ * This is the first level of the 3-stage boss fight. It features a Red-Light Green-Light mechanic:
+ * the player may only move when the boss is not looking in the direction of the hero, using the
+ * wait block to time movements.
+ */
+public class Level20 extends BlocklyLevel {
   private static boolean showText = true;
   private static final int TICK_TIMER = 180;
   private static final int ESCAPE_DISTANCE = 2;
@@ -42,8 +46,7 @@ public class Chapter34Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter34Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level20(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 3: Level 4");
     this.blockBlocklyElement(
         // MOVEMENT

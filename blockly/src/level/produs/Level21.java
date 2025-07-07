@@ -19,8 +19,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter35Level extends BlocklyLevel {
+/**
+ * In this level, the crossword puzzle from the materials is used as a map. The player must navigate
+ * over the unstable bridge according to the puzzle.
+ */
+public class Level21 extends BlocklyLevel {
   private static boolean showText = true;
   private static final int ESCAPE_DISTANCE = 2;
 
@@ -37,8 +40,7 @@ public class Chapter35Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter35Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level21(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 3: Level 5");
     this.blockBlocklyElement(
         // MOVEMENT

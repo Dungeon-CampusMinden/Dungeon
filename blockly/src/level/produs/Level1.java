@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -8,8 +9,13 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter23Level extends BlocklyLevel {
+/**
+ * This is the start of the game. It is designed to help players get comfortable with the Blockly
+ * controls. In this level, the hero can only move and turn; no monsters are present.
+ */
+public class Level1 extends BlocklyLevel {
+
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -19,36 +25,39 @@ public class Chapter23Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter23Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 3");
+  public Level1(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Kapitel 1: Level 1");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
         // Richtungen
-        // Inventar und Charakter
-        "drop_item",
-        "Items",
-        // Bedingung
-        "logic_monster_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
-        "logic_bossView_direction",
-        // Wahrheitsausdruecke
-        "logic_operator",
-        "usual_condition",
+        "direction_up",
+        "direction_down",
+        "direction_here",
         // Kategorien
+        "Inventar & Charakter",
+        "Abfragen",
+        "Bedingung",
+        "Wahrheitsausdruecke",
         "Variablen",
+        "Schleife",
+        "Bedingungen",
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Schau! Die Wache hat vergessen die Tür zu verriegeln. Zeit für die Flucht. Lauf!",
+          "Kapitel 1: Ausbruch");
+      showText = false;
+    }
   }
 
   @Override

@@ -18,8 +18,12 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter14Level extends BlocklyLevel {
+/**
+ * In this level, the use, push, and pull blocks are unlocked. The player must use the first lever
+ * with the "use" block to open a door, then move a stone onto a pressure plate by combining "pull"
+ * and "push" actions to reveal the exit.
+ */
+public class Level4 extends BlocklyLevel {
   private static boolean showText = true;
   private LeverComponent switch1, switch2;
   private DoorTile door1, door2;
@@ -32,8 +36,7 @@ public class Chapter14Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter14Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+  public Level4(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Kapitel 1: Level 4");
     this.blockBlocklyElement(
         // MOVEMENT

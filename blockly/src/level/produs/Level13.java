@@ -9,9 +9,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter25Level extends BlocklyLevel {
-
+/**
+ * In this level, the player faces a simple maze. The "Left Hand" maze-solving rule can be applied
+ * using while loops.
+ */
+public class Level13 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -22,34 +24,41 @@ public class Chapter25Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter25Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 5");
+  public Level13(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Kapitel 2: Level 2");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
+        // Richtungen
         // Inventar und Charakter
-        // Variable
-        "get_number",
+        "drop_item",
+        "Items",
         // Bedingung
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
         "logic_bossView_direction",
+        // Wahrheitsausdruecke
+        "logic_operator",
+        "usual_condition",
         // Kategorien
-        // Kategorien
+        "Variablen",
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
+    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.", "Kapitel 2: Flucht");
+          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
+          "Kapitel 2: Flucht");
       showText = false;
     }
-    LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
-    LevelManagementUtils.zoomDefault();
   }
 
   @Override
