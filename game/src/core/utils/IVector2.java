@@ -58,7 +58,25 @@ public interface IVector2 {
    * @return A new vector with the same components as the other vector
    */
   static IVector2 of(IVector2 other) {
-    return new Vector2(other);
+    return of(other.x(), other.y());
+  }
+
+  /**
+   * Create a new vector from a point.
+   *
+   * @param point The point to create the vector from.
+   */
+  static IVector2 of(Point point) {
+    return of(point.x(), point.y());
+  }
+
+  /**
+   * Create a new vector from a coordinate.
+   *
+   * @param coordinate The coordinate to create the vector from.
+   */
+  static IVector2 of(core.level.utils.Coordinate coordinate) {
+    return of(coordinate.x(), coordinate.y());
   }
 
   /**
@@ -124,12 +142,19 @@ public interface IVector2 {
   }
 
   /**
-   * @return A new vector with the same direction but a length of 1.
+   * Normalizes the vector to a unit vector (length of 1).
+   *
+   * <p>Normalization is useful for ensuring that the vector maintains its direction but has a
+   * length of 1.
+   *
+   * <p>If the vector is zero (length 0), it returns the zero vector.
+   *
+   * @return A new vector that is the normalized version of this vector or the zero vector if the length is 0.
    */
   default IVector2 normalize() {
     float len = length();
     if (len == 0) {
-      return this; // Return the same vector if length is zero
+      return IVector2.ZERO;
     }
     return IVector2.of(x() / len, y() / len);
   }
@@ -208,4 +233,17 @@ public interface IVector2 {
     }
     return IVector2.of(x() * newLength / currentLength, y() * newLength / currentLength);
   }
+
+  /**
+   * A record representing a 2D vector with x and y Float components.
+   *
+   * <p>Provides utility methods for vector operations such as addition, subtraction, scaling,
+   * normalization, and rotation.
+   *
+   * @param x The x component of the vector.
+   * @param y The y component of the vector.
+   * @see Point
+   * @see core.level.utils.Coordinate Coordinate
+   */
+  record Vector2(float x, float y) implements IVector2 {}
 }
