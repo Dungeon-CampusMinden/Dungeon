@@ -149,7 +149,8 @@ public interface IVector2 {
    *
    * <p>If the vector is zero (length 0), it returns the zero vector.
    *
-   * @return A new vector that is the normalized version of this vector or the zero vector if the length is 0.
+   * @return A new vector that is the normalized version of this vector or the zero vector if the
+   *     length is 0.
    */
   default IVector2 normalize() {
     float len = length();
