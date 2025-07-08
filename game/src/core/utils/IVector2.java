@@ -67,6 +67,7 @@ public interface IVector2 {
    * Create a new vector from a point.
    *
    * @param point The point to create the vector from.
+   * @return A new vector with the same x and y coordinates as the point.
    */
   static IVector2 of(Point point) {
     return of(point.x(), point.y());
@@ -76,6 +77,7 @@ public interface IVector2 {
    * Create a new vector from a coordinate.
    *
    * @param coordinate The coordinate to create the vector from.
+   * @return A new vector with the same x and y coordinates as the coordinate.
    */
   static IVector2 of(Coordinate coordinate) {
     return of(coordinate.x(), coordinate.y());
