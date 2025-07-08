@@ -1,5 +1,7 @@
 package core.utils;
 
+import core.level.utils.Coordinate;
+
 /**
  * Represents a 2D vector with mathematical operations. Provides immutable vector operations
  * returning new instances rather than modifying existing ones.
@@ -75,7 +77,7 @@ public interface IVector2 {
    *
    * @param coordinate The coordinate to create the vector from.
    */
-  static IVector2 of(core.level.utils.Coordinate coordinate) {
+  static IVector2 of(Coordinate coordinate) {
     return of(coordinate.x(), coordinate.y());
   }
 
@@ -244,7 +246,7 @@ public interface IVector2 {
    * @param x The x component of the vector.
    * @param y The y component of the vector.
    * @see Point
-   * @see core.level.utils.Coordinate Coordinate
+   * @see Coordinate
    */
   record Vector2(float x, float y) implements IVector2 {}
 }
