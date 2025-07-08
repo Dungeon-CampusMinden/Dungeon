@@ -16,7 +16,7 @@
 | `hero.isNearComponent(componentClass, direction);` | Prüft, ob ein bestimmtes Komponenten-Objekt in der angegebenen Richtung in der Nähe (ein Feld vor dem Helden) ist. |
 | `hero.dropItem("Brotkrumen");`                     | Lässt ein Item („Brotkrumen“) fallen.                                                                              |
 | `hero.dropItem("Kleeblatt");`                      | Lässt ein Item („Kleeblatt“) fallen.                                                                               |
-| `hero.doNothing();`                                | Macht einen kurzen moment nichts.                                                                                  |
+| `hero.rest();`                                     | Macht einen kurzen moment nichts.                                                                                  |
 | `hero.checkBossViewDirection(direction)`           | **Nur für Level 20:** Prüfe in welche Richtung der Boss guckt.                                                     |
 | `hero.moveToExit();`                               | **Nur als Cheat-Block:** Bewegt den Helden direkt zum Ausgang. Nicht für Lösungen verwenden.                       |
 

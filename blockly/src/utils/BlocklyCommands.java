@@ -513,7 +513,7 @@ public class BlocklyCommands {
   }
 
   /** Let the hero do nothing for a short moment. */
-  public static void doNothing() {
+  public static void rest() {
     Server.waitDelta();
   }
 }

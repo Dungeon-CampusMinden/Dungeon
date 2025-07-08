@@ -1306,7 +1306,7 @@ public class Server {
         BlocklyCommands.rotate(firstArg);
       }
       case "feuerball" -> BlocklyCommands.shootFireball();
-      case "warte" -> BlocklyCommands.doNothing();
+      case "warte" -> BlocklyCommands.rest();
       case "benutzen" -> {
         Direction firstArg;
         if (args[0] instanceof String firstArgStr) {
