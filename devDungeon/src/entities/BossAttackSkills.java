@@ -419,7 +419,7 @@ public class BossAttackSkills {
                 if (heroPos2 == null) {
                   return;
                 }
-                IVector2 heroDirection = heroPos2.vectorTo(heroPos).normalize();
+                IVector2 heroDirection = heroPos.vectorTo(heroPos2).normalize();
                 heroDirection = heroDirection.scale((float) (bossPos.distance(heroPos)) * 2);
                 Point predictedHeroPos = heroPos2.translate(heroDirection);
                 launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
