@@ -511,4 +511,9 @@ public class BlocklyCommands {
         .map(d -> d.equals(Direction.toPositionCompDirection(direction)))
         .orElse(false);
   }
+
+  /** Let the hero do nothing for a short moment. */
+  public static void rest() {
+    Server.waitDelta();
+  }
 }
