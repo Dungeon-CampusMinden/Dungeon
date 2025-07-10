@@ -6,6 +6,9 @@ import core.level.utils.Coordinate;
  * Represents a 2D vector with mathematical operations. Provides immutable vector operations
  * returning new instances rather than modifying existing ones.
  *
+ * <p>This interface returns float values for x and y components, which can cause a loss of
+ * precision when converting from double to float.
+ *
  * <p>Example usage:
  *
  * <pre>{@code
@@ -48,14 +51,12 @@ public interface IVector2 {
   /**
    * Creates a new vector with the specified components.
    *
-   * <p>This method will cast the double values to float, which may result in a loss of precision.
-   *
    * @param x The x component
    * @param y The y component
    * @return A new vector with the given components
    */
   static IVector2 of(double x, double y) {
-    return new Vector2((float) x, (float) y);
+    return new Vector2(x, y);
   }
 
   /**
@@ -151,6 +152,15 @@ public interface IVector2 {
   }
 
   /**
+   * Checks if the vector is a zero vector.
+   *
+   * @return true if the vector is a zero vector, false otherwise.
+   */
+  default boolean isZero() {
+    return Math.abs(length()) < EPSILON;
+  }
+
+  /**
    * Normalizes the vector to a unit vector (length of 1).
    *
    * <p>Normalization is useful for ensuring that the vector maintains its direction but has a
@@ -163,7 +173,7 @@ public interface IVector2 {
    */
   default IVector2 normalize() {
     double len = length();
-    if (len < EPSILON) {
+    if (isZero()) {
       return IVector2.ZERO;
     }
     return IVector2.of(x() / len, y() / len);
@@ -238,7 +248,7 @@ public interface IVector2 {
     }
 
     double currentLength = length();
-    if (currentLength < EPSILON) {
+    if (isZero()) {
       return IVector2.of(0, 0); // Avoid division by zero
     }
     return IVector2.of(x() * newLength / currentLength, y() * newLength / currentLength);
@@ -255,5 +265,19 @@ public interface IVector2 {
    * @see Point
    * @see Coordinate
    */
-  record Vector2(float x, float y) implements IVector2 {}
+  record Vector2(float x, float y) implements IVector2 {
+
+    /**
+     * Creates a new Vector2 instance with the specified x and y components.
+     *
+     * <p>This constructor will convert double values to float, which may result in a loss of
+     * precision.
+     *
+     * @param x the x component
+     * @param y the y component
+     */
+    public Vector2(double x, double y) {
+      this((float) x, (float) y);
+    }
+  }
 }
