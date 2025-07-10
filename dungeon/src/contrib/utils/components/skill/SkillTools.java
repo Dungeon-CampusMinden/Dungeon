@@ -5,9 +5,9 @@ import com.badlogic.gdx.math.Vector3;
 import core.Game;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
-import core.utils.IVector2;
 import core.utils.MissingHeroException;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
 /** SkillTools is a collection of helper methods used for skills. */
@@ -36,9 +36,9 @@ public final class SkillTools {
    * @param speed The speed of movement.
    * @return The velocity vector as a Point.
    */
-  public static IVector2 calculateVelocity(final Point start, final Point goal, float speed) {
+  public static Vector2 calculateVelocity(final Point start, final Point goal, float speed) {
     if (start.equals(goal)) {
-      return IVector2.ZERO;
+      return Vector2.ZERO;
     }
     return start.vectorTo(goal).normalize().scale(speed);
   }

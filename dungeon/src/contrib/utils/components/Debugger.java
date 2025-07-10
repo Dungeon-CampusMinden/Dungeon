@@ -23,9 +23,9 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
-import core.utils.IVector2;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -70,10 +70,10 @@ public class Debugger {
     LOGGER.info("TELEPORT TO END");
     Coordinate endTile = Game.endTile().coordinate();
     Coordinate[] neighborTiles = {
-      endTile.translate(IVector2.UP),
-      endTile.translate(IVector2.DOWN),
-      endTile.translate(IVector2.LEFT),
-      endTile.translate(IVector2.RIGHT),
+      endTile.translate(Vector2.UP),
+      endTile.translate(Vector2.DOWN),
+      endTile.translate(Vector2.LEFT),
+      endTile.translate(Vector2.RIGHT),
     };
     for (Coordinate neighborTile : neighborTiles) {
       Tile neighbor = Game.tileAT(neighborTile);

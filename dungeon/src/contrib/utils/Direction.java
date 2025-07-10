@@ -3,11 +3,11 @@ package contrib.utils;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.Coordinate;
-import core.utils.IVector2;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /** Direction enum for the four cardinal directions. */
-public enum Direction implements IVector2 {
+public enum Direction implements Vector2 {
   /** The direction up. */
   UP("oben", 0, 1),
   /** The direction down. */

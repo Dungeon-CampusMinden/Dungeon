@@ -8,7 +8,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.utils.*;
-import core.utils.IVector2;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.*;
 
@@ -18,9 +18,9 @@ public final class LevelUtils {
   private static final Random RANDOM = new Random();
 
   /** These vectors can be used to calculate neighbor coordinates. */
-  private static final IVector2[] DELTA_VECTORS =
-      new IVector2[] {
-        IVector2.of(-1, 0), IVector2.of(1, 0), IVector2.of(0, -1), IVector2.of(0, 1),
+  private static final Vector2[] DELTA_VECTORS =
+      new Vector2[] {
+        Vector2.of(-1, 0), Vector2.of(1, 0), Vector2.of(0, -1), Vector2.of(0, 1),
       };
 
   /**
@@ -156,16 +156,16 @@ public final class LevelUtils {
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
     // offset of neighbour Tiles which may not be accessible
-    IVector2[] offsets =
-        new IVector2[] {
-          IVector2.of(-1, -1),
-          IVector2.of(0, -1),
-          IVector2.of(1, -1),
-          IVector2.of(-1, 0),
-          IVector2.of(1, 0),
-          IVector2.of(-1, 1),
-          IVector2.of(0, 1),
-          IVector2.of(1, 1),
+    Vector2[] offsets =
+        new Vector2[] {
+          Vector2.of(-1, -1),
+          Vector2.of(0, -1),
+          Vector2.of(1, -1),
+          Vector2.of(-1, 0),
+          Vector2.of(1, 0),
+          Vector2.of(-1, 1),
+          Vector2.of(0, 1),
+          Vector2.of(1, 1),
         };
     // all found tiles
     Set<Tile> tiles = new HashSet<>();
@@ -178,7 +178,7 @@ public final class LevelUtils {
       boolean added = tiles.add(current);
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
-        for (IVector2 offset : offsets) {
+        for (Vector2 offset : offsets) {
           Tile tile = current.level().tileAt(current.coordinate().translate(offset));
           if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
@@ -195,13 +195,13 @@ public final class LevelUtils {
 
   private static boolean isPointBarelyInTile(final Point center, float radius, final Tile tile) {
     // left max distance
-    Point xMin = center.translate(IVector2.of(-radius, 0));
+    Point xMin = center.translate(Vector2.of(-radius, 0));
     // right max distance
-    Point xMax = center.translate(IVector2.of(radius, 0));
+    Point xMax = center.translate(Vector2.of(radius, 0));
     // up max distance
-    Point yMin = center.translate(IVector2.of(0, -radius));
+    Point yMin = center.translate(Vector2.of(0, -radius));
     // down max distance
-    Point yMax = center.translate(IVector2.of(0, radius));
+    Point yMax = center.translate(Vector2.of(0, radius));
     return isPointInTile(xMin, tile)
         || isPointInTile(xMax, tile)
         || isPointInTile(yMin, tile)
@@ -218,10 +218,10 @@ public final class LevelUtils {
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
     Point origin = tile.coordinate().toPoint();
-    IVector2[] cornerOffsets = {
-      IVector2.ZERO, IVector2.RIGHT, IVector2.UP, IVector2.RIGHT.add(IVector2.UP)
+    Vector2[] cornerOffsets = {
+      Vector2.ZERO, Vector2.RIGHT, Vector2.UP, Vector2.RIGHT.add(Vector2.UP)
     };
-    for (IVector2 offset : cornerOffsets) {
+    for (Vector2 offset : cornerOffsets) {
       if (Point.inRange(center, origin.translate(offset), radius)) {
         return true;
       }
@@ -352,7 +352,7 @@ public final class LevelUtils {
     Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
     Tile[][] layout = Game.currentLevel().layout();
     Coordinate coordinate = tile.coordinate();
-    for (IVector2 deltaVector : DELTA_VECTORS) {
+    for (Vector2 deltaVector : DELTA_VECTORS) {
       Coordinate newCoordinate = coordinate.translate(deltaVector);
       // Check if the new cell is within bounds and not yet visited
       if (newCoordinate.x() >= 0

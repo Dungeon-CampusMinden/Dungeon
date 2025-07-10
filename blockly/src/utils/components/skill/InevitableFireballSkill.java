@@ -10,8 +10,8 @@ import contrib.utils.components.skill.DamageProjectile;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
-import core.utils.IVector2;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -31,7 +31,7 @@ public class InevitableFireballSkill extends DamageProjectile {
   private static final int DEFAULT_DAMAGE_AMOUNT = Integer.MAX_VALUE;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final IVector2 HIT_BOX_SIZE = IVector2.of(1, 1);
+  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
 
   /**
    * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
@@ -58,7 +58,7 @@ public class InevitableFireballSkill extends DamageProjectile {
         (projectile, entity) -> {
           // Set the velocity back to the original value (hero only)
           if (!entity.isPresent(PlayerComponent.class)) return;
-          IVector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
+          Vector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
           entity
               .fetch(VelocityComponent.class)
               .ifPresent(

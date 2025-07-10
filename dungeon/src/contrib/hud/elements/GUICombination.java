@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import contrib.components.UIComponent;
 import core.Game;
-import core.utils.IVector2;
+import core.utils.Vector2;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -72,7 +72,7 @@ public final class GUICombination extends Group {
       AvailableSpace avs =
           new AvailableSpace(
               column * width + (column + 1) * GAP, row * height + (row + 1) * GAP, width, height);
-      IVector2 size = combinableGUI.preferredSize(avs);
+      Vector2 size = combinableGUI.preferredSize(avs);
       combinableGUI.width((int) size.x());
       combinableGUI.height((int) size.y());
       combinableGUI.x(avs.x + (avs.width - (int) size.x()) / 2);

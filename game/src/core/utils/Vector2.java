@@ -12,38 +12,38 @@ import core.level.utils.Coordinate;
  * <p>Example usage:
  *
  * <pre>{@code
- * IVector2 position = IVector2.of(10.0f, 5.0f);
- * IVector2 velocity = IVector2.of(2.0f, 3.0f);
- * IVector2 newPosition = position.add(velocity);
+ * Vector2 position = Vector2.of(10.0f, 5.0f);
+ * Vector2 velocity = Vector2.of(2.0f, 3.0f);
+ * Vector2 newPosition = position.add(velocity);
  *
  * // Normalize a vector for direction
- * IVector2 direction = IVector2.of(3.0f, 4.0f).normalize();
+ * Vector2 direction = Vector2.of(3.0f, 4.0f).normalize();
  *
  * // Scale and rotate vectors
- * IVector2 scaled = position.scale(2.0f);
- * IVector2 rotated = direction.rotateDeg(90.0f);
+ * Vector2 scaled = position.scale(2.0f);
+ * Vector2 rotated = direction.rotateDeg(90.0f);
  * }</pre>
  */
-public interface IVector2 {
+public interface Vector2 {
 
   /** Zero vector representing no displacement or position at origin. */
-  IVector2 ZERO = IVector2.of(0, 0);
+  Vector2 ZERO = Vector2.of(0, 0);
 
   /** Unit vector with both components set to 1. */
-  IVector2 ONE = IVector2.of(1, 1);
+  Vector2 ONE = Vector2.of(1, 1);
 
   // TODO: Remove later with Direction enum
   /** Unit vector pointing upward in 2D space. */
-  IVector2 UP = IVector2.of(0, 1);
+  Vector2 UP = Vector2.of(0, 1);
 
   /** Unit vector pointing downward in 2D space. */
-  IVector2 DOWN = IVector2.of(0, -1);
+  Vector2 DOWN = Vector2.of(0, -1);
 
   /** Unit vector pointing left in 2D space. */
-  IVector2 LEFT = IVector2.of(-1, 0);
+  Vector2 LEFT = Vector2.of(-1, 0);
 
   /** Unit vector pointing right in 2D space. */
-  IVector2 RIGHT = IVector2.of(1, 0);
+  Vector2 RIGHT = Vector2.of(1, 0);
 
   /** A small tolerance for floating-point comparisons. */
   double EPSILON = 1e-9;
@@ -55,8 +55,8 @@ public interface IVector2 {
    * @param y The y component
    * @return A new vector with the given components
    */
-  static IVector2 of(double x, double y) {
-    return new Vector2(x, y);
+  static Vector2 of(double x, double y) {
+    return new BasicVector2(x, y);
   }
 
   /**
@@ -65,7 +65,7 @@ public interface IVector2 {
    * @param other The vector to copy from
    * @return A new vector with the same components as the other vector
    */
-  static IVector2 of(IVector2 other) {
+  static Vector2 of(Vector2 other) {
     return of(other.x(), other.y());
   }
 
@@ -75,7 +75,7 @@ public interface IVector2 {
    * @param point The point to create the vector from.
    * @return A new vector with the same x and y coordinates as the point.
    */
-  static IVector2 of(Point point) {
+  static Vector2 of(Point point) {
     return of(point.x(), point.y());
   }
 
@@ -85,7 +85,7 @@ public interface IVector2 {
    * @param coordinate The coordinate to create the vector from.
    * @return A new vector with the same x and y coordinates as the coordinate.
    */
-  static IVector2 of(Coordinate coordinate) {
+  static Vector2 of(Coordinate coordinate) {
     return of(coordinate.x(), coordinate.y());
   }
 
@@ -109,8 +109,8 @@ public interface IVector2 {
    * @param other The other vector.
    * @return A new vector that is the sum of this and the other vector.
    */
-  default IVector2 add(IVector2 other) {
-    return IVector2.of(x() + other.x(), y() + other.y());
+  default Vector2 add(Vector2 other) {
+    return Vector2.of(x() + other.x(), y() + other.y());
   }
 
   /**
@@ -119,8 +119,8 @@ public interface IVector2 {
    * @param other The other vector.
    * @return A new vector that is the difference of this and the other vector.
    */
-  default IVector2 subtract(IVector2 other) {
-    return IVector2.of(x() - other.x(), y() - other.y());
+  default Vector2 subtract(Vector2 other) {
+    return Vector2.of(x() - other.x(), y() - other.y());
   }
 
   /**
@@ -129,8 +129,8 @@ public interface IVector2 {
    * @param scalar The scalar.
    * @return A new vector that is this vector multiplied by the scalar.
    */
-  default IVector2 scale(double scalar) {
-    return IVector2.of(x() * scalar, y() * scalar);
+  default Vector2 scale(double scalar) {
+    return Vector2.of(x() * scalar, y() * scalar);
   }
 
   /**
@@ -140,8 +140,8 @@ public interface IVector2 {
    * @param scalarY The scalar for the y component.
    * @return A new vector that is this vector multiplied by the scalars.
    */
-  default IVector2 scale(double scalarX, double scalarY) {
-    return IVector2.of(x() * scalarX, y() * scalarY);
+  default Vector2 scale(double scalarX, double scalarY) {
+    return Vector2.of(x() * scalarX, y() * scalarY);
   }
 
   /**
@@ -171,12 +171,12 @@ public interface IVector2 {
    * @return A new vector that is the normalized version of this vector or the zero vector if the
    *     length is 0.
    */
-  default IVector2 normalize() {
+  default Vector2 normalize() {
     double len = length();
     if (isZero()) {
-      return IVector2.ZERO;
+      return Vector2.ZERO;
     }
-    return IVector2.of(x() / len, y() / len);
+    return Vector2.of(x() / len, y() / len);
   }
 
   /**
@@ -186,7 +186,7 @@ public interface IVector2 {
    * @param other The other vector
    * @return The dot product as a scalar value
    */
-  default double dot(IVector2 other) {
+  default double dot(Vector2 other) {
     return x() * other.x() + y() * other.y();
   }
 
@@ -206,7 +206,7 @@ public interface IVector2 {
    * @param other The other vector
    * @return The distance between the two vectors
    */
-  default double distance(IVector2 other) {
+  default double distance(Vector2 other) {
     return subtract(other).length();
   }
 
@@ -216,11 +216,11 @@ public interface IVector2 {
    * @param degrees The angle in degrees to rotate the vector.
    * @return A new vector that is the result of rotating this vector by the specified angle.
    */
-  default IVector2 rotateDeg(double degrees) {
+  default Vector2 rotateDeg(double degrees) {
     double radians = Math.toRadians(degrees);
     double cos = Math.cos(radians);
     double sin = Math.sin(radians);
-    return IVector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
+    return Vector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
   }
 
   /**
@@ -229,10 +229,10 @@ public interface IVector2 {
    * @param radians The angle in radians to rotate the vector
    * @return A new vector rotated by the specified angle
    */
-  default IVector2 rotateRad(double radians) {
+  default Vector2 rotateRad(double radians) {
     double cos = Math.cos(radians);
     double sin = Math.sin(radians);
-    return IVector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
+    return Vector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
   }
 
   /**
@@ -242,16 +242,16 @@ public interface IVector2 {
    * @return A new vector with the specified length, maintaining the original direction.
    * @throws IllegalArgumentException if the new length is negative.
    */
-  default IVector2 setLength(double newLength) {
+  default Vector2 setLength(double newLength) {
     if (newLength < 0) {
       throw new IllegalArgumentException("New length must be non-negative.");
     }
 
     double currentLength = length();
     if (isZero()) {
-      return IVector2.of(0, 0); // Avoid division by zero
+      return Vector2.of(0, 0); // Avoid division by zero
     }
-    return IVector2.of(x() * newLength / currentLength, y() * newLength / currentLength);
+    return Vector2.of(x() * newLength / currentLength, y() * newLength / currentLength);
   }
 
   /**
@@ -265,7 +265,7 @@ public interface IVector2 {
    * @see Point
    * @see Coordinate
    */
-  record Vector2(float x, float y) implements IVector2 {
+  record BasicVector2(float x, float y) implements Vector2 {
 
     /**
      * Creates a new Vector2 instance with the specified x and y components.
@@ -276,7 +276,7 @@ public interface IVector2 {
      * @param x the x component
      * @param y the y component
      */
-    public Vector2(double x, double y) {
+    public BasicVector2(double x, double y) {
       this((float) x, (float) y);
     }
   }

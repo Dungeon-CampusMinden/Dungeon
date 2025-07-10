@@ -19,8 +19,8 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.utils.IVector2;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -79,11 +79,11 @@ public class BossAttackSkills {
                   .orElseThrow(
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
-          IVector2 direction = heroPos.vectorTo(bossPos);
+          Vector2 direction = heroPos.vectorTo(bossPos);
           // Main shoot is directly at the hero
           // every other fireball is offset left and right of the main shoot
-          IVector2 right = direction.rotateDeg(90).normalize();
-          IVector2 left = direction.rotateDeg(-90).normalize();
+          Vector2 right = direction.rotateDeg(90).normalize();
+          Vector2 left = direction.rotateDeg(-90).normalize();
           for (int i = -wallWidth / 2; i < wallWidth / 2; i++) {
             if (i == 0) {
               launchFireBall(bossPos, heroPos, bossPos, skillUser);
@@ -191,12 +191,12 @@ public class BossAttackSkills {
                   .orElseThrow(
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
-          IVector2 direction = heroPos.vectorTo(bossPos).normalize();
+          Vector2 direction = heroPos.vectorTo(bossPos).normalize();
 
           // Function to calculate the fireball target position
           Function<Integer, Point> calculateFireballTarget =
               (angle) -> {
-                IVector2 offset =
+                Vector2 offset =
                     direction.rotateDeg(angle).scale(heroPos.vectorTo(bossPos).length());
                 return bossPos.translate(offset);
               };
@@ -419,7 +419,7 @@ public class BossAttackSkills {
                 if (heroPos2 == null) {
                   return;
                 }
-                IVector2 heroDirection = heroPos.vectorTo(heroPos2).normalize();
+                Vector2 heroDirection = heroPos.vectorTo(heroPos2).normalize();
                 heroDirection = heroDirection.scale((float) (bossPos.distance(heroPos)) * 2);
                 Point predictedHeroPos = heroPos2.translate(heroDirection);
                 launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);

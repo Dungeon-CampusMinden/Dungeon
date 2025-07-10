@@ -1,7 +1,7 @@
 package core.level.utils;
 
-import core.utils.IVector2;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
  * A record representing a 2D coordinate with x and y Integer components.
@@ -13,7 +13,7 @@ import core.utils.Point;
  * @param x The x component of the coordinate.
  * @param y The y component of the coordinate.
  * @see Point
- * @see IVector2
+ * @see Vector2
  */
 public record Coordinate(int x, int y) {
 
@@ -50,7 +50,7 @@ public record Coordinate(int x, int y) {
    * @param vector The vector to move the coordinate by.
    * @return A new coordinate that is the sum of this coordinate and the given vector.
    */
-  public Coordinate translate(final IVector2 vector) {
+  public Coordinate translate(final Vector2 vector) {
     return new Coordinate(this.x + (int) vector.x(), this.y + (int) vector.y());
   }
 
@@ -60,8 +60,8 @@ public record Coordinate(int x, int y) {
    * @param other The other coordinate.
    * @return The vector from this coordinate to the other coordinate.
    */
-  public IVector2 vectorTo(final Coordinate other) {
-    return IVector2.of(other.x - this.x, other.y - this.y);
+  public Vector2 vectorTo(final Coordinate other) {
+    return Vector2.of(other.x - this.x, other.y - this.y);
   }
 
   /**

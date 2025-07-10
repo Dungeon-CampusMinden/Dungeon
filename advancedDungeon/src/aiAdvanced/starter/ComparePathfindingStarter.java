@@ -30,9 +30,9 @@ import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
-import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -93,9 +93,9 @@ public class ComparePathfindingStarter {
     Tile[][] layout = Game.currentLevel().layout();
     int levelHeight = layout.length;
 
-    Point topTile = layout[0][0].coordinate().translate(IVector2.of(0, 2)).toCenteredPoint();
+    Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
     Point bottomTile =
-        layout[levelHeight - 1][0].coordinate().translate(IVector2.of(0, 2)).toCenteredPoint();
+        layout[levelHeight - 1][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
 
     // Zoom out until the whole level is visible
     int currentTries = 0;
@@ -126,7 +126,7 @@ public class ComparePathfindingStarter {
     // Set up new level with original and duplicated layouts
     int rows = curLevel.length;
     Coordinate orgStart = Game.startTile().coordinate();
-    Coordinate newStart = orgStart.translate(IVector2.of(0, rows + 1));
+    Coordinate newStart = orgStart.translate(Vector2.of(0, rows + 1));
     Game.currentLevel(
         new AiMazeLevel(
             newLevel,
@@ -200,7 +200,7 @@ public class ComparePathfindingStarter {
             Coordinate end = Game.currentLevel().endTile().coordinate();
 
             if (i == 1) {
-              end = end.translate(IVector2.of(0, rows + 1));
+              end = end.translate(Vector2.of(0, rows + 1));
             }
 
             PathfindingLogic algo =

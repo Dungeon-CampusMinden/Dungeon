@@ -4,8 +4,8 @@ import contrib.components.InteractionComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.utils.IVector2;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -65,5 +65,5 @@ public final class InteractionTool {
   }
 
   private record InteractionData(
-      Entity e, PositionComponent pc, InteractionComponent ic, float dist, IVector2 unitDir) {}
+      Entity e, PositionComponent pc, InteractionComponent ic, float dist, Vector2 unitDir) {}
 }

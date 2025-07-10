@@ -10,8 +10,8 @@ import core.System;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
-import core.utils.IVector2;
 import core.utils.Point;
+import core.utils.Vector2;
 import java.util.Queue;
 
 /**
@@ -98,7 +98,7 @@ public class LevelEditorSystem extends System {
    * skip tiles. It uses a queue to flood the area.
    */
   private void fillWithFloor() {
-    Point mosPos = SkillTools.cursorPositionAsPoint().translate(IVector2.of(-0.5f, -0.25f));
+    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
 
     Tile startTile = LevelSystem.level().tileAt(mosPos);
     if (startTile == null) {
@@ -116,8 +116,8 @@ public class LevelEditorSystem extends System {
           || currentTile.levelElement() == LevelElement.FLOOR) {
         LevelSystem.level().changeTileElementType(currentTile, LevelElement.FLOOR);
 
-        IVector2[] directions = {IVector2.UP, IVector2.DOWN, IVector2.LEFT, IVector2.RIGHT};
-        for (IVector2 direction : directions) {
+        Vector2[] directions = {Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT};
+        for (Vector2 direction : directions) {
           Tile neighbourTile =
               currentTile.level().tileAt(currentTile.coordinate().translate(direction));
           if (neighbourTile != null && !queue.contains(neighbourTile)) {
@@ -130,7 +130,7 @@ public class LevelEditorSystem extends System {
   }
 
   private void setTile(LevelElement element) {
-    Point mosPos = SkillTools.cursorPositionAsPoint().translate(IVector2.of(-0.5f, -0.25f));
+    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
     Tile mouseTile = LevelSystem.level().tileAt(mosPos);
     if (mouseTile == null) {
       return;
@@ -139,7 +139,7 @@ public class LevelEditorSystem extends System {
   }
 
   private void setCustomPoint() {
-    Point mosPos = SkillTools.cursorPositionAsPoint().translate(IVector2.of(-0.5f, -0.25f));
+    Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
     Tile mouseTile = LevelSystem.level().tileAt(mosPos);
     if (mouseTile == null) {
       return;

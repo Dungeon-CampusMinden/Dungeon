@@ -11,9 +11,9 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
-import core.utils.IVector2;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final float projectileRange;
   private final int damageAmount;
   private final DamageType damageType;
-  private final IVector2 projectileHitBoxSize;
+  private final Vector2 projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
   private final Consumer<Entity> onSpawn;
@@ -101,7 +101,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileSpeed,
       int damageAmount,
       final DamageType damageType,
-      final IVector2 projectileHitBoxSize,
+      final Vector2 projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange,
       final Consumer<Entity> onWallHit,
@@ -142,7 +142,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileSpeed,
       int damageAmount,
       final DamageType damageType,
-      final IVector2 projectileHitBoxSize,
+      final Vector2 projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange) {
     this(
@@ -179,7 +179,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileSpeed,
       int damageAmount,
       final DamageType damageType,
-      final IVector2 projectileHitBoxSize,
+      final Vector2 projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange) {
     this(
@@ -240,7 +240,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
     // Calculate the velocity of the projectile
-    IVector2 velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
+    Vector2 velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
 
     // Add the VelocityComponent to the projectile
     VelocityComponent vc = new VelocityComponent(velocity.x(), velocity.y(), onWallHit, true);
