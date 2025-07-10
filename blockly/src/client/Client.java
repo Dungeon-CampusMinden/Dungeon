@@ -4,9 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
-import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
-import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.systems.BlockSystem;
 import contrib.utils.CheckPatternPainter;
@@ -128,7 +126,6 @@ public class Client {
 
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-          DevDungeonLoader.afterAllLevels(Client::startRoomBasedLevel);
           DevDungeonLoader.loadLevel(0);
         });
   }
@@ -143,15 +140,6 @@ public class Client {
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
         });
-  }
-
-  private static void startRoomBasedLevel() {
-    GeneratorUtils.createRoomBasedLevel(10, 5, 1);
-    DialogUtils.showTextPopup(
-        "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
-
-    LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-    levelSystem.onEndTile(Client::startRoomBasedLevel); // restart the level -> endless loop
   }
 
   private static void configGame() throws IOException {
