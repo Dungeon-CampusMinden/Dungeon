@@ -59,8 +59,6 @@ public class Chapter18Level extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.zoomDefault();
-    Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
 
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
@@ -110,6 +108,9 @@ public class Chapter18Level extends BlocklyLevel {
     door4.close();
     door5 = (DoorTile) Game.tileAT(new Coordinate(8, 5));
     door5.close();
+
+    Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
+    Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
   }
 
   @Override
