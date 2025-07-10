@@ -86,6 +86,9 @@ public class Server {
   /** Stack containing all active func defs. */
   public final Stack<FuncStats> active_func_defs = new Stack<>();
 
+  /** Stack containing all active switch scopes. */
+  public final Stack<SwitchStats> active_switches = new Stack<>();
+
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
    * blockly frontend. The execution of the current program will stop if this variable is true.
@@ -641,6 +644,13 @@ public class Server {
           System.out.println(active_scopes);
           return;
         }
+        case "switch" -> {
+          System.out.println("end of switch scope");
+          switchEvaluation(action);
+          System.out.print("Scopes after eval: ");
+          System.out.println(active_scopes);
+          return;
+        }
       }
     }
 
@@ -648,6 +658,7 @@ public class Server {
     whileEvaluation(action);
     repeatEvaluation(action);
     funcEvaluation(action);
+    switchEvaluation(action);
 
     // Do not perform any actions when:
     // 1: Currently in func definition
@@ -677,7 +688,10 @@ public class Server {
    * @return Returns true if actions may be performed. Returns false if no action may be performed.
    */
   private boolean evalActionsExecute() {
-    return evalIfConditions() && evalWhileConditions() && active_func_defs.isEmpty();
+    return evalIfConditions()
+        && evalWhileConditions()
+        && active_func_defs.isEmpty()
+        && evalSwitchConditions();
   }
 
   /**
@@ -710,6 +724,24 @@ public class Server {
     }
     for (WhileStats whileStatement : active_whiles) {
       if (!whileStatement.conditionResult) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Eval if any switch-condition is currently false.
+   *
+   * @return Returns true if all conditions are true or no switch-case is currently active.
+   *     Otherwise, returns false.
+   */
+  private boolean evalSwitchConditions() {
+    if (active_switches.isEmpty()) {
+      return true;
+    }
+    for (SwitchStats switchStatement : active_switches) {
+      if (!switchStatement.executeAction()) {
         return false;
       }
     }
@@ -1279,6 +1311,93 @@ public class Server {
     System.out.println("Detected condition that is not valid: " + action);
     setError("Detected condition that is not valid: " + action);
     return false;
+  }
+
+  private void switchEvaluation(String action) {
+    // 1. End the current scope
+    if (action.equals("}") && !active_scopes.isEmpty() && active_scopes.peek().equals("switch")) {
+      active_switches.pop();
+      active_scopes.pop();
+      System.out.println("Switch ended.");
+      return;
+    }
+
+    // 2. Detect the start of a new switch block – ONLY if there isn’t one already open
+    if (action.startsWith("entscheide ueber")) {
+      if (!active_switches.isEmpty()) {
+        System.out.println("Warning: New switch started while another is still active!");
+        return; // <<< Important: do not open a nested switch!
+      }
+
+      // Register the scope
+      active_scopes.push("switch");
+
+      // Extract the switch value
+      Pattern pattern = Pattern.compile("entscheide ueber (.+) \\{");
+      Matcher matcher = pattern.matcher(action);
+      if (matcher.find()) {
+        String expr = matcher.group(1).trim();
+        try {
+          int evaluated = getActualValueFromExpression(expr);
+          active_switches.push(new SwitchStats(evaluated));
+          System.out.println("Switch opened with value: " + evaluated);
+        } catch (Exception e) {
+          System.out.println("Error evaluating switch expression: " + expr);
+          System.out.println(e.getMessage());
+          setError(e.getMessage());
+        }
+      }
+      return;
+    }
+
+    // 3. Recognize and evaluate a case
+    if (action.startsWith("fall ")) {
+      if (active_switches.isEmpty()) {
+        System.out.println("Error: 'case' without an active switch");
+        return;
+      }
+
+      Pattern pattern = Pattern.compile("fall (.+):");
+      Matcher matcher = pattern.matcher(action);
+      if (matcher.find()) {
+        String caseExpr = matcher.group(1).trim();
+        try {
+          int caseValue = getActualValueFromExpression(caseExpr);
+          SwitchStats current = active_switches.peek();
+
+          if (!current.caseMatched && current.switchValue == caseValue) {
+            current.caseMatched = true;
+            current.executing = true;
+            System.out.println("Case " + caseValue + " matches – executing.");
+          } else {
+            current.executing = false;
+            System.out.println("Case " + caseValue + " does not match – skipping.");
+          }
+        } catch (Exception e) {
+          System.out.println("Error evaluating case value: " + caseExpr);
+          System.out.println(e.getMessage());
+          setError(e.getMessage());
+        }
+      }
+      return;
+    }
+
+    // 4. Default case (default:)
+    if (action.startsWith("default:")) {
+      if (active_switches.isEmpty()) {
+        System.out.println("Error: 'default' without an active switch");
+        return;
+      }
+
+      SwitchStats current = active_switches.peek();
+
+      current.executing = !current.caseMatched;
+      if (current.executing) {
+        System.out.println("No matching case – executing default branch.");
+      } else {
+        System.out.println("A case has already matched – skipping default.");
+      }
+    }
   }
 
   /**
