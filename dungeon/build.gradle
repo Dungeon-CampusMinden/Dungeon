@@ -33,19 +33,6 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-
-// start the dungeon (different configurations)
-tasks.register('runRandomDungeon', JavaExec) {
-    mainClass = 'starter.RandomDungeon'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('runRoomBasedDungeon', JavaExec) {
-    mainClass = 'starter.RoomBasedDungeon'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-
 // create our Starter.jar
 tasks.register('buildStarterJar', Jar) {
     dependsOn ':game:build'

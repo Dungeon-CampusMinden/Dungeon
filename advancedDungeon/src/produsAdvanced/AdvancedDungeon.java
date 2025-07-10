@@ -5,7 +5,6 @@ import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.level.DevDungeonLoader;
-import contrib.level.generator.GeneratorUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
@@ -162,7 +161,6 @@ public class AdvancedDungeon {
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-          DevDungeonLoader.afterAllLevels(AdvancedDungeon::startRoomBasedLevel);
           DevDungeonLoader.loadLevel(0);
         });
   }
@@ -221,15 +219,5 @@ public class AdvancedDungeon {
       throw new RuntimeException(e);
     }
     DevDungeonLoader.reloadCurrentLevel();
-  }
-
-  private static void startRoomBasedLevel() {
-    GeneratorUtils.createRoomBasedLevel(10, 5, 1);
-    DialogUtils.showTextPopup(
-        "Du hast alle Level erfolgreich gelöst!\nDu bist jetzt im Sandbox Modus.", "Gewonnen");
-
-    LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-    levelSystem.onEndTile(
-        AdvancedDungeon::startRoomBasedLevel); // restart the level -> endless loop
   }
 }
