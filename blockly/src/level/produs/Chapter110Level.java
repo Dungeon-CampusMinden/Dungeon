@@ -1,10 +1,10 @@
 package level.produs;
 
 import core.Game;
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
@@ -47,7 +47,7 @@ public class Chapter110Level extends BlocklyLevel {
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(2).toCenteredPoint()));
@@ -57,14 +57,14 @@ public class Chapter110Level extends BlocklyLevel {
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.DOWN);
+    guardBuilder.viewDirection(Direction.DOWN);
     guardBuilder.spawnPoint(customPoints().get(5).toCenteredPoint());
     guardBuilder.build();
     guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
     guardBuilder.build();
     guardBuilder.spawnPoint(customPoints().get(9).toCenteredPoint());
     guardBuilder.build();
-    guardBuilder.viewDirection(PositionComponent.Direction.RIGHT);
+    guardBuilder.viewDirection(Direction.RIGHT);
     guardBuilder.spawnPoint(customPoints().get(6).toCenteredPoint());
     guardBuilder.build();
     guardBuilder.spawnPoint(customPoints().get(7).toCenteredPoint());
