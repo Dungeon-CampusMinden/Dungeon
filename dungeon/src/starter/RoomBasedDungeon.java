@@ -69,6 +69,7 @@ public class RoomBasedDungeon {
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
     Game.add(new IdleSoundSystem());
+    Game.add(new EventScheduler());
   }
 
   private static void setupMusic() {

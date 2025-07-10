@@ -1,6 +1,7 @@
 package contrib.configuration;
 
 import com.badlogic.gdx.Input;
+import contrib.level.generator.graphBased.levelGraph.Direction;
 import core.components.PlayerComponent;
 import core.configuration.ConfigKey;
 import core.configuration.ConfigMap;
@@ -141,4 +142,6 @@ public class KeyboardConfig {
   /** Keybinding to open all doors, if the {@link contrib.utils.components.Debugger} is active. */
   public static final ConfigKey<Integer> DEBUG_OPEN_DOORS =
       new ConfigKey<>(new String[] {"open", "open_doors"}, new ConfigIntValue(Input.Keys.C));
+  public static final ConfigKey<Integer> SECOND_SKILL =
+          new ConfigKey<>(new String[] {"skill", "melee"}, new ConfigIntValue(Input.Keys.SPACE));
 }
