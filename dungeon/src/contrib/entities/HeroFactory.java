@@ -12,6 +12,7 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.FireballSkill;
+import contrib.utils.components.skill.MeleeSlash;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -50,6 +51,7 @@ public final class HeroFactory {
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
+  private static Skill HERO_MELEE = new MeleeSlash(FIREBALL_COOL_DOWN);
   private static Consumer<Entity> HERO_DEATH =
       (entity) -> {
         DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
@@ -304,7 +306,8 @@ public final class HeroFactory {
     // skills
     pc.registerCallback(
         KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
-
+      pc.registerCallback(
+              KeyboardConfig.SECOND_SKILL.value(), heroEntity -> HERO_MELEE.execute(heroEntity));
     return hero;
   }
 
