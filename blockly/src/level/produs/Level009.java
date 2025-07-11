@@ -12,8 +12,8 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter19Level extends BlocklyLevel {
+/** In this level, the fireball scrolls must be collected to defeat two of the three monsters. */
+public class Level009 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -24,9 +24,8 @@ public class Chapter19Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter19Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kaptitel 1: Level 9");
+  public Level009(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 9");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

@@ -10,8 +10,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter12Level extends BlocklyLevel {
+/**
+ * In this level, monsters are scattered across the map. The hero must avoid them by navigating
+ * carefully. Stepping on red tiles or touching a monster will result in failure.
+ */
+public class Level002 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -22,9 +25,8 @@ public class Chapter12Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter12Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 2");
+  public Level002(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 2");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

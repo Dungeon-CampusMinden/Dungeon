@@ -15,8 +15,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter17Level extends BlocklyLevel {
+/**
+ * In this level, multiple levers must be operated in the correct order. To solve the puzzle, the
+ * player needs to consult the wiring diagram provided in the materials.
+ */
+public class Level007 extends BlocklyLevel {
   private static boolean showText = true;
   DoorTile door1, door2, door3, door4;
   LeverComponent switch1, switch2, switch3, switch4;
@@ -29,9 +32,8 @@ public class Chapter17Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter17Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 7");
+  public Level007(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 7");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

@@ -1,17 +1,22 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import core.Game;
 import core.components.PositionComponent;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter11Level extends BlocklyLevel {
-
+/**
+ * In this level, the for-loop is unlocked and should be used to efficiently move along long paths.
+ * There are no monsters, but the layout encourages using loops to avoid repetitive code.
+ */
+public class Level003 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -22,9 +27,8 @@ public class Chapter11Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter11Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 1");
+  public Level003(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 3");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
@@ -32,13 +36,14 @@ public class Chapter11Level extends BlocklyLevel {
         "direction_up",
         "direction_down",
         "direction_here",
+        // Schleifen
+        "while_loop",
         // Kategorien
         "Inventar & Charakter",
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
-        "Schleife",
         "Bedingungen",
         "Sonstige");
   }
@@ -46,16 +51,22 @@ public class Chapter11Level extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
-    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Schau! Die Wache hat vergessen die Tür zu verriegeln. Zeit für die Flucht. Lauf!",
+          "Oh nein, die Abkürzung ist versperrt. Jetzt muss ich den langen Weg nehmen. Wenn es doch nur eine Möglichkeit gäbe, die Strecke schnell zu schaffen.",
           "Kapitel 1: Ausbruch");
       showText = false;
     }
+    LevelManagementUtils.cameraFocusOn(new Coordinate(13, 5));
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.zoomDefault();
+    Coordinate stone1C = customPoints().get(0);
+    Coordinate stone2C = customPoints().get(1);
+    Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
+    Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
+    DoorTile door = (DoorTile) Game.tileAT(new Coordinate(0, 5));
+    door.close();
   }
 
   @Override

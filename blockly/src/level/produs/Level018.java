@@ -1,17 +1,23 @@
 package level.produs;
 
+import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
+import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.MissingHeroException;
+import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter25Level extends BlocklyLevel {
-
+/**
+ * This level extends simple backtracking by adding monsters to the maze. The player must navigate
+ * carefully while avoiding or dealing with monsters.
+ */
+public class Level018 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -22,9 +28,8 @@ public class Chapter25Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter25Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 5");
+  public Level018(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 18");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
@@ -34,7 +39,6 @@ public class Chapter25Level extends BlocklyLevel {
         // Bedingung
         "logic_bossView_direction",
         // Kategorien
-        // Kategorien
         "Sonstige");
   }
 
@@ -43,13 +47,28 @@ public class Chapter25Level extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     if (showText) {
       DialogUtils.showTextPopup(
-          "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.", "Kapitel 2: Flucht");
+          "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");
       showText = false;
     }
-    LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
+    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    Game.hero()
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(20);
+    hedgehogBuilder.range(0);
+    hedgehogBuilder.addToGame();
+
+    customPoints()
+        .forEach(
+            coordinate -> {
+              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+              hedgehogBuilder.build();
+            });
   }
 
   @Override
