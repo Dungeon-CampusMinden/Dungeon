@@ -16,7 +16,7 @@ import level.LevelManagementUtils;
  * In this level, the for-loop is unlocked and should be used to efficiently move along long paths.
  * There are no monsters, but the layout encourages using loops to avoid repetitive code.
  */
-public class Level3 extends BlocklyLevel {
+public class Level003 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -27,8 +27,8 @@ public class Level3 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level3(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 3");
+  public Level003(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 3");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

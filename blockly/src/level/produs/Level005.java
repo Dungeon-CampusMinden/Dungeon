@@ -18,7 +18,7 @@ import level.LevelManagementUtils;
  * In this level, stones must be strategically pushed to block the monsters' line of sight. Only
  * when the hero is not seen by a monster is it safe to step on the red tiles.
  */
-public class Level5 extends BlocklyLevel {
+public class Level005 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -29,8 +29,8 @@ public class Level5 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level5(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 5");
+  public Level005(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 5");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

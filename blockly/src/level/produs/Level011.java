@@ -22,7 +22,7 @@ import level.LevelManagementUtils;
  * This level features the first boss fight. The player must shoot the boss three times to defeat
  * him.
  */
-public class Level11 extends BlocklyLevel {
+public class Level011 extends BlocklyLevel {
 
   private static boolean showText = true;
   private DoorTile door1, door2;
@@ -36,8 +36,8 @@ public class Level11 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level11(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 11");
+  public Level011(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 11");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

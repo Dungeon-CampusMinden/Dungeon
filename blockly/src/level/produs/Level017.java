@@ -11,7 +11,7 @@ import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /** In this level, simple backtracking techniques are used to find the correct path. */
-public class Level17 extends BlocklyLevel {
+public class Level017 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -21,8 +21,8 @@ public class Level17 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level17(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 1");
+  public Level017(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 17");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

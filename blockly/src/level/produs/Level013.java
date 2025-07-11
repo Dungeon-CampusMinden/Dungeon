@@ -1,9 +1,7 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import core.Game;
 import core.components.PositionComponent;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -12,11 +10,10 @@ import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * This level features challenging backtracking that requires the use of breadcrumbs and clovers to
- * successfully navigate and solve the maze.
+ * In this level, the player faces a simple maze. The "Left Hand" maze-solving rule can be applied
+ * using while loops.
  */
-public class Level19 extends BlocklyLevel {
-
+public class Level013 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -27,32 +24,39 @@ public class Level19 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level19(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 3");
+  public Level013(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 13");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
-        // Variable
-        "get_number",
+        // Richtungen
+        // Inventar und Charakter
+        "drop_item",
+        "Items",
         // Bedingung
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
         "logic_bossView_direction",
+        // Wahrheitsausdruecke
+        "logic_operator",
+        "usual_condition",
         // Kategorien
+        "Variablen",
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.zoomIn();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Nutz deinen Beutel mit Krumen und Kleeblättern, um deinen Weg hier raus zu finden.",
-          "Kapitel 3: Rache");
+          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
+          "Kapitel 2: Flucht");
       showText = false;
     }
   }

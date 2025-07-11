@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -8,11 +9,10 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/**
- * This level focuses on pattern recognition in the paths. The route to the goal consists of
- * repeating segments.
- */
-public class Level14 extends BlocklyLevel {
+/** In this level, simple backtracking techniques are used to find the correct path. */
+public class Level016 extends BlocklyLevel {
+
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -22,33 +22,31 @@ public class Level14 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level14(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 3");
+  public Level016(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 16");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
-        // Richtungen
         // Inventar und Charakter
-        "drop_item",
-        "Items",
+        // Variable
+        "get_number",
         // Bedingung
-        "logic_monster_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
         "logic_bossView_direction",
-        // Wahrheitsausdruecke
-        "logic_operator",
-        "usual_condition",
         // Kategorien
-        "Variablen",
+        // Kategorien
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.", "Kapitel 2: Flucht");
+      showText = false;
+    }
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusOn(new Coordinate(10, 8));
+    LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
   }
