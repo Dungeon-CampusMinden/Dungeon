@@ -1,19 +1,20 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import entities.BlocklyMonster;
-import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** In this level, the fireball scrolls must be collected to defeat two of the three monsters. */
-public class Level9 extends BlocklyLevel {
+/**
+ * In this level, monsters are scattered across the map. The hero must avoid them by navigating
+ * carefully. Stepping on red tiles or touching a monster will result in failure.
+ */
+public class Level002 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -24,22 +25,22 @@ public class Level9 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level9(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kaptitel 1: Level 9");
+  public Level002(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 2");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
         // Richtungen
-        // Schleifen
-        "while_loop",
-        // Inventar und Charakter
-        "drop_item",
-        "Items",
+        "direction_up",
+        "direction_down",
+        "direction_here",
         // Kategorien
+        "Inventar & Charakter",
         "Abfragen",
         "Bedingung",
         "Wahrheitsausdruecke",
         "Variablen",
+        "Schleife",
         "Bedingungen",
         "Sonstige");
   }
@@ -47,28 +48,34 @@ public class Level9 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Mit diesen Spruchrollen kannst du einen mächtigen Feuerball beschwören.",
+          "Pass auf, die Monster sind angekettet und können sich nicht bewegen, aber wenn du ihnen zu nahe kommst, wird es eng für dich.",
           "Kapitel 1: Ausbruch");
       showText = false;
     }
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
+
+    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
+    guardBuilder.range(3);
+    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.addToGame();
+    guardBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
+    guardBuilder.build().orElseThrow();
+    customPoints().remove(0);
 
     BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
     hedgehogBuilder.range(0);
-    hedgehogBuilder.addToGame();
-    hedgehogBuilder.spawnPoint(customPoints().get(2).toCenteredPoint());
-    hedgehogBuilder.build();
-    hedgehogBuilder.spawnPoint(customPoints().get(3).toCenteredPoint());
-    hedgehogBuilder.build();
-    hedgehogBuilder.spawnPoint(customPoints().get(4).toCenteredPoint());
-    hedgehogBuilder.build();
+    customPoints()
+        .forEach(
+            coordinate -> {
+              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+              hedgehogBuilder.addToGame();
+              hedgehogBuilder.build();
+            });
   }
 
   @Override

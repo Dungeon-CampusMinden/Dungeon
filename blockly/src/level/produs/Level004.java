@@ -1,5 +1,7 @@
 package level.produs;
 
+import static level.LevelManagementUtils.cameraFocusOn;
+
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
@@ -11,18 +13,20 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
+import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
 /**
- * In this level, multiple levers must be operated in the correct order. To solve the puzzle, the
- * player needs to consult the wiring diagram provided in the materials.
+ * In this level, the use, push, and pull blocks are unlocked. The player must use the first lever
+ * with the "use" block to open a door, then move a stone onto a pressure plate by combining "pull"
+ * and "push" actions to reveal the exit.
  */
-public class Level7 extends BlocklyLevel {
+public class Level004 extends BlocklyLevel {
   private static boolean showText = true;
-  DoorTile door1, door2, door3, door4;
-  LeverComponent switch1, switch2, switch3, switch4;
+  private LeverComponent switch1, switch2;
+  private DoorTile door1, door2;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -32,8 +36,8 @@ public class Level7 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level7(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 7");
+  public Level004(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 4");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
@@ -57,47 +61,31 @@ public class Level7 extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
+    LevelManagementUtils.fog(false);
     if (showText) {
-      DialogUtils.showTextPopup(
-          "Ganz schön viele Schalter, hätten wir doch nur einen Schaltplan.",
-          "Kapitel 1: Ausbruch");
+      DialogUtils.showTextPopup("Versuch mal die Schalter zu benutzen.", "Kapitel 1: Ausbruch");
       showText = false;
     }
-
-    LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.LEFT);
+    cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
+    door1 = (DoorTile) Game.tileAT(new Coordinate(8, 3));
+    door1.close();
+    door2 = (DoorTile) Game.tileAT(new Coordinate(16, 3));
+    door1.close();
+    door2.close();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
-    Entity s2 = LeverFactory.createLever(customPoints().get(1).toCenteredPoint());
-    Entity s3 = LeverFactory.createLever(customPoints().get(2).toCenteredPoint());
-    Entity s4 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());
+    Entity s2 = MiscFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
-    switch3 =
-        s3.fetch(LeverComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(s3, LeverComponent.class));
-    switch4 =
-        s4.fetch(LeverComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(s4, LeverComponent.class));
+    Game.add(MiscFactory.stone(customPoints().get(2).toCenteredPoint()));
     Game.add(s1);
     Game.add(s2);
-    Game.add(s3);
-    Game.add(s4);
-
-    door1 = (DoorTile) Game.tileAT(new Coordinate(10, 7));
-    door2 = (DoorTile) Game.tileAT(new Coordinate(4, 7));
-    door3 = (DoorTile) Game.tileAT(new Coordinate(7, 4));
-    door4 = (DoorTile) Game.tileAT(new Coordinate(7, 10));
-    door1.close();
-    door2.close();
-    door3.close();
-    door4.close();
   }
 
   @Override
@@ -106,9 +94,5 @@ public class Level7 extends BlocklyLevel {
     else door1.close();
     if (switch2.isOn()) door2.open();
     else door2.close();
-    if (switch3.isOn()) door3.open();
-    else door3.close();
-    if (switch4.isOn()) door4.open();
-    else door4.close();
   }
 }

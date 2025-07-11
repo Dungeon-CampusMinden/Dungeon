@@ -23,7 +23,7 @@ import level.LevelManagementUtils;
  * In this level, the crossword puzzle from the materials is used as a map. The player must navigate
  * over the unstable bridge according to the puzzle.
  */
-public class Level21 extends BlocklyLevel {
+public class Level021 extends BlocklyLevel {
   private static boolean showText = true;
   private static final int ESCAPE_DISTANCE = 2;
 
@@ -40,8 +40,8 @@ public class Level21 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level21(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 5");
+  public Level021(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 21");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

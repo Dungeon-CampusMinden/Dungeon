@@ -19,7 +19,7 @@ import level.LevelManagementUtils;
  * In this level, nested for-loops can be used to create a compact and efficient solution. The
  * player must push two stones onto pressure plates to unlock the exit.
  */
-public class Level6 extends BlocklyLevel {
+public class Level006 extends BlocklyLevel {
   private static boolean showText = true;
   private DoorTile door;
   private LeverComponent switch1, switch2;
@@ -32,8 +32,8 @@ public class Level6 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level6(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 6");
+  public Level006(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 6");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

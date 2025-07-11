@@ -21,7 +21,7 @@ import level.LevelManagementUtils;
  * In this level, variables are introduced. Between 1 and 4 monsters spawn randomly. The player must
  * defeat all monsters, keep track of how many there were, and then enter the corresponding door.
  */
-public class Level15 extends BlocklyLevel {
+public class Level015 extends BlocklyLevel {
   private final Random random = new Random();
   private static boolean showText = true;
   private DoorTile door;
@@ -34,8 +34,8 @@ public class Level15 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level15(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 4");
+  public Level015(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 15");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

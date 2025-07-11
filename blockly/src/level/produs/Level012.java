@@ -25,7 +25,7 @@ import level.LevelManagementUtils;
  * are multiple pairs, and at the end, all torches must be lit to unlock the exit. Players can use
  * if and if-else statements to define the necessary algorithms.
  */
-public class Level12 extends BlocklyLevel {
+public class Level012 extends BlocklyLevel {
   private static boolean showText = true;
 
   private final Set<LeverComponent> torches = new HashSet<>();
@@ -39,8 +39,8 @@ public class Level12 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level12(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 1");
+  public Level012(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 12");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

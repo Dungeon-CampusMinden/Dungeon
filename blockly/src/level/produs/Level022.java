@@ -24,7 +24,7 @@ import level.LevelManagementUtils;
  * In this final level, the boss mirrors the hero's movements. The player must cleverly lure the
  * boss into the abyss to win.
  */
-public class Level22 extends BlocklyLevel {
+public class Level022 extends BlocklyLevel {
   private static boolean showText = true;
   private VelocityComponent heroVC;
   boolean openExit = true;
@@ -40,8 +40,8 @@ public class Level22 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level22(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 6");
+  public Level022(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 22");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

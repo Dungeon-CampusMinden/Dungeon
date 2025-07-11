@@ -17,7 +17,7 @@ import level.LevelManagementUtils;
  * This level extends simple backtracking by adding monsters to the maze. The player must navigate
  * carefully while avoiding or dealing with monsters.
  */
-public class Level18 extends BlocklyLevel {
+public class Level018 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -28,8 +28,8 @@ public class Level18 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level18(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 2");
+  public Level018(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 18");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

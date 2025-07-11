@@ -1,7 +1,9 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
+import core.Game;
 import core.components.PositionComponent;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -9,8 +11,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** In this level, simple backtracking techniques are used to find the correct path. */
-public class Level16 extends BlocklyLevel {
+/**
+ * This level features challenging backtracking that requires the use of breadcrumbs and clovers to
+ * successfully navigate and solve the maze.
+ */
+public class Level019 extends BlocklyLevel {
 
   private static boolean showText = true;
 
@@ -22,17 +27,15 @@ public class Level16 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level16(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 5");
+  public Level019(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 19");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
-        // Inventar und Charakter
         // Variable
         "get_number",
         // Bedingung
         "logic_bossView_direction",
-        // Kategorien
         // Kategorien
         "Sonstige");
   }
@@ -40,15 +43,18 @@ public class Level16 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.zoomDefault();
+    LevelManagementUtils.zoomIn();
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.", "Kapitel 2: Flucht");
+          "Nutz deinen Beutel mit Krumen und Kleeblättern, um deinen Weg hier raus zu finden.",
+          "Kapitel 3: Rache");
       showText = false;
     }
-    LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
-    LevelManagementUtils.zoomDefault();
   }
 
   @Override

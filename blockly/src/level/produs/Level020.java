@@ -26,7 +26,7 @@ import utils.BlocklyCommands;
  * the player may only move when the boss is not looking in the direction of the hero, using the
  * wait block to time movements.
  */
-public class Level20 extends BlocklyLevel {
+public class Level020 extends BlocklyLevel {
   private static boolean showText = true;
   private static final int TICK_TIMER = 180;
   private static final int ESCAPE_DISTANCE = 2;
@@ -46,8 +46,8 @@ public class Level20 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level20(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 4");
+  public Level020(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 20");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
