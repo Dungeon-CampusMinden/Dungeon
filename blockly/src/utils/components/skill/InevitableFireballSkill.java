@@ -10,7 +10,9 @@ import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
 import core.Game;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -75,6 +77,15 @@ public class InevitableFireballSkill extends DamageProjectile {
                   velocityComponent -> {
                     velocityComponent.xVelocity(0);
                     velocityComponent.yVelocity(0);
+                  });
+          // Centers the hero on the tile, so the Blockly step looks completed and the hero doesn't
+          // freeze on the corner of the red zone
+          Game.hero()
+              .flatMap(hero -> hero.fetch(PositionComponent.class))
+              .ifPresent(
+                  positionComponent -> {
+                    Tile tile = Game.tileAT(positionComponent.position());
+                    positionComponent.position(tile);
                   });
         });
   }
