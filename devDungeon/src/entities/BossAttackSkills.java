@@ -251,10 +251,8 @@ public class BossAttackSkills {
             final int degree = i * 360 / totalFireBalls;
             EventScheduler.scheduleAction(
                 () -> {
-                  Point target =
-                      new Point(
-                          (float) (bossPos.x() + Math.cos(Math.toRadians(degree)) * 10),
-                          (float) (bossPos.y() + Math.sin(Math.toRadians(degree)) * 10));
+                  Vector2 direction = Vector2.UP.rotateDeg(degree);
+                  Point target = bossPos.translate(direction.scale(FIREBALL_MAX_RANGE * 0.5f));
                   launchFireBall(bossPos, target, bossPos, skillUser);
                 },
                 (long) i * delayBetweenFireballs);
