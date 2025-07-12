@@ -5,6 +5,7 @@ import contrib.item.Item;
 import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -66,13 +67,14 @@ public class ItemPotionSpeed extends Item {
     Entity e = new Entity();
     e.add(new InventoryComponent());
     e.add(new PositionComponent());
-    VelocityComponent vc = new VelocityComponent(1, 1);
+    VelocityComponent vc = new VelocityComponent(Vector2.ONE);
     e.add(vc);
+    double speed = vc.velocity().length();
     try {
       speedEffect.applySpeedEffect(e);
     } catch (UnsupportedOperationException ex) {
       return false;
     }
-    return vc.xVelocity() != 1 || vc.yVelocity() != 1;
+    return vc.velocity().length() != speed;
   }
 }

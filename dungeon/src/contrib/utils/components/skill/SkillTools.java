@@ -1,13 +1,13 @@
 package contrib.utils.components.skill;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import core.Game;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.MissingHeroException;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
 /** SkillTools is a collection of helper methods used for skills. */
@@ -24,21 +24,7 @@ public final class SkillTools {
    */
   public static Point calculateLastPositionInRange(
       final Point startPoint, final Point aimPoint, float range) {
-
-    // calculate distance from startPoint to aimPoint
-    float dx = aimPoint.x - startPoint.x;
-    float dy = aimPoint.y - startPoint.y;
-
-    // vector from startPoint to aimPoint
-    Vector2 scv = new Vector2(dx, dy);
-
-    // normalize the vector (length of 1)
-    scv.nor();
-
-    // resize the vector to the length of the range
-    scv.scl(range);
-
-    return new Point(startPoint.x + scv.x, startPoint.y + scv.y);
+    return startPoint.translate(startPoint.vectorTo(aimPoint).normalize().scale(range));
   }
 
   /**
@@ -50,18 +36,11 @@ public final class SkillTools {
    * @param speed The speed of movement.
    * @return The velocity vector as a Point.
    */
-  public static Point calculateVelocity(final Point start, final Point goal, float speed) {
-    float x1 = start.x;
-    float y1 = start.y;
-    float x2 = goal.x;
-    float y2 = goal.y;
-
-    float dx = x2 - x1;
-    float dy = y2 - y1;
-    float distance = (float) Math.sqrt(dx * dx + dy * dy);
-    float velocityX = dx / distance * speed;
-    float velocityY = dy / distance * speed;
-    return new Point(velocityX, velocityY);
+  public static Vector2 calculateVelocity(final Point start, final Point goal, float speed) {
+    if (start.equals(goal)) {
+      return Vector2.ZERO;
+    }
+    return start.vectorTo(goal).normalize().scale(speed);
   }
 
   /**

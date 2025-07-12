@@ -195,7 +195,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
 
     if (Arrays.equals(sortedArray, checkArray)) {
       for (int i = 0; i < sortedArray.length - 1; i++) {
-        if (sortedArray[i].getPosition().x >= sortedArray[i + 1].getPosition().x) {
+        if (sortedArray[i].getPosition().x() >= sortedArray[i + 1].getPosition().x()) {
           return false;
         }
       }

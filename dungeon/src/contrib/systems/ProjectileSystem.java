@@ -62,8 +62,7 @@ public final class ProjectileSystem extends System {
   }
 
   private PSData setVelocity(final PSData data) {
-    data.vc.currentYVelocity(data.vc.yVelocity());
-    data.vc.currentXVelocity(data.vc.xVelocity());
+    data.vc.currentVelocity(data.vc.velocity());
 
     return data;
   }

@@ -7,6 +7,7 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import utils.BlocklyCommands;
@@ -63,11 +64,13 @@ public class HeroTankControlledFactory {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
+    Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> vc.currentYVelocity(vc.yVelocity());
-      case DOWN -> vc.currentYVelocity(-vc.yVelocity());
-      case LEFT -> vc.currentXVelocity(-vc.xVelocity());
-      case RIGHT -> vc.currentXVelocity(vc.xVelocity());
+      case UP -> newVelocity = Vector2.of(0, vc.velocity().y());
+      case DOWN -> newVelocity = Vector2.of(0, -vc.velocity().y());
+      case LEFT -> newVelocity = Vector2.of(-vc.velocity().x(), 0);
+      case RIGHT -> newVelocity = Vector2.of(vc.velocity().x(), 0);
     }
+    vc.currentVelocity(newVelocity);
   }
 }

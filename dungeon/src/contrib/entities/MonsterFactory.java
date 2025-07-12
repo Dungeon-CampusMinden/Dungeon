@@ -12,6 +12,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -205,7 +206,7 @@ public final class MonsterFactory {
     }
     monster.add(ai);
     monster.add(new DrawComponent(texture));
-    monster.add(new VelocityComponent(speed, speed));
+    monster.add(new VelocityComponent(Vector2.of(speed, speed)));
     monster.add(new CollideComponent());
     if (collideDamage > 0) {
       monster.add(new SpikyComponent(collideDamage, MONSTER_COLLIDE_DAMAGE_TYPE, collideCooldown));

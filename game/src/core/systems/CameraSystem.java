@@ -11,6 +11,7 @@ import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
 /**
@@ -56,15 +57,17 @@ public final class CameraSystem extends System {
    * Checks if point (x,y) is probably visible on screen. Points that are not visible should not be
    * rendered.
    *
-   * @param x WTF? .
-   * @param y WTF? .
-   * @return WTF? .
+   * @param point The point to check if it is visible on screen.
+   * @return True if the point is visible on screen, false otherwise.
    */
-  public static boolean isPointInFrustum(float x, float y) {
+  public static boolean isPointInFrustum(Point point) {
     final float OFFSET = 1f;
+    Point lowerLeft = point.translate(Vector2.of(-OFFSET, -OFFSET));
+    Point upperRight = point.translate(Vector2.of(OFFSET, OFFSET));
     BoundingBox bounds =
         new BoundingBox(
-            new Vector3(x - OFFSET, y - OFFSET, 0), new Vector3(x + OFFSET, y + OFFSET, 0));
+            new Vector3(lowerLeft.x(), lowerLeft.y(), 0),
+            new Vector3(upperRight.x(), upperRight.y(), 0));
     return CAMERA.frustum.boundsInFrustum(bounds);
   }
 
@@ -109,6 +112,6 @@ public final class CameraSystem extends System {
   }
 
   private void focus(Point point) {
-    CAMERA.position.set(point.x, point.y, 0);
+    CAMERA.position.set(point.x(), point.y(), 0);
   }
 }

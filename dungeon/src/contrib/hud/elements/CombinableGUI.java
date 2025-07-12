@@ -1,9 +1,9 @@
 package contrib.hud.elements;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import core.utils.Vector2;
 
 /**
  * A GUI element that can be combined with other GUI elements using {@link GUICombination}. Gui
