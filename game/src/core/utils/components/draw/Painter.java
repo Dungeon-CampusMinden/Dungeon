@@ -48,14 +48,11 @@ public class Painter {
    * @param config Painting configuration.
    */
   public void draw(final Point position, final IPath texturePath, final PainterConfig config) {
-    float realX = position.x() + config.xOffset(); // including the drawOffset
-    float realY = position.y() + config.yOffset(); // including the drawOffset
-    if (CameraSystem.isPointInFrustum(realX, realY)) {
+    Point realPos = position.translate(config.offset());
+    if (CameraSystem.isPointInFrustum(realPos)) {
       Sprite sprite = new Sprite(TextureMap.instance().textureAt(texturePath));
-      // set up scaling of textures
-      sprite.setSize(config.xScaling(), config.yScaling());
-      // where to draw the sprite
-      sprite.setPosition(realX, realY);
+      sprite.setSize(config.scaling().x(), config.scaling().y());
+      sprite.setPosition(realPos.x(), realPos.y());
 
       // need to be called before drawing
       batch.begin();
@@ -67,7 +64,6 @@ public class Painter {
         sprite.setColor(color);
       }
 
-      // draw sprite
       sprite.draw(batch);
       // need to be called after drawing
       batch.end();

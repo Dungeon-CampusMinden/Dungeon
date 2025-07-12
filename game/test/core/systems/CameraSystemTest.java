@@ -89,19 +89,27 @@ public class CameraSystemTest {
     assertEquals(expectedFocusPoint.y(), CameraSystem.camera().position.y, 0.001);
   }
 
-  /** WTF? . */
+  /**
+   * Positive test for {@link CameraSystem#isPointInFrustum(Point)}.
+   *
+   * <p>It checks if a point within the camera's frustum is correctly identified as visible.
+   */
   @Test
   public void isPointInFrustumWithVisiblePoint() {
     float x = 1.0f;
     float y = 1.0f;
-    assertTrue(CameraSystem.isPointInFrustum(x, y));
+    assertTrue(CameraSystem.isPointInFrustum(new Point(x, y)));
   }
 
-  /** WTF? . */
+  /**
+   * Negative test for {@link CameraSystem#isPointInFrustum(Point)}.
+   *
+   * <p>It checks if a point outside the camera's frustum is correctly identified as not visible.
+   */
   @Test
   public void isPointInFrustumWithInvisiblePoint() {
     float x = 100.0f;
     float y = 100.0f;
-    assertFalse(CameraSystem.isPointInFrustum(x, y));
+    assertFalse(CameraSystem.isPointInFrustum(new Point(x, y)));
   }
 }

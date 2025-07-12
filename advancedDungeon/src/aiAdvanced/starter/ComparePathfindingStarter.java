@@ -101,8 +101,7 @@ public class ComparePathfindingStarter {
     int currentTries = 0;
     int maxTries = 10000; // fail-safe
     while (currentTries <= maxTries) {
-      if (CameraSystem.isPointInFrustum(topTile.x(), topTile.y())
-          && CameraSystem.isPointInFrustum(bottomTile.x(), bottomTile.y())) {
+      if (CameraSystem.isPointInFrustum(topTile) && CameraSystem.isPointInFrustum(bottomTile)) {
         break;
       }
 
