@@ -71,7 +71,7 @@ public class Chapter34Level extends BlocklyLevel {
 
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
     Coordinate c =
-        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Vector2.DOWN);
+        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Vector2.LEFT);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
@@ -115,7 +115,7 @@ public class Chapter34Level extends BlocklyLevel {
     if (x > 6 || x > 3 && y >= 6 && y <= 8) {
 
       if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
-        if (herovc.currentXVelocity() > 0 || herovc.currentYVelocity() > 0) {
+        if (herovc.currentVelocity().length() > 0) {
           DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }
       }

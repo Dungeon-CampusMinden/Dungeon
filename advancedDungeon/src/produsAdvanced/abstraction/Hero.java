@@ -19,6 +19,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.Comparator;
 import produsAdvanced.AdvancedDungeon;
@@ -125,21 +126,12 @@ public class Hero {
   }
 
   /**
-   * Setzt die horizontale Bewegungsgeschwindigkeit des Helden.
+   * Setzt die Bewegungsgeschwindigkeit des Helden.
    *
-   * @param speed Geschwindigkeit in X-Richtung.
+   * @param speed Geschwindigkeit in x und y Richtung.
    */
-  public void setXSpeed(float speed) {
-    hero.fetch(VelocityComponent.class).get().currentXVelocity(speed);
-  }
-
-  /**
-   * Setzt die vertikale Bewegungsgeschwindigkeit des Helden.
-   *
-   * @param speed Geschwindigkeit in Y-Richtung.
-   */
-  public void setYSpeed(float speed) {
-    hero.fetch(VelocityComponent.class).get().currentYVelocity(speed);
+  public void setSpeed(Vector2 speed) {
+    hero.fetch(VelocityComponent.class).get().currentVelocity(speed);
   }
 
   /**

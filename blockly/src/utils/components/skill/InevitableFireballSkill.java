@@ -63,8 +63,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.xVelocity(defaultHeroSpeed.x());
-                    velocityComponent.yVelocity(defaultHeroSpeed.y());
+                    velocityComponent.velocity(defaultHeroSpeed);
                   });
         },
         (projectile) -> {
@@ -73,8 +72,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .flatMap(hero -> hero.fetch(VelocityComponent.class))
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.xVelocity(0);
-                    velocityComponent.yVelocity(0);
+                    velocityComponent.velocity(Vector2.ZERO);
                   });
         });
   }

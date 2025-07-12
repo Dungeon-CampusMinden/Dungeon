@@ -134,14 +134,13 @@ public interface Vector2 {
   }
 
   /**
-   * Multiplies this vector by two scalars.
+   * Multiplies this vector by two scalars, using a vector.
    *
-   * @param scalarX The scalar for the x component.
-   * @param scalarY The scalar for the y component.
-   * @return A new vector that is this vector multiplied by the scalars.
+   * @param scalar The vector containing the scalars for x and y components.
+   * @return A new vector that is this vector multiplied by the scalars in the vector.
    */
-  default Vector2 scale(double scalarX, double scalarY) {
-    return Vector2.of(x() * scalarX, y() * scalarY);
+  default Vector2 scale(Vector2 scalar) {
+    return Vector2.of(x() * scalar.x(), y() * scalar.y());
   }
 
   /**
@@ -233,25 +232,6 @@ public interface Vector2 {
     double cos = Math.cos(radians);
     double sin = Math.sin(radians);
     return Vector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
-  }
-
-  /**
-   * Sets the length of the vector to a new value while maintaining its direction.
-   *
-   * @param newLength The desired length of the vector. (>=0)
-   * @return A new vector with the specified length, maintaining the original direction.
-   * @throws IllegalArgumentException if the new length is negative.
-   */
-  default Vector2 setLength(double newLength) {
-    if (newLength < 0) {
-      throw new IllegalArgumentException("New length must be non-negative.");
-    }
-
-    double currentLength = length();
-    if (isZero()) {
-      return Vector2.of(0, 0); // Avoid division by zero
-    }
-    return Vector2.of(x() * newLength / currentLength, y() * newLength / currentLength);
   }
 
   /**

@@ -430,8 +430,7 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
+        comp.vc.currentVelocity(direction.scale(comp.vc.velocity()));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -448,8 +447,7 @@ public class BlocklyCommands {
     }
 
     for (EntityComponents ec : entityComponents) {
-      ec.vc.currentXVelocity(0);
-      ec.vc.currentYVelocity(0);
+      ec.vc.currentVelocity(Vector2.ZERO);
       // check the position-tile via new request in case a new level was loaded
       Tile endTile = Game.tileAT(ec.pc.position());
       if (endTile != null) ec.pc.position(endTile); // snap to grid
@@ -491,8 +489,7 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.currentXVelocity(direction.x());
-    vc.currentYVelocity(direction.y());
+    vc.currentVelocity(direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }

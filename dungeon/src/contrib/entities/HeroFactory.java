@@ -130,7 +130,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(SPEED_HERO.x(), SPEED_HERO.y(), (e) -> {}, true));
+    hero.add(new VelocityComponent(SPEED_HERO, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -333,12 +333,16 @@ public final class HeroFactory {
                   .fetch(VelocityComponent.class)
                   .orElseThrow(
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
+
+          Vector2 newVelocity = vc.currentVelocity();
           if (direction.x() != 0) {
-            vc.currentXVelocity(direction.x() * vc.xVelocity());
+            newVelocity = Vector2.of(direction.scale(vc.velocity()).x(), newVelocity.y());
           }
           if (direction.y() != 0) {
-            vc.currentYVelocity(direction.y() * vc.yVelocity());
+            newVelocity = Vector2.of(newVelocity.x(), direction.scale(vc.velocity()).y());
           }
+          vc.currentVelocity(newVelocity);
+
           // Abort any path finding on own movement
           if (ENABLE_MOUSE_MOVEMENT) {
             entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);

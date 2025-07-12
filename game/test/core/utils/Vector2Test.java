@@ -101,7 +101,7 @@ public class Vector2Test {
   @Test
   public void testScaleXY() {
     Vector2 v = Vector2.of(2.0f, 3.0f);
-    Vector2 result = v.scale(2.0, 3.0);
+    Vector2 result = v.scale(Vector2.of(2.0, 3.0));
     assertEquals(4.0f, result.x(), DELTA);
     assertEquals(9.0f, result.y(), DELTA);
   }
@@ -176,37 +176,5 @@ public class Vector2Test {
     Vector2 rotated = v.rotateRad(Math.PI / 2.0);
     assertEquals(0.0f, rotated.x(), DELTA);
     assertEquals(1.0f, rotated.y(), DELTA);
-  }
-
-  /** Tests setting the length of a vector. */
-  @Test
-  public void testSetLength() {
-    Vector2 v = Vector2.of(3.0f, 4.0f);
-    Vector2 result = v.setLength(10.0);
-    assertEquals(10.0, result.length(), DELTA);
-    assertEquals(6.0f, result.x(), DELTA);
-    assertEquals(8.0f, result.y(), DELTA);
-  }
-
-  /** Tests setting the length of a vector to zero. */
-  @Test
-  public void testSetLengthZero() {
-    Vector2 v = Vector2.of(3.0f, 4.0f);
-    Vector2 result = v.setLength(0.0);
-    assertTrue(result.isZero());
-  }
-
-  /** Tests setting the length of a zero vector. */
-  @Test
-  public void testSetLengthOnZeroVector() {
-    Vector2 result = Vector2.ZERO.setLength(10.0);
-    assertTrue(result.isZero());
-  }
-
-  /** Tests that setting a negative length throws an exception. */
-  @Test
-  public void testSetLengthNegative() {
-    Vector2 v = Vector2.of(3.0f, 4.0f);
-    assertThrows(IllegalArgumentException.class, () -> v.setLength(-1.0));
   }
 }

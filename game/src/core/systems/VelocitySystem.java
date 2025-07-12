@@ -21,17 +21,15 @@ import core.utils.components.draw.CoreAnimations;
  * <p>Entities with the {@link VelocityComponent}, {@link PositionComponent}, and {@link
  * DrawComponent} will be processed by this system.
  *
- * <p>The system will take the {@link VelocityComponent#currentXVelocity()} and {@link
- * VelocityComponent#currentYVelocity()} and calculate the new position of the entity based on their
- * current position stored in the {@link PositionComponent}. If the new position is a valid
- * position, which means the tile they would stand on is accessible, the new position will be set.
- * If the new position is walled, the {@link VelocityComponent#onWallHit()} callback will be
- * executed.
+ * <p>The system will take the {@link VelocityComponent#currentVelocity()} and calculate the new
+ * position of the entity based on their current position stored in the {@link PositionComponent}.
+ * If the new position is a valid position, which means the tile they would stand on is accessible,
+ * the new position will be set. If the new position is walled, the {@link
+ * VelocityComponent#onWallHit()} callback will be executed.
  *
  * <p>This system will also queue the corresponding run or idle animation.
  *
- * <p>At the end, the {@link VelocityComponent#currentXVelocity(float)} and {@link
- * VelocityComponent#yVelocity(float)} will be set to 0.
+ * <p>At the end, the {@link VelocityComponent#currentVelocity(Vector2)} will be set to 0.
  *
  * @see VelocityComponent
  * @see DrawComponent
@@ -57,13 +55,16 @@ public final class VelocitySystem extends System {
   }
 
   private void updatePosition(VSData vsd) {
-    Vector2 velocity = Vector2.of(vsd.vc.currentXVelocity(), vsd.vc.currentYVelocity());
-    float maxSpeed = Math.max(Math.abs(vsd.vc.xVelocity()), Math.abs(vsd.vc.yVelocity()));
+    Vector2 originalVelocity = vsd.vc.currentVelocity();
+    Vector2 velocity = originalVelocity;
+
+    float maxSpeed = Math.max(Math.abs(vsd.vc.velocity().x()), Math.abs(vsd.vc.velocity().y()));
     // Limit velocity to maxSpeed (primarily for diagonal movement)
     if (velocity.length() > maxSpeed) {
       velocity = velocity.normalize();
       velocity = velocity.scale(maxSpeed);
     }
+
     if (Gdx.graphics != null) {
       velocity = velocity.scale(Gdx.graphics.getDeltaTime());
     }
@@ -84,31 +85,34 @@ public final class VelocitySystem extends System {
         hitWall = true;
         vsd.pc.position(new Point(newX, vsd.pc.position().y()));
         this.movementAnimation(vsd);
-        vsd.vc.currentYVelocity(0.0f);
+        vsd.vc.currentVelocity(Vector2.of(velocity.x(), 0.0f));
       } else if (this.isAccessible(
           Game.tileAT(new Point(vsd.pc.position().x(), newY)), canEnterOpenPits)) {
         // redirect not moving along x
         hitWall = true;
         vsd.pc.position(new Point(vsd.pc.position().x(), newY));
         this.movementAnimation(vsd);
-        vsd.vc.currentXVelocity(0.0f);
+        vsd.vc.currentVelocity(Vector2.of(0.0f, velocity.y()));
       } else {
         hitWall = true;
       }
 
       if (hitWall) vsd.vc.onWallHit().accept(vsd.e);
 
+      // Friction
       float friction = Game.tileAT(vsd.pc.position()).friction();
-      float newVX = vsd.vc.currentXVelocity() * (Math.min(1.0f, 1.0f - friction));
+      float damp = Math.max(0.0f, 1.0f - friction);
+      // If we hit a wall, damp the raw velocity; otherwise damp the movement velocity
+      Vector2 toDampen = hitWall ? originalVelocity : velocity;
+      float newVX = toDampen.x() * damp;
       if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
-      float newVY = vsd.vc.currentYVelocity() * (Math.min(1.0f, 1.0f - friction));
+      float newVY = toDampen.y() * damp;
       if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
 
-      vsd.vc.currentYVelocity(newVY);
-      vsd.vc.currentXVelocity(newVX);
+      vsd.vc.currentVelocity(Vector2.of(newVX, newVY));
     } catch (NullPointerException e) {
       // for some reason the entity is out of bound
-      vsd.pc().position(PositionComponent.ILLEGAL_POSITION);
+      vsd.pc.position(PositionComponent.ILLEGAL_POSITION);
       LOGGER.warning("Entity " + e + " is out of bound");
     }
   }
@@ -122,13 +126,14 @@ public final class VelocitySystem extends System {
    * @return true if the tile is accessible, false if not.
    */
   private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
-    return tile.isAccessible()
-        || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT));
+    return tile != null
+        && (tile.isAccessible()
+            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
   }
 
   private void movementAnimation(VSData vsd) {
-    float x = vsd.vc.currentXVelocity();
-    float y = vsd.vc.currentYVelocity();
+    float x = vsd.vc.currentVelocity().x();
+    float y = vsd.vc.currentVelocity().y();
 
     // move
     if (x != 0 || y != 0) {
@@ -147,8 +152,7 @@ public final class VelocitySystem extends System {
         vsd.pc.viewDirection(PositionComponent.Direction.DOWN);
       }
 
-      vsd.vc.previousXVelocity(x);
-      vsd.vc.previousYVelocity(y);
+      vsd.vc.previousVelocity(Vector2.of(x, y));
 
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
     }
