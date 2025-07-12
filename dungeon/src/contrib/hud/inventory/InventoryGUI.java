@@ -241,25 +241,26 @@ public class InventoryGUI extends CombinableGUI {
     GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
     GlyphLayout layoutDesc = new GlyphLayout(bitmapFont, description);
 
-    float x = mousePos.x() + HOVER_OFFSET.x();
-    float y = mousePos.y() + HOVER_OFFSET.y();
+    Point hoverPos = mousePos.translate(HOVER_OFFSET);
     float width = Math.max(layoutName.width, layoutDesc.width) + HOVER_OFFSET.x();
     float height = layoutName.height + layoutDesc.height + HOVER_OFFSET.y() + LINE_GAP;
 
     // if out of bounds, move to the left of cursor
-    if (x + width > Gdx.graphics.getWidth()) {
-      x = mousePos.x() - width - HOVER_OFFSET.x();
+    if (hoverPos.x() + width > Gdx.graphics.getWidth()) {
+      hoverPos = hoverPos.translate(Vector2.of(-width - HOVER_OFFSET.x(), 0));
     }
 
-    batch.draw(hoverBackground, x, y, width, height);
+    batch.draw(hoverBackground, hoverPos.x(), hoverPos.y(), width, height);
+    Point textPos = hoverPos.translate(Vector2.of(BORDER_PADDING, layoutDesc.height + LINE_GAP));
+
     bitmapFont.setColor(Color.BLACK);
     bitmapFont.draw(
         batch,
         title,
-        x + BORDER_PADDING,
-        y + layoutDesc.height + LINE_GAP + layoutName.height + LINE_GAP);
+        textPos.x(),
+        textPos.y() + layoutName.height + LINE_GAP); // place above description
     bitmapFont.setColor(new Color(0x000000b0));
-    bitmapFont.draw(batch, description, x + BORDER_PADDING, y + layoutDesc.height + LINE_GAP);
+    bitmapFont.draw(batch, description, textPos.x(), textPos.y());
   }
 
   @Override
