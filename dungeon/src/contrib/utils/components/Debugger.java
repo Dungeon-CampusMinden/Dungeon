@@ -121,9 +121,7 @@ public class Debugger {
                       MissingComponentException.build(Game.hero().get(), PositionComponent.class));
 
       // Attempt to teleport to targetLocation
-      LOGGER.log(
-          CustomLogLevel.DEBUG,
-          "Trying to teleport to " + targetLocation.x() + ":" + targetLocation.y());
+      LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
       Tile t = Game.tileAT(targetLocation);
       if (t == null || !t.isAccessible()) {
         LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
