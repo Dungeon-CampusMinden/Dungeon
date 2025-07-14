@@ -23,6 +23,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.MissingHeroException;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.*;
@@ -225,7 +226,11 @@ public class BlocklyCommands {
             () ->
                 hero.fetch(CollideComponent.class)
                     .map(cc -> cc.center(hero))
-                    .map(p -> p.add(Direction.asPoint(EntityUtils.getViewDirection(hero))))
+                    .map(
+                        p ->
+                            p.translate(
+                                Direction.fromPositionCompDirection(
+                                    EntityUtils.getViewDirection(hero))))
                     .orElseThrow(
                         () -> MissingComponentException.build(hero, CollideComponent.class)),
             FIREBALL_RANGE,
@@ -364,18 +369,17 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<Coordinate, Optional<Tile>> dirToCheck =
+    Function<Vector2, Optional<Tile>> dirToCheck =
         dtc ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
-                .map(coordinate -> coordinate.add(dtc))
+                .map(coordinate -> coordinate.translate(dtc))
                 .map(Game::tileAT);
 
     // calculate direction to check relative to hero's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
         .map(Direction::fromPositionCompDirection)
         .map(d -> d.relativeToAbsoluteDirection(direction))
-        .map(Direction::toCoordinate)
-        .flatMap(dirToCheck::apply);
+        .flatMap(dirToCheck);
   }
 
   /**
@@ -426,8 +430,7 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentXVelocity(direction.x() * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(direction.y() * comp.vc.yVelocity());
+        comp.vc.currentVelocity(direction.scale(comp.vc.velocity()));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -444,8 +447,7 @@ public class BlocklyCommands {
     }
 
     for (EntityComponents ec : entityComponents) {
-      ec.vc.currentXVelocity(0);
-      ec.vc.currentYVelocity(0);
+      ec.vc.currentVelocity(Vector2.ZERO);
       // check the position-tile via new request in case a new level was loaded
       Tile endTile = Game.tileAT(ec.pc.position());
       if (endTile != null) ec.pc.position(endTile); // snap to grid
@@ -487,8 +489,7 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.currentXVelocity(direction.x());
-    vc.currentYVelocity(direction.y());
+    vc.currentVelocity(direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }

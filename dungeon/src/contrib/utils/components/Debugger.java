@@ -25,6 +25,7 @@ import core.level.utils.LevelSize;
 import core.systems.CameraSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -69,10 +70,10 @@ public class Debugger {
     LOGGER.info("TELEPORT TO END");
     Coordinate endTile = Game.endTile().coordinate();
     Coordinate[] neighborTiles = {
-      new Coordinate(endTile.x + 1, endTile.y),
-      new Coordinate(endTile.x - 1, endTile.y),
-      new Coordinate(endTile.x, endTile.y + 1),
-      new Coordinate(endTile.x, endTile.y - 1)
+      endTile.translate(Vector2.UP),
+      endTile.translate(Vector2.DOWN),
+      endTile.translate(Vector2.LEFT),
+      endTile.translate(Vector2.RIGHT),
     };
     for (Coordinate neighborTile : neighborTiles) {
       Tile neighbor = Game.tileAT(neighborTile);
@@ -120,9 +121,7 @@ public class Debugger {
                       MissingComponentException.build(Game.hero().get(), PositionComponent.class));
 
       // Attempt to teleport to targetLocation
-      LOGGER.log(
-          CustomLogLevel.DEBUG,
-          "Trying to teleport to " + targetLocation.x + ":" + targetLocation.y);
+      LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
       Tile t = Game.tileAT(targetLocation);
       if (t == null || !t.isAccessible()) {
         LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
@@ -178,7 +177,7 @@ public class Debugger {
       } catch (IOException e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
-      monster.add(new VelocityComponent(0.1f, 0.1f));
+      monster.add(new VelocityComponent(Vector2.ONE));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(

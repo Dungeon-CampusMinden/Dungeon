@@ -85,7 +85,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   private void prepareBridge() {
     EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, bridgeMobSpawn);
     List<PitTile> bridge =
-        pitTiles().stream().filter(pit -> pit.coordinate().y == bridgeMobSpawn.y).toList();
+        pitTiles().stream().filter(pit -> pit.coordinate().y() == bridgeMobSpawn.y()).toList();
     int timeToOpen = 500;
     for (PitTile pitTile : bridge) {
       pitTile.timeToOpen(timeToOpen);

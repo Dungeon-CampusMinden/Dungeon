@@ -3,38 +3,24 @@ package core.utils;
 import core.level.utils.Coordinate;
 
 /**
- * For easy handling of positions in the dungeon. <br>
+ * A record representing a 2D point with x and y Float coordinates.
  *
- * <p>No getter needed. All attributes are public.
+ * <p>Provides utility methods for point operations such as checking distance, calculating distance,
+ * converting to a coordinate, and adding a vector.
+ *
+ * @param x The x coordinate of the point.
+ * @param y The y coordinate of the point.
+ * @see Vector2
+ * @see Coordinate
  */
-public final class Point {
-  private static final float EPSILON = 0.000001f;
-
-  /** WTF? . */
-  public float x;
-
-  /** WTF? . */
-  public float y;
-
+public record Point(float x, float y) {
   /**
-   * A simple {@code float} point class.
+   * Create a new point from another point.
    *
-   * @param x the x value
-   * @param y the y value
+   * @param other The other point.
    */
-  public Point(float x, float y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  /**
-   * Copies the point.
-   *
-   * @param p foo
-   */
-  public Point(final Point p) {
-    x = p.x;
-    y = p.y;
+  public Point(Point other) {
+    this(other.x, other.y);
   }
 
   /**
@@ -50,24 +36,6 @@ public final class Point {
   }
 
   /**
-   * Creates the unit vector between point a and b.
-   *
-   * @param a Point A
-   * @param b Point B
-   * @return the unit vector
-   */
-  public static Point unitDirectionalVector(final Point b, final Point a) {
-    Point interactionDir = new Point(b);
-    // (interactable - a) / len(interactable - a)
-    interactionDir.x -= a.x;
-    interactionDir.y -= a.y;
-    double vecLength = calculateDistance(a, b);
-    interactionDir.x /= vecLength;
-    interactionDir.y /= vecLength;
-    return interactionDir;
-  }
-
-  /**
    * calculates the distance between two points.
    *
    * @param p1 Point A
@@ -75,8 +43,8 @@ public final class Point {
    * @return the Distance between the two points
    */
   public static float calculateDistance(final Point p1, final Point p2) {
-    float xDiff = p1.x - p2.x;
-    float yDiff = p1.y - p2.y;
+    float xDiff = p1.x() - p2.x();
+    float yDiff = p1.y() - p2.y();
     return (float) Math.sqrt(xDiff * xDiff + yDiff * yDiff);
   }
 
@@ -86,32 +54,27 @@ public final class Point {
    * @return the converted point
    */
   public Coordinate toCoordinate() {
-    return new Coordinate((int) x, (int) y);
+    return new Coordinate((int) x(), (int) y());
   }
 
   /**
-   * Creates a new Point which has the sum of the Points.
+   * Moves this point by a vector.
    *
-   * @param other which point to add
-   * @return Point where the values for x and y are added
+   * @param vector The vector to move the point by.
+   * @return A new point that is the sum of this point and the given vector.
    */
-  public Point add(final Point other) {
-    return new Point(this.x + other.x, this.y + other.y);
+  public Point translate(final Vector2 vector) {
+    return new Point(this.x() + vector.x(), this.y() + vector.y());
   }
 
   /**
-   * Two points are equal, if they have the same x and y values.
+   * Calculates the vector from this point to another point.
    *
-   * @param other Point to compare with
-   * @return if the x and y values of the points are equal.
+   * @param other The other point.
+   * @return The vector from this point to the other point.
    */
-  public boolean equals(final Point other) {
-    return Math.abs(x - other.x) < EPSILON && Math.abs(y - other.y) < EPSILON;
-  }
-
-  @Override
-  public String toString() {
-    return "Point{" + "x=" + x + ", y=" + y + '}';
+  public Vector2 vectorTo(final Point other) {
+    return Vector2.of(other.x() - this.x(), other.y() - this.y());
   }
 
   /**
@@ -121,6 +84,11 @@ public final class Point {
    * @return The Euclidean distance between this point and the given point.
    */
   public double distance(Point otherPos) {
-    return Math.sqrt(Math.pow(otherPos.x - x, 2) + Math.pow(otherPos.y - y, 2));
+    return Math.sqrt(Math.pow(otherPos.x() - x(), 2) + Math.pow(otherPos.y() - y(), 2));
+  }
+
+  @Override
+  public String toString() {
+    return x + "," + y;
   }
 }

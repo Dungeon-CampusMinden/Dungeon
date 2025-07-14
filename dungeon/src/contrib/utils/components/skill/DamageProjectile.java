@@ -13,6 +13,7 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final float projectileRange;
   private final int damageAmount;
   private final DamageType damageType;
-  private final Point projectileHitBoxSize;
+  private final Vector2 projectileHitBoxSize;
   private final Supplier<Point> selectionFunction;
   private final Consumer<Entity> onWallHit;
   private final Consumer<Entity> onSpawn;
@@ -100,7 +101,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileSpeed,
       int damageAmount,
       final DamageType damageType,
-      final Point projectileHitBoxSize,
+      final Vector2 projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange,
       final Consumer<Entity> onWallHit,
@@ -141,7 +142,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileSpeed,
       int damageAmount,
       final DamageType damageType,
-      final Point projectileHitBoxSize,
+      final Vector2 projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange) {
     this(
@@ -178,7 +179,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       float projectileSpeed,
       int damageAmount,
       final DamageType damageType,
-      final Point projectileHitBoxSize,
+      final Vector2 projectileHitBoxSize,
       final Supplier<Point> selectionFunction,
       float projectileRange) {
     this(
@@ -226,14 +227,11 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       throw new RuntimeException();
     }
 
-    Point startPoint = new Point(0, 0);
-    entity
-        .fetch(CollideComponent.class)
-        .ifPresent(
-            collideComponent -> {
-              startPoint.x = collideComponent.center(entity).x;
-              startPoint.y = collideComponent.center(entity).y;
-            });
+    Point startPoint =
+        entity
+            .fetch(CollideComponent.class)
+            .map(collideComponent -> collideComponent.center(entity))
+            .orElse(new Point(0, 0));
 
     // Get the target point based on the selection function and projectile range.
     // Use a copy, so you do not change the actual value (for example the hero position)
@@ -242,10 +240,10 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
     // Calculate the velocity of the projectile
-    Point velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
+    Vector2 velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
 
     // Add the VelocityComponent to the projectile
-    VelocityComponent vc = new VelocityComponent(velocity.x, velocity.y, onWallHit, true);
+    VelocityComponent vc = new VelocityComponent(velocity, onWallHit, true);
     projectile.add(vc);
 
     // Add the ProjectileComponent with the initial and target positions to the projectile

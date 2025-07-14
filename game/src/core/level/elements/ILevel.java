@@ -257,7 +257,7 @@ public interface ILevel extends IndexedGraph<Tile> {
             tile.coordinate(),
             changeInto,
             tile.designLabel());
-    level.layout()[tile.coordinate().y][tile.coordinate().x] = newTile;
+    level.layout()[tile.coordinate().y()][tile.coordinate().x()] = newTile;
     newTile.index(tile.index());
     newTile.tintColor(tile.tintColor());
     newTile.visible(tile.visible());
@@ -416,7 +416,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   default Tile tileAt(final Coordinate coordinate) {
     try {
-      return layout()[coordinate.y][coordinate.x];
+      return layout()[coordinate.y()][coordinate.x()];
     } catch (IndexOutOfBoundsException e) {
       return null;
     }

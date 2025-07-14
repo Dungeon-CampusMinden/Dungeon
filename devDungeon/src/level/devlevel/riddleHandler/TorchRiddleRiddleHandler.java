@@ -63,7 +63,7 @@ public class TorchRiddleRiddleHandler {
         SignFactory.createSign(
             "",
             "Riddle: The Torch Riddle",
-            new Point(riddleDoor.x - 1 + 0.5f, riddleDoor.y - 1 + 0.5f),
+            new Point(riddleDoor.x() - 1 + 0.5f, riddleDoor.y() - 1 + 0.5f),
             (sign, hero) -> {
               try {
                 // Updates content based on random riddle values

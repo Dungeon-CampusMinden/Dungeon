@@ -1,6 +1,7 @@
 package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
+import core.utils.Vector2;
 import core.utils.components.path.IPath;
 
 /**
@@ -12,10 +13,8 @@ import core.utils.components.path.IPath;
  */
 public final class PainterConfig {
 
-  private final float xOffset;
-  private final float yOffset;
-  private final float xScaling;
-  private final float yScaling;
+  private final Vector2 offset;
+  private final Vector2 scaling;
   private int tintColor = -1; // -1 means no tint color
 
   /**
@@ -46,10 +45,8 @@ public final class PainterConfig {
 
   private PainterConfig(
       float xOffset, float yOffset, float xScaling, float yScaling, int tintColor) {
-    this.xOffset = xOffset;
-    this.yOffset = yOffset;
-    this.xScaling = xScaling;
-    this.yScaling = yScaling;
+    this.offset = Vector2.of(xOffset, yOffset);
+    this.scaling = Vector2.of(xScaling, yScaling);
     this.tintColor = tintColor;
   }
 
@@ -68,39 +65,21 @@ public final class PainterConfig {
   }
 
   /**
-   * Get the x-Offset in this configuration.
+   * Get the offset in this configuration.
    *
-   * @return x-Offset
+   * @return offset as a {@link Vector2}
    */
-  public float xOffset() {
-    return xOffset;
+  public Vector2 offset() {
+    return offset;
   }
 
   /**
-   * Get the y-Offset in this configuration.
+   * Get the scaling in this configuration.
    *
-   * @return y-Offset
+   * @return scaling as a {@link Vector2}
    */
-  public float yOffset() {
-    return yOffset;
-  }
-
-  /**
-   * Get the x-Scaling in this configuration.
-   *
-   * @return x-Scaling
-   */
-  public float xScaling() {
-    return xScaling;
-  }
-
-  /**
-   * Get the y-Scaling in this configuration.
-   *
-   * @return y-Scaling
-   */
-  public float yScaling() {
-    return yScaling;
+  public Vector2 scaling() {
+    return scaling;
   }
 
   /**

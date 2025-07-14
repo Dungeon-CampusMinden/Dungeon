@@ -111,7 +111,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -124,7 +124,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -137,7 +137,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -150,14 +150,14 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(6, 7);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -170,7 +170,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -186,7 +186,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -202,7 +202,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -218,21 +218,21 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(6, 1);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(8, 2);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -248,21 +248,21 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(5, 8);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(7, 8);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -275,7 +275,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -288,7 +288,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -301,7 +301,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -314,7 +314,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -330,7 +330,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -346,7 +346,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -362,14 +362,14 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(7, 1);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -385,14 +385,14 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(1, 4);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -408,21 +408,21 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(6, 4);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(7, 2);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -438,14 +438,14 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(7, 4);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -461,7 +461,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -477,14 +477,14 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
     coordinate = new Coordinate(7, 3);
     assertEquals(
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 
@@ -500,7 +500,7 @@ public class TileTextureFactoryTest {
         targetTexture,
         TileTextureFactory.findTexturePath(
                 new TileTextureFactory.LevelPart(
-                    layout[coordinate.y][coordinate.x], design, layout, coordinate))
+                    layout[coordinate.y()][coordinate.x()], design, layout, coordinate))
             .pathString());
   }
 }

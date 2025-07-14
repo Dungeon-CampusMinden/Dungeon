@@ -151,10 +151,10 @@ public final class CollisionSystem extends System {
       final CollideComponent hitBox1,
       final Entity h2,
       final CollideComponent hitBox2) {
-    return hitBox1.bottomLeft(h1).x < hitBox2.topRight(h2).x
-        && hitBox1.topRight(h1).x > hitBox2.bottomLeft(h2).x
-        && hitBox1.bottomLeft(h1).y < hitBox2.topRight(h2).y
-        && hitBox1.topRight(h1).y > hitBox2.bottomLeft(h2).y;
+    return hitBox1.bottomLeft(h1).x() < hitBox2.topRight(h2).x()
+        && hitBox1.topRight(h1).x() > hitBox2.bottomLeft(h2).x()
+        && hitBox1.bottomLeft(h1).y() < hitBox2.topRight(h2).y()
+        && hitBox1.topRight(h1).y() > hitBox2.bottomLeft(h2).y();
   }
 
   /**
@@ -171,8 +171,8 @@ public final class CollisionSystem extends System {
       final CollideComponent hitBox1,
       final Entity h2,
       final CollideComponent hitBox2) {
-    float y = hitBox2.center(h2).y - hitBox1.center(h1).y;
-    float x = hitBox2.center(h2).x - hitBox1.center(h1).x;
+    float y = hitBox2.center(h2).y() - hitBox1.center(h1).y();
+    float x = hitBox2.center(h2).x() - hitBox1.center(h1).x();
     float rads = (float) Math.atan2(y, x);
     double piQuarter = Math.PI / 4;
     if (rads < 3 * -piQuarter) {

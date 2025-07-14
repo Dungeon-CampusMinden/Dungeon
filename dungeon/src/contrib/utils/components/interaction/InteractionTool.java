@@ -5,6 +5,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -60,9 +61,9 @@ public final class InteractionTool {
         pc,
         ic,
         Point.calculateDistance(heroPosition.position(), pc.position()),
-        Point.unitDirectionalVector(heroPosition.position(), pc.position()));
+        pc.position().vectorTo(heroPosition.position()).normalize());
   }
 
   private record InteractionData(
-      Entity e, PositionComponent pc, InteractionComponent ic, float dist, Point unitDir) {}
+      Entity e, PositionComponent pc, InteractionComponent ic, float dist, Vector2 unitDir) {}
 }

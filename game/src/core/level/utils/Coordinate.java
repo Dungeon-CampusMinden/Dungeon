@@ -1,52 +1,29 @@
 package core.level.utils;
 
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
- * Coordinate in the dungeon, based on array index.
+ * A record representing a 2D coordinate with x and y Integer components.
  *
- * <p>No getter needed. All attributes are public.
+ * <p>Provides utility methods for coordinate operations such as converting to a point, adding a
+ * vector, calculating the vector to another coordinate, and computing the distance between two
+ * coordinates.
+ *
+ * @param x The x component of the coordinate.
+ * @param y The y component of the coordinate.
+ * @see Point
+ * @see Vector2
  */
-public class Coordinate {
-
-  /** The x-Coordinate. */
-  public int x;
-
-  /** The y-Coordinate. */
-  public int y;
+public record Coordinate(int x, int y) {
 
   /**
-   * Create a new Coordinate.
+   * Create a new coordinate from another coordinate.
    *
-   * @param x x-Coordinate
-   * @param y y-Coordinate
+   * @param other The other coordinate.
    */
-  public Coordinate(int x, int y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  /**
-   * Copy a coordinate.
-   *
-   * @param copyFrom Coordinate to copy
-   */
-  public Coordinate(final Coordinate copyFrom) {
-    x = copyFrom.x;
-    y = copyFrom.y;
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (!(o instanceof Coordinate other)) {
-      return false;
-    }
-    return x == other.x && y == other.y;
-  }
-
-  @Override
-  public int hashCode() {
-    return x + y;
+  public Coordinate(Coordinate other) {
+    this(other.x, other.y);
   }
 
   /**
@@ -68,18 +45,23 @@ public class Coordinate {
   }
 
   /**
-   * Creates a new Coordinate which has the sum of the Coordinates.
+   * Moves this coordinate by a vector.
    *
-   * @param other which Coordinate to add
-   * @return Coordinate where the values for x and y are added
+   * @param vector The vector to move the coordinate by.
+   * @return A new coordinate that is the sum of this coordinate and the given vector.
    */
-  public Coordinate add(final Coordinate other) {
-    return new Coordinate(this.x + other.x, this.y + other.y);
+  public Coordinate translate(final Vector2 vector) {
+    return new Coordinate(this.x + (int) vector.x(), this.y + (int) vector.y());
   }
 
-  @Override
-  public String toString() {
-    return "Coordinate{" + "x=" + x + ", y=" + y + '}';
+  /**
+   * Calculates the vector from this coordinate to another coordinate.
+   *
+   * @param other The other coordinate.
+   * @return The vector from this coordinate to the other coordinate.
+   */
+  public Vector2 vectorTo(final Coordinate other) {
+    return Vector2.of(other.x - this.x, other.y - this.y);
   }
 
   /**
@@ -90,5 +72,10 @@ public class Coordinate {
    */
   public int distance(Coordinate other) {
     return Math.abs(x - other.x) + Math.abs(y - other.y);
+  }
+
+  @Override
+  public String toString() {
+    return x + "," + y;
   }
 }

@@ -7,8 +7,8 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.utils.Point;
-import core.utils.Tuple;
+import core.utils.*;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.*;
 
@@ -18,9 +18,9 @@ public final class LevelUtils {
   private static final Random RANDOM = new Random();
 
   /** These vectors can be used to calculate neighbor coordinates. */
-  private static final Coordinate[] DELTA_VECTORS =
-      new Coordinate[] {
-        new Coordinate(-1, 0), new Coordinate(1, 0), new Coordinate(0, -1), new Coordinate(0, 1),
+  private static final Vector2[] DELTA_VECTORS =
+      new Vector2[] {
+        Vector2.of(-1, 0), Vector2.of(1, 0), Vector2.of(0, -1), Vector2.of(0, 1),
       };
 
   /**
@@ -156,16 +156,16 @@ public final class LevelUtils {
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
     // offset of neighbour Tiles which may not be accessible
-    Coordinate[] offsets =
-        new Coordinate[] {
-          new Coordinate(-1, -1),
-          new Coordinate(0, -1),
-          new Coordinate(1, -1),
-          new Coordinate(-1, 0),
-          new Coordinate(1, 0),
-          new Coordinate(-1, 1),
-          new Coordinate(0, 1),
-          new Coordinate(1, 1),
+    Vector2[] offsets =
+        new Vector2[] {
+          Vector2.of(-1, -1),
+          Vector2.of(0, -1),
+          Vector2.of(1, -1),
+          Vector2.of(-1, 0),
+          Vector2.of(1, 0),
+          Vector2.of(-1, 1),
+          Vector2.of(0, 1),
+          Vector2.of(1, 1),
         };
     // all found tiles
     Set<Tile> tiles = new HashSet<>();
@@ -178,8 +178,8 @@ public final class LevelUtils {
       boolean added = tiles.add(current);
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
-        for (Coordinate offset : offsets) {
-          Tile tile = current.level().tileAt(current.coordinate().add(offset));
+        for (Vector2 offset : offsets) {
+          Tile tile = current.level().tileAt(current.coordinate().translate(offset));
           if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
         }
       }
@@ -195,13 +195,13 @@ public final class LevelUtils {
 
   private static boolean isPointBarelyInTile(final Point center, float radius, final Tile tile) {
     // left max distance
-    Point xMin = new Point(-radius, 0).add(center);
+    Point xMin = center.translate(Vector2.of(-radius, 0));
     // right max distance
-    Point xMax = new Point(radius, 0).add(center);
+    Point xMax = center.translate(Vector2.of(radius, 0));
     // up max distance
-    Point yMin = new Point(0, -radius).add(center);
+    Point yMin = center.translate(Vector2.of(0, -radius));
     // down max distance
-    Point yMax = new Point(0, radius).add(center);
+    Point yMax = center.translate(Vector2.of(0, radius));
     return isPointInTile(xMin, tile)
         || isPointInTile(xMax, tile)
         || isPointInTile(yMin, tile)
@@ -209,28 +209,24 @@ public final class LevelUtils {
   }
 
   private static boolean isPointInTile(final Point point, final Tile tile) {
-    return tile.coordinate().toPoint().x < point.x
-        && point.x < (tile.coordinate().toPoint().x + 1)
-        && tile.coordinate().toPoint().y < point.y
-        && point.y < (tile.coordinate().toPoint().y + 1);
+    return tile.coordinate().toPoint().x() < point.x()
+        && point.x() < (tile.coordinate().toPoint().x() + 1)
+        && tile.coordinate().toPoint().y() < point.y()
+        && point.y() < (tile.coordinate().toPoint().y() + 1);
   }
 
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
-    return Point.inRange(
-            center, new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y), radius)
-        || Point.inRange(
-            center,
-            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y),
-            radius)
-        || Point.inRange(
-            center,
-            new Point(tile.coordinate().toPoint().x, tile.coordinate().toPoint().y + 1),
-            radius)
-        || Point.inRange(
-            center,
-            new Point(tile.coordinate().toPoint().x + 1, tile.coordinate().toPoint().y + 1),
-            radius);
+    Point origin = tile.coordinate().toPoint();
+    Vector2[] cornerOffsets = {
+      Vector2.ZERO, Vector2.RIGHT, Vector2.UP, Vector2.RIGHT.add(Vector2.UP)
+    };
+    for (Vector2 offset : cornerOffsets) {
+      if (Point.inRange(center, origin.translate(offset), radius)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -333,9 +329,9 @@ public final class LevelUtils {
       for (Tile tile : neighbours(cell)) {
         Coordinate coordinate = tile.coordinate();
         // Check if the new cell is within bounds and not yet visited
-        if (!queued[coordinate.y][coordinate.x]) {
+        if (!queued[coordinate.y()][coordinate.x()]) {
           queue.add(tile);
-          queued[coordinate.y][coordinate.x] = true;
+          queued[coordinate.y()][coordinate.x()] = true;
         }
       }
     }
@@ -356,14 +352,14 @@ public final class LevelUtils {
     Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
     Tile[][] layout = Game.currentLevel().layout();
     Coordinate coordinate = tile.coordinate();
-    for (Coordinate deltaVector : DELTA_VECTORS) {
-      Coordinate newCoordinate = coordinate.add(deltaVector);
+    for (Vector2 deltaVector : DELTA_VECTORS) {
+      Coordinate newCoordinate = coordinate.translate(deltaVector);
       // Check if the new cell is within bounds and not yet visited
-      if (newCoordinate.x >= 0
-          && newCoordinate.x < levelSize.a()
-          && newCoordinate.y >= 0
-          && newCoordinate.y < levelSize.b())
-        returnSet.add(layout[newCoordinate.y][newCoordinate.x]);
+      if (newCoordinate.x() >= 0
+          && newCoordinate.x() < levelSize.a()
+          && newCoordinate.y() >= 0
+          && newCoordinate.y() < levelSize.b())
+        returnSet.add(layout[newCoordinate.y()][newCoordinate.x()]);
     }
     return returnSet;
   }
@@ -388,8 +384,8 @@ public final class LevelUtils {
    */
   public static void changeVisibilityForArea(
       Coordinate topLeft, Coordinate bottomRight, boolean visible) {
-    for (int x = topLeft.x; x <= bottomRight.x; x++) {
-      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+    for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
+      for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
         Tile tile = Game.tileAT(new Coordinate(x, y));
         if (tile != null) {
           tile.visible(visible);
@@ -407,10 +403,10 @@ public final class LevelUtils {
    * @return true if the tile is within the area, false if not.
    */
   public static boolean isTileWithinArea(Tile tile, Coordinate topLeft, Coordinate bottomRight) {
-    return tile.coordinate().x >= topLeft.x
-        && tile.coordinate().x <= bottomRight.x
-        && tile.coordinate().y >= bottomRight.y
-        && tile.coordinate().y <= topLeft.y;
+    return tile.coordinate().x() >= topLeft.x()
+        && tile.coordinate().x() <= bottomRight.x()
+        && tile.coordinate().y() >= bottomRight.y()
+        && tile.coordinate().y() <= topLeft.y();
   }
 
   /**
@@ -451,8 +447,8 @@ public final class LevelUtils {
   public static List<Tile> tilesInArea(Coordinate topLeft, Coordinate bottomRight) {
     Tile[][] layout = Game.currentLevel().layout();
     List<Tile> tiles = new java.util.ArrayList<>();
-    for (int x = topLeft.x; x <= bottomRight.x; x++) {
-      for (int y = bottomRight.y; y <= topLeft.y; y++) {
+    for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
+      for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
         tiles.add(layout[y][x]);
       }
     }
@@ -467,10 +463,10 @@ public final class LevelUtils {
    * @param color The color to tint the area with.
    */
   public static void tintArea(Coordinate start, Coordinate end, int color) {
-    int minX = Math.min(start.x, end.x);
-    int maxX = Math.max(start.x, end.x);
-    int minY = Math.min(start.y, end.y);
-    int maxY = Math.max(start.y, end.y);
+    int minX = Math.min(start.x(), end.x());
+    int maxX = Math.max(start.x(), end.x());
+    int minY = Math.min(start.y(), end.y());
+    int maxY = Math.max(start.y(), end.y());
 
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {

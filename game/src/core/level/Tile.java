@@ -206,14 +206,14 @@ public abstract class Tile {
    */
   public Direction[] directionTo(final Tile goal) {
     List<Direction> directions = new ArrayList<>();
-    if (globalPosition.x < goal.coordinate().x) {
+    if (globalPosition.x() < goal.coordinate().x()) {
       directions.add(Direction.E);
-    } else if (globalPosition.x > goal.coordinate().x) {
+    } else if (globalPosition.x() > goal.coordinate().x()) {
       directions.add(Direction.W);
     }
-    if (globalPosition.y < goal.coordinate().y) {
+    if (globalPosition.y() < goal.coordinate().y()) {
       directions.add(Direction.N);
-    } else if (globalPosition.y > goal.coordinate().y) {
+    } else if (globalPosition.y() > goal.coordinate().y()) {
       directions.add(Direction.S);
     }
     return directions.toArray(new Direction[0]);
@@ -307,8 +307,7 @@ public abstract class Tile {
    * @return The distance between this tile and the given tile.
    */
   public int distance(Tile to) {
-    return Math.abs(globalPosition.x - to.globalPosition.x)
-        + Math.abs(globalPosition.y - to.globalPosition.y);
+    return globalPosition.distance(to.globalPosition);
   }
 
   /** The direction of a tile. */

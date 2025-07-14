@@ -10,8 +10,7 @@ protected void processKey(String key) {
 }
 
 private void move(int x, int y) {
-    hero.setYSpeed(y);
-    hero.setXSpeed(x);
+    hero.setSpeed(Vector2.of(x, y));
 }
 
 private void shootFireball() {
