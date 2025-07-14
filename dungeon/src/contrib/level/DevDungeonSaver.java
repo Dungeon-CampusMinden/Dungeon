@@ -1,12 +1,10 @@
 package contrib.level;
 
-import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,24 +42,18 @@ public class DevDungeonSaver {
       designLabel = Game.currentLevel().endTile().designLabel().name();
     }
 
-    Entity hero = Game.hero().orElse(null);
-    Point heroPos;
-    if (hero != null) {
-      heroPos =
-          hero.fetch(PositionComponent.class)
-              .orElseThrow(
-                  () -> MissingComponentException.build(Game.hero().get(), PositionComponent.class))
-              .position();
-    } else {
-      heroPos = new Point(0, 0);
-    }
+    Point heroPos =
+        Game.hero()
+            .flatMap(hero -> hero.fetch(PositionComponent.class).map(PositionComponent::position))
+            .orElse(new Point(0, 0));
+
     List<Coordinate> customPoints = new ArrayList<>();
     if (Game.currentLevel() instanceof DevDungeonLevel) {
       customPoints = ((DevDungeonLevel) Game.currentLevel()).customPoints();
     }
     StringBuilder customPointsString = new StringBuilder();
     for (Coordinate customPoint : customPoints) {
-      customPointsString.append(customPoint.x()).append(",").append(customPoint.y()).append(";");
+      customPointsString.append(customPoint).append(";");
     }
 
     // Compress the layout of the current level by removing all lines that only contain 'S'

@@ -86,4 +86,9 @@ public record Point(float x, float y) {
   public double distance(Point otherPos) {
     return Math.sqrt(Math.pow(otherPos.x() - x(), 2) + Math.pow(otherPos.y() - y(), 2));
   }
+
+  @Override
+  public String toString() {
+    return x + "," + y;
+  }
 }

@@ -259,5 +259,10 @@ public interface Vector2 {
     public BasicVector2(double x, double y) {
       this((float) x, (float) y);
     }
+
+    @Override
+    public String toString() {
+      return x + "," + y;
+    }
   }
 }
