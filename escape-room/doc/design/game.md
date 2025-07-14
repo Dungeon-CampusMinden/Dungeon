@@ -10,7 +10,7 @@ Unsere Escape Rooms sind für **2–4 Spieler** ausgelegt – je nach Raum kann 
 *   Coop-Spiele: vor allem Zweierteams; besonders eng zusammenarbeiten; starkes Wir-Gefühl
 *   Multiplayer-Spiele: Teams um 5 Leute; starke Rollen/ Aufgabenverteilung; höher Kommunikatiosaufwand; 
 *   vergleichbar mit Praktikumsgruppengröße
-*   beachtet den Umsetzungsaufwand; Räume für mehr Speiler werden komplexer im Design und Umsetzung
+*   beachtet den Umsetzungsaufwand; Räume für mehr Spieler werden komplexer im Design und Umsetzung
 # Multiplayer-Implementierung
 
 Annahme: wir brauchen Netzwerk-Multiplayer
