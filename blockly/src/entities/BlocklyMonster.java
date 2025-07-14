@@ -6,11 +6,11 @@ import components.TintDirectionComponent;
 import contrib.components.AIComponent;
 import contrib.components.BlockViewComponent;
 import contrib.entities.*;
-import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
@@ -63,7 +63,18 @@ public enum BlocklyMonster {
           new StraightRangeAI(
               6,
               new Skill(
-                  new InevitableFireballSkill(EntityUtils::getHeroPosition),
+                  new InevitableFireballSkill(
+                      // Adjust postion of the target so the fireball flies in a straight line
+                      () ->
+                          Game.hero()
+                              .flatMap(hero -> hero.fetch(PositionComponent.class))
+                              .map(
+                                  positionComponent -> {
+                                    Tile tile = Game.tileAT(positionComponent.position());
+                                    return new Point(
+                                        tile.coordinate().x + 1f, tile.coordinate().y + 1f);
+                                  })
+                              .orElse(null)),
                   AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
       () -> entity -> true, // instant fight
