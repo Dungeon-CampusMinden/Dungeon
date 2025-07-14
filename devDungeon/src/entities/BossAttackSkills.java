@@ -79,11 +79,11 @@ public class BossAttackSkills {
                   .orElseThrow(
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
-          Vector2 direction = heroPos.vectorTo(bossPos);
+          Vector2 direction = heroPos.vectorTo(bossPos).normalize();
           // Main shoot is directly at the hero
           // every other fireball is offset left and right of the main shoot
-          Vector2 right = direction.rotateDeg(90).normalize();
-          Vector2 left = direction.rotateDeg(-90).normalize();
+          Vector2 right = direction.rotateDeg(90);
+          Vector2 left = direction.rotateDeg(-90);
           for (int i = -wallWidth / 2; i < wallWidth / 2; i++) {
             if (i == 0) {
               launchFireBall(bossPos, heroPos, bossPos, skillUser);
@@ -191,13 +191,13 @@ public class BossAttackSkills {
                   .orElseThrow(
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
-          Vector2 direction = heroPos.vectorTo(bossPos).normalize();
+          Vector2 direction = bossPos.vectorTo(heroPos).normalize();
 
           // Function to calculate the fireball target position
           Function<Integer, Point> calculateFireballTarget =
               (angle) -> {
                 Vector2 offset =
-                    direction.rotateDeg(angle).scale(heroPos.vectorTo(bossPos).length());
+                    direction.rotateDeg(angle).scale(bossPos.vectorTo(heroPos).length());
                 return bossPos.translate(offset);
               };
 
