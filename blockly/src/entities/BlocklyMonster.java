@@ -10,7 +10,6 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.Tile;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
@@ -64,13 +63,15 @@ public enum BlocklyMonster {
               6,
               new Skill(
                   new InevitableFireballSkill(
-                      // Adjust postion of the target so the fireball flies in a straight line
+                      // Adjust the position of the target to the center of the tile so the fireball
+                      // flies in a straight line
                       () ->
                           Game.hero()
                               .flatMap(hero -> hero.fetch(PositionComponent.class))
-                              .map(pos -> Game.tileAT(pos.position()))
-                              .map(Tile::position)
-                              .map(point -> point.add(1, 1))
+                              .map(PositionComponent::position)
+                              .map(Point::toCenteredPoint)
+                              // offset for error with fireball path calculation (#2230)
+                              .map(point -> point.add(0.5f, 0.5f))
                               .orElse(null)),
                   AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
