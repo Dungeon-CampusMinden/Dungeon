@@ -26,22 +26,14 @@ sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
-processResources {
-    from new File(project(':game').projectDir, '/assets')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
 // create our Starter.jar
 tasks.register('buildStarterJar', Jar) {
-    dependsOn ':game:build'
-
     manifest {
         attributes 'Main-Class': 'starter.Starter'
     }
     archiveFileName = 'Starter.jar'
 
     from sourceSets.main.output
-    from project(':game').sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }

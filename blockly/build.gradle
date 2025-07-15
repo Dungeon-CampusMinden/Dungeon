@@ -23,7 +23,6 @@ sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 
 processResources {
-    from new File(project(':game').projectDir, '/assets')
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
@@ -43,17 +42,16 @@ tasks.register('runBlockly', JavaExec) {
 }
 
 tasks.register('buildBlocklyJar', Jar) {
-    dependsOn ':game:jar', ':dungeon:jar'
+    dependsOn ':dungeon:jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
-    from project(':game').sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
     // Include source files from Language Server
-    from(project(':game').projectDir) {
+    from(project(':dungeon').projectDir) {
         include 'src/core/level/utils/LevelElement.java'
         // Remove 'src/' prefix from paths
         eachFile { file ->
@@ -80,7 +78,6 @@ tasks.register('buildBlocklyJar', Jar) {
     archiveFileName = 'Blockly.jar'
 
     into('assets') {
-        from new File(project(':game').projectDir, '/assets')
         from new File(project(':dungeon').projectDir, '/assets')
     }
 
