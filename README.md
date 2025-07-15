@@ -154,7 +154,7 @@ reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 
-The assets in [`game/assets/`], [`dungeon/assets/`], [`devDungeon/assets/`], and
+The assets in [`dungeon/assets/`], [`devDungeon/assets/`], and
 [`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`] are a mix from free and
 self created resources:
 
@@ -172,9 +172,9 @@ self created resources:
 -   Adapted and modified by [\@Flamtky][]:
     -   Files (except [Health Potion]) in [`dungeon/assets/items/potion/`] (originating from
         [\@dkirshner])
-    -   Files in [`game/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
+    -   Files in [`dungeon/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
         [\@dkirshner])
-    -   [`game/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
+    -   [`dungeon/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
 -   Self created by [\@Flamtky][]:
     -   Files in [`devDungeon/assets/objects/spawner/`]
 
@@ -189,7 +189,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [interesting report]: https://www.hsbi.de/presse/pressemitteilungen/informatik-studierende-am-campus-minden-entwickeln-2d-rollenspiel-zum-lehren-und-lernen
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
-  [1]: game/doc/img/monster.gif
+  [1]: dungeon/doc/img/monster.gif
   [2]: blockly/doc/img/examples/blockly_gif.gif
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
   [Freiraum 2022]: https://stiftung-hochschullehre.de/foerderung/freiraum/
@@ -198,7 +198,7 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
   [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
-  [`game/assets/`]: game/assets/
+  [`dungeon/assets/`]: dungeon/assets/
   [`dungeon/assets/`]: dungeon/assets/
   [`devDungeon/assets/`]: devDungeon/assets/
   [`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`]: dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/
@@ -206,8 +206,8 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [Health Potion]: dungeon/assets/items/potion/health_potion.png
   [`dungeon/assets/items/potion/`]: dungeon/assets/items/potion/
   [\@dkirshner]: https://github.com/dkirshner
-  [`game/assets/dungeon/*/floor`]: game/assets/dungeon/
-  [`game/assets/dungeon/fire/floor/floor_1.png`]: game/assets/dungeon/fire/floor/floor_1.png
+  [`dungeon/assets/dungeon/*/floor`]: dungeon/assets/dungeon/
+  [`dungeon/assets/dungeon/fire/floor/floor_1.png`]: dungeon/assets/dungeon/fire/floor/floor_1.png
   [`devDungeon/assets/objects/spawner/`]: devDungeon/assets/objects/spawner/
   [work]: https://github.com/Dungeon-CampusMinden/Dungeon
   [contributors]: https://github.com/Dungeon-CampusMinden/Dungeon/graphs/contributors
