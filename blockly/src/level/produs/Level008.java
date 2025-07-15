@@ -17,8 +17,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter18Level extends BlocklyLevel {
+/**
+ * In this level, both levers and stones must be used. The wiring diagram shows the Boolean logic
+ * connections between doors and levers.
+ */
+public class Level008 extends BlocklyLevel {
 
   private LeverComponent switch1, switch2, switch3, switch4, switch5;
   private DoorTile door1, door2, door3, door4, door5;
@@ -31,9 +34,8 @@ public class Chapter18Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter18Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 1: Level 8");
+  public Level008(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 8");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

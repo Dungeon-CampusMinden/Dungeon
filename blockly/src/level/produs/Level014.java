@@ -8,8 +8,11 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter23Level extends BlocklyLevel {
+/**
+ * This level focuses on pattern recognition in the paths. The route to the goal consists of
+ * repeating segments.
+ */
+public class Level014 extends BlocklyLevel {
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -19,9 +22,8 @@ public class Chapter23Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter23Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 3");
+  public Level014(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 14");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",

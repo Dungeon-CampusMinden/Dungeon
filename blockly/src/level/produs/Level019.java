@@ -1,5 +1,6 @@
 package level.produs;
 
+import contrib.hud.DialogUtils;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
@@ -10,8 +11,13 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter31Level extends BlocklyLevel {
+/**
+ * This level features challenging backtracking that requires the use of breadcrumbs and clovers to
+ * successfully navigate and solve the maze.
+ */
+public class Level019 extends BlocklyLevel {
+
+  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -21,9 +27,8 @@ public class Chapter31Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter31Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 3: Level 1");
+  public Level019(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 19");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
@@ -37,12 +42,19 @@ public class Chapter31Level extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    LevelManagementUtils.fog(true);
+    LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
+    LevelManagementUtils.zoomIn();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
+    if (showText) {
+      DialogUtils.showTextPopup(
+          "Nutz deinen Beutel mit Krumen und Kleeblättern, um deinen Weg hier raus zu finden.",
+          "Kapitel 3: Rache");
+      showText = false;
+    }
   }
 
   @Override

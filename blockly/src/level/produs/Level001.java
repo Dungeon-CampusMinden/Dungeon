@@ -9,8 +9,12 @@ import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** PRODUS LEVEL. */
-public class Chapter22Level extends BlocklyLevel {
+/**
+ * This is the start of the game. It is designed to help players get comfortable with the Blockly
+ * controls. In this level, the hero can only move and turn; no monsters are present.
+ */
+public class Level001 extends BlocklyLevel {
+
   private static boolean showText = true;
 
   /**
@@ -21,40 +25,37 @@ public class Chapter22Level extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Chapter22Level(
-      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Kapitel 2: Level 2");
+  public Level001(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 1");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
         // Richtungen
-        // Inventar und Charakter
-        "drop_item",
-        "Items",
-        // Bedingung
-        "logic_monster_direction",
-        "logic_breadcrumbs_direction",
-        "logic_clover_direction",
-        "logic_bossView_direction",
-        // Wahrheitsausdruecke
-        "logic_operator",
-        "usual_condition",
+        "direction_up",
+        "direction_down",
+        "direction_here",
         // Kategorien
+        "Inventar & Charakter",
+        "Abfragen",
+        "Bedingung",
+        "Wahrheitsausdruecke",
         "Variablen",
+        "Schleife",
+        "Bedingungen",
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
+    LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusOn(new Coordinate(5, 8));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
+    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Ganz schön verwirrend hier. Du brauchst eine gute Strategie um den Ausgang zu finden.",
-          "Kapitel 2: Flucht");
+          "Schau! Die Wache hat vergessen die Tür zu verriegeln. Zeit für die Flucht. Lauf!",
+          "Kapitel 1: Ausbruch");
       showText = false;
     }
   }

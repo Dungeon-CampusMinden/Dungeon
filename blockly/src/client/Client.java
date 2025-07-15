@@ -79,32 +79,32 @@ public class Client {
     Game.userOnSetup(
         () -> {
           // chapter 1
-          DevDungeonLoader.addLevel(Tuple.of("level1", Chapter11Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level2", Chapter12Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level3", Chapter13Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level4", Chapter14Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level5", Chapter15Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level6", Chapter16Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level7", Chapter17Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level8", Chapter18Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level9", Chapter19Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level10", Chapter110Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level11", Chapter111Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level001", Level001.class));
+          DevDungeonLoader.addLevel(Tuple.of("level002", Level002.class));
+          DevDungeonLoader.addLevel(Tuple.of("level003", Level003.class));
+          DevDungeonLoader.addLevel(Tuple.of("level004", Level004.class));
+          DevDungeonLoader.addLevel(Tuple.of("level005", Level005.class));
+          DevDungeonLoader.addLevel(Tuple.of("level006", Level006.class));
+          DevDungeonLoader.addLevel(Tuple.of("level007", Level007.class));
+          DevDungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+          DevDungeonLoader.addLevel(Tuple.of("level009", Level009.class));
+          DevDungeonLoader.addLevel(Tuple.of("level010", Level010.class));
+          DevDungeonLoader.addLevel(Tuple.of("level011", Level011.class));
 
           // chapter 2
-          DevDungeonLoader.addLevel(Tuple.of("level12", Chapter21Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level13", Chapter22Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level14", Chapter23Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level15", Chapter24Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level16", Chapter25Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level012", Level012.class));
+          DevDungeonLoader.addLevel(Tuple.of("level013", Level013.class));
+          DevDungeonLoader.addLevel(Tuple.of("level014", Level014.class));
+          DevDungeonLoader.addLevel(Tuple.of("level015", Level015.class));
+          DevDungeonLoader.addLevel(Tuple.of("level016", Level016.class));
 
           // chapter 3
-          DevDungeonLoader.addLevel(Tuple.of("level17", Chapter31Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level18", Chapter32Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level19", Chapter33Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level20", Chapter34Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level21", Chapter35Level.class));
-          DevDungeonLoader.addLevel(Tuple.of("level22", Chapter36Level.class));
+          DevDungeonLoader.addLevel(Tuple.of("level017", Level017.class));
+          DevDungeonLoader.addLevel(Tuple.of("level018", Level018.class));
+          DevDungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          DevDungeonLoader.addLevel(Tuple.of("level020", Level020.class));
+          DevDungeonLoader.addLevel(Tuple.of("level021", Level021.class));
+          DevDungeonLoader.addLevel(Tuple.of("level022", Level022.class));
 
           createSystems();
 
