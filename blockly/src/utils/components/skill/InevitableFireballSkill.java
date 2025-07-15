@@ -77,7 +77,7 @@ public class InevitableFireballSkill extends DamageProjectile {
           // freeze on the corner of the red zone
           Game.hero()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
-              .ifPresent(pos -> pos.centerPositionOnTile());
+              .ifPresent(PositionComponent::centerPositionOnTile);
         });
   }
 
