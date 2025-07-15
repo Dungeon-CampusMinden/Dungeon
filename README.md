@@ -32,7 +32,7 @@ problems or suggestions, please feel free to contact us in English or German.
 It is acknowledged that parts of the materials contained in this repository have been
 developed as part of various publicly funded projects.
 
-### Lehr-Escape-Rooms mit LowCode im Dungeon (L`<ESC>`{=html}ROD)
+### Lehr-Escape-Rooms mit LowCode im Dungeon (L<ESC>ROD)
 
 04/2025 - 03/2027, 3003-1271, [Freiraum 2025], [Stiftung Innovation in der Hochschullehre]
 
