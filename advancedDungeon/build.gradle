@@ -15,21 +15,25 @@ processResources {
 }
 
 tasks.register('runAdvancedDungeon', JavaExec) {
+    group 'starter'
     mainClass = 'produsAdvanced.AdvancedDungeon'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('runPathfinder', JavaExec) {
+    group 'starter'
     mainClass = 'aiAdvanced.starter.PathfinderStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('runPathFindingComparison', JavaExec) {
+    group 'starter'
     mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('buildAdvancedDungeonJar', Jar) {
+    group 'jar'
     dependsOn ':dungeon:jar'
     archiveBaseName = 'AdvancedDungeon'
     from sourceSets.main.output

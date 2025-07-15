@@ -12,10 +12,12 @@ sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 
 tasks.register('runDevDungeon', JavaExec) {
+    group 'starter'
     mainClass = 'starter.DevDungeon'
     classpath = sourceSets.main.runtimeClasspath
 }
 tasks.register('buildDevDungeonJar', Jar) {
+    group 'jar'
     dependsOn ':dungeon:jar'
     archiveBaseName = 'DevDungeon'
     from sourceSets.main.output

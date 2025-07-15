@@ -27,7 +27,8 @@ sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
 // create our Starter.jar
-tasks.register('buildStarterJar', Jar) {
+tasks.register('buildDungeonJar', Jar) {
+    group 'jar'
     manifest {
         attributes 'Main-Class': 'starter.Starter'
     }
@@ -43,11 +44,13 @@ tasks.register('buildStarterJar', Jar) {
 }
 
 tasks.register('runBasicStarter', JavaExec) {
+    group 'starter'
     mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('debugBasicStarter', JavaExec) {
+    group 'starter'
     mainClass = 'starter.BasicStarter'
     classpath = sourceSets.main.runtimeClasspath
     debug = true
