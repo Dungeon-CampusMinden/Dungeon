@@ -19,6 +19,6 @@
     "vite-plugin-singlefile": "^2.3.0"
   },
   "dependencies": {
-    "blockly": "^12.1.0"
+    "blockly": "^12.2.0"
   }
 }
