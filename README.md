@@ -1,5 +1,5 @@
 
-<!-- pandoc -s -f markdown -t markdown --columns=94 --reference-links=true README.md -->
+<!--  pandoc -s -f markdown -t markdown+smart+four_space_rule-grid_tables-multiline_tables-simple_tables --columns=94 --reference-links=true  README.md  -o xxx.md  -->
 
 <h1 align="center">Dungeon</h1>
 <p align="center"><img src="https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/img/banner.png?raw=true" alt="Banner"></p>
@@ -32,7 +32,7 @@ problems or suggestions, please feel free to contact us in English or German.
 It is acknowledged that parts of the materials contained in this repository have been
 developed as part of various publicly funded projects.
 
-### Lehr-Escape-Rooms mit LowCode im Dungeon (L<ESC>ROD)
+### Lehr-Escape-Rooms mit LowCode im Dungeon (L`<ESC>`{=html}ROD)
 
 04/2025 - 03/2027, 3003-1271, [Freiraum 2025], [Stiftung Innovation in der Hochschullehre]
 
@@ -66,8 +66,8 @@ to different experience levels:
 -   **Workshop 1: Blockly-Dungeon**
 
     This no-code workshop is designed for younger pupils with little to no prior programming
-    experience. Using Google's Blockly language, pupils guide a hero through various levels
-    of a dungeon. Along the way, they solve puzzles that gradually increase in complexity,
+    experience. Using Google's Blockly language, pupils guide a hero through various levels of
+    a dungeon. Along the way, they solve puzzles that gradually increase in complexity,
     introducing programming concepts such as loops and boolean expressions in an intuitive,
     visual format.
 
@@ -95,11 +95,11 @@ The project is a **collaborative effort** between local schools and companies in
 (Ostwestfalen-Lippe) region, with HSBI providing both academic leadership and operational
 coordination.
 
- ![][2]
+![][2]
 
 ### Spiele-Framework für Digital Game Based Learning
 
-09/2022 - 11/2023, FRFMM-623/2022, [Freiraum 2022], [Stiftung Innovation in der
+09/2022 - 11/2023, FRFMM-623/2022, [Freiraum 2022][Freiraum 2025], [Stiftung Innovation in der
 Hochschullehre]
 
 As part of the project, the principles of game-based learning were further explored and
@@ -154,9 +154,8 @@ reinforcing the idea of autonomous, feedback-driven learning.
 
 ## Credits
 
-The assets in [`dungeon/assets/`], [`devDungeon/assets/`], and
-[`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`] are a mix from free and
-self created resources:
+The assets in [`dungeon/assets/`] and [`devDungeon/assets/`] are a mix from free and self
+created resources:
 
 -   Textures and animations:
     -   https://0x72.itch.io/16x16-dungeon-tileset (CC0 1.0)
@@ -167,13 +166,11 @@ self created resources:
     -   https://opengameart.org/content/hurt-death-sound-effect-for-character (CC0 1.0)
     -   https://opengameart.org/content/80-cc0-creture-sfx-2 (CC0 1.0)
     -   https://freesound.org/s/578488/ (CC0 1.0)
--   Icons in [`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`]
-    -   https://www.composables.com/icons (Apache 2.0)
 -   Adapted and modified by [\@Flamtky][]:
     -   Files (except [Health Potion]) in [`dungeon/assets/items/potion/`] (originating from
         [\@dkirshner])
-    -   Files in [`dungeon/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating from
-        [\@dkirshner])
+    -   Files in [`dungeon/assets/dungeon/*/floor`][]: each `floor_damaged.png` (originating
+        from [\@dkirshner])
     -   [`dungeon/assets/dungeon/fire/floor/floor_1.png`] (originating from [\@dkirshner])
 -   Self created by [\@Flamtky][]:
     -   Files in [`devDungeon/assets/objects/spawner/`]
@@ -190,18 +187,15 @@ All files in [`doc/publication/`] are licensed under [CC BY-SA 4.0].
   [PRODUS project]: #programming-dungeon-adventures-at-school-produs
   [project page]: https://www.hsbi.de/minden/produs/home
   [1]: dungeon/doc/img/monster.gif
-  [2]: blockly/doc/img/examples/blockly_gif.gif
   [Java SE Development Kit 21 LTS]: https://jdk.java.net/21/
-  [Freiraum 2022]: https://stiftung-hochschullehre.de/foerderung/freiraum/
   [Freiraum 2025]: https://stiftung-hochschullehre.de/foerderung/freiraum/
   [Stiftung Innovation in der Hochschullehre]: https://stiftung-hochschullehre.de/
   [Pakt für Informatik 2.0]: https://www.efre.nrw/einfach-machen/foerderung-finden/pakt-fuer-informatik-20
   [EFRE/JTF NRW 2021--27]: https://www.efre.nrw/
+  [2]: blockly/doc/img/examples/blockly_gif.gif
   [Fellowships für Innovationen in der digitalen Hochschullehre (digi-Fellows)]: https://www.dh.nrw/kooperationen/Digi-Fellows-2
   [`dungeon/assets/`]: dungeon/assets/
-  [`dungeon/assets/`]: dungeon/assets/
   [`devDungeon/assets/`]: devDungeon/assets/
-  [`dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/`]: dungeon-task-manager/Task_Management_Dungeon/src/main/kotlin/icon/
   [\@Flamtky]: https://github.com/Flamtky
   [Health Potion]: dungeon/assets/items/potion/health_potion.png
   [`dungeon/assets/items/potion/`]: dungeon/assets/items/potion/
