@@ -68,12 +68,9 @@ public enum BlocklyMonster {
                       () ->
                           Game.hero()
                               .flatMap(hero -> hero.fetch(PositionComponent.class))
-                              .map(
-                                  positionComponent -> {
-                                    Tile tile = Game.tileAT(positionComponent.position());
-                                    return new Point(
-                                        tile.coordinate().x + 1f, tile.coordinate().y + 1f);
-                                  })
+                              .map(pos -> Game.tileAT(pos.position()))
+                              .map(Tile::position)
+                              .map(point -> point.add(1, 1))
                               .orElse(null)),
                   AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
