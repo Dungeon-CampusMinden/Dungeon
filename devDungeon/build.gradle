@@ -17,7 +17,7 @@ tasks.register('runDevDungeon', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 tasks.register('buildDevDungeonJar', Jar) {
-    group 'starter'
+    group 'jar'
     dependsOn ':dungeon:jar'
     archiveBaseName = 'DevDungeon'
     from sourceSets.main.output

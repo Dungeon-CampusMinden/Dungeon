@@ -33,7 +33,7 @@ tasks.register('runPathFindingComparison', JavaExec) {
 }
 
 tasks.register('buildAdvancedDungeonJar', Jar) {
-    group 'starter'
+    group 'jar'
     dependsOn ':dungeon:jar'
     archiveBaseName = 'AdvancedDungeon'
     from sourceSets.main.output
