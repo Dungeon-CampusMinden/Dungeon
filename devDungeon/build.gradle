@@ -16,10 +16,9 @@ tasks.register('runDevDungeon', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 tasks.register('buildDevDungeonJar', Jar) {
-    dependsOn ':game:jar', ':dungeon:jar'
+    dependsOn ':dungeon:jar'
     archiveBaseName = 'DevDungeon'
     from sourceSets.main.output
-    from project(':game').sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
@@ -33,7 +32,6 @@ tasks.register('buildDevDungeonJar', Jar) {
     archiveFileName = 'DevDungeon.jar'
 
     into('assets') {
-        from new File(project(':game').projectDir, '/assets')
         from new File(project(':dungeon').projectDir, '/assets')
     }
 
@@ -41,7 +39,6 @@ tasks.register('buildDevDungeonJar', Jar) {
 }
 
 processResources {
-    from new File(project(':game').projectDir,    '/assets')
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
