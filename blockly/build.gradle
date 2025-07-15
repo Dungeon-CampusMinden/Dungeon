@@ -37,11 +37,13 @@ generateGrammarSource {
 
 
 tasks.register('runBlockly', JavaExec) {
+    group 'starter'
     mainClass = 'client.Client'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('buildBlocklyJar', Jar) {
+    group 'starter'
     dependsOn ':dungeon:jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
