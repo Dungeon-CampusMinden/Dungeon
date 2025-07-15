@@ -4,8 +4,6 @@ plugins {
 
 
 dependencies {
-    api project(':game')
-
     // LibGDX: expose this API to users because of core.level.elements.ILevel
     api supportDependencies.gdx
     api supportDependencies.gdx_platform
@@ -52,6 +50,16 @@ tasks.register('buildStarterJar', Jar) {
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
 }
 
+tasks.register('runBasicStarter', JavaExec) {
+    mainClass = 'starter.BasicStarter'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('debugBasicStarter', JavaExec) {
+    mainClass = 'starter.BasicStarter'
+    classpath = sourceSets.main.runtimeClasspath
+    debug = true
+}
 
 tasks.named('test', Test) {
     useJUnitPlatform()
