@@ -11,6 +11,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -71,7 +72,7 @@ public enum BlocklyMonster {
                               .map(PositionComponent::position)
                               .map(Point::toCenteredPoint)
                               // offset for error with fireball path calculation (#2230)
-                              .map(point -> point.add(0.5f, 0.5f))
+                              .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
                               .orElse(null)),
                   AIFactory.FIREBALL_COOL_DOWN)),
       () -> entity -> {}, // no idle needed
