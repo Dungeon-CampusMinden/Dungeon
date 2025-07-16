@@ -8,7 +8,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-import core.utils.IVoidFunction;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import java.util.ArrayList;
@@ -43,9 +42,6 @@ public class TileLevel implements ILevel {
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
   protected ArrayList<PitTile> pitTiles = new ArrayList<>();
-  private IVoidFunction onFirstLoad = () -> {};
-
-  private boolean wasLoaded = false;
 
   /**
    * Create a new level.
