@@ -10,8 +10,6 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.utils.LevelSize;
-import core.systems.LevelSystem;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Set;
@@ -64,7 +62,6 @@ public class CallbackTest {
     Game.initBaseLogger(Level.ALL);
     // start the game
 
-    LevelSystem.levelSize(LevelSize.SMALL);
     Game.loadConfig(
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,

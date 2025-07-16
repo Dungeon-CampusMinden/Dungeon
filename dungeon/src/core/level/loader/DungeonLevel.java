@@ -19,9 +19,9 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 /**
- * Represents a level in the Dungeon game. This class extends the {@link TileLevel} class and
- * adds functionality for handling custom points. These points are used to add spawn points, door
- * logic or any other custom logic to the level.
+ * Represents a level in the Dungeon game. This class extends the {@link TileLevel} class and adds
+ * functionality for handling custom points. These points are used to add spawn points, door logic
+ * or any other custom logic to the level.
  */
 public abstract class DungeonLevel extends TileLevel implements ITickable {
   protected static final Random RANDOM = new Random();
@@ -204,7 +204,7 @@ public abstract class DungeonLevel extends TileLevel implements ITickable {
   }
 
   private static DesignLabel parseDesignLabel(String line) {
-    if (line.isEmpty()) return DesignLabel.randomDesign();
+    if (line.isEmpty()) return DesignLabel.DEFAULT;
     try {
       return DesignLabel.valueOf(line);
     } catch (IllegalArgumentException e) {

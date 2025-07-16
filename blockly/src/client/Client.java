@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
-import core.level.loader.DungeonLoader;
 import contrib.systems.*;
 import contrib.systems.BlockSystem;
 import contrib.utils.CheckPatternPainter;
@@ -14,6 +13,7 @@ import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
+import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.systems.PositionSystem;
@@ -125,7 +125,6 @@ public class Client {
           }
 
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
           DungeonLoader.loadLevel(0);
         });
   }

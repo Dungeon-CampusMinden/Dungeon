@@ -2,12 +2,12 @@ package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import core.level.loader.DungeonLevel;
-import core.level.loader.DungeonSaver;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;
 import core.level.Tile;
+import core.level.loader.DungeonLevel;
+import core.level.loader.DungeonSaver;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.Point;
@@ -16,9 +16,9 @@ import java.util.Queue;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
- * the {@link DungeonLevel} layout by setting different tiles. The user can set the following
- * tiles: skip, pit, floor, wall, hole, exit, door, and custom points. The user can also fill an
- * area with floor tiles and save the current dungeon.
+ * the {@link DungeonLevel} layout by setting different tiles. The user can set the following tiles:
+ * skip, pit, floor, wall, hole, exit, door, and custom points. The user can also fill an area with
+ * floor tiles and save the current dungeon.
  */
 public class LevelEditorSystem extends System {
   private static final int SKIP_BUTTON = Input.Keys.NUM_1;

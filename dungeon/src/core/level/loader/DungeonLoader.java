@@ -16,9 +16,9 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * The DevDungeonLoader class is used to load {@link DungeonLevel} in the game. It is used to
- * load levels in a specific order or to load a specific level. The DungeonLoader class is used to
- * load levels from the file system or from a jar file.
+ * The DevDungeonLoader class is used to load {@link DungeonLevel} in the game. It is used to load
+ * levels in a specific order or to load a specific level. The DungeonLoader class is used to load
+ * levels from the file system or from a jar file.
  *
  * @see DungeonLevel
  */

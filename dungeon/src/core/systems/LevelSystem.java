@@ -62,7 +62,7 @@ public final class LevelSystem extends System {
   private final IVoidFunction onLevelLoad;
   private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
-  private final IVoidFunction onEndTile;
+  private IVoidFunction onEndTile;
 
   /**
    * Create a new {@link LevelSystem}.
@@ -192,28 +192,53 @@ public final class LevelSystem extends System {
    */
   @Override
   public void execute() {
-    if (currentLevel == null) DungeonLoader.loadLevel(0);
-     if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
-        .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
-    else
-      filteredEntityStream()
-          .forEach(
-              e -> {
-                isOnDoor(e)
-                    .ifPresent(
-                        iLevel -> {
-                          loadLevel(iLevel);
-                          playSound();
-                        });
-              });
-    drawLevel();
-
+    if (currentLevel == null) {
+      try {
+        DungeonLoader.loadLevel(0);
+        execute();
+      } catch (IndexOutOfBoundsException e) {
+        levelAPI_logger.warning(
+            "Can´t load level 0, because no level is added to the DungeonLoader.");
+      }
+    } else {
+      if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
+          .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
+      else
+        filteredEntityStream()
+            .forEach(
+                e -> {
+                  isOnDoor(e)
+                      .ifPresent(
+                          iLevel -> {
+                            loadLevel(iLevel);
+                            playSound();
+                          });
+                });
+      drawLevel();
+    }
   }
-
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */
   @Override
   public void stop() {
     run = true;
+  }
+
+  /**
+   * Sets the function to be executed when an entity reaches the end tile.
+   *
+   * @param onEndTile The function to be executed when an entity reaches the end tile.
+   */
+  public void onEndTile(IVoidFunction onEndTile) {
+    this.onEndTile = onEndTile;
+  }
+
+  /**
+   * Gets the function that is executed when an entity reaches the end tile.
+   *
+   * @return The function that is executed when an entity reaches the end tile.
+   */
+  public IVoidFunction onEndTile() {
+    return onEndTile;
   }
 }

@@ -1,10 +1,10 @@
 package level.utils;
 
-import core.level.loader.DungeonLevel;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.TPBallSkill;
 import core.Game;
 import core.level.Tile;
+import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;

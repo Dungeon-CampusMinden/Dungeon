@@ -1,8 +1,7 @@
-package core.level;
+package core.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
@@ -10,14 +9,12 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.Tile;
+import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
-import core.level.generator.IGenerator;
 import core.level.utils.Coordinate;
-import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.level.utils.LevelSize;
-import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Painter;
@@ -34,10 +31,9 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 /** WTF? . */
-public class TileLevelAPITest {
+public class LevelSystemTest {
 
   private LevelSystem api;
-  private IGenerator generator;
   private Painter painter;
   private IVoidFunction onLevelLoader;
   private ILevel level;
@@ -57,10 +53,9 @@ public class TileLevelAPITest {
     when(textureMap.textureAt(any())).thenReturn(texture);
 
     painter = Mockito.mock(Painter.class);
-    generator = Mockito.mock(IGenerator.class);
     onLevelLoader = Mockito.mock(IVoidFunction.class);
     level = Mockito.mock(TileLevel.class);
-    api = new LevelSystem(painter, generator, onLevelLoader);
+    api = new LevelSystem(painter, onLevelLoader);
     Game.add(api);
   }
 
@@ -76,48 +71,7 @@ public class TileLevelAPITest {
   /** WTF? . */
   @Test
   public void test_loadLevel() {
-    when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
-    api.loadLevel(LevelSize.MEDIUM, DesignLabel.DEFAULT);
-    verify(generator).level(eq(DesignLabel.DEFAULT), eq(LevelSize.MEDIUM));
-    verify(onLevelLoader).execute();
-
-    Mockito.verifyNoMoreInteractions(generator);
-    Mockito.verifyNoMoreInteractions(onLevelLoader);
-
-    assertEquals(level, LevelSystem.level());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_loadLevel_noParameter() {
-    when(generator.level(Mockito.any(), Mockito.any())).thenReturn(level);
-    api.loadLevel();
-    verify(generator).level(Mockito.any(), Mockito.any());
-    Mockito.verifyNoMoreInteractions(generator);
-    verify(onLevelLoader).execute();
-    Mockito.verifyNoMoreInteractions(onLevelLoader);
-    assertEquals(level, LevelSystem.level());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_loadLevel_withDesign_noSize() {
-    when(generator.level(eq(DesignLabel.DEFAULT), any())).thenReturn(level);
-    api.loadLevel(DesignLabel.DEFAULT);
-    verify(generator).level(eq(DesignLabel.DEFAULT), any());
-    Mockito.verifyNoMoreInteractions(generator);
-    verify(onLevelLoader).execute();
-    Mockito.verifyNoMoreInteractions(onLevelLoader);
-    assertEquals(level, LevelSystem.level());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_loadLevel_noDesign_WithSize() {
-    when(generator.level(any(), eq(LevelSize.SMALL))).thenReturn(level);
-    api.loadLevel(LevelSize.SMALL);
-    verify(generator).level(any(), eq(LevelSize.SMALL));
-    Mockito.verifyNoMoreInteractions(generator);
+    api.loadLevel(level);
     verify(onLevelLoader).execute();
     Mockito.verifyNoMoreInteractions(onLevelLoader);
     assertEquals(level, LevelSystem.level());
@@ -211,19 +165,15 @@ public class TileLevelAPITest {
   @Test
   public void test_execute_noLevel() {
     assertNull(LevelSystem.level());
-    when(generator.level(any(), Mockito.any())).thenReturn(level);
-    Tile[][] layout = new Tile[0][0];
-    when(level.layout()).thenReturn(layout);
-    // should load a new level if currentLevel==null
     api.execute();
-    verify(onLevelLoader, times(1)).execute();
+    verify(onLevelLoader, times(0)).execute();
   }
 
   /** WTF? . */
   @Test
   public void test_execute_heroOnEndTile() throws IOException {
-    when(generator.level(any(), Mockito.any())).thenReturn(level);
-    api.loadLevel();
+    api.loadLevel(level);
+    api.onEndTile(() -> api.loadLevel(level));
     Entity hero = new Entity();
     hero.add(new PositionComponent());
     hero.add(new PlayerComponent());
@@ -249,7 +199,7 @@ public class TileLevelAPITest {
   @Test
   public void test_setLevel() {
     api.loadLevel(level);
-    Mockito.verifyNoInteractions(generator);
+    api.onEndTile(() -> api.loadLevel(level));
     verify(onLevelLoader).execute();
     Mockito.verifyNoMoreInteractions(onLevelLoader);
     assertEquals(level, LevelSystem.level());

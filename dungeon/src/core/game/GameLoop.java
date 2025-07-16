@@ -16,8 +16,6 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.generator.postGeneration.WallGenerator;
-import core.level.generator.randomwalk.RandomWalkGenerator;
 import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
@@ -262,9 +260,7 @@ public final class GameLoop extends ScreenAdapter {
   private void createSystems() {
     ECSManagment.add(new PositionSystem());
     ECSManagment.add(new CameraSystem());
-    ECSManagment.add(
-        new LevelSystem(
-            DrawSystem.painter(), new WallGenerator(new RandomWalkGenerator()), onLevelLoad));
+    ECSManagment.add(new LevelSystem(DrawSystem.painter(), onLevelLoad));
     ECSManagment.add(new DrawSystem());
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new PlayerSystem());

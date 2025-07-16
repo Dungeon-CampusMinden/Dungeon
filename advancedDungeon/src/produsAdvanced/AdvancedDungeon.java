@@ -4,7 +4,6 @@ import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
-import core.level.loader.DungeonLoader;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
@@ -13,6 +12,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.game.WindowEventManager;
+import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
@@ -160,7 +160,6 @@ public class AdvancedDungeon {
           }
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
           DungeonLoader.loadLevel(0);
         });
   }

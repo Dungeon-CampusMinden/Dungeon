@@ -294,7 +294,7 @@ public class TileLevelTest {
     for (int i = 0; i < 3; i++) {
       levelElement[i][1] = LevelElement.FLOOR;
     }
-    var level = new TileLevel(levelElement, DesignLabel.randomDesign());
+    var level = new TileLevel(levelElement, DesignLabel.DEFAULT);
     var start = level.tileAt(new Coordinate(1, 0));
     var end = level.tileAt(new Coordinate(1, 2));
     var path = level.findPath(end, start);
@@ -309,7 +309,7 @@ public class TileLevelTest {
     for (int i = 0; i < 3; i++) {
       levelElement[i][0] = LevelElement.FLOOR;
     }
-    var level = new TileLevel(levelElement, DesignLabel.randomDesign());
+    var level = new TileLevel(levelElement, DesignLabel.DEFAULT);
     var start = level.tileAt(new Coordinate(0, 0));
     var end = level.tileAt(new Coordinate(0, 2));
     var path = level.findPath(end, start);
@@ -380,7 +380,7 @@ public class TileLevelTest {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
     levelLayout[0][0] = LevelElement.EXIT;
-    var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
+    var level = new TileLevel(levelLayout, DesignLabel.DEFAULT);
     assertEquals(levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).levelElement());
   }
 
@@ -391,7 +391,7 @@ public class TileLevelTest {
     for (int y = 0; y < 3; y++) {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
-    var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
+    var level = new TileLevel(levelLayout, DesignLabel.DEFAULT);
     assertNotNull(level.randomTile());
   }
 
@@ -426,7 +426,7 @@ public class TileLevelTest {
     for (int y = 0; y < 3; y++) {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
-    var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
+    var level = new TileLevel(levelLayout, DesignLabel.DEFAULT);
     Point randomPoint = level.randomTilePoint();
     assertNotNull(randomPoint);
     assertNotNull(level.tileAt(randomPoint.toCoordinate()));

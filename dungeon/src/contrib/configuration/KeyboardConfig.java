@@ -97,13 +97,6 @@ public class KeyboardConfig {
       new ConfigKey<>(new String[] {"debug", "zoom_out"}, new ConfigIntValue(Input.Keys.L));
 
   /**
-   * Keybinding to switch the Size of the nextlevel if the GraphBased-Levelgenerator is used and the
-   * {@link contrib.utils.components.Debugger} is active.
-   */
-  public static final ConfigKey<Integer> DEBUG_TOGGLE_LEVELSIZE =
-      new ConfigKey<>(new String[] {"debug", "toggle_levelsize"}, new ConfigIntValue(Input.Keys.Z));
-
-  /**
    * Keybinding to spawn a monster on courser location, if the {@link
    * contrib.utils.components.Debugger} is active.
    */

@@ -11,7 +11,6 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
-import core.level.utils.LevelSize;
 import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
@@ -687,28 +686,6 @@ public final class Game {
     LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
     if (levelSystem != null) levelSystem.loadLevel(level);
     else LOGGER.warning("Can not set Level because levelSystem is null.");
-  }
-
-  /**
-   * The currently set level-Size.
-   *
-   * <p>This value is used for the generation of the next level.
-   *
-   * <p>The currently active level can have a different size.
-   *
-   * @return currently set level-Size.
-   */
-  public static LevelSize levelSize() {
-    return LevelSystem.levelSize();
-  }
-
-  /**
-   * Set the {@link LevelSize} of the next level.
-   *
-   * @param levelSize Size of the next level.
-   */
-  public static void levelSize(final LevelSize levelSize) {
-    LevelSystem.levelSize(levelSize);
   }
 
   /** Exits the GDX application. */
