@@ -12,7 +12,7 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
-import core.level.generator.IGenerator;
+import core.level.loader.DungeonLoader;
 import core.level.utils.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
@@ -58,15 +58,11 @@ public final class LevelSystem extends System {
 
   private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
 
-  /** Currently used level-size configuration for generating new level. */
-  private static LevelSize levelSize = LevelSize.MEDIUM;
-
   private static ILevel currentLevel;
   private final IVoidFunction onLevelLoad;
   private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
-  private IVoidFunction onEndTile;
-  private IGenerator generator;
+  private final IVoidFunction onEndTile;
 
   /**
    * Create a new {@link LevelSystem}.
@@ -76,15 +72,13 @@ public final class LevelSystem extends System {
    * will be loaded if this system's {@link #execute()} is executed.
    *
    * @param painter The {@link Painter} to use to draw the level.
-   * @param generator Level generator to use to generate the level.
    * @param onLevelLoad Callback function that is called if a new level was loaded.
    */
-  public LevelSystem(Painter painter, IGenerator generator, IVoidFunction onLevelLoad) {
+  public LevelSystem(Painter painter, IVoidFunction onLevelLoad) {
     super(PlayerComponent.class, PositionComponent.class);
-    this.generator = generator;
     this.onLevelLoad = onLevelLoad;
     this.painter = painter;
-    this.onEndTile = () -> loadLevel(levelSize);
+    this.onEndTile = () -> DungeonLoader.loadNextLevel();
   }
 
   /**
@@ -94,24 +88,6 @@ public final class LevelSystem extends System {
    */
   public static ILevel level() {
     return currentLevel;
-  }
-
-  /**
-   * Get the configuration size that is set to generate the next level.
-   *
-   * @return Size of the next levels that are generated.
-   */
-  public static LevelSize levelSize() {
-    return levelSize;
-  }
-
-  /**
-   * Set the configuration size that is used to generate the next level.
-   *
-   * @param levelSize The new configuration size for level generation.
-   */
-  public static void levelSize(final LevelSize levelSize) {
-    LevelSystem.levelSize = levelSize;
   }
 
   /**
@@ -125,51 +101,6 @@ public final class LevelSystem extends System {
     currentLevel = level;
     onLevelLoad.execute();
     levelAPI_logger.info("A new level was loaded.");
-  }
-
-  /**
-   * Load a new level.
-   *
-   * <p>Will trigger the onLevelLoad callback.
-   *
-   * @param size The wanted size of the new level.
-   * @param label The wanted design of the new level.
-   */
-  public void loadLevel(final LevelSize size, final DesignLabel label) {
-    currentLevel = generator.level(label, size);
-    onLevelLoad.execute();
-    levelAPI_logger.info("A new level was loaded.");
-  }
-
-  /**
-   * Load a new level with the configured size and the given design.
-   *
-   * <p>Will trigger the onLevelLoad callback.
-   *
-   * @param designLabel Wanted level design.
-   */
-  public void loadLevel(final DesignLabel designLabel) {
-    loadLevel(levelSize, designLabel);
-  }
-
-  /**
-   * Load a new level with the given size and a random design. *
-   *
-   * <p>Will trigger the onLevelLoad callback.
-   *
-   * @param size Wanted size of the level.
-   */
-  public void loadLevel(final LevelSize size) {
-    loadLevel(size, DesignLabel.randomDesign());
-  }
-
-  /**
-   * Load a new level with the configured size and random design. *
-   *
-   * <p>Will trigger the onLevelLoad callback.
-   */
-  public void loadLevel() {
-    loadLevel(levelSize(), DesignLabel.randomDesign());
   }
 
   private void drawLevel() {
@@ -204,24 +135,6 @@ public final class LevelSystem extends System {
     } else {
       return false;
     }
-  }
-
-  /**
-   * Get the currently used level generator.
-   *
-   * @return The currently used level generator.
-   */
-  public IGenerator generator() {
-    return generator;
-  }
-
-  /**
-   * Set the level generator.
-   *
-   * @param generator The new level generator.
-   */
-  public void generator(final IGenerator generator) {
-    this.generator = generator;
   }
 
   /**
@@ -279,9 +192,8 @@ public final class LevelSystem extends System {
    */
   @Override
   public void execute() {
-    if (currentLevel == null) {
-      loadLevel(levelSize);
-    } else if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
+    if (currentLevel == null) DungeonLoader.loadLevel(0);
+     if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
         .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
     else
       filteredEntityStream()
@@ -295,25 +207,9 @@ public final class LevelSystem extends System {
                         });
               });
     drawLevel();
+
   }
 
-  /**
-   * Sets the function to be executed when an entity reaches the end tile.
-   *
-   * @param onEndTile The function to be executed when an entity reaches the end tile.
-   */
-  public void onEndTile(IVoidFunction onEndTile) {
-    this.onEndTile = onEndTile;
-  }
-
-  /**
-   * Gets the function that is executed when an entity reaches the end tile.
-   *
-   * @return The function that is executed when an entity reaches the end tile.
-   */
-  public IVoidFunction onEndTile() {
-    return onEndTile;
-  }
 
   /** LevelSystem can't be paused. If it is paused, the level will not be shown anymore. */
   @Override
