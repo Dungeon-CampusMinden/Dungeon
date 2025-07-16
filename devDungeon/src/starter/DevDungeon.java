@@ -11,7 +11,7 @@ import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.level.DevDungeonLoader;
+import core.level.loader.DungeonLoader;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
@@ -73,7 +73,7 @@ public class DevDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(
+          DungeonLoader.addLevel(
               Tuple.of("tutorial", TutorialLevel.class),
               Tuple.of("damagedBridge", DamagedBridgeRiddleLevel.class),
               Tuple.of("torchRiddle", TorchRiddleLevel.class),
@@ -81,7 +81,7 @@ public class DevDungeon {
               Tuple.of("bridgeGuard", BridgeGuardRiddleLevel.class),
               Tuple.of("finalBoss", BossLevel.class));
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
+          levelSystem.onEndTile(DungeonLoader::loadNextLevel);
 
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
@@ -98,9 +98,9 @@ public class DevDungeon {
           setupMusic();
           Crafting.loadRecipes();
           if (SKIP_TUTORIAL) {
-            DevDungeonLoader.loadLevel(1); // First Level
+            DungeonLoader.loadLevel(1); // First Level
           } else {
-            DevDungeonLoader.loadLevel(0); // Tutorial
+            DungeonLoader.loadLevel(0); // Tutorial
           }
         });
   }

@@ -1,4 +1,4 @@
-package contrib.level;
+package core.level.loader;
 
 import core.Game;
 import core.components.PositionComponent;
@@ -13,11 +13,11 @@ import java.util.NoSuchElementException;
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"
  * is done by printing the design label of the current level, the position of the hero, and the
  * layout of the current level to the console. This String can then be copied and pasted into a
- * .level file to be loaded later by the {@link DevDungeonLoader}.
+ * .level file to be loaded later by the {@link DungeonLoader}.
  *
- * @see DevDungeonLoader
+ * @see DungeonLoader
  */
-public class DevDungeonSaver {
+public class DungeonSaver {
 
   /**
    * The saveCurrentDungeon method is responsible for saving the current state of the dungeon. It
@@ -48,8 +48,8 @@ public class DevDungeonSaver {
             .orElse(new Point(0, 0));
 
     List<Coordinate> customPoints = new ArrayList<>();
-    if (Game.currentLevel() instanceof DevDungeonLevel) {
-      customPoints = ((DevDungeonLevel) Game.currentLevel()).customPoints();
+    if (Game.currentLevel() instanceof DungeonLevel) {
+      customPoints = ((DungeonLevel) Game.currentLevel()).customPoints();
     }
     StringBuilder customPointsString = new StringBuilder();
     for (Coordinate customPoint : customPoints) {

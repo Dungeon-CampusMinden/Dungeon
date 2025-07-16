@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.level.DevDungeonLevel;
+import core.level.loader.DungeonLevel;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -20,7 +20,7 @@ import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level. */
-public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
+public class DamagedBridgeRiddleLevel extends DungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;

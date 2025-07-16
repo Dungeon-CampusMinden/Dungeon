@@ -8,7 +8,7 @@ import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.level.DevDungeonLevel;
+import core.level.loader.DungeonLevel;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 /** The Tutorial Level. */
-public class TutorialLevel extends DevDungeonLevel {
+public class TutorialLevel extends DungeonLevel {
 
   // Entity spawn points
   private final Coordinate mobSpawn;

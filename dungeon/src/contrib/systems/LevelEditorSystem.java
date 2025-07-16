@@ -2,8 +2,8 @@ package contrib.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import contrib.level.DevDungeonLevel;
-import contrib.level.DevDungeonSaver;
+import core.level.loader.DungeonLevel;
+import core.level.loader.DungeonSaver;
 import contrib.utils.components.skill.SkillTools;
 import core.Game;
 import core.System;
@@ -16,7 +16,7 @@ import java.util.Queue;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
- * the {@link DevDungeonLevel} layout by setting different tiles. The user can set the following
+ * the {@link DungeonLevel} layout by setting different tiles. The user can set the following
  * tiles: skip, pit, floor, wall, hole, exit, door, and custom points. The user can also fill an
  * area with floor tiles and save the current dungeon.
  */
@@ -82,8 +82,8 @@ public class LevelEditorSystem extends System {
       setCustomPoint();
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
-      if (Game.currentLevel() instanceof DevDungeonLevel) {
-        DevDungeonSaver.saveCurrentDungeon();
+      if (Game.currentLevel() instanceof DungeonLevel) {
+        DungeonSaver.saveCurrentDungeon();
       } else {
         java.lang.System.out.println(Game.currentLevel().printLevel());
       }
@@ -144,7 +144,7 @@ public class LevelEditorSystem extends System {
     if (mouseTile == null) {
       return;
     }
-    if (Game.currentLevel() instanceof DevDungeonLevel devDungeonLevel) {
+    if (Game.currentLevel() instanceof DungeonLevel devDungeonLevel) {
       if (devDungeonLevel.customPoints().contains(mouseTile.coordinate())) {
         java.lang.System.out.println("[-] Custom point: " + mouseTile.coordinate());
         devDungeonLevel.removeCustomPoint(mouseTile.coordinate());

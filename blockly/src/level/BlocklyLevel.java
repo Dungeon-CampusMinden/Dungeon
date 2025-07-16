@@ -1,6 +1,6 @@
 package level;
 
-import contrib.level.DevDungeonLevel;
+import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -13,7 +13,7 @@ import java.util.Set;
  * tiles), the design label, the hero start position and the custom points. This class is used in
  * the LevelParser.
  */
-public abstract class BlocklyLevel extends DevDungeonLevel {
+public abstract class BlocklyLevel extends DungeonLevel {
 
   private final Set<String> blockedBlocklyElements = new HashSet<>();
   private final DesignLabel designLabel;

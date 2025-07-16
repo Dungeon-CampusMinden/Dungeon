@@ -1,6 +1,6 @@
 package level.utils;
 
-import contrib.level.DevDungeonLevel;
+import core.level.loader.DungeonLevel;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.TPBallSkill;
 import core.Game;
@@ -23,13 +23,13 @@ public class LevelUtils {
    * @return A Coordinate representing a random teleportation target within the current level. If
    *     the current level is not a DevDungeonLevel, or if no random teleportation target is
    *     available, null is returned.
-   * @see DevDungeonLevel#randomTPTarget()
+   * @see DungeonLevel#randomTPTarget()
    * @see TPBallSkill TPBallSkill
    */
   public static Point getRandomTPTargetForCurrentLevel() {
-    DevDungeonLevel level;
+    DungeonLevel level;
     try {
-      level = (DevDungeonLevel) Game.currentLevel();
+      level = (DungeonLevel) Game.currentLevel();
     } catch (ClassCastException e) {
       return null;
     }

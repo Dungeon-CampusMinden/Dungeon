@@ -8,7 +8,7 @@ import aiAdvanced.pathfinding.SusPathFinding;
 import aiAdvanced.systems.MazeEditorSystem;
 import aiAdvanced.systems.PathfindingSystem;
 import contrib.entities.HeroFactory;
-import contrib.level.DevDungeonLoader;
+import core.level.loader.DungeonLoader;
 import contrib.systems.*;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
@@ -55,7 +55,7 @@ public class PathfinderStarter {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(
+          DungeonLoader.addLevel(
               Tuple.of("dfs", AiMazeLevel.class), Tuple.of("bfs", AiMazeLevel.class));
           createSystems();
 
@@ -64,8 +64,8 @@ public class PathfinderStarter {
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
-          Game.system(LevelSystem.class, ls -> ls.onEndTile(DevDungeonLoader::loadNextLevel));
-          DevDungeonLoader.loadLevel(0);
+          Game.system(LevelSystem.class, ls -> ls.onEndTile(DungeonLoader::loadNextLevel));
+          DungeonLoader.loadLevel(0);
         });
   }
 
