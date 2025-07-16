@@ -55,8 +55,6 @@ public class TileLevel implements ILevel {
   public TileLevel(Tile[][] layout) {
     this.layout = layout;
     putTilesInLists();
-    if (startTile == null) randomStart();
-    if (exitTiles.size() == 0) randomEnd();
   }
 
   /**
@@ -128,53 +126,6 @@ public class TileLevel implements ILevel {
     }
   }
 
-  @Override
-  public void onFirstLoad(IVoidFunction function) {
-    this.onFirstLoad = function;
-  }
-
-  @Override
-  public void onLoad() {
-    if (!wasLoaded) {
-      wasLoaded = true;
-      onFirstLoad.execute();
-    }
-  }
-
-  @Override
-  public void addFloorTile(FloorTile tile) {
-    floorTiles.add(tile);
-  }
-
-  @Override
-  public void addWallTile(WallTile tile) {
-    wallTiles.add(tile);
-  }
-
-  @Override
-  public void addHoleTile(HoleTile tile) {
-    holeTiles.add(tile);
-  }
-
-  @Override
-  public void addDoorTile(DoorTile tile) {
-    doorTiles.add(tile);
-  }
-
-  @Override
-  public void addExitTile(ExitTile tile) {
-    exitTiles.add(tile);
-  }
-
-  @Override
-  public void addSkipTile(SkipTile tile) {
-    skipTiles.add(tile);
-  }
-
-  @Override
-  public void addPitTile(PitTile tile) {
-    pitTiles.add(tile);
-  }
 
   @Override
   public List<FloorTile> floorTiles() {
@@ -271,13 +222,13 @@ public class TileLevel implements ILevel {
   @Override
   public void addTile(Tile tile) {
     switch (tile.levelElement()) {
-      case SKIP -> addSkipTile((SkipTile) tile);
-      case FLOOR -> addFloorTile((FloorTile) tile);
-      case WALL -> addWallTile((WallTile) tile);
-      case HOLE -> addHoleTile((HoleTile) tile);
-      case EXIT -> addExitTile((ExitTile) tile);
-      case DOOR -> addDoorTile((DoorTile) tile);
-      case PIT -> addPitTile((PitTile) tile);
+      case SKIP -> skipTiles.add((SkipTile) tile);
+      case FLOOR -> floorTiles.add((FloorTile) tile);
+      case WALL -> wallTiles.add((WallTile) tile);
+      case HOLE -> holeTiles.add((HoleTile) tile);
+      case EXIT -> exitTiles.add((ExitTile) tile);
+      case DOOR -> doorTiles.add((DoorTile) tile);
+      case PIT -> pitTiles.add((PitTile) tile);
     }
     this.addToPathfinding(tile);
     tile.level(this);

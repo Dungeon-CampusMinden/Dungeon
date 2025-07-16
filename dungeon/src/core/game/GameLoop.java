@@ -76,7 +76,6 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.warning(e.getMessage());
         }
         hero.ifPresent(ECSManagment::add);
-        Game.currentLevel().onLoad();
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 

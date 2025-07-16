@@ -672,8 +672,8 @@ public final class Game {
    * @return Position of the given entity.
    */
   public static Point positionOf(final Entity entity) {
-    return currentLevel().positionOf(entity);
-  }
+    return entity.fetch(PositionComponent.class).get().position();
+              }
 
   /**
    * Set the current level.
