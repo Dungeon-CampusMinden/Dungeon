@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
  *
+ * <p>This System will also draw the level.
+ *
  * <p>The system will get the current animation from the {@link DrawComponent} and will get the next
  * animation frame from the {@link Animation}, and then draw it on the current position stored in
  * the {@link PositionComponent}.

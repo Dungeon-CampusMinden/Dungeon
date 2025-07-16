@@ -14,8 +14,8 @@ import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
 import core.level.utils.*;
 import core.utils.IVoidFunction;
+import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Painter;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -24,13 +24,11 @@ import java.util.logging.Logger;
  *
  * <p>The system will store the currently active level.
  *
- * <p>Each frame, this system will draw the level on the screen. The system will also check if one
- * of the entities managed by this system is positioned on the end tile of the level. If so, the
- * next level will be loaded.
+ * <p>The system will check if one of the entities managed by this system is positioned on the end
+ * tile of the level. If so, the next level will be loaded.
  *
- * <p>The system uses the configured {@link IGenerator} to generate levels in the configured {@link
- * LevelSize}. Use {@link #generator(IGenerator)} to change the used level generator. Use {@link
- * #levelSize(LevelSize)} to set the size of the next levels that get loaded.
+ * <p>The system uses the {@link DungeonLoader} to load levels. Use {@link
+ * DungeonLoader#addLevel(Tuple[])} to add a level to the DungeonLoader.
  *
  * <p>If a new level is loaded, the system will trigger the onLevelLoad callback given in the
  * constructor of this system.
@@ -38,10 +36,8 @@ import java.util.logging.Logger;
  * <p>An entity needs a {@link PositionComponent} and a {@link PlayerComponent} to be managed by
  * this system.
  *
- * <p>Use {@link #level()} to get the currently active level. Use {@link #loadLevel(ILevel)}, {@link
- * #loadLevel(LevelSize, DesignLabel)}, {@link #loadLevel(LevelSize)}, or {@link
- * #loadLevel(DesignLabel)} to trigger a level load manually. These methods will also trigger the
- * onLevelLoad callback.
+ * <p>Use {@link #level()} to get the currently active level. Use {@link #loadLevel(ILevel)}, to
+ * trigger a level load manually. These methods will also trigger the onLevelLoad callback.
  */
 public final class LevelSystem extends System {
   private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
@@ -54,11 +50,10 @@ public final class LevelSystem extends System {
   /**
    * Create a new {@link LevelSystem}.
    *
-   * <p>The system will not load a new level at creation. Use {@link #loadLevel(LevelSize,
-   * DesignLabel)} if you want to trigger the load of a level manually; otherwise, the first level
-   * will be loaded if this system's {@link #execute()} is executed.
+   * <p>The system will not load a new level at creation. Use {@link #loadLevel(ILevel)} if you want
+   * to trigger the load of a level manually; otherwise, the first level will be loaded if this
+   * system's {@link #execute()} is executed.
    *
-   * @param painter The {@link Painter} to use to draw the level.
    * @param onLevelLoad Callback function that is called if a new level was loaded.
    */
   public LevelSystem(IVoidFunction onLevelLoad) {
