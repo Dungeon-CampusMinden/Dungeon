@@ -1,7 +1,7 @@
 package level.devlevel;
 
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLevel;
+import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -11,7 +11,7 @@ import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
 import utils.EntityUtils;
 
 /** The Bridge Guard Riddle Level. */
-public class BridgeGuardRiddleLevel extends DevDungeonLevel {
+public class BridgeGuardRiddleLevel extends DungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 15;

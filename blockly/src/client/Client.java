@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
-import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import contrib.systems.BlockSystem;
 import contrib.utils.CheckPatternPainter;
@@ -14,6 +13,7 @@ import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
+import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.systems.PositionSystem;
@@ -79,32 +79,32 @@ public class Client {
     Game.userOnSetup(
         () -> {
           // chapter 1
-          DevDungeonLoader.addLevel(Tuple.of("level001", Level001.class));
-          DevDungeonLoader.addLevel(Tuple.of("level002", Level002.class));
-          DevDungeonLoader.addLevel(Tuple.of("level003", Level003.class));
-          DevDungeonLoader.addLevel(Tuple.of("level004", Level004.class));
-          DevDungeonLoader.addLevel(Tuple.of("level005", Level005.class));
-          DevDungeonLoader.addLevel(Tuple.of("level006", Level006.class));
-          DevDungeonLoader.addLevel(Tuple.of("level007", Level007.class));
-          DevDungeonLoader.addLevel(Tuple.of("level008", Level008.class));
-          DevDungeonLoader.addLevel(Tuple.of("level009", Level009.class));
-          DevDungeonLoader.addLevel(Tuple.of("level010", Level010.class));
-          DevDungeonLoader.addLevel(Tuple.of("level011", Level011.class));
+          DungeonLoader.addLevel(Tuple.of("level001", Level001.class));
+          DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
+          DungeonLoader.addLevel(Tuple.of("level003", Level003.class));
+          DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
+          DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
+          DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
+          DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
+          DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+          DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
+          DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
+          DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
 
           // chapter 2
-          DevDungeonLoader.addLevel(Tuple.of("level012", Level012.class));
-          DevDungeonLoader.addLevel(Tuple.of("level013", Level013.class));
-          DevDungeonLoader.addLevel(Tuple.of("level014", Level014.class));
-          DevDungeonLoader.addLevel(Tuple.of("level015", Level015.class));
-          DevDungeonLoader.addLevel(Tuple.of("level016", Level016.class));
+          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
+          DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
+          DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
+          DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
+          DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
 
           // chapter 3
-          DevDungeonLoader.addLevel(Tuple.of("level017", Level017.class));
-          DevDungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          DevDungeonLoader.addLevel(Tuple.of("level019", Level019.class));
-          DevDungeonLoader.addLevel(Tuple.of("level020", Level020.class));
-          DevDungeonLoader.addLevel(Tuple.of("level021", Level021.class));
-          DevDungeonLoader.addLevel(Tuple.of("level022", Level022.class));
+          DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
+          DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
+          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
+          DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
+          DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
 
           createSystems();
 
@@ -125,8 +125,7 @@ public class Client {
           }
 
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-          DevDungeonLoader.loadLevel(0);
+          DungeonLoader.loadLevel(0);
         });
   }
 
@@ -235,7 +234,7 @@ public class Client {
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
     createHero();
-    DevDungeonLoader.reloadCurrentLevel();
+    DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
   }
 }

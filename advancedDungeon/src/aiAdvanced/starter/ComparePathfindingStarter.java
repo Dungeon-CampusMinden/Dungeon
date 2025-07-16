@@ -12,8 +12,6 @@ import contrib.entities.HeroFactory;
 import contrib.entities.MonsterDeathSound;
 import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
-import contrib.level.DevDungeonLevel;
-import contrib.level.DevDungeonLoader;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
@@ -25,6 +23,8 @@ import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.loader.DungeonLevel;
+import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
@@ -74,7 +74,7 @@ public class ComparePathfindingStarter {
         () -> {
           ((Lwjgl3Graphics) Gdx.graphics).getWindow().maximizeWindow();
 
-          DevDungeonLoader.addLevel(Tuple.of("bfs", AiMazeLevel.class));
+          DungeonLoader.addLevel(Tuple.of("bfs", AiMazeLevel.class));
           createSystems();
 
           RUNNERS[0] = createHero();
@@ -116,7 +116,7 @@ public class ComparePathfindingStarter {
   }
 
   private static void loadNextLevel() {
-    DevDungeonLoader.loadNextLevel();
+    DungeonLoader.loadNextLevel();
     Tile[][] curLevel = Game.currentLevel().layout();
 
     // Create duplicated level layout
@@ -130,7 +130,7 @@ public class ComparePathfindingStarter {
         new AiMazeLevel(
             newLevel,
             Game.currentLevel().startTile().designLabel(),
-            ((DevDungeonLevel) Game.currentLevel()).customPoints()));
+            ((DungeonLevel) Game.currentLevel()).customPoints()));
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());

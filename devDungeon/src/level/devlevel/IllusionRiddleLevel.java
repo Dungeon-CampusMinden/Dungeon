@@ -8,7 +8,6 @@ import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.level.DevDungeonLevel;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.ai.fight.RangeAI;
 import core.Entity;
@@ -16,6 +15,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
+import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -31,7 +31,7 @@ import systems.FogOfWarSystem;
 import systems.TeleporterSystem;
 
 /** The Illusion Riddle Level. TODO: Refactor this class */
-public class IllusionRiddleLevel extends DevDungeonLevel {
+public class IllusionRiddleLevel extends DungeonLevel {
 
   /** The types of monsters that can spawn in this level. */
   public static final MonsterType[] MONSTER_TYPES =

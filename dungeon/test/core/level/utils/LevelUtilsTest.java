@@ -5,11 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Game;
 import core.level.TileLevel;
-import core.level.generator.IGenerator;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.components.draw.Painter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,11 +27,7 @@ public class LevelUtilsTest {
   /** WTF? . */
   @BeforeEach
   public void setup() {
-    Game.add(
-        new LevelSystem(
-            Mockito.mock(Painter.class),
-            Mockito.mock(IGenerator.class),
-            Mockito.mock(IVoidFunction.class)));
+    Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
 
     Game.currentLevel(
         new TileLevel(
@@ -74,7 +68,7 @@ public class LevelUtilsTest {
                 LevelElement.WALL,
               }
             },
-            DesignLabel.randomDesign()));
+            DesignLabel.DEFAULT));
   }
 
   /** WTF? . */

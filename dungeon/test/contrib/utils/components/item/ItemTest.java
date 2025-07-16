@@ -11,14 +11,12 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.TileLevel;
-import core.level.generator.IGenerator;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
-import core.utils.components.draw.Painter;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,11 +36,7 @@ public class ItemTest {
   /** WTF? . */
   @BeforeEach
   public void before() {
-    Game.add(
-        new LevelSystem(
-            Mockito.mock(Painter.class),
-            Mockito.mock(IGenerator.class),
-            Mockito.mock(IVoidFunction.class)));
+    Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
 
     TileLevel level =
         new TileLevel(

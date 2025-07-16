@@ -8,6 +8,9 @@ import core.components.DrawComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
+import core.level.elements.tile.PitTile;
+import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
@@ -21,6 +24,8 @@ import java.util.stream.Collectors;
  *
  * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
  * screen.
+ *
+ * <p>This System will also draw the level.
  *
  * <p>The system will get the current animation from the {@link DrawComponent} and will get the next
  * animation frame from the {@link Animation}, and then draw it on the current position stored in
@@ -45,6 +50,15 @@ public final class DrawSystem extends System {
 
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
+
+  /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls. */
+  private static final float X_OFFSET = 0.5f;
+
+  /**
+   * offset the coordinate by a quarter tile,it looks a bit more like every Entity is not walking
+   * over walls.
+   */
+  private static final float Y_OFFSET = 0.25f;
 
   private final Map<IPath, PainterConfig> configs;
 
@@ -88,6 +102,7 @@ public final class DrawSystem extends System {
     List<Entity> players = partitionedEntities.get(true);
     List<Entity> npcs = partitionedEntities.get(false);
 
+    drawLevel(Game.currentLevel());
     npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
     players.forEach(entity -> draw(buildDataObject(entity)));
   }
@@ -195,6 +210,41 @@ public final class DrawSystem extends System {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     return new DSData(entity, dc, pc);
+  }
+
+  private void drawLevel(ILevel currentLevel) {
+    if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
+    Map<IPath, PainterConfig> mapping = new HashMap<>();
+
+    Tile[][] layout = currentLevel.layout();
+    for (Tile[] tiles : layout) {
+      for (int x = 0; x < layout[0].length; x++) {
+        Tile t = tiles[x];
+        if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
+          IPath texturePath = t.texturePath();
+          if (!mapping.containsKey(texturePath)
+              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
+            mapping.put(
+                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
+          }
+          PAINTER.draw(t.position(), texturePath, mapping.get(texturePath));
+        }
+      }
+    }
+  }
+
+  /**
+   * Checks if the provided tile is an instance of PitTile and if it's open.
+   *
+   * @param tile The tile to check.
+   * @return true if the tile is an instance of PitTile, and it's open, false otherwise.
+   */
+  private boolean isTilePitAndOpen(final Tile tile) {
+    if (tile instanceof PitTile) {
+      return ((PitTile) tile).isOpen();
+    } else {
+      return false;
+    }
   }
 
   private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {}

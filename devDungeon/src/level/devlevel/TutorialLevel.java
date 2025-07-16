@@ -8,7 +8,6 @@ import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.level.DevDungeonLevel;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -18,6 +17,7 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
+import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 /** The Tutorial Level. */
-public class TutorialLevel extends DevDungeonLevel {
+public class TutorialLevel extends DungeonLevel {
 
   // Entity spawn points
   private final Coordinate mobSpawn;

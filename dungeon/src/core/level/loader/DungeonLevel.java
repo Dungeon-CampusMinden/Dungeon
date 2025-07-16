@@ -1,4 +1,4 @@
-package contrib.level;
+package core.level.loader;
 
 import contrib.hud.DialogUtils;
 import contrib.utils.components.skill.TPBallSkill;
@@ -19,11 +19,11 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 /**
- * Represents a level in the DevDungeon game. This class extends the {@link TileLevel} class and
- * adds functionality for handling custom points. These points are used to add spawn points, door
- * logic or any other custom logic to the level.
+ * Represents a level in the Dungeon game. This class extends the {@link TileLevel} class and adds
+ * functionality for handling custom points. These points are used to add spawn points, door logic
+ * or any other custom logic to the level.
  */
-public abstract class DevDungeonLevel extends TileLevel implements ITickable {
+public abstract class DungeonLevel extends TileLevel implements ITickable {
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> customPoints = new ArrayList<>();
   private final List<Coordinate> tpTargets = new ArrayList<>();
@@ -40,7 +40,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
    * @param levelName The name of the level. (can be empty)
    * @param description The description of the level. (only set if levelName is not empty)
    */
-  public DevDungeonLevel(
+  public DungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints,
@@ -57,7 +57,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
     if (isFirstTick) {
       DialogUtils.showTextPopup(
           description,
-          "Level " + DevDungeonLoader.currentLevelIndex() + ": " + levelName,
+          "Level " + DungeonLoader.currentLevelIndex() + ": " + levelName,
           () -> {
             // Workaround for tutorial popup
             if (levelName.equalsIgnoreCase("tutorial")) {
@@ -102,11 +102,11 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
    * @param path The path to the level file.
    * @return The loaded DevDungeonLevel.
    */
-  public static DevDungeonLevel loadFromPath(IPath path) {
+  public static DungeonLevel loadFromPath(IPath path) {
     try {
       BufferedReader reader;
       if (path.pathString().startsWith("jar:")) {
-        InputStream is = DevDungeonLevel.class.getResourceAsStream(path.pathString().substring(4));
+        InputStream is = DungeonLevel.class.getResourceAsStream(path.pathString().substring(4));
         reader = new BufferedReader(new InputStreamReader(is));
       } else {
         File file = new File(path.pathString());
@@ -136,8 +136,8 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       }
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
-      DevDungeonLevel newLevel;
-      newLevel = getDevLevel(DevDungeonLoader.currentLevel(), layout, designLabel, customPoints);
+      DungeonLevel newLevel;
+      newLevel = getDevLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -204,7 +204,7 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
   }
 
   private static DesignLabel parseDesignLabel(String line) {
-    if (line.isEmpty()) return DesignLabel.randomDesign();
+    if (line.isEmpty()) return DesignLabel.DEFAULT;
     try {
       return DesignLabel.valueOf(line);
     } catch (IllegalArgumentException e) {
@@ -219,29 +219,14 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
       for (int x = 0; x < lines.getFirst().length(); x++) {
         char c = lines.get(y).charAt(x);
         switch (c) {
-          case 'F':
-            layout[y][x] = LevelElement.FLOOR;
-            break;
-          case 'W':
-            layout[y][x] = LevelElement.WALL;
-            break;
-          case 'E':
-            layout[y][x] = LevelElement.EXIT;
-            break;
-          case 'S':
-            layout[y][x] = LevelElement.SKIP;
-            break;
-          case 'P':
-            layout[y][x] = LevelElement.PIT;
-            break;
-          case 'H':
-            layout[y][x] = LevelElement.HOLE;
-            break;
-          case 'D':
-            layout[y][x] = LevelElement.DOOR;
-            break;
-          default:
-            throw new IllegalArgumentException("Invalid character in level layout: " + c);
+          case 'F' -> layout[y][x] = LevelElement.FLOOR;
+          case 'W' -> layout[y][x] = LevelElement.WALL;
+          case 'E' -> layout[y][x] = LevelElement.EXIT;
+          case 'S' -> layout[y][x] = LevelElement.SKIP;
+          case 'P' -> layout[y][x] = LevelElement.PIT;
+          case 'H' -> layout[y][x] = LevelElement.HOLE;
+          case 'D' -> layout[y][x] = LevelElement.DOOR;
+          default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
         }
       }
     }
@@ -249,12 +234,12 @@ public abstract class DevDungeonLevel extends TileLevel implements ITickable {
     return layout;
   }
 
-  private static DevDungeonLevel getDevLevel(
+  private static DungeonLevel getDevLevel(
       String levelName,
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    Class<? extends DevDungeonLevel> levelHandler = DevDungeonLoader.levelHandler(levelName);
+    Class<? extends DungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
     if (levelHandler != null) {
       try {
         return levelHandler

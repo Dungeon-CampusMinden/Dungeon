@@ -9,11 +9,11 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import contrib.level.DevDungeonLoader;
 import contrib.utils.Direction;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
+import core.level.loader.DungeonLoader;
 import core.utils.Point;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -307,7 +307,7 @@ public class Server {
    */
   private void handleLevelsRequest(HttpExchange exchange) throws IOException {
     StringBuilder response = new StringBuilder();
-    for (String levelName : DevDungeonLoader.levelOrder()) {
+    for (String levelName : DungeonLoader.levelOrder()) {
       response.append(levelName).append("\n");
     }
     response.deleteCharAt(response.length() - 1); // Remove last newline
@@ -334,13 +334,13 @@ public class Server {
     String query = exchange.getRequestURI().getQuery();
     String levelName = query != null && query.contains("levelName=") ? query.split("=")[1] : null;
 
-    if (levelName != null && !levelName.equals(DevDungeonLoader.currentLevel())) {
+    if (levelName != null && !levelName.equals(DungeonLoader.currentLevel())) {
       // if given and the level is not the current one, load it
-      DevDungeonLoader.loadLevel(levelName);
+      DungeonLoader.loadLevel(levelName);
       waitDelta(); // waiting for all systems to update once
     }
 
-    response.append(DevDungeonLoader.currentLevel()).append(" ");
+    response.append(DungeonLoader.currentLevel()).append(" ");
     for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel())) {
       response.append(blockedBlock).append(" ");
     }

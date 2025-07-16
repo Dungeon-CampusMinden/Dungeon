@@ -4,7 +4,6 @@ import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
-import contrib.level.DevDungeonLoader;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
@@ -13,6 +12,7 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.game.WindowEventManager;
+import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
@@ -136,15 +136,15 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          DevDungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
-          DevDungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
-          DevDungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
-          DevDungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
-          DevDungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
-          DevDungeonLoader.addLevel(Tuple.of("arraycreate", ArrayCreateLevel.class));
-          DevDungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
-          DevDungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
-          DevDungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
+          DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
+          DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
+          DungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
+          DungeonLoader.addLevel(Tuple.of("control4", AdvancedControlLevel4.class));
+          DungeonLoader.addLevel(Tuple.of("interact", AdvancedBerryLevel.class));
+          DungeonLoader.addLevel(Tuple.of("arraycreate", ArrayCreateLevel.class));
+          DungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
+          DungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
+          DungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
           createSystems();
 
           WindowEventManager.registerFocusChangeListener(
@@ -160,8 +160,7 @@ public class AdvancedDungeon {
           }
           Crafting.loadRecipes();
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          levelSystem.onEndTile(DevDungeonLoader::loadNextLevel);
-          DevDungeonLoader.loadLevel(0);
+          DungeonLoader.loadLevel(0);
         });
   }
 
@@ -218,6 +217,6 @@ public class AdvancedDungeon {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    DevDungeonLoader.reloadCurrentLevel();
+    DungeonLoader.reloadCurrentLevel();
   }
 }

@@ -1,51 +1,28 @@
 package core.level.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-/** Specifies which textures and layouts should be used for the room. */
+/**
+ * Represents the different available visual design themes for a dungeon environment. These labels
+ * can be used to define the aesthetic style of the dungeon.
+ */
 public enum DesignLabel {
-  /** WTF? . */
-  DEFAULT(50), // 50% chance
-  /** WTF? . */
-  FIRE(0), // 0% chance //we have no closed doors texture
-  /** WTF? . */
-  FOREST(9), // 9% chance
-  /** WTF? . */
-  ICE(10), // 10% chance
-  /** WTF? . */
-  TEMPLE(30), // 30% chance
-  /** WTF? . */
-  DARK(0), // 0% chance //we have no closed doors texture
-  /** WTF? . */
-  RAINBOW(1); // 1% chance
+  /** The default dungeon-like design with a classic stone and brick appearance. */
+  DEFAULT,
 
-  private static final Random RANDOM = new Random();
-  private static final List<DesignLabel> VALUES = new ArrayList<>();
+  /** A fiery theme featuring lava, heat, and volcanic visuals. */
+  FIRE,
 
-  static {
-    for (DesignLabel l : values()) for (int i = 0; i < l.chance; i++) VALUES.add(l);
-  }
+  /** A lush forest theme with greenery, trees, and natural elements. */
+  FOREST,
 
-  private final int chance;
+  /** An icy theme with snow, frost, and cold, wintry visuals. */
+  ICE,
 
-  /**
-   * Create a new label.
-   *
-   * @param chance chance in % that this label will be returned by the {@link #randomDesign()}
-   *     function.
-   */
-  DesignLabel(int chance) {
-    this.chance = chance;
-  }
+  /** An ancient temple theme with mystical or sacred architectural elements. */
+  TEMPLE,
 
-  /**
-   * WTF? .
-   *
-   * @return A random enum-value based on chances
-   */
-  public static DesignLabel randomDesign() {
-    return VALUES.get(RANDOM.nextInt(0, VALUES.size()));
-  }
+  /** A dark, ominous theme with shadows and eerie atmosphere. */
+  DARK,
+
+  /** A very colorful, whimsical theme featuring a rainbow palette. */
+  RAINBOW;
 }

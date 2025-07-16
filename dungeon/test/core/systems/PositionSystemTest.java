@@ -35,7 +35,7 @@ public class PositionSystemTest {
   @BeforeEach
   public void setup() {
     pc = new PositionComponent();
-    Game.add(new LevelSystem(null, null, () -> {}));
+    Game.add(new LevelSystem(() -> {}));
     Game.currentLevel(level);
     system = new PositionSystem();
     Game.add(system);
