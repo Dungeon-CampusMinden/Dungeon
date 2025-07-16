@@ -1,5 +1,7 @@
 package utils;
 
+import core.level.loader.DungeonLoader;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -69,12 +71,12 @@ public class BlocklyCodeRunner {
           }
 
           private static void loadNextLevel() {
-            contrib.level.DevDungeonLoader.loadNextLevel();
+            core.level.loader.DungeonLoader.loadNextLevel();
             sleep(1000);
           }
 
           private static void loadLevel(int index) {
-            contrib.level.DevDungeonLoader.loadLevel(index);
+            core.level.loader.DungeonLoader.loadLevel(index);
             sleep(1000);
           }
       }
