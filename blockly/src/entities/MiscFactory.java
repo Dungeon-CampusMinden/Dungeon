@@ -45,7 +45,7 @@ public class MiscFactory {
   public static Entity stone(Point position) {
     Entity stone = new Entity("stone");
     stone.add(new PushableComponent());
-    stone.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    stone.add(new PositionComponent(position.toCenteredPoint()));
     stone.add(new BlockComponent());
     stone.add(new VelocityComponent(STONE_SPEED));
     stone.add(new CollideComponent());
@@ -65,7 +65,7 @@ public class MiscFactory {
    */
   public static Entity pressurePlate(Point position) {
     Entity pressurePlate = new Entity("pressureplate");
-    pressurePlate.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(PRESSURE_PLATE_OFF));
     Map<String, Animation> animationMap =
         Map.of("off", dc.currentAnimation(), "on", Animation.fromSingleImage(PRESSURE_PLATE_ON));
@@ -93,7 +93,7 @@ public class MiscFactory {
    * @return lever entity
    */
   public static Entity blocklyLever(final Point position) {
-    Entity lever = LeverFactory.createLever(position.toCoordinate().toCenteredPoint());
+    Entity lever = LeverFactory.createLever(position.toCenteredPoint());
     lever.add(new BlockComponent());
     return lever;
   }
@@ -105,7 +105,7 @@ public class MiscFactory {
    * @return lever entity
    */
   public static Entity blocklyTorch(final Point position) {
-    Entity torch = LeverFactory.createTorch(position.toCoordinate().toCenteredPoint());
+    Entity torch = LeverFactory.createTorch(position.toCenteredPoint());
     torch.add(new BlockComponent());
     return torch;
   }
@@ -124,7 +124,7 @@ public class MiscFactory {
    */
   public static Entity bookPickup(Point position, String title, String pickupText) {
     Entity pickup = new Entity("Book Pickup");
-    pickup.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    pickup.add(new PositionComponent(position.toCenteredPoint()));
     pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
@@ -148,7 +148,7 @@ public class MiscFactory {
    */
   public static Entity breadcrumb(Point position) {
     Entity breadcrumb = new Entity("breadcrumb");
-    breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
     breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new BreadcrumbComponent());
@@ -173,7 +173,7 @@ public class MiscFactory {
    */
   public static Entity clover(Point position) {
     Entity breadcrumb = new Entity("clover");
-    breadcrumb.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
     breadcrumb.add(new DrawComponent(Animation.fromSingleImage(CLOVER_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new CloverComponent());
@@ -198,7 +198,7 @@ public class MiscFactory {
    */
   public static Entity fireballScroll(Point position) {
     Entity fireballScroll = new Entity("fireballScroll");
-    fireballScroll.add(new PositionComponent(position.toCoordinate().toCenteredPoint()));
+    fireballScroll.add(new PositionComponent(position.toCenteredPoint()));
     fireballScroll.add(new DrawComponent(Animation.fromSingleImage(SCROLL_PATH)));
     fireballScroll.add(new BlocklyItemComponent());
     fireballScroll.add(

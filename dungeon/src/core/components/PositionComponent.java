@@ -132,7 +132,7 @@ public final class PositionComponent implements Component {
    * @see Tile
    */
   public void position(final Tile tile) {
-    position(tile.position().toCoordinate().toCenteredPoint());
+    position(tile.position().toCenteredPoint());
   }
 
   /**
@@ -141,7 +141,7 @@ public final class PositionComponent implements Component {
    * <p>Will center the entity on the tile it is currently on.
    */
   public void centerPositionOnTile() {
-    position(position.toCoordinate().toCenteredPoint());
+    position(position.toCenteredPoint());
   }
 
   /**
