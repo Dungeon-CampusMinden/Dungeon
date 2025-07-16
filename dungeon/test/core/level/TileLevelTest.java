@@ -414,7 +414,7 @@ public class TileLevelTest {
 
     Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).get();
     assertNotNull(randomWallPoint);
-    Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
+    Tile randomWall = tileLevel.tileAt(randomWallPoint);
     assertNotNull(randomWall);
     assertEquals(LevelElement.WALL, randomWall.levelElement());
   }
@@ -429,7 +429,7 @@ public class TileLevelTest {
     var level = new TileLevel(levelLayout, DesignLabel.randomDesign());
     Point randomPoint = level.randomTilePoint();
     assertNotNull(randomPoint);
-    assertNotNull(level.tileAt(randomPoint.toCoordinate()));
+    assertNotNull(level.tileAt(randomPoint));
   }
 
   /** WTF? . */
@@ -451,8 +451,8 @@ public class TileLevelTest {
 
     Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).get();
     Point randomFloorPoint = tileLevel.randomTilePoint(LevelElement.FLOOR).get();
-    Tile randomWall = tileLevel.tileAt(randomWallPoint.toCoordinate());
-    Tile randomFloor = tileLevel.tileAt(randomFloorPoint.toCoordinate());
+    Tile randomWall = tileLevel.tileAt(randomWallPoint);
+    Tile randomFloor = tileLevel.tileAt(randomFloorPoint);
     assertEquals(LevelElement.WALL, randomWall.levelElement());
     assertEquals(LevelElement.FLOOR, randomFloor.levelElement());
   }

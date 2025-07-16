@@ -2,6 +2,7 @@ package core.components;
 
 import core.Component;
 import core.level.Tile;
+import core.level.utils.Coordinate;
 import core.utils.Point;
 
 /**
@@ -133,6 +134,15 @@ public final class PositionComponent implements Component {
    */
   public void position(final Tile tile) {
     position(tile.position().toCenteredPoint());
+  }
+
+  /**
+   * Get the position as coordinate.
+   *
+   * @return The position as coordinate.
+   */
+  public Coordinate coordinate() {
+    return position.toCoordinate();
   }
 
   /**

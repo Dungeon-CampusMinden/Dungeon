@@ -194,8 +194,7 @@ public class ComparePathfindingStarter {
             Entity runner = RUNNERS[i];
             if (runner == null) continue;
 
-            Coordinate spawn =
-                runner.fetch(PositionComponent.class).orElseThrow().position().toCoordinate();
+            Coordinate spawn = runner.fetch(PositionComponent.class).orElseThrow().coordinate();
             Coordinate end = Game.currentLevel().endTile().coordinate();
 
             if (i == 1) {

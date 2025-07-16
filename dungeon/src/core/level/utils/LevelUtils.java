@@ -209,15 +209,17 @@ public final class LevelUtils {
   }
 
   private static boolean isPointInTile(final Point point, final Tile tile) {
-    return tile.coordinate().toPoint().x() < point.x()
-        && point.x() < (tile.coordinate().toPoint().x() + 1)
-        && tile.coordinate().toPoint().y() < point.y()
-        && point.y() < (tile.coordinate().toPoint().y() + 1);
+    Point tileposition = tile.position();
+
+    return tileposition.x() < point.x()
+        && point.x() < (tileposition.x() + 1)
+        && tileposition.y() < point.y()
+        && point.y() < (tileposition.y() + 1);
   }
 
   private static boolean isAnyCornerOfTileInRadius(
       final Point center, float radius, final Tile tile) {
-    Point origin = tile.coordinate().toPoint();
+    Point origin = tile.position();
     Vector2[] cornerOffsets = {
       Vector2.ZERO, Vector2.RIGHT, Vector2.UP, Vector2.RIGHT.add(Vector2.UP)
     };
@@ -425,7 +427,7 @@ public final class LevelUtils {
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile heroTile = Game.currentLevel().tileAt(pc.position().toCoordinate());
+    Tile heroTile = Game.currentLevel().tileAt(pc.position());
     if (heroTile == null) {
       return false;
     }

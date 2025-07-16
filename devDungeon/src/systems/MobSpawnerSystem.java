@@ -95,7 +95,7 @@ public class MobSpawnerSystem extends System {
         LevelUtils.accessibleTilesInRange(position.position(), mobSpawner.maxSpawnRadius());
     possibleSpawns =
         filterTilesWithinMinRadius(
-            position.position().toCoordinate(), mobSpawner.minSpawnRadius(), possibleSpawns);
+            position.coordinate(), mobSpawner.minSpawnRadius(), possibleSpawns);
 
     if (possibleSpawns.isEmpty()) {
       throw new IllegalStateException("No possible spawn locations found for mob spawner");

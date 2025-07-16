@@ -461,7 +461,7 @@ public final class Game {
    * @return The tile that is the next tile from the given point in the specified direction.
    */
   public static Tile tileAT(final Point point, PositionComponent.Direction direction) {
-    return tileAT(point.toCoordinate(), direction);
+    return tileAT(point, direction);
   }
 
   /**
