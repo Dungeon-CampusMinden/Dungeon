@@ -24,7 +24,7 @@ public class MonsterTest {
   /** WTF? . */
   @BeforeEach
   public void setup() {
-    Game.add(new LevelSystem(null, () -> {}));
+    Game.add(new LevelSystem(() -> {}));
   }
 
   /** WTF? . */

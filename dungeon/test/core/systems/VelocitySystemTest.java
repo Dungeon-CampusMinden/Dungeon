@@ -37,7 +37,7 @@ public class VelocitySystemTest {
   /** Sets up the test environment with mock level, entity, and components. */
   @BeforeEach
   public void setup() throws IOException {
-    Game.add(new LevelSystem(null, () -> {}));
+    Game.add(new LevelSystem(() -> {}));
     Game.currentLevel(level);
     Mockito.when(tile.friction()).thenReturn(0.75f);
     Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);

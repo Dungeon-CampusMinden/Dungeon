@@ -11,14 +11,11 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
-import core.level.elements.tile.PitTile;
 import core.level.loader.DungeonLoader;
 import core.level.utils.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
-import core.utils.components.draw.PainterConfig;
-import core.utils.components.path.IPath;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -47,20 +44,10 @@ import java.util.logging.Logger;
  * onLevelLoad callback.
  */
 public final class LevelSystem extends System {
-  /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls. */
-  private static final float X_OFFSET = 0.5f;
-
-  /**
-   * offset the coordinate by a quarter tile,it looks a bit more like every Entity is not walking
-   * over walls.
-   */
-  private static final float Y_OFFSET = 0.25f;
-
   private static final String SOUND_EFFECT = "sounds/enterDoor.wav";
 
   private static ILevel currentLevel;
   private final IVoidFunction onLevelLoad;
-  private final Painter painter;
   private final Logger levelAPI_logger = Logger.getLogger(this.getClass().getSimpleName());
   private IVoidFunction onEndTile;
 
@@ -74,10 +61,9 @@ public final class LevelSystem extends System {
    * @param painter The {@link Painter} to use to draw the level.
    * @param onLevelLoad Callback function that is called if a new level was loaded.
    */
-  public LevelSystem(Painter painter, IVoidFunction onLevelLoad) {
+  public LevelSystem(IVoidFunction onLevelLoad) {
     super(PlayerComponent.class, PositionComponent.class);
     this.onLevelLoad = onLevelLoad;
-    this.painter = painter;
     this.onEndTile = () -> DungeonLoader.loadNextLevel();
   }
 
@@ -101,40 +87,6 @@ public final class LevelSystem extends System {
     currentLevel = level;
     onLevelLoad.execute();
     levelAPI_logger.info("A new level was loaded.");
-  }
-
-  private void drawLevel() {
-    Map<IPath, PainterConfig> mapping = new HashMap<>();
-
-    Tile[][] layout = currentLevel.layout();
-    for (Tile[] tiles : layout) {
-      for (int x = 0; x < layout[0].length; x++) {
-        Tile t = tiles[x];
-        if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
-          IPath texturePath = t.texturePath();
-          if (!mapping.containsKey(texturePath)
-              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
-            mapping.put(
-                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
-          }
-          painter.draw(t.position(), texturePath, mapping.get(texturePath));
-        }
-      }
-    }
-  }
-
-  /**
-   * Checks if the provided tile is an instance of PitTile and if it's open.
-   *
-   * @param tile The tile to check.
-   * @return true if the tile is an instance of PitTile, and it's open, false otherwise.
-   */
-  private boolean isTilePitAndOpen(final Tile tile) {
-    if (tile instanceof PitTile) {
-      return ((PitTile) tile).isOpen();
-    } else {
-      return false;
-    }
   }
 
   /**
@@ -214,7 +166,6 @@ public final class LevelSystem extends System {
                             playSound();
                           });
                 });
-      drawLevel();
     }
   }
 

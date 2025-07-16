@@ -260,7 +260,7 @@ public final class GameLoop extends ScreenAdapter {
   private void createSystems() {
     ECSManagment.add(new PositionSystem());
     ECSManagment.add(new CameraSystem());
-    ECSManagment.add(new LevelSystem(DrawSystem.painter(), onLevelLoad));
+    ECSManagment.add(new LevelSystem(onLevelLoad));
     ECSManagment.add(new DrawSystem());
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new PlayerSystem());
