@@ -96,6 +96,15 @@ public record Point(float x, float y) {
     return Math.sqrt(Math.pow(otherPos.x() - x(), 2) + Math.pow(otherPos.y() - y(), 2));
   }
 
+  /**
+   * Create new Point flooring the values.
+   *
+   * @return floored Point
+   */
+  public Point floor() {
+    return new Point((int) x(), (int) y());
+  }
+
   @Override
   public String toString() {
     return x + "," + y;

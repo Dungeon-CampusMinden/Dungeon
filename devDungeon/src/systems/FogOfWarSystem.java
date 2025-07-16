@@ -218,16 +218,12 @@ public class FogOfWarSystem extends System {
    * @return The calculated tint color as an ARGB integer.
    */
   private int getTintColor(Point tilePos, int maxDistance, float scale, Point heroPos) {
-    float distance =
-        (float)
-            heroPos
-                .toCoordinate()
-                .toPoint()
-                .distance(tilePos); // point -> coordinate -> point to floor the value
+    double distance =
+        heroPos.floor().distance(tilePos); // point -> coordinate -> point to floor the value
     if (distance > maxDistance) {
       return 0xFFFFFF00;
     }
-    float distanceFactor = Math.min(1, distance * scale / (maxDistance));
+    double distanceFactor = Math.min(1.0, distance * scale / (maxDistance));
     int alpha = (int) (255 * (1 - distanceFactor));
 
     return 0xFFFFFF00 | alpha;
