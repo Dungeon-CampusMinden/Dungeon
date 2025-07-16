@@ -316,7 +316,7 @@ public enum BlocklyMonster {
           range = straightRangeAI.range();
         }
         straightRangeAI.range(this.range);
-        monster.add(new TintDirectionComponent(pc.position().toCoordinate(), this.range));
+        monster.add(new TintDirectionComponent(pc.coordinate(), this.range));
       }
 
       if (addToGame) {

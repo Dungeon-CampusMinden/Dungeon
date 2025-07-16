@@ -67,11 +67,10 @@ public class BlocklyCommands {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-    GraphPath<Tile> pathToExit =
-        LevelUtils.calculatePath(pc.position().toCoordinate(), exitTile.coordinate());
+    GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(pc.position().toCoordinate());
+      Tile currentTile = Game.tileAT(pc.position());
       if (currentTile != nextTile) {
         PositionComponent.Direction viewDirection = EntityUtils.getViewDirection(hero);
         PositionComponent.Direction targetDirection =

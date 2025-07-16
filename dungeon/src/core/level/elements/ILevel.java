@@ -491,7 +491,7 @@ public interface ILevel extends IndexedGraph<Tile> {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return tileAt(pc.position().toCoordinate());
+    return tileAt(pc.position());
   }
 
   /**

@@ -28,8 +28,8 @@ public class EntityUtils {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(other, PositionComponent.class));
 
-    Coordinate entityCoordinate = entityPos.position().toCoordinate();
-    Coordinate otherCoordinate = otherPos.position().toCoordinate();
+    Coordinate entityCoordinate = entityPos.coordinate();
+    Coordinate otherCoordinate = otherPos.coordinate();
     if (entityCoordinate.equals(otherCoordinate)) return true;
     Direction viewDirectionEntity = Direction.fromPositionCompDirection(entityPos.viewDirection());
 
