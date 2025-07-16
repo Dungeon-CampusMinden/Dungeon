@@ -1,6 +1,5 @@
 package utils.components.skill;
 
-import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
@@ -9,6 +8,7 @@ import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
 import core.Game;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -53,8 +53,7 @@ public class InevitableFireballSkill extends DamageProjectile {
         HIT_BOX_SIZE,
         targetSelection,
         DEFAULT_PROJECTILE_RANGE,
-        // If the fireball does not hit the player, still restart the level
-        entity -> Client.restart(),
+        DamageProjectile.DEFAULT_ON_WALL_HIT,
         (projectile, entity) -> {
           // Set the velocity back to the original value (hero only)
           if (!entity.isPresent(PlayerComponent.class)) return;
@@ -74,6 +73,11 @@ public class InevitableFireballSkill extends DamageProjectile {
                   velocityComponent -> {
                     velocityComponent.velocity(Vector2.ZERO);
                   });
+          // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
+          // freeze on the corner of the red zone
+          Game.hero()
+              .flatMap(hero -> hero.fetch(PositionComponent.class))
+              .ifPresent(PositionComponent::centerPositionOnTile);
         });
   }
 

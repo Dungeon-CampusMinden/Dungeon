@@ -136,6 +136,15 @@ public final class PositionComponent implements Component {
   }
 
   /**
+   * Set the position.
+   *
+   * <p>Will center the entity on the tile it is currently on.
+   */
+  public void centerPositionOnTile() {
+    position(position.toCoordinate().toCenteredPoint());
+  }
+
+  /**
    * Get the direction of view.
    *
    * @return current direction of view
