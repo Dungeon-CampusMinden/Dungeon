@@ -7,7 +7,6 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -83,15 +82,15 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
    * @param item The item to drop
    * @param positionComponent The position component of the entity
    * @return true if the item was dropped, false otherwise
-   * @see LevelUtils#randomAccessibleTileCoordinateInRange(Point, float)
+   * @see LevelUtils#randomAccessibleTileInRangeAsPoint(Point, float)
    */
   private boolean tryDropItem(Item item, PositionComponent positionComponent) {
     for (int i = 1; i <= MAX_ITEM_DROP_RADIUS; i++) {
-      Coordinate randomTile =
-          LevelUtils.randomAccessibleTileCoordinateInRange(positionComponent.position(), i)
+      Point randomTile =
+          LevelUtils.randomAccessibleTileInRangeAsPoint(positionComponent.position(), i)
               .orElse(null);
       if (randomTile != null) {
-        item.drop(randomTile.toPoint());
+        item.drop(randomTile);
         return true;
       }
     }

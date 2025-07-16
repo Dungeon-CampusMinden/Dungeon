@@ -67,9 +67,7 @@ public final class LevelUtils {
    * @return Path from the center point to the randomly selected tile.
    */
   public static GraphPath<Tile> calculatePathToRandomTileInRange(final Point point, float radius) {
-    Coordinate newPosition =
-        randomAccessibleTileCoordinateInRange(point, radius).orElse(point.toCoordinate());
-    return calculatePath(point.toCoordinate(), newPosition);
+    return calculatePath(point, randomAccessibleTileInRangeAsPoint(point, radius).orElse(point));
   }
 
   /**
@@ -260,12 +258,9 @@ public final class LevelUtils {
    * @return An Optional containing a random Coordinate object representing an accessible tile
    *     within the range, or an empty Optional if no accessible tiles were found.
    */
-  public static Optional<Coordinate> randomAccessibleTileCoordinateInRange(
+  public static Optional<Point> randomAccessibleTileInRangeAsPoint(
       final Point center, float radius) {
-    List<Tile> tiles = accessibleTilesInRange(center, radius);
-    if (tiles.isEmpty()) return Optional.empty();
-    Coordinate newPosition = tiles.get(RANDOM.nextInt(tiles.size())).coordinate();
-    return Optional.of(newPosition);
+    return accessibleTilesInRange(center, radius).stream().map(Tile::position).findAny();
   }
 
   /**
