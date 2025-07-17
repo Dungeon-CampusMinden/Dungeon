@@ -1,5 +1,6 @@
 package core.level;
 
+import contrib.utils.level.ITickable;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
 import core.level.elements.astar.TileHeuristic;
@@ -26,7 +27,7 @@ import java.util.Set;
  *
  * @see core.level.elements.ILevel
  */
-public class TileLevel implements ILevel {
+public class TileLevel implements ILevel, ITickable {
 
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
@@ -252,6 +253,8 @@ public class TileLevel implements ILevel {
   @Override
   public Set<ExitTile> endTiles() {
     return endTiles();
-
   }
+
+  @Override
+  public void onTick(boolean isFirstTick) {}
 }

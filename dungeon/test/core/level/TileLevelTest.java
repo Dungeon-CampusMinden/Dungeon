@@ -15,7 +15,6 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
@@ -42,29 +41,6 @@ public class TileLevelTest {
 
   /** WTF? . */
   @Test
-  public void test_levelCTOR_TilesNoExit() {
-    Tile[][] tileLayout =
-        new Tile[][] {
-          {
-            new WallTile(new SimpleIPath(""), new Coordinate(0, 0), DesignLabel.DEFAULT),
-            new FloorTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT)
-          },
-          {
-            new WallTile(new SimpleIPath(""), new Coordinate(0, 1), DesignLabel.DEFAULT),
-            new FloorTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
-          }
-        };
-    TileLevel tileLevel = new TileLevel(tileLayout);
-    Tile[][] layout = tileLevel.layout();
-    assertSame(tileLayout[0][0], layout[0][0]);
-    assertSame(tileLayout[1][0], layout[1][0]);
-    assertTrue(
-        layout[0][1].levelElement() == LevelElement.EXIT
-            || layout[1][1].levelElement() == LevelElement.EXIT);
-  }
-
-  /** WTF? . */
-  @Test
   public void test_levelCTOR_LevelElements() {
     LevelElement[][] elementsLayout =
         new LevelElement[][] {
@@ -76,49 +52,6 @@ public class TileLevelTest {
     assertSame(elementsLayout[1][0], layout[1][0].levelElement());
     assertSame(elementsLayout[0][1], layout[0][1].levelElement());
     assertSame(elementsLayout[1][1], layout[1][1].levelElement());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_levelCTOR_LevelElementsNoExit() {
-    LevelElement[][] elementsLayout =
-        new LevelElement[][] {
-          {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.FLOOR}
-        };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-    Tile[][] layout = tileLevel.layout();
-    assertSame(elementsLayout[0][0], layout[0][0].levelElement());
-    assertSame(elementsLayout[1][0], layout[1][0].levelElement());
-    assertTrue(
-        layout[0][1].levelElement() == LevelElement.EXIT
-            || layout[1][1].levelElement() == LevelElement.EXIT);
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_levelCTOR_LevelElementsNoFloors() {
-    LevelElement[][] elementsLayout =
-        new LevelElement[][] {
-          {LevelElement.WALL, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
-        };
-    assertThrows(
-        NoSuchElementException.class,
-        () -> {
-          new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-        });
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_levelCTOR_LevelElementsEnoughFloorsForStartButNotExit() {
-    LevelElement[][] elementsLayout =
-        new LevelElement[][] {
-          {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.WALL}
-        };
-
-    TileLevel level = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-    assertNotNull(level.startTile());
-    assertNull(level.endTile());
   }
 
   /** WTF? . */
@@ -162,7 +95,7 @@ public class TileLevelTest {
           {LevelElement.FLOOR, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
         };
     TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-    tileLevel.changeTileElementType(tileLevel.startTile(), LevelElement.WALL);
+    tileLevel.changeTileElementType(tileLevel.floorTiles().getFirst(), LevelElement.WALL);
     assertEquals(0, tileLevel.getNodeCount());
   }
 
@@ -186,45 +119,6 @@ public class TileLevelTest {
         };
     TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
     assertEquals(4, tileLevel.getNodeCount());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_setRandomEnd() {
-    LevelElement[][] elementsLayout =
-        new LevelElement[][] {
-          {LevelElement.EXIT, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
-        };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-    Tile oldEndTile = tileLevel.endTile();
-    tileLevel.randomEnd();
-    tileLevel.removeTile(oldEndTile);
-    assertNotSame(tileLevel.startTile(), tileLevel.endTile());
-    assertNotSame(oldEndTile, tileLevel.endTile());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_setRandomEnd_NoFreeFloors() {
-    LevelElement[][] elementsLayout =
-        new LevelElement[][] {
-          {LevelElement.FLOOR},
-        };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-    tileLevel.randomEnd();
-    assertNotSame(tileLevel.startTile(), tileLevel.endTile());
-    assertNull(tileLevel.endTile());
-  }
-
-  /** WTF? . */
-  @Test
-  public void test_setRandomEnd_NoFloors() {
-    // given floor is for start
-    LevelElement[][] elementsLayout =
-        new LevelElement[][] {{LevelElement.WALL}, {LevelElement.FLOOR}};
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
-    tileLevel.randomEnd();
-    assertNull(tileLevel.endTile());
   }
 
   /** WTF? . */

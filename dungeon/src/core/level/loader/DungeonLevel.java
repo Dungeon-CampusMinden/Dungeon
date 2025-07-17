@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
  * functionality for handling custom points. These points are used to add spawn points, door logic
  * or any other custom logic to the level.
  */
-public abstract class DungeonLevel extends TileLevel implements ITickable {
+public abstract class DungeonLevel extends TileLevel {
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> customPoints = new ArrayList<>();
   private final List<Coordinate> tpTargets = new ArrayList<>();
