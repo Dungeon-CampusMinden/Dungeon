@@ -72,7 +72,6 @@ public class Berry extends Item {
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(new SimpleIPath(texture)));
     dc.currentAnimation(CoreAnimations.IDLE);
     b.add(dc);
-    return;
   }
 
   /**
