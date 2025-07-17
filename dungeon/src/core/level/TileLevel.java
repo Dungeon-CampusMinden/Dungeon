@@ -233,8 +233,8 @@ public class TileLevel implements ILevel, ITickable {
   }
 
   @Override
-  public Tile startTile() {
-    return startTile;
+  public Optional<Tile> startTile() {
+    return Optional.ofNullable(startTile);
   }
 
   @Override

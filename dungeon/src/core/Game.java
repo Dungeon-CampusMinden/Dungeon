@@ -513,7 +513,7 @@ public final class Game {
    *
    * @return The start tile.
    */
-  public static Tile startTile() {
+  public static Optional<Tile> startTile() {
     return currentLevel().startTile();
   }
 

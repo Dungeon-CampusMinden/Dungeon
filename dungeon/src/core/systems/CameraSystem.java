@@ -10,6 +10,7 @@ import core.System;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -99,7 +100,8 @@ public final class CameraSystem extends System {
   private void focus() {
     Point focusPoint;
     if (Game.currentLevel() == null) focusPoint = new Point(0, 0);
-    else focusPoint = Game.startTile().position();
+    else focusPoint = Game.startTile().map(Tile::position).orElse(new Point(0, 0));
+
     focus(focusPoint);
   }
 

@@ -223,7 +223,7 @@ public final class GameLoop extends ScreenAdapter {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    pc.position(Game.startTile());
+    pc.position(Game.startTile().orElseThrow());
     pc.viewDirection(PositionComponent.Direction.DOWN); // look down by default
 
     // reset animations

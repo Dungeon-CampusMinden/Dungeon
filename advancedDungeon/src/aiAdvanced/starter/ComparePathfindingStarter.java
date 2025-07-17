@@ -124,12 +124,12 @@ public class ComparePathfindingStarter {
 
     // Set up new level with original and duplicated layouts
     int rows = curLevel.length;
-    Coordinate orgStart = Game.startTile().coordinate();
+    Coordinate orgStart = Game.startTile().orElseThrow().coordinate();
     Coordinate newStart = orgStart.translate(Vector2.of(0, rows + 1));
     Game.currentLevel(
         new AiMazeLevel(
             newLevel,
-            Game.currentLevel().startTile().designLabel(),
+            Game.currentLevel().designLabel(),
             ((DungeonLevel) Game.currentLevel()).customPoints()));
 
     // Position the runners

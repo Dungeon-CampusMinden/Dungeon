@@ -325,7 +325,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return The start tile of the level.
    */
-  Tile startTile();
+  Optional<Tile> startTile();
 
   /**
    * Retrieves the tile on which the given entity is standing.

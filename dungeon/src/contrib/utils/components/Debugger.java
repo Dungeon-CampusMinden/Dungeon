@@ -96,7 +96,7 @@ public class Debugger {
   /** Teleports the hero to the start of the level. */
   public static void TELEPORT_TO_START() {
     LOGGER.info("TELEPORT TO START");
-    TELEPORT(Game.startTile());
+    Game.startTile().ifPresent(Debugger::TELEPORT);
   }
 
   /**
