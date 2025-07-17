@@ -64,6 +64,9 @@ public class Hero {
       pc.removeCallbacks(); // Entfernt alle bisherigen Tastenzuweisungen
     }
     this.fireballSkill = fireballSkill;
+    // uncap max hero speed
+    VelocityComponent vc = hero.fetch(VelocityComponent.class).get();
+    vc.velocity(Vector2.of(Integer.MAX_VALUE, Integer.MAX_VALUE));
   }
 
   /**
