@@ -1,6 +1,6 @@
 ---
 title: "Escape room design as a game-based learning process for STEAM education"
-source: https://books.google.de/books?hl=de&lr=&id=owC5DwAAQBAJ&oi=fnd&pg=PA378&dq=Escape+room%C2%A0design+as+a%C2%A0game-based+learning%C2%A0process+for+STEAM%C2%A0education&ots=Gg00uKpnBL&sig=7hVRIEYSyyudtH37TzrfI4Kqlok#v=onepage&q=Escape%20room%C2%A0design%20as%20a%C2%A0game-based%20learning%C2%A0process%20for%20STEAM%C2%A0education&f=false
+source: https://cris.brighton.ac.uk/ws/portalfiles/portal/7029238/Escape_Room_Design_as_a_Game_Based_Learning_Process_for_STEAM_Education_draft.pdf
 ---
 
 @karageorgiou2019escape
