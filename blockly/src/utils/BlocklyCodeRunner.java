@@ -216,7 +216,7 @@ public class BlocklyCodeRunner {
    * @return The modified Java code with sleep calls added.
    */
   private String addSleepCalls(String code) {
-    return code.replaceAll("(?<=;)(?=\\s*\\R|$)", " sleep();");
+    return code.replaceAll("(?<!break;)(?<!continue;)(?<!yield;)(?<=;)(?=\\s*\\R|$)", " sleep();");
   }
 
   /**
