@@ -122,7 +122,6 @@ public class TileLevel implements ILevel {
     }
   }
 
-
   @Override
   public List<FloorTile> floorTiles() {
     return floorTiles;
@@ -253,5 +252,6 @@ public class TileLevel implements ILevel {
   @Override
   public Set<ExitTile> endTiles() {
     return endTiles();
+
   }
 }

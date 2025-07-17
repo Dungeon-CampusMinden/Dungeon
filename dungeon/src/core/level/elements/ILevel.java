@@ -14,7 +14,6 @@ import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -36,14 +35,12 @@ public interface ILevel extends IndexedGraph<Tile> {
   /** Default random number generator (seeded with current time). */
   Random RANDOM = new Random();
 
-
   /**
    * Sets the start tile for the level.
    *
    * @param start The start tile.
    */
   void startTile(final Tile start);
-
 
   /**
    * Adds an unspecified tile to the level.
@@ -154,7 +151,6 @@ public interface ILevel extends IndexedGraph<Tile> {
     return output.toString();
   }
 
-
   /**
    * Retrieves a random tile of the specified type from the level.
    *
@@ -182,6 +178,7 @@ public interface ILevel extends IndexedGraph<Tile> {
           default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");
         });
   }
+
   /**
    * Retrieves the count of nodes in the level for use in libGDX pathfinding algorithms.
    *
@@ -394,11 +391,11 @@ public interface ILevel extends IndexedGraph<Tile> {
     }
     level.removeTile(tile);
     Tile newTile =
-            TileFactory.createTile(
-                    TileTextureFactory.findTexturePath(tile, layout(), changeInto),
-                    tile.coordinate(),
-                    changeInto,
-                    tile.designLabel());
+        TileFactory.createTile(
+            TileTextureFactory.findTexturePath(tile, layout(), changeInto),
+            tile.coordinate(),
+            changeInto,
+            tile.designLabel());
     level.layout()[tile.coordinate().y()][tile.coordinate().x()] = newTile;
     newTile.index(tile.index());
     newTile.tintColor(tile.tintColor());
