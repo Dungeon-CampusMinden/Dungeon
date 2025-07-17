@@ -12,6 +12,7 @@ import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.Point;
@@ -301,15 +302,16 @@ public interface ILevel extends IndexedGraph<Tile> {
   }
 
   /**
-   * Retrieves the end tile of the level.
+   * Retrieves one end tile of the level, if present.
    *
-   * <p>If multiple Endtiles are in the game, this will only return one of them
+   * <p>If multiple end tiles exist in the level, only one of them will be returned.
    *
-   * @return The end tile of the level.
-   * @deprecated use {@link #endTiles()}
+   * @return an {@link Optional} containing one end tile if present, or an empty {@link Optional} if
+   *     none exist
+   * @deprecated use {@link #endTiles()} to retrieve all end tiles
    */
   @Deprecated
-  Tile endTile();
+  Optional<Tile> endTile();
 
   /**
    * Retrieves a Set containing the end tiles of the level.
@@ -401,5 +403,14 @@ public interface ILevel extends IndexedGraph<Tile> {
     newTile.tintColor(tile.tintColor());
     newTile.visible(tile.visible());
     level.addTile(newTile);
+  }
+
+  /**
+   * Get the {@link DesignLabel} of the level.
+   *
+   * @return The DesignLabel of the level
+   */
+  default DesignLabel designLabel() {
+    return randomTile().designLabel();
   }
 }

@@ -11,10 +11,7 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -246,13 +243,13 @@ public class TileLevel implements ILevel, ITickable {
   }
 
   @Override
-  public Tile endTile() {
-    return exitTiles.size() > 0 ? exitTiles.get(0) : null;
+  public Optional<Tile> endTile() {
+    return Optional.ofNullable(exitTiles.size() > 0 ? exitTiles.get(0) : null);
   }
 
   @Override
   public Set<ExitTile> endTiles() {
-    return endTiles();
+    return new HashSet<>(exitTiles);
   }
 
   @Override

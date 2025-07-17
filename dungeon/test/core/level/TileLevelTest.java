@@ -138,7 +138,8 @@ public class TileLevelTest {
     tileLevel.startTile(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
-    GraphPath<Tile> path = tileLevel.findPath(tileLevel.startTile(), tileLevel.endTile());
+    GraphPath<Tile> path =
+        tileLevel.findPath(tileLevel.startTile(), tileLevel.endTile().orElseThrow());
     assertEquals(7, path.getCount());
     assertEquals(layout[0][0], path.get(0));
     assertEquals(layout[1][0], path.get(1));
@@ -169,7 +170,8 @@ public class TileLevelTest {
     FFF
     FFF */
     // should take the shortest path
-    GraphPath<Tile> path = tileLevel.findPath(tileLevel.startTile(), tileLevel.endTile());
+    GraphPath<Tile> path =
+        tileLevel.findPath(tileLevel.startTile(), tileLevel.endTile().orElseThrow());
     assertEquals(5, path.getCount());
     assertEquals(layout[0][0], path.get(0));
     assertEquals(layout[1][0], path.get(1));

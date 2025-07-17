@@ -64,7 +64,7 @@ public abstract class DungeonLevel extends TileLevel {
               onFirstTick();
             }
           });
-      ((ExitTile) endTile()).close(); // close exit at start (to force defeating the boss)
+      endTiles().forEach(ExitTile::close); // close exit at start (to force defeating the boss)
       doorTiles().forEach(DoorTile::close);
       pitTiles()
           .forEach(

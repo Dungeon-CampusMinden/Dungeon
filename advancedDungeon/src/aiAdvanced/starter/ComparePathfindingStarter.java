@@ -195,7 +195,7 @@ public class ComparePathfindingStarter {
             if (runner == null) continue;
 
             Coordinate spawn = runner.fetch(PositionComponent.class).orElseThrow().coordinate();
-            Coordinate end = Game.currentLevel().endTile().coordinate();
+            Coordinate end = Game.currentLevel().endTile().orElseThrow().coordinate();
 
             if (i == 1) {
               end = end.translate(Vector2.of(0, rows + 1));

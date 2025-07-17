@@ -73,7 +73,7 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
           });
     addSign();
 
-    exit = (ExitTile) Game.endTile();
+    exit = (ExitTile) Game.endTile().orElseThrow();
     exit.close();
     Entity lever1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
     Entity lever2 = LeverFactory.createLever(customPoints().get(1).toCenteredPoint());
