@@ -666,14 +666,15 @@ public final class Game {
   }
 
   /**
-   * Get the Position of the given entity in the level.
+   * Returns the position of the given entity, if it has a {@link PositionComponent}.
    *
-   * @param entity Entity to get the current position from (needs a {@link PositionComponent}
-   * @return Position of the given entity.
+   * @param entity the entity to retrieve the current position from
+   * @return an {@link Optional} containing the entity's position, or empty if no {@link
+   *     PositionComponent} is present
    */
-  public static Point positionOf(final Entity entity) {
-    return entity.fetch(PositionComponent.class).get().position();
-              }
+  public static Optional<Point> positionOf(final Entity entity) {
+    return entity.fetch(PositionComponent.class).map(PositionComponent::position);
+  }
 
   /**
    * Set the current level.
