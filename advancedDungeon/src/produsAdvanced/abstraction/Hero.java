@@ -135,6 +135,28 @@ public class Hero {
   }
 
   /**
+   * Setzt die horizontale Bewegungsgeschwindigkeit des Helden.
+   *
+   * @param speed Geschwindigkeit in X-Richtung.
+   */
+  public void setXSpeed(float speed) {
+    VelocityComponent vc = hero.fetch(VelocityComponent.class).get();
+    Vector2 velocity = vc.currentVelocity();
+    vc.currentVelocity(Vector2.of(speed, velocity.y()));
+  }
+
+  /**
+   * Setzt die vertikale Bewegungsgeschwindigkeit des Helden.
+   *
+   * @param speed Geschwindigkeit in Y-Richtung.
+   */
+  public void setYSpeed(float speed) {
+    VelocityComponent vc = hero.fetch(VelocityComponent.class).get();
+    Vector2 velocity = vc.currentVelocity();
+    vc.currentVelocity(Vector2.of(velocity.x(), speed));
+  }
+
+  /**
    * Gibt die aktuelle Mausposition im Spielfeld als {@link Point} zurück.
    *
    * @return Die aktuelle Mauszeigerposition.
