@@ -616,6 +616,67 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     colour: 250,
     suppressPrefixSuffix: true,
   },
+  // ----------------------- Switch Case ---------------------
+  {
+    type: "switch_case",
+    message0: "entscheide ueber %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "SWITCH",
+      },
+    ],
+    message1: "%1", // Platz für case/default-Blöcke
+    args1: [
+      {
+        type: "input_statement",
+        name: "CASES",
+      },
+    ],
+    suppressPrefixSuffix: true,
+    previousStatement: null,
+    nextStatement: null,
+    colour: 210,
+    tooltip: "Verzweigt abhängig vom Wert.",
+  },
+  {
+    type: "case_block",
+    message0: "fall %1",
+    args0: [
+      {
+        type: "input_value",
+        name: "CASE",
+      },
+    ],
+    message1: "%1",
+    args1: [
+      {
+        type: "input_statement",
+        name: "DO",
+      },
+    ],
+    suppressPrefixSuffix: true,
+    previousStatement: null,
+    nextStatement: null,
+    colour: 200,
+    tooltip: "Ein einzelner Fall im Switch.",
+  },
+  {
+    type: "default_block",
+    message0: "sonst",
+    message1: "%1",
+    args1: [
+      {
+        type: "input_statement",
+        name: "DO",
+      },
+    ],
+    suppressPrefixSuffix: true,
+    previousStatement: null,
+    nextStatement: null,
+    colour: 180,
+    tooltip: "Standardfall im Switch, wenn kein anderer zutrifft.",
+  },
   // ---------------------- Skills ----------------------
   {
     type: "interact",

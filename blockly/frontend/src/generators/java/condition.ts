@@ -167,3 +167,23 @@ export function controls_if(
 }
 
 export const controls_ifelse = controls_if;
+
+export function switch_case(block: Blockly.Block, generator: Blockly.Generator) {
+  const switch_expr = generator.valueToCode(block, "SWITCH", Order.NONE);
+  const cases_code = generator.statementToCode(block, "CASES");
+  const code = "entscheide ueber " + switch_expr + " {\n" + cases_code + "\n}";
+  return code;
+}
+
+export function case_block(block: Blockly.Block, generator: Blockly.Generator) {
+  const case_value = generator.valueToCode(block, "CASE", Order.NONE);
+  let do_code = generator.statementToCode(block, "DO");
+  do_code = generator.prefixLines(do_code, generator.INDENT);
+  return `fall ${case_value}:\n${do_code}`;
+}
+
+export function default_block(block: Blockly.Block, generator: Blockly.Generator) {
+  let do_code = generator.statementToCode(block, "DO");
+  do_code = generator.prefixLines(do_code, generator.INDENT);
+  return `default:\n${do_code}`;
+}
