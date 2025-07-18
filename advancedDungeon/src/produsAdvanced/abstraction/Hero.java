@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.components.UIComponent;
-import contrib.configuration.KeyboardConfig;
+import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
@@ -18,10 +18,7 @@ import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
-import java.util.Comparator;
 import produsAdvanced.AdvancedDungeon;
 
 /**
@@ -65,8 +62,7 @@ public class Hero {
     }
     this.fireballSkill = fireballSkill;
     // uncap max hero speed
-    hero.fetch(VelocityComponent.class)
-        .ifPresent(vc -> vc.velocity(Vector2.of(Integer.MAX_VALUE, Integer.MAX_VALUE)));
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.velocity(Vector2.MAX));
   }
 
   /**
@@ -99,36 +95,8 @@ public class Hero {
                       }
                     });
               }
-
               // Callback zum Schließen von UI-Dialogen
-              pc.registerCallback(
-                  KeyboardConfig.CLOSE_UI.value(),
-                  (e) -> {
-                    var firstUI =
-                        Game.entityStream()
-                            .filter(x -> x.isPresent(UIComponent.class))
-                            .map(
-                                x ->
-                                    new Tuple<>(
-                                        x,
-                                        x.fetch(UIComponent.class)
-                                            .orElseThrow(
-                                                () ->
-                                                    MissingComponentException.build(
-                                                        x, UIComponent.class))))
-                            .filter(x -> x.b().closeOnUICloseKey())
-                            .max(Comparator.comparingInt(x -> x.b().dialog().getZIndex()))
-                            .orElse(null);
-                    if (firstUI != null) {
-                      InventoryGUI.inHeroInventory = false;
-                      firstUI.a().remove(UIComponent.class);
-                      if (firstUI.a().componentStream().findAny().isEmpty()) {
-                        Game.remove(firstUI.a());
-                      }
-                    }
-                  },
-                  false,
-                  true);
+              HeroFactory.registerCloseUI(pc);
             });
   }
 
@@ -228,26 +196,15 @@ public class Hero {
    */
   public void openInventory() {
     hero.fetch(PlayerComponent.class)
-        .filter(pc -> !pc.openDialogs())
         .ifPresent(
-            pc ->
-                hero.fetch(UIComponent.class)
-                    .ifPresentOrElse(
-                        uiComponent -> {
-                          if (uiComponent.dialog() instanceof GUICombination) {
-                            InventoryGUI.inHeroInventory = false;
-                            hero.remove(UIComponent.class);
-                          }
-                        },
-                        () -> {
-                          InventoryGUI.inHeroInventory = true;
-                          hero.add(
-                              new UIComponent(
-                                  new GUICombination(
-                                      new InventoryGUI(
-                                          hero.fetch(InventoryComponent.class).orElse(null))),
-                                  true));
-                        }));
+            pc -> {
+              InventoryGUI.inHeroInventory = true;
+              hero.add(
+                  new UIComponent(
+                      new GUICombination(
+                          new InventoryGUI(hero.fetch(InventoryComponent.class).orElse(null))),
+                      true));
+            });
   }
 
   /**
