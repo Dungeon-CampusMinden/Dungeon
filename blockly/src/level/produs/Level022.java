@@ -74,7 +74,9 @@ public class Level022 extends BlocklyLevel {
         .orElseThrow()
         .onDeath(
             entity -> {
-              DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
+              // we shouldnt just end the game, we need a real end screen
+              DialogUtils.showTextPopup(
+                  "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit);
               boss = null;
             });
     bossVC =
