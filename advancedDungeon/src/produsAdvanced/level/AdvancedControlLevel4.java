@@ -68,7 +68,7 @@ public class AdvancedControlLevel4 extends AdvancedLevel {
               Game.add(lever);
             });
 
-    exit = (ExitTile) Game.endTile();
+    exit = (ExitTile) Game.endTile().orElseThrow();
     exit.close();
 
     Game.allTiles(LevelElement.PIT)

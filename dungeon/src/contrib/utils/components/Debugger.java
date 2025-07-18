@@ -18,7 +18,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
@@ -67,32 +66,37 @@ public class Debugger {
   /** Teleports the Hero to the end of the level, on a neighboring accessible tile if possible. */
   public static void TELEPORT_TO_END() {
     LOGGER.info("TELEPORT TO END");
-    Coordinate endTile = Game.endTile().coordinate();
-    Coordinate[] neighborTiles = {
-      endTile.translate(Vector2.UP),
-      endTile.translate(Vector2.DOWN),
-      endTile.translate(Vector2.LEFT),
-      endTile.translate(Vector2.RIGHT),
-    };
-    for (Coordinate neighborTile : neighborTiles) {
-      Tile neighbor = Game.tileAT(neighborTile);
-      if (neighbor.isAccessible()) {
-        TELEPORT(neighbor);
-        return;
-      }
-    }
+
+    Game.endTile()
+        .ifPresent(
+            end -> {
+              Coordinate endTile = end.coordinate();
+              Coordinate[] neighborTiles = {
+                endTile.translate(Vector2.UP),
+                endTile.translate(Vector2.DOWN),
+                endTile.translate(Vector2.LEFT),
+                endTile.translate(Vector2.RIGHT),
+              };
+              for (Coordinate neighborTile : neighborTiles) {
+                Tile neighbor = Game.tileAT(neighborTile);
+                if (neighbor.isAccessible()) {
+                  TELEPORT(neighbor);
+                  return;
+                }
+              }
+            });
   }
 
   /** Will teleport the Hero on the EndTile so the next level gets loaded. */
   public static void LOAD_NEXT_LEVEL() {
     LOGGER.info("TELEPORT ON END");
-    TELEPORT(Game.endTile());
+    Game.endTile().ifPresent(Debugger::TELEPORT);
   }
 
   /** Teleports the hero to the start of the level. */
   public static void TELEPORT_TO_START() {
     LOGGER.info("TELEPORT TO START");
-    TELEPORT(Game.startTile());
+    Game.startTile().ifPresent(Debugger::TELEPORT);
   }
 
   /**
@@ -192,7 +196,7 @@ public class Debugger {
   }
 
   private static void OPEN_DOORS() {
-    ((ExitTile) Game.endTile()).open();
+    Game.endTiles().forEach(t -> t.open());
     Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
   }
 

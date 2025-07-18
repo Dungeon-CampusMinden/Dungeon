@@ -1,5 +1,6 @@
 package core.level;
 
+import contrib.utils.level.ITickable;
 import core.level.elements.ILevel;
 import core.level.elements.astar.TileConnection;
 import core.level.elements.astar.TileHeuristic;
@@ -8,13 +9,9 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-import core.utils.IVoidFunction;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -27,7 +24,7 @@ import java.util.Set;
  *
  * @see core.level.elements.ILevel
  */
-public class TileLevel implements ILevel {
+public class TileLevel implements ILevel, ITickable {
 
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
@@ -43,9 +40,6 @@ public class TileLevel implements ILevel {
   protected ArrayList<ExitTile> exitTiles = new ArrayList<>();
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
   protected ArrayList<PitTile> pitTiles = new ArrayList<>();
-  private IVoidFunction onFirstLoad = () -> {};
-
-  private boolean wasLoaded = false;
 
   /**
    * Create a new level.
@@ -55,8 +49,6 @@ public class TileLevel implements ILevel {
   public TileLevel(Tile[][] layout) {
     this.layout = layout;
     putTilesInLists();
-    if (startTile == null) randomStart();
-    if (exitTiles.size() == 0) randomEnd();
   }
 
   /**
@@ -126,54 +118,6 @@ public class TileLevel implements ILevel {
         checkTile.addConnection(t);
       }
     }
-  }
-
-  @Override
-  public void onFirstLoad(IVoidFunction function) {
-    this.onFirstLoad = function;
-  }
-
-  @Override
-  public void onLoad() {
-    if (!wasLoaded) {
-      wasLoaded = true;
-      onFirstLoad.execute();
-    }
-  }
-
-  @Override
-  public void addFloorTile(FloorTile tile) {
-    floorTiles.add(tile);
-  }
-
-  @Override
-  public void addWallTile(WallTile tile) {
-    wallTiles.add(tile);
-  }
-
-  @Override
-  public void addHoleTile(HoleTile tile) {
-    holeTiles.add(tile);
-  }
-
-  @Override
-  public void addDoorTile(DoorTile tile) {
-    doorTiles.add(tile);
-  }
-
-  @Override
-  public void addExitTile(ExitTile tile) {
-    exitTiles.add(tile);
-  }
-
-  @Override
-  public void addSkipTile(SkipTile tile) {
-    skipTiles.add(tile);
-  }
-
-  @Override
-  public void addPitTile(PitTile tile) {
-    pitTiles.add(tile);
   }
 
   @Override
@@ -271,13 +215,13 @@ public class TileLevel implements ILevel {
   @Override
   public void addTile(Tile tile) {
     switch (tile.levelElement()) {
-      case SKIP -> addSkipTile((SkipTile) tile);
-      case FLOOR -> addFloorTile((FloorTile) tile);
-      case WALL -> addWallTile((WallTile) tile);
-      case HOLE -> addHoleTile((HoleTile) tile);
-      case EXIT -> addExitTile((ExitTile) tile);
-      case DOOR -> addDoorTile((DoorTile) tile);
-      case PIT -> addPitTile((PitTile) tile);
+      case SKIP -> skipTiles.add((SkipTile) tile);
+      case FLOOR -> floorTiles.add((FloorTile) tile);
+      case WALL -> wallTiles.add((WallTile) tile);
+      case HOLE -> holeTiles.add((HoleTile) tile);
+      case EXIT -> exitTiles.add((ExitTile) tile);
+      case DOOR -> doorTiles.add((DoorTile) tile);
+      case PIT -> pitTiles.add((PitTile) tile);
     }
     this.addToPathfinding(tile);
     tile.level(this);
@@ -289,8 +233,8 @@ public class TileLevel implements ILevel {
   }
 
   @Override
-  public Tile startTile() {
-    return startTile;
+  public Optional<Tile> startTile() {
+    return Optional.ofNullable(startTile);
   }
 
   @Override
@@ -299,12 +243,15 @@ public class TileLevel implements ILevel {
   }
 
   @Override
-  public Tile endTile() {
-    return exitTiles.size() > 0 ? exitTiles.get(0) : null;
+  public Optional<Tile> endTile() {
+    return Optional.ofNullable(exitTiles.size() > 0 ? exitTiles.get(0) : null);
   }
 
   @Override
   public Set<ExitTile> endTiles() {
-    return endTiles();
+    return new HashSet<>(exitTiles);
   }
+
+  @Override
+  public void onTick(boolean isFirstTick) {}
 }

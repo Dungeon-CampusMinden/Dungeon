@@ -62,7 +62,7 @@ public class TutorialLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    ((ExitTile) endTile()).open();
+    ((ExitTile) endTile().orElseThrow()).open();
     pitTiles().forEach(PitTile::open);
 
     String movementKeys =

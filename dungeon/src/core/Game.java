@@ -9,6 +9,7 @@ import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -485,12 +486,26 @@ public final class Game {
   }
 
   /**
-   * Get the end tile.
+   * Retrieves one end tile of the level, if present.
    *
-   * @return The end tile.
+   * <p>If multiple end tiles exist in the level, only one of them will be returned.
+   *
+   * @return an {@link Optional} containing one end tile if present, or an empty {@link Optional} if
+   *     none exist
+   * @deprecated use {@link #endTiles()} to retrieve all end tiles
    */
-  public static Tile endTile() {
+  @Deprecated
+  public static Optional<Tile> endTile() {
     return currentLevel().endTile();
+  }
+
+  /**
+   * Retrieves a Set containing the end tiles of the level.
+   *
+   * @return Set containing the end tiles of the level.
+   */
+  public static Set<ExitTile> endTiles() {
+    return currentLevel().endTiles();
   }
 
   /**
@@ -498,7 +513,7 @@ public final class Game {
    *
    * @return The start tile.
    */
-  public static Tile startTile() {
+  public static Optional<Tile> startTile() {
     return currentLevel().startTile();
   }
 
@@ -666,13 +681,14 @@ public final class Game {
   }
 
   /**
-   * Get the Position of the given entity in the level.
+   * Returns the position of the given entity, if it has a {@link PositionComponent}.
    *
-   * @param entity Entity to get the current position from (needs a {@link PositionComponent}
-   * @return Position of the given entity.
+   * @param entity the entity to retrieve the current position from
+   * @return an {@link Optional} containing the entity's position, or empty if no {@link
+   *     PositionComponent} is present
    */
-  public static Point positionOf(final Entity entity) {
-    return currentLevel().positionOf(entity);
+  public static Optional<Point> positionOf(final Entity entity) {
+    return entity.fetch(PositionComponent.class).map(PositionComponent::position);
   }
 
   /**
