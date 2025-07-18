@@ -108,7 +108,7 @@ public class Server {
     "benutzen",
     "schieben",
     "ziehen",
-    "geheZumAuCsgang",
+    "geheZumAusgang",
     "aufsammeln",
     "fallen_lassen",
     "active",
