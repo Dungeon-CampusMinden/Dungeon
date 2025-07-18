@@ -2,7 +2,9 @@ package level.produs;
 
 import client.Client;
 import contrib.hud.DialogUtils;
+import contrib.systems.EventScheduler;
 import contrib.utils.Direction;
+import contrib.utils.IAction;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -27,16 +29,49 @@ import utils.BlocklyCommands;
  * wait block to time movements.
  */
 public class Level020 extends BlocklyLevel {
-  private static boolean showText = true;
-  private static final int TICK_TIMER = 180;
+  /** Time in milliseconds it takes for a pit to fully open after being triggered. */
+  private static final int PIT_TIME_TO_OPEN_IN_MS = 120;
+
+  /** Duration in milliseconds for each turn or decision cycle in the game logic. */
+  private static final int TURN_TIMER_IN_MS = 1500;
+
+  /**
+   * Grace period in milliseconds during which the player can still move after the boss has time
+   * ("coyote time" mechanic).
+   */
+  private static final int COYOTE_TIME_IN_MS = 500;
+
+  /** Focus point for the camera in this level. */
+  private static final Coordinate CAMERA_POINT = new Coordinate(15, 8);
+
+  /** Minimum distance (in tiles) between hero and boss at which the boss escapes. */
   private static final int ESCAPE_DISTANCE = 2;
+
+  private static boolean showText = true;
+
+  /**
+   * Helper flag for the EventScheduler; set to true if the boss is looking left and the coyote time
+   * has expired.
+   */
+  private boolean executeCheck = true;
 
   private PositionComponent heropc;
   private VelocityComponent herovc;
 
   private Entity boss;
   private PositionComponent bosspc;
-  private int counter = 0;
+  private IAction turnAction =
+      () -> {
+        if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
+          BlocklyCommands.turnEntity(boss, Direction.RIGHT);
+          executeCheck = false;
+        } else {
+          BlocklyCommands.turnEntity(boss, Direction.LEFT);
+          EventScheduler.scheduleAction(() -> executeCheck = true, COYOTE_TIME_IN_MS);
+        }
+      };
+
+  private EventScheduler.ScheduledAction scheduledAction;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -60,7 +95,7 @@ public class Level020 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusOn(new Coordinate(15, 8));
+    LevelManagementUtils.cameraFocusOn(CAMERA_POINT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
@@ -88,7 +123,7 @@ public class Level020 extends BlocklyLevel {
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {
-              ((PitTile) tile).timeToOpen(120);
+              ((PitTile) tile).timeToOpen(PIT_TIME_TO_OPEN_IN_MS);
               ((PitTile) tile).close();
             });
 
@@ -103,30 +138,51 @@ public class Level020 extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss == null) return;
-    counter++;
-    if (counter >= TICK_TIMER) {
-      counter = 0;
-      if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
-        BlocklyCommands.turnEntity(boss, Direction.RIGHT);
-      } else {
-        BlocklyCommands.turnEntity(boss, Direction.LEFT);
-      }
-    }
-    // create save scone at stat of the level
+
+    // rotate boss after duration
+    if (!EventScheduler.isScheduled(scheduledAction))
+      scheduledAction = EventScheduler.scheduleAction(turnAction, TURN_TIMER_IN_MS);
+    if (executeCheck) redLightGreenLight();
+    checkEscapeDistance();
+  }
+
+  /**
+   * Checks if the player is moving while the boss is watching.
+   *
+   * <p>If the player moves while the boss is looking (left), the game ends. A small area at the
+   * beginning is considered a safe zone and is excluded from the check.
+   */
+  private void redLightGreenLight() {
     float x = heropc.position().x();
     float y = heropc.position().y();
-    if (x > 6 || x > 3 && y >= 6 && y <= 8) {
 
+    // The small area at the beginning is a safe zone
+    boolean inSafeZone = x <= 6 || (x <= 3 && y >= 6 && y <= 8);
+    if (!inSafeZone) {
       if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
         if (herovc.currentVelocity().length() > 0) {
           DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }
       }
-      if (x >= bosspc.position().x() - ESCAPE_DISTANCE) {
-        DialogUtils.showTextPopup("Mich kriegst du nie!", "BOSS");
-        Game.remove(boss);
-        boss = null;
-      }
+    }
+  }
+
+  /**
+   * Checks whether the hero has reached the escape threshold distance to the boss.
+   *
+   * <p>If the threshold is reached, the boss will taunt the hero, be removed from the game, and all
+   * scheduled actions will be cleared.
+   */
+  private void checkEscapeDistance() {
+    float heroX = heropc.position().x();
+    float bossX = bosspc.position().x();
+
+    // If the hero gets close enough to the boss, the boss escapes
+    if (heroX >= bossX - ESCAPE_DISTANCE) {
+      DialogUtils.showTextPopup("Mich kriegst du nie!", "BOSS");
+      Game.remove(boss);
+      boss = null;
+      EventScheduler.clear();
     }
   }
 }
