@@ -108,7 +108,7 @@ public class Server {
     "benutzen",
     "schieben",
     "ziehen",
-    "geheZumAusgang",
+    "geheZumAuCsgang",
     "aufsammeln",
     "fallen_lassen",
     "active",
@@ -230,7 +230,6 @@ public class Server {
     // Reset values
     interruptExecution = true;
     Client.restart();
-
     sendHeroPosition(exchange);
   }
 
