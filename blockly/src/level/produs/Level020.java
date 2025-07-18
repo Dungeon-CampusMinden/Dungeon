@@ -11,6 +11,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
+import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -179,10 +180,10 @@ public class Level020 extends BlocklyLevel {
 
     // If the hero gets close enough to the boss, the boss escapes
     if (heroX >= bossX - ESCAPE_DISTANCE) {
-      DialogUtils.showTextPopup("Mich kriegst du nie!", "BOSS");
       Game.remove(boss);
       boss = null;
       EventScheduler.clear();
+      DialogUtils.showTextPopup("Mich kriegst du nie!", "BOSS", DungeonLoader::loadNextLevel);
     }
   }
 }
