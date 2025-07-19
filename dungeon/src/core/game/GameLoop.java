@@ -20,12 +20,11 @@ import core.systems.*;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
-import starter.IStarter;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import starter.IStarter;
 
 /**
  * The Dungeon-GameLoop.
@@ -88,7 +87,7 @@ public final class GameLoop extends ScreenAdapter {
 
   /** Starts the dungeon. */
   public static void run(IStarter s) {
-    starter=s;
+    starter = s;
     starter.start();
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setWindowSizeLimits(
@@ -270,5 +269,4 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new PlayerSystem());
   }
-
 }

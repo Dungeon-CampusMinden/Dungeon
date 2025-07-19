@@ -105,4 +105,6 @@ public final class YesNoDialog {
       return false;
     };
   }
+
+  public static void showYesNoDialog(String s, String game_over, IVoidFunction iVoidFunction) {}
 }

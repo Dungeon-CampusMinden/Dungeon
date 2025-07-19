@@ -213,7 +213,7 @@ public final class DrawSystem extends System {
   }
 
   private void drawLevel(ILevel currentLevel) {
-    if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
+    if (currentLevel == null) return;
     Map<IPath, PainterConfig> mapping = new HashMap<>();
 
     Tile[][] layout = currentLevel.layout();

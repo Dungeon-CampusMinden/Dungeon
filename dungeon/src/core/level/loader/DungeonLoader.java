@@ -141,7 +141,7 @@ public class DungeonLoader {
    * @return The name of the current level.
    * @throws IndexOutOfBoundsException If the current level index is out of bounds.
    */
-  public static String currentLevel() {
+  public static String currentLevelName() {
     return levelOrder.get(currentLevel).a().toLowerCase();
   }
 
@@ -187,7 +187,7 @@ public class DungeonLoader {
   public static void loadNextLevel() {
     DungeonLoader.currentLevel++;
     try {
-      Game.currentLevel(getRandomVariant(currentLevel()));
+      Game.currentLevel(getRandomVariant(currentLevelName()));
     } catch (MissingLevelException | IndexOutOfBoundsException e) {
       afterAllLevels.execute();
     }
@@ -290,10 +290,12 @@ public class DungeonLoader {
   public static int currentVariantIndex() {
     return currentVariant;
   }
+
   public static void clear() {
-    currentLevel=-1;
-    LEVELS.clear();
+    currentLevel = -1;
+    levelOrder.clear();
   }
+
   /**
    * Loads a DungeonLevel from the given path.
    *
@@ -335,7 +337,7 @@ public class DungeonLoader {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DungeonLevel newLevel;
-      newLevel = getLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
+      newLevel = getLevel(DungeonLoader.currentLevelName(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -448,5 +450,5 @@ public class DungeonLoader {
       }
     }
     throw new RuntimeException("No level handler found for level: " + levelName);
-}
+  }
 }

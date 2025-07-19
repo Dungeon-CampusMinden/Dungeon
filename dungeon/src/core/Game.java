@@ -3,6 +3,7 @@ package core;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import contrib.systems.EventScheduler;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
@@ -20,8 +21,6 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-import starter.IStarter;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -30,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import starter.IStarter;
 
 /**
  * The Center-Point of the framework.
@@ -722,11 +722,13 @@ public final class Game {
     return ECSManagment.findEntity(entity);
   }
 
-  public static void restart(){
+  public static void restart() {
     ECSManagment.removeAllSystems();
     ECSManagment.removeAllEntities();
-    GameLoop.doSetup=true;
-    GameLoop.starter.start();
+    EventScheduler.clear();
     DungeonLoader.clear();
+    LevelSystem.steLevelToNull();
+    GameLoop.doSetup = true;
+    GameLoop.starter.start();
   }
 }

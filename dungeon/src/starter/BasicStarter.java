@@ -14,7 +14,7 @@ import java.util.logging.Level;
 /**
  * @return WTF? .
  */
-public class BasicStarter implements IStarter{
+public class BasicStarter implements IStarter {
 
   /**
    * WTF? .

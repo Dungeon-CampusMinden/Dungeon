@@ -34,7 +34,7 @@ import systems.*;
 import systems.DevHealthSystem;
 
 /** Starter class for the DevDungeon game. */
-public class DevDungeon {
+public class DevDungeon implements IStarter {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
@@ -46,28 +46,7 @@ public class DevDungeon {
    * @throws IOException If an I/O error occurs.
    */
   public static void main(String[] args) throws IOException {
-    Game.initBaseLogger(Level.WARNING);
-    configGame();
-    onSetup();
-
-    Game.userOnLevelLoad(
-        (firstTime) -> {
-          // Resets FogOfWar on level change (prevent artifacts)
-          FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
-          fogOfWarSystem.reset();
-          EventScheduler.clear(); // Clear all scheduled actions
-          // Reset all levers
-          LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
-          leverSystem.clear();
-          // Remove all teleporters
-          TeleporterSystem teleporterSystem =
-              (TeleporterSystem) Game.systems().get(TeleporterSystem.class);
-          teleporterSystem.clearTeleporters();
-        });
-
-    // build and start game
-      Game.windowTitle("Dev Dungeon");
-      Game.run();
+    Game.run(new DevDungeon());
   }
 
   private static void onSetup() {
@@ -201,5 +180,34 @@ public class DevDungeon {
             }
           }
         });
+  }
+
+  @Override
+  public void start() {
+    Game.initBaseLogger(Level.WARNING);
+    try {
+      configGame();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    onSetup();
+
+    Game.userOnLevelLoad(
+        (firstTime) -> {
+          // Resets FogOfWar on level change (prevent artifacts)
+          FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
+          fogOfWarSystem.reset();
+          EventScheduler.clear(); // Clear all scheduled actions
+          // Reset all levers
+          LeverSystem leverSystem = (LeverSystem) Game.systems().get(LeverSystem.class);
+          leverSystem.clear();
+          // Remove all teleporters
+          TeleporterSystem teleporterSystem =
+              (TeleporterSystem) Game.systems().get(TeleporterSystem.class);
+          teleporterSystem.clearTeleporters();
+        });
+
+    // build and start game
+    Game.windowTitle("Dev Dungeon");
   }
 }

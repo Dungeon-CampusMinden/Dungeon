@@ -5,7 +5,7 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
-import contrib.hud.DialogUtils;
+import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.health.Damage;
@@ -52,7 +52,7 @@ public final class HeroFactory {
 
   private static Consumer<Entity> HERO_DEATH =
       (entity) -> {
-        DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
+        YesNoDialog.showYesNoDialog("You died! Restart?", "Game over", Game::restart, Game::exit);
       };
 
   /**
