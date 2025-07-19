@@ -329,6 +329,10 @@ public class DungeonLevel implements ILevel, ITickable {
 
   @Override
   public List<Coordinate> customPoints() {
+    // TODO: SMELL – This returns the internal list. Ideally, we should return a copy to avoid
+    // exposing internal state.
+    // However, in Produs we remove custom points during level creation to simplify iteration, which
+    // wouldn't work with a copy.
     return customPoints;
   }
 
