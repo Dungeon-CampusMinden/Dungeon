@@ -10,7 +10,7 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
@@ -31,7 +31,7 @@ public class DamagedBridgeRiddleHandler {
 
   // The reward for solving the riddle (max health points)
   private static final int RIDDLE_REWARD = 5;
-  private final TileLevel level;
+  private final DungeonLevel level;
   private final Coordinate[] riddleRoomBounds; // TopLeft, BottomRight
   private final DoorTile riddleEntrance; // The entrance to the riddle room
   private final Coordinate riddleEntranceSign; // The sign next to the riddle entrance
@@ -52,7 +52,7 @@ public class DamagedBridgeRiddleHandler {
    * @param customPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
     this.riddleEntrance = (DoorTile) level.tileAt(customPoints.get(2));
     this.riddleEntranceSign = customPoints.get(3);

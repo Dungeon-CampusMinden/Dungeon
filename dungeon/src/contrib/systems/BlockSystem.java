@@ -5,7 +5,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
@@ -35,14 +35,14 @@ public final class BlockSystem extends System {
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.remove(data.pc);
-        ((TileLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(data.pc.position()));
+        ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(data.pc.position()));
       };
 
   private final Consumer<Entity> onAdd =
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.put(data.pc, data.pc.position());
-        ((TileLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(data.pc.position()));
+        ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(data.pc.position()));
       };
 
   /** Creates a new BlockSystem. */
@@ -77,8 +77,8 @@ public final class BlockSystem extends System {
     Point currentP = data.pc.position();
     Point oldP = oldPositions.get(data.pc);
     if (currentP.equals(oldP)) return;
-    ((TileLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP));
-    ((TileLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP));
+    ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP));
+    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP));
     oldPositions.put(data.pc, currentP);
   }
 

@@ -7,7 +7,7 @@ import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -36,7 +36,7 @@ public class TorchRiddleRiddleHandler {
   /** The sign next to the riddle door. */
   private final Entity riddleSign;
 
-  private final TileLevel level;
+  private final DungeonLevel level;
   private final Coordinate riddleDoor;
   private final Coordinate[] riddleRoomBounds;
   private final Coordinate riddleCenter;
@@ -50,7 +50,7 @@ public class TorchRiddleRiddleHandler {
    * @param customPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
     this.level = level;
     // First point is the riddle door
     this.riddleDoor = customPoints.getFirst();

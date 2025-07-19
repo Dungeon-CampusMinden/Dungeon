@@ -18,8 +18,8 @@ import java.util.Comparator;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the {@link TileLevel} class. */
-public class TileLevelTest {
+/** Tests for the {@link DungeonLevel} class. */
+public class DungeonLevelTest {
   /** WTF? . */
   @Test
   public void test_levelCTOR_Tiles() {
@@ -34,7 +34,7 @@ public class TileLevelTest {
             new ExitTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT)
           }
         };
-    TileLevel tileLevel = new TileLevel(tileLayout);
+    DungeonLevel tileLevel = new DungeonLevel(tileLayout);
     Tile[][] layout = tileLevel.layout();
     assertArrayEquals(tileLayout, layout);
   }
@@ -46,7 +46,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           {LevelElement.WALL, LevelElement.FLOOR}, {LevelElement.WALL, LevelElement.EXIT}
         };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     Tile[][] layout = tileLevel.layout();
     assertSame(elementsLayout[0][0], layout[0][0].levelElement());
     assertSame(elementsLayout[1][0], layout[1][0].levelElement());
@@ -59,7 +59,7 @@ public class TileLevelTest {
   public void test_levelCTOR_LevelElements_connections() {
     LevelElement[][] elementsLayout =
         new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.EXIT}};
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     Tile[][] layout = tileLevel.layout();
     assertEquals(1, layout[0][0].connections().size);
     assertSame(layout[0][1], layout[0][0].connections().first().getToNode());
@@ -79,7 +79,7 @@ public class TileLevelTest {
           {LevelElement.WALL, LevelElement.WALL, LevelElement.SKIP, LevelElement.SKIP},
           {LevelElement.DOOR, LevelElement.DOOR, LevelElement.HOLE, LevelElement.HOLE},
         };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     assertEquals(2, tileLevel.floorTiles().size());
     assertEquals(2, tileLevel.doorTiles().size());
     assertEquals(2, tileLevel.holeTiles().size());
@@ -94,7 +94,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
         };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     tileLevel.changeTileElementType(tileLevel.floorTiles().getFirst(), LevelElement.WALL);
     assertEquals(0, tileLevel.getNodeCount());
   }
@@ -106,7 +106,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.WALL, LevelElement.WALL, LevelElement.WALL},
         };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     assertEquals(1, tileLevel.getNodeCount());
   }
 
@@ -117,7 +117,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR},
         };
-    TileLevel tileLevel = new TileLevel(elementsLayout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT);
     assertEquals(4, tileLevel.getNodeCount());
   }
 
@@ -134,7 +134,7 @@ public class TileLevelTest {
     layout[1][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 1), DesignLabel.DEFAULT);
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
-    TileLevel tileLevel = new TileLevel(layout);
+    DungeonLevel tileLevel = new DungeonLevel(layout);
     tileLevel.startTile(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
@@ -162,7 +162,7 @@ public class TileLevelTest {
     }
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[0][2] = new ExitTile(new SimpleIPath(""), new Coordinate(2, 0), DesignLabel.DEFAULT);
-    TileLevel tileLevel = new TileLevel(layout);
+    DungeonLevel tileLevel = new DungeonLevel(layout);
     tileLevel.startTile(layout[0][0]);
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit)
@@ -190,7 +190,7 @@ public class TileLevelTest {
     for (int i = 0; i < 3; i++) {
       levelElement[i][1] = LevelElement.FLOOR;
     }
-    var level = new TileLevel(levelElement, DesignLabel.DEFAULT);
+    var level = new DungeonLevel(levelElement, DesignLabel.DEFAULT);
     var start = level.tileAt(new Coordinate(1, 0));
     var end = level.tileAt(new Coordinate(1, 2));
     var path = level.findPath(end, start);
@@ -205,7 +205,7 @@ public class TileLevelTest {
     for (int i = 0; i < 3; i++) {
       levelElement[i][0] = LevelElement.FLOOR;
     }
-    var level = new TileLevel(levelElement, DesignLabel.DEFAULT);
+    var level = new DungeonLevel(levelElement, DesignLabel.DEFAULT);
     var start = level.tileAt(new Coordinate(0, 0));
     var end = level.tileAt(new Coordinate(0, 2));
     var path = level.findPath(end, start);
@@ -223,7 +223,7 @@ public class TileLevelTest {
       }
     }
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
-    TileLevel tileLevel = new TileLevel(layout);
+    DungeonLevel tileLevel = new DungeonLevel(layout);
     var start = tileLevel.tileAt(layout[0][1].coordinate());
     var end = tileLevel.tileAt(layout[2][1].coordinate());
 
@@ -241,7 +241,7 @@ public class TileLevelTest {
       }
     }
     layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
-    TileLevel tileLevel = new TileLevel(layout);
+    DungeonLevel tileLevel = new DungeonLevel(layout);
     var start = tileLevel.tileAt(layout[0][1].coordinate());
     var end = tileLevel.tileAt(layout[2][1].coordinate());
 
@@ -260,7 +260,7 @@ public class TileLevelTest {
     }
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
-    TileLevel tileLevel = new TileLevel(layout);
+    DungeonLevel tileLevel = new DungeonLevel(layout);
     var start = tileLevel.tileAt(layout[0][1].coordinate());
     var end = tileLevel.tileAt(layout[2][1].coordinate());
 
@@ -276,7 +276,7 @@ public class TileLevelTest {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
     levelLayout[0][0] = LevelElement.EXIT;
-    var level = new TileLevel(levelLayout, DesignLabel.DEFAULT);
+    var level = new DungeonLevel(levelLayout, DesignLabel.DEFAULT);
     assertEquals(levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).levelElement());
   }
 
@@ -287,7 +287,7 @@ public class TileLevelTest {
     for (int y = 0; y < 3; y++) {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
-    var level = new TileLevel(levelLayout, DesignLabel.DEFAULT);
+    var level = new DungeonLevel(levelLayout, DesignLabel.DEFAULT);
     assertNotNull(level.randomTile());
   }
 
@@ -306,7 +306,7 @@ public class TileLevelTest {
     }
     layout[2][1] = LevelElement.EXIT;
 
-    TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(layout, DesignLabel.DEFAULT);
 
     Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).get();
     assertNotNull(randomWallPoint);
@@ -322,7 +322,7 @@ public class TileLevelTest {
     for (int y = 0; y < 3; y++) {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
-    var level = new TileLevel(levelLayout, DesignLabel.DEFAULT);
+    var level = new DungeonLevel(levelLayout, DesignLabel.DEFAULT);
     Point randomPoint = level.randomTilePoint();
     assertNotNull(randomPoint);
     assertNotNull(level.tileAt(randomPoint));
@@ -343,7 +343,7 @@ public class TileLevelTest {
     }
     layout[2][1] = LevelElement.EXIT;
 
-    TileLevel tileLevel = new TileLevel(layout, DesignLabel.DEFAULT);
+    DungeonLevel tileLevel = new DungeonLevel(layout, DesignLabel.DEFAULT);
 
     Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).get();
     Point randomFloorPoint = tileLevel.randomTilePoint(LevelElement.FLOOR).get();
@@ -365,7 +365,7 @@ public class TileLevelTest {
             LevelElement.EXIT, LevelElement.WALL,
           }
         };
-    var level = new TileLevel(tileLayout, DesignLabel.DEFAULT);
+    var level = new DungeonLevel(tileLayout, DesignLabel.DEFAULT);
     StringBuilder compareString = new StringBuilder();
     for (LevelElement[] tiles : tileLayout) {
       for (LevelElement tile : tiles) {
@@ -385,8 +385,8 @@ public class TileLevelTest {
   /** WTF? . */
   @Test
   public void test_addTile_FloorTile() {
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
@@ -416,8 +416,8 @@ public class TileLevelTest {
   /** WTF? . */
   @Test
   public void test_addTile_ExitTile() {
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
@@ -447,8 +447,8 @@ public class TileLevelTest {
   /** WTF? . */
   @Test
   public void test_addTile_DoorTile() {
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
@@ -478,8 +478,8 @@ public class TileLevelTest {
   /** WTF? . */
   @Test
   public void test_addTile_SkipTile() {
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
@@ -506,8 +506,8 @@ public class TileLevelTest {
   /** WTF? . */
   @Test
   public void test_addTile_WallTile() {
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
@@ -534,8 +534,8 @@ public class TileLevelTest {
   /** WTF? . */
   @Test
   public void test_addTile_HoleTile() {
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {{LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}},
             DesignLabel.DEFAULT);
     Tile tile =
@@ -566,7 +566,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
-    TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(level.tileAt(new Coordinate(0, 0)), LevelElement.FLOOR);
     assertEquals(3, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();
@@ -585,7 +585,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
-    TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(level.tileAt(new Coordinate(0, 0)), LevelElement.EXIT);
     assertEquals(3, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();
@@ -604,7 +604,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
-    TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(level.tileAt(new Coordinate(0, 0)), LevelElement.WALL);
     assertEquals(2, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();
@@ -623,7 +623,7 @@ public class TileLevelTest {
         new LevelElement[][] {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
-    TileLevel level = new TileLevel(layout, DesignLabel.DEFAULT);
+    DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
     level.changeTileElementType(
         TileFactory.createTile(
             new SimpleIPath(""), new Coordinate(1, 0), LevelElement.FLOOR, DesignLabel.DEFAULT),

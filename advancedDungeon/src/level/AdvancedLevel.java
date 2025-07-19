@@ -1,6 +1,6 @@
 package level;
 
-import core.level.loader.DungeonLevel;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;

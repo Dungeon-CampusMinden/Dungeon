@@ -8,7 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -101,7 +101,7 @@ public class ChestTest {
     Game.add(new LevelSystem(() -> {}));
 
     Game.currentLevel(
-        new TileLevel(
+        new DungeonLevel(
             new LevelElement[][] {
               new LevelElement[] {
                 LevelElement.FLOOR,

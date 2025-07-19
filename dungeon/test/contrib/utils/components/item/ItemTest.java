@@ -9,8 +9,8 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -38,8 +38,8 @@ public class ItemTest {
   public void before() {
     Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
 
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {
               new LevelElement[] {
                 LevelElement.FLOOR,

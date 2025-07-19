@@ -1,8 +1,8 @@
 package core.level.elements.tile;
 
 import core.Game;
+import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -47,7 +47,7 @@ public class PitTile extends Tile {
   public void open() {
     this.open = true;
 
-    ((TileLevel) Game.currentLevel()).removeFromPathfinding(this);
+    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(this);
   }
 
   /**
@@ -62,7 +62,7 @@ public class PitTile extends Tile {
 
     this.open = false;
 
-    ((TileLevel) Game.currentLevel()).addToPathfinding(this);
+    ((DungeonLevel) Game.currentLevel()).addToPathfinding(this);
   }
 
   /**

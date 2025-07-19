@@ -23,7 +23,6 @@ import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.loader.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
@@ -128,9 +127,7 @@ public class ComparePathfindingStarter {
     Coordinate newStart = orgStart.translate(Vector2.of(0, rows + 1));
     Game.currentLevel(
         new AiMazeLevel(
-            newLevel,
-            Game.currentLevel().designLabel(),
-            ((DungeonLevel) Game.currentLevel()).customPoints()));
+            newLevel, Game.currentLevel().designLabel(), Game.currentLevel().customPoints()));
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());
