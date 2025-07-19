@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import starter.IStarter;
 
 /**
  * The Dungeon-GameLoop.
@@ -39,8 +40,10 @@ import java.util.logging.Logger;
 public final class GameLoop extends ScreenAdapter {
   private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
   private static Stage stage;
-  private boolean doSetup = true;
+  public static boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
+
+  public static IStarter starter;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -83,7 +86,9 @@ public final class GameLoop extends ScreenAdapter {
   private GameLoop() {}
 
   /** Starts the dungeon. */
-  public static void run() {
+  public static void run(IStarter s) {
+    starter = s;
+    starter.start();
     Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
     config.setWindowSizeLimits(
         PreRunConfiguration.windowWidth(), PreRunConfiguration.windowHeight(), 9999, 9999);

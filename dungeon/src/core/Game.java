@@ -3,6 +3,7 @@ package core;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import contrib.systems.EventScheduler;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
@@ -10,6 +11,7 @@ import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
+import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -27,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import starter.IStarter;
 
 /**
  * The Center-Point of the framework.
@@ -56,8 +59,8 @@ public final class Game {
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
 
   /** Starts the dungeon and requires a {@link Game}. */
-  public static void run() {
-    GameLoop.run();
+  public static void run(IStarter starter) {
+    GameLoop.run(starter);
   }
 
   /**
@@ -717,5 +720,15 @@ public final class Game {
    */
   public static boolean findEntity(final Entity entity) {
     return ECSManagment.findEntity(entity);
+  }
+
+  public static void restart() {
+    ECSManagment.removeAllSystems();
+    ECSManagment.removeAllEntities();
+    EventScheduler.clear();
+    DungeonLoader.clear();
+    LevelSystem.steLevelToNull();
+    GameLoop.doSetup = true;
+    GameLoop.starter.start();
   }
 }

@@ -334,13 +334,13 @@ public class Server {
     String query = exchange.getRequestURI().getQuery();
     String levelName = query != null && query.contains("levelName=") ? query.split("=")[1] : null;
 
-    if (levelName != null && !levelName.equals(DungeonLoader.currentLevel())) {
+    if (levelName != null && !levelName.equals(DungeonLoader.currentLevelName())) {
       // if given and the level is not the current one, load it
       DungeonLoader.loadLevel(levelName);
       waitDelta(); // waiting for all systems to update once
     }
 
-    response.append(DungeonLoader.currentLevel()).append(" ");
+    response.append(DungeonLoader.currentLevelName()).append(" ");
     for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel())) {
       response.append(blockedBlock).append(" ");
     }

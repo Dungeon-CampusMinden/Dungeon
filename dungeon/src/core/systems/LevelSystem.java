@@ -84,6 +84,10 @@ public final class LevelSystem extends System {
     levelAPI_logger.info("A new level was loaded.");
   }
 
+  public static void steLevelToNull() {
+    currentLevel = null;
+  }
+
   /**
    * Check if the given entity is on the end tile.
    *
