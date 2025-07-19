@@ -1,6 +1,6 @@
 package level;
 
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -11,7 +11,7 @@ import java.util.List;
  * tiles), the design label, the hero start position and the custom points. This class is used in
  * the LevelParser.
  */
-public abstract class AdvancedLevel extends TileLevel {
+public abstract class AdvancedLevel extends DungeonLevel {
 
   private final DesignLabel designLabel;
 

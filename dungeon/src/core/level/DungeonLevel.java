@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
  *
  * @see core.level.elements.ILevel
  */
-public class TileLevel implements ILevel, ITickable {
+public class DungeonLevel implements ILevel, ITickable {
 
   protected final List<Coordinate> customPoints = new ArrayList<>();
   protected String levelName = "Dungeon Level";
@@ -58,7 +58,7 @@ public class TileLevel implements ILevel, ITickable {
    * @param levelName The name of the level. (can be empty)
    * @param description The description of the level. (only set if levelName is not empty)
    */
-  public TileLevel(
+  public DungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints,
@@ -75,7 +75,7 @@ public class TileLevel implements ILevel, ITickable {
    *
    * @param layout The layout of the level.
    */
-  public TileLevel(Tile[][] layout) {
+  public DungeonLevel(Tile[][] layout) {
     this.layout = layout;
     putTilesInLists();
   }
@@ -86,7 +86,7 @@ public class TileLevel implements ILevel, ITickable {
    * @param layout The layout of the Level
    * @param designLabel The design the level should have
    */
-  public TileLevel(LevelElement[][] layout, DesignLabel designLabel) {
+  public DungeonLevel(LevelElement[][] layout, DesignLabel designLabel) {
     this(convertLevelElementToTile(layout, designLabel));
   }
 
@@ -341,11 +341,11 @@ public class TileLevel implements ILevel, ITickable {
    * @param path The path to the level file.
    * @return The loaded DevDungeonLevel.
    */
-  public static TileLevel loadFromPath(IPath path) {
+  public static DungeonLevel loadFromPath(IPath path) {
     try {
       BufferedReader reader;
       if (path.pathString().startsWith("jar:")) {
-        InputStream is = TileLevel.class.getResourceAsStream(path.pathString().substring(4));
+        InputStream is = DungeonLevel.class.getResourceAsStream(path.pathString().substring(4));
         reader = new BufferedReader(new InputStreamReader(is));
       } else {
         File file = new File(path.pathString());
@@ -375,7 +375,7 @@ public class TileLevel implements ILevel, ITickable {
       }
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
-      TileLevel newLevel;
+      DungeonLevel newLevel;
       newLevel = getDevLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
@@ -473,12 +473,12 @@ public class TileLevel implements ILevel, ITickable {
     return layout;
   }
 
-  private static TileLevel getDevLevel(
+  private static DungeonLevel getDevLevel(
       String levelName,
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    Class<? extends TileLevel> levelHandler = DungeonLoader.levelHandler(levelName);
+    Class<? extends DungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
     if (levelHandler != null) {
       try {
         return levelHandler

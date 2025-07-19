@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import core.Entity;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
@@ -29,7 +30,7 @@ import java.util.function.Function;
  *
  * <p>Also provides the API for the LibGDX Pathfinding.
  *
- * @see core.level.TileLevel
+ * @see DungeonLevel
  */
 public interface ILevel extends IndexedGraph<Tile> {
 

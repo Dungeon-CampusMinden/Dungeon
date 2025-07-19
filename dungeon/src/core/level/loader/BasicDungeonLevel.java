@@ -1,6 +1,6 @@
 package core.level.loader;
 
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -8,12 +8,12 @@ import core.utils.Tuple;
 import java.util.List;
 
 /**
- * A basic implementation of the {@link TileLevel} to be used as a manager for the {@link
+ * A basic implementation of the {@link DungeonLevel} to be used as a manager for the {@link
  * DungeonLoader#addLevel(Tuple[])} operation.
  *
  * <p>This manager will do nothing.
  */
-public final class BasicDungeonLevel extends TileLevel {
+public final class BasicDungeonLevel extends DungeonLevel {
   /**
    * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
    *

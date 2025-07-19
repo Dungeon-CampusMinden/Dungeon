@@ -2,7 +2,7 @@ package core.level.loader;
 
 import contrib.utils.level.MissingLevelException;
 import core.Game;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
@@ -17,11 +17,11 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * The DevDungeonLoader class is used to load {@link TileLevel} in the game. It is used to load
+ * The DevDungeonLoader class is used to load {@link DungeonLevel} in the game. It is used to load
  * levels in a specific order or to load a specific level. The DungeonLoader class is used to load
  * levels from the file system or from a jar file.
  *
- * @see TileLevel
+ * @see DungeonLevel
  */
 public class DungeonLoader {
 
@@ -34,7 +34,7 @@ public class DungeonLoader {
     getAllLevelFilePaths();
   }
 
-  private static final List<Tuple<String, Class<? extends TileLevel>>> levelOrder =
+  private static final List<Tuple<String, Class<? extends DungeonLevel>>> levelOrder =
       new ArrayList<>();
   private static int currentLevel = -1;
   private static int currentVariant = 0;
@@ -115,8 +115,8 @@ public class DungeonLoader {
    * @see #loadNextLevel()
    */
   @SafeVarargs
-  public static void addLevel(Tuple<String, Class<? extends TileLevel>>... level) {
-    for (Tuple<String, Class<? extends TileLevel>> t : level) {
+  public static void addLevel(Tuple<String, Class<? extends DungeonLevel>>... level) {
+    for (Tuple<String, Class<? extends DungeonLevel>> t : level) {
       levelOrder.add(new Tuple<>(t.a().toLowerCase(), t.b()));
     }
   }
@@ -145,10 +145,10 @@ public class DungeonLoader {
    *
    * @param levelName The name of the level.
    * @return The level handler for the given level name. (null if not found)
-   * @see TileLevel
+   * @see DungeonLevel
    */
-  public static Class<? extends TileLevel> levelHandler(String levelName) {
-    for (Tuple<String, Class<? extends TileLevel>> level : levelOrder) {
+  public static Class<? extends DungeonLevel> levelHandler(String levelName) {
+    for (Tuple<String, Class<? extends DungeonLevel>> level : levelOrder) {
       if (level.a().equalsIgnoreCase(levelName)) {
         return level.b();
       }
@@ -167,7 +167,7 @@ public class DungeonLoader {
     currentVariant = RANDOM.nextInt(levelVariants.size());
     IPath levelPath = new SimpleIPath(levelVariants.get(currentVariant));
 
-    return TileLevel.loadFromPath(levelPath);
+    return DungeonLevel.loadFromPath(levelPath);
   }
 
   /**
@@ -239,7 +239,7 @@ public class DungeonLoader {
 
     currentVariant = variant;
     IPath levelPath = new SimpleIPath(levelVariants.get(variant));
-    Game.currentLevel(TileLevel.loadFromPath(levelPath));
+    Game.currentLevel(DungeonLevel.loadFromPath(levelPath));
   }
 
   private static void setCurrentLevelByLevelName(String levelName) {

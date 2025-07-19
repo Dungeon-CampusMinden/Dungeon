@@ -3,7 +3,7 @@ package level;
 import contrib.hud.DialogUtils;
 import contrib.utils.components.skill.TPBallSkill;
 import contrib.utils.level.ITickable;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
@@ -11,17 +11,16 @@ import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 /**
- * Represents a level in the Dungeon game. This class extends the {@link TileLevel} class and adds
- * functionality for handling custom points. These points are used to add spawn points, door logic
- * or any other custom logic to the level.
+ * Represents a level in the Dungeon game. This class extends the {@link DungeonLevel} class and
+ * adds functionality for handling custom points. These points are used to add spawn points, door
+ * logic or any other custom logic to the level.
  */
-public abstract class DevDungeonLevel extends TileLevel {
+public abstract class DevDungeonLevel extends DungeonLevel {
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> tpTargets = new ArrayList<>();
 
