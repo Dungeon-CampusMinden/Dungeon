@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input;
 import contrib.components.InventoryComponent;
 import contrib.components.ItemComponent;
 import contrib.components.UIComponent;
-import contrib.configuration.KeyboardConfig;
+import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
@@ -18,10 +18,7 @@ import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
-import java.util.Comparator;
 import produsAdvanced.AdvancedDungeon;
 
 /**
@@ -60,10 +57,12 @@ public class Hero {
     this.hero = heroInstance;
 
     if (!AdvancedDungeon.DEBUG_MODE) {
-      PlayerComponent pc = heroInstance.fetch(PlayerComponent.class).get();
-      pc.removeCallbacks(); // Entfernt alle bisherigen Tastenzuweisungen
+      // Entfernt alle bisherigen Tastenzuweisungen
+      heroInstance.fetch(PlayerComponent.class).ifPresent(PlayerComponent::removeCallbacks);
     }
     this.fireballSkill = fireballSkill;
+    // uncap max hero speed
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.velocity(Vector2.MAX));
   }
 
   /**
@@ -77,52 +76,28 @@ public class Hero {
    */
   public void setController(PlayerController controller) {
     if (controller == null) return;
-    PlayerComponent pc = hero.fetch(PlayerComponent.class).get();
     String[] mousebuttons = {"LMB", "RMB", "MMB"};
-
-    for (int key = 0; key <= Input.Keys.MAX_KEYCODE; key++) {
-      int finalKey = key;
-      pc.registerCallback(
-          key,
-          entity -> {
-            try {
-              if (finalKey <= 2) {
-                controller.processKey(mousebuttons[finalKey]);
-              } else controller.processKey(Input.Keys.toString(finalKey).toUpperCase());
-            } catch (Exception e) {
-              DialogUtils.showTextPopup(
-                  "Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
-            }
-          });
-    }
-
-    // Callback zum Schließen von UI-Dialogen
-    pc.registerCallback(
-        KeyboardConfig.CLOSE_UI.value(),
-        (e) -> {
-          var firstUI =
-              Game.entityStream()
-                  .filter(x -> x.isPresent(UIComponent.class))
-                  .map(
-                      x ->
-                          new Tuple<>(
-                              x,
-                              x.fetch(UIComponent.class)
-                                  .orElseThrow(
-                                      () -> MissingComponentException.build(x, UIComponent.class))))
-                  .filter(x -> x.b().closeOnUICloseKey())
-                  .max(Comparator.comparingInt(x -> x.b().dialog().getZIndex()))
-                  .orElse(null);
-          if (firstUI != null) {
-            InventoryGUI.inHeroInventory = false;
-            firstUI.a().remove(UIComponent.class);
-            if (firstUI.a().componentStream().findAny().isEmpty()) {
-              Game.remove(firstUI.a());
-            }
-          }
-        },
-        false,
-        true);
+    hero.fetch(PlayerComponent.class)
+        .ifPresent(
+            pc -> {
+              for (int key = 0; key <= Input.Keys.MAX_KEYCODE; key++) {
+                int finalKey = key;
+                pc.registerCallback(
+                    key,
+                    entity -> {
+                      try {
+                        if (finalKey <= 2) {
+                          controller.processKey(mousebuttons[finalKey]);
+                        } else controller.processKey(Input.Keys.toString(finalKey).toUpperCase());
+                      } catch (Exception e) {
+                        DialogUtils.showTextPopup(
+                            "Ups, da ist ein Fehler im Code: " + e.getMessage(), "Error");
+                      }
+                    });
+              }
+              // Callback zum Schließen von UI-Dialogen
+              HeroFactory.registerCloseUI(pc);
+            });
   }
 
   /**
@@ -131,7 +106,27 @@ public class Hero {
    * @param speed Geschwindigkeit in x und y Richtung.
    */
   public void setSpeed(Vector2 speed) {
-    hero.fetch(VelocityComponent.class).get().currentVelocity(speed);
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.currentVelocity(speed));
+  }
+
+  /**
+   * Setzt die horizontale Bewegungsgeschwindigkeit des Helden.
+   *
+   * @param speed Geschwindigkeit in X-Richtung.
+   */
+  public void setXSpeed(float speed) {
+    hero.fetch(VelocityComponent.class)
+        .ifPresent(vc -> vc.currentVelocity(Vector2.of(speed, vc.currentVelocity().y())));
+  }
+
+  /**
+   * Setzt die vertikale Bewegungsgeschwindigkeit des Helden.
+   *
+   * @param speed Geschwindigkeit in Y-Richtung.
+   */
+  public void setYSpeed(float speed) {
+    hero.fetch(VelocityComponent.class)
+        .ifPresent(vc -> vc.currentVelocity(Vector2.of(vc.currentVelocity().x(), speed)));
   }
 
   /**
@@ -161,15 +156,17 @@ public class Hero {
    */
   public void interact() {
     if (cooldownEvent != null && EventScheduler.isScheduled(cooldownEvent)) return;
-    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
-    if (uiComponent != null
-        && uiComponent.dialog() instanceof GUICombination
-        && !InventoryGUI.inHeroInventory) {
-      hero.remove(UIComponent.class);
-    } else {
-      InteractionTool.interactWithClosestInteractable(hero);
-      cooldownEvent = EventScheduler.scheduleAction(INTERACTION_COOLDOWN, 250);
-    }
+    hero.fetch(UIComponent.class)
+        .ifPresentOrElse(
+            uiComponent -> {
+              if (uiComponent.dialog() instanceof GUICombination && !InventoryGUI.inHeroInventory) {
+                hero.remove(UIComponent.class);
+              }
+            },
+            () -> {
+              InteractionTool.interactWithClosestInteractable(hero);
+              cooldownEvent = EventScheduler.scheduleAction(INTERACTION_COOLDOWN, 250);
+            });
   }
 
   /**
@@ -182,13 +179,13 @@ public class Hero {
     if (point == null) return null;
     Tile t = Game.tileAT(point);
     if (t == null) return null;
-    return Game.entityAtTile(t)
-        .findFirst()
-        .flatMap(e -> e.fetch(ItemComponent.class))
-        .map(ItemComponent::item)
-        .filter(item -> item instanceof Berry)
-        .map(item -> (Berry) item)
-        .orElse(null);
+    return (Berry)
+        Game.entityAtTile(t)
+            .findFirst()
+            .flatMap(e -> e.fetch(ItemComponent.class))
+            .map(ItemComponent::item)
+            .filter(item -> item instanceof Berry)
+            .orElse(null);
   }
 
   /**
@@ -198,23 +195,16 @@ public class Hero {
    * geöffnet.
    */
   public void openInventory() {
-    if (hero.fetch(PlayerComponent.class).get().openDialogs()) {
-      return;
-    }
-
-    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
-    if (uiComponent != null) {
-      if (uiComponent.dialog() instanceof GUICombination) {
-        InventoryGUI.inHeroInventory = false;
-        hero.remove(UIComponent.class);
-      }
-    } else {
-      InventoryGUI.inHeroInventory = true;
-      hero.add(
-          new UIComponent(
-              new GUICombination(new InventoryGUI(hero.fetch(InventoryComponent.class).get())),
-              true));
-    }
+    hero.fetch(PlayerComponent.class)
+        .ifPresent(
+            pc -> {
+              InventoryGUI.inHeroInventory = true;
+              hero.add(
+                  new UIComponent(
+                      new GUICombination(
+                          new InventoryGUI(hero.fetch(InventoryComponent.class).orElse(null))),
+                      true));
+            });
   }
 
   /**
@@ -224,9 +214,9 @@ public class Hero {
    */
   public void destroyItemAt(Point point) {
     if (point == null) return;
-    Entity e = Game.entityAtTile(Game.tileAT(point)).findFirst().orElse(null);
-    if (e != null && e.isPresent(ItemComponent.class)) {
-      Game.remove(e);
-    }
+    Game.entityAtTile(Game.tileAT(point))
+        .filter(e -> e.isPresent(ItemComponent.class))
+        .findFirst()
+        .ifPresent(Game::remove);
   }
 }
