@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 /** Tests for the {@link DungeonLevel} class. */
-public class TileLevelTest {
+public class DungeonLevelTest {
   /** WTF? . */
   @Test
   public void test_levelCTOR_Tiles() {
