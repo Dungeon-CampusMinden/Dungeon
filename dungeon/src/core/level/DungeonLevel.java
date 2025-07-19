@@ -71,6 +71,18 @@ public class DungeonLevel implements ILevel, ITickable {
   }
 
   /**
+   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   *
+   * @param layout The layout of the level, represented as a 2D array of LevelElements.
+   * @param designLabel The design label of the level.
+   * @param customPoints A list of custom points to be added to the level.
+   */
+  public DungeonLevel(
+      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    this(layout, designLabel, customPoints, "Default Name", "Default Description");
+  }
+
+  /**
    * Create a new level.
    *
    * @param layout The layout of the level.
@@ -376,7 +388,7 @@ public class DungeonLevel implements ILevel, ITickable {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DungeonLevel newLevel;
-      newLevel = getDevLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
+      newLevel = getLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos);
@@ -473,7 +485,7 @@ public class DungeonLevel implements ILevel, ITickable {
     return layout;
   }
 
-  private static DungeonLevel getDevLevel(
+  private static DungeonLevel getLevel(
       String levelName,
       LevelElement[][] layout,
       DesignLabel designLabel,
