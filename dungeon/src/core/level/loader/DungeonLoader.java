@@ -47,7 +47,7 @@ public class DungeonLoader {
       () -> {
         System.out.println("Game Over!");
         System.out.println("You have passed all " + currentLevel + " levels!");
-        Game.exit();
+        Game.restart();
       };
 
   // Private constructor to prevent instantiation, as this class is a static utility class.
@@ -290,7 +290,10 @@ public class DungeonLoader {
   public static int currentVariantIndex() {
     return currentVariant;
   }
-
+  public static void clear() {
+    currentLevel=-1;
+    LEVELS.clear();
+  }
   /**
    * Loads a DungeonLevel from the given path.
    *
@@ -445,5 +448,5 @@ public class DungeonLoader {
       }
     }
     throw new RuntimeException("No level handler found for level: " + levelName);
-  }
+}
 }

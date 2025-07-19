@@ -66,8 +66,8 @@ public class DevDungeon {
         });
 
     // build and start game
-    Game.run();
-    Game.windowTitle("Dev Dungeon");
+      Game.windowTitle("Dev Dungeon");
+      Game.run();
   }
 
   private static void onSetup() {

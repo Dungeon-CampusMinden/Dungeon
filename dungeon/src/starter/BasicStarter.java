@@ -1,5 +1,7 @@
 package starter;
 
+import contrib.entities.HeroFactory;
+import contrib.systems.ProjectileSystem;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
@@ -12,7 +14,7 @@ import java.util.logging.Level;
 /**
  * @return WTF? .
  */
-public class BasicStarter {
+public class BasicStarter implements IStarter{
 
   /**
    * WTF? .
@@ -21,12 +23,25 @@ public class BasicStarter {
    * @throws IOException foo
    */
   public static void main(String[] args) throws IOException {
+    Game.run(new BasicStarter());
+  }
+
+  @Override
+  public void start() {
     Game.initBaseLogger(Level.WARNING);
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
-    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
-    Game.disableAudio(true);
+    try {
+      Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     Game.frameRate(30);
+    Game.add(new ProjectileSystem());
     Game.windowTitle("Basic Dungeon");
-    Game.run();
+    try {
+      Game.add(HeroFactory.newHero());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

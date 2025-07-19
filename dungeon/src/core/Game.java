@@ -10,6 +10,7 @@ import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
+import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -19,6 +20,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
+import starter.IStarter;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -56,8 +59,8 @@ public final class Game {
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
 
   /** Starts the dungeon and requires a {@link Game}. */
-  public static void run() {
-    GameLoop.run();
+  public static void run(IStarter starter) {
+    GameLoop.run(starter);
   }
 
   /**
@@ -717,5 +720,13 @@ public final class Game {
    */
   public static boolean findEntity(final Entity entity) {
     return ECSManagment.findEntity(entity);
+  }
+
+  public static void restart(){
+    ECSManagment.removeAllSystems();
+    ECSManagment.removeAllEntities();
+    GameLoop.doSetup=true;
+    GameLoop.starter.start();
+    DungeonLoader.clear();
   }
 }
