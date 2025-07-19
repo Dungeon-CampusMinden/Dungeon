@@ -413,4 +413,25 @@ public interface ILevel extends IndexedGraph<Tile> {
   default DesignLabel designLabel() {
     return randomTile().designLabel();
   }
+
+  /**
+   * Returns the list of custom points.
+   *
+   * @return A list of custom points.
+   */
+  List<Coordinate> customPoints();
+
+  /**
+   * Adds a new custom point to the list.
+   *
+   * @param point The custom point to be added.
+   */
+  void addCustomPoint(Coordinate point);
+
+  /**
+   * Removes a custom point from the list.
+   *
+   * @param point The custom point to be removed.
+   */
+  void removeCustomPoint(Coordinate point);
 }

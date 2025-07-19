@@ -2,6 +2,7 @@ package core.level.loader;
 
 import core.Game;
 import core.components.PositionComponent;
+import core.level.TileLevel;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import java.util.ArrayList;
@@ -32,8 +33,8 @@ public class DungeonSaver {
             .orElse(new Point(0, 0));
 
     List<Coordinate> customPoints = new ArrayList<>();
-    if (Game.currentLevel() instanceof DungeonLevel) {
-      customPoints = ((DungeonLevel) Game.currentLevel()).customPoints();
+    if (Game.currentLevel() instanceof TileLevel) {
+      customPoints = ((TileLevel) Game.currentLevel()).customPoints();
     }
     StringBuilder customPointsString = new StringBuilder();
     for (Coordinate customPoint : customPoints) {
