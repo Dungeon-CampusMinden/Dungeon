@@ -15,11 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Represents a level in the Dungeon game. This class extends the {@link DungeonLevel} class and
- * adds functionality for handling custom points. These points are used to add spawn points, door
- * logic or any other custom logic to the level.
- */
+/** Represents a level in the DevDungeon game. This class extends the */
 public abstract class DevDungeonLevel extends DungeonLevel {
   protected static final Random RANDOM = new Random();
   private final List<Coordinate> tpTargets = new ArrayList<>();
