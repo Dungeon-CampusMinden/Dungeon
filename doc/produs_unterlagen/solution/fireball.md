@@ -1,7 +1,8 @@
-Fireball
+## Solutions for all Control Levels and the Berry Level
+
+### Solution for `MyFireball`
 
 ```java
-
 public Fireball(FireballSkill fireballSkill) {
     super(fireballSkill);
 
@@ -21,9 +22,8 @@ public void onBerryHit(Berry berry) {
     // Safe berries are now donuts
     if (!berry.isToxic()) berry.changeTexture(Berry.DONUT_TEXTURE);
 
-    // Destroy the berry if toxic, use otherwise
+    // Destroy the berry if toxic
     if (berry.isToxic()) berry.destroy();
-    else berry.use();
 }
 
 ```

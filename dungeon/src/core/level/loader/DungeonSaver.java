@@ -3,11 +3,9 @@ package core.level.loader;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
-import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * This class is responsible for saving the current state of the dungeon in the game. The "saving"
@@ -27,21 +25,7 @@ public class DungeonSaver {
    * single string and prints it.
    */
   public static void saveCurrentDungeon() {
-    String designLabel;
-    if (Game.currentLevel().endTile() == null) {
-      designLabel =
-          Game.currentLevel()
-              .randomTile(LevelElement.FLOOR)
-              .orElseThrow(
-                  () ->
-                      new NoSuchElementException(
-                          "There is no floor tile in the level; cannot place the missing exit and cannot save the dungeon"))
-              .designLabel()
-              .name();
-    } else {
-      designLabel = Game.currentLevel().endTile().designLabel().name();
-    }
-
+    String designLabel = Game.currentLevel().designLabel().name();
     Point heroPos =
         Game.hero()
             .flatMap(hero -> hero.fetch(PositionComponent.class).map(PositionComponent::position))

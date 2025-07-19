@@ -32,6 +32,9 @@ public interface Vector2 {
   /** Unit vector with both components set to 1. */
   Vector2 ONE = Vector2.of(1, 1);
 
+  /** Vector with maximum double values for both components. */
+  Vector2 MAX = Vector2.of(Double.MAX_VALUE, Double.MAX_VALUE);
+
   // TODO: Remove later with Direction enum
   /** Unit vector pointing upward in 2D space. */
   Vector2 UP = Vector2.of(0, 1);

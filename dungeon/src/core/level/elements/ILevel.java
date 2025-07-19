@@ -12,9 +12,9 @@ import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
 import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
-import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -37,19 +37,6 @@ public interface ILevel extends IndexedGraph<Tile> {
   Random RANDOM = new Random();
 
   /**
-   * Marks a random tile as the start of the level.
-   *
-   * <p>This method selects a random tile with the element type {@link LevelElement#FLOOR} and sets
-   * it as the start tile for the level.
-   */
-  default void randomStart() {
-    startTile(
-        randomTile(LevelElement.FLOOR)
-            .orElseThrow(
-                () -> new NoSuchElementException("There is no Floor-Tile to place the Start on.")));
-  }
-
-  /**
    * Sets the start tile for the level.
    *
    * @param start The start tile.
@@ -57,79 +44,11 @@ public interface ILevel extends IndexedGraph<Tile> {
   void startTile(final Tile start);
 
   /**
-   * Marks a random tile as the end of the level.
-   *
-   * <p>This method selects a random floor tile and sets it as the exit tile for the level.
-   *
-   * <p>If there are not enough floor tiles for both the start and exit tiles, no action is taken.
-   */
-  default void randomEnd() {
-    List<FloorTile> floorTiles = floorTiles();
-    if (floorTiles.size() <= 1) {
-      // not enough Tiles for startTile and ExitTile
-      return;
-    }
-    int startTileIndex = floorTiles.indexOf((FloorTile) startTile());
-    int index = RANDOM.nextInt(floorTiles.size() - 1);
-    changeTileElementType(
-        floorTiles.get(index < startTileIndex ? index : index + 1), LevelElement.EXIT);
-  }
-
-  /**
-   * Adds a floor tile to the level.
-   *
-   * @param tile The new floor tile to be added.
-   */
-  void addFloorTile(final FloorTile tile);
-
-  /**
-   * Adds a wall tile to the level.
-   *
-   * @param tile The new wall tile to be added.
-   */
-  void addWallTile(final WallTile tile);
-
-  /**
-   * Adds a hole tile to the level.
-   *
-   * @param tile The new hole tile to be added.
-   */
-  void addHoleTile(final HoleTile tile);
-
-  /**
-   * Adds a door tile to the level.
-   *
-   * @param tile The new door tile to be added.
-   */
-  void addDoorTile(final DoorTile tile);
-
-  /**
-   * Adds an exit tile to the level.
-   *
-   * @param tile The new exit tile to be added.
-   */
-  void addExitTile(final ExitTile tile);
-
-  /**
-   * Adds a skip tile to the level.
-   *
-   * @param tile The new skip tile to be added.
-   */
-  void addSkipTile(final SkipTile tile);
-
-  /**
    * Adds an unspecified tile to the level.
    *
    * @param tile The tile to be added.
    */
   void addTile(final Tile tile);
-
-  /**
-   * Adds a pit tile to the level.
-   *
-   * @param tile The new pit tile to be added.
-   */
-  void addPitTile(final PitTile tile);
 
   /**
    * Removes a tile from the level.
@@ -234,37 +153,6 @@ public interface ILevel extends IndexedGraph<Tile> {
   }
 
   /**
-   * Changes the type of specified tile, including updating its texture and level representation.
-   *
-   * <p>The method first checks if the tile is associated with a level. If not, the method returns
-   * without making any changes. If the tile is associated with a level, it is removed from the
-   * level, and a new tile is created with the specified level element, texture path, coordinates,
-   * and design label. The new tile is then added back to the level at the same coordinates as the
-   * original tile.
-   *
-   * @param tile The tile to be changed.
-   * @param changeInto The LevelElement to change the tile into.
-   */
-  default void changeTileElementType(final Tile tile, final LevelElement changeInto) {
-    ILevel level = tile.level();
-    if (level == null) {
-      return;
-    }
-    level.removeTile(tile);
-    Tile newTile =
-        TileFactory.createTile(
-            TileTextureFactory.findTexturePath(tile, layout(), changeInto),
-            tile.coordinate(),
-            changeInto,
-            tile.designLabel());
-    level.layout()[tile.coordinate().y()][tile.coordinate().x()] = newTile;
-    newTile.index(tile.index());
-    newTile.tintColor(tile.tintColor());
-    newTile.visible(tile.visible());
-    level.addTile(newTile);
-  }
-
-  /**
    * Retrieves a random tile of the specified type from the level.
    *
    * <p>The method uses a switch statement to determine the type of tile requested and retrieves a
@@ -291,26 +179,6 @@ public interface ILevel extends IndexedGraph<Tile> {
           default -> throw new NoSuchElementException("No such tile type: '" + elementType + "'");
         });
   }
-
-  /**
-   * Sets the function that should be executed when this level is loaded as the current level for
-   * the first time.
-   *
-   * <p>The specified function will be executed only once when the level is loaded for the first
-   * time.
-   *
-   * @param function The function to be executed when the level is loaded for the first time.
-   */
-  void onFirstLoad(final IVoidFunction function);
-
-  /**
-   * Notifies the level that it has been loaded as the current level.
-   *
-   * <p>This function should be called when the level is loaded. It checks if the level was loaded
-   * for the first time and then executes the registered function from {@link
-   * #onFirstLoad(IVoidFunction)}.
-   */
-  void onLoad();
 
   /**
    * Retrieves the count of nodes in the level for use in libGDX pathfinding algorithms.
@@ -360,22 +228,6 @@ public interface ILevel extends IndexedGraph<Tile> {
    * @return The TileHeuristic for the Level.
    */
   TileHeuristic tileHeuristic();
-
-  /**
-   * Retrieves the position of the specified entity within the level.
-   *
-   * <p>This method requires the specified entity to have a {@link PositionComponent}.
-   *
-   * @param entity The entity from which to retrieve the position.
-   * @return The position of the given entity.
-   * @throws MissingComponentException If the entity lacks a required PositionComponent.
-   */
-  default Point positionOf(final Entity entity) throws MissingComponentException {
-    return entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class))
-        .position();
-  }
 
   /**
    * Retrieves the layout of the level, represented as a 2D array of tiles.
@@ -450,15 +302,16 @@ public interface ILevel extends IndexedGraph<Tile> {
   }
 
   /**
-   * Retrieves the end tile of the level.
+   * Retrieves one end tile of the level, if present.
    *
-   * <p>If multiple Endtiles are in the game, this will only return one of them
+   * <p>If multiple end tiles exist in the level, only one of them will be returned.
    *
-   * @return The end tile of the level.
-   * @deprecated use {@link #endTiles()}
+   * @return an {@link Optional} containing one end tile if present, or an empty {@link Optional} if
+   *     none exist
+   * @deprecated use {@link #endTiles()} to retrieve all end tiles
    */
   @Deprecated
-  Tile endTile();
+  Optional<Tile> endTile();
 
   /**
    * Retrieves a Set containing the end tiles of the level.
@@ -472,7 +325,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return The start tile of the level.
    */
-  Tile startTile();
+  Optional<Tile> startTile();
 
   /**
    * Retrieves the tile on which the given entity is standing.
@@ -519,5 +372,45 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   default Optional<Point> randomTilePoint(final LevelElement elementType) {
     return randomTile(elementType).map(Tile::position);
+  }
+
+  /**
+   * Changes the type of specified tile, including updating its texture and level representation.
+   *
+   * <p>The method first checks if the tile is associated with a level. If not, the method returns
+   * without making any changes. If the tile is associated with a level, it is removed from the
+   * level, and a new tile is created with the specified level element, texture path, coordinates,
+   * and design label. The new tile is then added back to the level at the same coordinates as the
+   * original tile.
+   *
+   * @param tile The tile to be changed.
+   * @param changeInto The LevelElement to change the tile into.
+   */
+  default void changeTileElementType(final Tile tile, final LevelElement changeInto) {
+    ILevel level = tile.level();
+    if (level == null) {
+      return;
+    }
+    level.removeTile(tile);
+    Tile newTile =
+        TileFactory.createTile(
+            TileTextureFactory.findTexturePath(tile, layout(), changeInto),
+            tile.coordinate(),
+            changeInto,
+            tile.designLabel());
+    level.layout()[tile.coordinate().y()][tile.coordinate().x()] = newTile;
+    newTile.index(tile.index());
+    newTile.tintColor(tile.tintColor());
+    newTile.visible(tile.visible());
+    level.addTile(newTile);
+  }
+
+  /**
+   * Get the {@link DesignLabel} of the level.
+   *
+   * @return The DesignLabel of the level
+   */
+  default DesignLabel designLabel() {
+    return randomTile().designLabel();
   }
 }

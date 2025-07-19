@@ -249,6 +249,38 @@ public final class HeroFactory {
           true);
     }
 
+    registerCloseUI(pc);
+
+    pc.registerCallback(
+        KeyboardConfig.INTERACT_WORLD.value(),
+        entity -> {
+          UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
+          if (uiComponent != null
+              && uiComponent.dialog() instanceof GUICombination
+              && !InventoryGUI.inHeroInventory) {
+            // if chest or cauldron
+            entity.remove(UIComponent.class);
+          } else {
+            InteractionTool.interactWithClosestInteractable(entity);
+          }
+        },
+        false);
+
+    // skills
+    pc.registerCallback(
+        KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
+
+    return hero;
+  }
+
+  /**
+   * Registers a callback for closing the UI when the CLOSE_UI key is pressed.
+   *
+   * <p>This will close the topmost UI dialog that has the close key configured to close it.
+   *
+   * @param pc The PlayerComponent of the hero.
+   */
+  public static void registerCloseUI(PlayerComponent pc) {
     pc.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
         (e) -> {
@@ -256,7 +288,7 @@ public final class HeroFactory {
               Game.entityStream() // would be nice to directly access HudSystems
                   // stream (no access to the System object)
                   .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
-                  // which have a
+                  // that have a
                   // UIComponent
                   .map(
                       x ->
@@ -284,27 +316,6 @@ public final class HeroFactory {
         },
         false,
         true);
-
-    pc.registerCallback(
-        KeyboardConfig.INTERACT_WORLD.value(),
-        entity -> {
-          UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
-          if (uiComponent != null
-              && uiComponent.dialog() instanceof GUICombination
-              && !InventoryGUI.inHeroInventory) {
-            // if chest or cauldron
-            entity.remove(UIComponent.class);
-          } else {
-            InteractionTool.interactWithClosestInteractable(entity);
-          }
-        },
-        false);
-
-    // skills
-    pc.registerCallback(
-        KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
-
-    return hero;
   }
 
   private static void toggleInventory(Entity entity, PlayerComponent pc, InventoryComponent ic) {

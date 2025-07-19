@@ -80,8 +80,8 @@ public class PathfinderStarter {
           pathfindings = Tuple.of(null, null);
           Game.updateWindowTitle(GAME_TITEL + " – No Algorithm selected");
 
-          Coordinate startCoords = Game.currentLevel().startTile().coordinate();
-          Coordinate endTileCoords = Game.currentLevel().endTile().coordinate();
+          Coordinate startCoords = Game.currentLevel().startTile().orElseThrow().coordinate();
+          Coordinate endTileCoords = Game.currentLevel().endTile().orElseThrow().coordinate();
 
           Game.hero()
               .ifPresent(

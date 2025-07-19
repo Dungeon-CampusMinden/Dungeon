@@ -243,7 +243,7 @@ public class EntityUtils {
               hc ->
                   hc.onDeath(
                       (e) -> {
-                        ((ExitTile) Game.currentLevel().endTile())
+                        ((ExitTile) Game.currentLevel().endTile().orElseThrow())
                             .open(); // open exit when chort dies
                         onBossDeath.accept(e);
                       }));

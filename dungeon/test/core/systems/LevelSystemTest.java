@@ -17,6 +17,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.TextureMap;
 import java.io.IOException;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,7 +93,7 @@ public class LevelSystemTest {
     when(end.position()).thenReturn(p);
     when(end.isOpen()).thenReturn(true);
     when(level.tileAt((Point) any())).thenReturn(end);
-    Mockito.when(level.endTile()).thenReturn(end);
+    Mockito.when(level.endTile()).thenReturn(Optional.of(end));
 
     hero.fetch(PositionComponent.class).get().position(end);
 
