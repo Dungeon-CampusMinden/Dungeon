@@ -1,36 +1,28 @@
-for(int i = 0; i < 12; i++){
-    hero.move();
+while(true) {
+    if(hero.checkBossViewDirection(Direction.RIGHT)){
+        if(hero.isNearTile(LevelElement.WALL, Direction.UP)){
+            while(!hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
+                if(hero.checkBossViewDirection(Direction.RIGHT)){
+                    hero.rotate(Direction.RIGHT);
+                }else{
+                    hero.rest();
+                }
+                if(hero.checkBossViewDirection(Direction.RIGHT)){
+                    hero.move();
+                }else{
+                    hero.rest();
+                }
+            }else{
+                hero.rotate(Direction.LEFT);
+                hero.move();
+            }
+        }else{
+            if(!hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
+                hero.rotate(Direction.RIGHT);
+            }
+            hero.move();
+        }
+    }else{
+        hero.rest();
+    }
 }
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 6; i++){
-    hero.move();
-}
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 2; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-for(int i = 0; i < 4; i++){
-    hero.move();
-}
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 6; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-for(int i = 0; i < 9; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-for(int i = 0; i < 5; i++){
-    hero.move();
-}
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 6; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-hero.move();
-hero.rotate(Direction.LEFT);
-hero.move();
-hero.move();
