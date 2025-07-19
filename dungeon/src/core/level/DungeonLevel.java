@@ -32,8 +32,8 @@ import java.util.stream.IntStream;
 public class DungeonLevel implements ILevel, ITickable {
 
   protected final List<Coordinate> customPoints = new ArrayList<>();
-  protected String levelName = "Dungeon Level";
-  protected String description = "A Level";
+  protected String levelName = "Default Level Name";
+  protected String description = "Default Level description";
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
@@ -64,8 +64,7 @@ public class DungeonLevel implements ILevel, ITickable {
       List<Coordinate> customPoints,
       String levelName,
       String description) {
-    this(layout, designLabel);
-    this.customPoints.addAll(customPoints);
+    this(layout, designLabel, customPoints);
     this.levelName = levelName;
     this.description = description;
   }
@@ -79,7 +78,8 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public DungeonLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    this(layout, designLabel, customPoints, "Default Name", "Default Description");
+    this(layout, designLabel);
+    this.customPoints.addAll(customPoints);
   }
 
   /**
