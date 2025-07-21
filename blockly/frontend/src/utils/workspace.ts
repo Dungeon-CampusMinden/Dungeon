@@ -227,16 +227,17 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       if (currentBlock) {
         workspace.highlightBlock(currentBlock.id);
       }
+      code="";
       // Do nothing except highlighting on start block
-      if (currentBlock.type === "start") {
-        currentBlock = currentBlock.getNextBlock();
-        continue;
+      while(currentBlock = currentBlock.getNextBlock()!=null)
+        code+= javaGenerator.blockToCode(currentBlock, true);.
       }
 
       // Get code of the current block
+
       const currentCode = javaGenerator.blockToCode(currentBlock, true);
 
-      const apiResponse = await call_start_route(currentCode as string, currentBlock, first);
+      const apiResponse = await call_start_route(currentCode as string, code, first);
       first = false;
       if (!apiResponse) break;
 

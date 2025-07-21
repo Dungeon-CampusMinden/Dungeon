@@ -76,7 +76,8 @@ const handleResponse = async (response: Response | null): Promise<ApiResponse> =
  * @returns true if the program was successfully started, false otherwise
  */
 export const call_start_route = async (code: string, currentBlock: Block, first_step: boolean = true) => {
-  const start_response = await api.post(`start?first=${first_step}`, code);
+  console.log(code);
+  const start_response = await api.post(`code`, code);
   const response = await handleResponse(start_response);
   if (response.error !== "" && response.error !== "Programm unterbrochen!") {
     displayErrorOnBlock(currentBlock, response.error);

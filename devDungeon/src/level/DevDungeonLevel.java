@@ -18,6 +18,7 @@ import java.util.Random;
 /** Represents a level in the DevDungeon game. This class extends the */
 public abstract class DevDungeonLevel extends DungeonLevel {
   protected static final Random RANDOM = new Random();
+  protected String description;
   private final List<Coordinate> tpTargets = new ArrayList<>();
 
   /**
@@ -35,7 +36,8 @@ public abstract class DevDungeonLevel extends DungeonLevel {
       List<Coordinate> customPoints,
       String levelName,
       String description) {
-    super(layout, designLabel, customPoints, levelName, description);
+    super(layout, designLabel, customPoints, levelName);
+    this.description = description;
   }
 
   @Override

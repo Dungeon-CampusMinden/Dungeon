@@ -32,7 +32,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
       DesignLabel designLabel,
       List<Coordinate> customPoints,
       String name) {
-    super(layout, designLabel, customPoints, name, "");
+    super(layout, designLabel, customPoints, name);
     this.designLabel = designLabel;
   }
 

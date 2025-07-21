@@ -28,8 +28,8 @@ import java.util.stream.IntStream;
 public class DungeonLevel implements ILevel, ITickable {
 
   protected final List<Coordinate> customPoints = new ArrayList<>();
-  protected String levelName = "Default Level Name";
-  protected String description = "Default Level description";
+  private static int levelNameSuffix = 1;
+  protected String levelName;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
@@ -45,6 +45,28 @@ public class DungeonLevel implements ILevel, ITickable {
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
   protected ArrayList<PitTile> pitTiles = new ArrayList<>();
 
+
+  /**
+   * Create a new level.
+   *
+   * @param layout The layout of the level.
+   */
+  public DungeonLevel(Tile[][] layout) {
+    this.layout = layout;
+    putTilesInLists();
+    levelName = "level_" + levelNameSuffix++;
+  }
+
+  /**
+   * Create a new Level.
+   *
+   * @param layout The layout of the Level
+   * @param designLabel The design the level should have
+   */
+  public DungeonLevel(LevelElement[][] layout, DesignLabel designLabel) {
+    this(convertLevelElementToTile(layout, designLabel));
+  }
+
   /**
    * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
    *
@@ -52,17 +74,14 @@ public class DungeonLevel implements ILevel, ITickable {
    * @param designLabel The design label of the level.
    * @param customPoints A list of custom points to be added to the level.
    * @param levelName The name of the level. (can be empty)
-   * @param description The description of the level. (only set if levelName is not empty)
    */
   public DungeonLevel(
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints,
-      String levelName,
-      String description) {
+      String levelName) {
     this(layout, designLabel, customPoints);
     this.levelName = levelName;
-    this.description = description;
   }
 
   /**
@@ -76,26 +95,6 @@ public class DungeonLevel implements ILevel, ITickable {
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     this(layout, designLabel);
     this.customPoints.addAll(customPoints);
-  }
-
-  /**
-   * Create a new level.
-   *
-   * @param layout The layout of the level.
-   */
-  public DungeonLevel(Tile[][] layout) {
-    this.layout = layout;
-    putTilesInLists();
-  }
-
-  /**
-   * Create a new Level.
-   *
-   * @param layout The layout of the Level
-   * @param designLabel The design the level should have
-   */
-  public DungeonLevel(LevelElement[][] layout, DesignLabel designLabel) {
-    this(convertLevelElementToTile(layout, designLabel));
   }
 
   /**
