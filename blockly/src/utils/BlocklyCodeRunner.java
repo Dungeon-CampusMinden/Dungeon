@@ -53,7 +53,9 @@ public class BlocklyCodeRunner {
           "hero.dropItem",
           "hero.rest",
           "hero.checkBossViewDirection",
-          "hero.moveToExit");
+          "hero.moveToExit",
+          "loadLevel",
+          "loadNextLevel");
 
   /**
    * The name of the temporary folder where the compiled code will be stored. This folder is created
