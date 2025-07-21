@@ -9,12 +9,14 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -34,6 +36,26 @@ public class BlocklyCodeRunner {
 
   private static final Logger LOGGER = Logger.getLogger(BlocklyCodeRunner.class.getSimpleName());
   private static BlocklyCodeRunner instance;
+
+  /** List of whitelisted Blockly command method names without the trailing (); or parameters. */
+  private static final List<String> WHITELIST =
+      List.of(
+          "hero.move",
+          "hero.rotate",
+          "hero.interact",
+          "hero.pull",
+          "hero.push",
+          "hero.pickup",
+          "hero.shootFireball",
+          "hero.active",
+          "hero.isNearTile",
+          "hero.isNearComponent",
+          "hero.dropItem",
+          "hero.rest",
+          "hero.checkBossViewDirection",
+          "hero.moveToExit",
+          "loadLevel",
+          "loadNextLevel");
 
   /**
    * The name of the temporary folder where the compiled code will be stored. This folder is created
@@ -208,15 +230,23 @@ public class BlocklyCodeRunner {
   }
 
   /**
-   * Inserts "sleep();" after each semicolon at the end of line.
+   * Adds a "sleep();" call after each whitelisted Blockly command.
    *
-   * <p>It considers CRLF, LF, CR line breaks or end of string.
+   * <p>This method scans the provided Java code and appends "sleep();" after each occurrence of a
+   * command from the WHITELIST. Only exact matches are modified. It preserves the original commands
+   * and adds the sleep call directly after them on the same line.
    *
    * @param code The Java code to modify.
    * @return The modified Java code with sleep calls added.
    */
   private String addSleepCalls(String code) {
-    return code.replaceAll("(?<=;)(?=\\s*\\R|$)", " sleep();");
+    for (String blocklyCommand : WHITELIST) {
+      // "\\([^)]*\\);" matches any arguments in parentheses,
+      // allowing any method parameters --> (any.parameters);
+      String regex = Pattern.quote(blocklyCommand) + "\\([^)]*\\);";
+      code = code.replaceAll(regex, "$0 sleep();");
+    }
+    return code;
   }
 
   /**
