@@ -6,7 +6,7 @@ export function interact(_block: Blockly.Block, _generator: Blockly.Generator) {
 }
 
 export function fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "hero.fireball();";
+  return "feuerball();";
 }
 
 export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {

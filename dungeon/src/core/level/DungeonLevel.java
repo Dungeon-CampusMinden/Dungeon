@@ -45,7 +45,6 @@ public class DungeonLevel implements ILevel, ITickable {
   protected ArrayList<SkipTile> skipTiles = new ArrayList<>();
   protected ArrayList<PitTile> pitTiles = new ArrayList<>();
 
-
   /**
    * Create a new level.
    *

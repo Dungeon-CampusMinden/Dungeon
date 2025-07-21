@@ -5,7 +5,7 @@ export function move(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return "hero.move();";
+  return "gehe();";
 }
 
 export function rotate(
