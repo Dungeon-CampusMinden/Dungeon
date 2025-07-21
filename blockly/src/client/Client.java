@@ -180,6 +180,7 @@ public class Client {
             }
           }
         });
+    if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 
   private static void startServer() {

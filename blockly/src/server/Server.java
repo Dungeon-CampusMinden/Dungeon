@@ -230,7 +230,6 @@ public class Server {
     // Reset values
     interruptExecution = true;
     Client.restart();
-
     sendHeroPosition(exchange);
   }
 
