@@ -8,6 +8,7 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph;
 import com.badlogic.gdx.utils.Array;
 import core.Entity;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.elements.astar.TileHeuristic;
 import core.level.elements.tile.*;
@@ -29,7 +30,7 @@ import java.util.function.Function;
  *
  * <p>Also provides the API for the LibGDX Pathfinding.
  *
- * @see core.level.TileLevel
+ * @see DungeonLevel
  */
 public interface ILevel extends IndexedGraph<Tile> {
 
@@ -413,4 +414,25 @@ public interface ILevel extends IndexedGraph<Tile> {
   default DesignLabel designLabel() {
     return randomTile().designLabel();
   }
+
+  /**
+   * Returns the list of custom points.
+   *
+   * @return A list of custom points.
+   */
+  List<Coordinate> customPoints();
+
+  /**
+   * Adds a new custom point to the list.
+   *
+   * @param point The custom point to be added.
+   */
+  void addCustomPoint(Coordinate point);
+
+  /**
+   * Removes a custom point from the list.
+   *
+   * @param point The custom point to be removed.
+   */
+  void removeCustomPoint(Coordinate point);
 }

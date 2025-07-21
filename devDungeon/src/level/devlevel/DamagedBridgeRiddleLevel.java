@@ -9,18 +9,18 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import java.util.*;
+import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
 import utils.EntityUtils;
 
 /** The Damaged Bridge Riddle Level. */
-public class DamagedBridgeRiddleLevel extends DungeonLevel {
+public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;

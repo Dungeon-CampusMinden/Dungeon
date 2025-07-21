@@ -12,6 +12,7 @@ import core.level.utils.TileTextureFactory;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -24,8 +25,11 @@ import java.util.*;
  *
  * @see core.level.elements.ILevel
  */
-public class TileLevel implements ILevel, ITickable {
+public class DungeonLevel implements ILevel, ITickable {
 
+  protected final List<Coordinate> customPoints = new ArrayList<>();
+  private static int levelNameSuffix = 1;
+  protected String levelName;
   private static final Vector2[] CONNECTION_OFFSETS = {
     Vector2.of(0, 1), Vector2.of(0, -1), Vector2.of(1, 0), Vector2.of(-1, 0),
   };
@@ -46,9 +50,10 @@ public class TileLevel implements ILevel, ITickable {
    *
    * @param layout The layout of the level.
    */
-  public TileLevel(Tile[][] layout) {
+  public DungeonLevel(Tile[][] layout) {
     this.layout = layout;
     putTilesInLists();
+    levelName = "level_" + levelNameSuffix++;
   }
 
   /**
@@ -57,8 +62,38 @@ public class TileLevel implements ILevel, ITickable {
    * @param layout The layout of the Level
    * @param designLabel The design the level should have
    */
-  public TileLevel(LevelElement[][] layout, DesignLabel designLabel) {
+  public DungeonLevel(LevelElement[][] layout, DesignLabel designLabel) {
     this(convertLevelElementToTile(layout, designLabel));
+  }
+
+  /**
+   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   *
+   * @param layout The layout of the level, represented as a 2D array of LevelElements.
+   * @param designLabel The design label of the level.
+   * @param customPoints A list of custom points to be added to the level.
+   * @param levelName The name of the level. (can be empty)
+   */
+  public DungeonLevel(
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      List<Coordinate> customPoints,
+      String levelName) {
+    this(layout, designLabel, customPoints);
+    this.levelName = levelName;
+  }
+
+  /**
+   * Constructs a new DevDungeonLevel with the given layout, design label, and custom points.
+   *
+   * @param layout The layout of the level, represented as a 2D array of LevelElements.
+   * @param designLabel The design label of the level.
+   * @param customPoints A list of custom points to be added to the level.
+   */
+  public DungeonLevel(
+      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    this(layout, designLabel);
+    this.customPoints.addAll(customPoints);
   }
 
   /**
@@ -252,6 +287,59 @@ public class TileLevel implements ILevel, ITickable {
     return new HashSet<>(exitTiles);
   }
 
+  /**
+   * Called when the level is first ticked.
+   *
+   * @see #onTick()
+   * @see ITickable
+   */
+  protected void onFirstTick() {}
+  ;
+
+  /**
+   * Called when the level is ticked.
+   *
+   * @see #onFirstTick()
+   * @see ITickable
+   */
+  protected void onTick() {}
+  ;
+
   @Override
-  public void onTick(boolean isFirstTick) {}
+  public void onTick(boolean isFirstTick) {
+    if (isFirstTick) onFirstTick();
+    onTick();
+  }
+
+  /**
+   * Gets the custom points that are within the given bounds.
+   *
+   * @param start The start index of the custom points list.
+   * @param end The end index of the custom points list. (inclusive)
+   * @return An array of custom points within the given bounds.
+   */
+  protected Coordinate[] getCoordinates(int start, int end) {
+    return IntStream.rangeClosed(start, end)
+        .mapToObj(customPoints()::get)
+        .toArray(Coordinate[]::new);
+  }
+
+  @Override
+  public List<Coordinate> customPoints() {
+    // TODO: SMELL – This returns the internal list. Ideally, we should return a copy to avoid
+    // exposing internal state.
+    // However, in Produs we remove custom points during level creation to simplify iteration, which
+    // wouldn't work with a copy.
+    return customPoints;
+  }
+
+  @Override
+  public void addCustomPoint(Coordinate point) {
+    customPoints.add(point);
+  }
+
+  @Override
+  public void removeCustomPoint(Coordinate point) {
+    customPoints.remove(point);
+  }
 }

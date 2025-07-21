@@ -1,6 +1,6 @@
 package level;
 
-import core.level.loader.DungeonLevel;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -29,7 +29,7 @@ public abstract class AdvancedLevel extends DungeonLevel {
       DesignLabel designLabel,
       List<Coordinate> customPoints,
       String name) {
-    super(layout, designLabel, customPoints, name, "");
+    super(layout, designLabel, customPoints, name);
     this.designLabel = designLabel;
   }
 

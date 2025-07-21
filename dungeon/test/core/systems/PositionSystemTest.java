@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.FloorTile;
 import core.level.utils.Coordinate;
@@ -64,7 +64,7 @@ public class PositionSystemTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
         };
-    Tile[][] layout = new TileLevel(elementsLayout, DesignLabel.DEFAULT).layout();
+    Tile[][] layout = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT).layout();
     Mockito.when(level.layout()).thenReturn(layout);
     Mockito.when(level.size()).thenReturn(new Tuple<>(2, 2));
     Mockito.when(level.tileAt(Mockito.any(Coordinate.class)))
