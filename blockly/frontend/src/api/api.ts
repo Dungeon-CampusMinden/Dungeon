@@ -187,3 +187,22 @@ export const call_level_route = async (levelName = ""): Promise<Level> => {
     block_blocks: data.length > 1 ? data.slice(1) : undefined,
   };
 }
+
+/**
+ * Call the code route of the server
+ *
+ * <p> This route is used to send the full program code to the server
+ *
+ * @param code The full program code to send to the server
+ *
+ * @returns true if the program was successfully started, false otherwise
+ */
+export const call_code_route = async (code: string): Promise<boolean> => {
+  console.log("Call Code route: ", code);
+  const code_response = await api.post(`code`, code);
+  const response = await handleResponse(code_response);
+  if (response.error !== "" && response.error !== "Programm unterbrochen!") {
+    console.error("Fehler beim Ausführen des Programms", response);
+  }
+  return response.error === "";
+};
