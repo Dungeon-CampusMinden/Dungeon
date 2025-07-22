@@ -8,12 +8,13 @@ import org.junit.jupiter.api.Test;
  * Tests for the {@link Direction} enum.
  *
  * <p>This test suite covers Direction-specific functionality including:
+ *
  * <ul>
- *   <li>Direction transformations (opposite, turns)</li>
- *   <li>Relative direction applications</li>
- *   <li>Random direction generation</li>
- *   <li>String conversion</li>
- *   <li>Vector2 interface implementation</li>
+ *   <li>Direction transformations (opposite, turns)
+ *   <li>Relative direction applications
+ *   <li>Random direction generation
+ *   <li>String conversion
+ *   <li>Vector2 interface implementation
  * </ul>
  *
  * <p>Vector2 operations are tested in {@link Vector2Test} and are not duplicated here.
@@ -22,9 +23,7 @@ public class DirectionTest {
 
   private static final double DELTA = 1e-6;
 
-  /**
-   * Tests that each direction has the correct x and y coordinates as documented.
-   */
+  /** Tests that each direction has the correct x and y coordinates as documented. */
   @Test
   public void testDirectionCoordinates() {
     assertEquals(0.0f, Direction.UP.x(), DELTA);
@@ -43,9 +42,7 @@ public class DirectionTest {
     assertEquals(0.0f, Direction.NONE.y(), DELTA);
   }
 
-  /**
-   * Tests the opposite() method for all cardinal directions.
-   */
+  /** Tests the opposite() method for all cardinal directions. */
   @Test
   public void testOpposite() {
     assertEquals(Direction.DOWN, Direction.UP.opposite());
@@ -55,9 +52,7 @@ public class DirectionTest {
     assertEquals(Direction.NONE, Direction.NONE.opposite());
   }
 
-  /**
-   * Tests the turnLeft() method for 90-degree counter-clockwise rotations.
-   */
+  /** Tests the turnLeft() method for 90-degree counter-clockwise rotations. */
   @Test
   public void testTurnLeft() {
     assertEquals(Direction.LEFT, Direction.UP.turnLeft());
@@ -67,9 +62,7 @@ public class DirectionTest {
     assertEquals(Direction.NONE, Direction.NONE.turnLeft());
   }
 
-  /**
-   * Tests the turnRight() method for 90-degree clockwise rotations.
-   */
+  /** Tests the turnRight() method for 90-degree clockwise rotations. */
   @Test
   public void testTurnRight() {
     assertEquals(Direction.RIGHT, Direction.UP.turnRight());
@@ -79,9 +72,7 @@ public class DirectionTest {
     assertEquals(Direction.NONE, Direction.NONE.turnRight());
   }
 
-  /**
-   * Tests that four consecutive left turns return to the original direction.
-   */
+  /** Tests that four consecutive left turns return to the original direction. */
   @Test
   public void testFourLeftTurns() {
     Direction original = Direction.UP;
@@ -89,9 +80,7 @@ public class DirectionTest {
     assertEquals(original, result);
   }
 
-  /**
-   * Tests that four consecutive right turns return to the original direction.
-   */
+  /** Tests that four consecutive right turns return to the original direction. */
   @Test
   public void testFourRightTurns() {
     Direction original = Direction.LEFT;
@@ -99,20 +88,17 @@ public class DirectionTest {
     assertEquals(original, result);
   }
 
-  /**
-   * Tests that left and right turns are inverses of each other.
-   */
+  /** Tests that left and right turns are inverses of each other. */
   @Test
   public void testTurnInverses() {
-    for (Direction dir : new Direction[]{Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT}) {
+    for (Direction dir :
+        new Direction[] {Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT}) {
       assertEquals(dir, dir.turnLeft().turnRight());
       assertEquals(dir, dir.turnRight().turnLeft());
     }
   }
 
-  /**
-   * Tests the applyRelative() method with DOWN (back) transformation.
-   */
+  /** Tests the applyRelative() method with DOWN (back) transformation. */
   @Test
   public void testApplyRelativeBack() {
     assertEquals(Direction.DOWN, Direction.UP.applyRelative(Direction.DOWN));
@@ -121,9 +107,7 @@ public class DirectionTest {
     assertEquals(Direction.RIGHT, Direction.LEFT.applyRelative(Direction.DOWN));
   }
 
-  /**
-   * Tests the applyRelative() method with LEFT transformation.
-   */
+  /** Tests the applyRelative() method with LEFT transformation. */
   @Test
   public void testApplyRelativeLeft() {
     assertEquals(Direction.LEFT, Direction.UP.applyRelative(Direction.LEFT));
@@ -132,9 +116,7 @@ public class DirectionTest {
     assertEquals(Direction.DOWN, Direction.LEFT.applyRelative(Direction.LEFT));
   }
 
-  /**
-   * Tests the applyRelative() method with RIGHT transformation.
-   */
+  /** Tests the applyRelative() method with RIGHT transformation. */
   @Test
   public void testApplyRelativeRight() {
     assertEquals(Direction.RIGHT, Direction.UP.applyRelative(Direction.RIGHT));
@@ -143,12 +125,12 @@ public class DirectionTest {
     assertEquals(Direction.UP, Direction.LEFT.applyRelative(Direction.RIGHT));
   }
 
-  /**
-   * Tests the applyRelative() method with UP and NONE (no change) transformations.
-   */
+  /** Tests the applyRelative() method with UP and NONE (no change) transformations. */
   @Test
   public void testApplyRelativeNoChange() {
-    Direction[] directions = {Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.NONE};
+    Direction[] directions = {
+      Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.NONE
+    };
 
     for (Direction dir : directions) {
       assertEquals(dir, dir.applyRelative(Direction.UP));
@@ -156,9 +138,7 @@ public class DirectionTest {
     }
   }
 
-  /**
-   * Tests that the random() method returns only cardinal directions.
-   */
+  /** Tests that the random() method returns only cardinal directions. */
   @Test
   public void testRandomReturnsCardinalDirections() {
     Direction[] cardinals = {Direction.UP, Direction.RIGHT, Direction.DOWN, Direction.LEFT};
@@ -177,9 +157,7 @@ public class DirectionTest {
     }
   }
 
-  /**
-   * Tests that random() never returns NONE.
-   */
+  /** Tests that random() never returns NONE. */
   @Test
   public void testRandomNeverReturnsNone() {
     // Test multiple times to increase confidence
@@ -189,9 +167,7 @@ public class DirectionTest {
     }
   }
 
-  /**
-   * Tests the fromString() method with valid direction strings.
-   */
+  /** Tests the fromString() method with valid direction strings. */
   @Test
   public void testFromStringValid() {
     assertEquals(Direction.UP, Direction.fromString("up"));
@@ -211,9 +187,7 @@ public class DirectionTest {
     assertEquals(Direction.NONE, Direction.fromString("NONE"));
   }
 
-  /**
-   * Tests that fromString() throws IllegalArgumentException for invalid strings.
-   */
+  /** Tests that fromString() throws IllegalArgumentException for invalid strings. */
   @Test
   public void testFromStringInvalid() {
     assertThrows(IllegalArgumentException.class, () -> Direction.fromString("invalid"));
@@ -222,9 +196,7 @@ public class DirectionTest {
     assertThrows(IllegalArgumentException.class, () -> Direction.fromString("forward"));
   }
 
-  /**
-   * Tests that fromString() is case-insensitive.
-   */
+  /** Tests that fromString() is case-insensitive. */
   @Test
   public void testFromStringCaseInsensitive() {
     String[] cases = {"up", "UP", "Up", "uP"};
@@ -233,9 +205,7 @@ public class DirectionTest {
     }
   }
 
-  /**
-   * Tests that all directions can be converted to string and back correctly.
-   */
+  /** Tests that all directions can be converted to string and back correctly. */
   @Test
   public void testStringRoundTrip() {
     for (Direction dir : Direction.values()) {
@@ -244,9 +214,7 @@ public class DirectionTest {
     }
   }
 
-  /**
-   * Tests that Direction implements Vector2 interface correctly.
-   */
+  /** Tests that Direction implements Vector2 interface correctly. */
   @Test
   public void testVector2Interface() {
     // Direction should be usable as Vector2
@@ -260,9 +228,7 @@ public class DirectionTest {
     assertEquals(1.0f, result.y(), DELTA);
   }
 
-  /**
-   * Tests that directions are unit vectors (except NONE).
-   */
+  /** Tests that directions are unit vectors (except NONE). */
   @Test
   public void testUnitVectors() {
     assertEquals(1.0, Direction.UP.length(), DELTA);
@@ -272,9 +238,7 @@ public class DirectionTest {
     assertEquals(0.0, Direction.NONE.length(), DELTA);
   }
 
-  /**
-   * Tests that NONE direction is the zero vector.
-   */
+  /** Tests that NONE direction is the zero vector. */
   @Test
   public void testNoneIsZeroVector() {
     assertTrue(Direction.NONE.isZero());
@@ -284,9 +248,7 @@ public class DirectionTest {
     assertFalse(Direction.LEFT.isZero());
   }
 
-  /**
-   * Tests that cardinal directions are orthogonal to their adjacent directions.
-   */
+  /** Tests that cardinal directions are orthogonal to their adjacent directions. */
   @Test
   public void testOrthogonalDirections() {
     assertEquals(0.0, Direction.UP.dot(Direction.RIGHT), DELTA);
@@ -295,9 +257,7 @@ public class DirectionTest {
     assertEquals(0.0, Direction.LEFT.dot(Direction.UP), DELTA);
   }
 
-  /**
-   * Tests that opposite directions have dot product of -1.
-   */
+  /** Tests that opposite directions have dot product of -1. */
   @Test
   public void testOppositeDirectionsDotProduct() {
     assertEquals(-1.0, Direction.UP.dot(Direction.DOWN), DELTA);
