@@ -6,7 +6,8 @@ import {
   call_clear_route, call_level_route,
   call_reset_route,
   call_start_route,
-  call_variables_route
+  call_variables_route,
+  call_code_route
 } from "../api/api.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
 let startBlock: Blockly.Block | null = null;
@@ -221,6 +222,7 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
+    /*
     let first = true;
     while (currentBlock !== null) {
       // Highlight current block
@@ -246,6 +248,37 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       currentBlock = currentBlock.getNextBlock();
       await sleep(sleepingTime);
     }
+    */
+
+    // collect all code snippets
+    const codeSnippets: string[] = [];
+    while (currentBlock !== null) {
+      // Highlight current block
+      workspace.highlightBlock(currentBlock.id);
+
+      // Skip the start block itself
+      if (currentBlock.type !== "start") {
+        const snippet = javaGenerator.blockToCode(currentBlock, true) as string;
+        codeSnippets.push(snippet.trim());
+      }
+
+      currentBlock = currentBlock.getNextBlock();
+      await sleep(sleepingTime);
+    }
+
+    // send the full program in a single request
+    const fullProgram = codeSnippets.join("\n");
+
+    const apiResponse = await call_code_route(fullProgram);
+    if (!apiResponse) {
+      await call_clear_route();
+      workspace.highlightBlock(null);
+      buttons.startBtn.disabled = false;
+      buttons.stepBtn.disabled = false;
+      return;
+    }
+    //TODO: Ab hier folgender Code darf erst ausgeführt werden, wenn die "UserScript.java" fertig ist
+    // einfaches sleep reicht nicht, weil unterschiedliche programm länge
 
     // Check if we reach next level
     await sleep(1);
@@ -255,7 +288,7 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
     }
 
     // Reset values in backend
-    await call_clear_route();
+    //await call_clear_route();  //wird nicht benötigt, weil keine blockly funktionen aus Server.java in verwendung?
 
     workspace.highlightBlock(null);
     // Enable button again

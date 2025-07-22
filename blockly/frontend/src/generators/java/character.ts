@@ -5,7 +5,7 @@ export function move(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return "gehe();";
+  return "hero.move();";
 }
 
 export function rotate(
@@ -22,8 +22,15 @@ export function rotate(
     return "";
   }
   block.setWarningText(null);
-
-  return "drehe("+dir+");";
+  let code = "hero.rotate";
+  if(dir.substring(1, dir.length - 1) === "links") {
+    code = code + "(Direction.LEFT);"
+  }else if(dir.substring(1, dir.length - 1) === "rechts") {
+    code = code + "(Direction.RIGHT);"
+  } else {
+    return "";
+  }
+  return code;
 }
 
 export function goToExit(_block: Blockly.Block, _generator: Blockly.Generator) {
