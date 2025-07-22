@@ -23,6 +23,11 @@ import core.level.utils.Coordinate;
  * Vector2 scaled = position.scale(2.0f);
  * Vector2 rotated = direction.rotateDeg(90.0f);
  * }</pre>
+ *
+ * <p>For unit vectors, use {@link Direction} which provides predefined directions and convenience
+ * methods for working with cardinal directions.
+ *
+ * @see Direction
  */
 public interface Vector2 {
 
@@ -34,19 +39,6 @@ public interface Vector2 {
 
   /** Vector with maximum double values for both components. */
   Vector2 MAX = Vector2.of(Double.MAX_VALUE, Double.MAX_VALUE);
-
-  // TODO: Remove later with Direction enum
-  /** Unit vector pointing upward in 2D space. */
-  Vector2 UP = Vector2.of(0, 1);
-
-  /** Unit vector pointing downward in 2D space. */
-  Vector2 DOWN = Vector2.of(0, -1);
-
-  /** Unit vector pointing left in 2D space. */
-  Vector2 LEFT = Vector2.of(-1, 0);
-
-  /** Unit vector pointing right in 2D space. */
-  Vector2 RIGHT = Vector2.of(1, 0);
 
   /** A small tolerance for floating-point comparisons. */
   double EPSILON = 1e-9;

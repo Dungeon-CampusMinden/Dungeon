@@ -12,7 +12,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
@@ -89,7 +88,7 @@ public class Level021 extends BlocklyLevel {
 
     // BOSS
     Coordinate c =
-        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Vector2.LEFT);
+        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Direction.LEFT);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);

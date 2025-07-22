@@ -7,6 +7,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
@@ -47,10 +48,9 @@ public final class AIUtils {
       return;
     }
 
-    for (Direction direction : currentTile.directionTo(nextTile)) {
-      Point velocity = direction.translate(new Point(vc.currentXVelocity(), vc.currentYVelocity()));
-      if (velocity.x != 0) vc.currentXVelocity(velocity.x * vc.xVelocity());
-      if (velocity.y != 0) vc.currentYVelocity(velocity.y * vc.yVelocity());
+    Vector2 direction = Vector2.ZERO;
+    for (Direction dir : currentTile.directionTo(nextTile)) {
+      direction = direction.add(dir);
     }
     vc.currentVelocity(direction.normalize().scale(vc.velocity()));
   }

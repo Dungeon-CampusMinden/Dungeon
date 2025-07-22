@@ -68,8 +68,8 @@ public final class CollideComponent implements Component {
   public CollideComponent(
       final Vector2 offset,
       final Vector2 size,
-      final TriConsumer<Entity, Entity, Tile.Direction> collideEnter,
-      final TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
+      final TriConsumer<Entity, Entity, Direction> collideEnter,
+      final TriConsumer<Entity, Entity, Direction> collideLeave) {
     this.offset = offset;
     this.size = size;
     this.collideEnter = collideEnter;

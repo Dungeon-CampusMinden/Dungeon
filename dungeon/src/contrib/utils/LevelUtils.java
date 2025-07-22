@@ -4,6 +4,7 @@ import contrib.components.BlockViewComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import java.util.Arrays;
 import java.util.List;
 

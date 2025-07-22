@@ -131,13 +131,10 @@ public class BlocklyCommands {
 
     Tile inDirection;
 
-    if (direction == Direction.HERE) {
+    if (direction == Direction.NONE) {
       inDirection = Game.tileAT(pc.position());
     } else {
-      Direction newDirection =
-          Direction.fromPositionCompDirection(pc.viewDirection())
-              .relativeToAbsoluteDirection(direction);
-      inDirection = Game.tileAT(pc.position(), Direction.toPositionCompDirection(newDirection));
+      inDirection = Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction));
     }
 
     Game.entityAtTile(inDirection)
@@ -222,7 +219,7 @@ public class BlocklyCommands {
             () ->
                 hero.fetch(CollideComponent.class)
                     .map(cc -> cc.center(hero))
-                    .map(p -> EntityUtils.getViewDirection(hero).translate(p))
+                    .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
                     .orElseThrow(
                         () -> MissingComponentException.build(hero, CollideComponent.class)),
             FIREBALL_RANGE,
@@ -364,7 +361,7 @@ public class BlocklyCommands {
     Function<Direction, Optional<Tile>> dirToCheck =
         dir ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
-                .map(dir::translate)
+                .map(coord -> coord.translate(dir))
                 .map(Game::tileAT);
 
     // calculate direction to check relative to hero's view direction
@@ -421,9 +418,7 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        Point dir = direction.translate(new Point(0, 0));
-        comp.vc.currentXVelocity(dir.x * comp.vc.xVelocity());
-        comp.vc.currentYVelocity(dir.y * comp.vc.yVelocity());
+        comp.vc.currentVelocity(direction.scale(comp.vc.velocity()));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -480,10 +475,8 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    Point velocity = direction.translate(new Point(0, 0));
-    vc.currentXVelocity(velocity.x);
-    vc.currentYVelocity(velocity.y);
-    // so the player cannot glitch inside the next tile
+    vc.currentVelocity(direction);
+    // so the player can not glitch inside the next tile
     pc.position(oldP);
   }
 
@@ -498,11 +491,11 @@ public class BlocklyCommands {
    */
   public static boolean checkBossViewDirection(Direction direction) {
     return Game.allEntities()
-        .filter(e -> e.name().equals("Blockly Black Knight"))
+        .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
-        .flatMap(e -> e.fetch(PositionComponent.class))
+        .flatMap(boss -> boss.fetch(PositionComponent.class))
         .map(PositionComponent::viewDirection)
-        .map(d -> d.equals(Direction.toPositionCompDirection(direction)))
+        .map(bossDir -> bossDir.equals(direction))
         .orElse(false);
   }
 

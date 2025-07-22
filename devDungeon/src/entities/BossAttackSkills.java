@@ -19,6 +19,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -251,7 +252,7 @@ public class BossAttackSkills {
             final int degree = i * 360 / totalFireBalls;
             EventScheduler.scheduleAction(
                 () -> {
-                  Vector2 direction = Vector2.UP.rotateDeg(degree);
+                  Vector2 direction = Direction.UP.rotateDeg(degree);
                   Point target = bossPos.translate(direction.scale(FIREBALL_MAX_RANGE * 0.5f));
                   launchFireBall(bossPos, target, bossPos, skillUser);
                 },

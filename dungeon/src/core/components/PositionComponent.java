@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import core.utils.Point;
 
 /**

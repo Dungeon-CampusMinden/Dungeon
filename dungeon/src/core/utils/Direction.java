@@ -1,32 +1,48 @@
 package core.utils;
 
-import com.badlogic.gdx.math.Vector2;
-import core.level.utils.Coordinate;
 import java.util.Random;
-import java.util.Vector;
 
 /**
  * The {@code Direction} enum represents the four cardinal directions (UP, RIGHT, DOWN, LEFT) and a
  * NONE direction.
  *
- * <p>This enum provides methods to manipulate directions, such as turning left or right, applying
- * relative transformations, and translating coordinates or points based on the direction. It also
- * includes utility methods for random direction selection and converting string representations to
- * {@code Direction} values.
+ * <p>A direction can also be interpreted as a unit {@link Vector2} in a 2D space, where:
+ *
+ * <ul>
+ *   <li>UP corresponds to (0, 1)
+ *   <li>RIGHT corresponds to (1, 0)
+ *   <li>DOWN corresponds to (0, -1)
+ *   <li>LEFT corresponds to (-1, 0)
+ *   <li>NONE corresponds to (0, 0)
+ * </ul>
+ *
+ * <p>This enum provides methods to manipulate directions, such as turning left or right and
+ * applying relative transformations. It also includes utility methods for random direction
+ * selection and converting from string representations.
+ *
+ * @see Vector2
  */
-public enum Direction {
-  /** The constant representing the upward direction. */
-  UP,
-  /** The constant representing the rightward direction. */
-  RIGHT,
-  /** The constant representing the downward direction. */
-  DOWN,
-  /** The constant representing the leftward direction. */
-  LEFT,
-  /** The constant representing no direction. */
-  NONE;
+public enum Direction implements Vector2 {
+  /** Represents the upward direction with a unit vector of (0, 1). */
+  UP(0, 1),
+  /** Represents the rightward direction with a unit vector of (1, 0). */
+  RIGHT(1, 0),
+  /** Represents the downward direction with a unit vector of (0, -1). */
+  DOWN(0, -1),
+  /** Represents the leftward direction with a unit vector of (-1, 0). */
+  LEFT(-1, 0),
+  /** Represents no direction with a unit vector of (0, 0). */
+  NONE(0, 0);
 
   private static final Random RANDOM = new Random();
+
+  private final float x;
+  private final float y;
+
+  Direction(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
 
   /**
    * Returns the opposite direction.
@@ -109,64 +125,6 @@ public enum Direction {
   }
 
   /**
-   * Translates the given coordinate by the direction vector of this Direction.
-   *
-   * <p>This method calculates the new coordinate by adding the direction vector (derived from this
-   * Direction) to the provided coordinate.
-   *
-   * @param coordinate The original coordinate to be translated.
-   * @return A new Coordinate object representing the translated position.
-   */
-  public Coordinate translate(Coordinate coordinate) {
-    Vector<Integer> dirVec = directionVector();
-    return coordinate.add(new Coordinate(dirVec.getFirst(), dirVec.getLast()));
-  }
-
-  /**
-   * Translates the given point by the direction vector of this Direction.
-   *
-   * <p>This method calculates the new point by adding the direction vector (derived from this
-   * Direction) to the provided point.
-   *
-   * @param point The original point to be translated.
-   * @return A new Point object representing the translated position.
-   */
-  public Point translate(Point point) {
-    Vector<Integer> dirVec = directionVector();
-    return point.add(new Point(dirVec.getFirst(), dirVec.getLast()));
-  }
-
-  /**
-   * Returns a vector representation of the direction.
-   *
-   * <p>This method converts the direction into a {@link Vector2} where:
-   *
-   * <ul>
-   *   <li>UP is represented as (0, -1)
-   *   <li>DOWN is represented as (0, 1)
-   *   <li>LEFT is represented as (-1, 0)
-   *   <li>RIGHT is represented as (1, 0)
-   *   <li>NONE is represented as (0, 0)
-   * </ul>
-   *
-   * @return A {@link Vector2} representing the direction.
-   */
-  private Vector<Integer> directionVector() {
-    int x = 0;
-    int y = 0;
-    switch (this) {
-      case UP -> y = -1;
-      case DOWN -> y = 1;
-      case LEFT -> x = -1;
-      case RIGHT -> x = 1;
-      case NONE -> {
-        // No change to x and y
-      }
-    }
-    return new Vector<>(x, y);
-  }
-
-  /**
    * Converts a string representation to a {@link Direction}.
    *
    * @param direction The string representation of the direction, e.g., "up", "down", "left",
@@ -182,5 +140,15 @@ public enum Direction {
       }
     }
     throw new IllegalArgumentException("Invalid direction: " + direction);
+  }
+
+  @Override
+  public float x() {
+    return x;
+  }
+
+  @Override
+  public float y() {
+    return y;
   }
 }

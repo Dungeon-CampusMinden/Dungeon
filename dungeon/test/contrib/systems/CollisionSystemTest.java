@@ -175,7 +175,7 @@ public class CollisionSystemTest {
 
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> collider = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> collider = (a, b, c) -> {};
     CollideComponent hb1 =
         new CollideComponent(Vector2.of(offset), Vector2.of(size), collider, collider);
 

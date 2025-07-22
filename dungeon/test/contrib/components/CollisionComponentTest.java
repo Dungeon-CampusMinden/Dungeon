@@ -182,7 +182,7 @@ public class CollisionComponentTest {
     Point position = new Point(0, 0);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -199,7 +199,7 @@ public class CollisionComponentTest {
     Point position = new Point(1, 1);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -216,7 +216,7 @@ public class CollisionComponentTest {
     Point position = new Point(-1, -1);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -233,7 +233,7 @@ public class CollisionComponentTest {
     Point position = new Point(.5f, .5f);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -250,7 +250,7 @@ public class CollisionComponentTest {
     Point position = new Point(.5f, .5f);
     Vector2 offset = Vector2.of(-1, -1);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -267,7 +267,7 @@ public class CollisionComponentTest {
     Point position = new Point(-.5f, .5f);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(2, 2);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -295,7 +295,7 @@ public class CollisionComponentTest {
     Point position = new Point(0, 0);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -312,7 +312,7 @@ public class CollisionComponentTest {
     Point position = new Point(0, 0);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(2, 2);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -329,7 +329,7 @@ public class CollisionComponentTest {
     Point position = new Point(2, 1);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -346,7 +346,7 @@ public class CollisionComponentTest {
     Point position = new Point(0, 0);
     Vector2 offset = Vector2.of(1, 2);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -363,7 +363,7 @@ public class CollisionComponentTest {
     Point position = new Point(3, 1);
     Vector2 offset = Vector2.of(2, 4);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -380,7 +380,7 @@ public class CollisionComponentTest {
     Point position = new Point(3, 1);
     Vector2 offset = Vector2.of(2, 4);
     Vector2 size = Vector2.of(3, 3);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -408,7 +408,7 @@ public class CollisionComponentTest {
     Point position = new Point(0, 0);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -425,7 +425,7 @@ public class CollisionComponentTest {
     Point position = new Point(2, 1);
     Vector2 offset = Vector2.of(0, 0);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -442,7 +442,7 @@ public class CollisionComponentTest {
     Point position = new Point(0, 0);
     Vector2 offset = Vector2.of(1, 2);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
@@ -459,7 +459,7 @@ public class CollisionComponentTest {
     Point position = new Point(3, 1);
     Vector2 offset = Vector2.of(2, 4);
     Vector2 size = Vector2.of(1, 1);
-    TriConsumer<Entity, Entity, Tile.Direction> iCollide = (a, b, c) -> {};
+    TriConsumer<Entity, Entity, Direction> iCollide = (a, b, c) -> {};
     e.add(new PositionComponent(position));
     CollideComponent hb = new CollideComponent(offset, size, iCollide, iCollide);
     e.add(hb);
