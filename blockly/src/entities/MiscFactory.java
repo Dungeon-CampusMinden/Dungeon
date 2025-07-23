@@ -10,7 +10,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
@@ -74,7 +74,7 @@ public class MiscFactory {
     pressurePlate.add(dc);
     LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
     pressurePlate.add(lc);
-    TriConsumer<Entity, Entity, Tile.Direction> collide =
+    TriConsumer<Entity, Entity, Direction> collide =
         (entity, entity2, direction) -> {
           // dont trigger for projectiles
           if (entity2.isPresent(ProjectileComponent.class)) return;

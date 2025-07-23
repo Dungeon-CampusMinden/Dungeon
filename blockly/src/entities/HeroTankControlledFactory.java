@@ -1,12 +1,12 @@
 package entities;
 
 import contrib.entities.EntityFactory;
-import contrib.utils.Direction;
 import core.Entity;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
+import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class HeroTankControlledFactory {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    PositionComponent.Direction direction = pc.viewDirection();
+    Direction direction = pc.viewDirection();
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)

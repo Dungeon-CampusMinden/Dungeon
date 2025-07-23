@@ -10,6 +10,7 @@ import core.level.Tile;
 import core.level.loader.DungeonSaver;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import java.util.Queue;
@@ -116,7 +117,7 @@ public class LevelEditorSystem extends System {
           || currentTile.levelElement() == LevelElement.FLOOR) {
         LevelSystem.level().changeTileElementType(currentTile, LevelElement.FLOOR);
 
-        Vector2[] directions = {Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT};
+        Vector2[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
         for (Vector2 direction : directions) {
           Tile neighbourTile =
               currentTile.level().tileAt(currentTile.coordinate().translate(direction));

@@ -4,6 +4,7 @@ import contrib.components.BlockViewComponent;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class LevelUtils {
    */
   public static List<Coordinate> walkableNeighbors(Coordinate coord) {
     return Arrays.stream(Direction.values())
-        .filter(direction -> direction != Direction.HERE)
+        .filter(direction -> direction != Direction.NONE)
         .map(coord::translate)
         .filter(LevelUtils::isWalkable)
         .toList();

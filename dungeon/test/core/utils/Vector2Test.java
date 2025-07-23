@@ -54,18 +54,6 @@ public class Vector2Test {
 
     assertEquals(1.0f, Vector2.ONE.x(), DELTA);
     assertEquals(1.0f, Vector2.ONE.y(), DELTA);
-
-    assertEquals(0.0f, Vector2.UP.x(), DELTA);
-    assertEquals(1.0f, Vector2.UP.y(), DELTA);
-
-    assertEquals(0.0f, Vector2.DOWN.x(), DELTA);
-    assertEquals(-1.0f, Vector2.DOWN.y(), DELTA);
-
-    assertEquals(-1.0f, Vector2.LEFT.x(), DELTA);
-    assertEquals(0.0f, Vector2.LEFT.y(), DELTA);
-
-    assertEquals(1.0f, Vector2.RIGHT.x(), DELTA);
-    assertEquals(0.0f, Vector2.RIGHT.y(), DELTA);
   }
 
   /** Tests the addition of two vectors. */

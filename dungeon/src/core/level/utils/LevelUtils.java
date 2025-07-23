@@ -219,7 +219,7 @@ public final class LevelUtils {
       final Point center, float radius, final Tile tile) {
     Point origin = tile.position();
     Vector2[] cornerOffsets = {
-      Vector2.ZERO, Vector2.RIGHT, Vector2.UP, Vector2.RIGHT.add(Vector2.UP)
+      Direction.NONE, Direction.RIGHT, Direction.UP, Direction.RIGHT.add(Direction.UP)
     };
     for (Vector2 offset : cornerOffsets) {
       if (Point.inRange(center, origin.translate(offset), radius)) {

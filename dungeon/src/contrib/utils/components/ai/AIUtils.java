@@ -7,6 +7,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
@@ -48,13 +49,8 @@ public final class AIUtils {
     }
 
     Vector2 direction = Vector2.ZERO;
-    for (Tile.Direction dir : currentTile.directionTo(nextTile)) {
-      switch (dir) {
-        case N -> direction = direction.add(Vector2.UP);
-        case S -> direction = direction.add(Vector2.DOWN);
-        case E -> direction = direction.add(Vector2.RIGHT);
-        case W -> direction = direction.add(Vector2.LEFT);
-      }
+    for (Direction dir : currentTile.directionTo(nextTile)) {
+      direction = direction.add(dir);
     }
     vc.currentVelocity(direction.normalize().scale(vc.velocity()));
   }

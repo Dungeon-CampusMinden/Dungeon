@@ -7,6 +7,7 @@ import core.level.elements.astar.TileConnection;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import java.util.ArrayList;
@@ -207,14 +208,14 @@ public abstract class Tile {
   public Direction[] directionTo(final Tile goal) {
     List<Direction> directions = new ArrayList<>();
     if (globalPosition.x() < goal.coordinate().x()) {
-      directions.add(Direction.E);
+      directions.add(Direction.RIGHT);
     } else if (globalPosition.x() > goal.coordinate().x()) {
-      directions.add(Direction.W);
+      directions.add(Direction.LEFT);
     }
     if (globalPosition.y() < goal.coordinate().y()) {
-      directions.add(Direction.N);
+      directions.add(Direction.UP);
     } else if (globalPosition.y() > goal.coordinate().y()) {
-      directions.add(Direction.S);
+      directions.add(Direction.DOWN);
     }
     return directions.toArray(new Direction[0]);
   }
@@ -308,17 +309,5 @@ public abstract class Tile {
    */
   public int distance(Tile to) {
     return globalPosition.distance(to.globalPosition);
-  }
-
-  /** The direction of a tile. */
-  public enum Direction {
-    /** The tile is in the north direction. */
-    N,
-    /** The tile is in the east direction. */
-    E,
-    /** The tile is in the south direction. */
-    S,
-    /** The tile is in the west direction. */
-    W,
   }
 }

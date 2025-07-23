@@ -7,11 +7,11 @@ import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.List;
@@ -68,7 +68,7 @@ public class Level004 extends BlocklyLevel {
     }
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     door1 = (DoorTile) Game.tileAT(new Coordinate(8, 3));
     door1.close();
