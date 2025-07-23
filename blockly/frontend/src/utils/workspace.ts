@@ -7,7 +7,8 @@ import {
   call_reset_route,
   call_start_route,
   call_variables_route,
-  call_code_route
+  call_code_route,
+  call_code_status_route
 } from "../api/api.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
 let startBlock: Blockly.Block | null = null;
@@ -263,7 +264,7 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       }
 
       currentBlock = currentBlock.getNextBlock();
-      await sleep(sleepingTime);
+      await sleep(0.25); // the duration each code block remains highlighted
     }
 
     // send the full program in a single request
@@ -277,8 +278,24 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       buttons.stepBtn.disabled = false;
       return;
     }
-    //TODO: Ab hier folgender Code darf erst ausgeführt werden, wenn die "UserScript.java" fertig ist
-    // einfaches sleep reicht nicht, weil unterschiedliche programm länge
+
+    //wait for the full programm code to run
+    let status = await call_code_status_route();
+    let codeRunning = true;
+    while(codeRunning) {
+      if (status === "running") {
+        console.log("code still running");
+        await sleep(sleepingTime);
+      }else if (status === "completed") {
+        console.log("code execution completed");
+        codeRunning = false;
+      } else if (status === "error"){
+        console.error("Error while running code: " + codeRunning);
+        codeRunning = false;
+      }
+
+      status = await call_code_status_route();
+    }
 
     // Check if we reach next level
     await sleep(1);
