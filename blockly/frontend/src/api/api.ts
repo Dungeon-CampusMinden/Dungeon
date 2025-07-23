@@ -206,3 +206,31 @@ export const call_code_route = async (code: string): Promise<boolean> => {
   }
   return response.error === "";
 };
+
+/**
+ * Checks the current execution status of the program code on the server.
+ *
+ * <p> This function sends a request to the `/status` endpoint on the server to determine whether
+ * the code is still running, has completed execution, or if an error occurred during the process.
+ *
+ * @returns `"running"` – if the code is currently being executed,
+ *          `"completed"` – if the code has finished executing,
+ *          `"error"` – if a server error occurred or an unexpected response was received.
+ */
+export const call_code_status_route = async (): Promise<"running" | "completed" | "error"> => {
+  const status_response = await api.post("status");
+  const response = await handleResponse(status_response);
+  if (response.error !== "" && response.error !== "Programm unterbrochen!") {
+    console.error("Fehler beim Ausführen des Programms", response);
+    return "error";
+  }
+
+  const status = response.data.trim();
+
+  if (status === "running" || status === "completed") {
+    return status;
+  }
+
+  console.warn("Unerwartete Antwort vom Server:", status);
+  return "error";
+}
