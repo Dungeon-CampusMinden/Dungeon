@@ -44,7 +44,6 @@ tasks.register('runBlockly', JavaExec) {
 
 tasks.register('buildBlocklyJar', Jar) {
     group 'jar'
-    dependsOn ':dungeon:jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
