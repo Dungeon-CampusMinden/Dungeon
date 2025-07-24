@@ -9,7 +9,7 @@ export function repeat(block: Blockly.Block, generator: Blockly.Generator) {
     generator.INDENT
   );
 
-  const code = "wiederhole " + times + " Mal{\n" + repeat_body + "\n}";
+  const code = "for (int i = 0; i < "+ times +" ; i++){\n" + repeat_body + "\n}";
   return code;
 }
 
@@ -20,7 +20,7 @@ export function while_loop(block: Blockly.Block, generator: Blockly.Generator) {
     generator.blockToCode(block.getInputTargetBlock("DO")) as string,
     generator.INDENT
   );
-  const code = "solange (" + condition + ") {\n" + while_body + "\n}";
+  const code = "while (" + condition + ") {\n" + while_body + "\n}";
 
   return code;
 }

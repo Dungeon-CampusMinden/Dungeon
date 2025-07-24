@@ -18,7 +18,7 @@ export function use(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  return "benutzen(" + dir + ");";
+  return "hero.interact(" + dir + ");";
 }
 
 export function push(_block: Blockly.Block, _generator: Blockly.Generator) {
@@ -38,6 +38,6 @@ export function drop_item(
   generator: Blockly.Generator
 ) {
   const item = generator.valueToCode(block, "ITEM", Order.NONE);
-  return "fallen_lassen(" + item + ");";
+  return "hero.dropItem(" + item + ");";
 }
 

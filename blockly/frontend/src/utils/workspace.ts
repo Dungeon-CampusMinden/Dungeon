@@ -223,33 +223,6 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
-    /*
-    let first = true;
-    while (currentBlock !== null) {
-      // Highlight current block
-      if (currentBlock) {
-        workspace.highlightBlock(currentBlock.id);
-      }
-      // Do nothing except highlighting on start block
-      if (currentBlock.type === "start") {
-        currentBlock = currentBlock.getNextBlock();
-        continue;
-      }
-
-      // Get code of the current block
-      const currentCode = javaGenerator.blockToCode(currentBlock, true);
-
-      const apiResponse = await call_start_route(currentCode as string, currentBlock, first);
-      first = false;
-      if (!apiResponse) break;
-
-      await call_variables_route();
-
-      // Get next block and sleep x seconds
-      currentBlock = currentBlock.getNextBlock();
-      await sleep(sleepingTime);
-    }
-    */
 
     // collect all code snippets
     const codeSnippets: string[] = [];
@@ -264,7 +237,7 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       }
 
       currentBlock = currentBlock.getNextBlock();
-      await sleep(0.25); // the duration each code block remains highlighted
+      //await sleep(0.25); // the duration each code block remains highlighted
     }
 
     // send the full program in a single request
