@@ -1,7 +1,7 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -55,10 +55,10 @@ public final class AIComponent implements Component {
    * Create an AIComponent with default behavior.
    *
    * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
-   * as the transition function, and {@link CollideAI} as the fight behavior.
+   * as the transition function, and {@link AIChaseBehaviour} as the fight behavior.
    */
   public AIComponent() {
-    this(new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
+    this(new AIChaseBehaviour(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
   }
 
   /**

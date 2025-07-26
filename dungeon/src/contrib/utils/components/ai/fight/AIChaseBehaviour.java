@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 /**
  * Implements a fight AI. The entity attacks the player if the player is colliding with the entity.
  */
-public class CollideAI implements Consumer<Entity> {
-  private final float rushRange;
+public class AIChaseBehaviour implements Consumer<Entity> {
+  private final float chaseRange;
   private final int delay = Game.frameRate();
   private int timeSinceLastUpdate = delay;
   private GraphPath<Tile> path;
@@ -21,15 +21,15 @@ public class CollideAI implements Consumer<Entity> {
    * Attacks the player by colliding if he is within the given range. Otherwise, it will move
    * towards the player.
    *
-   * @param rushRange Range in which the faster collide logic should be executed.
+   * @param chaseRange Range in which the faster collide logic should be executed.
    */
-  public CollideAI(final float rushRange) {
-    this.rushRange = rushRange;
+  public AIChaseBehaviour(final float chaseRange) {
+    this.chaseRange = chaseRange;
   }
 
   @Override
   public void accept(final Entity entity) {
-    if (LevelUtils.playerInRange(entity, rushRange)) {
+    if (LevelUtils.playerInRange(entity, chaseRange)) {
       // the faster pathing once a certain range is reached
       path = LevelUtils.calculatePathToHero(entity);
       AIUtils.move(entity, path);

@@ -1,7 +1,7 @@
 package contrib.utils.components.ai;
 
 import contrib.components.AIComponent;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.ProtectOnApproach;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -28,7 +28,7 @@ public class ProtectOnApproachTest {
 
     // Add AI Component
     AIComponent protectedAI =
-        new AIComponent(new CollideAI(0.2f), new RadiusWalk(0, 50), new RangeTransition(2));
+        new AIComponent(new AIChaseBehaviour(0.2f), new RadiusWalk(0, 50), new RangeTransition(2));
     entity.add(protectedAI);
 
     // Add Position Component
@@ -40,7 +40,7 @@ public class ProtectOnApproachTest {
     // Add AI Component
     entityAI =
         new AIComponent(
-            new CollideAI(0.2f), new RadiusWalk(0, 50), new ProtectOnApproach(2f, protectedEntity));
+            new AIChaseBehaviour(0.2f), new RadiusWalk(0, 50), new ProtectOnApproach(2f, protectedEntity));
     entity.add(entityAI);
 
     // Add Position Component
