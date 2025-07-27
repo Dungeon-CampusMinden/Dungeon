@@ -19,6 +19,8 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+
+import java.io.Console;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -78,6 +80,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
           "letzter Hinweis");
   AtomicInteger currentIndex = new AtomicInteger(-1);
 
+  private boolean isSorting = false;
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -99,9 +102,11 @@ public class AdvancedSortLevel extends AdvancedLevel {
         new ICommand() {
           @Override
           public void execute() {
-            if (!isLeverActivated) {
+            if (!isLeverActivated && !isSorting ) {
               isLeverActivated = true;
+              isSorting = true;
               checkPlayerSolution();
+              System.out.println("Lever activated!");
             }
           }
 
@@ -182,6 +187,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
           }
           EventScheduler.clear();
           delay_multiplication = 0;
+          isSorting = false;
         },
         DELAY_UNTINT * (delay_multiplication - 1) + 100);
   }
