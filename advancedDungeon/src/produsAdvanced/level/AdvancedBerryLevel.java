@@ -40,7 +40,8 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   private static String msg =
       "Der Ork dort sieht verzweifelt aus. Mal schauen, ob ich ihm helfen kann.";
 
-  private static String task = "Finde einen Weg die giftigen Beeren durch deinen Code zu erkennen. Vielleicht steht ja etwas hilfreiches auf dem Schild?";
+  private static String task =
+      "Finde einen Weg die giftigen Beeren durch deinen Code zu erkennen. Vielleicht steht ja etwas hilfreiches auf dem Schild?";
   private static String titel = "Level 5";
   private static final int BERRY_GOAL = 5;
   private static final String NPC_TEXTURE_PATH = "character/monster/orc_shaman";
@@ -62,13 +63,13 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
   private static final List<String> messages =
       Arrays.asList(
-        "Sprich mit dem Ork.",
-        "Schau dir zuerst die Klasse 'Berry' an, bevor Code schreibst! Wie kann man mit einer Beere interagieren um zu erkennen ob sie giftig ist?",
-        "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an. Habe keine Angst auch eigene Methoden zu schreiben.",
-        "Kleiner Tipp: Wenn du noch keine Beere im Code hast, kannst du dir mit 'hero.getBerryAt()' eine Beere an einer bestimmten Position in den Code holen.",
-        "Mit '.toxic()' kannst du prüfen ob eine Beere giftig ist.",
-        "Vielleicht kannst du deinen Feuerball verbessern, damit er gifitige Beeren erkennt.",
-        "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an.");
+          "Sprich mit dem Ork.",
+          "Schau dir zuerst die Klasse 'Berry' an, bevor Code schreibst! Wie kann man mit einer Beere interagieren um zu erkennen ob sie giftig ist?",
+          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an. Habe keine Angst auch eigene Methoden zu schreiben.",
+          "Kleiner Tipp: Wenn du noch keine Beere im Code hast, kannst du dir mit 'hero.getBerryAt()' eine Beere an einer bestimmten Position in den Code holen.",
+          "Mit '.toxic()' kannst du prüfen ob eine Beere giftig ist.",
+          "Vielleicht kannst du deinen Feuerball verbessern, damit er gifitige Beeren erkennt.",
+          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an.");
 
   // todo build dynamically
   private static final List<String> titles =

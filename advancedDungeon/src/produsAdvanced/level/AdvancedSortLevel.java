@@ -19,8 +19,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-
-import java.io.Console;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,29 +59,30 @@ public class AdvancedSortLevel extends AdvancedLevel {
       "Da herrscht ja ein heilloses Durcheinander! Vielleicht öffnet sich ja die Tür, wenn ich hier für Ordnung sorge.";
   private static final String title = "Level 9";
   private static final List<String> messages =
-    Arrays.asList(
-      "Betätige den Schalter und schau was passiert.",
-      "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht. Wie das wohl geht?",
-      "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
-      "Die Lebenspunkte der Monster erhältst du mit '.getHealthPoints()' für ein Monster aus dem Array.",
-      "Mit '.swapPosition(anderes_monster)' kannst du zwei Monster vertauschen.",
-      "Wichtig: Rufe swapPosition() auf dem ERSTEN Monster auf und übergib das ZWEITE als Parameter.",
-      "Denke daran: Nach jedem Tausch im Array auch swapPosition() aufrufen!");
+      Arrays.asList(
+          "Betätige den Schalter und schau was passiert.",
+          "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht. Wie das wohl geht?",
+          "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
+          "Die Lebenspunkte der Monster erhältst du mit '.getHealthPoints()' für ein Monster aus dem Array.",
+          "Mit '.swapPosition(anderes_monster)' kannst du zwei Monster vertauschen.",
+          "Wichtig: Rufe swapPosition() auf dem ERSTEN Monster auf und übergib das ZWEITE als Parameter.",
+          "Denke daran: Nach jedem Tausch im Array auch swapPosition() aufrufen!");
 
   // todo build dynamically
   private static final List<String> titles =
-    Arrays.asList(
-      "noch sieben Hinweise",
-      "noch sechs Hinweise",
-      "noch fünf Hinweise",
-      "noch vier Hinweise",
-      "noch drei Hinweise",
-      "noch zwei Hinweise",
-      "noch ein Hinweis",
-      "letzter Hinweis");
+      Arrays.asList(
+          "noch sieben Hinweise",
+          "noch sechs Hinweise",
+          "noch fünf Hinweise",
+          "noch vier Hinweise",
+          "noch drei Hinweise",
+          "noch zwei Hinweise",
+          "noch ein Hinweis",
+          "letzter Hinweis");
   AtomicInteger currentIndex = new AtomicInteger(-1);
 
   private boolean isSorting = false;
+
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
    * start tile of the hero to the given heroPos.
@@ -105,7 +104,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
         new ICommand() {
           @Override
           public void execute() {
-            if (!isLeverActivated && !isSorting ) {
+            if (!isLeverActivated && !isSorting) {
               isLeverActivated = true;
               isSorting = true;
               checkPlayerSolution();
