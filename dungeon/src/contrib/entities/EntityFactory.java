@@ -7,7 +7,6 @@ import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
-import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -16,7 +15,6 @@ import core.utils.Point;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
