@@ -277,12 +277,4 @@ public final class PreRunConfiguration {
   public static void loadConfig(final IPath path, Class<?>... klass) throws IOException {
     Configuration.loadAndGetConfiguration(path, klass);
   }
-
-  /**
-   * Checks if the game is running on a server.
-   * @return True if the game is running on a server, false otherwise.
-   */
-  public static boolean isServer() {
-    return false; // TODO: implement me
-  }
 }
