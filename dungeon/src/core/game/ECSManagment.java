@@ -216,7 +216,9 @@ public final class ECSManagment {
    * @see PlayerComponent
    */
   public static Optional<Entity> hero() {
-    return entityStream().filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false)).findFirst();
+    return entityStream()
+        .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false))
+        .findFirst();
   }
 
   /**

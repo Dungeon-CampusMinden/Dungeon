@@ -63,9 +63,7 @@ public final class InputSystem extends System {
    * @param paused if the game is paused or not.
    */
   private void execute(
-      final Map<Integer, InputComponent.InputData> callbacks,
-      final Entity entity,
-      boolean paused) {
+      final Map<Integer, InputComponent.InputData> callbacks, final Entity entity, boolean paused) {
     callbacks.forEach(
         (key, value) -> {
           if (!paused || value.pauseable()) {

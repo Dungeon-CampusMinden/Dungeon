@@ -20,8 +20,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
-import core.components.InputComponent;
-import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
@@ -35,7 +33,6 @@ import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
@@ -113,11 +110,11 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
-    //TODO: Only testing, revert later
+    // TODO: Only testing, revert later
     Entity hero = HeroFactory.newHero(false);
     Game.add(hero);
     hero = HeroFactory.newHero(true);
-    //hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
+    // hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     Game.add(hero);
   }
 
@@ -169,32 +166,45 @@ public class DevDungeon {
     Game.add(new MobSpawnerSystem());
     Game.add(new MagicShieldSystem());
     Game.add(new LevelEditorSystem());
-    Game.add(new System() {
-      @Override
-      public void execute() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-          List<Entity> entities = Game.allEntities().toList();
-          for (Entity entity : entities) {
-            // if they have a DrawComponent, print their name and draw component value isVisible
-            java.lang.System.out.println(entity.name() + " - " + entity.fetch(DrawComponent.class)
-              .map(DrawComponent::isVisible)
-              .orElse(false) + " - " + entity.fetch(PositionComponent.class)
-              .map(PositionComponent::position)
-              .orElse(new Point(0, 0)) + " - " + entity.fetch(HealthComponent.class)
-              .map(HealthComponent::currentHealthpoints)
-              .orElse(0) + "/" + entity.fetch(HealthComponent.class)
-              .map(HealthComponent::maximalHealthpoints)
-              .orElse(0));
+    Game.add(
+        new System() {
+          @Override
+          public void execute() {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
+              List<Entity> entities = Game.allEntities().toList();
+              for (Entity entity : entities) {
+                // if they have a DrawComponent, print their name and draw component value isVisible
+                java.lang.System.out.println(
+                    entity.name()
+                        + " - "
+                        + entity
+                            .fetch(DrawComponent.class)
+                            .map(DrawComponent::isVisible)
+                            .orElse(false)
+                        + " - "
+                        + entity
+                            .fetch(PositionComponent.class)
+                            .map(PositionComponent::position)
+                            .orElse(new Point(0, 0))
+                        + " - "
+                        + entity
+                            .fetch(HealthComponent.class)
+                            .map(HealthComponent::currentHealthpoints)
+                            .orElse(0)
+                        + "/"
+                        + entity
+                            .fetch(HealthComponent.class)
+                            .map(HealthComponent::maximalHealthpoints)
+                            .orElse(0));
+              }
+            } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
+              // print my current pos
+              Game.hero()
+                  .flatMap(hero -> hero.fetch(PositionComponent.class))
+                  .ifPresent(pc -> java.lang.System.out.println("My position: " + pc.position()));
+            }
           }
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
-            // print my current pos
-            Game.hero().flatMap(hero -> hero.fetch(PositionComponent.class)).ifPresent(pc ->
-              java.lang.System.out.println(
-                "My position: " + pc.position()));
-          }
-
-      }
-    });
+        });
 
     /* Cheats */
     if (ENABLE_CHEATS) {

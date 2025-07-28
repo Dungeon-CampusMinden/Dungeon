@@ -14,7 +14,6 @@ import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.components.InputComponent;
-import core.components.PlayerComponent;
 import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
@@ -81,35 +80,35 @@ public class PathfinderStarter {
           pathfindings = Tuple.of(null, null);
           Game.updateWindowTitle(GAME_TITEL + " – No Algorithm selected");
 
-          Game.hero().ifPresent(hero -> {
-            Coordinate startCoords = Game.currentLevel().startTile().orElseThrow().coordinate();
-            Coordinate endTileCoords = Game.currentLevel().endTile().orElseThrow().coordinate();
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    Coordinate startCoords =
+                        Game.currentLevel().startTile().orElseThrow().coordinate();
+                    Coordinate endTileCoords =
+                        Game.currentLevel().endTile().orElseThrow().coordinate();
 
-            InputComponent ic = new InputComponent();
-            ic.registerCallback(
-              KeyboardConfig.SELECT_DFS.value(),
-              caller -> {
-                selectPathfindingAlgorithm(
-                  new DFSPathFinding(startCoords, endTileCoords),
-                  false,
-                  hero);
-              });
-            ic.registerCallback(
-              KeyboardConfig.SELECT_BFS.value(),
-              caller -> {
-                selectPathfindingAlgorithm(
-                  new BFSPathFinding(startCoords, endTileCoords),
-                  false,
-                  hero);
-              });
-            ic.registerCallback(
-              KeyboardConfig.SELECT_SUS_ALGO.value(),
-              caller -> {
-                selectPathfindingAlgorithm(
-                  new SusPathFinding(startCoords, endTileCoords), true, hero);
-              });
-            hero.add(ic);
-          });
+                    InputComponent ic = new InputComponent();
+                    ic.registerCallback(
+                        KeyboardConfig.SELECT_DFS.value(),
+                        caller -> {
+                          selectPathfindingAlgorithm(
+                              new DFSPathFinding(startCoords, endTileCoords), false, hero);
+                        });
+                    ic.registerCallback(
+                        KeyboardConfig.SELECT_BFS.value(),
+                        caller -> {
+                          selectPathfindingAlgorithm(
+                              new BFSPathFinding(startCoords, endTileCoords), false, hero);
+                        });
+                    ic.registerCallback(
+                        KeyboardConfig.SELECT_SUS_ALGO.value(),
+                        caller -> {
+                          selectPathfindingAlgorithm(
+                              new SusPathFinding(startCoords, endTileCoords), true, hero);
+                        });
+                    hero.add(ic);
+                  });
         });
   }
 

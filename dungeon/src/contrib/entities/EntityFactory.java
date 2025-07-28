@@ -4,7 +4,6 @@ import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
-import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -12,7 +11,6 @@ import core.utils.Point;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides

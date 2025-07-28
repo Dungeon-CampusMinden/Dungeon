@@ -4,16 +4,15 @@ import com.badlogic.gdx.Input;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * This component stores pairs of keystroke codes with an associated callback function. The
- * mappings can be added or changed via {@link #registerCallback} and removed via {@link
- * #removeCallback}. The codes for the buttons originate from {@link Input.Keys}.
+ * This component stores pairs of keystroke codes with an associated callback function. The mappings
+ * can be added or changed via {@link #registerCallback} and removed via {@link #removeCallback}.
+ * The codes for the buttons originate from {@link Input.Keys}.
  *
  * @see Input.Keys
  * @see InputSystem
@@ -22,9 +21,7 @@ public class InputComponent implements Component {
 
   private final Map<Integer, InputComponent.InputData> callbacks;
 
-  /**
-   * Creates a new InputComponent.
-   */
+  /** Creates a new InputComponent. */
   public InputComponent() {
     callbacks = new HashMap<>();
   }
@@ -65,7 +62,7 @@ public class InputComponent implements Component {
    * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<Consumer<Entity>> registerCallback(
-    int key, final Consumer<Entity> callback, boolean repeat, boolean pauseable) {
+      int key, final Consumer<Entity> callback, boolean repeat, boolean pauseable) {
     Consumer<Entity> oldCallback = null;
     if (callbacks.containsKey(key)) {
       oldCallback = callbacks.get(key).callback();
@@ -89,7 +86,7 @@ public class InputComponent implements Component {
    * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
    */
   public Optional<Consumer<Entity>> registerCallback(
-    int key, final Consumer<Entity> callback, boolean repeat) {
+      int key, final Consumer<Entity> callback, boolean repeat) {
     return this.registerCallback(key, callback, repeat, false);
   }
 
