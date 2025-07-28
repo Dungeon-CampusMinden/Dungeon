@@ -17,3 +17,17 @@ while(hero.isNearTile(LevelElement.FLOOR, Direction.HERE)){
         hero.move();
     }
 }
+
+Ohne Direction.HERE:
+while(true){
+    if(hero.isNearTile(LevelElement.WALL, Direction.UP)){
+        if(hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
+            hero.rotate(Direction.LEFT);
+        }
+        if(hero.isNearTile(LevelElement.WALL, Direction.LEFT)){
+            hero.rotate(Direction.RIGHT);
+        }
+    }else{
+        hero.move();
+    }
+}

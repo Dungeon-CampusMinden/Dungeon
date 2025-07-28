@@ -34,17 +34,17 @@ if(anzahl_Monster == 1){
     }
 }
 if(anzahl_Monster == 2){
-    for(int i = 1; i <= 5; i++){
+    for(int i = 1; i <= 10; i++){
         hero.move();
     }
 }
 if(anzahl_Monster == 3){
-    for(int i = 1; i <= 5; i++){
+    for(int i = 1; i <= 15; i++){
         hero.move();
     }
 }
 if(anzahl_Monster == 4){
-    for(int i = 1; i <= 5; i++){
+    for(int i = 1; i <= 20; i++){
         hero.move();
     }
 }

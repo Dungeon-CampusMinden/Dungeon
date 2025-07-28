@@ -20,7 +20,6 @@ while(true){
     }else if(hero.isNearTile(LevelElement.EXIT, Direction.UP)){
         hero.move();
     }else{
-        // Sackgasse – Umdrehen
         hero.rotate(Direction.LEFT);
         hero.rotate(Direction.LEFT);
         hero.move();

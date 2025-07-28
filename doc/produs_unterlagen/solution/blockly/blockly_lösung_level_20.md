@@ -2,42 +2,26 @@ title: "Blockly Lösung: Level 16
 ---
 ​
 ## Blöcke
-![solution](doc/produs_unterlagen/solution/blockly/img/loesung_level_21.png)
+![solution](doc/produs_unterlagen/solution/blockly/img/loesung_level_20.png)
 
 Code:
-for(int i = 0; i < 12; i++){
-    hero.move();
+while(true){
+    if(hero.checkBossViewDirection(Direction.RIGHT)){
+        if(hero.isNearTile(LevelElement.WALL, Direction.UP) || hero.isNearTile(LevelElement.HOLE, Direction.UP)){
+            if((!hero.isNearTile(LevelElement.WALL, Direction.RIGHT)) && (!hero.isNearTile(LevelElement.HOLE, Direction.RIGHT))){
+                hero.rotate(Direction.RIGHT);
+                hero.move();
+            }else{
+                hero.rotate(Direction.LEFT);
+                hero.move();
+            }
+        }else{
+            if((!hero.isNearTile(LevelElement.WALL, Direction.RIGHT)) && (!hero.isNearTile(LevelElement.HOLE, Direction.RIGHT))){
+                hero.rotate(Direction.RIGHT);
+            }
+            hero.move();
+        }
+    }else{
+        hero.rest();
+    }
 }
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 6; i++){
-    hero.move();
-}
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 2; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-for(int i = 0; i < 4; i++){
-    hero.move();
-}
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 6; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-for(int i = 0; i < 9; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-for(int i = 0; i < 5; i++){
-    hero.move();
-}
-hero.rotate(Direction.LEFT);
-for(int i = 0; i < 6; i++){
-    hero.move();
-}
-hero.rotate(Direction.RIGHT);
-hero.move();
-hero.rotate(Direction.LEFT);
-hero.move();
-hero.move();
