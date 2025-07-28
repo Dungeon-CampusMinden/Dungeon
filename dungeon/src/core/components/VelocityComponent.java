@@ -2,6 +2,7 @@ package core.components;
 
 import core.Component;
 import core.Entity;
+import core.systems.InputSystem;
 import core.utils.Vector2;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,9 @@ import java.util.stream.Stream;
  * <p>Use {@link #applyForce(String, Vector2)} to add or update a force acting on the entity. Use
  * {@link #removeForce(String)} to remove a force. Use {@link #currentVelocity()} and {@link
  * #currentVelocity(Vector2)} to get or set the current velocity directly.
+ *
+ * <p>The current movement speed can be set by other systems, such as the {@link
+ * InputSystem}.
  *
  * <p>A positive velocity means the entity moves right (x) or up (y), negative velocity means moving
  * left or down. If both components are zero, the entity is stationary.

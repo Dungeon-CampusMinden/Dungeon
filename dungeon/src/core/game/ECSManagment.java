@@ -232,13 +232,19 @@ public final class ECSManagment {
   }
 
   /**
-   * Searches the current level for the player character.
-   *
-   * @return an {@link Optional} containing the player character from the current level, or an empty
-   *     {@code Optional} if none is present
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
    */
   public static Optional<Entity> hero() {
-    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
+    return levelEntities().filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false)).findFirst();
+  }
+
+  /**
+   * @return a stream of all hero entities in the game.
+   * @see PlayerComponent
+   */
+  public static Stream<Entity> allHeros() {
+    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class));
   }
 
   /**
