@@ -22,6 +22,7 @@ import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -57,9 +58,9 @@ public final class GameLoop extends ScreenAdapter {
   private final IVoidFunction onLevelLoad =
       () -> {
         newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> hero = ECSManagment.hero();
+        List<Entity> allHeros = ECSManagment.allHeros().toList();
         boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel());
-        hero.ifPresent(ECSManagment::remove);
+        allHeros.forEach(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagment.systems();
@@ -72,11 +73,11 @@ public final class GameLoop extends ScreenAdapter {
         s.values().forEach(ECSManagment::add);
 
         try {
-          hero.ifPresent(this::placeOnLevelStart);
+          allHeros.forEach(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
           LOGGER.warning(e.getMessage());
         }
-        hero.ifPresent(ECSManagment::add);
+        allHeros.forEach(ECSManagment::add);
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
@@ -263,6 +264,7 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new LevelSystem(onLevelLoad));
     ECSManagment.add(new DrawSystem());
     ECSManagment.add(new VelocitySystem());
+    ECSManagment.add(new InputSystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
     ECSManagment.add(new PlayerSystem());
