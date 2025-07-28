@@ -199,6 +199,7 @@ public class LocalNetworkHandler implements INetworkHandler {
    * simulates the server sending periodic state updates. This method should be called by the game
    * loop.
    */
+  @Override
   public void triggerStateUpdate() {
     if (stateUpdateListener != null && isRunning && isInitialized) {
       EntityStateUpdate update = collectCurrentEntityStates();
@@ -228,9 +229,16 @@ public class LocalNetworkHandler implements INetworkHandler {
                   var drawComp = drawCompOpt.orElse(null);
                   var healthComp = healthCompOpt.orElse(null);
 
-                  String animationState = "IDLE";
+                  String animationState = "idle";
+                  boolean isVisible = false;
                   if (drawComp != null) {
-                    animationState = drawComp.currentAnimation().toString();
+                    // TODO: WIP
+                    animationState = velComp != null && velComp.currentVelocity().length() > 0
+                        ? velComp.currentVelocity().x() < 0
+                            ? "run_left"
+                            : "run_right"
+                        : "idle";
+                    isVisible = drawComp.isVisible();
                   }
 
                   int health = healthComp != null ? healthComp.currentHealthpoints() : -1;
@@ -241,6 +249,7 @@ public class LocalNetworkHandler implements INetworkHandler {
                           velComp != null ? velComp.currentVelocity() : Vector2.ZERO,
                           posComp.viewDirection(),
                           animationState,
+                          isVisible,
                           health);
                   update.addEntityState(entity.id(), state);
                 }
