@@ -2,6 +2,7 @@ package core.components;
 
 import core.Component;
 import core.Entity;
+import core.systems.InputSystem;
 import core.utils.Vector2;
 import java.util.function.Consumer;
 
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  * be used by the {@link core.systems.VelocitySystem} to move the entity at the given speed.
  *
  * <p>The current movement speed can be set by other systems, such as the {@link
- * core.systems.PlayerSystem}.
+ * InputSystem}.
  *
  * <p>Note that a positive velocity means that the entity is moving right or up, and a negative
  * velocity means that the entity is moving left or down. If the current x and y velocity are 0,

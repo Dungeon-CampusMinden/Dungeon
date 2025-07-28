@@ -4,38 +4,39 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import core.Entity;
 import core.System;
-import core.components.PlayerComponent;
+import core.components.InputComponent;
 import core.utils.components.MissingComponentException;
 import java.util.Map;
 
 /**
- * Controls the Player.
+ * Executes callbacks registered in the {@link InputComponent} when the corresponding key is
+ * pressed.
  *
- * <p>Will work on Entities that implement the {@link PlayerComponent}.
+ * <p>Will work on Entities that implement the {@link InputComponent}.
  *
- * <p>This System will check for each registered callback in the {@link PlayerComponent} if the Key
+ * <p>This System will check for each registered callback in the {@link InputComponent} if the Key
  * is pressed, and if so, will execute the Callback.
  */
-public final class PlayerSystem extends System {
+public final class InputSystem extends System {
 
   private boolean running = true;
 
   /** WTF? . */
-  public PlayerSystem() {
-    super(PlayerComponent.class);
+  public InputSystem() {
+    super(InputComponent.class);
   }
 
   @Override
   public void execute() {
-    filteredEntityStream(PlayerComponent.class).forEach(this::execute);
+    filteredEntityStream(InputComponent.class).forEach(this::execute);
   }
 
   private void execute(final Entity entity) {
-    PlayerComponent pc =
+    InputComponent ic =
         entity
-            .fetch(PlayerComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class));
-    execute(pc.callbacks(), entity, !this.running);
+            .fetch(InputComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InputComponent.class));
+    execute(ic.callbacks(), entity, !this.running);
   }
 
   @Override
@@ -61,7 +62,7 @@ public final class PlayerSystem extends System {
    * @param paused if the game is paused or not.
    */
   private void execute(
-      final Map<Integer, PlayerComponent.InputData> callbacks,
+      final Map<Integer, InputComponent.InputData> callbacks,
       final Entity entity,
       boolean paused) {
     callbacks.forEach(
@@ -72,7 +73,7 @@ public final class PlayerSystem extends System {
         });
   }
 
-  private void execute(final Entity entity, int key, final PlayerComponent.InputData data) {
+  private void execute(final Entity entity, int key, final InputComponent.InputData data) {
     boolean isMouseButton =
         key == Input.Buttons.LEFT || key == Input.Buttons.RIGHT || key == Input.Buttons.MIDDLE;
     boolean isPressed =

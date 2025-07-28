@@ -711,4 +711,17 @@ public final class Game {
   public static boolean findEntity(final Entity entity) {
     return ECSManagment.findEntity(entity);
   }
+
+  /**
+   * Checks if the game is running in server mode.
+   * @return True if the game is running in server mode, false otherwise.
+   */
+  public static boolean isServer() {
+    return PreRunConfiguration.isServer();
+  }
+
+  // TODO: Only placeholder, implement later
+  public static PlaceHolderNetwork network() {
+    return new PlaceHolderNetwork();
+  }
 }
