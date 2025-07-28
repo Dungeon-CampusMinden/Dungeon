@@ -26,5 +26,6 @@ public record EntityStateUpdate(Map<Integer, EntityState> entityStates) implemen
       Vector2 velocity,
       Direction viewDirection,
       String animationState,
+      boolean isVisible,
       int health) {}
 }

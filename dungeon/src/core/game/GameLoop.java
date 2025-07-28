@@ -11,11 +11,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.components.HealthComponent;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.network.LocalNetworkHandler;
+import core.network.RenderStateManager;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -167,7 +171,9 @@ public final class GameLoop extends ScreenAdapter {
         system.lastExecuteInFrames(0);
       }
     }
+
     newLevelWasLoadedInThisLoop = false;
+    Game.network().triggerStateUpdate();
     CameraSystem.camera().update();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
@@ -185,9 +191,20 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     doSetup = false;
     createSystems();
+    createStateUpdateListener();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
     Game.systems().get(LevelSystem.class).execute();
+  }
+
+  private void createStateUpdateListener() {
+    Game.network().setOnStateUpdateListener(update -> {
+      // Instead of directly manipulating entities/components here,
+      // just update the central render state store.
+      RenderStateManager.applyStateUpdate(update);
+      // The DrawSystem will read from RenderStateManager later in the frame.
+      LOGGER.fine("Render state updated for " + update.entityStates().size() + " entities.");
+    });
   }
 
   /**

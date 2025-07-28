@@ -87,4 +87,13 @@ public interface INetworkHandler {
    * @return true if server, false otherwise.
    */
   boolean isServer();
+
+  /**
+   * Signals the handler that a state update cycle should be triggered.
+   * For local handlers, this collects and sends local state.
+   * For network clients, this triggers a request.
+   * For network servers, this collects and broadcasts state.
+   * This method is typically called by the main game loop.
+   */
+  void triggerStateUpdate();
 }
