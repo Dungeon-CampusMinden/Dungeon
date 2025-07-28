@@ -782,4 +782,27 @@ public final class Game {
   public static Stream<Entity> entityAtPoint(Point point) {
     return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
   }
+
+  /**
+   * Checks if the given entity is in {@link core.Game}.
+   *
+   * @param entity Entity to check.
+   * @return True if the entity is in the game, false otherwise.
+   */
+  public static boolean findEntity(final Entity entity) {
+    return ECSManagment.findEntity(entity);
+  }
+
+  /**
+   * Checks if the game is running in server mode.
+   * @return True if the game is running in server mode, false otherwise.
+   */
+  public static boolean isServer() {
+    return PreRunConfiguration.isServer();
+  }
+
+  // TODO: Only placeholder, implement later
+  public static PlaceHolderNetwork network() {
+    return new PlaceHolderNetwork();
+  }
 }

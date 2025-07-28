@@ -9,6 +9,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.utils.IVoidFunction;
+import core.utils.MissingHeroException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -61,7 +62,7 @@ public final class UIUtils {
   public static void show(final Supplier<Dialog> provider, final Entity entity) {
     // displays this dialog, caches the dialog callback, and increments and decrements the dialog
     // counter so that the inventory is not opened while the dialog is displayed
-    PlayerComponent heroPC = Game.hero().orElseThrow().fetch(PlayerComponent.class).orElseThrow();
+    PlayerComponent heroPC = Game.hero().orElseThrow(MissingHeroException::new).fetch(PlayerComponent.class).orElseThrow();
     heroPC.incrementOpenDialogs();
 
     UIComponent uiComponent = new UIComponent(provider.get(), true);
