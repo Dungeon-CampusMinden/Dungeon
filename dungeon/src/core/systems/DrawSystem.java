@@ -6,39 +6,42 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PlayerComponent;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
+import core.network.RenderStateManager;
+import core.network.messages.EntityStateUpdate;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * This system draws the entities on the screen.
+ * This system draws the entities on the screen based on their render state.
  *
- * <p>Each entity with a {@link DrawComponent} and a {@link PositionComponent} will be drawn on the
- * screen.
+ * <p>This system is DECOUPLED from the live component data for position and animation state. It
+ * reads this information from the {@link RenderStateManager}, which is populated by network
+ * messages (or the {@code LocalNetworkHandler} in single-player).
  *
- * <p>This System will also draw the level.
+ * <p>The system still requires a {@link DrawComponent} on the entity to access the actual
+ * textures and animation objects.
  *
- * <p>The system will get the current animation from the {@link DrawComponent} and will get the next
- * animation frame from the {@link Animation}, and then draw it on the current position stored in
- * the {@link PositionComponent}.
- *
- * <p>This system will not queue animations. This must be done by other systems. The system
- * evaluates the queue and draws the animation with the highest priority in the queue.
+ * <p>The animation to be played is determined by the {@code animationState} string received in the
+ * {@link EntityStateUpdate}. This system does NOT queue or decide on animations; it only renders
+ * the state it is told to.
  *
  * <p>The DrawSystem can't be paused.
  *
  * @see DrawComponent
- * @see Animation
- * @see Painter
+ * @see RenderStateManager
+ * @see EntityStateUpdate
  */
 public final class DrawSystem extends System {
 
@@ -62,9 +65,14 @@ public final class DrawSystem extends System {
 
   private final Map<IPath, PainterConfig> configs;
 
-  /** Create a new DrawSystem. */
+  /**
+   * Create a new DrawSystem.
+   *
+   * <p>It only needs the DrawComponent to know *what* to draw (textures/animations). *Where* to
+   * draw and *which* animation to play is determined by the RenderStateManager.
+   */
   public DrawSystem() {
-    super(DrawComponent.class, PositionComponent.class);
+    super(DrawComponent.class);
     configs = new HashMap<>();
   }
 
@@ -87,129 +95,110 @@ public final class DrawSystem extends System {
   }
 
   /**
-   * Will draw entities at their position with their current animation.
+   * Draws the level and all entities based on the states in {@link RenderStateManager}.
    *
-   * <p>All entities with a {@link PlayerComponent} will be drawn on top.
-   *
-   * @see DrawComponent
-   * @see Animation
+   * <p>Entities with a {@link PlayerComponent} (the hero) will be drawn on top of others.
    */
   @Override
   public void execute() {
-    Map<Boolean, List<Entity>> partitionedEntities =
-        filteredEntityStream(DrawComponent.class, PositionComponent.class)
-            .collect(Collectors.partitioningBy(entity -> entity.isPresent(PlayerComponent.class)));
-    List<Entity> players = partitionedEntities.get(true);
-    List<Entity> npcs = partitionedEntities.get(false);
-
     drawLevel(Game.currentLevel());
-    npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
-    players.forEach(entity -> draw(buildDataObject(entity)));
+
+    // Get the latest visual states for all entities from the central store.
+    Map<Integer, EntityStateUpdate.EntityState> currentRenderStates =
+      RenderStateManager.renderableEntityStates();
+
+    // Create a map of all entities for quick lookup by ID.
+    Map<Integer, Entity> entityMap =
+      Game.allEntities().collect(Collectors.toMap(Entity::id, entity -> entity));
+
+    // Get the hero's ID to ensure it's drawn last (on top).
+    Optional<Integer> heroIdOpt = Game.hero().map(Entity::id);
+
+    // Draw non-hero entities first.
+    currentRenderStates.forEach(
+      (entityId, renderState) -> {
+        if (heroIdOpt.map(heroId -> !heroId.equals(entityId)).orElse(true)) {
+          Entity entity = entityMap.get(entityId);
+          if (entity != null && shouldDraw(renderState)) {
+            draw(entity, renderState);
+          }
+        }
+      });
+
+    // Draw the hero last.
+    heroIdOpt.ifPresent(
+      heroId -> {
+        EntityStateUpdate.EntityState heroState = currentRenderStates.get(heroId);
+        Entity heroEntity = entityMap.get(heroId);
+        if (heroState != null && heroEntity != null && shouldDraw(heroState)) {
+          draw(heroEntity, heroState);
+        }
+      });
   }
 
   /**
-   * Checks if an entity should be drawn. By checking:
+   * Checks if an entity should be drawn based on its render state.
    *
-   * <ol>
-   *   <li>The tile the entity is on is visible
-   *   <li>The entity itself is visible
-   * </ol>
-   *
-   * @param entity the entity to check
-   * @return true if the entity should be drawn, false otherwise
-   * @see DrawComponent#isVisible()
+   * @param renderState The authoritative render state for the entity.
+   * @return true if the entity should be drawn, false otherwise.
    */
-  private boolean shouldDraw(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-
-    if (Game.currentLevel().tileAt(pc.position()) == null) {
+  private boolean shouldDraw(EntityStateUpdate.EntityState renderState) {
+    if (!renderState.isVisible()) {
       return false;
     }
 
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    if (!dc.isVisible()) return false;
+    Point position = renderState.position();
+    Tile tile = Game.currentLevel().tileAt(position);
 
-    Tile tile = Game.currentLevel().tileAt(pc.position());
-    return tile.visible();
+    return tile != null && tile.visible();
   }
 
-  private void draw(final DSData dsd) {
-    reduceFrameTimer(dsd.dc);
-    setNextAnimation(dsd.dc);
-    final Animation animation = dsd.dc.currentAnimation();
+  /**
+   * Draws a single entity.
+   *
+   * @param entity The entity, used to get the DrawComponent.
+   * @param renderState The authoritative state containing position and animation info.
+   */
+  private void draw(final Entity entity, final EntityStateUpdate.EntityState renderState) {
+    DrawComponent dc =
+      entity
+        .fetch(DrawComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+
+    String animationStateName = renderState.animationState();
+
+    Animation animation = dc.animationMap().get(animationStateName);
+
+    if (animation == null) {
+      LOGGER.warning(
+        "No animation found for state '"
+          + animationStateName
+          + "' in entity "
+          + entity.id()
+          + ". Check if the animation was loaded and the state name is correct.");
+
+      // TODO: Fallback to latest animation
+      animation = dc.animationMap().get("idle");
+      if (animation == null) return;
+    }
+
     IPath currentAnimationTexture = animation.nextAnimationTexturePath();
     if (!configs.containsKey(currentAnimationTexture)) {
       configs.put(
-          currentAnimationTexture,
-          new PainterConfig(currentAnimationTexture, 0, 0, dsd.dc.tintColor()));
+        currentAnimationTexture,
+        new PainterConfig(currentAnimationTexture, 0, 0, dc.tintColor()));
     }
     PainterConfig conf = this.configs.get(currentAnimationTexture);
-    conf.tintColor(dsd.dc.tintColor());
-    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, conf);
-  }
+    conf.tintColor(dc.tintColor());
 
-  /**
-   * Reduce the frame timer for each animation in the queue, remove animations that have a frame
-   * time < 0.
-   *
-   * @param dc Component to iterate over
-   */
-  private void reduceFrameTimer(final DrawComponent dc) {
-    // iterate through animationQueue
-    for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
-      // reduce remaining frame time of animation by 1
-      entry.setValue(entry.getValue() - 1);
-    }
-    // remove animations when there is no remaining frame time
-    dc.animationQueue().entrySet().stream()
-        .filter(x -> x.getValue() < 0)
-        .forEach(x -> dc.deQueue(x.getKey()));
-  }
-
-  /**
-   * Checks the status of animations in the animationQueue and selects the next animation by
-   * priority.
-   *
-   * @param dc DrawComponent to draw
-   */
-  private void setNextAnimation(final DrawComponent dc) {
-
-    Optional<Map.Entry<IPath, Integer>> highestFind =
-        dc.animationQueue().entrySet().stream()
-            .max(Comparator.comparingInt(x -> x.getKey().priority()));
-
-    // when there is an animation load it
-    if (highestFind.isPresent()) {
-      IPath highestPrio = highestFind.get().getKey();
-      // making sure the animation exists
-      dc.animationMap().get(highestPrio.pathString());
-      // changing the Animation
-      dc.currentAnimation(highestPrio);
-    }
+    // Use the position from the render state.
+    PAINTER.draw(renderState.position(), currentAnimationTexture, conf);
   }
 
   /** DrawSystem can't be paused. */
   @Override
   public void stop() {
     run = true;
-  }
-
-  private DSData buildDataObject(final Entity entity) {
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return new DSData(entity, dc, pc);
   }
 
   private void drawLevel(ILevel currentLevel) {
@@ -223,9 +212,9 @@ public final class DrawSystem extends System {
         if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
           if (!mapping.containsKey(texturePath)
-              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
+            || (mapping.get(texturePath).tintColor() != t.tintColor())) {
             mapping.put(
-                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
+              texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
           }
           PAINTER.draw(t.position(), texturePath, mapping.get(texturePath));
         }
@@ -233,12 +222,6 @@ public final class DrawSystem extends System {
     }
   }
 
-  /**
-   * Checks if the provided tile is an instance of PitTile and if it's open.
-   *
-   * @param tile The tile to check.
-   * @return true if the tile is an instance of PitTile, and it's open, false otherwise.
-   */
   private boolean isTilePitAndOpen(final Tile tile) {
     if (tile instanceof PitTile) {
       return ((PitTile) tile).isOpen();
@@ -246,6 +229,4 @@ public final class DrawSystem extends System {
       return false;
     }
   }
-
-  private record DSData(Entity e, DrawComponent dc, PositionComponent pc) {}
 }
