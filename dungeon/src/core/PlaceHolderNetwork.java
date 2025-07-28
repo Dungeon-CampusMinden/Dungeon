@@ -32,6 +32,10 @@ public class PlaceHolderNetwork {
     send(new HeroMovementMessage(direction));
   }
 
+  public void sendHeroMovement(Point targetPos) {
+    send(new HeroMovementPathMessage(targetPos));
+  }
+
   public void sendHeroSkillExecution(Point target) {
     send(new HeroSkillExecutionMessage(target));
   }
@@ -44,4 +48,5 @@ public class PlaceHolderNetwork {
   private record HeroMovementMessage(Direction direction) {}
   private record HeroSkillExecutionMessage(Point target) {}
   private record HeroInteractionMessage(Entity interactedEntity) {}
+  private record HeroMovementPathMessage(Point targetPos) {}
 }
