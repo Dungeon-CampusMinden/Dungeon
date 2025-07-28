@@ -1,7 +1,6 @@
 package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
@@ -18,6 +17,7 @@ import core.components.*;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -127,8 +127,8 @@ public final class HeroFactory {
    * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
    * CollideComponent} and {@link HealthComponent}.
    *
-   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true. Otherwise,
-   * it will be controlled by the server.
+   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   * Otherwise, it will be controlled by the server.
    *
    * @param deathCallback function that will be executed if the hero dies
    * @param isLocal if the hero is the local player
@@ -235,13 +235,14 @@ public final class HeroFactory {
     hero.add(invComp);
 
     // hero movement
-    registerMovement(inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Direction.UP);
     registerMovement(
-      inputComp, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Direction.DOWN);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Direction.UP);
     registerMovement(
-      inputComp, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Direction.RIGHT);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Direction.DOWN);
     registerMovement(
-      inputComp, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Direction.LEFT);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Direction.RIGHT);
+    registerMovement(
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Direction.LEFT);
 
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
@@ -263,37 +264,7 @@ public final class HeroFactory {
             // Small adjustment to get the correct tile
             Point mousePos =
                 SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-            Game.network()
-                .sendHeroMovement(mousePos);
-
-            /*Point heroPos =
-                innerHero
-                    .fetch(PositionComponent.class)
-                    .map(PositionComponent::position)
-                    .orElse(null);
-            if (heroPos == null) return;
-
-            GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePos);
-            // If the path is null or empty, try to find a nearby tile that is accessible and
-            // calculate a path to it
-            if (path == null || path.getCount() == 0) {
-              Tile nearTile =
-                  LevelUtils.tilesInRange(mousePos, 1f).stream()
-                      .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
-                      .findFirst()
-                      .orElse(null);
-              // If no accessible tile is found, abort
-              if (nearTile == null) return;
-              path = LevelUtils.calculatePath(heroPos, nearTile.position());
-            }
-
-            // Stores the path in Hero's PathComponent
-            GraphPath<Tile> finalPath = path;
-            innerHero
-                .fetch(PathComponent.class)
-                .ifPresentOrElse(
-                    pathComponent -> pathComponent.path(finalPath),
-                    () -> innerHero.add(new PathComponent(finalPath)));*/
+            Game.network().sendHeroMovement(mousePos);
           },
           false);
     }
@@ -335,8 +306,7 @@ public final class HeroFactory {
         false);
 
     // skills
-    inputComp.registerCallback(
-        KeyboardConfig.FIRST_SKILL.value(), HeroFactory::executeHeroSkill);
+    inputComp.registerCallback(KeyboardConfig.FIRST_SKILL.value(), HeroFactory::executeHeroSkill);
 
     return hero;
   }
@@ -386,7 +356,8 @@ public final class HeroFactory {
         true);
   }
 
-  private static void toggleInventory(Entity entity, InputComponent ic, InventoryComponent invComp, PlayerComponent pc) {
+  private static void toggleInventory(
+      Entity entity, InputComponent ic, InventoryComponent invComp, PlayerComponent pc) {
     if (pc.openDialogs()) {
       return;
     }
@@ -404,35 +375,7 @@ public final class HeroFactory {
   }
 
   private static void registerMovement(InputComponent ic, int key, Direction direction) {
-    ic.registerCallback(
-        key,
-        entity -> {
-
-          Game.network()
-            .sendHeroMovement(
-              direction);
-          /*
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
-          Vector2 newForce = speed.scale(direction);
-
-          Vector2 updatedForce =
-              existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
-
-          if (updatedForce.lengthSquared() > 0) {
-            updatedForce = updatedForce.normalize().scale(speed.length());
-            vc.applyForce(MOVEMENT_ID, updatedForce);
-          }
-
-          if (ENABLE_MOUSE_MOVEMENT) {
-            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
-          }*/
-        });
+    ic.registerCallback(key, entity -> Game.network().sendHeroMovement(direction));
   }
 
   private static void registerMouseLeftClick(InputComponent ic) {
@@ -442,7 +385,7 @@ public final class HeroFactory {
           KeyboardConfig.MOUSE_FIRST_SKILL.value(), HeroFactory::executeHeroSkill, true, false);
       ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-        HeroFactory::handleInteractWithClosestInteractable,
+          HeroFactory::handleInteractWithClosestInteractable,
           false,
           false);
     } else {
@@ -465,8 +408,8 @@ public final class HeroFactory {
   }
 
   private static void executeHeroSkill(Entity hero) {
-    Game.network().sendHeroSkillExecution(SkillTools.cursorPositionAsPoint());
-    //HERO_SKILL.execute(hero);
+    // TODO: Implement logic to control skill_ids
+    Game.network().sendUseSkill(0, SkillTools.cursorPositionAsPoint());
   }
 
   private static void handleInteractWithClosestInteractable(Entity hero) {
@@ -493,8 +436,7 @@ public final class HeroFactory {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius()) {
-      Game.network().sendHeroInteraction(interactable);
-      //ic.triggerInteraction(interactable, hero);
+      Game.network().sendInteract(interactable);
     }
   }
 

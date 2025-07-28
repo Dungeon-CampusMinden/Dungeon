@@ -16,6 +16,7 @@ import core.level.loader.DungeonLoader;
 import core.systems.InputSystem;
 import core.systems.LevelSystem;
 import core.systems.InputSystem;
+import core.systems.LevelSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.Vector2;
