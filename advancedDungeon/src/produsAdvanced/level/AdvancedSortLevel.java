@@ -64,14 +64,13 @@ public class AdvancedSortLevel extends AdvancedLevel {
           "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht. Wie das wohl geht?",
           "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
           "Die Lebenspunkte der Monster erhältst du mit '.getHealthPoints()' für ein Monster aus dem Array.",
-          "Mit '.swapPosition(anderes_monster)' kannst du zwei Monster vertauschen.",
+          "Immer wenn du zwei Monster im Array tauschst, musst du auch ihre visuellen Positionen im Spiel tauschen! Nutze dafür die swapPosition() Methode.",
           "Wichtig: Rufe swapPosition() auf dem ERSTEN Monster auf und übergib das ZWEITE als Parameter.",
           "Denke daran: Nach jedem Tausch im Array auch swapPosition() aufrufen!");
 
   // todo build dynamically
   private static final List<String> titles =
       Arrays.asList(
-          "noch sieben Hinweise",
           "noch sechs Hinweise",
           "noch fünf Hinweise",
           "noch vier Hinweise",

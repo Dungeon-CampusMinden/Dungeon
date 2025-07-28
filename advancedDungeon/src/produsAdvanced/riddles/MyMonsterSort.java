@@ -15,8 +15,8 @@ public class MyMonsterSort extends MonsterSort {
    * Implementiere hier einen Sortieralgorithmus, um die Monster nach ihren Gesundheitswerten zu
    * sortieren. Sortiere dafür das Array {@code monsterArray} in aufsteigender Reihenfolge.
    *
-   * <p>HINWEIS: Verwende getHealthPoints() um die Lebenspunkte der Monster zu vergleichen. Die
-   * meisten Sortieralgorithmen benötigen verschachtelte Schleifen (eine äußere und eine innere) um
+   * <p>HINWEIS: Verwende getHealthPoints(), um die Lebenspunkte der Monster zu vergleichen. Die
+   * meisten Sortieralgorithmen benötigen verschachtelte Schleifen (eine äußere und eine innere), um
    * Objekte zu vergleichen.
    *
    * <p>WICHTIG: Immer wenn du zwei Monster im Array tauschst, musst du auch ihre visuellen
