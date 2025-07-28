@@ -14,8 +14,7 @@ import java.util.function.Consumer;
  * <p>It also keeps track of the current movement speed on the x and y axes. This information will
  * be used by the {@link core.systems.VelocitySystem} to move the entity at the given speed.
  *
- * <p>The current movement speed can be set by other systems, such as the {@link
- * InputSystem}.
+ * <p>The current movement speed can be set by other systems, such as the {@link InputSystem}.
  *
  * <p>Note that a positive velocity means that the entity is moving right or up, and a negative
  * velocity means that the entity is moving left or down. If the current x and y velocity are 0,

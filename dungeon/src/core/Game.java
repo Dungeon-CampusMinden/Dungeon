@@ -13,6 +13,9 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.network.INetworkHandler;
+import core.network.LocalNetworkHandler;
+import core.network.NetworkException;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -54,9 +57,31 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static INetworkHandler networkHandler;
 
-  /** Starts the dungeon and requires a {@link Game}. */
+  /** Starts the dungeon. Initializes the network handler if networking is enabled. */
   public static void run() {
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      // TODO: Instantiate the real network handler (e.g., KryoNetNetworkHandler)
+      throw new UnsupportedOperationException(
+          "Multiplayer is not yet implemented. Please use LocalNetworkHandler for single player.");
+    } else {
+      networkHandler = new LocalNetworkHandler();
+    }
+
+    try {
+      networkHandler.initialize(
+          PreRunConfiguration.isNetworkServer(),
+          PreRunConfiguration.networkServerAddress(),
+          PreRunConfiguration.networkPort());
+      networkHandler.start();
+      LOGGER.info("Network handler initialized and started.");
+    } catch (NetworkException e) {
+      LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
+      // Decide on fallback strategy
+    }
+
+    // Start the main game loop
     GameLoop.run();
   }
 
@@ -697,8 +722,15 @@ public final class Game {
     else LOGGER.warning("Can not set Level because levelSystem is null.");
   }
 
-  /** Exits the GDX application. */
+  /** Exits the GDX application and shuts down the network handler. */
   public static void exit() {
+    if (networkHandler != null) {
+      try {
+        networkHandler.shutdown();
+      } catch (Exception e) {
+        LOGGER.log(Level.WARNING, "Error shutting down network handler", e);
+      }
+    }
     Gdx.app.exit();
   }
 
@@ -712,8 +744,17 @@ public final class Game {
     return ECSManagment.findEntity(entity);
   }
 
-  // TODO: Only placeholder, implement later
-  public static PlaceHolderNetwork network() {
-    return new PlaceHolderNetwork();
+  /**
+   * Gets the network handler instance. This allows other parts of the game (like HeroFactory) to
+   * send messages.
+   *
+   * @return The NetworkHandler instance.
+   * @throws IllegalStateException if the network handler is not initialized.
+   */
+  public static INetworkHandler network() {
+    if (networkHandler == null) {
+      throw new IllegalStateException("Network handler is not initialized. Call Game.run() first.");
+    }
+    return networkHandler;
   }
 }

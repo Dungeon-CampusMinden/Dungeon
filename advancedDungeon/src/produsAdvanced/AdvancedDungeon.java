@@ -1,7 +1,6 @@
 package produsAdvanced;
 
 import contrib.crafting.Crafting;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.*;
