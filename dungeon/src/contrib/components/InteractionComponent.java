@@ -3,14 +3,15 @@ package contrib.components;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
+
 import java.util.function.BiConsumer;
 
 /**
  * Allows interaction with the associated entity.
  *
  * <p>An interaction can be triggered using {@link #triggerInteraction(Entity, Entity)}. This
- * happens in the {@link InputSystem} if the player presses the corresponding button on the keyboard
- * and is in the interaction range of this component.
+ * happens in the {@link InputSystem} if the player presses the corresponding button
+ * on the keyboard and is in the interaction range of this component.
  *
  * <p>What happens during an interaction is defined by the {@link BiConsumer} {@link
  * #onInteraction}.
