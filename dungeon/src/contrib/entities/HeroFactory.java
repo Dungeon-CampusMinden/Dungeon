@@ -193,8 +193,6 @@ public final class HeroFactory {
         new HealthComponent(
             characterClass.hp(),
             entity -> {
-              if (!isLocal) return; // TODO: Check if we want this
-
               // play sound
               Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
               long soundId = sound.play();
@@ -241,27 +239,13 @@ public final class HeroFactory {
     hero.add(invComp);
 
     // hero movement
-    registerMovement(inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Direction.UP, isLocal);
+    registerMovement(inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Direction.UP);
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        characterClass.speed(),
-        Direction.UP, isLocal);
+      inputComp, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Direction.DOWN);
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        characterClass.speed(),
-        Direction.DOWN, isLocal);
+      inputComp, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Direction.RIGHT);
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        characterClass.speed(),
-        Direction.RIGHT, isLocal);
-    registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        characterClass.speed(),
-        Direction.LEFT, isLocal);
+      inputComp, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Direction.LEFT);
 
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
@@ -273,9 +257,8 @@ public final class HeroFactory {
         false);
 
     if (ENABLE_MOUSE_MOVEMENT) {
-      // TODO: Not adjusted for multiplayer
       // Mouse Left Click
-      registerMouseLeftClick(inputComp, isLocal);
+      registerMouseLeftClick(inputComp);
 
       // Mouse Movement (Right Click)
       inputComp.registerCallback(
@@ -284,8 +267,10 @@ public final class HeroFactory {
             // Small adjustment to get the correct tile
             Point mousePos =
                 SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
+            Game.network()
+                .sendHeroMovement(mousePos);
 
-            Point heroPos =
+            /*Point heroPos =
                 innerHero
                     .fetch(PositionComponent.class)
                     .map(PositionComponent::position)
@@ -312,7 +297,7 @@ public final class HeroFactory {
                 .fetch(PathComponent.class)
                 .ifPresentOrElse(
                     pathComponent -> pathComponent.path(finalPath),
-                    () -> innerHero.add(new PathComponent(finalPath)));
+                    () -> innerHero.add(new PathComponent(finalPath)));*/
           },
           false);
     }
@@ -354,7 +339,8 @@ public final class HeroFactory {
         false);
 
     // skills
-    inputComp.registerCallback(KeyboardConfig.FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL);
+    inputComp.registerCallback(
+        KeyboardConfig.FIRST_SKILL.value(), HeroFactory::executeHeroSkill);
 
     return hero;
   }
@@ -421,19 +407,15 @@ public final class HeroFactory {
     }
   }
 
-  private static void registerMovement(
-      InputComponent ic, int key, Vector2 speed, Vector2 direction, boolean isLocal) {
+  private static void registerMovement(InputComponent ic, int key, Direction direction) {
     ic.registerCallback(
         key,
         entity -> {
-          if (!isLocal && !Game.isServer()) {
-            // if not local and not server, send movement to server
-            Game.network()
-                .sendHeroMovement(
-                    direction);
-            return; // no local movement
-          }
 
+          Game.network()
+            .sendHeroMovement(
+              direction);
+          /*
           VelocityComponent vc =
               entity
                   .fetch(VelocityComponent.class)
@@ -453,18 +435,18 @@ public final class HeroFactory {
 
           if (ENABLE_MOUSE_MOVEMENT) {
             entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
-          }
+          }*/
         });
   }
 
-  private static void registerMouseLeftClick(InputComponent ic, boolean isLocal) {
+  private static void registerMouseLeftClick(InputComponent ic) {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       ic.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), hero -> HERO_SKILL.execute(hero), true, false);
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), HeroFactory::executeHeroSkill, true, false);
       ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
-        hero -> handleInteractWithClosestInteractable(hero, isLocal),
+        HeroFactory::handleInteractWithClosestInteractable,
           false,
           false);
     } else {
@@ -476,9 +458,9 @@ public final class HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              EXECUTE_ACTIVE_HERO_SKILL.accept(hero);
+              executeHeroSkill(hero);
             } else {
-              handleInteractWithClosestInteractable(hero, isLocal);
+              handleInteractWithClosestInteractable(hero);
             }
           },
           false,
@@ -486,16 +468,12 @@ public final class HeroFactory {
     }
   }
 
-  private static void executeHeroSkill(Entity hero, boolean isLocal) {
-    if (!isLocal && !Game.isServer()) {
-      // if not local and not server, send skill execution to server
-      Game.network().sendHeroSkillExecution(SkillTools.cursorPositionAsPoint());
-      return; // no local skill execution
-    }
-    HERO_SKILL.execute(hero);
+  private static void executeHeroSkill(Entity hero) {
+    Game.network().sendHeroSkillExecution(SkillTools.cursorPositionAsPoint());
+    //HERO_SKILL.execute(hero);
   }
 
-  private static void handleInteractWithClosestInteractable(Entity hero, boolean isLocal) {
+  private static void handleInteractWithClosestInteractable(Entity hero) {
     UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
     if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
       // close the dialog if already open
@@ -519,12 +497,8 @@ public final class HeroFactory {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius()) {
-      if (!isLocal && !Game.isServer()) {
-        // if not local and not server, send interaction to server
-        Game.network().sendHeroInteraction(interactable);
-        return; // no local interaction
-      }
-      ic.triggerInteraction(interactable, hero);
+      Game.network().sendHeroInteraction(interactable);
+      //ic.triggerInteraction(interactable, hero);
     }
   }
 
