@@ -237,7 +237,6 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       }
 
       currentBlock = currentBlock.getNextBlock();
-      //await sleep(0.25); // the duration each code block remains highlighted
     }
 
     // send the full program in a single request
