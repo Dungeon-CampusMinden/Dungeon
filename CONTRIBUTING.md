@@ -1,7 +1,6 @@
 ---
 title: "Contributing"
 ---
-# Contributing
 
 Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und Pull Requests. Bitte beachte diese bei der täglichen Arbeit mit dem Repository.
 
@@ -19,7 +18,7 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
 
 ### Assignee & Titel
 * **Sprache**: Titel sind englisch; Beschreibungen sind auf deutsch.
-* Ersteller*In **setzt sich selbst als Assignee**.
+* Ersteller:in **setzt sich selbst als Assignee**.
 * Der **PR-Titel** beschreibt präzise den Inhalt des PRs.
 * Verwende im Titel das **Subprojekt als Präfix**, z. B. `DevDungeon: add wuppi fluppi`.
 * **Labels oder Projekte** müssen *nicht* manuell gesetzt werden.
@@ -32,6 +31,6 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
   * Status auf **„Ready for Review“** setzen
   * gezielt **Reviewer anfragen**
 
-### Sonstiges
-* Die [Lizenregelen](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/license_rules.md) für Assets sind einzuhalten.
+## Sonstiges
+* Die [Lizenzregeln](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/license_rules.md) für Assets sind einzuhalten.
 
