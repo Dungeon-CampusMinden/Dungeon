@@ -69,7 +69,7 @@ Die Kommunikation mit dem Server wird in der `./src/api.ts` Datei implementiert.
 
 ### 7. Dungeon-Server
 
-Für die Auswertung des generierten Codes und dem Ausführen der Befehle wird der Code per HTTP an den Dungeon-Server gesendet. Der Server ist in Java geschrieben und im Verzeichnis `Dungeon/blockly-dungeon/src/server/...` zu finden.
+Der Dungeon-Server nimmt den generierten Code per HTTP entgegen und übergibt ihn zur Ausführung and die entsprechenden Klassen und Methoden. Der Server ist in Java geschrieben und im Verzeichnis `Dungeon/blockly/src/server/...` zu finden.
 
 ## Hinzufügen neuer Blöcke
 
@@ -155,24 +155,18 @@ export function move_up(block: Blockly.Block, _generator: Blockly.Generator) {
 }
 ```
 
-### Schritt 4: Funktionalität im Dungeon-Server implementieren
+### Schritt 4: Funktionalität implementieren
 
-Wenn der zuvor erzeugte Block den gewünschten Code generiert, muss die Funktionalität im Dungeon-Server implementiert werden.
-Nachdem der Start-Button in der Anwendung gedrückt wird, wird der generierte Code an den Dungeon-Server gesendet.
-Der Dungeon-Server führt den Code Schritt für Schritt aus, in dieser Auswertung muss die Funktionalität des neuen Blocks
-implementiert werden. Alle Funktionen, welche den Dungeon-Server betreffen, sind unter
-`Dungeon/blockly-dungeon/src/server/...` zu finden.
+Wenn der zuvor erstellte Block den gewünschten Java-Syntax-konformen Code generiert, muss anschließend die entsprechende Funktionalität im Dungeon implementiert werden.
+Sobald der Start-Button in der Anwendung gedrückt wird, werden alle Code-Blöcke zu einem vollständigen Java-Programm gesammelt und an den Dungeon-Server gesendet.
+Der Dungeon-Server leitet den empfangenen Code in der Methode `handleCodeRequest()` an die Klasse `BlocklyCodeRunner` weiter. Diese Klasse ist für die Ausführung des generierten Codes verantwortlich.
+Alle Funktionen, welche den Dungeon-Server betreffen befinden sich im Verzeichnis:
+`Dungeon/blockly/src/server/...` und die Klasse BlocklyCodeRunner ist unter `Dungeon/blockly/src/utils/...` zu finden.
 
-Das Herzstück der `Server`-Klasse ist die Funktion `processAction`. Diese Funktion wird für jede generierte
-Programmzeile des Blockly-Programms ausgeführt. Sie wendet sämtliche Logik bei der Verarbeitung des Codes auf die
-aktuell ausgeführte Zeile an. Wenn ein neuer Block hinzugefügt wird, ist diese Funktion ein guter Startpunkt, um festzustellen,
-an welcher Stelle in der Verarbeitung der Codezeile die Logik des neuen Blocks eingefügt werden muss. Am besten wird
-eine neue Funktion definiert, welche mittels Pattern-Matching prüft, ob die aktuelle Codezeile durch den neuen Block
-generiert wurde. Wenn ja, muss die Logik des neuen Blocks ausgeführt werden. Bei der richtigen Platzierung der neuen
-Funktion muss beachtet werden, ob Seiteneffekte existieren. Z.B.: Beeinflusst der neue Block die Ausführung anderer
-Aktionen die folgen? Wenn die Bedingung eines If-Statements z.B. false ist, dürfen die nachfolgenden Aktionen nicht
-wirklich ausgeführt werden bis der Scope des If-Statements wieder geschlossen ist. In solchen Fällen muss auch beachtet
-werden, ob der neue Block einen eigenen Scope benötigt, z.B. bei if, while, repeat und Funktionsdefinitionen bereits
-vorhanden. Wenn der neue Block seinen eigenen Scope benötigt, muss mindestens ein neuer Scope in dem active_scopes Stack
-hinzugefügt werden.
+Die konkrete Funktionalität eines Blockly-Blocks muss als Methode in der Klasse `BlocklyCommands` implementiert werden.
+Zusätzlich muss der Methodenname in der WHITELIST von `BlocklyCodeRunner` in der erforderlichen Form hinterlegt sein, sollte die Methode einen `sleep();`-Befehl benötigen, um eine korrekte Ausführung zu gewährleisten.
+Ausnahmen hierfür sind grundlegende Java-Kontrollstrukturen.
+Der von Blockly generierte Java-Code kann nach Drücken des Start-Buttons in der `UserScript.java` betrachtet werden. Diese Datei wird von `BlocklyCodeRunner` erstellt und im lokalen AppData Verzeichnis abgelegt.
+Unter Windows sollte der Dateipfad folgendermaßen aussehen: `C:\Users\username\AppData\Local\Temp\blockly\UserScript.java`.
+Die `execute()`-Methode innerhalb der `UserScript.java` aktualisiert sich nach jedem Drücken des Start-Buttons und zeigt den zuletzt generierten Java-Code.
 
