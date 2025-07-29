@@ -84,17 +84,6 @@ public class VelocityComponentTest {
     assertEquals(newVelocity, velocityComponent.velocity());
   }
 
-  /** Tests getting and setting the previous velocity vector. */
-  @Test
-  void testPreviousVelocityGetterAndSetter() {
-    assertEquals(Vector2.ZERO, velocityComponent.previouXVelocity());
-
-    Vector2 previousVelocity = Vector2.of(2f, 3f);
-    velocityComponent.previousVelocity(previousVelocity);
-
-    assertEquals(previousVelocity, velocityComponent.previouXVelocity());
-  }
-
   /** Tests getting and setting the wall hit callback function. */
   @Test
   void testOnWallHitGetterAndSetter() {
@@ -132,11 +121,9 @@ public class VelocityComponentTest {
   void testZeroVectorHandling() {
     velocityComponent.velocity(Vector2.ZERO);
     velocityComponent.currentVelocity(Vector2.ZERO);
-    velocityComponent.previousVelocity(Vector2.ZERO);
 
     assertEquals(Vector2.ZERO, velocityComponent.velocity());
     assertEquals(Vector2.ZERO, velocityComponent.currentVelocity());
-    assertEquals(Vector2.ZERO, velocityComponent.previouXVelocity());
   }
 
   /** Tests that very small velocity values are preserved without precision loss. */

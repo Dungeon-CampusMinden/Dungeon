@@ -1,16 +1,11 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
@@ -52,84 +47,14 @@ public final class VelocitySystem extends System {
   public void execute() {
     filteredEntityStream(VelocityComponent.class, PositionComponent.class, DrawComponent.class)
         .map(this::buildDataObject)
-        .forEach(this::updatePosition);
+        .map(this::calculateVelocity)
+        .forEach(this::movementAnimation);
   }
 
-  private void updatePosition(VSData vsd) {
-    Vector2 originalVelocity = vsd.vc.currentVelocity();
-    Vector2 velocity = originalVelocity;
-
-    float maxSpeed = Math.max(Math.abs(vsd.vc.velocity().x()), Math.abs(vsd.vc.velocity().y()));
-    // Limit velocity to maxSpeed (primarily for diagonal movement)
-    if (velocity.length() > maxSpeed) {
-      velocity = velocity.normalize();
-      velocity = velocity.scale(maxSpeed);
-    }
-
-    if (Gdx.graphics != null) {
-      velocity = velocity.scale(Gdx.graphics.getDeltaTime());
-    }
-
-    float newX = vsd.pc.position().x() + velocity.x();
-    float newY = vsd.pc.position().y() + velocity.y();
-    boolean hitWall = false;
-    boolean canEnterOpenPits =
-        vsd.e.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
-    try {
-      if (this.isAccessible(Game.tileAT(new Point(newX, newY)), canEnterOpenPits)) {
-        // no change in direction
-        vsd.pc.position(new Point(newX, newY));
-        this.movementAnimation(vsd);
-      } else if (this.isAccessible(
-          Game.tileAT(new Point(newX, vsd.pc.position().y())), canEnterOpenPits)) {
-        // redirect not moving along y
-        hitWall = true;
-        vsd.pc.position(new Point(newX, vsd.pc.position().y()));
-        this.movementAnimation(vsd);
-        vsd.vc.currentVelocity(Vector2.of(velocity.x(), 0.0f));
-      } else if (this.isAccessible(
-          Game.tileAT(new Point(vsd.pc.position().x(), newY)), canEnterOpenPits)) {
-        // redirect not moving along x
-        hitWall = true;
-        vsd.pc.position(new Point(vsd.pc.position().x(), newY));
-        this.movementAnimation(vsd);
-        vsd.vc.currentVelocity(Vector2.of(0.0f, velocity.y()));
-      } else {
-        hitWall = true;
-      }
-
-      if (hitWall) vsd.vc.onWallHit().accept(vsd.e);
-
-      // Friction
-      float friction = Game.tileAT(vsd.pc.position()).friction();
-      float damp = Math.max(0.0f, 1.0f - friction);
-      // If we hit a wall, damp the raw velocity; otherwise damp the movement velocity
-      Vector2 toDampen = hitWall ? originalVelocity : velocity;
-      float newVX = toDampen.x() * damp;
-      if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
-      float newVY = toDampen.y() * damp;
-      if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
-
-      vsd.vc.currentVelocity(Vector2.of(newVX, newVY));
-    } catch (NullPointerException e) {
-      // for some reason the entity is out of bound
-      vsd.pc.position(PositionComponent.ILLEGAL_POSITION);
-      LOGGER.warning("Entity " + e + " is out of bound");
-    }
-  }
-
-  /**
-   * Small helper function to check if a tile is accessible and also considers if the entity can
-   * enter empty tiles.
-   *
-   * @param tile The tile to check.
-   * @param canEnterPitTiles If the entity can enter PIT tiles.
-   * @return true if the tile is accessible, false if not.
-   */
-  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
-    return tile != null
-        && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
+  private VSData calculateVelocity(VSData vsd) {
+    // TODO calculate velocity with FORCE
+    vsd.vc.currentVelocity(vsd.vc.currentVelocity());
+    return vsd;
   }
 
   private void movementAnimation(VSData vsd) {
@@ -152,8 +77,6 @@ public final class VelocitySystem extends System {
         vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
         vsd.pc.viewDirection(Direction.DOWN);
       }
-
-      vsd.vc.previousVelocity(Vector2.of(x, y));
 
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
     }
