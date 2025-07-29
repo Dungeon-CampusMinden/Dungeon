@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.utils.Vector2;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -29,9 +30,14 @@ import java.util.function.Consumer;
 public final class VelocityComponent implements Component {
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
-  private Vector2 velocity;
+  private Vector2 velocity; // beschleunigungsvektor
+
+  private float maxSpeed;
+
+  private Map<String, Vector2> appliedForces;
+
   private Vector2 currentVelocity = Vector2.ZERO;
-  private Vector2 previousVelocity = Vector2.ZERO;
+
   private Consumer<Entity> onWallHit;
   private boolean canEnterOpenPits;
 
@@ -114,28 +120,8 @@ public final class VelocityComponent implements Component {
    * @param newVelocity Set the speed with which the entity should move on.
    */
   public void velocity(Vector2 newVelocity) {
+    if (newVelocity == Vector2.ZERO) System.out.println("RESET");
     this.velocity = newVelocity;
-  }
-
-  /**
-   * Get the previous velocity from the last movement.
-   *
-   * @return The velocity from the last movement.
-   */
-  public Vector2 previouXVelocity() {
-    return previousVelocity;
-  }
-
-  /**
-   * Set the previous velocity of the entity.
-   *
-   * <p>This method is used to store the last moved velocity of the entity. This information is
-   * helpful when the entity stops, as it allows maintaining the direction.
-   *
-   * @param previousVelocity The last velocity of the entity.
-   */
-  public void previousVelocity(Vector2 previousVelocity) {
-    this.previousVelocity = previousVelocity;
   }
 
   /**
