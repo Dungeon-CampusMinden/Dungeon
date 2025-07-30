@@ -1,6 +1,7 @@
 package core.network.messages.client2server;
 
-import core.network.messages.NetworkMessage;
+import contrib.entities.HeroFactory;
+import core.Game;
 import core.utils.Point;
 
 /**
@@ -9,4 +10,14 @@ import core.utils.Point;
  * @param skillIndex The index or identifier of the skill.
  * @param targetPoint Optional target point for the skill.
  */
-public record UseSkillCommand(int skillIndex, Point targetPoint) implements NetworkMessage {}
+public record UseSkillCommand(int skillIndex, Point targetPoint) implements ClientMessage {
+
+  @Override
+  public void process() {
+    Game.hero()
+        .ifPresent(
+            hero -> {
+              HeroFactory.getHeroSkill().execute(hero);
+            });
+  }
+}
