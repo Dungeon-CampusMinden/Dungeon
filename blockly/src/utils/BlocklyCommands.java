@@ -286,6 +286,11 @@ public class BlocklyCommands {
    *     returns false.
    */
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
+    // Check the tile the hero is standing on
+    if (direction == Direction.NONE) {
+      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      return checkTile.levelElement() == tileElement;
+    }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
   }
 
@@ -299,6 +304,11 @@ public class BlocklyCommands {
    */
   public static boolean isNearComponent(
       Class<? extends Component> componentClass, final Direction direction) {
+    // Check if there is a component on the tile the hero is standing on
+    if (direction == Direction.NONE) {
+      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      return Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(componentClass));
+    }
     return targetTile(direction)
         .map(tile -> Game.entityAtTile(tile).anyMatch(e -> e.isPresent(componentClass)))
         .orElse(false);

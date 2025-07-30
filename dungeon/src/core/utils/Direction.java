@@ -110,8 +110,7 @@ public enum Direction implements Vector2 {
       case DOWN -> this.opposite();
       case LEFT -> this.turnLeft();
       case RIGHT -> this.turnRight();
-      case NONE -> NONE;
-      default -> this; // UP
+      default -> this; // UP or NONE
     };
   }
 
