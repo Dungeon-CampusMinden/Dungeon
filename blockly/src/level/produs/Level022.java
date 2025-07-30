@@ -63,7 +63,6 @@ public class Level022 extends BlocklyLevel {
     bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
 
     Entity boss = bossBuilder.build().orElseThrow();
-    boss.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(7.5f));
     boss.fetch(HealthComponent.class)
         .orElseThrow()
         .onDeath(
