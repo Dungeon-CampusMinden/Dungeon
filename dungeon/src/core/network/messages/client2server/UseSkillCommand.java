@@ -1,5 +1,6 @@
-package core.network.messages;
+package core.network.messages.client2server;
 
+import core.network.messages.NetworkMessage;
 import core.utils.Point;
 
 /**

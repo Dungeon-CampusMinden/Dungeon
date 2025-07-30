@@ -17,14 +17,16 @@ import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.network.LocalNetworkHandler;
-import core.network.RenderStateManager;
+import core.network.MessageDispatcher;
+import core.network.messages.server2client.DrawUpdate;
+import core.network.messages.server2client.HealthUpdate;
+import core.network.messages.server2client.NetworkEvent;
+import core.network.messages.server2client.PositionUpdate;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimationPriorities;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -173,7 +175,10 @@ public final class GameLoop extends ScreenAdapter {
     }
 
     newLevelWasLoadedInThisLoop = false;
-    Game.network().triggerStateUpdate();
+    if (Game.network() instanceof LocalNetworkHandler localHandler) {
+      // If we are in single player, we can trigger the state update directly.
+      localHandler.triggerStateUpdate();
+    }
     CameraSystem.camera().update();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
@@ -191,20 +196,104 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     doSetup = false;
     createSystems();
-    createStateUpdateListener();
+    setupMessageHandlers();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
     Game.systems().get(LevelSystem.class).execute();
   }
 
-  private void createStateUpdateListener() {
-    Game.network().setOnStateUpdateListener(update -> {
-      // Instead of directly manipulating entities/components here,
-      // just update the central render state store.
-      RenderStateManager.applyStateUpdate(update);
-      // The DrawSystem will read from RenderStateManager later in the frame.
-      LOGGER.fine("Render state updated for " + update.entityStates().size() + " entities.");
-    });
+  private void setupMessageHandlers() {
+    MessageDispatcher dispatcher = Game.network().messageDispatcher();
+
+    dispatcher.registerHandler(
+        PositionUpdate.class,
+        positionUpdate -> {
+          Game.entityStream()
+              .filter(e -> e.id() == positionUpdate.entityId())
+              .findFirst()
+              .ifPresent(
+                  entity -> {
+                    entity
+                        .fetch(PositionComponent.class)
+                        .ifPresentOrElse(
+                            pc -> {
+                              pc.position(positionUpdate.position());
+                              pc.viewDirection(positionUpdate.viewDirection());
+                            },
+                            () ->
+                                LOGGER.warning(
+                                    "Entity "
+                                        + positionUpdate.entityId()
+                                        + " has no PositionComponent!"));
+                  });
+        });
+
+    dispatcher.registerHandler(
+        DrawUpdate.class,
+        drawUpdate -> {
+          Game.entityStream()
+              .filter(e -> e.id() == drawUpdate.entityId())
+              .findFirst()
+              .ifPresent(
+                  entity -> {
+                    entity
+                        .fetch(DrawComponent.class)
+                        .ifPresentOrElse(
+                            dc -> {
+                              java.lang.System.out.println(
+                                  "Updating DrawComponent for entity "
+                                      + drawUpdate.entityId()
+                                      + " with animation "
+                                      + drawUpdate.animationName()
+                                      + " and tint color "
+                                      + drawUpdate.tintColor());
+                              dc.currentAnimation(drawUpdate.animationName());
+                              dc.tintColor(drawUpdate.tintColor());
+                            },
+                            () ->
+                                LOGGER.warning(
+                                    "Entity " + drawUpdate.entityId() + " has no DrawComponent!"));
+                  });
+        });
+
+    dispatcher.registerHandler(
+        HealthUpdate.class,
+        healthUpdate -> {
+          Game.entityStream()
+              .filter(e -> e.id() == healthUpdate.entityId())
+              .findFirst()
+              .ifPresent(
+                  entity -> {
+                    entity
+                        .fetch(HealthComponent.class)
+                        .ifPresentOrElse(
+                            vc -> {
+                              vc.currentHealthpoints(healthUpdate.currentHealth());
+                              vc.maximalHealthpoints(healthUpdate.maxHealth());
+                            },
+                            () ->
+                                LOGGER.warning(
+                                    "Entity "
+                                        + healthUpdate.entityId()
+                                        + " has no HealthComponent!"));
+                  });
+        });
+
+    // TODO: Change to separate NetworkEventHandler classes
+    dispatcher.registerHandler(
+        NetworkEvent.class,
+        event -> {
+          if (event.type() == NetworkEvent.Type.ENTITY_DESPAWN) {
+            int entityId = (int) event.data();
+            Entity entity =
+                Game.entityStream().filter(e -> e.id() == entityId).findFirst().orElse(null);
+            if (entity == null) {
+              LOGGER.warning("Received despawn event for unknown entity with ID: " + entityId);
+              return;
+            }
+            Game.remove(entity);
+          }
+        });
   }
 
   /**
@@ -244,13 +333,6 @@ public final class GameLoop extends ScreenAdapter {
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     pc.position(Game.startTile().orElseThrow());
     pc.viewDirection(Direction.DOWN); // look down by default
-
-    // reset animations
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
   }
 
   /**
