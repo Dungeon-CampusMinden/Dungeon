@@ -14,8 +14,25 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
- * NetworkHandler implementation for single-player or local processing. Messages are processed
- * directly within the same JVM, simulating network behavior.
+ * A mock network handler for single-player games.
+ *
+ * <p>This handler processes game logic locally without real network communication, acting as both
+ * client and server to keep architecture consistent between modes.
+ *
+ * <p>It uses a {@link MessageDispatcher} to route incoming messages and a raw message consumer to
+ * send game state updates to the game loop.
+ *
+ * <p><b>Usage:</b>
+ *
+ * <ol>
+ *   <li>Initialize with {@link #initialize(boolean, String, int)}.
+ *   <li>Start processing with {@link #start()}.
+ *   <li>Send client messages via {@link #sendToServer(ClientMessage)}.
+ *   <li>Trigger state updates with {@link #triggerStateUpdate()}.
+ *   <li>Stop the handler with {@link #shutdown()}.
+ * </ol>
+ *
+ * <p><b>Note:</b> Not suitable for multiplayer scenarios.
  */
 public class LocalNetworkHandler implements INetworkHandler {
 
@@ -44,7 +61,8 @@ public class LocalNetworkHandler implements INetworkHandler {
             + ")");
   }
 
-  public void sendToClient(ClientMessage message) {
+  @Override
+  public void sendToServer(ClientMessage message) {
     if (!isRunning || !isInitialized) {
       LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendHeroMovement.");
       return;
@@ -92,9 +110,10 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   /**
-   * Collects the current state of relevant entities and sends it to the state update listener. This
-   * simulates the server sending periodic state updates. This method should be called by the game
-   * loop.
+   * Collects the current state of relevant entities and sends it to the state update listener.
+   *
+   * <p>This simulates the server sending periodic state updates. This method should be called by
+   * the game loop.
    */
   public void triggerStateUpdate() {
     if (!isRunning || !isInitialized || rawMessageConsumer == null) {
