@@ -44,7 +44,7 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 STEP_SPEED = Vector2.of(4f, 4f);
+  private static final Vector2 STEP_SPEED = Vector2.of(7.5f, 7.5f);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
   public static final float HERO_MAX_SPEED = 7.5f;
@@ -133,6 +133,7 @@ public final class HeroFactory {
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, (e) -> {}, true));
+    hero.add(new MassComponent(3));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
