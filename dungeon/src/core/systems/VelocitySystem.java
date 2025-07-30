@@ -59,7 +59,7 @@ public final class VelocitySystem extends System {
     float mass = vsd.e.fetch(MassComponent.class).map(MassComponent::mass).orElse(1f);
     if (mass <= 0) mass = 1;
 
-    // acceleration = Fore / mass
+    // acceleration = Force / mass
     Vector2 acceleration = sumForces.scale(1.0 / mass);
     Vector2 newVelocity = vsd.vc.currentVelocity().add(acceleration);
     if (newVelocity.isZero()) newVelocity = Vector2.ZERO;
