@@ -3,8 +3,10 @@ package core.components;
 import core.Component;
 import core.Entity;
 import core.utils.Vector2;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Allows the associated entity to move in the dungeon.
@@ -22,7 +24,7 @@ import java.util.function.Consumer;
  * that means the entity is not moving.
  *
  * <p>Use {@link #currentVelocity(Vector2)} to change the current velocity. Normally, you want to
- * use {@link #velocity(Vector2)} to set the speed at which the entity should move.
+ * use {@link #acceleration(Vector2)} to set the speed at which the entity should move.
  *
  * <p>Use {@link #onWallHit} to set a callback that will be executed if the entity runs against a
  * wall.
@@ -30,38 +32,36 @@ import java.util.function.Consumer;
 public final class VelocityComponent implements Component {
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
-  private Vector2 velocity; // beschleunigungsvektor
+  private Consumer<Entity> onWallHit;
 
-  private float maxSpeed;
-
-  private Map<String, Vector2> appliedForces;
+  private Map<String, Vector2> appliedForces = new HashMap<>();
 
   private Vector2 currentVelocity = Vector2.ZERO;
 
-  private Consumer<Entity> onWallHit;
+  private float maxSpeed;
   private boolean canEnterOpenPits;
 
   /**
    * Create a new VelocityComponent with the given configuration.
    *
-   * @param velocity The Speed with which the entity can move.
+   * @param maxSpeed The Speed with which the entity can maximal move.
    * @param onWallHit Callback that will be executed if the entity runs against a wall.
    * @param canEnterOpenPits Whether the entity enter open pit tiles.
    */
-  public VelocityComponent(Vector2 velocity, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
-    this.velocity = velocity;
+  public VelocityComponent(float maxSpeed, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
+    this.maxSpeed = maxSpeed;
   }
 
   /**
    * Create a new VelocityComponent with the given configuration. By default, the entity will not be
    * able to enter open pit tiles.
    *
-   * @param velocity The Speed with which the entity can move.
+   * @param maxSpeed The Speed with which the entity can maximal move.
    */
-  public VelocityComponent(Vector2 velocity) {
-    this(velocity, DEFAULT_ON_WALL_HIT, false);
+  public VelocityComponent(float maxSpeed) {
+    this(maxSpeed, DEFAULT_ON_WALL_HIT, false);
   }
 
   /**
@@ -71,7 +71,7 @@ public final class VelocityComponent implements Component {
    * And the entity will not be able to enter open pit tiles.
    */
   public VelocityComponent() {
-    this(Vector2.ZERO);
+    this(0f);
   }
 
   /**
@@ -99,29 +99,6 @@ public final class VelocityComponent implements Component {
    */
   public void currentVelocity(Vector2 newCurrentVelocity) {
     this.currentVelocity = newCurrentVelocity;
-  }
-
-  /**
-   * Get the velocity with which the entity should move.
-   *
-   * <p>This value will be used by other systems to set the current velocity.
-   *
-   * @return Velocity with which the entity should move on.
-   */
-  public Vector2 velocity() {
-    return velocity;
-  }
-
-  /**
-   * Set the velocity with which the entity should move.
-   *
-   * <p>This value will be used by other systems to set the current velocity.
-   *
-   * @param newVelocity Set the speed with which the entity should move on.
-   */
-  public void velocity(Vector2 newVelocity) {
-    if (newVelocity == Vector2.ZERO) System.out.println("RESET");
-    this.velocity = newVelocity;
   }
 
   /**
@@ -158,5 +135,30 @@ public final class VelocityComponent implements Component {
    */
   public boolean canEnterOpenPits() {
     return this.canEnterOpenPits;
+  }
+
+  public void applyForce(String id, Vector2 force) {
+    removeForce(id);
+    appliedForces.put(id, force);
+  }
+
+  public void removeForce(String id) {
+    appliedForces.remove(id);
+  }
+
+  public void clearForces() {
+    appliedForces.clear();
+  }
+
+  public Stream<Vector2> appliedForces() {
+    return appliedForces.values().stream();
+  }
+
+  public float maxSpeed() {
+    return maxSpeed;
+  }
+
+  public void maSpeed(float maxSpeed) {
+    this.maxSpeed = maxSpeed;
   }
 }

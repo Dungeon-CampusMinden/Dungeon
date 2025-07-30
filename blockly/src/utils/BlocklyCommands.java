@@ -428,7 +428,7 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentVelocity(direction.scale(comp.vc.velocity()));
+        comp.vc.currentVelocity(direction.scale(comp.vc.acceleration()));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());

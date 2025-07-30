@@ -70,7 +70,8 @@ public class VelocitySystemTest {
     Vector2 expectedVelocity = currentVelocity;
     float maxSpeed =
         Math.max(
-            Math.abs(velocityComponent.velocity().x()), Math.abs(velocityComponent.velocity().y()));
+            Math.abs(velocityComponent.acceleration().x()),
+            Math.abs(velocityComponent.acceleration().y()));
     if (expectedVelocity.length() > maxSpeed) {
       expectedVelocity = expectedVelocity.normalize().scale(maxSpeed);
     }
@@ -90,14 +91,15 @@ public class VelocitySystemTest {
   @Test
   public void testValidMoveWithNegativeVelocity() {
     Mockito.when(tile.isAccessible()).thenReturn(true);
-    velocityComponent.velocity(Vector2.of(4, 8));
+    velocityComponent.acceleration(Vector2.of(4, 8));
     Vector2 negativeVelocity = Vector2.of(-4, -8);
     velocityComponent.currentVelocity(negativeVelocity);
 
     Vector2 expectedVelocity = negativeVelocity;
     float maxSpeed =
         Math.max(
-            Math.abs(velocityComponent.velocity().x()), Math.abs(velocityComponent.velocity().y()));
+            Math.abs(velocityComponent.acceleration().x()),
+            Math.abs(velocityComponent.acceleration().y()));
     if (expectedVelocity.length() > maxSpeed) {
       expectedVelocity = expectedVelocity.normalize().scale(maxSpeed);
     }
@@ -178,7 +180,7 @@ public class VelocitySystemTest {
   @Test
   public void testDiagonalMovementSpeedLimit() {
     Mockito.when(tile.isAccessible()).thenReturn(true);
-    velocityComponent.velocity(Vector2.of(5, 5));
+    velocityComponent.acceleration(Vector2.of(5, 5));
 
     // Set diagonal velocity that would exceed max speed
     Vector2 diagonalVelocity = Vector2.of(5, 5);
@@ -186,7 +188,8 @@ public class VelocitySystemTest {
 
     float maxSpeed =
         Math.max(
-            Math.abs(velocityComponent.velocity().x()), Math.abs(velocityComponent.velocity().y()));
+            Math.abs(velocityComponent.acceleration().x()),
+            Math.abs(velocityComponent.acceleration().y()));
 
     velocitySystem.execute();
 

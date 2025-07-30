@@ -62,7 +62,7 @@ public class Hero {
     }
     this.fireballSkill = fireballSkill;
     // uncap max hero speed
-    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.velocity(Vector2.MAX));
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.acceleration(Vector2.MAX));
   }
 
   /**

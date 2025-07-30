@@ -25,6 +25,8 @@ import core.utils.components.MissingComponentException;
  */
 public final class ProjectileSystem extends System {
 
+  private final String PROJECTILE_FORCE = "Projectile";
+
   /** Create a new ProjectileSystem. */
   public ProjectileSystem() {
     super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
@@ -62,7 +64,7 @@ public final class ProjectileSystem extends System {
   }
 
   private PSData setVelocity(final PSData data) {
-    data.vc.currentVelocity(data.vc.velocity());
+    data.vc.applyForce(PROJECTILE_FORCE, data.prc.speed());
 
     return data;
   }

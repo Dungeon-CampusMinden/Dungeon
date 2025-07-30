@@ -21,11 +21,14 @@ import java.util.function.Consumer;
 public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
+
+  private final Map<Integer, InputData> releaseCallbacks;
   private int openDialogs = 0;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent() {
     callbacks = new HashMap<>();
+    releaseCallbacks = new HashMap<>();
   }
 
   /**
@@ -48,6 +51,16 @@ public final class PlayerComponent implements Component {
       oldCallback = callbacks.get(key).callback();
     }
     callbacks.put(key, new InputData(true, callback));
+    return Optional.ofNullable(oldCallback);
+  }
+
+  public Optional<Consumer<Entity>> registerCallbackOnRelease(
+      int key, final Consumer<Entity> callback) {
+    Consumer<Entity> oldCallback = null;
+    if (releaseCallbacks.containsKey(key)) {
+      oldCallback = releaseCallbacks.get(key).callback();
+    }
+    releaseCallbacks.put(key, new InputData(false, callback));
     return Optional.ofNullable(oldCallback);
   }
 
@@ -133,6 +146,10 @@ public final class PlayerComponent implements Component {
    */
   public boolean openDialogs() {
     return openDialogs > 0;
+  }
+
+  public Map<Integer, InputData> releaseCallbacks() {
+    return new HashMap<>(releaseCallbacks);
   }
 
   /**

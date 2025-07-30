@@ -52,8 +52,8 @@ public final class VelocitySystem extends System {
   }
 
   private VSData calculateVelocity(VSData vsd) {
-    // TODO calculate velocity with FORCE
-    vsd.vc.currentVelocity(vsd.vc.currentVelocity());
+    Vector2 sum = vsd.vc.appliedForces().reduce(Vector2.of(0, 0), (v1, v2) -> v1.add(v2));
+    vsd.vc.currentVelocity(sum);
     return vsd;
   }
 
