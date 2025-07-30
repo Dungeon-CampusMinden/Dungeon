@@ -64,12 +64,17 @@ public final class VelocitySystem extends System {
     // move
     if (x != 0 || y != 0) {
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-      if (x > 0) {
-        vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(Direction.RIGHT);
-      } else if (x < 0) {
-        vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(Direction.LEFT);
+      vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+
+      // use animation for the biggest force
+      if (Math.abs(x) >= Math.abs(y)) {
+        if (x > 0) {
+          vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+          vsd.pc.viewDirection(Direction.RIGHT);
+        } else if (x < 0) {
+          vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+          vsd.pc.viewDirection(Direction.LEFT);
+        }
       } else if (y > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
         vsd.pc.viewDirection(Direction.UP);
@@ -77,8 +82,6 @@ public final class VelocitySystem extends System {
         vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
         vsd.pc.viewDirection(Direction.DOWN);
       }
-
-      vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
     }
     // idle
     else {
