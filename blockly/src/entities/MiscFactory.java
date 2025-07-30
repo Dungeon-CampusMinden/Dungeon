@@ -32,6 +32,7 @@ public class MiscFactory {
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
   private static final IPath CLOVER_PATH = new SimpleIPath("items/clover.png");
   private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
+  // TODO this should ne stored central for blockly
   private static final Vector2 STONE_SPEED = Vector2.of(7.5, 7.5);
 
   /**
@@ -47,7 +48,7 @@ public class MiscFactory {
     stone.add(new PushableComponent());
     stone.add(new PositionComponent(position.toCenteredPoint()));
     stone.add(new BlockComponent());
-    stone.add(new VelocityComponent(STONE_SPEED));
+    stone.add(new VelocityComponent(STONE_SPEED.x()));
     stone.add(new CollideComponent());
     stone.add(new BlockViewComponent());
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));

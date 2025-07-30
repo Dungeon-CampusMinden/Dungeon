@@ -62,7 +62,7 @@ public class Hero {
     }
     this.fireballSkill = fireballSkill;
     // uncap max hero speed
-    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.acceleration(Vector2.MAX));
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
 
   /**
@@ -106,7 +106,7 @@ public class Hero {
    * @param speed Geschwindigkeit in x und y Richtung.
    */
   public void setSpeed(Vector2 speed) {
-    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.currentVelocity(speed));
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.applyForce("MOVEMENT", speed));
   }
 
   /**
@@ -116,7 +116,7 @@ public class Hero {
    */
   public void setXSpeed(float speed) {
     hero.fetch(VelocityComponent.class)
-        .ifPresent(vc -> vc.currentVelocity(Vector2.of(speed, vc.currentVelocity().y())));
+        .ifPresent(vc -> vc.applyForce("MOVEMENT_X", Vector2.of(speed, 0)));
   }
 
   /**
@@ -125,8 +125,9 @@ public class Hero {
    * @param speed Geschwindigkeit in Y-Richtung.
    */
   public void setYSpeed(float speed) {
+
     hero.fetch(VelocityComponent.class)
-        .ifPresent(vc -> vc.currentVelocity(Vector2.of(vc.currentVelocity().x(), speed)));
+        .ifPresent(vc -> vc.applyForce("MOVEMENT_Y", Vector2.of(0, speed)));
   }
 
   /**

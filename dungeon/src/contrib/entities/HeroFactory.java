@@ -44,10 +44,10 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
+  private static final Vector2 STEP_SPEED = Vector2.of(4f, 4f);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
-  public static final float HERO_MAX_SPEED = 12;
+  public static final float HERO_MAX_SPEED = 7.5f;
   public static final String MOVEMENT_ID = "Movement";
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);

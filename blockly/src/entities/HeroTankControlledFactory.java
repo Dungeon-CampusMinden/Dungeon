@@ -19,6 +19,8 @@ import utils.BlocklyCommands;
  */
 public class HeroTankControlledFactory {
 
+  private static final float ACCELERATION = 7.5f;
+
   /**
    * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
    *
@@ -66,11 +68,11 @@ public class HeroTankControlledFactory {
 
     Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, vc.acceleration().y());
-      case DOWN -> newVelocity = Vector2.of(0, -vc.acceleration().y());
-      case LEFT -> newVelocity = Vector2.of(-vc.acceleration().x(), 0);
-      case RIGHT -> newVelocity = Vector2.of(vc.acceleration().x(), 0);
+      case UP -> newVelocity = Vector2.of(0, ACCELERATION);
+      case DOWN -> newVelocity = Vector2.of(0, -ACCELERATION);
+      case LEFT -> newVelocity = Vector2.of(-ACCELERATION, 0);
+      case RIGHT -> newVelocity = Vector2.of(ACCELERATION, 0);
     }
-    vc.currentVelocity(newVelocity);
+    vc.applyForce("MOVEMENT", newVelocity);
   }
 }

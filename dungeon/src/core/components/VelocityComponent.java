@@ -155,15 +155,19 @@ public final class VelocityComponent implements Component {
     appliedForces.clear();
   }
 
-  public Stream<Vector2> appliedForces() {
+  public Stream<Vector2> appliedForcesStream() {
     return appliedForces.values().stream();
+  }
+
+  public Map<String, Vector2> appliedForces() {
+    return new HashMap<>(appliedForces);
   }
 
   public float maxSpeed() {
     return maxSpeed;
   }
 
-  public void maSpeed(float maxSpeed) {
+  public void maxSpeed(float maxSpeed) {
     this.maxSpeed = maxSpeed;
   }
 }
