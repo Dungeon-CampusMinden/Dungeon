@@ -100,7 +100,7 @@ public enum BlocklyMonster {
       "Blockly Black Knight",
       "character/knight",
       3,
-      0.0f,
+      0f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
       () -> entity -> {},
@@ -189,6 +189,8 @@ public enum BlocklyMonster {
     private int range = -1; // -1 means use default range
     private int maxHealth;
     private int collideDamage;
+
+    private float speed = -1; // <0 means use default speed
     private boolean addToGame = false;
 
     /**
@@ -232,6 +234,11 @@ public enum BlocklyMonster {
      */
     public BlocklyMonsterBuilder range(int range) {
       this.range = range;
+      return this;
+    }
+
+    public BlocklyMonsterBuilder speed(float speed) {
+      this.speed = speed;
       return this;
     }
 
@@ -283,7 +290,7 @@ public enum BlocklyMonster {
                 monsterType.name,
                 monsterType.texture,
                 this.maxHealth,
-                monsterType.speed,
+                (this.speed < 0) ? monsterType.speed : this.speed,
                 monsterType.itemChance,
                 monsterType.deathSound,
                 new AIComponent(

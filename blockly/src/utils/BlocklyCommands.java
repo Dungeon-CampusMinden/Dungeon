@@ -55,6 +55,13 @@ public class BlocklyCommands {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     BlocklyCommands.move(viewDirection, hero);
+    Game.allEntities()
+        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .ifPresent(
+            boss ->
+                boss.fetch(PositionComponent.class)
+                    .ifPresent(pc -> BlocklyCommands.move(pc.viewDirection(), boss)));
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */
@@ -103,6 +110,10 @@ public class BlocklyCommands {
           case NONE -> viewDirection; // no change
         };
     BlocklyCommands.turnEntity(hero, newDirection);
+    Game.allEntities()
+        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .ifPresent(boss -> BlocklyCommands.turnEntity(boss, newDirection.opposite()));
     Server.waitDelta();
   }
 
