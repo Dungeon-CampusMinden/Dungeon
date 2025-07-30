@@ -14,14 +14,16 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
-import core.network.messages.EntityStateUpdate;
-import core.network.messages.NetworkEvent;
+import core.network.messages.NetworkMessage;
+import core.network.messages.server2client.DrawUpdate;
+import core.network.messages.server2client.HealthUpdate;
+import core.network.messages.server2client.PositionUpdate;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -31,10 +33,14 @@ import java.util.logging.Logger;
 public class LocalNetworkHandler implements INetworkHandler {
 
   private static final Logger LOGGER = Logger.getLogger(LocalNetworkHandler.class.getName());
-  private Consumer<EntityStateUpdate> stateUpdateListener;
-  private Consumer<NetworkEvent> eventReceivedListener;
+
+  private final MessageDispatcher dispatcher = new MessageDispatcher(); // Instantiate dispatcher
+  private Consumer<NetworkMessage> rawMessageConsumer; // Internal consumer for raw messages
   private boolean isRunning = false;
   private boolean isInitialized = false;
+
+  private final Map<Integer, Integer> lastKnownHealth = new HashMap<>();
+  private final Map<Integer, String> lastKnownAnimation = new HashMap<>();
 
   @Override
   public void initialize(boolean isServer, String serverAddress, int port) throws NetworkException {
@@ -154,16 +160,6 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void setOnStateUpdateListener(Consumer<EntityStateUpdate> listener) {
-    this.stateUpdateListener = listener;
-  }
-
-  @Override
-  public void setOnEventReceivedListener(Consumer<NetworkEvent> listener) {
-    this.eventReceivedListener = listener;
-  }
-
-  @Override
   public void start() {
     if (!isInitialized) {
       LOGGER.severe("LocalNetworkHandler cannot start because it is not initialized.");
@@ -171,9 +167,6 @@ public class LocalNetworkHandler implements INetworkHandler {
     }
     this.isRunning = true;
     LOGGER.info("LocalNetworkHandler started.");
-    // In a real scenario, this might start a thread or integrate with the game loop
-    // to periodically generate and send EntityStateUpdates.
-    // For single player, the game loop itself can call triggerStateUpdate().
   }
 
   @Override
@@ -194,70 +187,82 @@ public class LocalNetworkHandler implements INetworkHandler {
     return true;
   }
 
+  @Override
+  public MessageDispatcher messageDispatcher() {
+    return dispatcher;
+  }
+
+  @Override
+  public void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer) {
+    this.rawMessageConsumer = rawMessageConsumer;
+  }
+
   /**
    * Collects the current state of relevant entities and sends it to the state update listener. This
    * simulates the server sending periodic state updates. This method should be called by the game
    * loop.
    */
-  @Override
   public void triggerStateUpdate() {
-    if (stateUpdateListener != null && isRunning && isInitialized) {
-      EntityStateUpdate update = collectCurrentEntityStates();
-      if (update != null && !update.entityStates().isEmpty()) {
-        stateUpdateListener.accept(update);
-      }
-    } else if (isRunning && isInitialized) {
-      // Listener might not be set yet, or intentionally null
-      LOGGER.fine("State update triggered but listener is null or not ready.");
+    if (!isRunning || !isInitialized || rawMessageConsumer == null) {
+      LOGGER.info(
+          "LocalNetworkHandler not ready to send updates. Running: "
+              + isRunning
+              + ", Init: "
+              + isInitialized
+              + ", Consumer: "
+              + (rawMessageConsumer != null));
+      return;
     }
-  }
 
-  private EntityStateUpdate collectCurrentEntityStates() {
-    EntityStateUpdate update = new EntityStateUpdate();
-    try {
-      Game.entityStream()
-          .forEach(
-              entity -> {
-                var posCompOpt = entity.fetch(PositionComponent.class);
-                var velCompOpt = entity.fetch(VelocityComponent.class);
-                var drawCompOpt = entity.fetch(DrawComponent.class);
-                var healthCompOpt = entity.fetch(HealthComponent.class);
+    Set<Integer> activeEntityIds = new HashSet<>();
 
-                if (posCompOpt.isPresent()) { // Only send state for entities with a position
-                  var posComp = posCompOpt.get();
-                  var velComp = velCompOpt.orElse(null);
-                  var drawComp = drawCompOpt.orElse(null);
-                  var healthComp = healthCompOpt.orElse(null);
+    Game.entityStream()
+        .forEach(
+            entity -> {
+              int entityId = entity.id();
+              activeEntityIds.add(entityId);
 
-                  String animationState = "idle";
-                  boolean isVisible = false;
-                  if (drawComp != null) {
-                    // TODO: WIP
-                    animationState = velComp != null && velComp.currentVelocity().length() > 0
-                        ? velComp.currentVelocity().x() < 0
-                            ? "run_left"
-                            : "run_right"
-                        : "idle";
-                    isVisible = drawComp.isVisible();
-                  }
+              // Always send position data
+              entity
+                  .fetch(PositionComponent.class)
+                  .ifPresent(
+                      pc -> {
+                        PositionUpdate posUpdate =
+                            new PositionUpdate(entityId, pc.position(), pc.viewDirection());
+                        rawMessageConsumer.accept(posUpdate);
+                      });
 
-                  int health = healthComp != null ? healthComp.currentHealthpoints() : -1;
+              // Send health data
+              entity
+                  .fetch(HealthComponent.class)
+                  .ifPresent(
+                      hc -> {
+                        int currentHealth = hc.currentHealthpoints();
+                        if (!lastKnownHealth
+                            .getOrDefault(entityId, Integer.MIN_VALUE)
+                            .equals(currentHealth)) {
+                          HealthUpdate healthUpdate =
+                              new HealthUpdate(entityId, currentHealth, hc.maximalHealthpoints());
+                          rawMessageConsumer.accept(healthUpdate);
+                          lastKnownHealth.put(entityId, currentHealth);
+                        }
+                      });
 
-                  EntityStateUpdate.EntityState state =
-                      new EntityStateUpdate.EntityState(
-                          posComp.position(),
-                          velComp != null ? velComp.currentVelocity() : Vector2.ZERO,
-                          posComp.viewDirection(),
-                          animationState,
-                          isVisible,
-                          health);
-                  update.addEntityState(entity.id(), state);
-                }
-              });
-    } catch (Exception e) {
-      LOGGER.log(Level.WARNING, "Error collecting entity states", e);
-      return null; // Return null or an empty update on error?
-    }
-    return update;
+              entity
+                  .fetch(DrawComponent.class)
+                  .ifPresent(
+                      dc -> {
+                        String currentAnimation = dc.currentAnimationName();
+                        if (!lastKnownAnimation
+                            .getOrDefault(entityId, "")
+                            .equals(currentAnimation)) {
+                          DrawUpdate drawUpdate =
+                              new DrawUpdate(entityId, currentAnimation, dc.tintColor());
+                          rawMessageConsumer.accept(drawUpdate);
+                          lastKnownAnimation.put(entityId, currentAnimation);
+                        }
+                      });
+            });
+    lastKnownHealth.keySet().retainAll(activeEntityIds);
   }
 }

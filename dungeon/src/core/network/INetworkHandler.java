@@ -1,8 +1,7 @@
 package core.network;
 
 import core.Entity;
-import core.network.messages.EntityStateUpdate;
-import core.network.messages.NetworkEvent;
+import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
 import java.util.function.Consumer;
@@ -13,7 +12,6 @@ import java.util.function.Consumer;
  * multiplayer, this sends messages to the server.
  */
 public interface INetworkHandler {
-
   /**
    * Initializes the handler.
    *
@@ -53,21 +51,6 @@ public interface INetworkHandler {
   void sendInteract(Entity interactable);
 
   // --- State and Event Handling ---
-
-  /**
-   * Sets the listener for receiving state updates.
-   *
-   * @param listener The consumer to handle state updates.
-   */
-  void setOnStateUpdateListener(Consumer<EntityStateUpdate> listener);
-
-  /**
-   * Sets the listener for receiving critical events.
-   *
-   * @param listener The consumer to handle events.
-   */
-  void setOnEventReceivedListener(Consumer<NetworkEvent> listener);
-
   /** Starts the handler's processing loop (if applicable). */
   void start();
 
@@ -89,11 +72,20 @@ public interface INetworkHandler {
   boolean isServer();
 
   /**
-   * Signals the handler that a state update cycle should be triggered.
-   * For local handlers, this collects and sends local state.
-   * For network clients, this triggers a request.
-   * For network servers, this collects and broadcasts state.
-   * This method is typically called by the main game loop.
+   * Retrieves the dispatcher responsible for handling incoming messages. Game code should register
+   * their specific message handlers with this dispatcher.
+   *
+   * @return The MessageDispatcher instance.
    */
-  void triggerStateUpdate();
+  MessageDispatcher messageDispatcher();
+
+  /**
+   * Internal method: Sets the consumer for raw incoming messages. This method is intended for the
+   * internal use of the NetworkHandler implementation (e.g., KryoNetHandler) to feed raw messages
+   * into the MessageDispatcher. Game code should use {@link #messageDispatcher()} to register
+   * specific handlers.
+   *
+   * @param rawMessageConsumer A consumer that processes raw incoming messages.
+   */
+  void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer);
 }
