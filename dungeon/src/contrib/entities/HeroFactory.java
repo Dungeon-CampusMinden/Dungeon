@@ -16,6 +16,10 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.Tile;
+import core.network.messages.client2server.HeroMoveCommand;
+import core.network.messages.client2server.HeroTargetMoveCommand;
+import core.network.messages.client2server.InteractCommand;
+import core.network.messages.client2server.UseSkillCommand;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
@@ -209,7 +213,7 @@ public final class HeroFactory {
             // Small adjustment to get the correct tile
             Point mousePos =
                 SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-            Game.network().sendHeroMovement(mousePos);
+            Game.network().sendToClient(new HeroTargetMoveCommand(mousePos));
           },
           false);
     }
@@ -320,7 +324,7 @@ public final class HeroFactory {
   }
 
   private static void registerMovement(InputComponent ic, int key, Direction direction) {
-    ic.registerCallback(key, entity -> Game.network().sendHeroMovement(direction));
+    ic.registerCallback(key, entity -> Game.network().sendToClient(new HeroMoveCommand(direction)));
   }
 
   private static void registerMouseLeftClick(InputComponent ic) {
@@ -354,7 +358,7 @@ public final class HeroFactory {
 
   private static void executeHeroSkill(Entity hero) {
     // TODO: Implement logic to control skill_ids
-    Game.network().sendUseSkill(0, SkillTools.cursorPositionAsPoint());
+    Game.network().sendToClient(new UseSkillCommand(0, SkillTools.cursorPositionAsPoint()));
   }
 
   private static void handleInteractWithClosestInteractable(Entity hero) {
@@ -381,7 +385,7 @@ public final class HeroFactory {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius()) {
-      Game.network().sendInteract(interactable);
+      Game.network().sendToClient(new InteractCommand(interactable));
     }
   }
 
