@@ -4,7 +4,6 @@ import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;

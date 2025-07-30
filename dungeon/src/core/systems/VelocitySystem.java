@@ -3,6 +3,7 @@ package core.systems;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
+import core.components.MassComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
@@ -54,9 +55,15 @@ public final class VelocitySystem extends System {
   private VSData calculateVelocity(VSData vsd) {
     Vector2 sumForces =
         vsd.vc.appliedForcesStream().reduce(Vector2.of(0, 0), (v1, v2) -> v1.add(v2));
-    Vector2 sumAll = vsd.vc.currentVelocity().add(sumForces);
-    if (sumAll.isZero()) sumAll = Vector2.ZERO;
-    vsd.vc.currentVelocity(sumAll);
+
+    float mass = vsd.e.fetch(MassComponent.class).map(MassComponent::mass).orElse(1f);
+    if (mass <= 0) mass = 1;
+
+    // acceleration = Fore / mass
+    Vector2 acceleration = sumForces.scale(1.0 / mass);
+    Vector2 newVelocity = vsd.vc.currentVelocity().add(acceleration);
+    if (newVelocity.isZero()) newVelocity = Vector2.ZERO;
+    vsd.vc.currentVelocity(newVelocity);
     vsd.vc.clearForces();
     return vsd;
   }
