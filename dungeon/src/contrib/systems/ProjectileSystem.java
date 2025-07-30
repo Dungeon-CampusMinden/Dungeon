@@ -39,7 +39,7 @@ public final class ProjectileSystem extends System {
             ProjectileComponent.class, PositionComponent.class, VelocityComponent.class)
         // Consider only entities that have a ProjectileComponent
         .map(this::buildDataObject)
-        .map(this::setVelocity)
+        .map(this::applyForce)
         // Filter all entities that have reached their endpoint
         .filter(this::hasReachedEndpoint)
         // Remove all entities who reached their endpoint
@@ -63,9 +63,9 @@ public final class ProjectileSystem extends System {
     return new PSData(entity, prc, pc, vc);
   }
 
-  private PSData setVelocity(final PSData data) {
-    data.vc.applyForce(PROJECTILE_FORCE, data.prc.speed());
-
+  private PSData applyForce(final PSData data) {
+    // TODO technicly is not needed to set this each frame, once is enough
+    data.vc.applyForce(PROJECTILE_FORCE, data.prc.forceToApply());
     return data;
   }
 

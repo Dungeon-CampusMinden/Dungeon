@@ -229,6 +229,10 @@ public interface Vector2 {
     return Vector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
   }
 
+  default Vector2 inverse() {
+    return this.scale(-1);
+  }
+
   /**
    * A record representing a 2D vector with x and y Float components.
    *

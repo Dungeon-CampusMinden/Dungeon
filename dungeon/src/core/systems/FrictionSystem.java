@@ -21,16 +21,8 @@ public class FrictionSystem extends System {
 
   private void applyFriction(FSData data) {
     float friction = Game.tileAT(data.pc.position()).friction();
-    float damp = Math.max(0.0f, 1.0f - friction);
-    // If we hit a wall, damp the raw velocity; otherwise damp the movement velocity
-    Vector2 toDampen = data.vc().currentVelocity();
-    float newVX = toDampen.x() * damp;
-    if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
-    float newVY = toDampen.y() * damp;
-    if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
-
-    // TODO replace with force
-    data.vc.currentVelocity(Vector2.of(newVX, newVY));
+    Vector2 force = data.vc().currentVelocity().scale(friction).inverse();
+    data.vc.applyForce("Friction", force);
   }
 
   private FSData buildDataObject(Entity e) {
