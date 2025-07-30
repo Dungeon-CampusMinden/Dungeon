@@ -1,9 +1,7 @@
 package core.network;
 
-import core.Entity;
 import core.network.messages.NetworkMessage;
-import core.utils.Direction;
-import core.utils.Point;
+import core.network.messages.client2server.ClientMessage;
 import java.util.function.Consumer;
 
 /**
@@ -22,35 +20,14 @@ public interface INetworkHandler {
   void initialize(boolean isServer, String serverAddress, int port) throws NetworkException;
 
   /**
-   * Sends a hero movement command.
+   * Sends a client message. This method is called when a message is created by the game code (e.g.,
+   * a command to interact with an entity or use a skill). The message will be processed either
+   * locally via the {@link LocalNetworkHandler} or sent to the server.
    *
-   * @param direction The direction of movement.
+   * @param message The client message to process.
    */
-  void sendHeroMovement(Direction direction);
+  void sendToClient(ClientMessage message);
 
-  /**
-   * Sends a hero movement command to a specific point.
-   *
-   * @param targetPoint The target point to move the hero to.
-   */
-  void sendHeroMovement(Point targetPoint);
-
-  /**
-   * Sends a command to use a skill.
-   *
-   * @param skillIndex The index or identifier of the skill.
-   * @param targetPoint Optional target point for the skill (e.g., cursor position).
-   */
-  void sendUseSkill(int skillIndex, Point targetPoint); // Consider skill ID instead of index?
-
-  /**
-   * Sends a command to interact with the world (e.g., open chest, talk to NPC).
-   *
-   * @param interactable The entity to interact with (e.g., chest, NPC).
-   */
-  void sendInteract(Entity interactable);
-
-  // --- State and Event Handling ---
   /** Starts the handler's processing loop (if applicable). */
   void start();
 

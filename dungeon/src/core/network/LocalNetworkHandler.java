@@ -1,27 +1,14 @@
 package core.network;
 
-import static contrib.entities.HeroFactory.ENABLE_MOUSE_MOVEMENT;
-
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.HealthComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.PathComponent;
-import contrib.entities.HeroFactory;
-import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.utils.LevelUtils;
 import core.network.messages.NetworkMessage;
+import core.network.messages.client2server.ClientMessage;
 import core.network.messages.server2client.DrawUpdate;
 import core.network.messages.server2client.HealthUpdate;
 import core.network.messages.server2client.PositionUpdate;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -57,106 +44,13 @@ public class LocalNetworkHandler implements INetworkHandler {
             + ")");
   }
 
-  @Override
-  public void sendHeroMovement(Direction direction) {
+  public void sendToClient(ClientMessage message) {
     if (!isRunning || !isInitialized) {
       LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendHeroMovement.");
       return;
     }
 
-    Game.hero()
-        .ifPresent(
-            hero -> {
-              VelocityComponent vc =
-                  hero.fetch(VelocityComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(hero, VelocityComponent.class));
-
-              Vector2 newVelocity = vc.currentVelocity();
-              if (direction.x() != 0) {
-                newVelocity = Vector2.of(direction.scale(vc.velocity()).x(), newVelocity.y());
-              }
-              if (direction.y() != 0) {
-                newVelocity = Vector2.of(newVelocity.x(), direction.scale(vc.velocity()).y());
-              }
-              vc.currentVelocity(newVelocity);
-
-              // Abort any path finding on own movement
-              if (ENABLE_MOUSE_MOVEMENT) {
-                hero.fetch(PathComponent.class).ifPresent(PathComponent::clear);
-              }
-            });
-  }
-
-  @Override
-  public void sendHeroMovement(Point targetPoint) {
-    if (!isRunning || !isInitialized) {
-      LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendHeroMovement.");
-      return;
-    }
-
-    Game.hero()
-        .ifPresent(
-            hero -> {
-              Point heroPos =
-                  hero.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
-              if (heroPos == null) return;
-
-              GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, targetPoint);
-              // If the path is null or empty, try to find a nearby tile that is accessible and
-              // calculate a path to it
-              if (path == null || path.getCount() == 0) {
-                Tile nearTile =
-                    LevelUtils.tilesInRange(targetPoint, 1f).stream()
-                        .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
-                        .findFirst()
-                        .orElse(null);
-                // If no accessible tile is found, abort
-                if (nearTile == null) return;
-                path = LevelUtils.calculatePath(heroPos, nearTile.position());
-              }
-
-              // Stores the path in Hero's PathComponent
-              GraphPath<Tile> finalPath = path;
-              hero.fetch(PathComponent.class)
-                  .ifPresentOrElse(
-                      pathComponent -> pathComponent.path(finalPath),
-                      () -> hero.add(new PathComponent(finalPath)));
-            });
-  }
-
-  @Override
-  public void sendUseSkill(int skillIndex, Point targetPoint) {
-    if (!isRunning || !isInitialized) {
-      LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendUseSkill.");
-      return;
-    }
-    Game.hero()
-        .ifPresent(
-            hero -> {
-              HeroFactory.getHeroSkill().execute(hero);
-            });
-  }
-
-  @Override
-  public void sendInteract(Entity interactable) {
-    if (!isRunning || !isInitialized) {
-      LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendInteract.");
-      return;
-    }
-
-    Game.hero()
-        .ifPresent(
-            hero -> {
-              InteractionComponent ic =
-                  interactable
-                      .fetch(InteractionComponent.class)
-                      .orElseThrow(
-                          () ->
-                              MissingComponentException.build(
-                                  interactable, InteractionComponent.class));
-              ic.triggerInteraction(interactable, hero);
-            });
+    message.process();
   }
 
   @Override
