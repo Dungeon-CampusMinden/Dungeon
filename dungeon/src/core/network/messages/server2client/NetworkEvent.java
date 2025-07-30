@@ -1,4 +1,6 @@
-package core.network.messages;
+package core.network.messages.server2client;
+
+import core.network.messages.NetworkMessage;
 
 /** Record representing critical discrete events. */
 public record NetworkEvent(Type type, Object data) implements NetworkMessage {

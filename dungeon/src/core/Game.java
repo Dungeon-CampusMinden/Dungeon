@@ -66,6 +66,7 @@ public final class Game {
           "Multiplayer is not yet implemented. Please use LocalNetworkHandler for single player.");
     } else {
       networkHandler = new LocalNetworkHandler();
+      networkHandler._setRawMessageConsumer(networkHandler.messageDispatcher()::dispatch);
     }
 
     try {
