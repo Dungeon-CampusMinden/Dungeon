@@ -5,9 +5,12 @@ import core.network.messages.client2server.ClientMessage;
 import java.util.function.Consumer;
 
 /**
- * Central handler for sending game-related messages. Abstracts whether messages are sent over the
- * network or processed locally. In single-player, this might directly invoke game logic. In
- * multiplayer, this sends messages to the server.
+ * Central handler for sending game-related messages.
+ *
+ * <p>Abstracts whether messages are sent over the network or processed locally. In single-player,
+ * this directly invokes game logic. In multiplayer, this sends messages to the server.
+ *
+ * @see LocalNetworkHandler Single-player handler that processes messages locally.
  */
 public interface INetworkHandler {
   /**
@@ -20,13 +23,15 @@ public interface INetworkHandler {
   void initialize(boolean isServer, String serverAddress, int port) throws NetworkException;
 
   /**
-   * Sends a client message. This method is called when a message is created by the game code (e.g.,
-   * a command to interact with an entity or use a skill). The message will be processed either
-   * locally via the {@link LocalNetworkHandler} or sent to the server.
+   * Sends a client message to a server.
+   *
+   * <p>This method is called when a message is created by the game code (e.g., a command to
+   * interact with an entity or use a skill). The message will be processed either locally via the
+   * {@link LocalNetworkHandler} or sent to the server.
    *
    * @param message The client message to process.
    */
-  void sendToClient(ClientMessage message);
+  void sendToServer(ClientMessage message);
 
   /** Starts the handler's processing loop (if applicable). */
   void start();
@@ -49,18 +54,20 @@ public interface INetworkHandler {
   boolean isServer();
 
   /**
-   * Retrieves the dispatcher responsible for handling incoming messages. Game code should register
-   * their specific message handlers with this dispatcher.
+   * Retrieves the dispatcher responsible for handling incoming messages.
+   *
+   * <p>Game code or server should register their specific message handlers with this dispatcher.
    *
    * @return The MessageDispatcher instance.
    */
   MessageDispatcher messageDispatcher();
 
   /**
-   * Internal method: Sets the consumer for raw incoming messages. This method is intended for the
-   * internal use of the NetworkHandler implementation (e.g., KryoNetHandler) to feed raw messages
-   * into the MessageDispatcher. Game code should use {@link #messageDispatcher()} to register
-   * specific handlers.
+   * Internal method: Sets the consumer for raw incoming messages.
+   *
+   * <p>This method is intended for the internal use of the NetworkHandler implementation (e.g.,
+   * KryoNetHandler) to feed raw messages into the MessageDispatcher. Game code should use {@link
+   * #messageDispatcher()} to register specific handlers.
    *
    * @param rawMessageConsumer A consumer that processes raw incoming messages.
    */

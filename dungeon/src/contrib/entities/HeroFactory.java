@@ -225,7 +225,7 @@ public final class HeroFactory {
             // Small adjustment to get the correct tile
             Point mousePos =
                 SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-            Game.network().sendToClient(new HeroTargetMoveCommand(mousePos));
+            Game.network().sendToServer(new HeroTargetMoveCommand(mousePos));
           },
           false);
     }
@@ -336,7 +336,7 @@ public final class HeroFactory {
   }
 
   private static void registerMovement(InputComponent ic, int key, Direction direction) {
-    ic.registerCallback(key, entity -> Game.network().sendToClient(new HeroMoveCommand(direction)));
+    ic.registerCallback(key, entity -> Game.network().sendToServer(new HeroMoveCommand(direction)));
   }
 
   private static void registerMouseLeftClick(InputComponent ic) {
@@ -370,7 +370,7 @@ public final class HeroFactory {
 
   private static void executeHeroSkill(Entity hero) {
     // TODO: Implement logic to control skill_ids
-    Game.network().sendToClient(new UseSkillCommand(0, SkillTools.cursorPositionAsPoint()));
+    Game.network().sendToServer(new UseSkillCommand(0, SkillTools.cursorPositionAsPoint()));
   }
 
   private static void handleInteractWithClosestInteractable(Entity hero) {
@@ -397,7 +397,7 @@ public final class HeroFactory {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius()) {
-      Game.network().sendToClient(new InteractCommand(interactable));
+      Game.network().sendToServer(new InteractCommand(interactable));
     }
   }
 
