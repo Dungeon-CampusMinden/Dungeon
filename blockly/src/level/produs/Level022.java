@@ -13,7 +13,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import java.util.List;
@@ -87,7 +86,6 @@ public class Level022 extends BlocklyLevel {
     heroVC =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    bossVC.acceleration(heroVC.acceleration());
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {
@@ -106,7 +104,7 @@ public class Level022 extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss != null) {
-      bossVC.currentVelocity(Vector2.of(heroVC.currentVelocity().scale(-1).scale(14)));
+      heroVC.appliedForces().forEach((s, vector2) -> bossVC.applyForce(s, vector2.inverse()));
     } else if (openExit) Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).open());
   }
 }

@@ -52,7 +52,7 @@ public final class AIUtils {
     for (Direction dir : currentTile.directionTo(nextTile)) {
       direction = direction.add(dir);
     }
-    vc.currentVelocity(direction.normalize().scale(vc.maxSpeed()));
+    vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed()));
   }
 
   /**

@@ -6,6 +6,7 @@ import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
 import contrib.components.BlockComponent;
+import contrib.entities.HeroFactory;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -428,7 +429,8 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentVelocity(direction.scale(comp.vc.acceleration()));
+        // TODO this shoudl be stored central for Blockly
+        comp.vc.applyForce("MOVEMENT", direction.scale(HeroFactory.defaultHeroSpeed().x()));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -446,6 +448,7 @@ public class BlocklyCommands {
 
     for (EntityComponents ec : entityComponents) {
       ec.vc.currentVelocity(Vector2.ZERO);
+      ec.vc.clearForces();
       // check the position-tile via new request in case a new level was loaded
       Tile endTile = Game.tileAT(ec.pc.position());
       if (endTile != null) ec.pc.position(endTile); // snap to grid
@@ -485,7 +488,7 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.currentVelocity(direction);
+    vc.applyForce("MOVEMENT", direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }

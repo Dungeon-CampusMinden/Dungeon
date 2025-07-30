@@ -62,7 +62,9 @@ public class InevitableFireballSkill extends DamageProjectile {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.acceleration(defaultHeroSpeed);
+                    // TODO this should be stored somewhere central for blockly, this is the default
+                    // speed from the dungeon hero, not the blockly hero
+                    velocityComponent.maxSpeed(defaultHeroSpeed.x());
                   });
         },
         (projectile) -> {
@@ -71,7 +73,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .flatMap(hero -> hero.fetch(VelocityComponent.class))
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.acceleration(Vector2.ZERO);
+                    velocityComponent.maxSpeed(0);
                   });
           // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
           // freeze on the corner of the red zone
