@@ -44,12 +44,11 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 SPEED_HERO = Vector2.of(12f, 12f);
+  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
-  public static final int HERO_MAX_SPEED = 20;
-  public static final String X_MOVEMENT_ID = "X-Movement";
-  public static final String Y_MOVEMENT_ID = "Y-Movement";
+  public static final float HERO_MAX_SPEED = 12;
+  public static final String MOVEMENT_ID = "Movement";
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -64,7 +63,7 @@ public final class HeroFactory {
    * @return Copy of the default speed of the hero.
    */
   public static Vector2 defaultHeroSpeed() {
-    return Vector2.of(SPEED_HERO);
+    return Vector2.of(STEP_SPEED);
   }
 
   /**
@@ -188,10 +187,6 @@ public final class HeroFactory {
         pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Vector2.of(1, 0));
     registerMovement(
         pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Vector2.of(-1, 0));
-    registerReleaseMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value());
-    registerReleaseMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value());
-    registerReleaseMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value());
-    registerReleaseMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value());
 
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
@@ -352,30 +347,17 @@ public final class HeroFactory {
                   .orElseThrow(
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
 
-          vc.applyForce(X_MOVEMENT_ID, Vector2.of(direction.scale(defaultHeroSpeed().x())));
-          vc.applyForce(Y_MOVEMENT_ID, Vector2.of(direction.scale(defaultHeroSpeed().y())));
+          Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
+          Vector2 newForce = STEP_SPEED.scale(direction);
 
-          // Abort any path finding on own movement
-          if (ENABLE_MOUSE_MOVEMENT) {
-            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
+          Vector2 updatedForce =
+              existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
+
+          if (updatedForce.lengthSquared() > 0) {
+            updatedForce = updatedForce.normalize().scale(STEP_SPEED.length());
+            vc.applyForce(MOVEMENT_ID, updatedForce);
           }
-        });
-  }
 
-  private static void registerReleaseMovement(PlayerComponent pc, int key) {
-    pc.registerCallbackOnRelease(
-        key,
-        entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          vc.removeForce(X_MOVEMENT_ID);
-          vc.removeForce(Y_MOVEMENT_ID);
-
-          // Abort any path finding on own movement
           if (ENABLE_MOUSE_MOVEMENT) {
             entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
           }

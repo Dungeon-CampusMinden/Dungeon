@@ -28,7 +28,7 @@ import core.utils.Vector2;
  * @param goalLocation The point where the projectile should fly to.
  * @see contrib.utils.components.skill.DamageProjectile
  */
-public record ProjectileComponent(Point startPosition, Point goalLocation, Vector2 speed)
+public record ProjectileComponent(Point startPosition, Point goalLocation, Vector2 forceToApply)
     implements Component {
 
   /**
@@ -51,7 +51,7 @@ public record ProjectileComponent(Point startPosition, Point goalLocation, Vecto
     return startPosition;
   }
 
-  public Vector2 speed() {
-    return speed;
+  public Vector2 forceToApply() {
+    return forceToApply;
   }
 }

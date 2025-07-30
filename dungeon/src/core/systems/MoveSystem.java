@@ -1,6 +1,5 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -25,16 +24,12 @@ public class MoveSystem extends System {
 
   private void updatePosition(MSData data) {
     Vector2 velocity = data.vc.currentVelocity();
-
     // Limit velocity to maxSpeed (primarily for diagonal movement)
     if (velocity.length() > data.vc.maxSpeed()) {
       velocity = velocity.normalize();
       velocity = velocity.scale(data.vc.maxSpeed());
     }
-    Vector2 sv = velocity;
-    if (Gdx.graphics != null) {
-      sv = velocity.scale(1f / Game.frameRate());
-    }
+    Vector2 sv = velocity.scale(1f / Game.frameRate());
 
     Point oldPos = data.pc.position();
     Point newPos = oldPos.translate(sv);

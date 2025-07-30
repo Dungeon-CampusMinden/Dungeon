@@ -240,14 +240,14 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
     // Calculate the velocity of the projectile
-    Vector2 velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
+    Vector2 forceToApply =
+        SkillTools.calculateDirection(startPoint, targetPoint).scale(projectileSpeed);
 
     // Add the VelocityComponent to the projectile
-    VelocityComponent vc = new VelocityComponent(velocity.x(), onWallHit, true);
-    projectile.add(vc);
+    projectile.add(new VelocityComponent(projectileSpeed, onWallHit, true));
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
-    projectile.add(new ProjectileComponent(startPoint, targetPoint, velocity));
+    projectile.add(new ProjectileComponent(startPoint, targetPoint, forceToApply));
 
     // Create a collision handler for the projectile
     TriConsumer<Entity, Entity, Direction> collide =

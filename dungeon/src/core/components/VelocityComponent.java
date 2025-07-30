@@ -5,6 +5,7 @@ import core.Entity;
 import core.utils.Vector2;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -144,6 +145,10 @@ public final class VelocityComponent implements Component {
 
   public void removeForce(String id) {
     appliedForces.remove(id);
+  }
+
+  public Optional<Vector2> force(String id) {
+    return Optional.ofNullable(appliedForces.get(id));
   }
 
   public void clearForces() {

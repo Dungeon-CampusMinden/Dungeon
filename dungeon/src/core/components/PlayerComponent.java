@@ -21,14 +21,11 @@ import java.util.function.Consumer;
 public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
-
-  private final Map<Integer, InputData> releaseCallbacks;
   private int openDialogs = 0;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent() {
     callbacks = new HashMap<>();
-    releaseCallbacks = new HashMap<>();
   }
 
   /**
@@ -54,22 +51,12 @@ public final class PlayerComponent implements Component {
     return Optional.ofNullable(oldCallback);
   }
 
-  public Optional<Consumer<Entity>> registerCallbackOnRelease(
-      int key, final Consumer<Entity> callback) {
-    Consumer<Entity> oldCallback = null;
-    if (releaseCallbacks.containsKey(key)) {
-      oldCallback = releaseCallbacks.get(key).callback();
-    }
-    releaseCallbacks.put(key, new InputData(false, callback));
-    return Optional.ofNullable(oldCallback);
-  }
-
   /**
    * Registers a new callback for a key.
    *
    * <p>If a callback is already registered on this key, the old callback will be replaced.
    *
-   * @param key The integer value of the key on which the callback should be executed.
+   * @param key The integer valu e of the key on which the callback should be executed.
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
    *     pressed.
    * @param repeat If the callback should be executed repeatedly while the key is pressed.
@@ -146,10 +133,6 @@ public final class PlayerComponent implements Component {
    */
   public boolean openDialogs() {
     return openDialogs > 0;
-  }
-
-  public Map<Integer, InputData> releaseCallbacks() {
-    return new HashMap<>(releaseCallbacks);
   }
 
   /**
