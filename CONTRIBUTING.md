@@ -16,6 +16,9 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
 
 ## Pull Requests
 
+### Branches
+* Feature-Branches im Repository sollten mit dem GitHub-Nutzernamen (z. B. `flamtky/foobarichzerstoerediewelt` für @Flamtky) als Präfix benannt werden.
+
 ### Assignee & Titel
 * **Sprache**: Titel sind englisch; Beschreibungen sind auf deutsch.
 * Ersteller:in **setzt sich selbst als Assignee**.
@@ -33,7 +36,4 @@ Zur besseren Zusammenarbeit im Team gelten folgende Konventionen für Issues und
 
 ## Sonstiges
 * Die [Lizenzregeln](https://github.com/Dungeon-CampusMinden/Dungeon/blob/master/doc/license_rules.md) für Assets sind einzuhalten.
-
-## Branches
-* Feature-Branches im Repository sollten entweder mit einem Namenskürzel (z. B. `am/` für @AMatutat) oder mit dem GitHub-Nutzernamen (z. B. `flamtky/` für @Flamtky) als Präfix benannt werden.
 
