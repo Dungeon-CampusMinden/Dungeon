@@ -27,11 +27,11 @@ public final class SwitchToFightOnHeroApproach implements Function<Entity, Boole
   }
 
   /**
-   * If protecting entity isn't in fight mode yet, check if player is in range of the protected
-   * entity.
+   * Returns true if the protecting entity has entered fight mode.
+   * If not already in fight mode, it checks whether the hero is within range.
    *
-   * @param entity Entity that is protecting.
-   * @return true when the entity is in fight mode, else false.
+   * @param entity The protecting entity
+   * @return true if in fight mode, false otherwise
    */
   @Override
   public Boolean apply(final Entity entity) {
@@ -40,5 +40,9 @@ public final class SwitchToFightOnHeroApproach implements Function<Entity, Boole
     isInFight = LevelUtils.playerInRange(toProtect, range);
 
     return isInFight;
+  }
+  /** Resets the fight state to allow re-evaluation. */
+  public void resetFightState() {
+    this.isInFight = false;
   }
 }
