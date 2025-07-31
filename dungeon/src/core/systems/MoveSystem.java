@@ -30,7 +30,7 @@ public class MoveSystem extends System {
       velocity = velocity.scale(data.vc.maxSpeed());
     }
     Vector2 sv = velocity.scale(1f / Game.frameRate());
-
+    java.lang.System.out.println(velocity);
     Point oldPos = data.pc.position();
     Point newPos = oldPos.translate(sv);
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
