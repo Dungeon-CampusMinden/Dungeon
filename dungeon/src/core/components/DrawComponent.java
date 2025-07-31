@@ -594,4 +594,13 @@ public final class DrawComponent implements Component {
   public void tintColor(int tintColor) {
     this.tintColor = tintColor;
   }
+
+  // TODO: Implement me, current version just to compile
+  public String currentAnimationName() {
+    return animationMap.entrySet().stream()
+        .filter(entry -> entry.getValue() == currentAnimation)
+        .map(Map.Entry::getKey)
+        .findFirst()
+        .orElseThrow();
+  }
 }

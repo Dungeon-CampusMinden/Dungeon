@@ -14,6 +14,7 @@ import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.InputComponent;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
@@ -58,7 +59,7 @@ public class Hero {
 
     if (!AdvancedDungeon.DEBUG_MODE) {
       // Entfernt alle bisherigen Tastenzuweisungen
-      heroInstance.fetch(PlayerComponent.class).ifPresent(PlayerComponent::removeCallbacks);
+      heroInstance.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     }
     this.fireballSkill = fireballSkill;
     // uncap max hero speed
@@ -77,12 +78,12 @@ public class Hero {
   public void setController(PlayerController controller) {
     if (controller == null) return;
     String[] mousebuttons = {"LMB", "RMB", "MMB"};
-    hero.fetch(PlayerComponent.class)
+    hero.fetch(InputComponent.class)
         .ifPresent(
-            pc -> {
+            ic -> {
               for (int key = 0; key <= Input.Keys.MAX_KEYCODE; key++) {
                 int finalKey = key;
-                pc.registerCallback(
+                ic.registerCallback(
                     key,
                     entity -> {
                       try {
@@ -96,7 +97,7 @@ public class Hero {
                     });
               }
               // Callback zum Schließen von UI-Dialogen
-              HeroFactory.registerCloseUI(pc);
+              HeroFactory.registerCloseUI(ic);
             });
   }
 

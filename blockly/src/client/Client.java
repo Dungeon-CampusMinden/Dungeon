@@ -14,8 +14,8 @@ import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
+import core.systems.InputSystem;
 import core.systems.LevelSystem;
-import core.systems.PlayerSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -121,7 +121,7 @@ public class Client {
           Crafting.loadRecipes();
 
           if (KEYBOARD_DEACTIVATION) {
-            Game.remove(PlayerSystem.class);
+            Game.remove(InputSystem.class);
           }
 
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
