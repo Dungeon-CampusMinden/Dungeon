@@ -8,7 +8,7 @@ import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.idle.StaticRadiusWalk;
-import contrib.utils.components.ai.transition.ProtectOnApproach;
+import contrib.utils.components.ai.transition.SwitchToFightOnHeroApproach;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
@@ -165,7 +165,7 @@ public final class AIFactory {
         return new SelfDefendTransition();
       }
       case 2 -> {
-        return new ProtectOnApproach(
+        return new SwitchToFightOnHeroApproach(
             RANDOM.nextFloat(PROTECT_RANGE_LOW, PROTECT_RANGE_HIGH), randomMonsterOrMe(entity));
       }
       default -> {

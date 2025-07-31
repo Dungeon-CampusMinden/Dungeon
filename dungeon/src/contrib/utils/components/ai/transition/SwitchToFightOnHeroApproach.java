@@ -9,7 +9,7 @@ import java.util.function.Function;
  *
  * <p>Entity will stay in fight mode once entered.
  */
-public final class ProtectOnApproach implements Function<Entity, Boolean> {
+public final class SwitchToFightOnHeroApproach implements Function<Entity, Boolean> {
 
   private final float range;
   private final Entity toProtect;
@@ -21,7 +21,7 @@ public final class ProtectOnApproach implements Function<Entity, Boolean> {
    *     mode.
    * @param toProtect The entity which will be protected.
    */
-  public ProtectOnApproach(float range, final Entity toProtect) {
+  public SwitchToFightOnHeroApproach(float range, final Entity toProtect) {
     this.range = range;
     this.toProtect = toProtect;
   }

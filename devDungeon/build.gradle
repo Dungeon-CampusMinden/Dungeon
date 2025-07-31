@@ -2,22 +2,29 @@ plugins {
     id 'java-library'
 }
 
-
 dependencies {
+    // Abhängigkeit zum Hauptprojekt "dungeon"
     api project(':dungeon')
-}
 
+    // LibGDX-Abhängigkeiten
+    implementation "com.badlogicgames.gdx:gdx:1.12.0"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.0"
+    implementation "com.badlogicgames.gdx:gdx-platform:1.12.0:natives-desktop"
+}
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 
+// Task zum Ausführen der DevDungeon-Klasse
 tasks.register('runDevDungeon', JavaExec) {
-    group 'starter'
+    group = 'starter'
     mainClass = 'starter.DevDungeon'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+// Task zum Erstellen eines ausführbaren JARs
 tasks.register('buildDevDungeonJar', Jar) {
-    group 'jar'
+    group = 'jar'
     dependsOn ':dungeon:jar'
     archiveBaseName = 'DevDungeon'
     from sourceSets.main.output
@@ -40,6 +47,7 @@ tasks.register('buildDevDungeonJar', Jar) {
     exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
 
+// Ressourcen aus Hauptprojekt mit einbinden
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
