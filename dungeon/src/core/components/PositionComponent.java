@@ -120,6 +120,7 @@ public final class PositionComponent implements Component {
    * Set the position.
    *
    * @param position new Position
+   * @return the given position
    */
   public Point position(final Point position) {
     this.position = new Point(position);

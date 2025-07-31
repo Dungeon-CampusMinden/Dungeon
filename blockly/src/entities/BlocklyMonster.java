@@ -237,6 +237,12 @@ public enum BlocklyMonster {
       return this;
     }
 
+    /**
+     * Maximum movement speed of the monster.
+     *
+     * @param speed The movement speed to set for the monster
+     * @return This builder instance for method chaining.
+     */
     public BlocklyMonsterBuilder speed(float speed) {
       this.speed = speed;
       return this;

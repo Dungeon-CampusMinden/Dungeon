@@ -37,7 +37,7 @@ public final class AIComponent implements Component {
   private final Consumer<Entity> idleBehavior;
   private final Function<Entity, Boolean> shouldFight;
 
-  private Vector2 speed;
+  private Vector2 movementForce;
   private boolean active = true;
 
   /**
@@ -46,16 +46,17 @@ public final class AIComponent implements Component {
    * @param fightBehavior The combat behavior.
    * @param idleBehavior The idle behavior.
    * @param shouldFight Determines when to fight.
+   * @param movementForce Force to apply on the Ai-Entity for movement.
    */
   public AIComponent(
       final Consumer<Entity> fightBehavior,
       final Consumer<Entity> idleBehavior,
       final Function<Entity, Boolean> shouldFight,
-      Vector2 speed) {
+      Vector2 movementForce) {
     this.fightBehavior = fightBehavior;
     this.idleBehavior = idleBehavior;
     this.shouldFight = shouldFight;
-    this.speed = speed;
+    this.movementForce = movementForce;
   }
 
   /**
@@ -133,7 +134,12 @@ public final class AIComponent implements Component {
     return this.active;
   }
 
-  public Vector2 speed() {
-    return speed;
+  /**
+   * Returns the movement force vector currently acting on the entity.
+   *
+   * @return The movement force vector
+   */
+  public Vector2 movementForce() {
+    return movementForce;
   }
 }

@@ -8,8 +8,16 @@ import core.components.VelocityComponent;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
+/**
+ * System that applies friction forces to entities.
+ *
+ * <p>This system processes all entities that have both a {@link VelocityComponent} and a {@link
+ * PositionComponent}. It calculates the friction force based on the friction value of the tile at
+ * the entity’s current position, then applies this force opposite to the entity’s current velocity.
+ */
 public class FrictionSystem extends System {
 
+  /** Create a new FrictionSystem. */
   public FrictionSystem() {
     super(VelocityComponent.class, PositionComponent.class);
   }

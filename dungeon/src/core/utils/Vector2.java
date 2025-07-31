@@ -229,6 +229,13 @@ public interface Vector2 {
     return Vector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
   }
 
+  /**
+   * Returns a new vector pointing in the opposite direction.
+   *
+   * <p>Effectively, this scales both components of the vector by -1.
+   *
+   * @return A new vector which is the inverse of this vector
+   */
   default Vector2 inverse() {
     return this.scale(-1);
   }
