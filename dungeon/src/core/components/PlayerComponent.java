@@ -56,7 +56,7 @@ public final class PlayerComponent implements Component {
    *
    * <p>If a callback is already registered on this key, the old callback will be replaced.
    *
-   * @param key The integer valu e of the key on which the callback should be executed.
+   * @param key The integer value of the key on which the callback should be executed.
    * @param callback The {@link Consumer} that contains the callback to execute if the key is
    *     pressed.
    * @param repeat If the callback should be executed repeatedly while the key is pressed.
