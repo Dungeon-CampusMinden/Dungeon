@@ -1,5 +1,6 @@
 package level.produs;
 
+import client.Client;
 import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
@@ -56,7 +57,7 @@ public class Level022 extends BlocklyLevel {
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
-    bossBuilder.speed(7.5f);
+    bossBuilder.speed(Client.MOVEMENT_FORCE.x());
     bossBuilder.addToGame();
     bossBuilder.viewDirection(Direction.LEFT);
     bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
