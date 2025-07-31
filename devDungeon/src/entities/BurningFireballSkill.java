@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 public final class BurningFireballSkill extends DamageProjectile {
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
-  private static final float PROJECTILE_SPEED = 15f;
+  private static final float PROJECTILE_SPEED = 13f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final BurningEffect BURNING_EFFECT = new BurningEffect(1f, 1);
