@@ -1,8 +1,9 @@
+---
 title: "Blockly Lösung: Level 1 
 ---
 ​
 ## Blöcke
-![solution](doc/produs_unterlagen/solution/blockly/img/loesung_level_3.png)
+![solution](doc/produs_unterlagen/solution/blockly/img/loesung_level_1.png)
 
 Code:
 for(int i = 1; i < 3; i++){

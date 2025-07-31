@@ -37,6 +37,25 @@ public class MyPlayerController extends PlayerController {
    * @param key Der gedrückte Knopf als Zeichenkette (z.B. "W", "A", "D").
    */
   protected void processKey(String key) {
-    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
+    if(key.equals("E")) move(10, 10);
+    if(key.equals("Q")) move(-10, 10);
+    if(key.equals("RMB")) move(10, -10);
+    //if(key.equals("LMB")) move(-10, -10);
+    if(key.equals("W")) move(0, 10);
+    if(key.equals("A")) move(-10, 0);
+    if(key.equals("D")) move(10, 0);
+    if(key.equals("S")) move(0, -10);
+    if(key.equals("MMB")) hero.interact();
+    if(key.equals("LMB")) shootFireball();
+  }
+
+  private void move(int x, int y){
+    //hero.setSpeed(Vector2.of(x, y));
+    hero.setXSpeed(x);
+    hero.setYSpeed(y);
+  }
+
+  private void shootFireball() {
+    hero.shootFireball(hero.getMousePosition());
   }
 }
