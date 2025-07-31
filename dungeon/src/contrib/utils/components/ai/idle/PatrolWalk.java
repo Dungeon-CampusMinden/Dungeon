@@ -9,6 +9,7 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +30,8 @@ public final class PatrolWalk implements Consumer<Entity> {
   private final int pauseFrames;
   private final float radius;
   private final MODE mode;
-  private GraphPath<Tile> currentPath;
+
+  private GraphPath<Tile> currentPath = null;
   private boolean initialized = false;
   private boolean forward = true;
   private int frameCounter = -1;
@@ -58,29 +60,23 @@ public final class PatrolWalk implements Consumer<Entity> {
   private boolean initializeCheckpoints(final Entity entity) {
     initialized = true;
     PositionComponent position =
-      entity
-        .fetch(PositionComponent.class)
+      entity.fetch(PositionComponent.class)
         .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point center = position.position();
     Optional<Tile> tileOpt = Optional.ofNullable(Game.tileAT(center));
 
-    if (tileOpt.isEmpty()) {
-      return false;
-    }
+    if (tileOpt.isEmpty()) return false;
 
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
-
-    if (accessibleTiles.isEmpty()) {
-      return false;
-    }
+    if (accessibleTiles.isEmpty()) return false;
 
     int maxTries = 0;
-    while (this.checkpoints.size() < numberCheckpoints
-      && accessibleTiles.size() != this.checkpoints.size()
+    while (checkpoints.size() < numberCheckpoints
+      && accessibleTiles.size() != checkpoints.size()
       && maxTries < 1000) {
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
-      if (!this.checkpoints.contains(t)) {
-        this.checkpoints.add(t);
+      if (!checkpoints.contains(t)) {
+        checkpoints.add(t);
       }
       maxTries++;
     }
@@ -89,74 +85,83 @@ public final class PatrolWalk implements Consumer<Entity> {
 
   @Override
   public void accept(final Entity entity) {
-    if (!initialized) {
-      initialized = initializeCheckpoints(entity);
-    }
-    if (this.checkpoints.isEmpty()) {
+    if (!initialized && !initializeCheckpoints(entity)) return;
+    if (checkpoints.isEmpty()) {
       initialized = false;
       return;
     }
-    PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
-      if (AIUtils.pathLeft(entity, currentPath)) {
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
+    PositionComponent position = getPositionComponent(entity);
+
+    if (isPathInProgress(entity)) {
+      updatePathIfRequired(entity, position);
       AIUtils.move(entity, currentPath);
       return;
     }
 
-    if (currentPath != null && AIUtils.pathFinished(entity, currentPath)) {
+    if (pathJustFinished(entity)) {
       frameCounter = 0;
       currentPath = null;
       return;
     }
 
-    if (frameCounter++ < pauseFrames && frameCounter != -1) {
-      return;
+    if (shouldWaitAtCheckpoint()) return;
+
+    frameCounter = -1;
+    advanceToNextCheckpoint(position);
+  }
+
+  private PositionComponent getPositionComponent(Entity entity) {
+    return entity.fetch(PositionComponent.class)
+      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  private boolean isPathInProgress(Entity entity) {
+    return currentPath != null && !AIUtils.pathFinished(entity, currentPath);
+  }
+
+  private void updatePathIfRequired(Entity entity, PositionComponent position) {
+    if (AIUtils.pathLeft(entity, currentPath)) {
+      updateCurrentPath(position);
+    }
+  }
+
+  private boolean pathJustFinished(Entity entity) {
+    return currentPath != null && AIUtils.pathFinished(entity, currentPath);
+  }
+
+  private boolean shouldWaitAtCheckpoint() {
+    return frameCounter++ < pauseFrames && frameCounter != -1;
+  }
+
+  private void advanceToNextCheckpoint(PositionComponent position) {
+    switch (mode) {
+      case RANDOM -> currentCheckpoint = RANDOM.nextInt(checkpoints.size());
+      case LOOP -> currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
+      case BACK_AND_FORTH -> updateCheckpointBackAndForth();
     }
 
-    // HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
-    this.frameCounter = -1;
+    updateCurrentPath(position);
+  }
 
-    switch (mode) {
-      case RANDOM -> {
-        Random rnd = new Random();
-        currentCheckpoint = rnd.nextInt(checkpoints.size());
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
+  private void updateCurrentPath(PositionComponent position) {
+    currentPath = LevelUtils.calculatePath(
+      position.position(), checkpoints.get(currentCheckpoint).position());
+  }
+
+  private void updateCheckpointBackAndForth() {
+    if (forward) {
+      currentCheckpoint++;
+      if (currentCheckpoint == checkpoints.size()) {
+        forward = false;
+        currentCheckpoint = checkpoints.size() - 2;
       }
-      case LOOP -> {
-        currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
+    } else {
+      currentCheckpoint--;
+      if (currentCheckpoint == -1) {
+        forward = true;
+        currentCheckpoint = 1;
       }
-      case BACK_AND_FORTH -> {
-        if (forward) {
-          currentCheckpoint += 1;
-          if (currentCheckpoint == checkpoints.size()) {
-            forward = false;
-            currentCheckpoint = checkpoints.size() - 2;
-          }
-        } else {
-          currentCheckpoint -= 1;
-          if (currentCheckpoint == -1) {
-            forward = true;
-            currentCheckpoint = 1;
-          }
-        }
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
-      default -> {}
     }
   }
 
