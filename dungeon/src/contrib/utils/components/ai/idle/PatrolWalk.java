@@ -85,35 +85,58 @@ public final class PatrolWalk implements Consumer<Entity> {
 
   @Override
   public void accept(final Entity entity) {
-    if (!initialized && !initializeCheckpoints(entity)) return;
-    if (checkpoints.isEmpty()) {
-      initialized = false;
-      return;
-    }
+    if (!initializeIfNeeded(entity) || !hasValidCheckpoints()) return;
 
     PositionComponent position = getPositionComponent(entity);
 
-    if (isPathInProgress(entity)) {
-      updatePathIfRequired(entity, position);
-      AIUtils.move(entity, currentPath);
-      return;
-    }
-
-    if (pathJustFinished(entity)) {
-      frameCounter = 0;
-      currentPath = null;
-      return;
-    }
-
-    if (shouldWaitAtCheckpoint()) return;
+    if (handleOngoingPath(entity, position)) return;
+    if (handleFinishedPath(entity)) return;
+    if (handleCheckpointWait()) return;
 
     frameCounter = -1;
     advanceToNextCheckpoint(position);
   }
 
+  private boolean initializeIfNeeded(Entity entity) {
+    if (!initialized) {
+      initialized = initializeCheckpoints(entity);
+    }
+    return initialized;
+  }
+
+  private boolean hasValidCheckpoints() {
+    if (checkpoints.isEmpty()) {
+      initialized = false;
+      return false;
+    }
+    return true;
+  }
+
   private PositionComponent getPositionComponent(Entity entity) {
     return entity.fetch(PositionComponent.class)
       .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  private boolean handleOngoingPath(Entity entity, PositionComponent position) {
+    if (isPathInProgress(entity)) {
+      updatePathIfRequired(entity, position);
+      AIUtils.move(entity, currentPath);
+      return true;
+    }
+    return false;
+  }
+
+  private boolean handleFinishedPath(Entity entity) {
+    if (pathJustFinished(entity)) {
+      frameCounter = 0;
+      currentPath = null;
+      return true;
+    }
+    return false;
+  }
+
+  private boolean handleCheckpointWait() {
+    return frameCounter++ < pauseFrames && frameCounter != -1;
   }
 
   private boolean isPathInProgress(Entity entity) {
@@ -122,16 +145,13 @@ public final class PatrolWalk implements Consumer<Entity> {
 
   private void updatePathIfRequired(Entity entity, PositionComponent position) {
     if (AIUtils.pathLeft(entity, currentPath)) {
-      updateCurrentPath(position);
+      currentPath = LevelUtils.calculatePath(
+        position.position(), checkpoints.get(currentCheckpoint).position());
     }
   }
 
   private boolean pathJustFinished(Entity entity) {
     return currentPath != null && AIUtils.pathFinished(entity, currentPath);
-  }
-
-  private boolean shouldWaitAtCheckpoint() {
-    return frameCounter++ < pauseFrames && frameCounter != -1;
   }
 
   private void advanceToNextCheckpoint(PositionComponent position) {
@@ -141,10 +161,6 @@ public final class PatrolWalk implements Consumer<Entity> {
       case BACK_AND_FORTH -> updateCheckpointBackAndForth();
     }
 
-    updateCurrentPath(position);
-  }
-
-  private void updateCurrentPath(PositionComponent position) {
     currentPath = LevelUtils.calculatePath(
       position.position(), checkpoints.get(currentCheckpoint).position());
   }
