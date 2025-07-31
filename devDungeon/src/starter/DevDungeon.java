@@ -165,46 +165,6 @@ public class DevDungeon {
     Game.add(new LeverSystem());
     Game.add(new MobSpawnerSystem());
     Game.add(new MagicShieldSystem());
-    Game.add(new LevelEditorSystem());
-    Game.add(
-        new System() {
-          @Override
-          public void execute() {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.F1)) {
-              List<Entity> entities = Game.allEntities().toList();
-              for (Entity entity : entities) {
-                // if they have a DrawComponent, print their name and draw component value isVisible
-                java.lang.System.out.println(
-                    entity.name()
-                        + " - "
-                        + entity
-                            .fetch(DrawComponent.class)
-                            .map(DrawComponent::isVisible)
-                            .orElse(false)
-                        + " - "
-                        + entity
-                            .fetch(PositionComponent.class)
-                            .map(PositionComponent::position)
-                            .orElse(new Point(0, 0))
-                        + " - "
-                        + entity
-                            .fetch(HealthComponent.class)
-                            .map(HealthComponent::currentHealthpoints)
-                            .orElse(0)
-                        + "/"
-                        + entity
-                            .fetch(HealthComponent.class)
-                            .map(HealthComponent::maximalHealthpoints)
-                            .orElse(0));
-              }
-            } else if (Gdx.input.isKeyJustPressed(Input.Keys.F2)) {
-              // print my current pos
-              Game.hero()
-                  .flatMap(hero -> hero.fetch(PositionComponent.class))
-                  .ifPresent(pc -> java.lang.System.out.println("My position: " + pc.position()));
-            }
-          }
-        });
 
     /* Cheats */
     if (ENABLE_CHEATS) {
