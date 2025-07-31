@@ -9,16 +9,26 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 
 /**
- * Implements an idle AI that lets the entity walk a specific path.
- *
- * <p>There are different modes. The entity can walk to random checkpoints, looping the same path or
- * walking the path back and forth.
+ * Implements an idle AI behavior allowing an entity to patrol between tiles on a map.
+ * <p>
+ * The patrol area is determined by a circular radius around the entity's current position.
+ * At initialization, a set of unique, accessible checkpoints is selected within this radius.
+ * The entity then moves between these checkpoints using one of the following patrol modes:
+ * <ul>
+ *   <li>{@code RANDOM}: Move to a randomly chosen checkpoint each time.</li>
+ *   <li>{@code LOOP}: Move sequentially through all checkpoints and repeat from the beginning.</li>
+ *   <li>{@code BACK_AND_FORTH}: Move forward through the list, then reverse direction upon reaching the end.</li>
+ * </ul>
+ * <p>
+ * The AI also includes a configurable pause time at each checkpoint before proceeding to the next.
  */
 public final class PatrolWalk implements Consumer<Entity> {
 
@@ -28,143 +38,237 @@ public final class PatrolWalk implements Consumer<Entity> {
   private final int pauseFrames;
   private final float radius;
   private final MODE mode;
-  private GraphPath<Tile> currentPath;
+
+  private GraphPath<Tile> currentPath = null;
   private boolean initialized = false;
   private boolean forward = true;
   private int frameCounter = -1;
   private int currentCheckpoint = 0;
 
   /**
-   * WTF? (erster Satz kurze Beschreibung) .
+   * Constructs a new PatrolWalk behavior instance.
    *
-   * <p>Walks a random pattern in a radius around the entity. The checkpoints will be chosen
-   * randomly at first idle. After being initialized, the checkpoints won't change anymore, only the
-   * order may be.
-   *
-   * @param radius Max distance from the entity to walk.
-   * @param numberCheckpoints Number of checkpoints to walk to.
-   * @param pauseTime Max time in milliseconds to wait on a checkpoint. The actual time is a random
-   *     number between 0 and this value.
-   * @param mode WTF? .
+   * @param radius             The maximum distance (in tiles) around the entity to generate checkpoints.
+   * @param numberCheckpoints  Number of unique checkpoints to generate.
+   * @param pauseTimeMillis    Maximum wait time at each checkpoint in milliseconds. Actual wait time is randomized.
+   * @param mode               Movement mode for patrolling behavior.
    */
-  public PatrolWalk(float radius, int numberCheckpoints, int pauseTime, final MODE mode) {
+  public PatrolWalk(float radius, int numberCheckpoints, int pauseTimeMillis, final MODE mode) {
     this.radius = radius;
     this.numberCheckpoints = numberCheckpoints;
-    this.pauseFrames = pauseTime / (1000 / Game.frameRate());
+    this.pauseFrames = pauseTimeMillis / (1000 / Game.frameRate());
     this.mode = mode;
   }
 
-  private void init(final Entity entity) {
+  /**
+   * Initializes a list of accessible checkpoints around the entity's current position.
+   *
+   * @param entity The entity for which checkpoints are generated.
+   * @return true if at least one valid checkpoint was found, false otherwise.
+   */
+  private boolean initializeCheckpoints(final Entity entity) {
     initialized = true;
     PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point center = position.position();
-    Tile tile = Game.tileAT(position.position());
+    Optional<Tile> tileOpt = Optional.ofNullable(Game.tileAT(center));
 
-    if (tile == null) {
-      return;
-    }
+    if (tileOpt.isEmpty()) return false;
 
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
-
-    if (accessibleTiles.isEmpty()) {
-      return;
-    }
+    if (accessibleTiles.isEmpty()) return false;
 
     int maxTries = 0;
-    while (this.checkpoints.size() < numberCheckpoints
-        || accessibleTiles.size() == this.checkpoints.size()
-        || maxTries >= 1000) {
+    while (checkpoints.size() < numberCheckpoints
+      && accessibleTiles.size() != checkpoints.size()
+      && maxTries < 1000) {
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
-      if (!this.checkpoints.contains(t)) {
-        this.checkpoints.add(t);
+      if (!checkpoints.contains(t)) {
+        checkpoints.add(t);
       }
       maxTries++;
     }
+    return true;
   }
 
+  /**
+   * Executes the AI behavior for a given entity. Handles initialization, movement along a path,
+   * waiting at a checkpoint, and selecting the next destination based on patrol mode.
+   *
+   * @param entity The entity for which the behavior is performed.
+   */
   @Override
   public void accept(final Entity entity) {
-    if (!initialized) this.init(entity);
-    if (this.checkpoints.isEmpty()) {
+    if (!initializeIfNeeded(entity) || !hasValidCheckpoints()) return;
+
+    PositionComponent position = getPositionComponent(entity);
+
+    if (handleOngoingPath(entity, position)) return;
+    if (handleFinishedPath(entity)) return;
+    if (handleCheckpointWait()) return;
+
+    frameCounter = -1;
+    advanceToNextCheckpoint(position);
+  }
+
+  /**
+   * Ensures checkpoints are initialized if not yet initialized.
+   *
+   * @param entity The entity used to initialize the checkpoints.
+   * @return true if initialization succeeded or already completed.
+   */
+  private boolean initializeIfNeeded(Entity entity) {
+    if (!initialized) {
+      initialized = initializeCheckpoints(entity);
+    }
+    return initialized;
+  }
+
+  /**
+   * Checks whether valid checkpoints are available.
+   *
+   * @return true if at least one checkpoint is available.
+   */
+  private boolean hasValidCheckpoints() {
+    if (checkpoints.isEmpty()) {
       initialized = false;
-      return;
+      return false;
     }
-    PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return true;
+  }
 
-    if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
-      if (AIUtils.pathLeft(entity, currentPath)) {
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
+  /**
+   * Retrieves the PositionComponent of an entity.
+   *
+   * @param entity The target entity.
+   * @return The PositionComponent.
+   */
+  private PositionComponent getPositionComponent(Entity entity) {
+    return entity.fetch(PositionComponent.class)
+      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  /**
+   * Handles the current path if it's still in progress.
+   *
+   * @param entity   The entity moving along the path.
+   * @param position The entity's position component.
+   * @return true if the entity is currently moving on a path.
+   */
+  private boolean handleOngoingPath(Entity entity, PositionComponent position) {
+    if (isPathInProgress(entity)) {
+      updatePathIfRequired(entity, position);
       AIUtils.move(entity, currentPath);
-      return;
+      return true;
     }
+    return false;
+  }
 
-    if (currentPath != null && AIUtils.pathFinished(entity, currentPath)) {
+  /**
+   * Handles actions when the current path has just been completed.
+   *
+   * @param entity The target entity.
+   * @return true if path was completed and pause is initiated.
+   */
+  private boolean handleFinishedPath(Entity entity) {
+    if (pathJustFinished(entity)) {
       frameCounter = 0;
       currentPath = null;
-      return;
+      return true;
     }
+    return false;
+  }
 
-    if (frameCounter++ < pauseFrames && frameCounter != -1) {
-      return;
-    }
+  /**
+   * Determines whether the entity should wait at a checkpoint.
+   *
+   * @return true if the entity is still within the waiting time.
+   */
+  private boolean handleCheckpointWait() {
+    return frameCounter++ < pauseFrames && frameCounter != -1;
+  }
 
-    // HERE: (Path to checkpoint finished + pause time over) OR currentPath = null
-    this.frameCounter = -1;
+  /**
+   * Checks if the entity is still on the current path.
+   *
+   * @param entity The entity to evaluate.
+   * @return true if path is still in progress.
+   */
+  private boolean isPathInProgress(Entity entity) {
+    return currentPath != null && !AIUtils.pathFinished(entity, currentPath);
+  }
 
-    switch (mode) {
-      case RANDOM -> {
-        Random rnd = new Random();
-        currentCheckpoint = rnd.nextInt(checkpoints.size());
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
-      case LOOP -> {
-        currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
-      case BACK_AND_FORTH -> {
-        if (forward) {
-          currentCheckpoint += 1;
-          if (currentCheckpoint == checkpoints.size()) {
-            forward = false;
-            currentCheckpoint = checkpoints.size() - 2;
-          }
-        } else {
-          currentCheckpoint -= 1;
-          if (currentCheckpoint == -1) {
-            forward = true;
-            currentCheckpoint = 1;
-          }
-        }
-        currentPath =
-            LevelUtils.calculatePath(
-                position.position(), this.checkpoints.get(currentCheckpoint).position());
-      }
-      default -> {}
+  /**
+   * Updates the path if the entity has deviated from it.
+   *
+   * @param entity   The target entity.
+   * @param position The current position component of the entity.
+   */
+  private void updatePathIfRequired(Entity entity, PositionComponent position) {
+    if (AIUtils.pathLeft(entity, currentPath)) {
+      currentPath = LevelUtils.calculatePath(
+        position.position(), checkpoints.get(currentCheckpoint).position());
     }
   }
 
-  /** WTF? . */
+  /**
+   * Checks whether the entity has just completed a path.
+   *
+   * @param entity The target entity.
+   * @return true if path is completed.
+   */
+  private boolean pathJustFinished(Entity entity) {
+    return currentPath != null && AIUtils.pathFinished(entity, currentPath);
+  }
+
+  /**
+   * Determines the next checkpoint based on patrol mode and calculates a path to it.
+   *
+   * @param position The current position component of the entity.
+   */
+  private void advanceToNextCheckpoint(PositionComponent position) {
+    switch (mode) {
+      case RANDOM -> currentCheckpoint = RANDOM.nextInt(checkpoints.size());
+      case LOOP -> currentCheckpoint = (currentCheckpoint + 1) % checkpoints.size();
+      case BACK_AND_FORTH -> updateCheckpointBackAndForth();
+    }
+
+    currentPath = LevelUtils.calculatePath(
+      position.position(), checkpoints.get(currentCheckpoint).position());
+  }
+
+  /**
+   * Updates the checkpoint index for BACK_AND_FORTH mode.
+   * Reverses direction when reaching either end of the checkpoint list.
+   */
+  private void updateCheckpointBackAndForth() {
+    if (forward) {
+      currentCheckpoint++;
+      if (currentCheckpoint == checkpoints.size()) {
+        forward = false;
+        currentCheckpoint = checkpoints.size() - 2;
+      }
+    } else {
+      currentCheckpoint--;
+      if (currentCheckpoint == -1) {
+        forward = true;
+        currentCheckpoint = 1;
+      }
+    }
+  }
+
+  /**
+   * Enum representing the patrol mode to use when selecting the next checkpoint.
+   */
   public enum MODE {
-    /** Walks to a random checkpoint. */
+    /** Select a random checkpoint. */
     RANDOM,
 
-    /** Looping the same path over and over again. */
+    /** Cycle through checkpoints sequentially. */
     LOOP,
 
-    /** Walks the path forward and then backward. */
+    /** Move forward through checkpoints and then reverse back. */
     BACK_AND_FORTH
   }
 }
