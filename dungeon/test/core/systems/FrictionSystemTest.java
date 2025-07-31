@@ -15,6 +15,7 @@ import core.utils.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Unit tests for the {@link core.systems.FrictionSystem}. */
 public class FrictionSystemTest {
 
   private FrictionSystem system;
@@ -41,6 +42,13 @@ public class FrictionSystemTest {
     vc.currentVelocity(Vector2.of(10, 0));
   }
 
+  /**
+   * Tests that the friction force is correctly calculated and applied based on the friction
+   * coefficient of the tile underneath the entity.
+   *
+   * <p>The friction force should be the inverse scaled velocity multiplied by the tile's friction
+   * value.
+   */
   @Test
   void appliesFrictionForceBasedOnTileFriction() {
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
@@ -56,6 +64,11 @@ public class FrictionSystemTest {
     verify(vc).applyForce("Friction", expectedForce);
   }
 
+  /**
+   * Tests that when the entity's velocity is zero, the friction force applied is also zero.
+   *
+   * <p>This ensures no unnecessary force is applied when the entity is stationary.
+   */
   @Test
   void applyForceIsZeroWhenVelocityIsZero() {
     vc.currentVelocity(Vector2.of(0, 0));
