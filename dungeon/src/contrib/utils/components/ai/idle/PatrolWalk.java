@@ -55,7 +55,7 @@ public final class PatrolWalk implements Consumer<Entity> {
     this.mode = mode;
   }
 
-  private boolean init(final Entity entity) {
+  private boolean initializeCheckpoints(final Entity entity) {
     initialized = true;
     PositionComponent position =
       entity
@@ -90,7 +90,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   @Override
   public void accept(final Entity entity) {
     if (!initialized) {
-      initialized = init(entity);
+      initialized = initializeCheckpoints(entity);
     }
     if (this.checkpoints.isEmpty()) {
       initialized = false;
