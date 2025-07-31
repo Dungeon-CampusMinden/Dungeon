@@ -1,12 +1,12 @@
 package utils;
 
+import client.Client;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
 import contrib.components.BlockComponent;
-import contrib.entities.HeroFactory;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
@@ -34,6 +34,8 @@ import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
+
+  private static final String MOVEMENT_FORCE_ID = "Movement";
 
   /**
    * If this is et to true, the Guard-Monster will not shoot on the hero.
@@ -441,7 +443,7 @@ public class BlocklyCommands {
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
         // TODO this shoudl be stored central for Blockly
-        comp.vc.applyForce("MOVEMENT", direction.scale(HeroFactory.defaultHeroSpeed().x()));
+        comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -499,7 +501,7 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.applyForce("MOVEMENT", direction);
+    vc.applyForce(MOVEMENT_FORCE_ID, direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }

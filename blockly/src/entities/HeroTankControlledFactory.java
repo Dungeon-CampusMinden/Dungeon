@@ -1,5 +1,6 @@
 package entities;
 
+import client.Client;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.components.PlayerComponent;
@@ -18,8 +19,6 @@ import utils.BlocklyCommands;
  * controls and adding new controls for moving forward and turning left or right.
  */
 public class HeroTankControlledFactory {
-
-  private static final float ACCELERATION = 7.5f;
 
   /**
    * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
@@ -68,10 +67,10 @@ public class HeroTankControlledFactory {
 
     Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, ACCELERATION);
-      case DOWN -> newVelocity = Vector2.of(0, -ACCELERATION);
-      case LEFT -> newVelocity = Vector2.of(-ACCELERATION, 0);
-      case RIGHT -> newVelocity = Vector2.of(ACCELERATION, 0);
+      case UP -> newVelocity = Vector2.of(0, Client.MOVEMENT_FORCE.y());
+      case DOWN -> newVelocity = Vector2.of(0, -Client.MOVEMENT_FORCE.y());
+      case LEFT -> newVelocity = Vector2.of(-Client.MOVEMENT_FORCE.x(), 0);
+      case RIGHT -> newVelocity = Vector2.of(Client.MOVEMENT_FORCE.x(), 0);
     }
     vc.applyForce("MOVEMENT", newVelocity);
   }

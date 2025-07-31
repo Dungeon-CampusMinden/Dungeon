@@ -1,5 +1,6 @@
 package utils.components.skill;
 
+import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
@@ -62,9 +63,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   velocityComponent -> {
-                    // TODO this should be stored somewhere central for blockly, this is the default
-                    // speed from the dungeon hero, not the blockly hero
-                    velocityComponent.maxSpeed(defaultHeroSpeed.x());
+                    velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
                   });
         },
         (projectile) -> {
