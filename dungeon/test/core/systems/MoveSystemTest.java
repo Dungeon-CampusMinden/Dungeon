@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Unit tests for the {@link MoveSystem}. */
 public class MoveSystemTest {
 
   private static final Point START_POSITION = new Point(5, 5);
