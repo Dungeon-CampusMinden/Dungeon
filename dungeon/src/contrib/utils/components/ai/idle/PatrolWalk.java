@@ -11,6 +11,7 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -35,7 +36,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   private int currentCheckpoint = 0;
 
   /**
-   * WTF? (erster Satz kurze Beschreibung) .
+   * WTF? (erster Satz kurze Beschreibung).
    *
    * <p>Walks a random pattern in a radius around the entity. The checkpoints will be chosen
    * randomly at first idle. After being initialized, the checkpoints won't change anymore, only the
@@ -54,40 +55,43 @@ public final class PatrolWalk implements Consumer<Entity> {
     this.mode = mode;
   }
 
-  private void init(final Entity entity) {
+  private boolean init(final Entity entity) {
     initialized = true;
     PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point center = position.position();
-    Tile tile = Game.tileAT(position.position());
+    Optional<Tile> tileOpt = Optional.ofNullable(Game.tileAT(center));
 
-    if (tile == null) {
-      return;
+    if (tileOpt.isEmpty()) {
+      return false;
     }
 
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
 
     if (accessibleTiles.isEmpty()) {
-      return;
+      return false;
     }
 
     int maxTries = 0;
     while (this.checkpoints.size() < numberCheckpoints
-        || accessibleTiles.size() == this.checkpoints.size()
-        || maxTries >= 1000) {
+      && accessibleTiles.size() != this.checkpoints.size()
+      && maxTries < 1000) {
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
       if (!this.checkpoints.contains(t)) {
         this.checkpoints.add(t);
       }
       maxTries++;
     }
+    return true;
   }
 
   @Override
   public void accept(final Entity entity) {
-    if (!initialized) this.init(entity);
+    if (!initialized) {
+      initialized = init(entity);
+    }
     if (this.checkpoints.isEmpty()) {
       initialized = false;
       return;
