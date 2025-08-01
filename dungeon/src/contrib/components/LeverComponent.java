@@ -18,6 +18,9 @@ public class LeverComponent implements Component {
   /**
    * Constructs a new LeverComponent with the specified initial state and command.
    *
+   * <p>The given `command` can be a simple {@link ICommand} or if needed an {@link *
+   * IEntityCommand} that takes the lever entity as context.
+   *
    * @param isOn The initial state of the lever. True if the lever should start in the on position,
    *     false otherwise.
    * @param command The command that will be executed when the lever is toggled.
@@ -30,6 +33,9 @@ public class LeverComponent implements Component {
   /**
    * Constructs a new LeverComponent with the specified command. The lever will start in the off
    * position.
+   *
+   * <p>The given `command` can be a simple {@link ICommand} or if needed an {@link *
+   * IEntityCommand} that takes the lever entity as context.
    *
    * @param command The command that will be executed when the lever is toggled.
    */
