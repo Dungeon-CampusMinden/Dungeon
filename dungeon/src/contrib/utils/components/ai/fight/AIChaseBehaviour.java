@@ -31,35 +31,25 @@ public class AIChaseBehaviour implements Consumer<Entity> {
 
   @Override
   public void accept(final Entity entity) {
-    updateChase(entity);
+    if (LevelUtils.playerInRange(entity, chaseRange)) {
+      handlePlayerInChaseRange(entity);
+    } else {
+      handlePlayerNotInChaseRange(entity);
+    }
   }
 
-  /**
-   * Updates the chase behavior for the given entity.
-   *
-   * <p>If the player is within the specified chase range, recalculates the path and moves the entity towards the player,
-   * returning true.
-   *
-   * <p>Otherwise, updates the path at a fixed interval and continues moving the entity along the last path,
-   * returning false.
-   *
-   * @param entity The entity whose chase behavior should be updated.
-   * @return true if the player is within chase range and the entity should attack, false otherwise.
-   */
-  public boolean updateChase(final Entity entity) {
-    if (LevelUtils.playerInRange(entity, chaseRange)) {
+  private void handlePlayerInChaseRange(final Entity entity) {
       path = LevelUtils.calculatePathToHero(entity);
       AIUtils.move(entity, path);
       timeSinceLastUpdate = delay;
-      return true;
-    } else {
-      if (timeSinceLastUpdate >= delay) {
-        path = LevelUtils.calculatePathToHero(entity);
-        timeSinceLastUpdate = -1;
-      }
-      timeSinceLastUpdate++;
-      AIUtils.move(entity, path);
-      return false;
+  }
+
+  private void handlePlayerNotInChaseRange(final Entity entity) {
+    if (timeSinceLastUpdate >= delay) {
+      path = LevelUtils.calculatePathToHero(entity);
+      timeSinceLastUpdate--;
     }
+    timeSinceLastUpdate++;
+    AIUtils.move(entity, path);
   }
 }
