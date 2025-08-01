@@ -64,8 +64,8 @@ public final class ProjectileSystem extends System {
   }
 
   private PSData applyForce(final PSData data) {
-    // TODO technicly is not needed to set this each frame, once is enough
-    data.vc.applyForce(PROJECTILE_FORCE, data.prc.forceToApply());
+    if (data.vc().currentVelocity().isZero())
+      data.vc.applyForce(PROJECTILE_FORCE, data.prc.forceToApply());
     return data;
   }
 
