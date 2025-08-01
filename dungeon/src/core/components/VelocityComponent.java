@@ -55,31 +55,48 @@ import java.util.stream.Stream;
 public final class VelocityComponent implements Component {
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
+  private static final float DEFAULT_MASS = 1;
   private Consumer<Entity> onWallHit;
 
-  private Map<String, Vector2> appliedForces = new HashMap<>();
+  private final Map<String, Vector2> appliedForces = new HashMap<>();
 
   private Vector2 currentVelocity = Vector2.ZERO;
 
+  private float mass;
   private float maxSpeed;
+
   private boolean canEnterOpenPits;
 
   /**
    * Create a new VelocityComponent with the given configuration.
    *
    * @param maxSpeed The speed with which the entity can maximally move.
+   * @param mass The mass of the entity used to calculate acceleration.
    * @param onWallHit Callback that will be executed if the entity runs against a wall.
    * @param canEnterOpenPits Whether the entity can enter open pit tiles.
    */
-  public VelocityComponent(float maxSpeed, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
+  public VelocityComponent(
+      float maxSpeed, float mass, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
+    this.mass = mass;
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
     this.maxSpeed = maxSpeed;
   }
 
   /**
+   * Create a new VelocityComponent with the given configuration and a default mass.
+   *
+   * @param maxSpeed The speed with which the entity can maximally move.
+   * @param onWallHit Callback that will be executed if the entity runs against a wall.
+   * @param canEnterOpenPits Whether the entity can enter open pit tiles.
+   */
+  public VelocityComponent(float maxSpeed, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
+    this(maxSpeed, DEFAULT_MASS, onWallHit, canEnterOpenPits);
+  }
+
+  /**
    * Create a new VelocityComponent with the given configuration. By default, the entity will not be
-   * able to enter open pit tiles.
+   * able to enter open pit tiles and has a mass of 1.
    *
    * @param maxSpeed The speed with which the entity can maximally move.
    */
@@ -91,7 +108,7 @@ public final class VelocityComponent implements Component {
    * Create a new VelocityComponent with the default configuration.
    *
    * <p>In the default configuration, the movement speed is set to 0, so the entity will not move.
-   * And the entity will not be able to enter open pit tiles.
+   * And the entity will not be able to enter open pit tiles. The entity has a mass of 1.
    */
   public VelocityComponent() {
     this(0f);
@@ -211,6 +228,24 @@ public final class VelocityComponent implements Component {
    */
   public Map<String, Vector2> appliedForces() {
     return new HashMap<>(appliedForces);
+  }
+
+  /**
+   * Get the mass of the entity.
+   *
+   * @return Mass of the entity
+   */
+  public float mass() {
+    return this.mass;
+  }
+
+  /**
+   * Set the mass of the entity.
+   *
+   * @param mass Mass to set
+   */
+  public void mass(float mass) {
+    this.mass = mass;
   }
 
   /**

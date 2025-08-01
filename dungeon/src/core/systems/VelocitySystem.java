@@ -3,7 +3,6 @@ package core.systems;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
-import core.components.MassComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
@@ -28,7 +27,6 @@ import java.util.logging.Logger;
  * <p>At the end of processing, applied forces are cleared and velocity is updated accordingly.
  *
  * @see VelocityComponent
- * @see MassComponent
  */
 public final class VelocitySystem extends System {
 
@@ -65,7 +63,7 @@ public final class VelocitySystem extends System {
   private VSData calculateVelocity(VSData vsd) {
     Vector2 sumForces = vsd.vc.appliedForcesStream().reduce(Vector2.of(0, 0), Vector2::add);
 
-    float mass = vsd.e.fetch(MassComponent.class).map(MassComponent::mass).orElse(1f);
+    float mass = vsd.vc().mass();
     if (mass <= 0) mass = 1;
 
     // acceleration = force / mass
