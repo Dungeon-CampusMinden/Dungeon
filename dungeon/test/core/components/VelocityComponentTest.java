@@ -29,6 +29,7 @@ class VelocityComponentTest {
     assertEquals(Vector2.ZERO, vc.currentVelocity());
     assertFalse(vc.canEnterOpenPits());
     assertNotNull(vc.onWallHit());
+    assertEquals(vc.mass(), 1);
   }
 
   /** Verifies that the constructor with maxSpeed sets the speed correctly and defaults the rest. */
@@ -36,17 +37,72 @@ class VelocityComponentTest {
   void testConstructorWithMaxSpeedOnly() {
     VelocityComponent vc = new VelocityComponent(3.5f);
     assertEquals(3.5f, vc.maxSpeed());
+    assertEquals(Vector2.ZERO, vc.currentVelocity());
     assertFalse(vc.canEnterOpenPits());
+    assertNotNull(vc.onWallHit());
+    assertEquals(1, vc.mass());
+  }
+
+  /** Verifies that the constructor sets all fields correctly. */
+  @Test
+  void testConstructorWithoutMass() {
+    Consumer<Entity> callback = e -> {};
+    VelocityComponent vc = new VelocityComponent(4.2f, callback, true);
+    assertEquals(4.2f, vc.maxSpeed());
+    assertTrue(vc.canEnterOpenPits());
+    assertEquals(callback, vc.onWallHit());
+    assertEquals(1f, vc.mass());
   }
 
   /** Verifies that the full constructor sets all fields correctly. */
   @Test
   void testConstructorWithFullArguments() {
     Consumer<Entity> callback = e -> {};
-    VelocityComponent vc = new VelocityComponent(4.2f, callback, true);
+    VelocityComponent vc = new VelocityComponent(4.2f, 2f, callback, true);
     assertEquals(4.2f, vc.maxSpeed());
     assertTrue(vc.canEnterOpenPits());
     assertEquals(callback, vc.onWallHit());
+    assertEquals(2f, vc.mass());
+  }
+
+  /**
+   * Tests that the VelocityComponent constructor throws an IllegalArgumentException when given a
+   * negative mass value.
+   *
+   * <p>This ensures that invalid physical parameters are not accepted.
+   */
+  @Test
+  void testConstructorWithFullArgumentsNegativeMass() {
+    Consumer<Entity> callback = e -> {};
+
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              new VelocityComponent(4.2f, -1, callback, true);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
+  }
+
+  /**
+   * Tests that the VelocityComponent constructor throws an IllegalArgumentException when given a
+   * zero mass value.
+   *
+   * <p>This ensures that invalid physical parameters are not accepted.
+   */
+  @Test
+  void testConstructorWithFullArgumentsZeroMass() {
+    Consumer<Entity> callback = e -> {};
+
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              new VelocityComponent(4.2f, 0, callback, true);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
   }
 
   /** Tests getter and setter for current velocity. */
@@ -62,6 +118,39 @@ class VelocityComponentTest {
   void testMaxSpeedSetterAndGetter() {
     component.maxSpeed(10f);
     assertEquals(10f, component.maxSpeed());
+  }
+
+  /** Tests getter and setter for mass. */
+  @Test
+  void testMassSetterAndGetter() {
+    component.mass(10f);
+    assertEquals(10f, component.mass());
+  }
+
+  /** Tests getter and setter for mass with negative mass. */
+  @Test
+  void testMassSetterAndGetterNegativeMass() {
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              component.mass(-10);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
+  }
+
+  /** Tests getter and setter for mass with negative mass. */
+  @Test
+  void testMassSetterAndGetterZeroMass() {
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              component.mass(0);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
   }
 
   /** Tests enabling and disabling the canEnterOpenPits flag. */
