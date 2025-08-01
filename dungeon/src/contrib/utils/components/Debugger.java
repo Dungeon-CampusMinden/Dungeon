@@ -7,7 +7,7 @@ import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
@@ -172,7 +172,8 @@ public class Debugger {
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(
-          new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
+          new AIComponent(
+              new AIChaseBehaviour(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
 
       Game.add(monster);
       // Log that the monster was spawned

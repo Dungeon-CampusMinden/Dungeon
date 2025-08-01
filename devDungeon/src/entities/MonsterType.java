@@ -9,7 +9,7 @@ import contrib.entities.MonsterDeathSound;
 import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
 import contrib.hud.DialogUtils;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
@@ -67,7 +67,7 @@ public enum MonsterType {
       2.5f,
       0.33f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> new RadiusWalk(2f, 2),
       () -> new RangeTransition(5),
       7,
@@ -103,7 +103,7 @@ public enum MonsterType {
       3.5f,
       0.33f,
       MonsterDeathSound.LOW_PITCH,
-      () -> new CollideAI(1.0f),
+      () -> new AIChaseBehaviour(1.0f),
       () -> new RadiusWalk(3f, 4),
       () -> new RangeTransition(6),
       10,
@@ -118,7 +118,7 @@ public enum MonsterType {
       3.0f,
       0.1f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> new RadiusWalk(3f, 2),
       () -> new RangeTransition(5),
       5,
@@ -154,7 +154,7 @@ public enum MonsterType {
       7.5f,
       0.0f,
       MonsterDeathSound.NONE,
-      () -> new CollideAI(1.0f),
+      () -> new AIChaseBehaviour(1.0f),
       () -> (entity) -> {}, // Stand still if not fighting
       () -> new RangeTransition(5, true),
       1,
@@ -169,7 +169,7 @@ public enum MonsterType {
       3.5f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> entity -> {}, // no idle needed
       () -> (entity) -> true, // Always fight
       30, // one hit kill
@@ -184,7 +184,7 @@ public enum MonsterType {
       3.25f,
       0.1f,
       MonsterDeathSound.BASIC,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> new RadiusWalk(3f, 2),
       () -> new RangeTransition(7),
       3,
@@ -199,7 +199,7 @@ public enum MonsterType {
       4.0f,
       0.05f,
       MonsterDeathSound.HIGH_PITCH,
-      () -> new CollideAI(1f),
+      () -> new AIChaseBehaviour(1f),
       () -> new RadiusWalk(2f, 1),
       () -> new RangeTransition(4),
       1,
