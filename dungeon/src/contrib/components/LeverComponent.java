@@ -1,6 +1,6 @@
 package contrib.components;
 
-import contrib.utils.ICommand;
+import contrib.utils.IComponentCommand;
 import core.Component;
 
 /**
@@ -9,7 +9,7 @@ import core.Component;
  */
 public class LeverComponent implements Component {
   /** The command that will be executed when the lever is toggled. */
-  private final ICommand command;
+  private final IComponentCommand command;
 
   /** The current state of the lever. True if the lever is on, false otherwise. */
   private boolean isOn;
@@ -21,7 +21,7 @@ public class LeverComponent implements Component {
    *     false otherwise.
    * @param command The command that will be executed when the lever is toggled.
    */
-  public LeverComponent(boolean isOn, ICommand command) {
+  public LeverComponent(boolean isOn, IComponentCommand command) {
     this.isOn = isOn;
     this.command = command;
   }
@@ -32,7 +32,7 @@ public class LeverComponent implements Component {
    *
    * @param command The command that will be executed when the lever is toggled.
    */
-  public LeverComponent(ICommand command) {
+  public LeverComponent(IComponentCommand command) {
     this(false, command);
   }
 
@@ -41,7 +41,7 @@ public class LeverComponent implements Component {
    *
    * @return The command that will be executed when the lever is toggled.
    */
-  public ICommand command() {
+  public IComponentCommand command() {
     return command;
   }
 
@@ -62,9 +62,9 @@ public class LeverComponent implements Component {
   public void toggle() {
     this.isOn = !isOn;
     if (isOn) {
-      command.execute();
+      command.execute(this);
     } else {
-      command.undo();
+      command.undo(this);
     }
   }
 

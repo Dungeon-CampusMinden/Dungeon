@@ -4,7 +4,7 @@ import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
-import contrib.utils.ICommand;
+import contrib.utils.ISimpleCommand;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -96,8 +96,8 @@ public class ArrayIterateLevel extends AdvancedLevel {
 
   // Oder mit einer bestimmten Aktion wenn der Hebel betätigt wird
   private void spawnLeverWithAction(Point position) {
-    ICommand leverAction =
-        new ICommand() {
+    ISimpleCommand leverAction =
+        new ISimpleCommand() {
           @Override
           public void execute() {
             if (!isLeverActivated) {

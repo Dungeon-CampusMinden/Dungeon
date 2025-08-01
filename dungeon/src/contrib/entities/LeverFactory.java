@@ -1,12 +1,16 @@
 package contrib.entities;
 
+import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
-import contrib.utils.ICommand;
+import contrib.components.ProjectileComponent;
+import contrib.utils.IComponentCommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
@@ -16,6 +20,11 @@ import java.util.Map;
 
 /** The LeverFactory class is responsible for creating lever entities. */
 public class LeverFactory {
+
+  private static final IPath PRESSURE_PLATE_ON =
+      new SimpleIPath("objects/pressureplate/on/pressureplate_0.png");
+  private static final IPath PRESSURE_PLATE_OFF =
+      new SimpleIPath("objects/pressureplate/off/pressureplate_0.png");
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
 
@@ -30,7 +39,7 @@ public class LeverFactory {
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
    */
-  public static Entity createLever(Point pos, ICommand onInteract, Design design) {
+  public static Entity createLever(Point pos, IComponentCommand onInteract, Design design) {
     Entity lever = new Entity("lever");
     lever.add(new PositionComponent(pos));
     DrawComponent dc = new DrawComponent(Animation.fromCollection(design.texturesOff));
@@ -71,7 +80,7 @@ public class LeverFactory {
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
    */
-  public static Entity createLever(Point pos, ICommand onInteract) {
+  public static Entity createLever(Point pos, IComponentCommand onInteract) {
     return createLever(pos, onInteract, Design.LEAVER);
   }
 
@@ -87,7 +96,7 @@ public class LeverFactory {
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
    */
-  public static Entity createTorch(Point pos, ICommand onInteract) {
+  public static Entity createTorch(Point pos, IComponentCommand onInteract) {
     return createLever(pos, onInteract, Design.TORCH);
   }
 
@@ -106,7 +115,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos) {
-    return createLever(pos, ICommand.NOOP);
+    return createLever(pos, IComponentCommand.NOOP);
   }
 
   /**
@@ -124,7 +133,39 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createTorch(Point pos) {
-    return createTorch(pos, ICommand.NOOP);
+    return createTorch(pos, IComponentCommand.NOOP);
+  }
+
+  /**
+   * Creates a pressure plate entity at the given position.
+   *
+   * <p>The pressure plate is an entity that reacts to collisions by toggling its lever state.
+   *
+   * @param position The initial position of the pressure plate.
+   * @return A new pressure plate entity lever and collision behavior.
+   */
+  public static Entity pressurePlate(Point position) {
+    Entity pressurePlate = new Entity("plate");
+    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
+    DrawComponent dc = new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
+    Map<String, Animation> animationMap =
+        Map.of(
+            "off", dc.currentAnimation(), "on", Animation.fromCollection(Design.PLATE.texturesOn));
+    dc.animationMap(animationMap);
+    dc.currentAnimation("off");
+    pressurePlate.add(dc);
+    LeverComponent lc = new LeverComponent(false, IComponentCommand.NOOP);
+    pressurePlate.add(lc);
+    TriConsumer<Entity, Entity, Direction> collide =
+        (entity, entity2, direction) -> {
+          // dont trigger for projectiles
+          if (entity2.isPresent(ProjectileComponent.class)) return;
+          lc.toggle();
+          if (lc.isOn()) dc.currentAnimation("on");
+          else dc.currentAnimation("off");
+        };
+    pressurePlate.add(new CollideComponent(collide, collide));
+    return pressurePlate;
   }
 
   /**
@@ -149,7 +190,11 @@ public class LeverFactory {
             new SimpleIPath("objects/torch/on/torch_6.png"),
             new SimpleIPath("objects/torch/on/torch_7.png"),
             new SimpleIPath("objects/torch/on/torch_8.png")),
-        List.of(new SimpleIPath("objects/torch/off/torch_0.png")));
+        List.of(new SimpleIPath("objects/torch/off/torch_0.png"))),
+
+    PLATE(
+        List.of(new SimpleIPath("objects/pressureplate/on/pressureplate_0.png")),
+        List.of(new SimpleIPath("objects/pressureplate/off/pressureplate_0.png")));
 
     private final List<IPath> texturesOn;
     private final List<IPath> texturesOff;

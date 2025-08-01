@@ -2,7 +2,7 @@ package contrib.systems;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.utils.ICommand;
+import contrib.utils.ISimpleCommand;
 import core.Entity;
 import core.System;
 import core.utils.components.MissingComponentException;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  *
  * @see LeverFactory LeverFactory
  * @see LeverComponent LeverComponent
- * @see ICommand ICommand
+ * @see ISimpleCommand ICommand
  */
 public class LeverSystem extends System {
 
@@ -58,9 +58,9 @@ public class LeverSystem extends System {
               if (leverStates.containsKey(entity)) {
                 if (leverStates.get(entity) != lever.isOn()) {
                   if (lever.isOn()) {
-                    lever.command().execute();
+                    lever.command().execute(lever);
                   } else {
-                    lever.command().undo();
+                    lever.command().undo(lever);
                   }
                   leverStates.put(entity, lever.isOn());
                 }

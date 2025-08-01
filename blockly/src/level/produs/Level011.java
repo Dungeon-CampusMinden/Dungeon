@@ -70,14 +70,14 @@ public class Level011 extends BlocklyLevel {
 
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
 
-    Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
 
     Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
-    Entity s2 = MiscFactory.pressurePlate(customPoints().get(4).toCenteredPoint());
+    Entity s2 = LeverFactory.pressurePlate(customPoints().get(4).toCenteredPoint());
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
