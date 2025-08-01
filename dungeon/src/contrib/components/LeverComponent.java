@@ -1,5 +1,6 @@
 package contrib.components;
 
+import contrib.systems.LeverSystem;
 import contrib.utils.ICommand;
 import core.Component;
 
@@ -56,16 +57,14 @@ public class LeverComponent implements Component {
   }
 
   /**
-   * This method toggles the state of the lever. If the lever is on, it turns it off. If it's off,
-   * it turns it on.
+   * This method, toggles the `isOn` state of the lever. If the lever is currently on, it will be
+   * turned off, and if it is currently off, it will be turned on.
+   *
+   * <p>The associated command will be executed by the {@link LeverSystem} when the lever is
+   * toggled.
    */
   public void toggle() {
     this.isOn = !isOn;
-    if (isOn) {
-      command.execute();
-    } else {
-      command.undo();
-    }
   }
 
   @Override
