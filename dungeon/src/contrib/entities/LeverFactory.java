@@ -3,6 +3,7 @@ package contrib.entities;
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
 import contrib.utils.ICommand;
+import contrib.utils.IEntityCommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -23,8 +24,11 @@ public class LeverFactory {
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
    * lever is initially off. The lever is interactable and can be toggled on and off.
    *
+   * <p>The given `onInteract` command can be a simple {@link ICommand} or if needed an {@link
+   * IEntityCommand} that takes the lever entity as context.
+   *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param onInteract The behavior when the lever is interacted with.
    * @param design defines the textures for the lever
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
@@ -51,10 +55,6 @@ public class LeverFactory {
                       .orElseThrow(
                           () -> MissingComponentException.build(entity, LeverComponent.class));
               lc.toggle();
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      drawComponent -> drawComponent.currentAnimation(lc.isOn() ? "on" : "off"));
             }));
     return lever;
   }
@@ -63,10 +63,13 @@ public class LeverFactory {
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
    * lever is initially off. The lever is interactable and can be toggled on and off.
    *
+   * <p>The given `onInteract` command can be a simple {@link ICommand} or if needed an {@link
+   * IEntityCommand} that takes the lever entity as context.
+   *
    * <p>The lever will use the default leaver design.
    *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param onInteract The behavior when the lever is interacted with.
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
@@ -82,7 +85,7 @@ public class LeverFactory {
    * <p>The lever will use the torch design.
    *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param onInteract The behavior when the lever is interacted with.
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
