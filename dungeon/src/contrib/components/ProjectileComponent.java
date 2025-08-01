@@ -30,34 +30,4 @@ import core.utils.Vector2;
  * @see contrib.utils.components.skill.DamageProjectile
  */
 public record ProjectileComponent(Point startPosition, Point goalLocation, Vector2 forceToApply)
-    implements Component {
-
-  /**
-   * Get the target position of the projectile.
-   *
-   * @return The point where the projectile should fly to.
-   */
-  @Override
-  public Point goalLocation() {
-    return goalLocation;
-  }
-
-  /**
-   * Get the start position of the projectile.
-   *
-   * @return The point from which to start the calculation to the goal location
-   */
-  @Override
-  public Point startPosition() {
-    return startPosition;
-  }
-
-  /**
-   * Returns the current force vector that will be applied to the projectile.
-   *
-   * @return The force vector to be applied
-   */
-  public Vector2 forceToApply() {
-    return forceToApply;
-  }
-}
+    implements Component {}
