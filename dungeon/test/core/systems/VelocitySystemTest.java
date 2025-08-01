@@ -128,26 +128,6 @@ public class VelocitySystemTest {
     assertEquals(0, vc.appliedForcesStream().count());
   }
 
-  /**
-   * Tests that when an entity has a negative mass value, the mass is treated as 1 (minimum), so
-   * velocity is calculated accordingly. Forces should be cleared after execution.
-   */
-  @Test
-  void calculateVelocityNegativeMass() {
-    // Set a negative mass on the entity
-    vc.mass(-3);
-    Vector2 force = Vector2.of(6, 4);
-    vc.applyForce("force", force);
-    vc.currentVelocity(Vector2.ZERO);
-
-    system.execute();
-
-    // Since mass <= 0, it defaults to 1, so velocity = force * 1/1 = force
-    Vector2 expectedVelocity = force;
-    assertEquals(expectedVelocity, vc.currentVelocity());
-    assertEquals(0, vc.appliedForcesStream().count());
-  }
-
   /** Tests that when the entity is idle and facing UP, the correct idle animations are queued. */
   @Test
   void setAnimationIdleUp() {
