@@ -49,7 +49,7 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   private void handlePlayerNotInChaseRange(final Entity entity) {
     if (timeSinceLastUpdate >= delay) {
       path = LevelUtils.calculatePathToHero(entity);
-      timeSinceLastUpdate--;
+      timeSinceLastUpdate = 0;
     }
     timeSinceLastUpdate++;
     AIUtils.move(entity, path);
