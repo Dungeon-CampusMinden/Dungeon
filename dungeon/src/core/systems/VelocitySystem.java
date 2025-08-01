@@ -64,8 +64,6 @@ public final class VelocitySystem extends System {
     Vector2 sumForces = vsd.vc.appliedForcesStream().reduce(Vector2.of(0, 0), Vector2::add);
 
     float mass = vsd.vc().mass();
-    if (mass <= 0) mass = 1;
-
     // acceleration = force / mass
     Vector2 acceleration = sumForces.scale(1.0 / mass);
 

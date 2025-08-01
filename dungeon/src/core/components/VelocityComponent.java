@@ -77,7 +77,7 @@ public final class VelocityComponent implements Component {
    */
   public VelocityComponent(
       float maxSpeed, float mass, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
-    this.mass = mass;
+    this.mass(mass);
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
     this.maxSpeed = maxSpeed;
@@ -240,11 +240,15 @@ public final class VelocityComponent implements Component {
   }
 
   /**
-   * Set the mass of the entity.
+   * Sets the mass of the entity.
    *
-   * @param mass Mass to set
+   * <p>Mass must be greater than 0.
+   *
+   * @param mass the mass to set
+   * @throws IllegalArgumentException if mass is less than or equal to 0
    */
   public void mass(float mass) {
+    if (mass <= 0) throw new IllegalArgumentException("Mass cannot be 0 or less");
     this.mass = mass;
   }
 
