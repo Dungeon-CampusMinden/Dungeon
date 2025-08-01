@@ -10,9 +10,9 @@ dependencies {
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 
-tasks.register('runEscapeRoom', JavaExec) {
+tasks.register('runCoopDungeon', JavaExec) {
     group 'starter'
-    mainClass = 'starter.Tutorial'
+    mainClass = 'starter.Coop'
     classpath = sourceSets.main.runtimeClasspath
 }
 
