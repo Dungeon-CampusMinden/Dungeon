@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import contrib.components.FlyComponent;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -82,5 +83,18 @@ public class FrictionSystemTest {
 
     system.execute();
     verify(vc).applyForce("Friction", Vector2.ZERO);
+  }
+
+  /** Tests that the friction force is not applied on entities with the {@link FlyComponent}. */
+  @Test
+  void appliesNoFrictionOnFlying() {
+    DungeonLevel mockedLevel = mock(DungeonLevel.class);
+    Game.currentLevel(mockedLevel);
+    entity.add(new FlyComponent());
+    Tile tile = mock(Tile.class);
+    when(tile.friction()).thenReturn(0.2f);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    system.execute();
+    assertFalse(vc.force("Friction").isPresent());
   }
 }

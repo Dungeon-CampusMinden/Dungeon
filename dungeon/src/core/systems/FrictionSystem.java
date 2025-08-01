@@ -1,5 +1,6 @@
 package core.systems;
 
+import contrib.components.FlyComponent;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -24,7 +25,10 @@ public class FrictionSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream().map(this::buildDataObject).forEach(this::applyFriction);
+    filteredEntityStream()
+        .filter(entity -> !entity.isPresent(FlyComponent.class))
+        .map(this::buildDataObject)
+        .forEach(this::applyFriction);
   }
 
   private void applyFriction(FSData data) {
