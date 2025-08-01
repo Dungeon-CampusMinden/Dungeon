@@ -230,6 +230,17 @@ public interface Vector2 {
   }
 
   /**
+   * Returns a new vector pointing in the opposite direction.
+   *
+   * <p>Effectively, this scales both components of the vector by -1.
+   *
+   * @return A new vector which is the inverse of this vector
+   */
+  default Vector2 inverse() {
+    return this.scale(-1);
+  }
+
+  /**
    * A record representing a 2D vector with x and y Float components.
    *
    * <p>Provides utility methods for vector operations such as addition, subtraction, scaling,
