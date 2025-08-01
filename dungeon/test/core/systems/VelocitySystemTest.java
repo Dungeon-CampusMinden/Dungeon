@@ -36,12 +36,12 @@ public class VelocitySystemTest {
   void setUp() {
     entity = new Entity();
     vc = new VelocityComponent(speed);
+    vc.mass(mass);
     pc = new PositionComponent();
     dc = new DrawComponent(mock(Animation.class));
     entity.add(vc);
     entity.add(pc);
     entity.add(dc);
-    entity.add(new MassComponent(mass));
     Game.add(entity);
     system = new VelocitySystem();
   }
@@ -88,23 +88,6 @@ public class VelocitySystemTest {
   }
 
   /**
-   * Tests that when a single force is applied to an entity with a mass of 1 (default), the velocity
-   * is correctly updated by adding the acceleration (force / mass). After the calculation, the
-   * forces should be cleared.
-   */
-  @Test
-  void calculateVelocitySingleForceNoMass() {
-    Vector2 force = Vector2.of(4, 3);
-    entity.remove(MassComponent.class);
-    vc.applyForce("testforce", force);
-    vc.currentVelocity(Vector2.ZERO);
-    system.execute();
-    Vector2 expectedVelocity = force;
-    assertEquals(expectedVelocity, vc.currentVelocity());
-    assertEquals(0, vc.appliedForcesStream().count());
-  }
-
-  /**
    * Tests that when a single negative force is applied to an entity with a specified mass, the
    * velocity is correctly updated by adding the negative acceleration (force / mass). After the
    * calculation, the forces should be cleared.
@@ -120,26 +103,6 @@ public class VelocitySystemTest {
     Vector2 expectedVelocity = negativeForce.scale(1f / mass); // acceleration = force / mass
     assertEquals(expectedVelocity, vc.currentVelocity());
     assertEquals(0, vc.appliedForcesStream().count()); // forces cleared
-  }
-
-  /**
-   * Tests that when a single negative force is applied to an entity without a MassComponent, the
-   * velocity is updated correctly assuming the default mass of 1. Forces should be cleared after
-   * execution.
-   */
-  @Test
-  void calculateVelocitySingleNegativeForceNoMass() {
-    // Remove any MassComponent from entity to simulate no mass
-    entity.remove(MassComponent.class);
-    Vector2 negativeForce = Vector2.of(-7, -4);
-    vc.applyForce("negForce", negativeForce);
-    vc.currentVelocity(Vector2.ZERO);
-
-    system.execute();
-
-    Vector2 expectedVelocity = negativeForce; // mass defaults to 1
-    assertEquals(expectedVelocity, vc.currentVelocity());
-    assertEquals(0, vc.appliedForcesStream().count());
   }
 
   /**
@@ -166,38 +129,13 @@ public class VelocitySystemTest {
   }
 
   /**
-   * Tests that when multiple forces are applied to an entity without a MassComponent, the resulting
-   * velocity is the sum of all forces (mass defaults to 1). Forces should be cleared after
-   * execution.
-   */
-  @Test
-  void calculateVelocityMultipleForceNoMass() {
-    entity.remove(MassComponent.class);
-
-    Vector2 force1 = Vector2.of(2, 5);
-    Vector2 force2 = Vector2.of(-3, 1);
-
-    vc.applyForce("force1", force1);
-    vc.applyForce("force2", force2);
-    vc.currentVelocity(Vector2.ZERO);
-
-    system.execute();
-
-    Vector2 expectedVelocity = force1.add(force2); // mass defaults to 1, so no scaling
-    assertEquals(expectedVelocity, vc.currentVelocity());
-    assertEquals(0, vc.appliedForcesStream().count());
-  }
-
-  /**
    * Tests that when an entity has a negative mass value, the mass is treated as 1 (minimum), so
    * velocity is calculated accordingly. Forces should be cleared after execution.
    */
   @Test
   void calculateVelocityNegativeMass() {
     // Set a negative mass on the entity
-    entity.remove(MassComponent.class);
-    entity.add(new MassComponent(-3f)); // negative mass
-
+    vc.mass(-3);
     Vector2 force = Vector2.of(6, 4);
     vc.applyForce("force", force);
     vc.currentVelocity(Vector2.ZERO);
