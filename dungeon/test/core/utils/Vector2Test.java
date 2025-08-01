@@ -165,4 +165,12 @@ public class Vector2Test {
     assertEquals(0.0f, rotated.x(), DELTA);
     assertEquals(1.0f, rotated.y(), DELTA);
   }
+
+  /** Tests the calculation of the inverse of a vector. */
+  @Test
+  public void testInverse() {
+    Vector2 v = Vector2.of(1.0f, 0.0f);
+    Vector2 c = v.scale(-1);
+    assertEquals(c, v.inverse());
+  }
 }
