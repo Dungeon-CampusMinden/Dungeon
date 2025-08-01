@@ -11,7 +11,9 @@ import java.util.function.Consumer;
 /**
  * AI behavior for entities that chase and attack the player.
  *
- * <p>The entity will attempt to move towards the player and attack, if the player is within a specified range.
+ * <p>The entity will attempt to move towards the player and attack, if the player is within a
+ * specified range.
+ *
  * <p>Otherwise, it will continue to follow the last calculated path towards the player.
  */
 public class AIChaseBehaviour implements Consumer<Entity> {
@@ -23,7 +25,7 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   /**
    * Creates a new AIChaseBehaviour with the given chase range.
    *
-   * @param chaseRange The distance within which the entity will attempt to attack the player directly.
+   * @param chaseRange The distance within which the entity will attempt to chase the player.
    */
   public AIChaseBehaviour(final float chaseRange) {
     this.chaseRange = chaseRange;
@@ -39,9 +41,9 @@ public class AIChaseBehaviour implements Consumer<Entity> {
   }
 
   private void handlePlayerInChaseRange(final Entity entity) {
-      path = LevelUtils.calculatePathToHero(entity);
-      AIUtils.move(entity, path);
-      timeSinceLastUpdate = delay;
+    path = LevelUtils.calculatePathToHero(entity);
+    AIUtils.move(entity, path);
+    timeSinceLastUpdate = delay;
   }
 
   private void handlePlayerNotInChaseRange(final Entity entity) {
