@@ -75,19 +75,9 @@ public final class AIUtils {
    * @return true if the entity has left the path, otherwise false.
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    boolean onPath = false;
+    PositionComponent pc = requirePosition(entity);
     Tile currentTile = Game.tileAT(pc.position());
-    for (Tile tile : path) {
-      if (currentTile == tile) {
-        onPath = true;
-        break;
-      }
-    }
-    return !onPath;
+    return !onPath(path, currentTile);
   }
 
   private static PositionComponent requirePosition(Entity entity) {
@@ -109,5 +99,14 @@ public final class AIUtils {
       }
     }
     return null;
+  }
+
+  private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
+    for (Tile tile : path) {
+      if (tile.equals(currentTile)) {
+        return true;
+      }
+    }
+    return false;
   }
 }
