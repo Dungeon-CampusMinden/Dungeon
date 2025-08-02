@@ -12,7 +12,7 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
 /** Utility class for AI-related operations like calculating paths. */
-public final class AIUtils {
+public class AIUtils {
 
   /**
    * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
@@ -21,28 +21,17 @@ public final class AIUtils {
    * @param entity Entity moving on the path.
    * @param path Path on which the entity moves.
    */
-  public static void move(final Entity entity, final GraphPath<Tile> path) {
+  public static void followPath(final Entity entity, final GraphPath<Tile> path) {
     // entity is already at the end
     if (pathFinishedOrLeft(entity, path)) {
       return;
     }
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+    PositionComponent pc = requirePosition(entity);
+    VelocityComponent vc = requireVelocity(entity);
+
     Tile currentTile = Game.tileAT(pc.position());
-    int i = 0;
-    Tile nextTile = null;
-    while (nextTile == null && i < path.getCount()) {
-      if (path.get(i).equals(currentTile)) {
-        nextTile = path.get(i + 1);
-      }
-      i++;
-    }
+    Tile nextTile = findNextTile(path, currentTile);
+
     // currentTile not in path
     if (nextTile == null) {
       return;
@@ -74,10 +63,7 @@ public final class AIUtils {
    * @return true if the entity is on the end of the path, otherwise false.
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    PositionComponent pc = requirePosition(entity);
     return path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
   }
 
@@ -89,18 +75,38 @@ public final class AIUtils {
    * @return true if the entity has left the path, otherwise false.
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    boolean onPath = false;
+    PositionComponent pc = requirePosition(entity);
     Tile currentTile = Game.tileAT(pc.position());
-    for (Tile tile : path) {
-      if (currentTile == tile) {
-        onPath = true;
-        break;
+    return !onPath(path, currentTile);
+  }
+
+  private static PositionComponent requirePosition(Entity entity) {
+    return entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  private static VelocityComponent requireVelocity(Entity entity) {
+    return entity
+        .fetch(VelocityComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+  }
+
+  private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
+    for (int i = 0; i < path.getCount() - 1; i++) {
+      if (path.get(i).equals(currentTile)) {
+        return path.get(i + 1);
       }
     }
-    return !onPath;
+    return null;
+  }
+
+  private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
+    for (Tile tile : path) {
+      if (tile.equals(currentTile)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

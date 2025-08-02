@@ -44,7 +44,7 @@ public class MeleeAI implements Consumer<Entity>, ISkillUser {
         timeSinceLastUpdate = -1;
       }
       timeSinceLastUpdate++;
-      AIUtils.move(entity, path);
+      AIUtils.followPath(entity, path);
     }
   }
 
