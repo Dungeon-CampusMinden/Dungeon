@@ -39,7 +39,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   private final float radius;
   private final MODE mode;
 
-  private GraphPath<Tile> currentPath = null;
+  private GraphPath<Tile> currentPath;
   private boolean initialized = false;
   private boolean forward = true;
   private int frameCounter = -1;
