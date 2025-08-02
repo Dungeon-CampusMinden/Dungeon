@@ -1,5 +1,8 @@
 package starter;
 
+import contrib.entities.HeroFactory;
+import contrib.entities.MonsterFactory;
+import core.Entity;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
@@ -27,6 +30,20 @@ public class BasicStarter {
     Game.disableAudio(true);
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
+
+    Game.userOnSetup(() -> {
+      try {
+        Entity hero = HeroFactory.newHero();
+        Game.add(hero);
+
+        Entity monster = MonsterFactory.randomMonster();
+        Game.add(monster);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+
+      DungeonLoader.loadLevel(0);
+    });
     Game.run();
   }
 }
