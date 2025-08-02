@@ -32,7 +32,7 @@ public class CollideAI implements Consumer<Entity> {
     if (LevelUtils.playerInRange(entity, rushRange)) {
       // the faster pathing once a certain range is reached
       path = LevelUtils.calculatePathToHero(entity);
-      AIUtils.move(entity, path);
+      AIUtils.followPath(entity, path);
       timeSinceLastUpdate = delay;
     } else {
       // check if new pathing update
@@ -41,7 +41,7 @@ public class CollideAI implements Consumer<Entity> {
         timeSinceLastUpdate = -1;
       }
       timeSinceLastUpdate++;
-      AIUtils.move(entity, path);
+      AIUtils.followPath(entity, path);
     }
   }
 }

@@ -68,13 +68,13 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
         if (!newPositionFound) {
           path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * attackRange);
         }
-        AIUtils.move(entity, path);
+        AIUtils.followPath(entity, path);
       } else {
         useSkill(skill, entity);
       }
     } else {
       path = LevelUtils.calculatePathToHero(entity);
-      AIUtils.move(entity, path);
+      AIUtils.followPath(entity, path);
     }
   }
 

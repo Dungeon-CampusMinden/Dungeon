@@ -47,7 +47,7 @@ public class PathSystem extends System {
   }
 
   private Optional<Entity> processEntity(PSData data) {
-    AIUtils.move(data.entity, data.pathComponent.path());
+    AIUtils.followPath(data.entity, data.pathComponent.path());
     return AIUtils.pathFinished(data.entity, data.pathComponent.path())
         ? Optional.of(data.entity)
         : Optional.empty();
