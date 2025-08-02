@@ -82,14 +82,14 @@ public class AIUtils {
 
   private static PositionComponent requirePosition(Entity entity) {
     return entity
-      .fetch(PositionComponent.class)
-      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 
   private static VelocityComponent requireVelocity(Entity entity) {
     return entity
-      .fetch(VelocityComponent.class)
-      .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+        .fetch(VelocityComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
   }
 
   private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
