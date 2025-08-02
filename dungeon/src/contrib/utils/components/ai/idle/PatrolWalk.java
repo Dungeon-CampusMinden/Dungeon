@@ -103,7 +103,7 @@ public final class PatrolWalk implements Consumer<Entity> {
             LevelUtils.calculatePath(
                 position.position(), this.checkpoints.get(currentCheckpoint).position());
       }
-      AIUtils.move(entity, currentPath);
+      AIUtils.followPath(entity, currentPath);
       return;
     }
 
