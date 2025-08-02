@@ -48,10 +48,17 @@ public final class PatrolWalk implements Consumer<Entity> {
   /**
    * Constructs a new PatrolWalk behavior instance.
    *
-   * @param radius             The maximum distance (in tiles) around the entity to generate checkpoints.
-   * @param numberCheckpoints  Number of unique checkpoints to generate.
-   * @param pauseTimeMillis    Maximum wait time at each checkpoint in milliseconds. Actual wait time is randomized.
-   * @param mode               Movement mode for patrolling behavior.
+   * <p>This idle AI behavior moves an entity between a set of accessible checkpoints
+   * within a defined radius around its initial position. The movement pattern depends
+   * on the selected patrol mode and includes a randomized pause at each checkpoint.
+   *
+   * @param radius            The maximum distance (in tiles) from the entity's position
+   *                          used to select accessible checkpoint tiles.
+   * @param numberCheckpoints The number of unique checkpoints to generate within the radius.
+   * @param pauseTimeMillis   The maximum wait time (in milliseconds) at each checkpoint.
+   *                          The actual pause duration is randomly selected between 0 and this value.
+   * @param mode              The patrol mode defining the movement pattern
+   *                          (e.g., RANDOM, LOOP, BACK_AND_FORTH).
    */
   public PatrolWalk(float radius, int numberCheckpoints, int pauseTimeMillis, final MODE mode) {
     this.radius = radius;
