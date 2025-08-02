@@ -21,7 +21,7 @@ public final class AIUtils {
    * @param entity Entity moving on the path.
    * @param path Path on which the entity moves.
    */
-  public static void move(final Entity entity, final GraphPath<Tile> path) {
+  public static void followPath(final Entity entity, final GraphPath<Tile> path) {
     // entity is already at the end
     if (pathFinishedOrLeft(entity, path)) {
       return;
