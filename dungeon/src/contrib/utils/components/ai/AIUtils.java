@@ -30,14 +30,8 @@ public final class AIUtils {
     VelocityComponent vc = requireVelocity(entity);
 
     Tile currentTile = Game.tileAT(pc.position());
-    int i = 0;
-    Tile nextTile = null;
-    while (nextTile == null && i < path.getCount()) {
-      if (path.get(i).equals(currentTile)) {
-        nextTile = path.get(i + 1);
-      }
-      i++;
-    }
+    Tile nextTile = findNextTile(path, currentTile);
+
     // currentTile not in path
     if (nextTile == null) {
       return;
@@ -109,5 +103,14 @@ public final class AIUtils {
     return entity
       .fetch(VelocityComponent.class)
       .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+  }
+
+  private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
+    for (int i = 0; i < path.getCount() - 1; i++) {
+      if (path.get(i).equals(currentTile)) {
+        return path.get(i + 1);
+      }
+    }
+    return null;
   }
 }
