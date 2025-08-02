@@ -26,14 +26,9 @@ public final class AIUtils {
     if (pathFinishedOrLeft(entity, path)) {
       return;
     }
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+    PositionComponent pc = requirePosition(entity);
+    VelocityComponent vc = requireVelocity(entity);
+
     Tile currentTile = Game.tileAT(pc.position());
     int i = 0;
     Tile nextTile = null;
@@ -102,5 +97,17 @@ public final class AIUtils {
       }
     }
     return !onPath;
+  }
+
+  private static PositionComponent requirePosition(Entity entity) {
+    return entity
+      .fetch(PositionComponent.class)
+      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  private static VelocityComponent requireVelocity(Entity entity) {
+    return entity
+      .fetch(VelocityComponent.class)
+      .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
   }
 }
