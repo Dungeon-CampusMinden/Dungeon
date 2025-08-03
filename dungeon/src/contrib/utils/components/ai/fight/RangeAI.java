@@ -48,11 +48,11 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
 
   @Override
   public void accept(final Entity entity) {
-    boolean playerInDistanceRange = LevelUtils.playerInRange(entity, minAttackRange);
-    boolean playerInAttackRange = LevelUtils.playerInRange(entity, maxAttackRange);
+    boolean playerInMinAttackRange = LevelUtils.playerInRange(entity, minAttackRange);
+    boolean playerInMaxAttackRange = LevelUtils.playerInRange(entity, maxAttackRange);
 
-    if (playerInAttackRange) {
-      if (playerInDistanceRange) {
+    if (playerInMaxAttackRange) {
+      if (playerInMinAttackRange) {
         Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
         Point positionEntity = Game.positionOf(entity).orElseThrow();
         List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
