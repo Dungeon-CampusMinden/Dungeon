@@ -8,14 +8,14 @@ import java.util.function.Consumer;
 
 /**
  * Implements a fight AI. The entity attacks the player if he is in a given range. When the entity
- * is not in range but in fight mode, the entity will be moving to ward the player.
+ * is not in range but in fight mode, the entity will be moving towards the player.
  *
  * @see ISkillUser
  */
-public class MeleeAI implements Consumer<Entity>, ISkillUser {
+public class AIMeleeBehaviour implements Consumer<Entity>, ISkillUser {
+  private final AIChaseBehaviour chaseBehaviour;
   private final float attackRange;
   private Skill fightSkill;
-  private final AIChaseBehaviour chaseBehaviour;
 
   /**
    * Attacks the player if he is within the given range. Otherwise, it will move towards the player.
@@ -24,7 +24,7 @@ public class MeleeAI implements Consumer<Entity>, ISkillUser {
    * @param attackRange Range in which the attack skill should be executed.
    * @param fightSkill Skill to be used when an attack is performed.
    */
-  public MeleeAI(float chaseRange, float attackRange, Skill fightSkill) {
+  public AIMeleeBehaviour(float chaseRange, float attackRange, Skill fightSkill) {
     this.chaseBehaviour = new AIChaseBehaviour(chaseRange);
     this.attackRange = attackRange;
     this.fightSkill = fightSkill;
