@@ -13,17 +13,9 @@ public final class SelfDefendTransition implements Function<Entity, Boolean> {
 
   @Override
   public Boolean apply(final Entity entity) {
-    HealthComponent health = getHealthComponent(entity);
-    return isEntityDamaged(health);
-  }
-
-  private HealthComponent getHealthComponent(Entity entity) {
     return entity
       .fetch(HealthComponent.class)
+      .map(hc -> hc.currentHealthpoints() < hc.maximalHealthpoints())
       .orElseThrow(() -> MissingComponentException.build(entity, HealthComponent.class));
-  }
-
-  private boolean isEntityDamaged(HealthComponent health) {
-    return health.currentHealthpoints() < health.maximalHealthpoints();
   }
 }
