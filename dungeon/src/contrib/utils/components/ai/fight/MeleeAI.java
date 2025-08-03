@@ -1,12 +1,8 @@
 package contrib.utils.components.ai.fight;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
-import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.skill.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
-import core.Game;
-import core.level.Tile;
 import core.level.utils.LevelUtils;
 import java.util.function.Consumer;
 
@@ -18,33 +14,28 @@ import java.util.function.Consumer;
  */
 public class MeleeAI implements Consumer<Entity>, ISkillUser {
   private final float attackRange;
-  private final int delay = Game.frameRate();
   private Skill fightSkill;
-  private int timeSinceLastUpdate = 0;
-  private GraphPath<Tile> path;
+  private final AIChaseBehaviour chaseBehaviour;
 
   /**
    * Attacks the player if he is within the given range. Otherwise, it will move towards the player.
    *
+   * @param chaseRange Range in which the entity will chase the player.
    * @param attackRange Range in which the attack skill should be executed.
    * @param fightSkill Skill to be used when an attack is performed.
    */
-  public MeleeAI(final float attackRange, final Skill fightSkill) {
+  public MeleeAI(float chaseRange, float attackRange, Skill fightSkill) {
+    this.chaseBehaviour = new AIChaseBehaviour(chaseRange);
     this.attackRange = attackRange;
     this.fightSkill = fightSkill;
   }
 
   @Override
-  public void accept(final Entity entity) {
+  public void accept(Entity entity) {
     if (LevelUtils.playerInRange(entity, attackRange)) {
       useSkill(fightSkill, entity);
     } else {
-      if (path == null || timeSinceLastUpdate >= delay) {
-        path = LevelUtils.calculatePathToHero(entity);
-        timeSinceLastUpdate = -1;
-      }
-      timeSinceLastUpdate++;
-      AIUtils.move(entity, path);
+      chaseBehaviour.accept(entity);
     }
   }
 

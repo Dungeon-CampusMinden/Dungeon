@@ -111,6 +111,7 @@ public final class AIFactory {
               new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));
       default ->
           new MeleeAI(
+              RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH),
               1f,
               new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));
     };
