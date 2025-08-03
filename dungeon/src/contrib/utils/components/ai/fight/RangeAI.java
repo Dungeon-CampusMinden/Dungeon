@@ -29,8 +29,8 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
   private GraphPath<Tile> path;
 
   /**
-   * Attacks the player if he is within the given range between attackRange and distance. Otherwise,
-   * it will move into that range.
+   * Attacks the player if he is within the given range between minAttackRange and maxAttackRange.
+   * Otherwise, it will move into that range.
    *
    * @param maxAttackRange Maximal distance to hero in which the attack skill should be executed.
    * @param minAttackRange Minimal distance to hero in which the attack skill should be executed.
