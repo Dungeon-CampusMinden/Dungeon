@@ -23,8 +23,8 @@ import java.util.function.Consumer;
  */
 public final class RangeAI implements Consumer<Entity>, ISkillUser {
 
-  private final float attackRange;
-  private final float distance;
+  private final float maxAttackRange;
+  private final float minAttackRange;
   private Skill skill;
   private GraphPath<Tile> path;
 
@@ -32,41 +32,41 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
    * Attacks the player if he is within the given range between attackRange and distance. Otherwise,
    * it will move into that range.
    *
-   * @param attackRange Maximal distance to hero in which the attack skill should be executed.
-   * @param distance Minimal distance to hero in which the attack skill should be executed.
+   * @param maxAttackRange Maximal distance to hero in which the attack skill should be executed.
+   * @param minAttackRange Minimal distance to hero in which the attack skill should be executed.
    * @param skill Skill to be used when an attack is performed.
    */
-  public RangeAI(final float attackRange, final float distance, final Skill skill) {
-    if (attackRange <= distance || distance < 0) {
+  public RangeAI(final float maxAttackRange, final float minAttackRange, final Skill skill) {
+    if (maxAttackRange <= minAttackRange || minAttackRange < 0) {
       throw new IllegalArgumentException(
           "attackRange must be greater than distance and distance must be 0 or greater than 0");
     }
-    this.attackRange = attackRange;
-    this.distance = distance;
+    this.maxAttackRange = maxAttackRange;
+    this.minAttackRange = minAttackRange;
     this.skill = skill;
   }
 
   @Override
   public void accept(final Entity entity) {
-    boolean playerInDistanceRange = LevelUtils.playerInRange(entity, distance);
-    boolean playerInAttackRange = LevelUtils.playerInRange(entity, attackRange);
+    boolean playerInDistanceRange = LevelUtils.playerInRange(entity, minAttackRange);
+    boolean playerInAttackRange = LevelUtils.playerInRange(entity, maxAttackRange);
 
     if (playerInAttackRange) {
       if (playerInDistanceRange) {
         Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
         Point positionEntity = Game.positionOf(entity).orElseThrow();
-        List<Tile> tiles = accessibleTilesInRange(positionEntity, attackRange - distance);
+        List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
         boolean newPositionFound = false;
         for (Tile tile : tiles) {
           Point newPosition = tile.position();
-          if (!Point.inRange(newPosition, positionHero, distance)) {
+          if (!Point.inRange(newPosition, positionHero, minAttackRange)) {
             path = LevelUtils.calculatePath(positionEntity, newPosition);
             newPositionFound = true;
             break;
           }
         }
         if (!newPositionFound) {
-          path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * attackRange);
+          path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
         }
         AIUtils.followPath(entity, path);
       } else {
