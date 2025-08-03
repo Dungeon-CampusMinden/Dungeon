@@ -68,36 +68,54 @@ public final class PatrolWalk implements Consumer<Entity> {
   }
 
   /**
-   * Initializes a list of accessible checkpoints around the entity's current position.
+   * Initializes a list of accessible patrol checkpoints around the entity’s current position.
    *
-   * @param entity The entity for which checkpoints are generated.
-   * @return true if at least one valid checkpoint was found, false otherwise.
+   * <p>This method attempts to retrieve the PositionComponent of the entity.
+   * It checks whether the entity is standing on a valid tile, collects accessible tiles
+   * within a defined radius, and randomly selects unique patrol checkpoints.
+   *
+   * @param entity The entity around whose position patrol checkpoints are generated.
+   * @return {@code true} if at least one valid checkpoint was found, {@code false} otherwise.
+   * @throws MissingComponentException if the PositionComponent is missing from the entity.
    */
   private boolean initializeCheckpoints(final Entity entity) {
+    // Mark initialization as started to avoid re-initializing later
     initialized = true;
-    PositionComponent position =
-      entity.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Point center = position.position();
-    Optional<Tile> tileOpt = Optional.ofNullable(Game.tileAT(center));
 
-    if (tileOpt.isEmpty()) return false;
+    // Retrieve position of the entity
+    PositionComponent position = entity.fetch(PositionComponent.class)
+      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    Point center = position.position(); // Current position as Point(x, y)
 
+    // Get the tile under the entity (may be empty if outside level)
+    Optional<Tile> tileOpt = Game.tileAT(center);
+    if (tileOpt.isEmpty()) return false; // Abort if entity stands on invalid tile
+
+    // Get all accessible tiles around the position within a certain radius
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
-    if (accessibleTiles.isEmpty()) return false;
+    if (accessibleTiles.isEmpty()) return false; // Abort if nothing reachable
 
+    // Randomly select unique tiles as patrol checkpoints
     int maxTries = 0;
     while (checkpoints.size() < numberCheckpoints
       && accessibleTiles.size() != checkpoints.size()
       && maxTries < 1000) {
+
+      // Pick a random tile from accessible candidates
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
+
+      // Only add it if not already part of the list (unique checkpoints)
       if (!checkpoints.contains(t)) {
         checkpoints.add(t);
       }
-      maxTries++;
+
+      maxTries++; // Prevent infinite loops
     }
+
+    // Success if at least one checkpoint was found
     return true;
   }
+
 
   /**
    * Executes the AI behavior for a given entity. Handles initialization, movement along a path,
