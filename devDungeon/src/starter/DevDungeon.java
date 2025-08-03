@@ -36,7 +36,7 @@ import systems.DevHealthSystem;
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
-  private static final boolean SKIP_TUTORIAL = false ;
+  private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
 
   /**
@@ -103,6 +103,7 @@ public class DevDungeon {
           }
         });
   }
+
   private static void createHero() throws IOException {
     Entity hero = HeroFactory.newHero();
     Game.add(hero);
