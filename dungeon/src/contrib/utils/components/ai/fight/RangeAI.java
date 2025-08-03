@@ -48,34 +48,51 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
 
   @Override
   public void accept(final Entity entity) {
-    boolean playerInMinAttackRange = LevelUtils.playerInRange(entity, minAttackRange);
-    boolean playerInMaxAttackRange = LevelUtils.playerInRange(entity, maxAttackRange);
-
-    if (playerInMaxAttackRange) {
-      if (playerInMinAttackRange) {
-        Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
-        Point positionEntity = Game.positionOf(entity).orElseThrow();
-        List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
-        boolean newPositionFound = false;
-        for (Tile tile : tiles) {
-          Point newPosition = tile.position();
-          if (!Point.inRange(newPosition, positionHero, minAttackRange)) {
-            path = LevelUtils.calculatePath(positionEntity, newPosition);
-            newPositionFound = true;
-            break;
-          }
-        }
-        if (!newPositionFound) {
-          path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
-        }
-        AIUtils.move(entity, path);
-      } else {
-        useSkill(skill, entity);
-      }
+    if (isPlayerInMaxAttackRange(entity)) {
+      handlePlayerInMaxAttackRange(entity);
     } else {
-      path = LevelUtils.calculatePathToHero(entity);
-      AIUtils.move(entity, path);
+      moveToHero(entity);
     }
+  }
+
+  private boolean isPlayerInMinAttackRange(Entity entity) {
+    return LevelUtils.playerInRange(entity, minAttackRange);
+  }
+
+  private boolean isPlayerInMaxAttackRange(Entity entity) {
+    return LevelUtils.playerInRange(entity, maxAttackRange);
+  }
+
+  private void handlePlayerInMaxAttackRange(Entity entity) {
+    if (isPlayerInMinAttackRange(entity)) {
+      moveOutOfMinRange(entity);
+    } else {
+      useSkill(skill, entity);
+    }
+  }
+
+  private void moveOutOfMinRange(Entity entity) {
+    Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
+    Point positionEntity = Game.positionOf(entity).orElseThrow();
+    List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
+    boolean newPositionFound = false;
+    for (Tile tile : tiles) {
+      Point newPosition = tile.position();
+      if (!Point.inRange(newPosition, positionHero, minAttackRange)) {
+        path = LevelUtils.calculatePath(positionEntity, newPosition);
+        newPositionFound = true;
+        break;
+      }
+    }
+    if (!newPositionFound) {
+      path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
+    }
+    AIUtils.move(entity, path);
+  }
+
+  private void moveToHero(Entity entity) {
+    path = LevelUtils.calculatePathToHero(entity);
+    AIUtils.move(entity, path);
   }
 
   @Override
