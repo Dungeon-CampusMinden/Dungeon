@@ -74,20 +74,19 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
   private void moveOutOfMinRange(Entity entity) {
     Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
     Point positionEntity = Game.positionOf(entity).orElseThrow();
+    path = findSafePath(entity, positionEntity, positionHero);
+    AIUtils.move(entity, path);
+  }
+
+  private GraphPath<Tile> findSafePath(Entity entity, Point positionEntity, Point positionHero) {
     List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
-    boolean newPositionFound = false;
     for (Tile tile : tiles) {
-      Point newPosition = tile.position();
-      if (!Point.inRange(newPosition, positionHero, minAttackRange)) {
-        path = LevelUtils.calculatePath(positionEntity, newPosition);
-        newPositionFound = true;
-        break;
+      Point positionNew = tile.position();
+      if (!Point.inRange(positionNew, positionHero, minAttackRange)) {
+        return LevelUtils.calculatePath(positionEntity, positionNew);
       }
     }
-    if (!newPositionFound) {
-      path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
-    }
-    AIUtils.move(entity, path);
+    return LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
   }
 
   private void moveToHero(Entity entity) {
