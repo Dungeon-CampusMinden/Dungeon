@@ -163,11 +163,11 @@ public final class CollisionSystem extends System {
     if (rads < 3 * -piQuarter) {
       return Direction.LEFT;
     } else if (rads < -piQuarter) {
-      return Direction.UP;
+      return Direction.DOWN;
     } else if (rads < piQuarter) {
       return Direction.RIGHT;
     } else if (rads < 3 * piQuarter) {
-      return Direction.DOWN;
+      return Direction.UP;
     } else {
       return Direction.LEFT;
     }
