@@ -417,15 +417,24 @@ public final class HeroFactory {
       ic.triggerInteraction(interactable, hero);
   }
 
+  /**
+   * Checks if there is an interactable entity at the given position.
+   *
+   * <p>This method adjusts the given position to match the tile grid and then tries to retrieve the
+   * corresponding {@link Tile} using {@link Game#tileAT(Point)}, which now returns an {@link Optional}.
+   * If the tile is present, it attempts to find the first entity at that tile that has an {@link InteractionComponent}.
+   *
+   * @param pos The position to check, adjusted slightly to center on the tile.
+   * @return An optional entity with an InteractionComponent at the given position, if any.
+   * @throws MissingComponentException If an expected component is missing in downstream logic.
+   */
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
-      throws MissingComponentException {
+    throws MissingComponentException {
     pos = pos.translate(Vector2.of(-0.5f, -0.25f));
 
-    Tile mouseTile = Game.tileAT(pos);
-    if (mouseTile == null) return Optional.empty();
-
-    return Game.entityAtTile(mouseTile)
+    return Game.tileAT(pos)
+      .flatMap(tile -> Game.entityAtTile(tile)
         .filter(e -> e.isPresent(InteractionComponent.class))
-        .findFirst();
+        .findFirst());
   }
 }
