@@ -86,8 +86,8 @@ public class LeverFactory {
    * a timed command. Once activated, the lever will automatically reset to the "off" state after
    * the specified time duration.
    *
-   * <p>The timing behavior relies on an {@code EventScheduler} being present and correctly
-   * integrated into the game loop to execute delayed actions.
+   * <p><strong>Note:</strong> Requires a properly functioning {@code EventScheduler} and {@link
+   * core.systems.LevelSystem} to work.
    *
    * @param pos the position at which to place the lever
    * @param time the duration (in ticks or game-specific time units) after which the lever resets
@@ -96,7 +96,7 @@ public class LeverFactory {
    */
   public static Entity createTimedLever(Point pos, int time) {
     Entity l = createLever(pos);
-    l.fetch(LeverComponent.class).orElseThrow().command(leverTimer(l, time));
+    l.fetch(LeverComponent.class).orElseThrow().command(leverTimer(time));
     return l;
   }
 
@@ -152,28 +152,48 @@ public class LeverFactory {
     return createTorch(pos, ICommand.NOOP);
   }
 
-  private static IEntityCommand leverTimer(Entity lever, int timeInMs) {
-    final EventScheduler.ScheduledAction[] a1 = {null};
+  /**
+   * Creates a command that automatically turns off a lever after a specified delay.
+   *
+   * <p>This command is intended to be attached to a {@link LeverComponent}. When the lever is
+   * activated, it schedules an action via the {@link EventScheduler} to toggle the lever off after
+   * the given time delay. If the command is executed again while a previous action is still
+   * pending, no new action will be scheduled.
+   *
+   * <p>The {@code undo} method cancels the scheduled toggle action if it hasn't executed yet.
+   *
+   * <p><strong>Note:</strong> Requires a properly functioning {@code EventScheduler} and {@link
+   * core.systems.LevelSystem} to work.
+   *
+   * @param timeInMs the time in milliseconds after which the lever should automatically toggle off
+   * @return an {@link IEntityCommand} that schedules a timed lever reset
+   */
+  private static IEntityCommand leverTimer(int timeInMs) {
     return new IEntityCommand() {
+      private EventScheduler.ScheduledAction scheduledAction;
+
       @Override
       public void execute(Entity entity) {
-        if (a1[0] == null || !EventScheduler.isScheduled(a1[0])) {
-          a1[0] =
+        // prevent recursive calling
+        if (scheduledAction == null || !EventScheduler.isScheduled(scheduledAction)) {
+          scheduledAction =
               EventScheduler.scheduleAction(
-                  () ->
-                      entity
-                          .fetch(LeverComponent.class)
-                          .ifPresent(
-                              lc -> {
-                                if (lc.isOn()) lc.toggle();
-                              }),
+                  () -> {
+                    entity
+                        .fetch(LeverComponent.class)
+                        .filter(LeverComponent::isOn)
+                        .ifPresent(LeverComponent::toggle);
+                  },
                   timeInMs);
         }
       }
 
       @Override
       public void undo(Entity entity) {
-        EventScheduler.cancelAction(a1[0]);
+        if (scheduledAction != null) {
+          EventScheduler.cancelAction(scheduledAction);
+          scheduledAction = null;
+        }
       }
     };
   }
