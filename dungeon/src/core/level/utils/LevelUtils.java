@@ -146,42 +146,46 @@ public final class LevelUtils {
    *
    * <p>The range is determined by the provided radius.
    *
-   * <p>The tile at the given point will be part of the list as well.
+   * <p>The tile at the given point will be part of the list as well, if present.
+   *
+   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an
+   * {@link java.util.Optional Optional<Tile>}.
    *
    * @param center The center point around which the tiles are considered.
    * @param radius The radius within which the tiles should be located.
    * @return List of tiles in the given radius around the center point.
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
-    // offset of neighbour Tiles which may not be accessible
     Vector2[] offsets =
-        new Vector2[] {
-          Vector2.of(-1, -1),
-          Vector2.of(0, -1),
-          Vector2.of(1, -1),
-          Vector2.of(-1, 0),
-          Vector2.of(1, 0),
-          Vector2.of(-1, 1),
-          Vector2.of(0, 1),
-          Vector2.of(1, 1),
-        };
-    // all found tiles
+      new Vector2[] {
+        Vector2.of(-1, -1),
+        Vector2.of(0, -1),
+        Vector2.of(1, -1),
+        Vector2.of(-1, 0),
+        Vector2.of(1, 0),
+        Vector2.of(-1, 1),
+        Vector2.of(0, 1),
+        Vector2.of(1, 1),
+      };
+
     Set<Tile> tiles = new HashSet<>();
-    // BFS queue
     Queue<Tile> tileQueue = new ArrayDeque<>();
-    Tile start = Game.tileAT(center);
-    if (start != null) tileQueue.add(start);
-    while (tileQueue.size() > 0) {
+
+    Game.tileAT(center).ifPresent(tileQueue::add);
+
+    while (!tileQueue.isEmpty()) {
       Tile current = tileQueue.remove();
       boolean added = tiles.add(current);
       if (added) {
-        // Tile is a new Tile so add the neighbours to be checked
         for (Vector2 offset : offsets) {
-          Tile tile = current.level().tileAt(current.coordinate().translate(offset));
-          if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
+          Tile neighbor = current.level().tileAt(current.coordinate().translate(offset));
+          if (neighbor != null && isInRange(center, radius, neighbor)) {
+            tileQueue.add(neighbor);
+          }
         }
       }
     }
+
     tiles.removeIf(Objects::isNull);
     return new ArrayList<>(tiles);
   }
