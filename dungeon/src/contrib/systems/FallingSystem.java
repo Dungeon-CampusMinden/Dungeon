@@ -45,17 +45,26 @@ public class FallingSystem extends System {
     filteredEntityStream().filter(this::filterFalling).forEach(this::handleFalling);
   }
 
+  /**
+   * Checks whether the given entity is currently standing on an open {@link PitTile}.
+   *
+   * <p>Uses {@link Game#tileAT(Point)}, which now returns an {@link Optional}, to safely check the tile
+   * at the entity's current position. If the tile exists and is an open pit, the entity will be considered
+   * as falling.
+   *
+   * @param entity The entity to check.
+   * @return True if the entity is on an open pit tile, false otherwise.
+   * @throws MissingComponentException If the entity has no {@link PositionComponent}.
+   */
   private boolean filterFalling(Entity entity) {
     Point entityPosition =
-        entity
-            .fetch(PositionComponent.class)
-            .map(PositionComponent::position)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(entityPosition);
-    if (currentTile instanceof PitTile pitTile) {
-      return pitTile.isOpen();
-    }
-    return false;
+      entity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return Game.tileAT(entityPosition)
+      .filter(tile -> tile instanceof PitTile && ((PitTile) tile).isOpen())
+      .isPresent();
   }
 
   private void handleFalling(Entity entity) {
