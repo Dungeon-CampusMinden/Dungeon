@@ -2,6 +2,7 @@ package contrib.entities;
 
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
 import contrib.utils.IEntityCommand;
 import core.Entity;
@@ -79,6 +80,27 @@ public class LeverFactory {
   }
 
   /**
+   * Creates a timed lever entity at the specified position.
+   *
+   * <p>This method initializes a standard lever using {@code createLever(pos)} and augments it with
+   * a timed command. Once activated, the lever will automatically reset to the "off" state after
+   * the specified time duration.
+   *
+   * <p>The timing behavior relies on an {@code EventScheduler} being present and correctly
+   * integrated into the game loop to execute delayed actions.
+   *
+   * @param pos the position at which to place the lever
+   * @param time the duration (in ticks or game-specific time units) after which the lever resets
+   *     itself to "off"
+   * @return the configured lever entity with a timed reset behavior
+   */
+  public static Entity createTimedLever(Point pos, int time) {
+    Entity l = createLever(pos);
+    l.fetch(LeverComponent.class).orElseThrow().command(leverTimer(l, time));
+    return l;
+  }
+
+  /**
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
    * lever is initially off. The lever is interactable and can be toggled on and off.
    *
@@ -128,6 +150,32 @@ public class LeverFactory {
    */
   public static Entity createTorch(Point pos) {
     return createTorch(pos, ICommand.NOOP);
+  }
+
+  private static IEntityCommand leverTimer(Entity lever, int timeInMs) {
+    final EventScheduler.ScheduledAction[] a1 = {null};
+    return new IEntityCommand() {
+      @Override
+      public void execute(Entity entity) {
+        if (a1[0] == null || !EventScheduler.isScheduled(a1[0])) {
+          a1[0] =
+              EventScheduler.scheduleAction(
+                  () ->
+                      entity
+                          .fetch(LeverComponent.class)
+                          .ifPresent(
+                              lc -> {
+                                if (lc.isOn()) lc.toggle();
+                              }),
+                  timeInMs);
+        }
+      }
+
+      @Override
+      public void undo(Entity entity) {
+        EventScheduler.cancelAction(a1[0]);
+      }
+    };
   }
 
   /**
