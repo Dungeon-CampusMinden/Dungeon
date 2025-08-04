@@ -7,12 +7,10 @@ import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
-import core.level.utils.*;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -85,24 +83,24 @@ public final class LevelSystem extends System {
   }
 
   /**
-   * Check if the given entity is on the end tile.
+   * Checks whether the given entity is currently standing on an open {@link ExitTile}.
    *
-   * @param entity The entity for which the position is checked.
-   * @return True if the entity is on the end tile, else false.
+   * <p>This method uses {@link Game#tileAT(core.utils.Point)} to safely fetch the tile as
+   * {@link Optional}. If the tile exists and is an {@link ExitTile} that is open, this
+   * method returns true.
+   *
+   * @param entity The entity to check.
+   * @return True if the entity stands on an open end tile, false otherwise.
+   * @throws core.utils.components.MissingComponentException If the entity does not have a {@link PositionComponent}.
    */
   private boolean isOnOpenEndTile(final Entity entity) {
     PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(pc.position());
-    if (currentTile == null) {
-      return false;
-    }
+      entity.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    if (currentTile instanceof ExitTile endTile && endTile.isOpen()) return true;
-
-    return false;
+    return Game.tileAT(pc.position())
+      .filter(tile -> tile instanceof ExitTile endTile && endTile.isOpen())
+      .isPresent();
   }
 
   /**
