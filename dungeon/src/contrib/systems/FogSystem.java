@@ -12,7 +12,6 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.*;
-import java.util.Optional;
 
 /**
  * The FogSystem class is responsible for controlling the fog in the game.
@@ -292,6 +291,17 @@ public class FogSystem extends System {
     }
   }
 
+  /**
+   * Executes the fog logic for the current frame.
+   *
+   * <p>Determines visible and obscured tiles based on the player's current position,
+   * updates the fog-of-war by darkening or revealing tiles, and manages the visibility of entities.
+   *
+   * <p>Internally uses {@link Game#tileAT(Point)}, which now returns an {@link java.util.Optional Optional<Tile>},
+   * and safely integrates this change when accessing tiles (e.g., {@code Game.tileAT(heroPos).ifPresent(...)}).
+   *
+   * <p>This method is automatically called by the game loop.
+   */
   @Override
   public void execute() {
     if (!active) return;
@@ -300,46 +310,44 @@ public class FogSystem extends System {
     if (heroPos == null) return; // no hero, no fog
 
     List<Tile> allTilesInView = LevelUtils.tilesInRange(heroPos, MAX_VIEW_DISTANCE);
+
     // Revert all darkened tiles back to light that are not in view
     List<Tile> tilesOutsideView = new ArrayList<>(darkenedTiles.keySet());
     tilesOutsideView.removeAll(allTilesInView);
     revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
-    visibleTiles.add(Game.tileAT(heroPos));
+    Game.tileAT(heroPos).ifPresent(visibleTiles::add);
+
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(
-          castLight(
-              1,
-              1.0f,
-              0.0f,
-              MAX_VIEW_DISTANCE,
-              mult[octant][0],
-              mult[octant][1],
-              mult[octant][2],
-              mult[octant][3],
-              heroPos));
+        castLight(
+          1,
+          1.0f,
+          0.0f,
+          MAX_VIEW_DISTANCE,
+          mult[octant][0],
+          mult[octant][1],
+          mult[octant][2],
+          mult[octant][3],
+          heroPos));
     }
-    List<Tile> distancedTiles = new ArrayList<>(visibleTiles.stream().toList()); // copy
+
+    List<Tile> distancedTiles = new ArrayList<>(visibleTiles); // copy
 
     // Handle tiles that are beyond the view distance
     distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, currentViewDistance));
-    distancedTiles.forEach(
-        (tile) ->
-            darkenTile(
-                tile,
-                currentViewDistance + DISTANCE_TRANSITION_SIZE,
-                TINT_COLOR_DISTANCE_SCALE,
-                heroPos));
-    visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
-    allTilesInView.removeAll(distancedTiles); // and from tile behind walls
+    distancedTiles.forEach(tile ->
+      darkenTile(tile, currentViewDistance + DISTANCE_TRANSITION_SIZE, TINT_COLOR_DISTANCE_SCALE, heroPos));
 
-    allTilesInView.removeAll(visibleTiles); // remove visible tiles from tiles behind walls
+    visibleTiles.removeAll(distancedTiles);      // remove distanced tiles from visible tiles
+    allTilesInView.removeAll(distancedTiles);    // and from tile behind walls
+    allTilesInView.removeAll(visibleTiles);      // remove visible tiles from tiles behind walls
 
     // Darken tiles that are behind walls
-    allTilesInView.forEach(
-        (tile) -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
+    allTilesInView.forEach(tile ->
+      darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
 
     // Revert all visible tiles back to light
     revertTilesBackToLight(visibleTiles);
