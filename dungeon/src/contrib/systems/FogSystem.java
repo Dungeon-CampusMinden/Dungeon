@@ -12,6 +12,7 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.*;
+import java.util.Optional;
 
 /**
  * The FogSystem class is responsible for controlling the fog in the game.
@@ -134,8 +135,26 @@ public class FogSystem extends System {
     }
   }
 
+  /**
+   * Casts light from the hero’s position in a specific direction using recursive shadowcasting.
+   *
+   * <p>Each tile is checked to determine if it should be visible, and light propagation is blocked
+   * by tiles that cannot be seen through. Uses {@link Optional} to safely access tiles and avoid
+   * null references.
+   *
+   * @param row Current row index for scanning.
+   * @param start Starting slope of the light beam.
+   * @param end Ending slope of the light beam.
+   * @param radius Maximum radius of visibility.
+   * @param xx Transformation value for x-axis (octant).
+   * @param xy Transformation value for x-axis (octant).
+   * @param yx Transformation value for y-axis (octant).
+   * @param yy Transformation value for y-axis (octant).
+   * @param heroPos Position of the hero in tile coordinates.
+   * @return A list of all visible tiles in this octant.
+   */
   private List<Tile> castLight(
-      int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+    int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
     List<Tile> visibleTiles = new ArrayList<>();
     if (start < end) {
       return visibleTiles;
@@ -147,11 +166,8 @@ public class FogSystem extends System {
       boolean blocked = false;
       while (dx <= 0) {
         dx += 1;
-        // Translate the dx, dy coordinates into map coordinates
         int X = (int) (heroPos.x() + (dx * xx + dy * xy));
         int Y = (int) (heroPos.y() + (dx * yx + dy * yy));
-        // l_slope and r_slope store the slopes of the left and right extremities of the square
-        // we're considering
         float lSlope = (dx - 0.5f) / (dy + 0.5f);
         float rSlope = (dx + 0.5f) / (dy - 0.5f);
         if (start < rSlope) {
@@ -159,18 +175,14 @@ public class FogSystem extends System {
         } else if (end > lSlope) {
           break;
         } else {
-          // Our light beam is touching this square; light it
-          if (dx * dx + dy * dy < radius * radius) {
-            Tile tile = Game.tileAT(new Point(X, Y));
-            visibleTiles.add(tile);
-          }
-          Tile tile = Game.tileAT(new Point(X, Y));
-          if (tile == null) {
-            continue;
-          }
-          if (blocked) { // previous step was a blocking square
+          Point tilePos = new Point(X, Y);
+          Optional<Tile> tileOpt = Game.tileAT(tilePos);
+          tileOpt.ifPresent(visibleTiles::add);
+          if (tileOpt.isEmpty()) continue;
 
-            if (!tile.canSeeThrough()) { // this step is a blocking square
+          Tile tile = tileOpt.get();
+          if (blocked) {
+            if (!tile.canSeeThrough()) {
               newStart = rSlope;
               continue;
             } else {
@@ -178,9 +190,10 @@ public class FogSystem extends System {
               start = newStart;
             }
           } else {
-            if (!tile.canSeeThrough() && i < radius) { // this step is a blocking square
+            if (!tile.canSeeThrough() && i < radius) {
               blocked = true;
-              visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+              visibleTiles.addAll(
+                castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
               newStart = rSlope;
             }
           }
