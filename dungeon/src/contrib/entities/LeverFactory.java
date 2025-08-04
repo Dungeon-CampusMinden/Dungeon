@@ -82,22 +82,18 @@ public class LeverFactory {
   /**
    * Creates a timed lever entity at the specified position.
    *
-   * <p>This method initializes a standard lever using {@code createLever(pos)} and augments it with
-   * a timed command. Once activated, the lever will automatically reset to the "off" state after
-   * the specified time duration.
+   * <p>Once activated, the lever will automatically reset to the "off" state after the specified
+   * time duration.
    *
    * <p><strong>Note:</strong> Requires a properly functioning {@code EventScheduler} and {@link
    * core.systems.LevelSystem} to work.
    *
    * @param pos the position at which to place the lever
-   * @param time the duration (in ticks or game-specific time units) after which the lever resets
-   *     itself to "off"
+   * @param time the duration after which the lever resets itself to "off"
    * @return the configured lever entity with a timed reset behavior
    */
   public static Entity createTimedLever(Point pos, int time) {
-    Entity l = createLever(pos);
-    l.fetch(LeverComponent.class).orElseThrow().command(leverTimer(time));
-    return l;
+    return createLever(pos, leverTimer(time));
   }
 
   /**
@@ -173,23 +169,22 @@ public class LeverFactory {
       private EventScheduler.ScheduledAction scheduledAction;
 
       @Override
-      public void execute(Entity entity) {
+      public void execute(Entity lever) {
         // prevent recursive calling
         if (scheduledAction == null || !EventScheduler.isScheduled(scheduledAction)) {
           scheduledAction =
               EventScheduler.scheduleAction(
-                  () -> {
-                    entity
-                        .fetch(LeverComponent.class)
-                        .filter(LeverComponent::isOn)
-                        .ifPresent(LeverComponent::toggle);
-                  },
+                  () ->
+                      lever
+                          .fetch(LeverComponent.class)
+                          .filter(LeverComponent::isOn)
+                          .ifPresent(LeverComponent::toggle),
                   timeInMs);
         }
       }
 
       @Override
-      public void undo(Entity entity) {
+      public void undo(Entity lever) {
         if (scheduledAction != null) {
           EventScheduler.cancelAction(scheduledAction);
           scheduledAction = null;

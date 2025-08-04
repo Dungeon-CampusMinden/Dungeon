@@ -10,7 +10,7 @@ import core.Component;
  */
 public class LeverComponent implements Component {
   /** The command that will be executed when the lever is toggled. */
-  private ICommand command;
+  private final ICommand command;
 
   /** The current state of the lever. True if the lever is on, false otherwise. */
   private boolean isOn;
@@ -50,15 +50,6 @@ public class LeverComponent implements Component {
    */
   public ICommand command() {
     return command;
-  }
-
-  /**
-   * Set the command that will be executed when the lever is toggled.
-   *
-   * @param command The command that will be executed when the lever is toggled.
-   */
-  public void command(ICommand command) {
-    this.command = command;
   }
 
   /**
