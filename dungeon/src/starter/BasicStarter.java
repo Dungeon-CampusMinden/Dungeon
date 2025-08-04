@@ -1,8 +1,5 @@
 package starter;
 
-import contrib.entities.HeroFactory;
-import contrib.entities.MonsterFactory;
-import core.Entity;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
