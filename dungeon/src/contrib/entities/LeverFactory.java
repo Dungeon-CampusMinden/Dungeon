@@ -250,6 +250,7 @@ public class LeverFactory {
             new SimpleIPath("objects/torch/on/torch_8.png")),
         List.of(new SimpleIPath("objects/torch/off/torch_0.png"))),
 
+    /** Represents a pressure plate with multiple textures for "on" (animated) and one for "off". */
     PLATE(
         List.of(new SimpleIPath("objects/pressureplate/on/pressureplate_0.png")),
         List.of(new SimpleIPath("objects/pressureplate/off/pressureplate_0.png")));
