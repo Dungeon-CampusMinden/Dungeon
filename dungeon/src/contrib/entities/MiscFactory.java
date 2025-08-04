@@ -1,24 +1,27 @@
 package contrib.entities;
 
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
-import contrib.components.UIComponent;
+import contrib.components.*;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.item.ItemGenerator;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
+import core.Game;
+import core.components.*;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
+import core.utils.Vector2;
+import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -29,6 +32,7 @@ public final class MiscFactory {
   private static final int DEFAULT_CHEST_SIZE = 12;
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
+  private static final SimpleIPath CATAPULT = new SimpleIPath("objects/mailbox/mailbox_1.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -243,6 +247,133 @@ public final class MiscFactory {
                           who.add(component);
                         })));
     return cauldron;
+  }
+
+  /**
+   * Creates a catapult entity at a given spawn point that can launch other entities to a target
+   * location.
+   *
+   * <p>When another entity collides with this catapult entity:
+   *
+   * <ul>
+   *   <li>The other entity must have a {@link CatapultableComponent} to be catapulted.
+   *   <li>The other entity's current velocity is reset to zero (immobilized).
+   *   <li>The other entity is teleported instantly to the target location (not moved smoothly).
+   *   <li>The other entity is made invisible during the catapult process.
+   *   <li>If the other entity has a {@link CameraComponent}, it is removed and the camera will
+   *       follow the projectile instead.
+   *   <li>The {@link CatapultableComponent}'s deactivate callback is invoked to disable any
+   *       controls or AI.
+   *   <li>A projectile entity is created to visually simulate the flight from the spawn point to
+   *       the target location.
+   *   <li>Once the projectile reaches the target, the original entity is restored to its normal
+   *       state.
+   * </ul>
+   *
+   * @param spawnPoint the position of the catapult
+   * @param location the target location to which entities will be catapulted
+   * @param speed the flight speed of the projectile representing the catapulted entity
+   * @return the created catapult entity that triggers the catapulting effect on collision
+   */
+  public static Entity catapult(Point spawnPoint, Point location, float speed) {
+    Entity catapult = new Entity();
+    catapult.add(new PositionComponent(spawnPoint));
+    catapult.add(new DrawComponent(Animation.fromSingleImage(CATAPULT)));
+    TriConsumer<Entity, Entity, Direction> action =
+        (you, other, direction) -> {
+          if (!other.isPresent(CatapultableComponent.class)) return;
+          other.fetch(VelocityComponent.class).ifPresent(vc -> vc.currentVelocity(Vector2.ZERO));
+          other.fetch(DrawComponent.class).ifPresent(dc -> dc.setVisible(false));
+          other.fetch(PositionComponent.class).ifPresent(p -> p.position(location));
+          boolean focusCamera = other.remove(CameraComponent.class);
+          other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.deactivate().accept(other));
+          Game.add(catapultFlyEntity(other, spawnPoint, location, speed, focusCamera));
+        };
+    catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER));
+    return catapult;
+  }
+
+  /**
+   * Creates a temporary projectile entity that visually represents the catapulted entity flying
+   * from the start to the goal location.
+   *
+   * <p>This entity handles the visual and logical aspects of the catapult animation. While the
+   * original entity is made invisible and immobilized, this projectile simulates the flight:
+   *
+   * <ul>
+   *   <li>Uses the current {@link DrawComponent} of the original entity to maintain appearance.
+   *   <li>Attaches a {@link VelocityComponent} with a termination callback that resets the original
+   *       entity when the flight ends.
+   *   <li>Optionally attaches a {@link CameraComponent} if the camera should follow the projectile.
+   *   <li>Adds a {@link CollideComponent} that resets the original entity once the projectile
+   *       reaches it (collision-based landing).
+   * </ul>
+   *
+   * @param other the original entity that is being catapulted
+   * @param start the starting position of the catapult flight (usually the catapult location)
+   * @param goal the target location to which the entity is being catapulted
+   * @param speed the flight speed of the projectile
+   * @param focusCamera true if the camera should follow the projectile during the flight
+   * @return the projectile entity representing the flying visual of the catapulted entity
+   */
+  private static Entity catapultFlyEntity(
+      Entity other, Point start, Point goal, float speed, boolean focusCamera) {
+    Entity projectile = new Entity();
+    other
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            drawComponent -> projectile.add(new DrawComponent(drawComponent.currentAnimation())));
+    Vector2 velocity = SkillTools.calculateVelocity(start, goal, speed);
+    float entitySpeed =
+        other.fetch(VelocityComponent.class).ifPresentOrElse(vc -> vc.maxSpeed(), 0);
+    VelocityComponent vc =
+        new VelocityComponent(
+            velocity,
+            new Consumer<Entity>() {
+              @Override
+              public void accept(Entity entity) {
+                resetCatapultedEntity(other, focusCamera, entitySpeed);
+              }
+            },
+            true);
+    projectile.add(vc);
+
+    projectile.add(new ProjectileComponent(start, goal));
+    projectile.add(new PositionComponent(start));
+    if (focusCamera) projectile.add(new CameraComponent());
+
+    TriConsumer<Entity, Entity, Direction> collide =
+        (you, with, direction1) -> {
+          if (with != other) return;
+          resetCatapultedEntity(other, focusCamera, entitySpeed);
+        };
+
+    projectile.add(new CollideComponent(collide, CollideComponent.DEFAULT_COLLIDER));
+    return projectile;
+  }
+
+  /**
+   * Reverts all temporary changes made to an entity after the catapult process is complete.
+   *
+   * <p>This method should be called when the projectile has reached its destination. It:
+   *
+   * <ul>
+   *   <li>Makes the original entity visible again by setting its {@link DrawComponent} to visible.
+   *   <li>Reattaches a {@link CameraComponent} if the camera was previously focused on the entity.
+   *   <li>Calls the reactivation callback of the {@link CatapultableComponent} to restore entity
+   *       behavior.
+   *   <li>Restores the original movement speed via the {@link VelocityComponent}.
+   * </ul>
+   *
+   * @param other the original entity that was catapulted
+   * @param focusCamera whether the camera should be reattached to the entity
+   * @param entitySpeed the speed to restore to the entity's {@link VelocityComponent}
+   */
+  private static void resetCatapultedEntity(Entity other, boolean focusCamera, float entitySpeed) {
+    other.fetch(DrawComponent.class).ifPresent(dc -> dc.setVisible(true));
+    if (focusCamera) other.add(new CameraComponent());
+    other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.reactivate().accept(other));
+    other.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(entitySpeed));
   }
 
   /**

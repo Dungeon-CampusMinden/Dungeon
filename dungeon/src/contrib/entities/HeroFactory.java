@@ -176,6 +176,9 @@ public final class HeroFactory {
             (you, other, direction) -> {}));
 
     PlayerComponent pc = new PlayerComponent();
+    hero.add(
+        new CatapultableComponent(
+            entity -> pc.deactivateControlls(true), entity -> pc.deactivateControlls(false)));
     hero.add(pc);
     InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
     hero.add(ic);

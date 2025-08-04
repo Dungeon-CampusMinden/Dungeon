@@ -22,6 +22,7 @@ public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
   private int openDialogs = 0;
+  private boolean deactive = false;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent() {
@@ -153,5 +154,23 @@ public final class PlayerComponent implements Component {
     public InputData(boolean repeat, Consumer<Entity> callback) {
       this(repeat, callback, false);
     }
+  }
+
+  /**
+   * Enables or disables the player controls.
+   *
+   * @param deactive true to disable player controls; false to enable them
+   */
+  public void deactivateControlls(boolean deactive) {
+    this.deactive = deactive;
+  }
+
+  /**
+   * Returns whether the player controls are currently deactivated.
+   *
+   * @return true if controls are disabled; false if they are active
+   */
+  public boolean deactivateControlls() {
+    return this.deactive;
   }
 }
