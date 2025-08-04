@@ -1,12 +1,13 @@
 package contrib.utils.components.skill;
 
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import core.Entity;
 
 /**
  * Interface for skill users. It defines methods to use a skill and to get and set a skill.
  *
  * <p>It is used by the {@link contrib.utils.components.ai.fight.MeleeAI MeleeAI} and {@link
- * contrib.utils.components.ai.fight.RangeAI RangeAI} classes to use a skill when an attack is
+ * AIRangeBehaviour RangeAI} classes to use a skill when an attack is
  * performed.
  */
 public interface ISkillUser {

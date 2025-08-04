@@ -10,7 +10,7 @@ import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
 import contrib.hud.DialogUtils;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -83,7 +83,7 @@ public enum MonsterType {
       0.1f,
       MonsterDeathSound.HIGH_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               7f,
               0f,
               new Skill(
@@ -134,7 +134,7 @@ public enum MonsterType {
       0.1f,
       MonsterDeathSound.LOWER_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               3f,
               0f,
               new Skill(
@@ -215,7 +215,7 @@ public enum MonsterType {
       0.25f,
       MonsterDeathSound.LOW_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               9f,
               0f,
               new Skill(
@@ -253,7 +253,7 @@ public enum MonsterType {
       0.5f,
       MonsterDeathSound.LOW_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               7, 6, BossAttackSkills.normalAttack((int) (AIFactory.FIREBALL_COOL_DOWN * 1.5f))),
       () -> new RadiusWalk(3f, 4),
       () -> new RangeTransition(6, true),
@@ -269,7 +269,7 @@ public enum MonsterType {
       0.0f,
       1.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)),
+      () -> new AIRangeBehaviour(15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,
@@ -288,7 +288,7 @@ public enum MonsterType {
       0.0f,
       0.0f, // Custom Logic
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(17f, 0f, null),
+      () -> new AIRangeBehaviour(17f, 0f, null),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,
