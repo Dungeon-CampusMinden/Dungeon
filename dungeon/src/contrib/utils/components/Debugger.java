@@ -144,24 +144,16 @@ public class Debugger {
   }
 
   /**
-   * Spawn a monster at the given position if it is in the level and accessible.
+   * Spawns a monster at the given position, if the tile is accessible.
+   *
+   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an
+   * {@link java.util.Optional Optional<Tile>}.
    *
    * @param position The location to spawn the monster on.
    */
   public static void SPAWN_MONSTER(Point position) {
-    // Get the tile at the given position
-    Tile tile = null;
-    try {
-      tile = Game.tileAT(position);
-    } catch (NullPointerException ex) {
-      LOGGER.info(ex.getMessage());
-    }
-
-    // If the tile is accessible, spawn a monster at the position
-    if (tile != null && tile.isAccessible()) {
+    Game.tileAT(position).filter(Tile::isAccessible).ifPresentOrElse(tile -> {
       Entity monster = new Entity("Debug Monster");
-
-      // Add components to the monster entity
       monster.add(new PositionComponent(position));
       try {
         monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
@@ -171,16 +163,12 @@ public class Debugger {
       monster.add(new VelocityComponent(Vector2.ONE));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
-      monster.add(
-          new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
-
+      monster.add(new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
       Game.add(monster);
-      // Log that the monster was spawned
       LOGGER.info("Spawned monster at position " + position);
-    } else {
-      // Log that the monster couldn't be spawned
+    }, () -> {
       LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
-    }
+    });
   }
 
   /** Pauses the game. */
