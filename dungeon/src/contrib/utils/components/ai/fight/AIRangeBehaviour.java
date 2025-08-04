@@ -39,7 +39,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   public AIRangeBehaviour(final float maxAttackRange, final float minAttackRange, final Skill skill) {
     if (maxAttackRange <= minAttackRange || minAttackRange < 0) {
       throw new IllegalArgumentException(
-          "attackRange must be greater than distance and distance must be 0 or greater than 0");
+          "maxAttackRange must be greater than minAttackRange and minAttackRange must be 0 or greater than 0");
     }
     this.maxAttackRange = maxAttackRange;
     this.minAttackRange = minAttackRange;
