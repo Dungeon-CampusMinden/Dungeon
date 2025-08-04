@@ -31,19 +31,20 @@ public class BasicStarter {
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
 
-    Game.userOnSetup(() -> {
-      try {
-        Entity hero = HeroFactory.newHero();
-        Game.add(hero);
+    Game.userOnSetup(
+        () -> {
+          try {
+            Entity hero = HeroFactory.newHero();
+            Game.add(hero);
 
-        Entity monster = MonsterFactory.randomMonster();
-        Game.add(monster);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+            Entity monster = MonsterFactory.randomMonster();
+            Game.add(monster);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
 
-      DungeonLoader.loadLevel(0);
-    });
+          DungeonLoader.loadLevel(0);
+        });
     Game.run();
   }
 }
