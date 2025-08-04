@@ -271,20 +271,24 @@ public class FogSystem extends System {
             });
   }
 
+  /**
+   * Reveals all hidden entities whose tiles are either not darkened or have a tint color above the threshold.
+   * Uses {@link Game#tileAT(Point)} safely via Optional to avoid null handling.
+   */
   private void revealHiddenEntities() {
     for (Entity entity : hiddenEntities) {
-      PositionComponent pc =
-          entity
-              .fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-      Tile tile = Game.tileAT(pc.position());
-      if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
-        DrawComponent dc =
-            entity
-                .fetch(DrawComponent.class)
-                .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-        dc.setVisible(true);
-      }
+      PositionComponent pc = entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+      Game.tileAT(pc.position())
+        .filter(tile -> !darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD)
+        .ifPresent(tile -> {
+          DrawComponent dc = entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+          dc.setVisible(true);
+        });
     }
   }
 
