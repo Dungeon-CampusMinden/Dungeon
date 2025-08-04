@@ -112,29 +112,24 @@ public class Debugger {
   /**
    * Teleports the hero to the given location.
    *
+   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an
+   * {@link java.util.Optional Optional<Tile>}.
+   *
    * @param targetLocation the location to teleport to
    */
   public static void TELEPORT(Point targetLocation) {
-    if (Game.hero().isPresent()) {
+    Game.hero().ifPresent(hero -> {
       PositionComponent pc =
-          Game.hero()
-              .get()
-              .fetch(PositionComponent.class)
-              .orElseThrow(
-                  () ->
-                      MissingComponentException.build(Game.hero().get(), PositionComponent.class));
+        hero.fetch(PositionComponent.class)
+          .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-      // Attempt to teleport to targetLocation
       LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
-      Tile t = Game.tileAT(targetLocation);
-      if (t == null || !t.isAccessible()) {
-        LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
-        return;
-      }
 
-      pc.position(targetLocation);
-      LOGGER.info("Teleport successful");
-    }
+      Game.tileAT(targetLocation).filter(Tile::isAccessible).ifPresentOrElse(tile -> {
+        pc.position(targetLocation);
+        LOGGER.info("Teleport successful");
+      }, () -> LOGGER.info("Cannot teleport to non-existing or non-accessible tile"));
+    });
   }
 
   /** Spawns a monster at the cursor's position. */
