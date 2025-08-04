@@ -4,7 +4,7 @@ import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.idle.StaticRadiusWalk;
@@ -105,7 +105,7 @@ public final class AIFactory {
     return switch (index) {
       case 0 -> new AIChaseBehaviour(RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
       case 1 ->
-          new RangeAI(
+          new AIRangeBehaviour(
               RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
               RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
               new Skill(new FireballSkill(SkillTools::heroPositionAsPoint), FIREBALL_COOL_DOWN));

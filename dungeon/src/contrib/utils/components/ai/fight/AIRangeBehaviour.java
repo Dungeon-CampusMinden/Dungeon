@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  *
  * @see ISkillUser
  */
-public final class RangeAI implements Consumer<Entity>, ISkillUser {
+public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
 
   private final float maxAttackRange;
   private final float minAttackRange;
@@ -36,7 +36,7 @@ public final class RangeAI implements Consumer<Entity>, ISkillUser {
    * @param minAttackRange Minimal distance to hero in which the attack skill should be executed.
    * @param skill Skill to be used when an attack is performed.
    */
-  public RangeAI(final float maxAttackRange, final float minAttackRange, final Skill skill) {
+  public AIRangeBehaviour(final float maxAttackRange, final float minAttackRange, final Skill skill) {
     if (maxAttackRange <= minAttackRange || minAttackRange < 0) {
       throw new IllegalArgumentException(
           "attackRange must be greater than distance and distance must be 0 or greater than 0");

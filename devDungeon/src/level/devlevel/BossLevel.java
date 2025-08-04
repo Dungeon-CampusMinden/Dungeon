@@ -9,7 +9,7 @@ import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
 import core.Game;
@@ -148,11 +148,11 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     AIComponent aiComp =
         boss.fetch(AIComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, AIComponent.class));
-    if (!(aiComp.fightBehavior() instanceof RangeAI rangeAI)) return;
+    if (!(aiComp.fightBehavior() instanceof AIRangeBehaviour AIRangeBehaviour)) return;
 
     if (isBoss2ndPhase) {
       if (anyOtherMobsAlive()) {
-        rangeAI.skill(BossAttackSkills.SKILL_NONE());
+        AIRangeBehaviour.skill(BossAttackSkills.SKILL_NONE());
         return;
       } else {
         boss.remove(MagicShieldComponent.class);
@@ -164,10 +164,10 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     if (System.currentTimeMillis() - lastAttackChange > getBossAttackChangeDelay()
         && isBossNormalAttacking) {
       this.lastAttackChange = System.currentTimeMillis();
-      rangeAI.skill(BossAttackSkills.getFinalBossSkill(boss));
+      AIRangeBehaviour.skill(BossAttackSkills.getFinalBossSkill(boss));
       this.isBossNormalAttacking = false;
     } else if (!isBossNormalAttacking) {
-      rangeAI.skill(BossAttackSkills.normalAttack(AIFactory.FIREBALL_COOL_DOWN));
+      AIRangeBehaviour.skill(BossAttackSkills.normalAttack(AIFactory.FIREBALL_COOL_DOWN));
       this.isBossNormalAttacking = true;
     }
   }
