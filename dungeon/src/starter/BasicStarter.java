@@ -1,12 +1,20 @@
 package starter;
 
+import contrib.entities.HeroFactory;
+import contrib.entities.MiscFactory;
+import contrib.systems.CollisionSystem;
+import contrib.systems.EventScheduler;
+import contrib.systems.LevelEditorSystem;
+import contrib.systems.ProjectileSystem;
 import core.Game;
+import core.components.*;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
-import core.utils.Tuple;
+import core.utils.*;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -26,6 +34,18 @@ public class BasicStarter {
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(true);
     Game.frameRate(30);
+    Game.add(new ProjectileSystem());
+    Game.add(HeroFactory.newHero());
+    Game.add(new LevelEditorSystem());
+    Game.add(new CollisionSystem());
+    Game.add(new EventScheduler());
+    Game.userOnLevelLoad(
+        new Consumer<Boolean>() {
+          @Override
+          public void accept(Boolean aBoolean) {
+            Game.add(MiscFactory.catapult(new Point(1, 1), new Point(5, 5), 10));
+          }
+        });
     Game.windowTitle("Basic Dungeon");
     Game.run();
   }
