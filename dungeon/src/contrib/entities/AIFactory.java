@@ -2,7 +2,7 @@ package contrib.entities;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.MeleeAI;
 import contrib.utils.components.ai.fight.RangeAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
@@ -103,7 +103,7 @@ public final class AIFactory {
     int index = RANDOM.nextInt(0, 3);
 
     return switch (index) {
-      case 0 -> new CollideAI(RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
+      case 0 -> new AIChaseBehaviour(RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH));
       case 1 ->
           new RangeAI(
               RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
