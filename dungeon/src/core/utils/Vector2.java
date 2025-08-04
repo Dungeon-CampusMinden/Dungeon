@@ -241,6 +241,19 @@ public interface Vector2 {
   }
 
   /**
+   * Finds a Vector partway between this Vector and another Vector.
+   *
+   * @param other the vector to move towards
+   * @param t how far to go from this vector to the vector (0 = here, 1 = there)
+   * @return a new vector between this one and the other, based on t
+   */
+  default Vector2 interpolate(Vector2 other, float t) {
+    float newX = x() + (other.x() - x()) * t;
+    float newY = y() + (other.y() - y()) * t;
+    return Vector2.of(newX, newY);
+  }
+
+  /**
    * A record representing a 2D vector with x and y Float components.
    *
    * <p>Provides utility methods for vector operations such as addition, subtraction, scaling,

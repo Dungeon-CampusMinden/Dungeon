@@ -147,24 +147,23 @@ public class MoveSystemTest {
     Tile yMoveTile = mock(Tile.class);
     when(yMoveTile.isAccessible()).thenReturn(false);
 
+    Tile defaultTile = mock(Tile.class);
+    when(defaultTile.isAccessible()).thenReturn(true);
+    when(defaultTile.levelElement()).thenReturn(LevelElement.FLOOR);
+
     // Mock Level and inject into Game
     DungeonLevel level = mock(DungeonLevel.class);
+    when(level.tileAt(any(Point.class))).thenReturn(defaultTile);
     when(level.tileAt(eq(newPos))).thenReturn(newPosTile);
     when(level.tileAt(eq(xMove))).thenReturn(xMoveTile);
     when(level.tileAt(eq(yMove))).thenReturn(yMoveTile);
     Game.currentLevel(level);
 
-    // onWallHit callback
     Consumer<Entity> onWallHit = mock(Consumer.class);
     vc.onWallHit(onWallHit);
-
-    // Execute system
     system.execute();
 
-    // Assert movement only on X axis
     assertEquals(xMove, pc.position());
-
-    // Verify wall hit callback triggered
     verify(onWallHit).accept(entity);
   }
 
@@ -185,12 +184,11 @@ public class MoveSystemTest {
     when(pitTile.isAccessible()).thenReturn(false);
     when(pitTile.levelElement()).thenReturn(LevelElement.PIT);
 
-    // Mock Level and inject into Game
+    // Stub all tile lookups to return the PIT tile (safe fallback)
     DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(eq(newPos))).thenReturn(pitTile);
+    when(level.tileAt(any(Point.class))).thenReturn(pitTile);
     Game.currentLevel(level);
 
-    // Execute system
     system.execute();
 
     // Should move into PIT tile even if not accessible
@@ -302,7 +300,7 @@ public class MoveSystemTest {
     Point expectedPos =
         pc.position()
             .translate(Vector2.of(10, 10).normalize().scale(5f).scale(1f / Game.frameRate()));
-    when(level.tileAt(eq(expectedPos))).thenReturn(accessibleTile);
+    when(level.tileAt(any(Point.class))).thenReturn(accessibleTile);
     Game.currentLevel(level);
 
     // Execute system
@@ -310,5 +308,109 @@ public class MoveSystemTest {
 
     // Position should be updated according to capped velocity (normalized * maxSpeed)
     assertEquals(expectedPos, pc.position());
+  }
+
+  /**
+   * Tests that the isPathClearByStepping method returns true when all tiles along the path from the
+   * start point to the end point are accessible.
+   *
+   * <p>This verifies that the method correctly detects a clear path without obstacles when stepping
+   * through tiles incrementally.
+   */
+  @Test
+  void isPathClearByStepping_returnsTrueForClearPath() {
+    Point start = new Point(0, 0);
+    Point end = new Point(1, 0);
+
+    // Mock tiles along the path to be accessible
+    DungeonLevel level = mock(DungeonLevel.class);
+    when(level.tileAt(any(Point.class)))
+        .thenAnswer(
+            invocation -> {
+              Point p = invocation.getArgument(0);
+              Tile t = mock(Tile.class);
+              when(t.isAccessible()).thenReturn(true);
+              return t;
+            });
+    Game.currentLevel(level);
+
+    boolean result = system.isPathClearByStepping(start, end, false);
+    assertTrue(result, "Path should be clear when all tiles are accessible");
+  }
+
+  /**
+   * Tests that the isPathClearByStepping method returns false if any tile along the path from the
+   * start point to the end point is inaccessible.
+   *
+   * <p>This ensures the method correctly detects blocked paths by checking each intermediate tile.
+   */
+  @Test
+  void isPathClearByStepping_returnsFalseIfTileInPathBlocked() {
+    Point start = new Point(0, 0);
+    Point end = new Point(1, 0);
+
+    DungeonLevel level = mock(DungeonLevel.class);
+    when(level.tileAt(any(Point.class)))
+        .thenAnswer(
+            invocation -> {
+              Point p = invocation.getArgument(0);
+              Tile t = mock(Tile.class);
+              // Block tile at 0.5 on X-axis, accessible elsewhere
+              if (p.x() >= 0.5) {
+                when(t.isAccessible()).thenReturn(false);
+              } else {
+                when(t.isAccessible()).thenReturn(true);
+              }
+              return t;
+            });
+    Game.currentLevel(level);
+
+    boolean result = system.isPathClearByStepping(start, end, false);
+    assertFalse(result, "Path should be blocked when any tile in path is inaccessible");
+  }
+
+  /**
+   * Tests that when diagonal movement is blocked by an inaccessible tile, but movement along the X
+   * axis alone is possible, the entity moves only along the X axis.
+   *
+   * <p>Also verifies that the entity’s onWallHit callback is triggered when a wall blocks diagonal
+   * movement.
+   */
+  @Test
+  void updatePosition_movesOnXAxisWhenDiagonalBlockedButXAxisAccessible() {
+    vc.currentVelocity(Vector2.of(1, 1));
+    Point oldPos = pc.position();
+    float frameRate = Game.frameRate();
+    Vector2 scaledVelocity = vc.currentVelocity().scale(1f / frameRate);
+    Point newPos = oldPos.translate(scaledVelocity);
+    Point xMove = new Point(newPos.x(), oldPos.y());
+    Point yMove = new Point(oldPos.x(), newPos.y());
+
+    // Mock tiles for positions
+    Tile newPosTile = mock(Tile.class);
+    when(newPosTile.isAccessible()).thenReturn(false);
+
+    Tile xMoveTile = mock(Tile.class);
+    when(xMoveTile.isAccessible()).thenReturn(true);
+
+    Tile yMoveTile = mock(Tile.class);
+    when(yMoveTile.isAccessible()).thenReturn(false);
+
+    DungeonLevel level = mock(DungeonLevel.class);
+    when(level.tileAt(eq(newPos))).thenReturn(newPosTile);
+    when(level.tileAt(eq(xMove))).thenReturn(xMoveTile);
+    when(level.tileAt(eq(yMove))).thenReturn(yMoveTile);
+    Game.currentLevel(level);
+
+    Consumer<Entity> onWallHit = mock(Consumer.class);
+    vc.onWallHit(onWallHit);
+
+    system.execute();
+
+    // Position should be updated only on x axis
+    assertEquals(xMove.x(), pc.position().x(), 0.04f);
+    assertEquals(xMove.y(), pc.position().y());
+
+    verify(onWallHit).accept(entity);
   }
 }

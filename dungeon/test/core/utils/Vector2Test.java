@@ -173,4 +173,40 @@ public class Vector2Test {
     Vector2 c = v.scale(-1);
     assertEquals(c, v.inverse());
   }
+
+  /** Verifies that interpolate returns the start vector when t = 0. */
+  @Test
+  void interpolate_returnsStartPointWhenTIsZero() {
+    Vector2 start = Vector2.of(1f, 2f);
+    Vector2 end = Vector2.of(5f, 6f);
+
+    Vector2 result = start.interpolate(end, 0f);
+
+    assertEquals(start.x(), result.x(), 0.0001);
+    assertEquals(start.y(), result.y(), 0.0001);
+  }
+
+  /** Verifies that interpolate returns the end vector when t = 1. */
+  @Test
+  void interpolate_returnsEndPointWhenTIsOne() {
+    Vector2 start = Vector2.of(1f, 2f);
+    Vector2 end = Vector2.of(5f, 6f);
+
+    Vector2 result = start.interpolate(end, 1f);
+
+    assertEquals(end.x(), result.x(), 0.0001);
+    assertEquals(end.y(), result.y(), 0.0001);
+  }
+
+  /** Verifies that interpolate returns the midpoint vector when t = 0.5. */
+  @Test
+  void interpolate_returnsMidPointWhenTHalf() {
+    Vector2 start = Vector2.ZERO;
+    Vector2 end = Vector2.of(4f, 4f);
+
+    Vector2 result = start.interpolate(end, 0.5f);
+
+    assertEquals(2f, result.x(), 0.0001);
+    assertEquals(2f, result.y(), 0.0001);
+  }
 }
