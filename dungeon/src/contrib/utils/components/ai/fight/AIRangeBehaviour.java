@@ -36,7 +36,8 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * @param minAttackRange Minimal distance to hero in which the attack skill should be executed.
    * @param skill Skill to be used when an attack is performed.
    */
-  public AIRangeBehaviour(final float maxAttackRange, final float minAttackRange, final Skill skill) {
+  public AIRangeBehaviour(
+      final float maxAttackRange, final float minAttackRange, final Skill skill) {
     if (maxAttackRange <= minAttackRange || minAttackRange < 0) {
       throw new IllegalArgumentException(
           "maxAttackRange must be greater than minAttackRange and minAttackRange must be 0 or greater than 0");
