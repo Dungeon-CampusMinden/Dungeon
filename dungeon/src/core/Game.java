@@ -411,15 +411,17 @@ public final class Game {
   }
 
   /**
-   * Get the tile at the given point in the level.
+   * Retrieves the tile at the given point in the level, if available.
    *
-   * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
+   * <p>The method uses {@link Point#toCoordinate()} to convert the point into a coordinate.
+   * If no tile exists at the given location, {@link Optional#empty()} is returned.
    *
-   * @param point Point from where to get the tile
-   * @return the tile at the given point.
+   * @param point The point from which to retrieve the tile.
+   * @return An {@link Optional} containing the tile if present, otherwise {@link Optional#empty()}.
    */
-  public static Tile tileAT(final Point point) {
-    return currentLevel().tileAt(point);
+  public static Optional<Tile> tileAT(final Point point) {
+    Tile tile = currentLevel().tileAt(point);
+    return Optional.ofNullable(tile);
   }
 
   /**
@@ -521,24 +523,26 @@ public final class Game {
   }
 
   /**
-   * Returns the entities on the given tile. If the tile is null, an empty stream will be returned.
+   * Returns the entities on the given tile. If no valid tile is found, an empty stream is returned.
    *
    * @param check Tile to check for.
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
-    Tile tile = Game.tileAT(check.position());
-    if (tile == null) return Stream.empty();
+    Optional<Tile> tileOpt = Game.tileAT(check.position());
+    if (tileOpt.isEmpty()) return Stream.empty();
+
+    Tile tile = tileOpt.get();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
-        .filter(
-            e ->
-                tile.equals(
-                    tileAT(
-                        e.fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())));
+      .filter(
+        e ->
+          tile.equals(
+            Game.tileAT(
+                e.fetch(PositionComponent.class)
+                  .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class))
+                  .position())
+              .orElse(null)));
   }
 
   /**
