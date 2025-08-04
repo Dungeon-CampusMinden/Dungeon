@@ -1,5 +1,6 @@
 package contrib.utils.components.ai;
 
+
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import core.Entity;
 import core.Game;
@@ -11,8 +12,13 @@ import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
+
+import java.util.Optional;
+
+
 /** Utility class for AI-related operations like calculating paths. */
 public final class AIUtils {
+
 
   /**
    * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
@@ -27,14 +33,16 @@ public final class AIUtils {
       return;
     }
     PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Tile currentTile = Game.tileAT(pc.position());
+      entity
+        .fetch(VelocityComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+    Optional<Tile> currentTileOpt = Game.tileAT(pc.position());
+    if (currentTileOpt.isEmpty()) return;
+    Tile currentTile = currentTileOpt.get();
     int i = 0;
     Tile nextTile = null;
     while (nextTile == null && i < path.getCount()) {
@@ -48,12 +56,14 @@ public final class AIUtils {
       return;
     }
 
+
     Vector2 direction = Vector2.ZERO;
     for (Direction dir : currentTile.directionTo(nextTile)) {
       direction = direction.add(dir);
     }
     vc.currentVelocity(direction.normalize().scale(vc.velocity()));
   }
+
 
   /**
    * Checks if the entity is either on the end of the path or has left the path.
@@ -66,35 +76,39 @@ public final class AIUtils {
     return pathFinished(entity, path) || pathLeft(entity, path);
   }
 
+
   /**
-   * Checks if the entity is on the end of the path.
+   * Checks whether the given entity has reached the end of the specified path.
    *
-   * @param entity Entity to be checked.
-   * @param path Path on which the entity possible reached the end.
-   * @return true if the entity is on the end of the path, otherwise false.
+   * @param entity the entity to check
+   * @param path the path on which the entity may have reached the end
+   * @return {@code true} if the entity is at the final tile of the path or if the path is empty; {@code false} otherwise
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
     PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    Optional<Tile> currentTileOpt = Game.tileAT(pc.position());
+    return path.getCount() == 0 ||
+      (currentTileOpt.isPresent() && LevelUtils.lastTile(path).equals(currentTileOpt.get()));
   }
-
   /**
-   * Checks if the entity has left the path.
+   * Checks whether the given entity has left the specified path.
    *
-   * @param entity Entity to be checked.
-   * @param path Path to be checked.
-   * @return true if the entity has left the path, otherwise false.
+   * @param entity the entity to check
+   * @param path the path to check against
+   * @return {@code true} if the entity is no longer on any tile of the path; {@code false} otherwise
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
     PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     boolean onPath = false;
-    Tile currentTile = Game.tileAT(pc.position());
+    Optional<Tile> currentTileOpt = Game.tileAT(pc.position());
+    if (currentTileOpt.isEmpty()) return true;
+    Tile currentTile = currentTileOpt.get(); // fehlt bei dir
     for (Tile tile : path) {
       if (currentTile == tile) {
         onPath = true;
