@@ -105,22 +105,38 @@ public final class LevelSystem extends System {
     return false;
   }
 
+  /**
+   * Checks whether the given entity is currently standing on an open {@link DoorTile}
+   * that links to another open {@link DoorTile} in a different level.
+   *
+   * <p>If the condition is fulfilled, this method returns the target {@link ILevel}
+   * the player should be teleported to. Also ensures that both door tiles are open
+   * and correctly linked.
+   *
+   * <p>Uses {@link Game#tileAT(core.utils.Point)} to safely fetch the tile via Optional.
+   *
+   * @param entity The entity to check.
+   * @return An {@link Optional} containing the destination level, or {@link Optional#empty()}
+   *         if no valid door transition is possible.
+   * @throws core.utils.components.MissingComponentException If the entity does not have a {@link PositionComponent}.
+   */
   private Optional<ILevel> isOnDoor(final Entity entity) {
     PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(pc.position());
+      entity.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    if (!(currentTile instanceof DoorTile doorTile)) {
-      return Optional.empty();
-    }
-    if (!doorTile.isOpen() || doorTile.otherDoor() == null || !doorTile.otherDoor().isOpen()) {
-      return Optional.empty();
-    }
-
-    doorTile.otherDoor().level().startTile(doorTile.otherDoor().doorstep());
-    return Optional.ofNullable(doorTile.otherDoor().level());
+    return Game.tileAT(pc.position())
+      .filter(DoorTile.class::isInstance)
+      .map(DoorTile.class::cast)
+      .filter(doorTile ->
+        doorTile.isOpen()
+          && doorTile.otherDoor() != null
+          && doorTile.otherDoor().isOpen()
+      )
+      .map(doorTile -> {
+        doorTile.otherDoor().level().startTile(doorTile.otherDoor().doorstep());
+        return doorTile.otherDoor().level();
+      });
   }
 
   private void playSound() {
