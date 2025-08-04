@@ -11,6 +11,9 @@ import core.utils.components.MissingComponentException;
 import java.util.HashMap;
 import java.util.function.Consumer;
 
+import java.util.Optional;
+import core.level.Tile;
+
 /**
  * The BlockSystem manages the pathfinding by adding and removing tiles based on {@link
  * BlockComponent}-Entities.
@@ -31,19 +34,24 @@ import java.util.function.Consumer;
 public final class BlockSystem extends System {
 
   private HashMap<PositionComponent, Point> oldPositions;
-  private final Consumer<Entity> onRemove =
-      entity -> {
-        BSData data = buildDataObject(entity);
-        oldPositions.remove(data.pc);
-        ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(data.pc.position()));
-      };
 
+  // Removes the entity's tile from pathfinding if present
+  private final Consumer<Entity> onRemove =
+    entity -> {
+      BSData data = buildDataObject(entity);
+      oldPositions.remove(data.pc);
+      Game.tileAT(data.pc.position()).ifPresent(tile ->
+        ((DungeonLevel) Game.currentLevel()).addToPathfinding(tile));
+    };
+
+// Blocks the entity's current tile from pathfinding if present
   private final Consumer<Entity> onAdd =
-      entity -> {
-        BSData data = buildDataObject(entity);
-        oldPositions.put(data.pc, data.pc.position());
-        ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(data.pc.position()));
-      };
+    entity -> {
+      BSData data = buildDataObject(entity);
+      oldPositions.put(data.pc, data.pc.position());
+      Game.tileAT(data.pc.position()).ifPresent(tile ->
+        ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(tile));
+    };
 
   /** Creates a new BlockSystem. */
   public BlockSystem() {
@@ -62,30 +70,37 @@ public final class BlockSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(BlockComponent.class, PositionComponent.class)
-        .map(this::buildDataObject)
-        .forEach(this::updateTiles);
+      .map(this::buildDataObject)
+      .forEach(this::updateTiles);
   }
 
   /**
    * Updates the pathfinding by comparing the old and current positions of an entity.
    *
-   * <p>If an entity has moved, it frees the old tile and blocks the new tile accordingly.
+   * <p>If the entity has moved, the tile at the old position will be freed (added back to the
+   * pathfinding), and the tile at the new position will be blocked (removed from the pathfinding).
+   * <p>If no tile exists at either position, that specific update step is skipped.
    *
-   * @param data The data object containing entity information.
+   * <p>Internally uses {@link Game#tileAT(Point)}, which now returns an {@link Optional<Tile>}.
    */
   private void updateTiles(BSData data) {
     Point currentP = data.pc.position();
     Point oldP = oldPositions.get(data.pc);
     if (currentP.equals(oldP)) return;
-    ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP));
-    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP));
+
+    Game.tileAT(oldP).ifPresent(tile ->
+      ((DungeonLevel) Game.currentLevel()).addToPathfinding(tile));
+
+    Game.tileAT(currentP).ifPresent(tile ->
+      ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(tile));
+
     oldPositions.put(data.pc, currentP);
   }
 
   private BSData buildDataObject(Entity e) {
     PositionComponent pc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+      e.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
     return new BSData(e, pc);
   }
 
