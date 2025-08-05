@@ -1,6 +1,5 @@
 package entities;
 
-import client.Client;
 import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
@@ -11,6 +10,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -19,11 +19,11 @@ import core.utils.components.path.SimpleIPath;
 public class MiscFactory {
 
   private static final IPath STONE = new SimpleIPath("objects/stone/stone.png");
-
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
   private static final IPath CLOVER_PATH = new SimpleIPath("items/clover.png");
   private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
+  private static final Vector2 STONE_SPEED = Vector2.of(7.5, 7.5);
 
   /**
    * Creates a stone entity at the given position.
@@ -38,7 +38,7 @@ public class MiscFactory {
     stone.add(new PushableComponent());
     stone.add(new PositionComponent(position.toCenteredPoint()));
     stone.add(new BlockComponent());
-    stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
+    stone.add(new VelocityComponent(STONE_SPEED));
     stone.add(new CollideComponent());
     stone.add(new BlockViewComponent());
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));

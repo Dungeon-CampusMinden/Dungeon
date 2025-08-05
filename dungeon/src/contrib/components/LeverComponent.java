@@ -1,7 +1,6 @@
 package contrib.components;
 
-import contrib.systems.LeverSystem;
-import contrib.utils.ICommand;
+import contrib.utils.IComponentCommand;
 import core.Component;
 
 /**
@@ -10,7 +9,7 @@ import core.Component;
  */
 public class LeverComponent implements Component {
   /** The command that will be executed when the lever is toggled. */
-  private final ICommand command;
+  private final IComponentCommand command;
 
   /** The current state of the lever. True if the lever is on, false otherwise. */
   private boolean isOn;
@@ -18,14 +17,11 @@ public class LeverComponent implements Component {
   /**
    * Constructs a new LeverComponent with the specified initial state and command.
    *
-   * <p>The given `command` can be a simple {@link ICommand} or if needed an {@link *
-   * IEntityCommand} that takes the lever entity as context.
-   *
    * @param isOn The initial state of the lever. True if the lever should start in the on position,
    *     false otherwise.
    * @param command The command that will be executed when the lever is toggled.
    */
-  public LeverComponent(boolean isOn, ICommand command) {
+  public LeverComponent(boolean isOn, IComponentCommand command) {
     this.isOn = isOn;
     this.command = command;
   }
@@ -34,12 +30,9 @@ public class LeverComponent implements Component {
    * Constructs a new LeverComponent with the specified command. The lever will start in the off
    * position.
    *
-   * <p>The given `command` can be a simple {@link ICommand} or if needed an {@link *
-   * IEntityCommand} that takes the lever entity as context.
-   *
    * @param command The command that will be executed when the lever is toggled.
    */
-  public LeverComponent(ICommand command) {
+  public LeverComponent(IComponentCommand command) {
     this(false, command);
   }
 
@@ -48,7 +41,7 @@ public class LeverComponent implements Component {
    *
    * @return The command that will be executed when the lever is toggled.
    */
-  public ICommand command() {
+  public IComponentCommand command() {
     return command;
   }
 
@@ -63,14 +56,16 @@ public class LeverComponent implements Component {
   }
 
   /**
-   * This method, toggles the `isOn` state of the lever. If the lever is currently on, it will be
-   * turned off, and if it is currently off, it will be turned on.
-   *
-   * <p>The associated command will be executed by the {@link LeverSystem} when the lever is
-   * toggled.
+   * This method toggles the state of the lever. If the lever is on, it turns it off. If it's off,
+   * it turns it on.
    */
   public void toggle() {
     this.isOn = !isOn;
+    if (isOn) {
+      command.execute(this);
+    } else {
+      command.undo(this);
+    }
   }
 
   @Override

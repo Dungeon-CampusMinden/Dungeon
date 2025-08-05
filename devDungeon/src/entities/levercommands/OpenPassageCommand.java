@@ -5,7 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import contrib.components.LeverComponent;
 import contrib.systems.EventScheduler;
 import contrib.systems.LeverSystem;
-import contrib.utils.ICommand;
+import contrib.utils.ISimpleCommand;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;
@@ -26,7 +26,7 @@ import systems.FogOfWarSystem;
  * @see LeverSystem LeverSystem
  * @see LeverComponent LeverComponent
  */
-public class OpenPassageCommand implements ICommand {
+public class OpenPassageCommand implements ISimpleCommand {
   private static final IPath OPEN_PASSAGE =
       new SimpleIPath("sounds/dragging_a_cinderblock_across_concrete.wav");
   private final Coordinate topLeft;
