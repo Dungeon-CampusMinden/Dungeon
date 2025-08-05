@@ -44,7 +44,7 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 STEP_SPEED = Vector2.of(7.5, 7.5);
+  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
   private static final float HERO_MAX_SPEED = STEP_SPEED.x();
