@@ -1,6 +1,6 @@
 package entities.levercommands;
 
-import contrib.utils.ISimpleCommand;
+import contrib.utils.ICommand;
 import core.level.utils.Coordinate;
 import level.utils.LevelUtils;
 
@@ -10,7 +10,7 @@ import level.utils.LevelUtils;
  *
  * <p>The bridge can be lowered and raised by executing and undoing this command.
  */
-public class BridgeControlCommand implements ISimpleCommand {
+public class BridgeControlCommand implements ICommand {
   private final Coordinate topLeft;
   private final Coordinate bottomRight;
 

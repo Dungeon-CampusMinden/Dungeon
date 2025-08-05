@@ -4,7 +4,7 @@ import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
-import contrib.utils.ISimpleCommand;
+import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -283,8 +283,8 @@ public class ArrayRemoveLevel extends AdvancedLevel {
 
   // Oder mit einer bestimmten Aktion wenn der Hebel betätigt wird
   private void spawnLeverWithAction(Point position) {
-    ISimpleCommand leverAction =
-        new ISimpleCommand() {
+    ICommand leverAction =
+        new ICommand() {
           @Override
           public void execute() {
             if (!isLeverActivated) {
