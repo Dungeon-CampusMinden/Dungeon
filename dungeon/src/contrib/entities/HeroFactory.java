@@ -18,10 +18,7 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -158,26 +155,29 @@ public final class HeroFactory {
               deathCallback.accept(entity);
             });
     hero.add(hc);
-    hero.add(
+    CollideComponent col =
         new CollideComponent(
-            (you, other, direction) -> {
-              other
-                  .fetch(SpikyComponent.class)
-                  .ifPresent(
-                      spikyComponent -> {
-                        if (spikyComponent.isActive()) {
-                          hc.receiveHit(
-                              new Damage(
-                                  spikyComponent.damageAmount(),
-                                  spikyComponent.damageType(),
-                                  other));
-                          spikyComponent.activateCoolDown();
-                        }
-                      });
-              if (other.isPresent(KineticComponent.class))
-                resolveCollisionWithMomentum(hero, other, direction);
-            },
-            (you, other, direction) -> {}));
+            (you, other, direction) ->
+                other
+                    .fetch(SpikyComponent.class)
+                    .ifPresent(
+                        spikyComponent -> {
+                          if (spikyComponent.isActive()) {
+                            hc.receiveHit(
+                                new Damage(
+                                    spikyComponent.damageAmount(),
+                                    spikyComponent.damageType(),
+                                    other));
+                            spikyComponent.activateCoolDown();
+                          }
+                        }),
+            CollideComponent.DEFAULT_COLLIDER);
+    col.onHold(
+        (you, other, direction) -> {
+          if (other.isPresent(KineticComponent.class))
+            resolveCollisionWithMomentum(hero, other, direction);
+        });
+    hero.add(col);
 
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
@@ -463,8 +463,7 @@ public final class HeroFactory {
     Direction d = v.direction(); // Richtung des Vektors nach Quadranten bestimmen
 
     Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
-
-    vc1.currentVelocity(newVelocity);
-    vc2.currentVelocity(newVelocity);
+    vc1.applyForce("Collision", newVelocity.scale(-1));
+    vc2.applyForce("Collision", newVelocity);
   }
 }
