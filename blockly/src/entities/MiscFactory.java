@@ -5,28 +5,20 @@ import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Direction;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Map;
 
 /** Factory class for creating miscellaneous game entities. */
 public class MiscFactory {
 
   private static final IPath STONE = new SimpleIPath("objects/stone/stone.png");
-  private static final IPath PRESSURE_PLATE_ON =
-      new SimpleIPath("objects/pressureplate/on/pressureplate_0.png");
-  private static final IPath PRESSURE_PLATE_OFF =
-      new SimpleIPath("objects/pressureplate/off/pressureplate_0.png");
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
@@ -52,37 +44,6 @@ public class MiscFactory {
     DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));
     stone.add(dc);
     return stone;
-  }
-
-  /**
-   * Creates a pressure plate entity at the given position.
-   *
-   * <p>The pressure plate is an entity that reacts to collisions by toggling its lever state.
-   *
-   * @param position The initial position of the pressure plate.
-   * @return A new pressure plate entity lever and collision behavior.
-   */
-  public static Entity pressurePlate(Point position) {
-    Entity pressurePlate = new Entity("pressureplate");
-    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
-    DrawComponent dc = new DrawComponent(Animation.fromSingleImage(PRESSURE_PLATE_OFF));
-    Map<String, Animation> animationMap =
-        Map.of("off", dc.currentAnimation(), "on", Animation.fromSingleImage(PRESSURE_PLATE_ON));
-    dc.animationMap(animationMap);
-    dc.currentAnimation("off");
-    pressurePlate.add(dc);
-    LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
-    pressurePlate.add(lc);
-    TriConsumer<Entity, Entity, Direction> collide =
-        (entity, entity2, direction) -> {
-          // dont trigger for projectiles
-          if (entity2.isPresent(ProjectileComponent.class)) return;
-          lc.toggle();
-          if (lc.isOn()) dc.currentAnimation("on");
-          else dc.currentAnimation("off");
-        };
-    pressurePlate.add(new CollideComponent(collide, collide));
-    return pressurePlate;
   }
 
   /**

@@ -76,7 +76,7 @@ public class Level004 extends BlocklyLevel {
     door1.close();
     door2.close();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
-    Entity s2 = MiscFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
+    Entity s2 = LeverFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
