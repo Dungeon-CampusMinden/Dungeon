@@ -134,33 +134,36 @@ public class BlocklyCommands {
   }
 
   /**
+   * Triggers the interaction of an entity in a specified direction relative to the hero.
+   *
+   * <p>If an entity with an {@link InteractionComponent} is found on the target tile, the
+   * interaction is triggered with the hero as the source.
+   *
+   * @param direction The direction relative to the hero in which to search for an interactable.
+   *                  If {@code Direction.NONE}, the current tile the hero is standing on will be used.
+   */
+  /**
    * Triggers an interactable in a direction related to the hero.
    *
    * @param direction Direction in which the hero will search for an interactable.
    */
   public static void interact(Direction direction) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent pc = hero.fetch(PositionComponent.class)
+      .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-    Tile inDirection;
+    Optional<Tile> inDirection = (direction == Direction.NONE)
+      ? Game.tileAT(pc.position())
+      : Optional.ofNullable(Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction)));
 
-    if (direction == Direction.NONE) {
-      inDirection = Game.tileAT(pc.position());
-    } else {
-      inDirection = Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction));
-    }
-
-    Game.entityAtTile(inDirection)
-        .forEach(
-            entity ->
-                entity
-                    .fetch(InteractionComponent.class)
-                    .ifPresent(
-                        interactionComponent ->
-                            interactionComponent.triggerInteraction(entity, hero)));
+    inDirection.ifPresent(tile ->
+      Game.entityAtTile(tile).forEach(entity ->
+        entity.fetch(InteractionComponent.class)
+          .ifPresent(component -> component.triggerInteraction(entity, hero))
+      )
+    );
   }
+
 
   /**
    * Triggers the interaction (normally a pickup action) for each Entity with an {@link
