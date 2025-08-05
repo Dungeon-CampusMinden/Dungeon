@@ -35,8 +35,7 @@ public final class MiscFactory {
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
-  private static final SimpleIPath MARKER_TEXTURE =
-      new SimpleIPath("other/blue_dot.png");
+  private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
