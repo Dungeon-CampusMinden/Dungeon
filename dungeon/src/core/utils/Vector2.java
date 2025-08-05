@@ -240,6 +240,22 @@ public interface Vector2 {
     return this.scale(-1);
   }
 
+  default Direction direction() {
+    float rads = (float) Math.atan2(y(), x());
+    double piQuarter = Math.PI / 4; //
+    if (rads < 3 * -piQuarter) {
+      return Direction.LEFT;
+    } else if (rads < -piQuarter) {
+      return Direction.UP;
+    } else if (rads < piQuarter) {
+      return Direction.RIGHT;
+    } else if (rads < 3 * piQuarter) {
+      return Direction.DOWN;
+    } else {
+      return Direction.LEFT;
+    }
+  }
+
   /**
    * A record representing a 2D vector with x and y Float components.
    *
