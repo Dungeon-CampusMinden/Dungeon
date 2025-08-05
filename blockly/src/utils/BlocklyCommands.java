@@ -27,10 +27,10 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.*;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import server.Server;
-import java.util.Optional;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
@@ -64,10 +64,12 @@ public class BlocklyCommands {
    * available exit tile. During movement, the hero is rotated to face the correct direction before
    * each step is taken.
    *
-   * <p>If no exit tile is present or pathfinding fails, the method terminates without performing any action.
+   * <p>If no exit tile is present or pathfinding fails, the method terminates without performing
+   * any action.
    *
-   * <p><strong>Note:</strong> This method assumes that the hero entity and its {@link PositionComponent}
-   * are available. If not, a {@link MissingHeroException} or {@link MissingComponentException} will be thrown.
+   * <p><strong>Note:</strong> This method assumes that the hero entity and its {@link
+   * PositionComponent} are available. If not, a {@link MissingHeroException} or {@link
+   * MissingComponentException} will be thrown.
    */
   public static void moveToExit() {
     if (Game.currentLevel().exitTiles().isEmpty()) return;
@@ -75,8 +77,8 @@ public class BlocklyCommands {
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     PositionComponent pc =
-      hero.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
     GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
@@ -136,34 +138,33 @@ public class BlocklyCommands {
   /**
    * Triggers the interaction of an entity in a specified direction relative to the hero.
    *
-   * <p>If an entity with an {@link InteractionComponent} is found on the target tile, the
-   * interaction is triggered with the hero as the source.
-   *
-   * @param direction The direction relative to the hero in which to search for an interactable.
-   *                  If {@code Direction.NONE}, the current tile the hero is standing on will be used.
-   */
-  /**
-   * Triggers an interactable in a direction related to the hero.
+   * <p>If an entity with an {@link InteractionComponent} is found on the target tile,
+   * the interaction is triggered with the hero as the source.
    *
    * @param direction Direction in which the hero will search for an interactable.
+   *                  If {@code Direction.NONE}, the current tile is used.
    */
   public static void interact(Direction direction) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    PositionComponent pc = hero.fetch(PositionComponent.class)
-      .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
-    Optional<Tile> inDirection = (direction == Direction.NONE)
-      ? Game.tileAT(pc.position())
-      : Optional.ofNullable(Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction)));
+    Optional<Tile> inDirection =
+        (direction == Direction.NONE)
+            ? Game.tileAT(pc.position())
+            : Optional.ofNullable(
+                Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction)));
 
-    inDirection.ifPresent(tile ->
-      Game.entityAtTile(tile).forEach(entity ->
-        entity.fetch(InteractionComponent.class)
-          .ifPresent(component -> component.triggerInteraction(entity, hero))
-      )
-    );
+    inDirection.ifPresent(
+        tile ->
+            Game.entityAtTile(tile)
+                .forEach(
+                    entity ->
+                        entity
+                            .fetch(InteractionComponent.class)
+                            .ifPresent(component -> component.triggerInteraction(entity, hero))));
   }
-
 
   /**
    * Triggers the interaction (normally a pickup action) for each Entity with an {@link
@@ -464,8 +465,7 @@ public class BlocklyCommands {
 
     for (EntityComponents ec : entityComponents) {
       ec.vc.currentVelocity(Vector2.ZERO);
-      Game.tileAT(ec.pc.position())
-        .ifPresent(ec.pc::position); // snap to grid if tile present
+      Game.tileAT(ec.pc.position()).ifPresent(ec.pc::position); // snap to grid if tile present
     }
   }
 
