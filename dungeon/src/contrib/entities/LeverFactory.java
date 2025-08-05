@@ -1,9 +1,6 @@
 package contrib.entities;
 
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.LeverComponent;
-import contrib.components.ProjectileComponent;
+import contrib.components.*;
 import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
 import contrib.utils.IEntityCommand;
@@ -152,32 +149,53 @@ public class LeverFactory {
     return createTorch(pos, ICommand.NOOP);
   }
 
+  /**
+   * Creates a pressure plate entity at the given position.
+   *
+   * <p>A pressure plate acts as a switch that is active (true) if at least one entity with a {@code
+   * CollideComponent} stands on it.
+   *
+   * <p>The pressure plate does not trigger for projectiles.
+   *
+   * <p>The plate does not emit any event on interaction; it only toggles the {@link
+   * LeverComponent#isOn()} state.
+   *
+   * @param position the position where the pressure plate should be created
+   * @return the newly created pressure plate entity
+   */
   public static Entity pressurePlate(Point position) {
     Entity pressurePlate = new Entity("pressureplate");
     pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
-    DrawComponent dc = new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
-    Map<String, Animation> animationMap =
+    DrawComponent drawComponent =
+        new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
+    Map<String, Animation> animations =
         Map.of(
-            "off", dc.currentAnimation(), "on", Animation.fromCollection(Design.PLATE.texturesOn));
-    dc.animationMap(animationMap);
-    dc.currentAnimation("off");
-    pressurePlate.add(dc);
-    LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
-    pressurePlate.add(lc);
-    TriConsumer<Entity, Entity, Direction> collideEnter =
-        (entity, entity2, direction) -> {
-          // dont trigger for projectiles
-          if (entity2.isPresent(ProjectileComponent.class)) return;
-          if (!lc.isOn()) lc.toggle();
+            "off", drawComponent.currentAnimation(),
+            "on", Animation.fromCollection(Design.PLATE.texturesOn));
+    drawComponent.animationMap(animations);
+    drawComponent.currentAnimation("off");
+    pressurePlate.add(drawComponent);
+    LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
+    pressurePlate.add(leverComponent);
+    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent();
+    pressurePlate.add(pressurePlateComponent);
+    TriConsumer<Entity, Entity, Direction> onCollideEnter =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+          pressurePlateComponent.increase();
+          if (!leverComponent.isOn()) {
+            leverComponent.toggle();
+          }
         };
-    TriConsumer<Entity, Entity, Direction> collideLeave =
-        (entity, entity2, direction) -> {
-          // dont trigger for projectiles
-          if (entity2.isPresent(ProjectileComponent.class)) return;
-          // TODO for MP check if there is not other player to collide with
-          if (lc.isOn()) lc.toggle();
+    TriConsumer<Entity, Entity, Direction> onCollideLeave =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+          pressurePlateComponent.decrease();
+          if (!pressurePlateComponent.atLeastOne() && leverComponent.isOn()) {
+            leverComponent.toggle();
+          }
         };
-    pressurePlate.add(new CollideComponent(collideEnter, collideLeave));
+    pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave));
     return pressurePlate;
   }
 
