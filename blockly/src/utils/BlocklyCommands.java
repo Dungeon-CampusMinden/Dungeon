@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import server.Server;
+import java.util.Optional;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
@@ -56,21 +57,35 @@ public class BlocklyCommands {
     BlocklyCommands.move(viewDirection, hero);
   }
 
-  /** Moves the Hero to the Exit Block of the current Level. */
+  /**
+   * Moves the hero automatically to the exit tile of the current level.
+   *
+   * <p>The hero follows a calculated {@link GraphPath} from their current position to the first
+   * available exit tile. During movement, the hero is rotated to face the correct direction before
+   * each step is taken.
+   *
+   * <p>If no exit tile is present or pathfinding fails, the method terminates without performing any action.
+   *
+   * <p><strong>Note:</strong> This method assumes that the hero entity and its {@link PositionComponent}
+   * are available. If not, a {@link MissingHeroException} or {@link MissingComponentException} will be thrown.
+   */
   public static void moveToExit() {
     if (Game.currentLevel().exitTiles().isEmpty()) return;
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Tile exitTile = Game.currentLevel().exitTiles().getFirst();
 
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+      hero.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
 
     GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(pc.position());
-      if (currentTile != nextTile) {
+      Optional<Tile> optCurrentTile = Game.tileAT(pc.position());
+      if (optCurrentTile.isEmpty()) return;
+
+      Tile currentTile = optCurrentTile.get();
+      if (!currentTile.equals(nextTile)) {
         Direction viewDirection = EntityUtils.getViewDirection(hero);
         Direction targetDirection = currentTile.directionTo(nextTile)[0];
         while (viewDirection != targetDirection) {
