@@ -324,7 +324,7 @@ public class FogOfWarSystem extends System {
     revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
-    visibleTiles.add(Game.tileAT(heroPos));
+    Game.tileAT(heroPos).ifPresent(visibleTiles::add);
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(
