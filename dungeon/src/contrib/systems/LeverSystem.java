@@ -2,9 +2,11 @@ package contrib.systems;
 
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
-import contrib.utils.ISimpleCommand;
+import contrib.utils.ICommand;
+import contrib.utils.IEntityCommand;
 import core.Entity;
 import core.System;
+import core.components.DrawComponent;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +18,7 @@ import java.util.function.Consumer;
  *
  * @see LeverFactory LeverFactory
  * @see LeverComponent LeverComponent
- * @see ISimpleCommand ICommand
+ * @see ICommand ICommand
  */
 public class LeverSystem extends System {
 
@@ -49,24 +51,36 @@ public class LeverSystem extends System {
   public void execute() {
     filteredEntityStream()
         .forEach(
-            entity -> {
-              LeverComponent lever =
-                  entity
+            leverEntity -> {
+              LeverComponent leverComp =
+                  leverEntity
                       .fetch(LeverComponent.class)
                       .orElseThrow(
-                          () -> MissingComponentException.build(entity, LeverComponent.class));
-              if (leverStates.containsKey(entity)) {
-                if (leverStates.get(entity) != lever.isOn()) {
-                  if (lever.isOn()) {
-                    lever.command().execute(lever);
-                  } else {
-                    lever.command().undo(lever);
-                  }
-                  leverStates.put(entity, lever.isOn());
-                }
-              } else {
-                leverStates.put(entity, lever.isOn());
+                          () -> MissingComponentException.build(leverEntity, LeverComponent.class));
+
+              Boolean oldState = leverStates.get(leverEntity);
+              boolean newState = leverComp.isOn();
+
+              if (oldState == null) {
+                leverStates.put(leverEntity, newState);
+                return;
               }
+              if (oldState == newState) return;
+
+              ICommand cmd = leverComp.command();
+              if (newState) {
+                if (cmd instanceof IEntityCommand c) c.execute(leverEntity);
+                else cmd.execute();
+              } else {
+                if (cmd instanceof IEntityCommand c) c.undo(leverEntity);
+                else cmd.undo();
+              }
+
+              leverEntity
+                  .fetch(DrawComponent.class)
+                  .ifPresent(d -> d.currentAnimation(newState ? "on" : "off"));
+
+              leverStates.put(leverEntity, newState);
             });
   }
 }
