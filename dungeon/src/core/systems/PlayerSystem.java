@@ -35,7 +35,7 @@ public final class PlayerSystem extends System {
         entity
             .fetch(PlayerComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class));
-    if (pc.deactivateControlls()) return;
+    if (pc.deactivateControls()) return;
     execute(pc.callbacks(), entity, !this.running);
   }
 

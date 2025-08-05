@@ -22,7 +22,7 @@ public final class PlayerComponent implements Component {
 
   private final Map<Integer, InputData> callbacks;
   private int openDialogs = 0;
-  private boolean deactive = false;
+  private boolean deactivate = false;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent() {
@@ -103,7 +103,7 @@ public final class PlayerComponent implements Component {
     callbacks.remove(key);
   }
 
-  /** Removes all registed callbacks. */
+  /** Removes all register callbacks. */
   public void removeCallbacks() {
     callbacks.clear();
   }
@@ -159,10 +159,10 @@ public final class PlayerComponent implements Component {
   /**
    * Enables or disables the player controls.
    *
-   * @param deactive true to disable player controls; false to enable them
+   * @param deactivate true to disable player controls; false to enable them
    */
-  public void deactivateControlls(boolean deactive) {
-    this.deactive = deactive;
+  public void deactivateControls(boolean deactivate) {
+    this.deactivate = deactivate;
   }
 
   /**
@@ -170,7 +170,7 @@ public final class PlayerComponent implements Component {
    *
    * @return true if controls are disabled; false if they are active
    */
-  public boolean deactivateControlls() {
-    return this.deactive;
+  public boolean deactivateControls() {
+    return this.deactivate;
   }
 }
