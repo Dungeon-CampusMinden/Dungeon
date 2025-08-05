@@ -113,6 +113,12 @@ public final class CollisionSystem extends System {
         cdata.a.onEnter(cdata.ea, cdata.eb, d);
         cdata.b.onEnter(cdata.eb, cdata.ea, d.opposite());
       }
+      // collision is ongoing
+      else {
+        Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+        cdata.a.onHold(cdata.ea, cdata.eb, d);
+        cdata.b.onHold(cdata.eb, cdata.ea, d.opposite());
+      }
     } else if (collisions.remove(key) != null) {
       // a collision was happening and the two entities are no longer colliding, on Leave
       // called once

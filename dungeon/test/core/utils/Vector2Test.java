@@ -173,4 +173,64 @@ public class Vector2Test {
     Vector2 c = v.scale(-1);
     assertEquals(c, v.inverse());
   }
+
+  /** Tests the direction() method for vectors pointing mostly to the left. */
+  @Test
+  public void testDirectionLeft() {
+    Vector2 v = Vector2.of(-1.0f, 0.0f);
+    assertEquals(Direction.LEFT, v.direction(), "Vector (-1,0) should point LEFT");
+
+    v = Vector2.of(-1.0f, -1.0f);
+    assertEquals(Direction.LEFT, v.direction(), "Vector (-1,-1) should point LEFT");
+
+    v = Vector2.of(-1.0f, 1.0f);
+    assertEquals(Direction.LEFT, v.direction(), "Vector (-1,1) should point LEFT");
+  }
+
+  /** Tests the direction() method for vectors pointing mostly downward. */
+  @Test
+  public void testDirectionDown() {
+    Vector2 v = Vector2.of(0.0f, -1.0f);
+    assertEquals(Direction.DOWN, v.direction(), "Vector (0,-1) should point DOWN");
+
+    v = Vector2.of(1.0f, -2.0f);
+    assertEquals(Direction.DOWN, v.direction(), "Vector (1,-2) should point DOWN");
+  }
+
+  /** Tests the direction() method for vectors pointing mostly to the right. */
+  @Test
+  public void testDirectionRight() {
+    Vector2 v = Vector2.of(1.0f, 0.0f);
+    assertEquals(Direction.RIGHT, v.direction(), "Vector (1,0) should point RIGHT");
+
+    v = Vector2.of(1.0f, 0.5f);
+    assertEquals(Direction.RIGHT, v.direction(), "Vector (1,1) should point RIGHT");
+  }
+
+  /** Tests the direction() method for vectors pointing mostly upward. */
+  @Test
+  public void testDirectionUp() {
+    Vector2 v = Vector2.of(0.0f, 1.0f);
+    assertEquals(Direction.UP, v.direction(), "Vector (0,1) should point UP");
+
+    v = Vector2.of(-1.0f, 2.0f);
+    assertEquals(Direction.UP, v.direction(), "Vector (-1,2) should point UP");
+  }
+
+  /**
+   * Tests the direction() method for vectors near the boundary angles just less than -3π/4 and just
+   * greater than 3π/4 radians.
+   */
+  @Test
+  public void testDirectionLeftBoundary() {
+    double piQuarter = Math.PI / 4;
+
+    Vector2 v =
+        Vector2.of(
+            (float) Math.cos(-3 * piQuarter - 0.01), (float) Math.sin(-3 * piQuarter - 0.01));
+    assertEquals(Direction.LEFT, v.direction(), "Vector near -3π/4 boundary should point LEFT");
+
+    v = Vector2.of((float) Math.cos(3 * piQuarter + 0.01), (float) Math.sin(3 * piQuarter + 0.01));
+    assertEquals(Direction.LEFT, v.direction(), "Vector near 3π/4 boundary should point LEFT");
+  }
 }
