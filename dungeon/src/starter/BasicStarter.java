@@ -2,10 +2,7 @@ package starter;
 
 import contrib.entities.HeroFactory;
 import contrib.entities.MiscFactory;
-import contrib.systems.CollisionSystem;
-import contrib.systems.EventScheduler;
-import contrib.systems.LevelEditorSystem;
-import contrib.systems.ProjectileSystem;
+import contrib.systems.*;
 import core.Game;
 import core.components.*;
 import core.configuration.KeyboardConfig;
@@ -39,11 +36,16 @@ public class BasicStarter {
     Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
     Game.add(new EventScheduler());
+    Game.add(new FallingSystem());
+    Game.add(new HealthSystem());
     Game.userOnLevelLoad(
         new Consumer<Boolean>() {
           @Override
           public void accept(Boolean aBoolean) {
-            Game.add(MiscFactory.catapult(new Point(1, 1), new Point(5, 5), 10));
+            Game.add(
+                MiscFactory.catapult(
+                    new Point(1, 1).toCenteredPoint(), new Point(5, 5).toCenteredPoint(), 10));
+            Game.add(MiscFactory.marker(new Point(5, 5).toCenteredPoint()));
           }
         });
     Game.windowTitle("Basic Dungeon");

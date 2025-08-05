@@ -10,7 +10,10 @@ import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.CameraComponent;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -21,7 +24,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,6 +35,7 @@ public final class MiscFactory {
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("objects/mailbox/mailbox_1.png");
+  private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("objects/mailbox/mailbox_2.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -250,6 +253,19 @@ public final class MiscFactory {
   }
 
   /**
+   * Create a Entity that can be used as a marker on the floor (x marks the spot).
+   *
+   * @param position Positon where to spawn the marker.
+   * @return The Marker-Entity.
+   */
+  public static Entity marker(Point position) {
+    Entity marker = new Entity("marker");
+    marker.add(new PositionComponent(position));
+    marker.add(new DrawComponent(Animation.fromSingleImage(MARKER_TEXTURE)));
+    return marker;
+  }
+
+  /**
    * Creates a catapult entity at a given spawn point that can launch other entities to a target
    * location.
    *
@@ -324,18 +340,15 @@ public final class MiscFactory {
         .ifPresent(
             drawComponent -> projectile.add(new DrawComponent(drawComponent.currentAnimation())));
     Vector2 forceToApply = SkillTools.calculateDirection(start, goal).scale(speed);
-    float entitySpeed = other.fetch(VelocityComponent.class).map(vc -> vc.maxSpeed()).orElse(0f);
+    float entitySpeed =
+        other.fetch(VelocityComponent.class).map(VelocityComponent::maxSpeed).orElse(0f);
 
     VelocityComponent vc =
         new VelocityComponent(
             speed,
-            new Consumer<>() {
-              @Override
-              public void accept(Entity entity) {
-
-                resetCatapultedEntity(other, focusCamera, entitySpeed);
-                Game.remove(projectile);
-              }
+            entity -> {
+              resetCatapultedEntity(other, focusCamera, entitySpeed);
+              Game.remove(projectile);
             },
             true);
     projectile.add(vc);
