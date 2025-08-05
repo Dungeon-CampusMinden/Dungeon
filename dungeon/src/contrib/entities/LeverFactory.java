@@ -1,14 +1,18 @@
 package contrib.entities;
 
+import contrib.components.CollideComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.LeverComponent;
+import contrib.components.ProjectileComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
 import contrib.utils.IEntityCommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
@@ -148,6 +152,35 @@ public class LeverFactory {
     return createTorch(pos, ICommand.NOOP);
   }
 
+  public static Entity pressurePlate(Point position) {
+    Entity pressurePlate = new Entity("pressureplate");
+    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
+    DrawComponent dc = new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
+    Map<String, Animation> animationMap =
+        Map.of(
+            "off", dc.currentAnimation(), "on", Animation.fromCollection(Design.PLATE.texturesOn));
+    dc.animationMap(animationMap);
+    dc.currentAnimation("off");
+    pressurePlate.add(dc);
+    LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
+    pressurePlate.add(lc);
+    TriConsumer<Entity, Entity, Direction> collideEnter =
+        (entity, entity2, direction) -> {
+          // dont trigger for projectiles
+          if (entity2.isPresent(ProjectileComponent.class)) return;
+          if (!lc.isOn()) lc.toggle();
+        };
+    TriConsumer<Entity, Entity, Direction> collideLeave =
+        (entity, entity2, direction) -> {
+          // dont trigger for projectiles
+          if (entity2.isPresent(ProjectileComponent.class)) return;
+          // TODO for MP check if there is not other player to collide with
+          if (lc.isOn()) lc.toggle();
+        };
+    pressurePlate.add(new CollideComponent(collideEnter, collideLeave));
+    return pressurePlate;
+  }
+
   /**
    * Creates a command that automatically turns off a lever after a specified delay.
    *
@@ -215,7 +248,11 @@ public class LeverFactory {
             new SimpleIPath("objects/torch/on/torch_6.png"),
             new SimpleIPath("objects/torch/on/torch_7.png"),
             new SimpleIPath("objects/torch/on/torch_8.png")),
-        List.of(new SimpleIPath("objects/torch/off/torch_0.png")));
+        List.of(new SimpleIPath("objects/torch/off/torch_0.png"))),
+
+    PLATE(
+        List.of(new SimpleIPath("objects/pressureplate/on/pressureplate_0.png")),
+        List.of(new SimpleIPath("objects/pressureplate/off/pressureplate_0.png")));
 
     private final List<IPath> texturesOn;
     private final List<IPath> texturesOff;
