@@ -3,10 +3,8 @@ package coopDungeon.level;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.systems.EventScheduler;
-import contrib.utils.IComponentCommand;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
 import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
@@ -45,93 +43,10 @@ public class Level01 extends DungeonLevel {
     Game.add(l);
     l2 = l.fetch(LeverComponent.class).get();
 
-    // TODO move to LeverFactory as timedLever
-    l =
-        LeverFactory.createLever(
-            customPoints.get(2).toCenteredPoint(),
-            new IComponentCommand<LeverComponent>() {
-              @Override
-              public void execute(LeverComponent comp) {
-                try {
-                  System.out.println("EXECUTE");
-                  throw new RuntimeException();
-                } catch (Exception exception) {
-                  exception.printStackTrace();
-                }
-                if (a1 == null || !EventScheduler.isScheduled(a1)) {
-                  System.out.println("SCHEDULE");
-                  a1 =
-                      EventScheduler.scheduleAction(
-                          () -> {
-                            System.out.println("ACTION");
-                            if (comp.isOn()) {
-                              System.out.println("TOGGLE");
-                              comp.toggle();
-                              Entity lever =
-                                  Game.entityAtTile(Game.tileAT(customPoints.get(2)))
-                                      .filter(entity -> entity.isPresent(LeverComponent.class))
-                                      .findFirst()
-                                      .get();
-                              lever
-                                  .fetch(DrawComponent.class)
-                                  .ifPresent(
-                                      drawComponent ->
-                                          drawComponent.currentAnimation(
-                                              comp.isOn() ? "on" : "off"));
-                            }
-                          },
-                          DELAY_MILLIS);
-                }
-              }
-
-              @Override
-              public void undo(LeverComponent comp) {
-                System.out.println("REMOVE");
-                EventScheduler.cancelAction(a1);
-              }
-            });
-
+    l = LeverFactory.createTimedLever(customPoints.get(2).toCenteredPoint(), DELAY_MILLIS);
     l3 = l.fetch(LeverComponent.class).get();
     Game.add(l);
-    l =
-        LeverFactory.createLever(
-            customPoints.get(3).toCenteredPoint(),
-            new IComponentCommand<LeverComponent>() {
-              @Override
-              public void execute(LeverComponent comp) {
-                System.out.println("EXCUTE");
-                if (a1 == null || !EventScheduler.isScheduled(a1)) {
-                  System.out.println("SCHEDULE");
-                  a1 =
-                      EventScheduler.scheduleAction(
-                          () -> {
-                            System.out.println("ACTION");
-                            if (comp.isOn()) {
-                              System.out.println("TOGGLE");
-                              comp.toggle();
-                              Entity lever =
-                                  Game.entityAtTile(Game.tileAT(customPoints.get(3)))
-                                      .filter(entity -> entity.isPresent(LeverComponent.class))
-                                      .findFirst()
-                                      .get();
-                              lever
-                                  .fetch(DrawComponent.class)
-                                  .ifPresent(
-                                      drawComponent ->
-                                          drawComponent.currentAnimation(
-                                              comp.isOn() ? "on" : "off"));
-                            }
-                          },
-                          DELAY_MILLIS);
-                }
-              }
-
-              @Override
-              public void undo(LeverComponent comp) {
-                System.out.println("REMOVE");
-                EventScheduler.cancelAction(a1);
-              }
-            });
+    l = LeverFactory.createTimedLever(customPoints.get(3).toCenteredPoint(), DELAY_MILLIS);
     Game.add(l);
     l4 = l.fetch(LeverComponent.class).get();
   }
