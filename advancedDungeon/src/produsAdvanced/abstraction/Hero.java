@@ -20,6 +20,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import produsAdvanced.AdvancedDungeon;
+import java.util.Optional;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -173,19 +174,19 @@ public class Hero {
    * Gibt ein {@link Berry}-Item zurück, das sich an der angegebenen Position befindet.
    *
    * @param point Die Position auf der Karte.
-   * @return Eine Instanz von {@link Berry}, falls vorhanden, sonst {@code null}.
+   * @return Ein {@link Optional} mit dem Berry-Item, falls vorhanden; sonst ein leeres Optional.
    */
-  public Berry getBerryAt(Point point) {
-    if (point == null) return null;
-    Tile t = Game.tileAT(point);
-    if (t == null) return null;
-    return (Berry)
-        Game.entityAtTile(t)
-            .findFirst()
-            .flatMap(e -> e.fetch(ItemComponent.class))
-            .map(ItemComponent::item)
-            .filter(item -> item instanceof Berry)
-            .orElse(null);
+  public Optional<Berry> getBerryAt(Point point) {
+    return Optional.ofNullable(point)
+      .flatMap(Game::tileAT)
+      .flatMap(tile ->
+        Game.entityAtTile(tile)
+          .findFirst()
+          .flatMap(e -> e.fetch(ItemComponent.class))
+          .map(ItemComponent::item)
+          .filter(item -> item instanceof Berry)
+          .map(item -> (Berry) item)
+      );
   }
 
   /**
