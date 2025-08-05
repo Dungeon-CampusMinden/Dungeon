@@ -15,6 +15,7 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
+import java.util.Optional;
 
 /**
  * The VelocitySystem controls the movement of the entities in the game.
@@ -76,34 +77,36 @@ public final class VelocitySystem extends System {
     boolean canEnterOpenPits =
         vsd.e.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
     try {
-      if (this.isAccessible(Game.tileAT(new Point(newX, newY)), canEnterOpenPits)) {
-        // no change in direction
+      Optional<Tile> tileXY = Game.tileAT(new Point(newX, newY));
+      Optional<Tile> tileX = Game.tileAT(new Point(newX, vsd.pc.position().y()));
+      Optional<Tile> tileY = Game.tileAT(new Point(vsd.pc.position().x(), newY));
+      Optional<Tile> currentTile = Game.tileAT(vsd.pc.position());
+
+      if (isAccessible(tileXY, canEnterOpenPits)) {
         vsd.pc.position(new Point(newX, newY));
-        this.movementAnimation(vsd);
-      } else if (this.isAccessible(
-          Game.tileAT(new Point(newX, vsd.pc.position().y())), canEnterOpenPits)) {
-        // redirect not moving along y
+        movementAnimation(vsd);
+      } else if (isAccessible(tileX, canEnterOpenPits)) {
         hitWall = true;
         vsd.pc.position(new Point(newX, vsd.pc.position().y()));
-        this.movementAnimation(vsd);
+        movementAnimation(vsd);
         vsd.vc.currentVelocity(Vector2.of(velocity.x(), 0.0f));
-      } else if (this.isAccessible(
-          Game.tileAT(new Point(vsd.pc.position().x(), newY)), canEnterOpenPits)) {
-        // redirect not moving along x
+      } else if (isAccessible(tileY, canEnterOpenPits)) {
         hitWall = true;
         vsd.pc.position(new Point(vsd.pc.position().x(), newY));
-        this.movementAnimation(vsd);
+        movementAnimation(vsd);
         vsd.vc.currentVelocity(Vector2.of(0.0f, velocity.y()));
       } else {
         hitWall = true;
       }
 
-      if (hitWall) vsd.vc.onWallHit().accept(vsd.e);
+      if (hitWall) {
+        vsd.vc.onWallHit().accept(vsd.e);
+      }
 
       // Friction
-      float friction = Game.tileAT(vsd.pc.position()).friction();
+      float friction = currentTile.map(Tile::friction).orElse(0.0f);
       float damp = Math.max(0.0f, 1.0f - friction);
-      // If we hit a wall, damp the raw velocity; otherwise damp the movement velocity
+
       Vector2 toDampen = hitWall ? originalVelocity : velocity;
       float newVX = toDampen.x() * damp;
       if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
@@ -111,25 +114,26 @@ public final class VelocitySystem extends System {
       if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
 
       vsd.vc.currentVelocity(Vector2.of(newVX, newVY));
+
     } catch (NullPointerException e) {
-      // for some reason the entity is out of bound
       vsd.pc.position(PositionComponent.ILLEGAL_POSITION);
       LOGGER.warning("Entity " + e + " is out of bound");
     }
   }
-
   /**
-   * Small helper function to check if a tile is accessible and also considers if the entity can
-   * enter empty tiles.
+   * Helper method to check whether a tile is accessible.
    *
-   * @param tile The tile to check.
-   * @param canEnterPitTiles If the entity can enter PIT tiles.
-   * @return true if the tile is accessible, false if not.
+   * <p>A tile is considered accessible if it is present and either directly {@link Tile#isAccessible()},
+   * or—if {@code canEnterPitTiles} is {@code true}—represents a {@link LevelElement#PIT}.
+   *
+   * @param tileOpt The {@link Optional} tile to check.
+   * @param canEnterPitTiles Whether PIT tiles are allowed to be entered.
+   * @return {@code true} if the tile is present and accessible; {@code false} otherwise.
    */
-  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
-    return tile != null
-        && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
+  private boolean isAccessible(Optional<Tile> tileOpt, boolean canEnterPitTiles) {
+    return tileOpt
+      .filter(t -> t.isAccessible() || (canEnterPitTiles && t.levelElement() == LevelElement.PIT))
+      .isPresent();
   }
 
   private void movementAnimation(VSData vsd) {
