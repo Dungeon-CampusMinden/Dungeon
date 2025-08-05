@@ -214,10 +214,11 @@ public class Hero {
    * @param point Die Zielposition.
    */
   public void destroyItemAt(Point point) {
-    if (point == null) return;
-    Game.entityAtTile(Game.tileAT(point))
+    Optional.ofNullable(point)
+      .flatMap(Game::tileAT)
+      .flatMap(tile -> Game.entityAtTile(tile)
         .filter(e -> e.isPresent(ItemComponent.class))
-        .findFirst()
-        .ifPresent(Game::remove);
+        .findFirst())
+      .ifPresent(Game::remove);
   }
 }
