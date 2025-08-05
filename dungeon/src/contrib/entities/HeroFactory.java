@@ -18,6 +18,7 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -159,20 +160,23 @@ public final class HeroFactory {
     hero.add(hc);
     hero.add(
         new CollideComponent(
-            (you, other, direction) ->
-                other
-                    .fetch(SpikyComponent.class)
-                    .ifPresent(
-                        spikyComponent -> {
-                          if (spikyComponent.isActive()) {
-                            hc.receiveHit(
-                                new Damage(
-                                    spikyComponent.damageAmount(),
-                                    spikyComponent.damageType(),
-                                    other));
-                            spikyComponent.activateCoolDown();
-                          }
-                        }),
+            (you, other, direction) -> {
+              other
+                  .fetch(SpikyComponent.class)
+                  .ifPresent(
+                      spikyComponent -> {
+                        if (spikyComponent.isActive()) {
+                          hc.receiveHit(
+                              new Damage(
+                                  spikyComponent.damageAmount(),
+                                  spikyComponent.damageType(),
+                                  other));
+                          spikyComponent.activateCoolDown();
+                        }
+                      });
+              if (other.isPresent(KineticComponent.class))
+                resolveCollisionWithMomentum(hero, other, direction);
+            },
             (you, other, direction) -> {}));
 
     PlayerComponent pc = new PlayerComponent();
@@ -431,5 +435,36 @@ public final class HeroFactory {
     return Game.entityAtTile(mouseTile)
         .filter(e -> e.isPresent(InteractionComponent.class))
         .findFirst();
+  }
+
+  private static void resolveCollisionWithMomentum(
+      Entity hero, Entity other, Direction collisionDirection) {
+    Optional<VelocityComponent> optVc1 = hero.fetch(VelocityComponent.class);
+    Optional<VelocityComponent> optVc2 = other.fetch(VelocityComponent.class);
+
+    if (optVc1.isEmpty() || optVc2.isEmpty()) return;
+
+    VelocityComponent vc1 = optVc1.get();
+    VelocityComponent vc2 = optVc2.get();
+
+    Vector2 v1 = vc1.currentVelocity();
+    Vector2 v2 = vc2.currentVelocity();
+    float m1 = vc1.mass();
+    float m2 = vc2.mass();
+
+    Vector2 p1 = v1.scale(m1); // Impuls Entity 1
+    Vector2 p2 = v2.scale(m2); // Impuls Entity 2
+
+    Vector2 p = p1.add(p2); // Total Impuls
+    Vector2 v = p.scale(1f / (m1 + m2)); // New velocity after collision
+
+    double length = v.length(); // Länge des Vektors behalten (neue Geschwindigkeit)
+
+    Direction d = v.direction(); // Richtung des Vektors nach Quadranten bestimmen
+
+    Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
+
+    vc1.currentVelocity(newVelocity);
+    vc2.currentVelocity(newVelocity);
   }
 }
