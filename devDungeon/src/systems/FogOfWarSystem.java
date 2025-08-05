@@ -136,60 +136,82 @@ public class FogOfWarSystem extends System {
     }
   }
 
+  /**
+   * Casts light in a specific octant for the fog of war system using recursive shadowcasting.
+   *
+   * <p>This method calculates which tiles are visible in a given direction (octant) from the hero's
+   * current position based on whether tiles are transparent (canSeeThrough). It stops when it hits a
+   * fully blocked line or reaches the given radius.
+   *
+   * @param row        The starting row for light casting (typically 1).
+   * @param start      The initial slope of the light beam.
+   * @param end        The ending slope of the light beam.
+   * @param radius     The maximum radius in tiles that light can travel.
+   * @param xx,xy,yx,yy Matrix multipliers for transforming the octant direction.
+   * @param heroPos    The position of the hero (light source).
+   * @return A list of {@link Tile} objects that are visible in this octant.
+   */
   private List<Tile> castLight(
-      int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+    int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+
     List<Tile> visibleTiles = new ArrayList<>();
     if (start < end) {
       return visibleTiles;
     }
+
     float newStart = 0.0f;
     for (int i = row; i <= radius; i++) {
       int dx = -i - 1;
       int dy = -i;
       boolean blocked = false;
+
       while (dx <= 0) {
         dx += 1;
-        // Translate the dx, dy coordinates into map coordinates
+
         int X = (int) (heroPos.x() + (dx * xx + dy * xy));
         int Y = (int) (heroPos.y() + (dx * yx + dy * yy));
-        // l_slope and r_slope store the slopes of the left and right extremities of the square
-        // we're considering
+
         float lSlope = (dx - 0.5f) / (dy + 0.5f);
         float rSlope = (dx + 0.5f) / (dy - 0.5f);
+
         if (start < rSlope) {
           continue;
         } else if (end > lSlope) {
           break;
-        } else {
-          // Our light beam is touching this square; light it
-          if (dx * dx + dy * dy < radius * radius) {
-            Tile tile = Game.tileAT(new Point(X, Y));
-            visibleTiles.add(tile);
-          }
-          Tile tile = Game.tileAT(new Point(X, Y));
-          if (tile == null) {
-            continue;
-          }
-          if (blocked) { // previous step was a blocking square
+        }
 
-            if (!tile.canSeeThrough()) { // this step is a blocking square
-              newStart = rSlope;
-              continue;
-            } else {
-              blocked = false;
-              start = newStart;
-            }
+        Optional<Tile> tileOpt = Game.tileAT(new Point(X, Y));
+        if (tileOpt.isEmpty()) {
+          continue;
+        }
+
+        Tile tile = tileOpt.get();
+
+        if (dx * dx + dy * dy < radius * radius) {
+          visibleTiles.add(tile);
+        }
+
+        if (blocked) {
+          if (!tile.canSeeThrough()) {
+            newStart = rSlope;
+            continue;
           } else {
-            if (!tile.canSeeThrough() && i < radius) { // this step is a blocking square
-              blocked = true;
-              visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
-              newStart = rSlope;
-            }
+            blocked = false;
+            start = newStart;
+          }
+        } else {
+          if (!tile.canSeeThrough() && i < radius) {
+            blocked = true;
+            visibleTiles.addAll(
+              castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+            newStart = rSlope;
           }
         }
       }
+
       if (blocked) break;
     }
+
     return visibleTiles;
   }
 
