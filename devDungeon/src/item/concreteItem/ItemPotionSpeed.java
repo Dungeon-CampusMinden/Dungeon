@@ -5,7 +5,6 @@ import contrib.item.Item;
 import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -58,23 +57,23 @@ public class ItemPotionSpeed extends Item {
    * Tests the effect of the speed potion.
    *
    * <p>This method creates an entity with a velocity component and applies the speed effect to it.
-   * If the speed effect changes the velocity of the entity, the method returns true. Otherwise, it
-   * returns false.
+   * If the speed effect increases the velocity of the entity, the method returns true. Otherwise,
+   * it returns false.
    *
-   * @return True if the speed effect changes the velocity of the entity, false otherwise.
+   * @return True if the speed effect increases the velocity of the entity, false otherwise.
    */
   private boolean testEffect() {
     Entity e = new Entity();
     e.add(new InventoryComponent());
     e.add(new PositionComponent());
-    VelocityComponent vc = new VelocityComponent(Vector2.ONE);
+    float speed = 1;
+    VelocityComponent vc = new VelocityComponent(speed);
     e.add(vc);
-    double speed = vc.velocity().length();
     try {
       speedEffect.applySpeedEffect(e);
     } catch (UnsupportedOperationException ex) {
       return false;
     }
-    return vc.velocity().length() != speed;
+    return vc.maxSpeed() - speed > 0.0001f;
   }
 }

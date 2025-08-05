@@ -1,220 +1,381 @@
 package core.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.elements.ILevel;
-import core.utils.Point;
+import core.components.*;
+import core.utils.Direction;
 import core.utils.Vector2;
+import core.utils.components.draw.Animation;
+import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
-import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-/** Tests for the {@link VelocitySystem} class. */
+/** Unit tests for the {@link VelocitySystem}. */
 public class VelocitySystemTest {
 
-  private final ILevel level = Mockito.mock(ILevel.class);
-  private final Tile tile = Mockito.mock(Tile.class);
-  private final Vector2 velocity = Vector2.of(1, 2);
-  private final Vector2 currentVelocity = Vector2.of(1, 2);
-  private final float startXPosition = 2f;
-  private final float startYPosition = 4f;
-  private VelocitySystem velocitySystem;
-  private PositionComponent positionComponent;
-  private VelocityComponent velocityComponent;
-  private DrawComponent animationComponent;
+  private Entity entity;
+  private VelocityComponent vc;
+  private PositionComponent pc;
+  private DrawComponent dc;
 
-  /** Sets up the test environment with mock level, entity, and components. */
+  private float speed = 10f;
+
+  private float mass = 2f;
+  private VelocitySystem system;
+
+  /**
+   * Sets up a fresh entity with the necessary components before each test, and adds it to the game
+   * world.
+   */
   @BeforeEach
-  public void setup() throws IOException {
-    Game.add(new LevelSystem(() -> {}));
-    Game.currentLevel(level);
-    Mockito.when(tile.friction()).thenReturn(0.75f);
-    Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
-    Entity entity = new Entity();
-    velocitySystem = new VelocitySystem();
-    Game.add(velocitySystem);
-    velocityComponent = new VelocityComponent(velocity);
-    positionComponent = new PositionComponent(new Point(startXPosition, startYPosition));
-    animationComponent = new DrawComponent(new SimpleIPath("textures/test_hero"));
-    entity.add(velocityComponent);
-    entity.add(positionComponent);
-    entity.add(animationComponent);
+  void setUp() {
+    entity = new Entity();
+    vc = new VelocityComponent(speed);
+    vc.mass(mass);
+    pc = new PositionComponent();
+    dc = new DrawComponent(mock(Animation.class));
+    entity.add(vc);
+    entity.add(pc);
+    entity.add(dc);
     Game.add(entity);
+    system = new VelocitySystem();
   }
 
-  /** Cleans up the test environment by removing all entities, level, and systems. */
   @AfterEach
-  public void cleanup() {
-    Game.removeAllEntities();
-    Game.currentLevel(null);
+  void cleanUp() {
     Game.removeAllSystems();
+    Game.removeAllEntities();
   }
 
-  /** Tests that entity moves correctly when the target tile is accessible. */
+  /**
+   * Tests that the VelocitySystem only processes entities that have all required components:
+   * VelocityComponent, PositionComponent, and DrawComponent.
+   *
+   * <p>Entities missing one or more of these components must not be included in the system's
+   * filtered stream.
+   */
   @Test
-  public void testValidMove() {
-    Mockito.when(tile.isAccessible()).thenReturn(true);
-    velocityComponent.currentVelocity(currentVelocity);
+  void onlyWorkOnCorrectEntities() {
+    // Create invalid entity
+    Game.add(new Entity());
+    // Collect the filtered stream
+    long count = system.filteredEntityStream().count();
 
-    Vector2 expectedVelocity = currentVelocity;
-    float maxSpeed =
-        Math.max(
-            Math.abs(velocityComponent.velocity().x()), Math.abs(velocityComponent.velocity().y()));
-    if (expectedVelocity.length() > maxSpeed) {
-      expectedVelocity = expectedVelocity.normalize().scale(maxSpeed);
-    }
-
-    velocitySystem.execute();
-    Point position = positionComponent.position();
-
-    assertEquals(startXPosition + expectedVelocity.x(), position.x(), 0.001);
-    assertEquals(startYPosition + expectedVelocity.y(), position.y(), 0.001);
-
-    Vector2 expectedFinalVelocity = expectedVelocity.scale(1.0f - tile.friction());
-    assertEquals(expectedFinalVelocity.x(), velocityComponent.currentVelocity().x(), 0.001);
-    assertEquals(expectedFinalVelocity.y(), velocityComponent.currentVelocity().y(), 0.001);
+    // Assert that only one (the valid one) is processed
+    assertEquals(1, count);
   }
 
-  /** Tests that entity moves correctly with negative velocity values. */
+  /**
+   * Tests that when a single force is applied, velocity is updated by acceleration (force / mass).
+   * Forces cleared after execution.
+   */
   @Test
-  public void testValidMoveWithNegativeVelocity() {
-    Mockito.when(tile.isAccessible()).thenReturn(true);
-    velocityComponent.velocity(Vector2.of(4, 8));
-    Vector2 negativeVelocity = Vector2.of(-4, -8);
-    velocityComponent.currentVelocity(negativeVelocity);
+  void calculateVelocitySingleForce() {
+    Vector2 force = Vector2.of(4, 3);
+    vc.applyForce("testforce", force);
+    vc.currentVelocity(Vector2.ZERO);
 
-    Vector2 expectedVelocity = negativeVelocity;
-    float maxSpeed =
-        Math.max(
-            Math.abs(velocityComponent.velocity().x()), Math.abs(velocityComponent.velocity().y()));
-    if (expectedVelocity.length() > maxSpeed) {
-      expectedVelocity = expectedVelocity.normalize().scale(maxSpeed);
-    }
+    system.execute();
 
-    velocitySystem.execute();
-    Point position = positionComponent.position();
-
-    assertEquals(startXPosition + expectedVelocity.x(), position.x(), 0.001);
-    assertEquals(startYPosition + expectedVelocity.y(), position.y(), 0.001);
-
-    Vector2 expectedFinalVelocity = expectedVelocity.scale(1.0f - tile.friction());
-    assertEquals(expectedFinalVelocity.x(), velocityComponent.currentVelocity().x(), 0.001);
-    assertEquals(expectedFinalVelocity.y(), velocityComponent.currentVelocity().y(), 0.001);
+    Vector2 expectedVelocity = force.scale(1f / mass); // <-- scale by 1/mass
+    assertEquals(expectedVelocity, vc.currentVelocity());
+    assertEquals(0, vc.appliedForcesStream().count());
   }
 
-  /** Tests that entity doesn't move when the target tile is not accessible. */
+  /**
+   * Tests that when a single negative force is applied to an entity with a specified mass, the
+   * velocity is correctly updated by adding the negative acceleration (force / mass). After the
+   * calculation, the forces should be cleared.
+   */
   @Test
-  public void testInvalidMove() {
-    Mockito.when(tile.isAccessible()).thenReturn(false);
-    velocityComponent.currentVelocity(currentVelocity);
+  void calculateVelocitySingleNegativeForce() {
+    Vector2 negativeForce = Vector2.of(-5, -2);
+    vc.applyForce("negativeForce", negativeForce);
+    vc.currentVelocity(Vector2.ZERO);
 
-    velocitySystem.execute();
-    Point position = positionComponent.position();
+    system.execute();
 
-    assertEquals(startXPosition, position.x(), 0.001);
-    assertEquals(startYPosition, position.y(), 0.001);
-
-    Vector2 expectedFinalVelocity = currentVelocity.scale(1.0f - tile.friction());
-    assertEquals(expectedFinalVelocity.x(), velocityComponent.currentVelocity().x(), 0.001);
-    assertEquals(expectedFinalVelocity.y(), velocityComponent.currentVelocity().y(), 0.001);
+    Vector2 expectedVelocity = negativeForce.scale(1f / mass); // acceleration = force / mass
+    assertEquals(expectedVelocity, vc.currentVelocity());
+    assertEquals(0, vc.appliedForcesStream().count()); // forces cleared
   }
 
-  /** Tests that entity doesn't move with negative velocity when target tile is not accessible. */
+  /**
+   * Tests that when multiple forces are applied to an entity with a specified mass, the resulting
+   * velocity is the sum of all forces divided by the mass. Forces should be cleared after
+   * execution.
+   */
   @Test
-  public void testInvalidMoveWithNegativeVelocity() {
-    Mockito.when(tile.isAccessible()).thenReturn(false);
-    Vector2 negativeVelocity = Vector2.of(-4, -8);
-    velocityComponent.currentVelocity(negativeVelocity);
+  void calculateVelocityMultipleForce() {
+    Vector2 force1 = Vector2.of(3, 2);
+    Vector2 force2 = Vector2.of(1, 4);
+    Vector2 force3 = Vector2.of(-1, -1);
 
-    velocitySystem.execute();
-    Point position = positionComponent.position();
+    vc.applyForce("force1", force1);
+    vc.applyForce("force2", force2);
+    vc.applyForce("force3", force3);
+    vc.currentVelocity(Vector2.ZERO);
 
-    assertEquals(startXPosition, position.x(), 0.001);
-    assertEquals(startYPosition, position.y(), 0.001);
+    system.execute();
 
-    Vector2 expectedFinalVelocity = negativeVelocity.scale(1.0f - tile.friction());
-    assertEquals(expectedFinalVelocity.x(), velocityComponent.currentVelocity().x(), 0.001);
-    assertEquals(expectedFinalVelocity.y(), velocityComponent.currentVelocity().y(), 0.001);
+    Vector2 expectedVelocity = force1.add(force2).add(force3).scale(1f / mass); // scale by 1/mass
+    assertEquals(expectedVelocity, vc.currentVelocity());
+    assertEquals(0, vc.appliedForcesStream().count());
   }
 
-  /** Tests that the correct animations are queued based on movement direction changes. */
+  /** Tests that when the entity is idle and facing UP, the correct idle animations are queued. */
   @Test
-  public void testAnimationChanges() {
-    Mockito.when(tile.isAccessible()).thenReturn(true);
+  void setAnimationIdleUp() {
+    vc.currentVelocity(Vector2.ZERO);
+    pc.viewDirection(Direction.UP);
 
-    // Test right movement
-    velocityComponent.currentVelocity(Vector2.of(1, 1));
-    velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_RIGHT));
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
 
-    // Test idle right
-    velocityComponent.currentVelocity(Vector2.ZERO);
-    velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_RIGHT));
+    system.execute();
 
-    // Test left movement
-    velocityComponent.currentVelocity(Vector2.of(-1, 0));
-    velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_LEFT));
-
-    // Test idle left
-    velocityComponent.currentVelocity(Vector2.ZERO);
-    velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_LEFT));
+    verify(mockDraw)
+        .queueAnimation(
+            eq(1),
+            eq(CoreAnimations.IDLE_UP),
+            eq(CoreAnimations.IDLE),
+            eq(CoreAnimations.IDLE_DOWN),
+            eq(CoreAnimations.IDLE_LEFT),
+            eq(CoreAnimations.IDLE_RIGHT));
   }
 
-  /** Tests that diagonal movement is properly limited to max speed. */
+  /** Tests that when the entity is idle and facing LEFT, the correct idle animations are queued. */
   @Test
-  public void testDiagonalMovementSpeedLimit() {
-    Mockito.when(tile.isAccessible()).thenReturn(true);
-    velocityComponent.velocity(Vector2.of(5, 5));
+  void setAnimationIdleLeft() {
+    vc.currentVelocity(Vector2.ZERO);
+    pc.viewDirection(Direction.LEFT);
 
-    // Set diagonal velocity that would exceed max speed
-    Vector2 diagonalVelocity = Vector2.of(5, 5);
-    velocityComponent.currentVelocity(diagonalVelocity);
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
 
-    float maxSpeed =
-        Math.max(
-            Math.abs(velocityComponent.velocity().x()), Math.abs(velocityComponent.velocity().y()));
+    system.execute();
 
-    velocitySystem.execute();
-
-    // The actual movement should be limited to maxSpeed
-    Point position = positionComponent.position();
-    Vector2 actualMovement =
-        Vector2.of(position.x() - startXPosition, position.y() - startYPosition);
-
-    assertTrue(
-        actualMovement.length() <= maxSpeed + 0.001,
-        "Diagonal movement should be limited to max speed");
+    verify(mockDraw)
+        .queueAnimation(
+            eq(1),
+            eq(CoreAnimations.IDLE_LEFT),
+            eq(CoreAnimations.IDLE),
+            eq(CoreAnimations.IDLE_RIGHT),
+            eq(CoreAnimations.IDLE_DOWN),
+            eq(CoreAnimations.IDLE_UP));
   }
 
-  /** Tests that zero velocity results in no movement and idle animation. */
+  /** Tests that when the entity is idle and facing DOWN, the correct idle animations are queued. */
   @Test
-  public void testZeroVelocity() {
-    Mockito.when(tile.isAccessible()).thenReturn(true);
-    velocityComponent.currentVelocity(Vector2.ZERO);
+  void setAnimationIdleDown() {
+    vc.currentVelocity(Vector2.ZERO);
+    pc.viewDirection(Direction.DOWN);
 
-    velocitySystem.execute();
-    Point position = positionComponent.position();
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
 
-    assertEquals(startXPosition, position.x(), 0.001);
-    assertEquals(startYPosition, position.y(), 0.001);
-    assertTrue(
-        animationComponent.isAnimationQueued(CoreAnimations.IDLE_RIGHT)
-            || animationComponent.isAnimationQueued(CoreAnimations.IDLE_LEFT)
-            || animationComponent.isAnimationQueued(CoreAnimations.IDLE_UP)
-            || animationComponent.isAnimationQueued(CoreAnimations.IDLE_DOWN));
+    system.execute();
+
+    verify(mockDraw)
+        .queueAnimation(
+            eq(1),
+            eq(CoreAnimations.IDLE_DOWN),
+            eq(CoreAnimations.IDLE),
+            eq(CoreAnimations.IDLE_UP),
+            eq(CoreAnimations.IDLE_LEFT),
+            eq(CoreAnimations.IDLE_RIGHT));
+  }
+
+  /**
+   * Tests that when the entity is idle and facing RIGHT, the correct idle animations are queued.
+   */
+  @Test
+  void setAnimationIdleRight() {
+    vc.currentVelocity(Vector2.ZERO);
+    pc.viewDirection(Direction.RIGHT);
+
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    verify(mockDraw)
+        .queueAnimation(
+            eq(1),
+            eq(CoreAnimations.IDLE_RIGHT),
+            eq(CoreAnimations.IDLE),
+            eq(CoreAnimations.IDLE_LEFT),
+            eq(CoreAnimations.IDLE_DOWN),
+            eq(CoreAnimations.IDLE_UP));
+  }
+
+  /**
+   * Tests that when the entity has a positive horizontal velocity (moving right), the
+   * VelocitySystem queues the RUN_RIGHT animation and sets the view direction to RIGHT.
+   */
+  @Test
+  void queueRunAnimationWhenMovingRight() {
+    // Set velocity to move right only
+    vc.currentVelocity(Vector2.of(5, 0));
+
+    // Initial direction can be anything, e.g., NONE or UP
+    pc.viewDirection(Direction.NONE);
+
+    // Replace DrawComponent with a mock to verify animation calls
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    // Verify that RUN_RIGHT animation is queued
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+
+    // Verify that view direction is set to RIGHT
+    assertEquals(Direction.RIGHT, pc.viewDirection());
+  }
+
+  /**
+   * Tests that when the entity has a negative horizontal velocity (moving left), the VelocitySystem
+   * queues the RUN_LEFT animation and sets the view direction to LEFT.
+   */
+  @Test
+  void queueRunAnimationWhenMovingLeft() {
+    vc.currentVelocity(Vector2.of(-5, 0));
+    pc.viewDirection(Direction.NONE);
+
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+
+    assertEquals(Direction.LEFT, pc.viewDirection());
+  }
+
+  /**
+   * Tests that when the entity has a positive vertical velocity (moving up), the VelocitySystem
+   * queues the RUN_UP animation and sets the view direction to UP.
+   */
+  @Test
+  void queueRunAnimationWhenMovingUp() {
+    vc.currentVelocity(Vector2.of(0, 5));
+    pc.viewDirection(Direction.NONE);
+
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+
+    assertEquals(Direction.UP, pc.viewDirection());
+  }
+
+  /**
+   * Tests that when the entity has a negative vertical velocity (moving down), the VelocitySystem
+   * queues the RUN_DOWN animation and sets the view direction to DOWN.
+   */
+  @Test
+  void queueRunAnimationWhenMovingDown() {
+    vc.currentVelocity(Vector2.of(0, -5));
+    pc.viewDirection(Direction.NONE);
+
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+
+    assertEquals(Direction.DOWN, pc.viewDirection());
+  }
+
+  /**
+   * Tests that when the vertical velocity magnitude is higher than horizontal, the VelocitySystem
+   * queues the vertical run animation (up or down) accordingly and sets the correct view direction.
+   */
+  @Test
+  void queueRunAnimationWhenVerticalVelocityDominates() {
+    vc.currentVelocity(Vector2.of(3, 5)); // Vertical > Horizontal
+    pc.viewDirection(Direction.NONE);
+
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
+
+    assertEquals(Direction.UP, pc.viewDirection());
+
+    // Also test for downward vertical dominance
+    vc.currentVelocity(Vector2.of(2, -6)); // Vertical > Horizontal (down)
+    pc.viewDirection(Direction.NONE);
+    system.execute();
+
+    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
+
+    assertEquals(Direction.DOWN, pc.viewDirection());
+  }
+
+  /**
+   * Tests that when the horizontal velocity magnitude is higher than vertical, the VelocitySystem
+   * queues the horizontal run animation (left or right) accordingly and sets the correct view
+   * direction.
+   */
+  @Test
+  void queueRunAnimationWhenHorizontalVelocityDominates() {
+    vc.currentVelocity(Vector2.of(7, 4)); // Horizontal > Vertical
+    pc.viewDirection(Direction.NONE);
+
+    DrawComponent mockDraw = mock(DrawComponent.class);
+    entity.remove(DrawComponent.class);
+    entity.add(mockDraw);
+
+    system.execute();
+
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+
+    assertEquals(Direction.RIGHT, pc.viewDirection());
+
+    // Also test for left dominance
+    vc.currentVelocity(Vector2.of(-8, 3)); // Horizontal > Vertical (left)
+    pc.viewDirection(Direction.NONE);
+    system.execute();
+
+    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+    verify(mockDraw).queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+
+    assertEquals(Direction.LEFT, pc.viewDirection());
   }
 }

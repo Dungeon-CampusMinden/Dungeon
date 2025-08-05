@@ -1,5 +1,6 @@
 package utils.components.skill;
 
+import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
@@ -62,7 +63,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.velocity(defaultHeroSpeed);
+                    velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
                   });
         },
         (projectile) -> {
@@ -71,7 +72,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .flatMap(hero -> hero.fetch(VelocityComponent.class))
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.velocity(Vector2.ZERO);
+                    velocityComponent.maxSpeed(0);
                   });
           // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
           // freeze on the corner of the red zone

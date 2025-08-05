@@ -1,165 +1,119 @@
 package core.systems;
 
-import com.badlogic.gdx.Gdx;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.draw.CoreAnimations;
+import java.util.logging.Logger;
 
 /**
- * The VelocitySystem controls the movement of the entities in the game.
+ * The VelocitySystem manages the movement and animation state of entities based on their velocity.
  *
- * <p>Entities with the {@link VelocityComponent}, {@link PositionComponent}, and {@link
- * DrawComponent} will be processed by this system.
+ * <p>Entities with {@link VelocityComponent}, {@link PositionComponent}, and {@link DrawComponent}
+ * are processed by this system. It calculates the new velocity by applying forces and mass, updates
+ * the current velocity, and controls the animation state (run or idle) depending on movement.
  *
- * <p>The system will take the {@link VelocityComponent#currentVelocity()} and calculate the new
- * position of the entity based on their current position stored in the {@link PositionComponent}.
- * If the new position is a valid position, which means the tile they would stand on is accessible,
- * the new position will be set. If the new position is walled, the {@link
- * VelocityComponent#onWallHit()} callback will be executed.
+ * <p>The {@link MoveSystem} will perform the movement.
  *
- * <p>This system will also queue the corresponding run or idle animation.
+ * <p>If an entity is moving, the corresponding run animation is queued and the view direction
+ * updated. If the entity is idle, the idle animation matching the view direction is queued.
  *
- * <p>At the end, the {@link VelocityComponent#currentVelocity(Vector2)} will be set to 0.
+ * <p>At the end of processing, applied forces are cleared and velocity is updated accordingly.
  *
  * @see VelocityComponent
- * @see DrawComponent
- * @see PositionComponent
- * @see core.level.elements.ILevel
  */
 public final class VelocitySystem extends System {
 
-  // default time an Animation should be enqueued
+  private static final Logger LOGGER = Logger.getLogger(VelocitySystem.class.getName());
+
+  // Default time (frames) an animation should be enqueued for
   private static final int DEFAULT_FRAME_TIME = 1;
 
-  /** Create a new VelocitySystem. */
+  /** Constructs a new VelocitySystem. */
   public VelocitySystem() {
     super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
   }
 
-  /** Updates the position of all entities based on their velocity. */
+  /**
+   * Executes the system logic for all filtered entities.
+   *
+   * <p>For each entity, calculates velocity based on applied forces and mass, updates current
+   * velocity, clears forces, and queues appropriate animations.
+   */
   @Override
   public void execute() {
     filteredEntityStream(VelocityComponent.class, PositionComponent.class, DrawComponent.class)
         .map(this::buildDataObject)
-        .forEach(this::updatePosition);
-  }
-
-  private void updatePosition(VSData vsd) {
-    Vector2 originalVelocity = vsd.vc.currentVelocity();
-    Vector2 velocity = originalVelocity;
-
-    float maxSpeed = Math.max(Math.abs(vsd.vc.velocity().x()), Math.abs(vsd.vc.velocity().y()));
-    // Limit velocity to maxSpeed (primarily for diagonal movement)
-    if (velocity.length() > maxSpeed) {
-      velocity = velocity.normalize();
-      velocity = velocity.scale(maxSpeed);
-    }
-
-    if (Gdx.graphics != null) {
-      velocity = velocity.scale(Gdx.graphics.getDeltaTime());
-    }
-
-    float newX = vsd.pc.position().x() + velocity.x();
-    float newY = vsd.pc.position().y() + velocity.y();
-    boolean hitWall = false;
-    boolean canEnterOpenPits =
-        vsd.e.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
-    try {
-      if (this.isAccessible(Game.tileAT(new Point(newX, newY)), canEnterOpenPits)) {
-        // no change in direction
-        vsd.pc.position(new Point(newX, newY));
-        this.movementAnimation(vsd);
-      } else if (this.isAccessible(
-          Game.tileAT(new Point(newX, vsd.pc.position().y())), canEnterOpenPits)) {
-        // redirect not moving along y
-        hitWall = true;
-        vsd.pc.position(new Point(newX, vsd.pc.position().y()));
-        this.movementAnimation(vsd);
-        vsd.vc.currentVelocity(Vector2.of(velocity.x(), 0.0f));
-      } else if (this.isAccessible(
-          Game.tileAT(new Point(vsd.pc.position().x(), newY)), canEnterOpenPits)) {
-        // redirect not moving along x
-        hitWall = true;
-        vsd.pc.position(new Point(vsd.pc.position().x(), newY));
-        this.movementAnimation(vsd);
-        vsd.vc.currentVelocity(Vector2.of(0.0f, velocity.y()));
-      } else {
-        hitWall = true;
-      }
-
-      if (hitWall) vsd.vc.onWallHit().accept(vsd.e);
-
-      // Friction
-      float friction = Game.tileAT(vsd.pc.position()).friction();
-      float damp = Math.max(0.0f, 1.0f - friction);
-      // If we hit a wall, damp the raw velocity; otherwise damp the movement velocity
-      Vector2 toDampen = hitWall ? originalVelocity : velocity;
-      float newVX = toDampen.x() * damp;
-      if (Math.abs(newVX) < 0.01f) newVX = 0.0f;
-      float newVY = toDampen.y() * damp;
-      if (Math.abs(newVY) < 0.01f) newVY = 0.0f;
-
-      vsd.vc.currentVelocity(Vector2.of(newVX, newVY));
-    } catch (NullPointerException e) {
-      // for some reason the entity is out of bound
-      vsd.pc.position(PositionComponent.ILLEGAL_POSITION);
-      LOGGER.warning("Entity " + e + " is out of bound");
-    }
+        .map(this::calculateVelocity)
+        .forEach(this::movementAnimation);
   }
 
   /**
-   * Small helper function to check if a tile is accessible and also considers if the entity can
-   * enter empty tiles.
+   * Calculates the new velocity of an entity by summing applied forces and dividing by mass.
    *
-   * @param tile The tile to check.
-   * @param canEnterPitTiles If the entity can enter PIT tiles.
-   * @return true if the tile is accessible, false if not.
+   * @param vsd containing entity and components
+   * @return updated VSData with modified velocity
    */
-  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
-    return tile != null
-        && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
+  private VSData calculateVelocity(VSData vsd) {
+    Vector2 sumForces = vsd.vc.appliedForcesStream().reduce(Vector2.of(0, 0), Vector2::add);
+
+    float mass = vsd.vc().mass();
+    // acceleration = force / mass
+    Vector2 acceleration = sumForces.scale(1.0 / mass);
+
+    Vector2 newVelocity = vsd.vc.currentVelocity().add(acceleration);
+    if (newVelocity.isZero()) newVelocity = Vector2.ZERO;
+
+    vsd.vc.currentVelocity(newVelocity);
+    vsd.vc.clearForces();
+
+    return vsd;
   }
 
+  /**
+   * Queues the appropriate animation based on the entity's velocity and updates its view direction.
+   *
+   * <p>If the entity is moving, enqueues run animations depending on the dominant velocity axis. If
+   * idle, enqueues idle animation matching the current view direction.
+   *
+   * @param vsd containing entity and components
+   */
   private void movementAnimation(VSData vsd) {
     float x = vsd.vc.currentVelocity().x();
     float y = vsd.vc.currentVelocity().y();
 
-    // move
+    // Entity is moving
     if (x != 0 || y != 0) {
+      // Remove any queued run or idle animations to avoid conflicts
       vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-      if (x > 0) {
-        vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(Direction.RIGHT);
-      } else if (x < 0) {
-        vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-        vsd.pc.viewDirection(Direction.LEFT);
+      vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+
+      // Use the velocity axis with the greatest magnitude for animation direction
+      if (Math.abs(x) >= Math.abs(y)) {
+        if (x > 0) {
+          vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
+          vsd.pc.viewDirection(Direction.RIGHT);
+        } else {
+          vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
+          vsd.pc.viewDirection(Direction.LEFT);
+        }
       } else if (y > 0) {
         vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
         vsd.pc.viewDirection(Direction.UP);
-      } else if (y < 0) {
+      } else {
         vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
         vsd.pc.viewDirection(Direction.DOWN);
       }
-
-      vsd.vc.previousVelocity(Vector2.of(x, y));
-
-      vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
     }
-    // idle
+    // Entity is idle
     else {
-      // each drawComponent has an idle animation, so no check is needed
+      // Queue idle animation based on current view direction
       switch (vsd.pc.viewDirection()) {
         case UP ->
             vsd.dc.queueAnimation(
@@ -193,7 +147,7 @@ public final class VelocitySystem extends System {
                 CoreAnimations.IDLE_LEFT,
                 CoreAnimations.IDLE_DOWN,
                 CoreAnimations.IDLE_UP);
-        case NONE -> // Invalid direction
+        case NONE -> // Invalid direction, log warning
             LOGGER.warning(
                 "Entity "
                     + vsd.e.id()
@@ -204,6 +158,13 @@ public final class VelocitySystem extends System {
     }
   }
 
+  /**
+   * Builds a data record with the entity and its required components. Throws {@link
+   * MissingComponentException} if components are missing.
+   *
+   * @param e the entity to process
+   * @return a VSData record bundling entity and components
+   */
   private VSData buildDataObject(Entity e) {
     VelocityComponent vc =
         e.fetch(VelocityComponent.class)
@@ -220,5 +181,13 @@ public final class VelocitySystem extends System {
     return new VSData(e, vc, pc, dc);
   }
 
+  /**
+   * Record bundling entity and its components for processing in VelocitySystem.
+   *
+   * @param e the entity
+   * @param vc the velocity component
+   * @param pc the position component
+   * @param dc the draw component
+   */
   private record VSData(Entity e, VelocityComponent vc, PositionComponent pc, DrawComponent dc) {}
 }

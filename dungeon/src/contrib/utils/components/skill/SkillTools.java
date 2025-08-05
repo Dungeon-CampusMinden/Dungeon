@@ -28,19 +28,18 @@ public final class SkillTools {
   }
 
   /**
-   * Calculates the velocity vector to move from the start point to the goal point with the given
+   * Calculates the direction vector to move from the start point to the goal point with the given
    * speed.
    *
    * @param start Start point of the calculation.
    * @param goal End point of the calculation.
-   * @param speed The speed of movement.
    * @return The velocity vector as a Point.
    */
-  public static Vector2 calculateVelocity(final Point start, final Point goal, float speed) {
+  public static Vector2 calculateDirection(final Point start, final Point goal) {
     if (start.equals(goal)) {
       return Vector2.ZERO;
     }
-    return start.vectorTo(goal).normalize().scale(speed);
+    return start.vectorTo(goal).normalize();
   }
 
   /**

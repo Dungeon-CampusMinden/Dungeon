@@ -25,6 +25,8 @@ import core.utils.components.MissingComponentException;
  */
 public final class ProjectileSystem extends System {
 
+  private final String PROJECTILE_FORCE = "Projectile";
+
   /** Create a new ProjectileSystem. */
   public ProjectileSystem() {
     super(ProjectileComponent.class, PositionComponent.class, VelocityComponent.class);
@@ -37,7 +39,7 @@ public final class ProjectileSystem extends System {
             ProjectileComponent.class, PositionComponent.class, VelocityComponent.class)
         // Consider only entities that have a ProjectileComponent
         .map(this::buildDataObject)
-        .map(this::setVelocity)
+        .map(this::applyForce)
         // Filter all entities that have reached their endpoint
         .filter(this::hasReachedEndpoint)
         // Remove all entities who reached their endpoint
@@ -61,9 +63,9 @@ public final class ProjectileSystem extends System {
     return new PSData(entity, prc, pc, vc);
   }
 
-  private PSData setVelocity(final PSData data) {
-    data.vc.currentVelocity(data.vc.velocity());
-
+  private PSData applyForce(final PSData data) {
+    if (data.vc().currentVelocity().isZero())
+      data.vc.applyForce(PROJECTILE_FORCE, data.prc.forceToApply());
     return data;
   }
 

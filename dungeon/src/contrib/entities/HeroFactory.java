@@ -44,9 +44,12 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 SPEED_HERO = Vector2.of(7.5f, 7.5f);
+  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
+  private static final float HERO_MAX_SPEED = STEP_SPEED.x();
+  private static final String MOVEMENT_ID = "Movement";
+  private static final float HERO_MASS = 1.3f;
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -61,7 +64,7 @@ public final class HeroFactory {
    * @return Copy of the default speed of the hero.
    */
   public static Vector2 defaultHeroSpeed() {
-    return Vector2.of(SPEED_HERO);
+    return Vector2.of(STEP_SPEED);
   }
 
   /**
@@ -130,7 +133,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(SPEED_HERO, (e) -> {}, true));
+    hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -345,16 +348,17 @@ public final class HeroFactory {
                   .orElseThrow(
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
 
-          Vector2 newVelocity = vc.currentVelocity();
-          if (direction.x() != 0) {
-            newVelocity = Vector2.of(direction.scale(vc.velocity()).x(), newVelocity.y());
-          }
-          if (direction.y() != 0) {
-            newVelocity = Vector2.of(newVelocity.x(), direction.scale(vc.velocity()).y());
-          }
-          vc.currentVelocity(newVelocity);
+          Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
+          Vector2 newForce = STEP_SPEED.scale(direction);
 
-          // Abort any path finding on own movement
+          Vector2 updatedForce =
+              existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
+
+          if (updatedForce.lengthSquared() > 0) {
+            updatedForce = updatedForce.normalize().scale(STEP_SPEED.length());
+            vc.applyForce(MOVEMENT_ID, updatedForce);
+          }
+
           if (ENABLE_MOUSE_MOVEMENT) {
             entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
           }
