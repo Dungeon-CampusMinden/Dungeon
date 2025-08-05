@@ -323,12 +323,15 @@ public final class MiscFactory {
         .fetch(DrawComponent.class)
         .ifPresent(
             drawComponent -> projectile.add(new DrawComponent(drawComponent.currentAnimation())));
-    Vector2 velocity = SkillTools.calculateVelocity(start, goal, speed);
-    float entitySpeed =
-        other.fetch(VelocityComponent.class).ifPresentOrElse(vc -> vc.maxSpeed(), 0);
+      Vector2 forceToApply =
+              SkillTools.calculateDirection(start, goal).scale(speed);
+      float entitySpeed = other.fetch(VelocityComponent.class)
+              .map(vc -> vc.maxSpeed())
+              .orElse(0f);
+
     VelocityComponent vc =
         new VelocityComponent(
-            velocity,
+            speed,
             new Consumer<Entity>() {
               @Override
               public void accept(Entity entity) {
@@ -338,7 +341,7 @@ public final class MiscFactory {
             true);
     projectile.add(vc);
 
-    projectile.add(new ProjectileComponent(start, goal));
+    projectile.add(new ProjectileComponent(start, goal,forceToApply));
     projectile.add(new PositionComponent(start));
     if (focusCamera) projectile.add(new CameraComponent());
 
