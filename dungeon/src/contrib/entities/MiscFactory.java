@@ -329,10 +329,12 @@ public final class MiscFactory {
     VelocityComponent vc =
         new VelocityComponent(
             speed,
-            new Consumer<Entity>() {
+            new Consumer<>() {
               @Override
               public void accept(Entity entity) {
+
                 resetCatapultedEntity(other, focusCamera, entitySpeed);
+                Game.remove(projectile);
               }
             },
             true);
@@ -346,6 +348,7 @@ public final class MiscFactory {
         (you, with, direction1) -> {
           if (with != other) return;
           resetCatapultedEntity(other, focusCamera, entitySpeed);
+          Game.remove(projectile);
         };
 
     projectile.add(new CollideComponent(collide, CollideComponent.DEFAULT_COLLIDER));
