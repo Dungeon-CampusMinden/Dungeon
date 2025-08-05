@@ -13,6 +13,7 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.*;
+import java.util.Optional;
 
 /**
  * The FogOfWarSystem class is responsible for controlling the fog of war in the game.
@@ -297,14 +298,15 @@ public class FogOfWarSystem extends System {
           entity
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-      Tile tile = Game.tileAT(pc.position());
-      if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
-        DrawComponent dc =
+      Game.tileAT(pc.position()).ifPresent(tile -> {
+        if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
+          DrawComponent dc =
             entity
-                .fetch(DrawComponent.class)
-                .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-        dc.setVisible(true);
-      }
+              .fetch(DrawComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+          dc.setVisible(true);
+        }
+      });
     }
   }
 
