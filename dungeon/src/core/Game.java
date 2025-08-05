@@ -413,8 +413,8 @@ public final class Game {
   /**
    * Retrieves the tile at the given point in the level, if available.
    *
-   * <p>The method uses {@link Point#toCoordinate()} to convert the point into a coordinate.
-   * If no tile exists at the given location, {@link Optional#empty()} is returned.
+   * <p>The method uses {@link Point#toCoordinate()} to convert the point into a coordinate. If no
+   * tile exists at the given location, {@link Optional#empty()} is returned.
    *
    * @param point The point from which to retrieve the tile.
    * @return An {@link Optional} containing the tile if present, otherwise {@link Optional#empty()}.
@@ -535,14 +535,16 @@ public final class Game {
     Tile tile = tileOpt.get();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
-      .filter(
-        e ->
-          tile.equals(
-            Game.tileAT(
-                e.fetch(PositionComponent.class)
-                  .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class))
-                  .position())
-              .orElse(null)));
+        .filter(
+            e ->
+                tile.equals(
+                    Game.tileAT(
+                            e.fetch(PositionComponent.class)
+                                .orElseThrow(
+                                    () ->
+                                        MissingComponentException.build(e, PositionComponent.class))
+                                .position())
+                        .orElse(null)));
   }
 
   /**

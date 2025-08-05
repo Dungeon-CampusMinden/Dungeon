@@ -16,11 +16,10 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
-import produsAdvanced.AdvancedDungeon;
 import java.util.Optional;
+import produsAdvanced.AdvancedDungeon;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -178,15 +177,15 @@ public class Hero {
    */
   public Optional<Berry> getBerryAt(Point point) {
     return Optional.ofNullable(point)
-      .flatMap(Game::tileAT)
-      .flatMap(tile ->
-        Game.entityAtTile(tile)
-          .findFirst()
-          .flatMap(e -> e.fetch(ItemComponent.class))
-          .map(ItemComponent::item)
-          .filter(item -> item instanceof Berry)
-          .map(item -> (Berry) item)
-      );
+        .flatMap(Game::tileAT)
+        .flatMap(
+            tile ->
+                Game.entityAtTile(tile)
+                    .findFirst()
+                    .flatMap(e -> e.fetch(ItemComponent.class))
+                    .map(ItemComponent::item)
+                    .filter(item -> item instanceof Berry)
+                    .map(item -> (Berry) item));
   }
 
   /**
@@ -215,10 +214,10 @@ public class Hero {
    */
   public void destroyItemAt(Point point) {
     Optional.ofNullable(point)
-      .flatMap(Game::tileAT)
-      .flatMap(tile -> Game.entityAtTile(tile)
-        .filter(e -> e.isPresent(ItemComponent.class))
-        .findFirst())
-      .ifPresent(Game::remove);
+        .flatMap(Game::tileAT)
+        .flatMap(
+            tile ->
+                Game.entityAtTile(tile).filter(e -> e.isPresent(ItemComponent.class)).findFirst())
+        .ifPresent(Game::remove);
   }
 }

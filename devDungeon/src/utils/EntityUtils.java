@@ -16,13 +16,12 @@ import entities.TorchFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import level.devlevel.TorchRiddleLevel;
 import task.tasktype.Quiz;
-import java.util.Optional;
-
 
 /**
  * EntityUtils is a utility class that provides methods for spawning entities in the game. It
@@ -35,8 +34,8 @@ public class EntityUtils {
   private static final Logger LOGGER = Logger.getLogger(EntityUtils.class.getName());
 
   /**
-   * Spawns a monster of the given type at the given position and adds it to the game.
-   * The position is mapped to a tile, and the monster is spawned at the center of the tile.
+   * Spawns a monster of the given type at the given position and adds it to the game. The position
+   * is mapped to a tile, and the monster is spawned at the center of the tile.
    *
    * @param monsterType The type of monster to spawn.
    * @param position The position at which to spawn the monster.
@@ -48,7 +47,9 @@ public class EntityUtils {
     Optional<Tile> optionalTile = Game.tileAT(position);
     if (optionalTile.isEmpty() || !optionalTile.get().isAccessible()) {
       LOGGER.warning(
-        "Cannot spawn monster at " + position + " because the tile is not accessible or does not exist");
+          "Cannot spawn monster at "
+              + position
+              + " because the tile is not accessible or does not exist");
       return null;
     }
 

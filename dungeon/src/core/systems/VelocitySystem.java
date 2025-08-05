@@ -120,11 +120,13 @@ public final class VelocitySystem extends System {
       LOGGER.warning("Entity " + e + " is out of bound");
     }
   }
+
   /**
    * Helper method to check whether a tile is accessible.
    *
-   * <p>A tile is considered accessible if it is present and either directly {@link Tile#isAccessible()},
-   * or—if {@code canEnterPitTiles} is {@code true}—represents a {@link LevelElement#PIT}.
+   * <p>A tile is considered accessible if it is present and either directly {@link
+   * Tile#isAccessible()}, or—if {@code canEnterPitTiles} is {@code true}—represents a {@link
+   * LevelElement#PIT}.
    *
    * @param tileOpt The {@link Optional} tile to check.
    * @param canEnterPitTiles Whether PIT tiles are allowed to be entered.
@@ -132,8 +134,8 @@ public final class VelocitySystem extends System {
    */
   private boolean isAccessible(Optional<Tile> tileOpt, boolean canEnterPitTiles) {
     return tileOpt
-      .filter(t -> t.isAccessible() || (canEnterPitTiles && t.levelElement() == LevelElement.PIT))
-      .isPresent();
+        .filter(t -> t.isAccessible() || (canEnterPitTiles && t.levelElement() == LevelElement.PIT))
+        .isPresent();
   }
 
   private void movementAnimation(VSData vsd) {

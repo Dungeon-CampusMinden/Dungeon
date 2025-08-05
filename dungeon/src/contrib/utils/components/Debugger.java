@@ -112,24 +112,31 @@ public class Debugger {
   /**
    * Teleports the hero to the given location.
    *
-   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an
-   * {@link java.util.Optional Optional<Tile>}.
+   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an {@link java.util.Optional
+   * Optional<Tile>}.
    *
    * @param targetLocation the location to teleport to
    */
   public static void TELEPORT(Point targetLocation) {
-    Game.hero().ifPresent(hero -> {
-      PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-          .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    Game.hero()
+        .ifPresent(
+            hero -> {
+              PositionComponent pc =
+                  hero.fetch(PositionComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(hero, PositionComponent.class));
 
-      LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
+              LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
 
-      Game.tileAT(targetLocation).filter(Tile::isAccessible).ifPresentOrElse(tile -> {
-        pc.position(targetLocation);
-        LOGGER.info("Teleport successful");
-      }, () -> LOGGER.info("Cannot teleport to non-existing or non-accessible tile"));
-    });
+              Game.tileAT(targetLocation)
+                  .filter(Tile::isAccessible)
+                  .ifPresentOrElse(
+                      tile -> {
+                        pc.position(targetLocation);
+                        LOGGER.info("Teleport successful");
+                      },
+                      () -> LOGGER.info("Cannot teleport to non-existing or non-accessible tile"));
+            });
   }
 
   /** Spawns a monster at the cursor's position. */
@@ -141,29 +148,36 @@ public class Debugger {
   /**
    * Spawns a monster at the given position, if the tile is accessible.
    *
-   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an
-   * {@link java.util.Optional Optional<Tile>}.
+   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an {@link java.util.Optional
+   * Optional<Tile>}.
    *
    * @param position The location to spawn the monster on.
    */
   public static void SPAWN_MONSTER(Point position) {
-    Game.tileAT(position).filter(Tile::isAccessible).ifPresentOrElse(tile -> {
-      Entity monster = new Entity("Debug Monster");
-      monster.add(new PositionComponent(position));
-      try {
-        monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-      } catch (IOException e) {
-        LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
-      }
-      monster.add(new VelocityComponent(Vector2.ONE));
-      monster.add(new HealthComponent());
-      monster.add(new CollideComponent());
-      monster.add(new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
-      Game.add(monster);
-      LOGGER.info("Spawned monster at position " + position);
-    }, () -> {
-      LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
-    });
+    Game.tileAT(position)
+        .filter(Tile::isAccessible)
+        .ifPresentOrElse(
+            tile -> {
+              Entity monster = new Entity("Debug Monster");
+              monster.add(new PositionComponent(position));
+              try {
+                monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
+              } catch (IOException e) {
+                LOGGER.warning(
+                    "The DrawComponent for the chort cant be created. " + e.getMessage());
+              }
+              monster.add(new VelocityComponent(Vector2.ONE));
+              monster.add(new HealthComponent());
+              monster.add(new CollideComponent());
+              monster.add(
+                  new AIComponent(
+                      new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
+              Game.add(monster);
+              LOGGER.info("Spawned monster at position " + position);
+            },
+            () -> {
+              LOGGER.info("Cannot spawn monster at non-existent or non-accessible tile");
+            });
   }
 
   /** Pauses the game. */

@@ -148,8 +148,8 @@ public final class LevelUtils {
    *
    * <p>The tile at the given point will be part of the list as well, if present.
    *
-   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an
-   * {@link java.util.Optional Optional<Tile>}.
+   * <p>Internally uses {@link Game#tileAT(Point)}, which returns an {@link java.util.Optional
+   * Optional<Tile>}.
    *
    * @param center The center point around which the tiles are considered.
    * @param radius The radius within which the tiles should be located.
@@ -157,16 +157,16 @@ public final class LevelUtils {
    */
   public static List<Tile> tilesInRange(final Point center, float radius) {
     Vector2[] offsets =
-      new Vector2[] {
-        Vector2.of(-1, -1),
-        Vector2.of(0, -1),
-        Vector2.of(1, -1),
-        Vector2.of(-1, 0),
-        Vector2.of(1, 0),
-        Vector2.of(-1, 1),
-        Vector2.of(0, 1),
-        Vector2.of(1, 1),
-      };
+        new Vector2[] {
+          Vector2.of(-1, -1),
+          Vector2.of(0, -1),
+          Vector2.of(1, -1),
+          Vector2.of(-1, 0),
+          Vector2.of(1, 0),
+          Vector2.of(-1, 1),
+          Vector2.of(0, 1),
+          Vector2.of(1, 1),
+        };
 
     Set<Tile> tiles = new HashSet<>();
     Queue<Tile> tileQueue = new ArrayDeque<>();

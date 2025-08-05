@@ -153,7 +153,7 @@ public class FogSystem extends System {
    * @return A list of all visible tiles in this octant.
    */
   private List<Tile> castLight(
-    int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+      int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
     List<Tile> visibleTiles = new ArrayList<>();
     if (start < end) {
       return visibleTiles;
@@ -191,8 +191,7 @@ public class FogSystem extends System {
           } else {
             if (!tile.canSeeThrough() && i < radius) {
               blocked = true;
-              visibleTiles.addAll(
-                castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+              visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
               newStart = rSlope;
             }
           }
@@ -271,34 +270,40 @@ public class FogSystem extends System {
   }
 
   /**
-   * Reveals all hidden entities whose tiles are either not darkened or have a tint color above the threshold.
-   * Uses {@link Game#tileAT(Point)} safely via Optional to avoid null handling.
+   * Reveals all hidden entities whose tiles are either not darkened or have a tint color above the
+   * threshold. Uses {@link Game#tileAT(Point)} safely via Optional to avoid null handling.
    */
   private void revealHiddenEntities() {
     for (Entity entity : hiddenEntities) {
-      PositionComponent pc = entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      PositionComponent pc =
+          entity
+              .fetch(PositionComponent.class)
+              .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
       Game.tileAT(pc.position())
-        .filter(tile -> !darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD)
-        .ifPresent(tile -> {
-          DrawComponent dc = entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-          dc.setVisible(true);
-        });
+          .filter(
+              tile -> !darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD)
+          .ifPresent(
+              tile -> {
+                DrawComponent dc =
+                    entity
+                        .fetch(DrawComponent.class)
+                        .orElseThrow(
+                            () -> MissingComponentException.build(entity, DrawComponent.class));
+                dc.setVisible(true);
+              });
     }
   }
 
   /**
    * Executes the fog logic for the current frame.
    *
-   * <p>Determines visible and obscured tiles based on the player's current position,
-   * updates the fog-of-war by darkening or revealing tiles, and manages the visibility of entities.
+   * <p>Determines visible and obscured tiles based on the player's current position, updates the
+   * fog-of-war by darkening or revealing tiles, and manages the visibility of entities.
    *
-   * <p>Internally uses {@link Game#tileAT(Point)}, which now returns an {@link java.util.Optional Optional<Tile>},
-   * and safely integrates this change when accessing tiles (e.g., {@code Game.tileAT(heroPos).ifPresent(...)}).
+   * <p>Internally uses {@link Game#tileAT(Point)}, which now returns an {@link java.util.Optional
+   * Optional<Tile>}, and safely integrates this change when accessing tiles (e.g., {@code
+   * Game.tileAT(heroPos).ifPresent(...)}).
    *
    * <p>This method is automatically called by the game loop.
    */
@@ -322,32 +327,37 @@ public class FogSystem extends System {
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(
-        castLight(
-          1,
-          1.0f,
-          0.0f,
-          MAX_VIEW_DISTANCE,
-          mult[octant][0],
-          mult[octant][1],
-          mult[octant][2],
-          mult[octant][3],
-          heroPos));
+          castLight(
+              1,
+              1.0f,
+              0.0f,
+              MAX_VIEW_DISTANCE,
+              mult[octant][0],
+              mult[octant][1],
+              mult[octant][2],
+              mult[octant][3],
+              heroPos));
     }
 
     List<Tile> distancedTiles = new ArrayList<>(visibleTiles); // copy
 
     // Handle tiles that are beyond the view distance
     distancedTiles.removeAll(LevelUtils.tilesInRange(heroPos, currentViewDistance));
-    distancedTiles.forEach(tile ->
-      darkenTile(tile, currentViewDistance + DISTANCE_TRANSITION_SIZE, TINT_COLOR_DISTANCE_SCALE, heroPos));
+    distancedTiles.forEach(
+        tile ->
+            darkenTile(
+                tile,
+                currentViewDistance + DISTANCE_TRANSITION_SIZE,
+                TINT_COLOR_DISTANCE_SCALE,
+                heroPos));
 
-    visibleTiles.removeAll(distancedTiles);      // remove distanced tiles from visible tiles
-    allTilesInView.removeAll(distancedTiles);    // and from tile behind walls
-    allTilesInView.removeAll(visibleTiles);      // remove visible tiles from tiles behind walls
+    visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
+    allTilesInView.removeAll(distancedTiles); // and from tile behind walls
+    allTilesInView.removeAll(visibleTiles); // remove visible tiles from tiles behind walls
 
     // Darken tiles that are behind walls
-    allTilesInView.forEach(tile ->
-      darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
+    allTilesInView.forEach(
+        tile -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, heroPos));
 
     // Revert all visible tiles back to light
     revertTilesBackToLight(visibleTiles);

@@ -76,12 +76,12 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @param maxStackSize The max stack size of the item.
    */
   public Item(
-    final String displayName,
-    final String description,
-    final Animation inventoryAnimation,
-    final Animation worldAnimation,
-    int stackSize,
-    int maxStackSize) {
+      final String displayName,
+      final String description,
+      final Animation inventoryAnimation,
+      final Animation worldAnimation,
+      int stackSize,
+      int maxStackSize) {
     this.displayName = displayName;
     this.description = description;
     this.inventoryAnimation = inventoryAnimation;
@@ -92,9 +92,9 @@ public class Item implements CraftingIngredient, CraftingResult {
     // Stupidity check
     if (!Item.isRegistered(this.getClass())) {
       LOGGER.log(
-        CustomLogLevel.WARNING,
-        "Item {0} is not registered but instanced! Register class in Items!",
-        this.getClass().getName());
+          CustomLogLevel.WARNING,
+          "Item {0} is not registered but instanced! Register class in Items!",
+          this.getClass().getName());
     }
   }
 
@@ -109,10 +109,10 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @param worldAnimation The world animation of the item.
    */
   public Item(
-    final String displayName,
-    final String description,
-    final Animation inventoryAnimation,
-    final Animation worldAnimation) {
+      final String displayName,
+      final String description,
+      final Animation inventoryAnimation,
+      final Animation worldAnimation) {
     this(displayName, description, inventoryAnimation, worldAnimation, 1, 1);
   }
 
@@ -284,20 +284,22 @@ public class Item implements CraftingIngredient, CraftingResult {
   /**
    * Called when an item should be dropped.
    *
-   * <p>Only drops the item if the tile at the given position is present and is an instance of {@link FloorTile}.
-   * Internally uses {@link Game#tileAT(Point)}, which returns an {@link java.util.Optional}.
+   * <p>Only drops the item if the tile at the given position is present and is an instance of
+   * {@link FloorTile}. Internally uses {@link Game#tileAT(Point)}, which returns an {@link
+   * java.util.Optional}.
    *
    * @param position The position where the item should be dropped.
    * @return {@code true} if the item was dropped successfully, otherwise {@code false}.
    */
   public boolean drop(final Point position) {
     return Game.tileAT(position)
-      .filter(tile -> tile instanceof FloorTile)
-      .map(tile -> {
-        Game.add(WorldItemBuilder.buildWorldItem(this, position));
-        return true;
-      })
-      .orElse(false);
+        .filter(tile -> tile instanceof FloorTile)
+        .map(
+            tile -> {
+              Game.add(WorldItemBuilder.buildWorldItem(this, position));
+              return true;
+            })
+        .orElse(false);
   }
 
   /**
@@ -309,16 +311,16 @@ public class Item implements CraftingIngredient, CraftingResult {
    */
   public boolean collect(final Entity itemEntity, final Entity collector) {
     return collector
-      .fetch(InventoryComponent.class)
-      .map(
-        inventoryComponent -> {
-          if (inventoryComponent.add(this)) {
-            Game.remove(itemEntity);
-            return true;
-          }
-          return false;
-        })
-      .orElse(false);
+        .fetch(InventoryComponent.class)
+        .map(
+            inventoryComponent -> {
+              if (inventoryComponent.add(this)) {
+                Game.remove(itemEntity);
+                return true;
+              }
+              return false;
+            })
+        .orElse(false);
   }
 
   /**

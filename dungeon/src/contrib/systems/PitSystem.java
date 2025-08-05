@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-
 /**
  * Manages the pit system. A pit is a open or closed hole in the ground. If it is open, the player
  * dies (see {@link FallingSystem}). If it is closed, the player can walk over it, but the pit gets
@@ -39,35 +38,37 @@ public class PitSystem extends System {
   /**
    * Processes all relevant entities and registers their presence on a {@link PitTile}.
    *
-   * <p>Ignores entities with a {@link ProjectileComponent} and camera-only entities without
-   * {@link PlayerComponent} or {@link AIComponent}.
+   * <p>Ignores entities with a {@link ProjectileComponent} and camera-only entities without {@link
+   * PlayerComponent} or {@link AIComponent}.
    *
    * <p>If the entity is on a {@link PitTile}, the pit is tracked in the {@code pitTimes} map
    * together with the timestamp of first contact.
    *
-   * <p>Internally uses {@link Game#tileAT(core.utils.Point)}, which returns an
-   * {@link java.util.Optional Optional<Tile>}.
+   * <p>Internally uses {@link Game#tileAT(core.utils.Point)}, which returns an {@link
+   * java.util.Optional Optional<Tile>}.
    */
   private void processEntities() {
     filteredEntityStream()
-      .filter(entity -> !entity.isPresent(ProjectileComponent.class))
-      .forEach(entity -> {
-        PositionComponent positionComponent = getPositionComponent(entity);
+        .filter(entity -> !entity.isPresent(ProjectileComponent.class))
+        .forEach(
+            entity -> {
+              PositionComponent positionComponent = getPositionComponent(entity);
 
-        Game.tileAT(positionComponent.position()).ifPresent(tile -> {
-          if (tile instanceof PitTile pitTile) {
-            // camera focus point entity should not trigger pit
-            if (entity.isPresent(CameraComponent.class)
-              && !entity.isPresent(PlayerComponent.class)
-              && !entity.isPresent(AIComponent.class)) {
-              return;
-            }
-            pitTimes.putIfAbsent(pitTile, java.lang.System.currentTimeMillis());
-          }
-        });
-      });
+              Game.tileAT(positionComponent.position())
+                  .ifPresent(
+                      tile -> {
+                        if (tile instanceof PitTile pitTile) {
+                          // camera focus point entity should not trigger pit
+                          if (entity.isPresent(CameraComponent.class)
+                              && !entity.isPresent(PlayerComponent.class)
+                              && !entity.isPresent(AIComponent.class)) {
+                            return;
+                          }
+                          pitTimes.putIfAbsent(pitTile, java.lang.System.currentTimeMillis());
+                        }
+                      });
+            });
   }
-
 
   /** Open pits that have been stepped on for more than their timeToOpen. */
   private void openPits() {
@@ -94,8 +95,8 @@ public class PitSystem extends System {
    */
   private PositionComponent getPositionComponent(Entity entity) {
     return entity
-      .fetch(PositionComponent.class)
-      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 
   /**

@@ -7,7 +7,6 @@ import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
-import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -154,15 +153,15 @@ public class ArrayIterateLevel extends AdvancedLevel {
 
   private void closeDoor(Point position) {
     Game.tileAT(position)
-      .filter(DoorTile.class::isInstance)
-      .map(DoorTile.class::cast)
-      .ifPresent(DoorTile::close);
+        .filter(DoorTile.class::isInstance)
+        .map(DoorTile.class::cast)
+        .ifPresent(DoorTile::close);
   }
 
   private void openDoor(Point position) {
     Game.tileAT(position)
-      .filter(DoorTile.class::isInstance)
-      .map(DoorTile.class::cast)
-      .ifPresent(DoorTile::open);
+        .filter(DoorTile.class::isInstance)
+        .map(DoorTile.class::cast)
+        .ifPresent(DoorTile::open);
   }
 }

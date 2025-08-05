@@ -141,19 +141,19 @@ public class FogOfWarSystem extends System {
    * Casts light in a specific octant for the fog of war system using recursive shadowcasting.
    *
    * <p>This method calculates which tiles are visible in a given direction (octant) from the hero's
-   * current position based on whether tiles are transparent (canSeeThrough). It stops when it hits a
-   * fully blocked line or reaches the given radius.
+   * current position based on whether tiles are transparent (canSeeThrough). It stops when it hits
+   * a fully blocked line or reaches the given radius.
    *
-   * @param row        The starting row for light casting (typically 1).
-   * @param start      The initial slope of the light beam.
-   * @param end        The ending slope of the light beam.
-   * @param radius     The maximum radius in tiles that light can travel.
+   * @param row The starting row for light casting (typically 1).
+   * @param start The initial slope of the light beam.
+   * @param end The ending slope of the light beam.
+   * @param radius The maximum radius in tiles that light can travel.
    * @param xx,xy,yx,yy Matrix multipliers for transforming the octant direction.
-   * @param heroPos    The position of the hero (light source).
+   * @param heroPos The position of the hero (light source).
    * @return A list of {@link Tile} objects that are visible in this octant.
    */
   private List<Tile> castLight(
-    int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
+      int row, float start, float end, int radius, int xx, int xy, int yx, int yy, Point heroPos) {
 
     List<Tile> visibleTiles = new ArrayList<>();
     if (start < end) {
@@ -203,8 +203,7 @@ public class FogOfWarSystem extends System {
         } else {
           if (!tile.canSeeThrough() && i < radius) {
             blocked = true;
-            visibleTiles.addAll(
-              castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
+            visibleTiles.addAll(castLight(i + 1, start, lSlope, radius, xx, xy, yx, yy, heroPos));
             newStart = rSlope;
           }
         }
@@ -298,15 +297,18 @@ public class FogOfWarSystem extends System {
           entity
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-      Game.tileAT(pc.position()).ifPresent(tile -> {
-        if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
-          DrawComponent dc =
-            entity
-              .fetch(DrawComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-          dc.setVisible(true);
-        }
-      });
+      Game.tileAT(pc.position())
+          .ifPresent(
+              tile -> {
+                if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
+                  DrawComponent dc =
+                      entity
+                          .fetch(DrawComponent.class)
+                          .orElseThrow(
+                              () -> MissingComponentException.build(entity, DrawComponent.class));
+                  dc.setVisible(true);
+                }
+              });
     }
   }
 
