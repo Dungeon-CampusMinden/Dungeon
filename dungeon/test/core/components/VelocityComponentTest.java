@@ -26,7 +26,7 @@ public class VelocityComponentTest {
   @Test
   void testDefaultConstructor() {
     VelocityComponent defaultComponent = new VelocityComponent();
-    assertEquals(Vector2.ZERO, defaultComponent.velocity());
+    assertEquals(Vector2.ZERO, defaultComponent.acceleration());
     assertEquals(Vector2.ZERO, defaultComponent.currentVelocity());
     assertFalse(defaultComponent.canEnterOpenPits());
     assertNotNull(defaultComponent.onWallHit());
@@ -38,7 +38,7 @@ public class VelocityComponentTest {
     Vector2 testVelocity = Vector2.of(5f, 2f);
     VelocityComponent component = new VelocityComponent(testVelocity);
 
-    assertEquals(testVelocity, component.velocity());
+    assertEquals(testVelocity, component.acceleration());
     assertEquals(Vector2.ZERO, component.currentVelocity());
     assertFalse(component.canEnterOpenPits());
     assertNotNull(component.onWallHit());
@@ -53,7 +53,7 @@ public class VelocityComponentTest {
     VelocityComponent component =
         new VelocityComponent(testVelocity, entity -> callbackExecuted.set(true), true);
 
-    assertEquals(testVelocity, component.velocity());
+    assertEquals(testVelocity, component.acceleration());
     assertEquals(Vector2.ZERO, component.currentVelocity());
     assertTrue(component.canEnterOpenPits());
 
@@ -76,12 +76,12 @@ public class VelocityComponentTest {
   /** Tests getting and setting the maximum velocity vector. */
   @Test
   void testVelocityGetterAndSetter() {
-    assertEquals(initialVelocity, velocityComponent.velocity());
+    assertEquals(initialVelocity, velocityComponent.acceleration());
 
     Vector2 newVelocity = Vector2.of(8f, 4f);
-    velocityComponent.velocity(newVelocity);
+    velocityComponent.acceleration(newVelocity);
 
-    assertEquals(newVelocity, velocityComponent.velocity());
+    assertEquals(newVelocity, velocityComponent.acceleration());
   }
 
   /** Tests getting and setting the wall hit callback function. */
@@ -104,10 +104,10 @@ public class VelocityComponentTest {
   @Test
   void testVectorOperationsWithDifferentComponents() {
     Vector2 asymmetricVelocity = Vector2.of(10f, 5f);
-    velocityComponent.velocity(asymmetricVelocity);
+    velocityComponent.acceleration(asymmetricVelocity);
 
-    assertEquals(10f, velocityComponent.velocity().x());
-    assertEquals(5f, velocityComponent.velocity().y());
+    assertEquals(10f, velocityComponent.acceleration().x());
+    assertEquals(5f, velocityComponent.acceleration().y());
 
     Vector2 negativeVelocity = Vector2.of(-3f, -7f);
     velocityComponent.currentVelocity(negativeVelocity);
@@ -119,10 +119,10 @@ public class VelocityComponentTest {
   /** Tests that zero vectors are handled correctly in all velocity properties. */
   @Test
   void testZeroVectorHandling() {
-    velocityComponent.velocity(Vector2.ZERO);
+    velocityComponent.acceleration(Vector2.ZERO);
     velocityComponent.currentVelocity(Vector2.ZERO);
 
-    assertEquals(Vector2.ZERO, velocityComponent.velocity());
+    assertEquals(Vector2.ZERO, velocityComponent.acceleration());
     assertEquals(Vector2.ZERO, velocityComponent.currentVelocity());
   }
 
@@ -130,19 +130,19 @@ public class VelocityComponentTest {
   @Test
   void testSmallVelocityValues() {
     Vector2 smallVelocity = Vector2.of(0.001f, 0.0001f);
-    velocityComponent.velocity(smallVelocity);
+    velocityComponent.acceleration(smallVelocity);
 
-    assertEquals(0.001f, velocityComponent.velocity().x(), 0.0001f);
-    assertEquals(0.0001f, velocityComponent.velocity().y(), 0.00001f);
+    assertEquals(0.001f, velocityComponent.acceleration().x(), 0.0001f);
+    assertEquals(0.0001f, velocityComponent.acceleration().y(), 0.00001f);
   }
 
   /** Tests that large velocity values are handled correctly without overflow. */
   @Test
   void testLargeVelocityValues() {
     Vector2 largeVelocity = Vector2.of(1000f, 999f);
-    velocityComponent.velocity(largeVelocity);
+    velocityComponent.acceleration(largeVelocity);
 
-    assertEquals(1000f, velocityComponent.velocity().x());
-    assertEquals(999f, velocityComponent.velocity().y());
+    assertEquals(1000f, velocityComponent.acceleration().x());
+    assertEquals(999f, velocityComponent.acceleration().y());
   }
 }

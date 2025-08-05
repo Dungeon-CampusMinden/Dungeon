@@ -87,7 +87,7 @@ public class Level022 extends BlocklyLevel {
     heroVC =
         hero.fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    bossVC.velocity(heroVC.velocity());
+    bossVC.acceleration(heroVC.acceleration());
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {

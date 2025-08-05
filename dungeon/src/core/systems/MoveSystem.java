@@ -26,11 +26,10 @@ public class MoveSystem extends System {
   private void updatePosition(MSData data) {
     Vector2 velocity = data.vc.currentVelocity();
 
-    float maxSpeed = Math.max(Math.abs(data.vc.velocity().x()), Math.abs(data.vc.velocity().y()));
     // Limit velocity to maxSpeed (primarily for diagonal movement)
-    if (velocity.length() > maxSpeed) {
+    if (velocity.length() > data.vc.maxSpeed()) {
       velocity = velocity.normalize();
-      velocity = velocity.scale(maxSpeed);
+      velocity = velocity.scale(data.vc.maxSpeed());
     }
     Vector2 sv = velocity;
     if (Gdx.graphics != null) {

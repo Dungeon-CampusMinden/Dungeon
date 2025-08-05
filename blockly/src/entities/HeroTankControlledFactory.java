@@ -66,10 +66,10 @@ public class HeroTankControlledFactory {
 
     Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, vc.velocity().y());
-      case DOWN -> newVelocity = Vector2.of(0, -vc.velocity().y());
-      case LEFT -> newVelocity = Vector2.of(-vc.velocity().x(), 0);
-      case RIGHT -> newVelocity = Vector2.of(vc.velocity().x(), 0);
+      case UP -> newVelocity = Vector2.of(0, vc.acceleration().y());
+      case DOWN -> newVelocity = Vector2.of(0, -vc.acceleration().y());
+      case LEFT -> newVelocity = Vector2.of(-vc.acceleration().x(), 0);
+      case RIGHT -> newVelocity = Vector2.of(vc.acceleration().x(), 0);
     }
     vc.currentVelocity(newVelocity);
   }

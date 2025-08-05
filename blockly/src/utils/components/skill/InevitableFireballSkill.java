@@ -62,7 +62,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .fetch(VelocityComponent.class)
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.velocity(defaultHeroSpeed);
+                    velocityComponent.acceleration(defaultHeroSpeed);
                   });
         },
         (projectile) -> {
@@ -71,7 +71,7 @@ public class InevitableFireballSkill extends DamageProjectile {
               .flatMap(hero -> hero.fetch(VelocityComponent.class))
               .ifPresent(
                   velocityComponent -> {
-                    velocityComponent.velocity(Vector2.ZERO);
+                    velocityComponent.acceleration(Vector2.ZERO);
                   });
           // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
           // freeze on the corner of the red zone

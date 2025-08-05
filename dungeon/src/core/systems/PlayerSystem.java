@@ -6,6 +6,8 @@ import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.utils.components.MissingComponentException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,6 +21,8 @@ import java.util.Map;
 public final class PlayerSystem extends System {
 
   private boolean running = true;
+  private List<Integer> pressed = new ArrayList();
+  private List<Integer> lastPressed = new ArrayList();
 
   /** WTF? . */
   public PlayerSystem() {
@@ -35,7 +39,28 @@ public final class PlayerSystem extends System {
         entity
             .fetch(PlayerComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PlayerComponent.class));
+
+    checkPressedKeys();
+    executeOnRelease(pc.releaseCallbacks(), entity, !this.running);
     execute(pc.callbacks(), entity, !this.running);
+    lastPressed = new ArrayList<>(pressed);
+  }
+
+  private void checkPressedKeys() {
+    pressed.clear();
+    // Check keys (loop through all possible key codes)
+    for (int keycode = 0; keycode < Input.Keys.MAX_KEYCODE; keycode++) {
+      if (Gdx.input.isKeyPressed(keycode)) {
+        pressed.add(keycode);
+      }
+    }
+
+    // Check mouse buttons
+    for (int button = Input.Buttons.LEFT; button <= Input.Buttons.BACK; button++) {
+      if (Gdx.input.isButtonPressed(button)) {
+        pressed.add(button);
+      }
+    }
   }
 
   @Override
@@ -81,6 +106,26 @@ public final class PlayerSystem extends System {
         isMouseButton ? Gdx.input.isButtonJustPressed(key) : Gdx.input.isKeyJustPressed(key);
 
     if ((isJustPressed && !data.repeat()) || (isPressed && data.repeat())) {
+      data.callback().accept(entity);
+    }
+  }
+
+  private void executeOnRelease(
+      final Map<Integer, PlayerComponent.InputData> callbacks,
+      final Entity entity,
+      boolean paused) {
+    callbacks.forEach(
+        (key, value) -> {
+          if (!paused || value.pauseable()) {
+            executeOnRelease(entity, key, value);
+          }
+        });
+  }
+
+  private void executeOnRelease(
+      final Entity entity, int key, final PlayerComponent.InputData data) {
+    if ((lastPressed.contains(key) && !pressed.contains(key))) {
+      java.lang.System.out.println(key + " was released");
       data.callback().accept(entity);
     }
   }

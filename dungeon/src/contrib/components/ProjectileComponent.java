@@ -2,6 +2,7 @@ package contrib.components;
 
 import core.Component;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
  * Marks an entity as a projectile.
@@ -27,7 +28,8 @@ import core.utils.Point;
  * @param goalLocation The point where the projectile should fly to.
  * @see contrib.utils.components.skill.DamageProjectile
  */
-public record ProjectileComponent(Point startPosition, Point goalLocation) implements Component {
+public record ProjectileComponent(Point startPosition, Point goalLocation, Vector2 speed)
+    implements Component {
 
   /**
    * Get the target position of the projectile.
@@ -47,5 +49,9 @@ public record ProjectileComponent(Point startPosition, Point goalLocation) imple
   @Override
   public Point startPosition() {
     return startPosition;
+  }
+
+  public Vector2 speed() {
+    return speed;
   }
 }
