@@ -21,6 +21,8 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 import level.devlevel.TorchRiddleLevel;
 import task.tasktype.Quiz;
+import java.util.Optional;
+
 
 /**
  * EntityUtils is a utility class that provides methods for spawning entities in the game. It
@@ -33,28 +35,24 @@ public class EntityUtils {
   private static final Logger LOGGER = Logger.getLogger(EntityUtils.class.getName());
 
   /**
-   * Spawns a monster of the given type at the given position and adds it to the game. The Position
-   * is cast to a Tile and the monster is spawned at the center of the tile.
+   * Spawns a monster of the given type at the given position and adds it to the game.
+   * The position is mapped to a tile, and the monster is spawned at the center of the tile.
    *
-   * @param monsterType the type of monster to spawn
-   * @param position the position to spawn the monster; the tile at the given point must be
-   *     accessible else the monster will not be spawned
-   * @return the spawned monster
-   * @throws MissingComponentException if the monster does not have a PositionComponent
-   * @throws RuntimeException if an error occurs while spawning the monster
-   * @see Game#add(Entity)
-   * @see MonsterType
+   * @param monsterType The type of monster to spawn.
+   * @param position The position at which to spawn the monster.
+   * @return The spawned monster or null if the tile is inaccessible or does not exist.
+   * @throws MissingComponentException If the monster does not have a PositionComponent.
+   * @throws RuntimeException If an error occurs while spawning the monster.
    */
   public static Entity spawnMonster(MonsterType monsterType, Point position) {
-    Tile tile = Game.tileAT(position);
-    if (tile == null || !tile.isAccessible()) {
+    Optional<Tile> optionalTile = Game.tileAT(position);
+    if (optionalTile.isEmpty() || !optionalTile.get().isAccessible()) {
       LOGGER.warning(
-          "Cannot spawn monster at "
-              + position
-              + " because the tile is not accessible or does not exist");
+        "Cannot spawn monster at " + position + " because the tile is not accessible or does not exist");
       return null;
     }
-    return spawnMonster(monsterType, tile.coordinate());
+
+    return spawnMonster(monsterType, optionalTile.get().coordinate());
   }
 
   /**
