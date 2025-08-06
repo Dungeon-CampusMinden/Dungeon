@@ -26,8 +26,16 @@ public class AIUtils {
     if (pathFinishedOrLeft(entity, path)) {
       return;
     }
-    PositionComponent pc = requirePosition(entity);
-    VelocityComponent vc = requireVelocity(entity);
+
+    PositionComponent pc =
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    VelocityComponent vc =
+      entity
+        .fetch(VelocityComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
     Tile currentTile = Game.tileAT(pc.position());
     Tile nextTile = findNextTile(path, currentTile);
@@ -82,18 +90,6 @@ public class AIUtils {
       .fetch(PositionComponent.class)
       .map(pc -> onPath(path, Game.tileAT(pc.position())))
       .orElse(true);
-  }
-
-  private static PositionComponent requirePosition(Entity entity) {
-    return entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-  }
-
-  private static VelocityComponent requireVelocity(Entity entity) {
-    return entity
-        .fetch(VelocityComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
   }
 
   private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
