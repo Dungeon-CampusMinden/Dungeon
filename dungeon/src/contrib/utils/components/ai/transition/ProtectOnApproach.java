@@ -35,10 +35,9 @@ public final class ProtectOnApproach implements Function<Entity, Boolean> {
    */
   @Override
   public Boolean apply(final Entity entity) {
-    if (isInFight) return true;
-
-    isInFight = LevelUtils.playerInRange(toProtect, range);
-
+    if (!isInFight) {
+      isInFight = LevelUtils.playerInRange(toProtect, range);
+    }
     return isInFight;
   }
 }
