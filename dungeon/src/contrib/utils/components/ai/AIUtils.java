@@ -63,8 +63,11 @@ public class AIUtils {
    * @return true if the entity is on the end of the path, otherwise false.
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc = requirePosition(entity);
-    return path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()));
+    if (path.getCount() == 0) return true;
+    return entity
+      .fetch(PositionComponent.class)
+      .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
+      .orElse(false);
   }
 
   /**
