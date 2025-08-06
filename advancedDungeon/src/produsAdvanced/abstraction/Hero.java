@@ -216,7 +216,9 @@ public class Hero {
    */
   public void destroyItemAt(Point point) {
     if (point == null) return;
-    Game.entityAtTile(Game.tileAT(point))
+    Tile tile = Game.tileAT(point).orElse(null);
+    if (tile == null) return;
+    Game.entityAtTile(tile)
         .filter(e -> e.isPresent(ItemComponent.class))
         .findFirst()
         .ifPresent(Game::remove);
