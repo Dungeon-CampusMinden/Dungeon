@@ -38,7 +38,7 @@ public final class WorldItemBuilder {
    */
   public static Entity buildWorldItem(final Item item, final Point position) {
     Entity droppedItem = buildWorldItem(item);
-    droppedItem.fetch(PositionComponent.class).ifPresent(pc -> pc.position(position));
+    droppedItem.applyIfPresent(PositionComponent.class, pc -> pc.position(position));
     return droppedItem;
   }
 }
