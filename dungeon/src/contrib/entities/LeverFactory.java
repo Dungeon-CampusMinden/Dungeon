@@ -10,7 +10,6 @@ import core.components.PositionComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -51,11 +50,7 @@ public class LeverFactory {
             DEFAULT_INTERACTION_RADIUS,
             true,
             (entity, who) -> {
-              LeverComponent lc =
-                  entity
-                      .fetch(LeverComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, LeverComponent.class));
+              LeverComponent lc = entity.fetchOrThrow(LeverComponent.class);
               lc.toggle();
             }));
     return lever;
@@ -226,10 +221,13 @@ public class LeverFactory {
           scheduledAction =
               EventScheduler.scheduleAction(
                   () ->
-                      lever
-                          .fetch(LeverComponent.class)
-                          .filter(LeverComponent::isOn)
-                          .ifPresent(LeverComponent::toggle),
+                      lever.applyIfPresent(
+                          LeverComponent.class,
+                          lc -> {
+                            if (lc.isOn()) {
+                              lc.toggle();
+                            }
+                          }),
                   timeInMs);
         }
       }
