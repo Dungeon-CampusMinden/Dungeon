@@ -29,7 +29,7 @@ public final class ProtectOnApproach implements Function<Entity, Boolean> {
   /**
    * If protecting entity isn't in fight mode yet, check if player is in range of the protected
    * entity.
-   *
+   * Once the entity enters fight mode, it stays in that state permanently.
    * @param entity Entity that is protecting.
    * @return true when the entity is in fight mode, else false.
    */
