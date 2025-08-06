@@ -146,63 +146,45 @@ public final class MiscFactory {
             defaultInteractionRadius,
             true,
             (interacted, interactor) -> {
-              interactor
-                  .fetch(InventoryComponent.class)
-                  .ifPresent(
-                      whoIc -> {
-                        UIComponent uiComponent =
-                            new UIComponent(
-                                new GUICombination(
-                                    new InventoryGUI(whoIc), new InventoryGUI("Chest", ic, 6)),
-                                true);
-                        uiComponent.onClose(
-                            () ->
-                                interacted
-                                    .fetch(DrawComponent.class)
-                                    .ifPresent(
-                                        interactedDC -> {
-                                          // remove all
-                                          // prior
-                                          // opened
-                                          // animations
-                                          interactedDC.deQueueByPriority(
-                                              ChestAnimations.OPEN_FULL.priority());
-                                          if (ic.count() > 0) {
-                                            // as long
-                                            // as
-                                            // there is
-                                            // an
-                                            // item
-                                            // inside
-                                            // the chest
-                                            // show a
-                                            // full
-                                            // chest
-                                            interactedDC.queueAnimation(ChestAnimations.OPEN_FULL);
-                                          } else {
-                                            // empty
-                                            // chest
-                                            // show the
-                                            // empty
-                                            // animation
-                                            interactedDC.queueAnimation(ChestAnimations.OPEN_EMPTY);
-                                          }
-                                        }));
-                        interactor.add(uiComponent);
-                      });
-              interacted
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      interactedDC -> {
-                        // only add opening animation when it is not
-                        // finished
-                        if (interactedDC
-                            .animation(ChestAnimations.OPENING)
-                            .map(animation -> !animation.isFinished())
-                            .orElse(true)) {
-                          interactedDC.queueAnimation(ChestAnimations.OPENING);
-                        }
-                      });
+              interactor.applyIfPresent(
+                  InventoryComponent.class,
+                  whoIc -> {
+                    UIComponent uiComponent =
+                        new UIComponent(
+                            new GUICombination(
+                                new InventoryGUI(whoIc), new InventoryGUI("Chest", ic, 6)),
+                            true);
+                    uiComponent.onClose(
+                        () ->
+                            interacted.applyIfPresent(
+                                DrawComponent.class,
+                                interactedDC -> {
+                                  // remove all prior opened animations
+                                  interactedDC.deQueueByPriority(
+                                      ChestAnimations.OPEN_FULL.priority());
+                                  if (ic.count() > 0) {
+                                    // as long as there is an item inside the chest show a full
+                                    // chest
+                                    interactedDC.queueAnimation(ChestAnimations.OPEN_FULL);
+                                  } else {
+                                    // empty chest show the empty animation
+                                    interactedDC.queueAnimation(ChestAnimations.OPEN_EMPTY);
+                                  }
+                                }));
+                    interactor.add(uiComponent);
+                  });
+              interacted.applyIfPresent(
+                  DrawComponent.class,
+                  interactedDC -> {
+                    // only add opening animation when it is not
+                    // finished
+                    if (interactedDC
+                        .animation(ChestAnimations.OPENING)
+                        .map(animation -> !animation.isFinished())
+                        .orElse(true)) {
+                      interactedDC.queueAnimation(ChestAnimations.OPENING);
+                    }
+                  });
             }));
     DrawComponent dc = new DrawComponent(new SimpleIPath("objects/treasurechest"));
     var mapping = dc.animationMap();
@@ -237,16 +219,16 @@ public final class MiscFactory {
             1f,
             true,
             (entity, who) ->
-                who.fetch(InventoryComponent.class)
-                    .ifPresent(
-                        ic -> {
-                          CraftingGUI craftingGUI = new CraftingGUI(ic);
-                          UIComponent component =
-                              new UIComponent(
-                                  new GUICombination(new InventoryGUI(ic), craftingGUI), true);
-                          component.onClose(craftingGUI::cancel);
-                          who.add(component);
-                        })));
+                who.applyIfPresent(
+                    InventoryComponent.class,
+                    ic -> {
+                      CraftingGUI craftingGUI = new CraftingGUI(ic);
+                      UIComponent component =
+                          new UIComponent(
+                              new GUICombination(new InventoryGUI(ic), craftingGUI), true);
+                      component.onClose(craftingGUI::cancel);
+                      who.add(component);
+                    })));
     return cauldron;
   }
 
@@ -291,14 +273,13 @@ public final class MiscFactory {
     TriConsumer<Entity, Entity, Direction> action =
         (you, other, direction) -> {
           if (!other.isPresent(CatapultableComponent.class)) return;
-          other
-              .fetch(VelocityComponent.class)
-              .ifPresent(
-                  vc -> {
-                    vc.currentVelocity(Vector2.ZERO);
-                    vc.clearForces();
-                  });
-          other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.deactivate().accept(other));
+          other.applyIfPresent(
+              VelocityComponent.class,
+              vc -> {
+                vc.currentVelocity(Vector2.ZERO);
+                vc.clearForces();
+              });
+          other.applyIfPresent(CatapultableComponent.class, cc -> cc.deactivate().accept(other));
           catapultFlyEntity(other, spawnPoint, location, speed);
         };
     catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER));
@@ -325,7 +306,7 @@ public final class MiscFactory {
    */
   private static void catapultFlyEntity(Entity other, Point start, Point goal, float speed) {
     Vector2 forceToApply = SkillTools.calculateDirection(start, goal).scale(speed);
-    VelocityComponent entityVc = other.fetch(VelocityComponent.class).orElse(null);
+    VelocityComponent entityVc = other.fetchOrNull(VelocityComponent.class);
     other.remove(VelocityComponent.class);
     VelocityComponent vc =
         new VelocityComponent(
@@ -359,7 +340,7 @@ public final class MiscFactory {
    * @param entityVc VelocityComponent restore to the entity
    */
   private static void resetCatapultedEntity(Entity other, VelocityComponent entityVc) {
-    other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.reactivate().accept(other));
+    other.applyIfPresent(CatapultableComponent.class, cc -> cc.reactivate().accept(other));
     other.remove(ProjectileComponent.class);
     other.remove(FlyComponent.class);
     if (entityVc != null) {
