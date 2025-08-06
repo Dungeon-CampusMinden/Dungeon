@@ -12,7 +12,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -217,12 +216,8 @@ public final class MonsterFactory {
   private static void playDeathSoundIfNearby(Sound deathSound, Entity e) {
     if (Game.hero().isEmpty()) return;
     Entity hero = Game.hero().get();
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    PositionComponent monsterPc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+    PositionComponent pc = hero.fetchOrThrow(PositionComponent.class);
+    PositionComponent monsterPc = e.fetchOrThrow(PositionComponent.class);
     if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
       playMonsterDieSound(deathSound);
     }
