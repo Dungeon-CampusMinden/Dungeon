@@ -73,10 +73,14 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   private void moveOutOfMinRange(Entity entity) {
-    Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
-    Point positionEntity = Game.positionOf(entity).orElseThrow();
-    path = findSafePath(entity, positionEntity, positionHero);
-    AIUtils.move(entity, path);
+    Game.hero()
+      .flatMap(Game::positionOf)
+      .ifPresent(positionHero ->
+        Game.positionOf(entity).ifPresent(positionEntity -> {
+          path = findSafePath(entity, positionEntity, positionHero);
+          AIUtils.move(entity, path);
+        })
+      );
   }
 
   private GraphPath<Tile> findSafePath(Entity entity, Point positionEntity, Point positionHero) {
