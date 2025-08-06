@@ -28,14 +28,14 @@ public class AIUtils {
     }
 
     PositionComponent pc =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     VelocityComponent vc =
-      entity
-        .fetch(VelocityComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
     Tile currentTile = Game.tileAT(pc.position());
     Tile nextTile = findNextTile(path, currentTile);
@@ -73,9 +73,9 @@ public class AIUtils {
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
     if (path.getCount() == 0) return true;
     return entity
-      .fetch(PositionComponent.class)
-      .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
-      .orElse(false);
+        .fetch(PositionComponent.class)
+        .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
+        .orElse(false);
   }
 
   /**
@@ -87,9 +87,9 @@ public class AIUtils {
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
     return entity
-      .fetch(PositionComponent.class)
-      .map(pc -> onPath(path, Game.tileAT(pc.position())))
-      .orElse(true);
+        .fetch(PositionComponent.class)
+        .map(pc -> onPath(path, Game.tileAT(pc.position())))
+        .orElse(true);
   }
 
   private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
