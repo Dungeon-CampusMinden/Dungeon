@@ -478,8 +478,8 @@ public final class Game {
    * @param point Point from where to get the tile
    * @return the tile at the given point.
    */
-  public static Tile tileAT(final Point point) {
-    return currentLevel().tileAt(point);
+  public static Optional<Tile> tileAT(final Point point) {
+    return Optional.ofNullable(currentLevel().tileAt(point));
   }
 
   /**
