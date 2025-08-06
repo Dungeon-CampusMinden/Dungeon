@@ -303,17 +303,16 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @return Whether the item was collected successfully.
    */
   public boolean collect(final Entity itemEntity, final Entity collector) {
-    return collector
-        .fetch(InventoryComponent.class)
-        .map(
-            inventoryComponent -> {
-              if (inventoryComponent.add(this)) {
-                Game.remove(itemEntity);
-                return true;
-              }
-              return false;
-            })
-        .orElse(false);
+    return collector.applyIfPresent(
+        InventoryComponent.class,
+        inventoryComponent -> {
+          if (inventoryComponent.add(this)) {
+            Game.remove(itemEntity);
+            return true;
+          }
+          return false;
+        },
+        false);
   }
 
   /**
@@ -323,7 +322,7 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @param user Entity that uses the item.
    */
   public void use(final Entity user) {
-    user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
+    user.applyIfPresent(InventoryComponent.class, component -> component.remove(this));
   }
 
   @Override
