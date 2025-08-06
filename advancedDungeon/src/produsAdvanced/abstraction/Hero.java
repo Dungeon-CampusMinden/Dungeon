@@ -179,7 +179,7 @@ public class Hero {
    */
   public Berry getBerryAt(Point point) {
     if (point == null) return null;
-    Tile t = Game.tileAT(point);
+    Tile t = Game.tileAT(point).orElse(null);
     if (t == null) return null;
     return (Berry)
         Game.entityAtTile(t)
