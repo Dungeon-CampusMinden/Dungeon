@@ -7,7 +7,6 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.BiConsumer;
@@ -59,11 +58,7 @@ public class SignFactory {
             DEFAULT_INTERACTION_RADIUS,
             true,
             (entity, who) -> {
-              SignComponent sc =
-                  entity
-                      .fetch(SignComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, SignComponent.class));
+              SignComponent sc = entity.fetchOrThrow(SignComponent.class);
               onInteract.accept(entity, who);
               sc.showDialog();
             }));
