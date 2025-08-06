@@ -66,13 +66,13 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
 
   private void handlePlayerInMaxAttackRange(Entity entity) {
     if (isPlayerInMinAttackRange(entity)) {
-      moveOutOfMinRange(entity);
+      moveAwayFromHero(entity);
     } else {
       useSkill(skill, entity);
     }
   }
 
-  private void moveOutOfMinRange(Entity entity) {
+  private void moveAwayFromHero(Entity entity) {
     Game.hero()
       .flatMap(Game::positionOf)
       .ifPresent(positionHero ->
