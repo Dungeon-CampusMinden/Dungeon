@@ -180,6 +180,9 @@ public final class HeroFactory {
     hero.add(col);
 
     PlayerComponent pc = new PlayerComponent();
+    hero.add(
+        new CatapultableComponent(
+            entity -> pc.deactivateControls(true), entity -> pc.deactivateControls(false)));
     hero.add(pc);
     InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
     hero.add(ic);

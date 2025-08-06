@@ -249,7 +249,8 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(new VelocityComponent(projectileSpeed, onWallHit, true));
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
-    projectile.add(new ProjectileComponent(startPoint, targetPoint, forceToApply));
+    projectile.add(
+        new ProjectileComponent(startPoint, targetPoint, forceToApply, p -> Game.remove(p)));
 
     // Create a collision handler for the projectile
     TriConsumer<Entity, Entity, Direction> collide =
