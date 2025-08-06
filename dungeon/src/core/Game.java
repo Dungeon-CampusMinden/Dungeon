@@ -498,10 +498,11 @@ public final class Game {
    * Get the next tile in the given direction from the specified coordinate.
    *
    * @param coordinate The starting coordinate
-   * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given coordinate in the specified direction.
+   * @param direction  The direction in which to find the next tile
+   * @return An {@link Optional} containing the tile that is the next tile from the given coordinate
+   *         in the specified direction, or {@link Optional#empty()} if there is no such tile.
    */
-  public static Tile tileAT(final Coordinate coordinate, Direction direction) {
+  public static Optional<Tile> tileAT(final Coordinate coordinate, Direction direction) {
     return tileAT(coordinate.translate(direction));
   }
 
