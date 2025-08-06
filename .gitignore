@@ -51,9 +51,13 @@ replay_pid*
 **/target/
 **/reports/
 .gradle/
-# don't ignore any gradle wrapper files
-!gradle/
 
+# User-specific files #
+#######################
+build.gradle
+gradle/
+gradlew
+escape-room/doc/analog_escape_room/git/artefacts/card_compiler.rb
 
 # Packages #
 ############

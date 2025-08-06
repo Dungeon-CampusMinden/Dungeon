@@ -1,8 +1,10 @@
 package core;
 
 import core.game.ECSManagment;
+import core.utils.components.MissingComponentException;
 import java.util.HashMap;
-import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -96,17 +98,39 @@ public final class Entity implements Comparable<Entity> {
     return false;
   }
 
-  /**
-   * Get the component.
-   *
-   * @param klass Class of the component.
-   * @param <T> The type of the (given and returned) component.
-   * @return Optional that can contain the requested component, is empty if this entity does not
-   *     store a component of the given class.
-   * @see Optional
-   */
-  public <T extends Component> Optional<T> fetch(final Class<T> klass) {
-    return Optional.ofNullable(klass.cast(components.get(klass)));
+  public <T extends Component> T fetchOrThrow(final Class<T> klass) {
+    if (!isPresent(klass)) {
+      throw MissingComponentException.build(this, klass);
+    }
+    return klass.cast(components.get(klass));
+  }
+
+  public <T extends Component> T fetchOrNull(final Class<T> klass) {
+    return applyIfPresent(klass, Function.identity(), null);
+  }
+
+  public <T extends Component> void applyIfPresent(
+      final Class<T> klass, final Consumer<T> function) {
+    if (isPresent(klass)) {
+      function.accept(klass.cast(components.get(klass)));
+    }
+  }
+
+  public <T extends Component, U> U applyIfPresent(
+      final Class<T> klass, final Function<T, U> function, final U defaultValue) {
+    if (isPresent(klass)) {
+      return function.apply(klass.cast(components.get(klass)));
+    }
+    return defaultValue;
+  }
+
+  public <T extends Component> void compute(
+      final Class<T> klass, final Consumer<T> ifPresent, final Runnable ifAbsent) {
+    if (isPresent(klass)) {
+      ifPresent.accept(klass.cast(components.get(klass)));
+    } else {
+      ifAbsent.run();
+    }
   }
 
   /**

@@ -13,9 +13,6 @@ allprojects {
     apply plugin: 'checkstyle'
 
     java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
-        }
         sourceCompatibility = JavaVersion.toVersion(21)
         targetCompatibility = JavaVersion.toVersion(21)
     }
