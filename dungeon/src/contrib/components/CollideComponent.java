@@ -7,7 +7,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 import java.util.logging.Logger;
 
@@ -172,11 +171,7 @@ public final class CollideComponent implements Component {
    * @return Bottom-left point of the entity's hitbox
    */
   public Point bottomLeft(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset);
+    return entity.fetchOrThrow(PositionComponent.class).position().translate(offset);
   }
 
   /**
@@ -186,11 +181,11 @@ public final class CollideComponent implements Component {
    * @return Top-right point of the entity's hitbox
    */
   public Point topRight(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset).translate(size);
+    return entity
+        .fetchOrThrow(PositionComponent.class)
+        .position()
+        .translate(offset)
+        .translate(size);
   }
 
   /**
@@ -200,11 +195,11 @@ public final class CollideComponent implements Component {
    * @return Center point of the entity's hitbox
    */
   public Point center(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset).translate(size.scale(0.5f));
+    return entity
+        .fetchOrThrow(PositionComponent.class)
+        .position()
+        .translate(offset)
+        .translate(size.scale(0.5f));
   }
 
   /**
