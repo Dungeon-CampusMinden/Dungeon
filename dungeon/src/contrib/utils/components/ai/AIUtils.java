@@ -75,9 +75,10 @@ public class AIUtils {
    * @return true if the entity has left the path, otherwise false.
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc = requirePosition(entity);
-    Tile currentTile = Game.tileAT(pc.position());
-    return !onPath(path, currentTile);
+    return entity
+      .fetch(PositionComponent.class)
+      .map(pc -> onPath(path, Game.tileAT(pc.position())))
+      .orElse(true);
   }
 
   private static PositionComponent requirePosition(Entity entity) {
@@ -104,9 +105,9 @@ public class AIUtils {
   private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
     for (Tile tile : path) {
       if (tile.equals(currentTile)) {
-        return true;
+        return false;
       }
     }
-    return false;
+    return true;
   }
 }
