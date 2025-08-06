@@ -527,7 +527,7 @@ public final class Game {
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
-    Tile tile = Game.tileAT(check.position());
+    Tile tile = Game.tileAT(check.position()).orElse(null);
     if (tile == null) return Stream.empty();
 
     return ECSManagment.entityStream(Set.of(PositionComponent.class))
@@ -538,7 +538,8 @@ public final class Game {
                         e.fetch(PositionComponent.class)
                             .orElseThrow(
                                 () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())));
+                            .position())
+                        .orElse(null)));
   }
 
   /**
