@@ -331,9 +331,10 @@ public interface ILevel extends IndexedGraph<Tile> {
   /**
    * Retrieves the tile on which the given entity is standing.
    *
-   * <p>The method fetches the position component of the entity using {@link Entity#fetch(Class)}
-   * and retrieves the corresponding tile using the position's coordinate. If the entity does not
-   * have a position component, a {@link MissingComponentException} is thrown.
+   * <p>The method fetches the position component of the entity using {@link
+   * Entity#fetchOrThrow(Class)} and retrieves the corresponding tile using the position's
+   * coordinate. If the entity does not have a position component, a {@link
+   * MissingComponentException} is thrown.
    *
    * @param entity The entity for which to retrieve the tile.
    * @return The tile at the coordinate of the entity's position.
@@ -341,11 +342,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    *     PositionComponent}.
    */
   default Tile tileAtEntity(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return tileAt(pc.position());
+    return tileAt(entity.fetchOrThrow(PositionComponent.class).position());
   }
 
   /**
