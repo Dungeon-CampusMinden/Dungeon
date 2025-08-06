@@ -158,19 +158,16 @@ public final class HeroFactory {
     CollideComponent col =
         new CollideComponent(
             (you, other, direction) ->
-                other
-                    .fetch(SpikyComponent.class)
-                    .ifPresent(
-                        spikyComponent -> {
-                          if (spikyComponent.isActive()) {
-                            hc.receiveHit(
-                                new Damage(
-                                    spikyComponent.damageAmount(),
-                                    spikyComponent.damageType(),
-                                    other));
-                            spikyComponent.activateCoolDown();
-                          }
-                        }),
+                other.applyIfPresent(
+                    SpikyComponent.class,
+                    spikyComponent -> {
+                      if (spikyComponent.isActive()) {
+                        hc.receiveHit(
+                            new Damage(
+                                spikyComponent.damageAmount(), spikyComponent.damageType(), other));
+                        spikyComponent.activateCoolDown();
+                      }
+                    }),
             CollideComponent.DEFAULT_COLLIDER);
     col.onHold(
         (you, other, direction) -> {
@@ -209,10 +206,8 @@ public final class HeroFactory {
                 SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
 
             Point heroPos =
-                innerHero
-                    .fetch(PositionComponent.class)
-                    .map(PositionComponent::position)
-                    .orElse(null);
+                innerHero.applyIfPresent(
+                    PositionComponent.class, PositionComponent::position, null);
             if (heroPos == null) return;
 
             GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePos);
@@ -231,11 +226,10 @@ public final class HeroFactory {
 
             // Stores the path in Hero's PathComponent
             GraphPath<Tile> finalPath = path;
-            innerHero
-                .fetch(PathComponent.class)
-                .ifPresentOrElse(
-                    pathComponent -> pathComponent.path(finalPath),
-                    () -> innerHero.add(new PathComponent(finalPath)));
+            innerHero.compute(
+                PathComponent.class,
+                pathComponent -> pathComponent.path(finalPath),
+                () -> innerHero.add(new PathComponent(finalPath)));
           },
           false);
     }
@@ -264,7 +258,7 @@ public final class HeroFactory {
     pc.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
         entity -> {
-          UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
+          UIComponent uiComponent = entity.fetchOrNull(UIComponent.class);
           if (uiComponent != null
               && uiComponent.dialog() instanceof GUICombination
               && !InventoryGUI.inHeroInventory) {
@@ -300,15 +294,7 @@ public final class HeroFactory {
                   .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
                   // that have a
                   // UIComponent
-                  .map(
-                      x ->
-                          new Tuple<>(
-                              x,
-                              x.fetch(UIComponent.class)
-                                  .orElseThrow(
-                                      () ->
-                                          MissingComponentException.build(
-                                              x, UIComponent.class)))) // create a tuple to
+                  .map(x -> new Tuple<>(x, x.fetchOrThrow(UIComponent.class))) // create a tuple to
                   // still have access to
                   // the UI Entity
                   .filter(x -> x.b().closeOnUICloseKey())
@@ -333,7 +319,7 @@ public final class HeroFactory {
       return;
     }
 
-    UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
+    UIComponent uiComponent = entity.fetchOrNull(UIComponent.class);
     if (uiComponent != null) {
       if (uiComponent.dialog() instanceof GUICombination) {
         InventoryGUI.inHeroInventory = false;
@@ -349,11 +335,7 @@ public final class HeroFactory {
     pc.registerCallback(
         key,
         entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
+          VelocityComponent vc = entity.fetchOrThrow(VelocityComponent.class);
 
           Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
           Vector2 newForce = STEP_SPEED.scale(direction);
@@ -367,7 +349,7 @@ public final class HeroFactory {
           }
 
           if (ENABLE_MOUSE_MOVEMENT) {
-            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
+            entity.applyIfPresent(PathComponent.class, PathComponent::clear);
           }
         });
   }
@@ -402,7 +384,7 @@ public final class HeroFactory {
   }
 
   private static void handleInteractWithClosestInteractable(Entity hero) {
-    UIComponent uiComponent = hero.fetch(UIComponent.class).orElse(null);
+    UIComponent uiComponent = hero.fetchOrNull(UIComponent.class);
     if (uiComponent != null && uiComponent.dialog() instanceof GUICombination) {
       // close the dialog if already open
       hero.remove(UIComponent.class);
@@ -411,19 +393,9 @@ public final class HeroFactory {
     Point mousePosition = SkillTools.cursorPositionAsPoint();
     Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
     if (interactable == null) return;
-    InteractionComponent ic =
-        interactable
-            .fetch(InteractionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, InteractionComponent.class));
-    PositionComponent pc =
-        interactable
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, PositionComponent.class));
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    InteractionComponent ic = interactable.fetchOrThrow(InteractionComponent.class);
+    PositionComponent pc = interactable.fetchOrThrow(PositionComponent.class);
+    PositionComponent heroPC = hero.fetchOrThrow(PositionComponent.class);
     if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius())
       ic.triggerInteraction(interactable, hero);
   }
@@ -442,8 +414,10 @@ public final class HeroFactory {
 
   private static void resolveCollisionWithMomentum(
       Entity hero, Entity other, Direction collisionDirection) {
-    Optional<VelocityComponent> optVc1 = hero.fetch(VelocityComponent.class);
-    Optional<VelocityComponent> optVc2 = other.fetch(VelocityComponent.class);
+    Optional<VelocityComponent> optVc1 =
+        Optional.ofNullable(hero.fetchOrNull(VelocityComponent.class));
+    Optional<VelocityComponent> optVc2 =
+        Optional.ofNullable(other.fetchOrNull(VelocityComponent.class));
 
     if (optVc1.isEmpty() || optVc2.isEmpty()) return;
 
