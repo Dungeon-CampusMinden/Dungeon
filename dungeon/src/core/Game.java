@@ -509,11 +509,12 @@ public final class Game {
   /**
    * Get the next tile in the given direction from the specified point.
    *
-   * @param point The starting point
+   * @param point     The starting point
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given point in the specified direction.
+   * @return An Optional containing the tile that is the next tile from the given point
+   *         in the specified direction, or empty if none exists.
    */
-  public static Tile tileAT(final Point point, Direction direction) {
+  public static Optional<Tile> tileAT(final Point point, Direction direction) {
     return tileAT(point.toCoordinate(), direction);
   }
 
