@@ -103,7 +103,7 @@ public final class PlayerComponent implements Component {
     callbacks.remove(key);
   }
 
-  /** Removes all register callbacks. */
+  /** Removes all registered callbacks. */
   public void removeCallbacks() {
     callbacks.clear();
   }

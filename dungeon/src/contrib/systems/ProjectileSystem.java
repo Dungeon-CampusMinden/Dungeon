@@ -38,7 +38,7 @@ public final class ProjectileSystem extends System {
         .map(this::applyForce)
         // Filter all entities that have reached their endpoint
         .filter(this::hasReachedEndpoint)
-        // Remove all entities who reached their endpoint
+        // Trigger endpoint-callback for all entities who reached their endpoint
         .forEach(this::executeEntitiesOnEndpoint);
   }
 
