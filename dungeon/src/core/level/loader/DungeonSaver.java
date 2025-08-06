@@ -2,6 +2,7 @@ package core.level.loader;
 
 import core.Game;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import java.util.ArrayList;

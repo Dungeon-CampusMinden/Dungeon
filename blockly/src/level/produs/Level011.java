@@ -6,11 +6,11 @@ import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
@@ -61,7 +61,7 @@ public class Level011 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(10, 7));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     if (showText) {
       DialogUtils.showTextPopup(
           "Hahahaha! An MIR kommst du NIE vorbei. GIB AUF!", "BOSS: Der Wärter");
@@ -70,14 +70,14 @@ public class Level011 extends BlocklyLevel {
 
     Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
 
-    Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
 
     Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
-    Entity s2 = MiscFactory.pressurePlate(customPoints().get(4).toCenteredPoint());
+    Entity s2 = LeverFactory.pressurePlate(customPoints().get(4).toCenteredPoint());
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
@@ -99,14 +99,14 @@ public class Level011 extends BlocklyLevel {
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.viewDirection(Direction.LEFT);
     guardBuilder.spawnPoint(customPoints().get(10).toCenteredPoint());
     guardBuilder.build();
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
     bossBuilder.addToGame();
-    bossBuilder.viewDirection(PositionComponent.Direction.UP);
+    bossBuilder.viewDirection(Direction.UP);
     bossBuilder.spawnPoint(customPoints().get(11).toCenteredPoint());
     Entity boss = bossBuilder.build().orElseThrow();
     boss.fetch(HealthComponent.class)

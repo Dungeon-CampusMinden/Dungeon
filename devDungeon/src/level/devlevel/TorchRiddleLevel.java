@@ -9,7 +9,6 @@ import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -20,10 +19,11 @@ import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import item.concreteItem.ItemResourceBerry;
 import java.util.*;
+import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.TorchRiddleRiddleHandler;
 
 /** The Torch Riddle Level. */
-public class TorchRiddleLevel extends DungeonLevel {
+public class TorchRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 12;

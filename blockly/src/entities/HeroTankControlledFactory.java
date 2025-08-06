@@ -1,12 +1,13 @@
 package entities;
 
+import client.Client;
 import contrib.entities.EntityFactory;
-import contrib.utils.Direction;
 import core.Entity;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
+import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class HeroTankControlledFactory {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    PositionComponent.Direction direction = pc.viewDirection();
+    Direction direction = pc.viewDirection();
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)
@@ -66,11 +67,11 @@ public class HeroTankControlledFactory {
 
     Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, vc.velocity().y());
-      case DOWN -> newVelocity = Vector2.of(0, -vc.velocity().y());
-      case LEFT -> newVelocity = Vector2.of(-vc.velocity().x(), 0);
-      case RIGHT -> newVelocity = Vector2.of(vc.velocity().x(), 0);
+      case UP -> newVelocity = Vector2.of(0, Client.MOVEMENT_FORCE.y());
+      case DOWN -> newVelocity = Vector2.of(0, -Client.MOVEMENT_FORCE.y());
+      case LEFT -> newVelocity = Vector2.of(-Client.MOVEMENT_FORCE.x(), 0);
+      case RIGHT -> newVelocity = Vector2.of(Client.MOVEMENT_FORCE.x(), 0);
     }
-    vc.currentVelocity(newVelocity);
+    vc.applyForce("MOVEMENT", newVelocity);
   }
 }

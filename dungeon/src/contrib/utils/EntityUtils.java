@@ -6,6 +6,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.function.BiConsumer;
@@ -150,7 +151,7 @@ public class EntityUtils {
    *
    * @return the direction the hero is facing, or null if there is no hero.
    */
-  public static PositionComponent.Direction getHeroViewDirection() {
+  public static Direction getHeroViewDirection() {
     // TODO: SMELL!
     // we really shouldn't return `null` if no hero was found, but `Optional.empty()` instead!
     // this approach has been chosen solely to ensure a symmetric modelling to the existing methods.
@@ -164,7 +165,7 @@ public class EntityUtils {
    * @param entity the entity to get the direction of
    * @return the direction the entity is facing
    */
-  public static PositionComponent.Direction getViewDirection(Entity entity) {
+  public static Direction getViewDirection(Entity entity) {
     return entity
         .fetch(PositionComponent.class)
         .map(PositionComponent::viewDirection)

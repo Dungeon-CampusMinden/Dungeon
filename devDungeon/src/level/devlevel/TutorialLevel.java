@@ -17,7 +17,6 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -29,9 +28,10 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.List;
+import level.DevDungeonLevel;
 
 /** The Tutorial Level. */
-public class TutorialLevel extends DungeonLevel {
+public class TutorialLevel extends DevDungeonLevel {
 
   // Entity spawn points
   private final Coordinate mobSpawn;

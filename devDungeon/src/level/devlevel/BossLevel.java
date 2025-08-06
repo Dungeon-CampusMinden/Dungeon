@@ -17,7 +17,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -29,10 +28,11 @@ import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
+import level.DevDungeonLevel;
 import systems.DevHealthSystem;
 
 /** The Final Boss Level. */
-public class BossLevel extends DungeonLevel implements IHealthObserver {
+public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   private static final MonsterType BOSS_TYPE = MonsterType.FINAL_BOSS;
   private static final int MIN_MOB_COUNT = 5;

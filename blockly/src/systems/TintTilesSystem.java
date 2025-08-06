@@ -1,7 +1,6 @@
 package systems;
 
 import components.TintDirectionComponent;
-import contrib.utils.Direction;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -9,6 +8,7 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;
 import java.util.Set;
@@ -126,9 +126,7 @@ public class TintTilesSystem extends System {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return new TintTileSystemData(
-        tintDirectionComponent,
-        Direction.fromPositionCompDirection(positionComponent.viewDirection()));
+    return new TintTileSystemData(tintDirectionComponent, positionComponent.viewDirection());
   }
 
   private record TintTileSystemData(

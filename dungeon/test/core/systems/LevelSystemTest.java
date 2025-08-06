@@ -9,8 +9,8 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
 import core.utils.IVoidFunction;
@@ -47,7 +47,7 @@ public class LevelSystemTest {
     when(textureMap.textureAt(any())).thenReturn(texture);
 
     onLevelLoader = Mockito.mock(IVoidFunction.class);
-    level = Mockito.mock(TileLevel.class);
+    level = Mockito.mock(DungeonLevel.class);
     api = new LevelSystem(onLevelLoader);
     Game.add(api);
   }

@@ -115,7 +115,7 @@ public enum MonsterType {
       "Orc Warrior",
       "character/monster/orc_warrior",
       8,
-      3.0f,
+      4f,
       0.1f,
       MonsterDeathSound.LOWER_PITCH,
       () -> new AIChaseBehaviour(0.5f),
@@ -166,7 +166,7 @@ public enum MonsterType {
       "Bridge Mob",
       "character/monster/orc_warrior",
       999, // immortal
-      3.5f,
+      4f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
       () -> new AIChaseBehaviour(0.5f),
@@ -181,7 +181,7 @@ public enum MonsterType {
       "Dark Goo",
       "character/monster/elemental_goo",
       12,
-      3.25f,
+      3.75f,
       0.1f,
       MonsterDeathSound.BASIC,
       () -> new AIChaseBehaviour(0.5f),
@@ -196,7 +196,7 @@ public enum MonsterType {
       "Small Dark Goo",
       "character/monster/elemental_goo_small",
       6,
-      4.0f,
+      5f,
       0.05f,
       MonsterDeathSound.HIGH_PITCH,
       () -> new AIChaseBehaviour(1f),
@@ -221,7 +221,7 @@ public enum MonsterType {
               new Skill(
                   new TPBallSkill(
                       SkillTools::heroPositionAsPoint,
-                      () -> LevelUtils.getRandomTPTargetForCurrentLevel()),
+                      LevelUtils::getRandomTPTargetForCurrentLevel),
                   AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(6, false),
@@ -249,7 +249,7 @@ public enum MonsterType {
       "Pumpkin Boi",
       "character/monster/pumpkin_dude",
       16,
-      7f,
+      6f,
       0.5f,
       MonsterDeathSound.LOW_PITCH,
       () ->

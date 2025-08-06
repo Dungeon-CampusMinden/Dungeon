@@ -23,6 +23,11 @@ import core.level.utils.Coordinate;
  * Vector2 scaled = position.scale(2.0f);
  * Vector2 rotated = direction.rotateDeg(90.0f);
  * }</pre>
+ *
+ * <p>For unit vectors, use {@link Direction} which provides predefined directions and convenience
+ * methods for working with cardinal directions.
+ *
+ * @see Direction
  */
 public interface Vector2 {
 
@@ -34,19 +39,6 @@ public interface Vector2 {
 
   /** Vector with maximum double values for both components. */
   Vector2 MAX = Vector2.of(Double.MAX_VALUE, Double.MAX_VALUE);
-
-  // TODO: Remove later with Direction enum
-  /** Unit vector pointing upward in 2D space. */
-  Vector2 UP = Vector2.of(0, 1);
-
-  /** Unit vector pointing downward in 2D space. */
-  Vector2 DOWN = Vector2.of(0, -1);
-
-  /** Unit vector pointing left in 2D space. */
-  Vector2 LEFT = Vector2.of(-1, 0);
-
-  /** Unit vector pointing right in 2D space. */
-  Vector2 RIGHT = Vector2.of(1, 0);
 
   /** A small tolerance for floating-point comparisons. */
   double EPSILON = 1e-9;
@@ -235,6 +227,46 @@ public interface Vector2 {
     double cos = Math.cos(radians);
     double sin = Math.sin(radians);
     return Vector2.of(x() * cos - y() * sin, x() * sin + y() * cos);
+  }
+
+  /**
+   * Returns a new vector pointing in the opposite direction.
+   *
+   * <p>Effectively, this scales both components of the vector by -1.
+   *
+   * @return A new vector which is the inverse of this vector
+   */
+  default Vector2 inverse() {
+    return this.scale(-1);
+  }
+
+  /**
+   * Determines the cardinal {@link Direction} based on the vector components.
+   *
+   * <p>This method computes the angle of the vector defined by the {@code x()} and {@code y()}
+   * components relative to the positive x-axis using {@link Math#atan2(float, float)}. The angle is
+   * measured in radians and ranges from -π to π.
+   *
+   * <p>Based on this angle, the method returns one of four cardinal directions: LEFT, DOWN, RIGHT,
+   * or UP. The full circle is divided into four equal sectors, each spanning π/2 radians, offset by
+   * π/4 radians to align the sectors with the directions.
+   *
+   * @return the {@link Direction} corresponding to the vector's angle
+   */
+  default Direction direction() {
+    float rads = (float) Math.atan2(y(), x());
+    double piQuarter = Math.PI / 4;
+    if (rads < 3 * -piQuarter) {
+      return Direction.LEFT;
+    } else if (rads < -piQuarter) {
+      return Direction.DOWN;
+    } else if (rads < piQuarter) {
+      return Direction.RIGHT;
+    } else if (rads < 3 * piQuarter) {
+      return Direction.UP;
+    } else {
+      return Direction.LEFT;
+    }
   }
 
   /**

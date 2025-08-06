@@ -19,6 +19,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -45,8 +46,8 @@ public class BossAttackSkills {
   /** Damage for the fireball skill that the boss uses. (default: 2) */
   private static final int FIREBALL_DAMAGE = 2;
 
-  /** Speed for the fireball skill that the boss uses. (default: 5.00f) */
-  private static final float FIREBALL_SPEED = 5.00f;
+  /** Speed for the fireball skill that the boss uses. (default: 4.50f) */
+  private static final float FIREBALL_SPEED = 4.50f;
 
   /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
   private static final float FIREBALL_MAX_RANGE = 25f;
@@ -251,7 +252,7 @@ public class BossAttackSkills {
             final int degree = i * 360 / totalFireBalls;
             EventScheduler.scheduleAction(
                 () -> {
-                  Vector2 direction = Vector2.UP.rotateDeg(degree);
+                  Vector2 direction = Direction.UP.rotateDeg(degree);
                   Point target = bossPos.translate(direction.scale(FIREBALL_MAX_RANGE * 0.5f));
                   launchFireBall(bossPos, target, bossPos, skillUser);
                 },

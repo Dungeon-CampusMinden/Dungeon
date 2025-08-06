@@ -3,7 +3,7 @@ package contrib.systems;
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
-import core.level.Tile;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
 import java.util.Map;
@@ -109,32 +109,23 @@ public final class CollisionSystem extends System {
       if (!collisions.containsKey(key)) {
         // a new collision should call the onEnter on both entities
         collisions.put(key, cdata);
-        Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+        Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
         cdata.a.onEnter(cdata.ea, cdata.eb, d);
-        cdata.b.onEnter(cdata.eb, cdata.ea, inverse(d));
+        cdata.b.onEnter(cdata.eb, cdata.ea, d.opposite());
+      }
+      // collision is ongoing
+      else {
+        Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+        cdata.a.onHold(cdata.ea, cdata.eb, d);
+        cdata.b.onHold(cdata.eb, cdata.ea, d.opposite());
       }
     } else if (collisions.remove(key) != null) {
       // a collision was happening and the two entities are no longer colliding, on Leave
       // called once
-      Tile.Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
+      Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
       cdata.a.onLeave(cdata.ea, cdata.eb, d);
-      cdata.b.onLeave(cdata.eb, cdata.ea, inverse(d));
+      cdata.b.onLeave(cdata.eb, cdata.ea, d.opposite());
     }
-  }
-
-  /**
-   * Simple Direction inversion.
-   *
-   * @param d Direction to inverse.
-   * @return The opposite direction.
-   */
-  Tile.Direction inverse(final Tile.Direction d) {
-    return switch (d) {
-      case N -> Tile.Direction.S;
-      case E -> Tile.Direction.W;
-      case S -> Tile.Direction.N;
-      case W -> Tile.Direction.E;
-    };
   }
 
   /**
@@ -166,7 +157,7 @@ public final class CollisionSystem extends System {
    * @param hitBox2 The second hitBox.
    * @return Tile direction for where hitBox2 is compared to hitBox1.
    */
-  Tile.Direction checkDirectionOfCollision(
+  Direction checkDirectionOfCollision(
       final Entity h1,
       final CollideComponent hitBox1,
       final Entity h2,
@@ -176,15 +167,15 @@ public final class CollisionSystem extends System {
     float rads = (float) Math.atan2(y, x);
     double piQuarter = Math.PI / 4;
     if (rads < 3 * -piQuarter) {
-      return Tile.Direction.W;
+      return Direction.LEFT;
     } else if (rads < -piQuarter) {
-      return Tile.Direction.N;
+      return Direction.DOWN;
     } else if (rads < piQuarter) {
-      return Tile.Direction.E;
+      return Direction.RIGHT;
     } else if (rads < 3 * piQuarter) {
-      return Tile.Direction.S;
+      return Direction.UP;
     } else {
-      return Tile.Direction.W;
+      return Direction.LEFT;
     }
   }
 

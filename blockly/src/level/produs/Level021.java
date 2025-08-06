@@ -10,8 +10,8 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
@@ -60,7 +60,7 @@ public class Level021 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.zoomOut();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
 
     Game.allTiles(LevelElement.PIT)
@@ -88,12 +88,12 @@ public class Level021 extends BlocklyLevel {
 
     // BOSS
     Coordinate c =
-        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Vector2.LEFT);
+        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Direction.LEFT);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
     bossBuilder.addToGame();
-    bossBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    bossBuilder.viewDirection(Direction.LEFT);
     bossBuilder.spawnPoint(c.toCenteredPoint());
     boss = bossBuilder.build().orElseThrow();
     bossPC =

@@ -31,27 +31,3 @@ tasks.register('runPathFindingComparison', JavaExec) {
     mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
-
-tasks.register('buildAdvancedDungeonJar', Jar) {
-    group 'jar'
-    dependsOn ':dungeon:jar'
-    archiveBaseName = 'AdvancedDungeon'
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'produsAdvanced.AdvancedDungeon'
-    }
-
-    archiveFileName = 'AdvancedDungeon.jar'
-
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-    }
-
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-}

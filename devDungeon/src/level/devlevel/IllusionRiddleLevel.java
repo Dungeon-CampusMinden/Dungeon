@@ -15,7 +15,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -25,13 +24,14 @@ import entities.levercommands.OpenPassageCommand;
 import item.concreteItem.ItemPotionSpeed;
 import java.util.*;
 import java.util.function.Consumer;
+import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.IllusionRiddleHandler;
 import level.utils.Teleporter;
 import systems.FogOfWarSystem;
 import systems.TeleporterSystem;
 
 /** The Illusion Riddle Level. TODO: Refactor this class */
-public class IllusionRiddleLevel extends DungeonLevel {
+public class IllusionRiddleLevel extends DevDungeonLevel {
 
   /** The types of monsters that can spawn in this level. */
   public static final MonsterType[] MONSTER_TYPES =

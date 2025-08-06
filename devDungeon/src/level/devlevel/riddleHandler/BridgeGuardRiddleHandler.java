@@ -18,7 +18,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.PitTile;
@@ -46,7 +46,7 @@ import utils.RegexRiddle;
  * reward.
  */
 public class BridgeGuardRiddleHandler implements IHealthObserver {
-  private final TileLevel level;
+  private final DungeonLevel level;
 
   // Spawn Points / Locations
   private final Coordinate[] bridgeBounds;
@@ -70,7 +70,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
    * @param customPoints The custom points of the level.
    * @param level The level of the riddle handler.
    */
-  public BridgeGuardRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public BridgeGuardRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
     this.level = level;
     this.bridgeBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
     this.bridgePitsBounds = new Coordinate[] {customPoints.get(2), customPoints.get(3)};

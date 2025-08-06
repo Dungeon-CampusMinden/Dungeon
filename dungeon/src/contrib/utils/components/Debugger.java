@@ -21,9 +21,9 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -72,10 +72,10 @@ public class Debugger {
             end -> {
               Coordinate endTile = end.coordinate();
               Coordinate[] neighborTiles = {
-                endTile.translate(Vector2.UP),
-                endTile.translate(Vector2.DOWN),
-                endTile.translate(Vector2.LEFT),
-                endTile.translate(Vector2.RIGHT),
+                endTile.translate(Direction.UP),
+                endTile.translate(Direction.DOWN),
+                endTile.translate(Direction.LEFT),
+                endTile.translate(Direction.RIGHT),
               };
               for (Coordinate neighborTile : neighborTiles) {
                 Tile neighbor = Game.tileAT(neighborTile);
@@ -167,7 +167,7 @@ public class Debugger {
       } catch (IOException e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
-      monster.add(new VelocityComponent(Vector2.ONE));
+      monster.add(new VelocityComponent(1));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(

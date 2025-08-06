@@ -7,11 +7,11 @@ import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.List;
@@ -68,7 +68,7 @@ public class Level004 extends BlocklyLevel {
     }
     cameraFocusOn(new Coordinate(12, 5));
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
     door1 = (DoorTile) Game.tileAT(new Coordinate(8, 3));
     door1.close();
@@ -76,7 +76,7 @@ public class Level004 extends BlocklyLevel {
     door1.close();
     door2.close();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
-    Entity s2 = MiscFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
+    Entity s2 = LeverFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));

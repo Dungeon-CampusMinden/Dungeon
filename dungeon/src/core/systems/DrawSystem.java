@@ -104,7 +104,7 @@ public final class DrawSystem extends System {
 
     drawLevel(Game.currentLevel());
     npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
-    players.forEach(entity -> draw(buildDataObject(entity)));
+    players.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
   }
 
   /**

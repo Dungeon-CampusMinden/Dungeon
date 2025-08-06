@@ -26,23 +26,6 @@ sourceSets.main.resources.srcDirs = ['assets/']
 sourceSets.test.java.srcDirs = ['test/']
 sourceSets.test.resources.srcDirs = ['test_resources/']
 
-// create our Starter.jar
-tasks.register('buildDungeonJar', Jar) {
-    group 'jar'
-    manifest {
-        attributes 'Main-Class': 'starter.Starter'
-    }
-    archiveFileName = 'Starter.jar'
-
-    from sourceSets.main.output
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*module-info.class'
-}
-
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'
     mainClass = 'starter.BasicStarter'
