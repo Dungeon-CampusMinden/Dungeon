@@ -12,8 +12,6 @@ import core.utils.components.path.IPath;
  *
  * <p>This class is a custom, easy-to-use API for LibGDX to draw systems.
  *
- * <p>Use {@link #draw(Point, IPath, PainterConfig)} to draw a sprite on the screen.
- *
  * <p>The Painter will only draw sprites that are currently visible on the camera. The Painter uses
  * the {@link TextureMap} to store already loaded textures to save performance and storage.
  *
@@ -44,29 +42,37 @@ public class Painter {
    * <p>Will only draw the texture if it's in the frustum of the camera.
    *
    * @param position Position of the texture in the game world.
-   * @param texturePath Path to the texture to draw.
+   * @param sprite Sprite to draw.
    * @param config Painting configuration.
+   * @param rotation Rotation in degree.
    */
-  public void draw(final Point position, final IPath texturePath, final PainterConfig config) {
+  public void draw(final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
     Point realPos = position.translate(config.offset());
     if (CameraSystem.isPointInFrustum(realPos)) {
-      Sprite sprite = new Sprite(TextureMap.instance().textureAt(texturePath));
+      // Size & Position
       sprite.setSize(config.scaling().x(), config.scaling().y());
       sprite.setPosition(realPos.x(), realPos.y());
 
-      // need to be called before drawing
-      batch.begin();
+      // Rotation
+      sprite.setOriginCenter();
+      sprite.setRotation(rotation);
 
-      // tint the sprite
+      // Tint
       if (config.tintColor() != -1) {
         Color color = Color.CLEAR;
         Color.rgba8888ToColor(color, config.tintColor());
         sprite.setColor(color);
+      } else {
+        sprite.setColor(Color.WHITE);
       }
 
       sprite.draw(batch);
-      // need to be called after drawing
-      batch.end();
     }
+  }
+  public void draw(final Point position, final Sprite sprite, final PainterConfig config) {
+    draw(position, sprite, config, 0);
+  }
+  public void draw(final Point position, final IPath path, final PainterConfig config) {
+    draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
   }
 }

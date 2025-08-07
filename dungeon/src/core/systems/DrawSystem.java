@@ -1,5 +1,6 @@
 package core.systems;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
 import core.Game;
@@ -12,7 +13,6 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.path.IPath;
@@ -60,11 +60,14 @@ public final class DrawSystem extends System {
    */
   private static final float Y_OFFSET = 0.25f;
 
+  private final TreeMap<Integer, List<DSData>> sortedEntities = new TreeMap<>();
   private final Map<IPath, PainterConfig> configs;
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
     super(DrawComponent.class, PositionComponent.class);
+    onEntityAdd = (e) -> onEntityChanged(e, true);
+    onEntityRemove = (e) -> onEntityChanged(e, false);
     configs = new HashMap<>();
   }
 
@@ -86,25 +89,74 @@ public final class DrawSystem extends System {
     return BATCH;
   }
 
+  private void onEntityChanged(Entity changed, boolean added){
+    DSData data = buildDataObject(changed);
+    int depth = data.dc.depth();
+    List<DSData> entitiesAtDepth = sortedEntities.get(depth);
+
+    if (entitiesAtDepth == null) {
+      if(added){
+        entitiesAtDepth = new ArrayList<>();
+        entitiesAtDepth.add(data);
+        sortedEntities.put(depth, entitiesAtDepth);
+      }
+    } else if (!entitiesAtDepth.contains(data) && added) {
+      entitiesAtDepth.add(data);
+    } else if(!added) {
+      entitiesAtDepth.remove(data);
+      if (entitiesAtDepth.isEmpty()) {
+        sortedEntities.remove(depth);
+      }
+    }
+  }
+
+  public void onEntityChangedDepth(Entity entity){
+    DSData data = buildDataObject(entity);
+    int oldDepth = Integer.MIN_VALUE;
+    int newDepth = data.dc.depth();
+
+    //Find entry in our map
+    for (Map.Entry<Integer, List<DSData>> entry : sortedEntities.entrySet()) {
+      if (entry.getValue().contains(data)) {
+        oldDepth = entry.getKey();
+      }
+    }
+
+    //Remove old entry
+    if(oldDepth != Integer.MIN_VALUE){
+      sortedEntities.get(oldDepth).remove(data);
+    }
+
+    //Add at new depth
+    List<DSData> entitiesAtDepth = sortedEntities.get(newDepth);
+    if (entitiesAtDepth == null) {
+      entitiesAtDepth = new ArrayList<>();
+      sortedEntities.put(newDepth, entitiesAtDepth);
+    } else {
+      entitiesAtDepth.add(data);
+    }
+  }
+
   /**
    * Will draw entities at their position with their current animation.
    *
    * <p>All entities with a {@link PlayerComponent} will be drawn on top.
    *
    * @see DrawComponent
-   * @see Animation
    */
   @Override
   public void execute() {
-    Map<Boolean, List<Entity>> partitionedEntities =
-        filteredEntityStream(DrawComponent.class, PositionComponent.class)
-            .collect(Collectors.partitioningBy(entity -> entity.isPresent(PlayerComponent.class)));
-    List<Entity> players = partitionedEntities.get(true);
-    List<Entity> npcs = partitionedEntities.get(false);
+    BATCH.setProjectionMatrix(CameraSystem.camera().combined);
+    BATCH.begin();
 
     drawLevel(Game.currentLevel());
-    npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
-    players.forEach(entity -> draw(buildDataObject(entity)));
+
+    sortedEntities.values().stream()
+      .flatMap(list -> list.stream().sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
+      .filter(this::shouldDraw)
+      .forEach(this::draw);
+
+    BATCH.end();
   }
 
   /**
@@ -115,83 +167,25 @@ public final class DrawSystem extends System {
    *   <li>The entity itself is visible
    * </ol>
    *
-   * @param entity the entity to check
+   * @param data the entity to check
    * @return true if the entity should be drawn, false otherwise
    * @see DrawComponent#isVisible()
    */
-  private boolean shouldDraw(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-
-    if (Game.currentLevel().tileAt(pc.position()) == null) {
-      return false;
-    }
-
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    if (!dc.isVisible()) return false;
-
-    Tile tile = Game.currentLevel().tileAt(pc.position());
+  private boolean shouldDraw(DSData data) {
+    Tile tile = Game.currentLevel().tileAt(data.pc.position());
+    if (tile == null) return false;
+    if(!data.dc.isVisible()) return false;
     return tile.visible();
   }
 
   private void draw(final DSData dsd) {
-    reduceFrameTimer(dsd.dc);
-    setNextAnimation(dsd.dc);
-    final Animation animation = dsd.dc.currentAnimation();
-    IPath currentAnimationTexture = animation.nextAnimationTexturePath();
-    if (!configs.containsKey(currentAnimationTexture)) {
-      configs.put(
-          currentAnimationTexture,
-          new PainterConfig(currentAnimationTexture, 0, 0, dsd.dc.tintColor()));
+    dsd.dc.update();
+    Sprite sprite = dsd.dc.getSprite();
+    PainterConfig conf = new PainterConfig(0, 0, dsd.dc.getSpriteWidth(), dsd.dc.getSpriteHeight(), dsd.dc.tintColor());
+    if(dsd.dc.currentAnimation().getConfig().centered()){
+      conf = new PainterConfig(-dsd.dc.getSpriteWidth() / 2, -dsd.dc.getSpriteHeight() / 2, dsd.dc.getSpriteWidth(), dsd.dc.getSpriteHeight(), dsd.dc.tintColor());
     }
-    PainterConfig conf = this.configs.get(currentAnimationTexture);
-    conf.tintColor(dsd.dc.tintColor());
-    PAINTER.draw(dsd.pc.position(), currentAnimationTexture, conf);
-  }
-
-  /**
-   * Reduce the frame timer for each animation in the queue, remove animations that have a frame
-   * time < 0.
-   *
-   * @param dc Component to iterate over
-   */
-  private void reduceFrameTimer(final DrawComponent dc) {
-    // iterate through animationQueue
-    for (Map.Entry<IPath, Integer> entry : dc.animationQueue().entrySet()) {
-      // reduce remaining frame time of animation by 1
-      entry.setValue(entry.getValue() - 1);
-    }
-    // remove animations when there is no remaining frame time
-    dc.animationQueue().entrySet().stream()
-        .filter(x -> x.getValue() < 0)
-        .forEach(x -> dc.deQueue(x.getKey()));
-  }
-
-  /**
-   * Checks the status of animations in the animationQueue and selects the next animation by
-   * priority.
-   *
-   * @param dc DrawComponent to draw
-   */
-  private void setNextAnimation(final DrawComponent dc) {
-
-    Optional<Map.Entry<IPath, Integer>> highestFind =
-        dc.animationQueue().entrySet().stream()
-            .max(Comparator.comparingInt(x -> x.getKey().priority()));
-
-    // when there is an animation load it
-    if (highestFind.isPresent()) {
-      IPath highestPrio = highestFind.get().getKey();
-      // making sure the animation exists
-      dc.animationMap().get(highestPrio.pathString());
-      // changing the Animation
-      dc.currentAnimation(highestPrio);
-    }
+    PAINTER.draw(dsd.pc.position(), sprite, conf, dsd.pc.rotation());
   }
 
   /** DrawSystem can't be paused. */
@@ -200,15 +194,14 @@ public final class DrawSystem extends System {
     run = true;
   }
 
+  /**
+   * Builds the data record used by this system.
+   * @param entity The entity with a DrawComponent and a PositionComponent
+   * @return The data record
+   */
   private DSData buildDataObject(final Entity entity) {
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    DrawComponent dc = entity.fetch(DrawComponent.class).get();
+    PositionComponent pc = entity.fetch(PositionComponent.class).get();
     return new DSData(entity, dc, pc);
   }
 

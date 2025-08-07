@@ -43,7 +43,7 @@ public final class PainterConfig {
     this(TextureMap.instance().textureAt(texturePath));
   }
 
-  private PainterConfig(
+  public PainterConfig(
       float xOffset, float yOffset, float xScaling, float yScaling, int tintColor) {
     this.offset = Vector2.of(xOffset, yOffset);
     this.scaling = Vector2.of(xScaling, yScaling);
