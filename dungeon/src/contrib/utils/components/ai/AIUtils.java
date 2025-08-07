@@ -88,7 +88,7 @@ public class AIUtils {
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
     return entity
         .fetch(PositionComponent.class)
-        .map(pc -> onPath(path, Game.tileAT(pc.position())))
+        .map(pc -> !onPath(path, Game.tileAT(pc.position())))
         .orElse(true);
   }
 
@@ -104,9 +104,9 @@ public class AIUtils {
   private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
     for (Tile tile : path) {
       if (tile.equals(currentTile)) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 }
