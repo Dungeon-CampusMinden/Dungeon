@@ -47,7 +47,7 @@ public class LevelUtils {
    * @return true if the tile at the given coordinate is accessible, false otherwise.
    */
   public static boolean isWalkable(Coordinate coord) {
-    Tile tile = Game.tileAT(coord);
+    Tile tile = Game.tileAT(coord).orElse(null);
     return tile != null && tile.isAccessible();
   }
 
