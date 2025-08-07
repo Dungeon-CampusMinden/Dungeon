@@ -109,6 +109,13 @@ public class AIUtils {
     return null;
   }
 
+  /**
+   * Checks if the current tile is on the given path.
+   *
+   * @param path The path to be checked.
+   * @param currentTile The tile to look for on the path.
+   * @return true if the current tile is on the path, otherwise false.
+   */
   private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
     for (Tile tile : path) {
       if (tile.equals(currentTile)) {
