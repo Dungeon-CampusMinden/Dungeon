@@ -76,8 +76,8 @@ public class MoveSystem extends System {
       Point xMove = new Point(newPos.x(), oldPos.y());
       Point yMove = new Point(oldPos.x(), newPos.y());
 
-      boolean xAccessible = isAccessible(Game.tileAT(xMove), canEnterOpenPits);
-      boolean yAccessible = isAccessible(Game.tileAT(yMove), canEnterOpenPits);
+      boolean xAccessible = isAccessible(Game.tileAT(xMove).orElse(null), canEnterOpenPits);
+      boolean yAccessible = isAccessible(Game.tileAT(yMove).orElse(null), canEnterOpenPits);
 
       if (xAccessible) {
         if (isPathClearByStepping(oldPos, xMove, canEnterOpenPits)) data.pc.position(xMove);
