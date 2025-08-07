@@ -161,10 +161,10 @@ public class FogSystem extends System {
         } else {
           // Our light beam is touching this square; light it
           if (dx * dx + dy * dy < radius * radius) {
-            Tile tile = Game.tileAT(new Point(X, Y));
+            Tile tile = Game.tileAT(new Point(X, Y)).orElse(null);
             visibleTiles.add(tile);
           }
-          Tile tile = Game.tileAT(new Point(X, Y));
+          Tile tile = Game.tileAT(new Point(X, Y)).orElse(null);
           if (tile == null) {
             continue;
           }
