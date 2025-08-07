@@ -119,7 +119,7 @@ public class MoveSystem extends System {
 
     // Step from start to end and check each tile along the way
     for (float traveled = 0; traveled <= distance; traveled += step.length()) {
-      Tile tile = Game.tileAT(current);
+      Tile tile = Game.tileAT(current).orElse(null);
       if (!isAccessible(tile, canEnterPitTiles)) {
         return false;
       }
@@ -127,7 +127,7 @@ public class MoveSystem extends System {
     }
 
     // Ensure that the final destination tile is also checked
-    return isAccessible(Game.tileAT(to), canEnterPitTiles);
+    return isAccessible(Game.tileAT(to).orElse(null), canEnterPitTiles);
   }
 
   /**
