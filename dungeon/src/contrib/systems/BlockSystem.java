@@ -77,8 +77,8 @@ public final class BlockSystem extends System {
     Point currentP = data.pc.position();
     Point oldP = oldPositions.get(data.pc);
     if (currentP.equals(oldP)) return;
-    ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP));
-    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP));
+    ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP).orElse(null));
+    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP).orElse(null));
     oldPositions.put(data.pc, currentP);
   }
 
