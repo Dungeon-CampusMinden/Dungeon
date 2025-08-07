@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import core.level.Tile;
+
 /**
  * Abstract class that represents every item in the game.
  *
@@ -293,7 +295,8 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @return Whether the item was dropped successfully.
    */
   public boolean drop(final Point position) {
-    if (Game.tileAT(position) instanceof FloorTile) {
+    Tile tile = Game.tileAT(position).orElse(null);
+    if (tile instanceof FloorTile) {
       Game.add(WorldItemBuilder.buildWorldItem(this, position));
       return true;
     }
