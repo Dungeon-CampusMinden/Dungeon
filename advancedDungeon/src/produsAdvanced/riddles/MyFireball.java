@@ -31,10 +31,13 @@ public class MyFireball extends Fireball {
    * passieren soll, wenn sie vom Feuerball getroffen wird. Zum Beispiel könntest du:
    *
    * <ul>
-   *   <li>Die Beere verschwinden lassen
    *   <li>Ausgeben, ob die Beere giftig ist
+   *   <li>Die Beere einfärben
    *   <li>Das Aussehen der Beere ändern
+   *   <li>Die Beere verschwinden lassen
    * </ul>
+   *
+   * <p>Du weißt nicht wie du das anstellen sollst? Schau dir die Methoden in der Klasse Berry an!
    *
    * @param berry Die Beere, die vom Feuerball getroffen wurde.
    */

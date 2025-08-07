@@ -61,15 +61,17 @@ public class AdvancedSortLevel extends AdvancedLevel {
   private static final List<String> messages =
       Arrays.asList(
           "Betätige den Schalter und schau was passiert.",
-          "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht.",
+          "Du musst das Array MyMonsterArray in der Klasse MyMonsterSort sortieren, damit die Tür aufgeht. Wie das wohl geht?",
           "Sortiere die Monster im Array nach ihren Lebenspunkten. Das Kleinste soll dir am nächsten stehen.",
-          "Die Lebenspunkte der Monster erhältst du mit '.hp()' für ein Monster aus dem Array.",
-          "Du musst auch die Positionen der Monster tauschen.",
-          "Mit '.swapPosition()' kannst du zwei Monster vertauschen.");
+          "Die Lebenspunkte der Monster erhältst du mit '.getHealthPoints()' für ein Monster aus dem Array.",
+          "Immer wenn du zwei Monster im Array tauschst, musst du auch ihre visuellen Positionen im Spiel tauschen! Nutze dafür die swapPosition() Methode.",
+          "Wichtig: Rufe swapPosition() auf dem ERSTEN Monster auf und übergib das ZWEITE als Parameter.",
+          "Denke daran: Nach jedem Tausch im Array auch swapPosition() aufrufen!");
 
   // todo build dynamically
   private static final List<String> titles =
       Arrays.asList(
+          "noch sechs Hinweise",
           "noch fünf Hinweise",
           "noch vier Hinweise",
           "noch drei Hinweise",
@@ -77,6 +79,8 @@ public class AdvancedSortLevel extends AdvancedLevel {
           "noch ein Hinweis",
           "letzter Hinweis");
   AtomicInteger currentIndex = new AtomicInteger(-1);
+
+  private boolean isSorting = false;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -99,8 +103,9 @@ public class AdvancedSortLevel extends AdvancedLevel {
         new ICommand() {
           @Override
           public void execute() {
-            if (!isLeverActivated) {
+            if (!isLeverActivated && !isSorting) {
               isLeverActivated = true;
+              isSorting = true;
               checkPlayerSolution();
             }
           }
@@ -182,6 +187,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
           }
           EventScheduler.clear();
           delay_multiplication = 0;
+          isSorting = false;
         },
         DELAY_UNTINT * (delay_multiplication - 1) + 100);
   }
