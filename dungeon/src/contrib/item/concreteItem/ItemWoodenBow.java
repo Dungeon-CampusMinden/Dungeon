@@ -22,7 +22,7 @@ import core.utils.components.path.SimpleIPath;
 /**
  * This item is a bow. It can be used to shoot arrows, if any are stored in the inventory.
  *
- * <p>Registers and removes the callback for the second_skill
+ * <p>Registers and removes the callback for the second_skill.
  */
 public class ItemWoodenBow extends Item {
   /** The default texture for all health potions. */
@@ -33,7 +33,8 @@ public class ItemWoodenBow extends Item {
   private static Skill BOW_SKILL =
       new Skill(new BowSkill(SkillTools::cursorPositionAsPoint), BOW_COOLDOWN);
 
-  public ItemWoodenBow(int arrow_amount) {
+  /** Create a {@link Item} that looks like a bow and can be collected to unlock the BOW_SKILL. */
+  public ItemWoodenBow() {
     super(
         "Wooden Bow", "It needs arrows as ammunition", Animation.fromSingleImage(DEFAULT_TEXTURE));
   }

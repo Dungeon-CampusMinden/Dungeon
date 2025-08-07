@@ -11,8 +11,19 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.List;
 
+/**
+ * This level can be used for testing new implementations of items, skills, monsters and more.
+ */
 public class TestingGroundsLevel extends DungeonLevel {
 
+  /**
+   * Call the parent constructor of a tile level with the given layout and design label. Set the
+   * start tile of the hero to the given heroPos.
+   *
+   * @param layout 2D array containing the tile layout.
+   * @param designLabel The design label for the level.
+   * @param customPoints The custom points of the level.
+   */
   public TestingGroundsLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints);
@@ -20,7 +31,7 @@ public class TestingGroundsLevel extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    Item bow = new ItemWoodenBow(0);
+    Item bow = new ItemWoodenBow();
     Item arrow1 = new ItemWoodenArrow();
     Item arrow2 = new ItemWoodenArrow();
     Point bowSpawnPoint = new Point(5, 5);

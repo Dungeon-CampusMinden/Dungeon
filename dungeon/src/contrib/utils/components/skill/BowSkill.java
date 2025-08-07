@@ -29,11 +29,29 @@ public class BowSkill extends DamageProjectile {
   private static final DamageType DAMAGE_TYPE = DamageType.PHYSICAL;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
 
+  /**
+   * Create a {@link DamageProjectile} that looks like an arrow and will cause physical damage.
+   *
+   * @param targetSelection A function used to select the point where the projectile should fly to.
+   * @see DamageProjectile
+   */
   public BowSkill(final Supplier<Point> targetSelection) {
     this(
         targetSelection, DEFAULT_PROJECTILE_RANGE, DEFAULT_PROJECTILE_SPEED, DEFAULT_DAMAGE_AMOUNT);
   }
 
+  /**
+   * Creates a new BowSkill with the specified target selection, range, speed, and damage amount.
+   * The target selection is a function used to select the point where the projectile should fly to.
+   * The range is the maximum distance the projectile can travel. The speed is the speed at which
+   * the projectile travels. The damage amount is the amount of damage the projectile will deal upon
+   * impact.
+   *
+   * @param targetSelection A function used to select the point where the projectile should fly to.
+   * @param range The maximum distance the projectile can travel.
+   * @param speed The speed at which the projectile travels.
+   * @param damageAmount The amount of damage the projectile will deal upon impact.
+   */
   public BowSkill(
       final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
     super(
