@@ -289,7 +289,7 @@ public class FogSystem extends System {
     revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
-    visibleTiles.add(Game.tileAT(heroPos));
+    visibleTiles.add(Game.tileAT(heroPos).orElse(null));
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(
