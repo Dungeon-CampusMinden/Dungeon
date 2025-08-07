@@ -25,7 +25,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.utils.*;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -306,11 +305,7 @@ public class InventoryGUI extends CombinableGUI {
                   .drop(
                       Game.hero()
                           .orElseThrow(MissingHeroException::new)
-                          .fetch(PositionComponent.class)
-                          .orElseThrow(
-                              () ->
-                                  MissingComponentException.build(
-                                      Game.hero().get(), PositionComponent.class))
+                          .fetchOrThrow(PositionComponent.class)
                           .position());
             }
           }
@@ -385,8 +380,7 @@ public class InventoryGUI extends CombinableGUI {
                   return false;
                 }
 
-                UIComponent uiComponent =
-                    Game.hero().flatMap(e -> e.fetch(UIComponent.class)).orElse(null);
+                UIComponent uiComponent = Game.hero().orElseThrow().fetchOrNull(UIComponent.class);
                 if (uiComponent != null
                     && uiComponent.dialog() instanceof GUICombination guiCombination) {
                   // if two inventories are open, transfer items between them if key is pressed
