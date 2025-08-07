@@ -164,6 +164,16 @@ public final class InventoryComponent implements Component {
   }
 
   /**
+   * Searches the Inventory for an item of the given class and returns it.
+   *
+   * @param klass The class of the item to search for.
+   * @return the found item of the given class or null if no item found.
+   */
+  public Item getItemOfClass(final Class<? extends Item> klass) {
+    return Arrays.stream(this.inventory).filter(klass::isInstance).findFirst().orElse(null);
+  }
+
+  /**
    * Transfer the given item from this inventory to the given inventory.
    *
    * <p>If the given item is not present in this inventory or the other inventory is full, the

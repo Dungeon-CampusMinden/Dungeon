@@ -1,7 +1,7 @@
 package client;
 
 import com.sun.net.httpserver.HttpServer;
-import components.AmmunitionComponent;
+import contrib.components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;

@@ -2,10 +2,10 @@ package utils;
 
 import client.Client;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
+import contrib.components.AmmunitionComponent;
 import contrib.components.BlockComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.FireballSkill;

@@ -8,7 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import components.AmmunitionComponent;
+import contrib.components.AmmunitionComponent;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;

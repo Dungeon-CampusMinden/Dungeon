@@ -1,7 +1,7 @@
 package level.produs;
 
-import components.AmmunitionComponent;
 import contrib.components.AIComponent;
+import contrib.components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
 import core.components.PositionComponent;
