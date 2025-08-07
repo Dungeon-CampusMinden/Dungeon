@@ -67,11 +67,11 @@ public class AIUtils {
    *     present; otherwise false.
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
-    if (path.getCount() == 0) return true;
-    return entity
-        .fetch(PositionComponent.class)
-        .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
-        .orElse(false);
+    return path.getCount() == 0
+        || entity
+            .fetch(PositionComponent.class)
+            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
+            .orElse(false);
   }
 
   /**
