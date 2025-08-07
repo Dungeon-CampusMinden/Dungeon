@@ -95,7 +95,7 @@ public final class LevelSystem extends System {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(pc.position());
+    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
     if (currentTile == null) {
       return false;
     }
