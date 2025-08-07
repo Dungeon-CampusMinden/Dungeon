@@ -78,7 +78,7 @@ public class Debugger {
                 endTile.translate(Direction.RIGHT),
               };
               for (Coordinate neighborTile : neighborTiles) {
-                Tile neighbor = Game.tileAT(neighborTile);
+                Tile neighbor = Game.tileAT(neighborTile).orElse(null);
                 if (neighbor.isAccessible()) {
                   TELEPORT(neighbor);
                   return;
