@@ -27,17 +27,12 @@ public class AIUtils {
       return;
     }
 
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-    Tile currentTile = Game.tileAT(pc.position());
+    Tile currentTile = Game.tileAtEntity(entity);
     Tile nextTile = findNextTile(path, currentTile);
 
     // currentTile not in path
