@@ -34,7 +34,7 @@ public final class AIUtils {
         entity
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Tile currentTile = Game.tileAT(pc.position());
+    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
     int i = 0;
     Tile nextTile = null;
     while (nextTile == null && i < path.getCount()) {
