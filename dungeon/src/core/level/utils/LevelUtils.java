@@ -169,7 +169,7 @@ public final class LevelUtils {
     Set<Tile> tiles = new HashSet<>();
     // BFS queue
     Queue<Tile> tileQueue = new ArrayDeque<>();
-    Tile start = Game.tileAT(center);
+    Tile start = Game.tileAT(center).orElse(null); // Änderung hier
     if (start != null) tileQueue.add(start);
     while (tileQueue.size() > 0) {
       Tile current = tileQueue.remove();
