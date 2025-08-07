@@ -46,8 +46,8 @@ public final class LevelUtils {
    * @return Path from the start coordinate to the end coordinate.
    */
   public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
-    Tile fromTile = Game.tileAT(from);
-    Tile toTile = Game.tileAT(to);
+    Tile fromTile = Game.tileAT(from).orElse(null);
+    Tile toTile = Game.tileAT(to).orElse(null);
     if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
     if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
     return Game.findPath(fromTile, toTile);
