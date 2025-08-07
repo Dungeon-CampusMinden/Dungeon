@@ -12,8 +12,7 @@ import java.util.function.Consumer;
  *
  * @see ISkillUser
  */
-public class AIMeleeBehaviour implements Consumer<Entity>, ISkillUser {
-  private final AIChaseBehaviour chaseBehaviour;
+public class AIMeleeBehaviour extends AIChaseBehaviour implements Consumer<Entity>, ISkillUser {
   private final float attackRange;
   private Skill fightSkill;
 
@@ -25,7 +24,7 @@ public class AIMeleeBehaviour implements Consumer<Entity>, ISkillUser {
    * @param fightSkill Skill to be used when an attack is performed.
    */
   public AIMeleeBehaviour(float chaseRange, float attackRange, Skill fightSkill) {
-    this.chaseBehaviour = new AIChaseBehaviour(chaseRange);
+    super(chaseRange);
     this.attackRange = attackRange;
     this.fightSkill = fightSkill;
   }
@@ -35,7 +34,7 @@ public class AIMeleeBehaviour implements Consumer<Entity>, ISkillUser {
     if (LevelUtils.playerInRange(entity, attackRange)) {
       useSkill(fightSkill, entity);
     } else {
-      chaseBehaviour.accept(entity);
+      super.accept(entity);
     }
   }
 
