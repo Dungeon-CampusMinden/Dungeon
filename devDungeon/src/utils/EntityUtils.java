@@ -70,7 +70,7 @@ public class EntityUtils {
    * @see MonsterType
    */
   public static Entity spawnMonster(MonsterType monsterType, Coordinate coordinate) {
-    Tile tile = Game.tileAT(coordinate);
+    Tile tile = Game.tileAT(coordinate).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
           "Cannot spawn monster at "
