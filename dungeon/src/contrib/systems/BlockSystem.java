@@ -42,7 +42,7 @@ public final class BlockSystem extends System {
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.put(data.pc, data.pc.position());
-        ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(data.pc.position())).;
+        ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(data.pc.position()).orElse(null));
       };
 
   /** Creates a new BlockSystem. */
