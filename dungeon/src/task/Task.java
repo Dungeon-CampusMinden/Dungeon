@@ -5,7 +5,6 @@ import contrib.components.ItemComponent;
 import core.Entity;
 import core.Game;
 import core.utils.MissingHeroException;
-import core.utils.components.MissingComponentException;
 import graph.petrinet.Place;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -187,7 +186,7 @@ public abstract class Task {
     if (state == TaskState.FINISHED_CORRECT || state == TaskState.FINISHED_WRONG)
       SOLVED_TASK_IN_ORDER.add(this);
     else if (state == TaskState.ACTIVE && managementEntity != null) {
-      managementEntity.fetch(TaskComponent.class).ifPresent(tc -> tc.activate(managementEntity));
+      managementEntity.applyIfPresent(TaskComponent.class, tc -> tc.activate(managementEntity));
     }
 
     return true;
@@ -477,11 +476,7 @@ public abstract class Task {
         .filter(entity -> entity.isPresent(ItemComponent.class))
         .forEach(
             entity -> {
-              ItemComponent ic =
-                  entity
-                      .fetch(ItemComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, ItemComponent.class));
+              ItemComponent ic = entity.fetchOrThrow(ItemComponent.class);
               if (ic.item() instanceof QuestItem) {
                 if (((QuestItem) ic.item()).taskContentComponent().content().task().equals(t)) {
                   Game.remove(entity);
@@ -491,9 +486,7 @@ public abstract class Task {
   }
 
   private void removeQuestItemFromInventory(Entity hero) {
-    InventoryComponent ic =
-        hero.fetch(InventoryComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, InventoryComponent.class));
+    InventoryComponent ic = hero.fetchOrThrow(InventoryComponent.class);
     Task t = this;
     ic.items(QuestItem.class)
         .forEach(
@@ -536,9 +529,7 @@ public abstract class Task {
         .filter(
             e -> {
               TaskContentComponent taskContentComponent =
-                  e.fetch(TaskContentComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(e, TaskContentComponent.class));
+                  e.fetchOrThrow(TaskContentComponent.class);
               return taskContentComponent.content().equals(taskContent);
             })
         .findFirst();
