@@ -383,10 +383,8 @@ public final class LevelUtils {
       Coordinate topLeft, Coordinate bottomRight, boolean visible) {
     for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
       for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
-        Tile tile = Game.tileAT(new Coordinate(x, y));
-        if (tile != null) {
-          tile.visible(visible);
-        }
+        Game.tileAT(new Coordinate(x, y))
+          .ifPresent(tile -> tile.visible(visible));
       }
     }
   }
