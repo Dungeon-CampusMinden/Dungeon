@@ -77,7 +77,7 @@ public class BlocklyCommands {
     GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAT(pc.position());
+      Tile currentTile = Game.tileAT(pc.position()).orElse(null);
       if (currentTile != nextTile) {
         Direction viewDirection = EntityUtils.getViewDirection(hero);
         Direction targetDirection = currentTile.directionTo(nextTile)[0];
