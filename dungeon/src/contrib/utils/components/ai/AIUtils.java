@@ -27,11 +27,6 @@ public class AIUtils {
       return;
     }
 
-    VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-
     Tile currentTile = Game.tileAtEntity(entity);
     Tile nextTile = findNextTile(path, currentTile);
 
@@ -40,11 +35,15 @@ public class AIUtils {
       return;
     }
 
-    Vector2 direction = Vector2.ZERO;
-    for (Direction dir : currentTile.directionTo(nextTile)) {
-      direction = direction.add(dir);
-    }
-    vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed()));
+    Vector2 direction = calculateDirection(currentTile, nextTile);
+
+    entity
+        .fetch(VelocityComponent.class)
+        .ifPresentOrElse(
+            vc -> vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed())),
+            () -> {
+              throw MissingComponentException.build(entity, VelocityComponent.class);
+            });
   }
 
   /**
@@ -119,5 +118,20 @@ public class AIUtils {
       }
     }
     return false;
+  }
+
+  /**
+   * Calculates the direction vector from the current tile to the next tile in the path.
+   *
+   * @param currentTile The tile the entity is currently on.
+   * @param nextTile The next tile in the path.
+   * @return A direction vector pointing from the current tile to the next tile.
+   */
+  private static Vector2 calculateDirection(Tile currentTile, Tile nextTile) {
+    Vector2 direction = Vector2.ZERO;
+    for (Direction dir : currentTile.directionTo(nextTile)) {
+      direction = direction.add(dir);
+    }
+    return direction;
   }
 }
