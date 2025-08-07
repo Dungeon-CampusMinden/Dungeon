@@ -92,6 +92,14 @@ public class AIUtils {
         .orElse(true);
   }
 
+  /**
+   * Finds the next tile in the path after the current tile.
+   *
+   * @param path The path on which the entity is moving.
+   * @param currentTile The tile the entity is currently standing on.
+   * @return The next tile in the path after the current tile, or {@code null} if the current tile
+   *     is not found or is at the end of the path.
+   */
   private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
     for (int i = 0; i < path.getCount() - 1; i++) {
       if (path.get(i).equals(currentTile)) {
