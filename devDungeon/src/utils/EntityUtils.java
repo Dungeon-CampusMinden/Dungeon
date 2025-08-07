@@ -46,7 +46,7 @@ public class EntityUtils {
    * @see MonsterType
    */
   public static Entity spawnMonster(MonsterType monsterType, Point position) {
-    Tile tile = Game.tileAT(position);
+    Tile tile = Game.tileAT(position).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
           "Cannot spawn monster at "
