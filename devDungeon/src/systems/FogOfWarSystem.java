@@ -275,7 +275,7 @@ public class FogOfWarSystem extends System {
           entity
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-      Tile tile = Game.tileAT(pc.position());
+      Tile tile = Game.tileAT(pc.position()).orElse(null);
       if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
         DrawComponent dc =
             entity
