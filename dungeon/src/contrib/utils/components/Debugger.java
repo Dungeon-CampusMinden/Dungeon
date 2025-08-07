@@ -125,7 +125,7 @@ public class Debugger {
 
       // Attempt to teleport to targetLocation
       LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
-      Tile t = Game.tileAT(targetLocation);
+      Tile t = Game.tileAT(targetLocation).orElse(null);
       if (t == null || !t.isAccessible()) {
         LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
         return;
