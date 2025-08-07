@@ -151,7 +151,7 @@ public class Debugger {
     // Get the tile at the given position
     Tile tile = null;
     try {
-      tile = Game.tileAT(position);
+      tile = Game.tileAT(position).orElse(null);
     } catch (NullPointerException ex) {
       LOGGER.info(ex.getMessage());
     }
