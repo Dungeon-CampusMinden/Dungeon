@@ -380,7 +380,10 @@ public class InventoryGUI extends CombinableGUI {
                   return false;
                 }
 
-                UIComponent uiComponent = Game.hero().orElseThrow().fetchOrNull(UIComponent.class);
+                UIComponent uiComponent =
+                    Game.hero()
+                        .orElseThrow(MissingHeroException::new)
+                        .fetchOrNull(UIComponent.class);
                 if (uiComponent != null
                     && uiComponent.dialog() instanceof GUICombination guiCombination) {
                   // if two inventories are open, transfer items between them if key is pressed
@@ -412,8 +415,7 @@ public class InventoryGUI extends CombinableGUI {
   }
 
   private void useItem(Item item) {
-    if (item != null)
-      item.use(Game.hero().orElseThrow(() -> new NullPointerException("There is no hero")));
+    if (item != null) item.use(Game.hero().orElseThrow(MissingHeroException::new));
   }
 
   @Override
