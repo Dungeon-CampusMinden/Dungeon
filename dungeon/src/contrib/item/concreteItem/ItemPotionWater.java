@@ -30,12 +30,13 @@ public class ItemPotionWater extends Item {
 
   @Override
   public void use(final Entity e) {
-    e.fetch(InventoryComponent.class)
-        .ifPresent(
-            component -> {
-              component.remove(this);
-              e.fetch(HealthComponent.class)
-                  .ifPresent(hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
-            });
+    e.applyIfPresent(
+        InventoryComponent.class,
+        component -> {
+          component.remove(this);
+          e.applyIfPresent(
+              HealthComponent.class,
+              hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
+        });
   }
 }
