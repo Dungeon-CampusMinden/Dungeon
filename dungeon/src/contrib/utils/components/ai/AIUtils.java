@@ -94,7 +94,7 @@ public final class AIUtils {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     boolean onPath = false;
-    Tile currentTile = Game.tileAT(pc.position());
+    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
     for (Tile tile : path) {
       if (currentTile == tile) {
         onPath = true;
