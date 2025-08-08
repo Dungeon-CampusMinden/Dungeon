@@ -9,7 +9,6 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Direction;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 
 /** Utility class for AI-related operations like calculating paths. */
 public class AIUtils {
@@ -39,11 +38,7 @@ public class AIUtils {
 
     entity
         .fetch(VelocityComponent.class)
-        .ifPresentOrElse(
-            vc -> vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed())),
-            () -> {
-              throw MissingComponentException.build(entity, VelocityComponent.class);
-            });
+        .ifPresent(vc -> vc.applyForce("MOVEMENT", direction.normalize().scale(vc.maxSpeed())));
   }
 
   /**
