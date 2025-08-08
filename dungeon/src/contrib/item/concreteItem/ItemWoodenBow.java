@@ -1,6 +1,5 @@
 package contrib.item.concreteItem;
 
-import contrib.components.AmmunitionComponent;
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.WorldItemBuilder;
@@ -50,22 +49,20 @@ public class ItemWoodenBow extends Item {
         KeyboardConfig.SECOND_SKILL.value(),
         collectorEntity ->
             collector
-                .fetch(AmmunitionComponent.class)
+                .fetch(InventoryComponent.class)
                 .ifPresent(
-                    ammoComp ->
-                        collector
-                            .fetch(InventoryComponent.class)
-                            .ifPresent(
-                                invComp -> {
-                                  if (ammoComp.checkAmmunition()
-                                      && invComp.hasItem(ItemWoodenArrow.class)) {
-                                    BOW_SKILL.execute(collectorEntity);
-                                    ammoComp.spendAmmo();
-                                    if (!ammoComp.checkAmmunition()) {
-                                      invComp.remove(invComp.getItemOfClass(ItemWoodenArrow.class));
-                                    }
-                                  }
-                                })));
+                    invComp -> {
+                      if (BOW_SKILL
+                          .canBeUsedAgain()) { // important to prevent spending more than one ammo
+                        if (invComp.hasItem(ItemWoodenArrow.class)
+                            && invComp.removeOne(
+                                invComp.getItemOfClassWithSmallestStackSize(
+                                    ItemWoodenArrow.class))) {
+                          BOW_SKILL.execute(collectorEntity);
+                          System.out.println("SHOOTING ARROW");
+                        }
+                      }
+                    }));
 
     return collector
         .fetch(InventoryComponent.class)
@@ -101,6 +98,7 @@ public class ItemWoodenBow extends Item {
     PositionComponent posc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    // clicking on the bow in the inventory drops it at the current position
     drop(posc.position());
     user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
   }

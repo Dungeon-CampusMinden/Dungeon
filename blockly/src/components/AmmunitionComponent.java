@@ -1,4 +1,4 @@
-package contrib.components;
+package components;
 
 import core.Component;
 

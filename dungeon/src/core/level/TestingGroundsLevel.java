@@ -11,9 +11,7 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import java.util.List;
 
-/**
- * This level can be used for testing new implementations of items, skills, monsters and more.
- */
+/** This level can be used for testing new implementations of items, skills, monsters and more. */
 public class TestingGroundsLevel extends DungeonLevel {
 
   /**
@@ -32,8 +30,8 @@ public class TestingGroundsLevel extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     Item bow = new ItemWoodenBow();
-    Item arrow1 = new ItemWoodenArrow();
-    Item arrow2 = new ItemWoodenArrow();
+    Item arrow1 = new ItemWoodenArrow(10);
+    Item arrow2 = new ItemWoodenArrow(10);
     Point bowSpawnPoint = new Point(5, 5);
     Point arrowSpawnPoint1 = new Point(7, 5);
     Point arrowSpawnPoint2 = new Point(9, 5);

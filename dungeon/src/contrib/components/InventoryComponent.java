@@ -174,6 +174,38 @@ public final class InventoryComponent implements Component {
   }
 
   /**
+   * Gets the item with the smallest stack size of all items of a given class.
+   *
+   * @param klass The class of the items to search for.
+   * @return the found item with the smallest stack size of the given class.
+   */
+  public Item getItemOfClassWithSmallestStackSize(final Class<? extends Item> klass) {
+    List<Item> result = new ArrayList<>(this.inventory.length);
+    for (Item invItem : inventory) {
+      if (invItem != null && invItem.getClass().equals(klass)) {
+        result.add(invItem);
+      }
+    }
+    return getSmallestStack(result);
+  }
+
+  /**
+   * Searches a list of items for the item with the smallest stackSize.
+   *
+   * @param items List of items to search in
+   * @return The item with the smallest stack size
+   */
+  public Item getSmallestStack(List<Item> items) {
+    Item smallestStackItem = items.get(0);
+    for (Item invItem : items) {
+      if (invItem.stackSize() < smallestStackItem.stackSize()) {
+        smallestStackItem = invItem;
+      }
+    }
+    return smallestStackItem;
+  }
+
+  /**
    * Transfer the given item from this inventory to the given inventory.
    *
    * <p>If the given item is not present in this inventory or the other inventory is full, the

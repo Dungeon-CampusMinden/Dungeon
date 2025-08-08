@@ -1,6 +1,5 @@
 package contrib.item.concreteItem;
 
-import contrib.components.AmmunitionComponent;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
@@ -17,47 +16,23 @@ import core.utils.components.path.SimpleIPath;
  * <p>Adds an ammunition component to the collecting entity if it doesn't already have one
  */
 public class ItemWoodenArrow extends Item {
-  /** The default texture for all health potions. */
+  /** The default texture for all wooden arrows. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/weapon/wooden_arrow.png");
+
+  private static final int MAX_ARROW_STACK_SIZE = 16;
 
   /**
    * Create a {@link Item} that looks like an arrow and can be collected to be used as ammunition
    * for the bow item.
    */
-  public ItemWoodenArrow() {
-    super("Wooden Arrow", "Ammunition for a Bow", Animation.fromSingleImage(DEFAULT_TEXTURE));
-  }
-
-  @Override
-  public boolean collect(final Entity itemEntity, final Entity collector) {
-    // the arrow collecting entity needs to have an ammoComp to collectAmmo
-    if (collector.isPresent(AmmunitionComponent.class)) {
-      collector.fetch(AmmunitionComponent.class).ifPresent(AmmunitionComponent::collectAmmo);
-    } else {
-      collector.add(new AmmunitionComponent());
-      collector.fetch(AmmunitionComponent.class).ifPresent(AmmunitionComponent::collectAmmo);
-    }
-
-    return collector
-        .fetch(InventoryComponent.class)
-        .map(
-            inventoryComponent -> {
-              boolean hasArrow = inventoryComponent.hasItem(ItemWoodenArrow.class);
-
-              // arrows consume only one inventory space
-              if (!hasArrow) {
-                if (!inventoryComponent.add(this)) {
-                  return false;
-                }
-              }
-
-              collector
-                  .fetch(AmmunitionComponent.class)
-                  .ifPresent(AmmunitionComponent::collectAmmo);
-              Game.remove(itemEntity);
-              return true;
-            })
-        .orElse(false);
+  public ItemWoodenArrow(int amount) {
+    super(
+        "Wooden Arrow",
+        "Ammunition for a Bow",
+        Animation.fromSingleImage(DEFAULT_TEXTURE),
+        Animation.fromSingleImage(DEFAULT_TEXTURE),
+        amount,
+        MAX_ARROW_STACK_SIZE);
   }
 
   @Override
@@ -66,8 +41,8 @@ public class ItemWoodenArrow extends Item {
     PositionComponent posc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    // clicking on an arrow in the inventory drops the whole stack at the current position
     drop(posc.position());
-    user.fetch(AmmunitionComponent.class).ifPresent(AmmunitionComponent::resetCurrentAmmunition);
     user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
   }
 }

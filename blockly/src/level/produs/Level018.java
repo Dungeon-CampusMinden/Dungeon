@@ -1,6 +1,6 @@
 package level.produs;
 
-import contrib.components.AmmunitionComponent;
+import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.Coordinate;
