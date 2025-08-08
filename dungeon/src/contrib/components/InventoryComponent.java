@@ -243,8 +243,8 @@ public final class InventoryComponent implements Component {
   /**
    * Removes one unit from the specified item stack in the inventory.
    *
-   * <p>If the item is found, its stack size is decreased by one. If the stack size
-   * reaches zero or below, the item is removed from the inventory entirely.</p>
+   * <p>If the item is found, its stack size is decreased by one. If the stack size reaches zero or
+   * below, the item is removed from the inventory entirely.
    *
    * @param item The item from which to remove one unit.
    * @return true if one unit was successfully removed; false if the item was not found.
