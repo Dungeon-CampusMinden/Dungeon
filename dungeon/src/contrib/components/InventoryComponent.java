@@ -192,8 +192,8 @@ public final class InventoryComponent implements Component {
   /**
    * Searches a list of items for the item with the smallest stackSize.
    *
-   * @param items List of items to search in
-   * @return The item with the smallest stack size
+   * @param items List of items to search in.
+   * @return The item with the smallest stack size.
    */
   public Item getSmallestStack(List<Item> items) {
     Item smallestStackItem = items.get(0);

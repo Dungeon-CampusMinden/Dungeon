@@ -24,6 +24,8 @@ public class ItemWoodenArrow extends Item {
   /**
    * Create a {@link Item} that looks like an arrow and can be collected to be used as ammunition
    * for the bow item.
+   *
+   * @param amount The stack size of arrows.
    */
   public ItemWoodenArrow(int amount) {
     super(
