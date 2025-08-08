@@ -1,14 +1,15 @@
 package contrib.entities;
 
-import contrib.components.InteractionComponent;
-import contrib.components.LeverComponent;
+import contrib.components.*;
 import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
 import contrib.utils.IEntityCommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
@@ -149,6 +150,56 @@ public class LeverFactory {
   }
 
   /**
+   * Creates a pressure plate entity at the given position.
+   *
+   * <p>A pressure plate acts as a switch that is active (true) if at least one entity with a {@code
+   * CollideComponent} stands on it.
+   *
+   * <p>The pressure plate does not trigger for projectiles.
+   *
+   * <p>The plate does not emit any event on interaction; it only toggles the {@link
+   * LeverComponent#isOn()} state.
+   *
+   * @param position the position where the pressure plate should be created
+   * @return the newly created pressure plate entity
+   */
+  public static Entity pressurePlate(Point position) {
+    Entity pressurePlate = new Entity("pressureplate");
+    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
+    DrawComponent drawComponent =
+        new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
+    Map<String, Animation> animations =
+        Map.of(
+            "off", drawComponent.currentAnimation(),
+            "on", Animation.fromCollection(Design.PLATE.texturesOn));
+    drawComponent.animationMap(animations);
+    drawComponent.currentAnimation("off");
+    pressurePlate.add(drawComponent);
+    LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
+    pressurePlate.add(leverComponent);
+    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent();
+    pressurePlate.add(pressurePlateComponent);
+    TriConsumer<Entity, Entity, Direction> onCollideEnter =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+          pressurePlateComponent.increase();
+          if (!leverComponent.isOn()) {
+            leverComponent.toggle();
+          }
+        };
+    TriConsumer<Entity, Entity, Direction> onCollideLeave =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+          pressurePlateComponent.decrease();
+          if (!pressurePlateComponent.atLeastOne() && leverComponent.isOn()) {
+            leverComponent.toggle();
+          }
+        };
+    pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave));
+    return pressurePlate;
+  }
+
+  /**
    * Creates a command that automatically turns off a lever after a specified delay.
    *
    * <p>This command is intended to be attached to a {@link LeverComponent}. When the lever is
@@ -215,7 +266,12 @@ public class LeverFactory {
             new SimpleIPath("objects/torch/on/torch_6.png"),
             new SimpleIPath("objects/torch/on/torch_7.png"),
             new SimpleIPath("objects/torch/on/torch_8.png")),
-        List.of(new SimpleIPath("objects/torch/off/torch_0.png")));
+        List.of(new SimpleIPath("objects/torch/off/torch_0.png"))),
+
+    /** Represents a pressure plate with multiple textures for "on" (animated) and one for "off". */
+    PLATE(
+        List.of(new SimpleIPath("objects/pressureplate/on/pressureplate_0.png")),
+        List.of(new SimpleIPath("objects/pressureplate/off/pressureplate_0.png")));
 
     private final List<IPath> texturesOn;
     private final List<IPath> texturesOff;

@@ -46,8 +46,8 @@ public class BossAttackSkills {
   /** Damage for the fireball skill that the boss uses. (default: 2) */
   private static final int FIREBALL_DAMAGE = 2;
 
-  /** Speed for the fireball skill that the boss uses. (default: 5.00f) */
-  private static final float FIREBALL_SPEED = 5.00f;
+  /** Speed for the fireball skill that the boss uses. (default: 4.50f) */
+  private static final float FIREBALL_SPEED = 4.50f;
 
   /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
   private static final float FIREBALL_MAX_RANGE = 25f;

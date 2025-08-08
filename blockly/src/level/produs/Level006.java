@@ -1,6 +1,7 @@
 package level.produs;
 
 import contrib.components.LeverComponent;
+import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
@@ -70,8 +71,8 @@ public class Level006 extends BlocklyLevel {
     Coordinate stone2C = customPoints().get(1);
     Coordinate switch1C = customPoints().get(2);
     Coordinate switch2C = customPoints().get(3);
-    Entity s1 = MiscFactory.pressurePlate(switch1C.toCenteredPoint());
-    Entity s2 = MiscFactory.pressurePlate(switch2C.toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(switch1C.toCenteredPoint());
+    Entity s2 = LeverFactory.pressurePlate(switch2C.toCenteredPoint());
     Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
     Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
 

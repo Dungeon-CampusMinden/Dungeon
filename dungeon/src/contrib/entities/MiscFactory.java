@@ -1,19 +1,22 @@
 package contrib.entities;
 
-import contrib.components.CollideComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
-import contrib.components.UIComponent;
+import contrib.components.*;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.item.ItemGenerator;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
+import core.utils.Vector2;
+import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -29,6 +32,8 @@ public final class MiscFactory {
   private static final int DEFAULT_CHEST_SIZE = 12;
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
+  private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
+  private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -243,6 +248,123 @@ public final class MiscFactory {
                           who.add(component);
                         })));
     return cauldron;
+  }
+
+  /**
+   * Create a Entity that can be used as a marker on the floor (x marks the spot).
+   *
+   * @param position Positon where to spawn the marker.
+   * @return The Marker-Entity.
+   */
+  public static Entity marker(Point position) {
+    Entity marker = new Entity("marker");
+    marker.add(new PositionComponent(position));
+    marker.add(new DrawComponent(Animation.fromSingleImage(MARKER_TEXTURE)));
+    return marker;
+  }
+
+  /**
+   * Creates a catapult entity at the specified spawn point that can launch other entities to a
+   * given target location.
+   *
+   * <p>When another entity collides with this catapult:
+   *
+   * <ul>
+   *   <li>The colliding entity must have a {@link CatapultableComponent} to be eligible for launch.
+   *   <li>The entity’s current velocity is reset to zero.
+   *   <li>The {@link CatapultableComponent}'s deactivate callback is invoked to disable any
+   *       controls or AI.
+   *   <li>The entity is temporarily turned into a projectile that travels from the spawn point to
+   *       the target location.
+   *   <li>Once the projectile reaches the target, the entity is restored to its original state.
+   * </ul>
+   *
+   * @param spawnPoint the position where the catapult entity is created
+   * @param location the target location to which entities will be launched
+   * @param speed the speed at which the entity travels toward the target
+   * @return the catapult entity that initiates the launch on collision
+   */
+  public static Entity catapult(Point spawnPoint, Point location, float speed) {
+    Entity catapult = new Entity();
+    catapult.add(new PositionComponent(spawnPoint));
+    catapult.add(new DrawComponent(Animation.fromSingleImage(CATAPULT)));
+    TriConsumer<Entity, Entity, Direction> action =
+        (you, other, direction) -> {
+          if (!other.isPresent(CatapultableComponent.class)) return;
+          other
+              .fetch(VelocityComponent.class)
+              .ifPresent(
+                  vc -> {
+                    vc.currentVelocity(Vector2.ZERO);
+                    vc.clearForces();
+                  });
+          other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.deactivate().accept(other));
+          catapultFlyEntity(other, spawnPoint, location, speed);
+        };
+    catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER));
+    return catapult;
+  }
+
+  /**
+   * Makes the entity a temporary projectile and flies from the start to the goal location.
+   *
+   * <p>This entity handles the visual and logical aspects of the catapult animation. While the
+   * original entity is made invisible and immobilized, this projectile simulates the flight:
+   *
+   * <ul>
+   *   <li>Attaches a {@link VelocityComponent} with a termination callback that resets the entity
+   *       when the flight ends.
+   *   <li>Adds a {@link CollideComponent} that resets the entity once the projectile reaches it
+   *       endpoint.
+   * </ul>
+   *
+   * @param other the entity that is being catapulted
+   * @param start the starting position of the catapult flight (usually the catapult location)
+   * @param goal the target location to which the entity is being catapulted
+   * @param speed the flight speed of the projectile
+   */
+  private static void catapultFlyEntity(Entity other, Point start, Point goal, float speed) {
+    Vector2 forceToApply = SkillTools.calculateDirection(start, goal).scale(speed);
+    VelocityComponent entityVc = other.fetch(VelocityComponent.class).orElse(null);
+    other.remove(VelocityComponent.class);
+    VelocityComponent vc =
+        new VelocityComponent(
+            speed,
+            entity -> {
+              resetCatapultedEntity(entity, entityVc);
+            },
+            true);
+    other.add(vc);
+
+    other.add(
+        new ProjectileComponent(
+            start, goal, forceToApply, entity -> resetCatapultedEntity(entity, entityVc)));
+    other.add(new PositionComponent(start));
+    other.add(new FlyComponent());
+  }
+
+  /**
+   * Reverts all temporary changes made to an entity after the catapult process is complete.
+   *
+   * <p>This method should be called when the projectile-entity has reached its destination. It:
+   *
+   * <ul>
+   *   <li>Calls the reactivation callback of the {@link CatapultableComponent} to restore entity
+   *       behavior.
+   *   <li>Restores the original {@link VelocityComponent}.
+   *   <li>Removes the {@link ProjectileComponent} and {@link FlyComponent}.
+   * </ul>
+   *
+   * @param other the original entity that was catapulted
+   * @param entityVc VelocityComponent restore to the entity
+   */
+  private static void resetCatapultedEntity(Entity other, VelocityComponent entityVc) {
+    other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.reactivate().accept(other));
+    other.remove(ProjectileComponent.class);
+    other.remove(FlyComponent.class);
+    if (entityVc != null) {
+      other.add(entityVc);
+    }
   }
 
   /**

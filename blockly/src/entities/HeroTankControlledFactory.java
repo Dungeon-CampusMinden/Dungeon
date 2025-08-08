@@ -1,5 +1,6 @@
 package entities;
 
+import client.Client;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.components.PlayerComponent;
@@ -66,11 +67,11 @@ public class HeroTankControlledFactory {
 
     Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, vc.velocity().y());
-      case DOWN -> newVelocity = Vector2.of(0, -vc.velocity().y());
-      case LEFT -> newVelocity = Vector2.of(-vc.velocity().x(), 0);
-      case RIGHT -> newVelocity = Vector2.of(vc.velocity().x(), 0);
+      case UP -> newVelocity = Vector2.of(0, Client.MOVEMENT_FORCE.y());
+      case DOWN -> newVelocity = Vector2.of(0, -Client.MOVEMENT_FORCE.y());
+      case LEFT -> newVelocity = Vector2.of(-Client.MOVEMENT_FORCE.x(), 0);
+      case RIGHT -> newVelocity = Vector2.of(Client.MOVEMENT_FORCE.x(), 0);
     }
-    vc.currentVelocity(newVelocity);
+    vc.applyForce("MOVEMENT", newVelocity);
   }
 }

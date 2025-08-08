@@ -36,6 +36,8 @@ import java.util.logging.Logger;
  * parameter is the entity with which the collision is happening, and the third parameter defines
  * the direction from where the collision is happening.
  *
+ * <p>The {@link #collideHold} will be executed for ongoing collisions.
+ *
  * @see contrib.systems.CollisionSystem
  */
 public final class CollideComponent implements Component {
@@ -53,6 +55,7 @@ public final class CollideComponent implements Component {
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private TriConsumer<Entity, Entity, Direction> collideEnter;
   private TriConsumer<Entity, Entity, Direction> collideLeave;
+  private TriConsumer<Entity, Entity, Direction> collideHold;
 
   /**
    * Create a new CollisionComponent.
@@ -74,6 +77,7 @@ public final class CollideComponent implements Component {
     this.size = size;
     this.collideEnter = collideEnter;
     this.collideLeave = collideLeave;
+    this.collideHold = DEFAULT_COLLIDER;
   }
 
   /**
@@ -129,6 +133,36 @@ public final class CollideComponent implements Component {
               + "'.");
       collideLeave.accept(entity, other, direction);
     }
+  }
+
+  /**
+   * Function to be executed at ongoing collisions.
+   *
+   * @param entity associated entity of this component.
+   * @param other Component of the colliding entity
+   * @param direction Direction in which the collision happens
+   */
+  public void onHold(final Entity entity, final Entity other, final Direction direction) {
+    if (collideHold != null) {
+      LOGGER.log(
+          CustomLogLevel.DEBUG,
+          this.getClass().getSimpleName()
+              + " is processing collision hold between entities '"
+              + entity.getClass().getSimpleName()
+              + "' and '"
+              + other.getClass().getSimpleName()
+              + "'.");
+      collideHold.accept(entity, other, direction);
+    }
+  }
+
+  /**
+   * Set the callback function for ongoing collisions.
+   *
+   * @param collideHold New callback function.
+   */
+  public void onHold(TriConsumer<Entity, Entity, Direction> collideHold) {
+    this.collideHold = collideHold;
   }
 
   /**

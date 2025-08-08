@@ -7,6 +7,7 @@ import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
+import core.utils.Vector2;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -30,10 +31,33 @@ import java.util.function.Function;
  * @see AISystem
  */
 public final class AIComponent implements Component {
+
+  private static final Vector2 DEFAULT_SPEED = Vector2.of(5, 5);
   private final Consumer<Entity> fightBehavior;
   private final Consumer<Entity> idleBehavior;
   private final Function<Entity, Boolean> shouldFight;
+
+  private Vector2 movementForce;
   private boolean active = true;
+
+  /**
+   * Create an AIComponent with the given behavior.
+   *
+   * @param fightBehavior The combat behavior.
+   * @param idleBehavior The idle behavior.
+   * @param shouldFight Determines when to fight.
+   * @param movementForce Force to apply on the Ai-Entity for movement.
+   */
+  public AIComponent(
+      final Consumer<Entity> fightBehavior,
+      final Consumer<Entity> idleBehavior,
+      final Function<Entity, Boolean> shouldFight,
+      Vector2 movementForce) {
+    this.fightBehavior = fightBehavior;
+    this.idleBehavior = idleBehavior;
+    this.shouldFight = shouldFight;
+    this.movementForce = movementForce;
+  }
 
   /**
    * Create an AIComponent with the given behavior.
@@ -46,9 +70,7 @@ public final class AIComponent implements Component {
       final Consumer<Entity> fightBehavior,
       final Consumer<Entity> idleBehavior,
       final Function<Entity, Boolean> shouldFight) {
-    this.fightBehavior = fightBehavior;
-    this.idleBehavior = idleBehavior;
-    this.shouldFight = shouldFight;
+    this(fightBehavior, idleBehavior, shouldFight, DEFAULT_SPEED);
   }
 
   /**
@@ -58,7 +80,7 @@ public final class AIComponent implements Component {
    * as the transition function, and {@link AIChaseBehaviour} as the fight behavior.
    */
   public AIComponent() {
-    this(new AIChaseBehaviour(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
+    this(new AIChaseBehaviour(2f), new RadiusWalk(5, 2), new RangeTransition(5f), DEFAULT_SPEED);
   }
 
   /**
@@ -110,5 +132,14 @@ public final class AIComponent implements Component {
    */
   public boolean active() {
     return this.active;
+  }
+
+  /**
+   * Returns the movement force vector currently acting on the entity.
+   *
+   * @return The movement force vector
+   */
+  public Vector2 movementForce() {
+    return movementForce;
   }
 }

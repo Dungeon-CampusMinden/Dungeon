@@ -18,9 +18,7 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -44,9 +42,12 @@ public final class HeroFactory {
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 SPEED_HERO = Vector2.of(7.5f, 7.5f);
+  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
+  private static final float HERO_MAX_SPEED = STEP_SPEED.x();
+  private static final String MOVEMENT_ID = "Movement";
+  private static final float HERO_MASS = 1.3f;
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
@@ -61,7 +62,7 @@ public final class HeroFactory {
    * @return Copy of the default speed of the hero.
    */
   public static Vector2 defaultHeroSpeed() {
-    return Vector2.of(SPEED_HERO);
+    return Vector2.of(STEP_SPEED);
   }
 
   /**
@@ -130,7 +131,7 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
-    hero.add(new VelocityComponent(SPEED_HERO, (e) -> {}, true));
+    hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
     HealthComponent hc =
         new HealthComponent(
@@ -154,7 +155,7 @@ public final class HeroFactory {
               deathCallback.accept(entity);
             });
     hero.add(hc);
-    hero.add(
+    CollideComponent col =
         new CollideComponent(
             (you, other, direction) ->
                 other
@@ -170,9 +171,18 @@ public final class HeroFactory {
                             spikyComponent.activateCoolDown();
                           }
                         }),
-            (you, other, direction) -> {}));
+            CollideComponent.DEFAULT_COLLIDER);
+    col.onHold(
+        (you, other, direction) -> {
+          if (other.isPresent(KineticComponent.class))
+            resolveCollisionWithMomentum(hero, other, direction);
+        });
+    hero.add(col);
 
     PlayerComponent pc = new PlayerComponent();
+    hero.add(
+        new CatapultableComponent(
+            entity -> pc.deactivateControls(true), entity -> pc.deactivateControls(false)));
     hero.add(pc);
     InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
     hero.add(ic);
@@ -345,16 +355,17 @@ public final class HeroFactory {
                   .orElseThrow(
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
 
-          Vector2 newVelocity = vc.currentVelocity();
-          if (direction.x() != 0) {
-            newVelocity = Vector2.of(direction.scale(vc.velocity()).x(), newVelocity.y());
-          }
-          if (direction.y() != 0) {
-            newVelocity = Vector2.of(newVelocity.x(), direction.scale(vc.velocity()).y());
-          }
-          vc.currentVelocity(newVelocity);
+          Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
+          Vector2 newForce = STEP_SPEED.scale(direction);
 
-          // Abort any path finding on own movement
+          Vector2 updatedForce =
+              existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
+
+          if (updatedForce.lengthSquared() > 0) {
+            updatedForce = updatedForce.normalize().scale(STEP_SPEED.length());
+            vc.applyForce(MOVEMENT_ID, updatedForce);
+          }
+
           if (ENABLE_MOUSE_MOVEMENT) {
             entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
           }
@@ -427,5 +438,35 @@ public final class HeroFactory {
     return Game.entityAtTile(mouseTile)
         .filter(e -> e.isPresent(InteractionComponent.class))
         .findFirst();
+  }
+
+  private static void resolveCollisionWithMomentum(
+      Entity hero, Entity other, Direction collisionDirection) {
+    Optional<VelocityComponent> optVc1 = hero.fetch(VelocityComponent.class);
+    Optional<VelocityComponent> optVc2 = other.fetch(VelocityComponent.class);
+
+    if (optVc1.isEmpty() || optVc2.isEmpty()) return;
+
+    VelocityComponent vc1 = optVc1.get();
+    VelocityComponent vc2 = optVc2.get();
+
+    Vector2 v1 = vc1.currentVelocity();
+    Vector2 v2 = vc2.currentVelocity();
+    float m1 = vc1.mass();
+    float m2 = vc2.mass();
+
+    Vector2 p1 = v1.scale(m1); // Impuls Entity 1
+    Vector2 p2 = v2.scale(m2); // Impuls Entity 2
+
+    Vector2 p = p1.add(p2); // Total Impuls
+    Vector2 v = p.scale(1f / (m1 + m2)); // New velocity after collision
+
+    double length = v.length(); // Länge des Vektors behalten (neue Geschwindigkeit)
+
+    Direction d = v.direction(); // Richtung des Vektors nach Quadranten bestimmen
+
+    Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
+    vc1.applyForce("Collision", newVelocity.scale(-1));
+    vc2.applyForce("Collision", newVelocity);
   }
 }

@@ -1,7 +1,10 @@
 package contrib.components;
 
 import core.Component;
+import core.Entity;
 import core.utils.Point;
+import core.utils.Vector2;
+import java.util.function.Consumer;
 
 /**
  * Marks an entity as a projectile.
@@ -25,27 +28,10 @@ import core.utils.Point;
  *
  * @param startPosition The point from which to start the calculation to the goal location.
  * @param goalLocation The point where the projectile should fly to.
+ * @param forceToApply The force the projectile should move with.
+ * @param onGoalReached Callback to execute when the projectile reached the goal location.
  * @see contrib.utils.components.skill.DamageProjectile
  */
-public record ProjectileComponent(Point startPosition, Point goalLocation) implements Component {
-
-  /**
-   * Get the target position of the projectile.
-   *
-   * @return The point where the projectile should fly to.
-   */
-  @Override
-  public Point goalLocation() {
-    return goalLocation;
-  }
-
-  /**
-   * Get the start position of the projectile.
-   *
-   * @return The point from which to start the calculation to the goal location
-   */
-  @Override
-  public Point startPosition() {
-    return startPosition;
-  }
-}
+public record ProjectileComponent(
+    Point startPosition, Point goalLocation, Vector2 forceToApply, Consumer<Entity> onGoalReached)
+    implements Component {}

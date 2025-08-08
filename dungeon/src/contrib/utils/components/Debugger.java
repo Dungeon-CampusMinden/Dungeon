@@ -24,7 +24,6 @@ import core.systems.CameraSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -168,7 +167,7 @@ public class Debugger {
       } catch (IOException e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
-      monster.add(new VelocityComponent(Vector2.ONE));
+      monster.add(new VelocityComponent(1));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(
