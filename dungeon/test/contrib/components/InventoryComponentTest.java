@@ -357,6 +357,37 @@ public class InventoryComponentTest {
     assertEquals(2, incoming.stackSize()); // 2 items merged, 1 remains
   }
 
+  /**
+   * Tests that removeOne decreases the stack size of an existing item by one,
+   * and removes the item from inventory if the stack size reaches zero.
+   */
+  @Test
+  public void removeOne_DecreasesStackOrRemovesItem() {
+    InventoryComponent ic = new InventoryComponent(2);
+
+    final int[] stackSize = {1};
+    Item item = mock(Item.class);
+    when(item.stackSize()).thenAnswer(invocation -> stackSize[0]);
+    doAnswer(invocation -> {
+      stackSize[0] = invocation.getArgument(0);
+      return null;
+    }).when(item).stackSize(anyInt());
+
+    ic.add(item);
+
+    // Remove one unit (should remove the item because stack size becomes 0)
+    boolean result = ic.removeOne(item);
+
+    assertTrue(result);
+    assertEquals(0, stackSize[0]);
+    assertEquals(0, ic.count());
+
+    // Try removing an item not in inventory
+    Item notInInventory = mock(Item.class);
+    assertFalse(ic.removeOne(notInInventory));
+  }
+
+
   private class DummyItem extends Item {
     private int stackSize;
     private final int maxStackSize;
