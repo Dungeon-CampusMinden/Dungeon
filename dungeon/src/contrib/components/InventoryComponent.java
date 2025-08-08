@@ -104,7 +104,6 @@ public final class InventoryComponent implements Component {
         result.add(invItem);
       }
     }
-    System.out.println(result.size());
     return result;
   }
 
