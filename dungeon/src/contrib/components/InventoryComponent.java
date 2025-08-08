@@ -81,7 +81,7 @@ public final class InventoryComponent implements Component {
   }
 
   private int addToStack(final Item item) {
-    Set<Item> sameClassItems = itemsOfSameClass(item);
+    List<Item> sameClassItems = itemsOfSameClass(item);
     for (Item stack : sameClassItems) {
       if (item.stackSize() <= 0) {
         return 0;
@@ -92,14 +92,13 @@ public final class InventoryComponent implements Component {
         stack.stackSize(stack.stackSize() + toTransfer);
         item.stackSize(item.stackSize() - toTransfer);
       }
-      System.out.println(item.stackSize());
     }
 
     return item.stackSize();
   }
 
-  private Set<Item> itemsOfSameClass(Item toGet) {
-    Set<Item> result = new HashSet<>();
+  private List<Item> itemsOfSameClass(Item toGet) {
+    List<Item> result = new ArrayList<>(this.inventory.length);
     for (Item invItem : inventory) {
       if (invItem != null && invItem.getClass().equals(toGet.getClass())) {
         result.add(invItem);

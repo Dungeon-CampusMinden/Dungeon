@@ -298,10 +298,12 @@ public class InventoryComponentTest {
     ic.add(stack2);
     stack1.stackSize(1);
 
+    assertEquals(2, ic.count());
+
     DummyItem incoming = new DummyItem(5, 5);
     boolean result = ic.add(incoming);
-
     assertTrue(result);
+
     assertEquals(2, ic.count());
     Set<Item> storedItems = ic.items(DummyItem.class);
     assertEquals(2, storedItems.size());
@@ -391,28 +393,8 @@ public class InventoryComponentTest {
   }
 
   private class DummyItem extends Item {
-    private int stackSize;
-    private final int maxStackSize;
-
     public DummyItem(int stackSize, int maxStackSize) {
       super(null, null, null, null, stackSize, maxStackSize);
-      this.stackSize = stackSize;
-      this.maxStackSize = maxStackSize;
-    }
-
-    @Override
-    public int stackSize() {
-      return stackSize;
-    }
-
-    @Override
-    public void stackSize(int newSize) {
-      this.stackSize = newSize;
-    }
-
-    @Override
-    public int maxStackSize() {
-      return maxStackSize;
     }
   }
 }
