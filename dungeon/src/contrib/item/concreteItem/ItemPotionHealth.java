@@ -62,7 +62,7 @@ public class ItemPotionHealth extends Item {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.remove(this);
+              component.removeOne(this);
               this.healUser(this.heal_amount, e);
             });
   }

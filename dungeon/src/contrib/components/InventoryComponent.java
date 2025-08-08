@@ -4,9 +4,7 @@ import com.badlogic.gdx.utils.Null;
 import contrib.item.Item;
 import core.Component;
 import core.utils.logging.CustomLogLevel;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -53,7 +51,7 @@ public final class InventoryComponent implements Component {
    *
    * <p>Does not allow adding more items than the size of the inventory.
    *
-   * <p>Items do not get stacked, so each instance will need space in the inventory.
+   * <p>Items do get stacked, a stack will be split if needed.
    *
    * <p>Items are stored as a set, so an item instance cannot be stored twice in the same inventory
    * at the same time.
@@ -62,6 +60,8 @@ public final class InventoryComponent implements Component {
    * @return True if the item was added, false if not.
    */
   public boolean add(final Item item) {
+    if (addToStack(item) == 0) return true;
+
     int firstEmpty = -1;
     for (int i = 0; i < this.inventory.length; i++) {
       if (this.inventory[i] == null) {
@@ -78,6 +78,33 @@ public final class InventoryComponent implements Component {
             + "'.");
     inventory[firstEmpty] = item;
     return true;
+  }
+
+  private int addToStack(final Item item) {
+    List<Item> sameClassItems = itemsOfSameClass(item);
+    for (Item stack : sameClassItems) {
+      if (item.stackSize() <= 0) {
+        return 0;
+      }
+      int spaceLeft = stack.maxStackSize() - stack.stackSize();
+      if (spaceLeft > 0) {
+        int toTransfer = Math.min(spaceLeft, item.stackSize());
+        stack.stackSize(stack.stackSize() + toTransfer);
+        item.stackSize(item.stackSize() - toTransfer);
+      }
+    }
+
+    return item.stackSize();
+  }
+
+  private List<Item> itemsOfSameClass(Item toGet) {
+    List<Item> result = new ArrayList<>(this.inventory.length);
+    for (Item invItem : inventory) {
+      if (invItem != null && invItem.getClass().equals(toGet.getClass())) {
+        result.add(invItem);
+      }
+    }
+    return result;
   }
 
   /**
@@ -206,5 +233,26 @@ public final class InventoryComponent implements Component {
   public Item get(int index) {
     if (index >= this.inventory.length || index < 0) return null;
     return this.inventory[index];
+  }
+
+  /**
+   * Removes one unit from the specified item stack in the inventory.
+   *
+   * <p>If the item is found, its stack size is decreased by one. If the stack size reaches zero or
+   * below, the item is removed from the inventory entirely.
+   *
+   * @param item The item from which to remove one unit.
+   * @return true if one unit was successfully removed; false if the item was not found.
+   */
+  public boolean removeOne(Item item) {
+    for (int i = 0; i < inventory.length; i++) {
+      if (inventory[i] != null && inventory[i].equals(item)) {
+        Item it = inventory[i];
+        it.stackSize(it.stackSize() - 1);
+        if (it.stackSize() <= 0) inventory[i] = null;
+        return true;
+      }
+    }
+    return false;
   }
 }
