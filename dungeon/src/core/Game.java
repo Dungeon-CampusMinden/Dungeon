@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Optional;
 
 /**
  * The Center-Point of the framework.
@@ -416,10 +417,10 @@ public final class Game {
    * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
    *
    * @param point Point from where to get the tile
-   * @return the tile at the given point.
+   * @return an Optional containing the tile, or empty if not found
    */
-  public static Tile tileAT(final Point point) {
-    return currentLevel().tileAt(point);
+  public static Optional<Tile> tileAT(final Point point) {
+    return Optional.ofNullable(currentLevel().tileAt(point));
   }
 
   /**
@@ -448,7 +449,7 @@ public final class Game {
 
   /**
    * Get the next tile in the given direction from the specified point.
-   *
+   *F
    * @param point The starting point
    * @param direction The direction in which to find the next tile
    * @return The tile that is the next tile from the given point in the specified direction.
