@@ -16,13 +16,15 @@ import java.util.logging.Level;
 public class TestingGroundsStarter {
 
   /**
-   * WTF? .
+   * Setup and run the game.
    *
-   * @param args foo
-   * @throws IOException foo
+   * @param args The command line arguments.
+   * @throws IOException If an error occurs while loading.
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
+
+    // Set up components and level
     DungeonLoader.addLevel(Tuple.of("playground", TestingGroundsLevel.class));
 
     Game.add(new CollisionSystem());
@@ -32,11 +34,13 @@ public class TestingGroundsStarter {
     Game.add(new HudSystem());
     Game.add(new LevelTickSystem());
 
-    Entity hero = HeroFactory.newHero();
-    Game.add(hero);
-    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     DungeonLoader.loadLevel(0);
 
+    Entity hero = HeroFactory.newHero();
+    Game.add(hero);
+
+    // start the game
+    Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(true);
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");

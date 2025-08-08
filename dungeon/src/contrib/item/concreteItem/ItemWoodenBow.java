@@ -56,10 +56,8 @@ public class ItemWoodenBow extends Item {
                           .canBeUsedAgain()) { // important to prevent spending more than one ammo
                         if (invComp.hasItem(ItemWoodenArrow.class)
                             && invComp.removeOne(
-                                invComp.getItemOfClassWithSmallestStackSize(
-                                    ItemWoodenArrow.class))) {
+                                invComp.getSmallestStackOfItemClass(ItemWoodenArrow.class))) {
                           BOW_SKILL.execute(collectorEntity);
-                          System.out.println("SHOOTING ARROW");
                         }
                       }
                     }));
@@ -84,7 +82,6 @@ public class ItemWoodenBow extends Item {
         hero.fetch(PlayerComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PlayerComponent.class));
     pc.removeCallback(KeyboardConfig.SECOND_SKILL.value());
-    System.out.println("ItemWoodenBow: dropping position " + position);
     if (Game.tileAT(position) instanceof FloorTile) {
       Game.add(WorldItemBuilder.buildWorldItem(this, position));
       return true;
