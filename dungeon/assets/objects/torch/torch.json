@@ -1,0 +1,32 @@
+{
+  "off": {
+    "config": {
+      "spriteWidth": 14,
+      "spriteHeight": 23,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "on": {
+    "config": {
+      "spriteWidth": 14,
+      "spriteHeight": 23,
+      "x": 0,
+      "y": 23,
+      "rows": 1,
+      "columns": 8
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  }
+}

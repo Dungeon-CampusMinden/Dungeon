@@ -1,0 +1,62 @@
+{
+  "idle": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 23,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "idle_left": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 23,
+      "x": 0,
+      "y": 23,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "idle_right": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 23,
+      "x": 0,
+      "y": 46,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 23,
+      "x": 0,
+      "y": 69,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  }
+}
