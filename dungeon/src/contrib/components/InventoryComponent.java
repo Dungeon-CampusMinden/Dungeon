@@ -81,16 +81,12 @@ public final class InventoryComponent implements Component {
   }
 
   private int addToStack(final Item item) {
-    System.out.println("ADD TOC STACK " + item.getClass());
     Set<Item> sameClassItems = itemsOfSameClass(item);
-    System.out.println("Set size " + sameClassItems.stream().count());
     for (Item stack : sameClassItems) {
       if (item.stackSize() <= 0) {
-        System.out.println("Stackzize==0");
         return 0;
       }
       int spaceLeft = stack.maxStackSize() - stack.stackSize();
-      System.out.println("space left " + spaceLeft);
       if (spaceLeft > 0) {
         int toTransfer = Math.min(spaceLeft, item.stackSize());
         stack.stackSize(stack.stackSize() + toTransfer);
