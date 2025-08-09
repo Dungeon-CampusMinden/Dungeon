@@ -29,9 +29,22 @@ public interface INetworkHandler {
    * interact with an entity or use a skill). The message will be processed either locally via the
    * {@link LocalNetworkHandler} or sent to the server.
    *
+   * <p>Implementations must ensure that any callbacks into game code via
+   * {@link #messageDispatcher()} are invoked on the game loop thread, not on IO/transport threads.
+   *
+   * @param message The client message to process.
+   * @param reliable Whether to request reliable delivery (may be ignored by local handlers).
+   */
+  void sendToServer(ClientMessage message, boolean reliable);
+
+  /**
+   * Convenience overload that defaults to reliable delivery.
+   *
    * @param message The client message to process.
    */
-  void sendToServer(ClientMessage message);
+  default void sendToServer(ClientMessage message) {
+    sendToServer(message, true);
+  }
 
   /** Starts the handler's processing loop (if applicable). */
   void start();
@@ -72,4 +85,21 @@ public interface INetworkHandler {
    * @param rawMessageConsumer A consumer that processes raw incoming messages.
    */
   void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer);
+
+  /**
+   * Registers a listener for connection lifecycle events.
+   *
+   * <p>Implementations must ensure that listener callbacks are invoked on the game loop thread,
+   * not on IO/transport threads.
+   *
+   * @param listener the listener to add
+   */
+  void addConnectionListener(ConnectionListener listener);
+
+  /**
+   * Unregisters a previously registered connection listener.
+   *
+   * @param listener the listener to remove
+   */
+  void removeConnectionListener(ConnectionListener listener);
 }
