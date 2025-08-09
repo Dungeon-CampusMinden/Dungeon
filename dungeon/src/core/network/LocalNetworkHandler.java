@@ -42,6 +42,7 @@ public class LocalNetworkHandler implements INetworkHandler {
   private Consumer<NetworkMessage> rawMessageConsumer; // Internal consumer for raw messages
   private boolean isRunning = false;
   private boolean isInitialized = false;
+  private final List<ConnectionListener> connectionListeners = new ArrayList<>();
 
   private final Map<Integer, Integer> lastKnownHealth = new HashMap<>();
   private final Map<Integer, String> lastKnownAnimation = new HashMap<>();
@@ -69,12 +70,12 @@ public class LocalNetworkHandler implements INetworkHandler {
    * @param message The client message to process.
    */
   @Override
-  public void sendToServer(ClientMessage message) {
+  public void sendToServer(ClientMessage message, boolean reliable) {
     if (!isRunning || !isInitialized) {
-      LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendHeroMovement.");
+      LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendToServer.");
       return;
     }
-
+    // Reliable flag is irrelevant for local processing, but method must honor signature.
     message.process();
   }
 
@@ -86,6 +87,7 @@ public class LocalNetworkHandler implements INetworkHandler {
     }
     this.isRunning = true;
     LOGGER.info("LocalNetworkHandler started.");
+    notifyConnected();
   }
 
   @Override
@@ -93,6 +95,7 @@ public class LocalNetworkHandler implements INetworkHandler {
     this.isRunning = false;
     this.isInitialized = false;
     LOGGER.info("LocalNetworkHandler shutdown.");
+    notifyDisconnected(null);
   }
 
   @Override
@@ -114,6 +117,46 @@ public class LocalNetworkHandler implements INetworkHandler {
   @Override
   public void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer) {
     this.rawMessageConsumer = rawMessageConsumer;
+  }
+
+  @Override
+  public synchronized void addConnectionListener(ConnectionListener listener) {
+    if (listener == null) return;
+    connectionListeners.add(listener);
+  }
+
+  @Override
+  public synchronized void removeConnectionListener(ConnectionListener listener) {
+    if (listener == null) return;
+    connectionListeners.remove(listener);
+  }
+
+  private void notifyConnected() {
+    List<ConnectionListener> snapshot;
+    synchronized (this) {
+      snapshot = new ArrayList<>(connectionListeners);
+    }
+    for (ConnectionListener listener : snapshot) {
+      try {
+        listener.onConnected();
+      } catch (Exception e) {
+        LOGGER.warning("ConnectionListener.onConnected threw: " + e.getMessage());
+      }
+    }
+  }
+
+  private void notifyDisconnected(Throwable reason) {
+    List<ConnectionListener> snapshot;
+    synchronized (this) {
+      snapshot = new ArrayList<>(connectionListeners);
+    }
+    for (ConnectionListener listener : snapshot) {
+      try {
+        listener.onDisconnected(reason);
+      } catch (Exception e) {
+        LOGGER.warning("ConnectionListener.onDisconnected threw: " + e.getMessage());
+      }
+    }
   }
 
   /**
