@@ -155,6 +155,10 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
       contents: [
         {
           kind: "block",
+          type: "set_number",
+        },
+        {
+          kind: "block",
           type: "var_number",
         },
         {

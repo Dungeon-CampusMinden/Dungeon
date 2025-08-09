@@ -5,34 +5,34 @@ export function direction_up(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["\"up\"", Order.ATOMIC];
+  return ["Direction.UP", Order.ATOMIC];
 }
 
 export function direction_down(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["\"down\"", Order.ATOMIC];
+  return ["Direction.DOWN", Order.ATOMIC];
 }
 
 export function direction_left(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["\"left\"", Order.ATOMIC];
+  return ["Direction.LEFT", Order.ATOMIC];
 }
 
 export function direction_right(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["\"right\"", Order.ATOMIC];
+  return ["Direction.RIGHT", Order.ATOMIC];
 }
 
 export function direction_here(
   _block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  return ["\"none\"", Order.ATOMIC];
+  return ["Direction.NONE", Order.ATOMIC];
 }
 
