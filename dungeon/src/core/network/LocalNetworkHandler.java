@@ -61,6 +61,13 @@ public class LocalNetworkHandler implements INetworkHandler {
             + ")");
   }
 
+  /**
+   * Sends a client message to the server.
+   *
+   * <p> Since this is the local handler, the message is processed immediately.
+   *
+   * @param message The client message to process.
+   */
   @Override
   public void sendToServer(ClientMessage message) {
     if (!isRunning || !isInitialized) {
