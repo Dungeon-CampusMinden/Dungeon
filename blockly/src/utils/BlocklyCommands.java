@@ -259,14 +259,14 @@ public class BlocklyCommands {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     Direction viewDirection = heroPC.viewDirection();
-    Tile inFront = Game.tileAT(heroPC.position(), viewDirection);
+    Tile inFront = Game.tileAT(heroPC.position(), viewDirection).orElse(null);
     Tile checkTile;
     Direction moveDirection;
     if (push) {
-      checkTile = Game.tileAT(inFront.position(), viewDirection);
+      checkTile = Game.tileAT(inFront.position(), viewDirection).orElse(null);
       moveDirection = viewDirection;
     } else {
-      checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite());
+      checkTile = Game.tileAT(heroPC.position(), viewDirection.opposite()).orElse(null);
       moveDirection = viewDirection.opposite();
     }
     if (!checkTile.isAccessible()
