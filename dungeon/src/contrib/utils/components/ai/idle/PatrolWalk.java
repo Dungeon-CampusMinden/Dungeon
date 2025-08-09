@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 /**
  * Implements an idle AI behavior allowing an entity to patrol between tiles on a map.
+ *
  * <p>
  * The patrol area is determined by a circular radius around the entity's current position.
  * At initialization, a set of unique, accessible checkpoints is selected within this radius.
@@ -28,6 +29,7 @@ import java.util.function.Consumer;
  *   <li>{@code BACK_AND_FORTH}: Move forward through the list, then reverse direction upon reaching the end.</li>
  * </ul>
  * <p>
+ *
  * The AI also includes a configurable pause time at each checkpoint before proceeding to the next.
  */
 public final class PatrolWalk implements Consumer<Entity> {
