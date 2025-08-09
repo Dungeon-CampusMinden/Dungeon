@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
 }
 
-
 dependencies {
     // LibGDX: expose this API to users because of core.level.elements.ILevel
     api supportDependencies.gdx
@@ -13,12 +12,15 @@ dependencies {
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
 
+    // Netty + simple SLF4J backend for server-side networking (pure Java)
+    implementation supportDependencies.netty_all
+    implementation supportDependencies.slf4j_simple
+
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
     testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
 }
-
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
@@ -35,6 +37,19 @@ tasks.register('runBasicStarter', JavaExec) {
 tasks.register('debugBasicStarter', JavaExec) {
     group 'starter'
     mainClass = 'starter.BasicStarter'
+    classpath = sourceSets.main.runtimeClasspath
+    debug = true
+}
+
+tasks.register('runServerStarter', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.Server'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('debugServerStarter', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.Server'
     classpath = sourceSets.main.runtimeClasspath
     debug = true
 }
