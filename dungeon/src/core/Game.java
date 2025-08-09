@@ -486,8 +486,8 @@ public final class Game {
    * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
-   * @return An {@link Optional} containing the tile at the specified coordinate,
-   *      or {@link Optional#empty()} if there is no tile or the coordinate is out of bounds.
+   * @return An {@link Optional} containing the tile at the specified coordinate, or {@link
+   *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
   public static Optional<Tile> tileAT(final Coordinate coordinate) {
     // Implemented the TODO: no more null return values
@@ -498,9 +498,9 @@ public final class Game {
    * Get the next tile in the given direction from the specified coordinate.
    *
    * @param coordinate The starting coordinate
-   * @param direction  The direction in which to find the next tile
+   * @param direction The direction in which to find the next tile
    * @return An {@link Optional} containing the tile that is the next tile from the given coordinate
-   *         in the specified direction, or {@link Optional#empty()} if there is no such tile.
+   *     in the specified direction, or {@link Optional#empty()} if there is no such tile.
    */
   public static Optional<Tile> tileAT(final Coordinate coordinate, Direction direction) {
     return tileAT(coordinate.translate(direction));
@@ -509,9 +509,10 @@ public final class Game {
   /**
    * Get the next tile in the given direction from the specified point.
    *
-   * @param point     The starting point
+   * @param point The starting point
    * @param direction The direction in which to find the next tile
-   * @return An {@link Optional} containing the tile at the given point, or an empty Optional if no tile exists.
+   * @return An {@link Optional} containing the tile at the given point, or an empty Optional if no
+   *     tile exists.
    */
   public static Optional<Tile> tileAT(final Point point, Direction direction) {
     return tileAT(point.toCoordinate(), direction);
@@ -595,10 +596,11 @@ public final class Game {
             e ->
                 tile.equals(
                     tileAT(
-                        e.fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())
+                            e.fetch(PositionComponent.class)
+                                .orElseThrow(
+                                    () ->
+                                        MissingComponentException.build(e, PositionComponent.class))
+                                .position())
                         .orElse(null)));
   }
 

@@ -67,9 +67,9 @@ public class Level003 extends BlocklyLevel {
     Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
 
     Game.tileAT(new Coordinate(0, 5))
-      .filter(t -> t instanceof DoorTile)
-      .map(t -> (DoorTile) t)
-      .ifPresent(DoorTile::close);
+        .filter(t -> t instanceof DoorTile)
+        .map(t -> (DoorTile) t)
+        .ifPresent(DoorTile::close);
   }
 
   @Override

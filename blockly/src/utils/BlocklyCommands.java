@@ -146,7 +146,8 @@ public class BlocklyCommands {
     if (direction == Direction.NONE) {
       inDirection = Game.tileAT(pc.position()).orElse(null);
     } else {
-      inDirection = Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction)).orElse(null);
+      inDirection =
+          Game.tileAT(pc.position(), pc.viewDirection().applyRelative(direction)).orElse(null);
     }
 
     Game.entityAtTile(inDirection)

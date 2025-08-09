@@ -8,6 +8,7 @@ import contrib.entities.WorldItemBuilder;
 import contrib.item.concreteItem.*;
 import core.Entity;
 import core.Game;
+import core.level.Tile;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
@@ -16,8 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
-
-import core.level.Tile;
 
 /**
  * Abstract class that represents every item in the game.
