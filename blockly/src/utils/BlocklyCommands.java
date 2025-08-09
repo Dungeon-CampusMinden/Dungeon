@@ -420,7 +420,7 @@ public class BlocklyCommands {
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
 
-      Tile targetTile = Game.tileAT(pc.position(), direction);
+      Tile targetTile = Game.tileAT(pc.position(), direction).orElse(null);
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
@@ -463,7 +463,7 @@ public class BlocklyCommands {
       ec.vc.currentVelocity(Vector2.ZERO);
       ec.vc.clearForces();
       // check the position-tile via new request in case a new level was loaded
-      Tile endTile = Game.tileAT(ec.pc.position());
+      Tile endTile = Game.tileAT(ec.pc.position()).orElse(null);
       if (endTile != null) ec.pc.position(endTile); // snap to grid
     }
   }
