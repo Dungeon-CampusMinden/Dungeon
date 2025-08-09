@@ -9,7 +9,6 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,18 +18,19 @@ import java.util.function.Consumer;
 /**
  * Implements an idle AI behavior allowing an entity to patrol between tiles on a map.
  *
- * <p>
- * The patrol area is determined by a circular radius around the entity's current position.
- * At initialization, a set of unique, accessible checkpoints is selected within this radius.
- * The entity then moves between these checkpoints using one of the following patrol modes:
- * <ul>
- *   <li>{@code RANDOM}: Move to a randomly chosen checkpoint each time.</li>
- *   <li>{@code LOOP}: Move sequentially through all checkpoints and repeat from the beginning.</li>
- *   <li>{@code BACK_AND_FORTH}: Move forward through the list, then reverse direction upon reaching the end.</li>
- * </ul>
- * <p>
+ * <p>The patrol area is determined by a circular radius around the entity's current position. At
+ * initialization, a set of unique, accessible checkpoints is selected within this radius. The
+ * entity then moves between these checkpoints using one of the following patrol modes:
  *
- * The AI also includes a configurable pause time at each checkpoint before proceeding to the next.
+ * <ul>
+ *   <li>{@code RANDOM}: Move to a randomly chosen checkpoint each time.
+ *   <li>{@code LOOP}: Move sequentially through all checkpoints and repeat from the beginning.
+ *   <li>{@code BACK_AND_FORTH}: Move forward through the list, then reverse direction upon reaching
+ *       the end.
+ * </ul>
+ *
+ * <p>The AI also includes a configurable pause time at each checkpoint before proceeding to the
+ * next.
  */
 public final class PatrolWalk implements Consumer<Entity> {
 
@@ -50,17 +50,16 @@ public final class PatrolWalk implements Consumer<Entity> {
   /**
    * Constructs a new PatrolWalk behavior instance.
    *
-   * <p>This idle AI behavior moves an entity between a set of accessible checkpoints
-   * within a defined radius around its initial position. The movement pattern depends
-   * on the selected patrol mode and includes a randomized pause at each checkpoint.
+   * <p>This idle AI behavior moves an entity between a set of accessible checkpoints within a
+   * defined radius around its initial position. The movement pattern depends on the selected patrol
+   * mode and includes a randomized pause at each checkpoint.
    *
-   * @param radius            The maximum distance (in tiles) from the entity's position
-   *                          used to select accessible checkpoint tiles.
+   * @param radius The maximum distance (in tiles) from the entity's position used to select
+   *     accessible checkpoint tiles.
    * @param numberCheckpoints The number of unique checkpoints to generate within the radius.
-   * @param pauseTimeMillis   The maximum wait time (in milliseconds) at each checkpoint.
-   *                          The actual pause duration is randomly selected between 0 and this value.
-   * @param mode              The patrol mode defining the movement pattern
-   *                          (e.g., RANDOM, LOOP, BACK_AND_FORTH).
+   * @param pauseTimeMillis The maximum wait time (in milliseconds) at each checkpoint. The actual
+   *     pause duration is randomly selected between 0 and this value.
+   * @param mode The patrol mode defining the movement pattern (e.g., RANDOM, LOOP, BACK_AND_FORTH).
    */
   public PatrolWalk(float radius, int numberCheckpoints, int pauseTimeMillis, final MODE mode) {
     this.radius = radius;
@@ -72,9 +71,9 @@ public final class PatrolWalk implements Consumer<Entity> {
   /**
    * Initializes a list of accessible patrol checkpoints around the entity’s current position.
    *
-   * <p>This method attempts to retrieve the PositionComponent of the entity.
-   * It checks whether the entity is standing on a valid tile, collects accessible tiles
-   * within a defined radius, and randomly selects unique patrol checkpoints.
+   * <p>This method attempts to retrieve the PositionComponent of the entity. It checks whether the
+   * entity is standing on a valid tile, collects accessible tiles within a defined radius, and
+   * randomly selects unique patrol checkpoints.
    *
    * @param entity The entity around whose position patrol checkpoints are generated.
    * @return {@code true} if at least one valid checkpoint was found, {@code false} otherwise.
@@ -85,8 +84,10 @@ public final class PatrolWalk implements Consumer<Entity> {
     initialized = true;
 
     // Retrieve position of the entity
-    PositionComponent position = entity.fetch(PositionComponent.class)
-      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    PositionComponent position =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point center = position.position(); // Current position as Point(x, y)
 
     // Get the tile under the entity (may be empty if outside level)
@@ -100,8 +101,8 @@ public final class PatrolWalk implements Consumer<Entity> {
     // Randomly select unique tiles as patrol checkpoints
     int maxTries = 0;
     while (checkpoints.size() < numberCheckpoints
-      && accessibleTiles.size() != checkpoints.size()
-      && maxTries < 1000) {
+        && accessibleTiles.size() != checkpoints.size()
+        && maxTries < 1000) {
 
       // Pick a random tile from accessible candidates
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
@@ -171,14 +172,15 @@ public final class PatrolWalk implements Consumer<Entity> {
    * @return The PositionComponent.
    */
   private PositionComponent getPositionComponent(Entity entity) {
-    return entity.fetch(PositionComponent.class)
-      .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 
   /**
    * Handles the current path if it's still in progress.
    *
-   * @param entity   The entity moving along the path.
+   * @param entity The entity moving along the path.
    * @param position The entity's position component.
    * @return true if the entity is currently moving on a path.
    */
@@ -228,13 +230,14 @@ public final class PatrolWalk implements Consumer<Entity> {
   /**
    * Updates the path if the entity has deviated from it.
    *
-   * @param entity   The target entity.
+   * @param entity The target entity.
    * @param position The current position component of the entity.
    */
   private void updatePathIfRequired(Entity entity, PositionComponent position) {
     if (AIUtils.pathLeft(entity, currentPath)) {
-      currentPath = LevelUtils.calculatePath(
-        position.position(), checkpoints.get(currentCheckpoint).position());
+      currentPath =
+          LevelUtils.calculatePath(
+              position.position(), checkpoints.get(currentCheckpoint).position());
     }
   }
 
@@ -260,13 +263,14 @@ public final class PatrolWalk implements Consumer<Entity> {
       case BACK_AND_FORTH -> updateCheckpointBackAndForth();
     }
 
-    currentPath = LevelUtils.calculatePath(
-      position.position(), checkpoints.get(currentCheckpoint).position());
+    currentPath =
+        LevelUtils.calculatePath(
+            position.position(), checkpoints.get(currentCheckpoint).position());
   }
 
   /**
-   * Updates the checkpoint index for BACK_AND_FORTH mode.
-   * Reverses direction when reaching either end of the checkpoint list.
+   * Updates the checkpoint index for BACK_AND_FORTH mode. Reverses direction when reaching either
+   * end of the checkpoint list.
    */
   private void updateCheckpointBackAndForth() {
     if (forward) {
@@ -284,9 +288,7 @@ public final class PatrolWalk implements Consumer<Entity> {
     }
   }
 
-  /**
-   * Enum representing the patrol mode to use when selecting the next checkpoint.
-   */
+  /** Enum representing the patrol mode to use when selecting the next checkpoint. */
   public enum MODE {
     /** Select a random checkpoint. */
     RANDOM,

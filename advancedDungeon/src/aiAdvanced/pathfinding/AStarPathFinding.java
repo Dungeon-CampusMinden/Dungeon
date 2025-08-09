@@ -57,7 +57,6 @@ public class AStarPathFinding extends PathfindingLogic {
     Tile fromTile = Game.tileAT(from).orElse(null);
     Tile toTile = Game.tileAT(to).orElse(null);
 
-
     return heuristic.estimate(fromTile, toTile);
   }
 

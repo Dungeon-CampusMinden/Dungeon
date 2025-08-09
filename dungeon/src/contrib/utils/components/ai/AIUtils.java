@@ -78,7 +78,8 @@ public final class AIUtils {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return path.getCount() == 0 || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()).orElse(null));
+    return path.getCount() == 0
+        || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()).orElse(null));
   }
 
   /**
