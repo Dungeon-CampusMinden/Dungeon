@@ -23,7 +23,6 @@ public final class PlayerComponent implements Component {
 
   private int openDialogs = 0;
   private final boolean isLocalHero;
-  private boolean deactivate = false;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent(boolean isLocalHero) {
