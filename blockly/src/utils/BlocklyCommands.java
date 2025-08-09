@@ -169,7 +169,7 @@ public class BlocklyCommands {
     Game.hero()
         .ifPresent(
             hero ->
-                Game.entityAtTile(Game.tileAT(EntityUtils.getHeroCoordinate()))
+                Game.entityAtTile(Game.tileAT(EntityUtils.getHeroCoordinate()).orElse(null))
                     .filter(e -> e.isPresent(BlocklyItemComponent.class))
                     .forEach(
                         item ->
