@@ -318,7 +318,7 @@ public class BlocklyCommands {
       Class<? extends Component> componentClass, final Direction direction) {
     // Check if there is a component on the tile the hero is standing on
     if (direction == Direction.NONE) {
-      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate()).orElse(null);
       return Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(componentClass));
     }
     return targetTile(direction)
