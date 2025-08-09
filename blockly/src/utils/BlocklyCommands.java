@@ -300,7 +300,7 @@ public class BlocklyCommands {
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
     // Check the tile the hero is standing on
     if (direction == Direction.NONE) {
-      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate()).orElse(null);
       return checkTile.levelElement() == tileElement;
     }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
