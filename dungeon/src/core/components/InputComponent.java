@@ -1,32 +1,52 @@
 package core.components;
 
+import com.badlogic.gdx.Input;
 import core.Component;
+import core.Entity;
+import core.systems.InputSystem;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
- * Marker component for the player entity.
+ * This component stores pairs of keystroke codes with an associated callback function. The mappings
+ * can be added or changed via {@link #registerCallback} and removed via {@link #removeCallback}.
+ * The codes for the buttons originate from {@link Input.Keys}.
  *
- * <p>This component is used to identify the player entity in the game. It contains information
- * about whether the player is the local hero and manages the count of open dialogs.
- *
- * @see PlayerComponent#isLocalHero()
- * @see PlayerComponent#incrementOpenDialogs()
- * @see PlayerComponent#decrementOpenDialogs()
- * @see InputComponent InputComponent, for handling player input
+ * @see Input.Keys
+ * @see InputSystem
  */
-public final class PlayerComponent implements Component {
+public class InputComponent implements Component {
 
-  private int openDialogs = 0;
-  private final boolean isLocalHero;
-  private boolean deactivate = false;
+  private final Map<Integer, InputComponent.InputData> callbacks;
 
-  /** Create a new PlayerComponent. */
-  public PlayerComponent(boolean isLocalHero) {
-    this.isLocalHero = isLocalHero;
+  /** Creates a new InputComponent. */
+  public InputComponent() {
+    callbacks = new HashMap<>();
   }
 
-  /** Gets whether this player is the local hero. */
-  public boolean isLocalHero() {
-    return isLocalHero;
+  /**
+   * Registers a new callback for a key.
+   *
+   * <p>If a callback is already registered on this key, the old callback will be replaced.
+   *
+   * <p>The callback will be executed repeatedly while the key is pressed. Use {@link
+   * #registerCallback(int, Consumer, boolean)} to change this behavior.
+   *
+   * @param key The integer value of the key on which the callback should be executed.
+   * @param callback The {@link Consumer} that contains the callback to execute if the key is
+   *     pressed.
+   * @return {@code Optional<Consumer<Entity>>} The old callback, if one was existing. Can be null.
+   * @see com.badlogic.gdx.Gdx#input
+   */
+  public Optional<Consumer<Entity>> registerCallback(int key, final Consumer<Entity> callback) {
+    Consumer<Entity> oldCallback = null;
+    if (callbacks.containsKey(key)) {
+      oldCallback = callbacks.get(key).callback();
+    }
+    callbacks.put(key, new InputComponent.InputData(true, callback));
+    return Optional.ofNullable(oldCallback);
   }
 
   /**
@@ -47,7 +67,7 @@ public final class PlayerComponent implements Component {
     if (callbacks.containsKey(key)) {
       oldCallback = callbacks.get(key).callback();
     }
-    callbacks.put(key, new InputData(repeat, callback, pauseable));
+    callbacks.put(key, new InputComponent.InputData(repeat, callback, pauseable));
     return Optional.ofNullable(oldCallback);
   }
 
@@ -80,7 +100,7 @@ public final class PlayerComponent implements Component {
     callbacks.remove(key);
   }
 
-  /** Removes all registered callbacks. */
+  /** Removes all registed callbacks. */
   public void removeCallbacks() {
     callbacks.clear();
   }
@@ -90,27 +110,8 @@ public final class PlayerComponent implements Component {
    *
    * @return A copy of the callback map.
    */
-  public Map<Integer, InputData> callbacks() {
+  public Map<Integer, InputComponent.InputData> callbacks() {
     return new HashMap<>(callbacks);
-  }
-
-  /** Increases the dialogue counter by 1. */
-  public void incrementOpenDialogs() {
-    openDialogs++;
-  }
-
-  /** Decreases the dialogue counter by 1. */
-  public void decrementOpenDialogs() {
-    openDialogs--;
-  }
-
-  /**
-   * Indicates whether dialogs are currently open.
-   *
-   * @return true if dialogs are currently open, otherwise false
-   */
-  public boolean openDialogs() {
-    return openDialogs > 0;
   }
 
   /**
@@ -131,23 +132,5 @@ public final class PlayerComponent implements Component {
     public InputData(boolean repeat, Consumer<Entity> callback) {
       this(repeat, callback, false);
     }
-  }
-
-  /**
-   * Enables or disables the player controls.
-   *
-   * @param deactivate true to disable player controls; false to enable them
-   */
-  public void deactivateControls(boolean deactivate) {
-    this.deactivate = deactivate;
-  }
-
-  /**
-   * Returns whether the player controls are currently deactivated.
-   *
-   * @return true if controls are disabled; false if they are active
-   */
-  public boolean deactivateControls() {
-    return this.deactivate;
   }
 }

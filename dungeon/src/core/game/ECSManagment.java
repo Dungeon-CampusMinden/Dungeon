@@ -212,11 +212,21 @@ public final class ECSManagment {
   }
 
   /**
-   * @return the player character, can be null if not initialized
-   * @see Optional
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
    */
   public static Optional<Entity> hero() {
-    return entityStream().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
+    return entityStream()
+        .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false))
+        .findFirst();
+  }
+
+  /**
+   * @return a stream of all hero entities in the game.
+   * @see PlayerComponent
+   */
+  public static Stream<Entity> allHeros() {
+    return entityStream().filter(e -> e.isPresent(PlayerComponent.class));
   }
 
   /**

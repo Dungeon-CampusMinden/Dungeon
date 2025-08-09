@@ -4,7 +4,6 @@ import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
-import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -12,7 +11,6 @@ import core.utils.Point;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
@@ -22,39 +20,6 @@ import java.util.function.Consumer;
  * {@link MiscFactory}
  */
 public final class EntityFactory {
-
-  /**
-   * Get an Entity that can be used as a playable character.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link HealthComponent}.
-   *
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newHero() throws IOException {
-    return HeroFactory.newHero();
-  }
-
-  /**
-   * Get an Entity that can be used as a playable character.
-   *
-   * <p>The Entity is not added to the game yet.
-   *
-   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link HealthComponent}.
-   *
-   * @param deathCallback function that will be executed if the hero dies
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
-    return HeroFactory.newHero(deathCallback);
-  }
 
   /**
    * Get an Entity that can be used as a monster.

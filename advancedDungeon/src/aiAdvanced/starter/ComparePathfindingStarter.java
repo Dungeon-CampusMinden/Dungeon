@@ -27,8 +27,8 @@ import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
+import core.systems.InputSystem;
 import core.systems.LevelSystem;
-import core.systems.PlayerSystem;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -80,7 +80,7 @@ public class ComparePathfindingStarter {
 
           Game.system(
               LevelSystem.class, ls -> ls.onEndTile(ComparePathfindingStarter::loadNextLevel));
-          Game.remove(PlayerSystem.class);
+          Game.remove(InputSystem.class);
           loadNextLevel();
 
           // Wait for Level to Load

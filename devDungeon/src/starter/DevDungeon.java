@@ -3,6 +3,7 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
@@ -18,9 +19,12 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import entities.BurningFireballSkill;
@@ -28,6 +32,7 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
@@ -105,7 +110,11 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero();
+    // TODO: Only testing, revert later
+    Entity hero = HeroFactory.newHero(false);
+    Game.add(hero);
+    hero = HeroFactory.newHero(true);
+    // hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     Game.add(hero);
   }
 
