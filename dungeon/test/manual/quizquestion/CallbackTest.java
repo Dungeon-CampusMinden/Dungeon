@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import contrib.components.InteractionComponent;
 import contrib.entities.EntityFactory;
+import contrib.entities.HeroFactory;
 import contrib.hud.dialogs.TextDialog;
 import contrib.systems.*;
 import core.Entity;
@@ -73,7 +74,7 @@ public class CallbackTest {
             Game.add(new HealthSystem());
             Game.add(new ProjectileSystem());
             Game.add(new HudSystem());
-            Entity hero = EntityFactory.newHero();
+            Entity hero = HeroFactory.newHero();
             Game.add(hero);
           } catch (IOException e) {
             throw new RuntimeException(e);

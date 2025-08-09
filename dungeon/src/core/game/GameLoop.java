@@ -247,13 +247,6 @@ public final class GameLoop extends ScreenAdapter {
                         .fetch(DrawComponent.class)
                         .ifPresentOrElse(
                             dc -> {
-                              java.lang.System.out.println(
-                                  "Updating DrawComponent for entity "
-                                      + drawUpdate.entityId()
-                                      + " with animation "
-                                      + drawUpdate.animationName()
-                                      + " and tint color "
-                                      + drawUpdate.tintColor());
                               dc.currentAnimation(drawUpdate.animationName());
                               dc.tintColor(drawUpdate.tintColor());
                             },
@@ -379,7 +372,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new InputSystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
-    ECSManagment.add(new InputSystem());
     ECSManagment.add(new DebugDrawSystem());
   }
 }
