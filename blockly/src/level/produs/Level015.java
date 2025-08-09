@@ -93,7 +93,7 @@ public class Level015 extends BlocklyLevel {
 
     DoorTile[] doors = new DoorTile[coords.length];
     for (int i = 0; i < coords.length; i++) {
-      doors[i] = (DoorTile) Game.tileAT(coords[i]);
+      doors[i] = (DoorTile) Game.tileAT(coords[i]).orElse(null);
     }
 
     for (int i = 0; i < doors.length; i++) {
