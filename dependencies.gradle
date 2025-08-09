@@ -10,6 +10,12 @@ ext {
     mockitoVersion = '5.19.0'
     antlrVersion = '4.13.2'
 
+    // -- NETWORK / SERVER
+    // Netty (io.netty netty-all)
+    nettyVersion = '4.1.122.Final'
+    // SLF4J simple logger for a minimal server logging backend
+    slf4jSimpleVersion = '2.0.17'
+
     supportDependencies = [
         // LibGDX
         gdx                       : "com.badlogicgames.gdx:gdx:$gdxVersion",
@@ -27,5 +33,9 @@ ext {
 
         // ANTLR version 4 for DSL Grammar
         antlr                     : "org.antlr:antlr4:$antlrVersion",
+
+        // Netty and simple SLF4J backend for server module
+        netty_all     : "io.netty:netty-all:$nettyVersion",
+        slf4j_simple  : "org.slf4j:slf4j-simple:$slf4jSimpleVersion",
     ]
 }
