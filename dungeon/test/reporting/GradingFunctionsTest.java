@@ -3,6 +3,7 @@ package reporting;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.entities.EntityFactory;
+import contrib.entities.HeroFactory;
 import core.Game;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class GradingFunctionsTest {
   @BeforeEach
   public void setup() {
     try {
-      Game.add(EntityFactory.newHero());
+      Game.add(HeroFactory.newHero());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

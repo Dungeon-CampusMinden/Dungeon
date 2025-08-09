@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.EntityFactory;
+import contrib.entities.HeroFactory;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
@@ -622,7 +623,7 @@ public class AnswerPickingFunctionsTest {
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
     // setup hero
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
     TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -657,7 +658,7 @@ public class AnswerPickingFunctionsTest {
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
     // setup hero
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     Game.add(hero);
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
@@ -694,7 +695,7 @@ public class AnswerPickingFunctionsTest {
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
     // setup hero
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
     TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -727,7 +728,7 @@ public class AnswerPickingFunctionsTest {
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
     // setup hero
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
     TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -761,7 +762,7 @@ public class AnswerPickingFunctionsTest {
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
     // setup hero
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
     TaskContent containerTaskContent = new Element<>(sc, hero);
@@ -793,7 +794,7 @@ public class AnswerPickingFunctionsTest {
     sc.answerPickingFunction(AnswerPickingFunctions.heroInventoryPicker());
 
     // setup hero
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InventoryComponent ic = new InventoryComponent(3);
     hero.add(ic);
     TaskContent containerTaskContent = new Element<>(sc, hero);

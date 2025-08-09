@@ -10,6 +10,7 @@ import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import client.Client;
 import utils.BlocklyCommands;
 
 /**

@@ -46,12 +46,14 @@ public final class HeroFactory {
    */
   public static final int DEFAULT_INVENTORY_SIZE = 6;
 
+  /** The ID for the movement force. */
+  public static final String MOVEMENT_ID = "Movement";
+
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
   private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
   private static final float HERO_MAX_SPEED = STEP_SPEED.x();
-  private static final String MOVEMENT_ID = "Movement";
   private static final float HERO_MASS = 1.3f;
   private static Skill HERO_SKILL =
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
@@ -199,10 +201,11 @@ public final class HeroFactory {
     InputComponent inputComp = new InputComponent();
     hero.add(
         new CatapultableComponent(
-            entity -> inputComp.deactivateControls(true), entity -> inputComp.deactivateControls(false)));
+            entity -> inputComp.deactivateControls(true),
+            entity -> inputComp.deactivateControls(false)));
     hero.add(inputComp);
-    InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
-    hero.add(ic);
+    InventoryComponent invComp = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
+    hero.add(invComp);
 
     // hero movement
     registerMovement(

@@ -37,7 +37,7 @@ public class InteractionToolTest {
    */
   private static Entity testHero(boolean havingPositionComponent) {
     Entity hero = new Entity();
-    hero.add(new PlayerComponent());
+    hero.add(new PlayerComponent(true));
     if (havingPositionComponent) hero.add(new PositionComponent(new Point(0, 0)));
     return hero;
   }

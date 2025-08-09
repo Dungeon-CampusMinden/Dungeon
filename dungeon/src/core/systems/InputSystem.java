@@ -36,7 +36,7 @@ public final class InputSystem extends System {
         entity
             .fetch(InputComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InputComponent.class));
-    if (pc.deactivateControls()) return;
+    if (ic.deactivateControls()) return;
     execute(ic.callbacks(), entity, !this.running);
   }
 
