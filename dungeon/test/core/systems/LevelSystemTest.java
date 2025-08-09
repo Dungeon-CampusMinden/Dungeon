@@ -108,7 +108,7 @@ public class LevelSystemTest {
     api.onEndTile(() -> api.loadLevel(level));
     Entity hero = new Entity();
     hero.add(new PositionComponent());
-    hero.add(new PlayerComponent());
+    hero.add(new PlayerComponent(true));
     Game.add(hero);
 
     ExitTile end = Mockito.mock(ExitTile.class);
