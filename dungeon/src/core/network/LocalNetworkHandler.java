@@ -1,17 +1,30 @@
 package core.network;
 
+import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
+import contrib.components.PathComponent;
+import contrib.entities.HeroController;
+import contrib.entities.HeroFactory;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.LevelUtils;
+import core.network.messages.EntityState;
+import core.network.messages.InputMessage;
 import core.network.messages.NetworkMessage;
-import core.network.messages.client2server.ClientMessage;
-import core.network.messages.server2client.DrawUpdate;
-import core.network.messages.server2client.HealthUpdate;
-import core.network.messages.server2client.PositionUpdate;
-import java.util.*;
+import core.network.messages.SnapshotMessage;
+import core.utils.Point;
+import core.utils.Vector2;
+import core.utils.components.MissingComponentException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A mock network handler for single-player games.
@@ -27,7 +40,7 @@ import java.util.logging.Logger;
  * <ol>
  *   <li>Initialize with {@link #initialize(boolean, String, int)}.
  *   <li>Start processing with {@link #start()}.
- *   <li>Send client messages via {@link #sendToServer(ClientMessage)}.
+ *   <li>Send client messages via {@link #sendInput(InputMessage, boolean)}.
  *   <li>Trigger state updates with {@link #triggerStateUpdate()}.
  *   <li>Stop the handler with {@link #shutdown()}.
  * </ol>
@@ -36,53 +49,49 @@ import java.util.logging.Logger;
  */
 public class LocalNetworkHandler implements INetworkHandler {
 
-  private static final Logger LOGGER = Logger.getLogger(LocalNetworkHandler.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkHandler.class);
 
   private final MessageDispatcher dispatcher = new MessageDispatcher(); // Instantiate dispatcher
   private Consumer<NetworkMessage> rawMessageConsumer; // Internal consumer for raw messages
   private boolean isRunning = false;
   private boolean isInitialized = false;
   private final List<ConnectionListener> connectionListeners = new ArrayList<>();
+  private volatile SnapshotTranslator translator;
 
-  private final Map<Integer, Integer> lastKnownHealth = new HashMap<>();
-  private final Map<Integer, String> lastKnownAnimation = new HashMap<>();
+  // No per-field delta tracking; we emit compact snapshots for local mode as well.
 
   @Override
-  public void initialize(boolean isServer, String serverAddress, int port) throws NetworkException {
-    // No actual network initialization needed for local handler.
-    // We can use the parameters for potential future logging or mock setup if needed.
+  public void initialize(boolean isServer, String serverAddress, int port, String username) throws NetworkException {
     this.isInitialized = true;
-    LOGGER.info(
-        "LocalNetworkHandler initialized. (Server: "
-            + isServer
-            + ", Address: "
-            + serverAddress
-            + ", Port: "
-            + port
-            + ")");
   }
 
-  /**
-   * Sends a client message to the server.
-   *
-   * <p>Since this is the local handler, the message is processed immediately.
-   *
-   * @param message The client message to process.
-   */
   @Override
-  public void sendToServer(ClientMessage message, boolean reliable) {
-    if (!isRunning || !isInitialized) {
-      LOGGER.warning("LocalNetworkHandler not running or initialized, ignoring sendToServer.");
-      return;
-    }
-    // Reliable flag is irrelevant for local processing, but method must honor signature.
-    message.process();
+  public void sendInput(InputMessage input) {
+    // Apply same semantics as the authoritative server to the local hero entity
+    Game.hero()
+        .ifPresent(
+            hero -> {
+              switch (input.action()) {
+                case MOVE:
+                  HeroController.moveHero(hero, Vector2.of(input.point()).direction());
+                  break;
+                case MOVE_PATH:
+                  HeroController.moveHeroPath(hero, input.point());
+                  break;
+                case CAST_SKILL:
+                  HeroController.useSkill(hero, 0, input.point());
+                  break;
+                case INTERACT:
+                  HeroController.interact(hero, input.point());
+                  break;
+              }
+            });
   }
 
   @Override
   public void start() {
     if (!isInitialized) {
-      LOGGER.severe("LocalNetworkHandler cannot start because it is not initialized.");
+      LOGGER.error("LocalNetworkHandler cannot start because it is not initialized.");
       return;
     }
     this.isRunning = true;
@@ -119,6 +128,31 @@ public class LocalNetworkHandler implements INetworkHandler {
     this.rawMessageConsumer = rawMessageConsumer;
   }
 
+  /**
+   * Returns the configured SnapshotTranslator or throws if not set.
+   *
+   * <p>Explicit injection required: callers must set a translator before use.
+   */
+  @Override
+  public SnapshotTranslator snapshotTranslator() {
+    SnapshotTranslator t = translator;
+    if (t == null)
+      throw new IllegalStateException(
+          "SnapshotTranslator not set on INetworkHandler. Set via setSnapshotTranslator(...) before starting network or provide translator in starter.");
+    return t;
+  }
+
+  /** Sets the SnapshotTranslator to be used by this handler. */
+  @Override
+  public void setSnapshotTranslator(SnapshotTranslator translator) {
+    if (translator != null) this.translator = translator;
+  }
+
+  @Override
+  public void pollAndDispatch() {
+    // Local handler processes immediately; nothing to drain.
+  }
+
   @Override
   public synchronized void addConnectionListener(ConnectionListener listener) {
     if (listener == null) return;
@@ -140,7 +174,7 @@ public class LocalNetworkHandler implements INetworkHandler {
       try {
         listener.onConnected();
       } catch (Exception e) {
-        LOGGER.warning("ConnectionListener.onConnected threw: " + e.getMessage());
+        LOGGER.warn("ConnectionListener.onConnected threw", e);
       }
     }
   }
@@ -154,7 +188,7 @@ public class LocalNetworkHandler implements INetworkHandler {
       try {
         listener.onDisconnected(reason);
       } catch (Exception e) {
-        LOGGER.warning("ConnectionListener.onDisconnected threw: " + e.getMessage());
+        LOGGER.warn("ConnectionListener.onDisconnected threw", e);
       }
     }
   }
@@ -167,65 +201,45 @@ public class LocalNetworkHandler implements INetworkHandler {
    */
   public void triggerStateUpdate() {
     if (!isRunning || !isInitialized || rawMessageConsumer == null) {
-      LOGGER.info(
-          "LocalNetworkHandler not ready to send updates. Running: "
-              + isRunning
-              + ", Init: "
-              + isInitialized
-              + ", Consumer: "
-              + (rawMessageConsumer != null));
+      LOGGER.debug(
+          "LocalNetworkHandler not ready to send updates. Running: {}, Init: {}, Consumer: {}",
+          isRunning,
+          isInitialized,
+          (rawMessageConsumer != null));
       return;
     }
 
-    Set<Integer> activeEntityIds = new HashSet<>();
-
+    List<EntityState> snapshotEntities = new ArrayList<>();
     Game.entityStream()
         .forEach(
             entity -> {
-              int entityId = entity.id();
-              activeEntityIds.add(entityId);
+              EntityState.Builder builder = EntityState.builder();
+              final int entityId = entity.id();
+              builder.entityId(entityId);
 
-              // Always send position data
-              entity
-                  .fetch(PositionComponent.class)
-                  .ifPresent(
-                      pc -> {
-                        PositionUpdate posUpdate =
-                            new PositionUpdate(entityId, pc.position(), pc.viewDirection());
-                        rawMessageConsumer.accept(posUpdate);
-                      });
+              // PositionComponent
+              Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
+              if (pcOpt.isEmpty()) return; // only include entities with a position
+              builder.position(pcOpt.get().position());
+              builder.viewDirection(pcOpt.get().viewDirection());
 
-              // Send health data
+              // HealthComponent
               entity
                   .fetch(HealthComponent.class)
                   .ifPresent(
                       hc -> {
-                        int currentHealth = hc.currentHealthpoints();
-                        if (!lastKnownHealth
-                            .getOrDefault(entityId, Integer.MIN_VALUE)
-                            .equals(currentHealth)) {
-                          HealthUpdate healthUpdate =
-                              new HealthUpdate(entityId, currentHealth, hc.maximalHealthpoints());
-                          rawMessageConsumer.accept(healthUpdate);
-                          lastKnownHealth.put(entityId, currentHealth);
-                        }
+                        builder.currentHealth(hc.currentHealthpoints());
+                        builder.maxHealth(hc.maximalHealthpoints());
                       });
 
+              // DrawComponent
               entity
                   .fetch(DrawComponent.class)
-                  .ifPresent(
-                      dc -> {
-                        String currentAnimation = dc.currentAnimationName();
-                        if (!lastKnownAnimation
-                            .getOrDefault(entityId, "")
-                            .equals(currentAnimation)) {
-                          DrawUpdate drawUpdate =
-                              new DrawUpdate(entityId, currentAnimation, dc.tintColor());
-                          rawMessageConsumer.accept(drawUpdate);
-                          lastKnownAnimation.put(entityId, currentAnimation);
-                        }
-                      });
+                  .ifPresent(dc -> builder.animation(dc.currentAnimationName()));
+
+              snapshotEntities.add(builder.build());
             });
-    lastKnownHealth.keySet().retainAll(activeEntityIds);
+
+    rawMessageConsumer.accept(new SnapshotMessage(0L, snapshotEntities));
   }
 }
