@@ -17,10 +17,17 @@ public final class PlayerComponent implements Component {
 
   private int openDialogs = 0;
   private final boolean isLocalHero;
+  private final String playerName;
 
   /** Create a new PlayerComponent. */
   public PlayerComponent(boolean isLocalHero) {
+    this(isLocalHero, "Player");
+  }
+
+  /** Create a new PlayerComponent. */
+  public PlayerComponent(boolean isLocalHero, String playerName) {
     this.isLocalHero = isLocalHero;
+    this.playerName = playerName;
   }
 
   /** Gets whether this player is the local hero. */
@@ -45,5 +52,10 @@ public final class PlayerComponent implements Component {
    */
   public boolean openDialogs() {
     return openDialogs > 0;
+  }
+
+  /** Gets the name of the player. */
+  public String playerName() {
+    return playerName;
   }
 }

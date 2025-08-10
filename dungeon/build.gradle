@@ -47,6 +47,18 @@ tasks.register('runServerStarter', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runClientTest', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.ClientTest'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('runDevClient', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.DevClient'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 tasks.register('debugServerStarter', JavaExec) {
     group 'starter'
     mainClass = 'starter.Server'

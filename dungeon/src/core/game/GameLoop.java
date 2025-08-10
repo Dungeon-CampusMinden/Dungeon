@@ -11,27 +11,29 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
-import contrib.components.HealthComponent;
+import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.loader.DungeonLoader;
 import core.network.LocalNetworkHandler;
 import core.network.MessageDispatcher;
-import core.network.messages.server2client.DrawUpdate;
-import core.network.messages.server2client.HealthUpdate;
-import core.network.messages.server2client.NetworkEvent;
-import core.network.messages.server2client.PositionUpdate;
+import core.network.messages.*;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
+import core.utils.Point;
 import core.utils.components.MissingComponentException;
+
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Dungeon-GameLoop.
@@ -45,7 +47,7 @@ import java.util.logging.Logger;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class GameLoop extends ScreenAdapter {
-  private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(GameLoop.class);
   private static Stage stage;
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
@@ -81,7 +83,7 @@ public final class GameLoop extends ScreenAdapter {
         try {
           allHeros.forEach(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
-          LOGGER.warning(e.getMessage());
+          LOGGER.warn(e.getMessage());
         }
         allHeros.forEach(ECSManagment::add);
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
@@ -160,19 +162,27 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void render(float delta) {
     if (doSetup) setup();
-    DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
+    ECSManagment.system(DrawSystem.class, drawSystem -> drawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+    // Drain any inbound network messages on the game thread before running systems
+    try {
+      Game.network().pollAndDispatch();
+    } catch (Exception e) {
+      LOGGER.warn("Error while polling network messages: " + e.getMessage());
+    }
     frame();
     clearScreen();
 
-    for (System system : ECSManagment.systems().values()) {
-      // if a new level was loaded, stop this loop-run
-      if (newLevelWasLoadedInThisLoop) break;
-      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
-      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
-        system.execute();
-        system.lastExecuteInFrames(0);
-      }
-    }
+    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
+    final boolean isMultiplayerClient =
+        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+    ECSTickRunner.runOneFrame(
+        s -> {
+          if (newLevelWasLoadedInThisLoop) return false;
+          if (!isMultiplayerClient) return true;
+          return (s instanceof DrawSystem)
+              || (s instanceof CameraSystem)
+              || (s instanceof InputSystem);
+        });
 
     newLevelWasLoadedInThisLoop = false;
     if (Game.network() instanceof LocalNetworkHandler localHandler) {
@@ -206,85 +216,72 @@ public final class GameLoop extends ScreenAdapter {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
 
     dispatcher.registerHandler(
-        PositionUpdate.class,
-        positionUpdate -> {
-          Game.entityStream()
-              .filter(e -> e.id() == positionUpdate.entityId())
-              .findFirst()
-              .ifPresent(
-                  entity -> {
-                    entity
-                        .fetch(PositionComponent.class)
-                        .ifPresentOrElse(
-                            pc -> {
-                              pc.position(positionUpdate.position());
-                              pc.viewDirection(positionUpdate.viewDirection());
-                            },
-                            () ->
-                                LOGGER.warning(
-                                    "Entity "
-                                        + positionUpdate.entityId()
-                                        + " has no PositionComponent!"));
-                  });
-        });
-
-    dispatcher.registerHandler(
-        DrawUpdate.class,
-        drawUpdate -> {
-          Game.entityStream()
-              .filter(e -> e.id() == drawUpdate.entityId())
-              .findFirst()
-              .ifPresent(
-                  entity -> {
-                    entity
-                        .fetch(DrawComponent.class)
-                        .ifPresentOrElse(
-                            dc -> {
-                              dc.currentAnimation(drawUpdate.animationName());
-                              dc.tintColor(drawUpdate.tintColor());
-                            },
-                            () ->
-                                LOGGER.warning(
-                                    "Entity " + drawUpdate.entityId() + " has no DrawComponent!"));
-                  });
-        });
-
-    dispatcher.registerHandler(
-        HealthUpdate.class,
-        healthUpdate -> {
-          Game.entityStream()
-              .filter(e -> e.id() == healthUpdate.entityId())
-              .findFirst()
-              .ifPresent(
-                  entity -> {
-                    entity
-                        .fetch(HealthComponent.class)
-                        .ifPresentOrElse(
-                            vc -> {
-                              vc.currentHealthpoints(healthUpdate.currentHealth());
-                              vc.maximalHealthpoints(healthUpdate.maxHealth());
-                            },
-                            () ->
-                                LOGGER.warning(
-                                    "Entity "
-                                        + healthUpdate.entityId()
-                                        + " has no HealthComponent!"));
-                  });
-        });
-
-    // TODO: Change to separate NetworkEventHandler classes
-    dispatcher.registerHandler(
-        NetworkEvent.class,
+      EntitySpawnEvent.class,
         event -> {
-          if (event.type() == NetworkEvent.Type.ENTITY_DESPAWN) {
-            int entityId = (int) event.data();
-            Entity entity =
-                Game.entityStream().filter(e -> e.id() == entityId).findFirst().orElse(null);
-            if (entity == null) {
-              LOGGER.warning("Received despawn event for unknown entity with ID: " + entityId);
-              return;
+          LOGGER.info("Received EntitySpawnEvent event: " + event.entityName());
+          Entity newEntity = new Entity(event.entityName());
+          PositionComponent pc = new PositionComponent(event.position());
+          pc.viewDirection(event.viewDirection());
+          newEntity.add(pc);
+          DrawComponent dc;
+          try {
+            dc = new DrawComponent(event.texturePath());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          dc.currentAnimation(event.currentAnimation());
+          dc.tintColor(event.tintColor());
+          newEntity.add(dc);
+        });
+
+    dispatcher.registerHandler(
+      EntityDespawnEvent.class,
+        event -> {
+          LOGGER.info("Received EntityDespawnEvent event: " + event.entityName() + ", reason: "
+              + event.reason());
+          Entity entity =
+            Game.entityStream().filter(e -> e.id() == event.entityName()).findFirst().orElse(null);
+          if (entity == null) {
+            LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityName());
+            return;
+          }
+          Game.remove(entity);
+        });
+
+    dispatcher.registerHandler(
+        LevelChangeEvent.class,
+        event -> {
+          LOGGER.info("Received LevelChangeEvent event: " + event.levelName() + ", spawn point: "
+              + event.spawnPoint());
+          if (event.levelName() == null || event.levelName().isBlank()) {
+            LOGGER.warn("Received LevelChangeEvent with empty level name. Value was: "
+                + event.levelName());
+            return;
+          }
+          try {
+            DungeonLoader.loadLevel(event.levelName());
+            if (event.spawnPoint() == null) {
+              Game.hero().ifPresent(this::placeOnLevelStart);
+            } else {
+              Debugger.TELEPORT(event.spawnPoint());
             }
-            Game.remove(entity);
+          } catch (Exception e) {
+            LOGGER.warn("Failed to handle LevelChangeEvent: " + e.getMessage());
+          }
+        });
+    dispatcher.registerHandler(
+      GameOverEvent.class,
+        event -> {
+          LOGGER.info("Received GameOverEvent event");
+          Game.exit();
+        });
+
+    dispatcher.registerHandler(
+        SnapshotMessage.class,
+        snapshot -> {
+          try {
+            Game.network().snapshotTranslator().applySnapshot(snapshot, dispatcher);
+          } catch (Exception ignored) {
           }
         });
   }
