@@ -29,7 +29,7 @@ public class LocalNetworkHandlerTest {
           }
         });
 
-    handler.initialize(false, "localhost", 0);
+    handler.initialize(false, "localhost", 0, "user");
     handler.start();
     assertEquals(1, connected.get());
 
