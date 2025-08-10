@@ -13,9 +13,11 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.network.DefaultSnapshotTranslator;
 import core.network.INetworkHandler;
 import core.network.LocalNetworkHandler;
 import core.network.NetworkException;
+import core.network.netty.NettyNetworkHandler;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -61,19 +63,21 @@ public final class Game {
   /** Starts the dungeon. Initializes the network handler if networking is enabled. */
   public static void run() {
     if (PreRunConfiguration.multiplayerEnabled()) {
-      // TODO: Instantiate the real network handler (e.g., KryoNetNetworkHandler)
-      throw new UnsupportedOperationException(
-          "Multiplayer is not yet implemented. Please use LocalNetworkHandler for single player.");
+      networkHandler = new NettyNetworkHandler();
     } else {
       networkHandler = new LocalNetworkHandler();
-      networkHandler._setRawMessageConsumer(networkHandler.messageDispatcher()::dispatch);
     }
 
     try {
+      // Always route raw messages into the game dispatcher on the game thread
+      networkHandler._setRawMessageConsumer(networkHandler.messageDispatcher()::dispatch);
+      // Explicitly inject a SnapshotTranslator before initialization
+      networkHandler.setSnapshotTranslator(new DefaultSnapshotTranslator());
       networkHandler.initialize(
           PreRunConfiguration.isNetworkServer(),
           PreRunConfiguration.networkServerAddress(),
-          PreRunConfiguration.networkPort());
+          PreRunConfiguration.networkPort(),
+          PreRunConfiguration.username());
       networkHandler.start();
       LOGGER.info("Network handler initialized and started.");
     } catch (NetworkException e) {
@@ -83,6 +87,8 @@ public final class Game {
 
     // Start the main game loop
     GameLoop.run();
+    // Shutdown the network handler after the game loop ends
+    networkHandler.shutdown();
   }
 
   /**
