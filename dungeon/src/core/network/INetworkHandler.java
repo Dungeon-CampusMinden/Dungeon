@@ -1,7 +1,7 @@
 package core.network;
 
+import core.network.messages.InputMessage;
 import core.network.messages.NetworkMessage;
-import core.network.messages.client2server.ClientMessage;
 import java.util.function.Consumer;
 
 /**
@@ -19,32 +19,12 @@ public interface INetworkHandler {
    * @param isServer True if this instance should act as a server.
    * @param serverAddress The address to connect to (if client). Ignored if server.
    * @param port The port to use for communication.
+   * @param username The username for the connection.
    */
-  void initialize(boolean isServer, String serverAddress, int port) throws NetworkException;
+  void initialize(boolean isServer, String serverAddress, int port,String username) throws NetworkException;
 
-  /**
-   * Sends a client message to a server.
-   *
-   * <p>This method is called when a message is created by the game code (e.g., a command to
-   * interact with an entity or use a skill). The message will be processed either locally via the
-   * {@link LocalNetworkHandler} or sent to the server.
-   *
-   * <p>Implementations must ensure that any callbacks into game code via {@link
-   * #messageDispatcher()} are invoked on the game loop thread, not on IO/transport threads.
-   *
-   * @param message The client message to process.
-   * @param reliable Whether to request reliable delivery (may be ignored by local handlers).
-   */
-  void sendToServer(ClientMessage message, boolean reliable);
-
-  /**
-   * Convenience overload that defaults to reliable delivery.
-   *
-   * @param message The client message to process.
-   */
-  default void sendToServer(ClientMessage message) {
-    sendToServer(message, true);
-  }
+  /** Convenience overload that defaults to unreliable delivery (UDP-friendly). */
+  void sendInput(InputMessage input);
 
   /** Starts the handler's processing loop (if applicable). */
   void start();
@@ -76,6 +56,22 @@ public interface INetworkHandler {
   MessageDispatcher messageDispatcher();
 
   /**
+   * Returns the {@link SnapshotTranslator} used to build/apply snapshots.
+   *
+   * <p>Callers must set a translator via {@link #setSnapshotTranslator(SnapshotTranslator)} before
+   * first use. Implementations must not lazily create a default; if unset, they should throw an
+   * {@link IllegalStateException} with a clear, actionable message.
+   */
+  SnapshotTranslator snapshotTranslator();
+
+  /**
+   * Sets the {@link SnapshotTranslator} to use for snapshot build/application.
+   *
+   * @param translator instance to use; implementations may ignore null (keeping the current one)
+   */
+  void setSnapshotTranslator(SnapshotTranslator translator);
+
+  /**
    * Internal method: Sets the consumer for raw incoming messages.
    *
    * <p>This method is intended for the internal use of the NetworkHandler implementation (e.g.,
@@ -102,4 +98,13 @@ public interface INetworkHandler {
    * @param listener the listener to remove
    */
   void removeConnectionListener(ConnectionListener listener);
+
+  /**
+   * Drains any queued inbound network messages and dispatches them on the game loop thread.
+   *
+   * <p>Default is a no-op; implementations with IO threads should override this and deliver
+   * messages to {@link #messageDispatcher()} or the raw consumer set via {@link
+   * #_setRawMessageConsumer(Consumer)}.
+   */
+  default void pollAndDispatch() {}
 }
