@@ -38,5 +38,3 @@ public class LocalNetworkHandlerTest {
     assertNull(lastReason[0]);
   }
 }
-
-

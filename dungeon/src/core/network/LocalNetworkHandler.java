@@ -65,7 +65,7 @@ public class LocalNetworkHandler implements INetworkHandler {
   /**
    * Sends a client message to the server.
    *
-   * <p> Since this is the local handler, the message is processed immediately.
+   * <p>Since this is the local handler, the message is processed immediately.
    *
    * @param message The client message to process.
    */

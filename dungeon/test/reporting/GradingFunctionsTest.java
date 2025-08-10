@@ -2,7 +2,6 @@ package reporting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import core.Game;
 import java.io.IOException;

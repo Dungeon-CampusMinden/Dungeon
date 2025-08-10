@@ -1,5 +1,6 @@
 package entities;
 
+import client.Client;
 import contrib.entities.HeroFactory;
 import core.Entity;
 import core.components.InputComponent;
@@ -10,7 +11,6 @@ import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
-import client.Client;
 import utils.BlocklyCommands;
 
 /**

@@ -3,7 +3,6 @@ package reporting;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.components.InventoryComponent;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.item.Item;
 import core.Entity;

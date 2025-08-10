@@ -22,7 +22,6 @@ public class InputComponent implements Component {
   private final Map<Integer, InputComponent.InputData> callbacks;
   private boolean deactivate = false;
 
-
   /** Creates a new InputComponent. */
   public InputComponent() {
     callbacks = new HashMap<>();
