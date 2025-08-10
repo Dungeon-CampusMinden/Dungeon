@@ -29,8 +29,8 @@ public interface INetworkHandler {
    * interact with an entity or use a skill). The message will be processed either locally via the
    * {@link LocalNetworkHandler} or sent to the server.
    *
-   * <p>Implementations must ensure that any callbacks into game code via
-   * {@link #messageDispatcher()} are invoked on the game loop thread, not on IO/transport threads.
+   * <p>Implementations must ensure that any callbacks into game code via {@link
+   * #messageDispatcher()} are invoked on the game loop thread, not on IO/transport threads.
    *
    * @param message The client message to process.
    * @param reliable Whether to request reliable delivery (may be ignored by local handlers).
@@ -89,8 +89,8 @@ public interface INetworkHandler {
   /**
    * Registers a listener for connection lifecycle events.
    *
-   * <p>Implementations must ensure that listener callbacks are invoked on the game loop thread,
-   * not on IO/transport threads.
+   * <p>Implementations must ensure that listener callbacks are invoked on the game loop thread, not
+   * on IO/transport threads.
    *
    * @param listener the listener to add
    */

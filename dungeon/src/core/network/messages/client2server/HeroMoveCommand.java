@@ -2,8 +2,6 @@ package core.network.messages.client2server;
 
 import static contrib.entities.HeroFactory.ENABLE_MOUSE_MOVEMENT;
 
-import java.util.Optional;
-
 import contrib.components.PathComponent;
 import contrib.entities.HeroFactory;
 import core.Game;
@@ -11,6 +9,7 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.Optional;
 
 /**
  * Record representing a hero movement command.
@@ -24,8 +23,7 @@ public record HeroMoveCommand(Direction direction) implements ClientMessage {
         .ifPresent(
             hero -> {
               VelocityComponent vc =
-              hero
-                      .fetch(VelocityComponent.class)
+                  hero.fetch(VelocityComponent.class)
                       .orElseThrow(
                           () -> MissingComponentException.build(hero, VelocityComponent.class));
 
@@ -36,7 +34,8 @@ public record HeroMoveCommand(Direction direction) implements ClientMessage {
                   existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
 
               if (updatedForce.lengthSquared() > 0) {
-                updatedForce = updatedForce.normalize().scale(HeroFactory.defaultHeroSpeed().length());
+                updatedForce =
+                    updatedForce.normalize().scale(HeroFactory.defaultHeroSpeed().length());
                 vc.applyForce(HeroFactory.MOVEMENT_ID, updatedForce);
               }
 
