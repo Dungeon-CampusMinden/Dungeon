@@ -24,6 +24,7 @@ public class Server {
       } catch (NumberFormatException ignored) {
       }
     }
+
     LOG.info(
         "Dungeon server starter ready. JDK: {}, port={}", System.getProperty("java.version"), port);
     ServerNetworkService service = new ServerNetworkService();

@@ -20,17 +20,15 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
-import core.network.handler.LocalNetworkHandler;
 import core.network.MessageDispatcher;
+import core.network.handler.LocalNetworkHandler;
 import core.network.messages.s2c.*;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-
 import java.io.IOException;
 import java.util.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +164,9 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void render(float delta) {
     if (doSetup) setup();
-    ECSManagment.system(DrawSystem.class, drawSystem -> drawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+    ECSManagment.system(
+        DrawSystem.class,
+        drawSystem -> drawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
     // Drain any inbound network messages on the game thread before running systems
     try {
       Game.network().pollAndDispatch();
@@ -220,9 +220,24 @@ public final class GameLoop extends ScreenAdapter {
     MessageDispatcher dispatcher = Game.network().messageDispatcher();
 
     dispatcher.registerHandler(
-      EntitySpawnEvent.class,
-        event -> {
+        ConnectReject.class,
+        (ctx, event) -> {
+          LOGGER.warn("Received ConnectReject: {}", event.reason());
+          ctx.close();
+        });
+
+    dispatcher.registerHandler(
+        EntitySpawnEvent.class,
+        (ctx, event) -> {
           LOGGER.info("Received EntitySpawnEvent event: " + event.entityName());
+
+          // check if the entity already exists
+          if (Game.entityStream().anyMatch(e -> Objects.equals(e.name(), event.entityName()))) {
+            LOGGER.warn(
+                "Received spawn event for already existing entity with ID: " + event.entityName());
+            return;
+          }
+
           Entity newEntity = new Entity(event.entityName());
           PositionComponent pc = new PositionComponent(event.position());
           pc.viewDirection(event.viewDirection());
@@ -236,15 +251,22 @@ public final class GameLoop extends ScreenAdapter {
           dc.currentAnimation(event.currentAnimation());
           dc.tintColor(event.tintColor());
           newEntity.add(dc);
+          Game.add(newEntity);
         });
 
     dispatcher.registerHandler(
-      EntityDespawnEvent.class,
-        event -> {
-          LOGGER.info("Received EntityDespawnEvent event: " + event.entityName() + ", reason: "
-              + event.reason());
+        EntityDespawnEvent.class,
+        (ctx, event) -> {
+          LOGGER.info(
+              "Received EntityDespawnEvent event: "
+                  + event.entityName()
+                  + ", reason: "
+                  + event.reason());
           Entity entity =
-            Game.entityStream().filter(e -> Objects.equals(e.name(), event.entityName())).findFirst().orElse(null);
+              Game.entityStream()
+                  .filter(e -> Objects.equals(e.name(), event.entityName()))
+                  .findFirst()
+                  .orElse(null);
           if (entity == null) {
             LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityName());
             return;
@@ -254,12 +276,15 @@ public final class GameLoop extends ScreenAdapter {
 
     dispatcher.registerHandler(
         LevelChangeEvent.class,
-        event -> {
-          LOGGER.info("Received LevelChangeEvent event: " + event.levelName() + ", spawn point: "
-              + event.spawnPoint());
+        (ctx, event) -> {
+          LOGGER.info(
+              "Received LevelChangeEvent event: "
+                  + event.levelName()
+                  + ", spawn point: "
+                  + event.spawnPoint());
           if (event.levelName() == null || event.levelName().isBlank()) {
-            LOGGER.warn("Received LevelChangeEvent with empty level name. Value was: "
-                + event.levelName());
+            LOGGER.warn(
+                "Received LevelChangeEvent with empty level name. Value was: " + event.levelName());
             return;
           }
           try {
@@ -274,17 +299,17 @@ public final class GameLoop extends ScreenAdapter {
           }
         });
     dispatcher.registerHandler(
-      GameOverEvent.class,
-        event -> {
+        GameOverEvent.class,
+        (ctx, event) -> {
           LOGGER.info("Received GameOverEvent event");
           Game.exit();
         });
 
     dispatcher.registerHandler(
         SnapshotMessage.class,
-        snapshot -> {
+        (ctx, event) -> {
           try {
-            Game.network().snapshotTranslator().applySnapshot(snapshot, dispatcher);
+            Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
           } catch (Exception ignored) {
           }
         });
