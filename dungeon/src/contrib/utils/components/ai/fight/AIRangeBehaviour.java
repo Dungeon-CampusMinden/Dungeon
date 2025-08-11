@@ -23,6 +23,7 @@ import java.util.function.Consumer;
  */
 public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
 
+  private enum Proximity { TOO_CLOSE, IN_RANGE, TOO_FAR }
   private final float maxAttackRange;
   private final float minAttackRange;
   private Skill skill;
@@ -49,34 +50,21 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
 
   @Override
   public void accept(final Entity entity) {
-    boolean playerInMinAttackRange = LevelUtils.playerInRange(entity, minAttackRange);
-    boolean playerInMaxAttackRange = LevelUtils.playerInRange(entity, maxAttackRange);
-
-    if (playerInMaxAttackRange) {
-      if (playerInMinAttackRange) {
-        Point positionHero = Game.positionOf(Game.hero().orElseThrow()).orElseThrow();
-        Point positionEntity = Game.positionOf(entity).orElseThrow();
-        List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
-        boolean newPositionFound = false;
-        for (Tile tile : tiles) {
-          Point newPosition = tile.position();
-          if (!Point.inRange(newPosition, positionHero, minAttackRange)) {
-            path = LevelUtils.calculatePath(positionEntity, newPosition);
-            newPositionFound = true;
-            break;
-          }
-        }
-        if (!newPositionFound) {
-          path = LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
-        }
-        AIUtils.followPath(entity, path);
-      } else {
-        useSkill(skill, entity);
-      }
-    } else {
-      path = LevelUtils.calculatePathToHero(entity);
-      AIUtils.followPath(entity, path);
+    switch (proximity(entity)) {
+      case IN_RANGE -> useSkill(skill, entity);
+      case TOO_CLOSE -> moveAwayFromHero(entity);
+      case TOO_FAR -> moveToHero(entity);
     }
+  }
+
+  private boolean inRange(final Entity entity, final float radius) {
+    return LevelUtils.playerInRange(entity, radius);
+  }
+
+  private Proximity proximity(final Entity entity) {
+    if (inRange(entity, minAttackRange)) return Proximity.TOO_CLOSE;
+    if (inRange(entity, maxAttackRange)) return Proximity.IN_RANGE;
+    return Proximity.TOO_FAR;
   }
 
   private void moveAwayFromHero(Entity entity) {
