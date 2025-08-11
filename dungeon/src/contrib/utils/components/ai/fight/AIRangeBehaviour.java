@@ -27,7 +27,6 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   private final float maxAttackRange;
   private final float minAttackRange;
   private Skill skill;
-  private GraphPath<Tile> path;
 
   /**
    * Attacks the player if he is within the given range between minAttackRange and maxAttackRange.
@@ -72,7 +71,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
       .flatMap(Game::positionOf)
       .ifPresent(positionHero ->
         Game.positionOf(entity).ifPresent(positionEntity -> {
-          path = findPathToSafety(entity, positionEntity, positionHero);
+          GraphPath<Tile> path = findPathToSafety(entity, positionEntity, positionHero);
           AIUtils.move(entity, path);
         })
       );
@@ -90,7 +89,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   private void moveToHero(Entity entity) {
-    path = LevelUtils.calculatePathToHero(entity);
+    GraphPath<Tile> path = LevelUtils.calculatePathToHero(entity);
     AIUtils.move(entity, path);
   }
 
