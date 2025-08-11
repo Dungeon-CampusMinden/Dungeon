@@ -1,7 +1,7 @@
 package core.network;
 
 import core.Entity;
-import core.network.messages.SnapshotMessage;
+import core.network.messages.s2c.SnapshotMessage;
 import java.util.Map;
 import java.util.Optional;
 

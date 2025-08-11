@@ -1,5 +1,6 @@
-package core.network.messages;
+package core.network.messages.s2c;
 
+import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.path.IPath;

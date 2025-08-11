@@ -5,8 +5,8 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.network.messages.EntityState;
-import core.network.messages.SnapshotMessage;
+import core.network.messages.s2c.EntityState;
+import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
 
 import java.util.*;

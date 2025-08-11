@@ -2,11 +2,11 @@ package core.network.server;
 
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
-import core.network.messages.ConnectAck;
-import core.network.messages.ConnectRequest;
-import core.network.messages.InputMessage;
-import core.network.messages.LevelChangeEvent;
-import core.network.messages.RegisterUdp;
+import core.network.messages.s2c.ConnectAck;
+import core.network.messages.c2s.ConnectRequest;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.c2s.RegisterUdp;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;

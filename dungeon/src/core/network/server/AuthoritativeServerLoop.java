@@ -1,32 +1,27 @@
 package core.network.server;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
-import contrib.components.InteractionComponent;
-import contrib.components.PathComponent;
 import contrib.entities.HeroController;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.game.ECSManagment;
 import core.game.ECSTickRunner;
 import core.level.DungeonLevel;
-import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.level.utils.LevelUtils;
 import core.network.SnapshotTranslator;
 import core.network.messages.*;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
-import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -187,8 +182,6 @@ public final class AuthoritativeServerLoop {
     for (Map.Entry<Integer, InetSocketAddress> entry : net.udpClients().entrySet()) {
       net.sendUdpObject(entry.getValue(), event);
     }
-    LOGGER.info("Broadcasted message: {} to {} clients", event.getClass().getSimpleName(),
-        net.udpClients().size());
   }
 
   private void syncClientsToEntities() {

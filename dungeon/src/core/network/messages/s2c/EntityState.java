@@ -1,5 +1,6 @@
-package core.network.messages;
+package core.network.messages.s2c;
 
+import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
 import java.io.Serial;
@@ -8,8 +9,7 @@ import java.util.Optional;
 /**
  * Shared compact state representation for an entity.
  *
- * <p>TODO: Replace with a more robust serialization format in the future. (-> Protobuf) Expected
- * max size (per entity): ~32-64 bytes.
+ * <p>Expected max size (per entity): ~32-64 bytes.
  */
 public final class EntityState implements NetworkMessage {
   @Serial private static final long serialVersionUID = 1L;
