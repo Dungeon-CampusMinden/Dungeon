@@ -73,11 +73,10 @@ public class ItemWoodenBow extends Item {
 
   @Override
   public boolean drop(final Point position) {
-    Entity hero = Game.hero().orElseThrow();
-    PlayerComponent pc =
-        hero.fetch(PlayerComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PlayerComponent.class));
-    pc.removeCallback(KeyboardConfig.SECOND_SKILL.value());
+    Game.hero()
+        .flatMap(hero -> hero.fetch(PlayerComponent.class))
+        .ifPresent(pc -> pc.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
+
     if (Game.tileAT(position) instanceof FloorTile) {
       Game.add(WorldItemBuilder.buildWorldItem(this, position));
       return true;
