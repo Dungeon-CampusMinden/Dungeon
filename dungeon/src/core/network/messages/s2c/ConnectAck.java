@@ -1,6 +1,6 @@
-package core.network.messages;
+package core.network.messages.s2c;
 
-import java.io.Serial;
+import core.network.messages.NetworkMessage;
 
 /**
  * Server→client: acknowledgement of connection with assigned clientId.

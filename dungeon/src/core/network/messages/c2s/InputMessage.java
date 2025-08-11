@@ -1,5 +1,6 @@
-package core.network.messages;
+package core.network.messages.c2s;
 
+import core.network.messages.NetworkMessage;
 import core.utils.Point;
 import java.io.Serial;
 
