@@ -3,9 +3,7 @@ package contrib.item.concreteItem;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
-import core.Game;
 import core.components.PositionComponent;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -39,12 +37,12 @@ public class ItemWoodenArrow extends Item {
 
   @Override
   public void use(final Entity user) {
-    Entity hero = Game.hero().orElseThrow();
-    PositionComponent posc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    // clicking on an arrow in the inventory drops the whole stack at the current position
-    drop(posc.position());
-    user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
+    user.fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .ifPresent(
+            pos -> {
+              drop(pos);
+              user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
+            });
   }
 }

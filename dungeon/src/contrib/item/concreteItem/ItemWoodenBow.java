@@ -17,6 +17,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Optional;
 
 /**
  * This item is a bow. It can be used to shoot arrows, if any are stored in the inventory.
@@ -44,29 +45,24 @@ public class ItemWoodenBow extends Item {
         collector
             .fetch(PlayerComponent.class)
             .orElseThrow(() -> MissingComponentException.build(collector, PlayerComponent.class));
-    // add the skill to the collector callbacks
+
+    Optional<InventoryComponent> collectorInvComp = collector.fetch(InventoryComponent.class);
+
     pc.registerCallback(
         KeyboardConfig.SECOND_SKILL.value(),
         collectorEntity ->
-            collector
-                .fetch(InventoryComponent.class)
-                .ifPresent(
-                    invComp -> {
-                      if (BOW_SKILL
-                          .canBeUsedAgain()) { // important to prevent spending more than one ammo
-                        if (invComp.hasItem(ItemWoodenArrow.class)
-                            && invComp.removeOne(
-                                invComp.getSmallestStackOfItemClass(ItemWoodenArrow.class))) {
-                          BOW_SKILL.execute(collectorEntity);
-                        }
-                      }
-                    }));
+            collectorInvComp
+                .flatMap(
+                    invComp ->
+                        invComp
+                            .itemOfClass(ItemWoodenArrow.class)
+                            .filter(item -> BOW_SKILL.canBeUsedAgain() && invComp.removeOne(item)))
+                .ifPresent(item -> BOW_SKILL.execute(collectorEntity)));
 
-    return collector
-        .fetch(InventoryComponent.class)
+    return collectorInvComp
         .map(
-            inventoryComponent -> {
-              if (inventoryComponent.add(this)) {
+            inv -> {
+              if (inv.add(this)) {
                 Game.remove(itemEntity);
                 return true;
               }
@@ -91,12 +87,12 @@ public class ItemWoodenBow extends Item {
 
   @Override
   public void use(final Entity user) {
-    Entity hero = Game.hero().orElseThrow();
-    PositionComponent posc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    // clicking on the bow in the inventory drops it at the current position
-    drop(posc.position());
-    user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
+    user.fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .ifPresent(
+            pos -> {
+              drop(pos);
+              user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
+            });
   }
 }

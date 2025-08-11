@@ -167,25 +167,25 @@ public final class InventoryComponent implements Component {
    * Searches the Inventory for an item of the given class and returns it.
    *
    * @param klass The class of the item to search for.
-   * @return the found item of the given class or null if no item found.
+   * @return an {@link Optional} containing the first found item of the given class, or {@link
+   *     Optional#empty()} if none is found.
    */
-  public Item getItemOfClass(final Class<? extends Item> klass) {
-    return Arrays.stream(this.inventory).filter(klass::isInstance).findFirst().orElse(null);
+  public Optional<Item> itemOfClass(final Class<? extends Item> klass) {
+    return Arrays.stream(this.inventory).filter(klass::isInstance).findFirst();
   }
 
   /**
    * Gets the item with the smallest stack size out of all items of a given class.
    *
-   * @param klass The class of the items to search for.
-   * @return the found item with the smallest stack size of the given class or null if no item
-   *     found.
+   * @param klass The class of the item to search for.
+   * @return an {@link Optional} containing the item with the smallest stack size, or {@link
+   *     Optional#empty()} if no such item is found.
    */
-  public Item getSmallestStackOfItemClass(final Class<? extends Item> klass) {
+  public Optional<Item> smallestStackOfItemClass(final Class<? extends Item> klass) {
     return Arrays.stream(this.inventory)
         .filter(Objects::nonNull)
         .filter(klass::isInstance)
-        .min(Comparator.comparingInt(Item::stackSize))
-        .orElse(null);
+        .min(Comparator.comparingInt(Item::stackSize));
   }
 
   /**
@@ -261,17 +261,38 @@ public final class InventoryComponent implements Component {
   }
 
   /**
-   * Removes one unit from the specified item stack in the inventory.
+   * Removes one unit from the smallest stack of an item of the same class as the specified item in
+   * the inventory.
    *
-   * <p>If the item is found, its stack size is decreased by one. If the stack size reaches zero or
-   * below, the item is removed from the inventory entirely.
+   * <p>If multiple stacks of items of the same class exist, the unit is removed from the stack with
+   * the smaller size. If only one stack exists, the unit ist removed from that stack. If the stack
+   * size reaches zero or below, the item is removed from the inventory entirely.
    *
-   * @param item The item from which to remove one unit.
-   * @return true if one unit was successfully removed; false if the item was not found.
+   * @param item The reference item whose class is used to determine which item to remove one unit
+   *     from.
+   * @return true if one unit was successfully removed; false if no matching item was found in the
+   *     inventory.
    */
   public boolean removeOne(Item item) {
+    Item itemToRemoveOne = item;
+
+    long sameClassCount =
+        Arrays.stream(inventory)
+            .filter(Objects::nonNull)
+            .filter(it -> it.getClass().equals(item.getClass()))
+            .count();
+
+    if (sameClassCount > 1) {
+      Optional<Item> smallest = smallestStackOfItemClass(item.getClass());
+      if (smallest.isPresent()) {
+        itemToRemoveOne = smallest.get();
+      } else {
+        return false;
+      }
+    }
+
     for (int i = 0; i < inventory.length; i++) {
-      if (inventory[i] != null && inventory[i].equals(item)) {
+      if (inventory[i] != null && inventory[i].equals(itemToRemoveOne)) {
         Item it = inventory[i];
         it.stackSize(it.stackSize() - 1);
         if (it.stackSize() <= 0) inventory[i] = null;
