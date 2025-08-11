@@ -5,7 +5,6 @@ import contrib.components.HealthComponent;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
-import contrib.utils.components.ai.fight.MeleeAI;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.idle.StaticRadiusWalk;

@@ -24,7 +24,12 @@ import java.util.function.Consumer;
  */
 public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
 
-  private enum Proximity { TOO_CLOSE, IN_RANGE, TOO_FAR }
+  private enum Proximity {
+    TOO_CLOSE,
+    IN_RANGE,
+    TOO_FAR
+  }
+
   private final float maxAttackRange;
   private final float minAttackRange;
   private Skill fightSkill;
@@ -57,29 +62,60 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
     }
   }
 
+  /**
+   * Checks if the entity is in range of the hero.
+   *
+   * @param entity The entity to check.
+   * @param radius The radius within which the entity should be considered in range.
+   * @return True if the entity is in range, false otherwise.
+   */
   private boolean inRange(final Entity entity, final float radius) {
     return LevelUtils.playerInRange(entity, radius);
   }
 
+  /**
+   * Determines the proximity of the entity to the hero.
+   *
+   * @param entity The entity to check.
+   * @return The proximity status of the entity relative to the hero.
+   */
   private Proximity proximity(final Entity entity) {
     if (inRange(entity, minAttackRange)) return Proximity.TOO_CLOSE;
     if (inRange(entity, maxAttackRange)) return Proximity.IN_RANGE;
     return Proximity.TOO_FAR;
   }
 
+  /**
+   * Moves the entity away from the hero if it is too close.
+   *
+   * @param entity The entity to move.
+   */
   private void moveAwayFromHero(Entity entity) {
     Game.hero()
-      .flatMap(Game::positionOf)
-      .ifPresent(positionHero ->
-        Game.positionOf(entity).ifPresent(positionEntity -> {
-          GraphPath<Tile> path =
-            findPathToSafety(positionEntity, positionHero)
-              .orElseGet(() -> LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange));
-          AIUtils.move(entity, path);
-        })
-      );
+        .flatMap(Game::positionOf)
+        .ifPresent(
+            positionHero ->
+                Game.positionOf(entity)
+                    .ifPresent(
+                        positionEntity -> {
+                          GraphPath<Tile> path =
+                              findPathToSafety(positionEntity, positionHero)
+                                  .orElseGet(
+                                      () ->
+                                          LevelUtils.calculatePathToRandomTileInRange(
+                                              entity, 2 * maxAttackRange));
+                          AIUtils.move(entity, path);
+                        }));
   }
 
+  /**
+   * Finds a path to a reachable tile within the search range that is outside the minimum attack
+   * range from the hero.
+   *
+   * @param positionEntity The position of the entity.
+   * @param positionHero The position of the hero.
+   * @return An optional containing the path to safety, or empty if no such path exists.
+   */
   private Optional<GraphPath<Tile>> findPathToSafety(Point positionEntity, Point positionHero) {
     List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
     for (Tile t : tiles) {
@@ -91,6 +127,11 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
     return Optional.empty();
   }
 
+  /**
+   * Moves the entity towards the hero if he is too far away.
+   *
+   * @param entity The entity to move.
+   */
   private void moveToHero(Entity entity) {
     GraphPath<Tile> path = LevelUtils.calculatePathToHero(entity);
     AIUtils.move(entity, path);
