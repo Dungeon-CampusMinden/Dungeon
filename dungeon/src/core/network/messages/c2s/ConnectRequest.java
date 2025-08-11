@@ -10,5 +10,4 @@ import core.network.messages.NetworkMessage;
  *
  * @param playerName optional, may be empty
  */
-public record ConnectRequest(String playerName) implements NetworkMessage {
-}
+public record ConnectRequest(String playerName) implements NetworkMessage {}

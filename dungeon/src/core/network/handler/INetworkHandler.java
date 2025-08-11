@@ -4,8 +4,10 @@ import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.NetworkException;
 import core.network.SnapshotTranslator;
-import core.network.messages.c2s.InputMessage;
 import core.network.messages.NetworkMessage;
+import core.network.messages.c2s.InputMessage;
+import io.netty.channel.ChannelHandlerContext;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -25,7 +27,16 @@ public interface INetworkHandler {
    * @param port The port to use for communication.
    * @param username The username for the connection.
    */
-  void initialize(boolean isServer, String serverAddress, int port,String username) throws NetworkException;
+  void initialize(boolean isServer, String serverAddress, int port, String username)
+      throws NetworkException;
+
+  /**
+   * Sends a {@link NetworkMessage} to the server (if client) or dispatches locally (if single
+   * player).
+   *
+   * @param message The message to send.
+   */
+  void send(NetworkMessage message);
 
   /** Convenience overload that defaults to unreliable delivery (UDP-friendly). */
   void sendInput(InputMessage input);
@@ -34,7 +45,17 @@ public interface INetworkHandler {
   void start();
 
   /** Stops the handler and cleans up resources. */
-  void shutdown();
+  default void shutdown() {
+    shutdown("No reason given.");
+  }
+  ;
+
+  /**
+   * Stops the handler and cleans up resources.
+   *
+   * @param reason The reason for shutdown, used for logging or debugging.
+   */
+  void shutdown(String reason);
 
   /**
    * Checks if the handler is currently connected (relevant for client).
@@ -84,7 +105,7 @@ public interface INetworkHandler {
    *
    * @param rawMessageConsumer A consumer that processes raw incoming messages.
    */
-  void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer);
+  void _setRawMessageConsumer(BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer);
 
   /**
    * Registers a listener for connection lifecycle events.

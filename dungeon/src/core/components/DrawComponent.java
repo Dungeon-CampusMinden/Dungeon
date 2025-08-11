@@ -66,6 +66,7 @@ public final class DrawComponent implements Component {
   private Animation currentAnimation;
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
+  private final IPath path; // path to the directory where the animations are stored
 
   /**
    * Create a new DrawComponent.
@@ -88,6 +89,7 @@ public final class DrawComponent implements Component {
    * @see Animation
    */
   public DrawComponent(final IPath path) throws IOException {
+    this.path = path;
     // fetch available animations
     try {
       loadAnimationAssets(path);
@@ -120,6 +122,7 @@ public final class DrawComponent implements Component {
    * @param idle Animation to use as the idle animation.
    */
   public DrawComponent(final Animation idle) {
+    this.path = idle.nextAnimationTexturePath();
     animationMap = new HashMap<>();
     animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
     animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
@@ -601,5 +604,9 @@ public final class DrawComponent implements Component {
         .map(Map.Entry::getKey)
         .findFirst()
         .orElseThrow();
+  }
+
+  public String currentAnimationPath() {
+    return path.pathString();
   }
 }

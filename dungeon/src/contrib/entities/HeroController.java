@@ -3,6 +3,7 @@ package contrib.entities;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.InteractionComponent;
 import contrib.components.PathComponent;
+import contrib.utils.components.skill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -13,7 +14,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-
 import java.util.Optional;
 
 public class HeroController {
@@ -30,16 +30,14 @@ public class HeroController {
 
   public static void moveHero(Entity hero, Direction direction) {
     VelocityComponent vc =
-      hero
-        .fetch(VelocityComponent.class)
-        .orElseThrow(
-          () -> MissingComponentException.build(hero, VelocityComponent.class));
+        hero.fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
     Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
     Vector2 newForce = STEP_SPEED.scale(direction);
 
     Vector2 updatedForce =
-      existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
+        existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
 
     if (updatedForce.lengthSquared() > 0) {
       updatedForce = updatedForce.normalize().scale(STEP_SPEED.length());
@@ -53,10 +51,7 @@ public class HeroController {
 
   public static void moveHeroPath(Entity hero, Point target) {
     Point heroPos =
-      hero
-        .fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .orElse(null);
+        hero.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
     if (heroPos == null) return;
 
     GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, target);
@@ -64,10 +59,10 @@ public class HeroController {
     // calculate a path to it
     if (path == null || path.getCount() == 0) {
       Tile nearTile =
-        LevelUtils.tilesInRange(target, 1f).stream()
-          .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
-          .findFirst()
-          .orElse(null);
+          LevelUtils.tilesInRange(target, 1f).stream()
+              .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
+              .findFirst()
+              .orElse(null);
       // If no accessible tile is found, abort
       if (nearTile == null) return;
       path = LevelUtils.calculatePath(heroPos, nearTile.position());
@@ -75,26 +70,27 @@ public class HeroController {
 
     // Stores the path in Hero's PathComponent
     GraphPath<Tile> finalPath = path;
-    hero
-      .fetch(PathComponent.class)
-      .ifPresentOrElse(
-        pathComponent -> pathComponent.path(finalPath),
-        () -> hero.add(new PathComponent(finalPath)));
+    hero.fetch(PathComponent.class)
+        .ifPresentOrElse(
+            pathComponent -> pathComponent.path(finalPath),
+            () -> hero.add(new PathComponent(finalPath)));
   }
 
   public static void useSkill(Entity hero, int skillId, Point target) {
     // TODO: Implement logic to use skillId; Use target to determine direction
+    // TODO: Temporarily set the skill callback to override selectionFunc
+    HeroFactory.setHeroSkillCallback(new FireballSkill(() -> target));
     HeroFactory.getHeroSkill().execute(hero);
   }
 
   public static void interact(Entity hero, Point point) {
     Game.entityAtTile(Game.tileAT(point))
-      .findFirst()
-      .ifPresent(
-        interactable -> {
-          interactable
-            .fetch(InteractionComponent.class)
-            .ifPresent(ic -> ic.triggerInteraction(interactable, hero));
-        });
+        .findFirst()
+        .ifPresent(
+            interactable -> {
+              interactable
+                  .fetch(InteractionComponent.class)
+                  .ifPresent(ic -> ic.triggerInteraction(interactable, hero));
+            });
   }
 }

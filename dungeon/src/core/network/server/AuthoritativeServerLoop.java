@@ -18,7 +18,6 @@ import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
 import core.utils.Tuple;
 import core.utils.Vector2;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -58,8 +57,7 @@ public final class AuthoritativeServerLoop {
    * @param netService server network service
    * @param translator explicit snapshot translator (required)
    */
-  public AuthoritativeServerLoop(
-      ServerNetworkService netService, SnapshotTranslator translator) {
+  public AuthoritativeServerLoop(ServerNetworkService netService, SnapshotTranslator translator) {
     this.net = netService;
     this.translator = java.util.Objects.requireNonNull(translator, "translator");
     this.executor =
@@ -142,7 +140,7 @@ public final class AuthoritativeServerLoop {
       int clientId = msg.clientId();
       Entity playerEntity = clientEntities.get(clientId);
       if (playerEntity == null) continue;
-      LOGGER.info("Received input message: " + msg);
+      LOGGER.info("" + "Received input message: " + msg);
       switch (msg.action()) {
         case MOVE:
           HeroController.moveHero(playerEntity, Vector2.of(msg.point()).direction());
@@ -172,8 +170,7 @@ public final class AuthoritativeServerLoop {
       LOGGER.warn("Failed to broadcast current level", t);
       return;
     }
-    LOGGER
-      .info("Broadcasting level change to clients: {}", levelName);
+    LOGGER.info("Broadcasting level change to clients: {}", levelName);
     // TODO: for now, we use null as the spawn point, so the client spawns at the start tile
     broadcast(new LevelChangeEvent(levelName, null));
   }
@@ -204,9 +201,11 @@ public final class AuthoritativeServerLoop {
   private Entity spawnHeroForClient(Integer clientId) {
     try {
       String playerName = net.clientName(clientId).orElse("Player_" + clientId);
-      Entity hero = HeroFactory.newHero(true, playerName); // Local because we have authoritative control
+      Entity hero =
+          HeroFactory.newHero(true, playerName); // Local because we have authoritative control
       hero.fetch(PositionComponent.class).ifPresent(pc -> pc.position(Game.startTile().get()));
       Game.add(hero);
+      System.out.println("Spawned hero for client " + clientId + ": " + hero.name());
       return hero;
     } catch (IOException e) {
       LOGGER.error("Failed to spawn hero for client {}", clientId, e);

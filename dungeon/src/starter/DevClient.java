@@ -10,7 +10,6 @@ import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.logging.Level;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +44,7 @@ public final class DevClient {
         () -> {
           try {
             Game.add(HeroFactory.newHero());
+            System.out.println("Hero Name: " + Game.hero().get().name());
           } catch (IOException e) {
             throw new RuntimeException(e);
           }

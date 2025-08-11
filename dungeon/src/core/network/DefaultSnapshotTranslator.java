@@ -5,18 +5,17 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
-
 import java.util.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   private static final Logger LOGGER =
-    LoggerFactory.getLogger(DefaultSnapshotTranslator.class.getName());
+      LoggerFactory.getLogger(DefaultSnapshotTranslator.class.getName());
 
   private long latestServerTick = -1;
 
@@ -24,9 +23,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
    * Checks if the server tick is valid. A server tick is valid if it is non-negative and greater
    * than the latest server tick received.
    *
-   * <p>To allow overflowing server ticks, we check if near Long.MAX_VALUE, which is the
-   * maximum value for a long in Java. If the server tick is close to this value, we allow
-   * lower ticks to be considered valid, effectively resetting the latest server tick.
+   * <p>To allow overflowing server ticks, we check if near Long.MAX_VALUE, which is the maximum
+   * value for a long in Java. If the server tick is close to this value, we allow lower ticks to be
+   * considered valid, effectively resetting the latest server tick.
    *
    * @param serverTick the server tick to validate
    * @return true if the server tick is valid, false otherwise
@@ -53,12 +52,10 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
   // Server-side
   @Override
-  public Optional<SnapshotMessage> translateToSnapshot(long serverTick, Map<Integer, Entity> clientEntities) {
+  public Optional<SnapshotMessage> translateToSnapshot(
+      long serverTick, Map<Integer, Entity> clientEntities) {
     if (!isServerTickValid(serverTick)) {
-      LOGGER.warn(
-        "No new server tick, skipping snapshot for server tick: {}",
-        serverTick,
-        latestServerTick);
+      LOGGER.warn("No new server tick, skipping snapshot for server tick: {}", serverTick);
       return Optional.empty(); // Skip snapshot if server tick is invalid
     }
     latestServerTick = serverTick;
@@ -86,10 +83,12 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
               });
 
       // Animation
-      e.fetch(DrawComponent.class).ifPresent(dc -> {
-        builder.animation(dc.currentAnimationName());
-        builder.tintColor(dc.tintColor());
-      });
+      e.fetch(DrawComponent.class)
+          .ifPresent(
+              dc -> {
+                builder.animation(dc.currentAnimationName());
+                builder.tintColor(dc.tintColor());
+              });
 
       list.add(builder.build());
     }
@@ -101,10 +100,10 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     if (!isServerTickValid(snapshot.serverTick())) {
       LOGGER.warn(
-        "Not the latest server tick, skipping snapshot: "
-        +  snapshot.serverTick()
-        + ", latest: "
-        + latestServerTick);
+          "Not the latest server tick, skipping snapshot: "
+              + snapshot.serverTick()
+              + ", latest: "
+              + latestServerTick);
       return;
     }
     latestServerTick = snapshot.serverTick();
@@ -120,8 +119,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 if (targetEntity.isEmpty()) {
                   LOGGER.warn(
                       "No entity found for snapshot with Name: "
-                          + entityName);
-                  // TODO: Request entity spawn event
+                          + entityName
+                          + ". Requesting spawn.");
+                  Game.network().send(new RequestEntitySpawn(entityName));
                   return;
                 }
 
@@ -144,10 +144,11 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
                 entity
                     .fetch(DrawComponent.class)
-                    .ifPresent(dc -> {
-                      snap.animation().ifPresent(dc::currentAnimation);
-                      snap.tintColor().ifPresent(dc::tintColor);
-                    });
+                    .ifPresent(
+                        dc -> {
+                          snap.animation().ifPresent(dc::currentAnimation);
+                          snap.tintColor().ifPresent(dc::tintColor);
+                        });
 
                 entity
                     .fetch(HealthComponent.class)
@@ -162,8 +163,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   }
 
   private static Optional<Entity> resolveEntityByName(String entityName) {
-    return Game.entityStream()
-        .filter(e -> e.name().equals(entityName))
-        .findFirst();
+    return Game.entityStream().filter(e -> e.name().equals(entityName)).findFirst();
   }
 }

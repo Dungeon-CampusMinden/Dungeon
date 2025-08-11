@@ -1,11 +1,12 @@
 package core.network.handler;
 
 import core.network.*;
-import core.network.messages.s2c.ConnectAck;
+import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.RegisterUdp;
+import core.network.messages.s2c.ConnectAck;
+import core.utils.Tuple;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -25,7 +26,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(NettyNetworkHandler.class);
 
   private static final LocalNetworkHandler LOCAL_HANDLER =
-    new LocalNetworkHandler(); // for local prediction
+      new LocalNetworkHandler(); // for local prediction
 
   // 1 MiB guard for object size; protects against excessively large frames
   private static final int MAX_OBJECT_SIZE = 1 << 20;
@@ -65,9 +66,10 @@ public final class NettyNetworkHandler implements INetworkHandler {
   private static final int MAX_UDP_PAYLOAD = 1400;
 
   private final MessageDispatcher dispatcher = new MessageDispatcher();
-  private volatile Consumer<NetworkMessage> rawMessageConsumer;
+  private volatile BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer;
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
-  private final Queue<NetworkMessage> inboundQueue = new ConcurrentLinkedQueue<>();
+  private final Queue<Tuple<ChannelHandlerContext, NetworkMessage>> inboundQueue =
+      new ConcurrentLinkedQueue<>();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
 
   private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -95,7 +97,8 @@ public final class NettyNetworkHandler implements INetworkHandler {
   private volatile SnapshotTranslator translator;
 
   @Override
-  public void initialize(boolean isServer, String serverAddress, int port, String username) throws NetworkException {
+  public void initialize(boolean isServer, String serverAddress, int port, String username)
+      throws NetworkException {
     if (initialized.get()) return;
     this.serverMode = isServer;
     this.remoteHost = serverAddress;
@@ -135,67 +138,67 @@ public final class NettyNetworkHandler implements INetworkHandler {
       // TCP server
       ServerBootstrap sb = new ServerBootstrap();
       sb.group(bossGroup, workerGroup)
-        .channel(NioServerSocketChannel.class)
-        .childHandler(
-          new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) {
-              ChannelPipeline p = ch.pipeline();
-              p.addLast(new LengthFieldBasedFrameDecoder(MAX_OBJECT_SIZE + 4, 0, 4, 0, 4));
-              p.addLast(
-                new SimpleChannelInboundHandler<ByteBuf>() {
-                  @Override
-                  protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) {
-                    try {
-                      int size = frame.readableBytes();
-                      Object object = deserialize(frame);
-                      if (object instanceof NetworkMessage nm) {
-                        inboundQueue.offer(nm);
-                        LOGGER.info(
-                          "TCP server inbound message type={} size={}B",
-                          object.getClass().getSimpleName(),
-                          size);
-                      }
-                    } catch (Exception e) {
-                      LOGGER.warn("TCP server decode error", e);
-                    }
-                  }
+          .channel(NioServerSocketChannel.class)
+          .childHandler(
+              new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) {
+                  ChannelPipeline p = ch.pipeline();
+                  p.addLast(new LengthFieldBasedFrameDecoder(MAX_OBJECT_SIZE + 4, 0, 4, 0, 4));
+                  p.addLast(
+                      new SimpleChannelInboundHandler<ByteBuf>() {
+                        @Override
+                        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) {
+                          try {
+                            int size = frame.readableBytes();
+                            Object object = deserialize(frame);
+                            if (object instanceof NetworkMessage nm) {
+                              inboundQueue.offer(Tuple.of(ctx, nm));
+                              LOGGER.info(
+                                  "TCP server inbound message type={} size={}B",
+                                  object.getClass().getSimpleName(),
+                                  size);
+                            }
+                          } catch (Exception e) {
+                            LOGGER.warn("TCP server decode error", e);
+                          }
+                        }
 
-                  @Override
-                  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                    LOGGER.warn("TCP server handler error", cause);
-                    ctx.close();
-                    notifyDisconnected(cause);
-                  }
-                });
-            }
-          });
+                        @Override
+                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                          LOGGER.warn("TCP server handler error", cause);
+                          ctx.close();
+                          notifyDisconnected(cause);
+                        }
+                      });
+                }
+              });
       ChannelFuture bindFuture = sb.bind(port).syncUninterruptibly();
       serverTcpChannel = bindFuture.channel();
 
       // UDP server (bind to same port)
       Bootstrap ub = new Bootstrap();
       ub.group(workerGroup)
-        .channel(NioDatagramChannel.class)
-        .handler(
-          new SimpleChannelInboundHandler<DatagramPacket>() {
-            @Override
-            protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-              try {
-                Object object = deserialize(packet.content());
-                if (object instanceof NetworkMessage nm) {
-                  inboundQueue.offer(nm);
+          .channel(NioDatagramChannel.class)
+          .handler(
+              new SimpleChannelInboundHandler<DatagramPacket>() {
+                @Override
+                protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
+                  try {
+                    Object object = deserialize(packet.content());
+                    if (object instanceof NetworkMessage nm) {
+                      inboundQueue.offer(Tuple.of(ctx, nm));
+                    }
+                  } catch (Exception e) {
+                    LOGGER.warn("UDP server decode error", e);
+                  }
                 }
-              } catch (Exception e) {
-                LOGGER.warn("UDP server decode error", e);
-              }
-            }
 
-            @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-              LOGGER.warn("UDP server handler error", cause);
-            }
-          });
+                @Override
+                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                  LOGGER.warn("UDP server handler error", cause);
+                }
+              });
       ChannelFuture udpBind = ub.bind(port).syncUninterruptibly();
       udpChannel = udpBind.channel();
 
@@ -213,159 +216,95 @@ public final class NettyNetworkHandler implements INetworkHandler {
       // TCP client
       Bootstrap cb = new Bootstrap();
       cb.group(clientGroup)
-        .channel(NioSocketChannel.class)
-        .handler(
-          new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel ch) {
-              ChannelPipeline p = ch.pipeline();
-              p.addLast(new LengthFieldBasedFrameDecoder(MAX_OBJECT_SIZE + 4, 0, 4, 0, 4));
-              p.addLast(
-                new SimpleChannelInboundHandler<ByteBuf>() {
-                  @Override
-                  protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) {
-                    try {
-                      int size = frame.readableBytes();
-                      Object object = deserialize(frame);
-                      if (object instanceof ConnectAck(int clientId)) {
-                        assignedClientId = clientId;
-                        LOGGER.info("Received ConnectAck clientId={}", clientId);
-                        // Send dedicated RegisterUDP message with retransmit attempts
-                        try {
-                          if (udpChannel != null
-                            && udpChannel.isActive()
-                            && udpRemote != null) {
-                            byte[] payload = serialize(new RegisterUdp(clientId));
-                            if (payload.length <= MAX_UDP_PAYLOAD) {
+          .channel(NioSocketChannel.class)
+          .handler(
+              new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) {
+                  ChannelPipeline p = ch.pipeline();
+                  p.addLast(new LengthFieldBasedFrameDecoder(MAX_OBJECT_SIZE + 4, 0, 4, 0, 4));
+                  p.addLast(
+                      new SimpleChannelInboundHandler<ByteBuf>() {
+                        @Override
+                        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) {
+                          try {
+                            int size = frame.readableBytes();
+                            Object object = deserialize(frame);
+                            if (object instanceof ConnectAck(int clientId)) {
+                              handleConnectAck(clientId);
+                            } else if (object instanceof NetworkMessage nm) {
+                              inboundQueue.offer(Tuple.of(ctx, nm));
                               LOGGER.info(
-                                "Sending UDP registration datagram bytes={} to {}",
-                                payload.length,
-                                udpRemote);
-                              udpChannel.writeAndFlush(
-                                new DatagramPacket(
-                                  udpChannel
-                                    .alloc()
-                                    .buffer(payload.length)
-                                    .writeBytes(payload),
-                                  udpRemote));
-
-                              // Retransmit a few times in case of packet loss / NAT
-                              final AtomicInteger attempts = new AtomicInteger(1);
-                              final AtomicReference<ScheduledFuture<?>> sfRef =
-                                new AtomicReference<>();
-                              Runnable retryTask =
-                                () -> {
-                                  try {
-                                    int a = attempts.incrementAndGet();
-                                    if (a > 5) {
-                                      ScheduledFuture<?> f = sfRef.get();
-                                      if (f != null) f.cancel(false);
-                                      return;
-                                    }
-                                    if (udpChannel != null && udpChannel.isActive()) {
-                                      udpChannel.writeAndFlush(
-                                        new DatagramPacket(
-                                          udpChannel
-                                            .alloc()
-                                            .buffer(payload.length)
-                                            .writeBytes(payload),
-                                          udpRemote));
-                                      LOGGER.info(
-                                        "Retransmitted UDP RegisterUdp attempt={} clientId={} to {}",
-                                        a,
-                                        clientId,
-                                        udpRemote);
-                                    }
-                                  } catch (Throwable t) {
-                                    LOGGER.warn("Error in RegisterUdp retransmit task", t);
-                                  }
-                                };
-                              ScheduledFuture<?> sf =
-                                udpChannel
-                                  .eventLoop()
-                                  .scheduleAtFixedRate(
-                                    retryTask, 500, 500, TimeUnit.MILLISECONDS);
-                              sfRef.set(sf);
-                            } else {
-                              LOGGER.warn("RegisterUdp payload too large, not sending");
+                                  "TCP client inbound message type={} size={}B",
+                                  object.getClass().getSimpleName(),
+                                  size);
                             }
+                          } catch (Exception e) {
+                            LOGGER.warn("TCP client decode error", e);
                           }
-                        } catch (IOException e) {
-                          LOGGER.warn("Failed to send UDP registration datagram", e);
                         }
-                      } else if (object instanceof NetworkMessage nm) {
-                        inboundQueue.offer(nm);
-                        LOGGER.info(
-                          "TCP client inbound message type={} size={}B",
-                          object.getClass().getSimpleName(),
-                          size);
-                      }
-                    } catch (Exception e) {
-                      LOGGER.warn("TCP client decode error", e);
-                    }
-                  }
 
-                  @Override
-                  public void channelActive(ChannelHandlerContext ctx) {
-                    connected.set(true);
-                    enqueueLifecycle(NettyNetworkHandler.this::notifyConnected);
-                    // Send ConnectRequest on TCP connect
-                    try {
-                      byte[] data = serialize(new ConnectRequest(username));
-                      if (data.length <= MAX_OBJECT_SIZE) {
-                        ByteBuf buf = ctx.alloc().buffer(4 + data.length);
-                        buf.writeInt(data.length);
-                        buf.writeBytes(data);
-                        ctx.writeAndFlush(buf);
-                      } else {
-                        LOGGER.warn("ConnectRequest too large, skipping");
-                      }
-                    } catch (IOException e) {
-                      LOGGER.warn("Failed to send ConnectRequest", e);
-                    }
-                  }
+                        @Override
+                        public void channelActive(ChannelHandlerContext ctx) {
+                          connected.set(true);
+                          enqueueLifecycle(NettyNetworkHandler.this::notifyConnected);
+                          // Send ConnectRequest on TCP connect
+                          try {
+                            byte[] data = serialize(new ConnectRequest(username));
+                            if (data.length <= MAX_OBJECT_SIZE) {
+                              ByteBuf buf = ctx.alloc().buffer(4 + data.length);
+                              buf.writeInt(data.length);
+                              buf.writeBytes(data);
+                              ctx.writeAndFlush(buf);
+                            } else {
+                              LOGGER.warn("ConnectRequest too large, skipping");
+                            }
+                          } catch (IOException e) {
+                            LOGGER.warn("Failed to send ConnectRequest", e);
+                          }
+                        }
 
-                  @Override
-                  public void channelInactive(ChannelHandlerContext ctx) {
-                    connected.set(false);
-                    enqueueLifecycle(() -> notifyDisconnected(null));
-                  }
+                        @Override
+                        public void channelInactive(ChannelHandlerContext ctx) {
+                          connected.set(false);
+                          enqueueLifecycle(() -> notifyDisconnected(null));
+                        }
 
-                  @Override
-                  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                    LOGGER.warn("TCP client handler error", cause);
-                    ctx.close();
-                    connected.set(false);
-                    enqueueLifecycle(() -> notifyDisconnected(cause));
-                  }
-                });
-            }
-          });
+                        @Override
+                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                          LOGGER.warn("TCP client handler error", cause);
+                          ctx.close();
+                          connected.set(false);
+                          enqueueLifecycle(() -> notifyDisconnected(cause));
+                        }
+                      });
+                }
+              });
       ChannelFuture connectFuture =
-        cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
+          cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
       clientTcpChannel = connectFuture.channel();
 
       // UDP client (bind to ephemeral port and connect logically to server for convenience)
       Bootstrap ub = new Bootstrap();
       ub.group(clientGroup)
-        .channel(NioDatagramChannel.class)
-        .handler(
-          new SimpleChannelInboundHandler<DatagramPacket>() {
-            @Override
-            protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-              try {
-                Object object = deserialize(packet.content());
-                if (object instanceof NetworkMessage nm) inboundQueue.offer(nm);
-              } catch (Exception e) {
-                LOGGER.warn("UDP client decode error", e);
-              }
-            }
+          .channel(NioDatagramChannel.class)
+          .handler(
+              new SimpleChannelInboundHandler<DatagramPacket>() {
+                @Override
+                protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
+                  try {
+                    Object object = deserialize(packet.content());
+                    if (object instanceof NetworkMessage nm) inboundQueue.offer(Tuple.of(ctx, nm));
+                  } catch (Exception e) {
+                    LOGGER.warn("UDP client decode error", e);
+                  }
+                }
 
-            @Override
-            public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-              LOGGER.warn("UDP client handler error", cause);
-            }
-          });
+                @Override
+                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+                  LOGGER.warn("UDP client handler error", cause);
+                }
+              });
       udpChannel = ub.bind(0).syncUninterruptibly().channel();
       // Optional connect to filter inbound
       udpChannel.connect(udpRemote).syncUninterruptibly();
@@ -377,8 +316,63 @@ public final class NettyNetworkHandler implements INetworkHandler {
     }
   }
 
+  private void handleConnectAck(int clientId) {
+    assignedClientId = clientId;
+    LOGGER.info("Received ConnectAck clientId={}", clientId);
+    // Send dedicated RegisterUDP message with retransmit attempts
+    try {
+      if (udpChannel != null && udpChannel.isActive() && udpRemote != null) {
+        byte[] payload = serialize(new RegisterUdp(clientId));
+        if (payload.length <= MAX_UDP_PAYLOAD) {
+          LOGGER.info(
+              "Sending UDP registration datagram bytes={} to {}", payload.length, udpRemote);
+          udpChannel.writeAndFlush(
+              new DatagramPacket(
+                  udpChannel.alloc().buffer(payload.length).writeBytes(payload), udpRemote));
+
+          // Retransmit a few times in case of packet loss / NAT
+          final AtomicInteger attempts = new AtomicInteger(1);
+          final AtomicReference<ScheduledFuture<?>> sfRef = new AtomicReference<>();
+          Runnable retryTask =
+              () -> {
+                try {
+                  int a = attempts.incrementAndGet();
+                  if (a > 5) {
+                    ScheduledFuture<?> f = sfRef.get();
+                    if (f != null) f.cancel(false);
+                    return;
+                  }
+                  if (udpChannel != null && udpChannel.isActive()) {
+                    udpChannel.writeAndFlush(
+                        new DatagramPacket(
+                            udpChannel.alloc().buffer(payload.length).writeBytes(payload),
+                            udpRemote));
+                    LOGGER.info(
+                        "Retransmitted UDP RegisterUdp attempt={} clientId={} to {}",
+                        a,
+                        clientId,
+                        udpRemote);
+                  }
+                } catch (Throwable t) {
+                  LOGGER.warn("Error in RegisterUdp retransmit task", t);
+                }
+              };
+          ScheduledFuture<?> sf =
+              udpChannel
+                  .eventLoop()
+                  .scheduleAtFixedRate(retryTask, 500, 500, TimeUnit.MILLISECONDS);
+          sfRef.set(sf);
+        } else {
+          LOGGER.warn("RegisterUdp payload too large, not sending");
+        }
+      }
+    } catch (IOException e) {
+      LOGGER.warn("Failed to send UDP registration datagram", e);
+    }
+  }
+
   @Override
-  public void shutdown() {
+  public void shutdown(String reason) {
     if (!running.compareAndSet(true, false)) return;
     try {
       if (serverTcpChannel != null) serverTcpChannel.close().syncUninterruptibly();
@@ -397,8 +391,8 @@ public final class NettyNetworkHandler implements INetworkHandler {
     }
 
     connected.set(false);
-    enqueueLifecycle(() -> notifyDisconnected(null));
-    LOGGER.info("NettyNetworkHandler shutdown complete.");
+    enqueueLifecycle(() -> notifyDisconnected(new NetworkException(reason)));
+    LOGGER.info("NettyNetworkHandler shutdown complete. Reason: {}", reason);
   }
 
   @Override
@@ -432,7 +426,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
     SnapshotTranslator t = translator;
     if (t == null)
       throw new IllegalStateException(
-        "SnapshotTranslator not set on INetworkHandler. Set via setSnapshotTranslator(...) before starting network or provide translator in starter.");
+          "SnapshotTranslator not set on INetworkHandler. Set via setSnapshotTranslator(...) before starting network or provide translator in starter.");
     return t;
   }
 
@@ -443,7 +437,37 @@ public final class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer) {
+  public void send(NetworkMessage message) {
+    if (!running.get()
+        || !isConnected()
+        || clientTcpChannel == null
+        || !clientTcpChannel.isActive()) {
+      LOGGER.warn("TCP channel not active; cannot send reliable message");
+      return;
+    }
+    try {
+      byte[] data = serialize(message);
+      if (data.length > MAX_OBJECT_SIZE) {
+        LOGGER.warn(
+            "Dropping TCP message; payload too large ({} bytes) > {}",
+            data.length,
+            MAX_OBJECT_SIZE);
+        return;
+      }
+      ByteBuf buf = clientTcpChannel.alloc().buffer(4 + data.length);
+      buf.writeInt(data.length);
+      buf.writeBytes(data);
+      clientTcpChannel
+          .writeAndFlush(buf)
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+    } catch (IOException e) {
+      LOGGER.warn("Failed to serialize TCP message", e);
+    }
+  }
+
+  @Override
+  public void _setRawMessageConsumer(
+      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
     this.rawMessageConsumer = rawMessageConsumer;
   }
 
@@ -474,14 +498,12 @@ public final class NettyNetworkHandler implements INetworkHandler {
       byte[] data = serialize(input);
       if (data.length > MAX_UDP_PAYLOAD) {
         LOGGER.warn(
-          "Dropping UDP input; payload too large ({} bytes) > {}",
-          data.length,
-          MAX_UDP_PAYLOAD);
+            "Dropping UDP input; payload too large ({} bytes) > {}", data.length, MAX_UDP_PAYLOAD);
         return;
       }
       ch.writeAndFlush(
-          new DatagramPacket(ch.alloc().buffer(data.length).writeBytes(data), udpRemote))
-        .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+              new DatagramPacket(ch.alloc().buffer(data.length).writeBytes(data), udpRemote))
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize UDP input", e);
     }
@@ -513,12 +535,12 @@ public final class NettyNetworkHandler implements INetworkHandler {
         LOGGER.warn("Error running lifecycle event", e);
       }
     }
-    NetworkMessage msg;
+    Tuple<ChannelHandlerContext, NetworkMessage> msg;
     while ((msg = inboundQueue.poll()) != null) {
       try {
-        Consumer<NetworkMessage> consumer = this.rawMessageConsumer;
-        if (consumer != null) consumer.accept(msg);
-        else dispatcher.dispatch(msg);
+        BiConsumer<ChannelHandlerContext, NetworkMessage> consumer = this.rawMessageConsumer;
+        if (consumer != null) consumer.accept(msg.a(), msg.b());
+        else dispatcher.dispatch(msg.a(), msg.b());
       } catch (Exception e) {
         LOGGER.error("Error dispatching inbound message", e);
       }
@@ -553,7 +575,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
   private static byte[] serialize(Object obj) throws IOException {
     if (!(obj instanceof Serializable)) {
       throw new NotSerializableException(
-        "Message does not implement Serializable: " + obj.getClass().getName());
+          "Message does not implement Serializable: " + obj.getClass().getName());
     }
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -563,7 +585,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
   }
 
   private static Object deserialize(io.netty.buffer.ByteBuf buf)
-    throws IOException, ClassNotFoundException {
+      throws IOException, ClassNotFoundException {
     byte[] array;
     int len = buf.readableBytes();
     array = new byte[len];
