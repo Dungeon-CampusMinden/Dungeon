@@ -7,6 +7,7 @@ import contrib.utils.IEntityCommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -150,20 +151,22 @@ public class LeverFactory {
   }
 
   /**
-   * Creates a pressure plate entity at the given position.
+   * Creates a pressure plate entity at the specified position.
    *
-   * <p>A pressure plate acts as a switch that is active (true) if at least one entity with a {@code
-   * CollideComponent} stands on it.
+   * <p>The pressure plate acts as a switch that becomes active (i.e., {@code true}) if the total
+   * mass of entities with a {@code CollideComponent} standing on it reaches or exceeds the
+   * specified mass trigger threshold.
    *
-   * <p>The pressure plate does not trigger for projectiles.
+   * <p>Entities that have a {@code ProjectileComponent} are excluded and do not trigger the plate.
    *
-   * <p>The plate does not emit any event on interaction; it only toggles the {@link
-   * LeverComponent#isOn()} state.
+   * <p>This pressure plate does not emit any events on interaction; it solely toggles the {@link
+   * LeverComponent#isOn()} state based on the mass currently on the plate.
    *
-   * @param position the position where the pressure plate should be created
+   * @param position the position where the pressure plate entity should be created
+   * @param massTrigger the mass threshold at which the pressure plate becomes triggered
    * @return the newly created pressure plate entity
    */
-  public static Entity pressurePlate(Point position) {
+  public static Entity pressurePlate(Point position, float massTrigger) {
     Entity pressurePlate = new Entity("pressureplate");
     pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
     DrawComponent drawComponent =
@@ -177,26 +180,49 @@ public class LeverFactory {
     pressurePlate.add(drawComponent);
     LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
     pressurePlate.add(leverComponent);
-    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent();
+    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
     pressurePlate.add(pressurePlateComponent);
     TriConsumer<Entity, Entity, Direction> onCollideEnter =
         (self, other, dir) -> {
           if (other.isPresent(ProjectileComponent.class)) return;
-          pressurePlateComponent.increase();
-          if (!leverComponent.isOn()) {
-            leverComponent.toggle();
-          }
+
+          other
+              .fetch(VelocityComponent.class)
+              .ifPresent(vc -> pressurePlateComponent.increase(vc.mass()));
         };
+
     TriConsumer<Entity, Entity, Direction> onCollideLeave =
         (self, other, dir) -> {
           if (other.isPresent(ProjectileComponent.class)) return;
-          pressurePlateComponent.decrease();
-          if (!pressurePlateComponent.atLeastOne() && leverComponent.isOn()) {
-            leverComponent.toggle();
-          }
+
+          other
+              .fetch(VelocityComponent.class)
+              .ifPresent(vc -> pressurePlateComponent.decrease(vc.mass()));
         };
+
     pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave));
     return pressurePlate;
+  }
+
+  /**
+   * Creates a pressure plate entity at the specified position.
+   *
+   * <p>The pressure plate acts as a switch that becomes active (i.e., {@code true}) if at least one
+   * entity with a {@code CollideComponent} stands on it, triggering at the default mass threshold.
+   *
+   * <p>Entities with a {@code ProjectileComponent} do not trigger the pressure plate.
+   *
+   * <p>The plate does not emit events on interaction; it only toggles the {@link
+   * LeverComponent#isOn()} state.
+   *
+   * <p>The plate triggers at the default mass threshold defined by {@link
+   * PressurePlateComponent#DEFAULT_MASS_TRIGGER}.
+   *
+   * @param position the position where the pressure plate entity should be created
+   * @return the newly created pressure plate entity
+   */
+  public static Entity pressurePlate(Point position) {
+    return pressurePlate(position, PressurePlateComponent.DEFAULT_MASS_TRIGGER);
   }
 
   /**

@@ -8,109 +8,73 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link PressurePlateComponent}.
  *
- * <p>Tests the correctness of increasing, decreasing, and querying the entity count on a pressure
- * plate.
+ * <p>Tests correctness of increasing, decreasing, and querying the total mass on a pressure plate,
+ * as well as the triggered state based on the mass threshold.
  */
 class PressurePlateComponentTest {
 
   private PressurePlateComponent pressurePlate;
 
-  /** Initializes a new PressurePlateComponent before each test. */
+  /** Initializes a new PressurePlateComponent before each test with default mass trigger. */
   @BeforeEach
   void setUp() {
     pressurePlate = new PressurePlateComponent();
   }
 
-  /** Tests that the initial standing count is zero and atLeastOne() returns false. */
+  /** Tests that initial mass is zero and pressure plate is not triggered. */
   @Test
-  void initialStandingCountIsZero() {
-    assertEquals(0, pressurePlate.standingCount(), "Initial count should be 0");
-    assertFalse(pressurePlate.atLeastOne(), "Initial atLeastOne should be false");
+  void initialMassIsZeroAndNotTriggered() {
+    assertEquals(0f, pressurePlate.currentMass(), 0.0001f, "Initial mass should be 0");
+    assertFalse(pressurePlate.isTriggered(), "Pressure plate should not be triggered initially");
   }
 
-  /**
-   * Tests that calling increase() once increments the standing count to 1 and atLeastOne() returns
-   * true.
-   */
+  /** Tests that increasing mass adds correctly and may trigger plate if threshold reached. */
   @Test
-  void increaseIncrementsCount() {
-    pressurePlate.increase();
-    assertEquals(1, pressurePlate.standingCount());
-    assertTrue(pressurePlate.atLeastOne());
+  void increaseMassIncrementsCurrentMass() {
+    pressurePlate = new PressurePlateComponent(1.0f);
+    pressurePlate.increase(0.5f);
+    assertEquals(0.5f, pressurePlate.currentMass(), 0.0001f);
+    assertFalse(pressurePlate.isTriggered(), "Plate should not trigger below threshold");
+
+    pressurePlate.increase(0.6f);
+    assertEquals(1.1f, pressurePlate.currentMass(), 0.0001f);
+    assertTrue(pressurePlate.isTriggered(), "Plate should trigger at or above threshold");
   }
 
-  /** Tests that multiple calls to increase() increment the count correctly. */
+  /** Tests that decreasing mass reduces current mass but not below zero. */
   @Test
-  void multipleIncreaseIncrementsCountCorrectly() {
-    pressurePlate.increase();
-    pressurePlate.increase();
-    pressurePlate.increase();
-    assertEquals(3, pressurePlate.standingCount());
-    assertTrue(pressurePlate.atLeastOne());
+  void decreaseMassReducesCurrentMassNotBelowZero() {
+    pressurePlate.increase(1.5f);
+    pressurePlate.decrease(0.4f);
+    assertEquals(1.1f, pressurePlate.currentMass(), 0.0001f);
+
+    pressurePlate.decrease(2f); // Try to decrease more than current mass
+    assertEquals(0f, pressurePlate.currentMass(), 0.0001f, "Mass should not go below zero");
+    assertFalse(pressurePlate.isTriggered(), "Plate should not trigger when mass is zero");
   }
 
-  /** Tests that decrease() reduces the count after increasing it. */
+  /** Tests that isTriggered() reflects correct triggered state based on mass threshold. */
   @Test
-  void decreaseDecrementsCount() {
-    pressurePlate.increase();
-    pressurePlate.increase();
-    pressurePlate.decrease();
-    assertEquals(1, pressurePlate.standingCount());
-    assertTrue(pressurePlate.atLeastOne());
+  void isTriggeredReflectsThresholdCorrectly() {
+    float threshold = pressurePlate.massTrigger();
+
+    pressurePlate.increase(threshold - 0.01f);
+    assertFalse(pressurePlate.isTriggered(), "Just below threshold should not trigger");
+
+    pressurePlate.increase(0.01f);
+    assertTrue(pressurePlate.isTriggered(), "At threshold should trigger");
+
+    pressurePlate.decrease(0.1f);
+    assertFalse(pressurePlate.isTriggered(), "Below threshold after decrease should not trigger");
   }
 
-  /** Tests that the standing count reaches zero and atLeastOne() becomes false. */
+  /** Tests that massTrigger() returns the configured mass threshold. */
   @Test
-  void decreaseToZero() {
-    pressurePlate.increase();
-    pressurePlate.decrease();
-    assertEquals(0, pressurePlate.standingCount());
-    assertFalse(pressurePlate.atLeastOne());
-  }
+  void massTriggerReturnsConfiguredThreshold() {
+    float defaultTrigger = PressurePlateComponent.DEFAULT_MASS_TRIGGER;
+    assertEquals(defaultTrigger, pressurePlate.massTrigger(), 0.0001f);
 
-  /** Tests that calling decrease() when count is already zero keeps it at zero. */
-  @Test
-  void decreaseDoesNotGoBelowZero() {
-    pressurePlate.decrease(); // nothing to decrease
-    assertEquals(0, pressurePlate.standingCount());
-    assertFalse(pressurePlate.atLeastOne());
-  }
-
-  /**
-   * Tests that {@link PressurePlateComponent#atLeastOne()} returns false when no entities are
-   * standing on the pressure plate.
-   */
-  @Test
-  void atLeastOneReturnsFalseWhenZero() {
-    assertFalse(pressurePlate.atLeastOne(), "atLeastOne() should return false when count is zero");
-  }
-
-  /**
-   * Tests that {@link PressurePlateComponent#atLeastOne()} returns true when one or more entities
-   * are standing on the pressure plate.
-   */
-  @Test
-  void atLeastOneReturnsTrueWhenOneOrMore() {
-    pressurePlate.increase();
-    assertTrue(
-        pressurePlate.atLeastOne(), "atLeastOne() should return true when count is one or more");
-
-    pressurePlate.increase();
-    assertTrue(
-        pressurePlate.atLeastOne(),
-        "atLeastOne() should still return true when count is greater than one");
-  }
-
-  /**
-   * Tests that {@link PressurePlateComponent#atLeastOne()} returns false after entities leave and
-   * the count decreases back to zero.
-   */
-  @Test
-  void atLeastOneReturnsFalseAfterDecreaseToZero() {
-    pressurePlate.increase();
-    pressurePlate.decrease();
-    assertFalse(
-        pressurePlate.atLeastOne(),
-        "atLeastOne() should return false after count decreases back to zero");
+    PressurePlateComponent custom = new PressurePlateComponent(5.0f);
+    assertEquals(5.0f, custom.massTrigger(), 0.0001f);
   }
 }
