@@ -15,6 +15,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
+import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InputMessage.Action;
@@ -124,7 +125,7 @@ public final class HeroFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero() throws IOException {
-    return newHero(HERO_DEATH, true, "Player");
+    return newHero(HERO_DEATH, true, PreRunConfiguration.username());
   }
 
   public static Entity newHero(boolean isLocal, String playerName) throws IOException {
@@ -147,8 +148,8 @@ public final class HeroFactory {
    * @param isLocal if the hero is the local player
    * @return A new Entity.
    */
-  public static Entity newHero(Consumer<Entity> deathCallback, boolean isLocal) {
-    Entity hero = new Entity("hero");
+  public static Entity newHero(Consumer<Entity> deathCallback, boolean isLocal, String playerName) {
+    Entity hero = new Entity("hero_" + playerName);
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
