@@ -86,7 +86,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   /**
-   * Moves the entity away from the hero if it is too close.
+   * Moves the entity away from the hero if he is too close.
    *
    * @param entity The entity to move.
    */
