@@ -1,7 +1,6 @@
 package core.network.messages.s2c;
 
 import core.network.messages.NetworkMessage;
-
 import java.util.List;
 
 /**
@@ -12,5 +11,5 @@ import java.util.List;
  *
  * @param serverTick optional monotonic tick
  */
-public record SnapshotMessage(long serverTick, List<EntityState> entities) implements NetworkMessage {
-}
+public record SnapshotMessage(long serverTick, List<EntityState> entities)
+    implements NetworkMessage {}

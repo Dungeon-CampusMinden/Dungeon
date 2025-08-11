@@ -13,8 +13,7 @@ import java.io.Serial;
  * @param action the action (e.g., move, move path, cast skill, interact)
  * @param point the point (e.g., move path, cast skill, interact)
  */
-public record InputMessage(int clientId, Action action, Point point)
-    implements NetworkMessage {
+public record InputMessage(int clientId, Action action, Point point) implements NetworkMessage {
   @Serial private static final long serialVersionUID = 1L;
 
   public InputMessage(Action action, Point point) {
