@@ -12,6 +12,7 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -71,21 +72,23 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
       .flatMap(Game::positionOf)
       .ifPresent(positionHero ->
         Game.positionOf(entity).ifPresent(positionEntity -> {
-          GraphPath<Tile> path = findPathToSafety(entity, positionEntity, positionHero);
+          GraphPath<Tile> path =
+            findPathToSafety(positionEntity, positionHero)
+              .orElseGet(() -> LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange));
           AIUtils.move(entity, path);
         })
       );
   }
 
-  private GraphPath<Tile> findPathToSafety(Entity entity, Point positionEntity, Point positionHero) {
+  private Optional<GraphPath<Tile>> findPathToSafety(Point positionEntity, Point positionHero) {
     List<Tile> tiles = accessibleTilesInRange(positionEntity, maxAttackRange - minAttackRange);
-    for (Tile tile : tiles) {
-      Point positionNew = tile.position();
-      if (!Point.inRange(positionNew, positionHero, minAttackRange)) {
-        return LevelUtils.calculatePath(positionEntity, positionNew);
+    for (Tile t : tiles) {
+      Point p = t.position();
+      if (!Point.inRange(p, positionHero, minAttackRange)) {
+        return Optional.of(LevelUtils.calculatePath(positionEntity, p));
       }
     }
-    return LevelUtils.calculatePathToRandomTileInRange(entity, 2 * maxAttackRange);
+    return Optional.empty();
   }
 
   private void moveToHero(Entity entity) {
