@@ -14,7 +14,7 @@ import java.util.Optional;
 public final class EntityState implements NetworkMessage {
   @Serial private static final long serialVersionUID = 1L;
 
-  private final int entityId;
+  private final String entityName;
   private final Point position;
   private final String viewDirection;
   private final Integer curHealth;
@@ -23,7 +23,7 @@ public final class EntityState implements NetworkMessage {
   private final Integer tintColor;
 
   private EntityState(Builder builder) {
-    this.entityId = builder.entityId;
+    this.entityName = builder.entityName;
     this.position = builder.position;
     this.viewDirection = builder.viewDirection;
     this.curHealth = builder.curHealth;
@@ -32,8 +32,8 @@ public final class EntityState implements NetworkMessage {
     this.tintColor = builder.tintColor;
   }
 
-  public int entityId() {
-    return entityId;
+  public String entityName() {
+    return entityName;
   }
 
   public Point position() {
@@ -65,7 +65,7 @@ public final class EntityState implements NetworkMessage {
   }
 
   public static class Builder {
-    private int entityId;
+    private String entityName;
     private Point position;
     private String viewDirection;
     private Integer curHealth;
@@ -73,8 +73,8 @@ public final class EntityState implements NetworkMessage {
     private String animation;
     private Integer tintColor;
 
-    public Builder entityId(int entityId) {
-      this.entityId = entityId;
+    public Builder entityName(String entityName) {
+      this.entityName = entityName;
       return this;
     }
 

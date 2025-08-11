@@ -1,6 +1,6 @@
 package core.network.messages;
 
 public record EntityDespawnEvent(
-  int entityName,
+  String entityName,
   String reason
 ) implements NetworkMessage {}

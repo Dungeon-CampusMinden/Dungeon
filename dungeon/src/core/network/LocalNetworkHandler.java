@@ -1,24 +1,16 @@
 package core.network;
 
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.HealthComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.PathComponent;
 import contrib.entities.HeroController;
-import contrib.entities.HeroFactory;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.utils.LevelUtils;
 import core.network.messages.EntityState;
 import core.network.messages.InputMessage;
 import core.network.messages.NetworkMessage;
 import core.network.messages.SnapshotMessage;
-import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -214,8 +206,7 @@ public class LocalNetworkHandler implements INetworkHandler {
         .forEach(
             entity -> {
               EntityState.Builder builder = EntityState.builder();
-              final int entityId = entity.id();
-              builder.entityId(entityId);
+              builder.entityName(entity.name());
 
               // PositionComponent
               Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
