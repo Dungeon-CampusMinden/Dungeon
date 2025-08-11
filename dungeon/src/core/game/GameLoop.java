@@ -30,10 +30,8 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,7 +245,7 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.info("Received EntityDespawnEvent event: " + event.entityName() + ", reason: "
               + event.reason());
           Entity entity =
-            Game.entityStream().filter(e -> e.id() == event.entityName()).findFirst().orElse(null);
+            Game.entityStream().filter(e -> Objects.equals(e.name(), event.entityName())).findFirst().orElse(null);
           if (entity == null) {
             LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityName());
             return;
