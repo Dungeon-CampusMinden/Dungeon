@@ -92,20 +92,18 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    */
   private void moveAwayFromHero(Entity entity) {
     Game.hero()
-        .flatMap(Game::positionOf)
-        .ifPresent(
+        .flatMap(Game::positionOf) // Hero-Position
+        .flatMap(
             positionHero ->
                 Game.positionOf(entity)
-                    .ifPresent(
-                        positionEntity -> {
-                          GraphPath<Tile> path =
-                              findPathToSafety(positionEntity, positionHero)
-                                  .orElseGet(
-                                      () ->
-                                          LevelUtils.calculatePathToRandomTileInRange(
-                                              entity, 2 * maxAttackRange));
-                          AIUtils.move(entity, path);
-                        }));
+                    .map(
+                        positionEntity ->
+                            findPathToSafety(positionEntity, positionHero)
+                                .orElseGet(
+                                    () ->
+                                        LevelUtils.calculatePathToRandomTileInRange(
+                                            entity, 2 * maxAttackRange))))
+        .ifPresent(path -> AIUtils.move(entity, path));
   }
 
   /**
