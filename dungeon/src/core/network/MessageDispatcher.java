@@ -5,7 +5,6 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,8 +75,8 @@ public final class MessageDispatcher {
     if (handler != null) {
       try {
         @SuppressWarnings("unchecked")
-        Consumer<Object> c = (Consumer<Object>) handler;
-        c.accept(message);
+        BiConsumer<ChannelHandlerContext, Object> c = (BiConsumer<ChannelHandlerContext, Object>) handler;
+        c.accept(ctx, message);
       } catch (Exception e) {
         LOGGER.log(
             Level.SEVERE,
