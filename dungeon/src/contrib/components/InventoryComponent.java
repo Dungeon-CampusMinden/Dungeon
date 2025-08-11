@@ -274,21 +274,17 @@ public final class InventoryComponent implements Component {
    *     inventory.
    */
   public boolean removeOne(Item item) {
-    Item itemToRemoveOne = item;
-
-    long sameClassCount =
+    Item itemToRemoveOne =
         Arrays.stream(inventory)
-            .filter(Objects::nonNull)
-            .filter(it -> it.getClass().equals(item.getClass()))
-            .count();
+                    .filter(Objects::nonNull)
+                    .filter(it -> it.getClass().equals(item.getClass()))
+                    .count()
+                > 1
+            ? smallestStackOfItemClass(item.getClass()).orElse(null)
+            : item;
 
-    if (sameClassCount > 1) {
-      Optional<Item> smallest = smallestStackOfItemClass(item.getClass());
-      if (smallest.isPresent()) {
-        itemToRemoveOne = smallest.get();
-      } else {
-        return false;
-      }
+    if (itemToRemoveOne == null) {
+      return false;
     }
 
     for (int i = 0; i < inventory.length; i++) {
