@@ -31,6 +31,7 @@ class PressurePlateComponentTest {
   /** Tests that increasing mass adds correctly and may trigger plate if threshold reached. */
   @Test
   void increaseMassIncrementsCurrentMass() {
+    pressurePlate = new PressurePlateComponent(1.0f);
     pressurePlate.increase(0.5f);
     assertEquals(0.5f, pressurePlate.currentMass(), 0.0001f);
     assertFalse(pressurePlate.isTriggered(), "Plate should not trigger below threshold");
