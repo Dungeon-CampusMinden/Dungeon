@@ -13,11 +13,9 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Optional;
 
 /**
  * This item is a bow. It can be used to shoot arrows, if any are stored in the inventory.
@@ -41,28 +39,26 @@ public class ItemWoodenBow extends Item {
 
   @Override
   public boolean collect(final Entity itemEntity, final Entity collector) {
-    PlayerComponent pc =
-        collector
-            .fetch(PlayerComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(collector, PlayerComponent.class));
-
-    Optional<InventoryComponent> collectorInvComp = collector.fetch(InventoryComponent.class);
-
-    pc.registerCallback(
-        KeyboardConfig.SECOND_SKILL.value(),
-        collectorEntity ->
-            collectorInvComp
-                .flatMap(
-                    invComp ->
-                        invComp
-                            .itemOfClass(ItemWoodenArrow.class)
-                            .filter(item -> BOW_SKILL.canBeUsedAgain() && invComp.removeOne(item)))
-                .ifPresent(item -> BOW_SKILL.execute(collectorEntity)));
-
-    return collectorInvComp
+    return collector
+        .fetch(InventoryComponent.class)
         .map(
-            inv -> {
-              if (inv.add(this)) {
+            inventoryComponent -> {
+              if (inventoryComponent.add(this)) {
+                collector
+                    .fetch(PlayerComponent.class)
+                    .ifPresent(
+                        pc ->
+                            pc.registerCallback(
+                                KeyboardConfig.SECOND_SKILL.value(),
+                                collectorEntity -> {
+                                  inventoryComponent
+                                      .itemOfClass(ItemWoodenArrow.class)
+                                      .filter(
+                                          item ->
+                                              BOW_SKILL.canBeUsedAgain()
+                                                  && inventoryComponent.removeOne(item))
+                                      .ifPresent(item -> BOW_SKILL.execute(collectorEntity));
+                                }));
                 Game.remove(itemEntity);
                 return true;
               }
