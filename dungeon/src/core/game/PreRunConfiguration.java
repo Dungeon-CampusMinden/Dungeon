@@ -28,7 +28,7 @@ public final class PreRunConfiguration {
   private static boolean NETWORK_IS_SERVER = true;
   private static String NETWORK_SERVER_ADDRESS = "127.0.0.1";
   private static int NETWORK_PORT = 7777;
-  private static  String USERNAME = "Player";
+  private static String USERNAME = "Player";
 
   private static int WINDOW_WIDTH = 1280;
   private static int WINDOW_HEIGHT = 720;
@@ -359,6 +359,7 @@ public final class PreRunConfiguration {
 
   /**
    * Gets the username for the game.
+   *
    * @return The username.
    */
   public static String username() {
@@ -368,7 +369,7 @@ public final class PreRunConfiguration {
   /**
    * Sets the username for the game.
    *
-   * <p>The username must not be empty or contain underscores.</p>
+   * <p>The username must not be empty or contain underscores.
    *
    * @param username The username to set.
    * @throws IllegalArgumentException if the username is empty or contains underscores.

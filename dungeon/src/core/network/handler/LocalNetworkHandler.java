@@ -9,16 +9,16 @@ import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.NetworkException;
 import core.network.SnapshotTranslator;
-import core.network.messages.s2c.EntityState;
-import core.network.messages.c2s.InputMessage;
 import core.network.messages.NetworkMessage;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Vector2;
-
+import io.netty.channel.ChannelHandlerContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,9 +34,10 @@ import org.slf4j.LoggerFactory;
  * <p><b>Usage:</b>
  *
  * <ol>
- *   <li>Initialize with {@link #initialize(boolean, String, int)}.
+ *   <li>Initialize with {@link #initialize(boolean, String, int, String)} .
  *   <li>Start processing with {@link #start()}.
- *   <li>Send client messages via {@link #sendInput(InputMessage, boolean)}.
+ *   <li>Send client inputs via {@link #sendInput(InputMessage)} via UDP .
+ *   <li>Or send raw messages via {@link #send(NetworkMessage)} via TCP.
  *   <li>Trigger state updates with {@link #triggerStateUpdate()}.
  *   <li>Stop the handler with {@link #shutdown()}.
  * </ol>
@@ -48,7 +49,8 @@ public class LocalNetworkHandler implements INetworkHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkHandler.class);
 
   private final MessageDispatcher dispatcher = new MessageDispatcher(); // Instantiate dispatcher
-  private Consumer<NetworkMessage> rawMessageConsumer; // Internal consumer for raw messages
+  private BiConsumer<ChannelHandlerContext, NetworkMessage>
+      rawMessageConsumer; // Internal consumer for raw messages
   private boolean isRunning = false;
   private boolean isInitialized = false;
   private final List<ConnectionListener> connectionListeners = new ArrayList<>();
@@ -57,8 +59,14 @@ public class LocalNetworkHandler implements INetworkHandler {
   // No per-field delta tracking; we emit compact snapshots for local mode as well.
 
   @Override
-  public void initialize(boolean isServer, String serverAddress, int port, String username) throws NetworkException {
+  public void initialize(boolean isServer, String serverAddress, int port, String username)
+      throws NetworkException {
     this.isInitialized = true;
+  }
+
+  @Override
+  public void send(NetworkMessage message) {
+    // For local processing, we don't send anything
   }
 
   @Override
@@ -96,11 +104,11 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void shutdown() {
+  public void shutdown(String reason) {
     this.isRunning = false;
     this.isInitialized = false;
-    LOGGER.info("LocalNetworkHandler shutdown.");
-    notifyDisconnected(null);
+    notifyDisconnected(new NetworkException(reason));
+    LOGGER.info("LocalNetworkHandler shutdown complete. Reason: {}", reason);
   }
 
   @Override
@@ -120,7 +128,8 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void _setRawMessageConsumer(Consumer<NetworkMessage> rawMessageConsumer) {
+  public void _setRawMessageConsumer(
+      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
     this.rawMessageConsumer = rawMessageConsumer;
   }
 
@@ -235,6 +244,6 @@ public class LocalNetworkHandler implements INetworkHandler {
               snapshotEntities.add(builder.build());
             });
 
-    rawMessageConsumer.accept(new SnapshotMessage(0L, snapshotEntities));
+    rawMessageConsumer.accept(null, new SnapshotMessage(0L, snapshotEntities));
   }
 }
