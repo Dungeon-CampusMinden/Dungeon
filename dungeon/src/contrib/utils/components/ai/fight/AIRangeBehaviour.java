@@ -27,31 +27,31 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   private enum Proximity { TOO_CLOSE, IN_RANGE, TOO_FAR }
   private final float maxAttackRange;
   private final float minAttackRange;
-  private Skill skill;
+  private Skill fightSkill;
 
   /**
    * Attacks the player if he is within the given range between minAttackRange and maxAttackRange.
    * Otherwise, it will move into that range.
    *
-   * @param maxAttackRange Maximal distance to hero in which the attack skill should be executed.
-   * @param minAttackRange Minimal distance to hero in which the attack skill should be executed.
-   * @param skill Skill to be used when an attack is performed.
+   * @param maxAttackRange Maximal distance to hero in which the fightSkill should be executed.
+   * @param minAttackRange Minimal distance to hero in which the fightSkill should be executed.
+   * @param fightSkill Skill to be used when an attack is performed.
    */
   public AIRangeBehaviour(
-      final float maxAttackRange, final float minAttackRange, final Skill skill) {
+      final float maxAttackRange, final float minAttackRange, final Skill fightSkill) {
     if (maxAttackRange <= minAttackRange || minAttackRange < 0) {
       throw new IllegalArgumentException(
           "maxAttackRange must be greater than minAttackRange and minAttackRange must be 0 or greater than 0");
     }
     this.maxAttackRange = maxAttackRange;
     this.minAttackRange = minAttackRange;
-    this.skill = skill;
+    this.fightSkill = fightSkill;
   }
 
   @Override
   public void accept(final Entity entity) {
     switch (proximity(entity)) {
-      case IN_RANGE -> useSkill(skill, entity);
+      case IN_RANGE -> useSkill(fightSkill, entity);
       case TOO_CLOSE -> moveAwayFromHero(entity);
       case TOO_FAR -> moveToHero(entity);
     }
@@ -97,20 +97,20 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   @Override
-  public void useSkill(Skill skill, Entity skillUser) {
-    if (skill == null) {
+  public void useSkill(Skill fightSkill, Entity skillUser) {
+    if (fightSkill == null) {
       return;
     }
-    skill.execute(skillUser);
+    fightSkill.execute(skillUser);
   }
 
   @Override
   public Skill skill() {
-    return this.skill;
+    return this.fightSkill;
   }
 
   @Override
   public void skill(Skill skill) {
-    this.skill = skill;
+    this.fightSkill = skill;
   }
 }
