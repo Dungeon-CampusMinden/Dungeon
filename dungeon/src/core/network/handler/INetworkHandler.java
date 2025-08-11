@@ -1,6 +1,10 @@
-package core.network;
+package core.network.handler;
 
-import core.network.messages.InputMessage;
+import core.network.ConnectionListener;
+import core.network.MessageDispatcher;
+import core.network.NetworkException;
+import core.network.SnapshotTranslator;
+import core.network.messages.c2s.InputMessage;
 import core.network.messages.NetworkMessage;
 import java.util.function.Consumer;
 
