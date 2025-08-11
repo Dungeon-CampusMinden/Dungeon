@@ -8,10 +8,8 @@ import core.components.PositionComponent;
 import core.network.messages.EntityState;
 import core.network.messages.SnapshotMessage;
 import core.utils.Direction;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,10 +65,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
     List<EntityState> list = new ArrayList<>(clientEntities.size());
     for (Map.Entry<Integer, Entity> entry : clientEntities.entrySet()) {
-      int clientId = entry.getKey();
       Entity e = entry.getValue();
       EntityState.Builder builder = EntityState.builder();
-      builder.entityId(clientId);
+      builder.entityName(entry.getValue().name());
 
       // Position
       e.fetch(PositionComponent.class)
@@ -117,21 +114,18 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
         .forEach(
             snap -> {
               try {
-                final int snapshotId = snap.entityId();
-                int targetIdCandidate = resolveSnapshotTargetId(snapshotId);
-                Entity entity =
-                    Game.entityStream()
-                        .filter(e -> e.id() == targetIdCandidate)
-                        .findFirst()
-                        .orElse(null);
-                if (entity == null) {
+                final String entityName = snap.entityName();
+                Optional<Entity> targetEntity = resolveEntityByName(entityName);
+
+                if (targetEntity.isEmpty()) {
                   LOGGER.warn(
-                      "No entity found for snapshot with ID: "
-                          + snapshotId
-                          + ", targetIdCandidate: "
-                          + targetIdCandidate);
+                      "No entity found for snapshot with Name: "
+                          + entityName);
+                  // TODO: Request entity spawn event
                   return;
                 }
+
+                Entity entity = targetEntity.get();
 
                 entity
                     .fetch(PositionComponent.class)
@@ -167,16 +161,9 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
             });
   }
 
-  private static int resolveSnapshotTargetId(int snapshotId) {
-    try {
-      var maybeEntity = Game.entityStream().filter(e -> e.id() == snapshotId).findFirst();
-      if (maybeEntity.isPresent()) return snapshotId;
-      if (Game.network() instanceof core.network.netty.NettyNetworkHandler nn
-          && nn.getAssignedClientId() == snapshotId) {
-        return Game.hero().map(Entity::id).orElse(snapshotId);
-      }
-    } catch (Exception ignored) {
-    }
-    return snapshotId;
+  private static Optional<Entity> resolveEntityByName(String entityName) {
+    return Game.entityStream()
+        .filter(e -> e.name().equals(entityName))
+        .findFirst();
   }
 }
