@@ -1,14 +1,18 @@
-package core.network;
+package core.network.handler;
 
 import contrib.components.HealthComponent;
 import contrib.entities.HeroController;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.network.messages.EntityState;
-import core.network.messages.InputMessage;
+import core.network.ConnectionListener;
+import core.network.MessageDispatcher;
+import core.network.NetworkException;
+import core.network.SnapshotTranslator;
+import core.network.messages.s2c.EntityState;
+import core.network.messages.c2s.InputMessage;
 import core.network.messages.NetworkMessage;
-import core.network.messages.SnapshotMessage;
+import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Vector2;
 
 import java.util.ArrayList;
