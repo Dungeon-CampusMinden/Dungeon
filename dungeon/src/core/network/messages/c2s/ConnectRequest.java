@@ -1,4 +1,6 @@
-package core.network.messages;
+package core.network.messages.c2s;
+
+import core.network.messages.NetworkMessage;
 
 /**
  * Client→server: initial handshake request.

@@ -20,13 +20,12 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
-import core.network.LocalNetworkHandler;
+import core.network.handler.LocalNetworkHandler;
 import core.network.MessageDispatcher;
-import core.network.messages.*;
+import core.network.messages.s2c.*;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
-import core.utils.Point;
 import core.utils.components.MissingComponentException;
 
 import java.io.IOException;

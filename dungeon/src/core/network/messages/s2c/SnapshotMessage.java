@@ -1,4 +1,6 @@
-package core.network.messages;
+package core.network.messages.s2c;
+
+import core.network.messages.NetworkMessage;
 
 import java.util.List;
 
