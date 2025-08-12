@@ -67,9 +67,9 @@ public class EntityUtils {
    *     whoTriggered)
    * @return The spawned Lever entity.
    * @throws RuntimeException if an error occurs while spawning the Lever.
-   * @see LeverFactory#createLever(Point, ICommand) createLever
+   * @see LeverFactory#createLever(Point, ISimpleCommand) createLever
    */
-  public static Entity spawnLever(Point pos, ICommand onInteract) {
+  public static Entity spawnLever(Point pos, ISimpleCommand onInteract) {
     Entity lever = LeverFactory.createLever(pos, onInteract);
     Game.add(lever);
     return lever;

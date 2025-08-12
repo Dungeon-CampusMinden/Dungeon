@@ -9,7 +9,7 @@ import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
 import contrib.utils.DynamicCompiler;
-import contrib.utils.ICommand;
+import contrib.utils.ISimpleCommand;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -95,8 +95,8 @@ public class AdvancedSortLevel extends AdvancedLevel {
   protected void onFirstTick() {
     if (showMsg) DialogUtils.showTextPopup(msg, title, () -> showMsg = false);
 
-    ICommand leverAction =
-        new ICommand() {
+    ISimpleCommand leverAction =
+        new ISimpleCommand() {
           @Override
           public void execute() {
             if (!isLeverActivated) {

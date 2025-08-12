@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
+import contrib.utils.components.Debugger;
 import coopDungeon.level.*;
 import core.Entity;
 import core.Game;
@@ -18,13 +19,21 @@ import java.util.logging.Level;
 
 public class Coop {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+  private static final boolean DISABLE_AUDIO = true;
+  private static final boolean DEBUG_MODE = true;
 
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
-    Game.run();
+
+    if (DEBUG_MODE) {
+      Debugger debugger = new Debugger();
+      Game.userOnFrame(() -> debugger.execute());
+    }
     Game.windowTitle("Coop-Dungeon");
+
+    Game.run();
   }
 
   private static void onSetup() {
@@ -66,7 +75,7 @@ public class Coop {
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
     Game.frameRate(30);
-    Game.disableAudio(false);
+    Game.disableAudio(DISABLE_AUDIO);
   }
 
   private static void createSystems() {
