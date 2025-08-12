@@ -32,6 +32,7 @@ import java.util.logging.Logger;
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 public final class HealthComponent implements Component {
+  private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
   private Consumer<Entity> onDeath;
@@ -56,13 +57,25 @@ public final class HealthComponent implements Component {
   }
 
   /**
+   * Create a new HealthComponent.
+   *
+   * <p>onDeath function will remove the entity from * the game.
+   *
+   * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
+   *     than that
+   */
+  public HealthComponent(int maximalHitPoints) {
+    this(maximalHitPoints, REMOVE_DEAD_ENTITY);
+  }
+
+  /**
    * Create a HealthComponent with default values.
    *
    * <p>The maximum health points are set to 1, and the onDeath function will remove the entity from
    * the game.
    */
   public HealthComponent() {
-    this(1, entity -> Game.remove(entity));
+    this(1, REMOVE_DEAD_ENTITY);
   }
 
   /**
