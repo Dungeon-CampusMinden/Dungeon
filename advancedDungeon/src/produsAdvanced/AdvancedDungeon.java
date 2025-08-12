@@ -10,14 +10,16 @@ import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.game.ECSManagment;
 import core.game.WindowEventManager;
 import core.level.loader.DungeonLoader;
-import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
+import core.utils.JsonHandler;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Fireball;
@@ -44,6 +46,10 @@ public class AdvancedDungeon {
    * <p>Also disables recompilation for player control.
    */
   public static final boolean DEBUG_MODE = false;
+
+  public static final String SAVE_LEVEL_KEY = "LEVEL";
+
+  private static final String SAVE_FILE = "advanceddungeon.json";
 
   private static final Debugger DEBUGGER = new Debugger();
 
@@ -110,9 +116,8 @@ public class AdvancedDungeon {
    * Main method to launch the game.
    *
    * @param args Command-line arguments (not used).
-   * @throws IOException If game configuration or hero creation fails.
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
@@ -120,14 +125,16 @@ public class AdvancedDungeon {
     Game.run();
   }
 
-  /**
-   * Configures game settings like frame rate, window title, and audio.
-   *
-   * @throws IOException If configuration fails.
-   */
-  private static void configGame() throws IOException {
+  /** Configures game settings like frame rate, window title, and audio. */
+  private static void configGame() {
     Game.frameRate(30);
     Game.disableAudio(true);
+    Game.userOnLevelLoad(
+        aBoolean -> {
+          if (aBoolean) {
+            writeLevelIndex(DungeonLoader.currentLevelIndex());
+          }
+        });
     Game.resizeable(true);
     Game.windowTitle("Advanced Dungeon");
   }
@@ -159,8 +166,7 @@ public class AdvancedDungeon {
             throw new RuntimeException(e);
           }
           Crafting.loadRecipes();
-          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-          DungeonLoader.loadLevel(0);
+          DungeonLoader.loadLevel(loadLevelIndex());
         });
   }
 
@@ -218,5 +224,43 @@ public class AdvancedDungeon {
       throw new RuntimeException(e);
     }
     DungeonLoader.reloadCurrentLevel();
+  }
+
+  private static int loadLevelIndex() {
+    File file = new File(AdvancedDungeon.SAVE_FILE);
+
+    if (!file.exists()) {
+      return 0;
+    }
+    try {
+      String json = readFileContent(file);
+      Map<String, Object> map = JsonHandler.readJson(json);
+      return ((Long) map.getOrDefault(SAVE_LEVEL_KEY, 0)).intValue();
+    } catch (IOException e) {
+      return 0;
+    }
+  }
+
+  private static String readFileContent(File file) throws IOException {
+    try (InputStream fis = new FileInputStream(file)) {
+      return new String(fis.readAllBytes(), StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new IOException("Failed to read game configuration file: " + file.getPath(), e);
+    }
+  }
+
+  private static void writeLevelIndex(int index) {
+    HashMap<String, Object> map = new HashMap<>();
+    map.put(SAVE_LEVEL_KEY, index);
+    String content = JsonHandler.writeJson(map, true);
+    try {
+      File file = new File(AdvancedDungeon.SAVE_FILE);
+      // Ensure parent directory exists
+      try (OutputStreamWriter osw =
+          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+        osw.write(content);
+      }
+    } catch (Exception ignored) {
+    }
   }
 }
