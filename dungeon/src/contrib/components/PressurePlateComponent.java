@@ -3,47 +3,82 @@ package contrib.components;
 import core.Component;
 
 /**
- * A component that allows a pressure plate to track how many entities are currently standing on it.
+ * Component that tracks the total mass currently on a pressure plate.
  *
- * <p>The number of entities currently on the pressure plate can be queried with {@link
- * #standingCount()}, and presence can be checked with {@link #atLeastOne()}.
+ * <p>The pressure plate is considered triggered if the total mass on it meets or exceeds a
+ * configurable mass threshold.
+ *
+ * <p>Mass can be increased or decreased as entities step on or off the plate.
  */
 public class PressurePlateComponent implements Component {
 
-  /** The number of entities currently standing on the pressure plate. */
-  private int standingCount = 0;
+  /** Default mass threshold to trigger the pressure plate. */
+  public static final float DEFAULT_MASS_TRIGGER = 0.1f;
+
+  /** Total mass currently on the pressure plate. */
+  private float currentMass = 0f;
+
+  /** Mass threshold that triggers the pressure plate. */
+  private final float massTrigger;
 
   /**
-   * Increases the standing count by one. Should be called when an entity steps on the pressure
-   * plate.
-   */
-  public void increase() {
-    standingCount++;
-  }
-
-  /**
-   * Decreases the standing count by one, but never below zero. Should be called when an entity
-   * steps off the pressure plate.
-   */
-  public void decrease() {
-    if (standingCount > 0) standingCount--;
-  }
-
-  /**
-   * Returns the current number of entities standing on the pressure plate.
+   * Creates a pressure plate component with a specified mass trigger threshold.
    *
-   * @return the standing count
+   * @param massTrigger the mass threshold to trigger the plate
    */
-  public int standingCount() {
-    return standingCount;
+  public PressurePlateComponent(float massTrigger) {
+    this.massTrigger = massTrigger;
+  }
+
+  /** Creates a pressure plate component with the default mass trigger threshold. */
+  public PressurePlateComponent() {
+    this(DEFAULT_MASS_TRIGGER);
   }
 
   /**
-   * Returns whether at least one entity is standing on the pressure plate.
+   * Adds the specified mass to the pressure plate.
    *
-   * @return {@code true} if one or more entities are on the plate, {@code false} otherwise
+   * @param mass the mass to add when an entity steps onto the plate
    */
-  public boolean atLeastOne() {
-    return standingCount > 0;
+  public void increase(float mass) {
+    currentMass += mass;
+  }
+
+  /**
+   * Removes the specified mass from the pressure plate, never dropping below zero.
+   *
+   * @param mass the mass to remove when an entity steps off the plate
+   */
+  public void decrease(float mass) {
+    currentMass -= mass;
+    if (currentMass < 0f) currentMass = 0f;
+  }
+
+  /**
+   * Returns the total mass currently on the pressure plate.
+   *
+   * @return the current total mass
+   */
+  public float currentMass() {
+    return currentMass;
+  }
+
+  /**
+   * Returns the mass threshold that triggers the pressure plate.
+   *
+   * @return the mass trigger threshold
+   */
+  public float massTrigger() {
+    return massTrigger;
+  }
+
+  /**
+   * Checks whether the pressure plate is currently triggered.
+   *
+   * @return true if the current mass is greater than or equal to the trigger threshold, false
+   *     otherwise
+   */
+  public boolean isTriggered() {
+    return currentMass >= massTrigger;
   }
 }

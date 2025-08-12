@@ -5,9 +5,10 @@ import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,8 @@ import java.util.stream.Stream;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
- * the death of an entity when the health-points have fallen below 0.
+ * the {@link HealthComponent#triggerOnDeath(Entity)} of an entity when the health-points have
+ * fallen below 0.
  *
  * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
  * system.
@@ -50,7 +52,7 @@ public class HealthSystem extends System {
     deadOrAlive.get(true).stream()
         .map(this::activateDeathAnimation)
         .filter(this::isDeathAnimationFinished)
-        .forEach(this::removeDeadEntities);
+        .forEach(this::triggerOnDeath);
   }
 
   protected HSData applyDamage(final HSData hsd) {
@@ -74,7 +76,7 @@ public class HealthSystem extends System {
 
   protected HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
-    hsd.dc.queueAnimation(AdditionalAnimations.DIE);
+    hsd.dc.queueAnimation(deathAnimationBasedOnViewdirection(hsd));
 
     // return data object to enable method chaining/streaming
     return hsd;
@@ -99,10 +101,32 @@ public class HealthSystem extends System {
     Predicate<DrawComponent> isAnimationLooping = DrawComponent::isCurrentAnimationLooping;
     // test if Animation has finished playing
     Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
+    Predicate<DrawComponent> currentAnimationIsDeath =
+        drawComponent -> {
+          return hsd.dc().hasAnimation(deathAnimationBasedOnViewdirection(hsd));
+        };
 
     return !hasDeathAnimation.test(hsd.dc)
-        || isAnimationLooping.test(hsd.dc)
-        || isAnimationFinished.test(hsd.dc);
+        || (currentAnimationIsDeath.test(hsd.dc) && isAnimationLooping.test(hsd.dc))
+        || (currentAnimationIsDeath.test(hsd.dc) && isAnimationFinished.test(hsd.dc));
+  }
+
+  private IPath deathAnimationBasedOnViewdirection(HSData hsd) {
+    IPath animation =
+        hsd.e()
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::viewDirection)
+            .map(
+                direction ->
+                    switch (direction) {
+                      case UP -> AdditionalAnimations.DIE_UP;
+                      case DOWN -> AdditionalAnimations.DIE_DOWN;
+                      case LEFT -> AdditionalAnimations.DIE_LEFT;
+                      case RIGHT -> AdditionalAnimations.DIE_RIGHT;
+                      case NONE -> AdditionalAnimations.DIE;
+                    })
+            .orElse(AdditionalAnimations.DIE);
+    return animation;
   }
 
   /**
@@ -131,12 +155,9 @@ public class HealthSystem extends System {
     observers.remove(observer);
   }
 
-  protected void removeDeadEntities(final HSData hsd) {
-    // Entity appears to be dead, so let's clean up the mess
-    hsd.hc.triggerOnDeath(hsd.e);
+  protected void triggerOnDeath(final HSData hsd) {
     observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
-
-    Game.remove(hsd.e);
+    hsd.hc.triggerOnDeath(hsd.e);
   }
 
   /**

@@ -123,7 +123,7 @@ public class ItemTest {
   public void testConstructorSixParameter() {
     Item item =
         new Item("Test item 3", "More description", inventoryAnimation, worldAnimation, 2, 6);
-    assertEquals(item.displayName(), "Test item 3");
+    assertEquals(item.displayName(), "2 x Test item 3");
     assertEquals(item.description(), "More description");
     assertEquals(item.inventoryAnimation(), inventoryAnimation);
     assertEquals(item.worldAnimation(), worldAnimation);

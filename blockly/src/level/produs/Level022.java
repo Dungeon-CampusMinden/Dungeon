@@ -70,6 +70,7 @@ public class Level022 extends BlocklyLevel {
               // todo we shouldnt just end the game, we need a real end screen
               DialogUtils.showTextPopup(
                   "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit);
+              Game.remove(entity);
             });
     Game.allTiles(LevelElement.PIT)
         .forEach(

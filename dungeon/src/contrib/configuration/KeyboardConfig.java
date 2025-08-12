@@ -65,6 +65,10 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> FIRST_SKILL =
       new ConfigKey<>(new String[] {"skill", "fireball"}, new ConfigIntValue(Input.Keys.Q));
 
+  /** The second skill of the Hero. Currently, a bow to shoot arrows. */
+  public static final ConfigKey<Integer> SECOND_SKILL =
+      new ConfigKey<>(new String[] {"skill", "wooden_bow"}, new ConfigIntValue(Input.Keys.T));
+
   /**
    * If Mouse Movement is enabled. This key is used shoot the first skill.
    *

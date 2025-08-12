@@ -174,6 +174,7 @@ public class Client {
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
+    Game.add(new PressurePlateSystem());
     Game.add(
         new System() {
           @Override

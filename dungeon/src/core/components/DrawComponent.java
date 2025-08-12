@@ -306,6 +306,11 @@ public final class DrawComponent implements Component {
     animationQueue.keySet().removeIf(e -> e.priority() == prio);
   }
 
+  /** Remove all animations from the animation queue. */
+  public void deQueueAll() {
+    animationQueue.clear();
+  }
+
   /**
    * Get the Animation at the given path.
    *
