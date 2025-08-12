@@ -70,13 +70,17 @@ public class ItemWoodenBow extends Item {
   @Override
   public boolean drop(final Point position) {
     Game.hero()
-      .flatMap(hero -> hero.fetch(PlayerComponent.class))
-      .ifPresent(pc -> pc.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
+        .flatMap(hero -> hero.fetch(PlayerComponent.class))
+        .ifPresent(pc -> pc.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
 
     return Game.tileAT(position)
-      .filter(FloorTile.class::isInstance)
-      .map(tile -> { Game.add(WorldItemBuilder.buildWorldItem(this, position)); return true; })
-      .orElse(false);
+        .filter(FloorTile.class::isInstance)
+        .map(
+            tile -> {
+              Game.add(WorldItemBuilder.buildWorldItem(this, position));
+              return true;
+            })
+        .orElse(false);
   }
 
   @Override
