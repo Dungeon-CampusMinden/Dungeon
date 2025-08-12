@@ -47,7 +47,7 @@ public class AdvancedDungeon {
    */
   public static final boolean DEBUG_MODE = false;
 
-  public static final String SAVE_LEVEL_KEY = "LEVEL";
+  private static final String SAVE_LEVEL_KEY = "LEVEL";
 
   private static final String SAVE_FILE = "advanceddungeon.json";
 
