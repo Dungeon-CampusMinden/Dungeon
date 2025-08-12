@@ -13,7 +13,7 @@ import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
-import core.components.PlayerComponent;
+import core.components.InputComponent;
 import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
@@ -80,38 +80,34 @@ public class PathfinderStarter {
           pathfindings = Tuple.of(null, null);
           Game.updateWindowTitle(GAME_TITEL + " – No Algorithm selected");
 
-          Coordinate startCoords = Game.currentLevel().startTile().orElseThrow().coordinate();
-          Coordinate endTileCoords = Game.currentLevel().endTile().orElseThrow().coordinate();
-
           Game.hero()
               .ifPresent(
                   hero -> {
-                    hero.fetch(PlayerComponent.class)
-                        .ifPresent(
-                            pc -> {
-                              pc.registerCallback(
-                                  KeyboardConfig.SELECT_DFS.value(),
-                                  caller -> {
-                                    selectPathfindingAlgorithm(
-                                        new DFSPathFinding(startCoords, endTileCoords),
-                                        false,
-                                        hero);
-                                  });
-                              pc.registerCallback(
-                                  KeyboardConfig.SELECT_BFS.value(),
-                                  caller -> {
-                                    selectPathfindingAlgorithm(
-                                        new BFSPathFinding(startCoords, endTileCoords),
-                                        false,
-                                        hero);
-                                  });
-                              pc.registerCallback(
-                                  KeyboardConfig.SELECT_SUS_ALGO.value(),
-                                  caller -> {
-                                    selectPathfindingAlgorithm(
-                                        new SusPathFinding(startCoords, endTileCoords), true, hero);
-                                  });
-                            });
+                    Coordinate startCoords =
+                        Game.currentLevel().startTile().orElseThrow().coordinate();
+                    Coordinate endTileCoords =
+                        Game.currentLevel().endTile().orElseThrow().coordinate();
+
+                    InputComponent ic = new InputComponent();
+                    ic.registerCallback(
+                        KeyboardConfig.SELECT_DFS.value(),
+                        caller -> {
+                          selectPathfindingAlgorithm(
+                              new DFSPathFinding(startCoords, endTileCoords), false, hero);
+                        });
+                    ic.registerCallback(
+                        KeyboardConfig.SELECT_BFS.value(),
+                        caller -> {
+                          selectPathfindingAlgorithm(
+                              new BFSPathFinding(startCoords, endTileCoords), false, hero);
+                        });
+                    ic.registerCallback(
+                        KeyboardConfig.SELECT_SUS_ALGO.value(),
+                        caller -> {
+                          selectPathfindingAlgorithm(
+                              new SusPathFinding(startCoords, endTileCoords), true, hero);
+                        });
+                    hero.add(ic);
                   });
         });
   }
@@ -166,7 +162,8 @@ public class PathfinderStarter {
     hero.remove(CameraComponent.class);
     Game.add(hero);
 
-    hero.fetch(PlayerComponent.class).ifPresent(PlayerComponent::removeCallbacks);
+    // Disable all Input
+    hero.remove(InputComponent.class);
   }
 
   /**

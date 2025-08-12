@@ -11,20 +11,24 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.loader.DungeonLoader;
+import core.network.MessageDispatcher;
+import core.network.handler.LocalNetworkHandler;
+import core.network.messages.s2c.*;
 import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimationPriorities;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Dungeon-GameLoop.
@@ -38,7 +42,7 @@ import java.util.logging.Logger;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class GameLoop extends ScreenAdapter {
-  private static final Logger LOGGER = Logger.getLogger(GameLoop.class.getSimpleName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(GameLoop.class);
   private static Stage stage;
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
@@ -57,9 +61,9 @@ public final class GameLoop extends ScreenAdapter {
   private final IVoidFunction onLevelLoad =
       () -> {
         newLevelWasLoadedInThisLoop = true;
-        Optional<Entity> hero = ECSManagment.hero();
+        List<Entity> allHeros = ECSManagment.allHeros().toList();
         boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel());
-        hero.ifPresent(ECSManagment::remove);
+        allHeros.forEach(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
         Map<Class<? extends System>, System> s = ECSManagment.systems();
@@ -72,11 +76,11 @@ public final class GameLoop extends ScreenAdapter {
         s.values().forEach(ECSManagment::add);
 
         try {
-          hero.ifPresent(this::placeOnLevelStart);
+          allHeros.forEach(this::placeOnLevelStart);
         } catch (MissingComponentException e) {
-          LOGGER.warning(e.getMessage());
+          LOGGER.warn(e.getMessage());
         }
-        hero.ifPresent(ECSManagment::add);
+        allHeros.forEach(ECSManagment::add);
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
@@ -153,20 +157,35 @@ public final class GameLoop extends ScreenAdapter {
   @Override
   public void render(float delta) {
     if (doSetup) setup();
-    DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined);
+    ECSManagment.system(
+        DrawSystem.class,
+        drawSystem -> drawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+    // Drain any inbound network messages on the game thread before running systems
+    try {
+      Game.network().pollAndDispatch();
+    } catch (Exception e) {
+      LOGGER.warn("Error while polling network messages: " + e.getMessage());
+    }
     frame();
     clearScreen();
 
-    for (System system : ECSManagment.systems().values()) {
-      // if a new level was loaded, stop this loop-run
-      if (newLevelWasLoadedInThisLoop) break;
-      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
-      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
-        system.execute();
-        system.lastExecuteInFrames(0);
-      }
-    }
+    // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
+    final boolean isMultiplayerClient =
+        PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
+    ECSTickRunner.runOneFrame(
+        s -> {
+          if (newLevelWasLoadedInThisLoop) return false;
+          if (!isMultiplayerClient) return true;
+          return (s instanceof DrawSystem)
+              || (s instanceof CameraSystem)
+              || (s instanceof InputSystem);
+        });
+
     newLevelWasLoadedInThisLoop = false;
+    if (Game.network() instanceof LocalNetworkHandler localHandler) {
+      // If we are in single player, we can trigger the state update directly.
+      localHandler.triggerStateUpdate();
+    }
     CameraSystem.camera().update();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
@@ -184,9 +203,109 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     doSetup = false;
     createSystems();
+    setupMessageHandlers();
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
     Game.systems().get(LevelSystem.class).execute();
+  }
+
+  private void setupMessageHandlers() {
+    MessageDispatcher dispatcher = Game.network().messageDispatcher();
+
+    dispatcher.registerHandler(
+        ConnectReject.class,
+        (ctx, event) -> {
+          LOGGER.warn("Received ConnectReject: {}", event.reason());
+          ctx.close();
+        });
+
+    dispatcher.registerHandler(
+        EntitySpawnEvent.class,
+        (ctx, event) -> {
+          LOGGER.info("Received EntitySpawnEvent event: " + event.entityName());
+
+          // check if the entity already exists
+          if (Game.entityStream().anyMatch(e -> Objects.equals(e.name(), event.entityName()))) {
+            LOGGER.warn(
+                "Received spawn event for already existing entity with ID: " + event.entityName());
+            return;
+          }
+
+          Entity newEntity = new Entity(event.entityName());
+          PositionComponent pc = new PositionComponent(event.position());
+          pc.viewDirection(event.viewDirection());
+          newEntity.add(pc);
+          DrawComponent dc;
+          try {
+            dc = new DrawComponent(event.texturePath());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          dc.currentAnimation(event.currentAnimation());
+          dc.tintColor(event.tintColor());
+          newEntity.add(dc);
+          Game.add(newEntity);
+        });
+
+    dispatcher.registerHandler(
+        EntityDespawnEvent.class,
+        (ctx, event) -> {
+          LOGGER.info(
+              "Received EntityDespawnEvent event: "
+                  + event.entityName()
+                  + ", reason: "
+                  + event.reason());
+          Entity entity =
+              Game.entityStream()
+                  .filter(e -> Objects.equals(e.name(), event.entityName()))
+                  .findFirst()
+                  .orElse(null);
+          if (entity == null) {
+            LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityName());
+            return;
+          }
+          Game.remove(entity);
+        });
+
+    dispatcher.registerHandler(
+        LevelChangeEvent.class,
+        (ctx, event) -> {
+          LOGGER.info(
+              "Received LevelChangeEvent event: "
+                  + event.levelName()
+                  + ", spawn point: "
+                  + event.spawnPoint());
+          if (event.levelName() == null || event.levelName().isBlank()) {
+            LOGGER.warn(
+                "Received LevelChangeEvent with empty level name. Value was: " + event.levelName());
+            return;
+          }
+          try {
+            DungeonLoader.loadLevel(event.levelName());
+            if (event.spawnPoint() == null) {
+              Game.hero().ifPresent(this::placeOnLevelStart);
+            } else {
+              Debugger.TELEPORT(event.spawnPoint());
+            }
+          } catch (Exception e) {
+            LOGGER.warn("Failed to handle LevelChangeEvent: " + e.getMessage());
+          }
+        });
+    dispatcher.registerHandler(
+        GameOverEvent.class,
+        (ctx, event) -> {
+          LOGGER.info("Received GameOverEvent event");
+          Game.exit();
+        });
+
+    dispatcher.registerHandler(
+        SnapshotMessage.class,
+        (ctx, event) -> {
+          try {
+            Game.network().snapshotTranslator().applySnapshot(event, dispatcher);
+          } catch (Exception ignored) {
+          }
+        });
   }
 
   /**
@@ -226,13 +345,6 @@ public final class GameLoop extends ScreenAdapter {
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     pc.position(Game.startTile().orElseThrow());
     pc.viewDirection(Direction.DOWN); // look down by default
-
-    // reset animations
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
   }
 
   /**
@@ -263,8 +375,8 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new LevelSystem(onLevelLoad));
     ECSManagment.add(new DrawSystem());
     ECSManagment.add(new VelocitySystem());
+    ECSManagment.add(new InputSystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
-    ECSManagment.add(new PlayerSystem());
   }
 }
