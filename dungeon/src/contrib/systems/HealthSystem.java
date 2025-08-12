@@ -5,7 +5,6 @@ import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import java.util.ArrayList;
@@ -17,7 +16,8 @@ import java.util.stream.Stream;
 
 /**
  * The HealthSystem offsets the damage to be done to all entities with the HealthComponent. Triggers
- * the death of an entity when the health-points have fallen below 0.
+ * the {@link HealthComponent#triggerOnDeath(Entity)} of an entity when the health-points have
+ * fallen below 0.
  *
  * <p>Entities with the {@link HealthComponent} and {@link DrawComponent} will be processed by this
  * system.
@@ -50,7 +50,7 @@ public class HealthSystem extends System {
     deadOrAlive.get(true).stream()
         .map(this::activateDeathAnimation)
         .filter(this::isDeathAnimationFinished)
-        .forEach(this::removeDeadEntities);
+        .forEach(this::triggerOnDeath);
   }
 
   protected HSData applyDamage(final HSData hsd) {
@@ -131,12 +131,9 @@ public class HealthSystem extends System {
     observers.remove(observer);
   }
 
-  protected void removeDeadEntities(final HSData hsd) {
-    // Entity appears to be dead, so let's clean up the mess
-    hsd.hc.triggerOnDeath(hsd.e);
+  protected void triggerOnDeath(final HSData hsd) {
     observers.forEach(observer -> observer.onHealthEvent(hsd, IHealthObserver.HealthEvent.DEATH));
-
-    Game.remove(hsd.e);
+    hsd.hc.triggerOnDeath(hsd.e);
   }
 
   /**

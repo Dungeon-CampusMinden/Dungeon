@@ -6,6 +6,7 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Component;
 import core.Entity;
+import core.Game;
 import core.utils.logging.CustomLogLevel;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,6 @@ public final class HealthComponent implements Component {
   private int maximalHealthpoints;
   private int currentHealthpoints;
   private @Null Entity lastCause = null;
-
   private boolean godMode = false;
 
   /**
@@ -58,10 +58,11 @@ public final class HealthComponent implements Component {
   /**
    * Create a HealthComponent with default values.
    *
-   * <p>The maximum health points are set to 1, and the onDeath function is empty.
+   * <p>The maximum health points are set to 1, and the onDeath function will remove the entity from
+   * the game.
    */
   public HealthComponent() {
-    this(1, onDeath -> {});
+    this(1, entity -> Game.remove(entity));
   }
 
   /**

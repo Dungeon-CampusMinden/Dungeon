@@ -196,6 +196,7 @@ public final class MonsterFactory {
         (e, who) -> {
           playDeathSoundIfNearby(deathSound, e);
           new DropItemsInteraction().accept(e, who);
+          Game.remove(e);
         };
     monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
 

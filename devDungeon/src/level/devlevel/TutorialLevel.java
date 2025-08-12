@@ -79,7 +79,14 @@ public class TutorialLevel extends DevDungeonLevel {
       throw new RuntimeException("Failed to create tutorial monster");
     }
     DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
-    mob.fetch(HealthComponent.class).ifPresent(hc -> hc.onDeath((e) -> mobDoor.open()));
+    mob.fetch(HealthComponent.class)
+        .ifPresent(
+            hc ->
+                hc.onDeath(
+                    entity -> {
+                      mobDoor.open();
+                      Game.remove(entity);
+                    }));
     Entity chest;
     Entity chest2;
     try {

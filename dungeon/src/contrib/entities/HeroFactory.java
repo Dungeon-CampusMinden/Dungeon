@@ -17,6 +17,7 @@ import core.Entity;
 import core.Game;
 import core.components.*;
 import core.level.Tile;
+import core.level.loader.DungeonLoader;
 import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
@@ -52,8 +53,18 @@ public final class HeroFactory {
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
   private static Consumer<Entity> HERO_DEATH =
-      (entity) -> {
-        DialogUtils.showTextPopup("You died!", "Game Over", Game::exit);
+      (hero) -> {
+        DialogUtils.showTextPopup(
+            "You died!",
+            "Game Over",
+            new IVoidFunction() {
+              @Override
+              public void execute() {
+                hero.fetch(HealthComponent.class)
+                    .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
+                DungeonLoader.reloadCurrentLevel();
+              }
+            });
       };
 
   /**
