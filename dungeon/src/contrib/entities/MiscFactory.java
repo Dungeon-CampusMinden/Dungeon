@@ -9,6 +9,7 @@ import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -18,6 +19,7 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Random;
@@ -34,6 +36,10 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
   private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
+  private static final SimpleIPath HEART_TEXTURE =
+      new SimpleIPath("items/pickups/heart_pickup.png");
+  private static final SimpleIPath FAIRY_TEXTURE =
+      new SimpleIPath("items/pickups/fairy_pickup.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -365,6 +371,89 @@ public final class MiscFactory {
     if (entityVc != null) {
       other.add(entityVc);
     }
+  }
+
+  /**
+   * Creates a generic pickup item entity.
+   *
+   * <p>The pickup will be represented by the specified texture and will execute the given {@code
+   * onCollide} behavior whenever it collides with another entity.
+   *
+   * @param name the name of the pickup entity.
+   * @param spawnPoint the position in the world where the pickup will be spawned.
+   * @param texture the texture to display for this pickup.
+   * @param onCollide the action to execute when a collision occurs; the first parameter is the
+   *     pickup entity itself, the second is the colliding entity, and the third is the collision
+   *     direction.
+   * @return the created pickup entity.
+   */
+  public static Entity newPickupItem(
+      String name,
+      Point spawnPoint,
+      IPath texture,
+      TriConsumer<Entity, Entity, Direction> onCollide) {
+    Entity pickupItem = new Entity(name);
+    pickupItem.add(new PositionComponent(spawnPoint));
+    pickupItem.add(new DrawComponent(Animation.fromSingleImage(texture)));
+    pickupItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
+    return pickupItem;
+  }
+
+  /**
+   * Creates a new heart pickup entity that restores a fixed amount of health points to the player
+   * when collected.
+   *
+   * <p>Only the game's hero can collect this pickup. The actual restored amount is capped at the
+   * player's maximal health points. After collection, the pickup is removed from the game.
+   *
+   * @param spawnPoint the position in the world where the heart pickup will be spawned.
+   * @param healAmount the number of health points to restore upon collection.
+   * @return the created heart pickup entity.
+   */
+  public static Entity newHeartPickup(Point spawnPoint, int healAmount) {
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (self, other, dir) -> {
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    if (other.equals(hero)) {
+                      other
+                          .fetch(HealthComponent.class)
+                          .ifPresent(health -> health.restoreHealthpoints(healAmount));
+                      Game.remove(self);
+                    }
+                  });
+        };
+
+    return newPickupItem("heartPickup", spawnPoint, HEART_TEXTURE, onCollide);
+  }
+
+  /**
+   * Creates a new fairy pickup entity that fully restores the player's health when collected.
+   *
+   * <p>Only the game's hero can collect this pickup. After collection, the pickup is removed from
+   * the game.
+   *
+   * @param spawnPoint the position in the world where the fairy pickup will be spawned.
+   * @return the created fairy pickup entity.
+   */
+  public static Entity newFairyPickup(Point spawnPoint) {
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (self, other, dir) -> {
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    if (other.equals(hero)) {
+                      other
+                          .fetch(HealthComponent.class)
+                          .ifPresent(
+                              health -> health.restoreHealthpoints(health.maximalHealthpoints()));
+                      Game.remove(self);
+                    }
+                  });
+        };
+
+    return newPickupItem("fairyPickup", spawnPoint, FAIRY_TEXTURE, onCollide);
   }
 
   /**
