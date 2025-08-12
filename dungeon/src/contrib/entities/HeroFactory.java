@@ -62,6 +62,8 @@ public final class HeroFactory {
               public void execute() {
                 hero.fetch(HealthComponent.class)
                     .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
+                // reset the animation queue
+                hero.fetch(DrawComponent.class).ifPresent(dc -> dc.deQueueAll());
                 DungeonLoader.reloadCurrentLevel();
               }
             });

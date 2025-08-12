@@ -7,6 +7,8 @@ import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +76,7 @@ public class HealthSystem extends System {
 
   protected HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
-    hsd.dc.queueAnimation(AdditionalAnimations.DIE);
+    hsd.dc.queueAnimation(deathAnimationBasedOnViewdirection(hsd));
 
     // return data object to enable method chaining/streaming
     return hsd;
@@ -99,10 +101,32 @@ public class HealthSystem extends System {
     Predicate<DrawComponent> isAnimationLooping = DrawComponent::isCurrentAnimationLooping;
     // test if Animation has finished playing
     Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
+    Predicate<DrawComponent> currentAnimationIsDeath =
+        drawComponent -> {
+          return hsd.dc().hasAnimation(deathAnimationBasedOnViewdirection(hsd));
+        };
 
     return !hasDeathAnimation.test(hsd.dc)
-        || isAnimationLooping.test(hsd.dc)
-        || isAnimationFinished.test(hsd.dc);
+        || (currentAnimationIsDeath.test(hsd.dc) && isAnimationLooping.test(hsd.dc))
+        || (currentAnimationIsDeath.test(hsd.dc) && isAnimationFinished.test(hsd.dc));
+  }
+
+  private IPath deathAnimationBasedOnViewdirection(HSData hsd) {
+    IPath animation =
+        hsd.e()
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::viewDirection)
+            .map(
+                direction ->
+                    switch (direction) {
+                      case UP -> AdditionalAnimations.DIE_UP;
+                      case DOWN -> AdditionalAnimations.DIE_DOWN;
+                      case LEFT -> AdditionalAnimations.DIE_LEFT;
+                      case RIGHT -> AdditionalAnimations.DIE_RIGHT;
+                      case NONE -> AdditionalAnimations.DIE;
+                    })
+            .orElse(AdditionalAnimations.DIE);
+    return animation;
   }
 
   /**
