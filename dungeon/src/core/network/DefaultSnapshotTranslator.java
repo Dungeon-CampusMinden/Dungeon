@@ -61,37 +61,39 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
     latestServerTick = serverTick;
 
     List<EntityState> list = new ArrayList<>(clientEntities.size());
-    for (Map.Entry<Integer, Entity> entry : clientEntities.entrySet()) {
-      Entity e = entry.getValue();
-      EntityState.Builder builder = EntityState.builder();
-      builder.entityName(entry.getValue().name());
 
-      // Position
-      e.fetch(PositionComponent.class)
+    Game.entityStream().forEach(
+      e -> {
+        EntityState.Builder builder = EntityState.builder();
+        builder.entityName(e.name());
+
+        // Position
+        e.fetch(PositionComponent.class)
           .ifPresent(
-              pc -> {
-                builder.position(pc.position());
-                builder.viewDirection(pc.viewDirection());
-              });
+            pc -> {
+              builder.position(pc.position());
+              builder.viewDirection(pc.viewDirection());
+            });
 
-      // Health
-      e.fetch(HealthComponent.class)
+        // Health
+        e.fetch(HealthComponent.class)
           .ifPresent(
-              hc -> {
-                builder.currentHealth(hc.currentHealthpoints());
-                builder.maxHealth(hc.maximalHealthpoints());
-              });
+            hc -> {
+              builder.currentHealth(hc.currentHealthpoints());
+              builder.maxHealth(hc.maximalHealthpoints());
+            });
 
-      // Animation
-      e.fetch(DrawComponent.class)
+        // Animation
+        e.fetch(DrawComponent.class)
           .ifPresent(
-              dc -> {
-                builder.animation(dc.currentAnimationName());
-                builder.tintColor(dc.tintColor());
-              });
+            dc -> {
+              builder.animation(dc.currentAnimationName());
+              builder.tintColor(dc.tintColor());
+            });
 
-      list.add(builder.build());
-    }
+        list.add(builder.build());
+      }
+    );
     return Optional.of(new SnapshotMessage(serverTick, list));
   }
 
