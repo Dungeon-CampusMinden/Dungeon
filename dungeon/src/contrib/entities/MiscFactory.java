@@ -19,6 +19,7 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Random;
@@ -373,63 +374,86 @@ public final class MiscFactory {
   }
 
   /**
-   * Creates a new heart pickup entity that restores a set amount of health points when collided
-   * with another entity that has a {@link HealthComponent}.
+   * Creates a generic pickup item entity.
    *
-   * <p>The pickup will be removed from the game after being collected.
+   * <p>The pickup will be represented by the specified texture and will execute the given {@code
+   * onCollide} behavior whenever it collides with another entity.
    *
-   * @param spawnPoint the position in the world where the heart pickup will be spawned.
-   * @param healAmount the number of health points to restore upon collection. The actual restored
-   *     amount will be capped at the entity's maximal health.
-   * @return the created heart pickup entity.
+   * @param name the name of the pickup entity.
+   * @param spawnPoint the position in the world where the pickup will be spawned.
+   * @param texture the texture to display for this pickup.
+   * @param onCollide the action to execute when a collision occurs; the first parameter is the
+   *     pickup entity itself, the second is the colliding entity, and the third is the collision
+   *     direction.
+   * @return the created pickup entity.
    */
-  public static Entity newHeartPickup(Point spawnPoint, int healAmount) {
-    Entity heartPickup = new Entity("heartPickup");
-    heartPickup.add(new PositionComponent(spawnPoint));
-    heartPickup.add(new DrawComponent(Animation.fromSingleImage(HEART_TEXTURE)));
-    heartPickup.add(
-        new CollideComponent(
-            (self, other, dir) -> {
-              other
-                  .fetch(HealthComponent.class)
-                  .ifPresent(
-                      health -> {
-                        health.restoreHealthpoints(healAmount);
-                      });
-              Game.remove(self);
-            },
-            CollideComponent.DEFAULT_COLLIDER));
-
-    return heartPickup;
+  public static Entity newPickupItem(
+      String name,
+      Point spawnPoint,
+      IPath texture,
+      TriConsumer<Entity, Entity, Direction> onCollide) {
+    Entity pickupItem = new Entity(name);
+    pickupItem.add(new PositionComponent(spawnPoint));
+    pickupItem.add(new DrawComponent(Animation.fromSingleImage(texture)));
+    pickupItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
+    return pickupItem;
   }
 
   /**
-   * Creates a new fairy pickup entity that fully restores the health of any colliding entity with a
-   * {@link HealthComponent}.
+   * Creates a new heart pickup entity that restores a fixed amount of health points to the player
+   * when collected.
    *
-   * <p>The pickup will be removed from the game after being collected.
+   * <p>Only the game's hero can collect this pickup. The actual restored amount is capped at the
+   * player's maximal health points. After collection, the pickup is removed from the game.
+   *
+   * @param spawnPoint the position in the world where the heart pickup will be spawned.
+   * @param healAmount the number of health points to restore upon collection.
+   * @return the created heart pickup entity.
+   */
+  public static Entity newHeartPickup(Point spawnPoint, int healAmount) {
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (self, other, dir) -> {
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    if (other.equals(hero)) {
+                      other
+                          .fetch(HealthComponent.class)
+                          .ifPresent(health -> health.restoreHealthpoints(healAmount));
+                      Game.remove(self);
+                    }
+                  });
+        };
+
+    return newPickupItem("heartPickup", spawnPoint, HEART_TEXTURE, onCollide);
+  }
+
+  /**
+   * Creates a new fairy pickup entity that fully restores the player's health when collected.
+   *
+   * <p>Only the game's hero can collect this pickup. After collection, the pickup is removed from
+   * the game.
    *
    * @param spawnPoint the position in the world where the fairy pickup will be spawned.
    * @return the created fairy pickup entity.
    */
   public static Entity newFairyPickup(Point spawnPoint) {
-    Entity fairyPickup = new Entity("fairyPickup");
-    fairyPickup.add(new PositionComponent(spawnPoint));
-    fairyPickup.add(new DrawComponent(Animation.fromSingleImage(FAIRY_TEXTURE)));
-    fairyPickup.add(
-        new CollideComponent(
-            (self, other, dir) -> {
-              other
-                  .fetch(HealthComponent.class)
-                  .ifPresent(
-                      health -> {
-                        health.restoreHealthpoints(health.maximalHealthpoints());
-                      });
-              Game.remove(self);
-            },
-            CollideComponent.DEFAULT_COLLIDER));
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (self, other, dir) -> {
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    if (other.equals(hero)) {
+                      other
+                          .fetch(HealthComponent.class)
+                          .ifPresent(
+                              health -> health.restoreHealthpoints(health.maximalHealthpoints()));
+                      Game.remove(self);
+                    }
+                  });
+        };
 
-    return fairyPickup;
+    return newPickupItem("fairyPickup", spawnPoint, FAIRY_TEXTURE, onCollide);
   }
 
   /**
