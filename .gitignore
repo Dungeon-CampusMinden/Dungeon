@@ -36,7 +36,7 @@ logs/
 # Game Generated Files #
 ########################
 dungeon_config.json
-advancedDungeon.json
+currentAdvancedLevel.json
 
 
 # JAVA, Scala #
