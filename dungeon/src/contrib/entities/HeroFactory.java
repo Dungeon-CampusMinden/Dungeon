@@ -53,21 +53,17 @@ public final class HeroFactory {
       new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
 
   private static Consumer<Entity> HERO_DEATH =
-      (hero) -> {
-        DialogUtils.showTextPopup(
-            "You died!",
-            "Game Over",
-            new IVoidFunction() {
-              @Override
-              public void execute() {
+      (hero) ->
+          DialogUtils.showTextPopup(
+              "You died!",
+              "Game Over",
+              () -> {
                 hero.fetch(HealthComponent.class)
                     .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
                 // reset the animation queue
-                hero.fetch(DrawComponent.class).ifPresent(dc -> dc.deQueueAll());
+                hero.fetch(DrawComponent.class).ifPresent(DrawComponent::deQueueAll);
                 DungeonLoader.reloadCurrentLevel();
-              }
-            });
-      };
+              });
 
   /**
    * The default speed of the hero.
@@ -187,8 +183,7 @@ public final class HeroFactory {
             CollideComponent.DEFAULT_COLLIDER);
     col.onHold(
         (you, other, direction) -> {
-          if (other.isPresent(KineticComponent.class))
-            resolveCollisionWithMomentum(hero, other, direction);
+          if (other.isPresent(KineticComponent.class)) resolveCollisionWithMomentum(hero, other);
         });
     hero.add(col);
 
@@ -256,18 +251,14 @@ public final class HeroFactory {
     // UI controls
     pc.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (entity) -> {
-          toggleInventory(entity, pc, ic);
-        },
+        (entity) -> toggleInventory(entity, pc, ic),
         false,
         true);
 
     if (ENABLE_MOUSE_MOVEMENT) {
       pc.registerCallback(
           KeyboardConfig.MOUSE_INVENTORY_TOGGLE.value(),
-          (entity) -> {
-            toggleInventory(entity, pc, ic);
-          },
+          (entity) -> toggleInventory(entity, pc, ic),
           false,
           true);
     }
@@ -453,8 +444,7 @@ public final class HeroFactory {
         .findFirst();
   }
 
-  private static void resolveCollisionWithMomentum(
-      Entity hero, Entity other, Direction collisionDirection) {
+  private static void resolveCollisionWithMomentum(Entity hero, Entity other) {
     Optional<VelocityComponent> optVc1 = hero.fetch(VelocityComponent.class);
     Optional<VelocityComponent> optVc2 = other.fetch(VelocityComponent.class);
 
