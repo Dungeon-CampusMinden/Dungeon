@@ -30,6 +30,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
     TOO_FAR
   }
 
+  private static final float SEARCH_RADIUS_FACTOR = 2f;
   private final float maxAttackRange;
   private final float minAttackRange;
   private Skill fightSkill;
@@ -93,19 +94,34 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * @param entity The entity to move.
    */
   private void moveAwayFromHero(Entity entity) {
+    // Get hero position
     Game.hero()
-        .flatMap(Game::positionOf) // Hero-Position
+        .flatMap(Game::positionOf)
+        // Get entity position and determine escape path
         .flatMap(
             positionHero ->
                 Game.positionOf(entity)
-                    .map(
-                        positionEntity ->
-                            findPathToSafety(positionEntity, positionHero)
-                                .orElseGet(
-                                    () ->
-                                        LevelUtils.calculatePathToRandomTileInRange(
-                                            entity, 2 * maxAttackRange))))
+                    .map(positionEntity -> escapePath(entity, positionEntity, positionHero)))
+        // Move entity if a path is found
         .ifPresent(path -> AIUtils.move(entity, path));
+  }
+
+  /**
+   * Chooses an escape path: first try a safe path outside the minimum range, otherwise pick a
+   * random path within the search radius.
+   *
+   * @param entity The entity to escape.
+   * @param positionEntity The position of the entity.
+   * @param positionHero The position of the hero.
+   * @return A path to safety, either to a reachable tile outside the minimum attack range or a
+   *     random tile within the search radius.
+   */
+  private GraphPath<Tile> escapePath(Entity entity, Point positionEntity, Point positionHero) {
+    return findPathToSafety(positionEntity, positionHero)
+        .orElseGet(
+            () ->
+                LevelUtils.calculatePathToRandomTileInRange(
+                    entity, SEARCH_RADIUS_FACTOR * maxAttackRange));
   }
 
   /**
