@@ -21,7 +21,7 @@ import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
 import java.util.*;
 import java.util.function.Function;
-
+import java.util.Optional;
 /**
  * Defines the API for Levels in the dungeon.
  *
@@ -261,32 +261,30 @@ public interface ILevel extends IndexedGraph<Tile> {
    * Retrieves the tile at the specified position within the level.
    *
    * <p>The method uses the provided coordinate to access the tile in the level layout. If the
-   * coordinate is out of bounds, the method returns null.
+   * coordinate is out of bounds, the method returns an empty Optional.
    *
    * @param coordinate The position from which to retrieve the tile.
-   * @return The tile at the specified coordinate, or null if there is no tile or the coordinate is
-   *     out of bounds.
+   * @return An {@link Optional} containing the tile at the specified coordinate, or {@link
+   *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
-  default Tile tileAt(final Coordinate coordinate) {
+  default Optional<Tile> tileAt(final Coordinate coordinate) {
     try {
-      return layout()[coordinate.y()][coordinate.x()];
+      return Optional.ofNullable(layout()[coordinate.y()][coordinate.x()]);
     } catch (IndexOutOfBoundsException e) {
-      return null;
+      return Optional.empty();
     }
   }
 
   /**
    * Retrieves the tile at the specified position within the level.
    *
-   * <p>The method uses the provided point and converts it to a coordinate using {@link
-   * Point#toCoordinate}, then retrieves the corresponding tile in the level layout. If the
-   * resulting coordinate is out of bounds, the method returns null.
+   * <p>The {@link Point} is converted to a {@link Coordinate} via {@link Point#toCoordinate()}.
+   * If the resulting coordinate is out of bounds or there is no tile, an empty {@link Optional} is returned.
    *
    * @param point The position from which to retrieve the tile, converted to a coordinate.
-   * @return The tile at the specified point, or null if there is no tile or the coordinate is out
-   *     of bounds.
+   * @return An {@link Optional} containing the tile at the given point, or {@link Optional#empty()}.
    */
-  default Tile tileAt(final Point point) {
+  default Optional<Tile> tileAt(final Point point) {
     return tileAt(point.toCoordinate());
   }
 
@@ -345,7 +343,7 @@ public interface ILevel extends IndexedGraph<Tile> {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return tileAt(pc.position());
+    return tileAt(pc.position()).orElse(null);
   }
 
   /**
