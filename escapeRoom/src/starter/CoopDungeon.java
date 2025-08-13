@@ -85,7 +85,7 @@ public class CoopDungeon {
     Game.add(new HealthSystem());
     Game.add(new HudSystem());
     Game.add(new SpikeSystem());
-    Game.add(new FallingSystem());
+    if (!DEBUG_MODE) Game.add(new FallingSystem());
     Game.add(new PathSystem());
     Game.add(new LevelTickSystem());
     Game.add(new PitSystem());

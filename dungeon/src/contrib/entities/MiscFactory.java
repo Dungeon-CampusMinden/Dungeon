@@ -41,7 +41,7 @@ public final class MiscFactory {
   private static final SimpleIPath FAIRY_TEXTURE =
       new SimpleIPath("items/pickups/fairy_pickup.png");
 
-  private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("crate/basic.png");
+  private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -309,7 +309,7 @@ public final class MiscFactory {
    * @param mass The mass of the crate.
    * @return The created crate entity.
    */
-  public static Entity create(Point position, float mass) {
+  public static Entity crate(Point position, float mass) {
     return crate(position, mass, CRATE_TEXTURE);
   }
 
@@ -322,7 +322,7 @@ public final class MiscFactory {
    * @param position The starting position of the crate.
    * @return The created crate entity.
    */
-  public static Entity create(Point position) {
+  public static Entity crate(Point position) {
     return crate(position, VelocityComponent.DEFAULT_MASS, CRATE_TEXTURE);
   }
 
