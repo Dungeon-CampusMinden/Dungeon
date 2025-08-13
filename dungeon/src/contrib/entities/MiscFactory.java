@@ -291,6 +291,7 @@ public final class MiscFactory {
     TriConsumer<Entity, Entity, Direction> action =
         (you, other, direction) -> {
           if (!other.isPresent(CatapultableComponent.class)) return;
+          if (other.fetch(CatapultableComponent.class).get().isFlying()) return;
           other
               .fetch(VelocityComponent.class)
               .ifPresent(
@@ -298,7 +299,13 @@ public final class MiscFactory {
                     vc.currentVelocity(Vector2.ZERO);
                     vc.clearForces();
                   });
-          other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.deactivate().accept(other));
+          other
+              .fetch(CatapultableComponent.class)
+              .ifPresent(
+                  cc -> {
+                    cc.deactivate().accept(other);
+                    cc.flies();
+                  });
           catapultFlyEntity(other, spawnPoint, location, speed);
         };
     catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER));
@@ -328,12 +335,7 @@ public final class MiscFactory {
     VelocityComponent entityVc = other.fetch(VelocityComponent.class).orElse(null);
     other.remove(VelocityComponent.class);
     VelocityComponent vc =
-        new VelocityComponent(
-            speed,
-            entity -> {
-              resetCatapultedEntity(entity, entityVc);
-            },
-            true);
+        new VelocityComponent(speed, entity -> resetCatapultedEntity(entity, entityVc), true);
     other.add(vc);
 
     other.add(
@@ -359,7 +361,13 @@ public final class MiscFactory {
    * @param entityVc VelocityComponent restore to the entity
    */
   private static void resetCatapultedEntity(Entity other, VelocityComponent entityVc) {
-    other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.reactivate().accept(other));
+    other
+        .fetch(CatapultableComponent.class)
+        .ifPresent(
+            cc -> {
+              cc.reactivate().accept(other);
+              cc.lands();
+            });
     other.remove(ProjectileComponent.class);
     other.remove(FlyComponent.class);
     if (entityVc != null) {

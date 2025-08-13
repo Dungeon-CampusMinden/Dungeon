@@ -14,9 +14,41 @@ import java.util.function.Consumer;
  *       AI).
  *   <li>{@code reactivate} called when the catapulting process ends (e.g., to restore behavior).
  * </ul>
- *
- * @param deactivate a function that will be called to deactivate the entity
- * @param reactivate a function that will be called to reactivate the entity
  */
-public record CatapultableComponent(Consumer<Entity> deactivate, Consumer<Entity> reactivate)
-    implements Component {}
+public class CatapultableComponent implements Component {
+
+  private final Consumer<Entity> deactivate;
+  private final Consumer<Entity> reactivate;
+  private boolean flying = false;
+
+  /**
+   * Create a new Component.
+   *
+   * @param deactivate a function that will be called to deactivate the entity
+   * @param reactivate a function that will be called to reactivate the entity
+   */
+  public CatapultableComponent(Consumer<Entity> deactivate, Consumer<Entity> reactivate) {
+    this.deactivate = deactivate;
+    this.reactivate = reactivate;
+  }
+
+  public Consumer<Entity> deactivate() {
+    return deactivate;
+  }
+
+  public Consumer<Entity> reactivate() {
+    return reactivate;
+  }
+
+  public void flies() {
+    flying = true;
+  }
+
+  public void lands() {
+    flying = false;
+  }
+
+  public boolean isFlying() {
+    return flying;
+  }
+}
