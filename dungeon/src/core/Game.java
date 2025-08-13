@@ -476,10 +476,11 @@ public final class Game {
    * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
    *
    * @param point Point from where to get the tile
-   * @return the tile at the given point.
+   * @return An {@link Optional} containing the tile at the given point, or {@link
+   *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
   public static Optional<Tile> tileAT(final Point point) {
-    return Optional.ofNullable(currentLevel().tileAt(point));
+    return currentLevel().tileAt(point);
   }
 
   /**
@@ -490,7 +491,7 @@ public final class Game {
    *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
   public static Optional<Tile> tileAT(final Coordinate coordinate) {
-    return Optional.ofNullable(currentLevel().tileAt(coordinate));
+    return currentLevel().tileAt(coordinate);
   }
 
   /**
