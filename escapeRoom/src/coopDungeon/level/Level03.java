@@ -100,7 +100,7 @@ public class Level03 extends DungeonLevel {
                               true,
                               (entity1, entity2) ->
                                   YesNoDialog.showYesNoDialog(
-                                      "Hast du das gegenmittel bei dir?",
+                                      "Hast du das Gegenmittel bei dir?",
                                       "Hilfe",
                                       () -> {
                                         boolean check = checkForHealItem(entity2);
@@ -164,12 +164,12 @@ public class Level03 extends DungeonLevel {
     Point p1 = points.get(RANDOM.nextInt(points.size())).position();
     Point p2 = points.get(RANDOM.nextInt(points.size())).position();
     while (p1.equals(p2)) p2 = points.get(RANDOM.nextInt(points.size())).position();
-    Game.add(MiscFactory.book(p1, "Rote Pilze machen Bauchschmerzen.", "Beerenkunde", () -> {}));
+    Game.add(MiscFactory.book(p1, "Rote Pilze machen Bauchschmerzen.", "Das große Pilzbuch", () -> {}));
     Game.add(
         MiscFactory.book(
             p2,
-            "Um ein Gegengift zu erstellen, muss man etwas giftiges mit Wasser kombinieren.",
-            "Gifte und Gegenfite",
+            "Um ein Gegengift zu erstellen, muss man etwas Giftiges mit Wasser aufkochen.",
+            "Gifte und Gegengifte",
             () -> {}));
   }
 
