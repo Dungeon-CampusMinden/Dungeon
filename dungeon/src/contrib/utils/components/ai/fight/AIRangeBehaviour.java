@@ -103,7 +103,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
                 Game.positionOf(entity)
                     .map(positionEntity -> escapePath(entity, positionEntity, positionHero)))
         // Move entity if a path is found
-        .ifPresent(path -> AIUtils.move(entity, path));
+        .ifPresent(path -> AIUtils.followPath(entity, path));
   }
 
   /**
@@ -150,7 +150,7 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    */
   private void moveToHero(Entity entity) {
     GraphPath<Tile> path = LevelUtils.calculatePathToHero(entity);
-    AIUtils.move(entity, path);
+    AIUtils.followPath(entity, path);
   }
 
   @Override
