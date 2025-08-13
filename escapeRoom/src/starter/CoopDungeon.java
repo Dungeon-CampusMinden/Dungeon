@@ -23,7 +23,7 @@ import java.util.logging.Level;
  */
 public class CoopDungeon {
   private static final boolean DEBUG_MODE = true;
-  private static final int START_LEVEL = 1;
+  private static final int START_LEVEL = 2;
 
   /**
    * Main method to start the game.

@@ -232,12 +232,13 @@ public final class MiscFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
+   * @param position position of the crafting cauldron.
    * @return A new Entity.
    * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newCraftingCauldron() throws IOException {
+  public static Entity newCraftingCauldron(Point position) throws IOException {
     Entity cauldron = new Entity("cauldron");
-    cauldron.add(new PositionComponent());
+    cauldron.add(new PositionComponent(position));
     cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
     cauldron.add(new CollideComponent());
     cauldron.add(
@@ -256,6 +257,20 @@ public final class MiscFactory {
                           who.add(component);
                         })));
     return cauldron;
+  }
+
+  /**
+   * Get an Entity that can be used as a crafting cauldron.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>The Entity is placed at the {@link PositionComponent#ILLEGAL_POSITION}. >.
+   *
+   * @return A new Entity.
+   * @throws IOException if the animation could not be loaded.
+   */
+  public static Entity newCraftingCauldron() throws IOException {
+    return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
   }
 
   /**
