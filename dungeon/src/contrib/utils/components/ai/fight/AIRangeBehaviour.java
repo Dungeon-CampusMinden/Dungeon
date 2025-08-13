@@ -65,17 +65,6 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
   }
 
   /**
-   * Checks if the entity is in range of the hero.
-   *
-   * @param entity The entity to check.
-   * @param radius The radius within which the entity should be considered in range.
-   * @return True if the entity is in range, false otherwise.
-   */
-  private boolean inRange(final Entity entity, final float radius) {
-    return LevelUtils.playerInRange(entity, radius);
-  }
-
-  /**
    * Determines the proximity of the entity to the hero.
    *
    * @param entity The entity to check.
@@ -85,6 +74,17 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
     if (inRange(entity, minAttackRange)) return Proximity.TOO_CLOSE;
     if (inRange(entity, maxAttackRange)) return Proximity.IN_RANGE;
     return Proximity.TOO_FAR;
+  }
+
+  /**
+   * Checks if the entity is in range of the hero.
+   *
+   * @param entity The entity to check.
+   * @param radius The radius within which the entity should be considered in range.
+   * @return True if the entity is in range, false otherwise.
+   */
+  private boolean inRange(final Entity entity, final float radius) {
+    return LevelUtils.playerInRange(entity, radius);
   }
 
   /**
