@@ -57,8 +57,8 @@ public class AIUtils {
    *
    * @param entity Entity to be checked.
    * @param path Path on which the entity possible reached the end.
-   * @return true if the entity is on the end of the path, or if no {@link PositionComponent} is
-   *     present; otherwise false.
+   * @return true if the entity is on the last tile of the path; false if the entity is not at the
+   *     end or if no {@link PositionComponent} is present.
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
     return path.getCount() == 0
@@ -73,7 +73,8 @@ public class AIUtils {
    *
    * @param entity Entity to be checked.
    * @param path Path to be checked.
-   * @return true if the entity has left the path, otherwise false.
+   * @return true if the entity's current tile is not part of the given path, or if no {@link
+   *     PositionComponent} is present; otherwise false.
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
     return entity
