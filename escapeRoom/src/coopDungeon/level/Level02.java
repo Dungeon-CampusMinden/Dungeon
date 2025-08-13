@@ -74,12 +74,13 @@ public class Level02 extends DungeonLevel {
   }
 
   private void setupCrateRiddle() {
-    Entity crate = MiscFactory.crate(customPoints.get(6).toCenteredPoint());
-    crate.add(new CatapultableComponent(entity -> {}, entity -> {}));
-    Game.add(crate);
     Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toCenteredPoint());
     p = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
+    Entity crate = MiscFactory.crate(customPoints.get(6).toCenteredPoint());
+    crate.add(new CatapultableComponent(entity -> {}, entity -> {}));
+    Game.add(crate);
+
   }
 
   private void setupExitLevers() {
