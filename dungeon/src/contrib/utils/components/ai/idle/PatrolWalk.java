@@ -84,10 +84,7 @@ public final class PatrolWalk implements Consumer<Entity> {
     initialized = true;
 
     // Retrieve position of the entity
-    PositionComponent position =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    PositionComponent position = getPositionComponent(entity);
     Point center = position.position(); // Current position as Point(x, y)
 
     // Get the tile under the entity (may be empty if outside level)
