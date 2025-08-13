@@ -1,13 +1,15 @@
 package coopDungeon.level;
 
 import contrib.components.AIComponent;
+import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
-import contrib.hud.UIUtils;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
@@ -15,6 +17,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.DungeonLevel;
+import core.level.Tile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -24,16 +27,20 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class Level03 extends DungeonLevel {
 
+  private Set<Entity> monster;
+  private static Random RANDOM = new Random();
+  private boolean spawnBerry = true;
 
   private ExitTile exit;
+
   /**
    * Creates a new Level03.
    *
@@ -47,13 +54,13 @@ public class Level03 extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
-    DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?","HILFE!");
+    DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
     npc();
     crafting();
     books();
     monster();
     chest();
-    exit= (ExitTile) Game.randomTile(LevelElement.EXIT).get();
+    exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     exit.close();
   }
 
@@ -108,21 +115,29 @@ public class Level03 extends DungeonLevel {
   }
 
   private boolean checkForHealItem(Entity player) {
-    return player.fetch(InventoryComponent.class).filter(inventoryComponent -> inventoryComponent.hasItem(ItemPotionHealth.class)).isPresent();
+    return player
+        .fetch(InventoryComponent.class)
+        .filter(inventoryComponent -> inventoryComponent.hasItem(ItemPotionHealth.class))
+        .isPresent();
   }
 
   private void moveNpc(Entity npc) {
     Point goal = customPoints.get(6).toCenteredPoint();
-    npc.add(new AIComponent(entity -> {
-
-    }, new Consumer<Entity>() {
-      @Override
-      public void accept(Entity entity) {
-        if(!Game.tileAtEntity(entity).equals(Game.tileAT(goal))){
-          AIUtils.move(entity, LevelUtils.calculatePath(entity.fetch(PositionComponent.class).get().position(),goal));
-        }
-      }
-    }, entity -> false));
+    npc.add(
+        new AIComponent(
+            entity -> {},
+            new Consumer<Entity>() {
+              @Override
+              public void accept(Entity entity) {
+                if (!Game.tileAtEntity(entity).equals(Game.tileAT(goal))) {
+                  AIUtils.move(
+                      entity,
+                      LevelUtils.calculatePath(
+                          entity.fetch(PositionComponent.class).get().position(), goal));
+                }
+              }
+            },
+            entity -> false));
   }
 
   private void crafting() {
@@ -136,16 +151,49 @@ public class Level03 extends DungeonLevel {
 
   private void books() {}
 
-  private void monster() {}
+  private void monster() {
+    monster = new HashSet<>();
+    List<Tile> points =
+        LevelUtils.accessibleTilesInRange(customPoints.get(7).toCenteredPoint(), 5f);
+
+    for (int i = 0; i < 5; i++) {
+      try {
+        Entity m = MonsterFactory.randomMonster();
+        m.fetch(PositionComponent.class)
+            .map(pc -> pc.position(points.get(RANDOM.nextInt(points.size())).position()));
+        m.fetch(HealthComponent.class)
+            .ifPresent(
+                healthComponent ->
+                    healthComponent.onDeath(
+                        entity -> {
+                          monster.remove(entity);
+                          Game.remove(entity);
+                        }));
+        monster.add(m);
+        Game.add(m);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
 
   private void chest() {
     try {
-      Game.add(MiscFactory.newChest(Set.of(new ItemPotionHealth()),customPoints.get(2).toCenteredPoint()));
+      Game.add(
+          MiscFactory.newChest(
+              Set.of(new ItemPotionHealth()), customPoints.get(2).toCenteredPoint()));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  protected void onTick() {}
+  protected void onTick() {
+
+    if (spawnBerry && monster.isEmpty()) {
+      spawnBerry = false;
+      ItemResourceBerry berry = new ItemResourceBerry();
+      berry.drop(customPoints.get(7).toCenteredPoint());
+    }
+  }
 }
