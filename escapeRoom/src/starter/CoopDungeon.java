@@ -50,7 +50,6 @@ public class CoopDungeon {
           DungeonLoader.addLevel(Tuple.of("coop1", Level01.class));
           DungeonLoader.addLevel(Tuple.of("coop2", Level02.class));
           DungeonLoader.addLevel(Tuple.of("coop3", Level03.class));
-          DungeonLoader.addLevel(Tuple.of("coop4", Level04.class));
           createSystems();
           try {
             createHero();
