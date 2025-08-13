@@ -14,19 +14,21 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+
+import java.util.Arrays;
 import java.util.Map;
 
 /** Factory class for creating miscellaneous game entities. */
 public class MiscFactory {
 
   private static final IPath STONE = new SimpleIPath("objects/stone/stone.png");
-  private static final IPath PRESSURE_PLATE_ON =
-      new SimpleIPath("objects/pressureplate/on/pressureplate_0.png");
-  private static final IPath PRESSURE_PLATE_OFF =
-      new SimpleIPath("objects/pressureplate/off/pressureplate_0.png");
+  private static final IPath PRESSURE_PLATE =
+      new SimpleIPath("objects/pressureplate");
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
@@ -50,7 +52,7 @@ public class MiscFactory {
     stone.add(new VelocityComponent(STONE_SPEED));
     stone.add(new CollideComponent());
     stone.add(new BlockViewComponent());
-    DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));
+    DrawComponent dc = new DrawComponent(new Animation(STONE));
     stone.add(dc);
     return stone;
   }
@@ -66,12 +68,16 @@ public class MiscFactory {
   public static Entity pressurePlate(Point position) {
     Entity pressurePlate = new Entity("pressureplate");
     pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
-    DrawComponent dc = new DrawComponent(Animation.fromSingleImage(PRESSURE_PLATE_OFF));
-    Map<String, Animation> animationMap =
-        Map.of("off", dc.currentAnimation(), "on", Animation.fromSingleImage(PRESSURE_PLATE_ON));
-    dc.animationMap(animationMap);
-    dc.currentAnimation("off");
+
+    Map<String, Animation> map = Animation.loadAnimationSpritesheet(PRESSURE_PLATE);
+    State stOff = State.fromMap(map, "off");
+    State stOn = State.fromMap(map, "on");
+    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
+    sm.addTransition(stOff, "on", stOn);
+    sm.addTransition(stOn, "off", stOff);
+    DrawComponent dc = new DrawComponent(sm);
     pressurePlate.add(dc);
+
     LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
     pressurePlate.add(lc);
     TriConsumer<Entity, Entity, Direction> collide =
@@ -79,8 +85,8 @@ public class MiscFactory {
           // dont trigger for projectiles
           if (entity2.isPresent(ProjectileComponent.class)) return;
           lc.toggle();
-          if (lc.isOn()) dc.currentAnimation("on");
-          else dc.currentAnimation("off");
+          if (lc.isOn()) dc.sendSignal("on");
+          else dc.sendSignal("off");
         };
     pressurePlate.add(new CollideComponent(collide, collide));
     return pressurePlate;
@@ -125,7 +131,7 @@ public class MiscFactory {
   public static Entity bookPickup(Point position, String title, String pickupText) {
     Entity pickup = new Entity("Book Pickup");
     pickup.add(new PositionComponent(position.toCenteredPoint()));
-    pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
+    pickup.add(new DrawComponent(new Animation(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
             0,
@@ -149,7 +155,7 @@ public class MiscFactory {
   public static Entity breadcrumb(Point position) {
     Entity breadcrumb = new Entity("breadcrumb");
     breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
-    breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
+    breadcrumb.add(new DrawComponent(new Animation(BREADCRUMB_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new BreadcrumbComponent());
     breadcrumb.add(
@@ -174,7 +180,7 @@ public class MiscFactory {
   public static Entity clover(Point position) {
     Entity breadcrumb = new Entity("clover");
     breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
-    breadcrumb.add(new DrawComponent(Animation.fromSingleImage(CLOVER_PATH)));
+    breadcrumb.add(new DrawComponent(new Animation(CLOVER_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new CloverComponent());
     breadcrumb.add(
@@ -199,7 +205,7 @@ public class MiscFactory {
   public static Entity fireballScroll(Point position) {
     Entity fireballScroll = new Entity("fireballScroll");
     fireballScroll.add(new PositionComponent(position.toCenteredPoint()));
-    fireballScroll.add(new DrawComponent(Animation.fromSingleImage(SCROLL_PATH)));
+    fireballScroll.add(new DrawComponent(new Animation(SCROLL_PATH)));
     fireballScroll.add(new BlocklyItemComponent());
     fireballScroll.add(
         new InteractionComponent(
