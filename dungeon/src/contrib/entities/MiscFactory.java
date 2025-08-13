@@ -41,6 +41,8 @@ public final class MiscFactory {
   private static final SimpleIPath FAIRY_TEXTURE =
       new SimpleIPath("items/pickups/fairy_pickup.png");
 
+  private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("crate/basic.png");
+
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
    *
@@ -267,6 +269,61 @@ public final class MiscFactory {
     marker.add(new PositionComponent(position));
     marker.add(new DrawComponent(Animation.fromSingleImage(MARKER_TEXTURE)));
     return marker;
+  }
+
+  /**
+   * Creates a crate entity at the given position with the specified mass and texture.
+   *
+   * <p>The crate can be pushed around by other entities. It has a default movement speed of {@code
+   * 10} . The crate includes:
+   *
+   * <ul>
+   *   <li>{@link PositionComponent} – sets the initial position
+   *   <li>{@link KineticComponent} – enables movement and collisions
+   *   <li>{@link VelocityComponent} – configured with speed {@code 10} and the given mass
+   *   <li>{@link DrawComponent} – renders the crate using the given texture
+   * </ul>
+   *
+   * @param position The starting position of the crate.
+   * @param mass The mass of the crate.
+   * @param texture The texture to render for the crate.
+   * @return The created crate entity.
+   */
+  public static Entity crate(Point position, float mass, SimpleIPath texture) {
+    Entity crate = new Entity("crate");
+    crate.add(new PositionComponent(position));
+    crate.add(new KineticComponent());
+    crate.add(new VelocityComponent(10, mass, entity -> {}, false));
+    crate.add(new DrawComponent(Animation.fromSingleImage(texture)));
+    crate.add(new CollideComponent());
+    return crate;
+  }
+
+  /**
+   * Creates a crate entity at the given position with the specified mass, using the default crate
+   * texture.
+   *
+   * <p>The crate can be pushed around and has a default movement speed of {@code 10} units.
+   *
+   * @param position The starting position of the crate.
+   * @param mass The mass of the crate.
+   * @return The created crate entity.
+   */
+  public static Entity create(Point position, float mass) {
+    return crate(position, mass, CRATE_TEXTURE);
+  }
+
+  /**
+   * Creates a crate entity at the given position with the default mass and the default crate
+   * texture.
+   *
+   * <p>The crate can be pushed around and has a default movement speed of {@code 10} units.
+   *
+   * @param position The starting position of the crate.
+   * @return The created crate entity.
+   */
+  public static Entity create(Point position) {
+    return crate(position, VelocityComponent.DEFAULT_MASS, CRATE_TEXTURE);
   }
 
   /**
