@@ -22,8 +22,8 @@ import java.util.logging.Level;
  * pits or using levers to open gates to reach the end.
  */
 public class CoopDungeon {
-  private static final boolean DEBUG_MODE = true;
-  private static final int START_LEVEL = 2;
+  private static final boolean DEBUG_MODE = false;
+  private static final int START_LEVEL = 0;
 
   /**
    * Main method to start the game.
