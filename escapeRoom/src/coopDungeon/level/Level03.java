@@ -5,6 +5,7 @@ import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
 import contrib.hud.DialogUtils;
+import contrib.hud.UIUtils;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.components.ai.AIUtils;
@@ -14,6 +15,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.DungeonLevel;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -30,6 +32,8 @@ import java.util.function.Predicate;
 
 public class Level03 extends DungeonLevel {
 
+
+  private ExitTile exit;
   /**
    * Creates a new Level03.
    *
@@ -43,11 +47,14 @@ public class Level03 extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?","HILFE!");
     npc();
     crafting();
     books();
     monster();
     chest();
+    exit= (ExitTile) Game.randomTile(LevelElement.EXIT).get();
+    exit.close();
   }
 
   private void npc() {
