@@ -28,7 +28,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -41,7 +40,6 @@ public class Level03 extends DungeonLevel {
 
   private Set<Entity> monster;
   private LeverComponent p;
-  private static Random RANDOM = new Random();
   private boolean spawnMushroom = true;
 
   private ExitTile exit;
@@ -164,7 +162,8 @@ public class Level03 extends DungeonLevel {
     Point p1 = points.get(RANDOM.nextInt(points.size())).position();
     Point p2 = points.get(RANDOM.nextInt(points.size())).position();
     while (p1.equals(p2)) p2 = points.get(RANDOM.nextInt(points.size())).position();
-    Game.add(MiscFactory.book(p1, "Rote Pilze machen Bauchschmerzen.", "Das große Pilzbuch", () -> {}));
+    Game.add(
+        MiscFactory.book(p1, "Rote Pilze machen Bauchschmerzen.", "Das große Pilzbuch", () -> {}));
     Game.add(
         MiscFactory.book(
             p2,
