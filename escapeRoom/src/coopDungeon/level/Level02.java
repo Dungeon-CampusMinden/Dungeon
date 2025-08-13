@@ -23,6 +23,7 @@ import java.util.List;
  */
 public class Level02 extends DungeonLevel {
   private static final int DELAY_MILLIS = 1000;
+  private static final float CRATE_MASS = 3f;
   private LeverComponent p, p2, l1, l2;
   private ExitTile exit;
   private DoorTile door1, door2;
@@ -74,13 +75,13 @@ public class Level02 extends DungeonLevel {
   }
 
   private void setupCrateRiddle() {
-    Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toCenteredPoint());
+    Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toCenteredPoint(), CRATE_MASS);
     p = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
     Entity plate2 = LeverFactory.pressurePlate(customPoints.get(14).toCenteredPoint());
     p2 = plate2.fetch(LeverComponent.class).get();
     Game.add(plate2);
-    Entity crate = MiscFactory.crate(customPoints.get(6).toCenteredPoint());
+    Entity crate = MiscFactory.crate(customPoints.get(6).toCenteredPoint(), CRATE_MASS);
     crate.add(new CatapultableComponent(entity -> {}, entity -> {}));
     Game.add(crate);
   }
