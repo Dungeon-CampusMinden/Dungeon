@@ -16,14 +16,20 @@ import java.util.logging.Level;
 /**
  * Starter for the Coop Dungeon.
  *
- * <p>The Coop Dungeon is designed for two players.</p>
+ * <p>The Coop Dungeon is designed for two players.
  *
- * <p>The players have to work together to solve small parkour-style riddles,
- * such as jumping over pits or using levers to open gates to reach the end.</p>
+ * <p>The players have to work together to solve small parkour-style riddles, such as jumping over
+ * pits or using levers to open gates to reach the end.
  */
-public class Coop {
+public class CoopDungeon {
   private static final boolean DEBUG_MODE = true;
 
+  /**
+   * Main method to start the game.
+   *
+   * @param args The arguments passed to the game.
+   * @throws IOException If an I/O error occurs.
+   */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
     configGame();

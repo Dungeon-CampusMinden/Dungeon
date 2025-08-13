@@ -24,12 +24,19 @@ import java.util.List;
  */
 public class Level01 extends DungeonLevel {
 
-  public static final int DELAY_MILLIS = 1000;
+  private static final int DELAY_MILLIS = 1000;
   private DoorTile door;
   private ExitTile exit;
   private LeverComponent l1, l2, l3, l4;
   private EventScheduler.ScheduledAction a1, a2 = null;
 
+  /**
+   * Creates a new Level01.
+   *
+   * @param layout The layout of the level.
+   * @param designLabel The design label of the level.
+   * @param customPoints The custom points of the level.
+   */
   public Level01(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Coop 1");
   }
