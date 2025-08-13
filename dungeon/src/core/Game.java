@@ -490,7 +490,6 @@ public final class Game {
    *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
   public static Optional<Tile> tileAT(final Coordinate coordinate) {
-    // Implemented the TODO: no more null return values
     return Optional.ofNullable(currentLevel().tileAt(coordinate));
   }
 
