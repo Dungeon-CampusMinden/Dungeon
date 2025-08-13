@@ -8,7 +8,7 @@ import contrib.item.Item;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -37,7 +37,7 @@ public class ItemPotionHealth extends Item {
     super(
         type.getName() + " Health Potion",
         "It heals you for " + type.getHealAmount() + " health points.",
-        Animation.fromSingleImage(DEFAULT_TEXTURE));
+        new Animation(DEFAULT_TEXTURE));
     this.heal_amount = type.getHealAmount();
   }
 

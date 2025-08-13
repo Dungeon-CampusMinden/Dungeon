@@ -3,10 +3,7 @@ package contrib.hud.crafting;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.InventoryComponent;
@@ -21,8 +18,7 @@ import contrib.hud.inventory.ItemDragPayload;
 import contrib.item.Item;
 import core.Game;
 import core.utils.Vector2;
-import core.utils.components.draw.Animation;
-import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
@@ -105,7 +101,7 @@ public class CraftingGUI extends CombinableGUI {
   private static final BitmapFont bitmapFont;
 
   static {
-    backgroundAnimation = Animation.fromSingleImage(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
+    backgroundAnimation = new Animation(new SimpleIPath(BACKGROUND_TEXTURE_PATH));
 
     Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
     pixmap.drawPixel(0, 0, NUMBER_BACKGROUND_COLOR);
@@ -136,11 +132,11 @@ public class CraftingGUI extends CombinableGUI {
     this.targetInventory = targetInventory;
     this.buttonOk =
         new ImageButton(
-            this, Animation.fromSingleImage(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
+            this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonCancel =
         new ImageButton(
             this,
-            Animation.fromSingleImage(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)),
+            new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)),
             0,
             0,
             1,
@@ -212,7 +208,7 @@ public class CraftingGUI extends CombinableGUI {
   protected void draw(Batch batch) {
     // Draw background
     batch.draw(
-        TextureMap.instance().textureAt(backgroundAnimation.nextAnimationTexturePath()),
+        backgroundAnimation.update(),
         this.x(),
         this.y(),
         this.width(),
@@ -245,11 +241,9 @@ public class CraftingGUI extends CombinableGUI {
       int startY = this.y() + Math.round(this.height() * INPUT_ITEMS_Y);
 
       for (int i = 0; i < this.items.size(); i++) {
-        Texture itemTexture =
-            TextureMap.instance()
-                .textureAt(this.items.get(i).inventoryAnimation().nextAnimationTexturePath());
+        Sprite sprite = this.items.get(i).inventoryAnimation().update();
         int textureX = startX + ITEM_GAP * (i + 1) + size * i;
-        batch.draw(itemTexture, textureX, startY, size, size);
+        batch.draw(sprite, textureX, startY, size, size);
 
         GlyphLayout layout = new GlyphLayout(bitmapFont, Integer.toString(i + 1));
         int boxX = textureX + (size / 2) - Math.round((layout.height / 2)) - NUMBER_PADDING;
@@ -301,9 +295,8 @@ public class CraftingGUI extends CombinableGUI {
         if (result.resultType() != CraftingType.ITEM || !(result instanceof Item item)) {
           continue;
         }
-        Texture itemTexture =
-            TextureMap.instance().textureAt(item.inventoryAnimation().nextAnimationTexturePath());
-        batch.draw(itemTexture, x + ITEM_GAP * (i + 1) + size * i, y, size, size);
+        Sprite sprite = item.inventoryAnimation().update();
+        batch.draw(sprite, x + ITEM_GAP * (i + 1) + size * i, y, size, size);
 
         GlyphLayout layout = new GlyphLayout(bitmapFont, item.displayName());
         int boxX =

@@ -1,9 +1,8 @@
 package contrib.hud.elements;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import core.utils.components.draw.Animation;
-import core.utils.components.draw.TextureMap;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import core.utils.components.draw.animation.Animation;
 
 /** A button that displays an animation on top of it. */
 public class ImageButton extends Button {
@@ -31,7 +30,7 @@ public class ImageButton extends Button {
   @Override
   public void draw(final Batch batch) {
     super.draw(batch);
-    Texture nextFrame = TextureMap.instance().textureAt(this.animation.nextAnimationTexturePath());
+    Sprite nextFrame = this.animation.update();
     float aspectRatio = nextFrame.getWidth() / (float) nextFrame.getHeight();
     int width = this.width - 2 * PADDING;
     int height = (int) (width / aspectRatio);
@@ -42,7 +41,7 @@ public class ImageButton extends Button {
     int x = this.x() + (this.width / 2) - (width / 2);
     int y = this.y() + (this.height / 2) - (height / 2);
     batch.draw(
-        TextureMap.instance().textureAt(this.animation.nextAnimationTexturePath()),
+        nextFrame,
         x,
         y,
         width,

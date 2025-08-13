@@ -165,7 +165,7 @@ public class Debugger {
       monster.add(new PositionComponent(position));
       try {
         monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
       monster.add(new VelocityComponent(Vector2.ONE));

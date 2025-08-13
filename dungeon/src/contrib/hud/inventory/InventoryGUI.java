@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import contrib.components.InventoryComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
@@ -163,12 +164,10 @@ public class InventoryGUI extends CombinableGUI {
               + (2 * BORDER_PADDING);
 
       batch.draw(
-          new Texture(
-              this.inventoryComponent
-                  .items()[i]
-                  .inventoryAnimation()
-                  .nextAnimationTexturePath()
-                  .pathString()),
+          this.inventoryComponent
+            .items()[i]
+            .inventoryAnimation()
+            .update(),
           x,
           y,
           this.slotSize - (4 * BORDER_PADDING),
@@ -278,9 +277,8 @@ public class InventoryGUI extends CombinableGUI {
             payload.setObject(
                 new ItemDragPayload(InventoryGUI.this.inventoryComponent, draggedSlot, item));
 
-            Image image =
-                new Image(
-                    new Texture(item.inventoryAnimation().nextAnimationTexturePath().pathString()));
+            //TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
+            Image image = new Image(new SpriteDrawable(item.inventoryAnimation().update()));
             image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
             payload.setDragActor(image);
             dragAndDrop.setDragActorPosition(image.getWidth() / 2, -image.getHeight() / 2);

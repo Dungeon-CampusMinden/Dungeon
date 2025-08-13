@@ -9,6 +9,7 @@ import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.draw.state.Signal;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
+import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
 
 import java.io.IOException;
@@ -18,33 +19,27 @@ import java.util.logging.Logger;
 /**
  * Store all {@link Animation}s for an entity.
  *
- * <p>At creation, the component will read in each subdirectory in the given path and create an
- * animation for each subdirectory.
+ * <p>At creation, the component will read in a single file, which can directly be a sprite or a spritesheet.
+ *
+ * Example: "character/knight" resolves to "assets/character/knight/knight.png".
+ *
+ * To make loading spritesheets easier, the function {@link Animation.loadAnimationSpritesheet(IPath)} will check if there
+ * is a .json file with the same name next to the image file, containing a {@link Map}<String, {@link AnimationConfig}>,
+ * outlining the different Animations found in the image, and load this {@link Map} with all Animations.
+ *
+ * <p>This component will build a {@link StateMachine}, where each {@link State} represents one animation that the entity
+ * can have. Between {@link State}s, transitions are responsible to denote how the entity switches between states and
+ * what {@link Signal}s are required to do so.
  *
  * <p>Each Animation will be created with default settings. If you want to change these settings,
  * use the methods from {@link Animation}.
  *
- * <p>The {@link core.systems.DrawSystem} uses a Priority-based queue. Use {@link
- * #queueAnimation(IPath...)} or {@link #queueAnimation(int, IPath...)} to add an animation to the
- * queue. The {@link core.systems.DrawSystem} will always show the animation with the highest
- * priority in the queue.
- *
- * <p>Use {@link #currentAnimation} to get the current active animation or use {@link #animation} to
- * get a specific animation.
- *
- * <p>Use {@link #hasAnimation} to check if the component has the desired animation.
- *
- * <p>If you want to add your own Animations, create a subdirectory for the animation and add the
- * path to an enum that implements the {@link IPath} interface. So if you want to add a jump
- * animation to the hero, just create a new directory "jump" in the asset directory of your hero
- * (for example character/hero) and then add a new Enum-Value JUMP("jump") to the enum that
- * implements {@link IPath}.
- *
  * <p>Animations will be searched in the default asset directory. Normally, this is "game/assets",
  * but you can change it in the "gradle.build" file if you like.
  *
- * <p>Note: Each entity needs at least a {@link CoreAnimations#IDLE} Animation.
- *
+ * @see StateMachine
+ * @see State
+ * @see Transition
  * @see Animation
  * @see IPath
  */
@@ -60,21 +55,9 @@ public final class DrawComponent implements Component {
   /**
    * Create a new DrawComponent.
    *
-   * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
-   * create an animation. So each subdirectory should contain only the files for one animation.
-   *
-   * <p>Animations should not be set directly via {@link #currentAnimation()} but rather be queued
-   * via {@link #queueAnimation(IPath...)} or {@link #queueAnimation(int, IPath...)}.
-   *
-   * <p>Will set the current animation to either idle down, idle left, idle right, idle up, or idle,
-   * depending on which one of these animations exists.
-   *
-   * <p>If no animations for any idle-state exist, {@link Animation#defaultAnimation()} for "IDLE"
-   * is set.
-   *
-   * @param path Path (as a string) to the directory in the assets folder where the subdirectories
-   *     containing the animation files are stored. Example: "character/knight".
-   * @throws IOException if the given path does not exist.
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be assumed that the
+   *             target image file is within that folder with the same name as the folder but as png.
+   *             Example: "character/knight" resolves to "assets/character/knight/knight.png".
    * @see Animation
    */
   public DrawComponent(final IPath path, AnimationConfig config) {
@@ -141,6 +124,9 @@ public final class DrawComponent implements Component {
 
   public boolean hasState(String name){
     return stateMachine.getState(name) != null;
+  }
+  public State currentState(){
+    return stateMachine.getCurrentState();
   }
 
   public void resetState(){

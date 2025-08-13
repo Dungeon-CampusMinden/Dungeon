@@ -220,7 +220,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
       dc.tintColor(tintColor());
       projectile.add(dc);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOGGER.warning(
           String.format("The DrawComponent for the projectile %s cant be created. ", entity)
               + e.getMessage());

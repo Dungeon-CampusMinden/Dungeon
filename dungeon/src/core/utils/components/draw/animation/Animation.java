@@ -16,7 +16,7 @@ public class Animation {
   private static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");
   private static final float DEFAULT_SCALE = 1f / 16;
 
-  private AnimationConfig config;
+  private final AnimationConfig config;
   private float width = 1;
   private float height = 1;
   private int frameCount;
@@ -28,6 +28,7 @@ public class Animation {
    * @param config The configuration to use for this animation
    */
   public Animation(IPath path, AnimationConfig config){
+    if(path == null || path.pathString().isEmpty()) throw new IllegalArgumentException("path can't be null or empty");
     if(config == null) this.config = new AnimationConfig();
     else this.config = config;
     loadFromSingle(path);
@@ -42,6 +43,7 @@ public class Animation {
    * @param config The configuration to use for this animation
    */
   public Animation(List<IPath> paths, AnimationConfig config){
+    if(paths == null || paths.size() == 0) throw new IllegalArgumentException("paths can't be null or empty");
     if(config == null) this.config = new AnimationConfig();
     else this.config = config;
     loadSpritesFromPaths(paths);
@@ -58,7 +60,7 @@ public class Animation {
    * 1. Figure out if we are running from a jar
    * 2. Get all Textures specified through the AnimationConfig (cached)
    * 2.1. If single path, load the image as single Texture in a Texture[]
-   * 2.2. If the path leads to a directly, load all images into a Texture[]
+   * 2.2. If the path leads to a directory, assume its meant to target the image .png with the same name as the directory
    * 2.3. If single path and SpritesheetConfig is set, load the image as single Texture and get all relevant regions as TextureRegion[]
    * 3. Load Textures into Sprites (cached)
    * 3.1. If Texture[], load into Sprites (cached)
@@ -67,31 +69,23 @@ public class Animation {
    */
   private void loadFromSingle(IPath path){
     String pathString = path.pathString();
-    if(pathString.endsWith("/")){
-      pathString = pathString.substring(0, pathString.length() - 1);
+    if (pathString.endsWith("/") || !pathString.matches(".*\\.(png|jpg|jpeg)$")) {
+      // It's a directory path or doesn't end in image extension → assume `dir/dir.png`
+      String dirName = pathString.replaceAll("/$", ""); // remove trailing slash if present
+      String baseName = dirName.substring(dirName.lastIndexOf('/') + 1); // get last path component
+      pathString = dirName + "/" + baseName + ".png";
     }
-    FileHandle fh = Gdx.files.internal(pathString);
+    IPath exactPath = new SimpleIPath(pathString);
 
     List<IPath> paths = new ArrayList<>();
-    if(fh.name().equals(fh.nameWithoutExtension())){
-      // Case: 2.2
-      // Doesnt work in JARs on Desktop
-//      String fhString = fh.readString();
-//      String[] pathStrings = fhString.split("\n");
-//      Arrays.asList(pathStrings).forEach(s -> paths.add(new SimpleIPath(path.pathString()+"/"+s)));
-      throw new UnsupportedOperationException("Cannot list files in a directory. Use sprite sheets instead.");
-
+    if(config.config() == null){
+      //Case: 2.1.
+      paths.add(exactPath);
+      loadSpritesFromPaths(paths);
     } else {
-      if(config.config() == null){
-        //Case: 2.1.
-        paths.add(path);
-      } else {
-        //Case: 2.3.
-        loadSpritesFromSpritesheet(path);
-        return;
-      }
+      //Case: 2.3.
+      loadSpritesFromSpritesheet(exactPath);
     }
-    loadSpritesFromPaths(paths);
   }
 
   private void loadSpritesFromPaths(List<IPath> paths){
@@ -185,9 +179,17 @@ public class Animation {
 
   public static Map<String, Animation> loadAnimationSpritesheet(IPath path) {
     String pathString = path.pathString();
+    String jsonPath;
 
-    // Replace image extension with ".json"
-    String jsonPath = pathString.replaceAll("\\.(png|jpg|jpeg)$", ".json");
+    if (pathString.endsWith("/") || !pathString.matches(".*\\.(png|jpg|jpeg)$")) {
+      // It's a directory path or doesn't end in image extension → assume `dir/dir.json`
+      String dirName = pathString.replaceAll("/$", ""); // remove trailing slash if present
+      String baseName = dirName.substring(dirName.lastIndexOf('/') + 1); // get last path component
+      jsonPath = dirName + "/" + baseName + ".json";
+    } else {
+      // It's an image path → replace extension with `.json`
+      jsonPath = pathString.replaceAll("\\.(png|jpg|jpeg)$", ".json");
+    }
 
     // Load configs
     Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);

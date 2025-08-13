@@ -22,12 +22,15 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.*;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 /** A utility class for building the hero entity in the game world. */
@@ -131,7 +134,23 @@ public final class HeroFactory {
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
     hero.add(new VelocityComponent(SPEED_HERO, (e) -> {}, true));
-    hero.add(new DrawComponent(HERO_FILE_PATH));
+
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(HERO_FILE_PATH);
+    State stIdle = new DirectionalState("idle", animationMap);
+    State stMove = new DirectionalState("move", animationMap, "run");
+    State stDead = new State("dead", animationMap.get("idle_down"));
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
+    sm.addTransition(stIdle, "move", stMove);
+    sm.addTransition(stMove, "move", stMove);
+    sm.addTransition(stMove, "idle", stIdle);
+    sm.addTransition(stIdle, "died", stDead);
+    sm.addTransition(stMove, "died", stDead);
+    //Always have the hero face South when not moving after a bit
+//    sm.addEpsilonTransition(stIdle, State::isAnimationFinished, stIdle, () -> Direction.DOWN);
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.Player.depth());
+    hero.add(dc);
+
     HealthComponent hc =
         new HealthComponent(
             HERO_HP,

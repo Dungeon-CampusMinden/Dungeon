@@ -26,7 +26,7 @@ public class StateMachine {
   }
   public StateMachine(Animation animation){
     states = new ArrayList<>();
-    states.add(new State("normal", animation));
+    states.add(new State("idle", animation));
     currentState = states.get(0);
   }
   public StateMachine(IPath path){
@@ -42,7 +42,7 @@ public class StateMachine {
         states.add(new State(s, map.get(s)));
       });
     } else {
-      states.add(new State("normal", path, config));
+      states.add(new State("idle", path, config));
     }
 
     currentState = states.get(0);

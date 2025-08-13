@@ -25,6 +25,10 @@ import java.util.stream.Stream;
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
 
+  private static final String DEATH_STATE = "dead";
+  private static final String DEATH_SIGNAL = "die";
+  private static final String DAMAGE_SIGNAL = "hit";
+
   /** Create a new HealthSystem. */
   public HealthSystem() {
     super(HealthComponent.class, DrawComponent.class);
@@ -57,7 +61,7 @@ public class HealthSystem extends System {
     int dmgAmount = calculateDamage(hsd);
 
     // if we have some damage, let's show a little dance
-    if (dmgAmount > 0) hsd.dc.queueAnimation(AdditionalAnimations.HIT);
+    if (dmgAmount > 0) hsd.dc.sendSignal(DAMAGE_SIGNAL);
 
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
@@ -74,7 +78,7 @@ public class HealthSystem extends System {
 
   protected HSData activateDeathAnimation(final HSData hsd) {
     // set DeathAnimation as active animation
-    hsd.dc.queueAnimation(AdditionalAnimations.DIE);
+    hsd.dc.sendSignal(DEATH_SIGNAL);
 
     // return data object to enable method chaining/streaming
     return hsd;
@@ -94,7 +98,7 @@ public class HealthSystem extends System {
   protected boolean isDeathAnimationFinished(final HSData hsd) {
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
-        (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
+        (drawComponent) -> drawComponent.hasState(DEATH_STATE);
     // test if Animation is looping
     Predicate<DrawComponent> isAnimationLooping = DrawComponent::isCurrentAnimationLooping;
     // test if Animation has finished playing

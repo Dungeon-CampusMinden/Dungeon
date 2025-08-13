@@ -6,7 +6,7 @@ import core.Entity;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Vector2;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import item.effects.SpeedEffect;
@@ -34,7 +34,7 @@ public class ItemPotionSpeed extends Item {
     super(
         "Speed Potion",
         "A potion that increases your speed",
-        Animation.fromSingleImage(DEFAULT_TEXTURE));
+        new Animation(DEFAULT_TEXTURE));
     this.speedEffect = new SpeedEffect(3, 5);
     if (!testEffect()) {
       description("It looks like this potion is broken...");

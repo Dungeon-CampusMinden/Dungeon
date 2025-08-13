@@ -9,11 +9,10 @@ import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
-import contrib.utils.components.draw.ChestAnimations;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
@@ -44,7 +43,7 @@ public class NativeScenarioBuilder {
     questowner.add(new PositionComponent());
     try {
       questowner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     new TaskComponent(quiz, questowner);
@@ -83,7 +82,7 @@ public class NativeScenarioBuilder {
     questowner.add(new PositionComponent());
     try {
       questowner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     new TaskComponent(task, questowner);
@@ -96,8 +95,7 @@ public class NativeScenarioBuilder {
       // setup quest items
       for (var element : entry.getValue()) {
         if (!element.equals(AssignTask.EMPTY_ELEMENT)) {
-          Animation animation =
-              Animation.fromSingleImage(new SimpleIPath("items/book/wisdom_scroll.png"));
+          Animation animation = new Animation(new SimpleIPath("items/book/wisdom_scroll.png"));
           TaskContentComponent tcc = new TaskContentComponent(element);
           QuestItem questItem = new QuestItem(animation, tcc);
           Entity worldItem = WorldItemBuilder.buildWorldItem(questItem);
@@ -167,45 +165,16 @@ public class NativeScenarioBuilder {
 
       UIComponent uiComponent =
           new UIComponent(new GUICombination(new InventoryGUI(otherIc), inventory), true);
-      uiComponent.onClose(
-          () ->
-              chest
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      interactedDC -> {
-                        // remove all prior
-                        // opened animations
-                        interactedDC.deQueueByPriority(ChestAnimations.OPEN_FULL.priority());
-                        if (chestIc.count() > 0) {
-                          // aslong as
-                          // there is an
-                          // item inside
-                          // the chest
-                          // show a full
-                          // chest
-                          interactedDC.queueAnimation(ChestAnimations.OPEN_FULL);
-                        } else {
-                          // empty chest
-                          // show the
-                          // empty
-                          // animation
-                          interactedDC.queueAnimation(ChestAnimations.OPEN_EMPTY);
-                        }
-                      }));
       other.add(uiComponent);
-      chest
-          .fetch(DrawComponent.class)
-          .ifPresent(
-              interactedDC -> {
-                // only add opening animation when it is not
-                // finished
-                if (interactedDC
-                    .animation(ChestAnimations.OPENING)
-                    .map(animation -> !animation.isFinished())
-                    .orElse(true)) {
-                  interactedDC.queueAnimation(ChestAnimations.OPENING);
-                }
-              });
+
+      chest.fetch(DrawComponent.class).ifPresent(
+        interactedDC -> {
+          String stateName = interactedDC.stateMachine().getCurrentStateName();
+          if (!stateName.equals("opening") && !stateName.equals("open")) {
+            interactedDC.sendSignal("opening");
+          }
+        }
+      );
     };
   }
 

@@ -3,7 +3,7 @@ package item.concreteItem;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import item.effects.AttackSpeedEffect;
@@ -35,7 +35,7 @@ public class ItemPotionAttackSpeed extends Item {
     super(
         "Attack Speed Potion",
         "A potion that increases the attack speed of the user.",
-        Animation.fromSingleImage(DEFAULT_TEXTURE));
+        new Animation(DEFAULT_TEXTURE));
     this.attackSpeedEffect = new AttackSpeedEffect(SPEED_MULTIPLIER, EFFECT_DURATION);
   }
 

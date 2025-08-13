@@ -8,7 +8,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.BiConsumer;
 
@@ -21,8 +21,7 @@ import java.util.function.BiConsumer;
 public class SignFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
-  private static final Animation SIGN_TEXTURE =
-      Animation.fromSingleImage(new SimpleIPath("objects/mailbox/mailbox_2.png"));
+  private static final Animation SIGN_TEXTURE = new Animation(new SimpleIPath("objects/mailbox/mailbox_2.png"));
 
   /**
    * Creates a sign entity with a default title at a given position.
