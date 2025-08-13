@@ -16,9 +16,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
-* Implements a combat AI. The entity attacks the player if they are within a specified
-* minimum and maximum range. If the entity is in combat mode but the player is out of range,
-* it will move to bring the player within range.
+ * Implements a combat AI. The entity attacks the player if they are within a specified minimum and
+ * maximum range. If the entity is in combat mode but the player is out of range, it will move to
+ * bring the player within range.
  *
  * @see ISkillUser
  */
@@ -41,6 +41,8 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    * @param maxAttackRange Maximal distance to hero in which the fightSkill should be executed.
    * @param minAttackRange Minimal distance to hero in which the fightSkill should be executed.
    * @param fightSkill Skill to be used when an attack is performed.
+   * @throws IllegalArgumentException if maxAttackRange is not greater than minAttackRange or if
+   *     minAttackRange is less than 0.
    */
   public AIRangeBehaviour(
       final float maxAttackRange, final float minAttackRange, final Skill fightSkill) {
