@@ -130,7 +130,7 @@ public final class PatrolWalk implements Consumer<Entity> {
 
     if (handleOngoingPath(entity, position)) return;
     if (handleFinishedPath(entity)) return;
-    if (handleCheckpointWait()) return;
+    if (frameCounter++ < pauseFrames && frameCounter != -1) return;
 
     frameCounter = -1;
     advanceToNextCheckpoint(position);
@@ -203,15 +203,6 @@ public final class PatrolWalk implements Consumer<Entity> {
       return true;
     }
     return false;
-  }
-
-  /**
-   * Determines whether the entity should wait at a checkpoint.
-   *
-   * @return true if the entity is still within the waiting time.
-   */
-  private boolean handleCheckpointWait() {
-    return frameCounter++ < pauseFrames && frameCounter != -1;
   }
 
   /**
