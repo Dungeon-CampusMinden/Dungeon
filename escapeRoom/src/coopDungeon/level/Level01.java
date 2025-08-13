@@ -3,6 +3,7 @@ package coopDungeon.level;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.systems.EventScheduler;
+import contrib.utils.components.lever.BooleanOperations;
 import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
@@ -13,6 +14,14 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
 
+/**
+ * The first level of the coop Dungeon.
+ *
+ * <p>In this level, the player must use pressure plates to open the door for their partner.
+ *
+ * <p>To open the final door, they have to time their interaction and trigger two switches at the
+ * same time.
+ */
 public class Level01 extends DungeonLevel {
 
   public static final int DELAY_MILLIS = 1000;
@@ -53,12 +62,8 @@ public class Level01 extends DungeonLevel {
 
   @Override
   protected void onTick() {
-    if (l1.isOn() || l2.isOn()) {
-      door.open();
-    } else door.close();
-
-    if (l3.isOn() && l4.isOn()) {
-      exit.open();
-    }
+    if (BooleanOperations.or(l1, l2)) door.open();
+    else door.close();
+    if (BooleanOperations.and(l3, l4)) exit.open();
   }
 }
