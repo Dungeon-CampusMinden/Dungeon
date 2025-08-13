@@ -23,6 +23,7 @@ import java.util.logging.Level;
  */
 public class CoopDungeon {
   private static final boolean DEBUG_MODE = true;
+  private static final int START_LEVEL = 1;
 
   /**
    * Main method to start the game.
@@ -57,7 +58,7 @@ public class CoopDungeon {
             throw new RuntimeException(e);
           }
           Crafting.loadRecipes();
-          DungeonLoader.loadLevel(0);
+          DungeonLoader.loadLevel(START_LEVEL);
         });
   }
 

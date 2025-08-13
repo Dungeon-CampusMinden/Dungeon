@@ -12,7 +12,7 @@ sourceSets.main.resources.srcDirs = ['assets/']
 
 tasks.register('runCoopDungeon', JavaExec) {
     group 'starter'
-    mainClass = 'starter.Coop'
+    mainClass = 'starter.CoopDungeon'
     classpath = sourceSets.main.runtimeClasspath
 }
 
