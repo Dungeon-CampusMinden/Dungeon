@@ -8,14 +8,12 @@ import contrib.utils.components.lever.BooleanOperations;
 import core.Entity;
 import core.Game;
 import core.level.DungeonLevel;
-import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The second level of the Coop Dungeon.
@@ -24,10 +22,10 @@ import java.util.Set;
  * pressure plate to open the way to the exit.
  */
 public class Level02 extends DungeonLevel {
-
-  private LeverComponent p, l1, l2;
+  private static final int DELAY_MILLIS = 1000;
+  private LeverComponent p, p2, l1, l2;
   private ExitTile exit;
-  private Set<Tile> doorSet;
+  private DoorTile door1, door2;
 
   /**
    * Creates a new Level02.
@@ -46,8 +44,10 @@ public class Level02 extends DungeonLevel {
     setupCrateRiddle();
     setupExitLevers();
 
-    doorSet = Game.allTiles(LevelElement.DOOR);
-    doorSet.forEach(tile -> ((DoorTile) tile).close());
+    door1 = (DoorTile) Game.tileAT(customPoints.get(12));
+    door2 = (DoorTile) Game.tileAT(customPoints.get(13));
+    door1.close();
+    door2.close();
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     exit.close();
   }
@@ -77,15 +77,19 @@ public class Level02 extends DungeonLevel {
     Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toCenteredPoint());
     p = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
+    Entity plate2 = LeverFactory.pressurePlate(customPoints.get(14).toCenteredPoint());
+    p2 = plate2.fetch(LeverComponent.class).get();
+    Game.add(plate2);
     Entity crate = MiscFactory.crate(customPoints.get(6).toCenteredPoint());
     crate.add(new CatapultableComponent(entity -> {}, entity -> {}));
     Game.add(crate);
-
   }
 
   private void setupExitLevers() {
-    Entity lever1 = LeverFactory.createLever(customPoints.get(10).toCenteredPoint());
-    Entity lever2 = LeverFactory.createLever(customPoints.get(11).toCenteredPoint());
+    Entity lever1 =
+        LeverFactory.createTimedLever(customPoints.get(10).toCenteredPoint(), DELAY_MILLIS);
+    Entity lever2 =
+        LeverFactory.createTimedLever(customPoints.get(11).toCenteredPoint(), DELAY_MILLIS);
     Game.add(lever1);
     Game.add(lever2);
     l1 = lever1.fetch(LeverComponent.class).get();
@@ -95,7 +99,9 @@ public class Level02 extends DungeonLevel {
   @Override
   protected void onTick() {
     if (BooleanOperations.and(l1, l2)) exit.open();
-    if (p.isOn()) doorSet.forEach(tile -> ((DoorTile) tile).open());
-    else doorSet.forEach(tile -> ((DoorTile) tile).close());
+    if (p.isOn()) door1.open();
+    else door1.close();
+    if (p2.isOn()) door2.open();
+    else door2.close();
   }
 }
