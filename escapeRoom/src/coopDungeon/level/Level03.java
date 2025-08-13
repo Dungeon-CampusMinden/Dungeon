@@ -1,16 +1,14 @@
 package coopDungeon.level;
 
-import contrib.components.AIComponent;
-import contrib.components.HealthComponent;
-import contrib.components.InteractionComponent;
-import contrib.components.InventoryComponent;
+import contrib.components.*;
+import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
-import contrib.item.concreteItem.ItemResourceBerry;
+import contrib.item.concreteItem.ItemResourceMushroomRed;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
@@ -42,8 +40,9 @@ import java.util.function.Consumer;
 public class Level03 extends DungeonLevel {
 
   private Set<Entity> monster;
+  private LeverComponent p;
   private static Random RANDOM = new Random();
-  private boolean spawnBerry = true;
+  private boolean spawnMushroom = true;
 
   private ExitTile exit;
 
@@ -66,13 +65,18 @@ public class Level03 extends DungeonLevel {
     books();
     monster();
     chest();
+
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     exit.close();
   }
 
   private void npc() {
+    Entity plate = LeverFactory.pressurePlate(customPoints.get(6).toCenteredPoint());
+    p = plate.fetch(LeverComponent.class).get();
+    Game.add(plate);
     Entity npc = new Entity();
     npc.add(new VelocityComponent(5));
+    npc.add(new CollideComponent());
     npc.add(new PositionComponent(customPoints.get(0).toCenteredPoint()));
     try {
       npc.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
@@ -160,11 +164,11 @@ public class Level03 extends DungeonLevel {
     Point p1 = points.get(RANDOM.nextInt(points.size())).position();
     Point p2 = points.get(RANDOM.nextInt(points.size())).position();
     while (p1.equals(p2)) p2 = points.get(RANDOM.nextInt(points.size())).position();
-    Game.add(MiscFactory.book(p1, "Blaue Beeren machen Bauchschmerzen.", "Beerenkunde", () -> {}));
+    Game.add(MiscFactory.book(p1, "Rote Pilze machen Bauchschmerzen.", "Beerenkunde", () -> {}));
     Game.add(
         MiscFactory.book(
             p2,
-            "Um ein Gegengift zu erstellen, muss man etwas giftiges mit Wasser kombieren.",
+            "Um ein Gegengift zu erstellen, muss man etwas giftiges mit Wasser kombinieren.",
             "Gifte und Gegenfite",
             () -> {}));
   }
@@ -220,11 +224,12 @@ public class Level03 extends DungeonLevel {
 
   @Override
   protected void onTick() {
+    if (p.isOn()) exit.open();
 
-    if (spawnBerry && monster.isEmpty()) {
-      spawnBerry = false;
-      ItemResourceBerry berry = new ItemResourceBerry();
-      berry.drop(customPoints.get(7).toCenteredPoint());
+    if (spawnMushroom && monster.isEmpty()) {
+      spawnMushroom = false;
+      ItemResourceMushroomRed mushroom = new ItemResourceMushroomRed();
+      mushroom.drop(customPoints.get(7).toCenteredPoint());
     }
   }
 }
