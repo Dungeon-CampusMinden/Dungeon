@@ -138,7 +138,7 @@ public class Level03 extends DungeonLevel {
               @Override
               public void accept(Entity entity) {
                 if (!Game.tileAtEntity(entity).equals(Game.tileAT(goal))) {
-                  AIUtils.move(
+                  AIUtils.followPath(
                       entity,
                       LevelUtils.calculatePath(
                           entity.fetch(PositionComponent.class).get().position(), goal));
