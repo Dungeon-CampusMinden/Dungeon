@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import org.junit.jupiter.api.AfterEach;
@@ -42,7 +42,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
     Item itemData =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     assertTrue(ic.add(itemData));
     assertEquals(1, ic.count());
   }
@@ -55,10 +55,10 @@ public class InventoryComponentTest {
     Entity e = new Entity();
     InventoryComponent ic = new InventoryComponent(3);
     e.add(ic);
-    ic.add(new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE)));
+    ic.add(new Item("Test item", "Test description", new Animation(MISSING_TEXTURE)));
     assertTrue(
         ic.add(
-            new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE))));
+            new Item("Test item", "Test description", new Animation(MISSING_TEXTURE))));
 
     assertEquals(2, ic.count());
   }
@@ -69,10 +69,10 @@ public class InventoryComponentTest {
     Entity e = new Entity();
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
-    ic.add(new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE)));
+    ic.add(new Item("Test item", "Test description", new Animation(MISSING_TEXTURE)));
     assertFalse(
         ic.add(
-            new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE))));
+            new Item("Test item", "Test description", new Animation(MISSING_TEXTURE))));
     assertEquals(1, ic.count());
   }
 
@@ -83,7 +83,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
     Item itemData =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
     assertTrue(ic.remove(itemData));
 
@@ -97,7 +97,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
     Item itemData =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
     ic.remove(itemData);
     assertFalse(ic.remove(itemData));
@@ -112,7 +112,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
     Item itemData =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
     assertFalse(ic.remove(null));
 
@@ -135,7 +135,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
     Item itemData =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData);
     Item[] list = ic.items();
     assertEquals(1, list.length);
@@ -149,10 +149,10 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(2);
     e.add(ic);
     Item itemData1 =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData1);
     Item itemData2 =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     ic.add(itemData2);
     Item[] list = ic.items();
     assertEquals(2, list.length);
@@ -167,7 +167,7 @@ public class InventoryComponentTest {
     InventoryComponent ic = new InventoryComponent(1);
     e.add(ic);
     Item itemData =
-        new Item("Test item", "Test description", Animation.fromSingleImage(MISSING_TEXTURE));
+        new Item("Test item", "Test description", new Animation(MISSING_TEXTURE));
     Item[] list = ic.items();
     assertEquals(0, ic.count());
     assertFalse(Arrays.asList(list).contains(itemData));

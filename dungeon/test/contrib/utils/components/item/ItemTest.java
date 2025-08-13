@@ -16,7 +16,7 @@ import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +29,9 @@ import org.mockito.Mockito;
 public class ItemTest {
 
   Animation defaultAnimation =
-      Animation.fromSingleImage(new SimpleIPath("animation/missing_texture.png"));
-  Animation worldAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/gold_key"));
-  Animation inventoryAnimation = Animation.fromSingleImage(new SimpleIPath("item/key/red_key"));
+      new Animation(new SimpleIPath("animation/missing_texture.png"));
+  Animation worldAnimation = new Animation(new SimpleIPath("item/key/gold_key.png"));
+  Animation inventoryAnimation = new Animation(new SimpleIPath("item/key/red_key.png"));
 
   /** WTF? . */
   @BeforeEach

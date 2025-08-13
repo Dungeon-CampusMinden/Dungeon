@@ -1,8 +1,8 @@
 package core.systems;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
+import com.badlogic.gdx.graphics.Texture;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -10,15 +10,25 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /** Tests for the {@link VelocitySystem} class. */
 public class VelocitySystemTest {
@@ -37,6 +47,19 @@ public class VelocitySystemTest {
   /** Sets up the test environment with mock level, entity, and components. */
   @BeforeEach
   public void setup() throws IOException {
+    // Create file system handle. WARNING: This will assume all future paths to be relative to the working directory (probably the root of the project)
+    Gdx.files = new LwjglFiles();
+    TextureMap.instance().clear(); // reset any existing mappings
+
+    // Replace internal map logic to skip real texture loading
+    TextureMap instance = TextureMap.instance();
+    Texture dummyTexture = Mockito.mock(Texture.class);
+
+    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to working directory.
+    String assetKey = "test_assets/textures/test_hero/test_hero.png";
+    instance.put(assetKey, dummyTexture);
+
+    // Remaining test logic
     Game.add(new LevelSystem(() -> {}));
     Game.currentLevel(level);
     Mockito.when(tile.friction()).thenReturn(0.75f);
@@ -46,7 +69,19 @@ public class VelocitySystemTest {
     Game.add(velocitySystem);
     velocityComponent = new VelocityComponent(velocity);
     positionComponent = new PositionComponent(new Point(startXPosition, startYPosition));
-    animationComponent = new DrawComponent(new SimpleIPath("textures/test_hero"));
+
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
+    State stIdle = new DirectionalState("idle", animationMap);
+    State stMove = new DirectionalState("move", animationMap, "run");
+    State stDead = new State("dead", animationMap.get("die"));
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
+    sm.addTransition(stIdle, "move", stMove);
+    sm.addTransition(stMove, "move", stMove);
+    sm.addTransition(stMove, "idle", stIdle);
+    sm.addTransition(stIdle, "died", stDead);
+    sm.addTransition(stMove, "died", stDead);
+    animationComponent = new DrawComponent(sm);
+
     entity.add(velocityComponent);
     entity.add(positionComponent);
     entity.add(animationComponent);
@@ -156,22 +191,26 @@ public class VelocitySystemTest {
     // Test right movement
     velocityComponent.currentVelocity(Vector2.of(1, 1));
     velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_RIGHT));
+    assertEquals("move", animationComponent.currentState().name);
+    assertEquals(Direction.RIGHT, animationComponent.currentState().getData());
 
     // Test idle right
     velocityComponent.currentVelocity(Vector2.ZERO);
     velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_RIGHT));
+    assertEquals("idle", animationComponent.currentState().name);
+    assertEquals(Direction.RIGHT, animationComponent.currentState().getData());
 
     // Test left movement
     velocityComponent.currentVelocity(Vector2.of(-1, 0));
     velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.RUN_LEFT));
+    assertEquals("move", animationComponent.currentState().name);
+    assertEquals(Direction.LEFT, animationComponent.currentState().getData());
 
     // Test idle left
     velocityComponent.currentVelocity(Vector2.ZERO);
     velocitySystem.execute();
-    assertTrue(animationComponent.isAnimationQueued(CoreAnimations.IDLE_LEFT));
+    assertEquals("idle", animationComponent.currentState().name);
+    assertEquals(Direction.LEFT, animationComponent.currentState().getData());
   }
 
   /** Tests that diagonal movement is properly limited to max speed. */
@@ -211,10 +250,7 @@ public class VelocitySystemTest {
 
     assertEquals(startXPosition, position.x(), 0.001);
     assertEquals(startYPosition, position.y(), 0.001);
-    assertTrue(
-        animationComponent.isAnimationQueued(CoreAnimations.IDLE_RIGHT)
-            || animationComponent.isAnimationQueued(CoreAnimations.IDLE_LEFT)
-            || animationComponent.isAnimationQueued(CoreAnimations.IDLE_UP)
-            || animationComponent.isAnimationQueued(CoreAnimations.IDLE_DOWN));
+    assertEquals("idle", animationComponent.currentState().name);
+    assertNull(animationComponent.currentState().getData());
   }
 }
