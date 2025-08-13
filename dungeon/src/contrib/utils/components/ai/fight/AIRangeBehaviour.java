@@ -16,9 +16,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Implements a fight AI. The entity attacks the player if he is in a given maximum and minimum
- * range. When the entity is not in range but in fight mode, the entity will be moving to within
- * this range.
+* Implements a combat AI. The entity attacks the player if they are within a specified
+* minimum and maximum range. If the entity is in combat mode but the player is out of range,
+* it will move to bring the player within range.
  *
  * @see ISkillUser
  */
