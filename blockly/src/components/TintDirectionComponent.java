@@ -125,11 +125,7 @@ public class TintDirectionComponent implements Component {
       if (!LevelUtils.canSee(origin, targetCoord, direction)) {
         break;
       }
-
-      Tile tile = level.tileAt(targetCoord);
-      if (tile != null) {
-        tiles.add(tile);
-      }
+      level.tileAt(targetCoord).ifPresent(tiles::add);
     }
     return tiles;
   }
