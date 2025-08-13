@@ -9,6 +9,7 @@ import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
+import contrib.item.concreteItem.ItemPotionWater;
 import contrib.item.concreteItem.ItemResourceBerry;
 import contrib.utils.components.ai.AIUtils;
 import core.Entity;
@@ -33,6 +34,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/**
+ * The last levle of the coop Dungeon.
+ *
+ * <p>The players have to crafta heal potion.
+ */
 public class Level03 extends DungeonLevel {
 
   private Set<Entity> monster;
@@ -141,7 +147,6 @@ public class Level03 extends DungeonLevel {
   }
 
   private void crafting() {
-    // TODO add crafting recipes
     try {
       Game.add(MiscFactory.newCraftingCauldron(customPoints.get(1).toCenteredPoint()));
     } catch (IOException e) {
@@ -149,7 +154,20 @@ public class Level03 extends DungeonLevel {
     }
   }
 
-  private void books() {}
+  private void books() {
+    List<Tile> points =
+        LevelUtils.accessibleTilesInRange(customPoints.get(2).toCenteredPoint(), 5f);
+    Point p1 = points.get(RANDOM.nextInt(points.size())).position();
+    Point p2 = points.get(RANDOM.nextInt(points.size())).position();
+    while (p1.equals(p2)) p2 = points.get(RANDOM.nextInt(points.size())).position();
+    Game.add(MiscFactory.book(p1, "Blaue Beeren machen Bauchschmerzen.", "Beerenkunde", () -> {}));
+    Game.add(
+        MiscFactory.book(
+            p2,
+            "Um ein Gegengift zu erstellen, muss man etwas giftiges mit Wasser kombieren.",
+            "Gifte und Gegenfite",
+            () -> {}));
+  }
 
   private void monster() {
     monster = new HashSet<>();
@@ -178,10 +196,23 @@ public class Level03 extends DungeonLevel {
   }
 
   private void chest() {
+    Game.add(
+        MiscFactory.catapult(
+            customPoints.get(9).toCenteredPoint(), customPoints.get(10).toCenteredPoint(), 10f));
+    Game.add(
+        MiscFactory.catapult(
+            customPoints.get(11).toCenteredPoint(), customPoints.get(12).toCenteredPoint(), 10f));
+    Game.add(
+        MiscFactory.catapult(
+            customPoints.get(13).toCenteredPoint(), customPoints.get(14).toCenteredPoint(), 10f));
+    Game.add(MiscFactory.marker(customPoints.get(10).toCenteredPoint()));
+    Game.add(MiscFactory.marker(customPoints.get(12).toCenteredPoint()));
+    Game.add(MiscFactory.marker(customPoints.get(14).toCenteredPoint()));
+
     try {
       Game.add(
           MiscFactory.newChest(
-              Set.of(new ItemPotionHealth()), customPoints.get(2).toCenteredPoint()));
+              Set.of(new ItemPotionWater()), customPoints.get(8).toCenteredPoint()));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

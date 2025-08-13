@@ -2,6 +2,7 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.hud.crafting.CraftingGUI;
+import contrib.hud.dialogs.OkDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -13,10 +14,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.TriConsumer;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
@@ -42,6 +40,9 @@ public final class MiscFactory {
       new SimpleIPath("items/pickups/fairy_pickup.png");
 
   private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
+  private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
+  private static final SimpleIPath SPELL_BOOK_TEXTURE =
+      new SimpleIPath("items/book/spell_book.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -537,6 +538,27 @@ public final class MiscFactory {
         };
 
     return newPickupItem("fairyPickup", spawnPoint, FAIRY_TEXTURE, onCollide);
+  }
+
+  /**
+   * Create a book, that the player can read.
+   *
+   * @param position Position of the book.
+   * @param text Text that is shown in a Dialog on interaction.
+   * @param title Title of the dialog.
+   * @param onClose Callback for closing the dialog.
+   * @return The book Entity.
+   */
+  public static Entity book(Point position, String text, String title, IVoidFunction onClose) {
+    Entity book = new Entity("book");
+    book.add(new PositionComponent(position));
+    book.add(
+        new InteractionComponent(
+            1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
+    book.add(
+        new DrawComponent(
+            Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
+    return book;
   }
 
   /**
