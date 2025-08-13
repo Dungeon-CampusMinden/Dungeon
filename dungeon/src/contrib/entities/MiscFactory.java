@@ -291,7 +291,10 @@ public final class MiscFactory {
     TriConsumer<Entity, Entity, Direction> action =
         (you, other, direction) -> {
           if (!other.isPresent(CatapultableComponent.class)) return;
-          if (other.fetch(CatapultableComponent.class).map(CatapultableComponent::isFlying).orElse(false)) return;
+          if (other
+              .fetch(CatapultableComponent.class)
+              .map(CatapultableComponent::isFlying)
+              .orElse(false)) return;
           other
               .fetch(VelocityComponent.class)
               .ifPresent(
