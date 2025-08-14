@@ -32,6 +32,8 @@ import entities.levercommands.BridgeControlCommand;
 import item.concreteItem.ItemPotionAttackSpeed;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import systems.DevHealthSystem;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
@@ -91,7 +93,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], false);
     prepareBridge();
     spawnChestAndCauldron();
-    level.tileAt(riddleRewardSpawn).tintColor(0x22AAFFFF);
+    level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(0x22AAFFFF));
   }
 
   /** Handles the ticks of the riddle handler. */
@@ -107,11 +109,14 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   private void prepareBridge() {
     LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof PitTile || tile instanceof FloorTile)
-        .map(
-            tile -> {
-              level.changeTileElementType(tile, LevelElement.PIT);
-              return (PitTile) level.tileAt(tile.coordinate());
-            })
+      .map(
+        tile -> {
+          level.changeTileElementType(tile, LevelElement.PIT);
+          return level.tileAt(tile.coordinate());
+        })
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .map(tile -> (PitTile) tile)
         .forEach(PitTile::open);
     LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof WallTile)
@@ -205,8 +210,16 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   public void onHealthEvent(HealthSystem.HSData hsData, HealthEvent healthEvent) {
     if (healthEvent == HealthEvent.DEATH && hsData.e().equals(bridgeGuard)) {
       LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
-      ((DoorTile) level.tileAt(riddleRoomEntrance)).open();
-      ((DoorTile) level.tileAt(riddleRoomExit)).open();
+      level.tileAt(riddleRoomEntrance).ifPresent(tile -> {
+        if (tile instanceof DoorTile) {
+          ((DoorTile) tile).open();
+        }
+      });
+      level.tileAt(riddleRoomExit).ifPresent(tile -> {
+        if (tile instanceof DoorTile) {
+          ((DoorTile) tile).open();
+        }
+      });
     }
   }
 
@@ -218,7 +231,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
     if (hero == null) return;
     hero.add(new MagicShieldComponent());
     this.rewardGiven = true;
-    level.tileAt(riddleRewardSpawn).tintColor(-1);
+    level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }
 
   // Riddle Methods
