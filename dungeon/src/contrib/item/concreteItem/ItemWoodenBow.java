@@ -23,7 +23,7 @@ import core.utils.components.path.SimpleIPath;
  * <p>Registers and removes the callback for the second_skill.
  */
 public class ItemWoodenBow extends Item {
-  /** The default texture for all health potions. */
+  /** The default texture for all wooden bows. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/weapon/wooden_bow.png");
 
   private static final int BOW_COOLDOWN = 500;
