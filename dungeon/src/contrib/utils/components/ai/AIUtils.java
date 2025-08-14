@@ -108,12 +108,7 @@ public class AIUtils {
    * @return true if the current tile is on the path, otherwise false.
    */
   private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
-    for (Tile tile : path) {
-      if (tile.equals(currentTile)) {
-        return true;
-      }
-    }
-    return false;
+    return StreamSupport.stream(path.spliterator(), false).anyMatch(t -> t.equals(currentTile));
   }
 
   /**
