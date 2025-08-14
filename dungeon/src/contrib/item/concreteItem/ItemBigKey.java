@@ -21,6 +21,7 @@ public class ItemBigKey extends Item {
     super("Big Key", "May open a chest", Animation.fromSingleImage(BIG_KEY_TEXTURE));
   }
 
+  @Override
   public void use(final Entity user) {
     user.fetch(PositionComponent.class)
         .map(PositionComponent::position)
