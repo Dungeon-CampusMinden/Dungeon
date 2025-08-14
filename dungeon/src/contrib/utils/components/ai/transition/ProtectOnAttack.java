@@ -54,12 +54,15 @@ public final class ProtectOnAttack implements Function<Entity, Boolean> {
     if (setup) doSetup();
     if (isInFight) return true;
 
-    final boolean inFight = toProtect.stream()
-      .map(e -> e.fetch(HealthComponent.class))
-      .flatMap(java.util.Optional::stream)
-      .anyMatch(h -> h.lastDamageCause()
-        .flatMap(cause -> cause.fetch(PlayerComponent.class))
-        .isPresent());
+    final boolean inFight =
+        toProtect.stream()
+            .map(e -> e.fetch(HealthComponent.class))
+            .flatMap(java.util.Optional::stream)
+            .anyMatch(
+                h ->
+                    h.lastDamageCause()
+                        .flatMap(cause -> cause.fetch(PlayerComponent.class))
+                        .isPresent());
 
     isInFight = inFight;
     return isInFight;
