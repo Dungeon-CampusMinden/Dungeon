@@ -1,5 +1,6 @@
 package utils;
 
+import client.Client;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
@@ -34,6 +35,8 @@ import server.Server;
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
 
+  private static final String MOVEMENT_FORCE_ID = "Movement";
+
   /**
    * If this is et to true, the Guard-Monster will not shoot on the hero.
    *
@@ -54,6 +57,13 @@ public class BlocklyCommands {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     BlocklyCommands.move(viewDirection, hero);
+    Game.allEntities()
+        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .ifPresent(
+            boss ->
+                boss.fetch(PositionComponent.class)
+                    .ifPresent(pc -> BlocklyCommands.move(pc.viewDirection(), boss)));
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */
@@ -102,6 +112,10 @@ public class BlocklyCommands {
           case NONE -> viewDirection; // no change
         };
     BlocklyCommands.turnEntity(hero, newDirection);
+    Game.allEntities()
+        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .findFirst()
+        .ifPresent(boss -> BlocklyCommands.turnEntity(boss, newDirection.opposite()));
     Server.waitDelta();
   }
 
@@ -286,6 +300,11 @@ public class BlocklyCommands {
    *     returns false.
    */
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
+    // Check the tile the hero is standing on
+    if (direction == Direction.NONE) {
+      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      return checkTile.levelElement() == tileElement;
+    }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
   }
 
@@ -299,6 +318,11 @@ public class BlocklyCommands {
    */
   public static boolean isNearComponent(
       Class<? extends Component> componentClass, final Direction direction) {
+    // Check if there is a component on the tile the hero is standing on
+    if (direction == Direction.NONE) {
+      Tile checkTile = Game.tileAT(EntityUtils.getHeroCoordinate());
+      return Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(componentClass));
+    }
     return targetTile(direction)
         .map(tile -> Game.entityAtTile(tile).anyMatch(e -> e.isPresent(componentClass)))
         .orElse(false);
@@ -418,7 +442,8 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        comp.vc.currentVelocity(direction.scale(comp.vc.velocity()));
+        // TODO this shoudl be stored central for Blockly
+        comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
@@ -436,6 +461,7 @@ public class BlocklyCommands {
 
     for (EntityComponents ec : entityComponents) {
       ec.vc.currentVelocity(Vector2.ZERO);
+      ec.vc.clearForces();
       // check the position-tile via new request in case a new level was loaded
       Tile endTile = Game.tileAT(ec.pc.position());
       if (endTile != null) ec.pc.position(endTile); // snap to grid
@@ -475,7 +501,7 @@ public class BlocklyCommands {
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
     Point oldP = pc.position();
-    vc.currentVelocity(direction);
+    vc.applyForce(MOVEMENT_FORCE_ID, direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
   }

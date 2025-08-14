@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+}
+
+
+dependencies {
+    api project(':dungeon')
+}
+
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['assets/']
+
+tasks.register('runCoopDungeon', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.CoopDungeon'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+processResources {
+    from new File(project(':dungeon').projectDir, '/assets')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

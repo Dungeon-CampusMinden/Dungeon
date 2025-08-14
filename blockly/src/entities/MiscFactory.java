@@ -1,5 +1,6 @@
 package entities;
 
+import client.Client;
 import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
@@ -32,7 +33,6 @@ public class MiscFactory {
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
   private static final IPath CLOVER_PATH = new SimpleIPath("items/clover.png");
   private static final IPath SCROLL_PATH = new SimpleIPath("items/book/magic_scroll.png");
-  private static final Vector2 STONE_SPEED = Vector2.of(7.5, 7.5);
 
   /**
    * Creates a stone entity at the given position.
@@ -47,7 +47,7 @@ public class MiscFactory {
     stone.add(new PushableComponent());
     stone.add(new PositionComponent(position.toCenteredPoint()));
     stone.add(new BlockComponent());
-    stone.add(new VelocityComponent(STONE_SPEED));
+    stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
     stone.add(new CollideComponent());
     stone.add(new BlockViewComponent());
     DrawComponent dc = new DrawComponent(new Animation(STONE));
@@ -56,6 +56,7 @@ public class MiscFactory {
   }
 
   /**
+<<<<<<< HEAD
    * Creates a pressure plate entity at the given position.
    *
    * <p>The pressure plate is an entity that reacts to collisions by toggling its lever state.
@@ -91,6 +92,8 @@ public class MiscFactory {
   }
 
   /**
+=======
+>>>>>>> master
    * Create a Lever with a {@link BlockComponent}.
    *
    * @param position Position to place on (will be centered)

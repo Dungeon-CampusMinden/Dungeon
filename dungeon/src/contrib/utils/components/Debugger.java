@@ -7,7 +7,7 @@ import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
@@ -24,7 +24,6 @@ import core.systems.CameraSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -167,11 +166,12 @@ public class Debugger {
       } catch (Exception e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
-      monster.add(new VelocityComponent(Vector2.ONE));
+      monster.add(new VelocityComponent(1));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(
-          new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
+          new AIComponent(
+              new AIChaseBehaviour(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
 
       Game.add(monster);
       // Log that the monster was spawned

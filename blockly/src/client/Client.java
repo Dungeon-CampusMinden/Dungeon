@@ -18,6 +18,7 @@ import core.systems.LevelSystem;
 import core.systems.PlayerSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
@@ -33,6 +34,9 @@ import utils.BlocklyCodeRunner;
  * have any effect
  */
 public class Client {
+
+  /** Force to apply for movement of all entities. */
+  public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
   private static final boolean DEBUG_MODE = false;
   private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
@@ -170,6 +174,7 @@ public class Client {
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
+    Game.add(new PressurePlateSystem());
     Game.add(
         new System() {
           @Override

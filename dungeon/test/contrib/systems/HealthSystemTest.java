@@ -62,7 +62,7 @@ public class HealthSystemTest {
   public void updateEntityDies() {
     Game.removeAllEntities();
     Entity entity = new Entity();
-    Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+    Consumer<Entity> onDeath = entity1 -> Game.remove(entity1);
     HealthComponent component = new HealthComponent(1, onDeath);
     entity.add(animationComponent);
     entity.add(component);

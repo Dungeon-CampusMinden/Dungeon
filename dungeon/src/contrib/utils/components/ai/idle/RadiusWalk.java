@@ -40,6 +40,6 @@ public final class RadiusWalk implements Consumer<Entity> {
 
       currentBreak++;
 
-    } else AIUtils.move(entity, path);
+    } else AIUtils.followPath(entity, path);
   }
 }

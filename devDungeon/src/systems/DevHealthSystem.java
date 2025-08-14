@@ -52,7 +52,7 @@ public class DevHealthSystem extends HealthSystem {
         .map(this::activateDeathAnimation)
         .filter(this::isDeathAnimationFinished)
         .filter(this::shouldDie) // ignore entities that should not die
-        .forEach(this::removeDeadEntities);
+        .forEach(this::triggerOnDeath);
   }
 
   @Override

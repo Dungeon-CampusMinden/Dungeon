@@ -199,7 +199,7 @@ public class CollisionSystemTest {
    * <p>above means the Position of B is higher on the y-axis.
    */
   @Test
-  public void checkForCollisionBottomWithIntersection() {
+  public void checkForCollisionTopWithIntersection() {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
@@ -219,7 +219,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -230,7 +230,7 @@ public class CollisionSystemTest {
    * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
-  public void checkForCollisionBottomWithNoIntersection() {
+  public void checkForCollisionTopWithNoIntersection() {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
@@ -250,7 +250,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -260,7 +260,7 @@ public class CollisionSystemTest {
    * <p>Below means the Position of B is lower on the y-axis.
    */
   @Test
-  public void checkForCollisionTopWithIntersection() {
+  public void checkForCollisionBottomWithIntersection() {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
@@ -280,7 +280,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 
@@ -291,7 +291,7 @@ public class CollisionSystemTest {
    * possible intersection between A and B and there is A gap between to avoid float inaccuracy.
    */
   @Test
-  public void checkForCollisionTopNoIntersection() {
+  public void checkForCollisionBottomNoIntersection() {
     prepareEnvironment();
     CollisionSystem cs = new CollisionSystem();
     Game.add(cs);
@@ -311,7 +311,7 @@ public class CollisionSystemTest {
     Game.add(e1);
     Game.add(e2);
     assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
     cleanUpEnvironment();
   }
 

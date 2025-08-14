@@ -78,18 +78,22 @@ public final class Entity implements Comparable<Entity> {
   }
 
   /**
-   * Remove a component from this entity.
+   * Removes a component of the specified class from this entity.
    *
-   * <p>Changes in the component map of the entity will trigger a call to {@link
+   * <p>Changes to the entity's component map will trigger a call to {@link
    * ECSManagment#informAboutChanges}.
    *
-   * @param klass the Class of the component
+   * @param klass the class of the component to remove
+   * @return true if a component of the given class was removed; false otherwise (typically means
+   *     the entity does not have this component)
    */
-  public void remove(final Class<? extends Component> klass) {
+  public boolean remove(final Class<? extends Component> klass) {
     if (components.remove(klass) != null) {
       ECSManagment.informAboutChanges(this);
       LOGGER.info(klass.getName() + " from " + name + " was removed.");
+      return true;
     }
+    return false;
   }
 
   /**

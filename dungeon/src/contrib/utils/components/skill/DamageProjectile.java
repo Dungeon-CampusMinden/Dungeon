@@ -1,6 +1,7 @@
 package contrib.utils.components.skill;
 
 import contrib.components.CollideComponent;
+import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 import contrib.utils.components.health.Damage;
@@ -208,6 +209,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   @Override
   public void accept(final Entity entity) {
     Entity projectile = new Entity(name);
+    projectile.add(new FlyComponent());
     // Get the PositionComponent of the entity
     PositionComponent epc =
         entity
@@ -239,14 +241,15 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
     // Calculate the velocity of the projectile
-    Vector2 velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
+    Vector2 forceToApply =
+        SkillTools.calculateDirection(startPoint, targetPoint).scale(projectileSpeed);
 
     // Add the VelocityComponent to the projectile
-    VelocityComponent vc = new VelocityComponent(velocity, onWallHit, true);
-    projectile.add(vc);
+    projectile.add(new VelocityComponent(projectileSpeed, onWallHit, true));
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
-    projectile.add(new ProjectileComponent(startPoint, targetPoint));
+    projectile.add(
+        new ProjectileComponent(startPoint, targetPoint, forceToApply, p -> Game.remove(p)));
 
     // Create a collision handler for the projectile
     TriConsumer<Entity, Entity, Direction> collide =

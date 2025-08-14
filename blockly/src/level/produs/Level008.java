@@ -73,7 +73,7 @@ public class Level008 extends BlocklyLevel {
     guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
     guardBuilder.build();
 
-    Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());
     Entity s3 = LeverFactory.createLever(customPoints().get(4).toCenteredPoint());
     Entity s4 = LeverFactory.createLever(customPoints().get(5).toCenteredPoint());

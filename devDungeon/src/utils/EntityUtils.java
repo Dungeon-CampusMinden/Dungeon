@@ -246,6 +246,7 @@ public class EntityUtils {
                         ((ExitTile) Game.currentLevel().endTile().orElseThrow())
                             .open(); // open exit when chort dies
                         onBossDeath.accept(e);
+                        Game.remove(e);
                       }));
       return bossMob;
     } catch (RuntimeException e) {

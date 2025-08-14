@@ -1,10 +1,10 @@
 package level.produs;
 
+import client.Client;
 import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
-import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
@@ -12,9 +12,6 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
-import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
@@ -26,11 +23,6 @@ import level.LevelManagementUtils;
  */
 public class Level022 extends BlocklyLevel {
   private static boolean showText = true;
-  private VelocityComponent heroVC;
-  boolean openExit = true;
-
-  private Entity boss;
-  private VelocityComponent bossVC;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -65,29 +57,21 @@ public class Level022 extends BlocklyLevel {
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
+    bossBuilder.speed(Client.MOVEMENT_FORCE.x());
     bossBuilder.addToGame();
     bossBuilder.viewDirection(Direction.LEFT);
     bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
 
-    boss = bossBuilder.build().orElseThrow();
+    Entity boss = bossBuilder.build().orElseThrow();
     boss.fetch(HealthComponent.class)
         .orElseThrow()
         .onDeath(
             entity -> {
-              // we shouldnt just end the game, we need a real end screen
+              // todo we shouldnt just end the game, we need a real end screen
               DialogUtils.showTextPopup(
                   "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit);
-              boss = null;
+              Game.remove(entity);
             });
-    bossVC =
-        boss.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(boss, VelocityComponent.class));
-
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    heroVC =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
-    bossVC.velocity(heroVC.velocity());
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {
@@ -101,12 +85,5 @@ public class Level022 extends BlocklyLevel {
           "BOSS");
       showText = false;
     }
-  }
-
-  @Override
-  protected void onTick() {
-    if (boss != null) {
-      bossVC.currentVelocity(Vector2.of(heroVC.currentVelocity().scale(-1).scale(14)));
-    } else if (openExit) Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).open());
   }
 }

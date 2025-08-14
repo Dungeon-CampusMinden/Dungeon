@@ -9,8 +9,8 @@ import contrib.entities.MonsterDeathSound;
 import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
 import contrib.hud.DialogUtils;
-import contrib.utils.components.ai.fight.CollideAI;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -67,7 +67,7 @@ public enum MonsterType {
       2.5f,
       0.33f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> new RadiusWalk(2f, 2),
       () -> new RangeTransition(5),
       7,
@@ -83,7 +83,7 @@ public enum MonsterType {
       0.1f,
       MonsterDeathSound.HIGH_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               7f,
               0f,
               new Skill(
@@ -103,7 +103,7 @@ public enum MonsterType {
       3.5f,
       0.33f,
       MonsterDeathSound.LOW_PITCH,
-      () -> new CollideAI(1.0f),
+      () -> new AIChaseBehaviour(1.0f),
       () -> new RadiusWalk(3f, 4),
       () -> new RangeTransition(6),
       10,
@@ -115,10 +115,10 @@ public enum MonsterType {
       "Orc Warrior",
       "character/monster/orc_warrior",
       8,
-      3.0f,
+      4f,
       0.1f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> new RadiusWalk(3f, 2),
       () -> new RangeTransition(5),
       5,
@@ -134,7 +134,7 @@ public enum MonsterType {
       0.1f,
       MonsterDeathSound.LOWER_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               3f,
               0f,
               new Skill(
@@ -154,7 +154,7 @@ public enum MonsterType {
       7.5f,
       0.0f,
       MonsterDeathSound.NONE,
-      () -> new CollideAI(1.0f),
+      () -> new AIChaseBehaviour(1.0f),
       () -> (entity) -> {}, // Stand still if not fighting
       () -> new RangeTransition(5, true),
       1,
@@ -166,10 +166,10 @@ public enum MonsterType {
       "Bridge Mob",
       "character/monster/orc_warrior",
       999, // immortal
-      3.5f,
+      4f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> entity -> {}, // no idle needed
       () -> (entity) -> true, // Always fight
       30, // one hit kill
@@ -181,10 +181,10 @@ public enum MonsterType {
       "Dark Goo",
       "character/monster/elemental_goo",
       12,
-      3.25f,
+      3.75f,
       0.1f,
       MonsterDeathSound.BASIC,
-      () -> new CollideAI(0.5f),
+      () -> new AIChaseBehaviour(0.5f),
       () -> new RadiusWalk(3f, 2),
       () -> new RangeTransition(7),
       3,
@@ -196,10 +196,10 @@ public enum MonsterType {
       "Small Dark Goo",
       "character/monster/elemental_goo_small",
       6,
-      4.0f,
+      5f,
       0.05f,
       MonsterDeathSound.HIGH_PITCH,
-      () -> new CollideAI(1f),
+      () -> new AIChaseBehaviour(1f),
       () -> new RadiusWalk(2f, 1),
       () -> new RangeTransition(4),
       1,
@@ -215,13 +215,13 @@ public enum MonsterType {
       0.25f,
       MonsterDeathSound.LOW_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               9f,
               0f,
               new Skill(
                   new TPBallSkill(
                       SkillTools::heroPositionAsPoint,
-                      () -> LevelUtils.getRandomTPTargetForCurrentLevel()),
+                      LevelUtils::getRandomTPTargetForCurrentLevel),
                   AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(6, false),
@@ -249,11 +249,11 @@ public enum MonsterType {
       "Pumpkin Boi",
       "character/monster/pumpkin_dude",
       16,
-      7f,
+      6f,
       0.5f,
       MonsterDeathSound.LOW_PITCH,
       () ->
-          new RangeAI(
+          new AIRangeBehaviour(
               7, 6, BossAttackSkills.normalAttack((int) (AIFactory.FIREBALL_COOL_DOWN * 1.5f))),
       () -> new RadiusWalk(3f, 4),
       () -> new RangeTransition(6, true),
@@ -269,7 +269,7 @@ public enum MonsterType {
       0.0f,
       1.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)),
+      () -> new AIRangeBehaviour(15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,
@@ -288,7 +288,7 @@ public enum MonsterType {
       0.0f,
       0.0f, // Custom Logic
       MonsterDeathSound.LOWER_PITCH,
-      () -> new RangeAI(17f, 0f, null),
+      () -> new AIRangeBehaviour(17f, 0f, null),
       () -> entity -> {}, // no idle needed
       () -> new RangeTransition(7, true),
       10,

@@ -1,161 +1,243 @@
 package core.components;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import core.Entity;
 import core.utils.Vector2;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests for the {@link VelocityComponent} class. */
-public class VelocityComponentTest {
+/** Unit tests for the {@link VelocityComponent} class. */
+class VelocityComponentTest {
 
-  private final Vector2 initialVelocity = Vector2.of(3f, 3f);
-  private VelocityComponent velocityComponent;
+  private VelocityComponent component;
 
+  /** Initializes the test object before each test. */
   @BeforeEach
   void setUp() {
-    velocityComponent = new VelocityComponent(initialVelocity);
+    component = new VelocityComponent(5.0f, e -> {}, true);
   }
 
-  /** Tests that the default constructor creates a component with zero velocity. */
+  /** Verifies that the default constructor sets all fields to their default values. */
   @Test
   void testDefaultConstructor() {
-    VelocityComponent defaultComponent = new VelocityComponent();
-    assertEquals(Vector2.ZERO, defaultComponent.velocity());
-    assertEquals(Vector2.ZERO, defaultComponent.currentVelocity());
-    assertFalse(defaultComponent.canEnterOpenPits());
-    assertNotNull(defaultComponent.onWallHit());
+    VelocityComponent vc = new VelocityComponent();
+    assertEquals(0f, vc.maxSpeed());
+    assertEquals(Vector2.ZERO, vc.currentVelocity());
+    assertFalse(vc.canEnterOpenPits());
+    assertNotNull(vc.onWallHit());
+    assertEquals(vc.mass(), 1);
   }
 
-  /** Tests that the single-parameter constructor sets velocity correctly with default values. */
+  /** Verifies that the constructor with maxSpeed sets the speed correctly and defaults the rest. */
   @Test
-  void testSingleParameterConstructor() {
-    Vector2 testVelocity = Vector2.of(5f, 2f);
-    VelocityComponent component = new VelocityComponent(testVelocity);
+  void testConstructorWithMaxSpeedOnly() {
+    VelocityComponent vc = new VelocityComponent(3.5f);
+    assertEquals(3.5f, vc.maxSpeed());
+    assertEquals(Vector2.ZERO, vc.currentVelocity());
+    assertFalse(vc.canEnterOpenPits());
+    assertNotNull(vc.onWallHit());
+    assertEquals(1, vc.mass());
+  }
 
-    assertEquals(testVelocity, component.velocity());
-    assertEquals(Vector2.ZERO, component.currentVelocity());
+  /** Verifies that the constructor sets all fields correctly. */
+  @Test
+  void testConstructorWithoutMass() {
+    Consumer<Entity> callback = e -> {};
+    VelocityComponent vc = new VelocityComponent(4.2f, callback, true);
+    assertEquals(4.2f, vc.maxSpeed());
+    assertTrue(vc.canEnterOpenPits());
+    assertEquals(callback, vc.onWallHit());
+    assertEquals(1f, vc.mass());
+  }
+
+  /** Verifies that the full constructor sets all fields correctly. */
+  @Test
+  void testConstructorWithFullArguments() {
+    Consumer<Entity> callback = e -> {};
+    VelocityComponent vc = new VelocityComponent(4.2f, 2f, callback, true);
+    assertEquals(4.2f, vc.maxSpeed());
+    assertTrue(vc.canEnterOpenPits());
+    assertEquals(callback, vc.onWallHit());
+    assertEquals(2f, vc.mass());
+  }
+
+  /**
+   * Tests that the VelocityComponent constructor throws an IllegalArgumentException when given a
+   * negative mass value.
+   *
+   * <p>This ensures that invalid physical parameters are not accepted.
+   */
+  @Test
+  void testConstructorWithFullArgumentsNegativeMass() {
+    Consumer<Entity> callback = e -> {};
+
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              new VelocityComponent(4.2f, -1, callback, true);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
+  }
+
+  /**
+   * Tests that the VelocityComponent constructor throws an IllegalArgumentException when given a
+   * zero mass value.
+   *
+   * <p>This ensures that invalid physical parameters are not accepted.
+   */
+  @Test
+  void testConstructorWithFullArgumentsZeroMass() {
+    Consumer<Entity> callback = e -> {};
+
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              new VelocityComponent(4.2f, 0, callback, true);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
+  }
+
+  /** Tests getter and setter for current velocity. */
+  @Test
+  void testCurrentVelocitySetterAndGetter() {
+    Vector2 velocity = Vector2.of(2, -3);
+    component.currentVelocity(velocity);
+    assertEquals(velocity, component.currentVelocity());
+  }
+
+  /** Tests getter and setter for max speed. */
+  @Test
+  void testMaxSpeedSetterAndGetter() {
+    component.maxSpeed(10f);
+    assertEquals(10f, component.maxSpeed());
+  }
+
+  /** Tests getter and setter for mass. */
+  @Test
+  void testMassSetterAndGetter() {
+    component.mass(10f);
+    assertEquals(10f, component.mass());
+  }
+
+  /** Tests getter and setter for mass with negative mass. */
+  @Test
+  void testMassSetterAndGetterNegativeMass() {
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              component.mass(-10);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
+  }
+
+  /** Tests getter and setter for mass with negative mass. */
+  @Test
+  void testMassSetterAndGetterZeroMass() {
+    IllegalArgumentException thrown =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              component.mass(0);
+            });
+
+    assertEquals("Mass cannot be 0 or less", thrown.getMessage());
+  }
+
+  /** Tests enabling and disabling the canEnterOpenPits flag. */
+  @Test
+  void testCanEnterOpenPitsSetterAndGetter() {
+    component.canEnterOpenPits(false);
     assertFalse(component.canEnterOpenPits());
-    assertNotNull(component.onWallHit());
-  }
 
-  /** Tests that the full constructor sets all parameters correctly. */
-  @Test
-  void testFullConstructor() {
-    Vector2 testVelocity = Vector2.of(4f, 6f);
-    AtomicBoolean callbackExecuted = new AtomicBoolean(false);
-
-    VelocityComponent component =
-        new VelocityComponent(testVelocity, entity -> callbackExecuted.set(true), true);
-
-    assertEquals(testVelocity, component.velocity());
-    assertEquals(Vector2.ZERO, component.currentVelocity());
+    component.canEnterOpenPits(true);
     assertTrue(component.canEnterOpenPits());
+  }
 
-    // Test callback
+  /** Tests that the wall hit callback can be set and is correctly invoked. */
+  @Test
+  void testOnWallHitSetterAndInvocation() {
+    AtomicBoolean wasCalled = new AtomicBoolean(false);
+    Consumer<Entity> hitCallback = e -> wasCalled.set(true);
+    component.onWallHit(hitCallback);
     component.onWallHit().accept(new Entity());
-    assertTrue(callbackExecuted.get());
+    assertTrue(wasCalled.get());
   }
 
-  /** Tests getting and setting the current velocity vector. */
+  /** Tests that a force can be applied and retrieved. */
   @Test
-  void testCurrentVelocityGetterAndSetter() {
-    assertEquals(Vector2.ZERO, velocityComponent.currentVelocity());
+  void testApplyForceAndRetrieve() {
+    Vector2 force = Vector2.ONE;
+    component.applyForce("gravity", force);
 
-    Vector2 newCurrentVelocity = Vector2.of(1.5f, -2.5f);
-    velocityComponent.currentVelocity(newCurrentVelocity);
-
-    assertEquals(newCurrentVelocity, velocityComponent.currentVelocity());
+    Optional<Vector2> retrieved = component.force("gravity");
+    assertTrue(retrieved.isPresent());
+    assertEquals(force, retrieved.get());
   }
 
-  /** Tests getting and setting the maximum velocity vector. */
+  /** Tests that applying a force with an existing ID replaces the previous one. */
   @Test
-  void testVelocityGetterAndSetter() {
-    assertEquals(initialVelocity, velocityComponent.velocity());
+  void testApplyForceReplacesPreviousForceWithSameId() {
+    component.applyForce("friction", Vector2.ONE);
+    component.applyForce("friction", Vector2.ZERO);
 
-    Vector2 newVelocity = Vector2.of(8f, 4f);
-    velocityComponent.velocity(newVelocity);
-
-    assertEquals(newVelocity, velocityComponent.velocity());
+    assertEquals(Vector2.ZERO, component.force("friction").get());
   }
 
-  /** Tests getting and setting the previous velocity vector. */
+  /** Tests that a force can be removed. */
   @Test
-  void testPreviousVelocityGetterAndSetter() {
-    assertEquals(Vector2.ZERO, velocityComponent.previouXVelocity());
+  void testRemoveForce() {
+    component.applyForce("wind", Vector2.of(1, 0));
+    component.removeForce("wind");
 
-    Vector2 previousVelocity = Vector2.of(2f, 3f);
-    velocityComponent.previousVelocity(previousVelocity);
-
-    assertEquals(previousVelocity, velocityComponent.previouXVelocity());
+    assertFalse(component.force("wind").isPresent());
   }
 
-  /** Tests getting and setting the wall hit callback function. */
+  /** Tests that all forces can be cleared at once. */
   @Test
-  void testOnWallHitGetterAndSetter() {
-    AtomicBoolean originalCallbackExecuted = new AtomicBoolean(false);
-    AtomicBoolean newCallbackExecuted = new AtomicBoolean(false);
+  void testClearForces() {
+    component.applyForce("a", Vector2.of(1, 0));
+    component.applyForce("b", Vector2.of(0, 1));
 
-    // Test setting new callback
-    velocityComponent.onWallHit(entity -> newCallbackExecuted.set(true));
+    component.clearForces();
 
-    // Execute the callback
-    velocityComponent.onWallHit().accept(new Entity());
-
-    assertFalse(originalCallbackExecuted.get());
-    assertTrue(newCallbackExecuted.get());
+    assertTrue(component.appliedForces().isEmpty());
   }
 
-  /** Tests that velocity vectors with different components are handled correctly. */
+  /** Tests that the appliedForcesStream correctly counts the number of forces. */
   @Test
-  void testVectorOperationsWithDifferentComponents() {
-    Vector2 asymmetricVelocity = Vector2.of(10f, 5f);
-    velocityComponent.velocity(asymmetricVelocity);
+  void testAppliedForcesStream() {
+    component.applyForce("a", Vector2.of(1, 0));
+    component.applyForce("b", Vector2.of(0, 1));
 
-    assertEquals(10f, velocityComponent.velocity().x());
-    assertEquals(5f, velocityComponent.velocity().y());
-
-    Vector2 negativeVelocity = Vector2.of(-3f, -7f);
-    velocityComponent.currentVelocity(negativeVelocity);
-
-    assertEquals(-3f, velocityComponent.currentVelocity().x());
-    assertEquals(-7f, velocityComponent.currentVelocity().y());
+    long count = component.appliedForcesStream().count();
+    assertEquals(2, count);
   }
 
-  /** Tests that zero vectors are handled correctly in all velocity properties. */
+  /**
+   * Tests that the applied forces map is returned as a copy and not modifiable from the outside.
+   */
   @Test
-  void testZeroVectorHandling() {
-    velocityComponent.velocity(Vector2.ZERO);
-    velocityComponent.currentVelocity(Vector2.ZERO);
-    velocityComponent.previousVelocity(Vector2.ZERO);
+  void testAppliedForcesReturnsCopy() {
+    component.applyForce("external", Vector2.ONE);
+    var forces = component.appliedForces();
+    forces.clear(); // Should not affect internal state
 
-    assertEquals(Vector2.ZERO, velocityComponent.velocity());
-    assertEquals(Vector2.ZERO, velocityComponent.currentVelocity());
-    assertEquals(Vector2.ZERO, velocityComponent.previouXVelocity());
+    assertFalse(component.appliedForces().isEmpty());
   }
 
-  /** Tests that very small velocity values are preserved without precision loss. */
+  /** Tests that requesting a non-existent force returns an empty Optional. */
   @Test
-  void testSmallVelocityValues() {
-    Vector2 smallVelocity = Vector2.of(0.001f, 0.0001f);
-    velocityComponent.velocity(smallVelocity);
-
-    assertEquals(0.001f, velocityComponent.velocity().x(), 0.0001f);
-    assertEquals(0.0001f, velocityComponent.velocity().y(), 0.00001f);
-  }
-
-  /** Tests that large velocity values are handled correctly without overflow. */
-  @Test
-  void testLargeVelocityValues() {
-    Vector2 largeVelocity = Vector2.of(1000f, 999f);
-    velocityComponent.velocity(largeVelocity);
-
-    assertEquals(1000f, velocityComponent.velocity().x());
-    assertEquals(999f, velocityComponent.velocity().y());
+  void testForceReturnsEmptyIfNotPresent() {
+    assertTrue(component.force("nonexistent").isEmpty());
   }
 }
