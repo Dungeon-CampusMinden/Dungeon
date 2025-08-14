@@ -6,6 +6,7 @@ import core.components.PlayerComponent;
 import core.utils.components.MissingComponentException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -56,18 +57,13 @@ public final class ProtectOnAttack implements Function<Entity, Boolean> {
 
     isInFight =
         toProtect.stream()
-            .map(
-                toProtect ->
-                    toProtect
-                        .fetch(HealthComponent.class)
-                        .orElseThrow(
-                            () ->
-                                MissingComponentException.build(toProtect, HealthComponent.class)))
+            .map(e -> e.fetch(HealthComponent.class))
+            .flatMap(Optional::stream)
             .anyMatch(
-                toProtect ->
-                    toProtect
+                health ->
+                    health
                         .lastDamageCause()
-                        .map(causeEntity -> causeEntity.fetch(PlayerComponent.class))
+                        .flatMap(cause -> cause.fetch(PlayerComponent.class))
                         .isPresent());
 
     return isInFight;
