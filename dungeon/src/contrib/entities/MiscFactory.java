@@ -229,6 +229,52 @@ public final class MiscFactory {
   }
 
   /**
+   * Creates a new locked chest entity that requires a key item to be opened.
+   *
+   * <p>uses {@link MiscFactory#newChest(Set, Point)} and adds a locking mechanism to it.
+   *
+   * @param items Items that should be stored in the chest.
+   * @param position The position where the chest should be placed.
+   * @param requiredKeyType The type of key item required to open the chest.
+   * @return A new locked chest entity.
+   * @throws IOException If the animation could not be loaded.
+   */
+  public static Entity newLockedChest(
+      final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType)
+      throws IOException {
+    final float defaultInteractionRadius = 1f;
+    Entity lockedChest = newChest(items, position);
+
+    lockedChest
+        .fetch(InteractionComponent.class)
+        .ifPresent(
+            oldIC -> {
+              InteractionComponent wrapperIC =
+                  new InteractionComponent(
+                      defaultInteractionRadius,
+                      true,
+                      (interacted, interactor) -> {
+                        interactor
+                            .fetch(InventoryComponent.class)
+                            .ifPresent(
+                                invComp -> {
+                                  // 1. requiredKeyType check
+                                  if (!invComp.hasItem(requiredKeyType)) {
+                                    System.out.println("Missing required key: " + requiredKeyType);
+                                    return;
+                                  }
+                                  // 2. original callback
+                                  oldIC.triggerInteraction(interacted, interactor);
+                                });
+                      });
+              lockedChest.remove(InteractionComponent.class);
+              lockedChest.add(wrapperIC);
+            });
+
+    return lockedChest;
+  }
+
+  /**
    * Get an Entity that can be used as a crafting cauldron.
    *
    * <p>The Entity is not added to the game yet.
