@@ -20,6 +20,7 @@ public class ItemKey extends Item {
     super("Key", "May open a chest", Animation.fromSingleImage(KEY_TEXTURE));
   }
 
+  @Override
   public void use(final Entity user) {
     user.fetch(PositionComponent.class)
         .map(PositionComponent::position)

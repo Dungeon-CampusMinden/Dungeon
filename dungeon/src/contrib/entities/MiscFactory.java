@@ -1,8 +1,10 @@
 package contrib.entities;
 
 import contrib.components.*;
+import contrib.hud.UIUtils;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.dialogs.OkDialog;
+import contrib.hud.dialogs.TextDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -231,7 +233,7 @@ public final class MiscFactory {
   /**
    * Creates a new locked chest entity that requires a key item to be opened.
    *
-   * <p>uses {@link MiscFactory#newChest(Set, Point)} and adds a locking mechanism to it.
+   * <p>Uses {@link MiscFactory#newChest(Set, Point)} and adds a locking mechanism to it.
    *
    * @param items Items that should be stored in the chest.
    * @param position The position where the chest should be placed.
@@ -243,6 +245,8 @@ public final class MiscFactory {
       final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType)
       throws IOException {
     final float defaultInteractionRadius = 1f;
+    final String BTN_YES = "Yes";
+    final String BTN_NO = "No";
     Entity lockedChest = newChest(items, position);
 
     lockedChest
@@ -254,19 +258,65 @@ public final class MiscFactory {
                       defaultInteractionRadius,
                       true,
                       (interacted, interactor) -> {
-                        interactor
-                            .fetch(InventoryComponent.class)
-                            .ifPresent(
-                                invComp -> {
-                                  // 1. requiredKeyType check
-                                  if (!invComp.hasItem(requiredKeyType)) {
-                                    System.out.println("Missing required key: " + requiredKeyType);
-                                    return;
-                                  }
-                                  // 2. original callback
-                                  oldIC.triggerInteraction(interacted, interactor);
-                                });
+                        InventoryComponent invComp =
+                            interactor.fetch(InventoryComponent.class).orElse(null);
+                        if (invComp == null) {
+                          return; // no inventory -> no interaction
+                        }
+
+                        // 1. requiredKeyType check
+                        if (!invComp.hasItem(requiredKeyType)) {
+                          System.out.println("Missing required key: " + requiredKeyType);
+                          return;
+                        }
+
+                        // 2. dialog and original callback
+                        Entity dialogEntity = new Entity();
+                        UIUtils.show(
+                            () -> {
+                              TextDialog dialog =
+                                  new TextDialog(
+                                      "Locked Chest",
+                                      UIUtils.defaultSkin(),
+                                      (dlg, buttonId) -> {
+                                        if (BTN_YES.equals(buttonId)) {
+                                          // remove key from inventory
+                                          invComp
+                                              .itemOfClass(requiredKeyType)
+                                              .ifPresent(invComp::remove);
+
+                                          // original callback
+                                          oldIC.triggerInteraction(interacted, interactor);
+
+                                          // replace wrapper with original InteractionComponent so
+                                          // chest stays unlocked
+                                          interacted.remove(InteractionComponent.class);
+                                          interacted.add(oldIC);
+
+                                          Game.remove(dialogEntity);
+                                          return true; // close dialog
+                                        }
+                                        // "No" -> only close the dialog
+                                        Game.remove(dialogEntity);
+                                        return true;
+                                      });
+
+                              // show the name of the key if available
+                              String keyName =
+                                  invComp
+                                      .itemOfClass(requiredKeyType)
+                                      .map(Item::displayName)
+                                      .orElse("key");
+                              dialog.text("Use your " + keyName + " to open the chest?");
+                              dialog.button(BTN_YES, BTN_YES);
+                              dialog.button(BTN_NO, BTN_NO);
+                              UIUtils.center(dialog);
+                              return dialog;
+                            },
+                            dialogEntity);
+                        Game.add(dialogEntity);
                       });
+
               lockedChest.remove(InteractionComponent.class);
               lockedChest.add(wrapperIC);
             });
