@@ -33,8 +33,7 @@ public class ItemWoodenBow extends Item {
 
   /** Create a {@link Item} that looks like a bow and can be collected to unlock the BOW_SKILL. */
   public ItemWoodenBow() {
-    super(
-        "Wooden Bow", "It needs arrows as ammunition", new Animation(DEFAULT_TEXTURE));
+    super("Wooden Bow", "It needs arrows as ammunition", new Animation(DEFAULT_TEXTURE));
   }
 
   @Override

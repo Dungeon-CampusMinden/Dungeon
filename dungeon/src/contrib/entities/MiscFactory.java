@@ -539,8 +539,7 @@ public final class MiscFactory {
         new InteractionComponent(
             1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
     book.add(
-        new DrawComponent(
-            new Animation(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
+        new DrawComponent(new Animation(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
   }
 

@@ -181,7 +181,8 @@ public class LeverFactory {
     Entity pressurePlate = new Entity("pressureplate");
     pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
 
-    Map<String, Animation> map = Animation.loadAnimationSpritesheet(new SimpleIPath("objects/pressureplate"));
+    Map<String, Animation> map =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/pressureplate"));
     State stOff = State.fromMap(map, "off");
     State stOn = State.fromMap(map, "on");
     StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));

@@ -14,7 +14,6 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -56,8 +55,7 @@ public class MiscFactory {
   }
 
   /**
-<<<<<<< HEAD
-   * Creates a pressure plate entity at the given position.
+   * <<<<<<< HEAD Creates a pressure plate entity at the given position.
    *
    * <p>The pressure plate is an entity that reacts to collisions by toggling its lever state.
    *
@@ -92,9 +90,7 @@ public class MiscFactory {
   }
 
   /**
-=======
->>>>>>> master
-   * Create a Lever with a {@link BlockComponent}.
+   * ======= >>>>>>> master Create a Lever with a {@link BlockComponent}.
    *
    * @param position Position to place on (will be centered)
    * @return lever entity

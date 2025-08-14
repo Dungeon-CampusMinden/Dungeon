@@ -7,7 +7,6 @@ import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +77,13 @@ public class HealthSystem extends System {
   }
 
   protected HSData activateDeathAnimation(final HSData hsd) {
-    hsd.e.fetch(PositionComponent.class).ifPresentOrElse(pc -> hsd.dc.sendSignal(DEATH_SIGNAL, pc.viewDirection()), () -> {hsd.dc.sendSignal(DEATH_SIGNAL);});
+    hsd.e
+        .fetch(PositionComponent.class)
+        .ifPresentOrElse(
+            pc -> hsd.dc.sendSignal(DEATH_SIGNAL, pc.viewDirection()),
+            () -> {
+              hsd.dc.sendSignal(DEATH_SIGNAL);
+            });
     return hsd;
   }
 

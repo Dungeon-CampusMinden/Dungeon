@@ -12,10 +12,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.elements.ILevel;
 import core.utils.Direction;
-import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.Animation;
@@ -66,9 +63,9 @@ public class VelocitySystemTest {
 
     // Remaining test logic
     Game.add(new LevelSystem(() -> {}));
-//    Game.currentLevel(level);
-//    Mockito.when(tile.friction()).thenReturn(0.75f);
-//    Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
+    //    Game.currentLevel(level);
+    //    Mockito.when(tile.friction()).thenReturn(0.75f);
+    //    Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
     system = new VelocitySystem();
     Game.add(system);
 

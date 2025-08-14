@@ -137,9 +137,11 @@ public final class DrawComponent implements Component {
   public State currentState() {
     return stateMachine.getCurrentState();
   }
+
   public String currentStateName() {
     return stateMachine.getCurrentStateName();
   }
+
   public Object currentStateData() {
     return stateMachine.getCurrentState().getData();
   }
