@@ -9,6 +9,7 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Direction;
 import core.utils.Vector2;
+import java.util.stream.StreamSupport;
 
 /** Utility class for AI-related operations like calculating paths. */
 public class AIUtils {
