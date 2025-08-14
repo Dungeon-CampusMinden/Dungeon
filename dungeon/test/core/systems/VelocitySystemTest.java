@@ -71,6 +71,7 @@ public class VelocitySystemTest {
 
     Entity entity = new Entity();
     vc = new VelocityComponent(speed);
+    vc.mass(mass);
     pc = new PositionComponent();
     Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
@@ -215,7 +216,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.RIGHT, dc.currentStateData());
     assertEquals(Direction.RIGHT, pc.viewDirection());
 
@@ -225,7 +226,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.LEFT, dc.currentStateData());
     assertEquals(Direction.LEFT, pc.viewDirection());
 
@@ -235,7 +236,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.UP, dc.currentStateData());
     assertEquals(Direction.UP, pc.viewDirection());
 
@@ -245,7 +246,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.DOWN, dc.currentStateData());
     assertEquals(Direction.DOWN, pc.viewDirection());
   }
@@ -261,7 +262,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.UP, dc.currentStateData());
     assertEquals(Direction.UP, pc.viewDirection());
 
@@ -270,7 +271,7 @@ public class VelocitySystemTest {
     pc.viewDirection(Direction.NONE);
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.DOWN, dc.currentStateData());
     assertEquals(Direction.DOWN, pc.viewDirection());
   }
@@ -285,13 +286,9 @@ public class VelocitySystemTest {
     vc.currentVelocity(Vector2.of(7, 4)); // Horizontal > Vertical
     pc.viewDirection(Direction.NONE);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.RIGHT, dc.currentStateData());
     assertEquals(Direction.RIGHT, pc.viewDirection());
 
@@ -300,7 +297,7 @@ public class VelocitySystemTest {
     pc.viewDirection(Direction.NONE);
     system.execute();
 
-    assertEquals("run", dc.currentStateName());
+    assertEquals("move", dc.currentStateName());
     assertEquals(Direction.LEFT, dc.currentStateData());
     assertEquals(Direction.LEFT, pc.viewDirection());
   }

@@ -89,15 +89,20 @@ public final class VelocitySystem extends System {
     // Entity is moving
     if (x != 0 || y != 0) {
       Direction newDirection = Direction.NONE;
-      if (x > 0) {
-        newDirection = Direction.RIGHT;
-      } else if (x < 0) {
-        newDirection = Direction.LEFT;
+
+      // Use the velocity axis with the greatest magnitude for animation direction
+      if (Math.abs(x) >= Math.abs(y)) {
+        if (x > 0) {
+          newDirection = Direction.RIGHT;
+        } else {
+          newDirection = Direction.LEFT;
+        }
       } else if (y > 0) {
         newDirection = Direction.UP;
-      } else if (y < 0) {
+      } else {
         newDirection = Direction.DOWN;
       }
+
       vsd.dc.sendSignal("move", newDirection);
       vsd.pc.viewDirection(newDirection);
     }
