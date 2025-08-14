@@ -93,12 +93,11 @@ public class AIUtils {
    *     is not found or is at the end of the path.
    */
   private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
-    for (int i = 0; i < path.getCount() - 1; i++) {
-      if (path.get(i).equals(currentTile)) {
-        return path.get(i + 1);
-      }
-    }
-    return null;
+    return StreamSupport.stream(path.spliterator(), false)
+        .dropWhile(t -> !t.equals(currentTile))
+        .skip(1)
+        .findFirst()
+        .orElse(null);
   }
 
   /**
