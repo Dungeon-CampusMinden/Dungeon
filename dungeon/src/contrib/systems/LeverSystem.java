@@ -78,7 +78,7 @@ public class LeverSystem extends System {
 
               leverEntity
                   .fetch(DrawComponent.class)
-                  .ifPresent(d -> d.currentAnimation(newState ? "on" : "off"));
+                  .ifPresent(d -> d.sendSignal(newState ? "on" : "off"));
 
               leverStates.put(leverEntity, newState);
             });
