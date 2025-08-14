@@ -5,8 +5,8 @@ import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Set;
@@ -44,7 +44,7 @@ public class Berry extends Item {
    * @param toxic true, wenn die Beere giftig sein soll; false sonst
    */
   public Berry(boolean toxic) {
-    super("Eine Beere.", " Könnte sie giftig sein?", Animation.fromSingleImage(DEFAULT_TEXTURE));
+    super("Eine Beere.", " Könnte sie giftig sein?", new Animation(DEFAULT_TEXTURE));
     this.toxic = toxic;
   }
 
@@ -65,12 +65,11 @@ public class Berry extends Item {
    * @param texture Pfad zur neuen Texturdatei
    */
   public void changeTexture(String texture) {
-    this.worldAnimation(Animation.fromSingleImage(new SimpleIPath(texture)));
-    this.inventoryAnimation(Animation.fromSingleImage(new SimpleIPath(texture)));
+    this.worldAnimation(new Animation(new SimpleIPath(texture)));
+    this.inventoryAnimation(new Animation(new SimpleIPath(texture)));
     Entity b = getEntity();
     b.remove(DrawComponent.class);
-    DrawComponent dc = new DrawComponent(Animation.fromSingleImage(new SimpleIPath(texture)));
-    dc.currentAnimation(CoreAnimations.IDLE);
+    DrawComponent dc = new DrawComponent(new Animation(new SimpleIPath(texture)));
     b.add(dc);
   }
 
