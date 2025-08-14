@@ -12,12 +12,11 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
-import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This system draws the entities on the screen.
@@ -89,20 +88,20 @@ public final class DrawSystem extends System {
     return BATCH;
   }
 
-  private void onEntityChanged(Entity changed, boolean added){
+  private void onEntityChanged(Entity changed, boolean added) {
     DSData data = buildDataObject(changed);
     int depth = data.dc.depth();
     List<DSData> entitiesAtDepth = sortedEntities.get(depth);
 
     if (entitiesAtDepth == null) {
-      if(added){
+      if (added) {
         entitiesAtDepth = new ArrayList<>();
         entitiesAtDepth.add(data);
         sortedEntities.put(depth, entitiesAtDepth);
       }
     } else if (!entitiesAtDepth.contains(data) && added) {
       entitiesAtDepth.add(data);
-    } else if(!added) {
+    } else if (!added) {
       entitiesAtDepth.remove(data);
       if (entitiesAtDepth.isEmpty()) {
         sortedEntities.remove(depth);
@@ -110,24 +109,24 @@ public final class DrawSystem extends System {
     }
   }
 
-  public void onEntityChangedDepth(Entity entity){
+  public void onEntityChangedDepth(Entity entity) {
     DSData data = buildDataObject(entity);
     int oldDepth = Integer.MIN_VALUE;
     int newDepth = data.dc.depth();
 
-    //Find entry in our map
+    // Find entry in our map
     for (Map.Entry<Integer, List<DSData>> entry : sortedEntities.entrySet()) {
       if (entry.getValue().contains(data)) {
         oldDepth = entry.getKey();
       }
     }
 
-    //Remove old entry
-    if(oldDepth != Integer.MIN_VALUE){
+    // Remove old entry
+    if (oldDepth != Integer.MIN_VALUE) {
       sortedEntities.get(oldDepth).remove(data);
     }
 
-    //Add at new depth
+    // Add at new depth
     List<DSData> entitiesAtDepth = sortedEntities.get(newDepth);
     if (entitiesAtDepth == null) {
       entitiesAtDepth = new ArrayList<>();
@@ -152,9 +151,11 @@ public final class DrawSystem extends System {
     drawLevel(Game.currentLevel());
 
     sortedEntities.values().stream()
-      .flatMap(list -> list.stream().sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
-      .filter(this::shouldDraw)
-      .forEach(this::draw);
+        .flatMap(
+            list ->
+                list.stream().sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
+        .filter(this::shouldDraw)
+        .forEach(this::draw);
 
     BATCH.end();
   }
@@ -174,16 +175,24 @@ public final class DrawSystem extends System {
   private boolean shouldDraw(DSData data) {
     Tile tile = Game.currentLevel().tileAt(data.pc.position());
     if (tile == null) return false;
-    if(!data.dc.isVisible()) return false;
+    if (!data.dc.isVisible()) return false;
     return tile.visible();
   }
 
   private void draw(final DSData dsd) {
     dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
-    PainterConfig conf = new PainterConfig(0, 0, dsd.dc.getSpriteWidth(), dsd.dc.getSpriteHeight(), dsd.dc.tintColor());
-    if(dsd.dc.currentAnimation().getConfig().centered()){
-      conf = new PainterConfig(-dsd.dc.getSpriteWidth() / 2, -dsd.dc.getSpriteHeight() / 2, dsd.dc.getSpriteWidth(), dsd.dc.getSpriteHeight(), dsd.dc.tintColor());
+    PainterConfig conf =
+        new PainterConfig(
+            0, 0, dsd.dc.getSpriteWidth(), dsd.dc.getSpriteHeight(), dsd.dc.tintColor());
+    if (dsd.dc.currentAnimation().getConfig().centered()) {
+      conf =
+          new PainterConfig(
+              -dsd.dc.getSpriteWidth() / 2,
+              -dsd.dc.getSpriteHeight() / 2,
+              dsd.dc.getSpriteWidth(),
+              dsd.dc.getSpriteHeight(),
+              dsd.dc.tintColor());
     }
     PAINTER.draw(dsd.pc.position(), sprite, conf, dsd.pc.rotation());
   }
@@ -196,6 +205,7 @@ public final class DrawSystem extends System {
 
   /**
    * Builds the data record used by this system.
+   *
    * @param entity The entity with a DrawComponent and a PositionComponent
    * @return The data record
    */

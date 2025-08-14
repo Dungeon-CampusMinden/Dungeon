@@ -131,16 +131,10 @@ public class CraftingGUI extends CombinableGUI {
   public CraftingGUI(InventoryComponent targetInventory) {
     this.targetInventory = targetInventory;
     this.buttonOk =
-        new ImageButton(
-            this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
+        new ImageButton(this, new Animation(new SimpleIPath(BUTTON_OK_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonCancel =
         new ImageButton(
-            this,
-            new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)),
-            0,
-            0,
-            1,
-            1);
+            this, new Animation(new SimpleIPath(BUTTON_CANCEL_TEXTURE_PATH)), 0, 0, 1, 1);
     this.buttonOk.onClick((button) -> this.craft());
     this.buttonCancel.onClick((button) -> this.cancel());
   }
@@ -207,12 +201,7 @@ public class CraftingGUI extends CombinableGUI {
   @Override
   protected void draw(Batch batch) {
     // Draw background
-    batch.draw(
-        backgroundAnimation.update(),
-        this.x(),
-        this.y(),
-        this.width(),
-        this.height());
+    batch.draw(backgroundAnimation.update(), this.x(), this.y(), this.width(), this.height());
 
     this.drawItems(batch);
 

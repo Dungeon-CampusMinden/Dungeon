@@ -40,11 +40,6 @@ public class ImageButton extends Button {
     }
     int x = this.x() + (this.width / 2) - (width / 2);
     int y = this.y() + (this.height / 2) - (height / 2);
-    batch.draw(
-        nextFrame,
-        x,
-        y,
-        width,
-        height);
+    batch.draw(nextFrame, x, y, width, height);
   }
 }

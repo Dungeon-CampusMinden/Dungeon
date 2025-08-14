@@ -13,8 +13,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimationPriorities;
-import core.utils.components.draw.CoreAnimations;
 
 /**
  * The VelocitySystem controls the movement of the entities in the game.

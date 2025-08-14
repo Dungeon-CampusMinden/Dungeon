@@ -28,8 +28,7 @@ import org.mockito.Mockito;
 /** WTF? . */
 public class ItemTest {
 
-  Animation defaultAnimation =
-      new Animation(new SimpleIPath("animation/missing_texture.png"));
+  Animation defaultAnimation = new Animation(new SimpleIPath("animation/missing_texture.png"));
   Animation worldAnimation = new Animation(new SimpleIPath("item/key/gold_key.png"));
   Animation inventoryAnimation = new Animation(new SimpleIPath("item/key/red_key.png"));
 

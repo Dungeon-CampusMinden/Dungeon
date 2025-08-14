@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,28 +11,36 @@ public class AnimationConfig {
 
   private SpritesheetConfig config;
   private int framesPerSprite = 10;
-  //Default width/height of 1 tile.
+  // Default width/height of 1 tile.
   private float scaleX = 1;
   private float scaleY = 0;
   private boolean isLooping = true;
   private boolean centered = false;
 
-  public AnimationConfig(SpritesheetConfig config){
+  public AnimationConfig(SpritesheetConfig config) {
     this.config = config;
   }
-  public AnimationConfig(){
+
+  public AnimationConfig() {
     this(null);
   }
 
-  public SpritesheetConfig config(){ return config; }
-  public AnimationConfig config(SpritesheetConfig config){
+  public SpritesheetConfig config() {
+    return config;
+  }
+
+  public AnimationConfig config(SpritesheetConfig config) {
     this.config = config;
     return this;
   }
 
-  public int framesPerSprite(){ return framesPerSprite; }
-  public AnimationConfig framesPerSprite(int framesPerSprite){
-    if(framesPerSprite <= 0) throw new IllegalArgumentException("framesPerSprite cannot be less than 1");
+  public int framesPerSprite() {
+    return framesPerSprite;
+  }
+
+  public AnimationConfig framesPerSprite(int framesPerSprite) {
+    if (framesPerSprite <= 0)
+      throw new IllegalArgumentException("framesPerSprite cannot be less than 1");
     this.framesPerSprite = framesPerSprite;
     return this;
   }
@@ -42,6 +49,7 @@ public class AnimationConfig {
     this.scaleX = scaleX;
     return this;
   }
+
   public float scaleX() {
     return scaleX;
   }
@@ -50,6 +58,7 @@ public class AnimationConfig {
     this.scaleY = scaleY;
     return this;
   }
+
   public float scaleY() {
     return scaleY;
   }
@@ -58,6 +67,7 @@ public class AnimationConfig {
     isLooping = looping;
     return this;
   }
+
   public boolean isLooping() {
     return isLooping;
   }
@@ -66,26 +76,33 @@ public class AnimationConfig {
     this.centered = centered;
     return this;
   }
+
   public boolean centered() {
     return centered;
   }
 
   @Override
   public String toString() {
-    return "AnimationConfig{" +
-      "framesPerSprite=" + framesPerSprite +
-      ", scaleX=" + scaleX +
-      ", scaleY=" + scaleY +
-      ", isLooping=" + isLooping +
-      ", centered=" + centered +
-      ", config=" + config +
-      '}';
+    return "AnimationConfig{"
+        + "framesPerSprite="
+        + framesPerSprite
+        + ", scaleX="
+        + scaleX
+        + ", scaleY="
+        + scaleY
+        + ", isLooping="
+        + isLooping
+        + ", centered="
+        + centered
+        + ", config="
+        + config
+        + '}';
   }
 
   public static Map<String, AnimationConfig> loadAnimationConfigMap(String jsonFilePath) {
     JsonReader jsonReader = new JsonReader();
     FileHandle f = Gdx.files.internal(jsonFilePath);
-    if(!f.exists()) return null;
+    if (!f.exists()) return null;
 
     JsonValue root = jsonReader.parse(f);
 

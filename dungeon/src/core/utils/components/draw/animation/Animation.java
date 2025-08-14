@@ -1,19 +1,17 @@
 package core.utils.components.draw.animation;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.*;
 
 public class Animation {
 
-  private static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");
+  private static final IPath MISSING_TEXTURE_PATH =
+      new SimpleIPath("animation/missing_texture.png");
   private static final float DEFAULT_SCALE = 1f / 16;
 
   private final AnimationConfig config;
@@ -24,34 +22,41 @@ public class Animation {
 
   /**
    * A new animation
+   *
    * @param path An IPath to either a single image or a folder of images
    * @param config The configuration to use for this animation
    */
-  public Animation(IPath path, AnimationConfig config){
-    if(path == null || path.pathString().isEmpty()) throw new IllegalArgumentException("path can't be null or empty");
-    if(config == null) this.config = new AnimationConfig();
+  public Animation(IPath path, AnimationConfig config) {
+    if (path == null || path.pathString().isEmpty())
+      throw new IllegalArgumentException("path can't be null or empty");
+    if (config == null) this.config = new AnimationConfig();
     else this.config = config;
     loadFromSingle(path);
   }
-  public Animation(IPath path){
+
+  public Animation(IPath path) {
     this(path, new AnimationConfig());
   }
 
   /**
    * A new animation
+   *
    * @param paths A series of textures to use
    * @param config The configuration to use for this animation
    */
-  public Animation(List<IPath> paths, AnimationConfig config){
-    if(paths == null || paths.size() == 0) throw new IllegalArgumentException("paths can't be null or empty");
-    if(config == null) this.config = new AnimationConfig();
+  public Animation(List<IPath> paths, AnimationConfig config) {
+    if (paths == null || paths.size() == 0)
+      throw new IllegalArgumentException("paths can't be null or empty");
+    if (config == null) this.config = new AnimationConfig();
     else this.config = config;
     loadSpritesFromPaths(paths);
   }
-  public Animation(IPath... paths){
+
+  public Animation(IPath... paths) {
     this(Arrays.asList(paths), new AnimationConfig());
   }
-  public Animation(List<IPath> paths){
+
+  public Animation(List<IPath> paths) {
     this(paths, new AnimationConfig());
   }
 
@@ -67,7 +72,7 @@ public class Animation {
    * 3.2. If TextureRegion[], load into Sprites (cached (somehow))
    * 4. Set the sprites array
    */
-  private void loadFromSingle(IPath path){
+  private void loadFromSingle(IPath path) {
     String pathString = path.pathString();
     if (pathString.endsWith("/") || !pathString.matches(".*\\.(png|jpg|jpeg)$")) {
       // It's a directory path or doesn't end in image extension → assume `dir/dir.png`
@@ -78,32 +83,33 @@ public class Animation {
     IPath exactPath = new SimpleIPath(pathString);
 
     List<IPath> paths = new ArrayList<>();
-    if(config.config() == null){
-      //Case: 2.1.
+    if (config.config() == null) {
+      // Case: 2.1.
       paths.add(exactPath);
       loadSpritesFromPaths(paths);
     } else {
-      //Case: 2.3.
+      // Case: 2.3.
       loadSpritesFromSpritesheet(exactPath);
     }
   }
 
-  private void loadSpritesFromPaths(List<IPath> paths){
+  private void loadSpritesFromPaths(List<IPath> paths) {
     sprites = new Sprite[paths.size()];
-    for(int i = 0; i < paths.size(); i++){
+    for (int i = 0; i < paths.size(); i++) {
       sprites[i] = new Sprite(TextureMap.instance().textureAt(paths.get(i)));
     }
 
-    //Set the sprite width/height based on the scaling values and the texture width/height
+    // Set the sprite width/height based on the scaling values and the texture width/height
     Texture t = TextureMap.instance().textureAt(paths.get(0));
     width = t.getWidth() * config.scaleX();
-    height = config.scaleY() == 0 ? t.getHeight() * config.scaleX() : t.getHeight() * config.scaleY();
+    height =
+        config.scaleY() == 0 ? t.getHeight() * config.scaleX() : t.getHeight() * config.scaleY();
 
     width *= DEFAULT_SCALE;
     height *= DEFAULT_SCALE;
   }
 
-  private void loadSpritesFromSpritesheet(IPath path){
+  private void loadSpritesFromSpritesheet(IPath path) {
     Texture spritesheet = TextureMap.instance().textureAt(path);
     SpritesheetConfig ssc = config.config();
     int sWidth = ssc.spriteWidth();
@@ -112,10 +118,13 @@ public class Animation {
     int offsetY = ssc.y();
 
     sprites = new Sprite[ssc.rows() * ssc.columns()];
-    for(int y = 0; y < ssc.rows(); y++){
-      for(int x = 0; x < ssc.columns(); x++){
+    for (int y = 0; y < ssc.rows(); y++) {
+      for (int x = 0; x < ssc.columns(); x++) {
         int index = y * ssc.columns() + x;
-        sprites[index] = new Sprite(new TextureRegion(spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
+        sprites[index] =
+            new Sprite(
+                new TextureRegion(
+                    spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
       }
     }
 
@@ -125,56 +134,69 @@ public class Animation {
     height *= DEFAULT_SCALE;
   }
 
-  public Sprite getSprite(){
+  public Sprite getSprite() {
     int spriteIndex = frameCount / config.framesPerSprite();
-    if(config.isLooping()){
+    if (config.isLooping()) {
       spriteIndex = spriteIndex % sprites.length;
     } else {
       spriteIndex = Math.min(spriteIndex, sprites.length - 1);
     }
     return sprites[spriteIndex];
   }
-  public float getSpriteWidth(){
+
+  public float getSpriteWidth() {
     return width;
   }
-  public float getSpriteHeight(){
+
+  public float getSpriteHeight() {
     return height;
   }
 
-  public boolean isLooping(){
+  public boolean isLooping() {
     return config.isLooping();
   }
 
-  public boolean isFinished(){
+  public boolean isFinished() {
     int spriteIndex = frameCount / config.framesPerSprite();
     return spriteIndex >= sprites.length;
   }
 
   /**
    * Updates the animation frame counter
+   *
    * @return The updated sprite
    */
-  public Sprite update(){
+  public Sprite update() {
     frameCount++;
     return getSprite();
   }
+
   public int frameCount() {
     return frameCount;
   }
+
   public void frameCount(int frameCount) {
     this.frameCount = frameCount;
   }
-  public AnimationConfig getConfig(){ return config; }
+
+  public AnimationConfig getConfig() {
+    return config;
+  }
 
   @Override
   public String toString() {
-    return "Animation{" +
-      "width=" + width +
-      ", height=" + height +
-      ", frameCount=" + frameCount +
-      ", sprites=" + Arrays.toString(sprites) +
-      ", config=" + config +
-      '}';
+    return "Animation{"
+        + "width="
+        + width
+        + ", height="
+        + height
+        + ", frameCount="
+        + frameCount
+        + ", sprites="
+        + Arrays.toString(sprites)
+        + ", config="
+        + config
+        + '}';
   }
 
   public static Map<String, Animation> loadAnimationSpritesheet(IPath path) {
@@ -193,7 +215,7 @@ public class Animation {
 
     // Load configs
     Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);
-    if(configs == null) return null;
+    if (configs == null) return null;
 
     Map<String, Animation> animations = new HashMap<>();
     for (Map.Entry<String, AnimationConfig> entry : configs.entrySet()) {

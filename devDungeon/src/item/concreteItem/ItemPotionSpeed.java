@@ -31,10 +31,7 @@ public class ItemPotionSpeed extends Item {
 
   /** Constructs a new ItemPotionSpeed. */
   public ItemPotionSpeed() {
-    super(
-        "Speed Potion",
-        "A potion that increases your speed",
-        new Animation(DEFAULT_TEXTURE));
+    super("Speed Potion", "A potion that increases your speed", new Animation(DEFAULT_TEXTURE));
     this.speedEffect = new SpeedEffect(3, 5);
     if (!testEffect()) {
       description("It looks like this potion is broken...");

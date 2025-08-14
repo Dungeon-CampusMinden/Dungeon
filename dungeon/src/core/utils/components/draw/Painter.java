@@ -46,7 +46,8 @@ public class Painter {
    * @param config Painting configuration.
    * @param rotation Rotation in degree.
    */
-  public void draw(final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
+  public void draw(
+      final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
     Point realPos = position.translate(config.offset());
     if (CameraSystem.isPointInFrustum(realPos)) {
       // Size & Position
@@ -69,9 +70,11 @@ public class Painter {
       sprite.draw(batch);
     }
   }
+
   public void draw(final Point position, final Sprite sprite, final PainterConfig config) {
     draw(position, sprite, config, 0);
   }
+
   public void draw(final Point position, final IPath path, final PainterConfig config) {
     draw(position, new Sprite(TextureMap.instance().textureAt(path)), config);
   }

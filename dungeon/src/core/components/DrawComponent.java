@@ -11,25 +11,25 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
-
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
 /**
  * Store all {@link Animation}s for an entity.
  *
- * <p>At creation, the component will read in a single file, which can directly be a sprite or a spritesheet.
+ * <p>At creation, the component will read in a single file, which can directly be a sprite or a
+ * spritesheet.
  *
- * Example: "character/knight" resolves to "assets/character/knight/knight.png".
+ * <p>Example: "character/knight" resolves to "assets/character/knight/knight.png".
  *
- * To make loading spritesheets easier, the function {@link Animation.loadAnimationSpritesheet(IPath)} will check if there
- * is a .json file with the same name next to the image file, containing a {@link Map}<String, {@link AnimationConfig}>,
- * outlining the different Animations found in the image, and load this {@link Map} with all Animations.
+ * <p>To make loading spritesheets easier, the function {@link
+ * Animation.loadAnimationSpritesheet(IPath)} will check if there is a .json file with the same name
+ * next to the image file, containing a {@link Map}<String, {@link AnimationConfig}>, outlining the
+ * different Animations found in the image, and load this {@link Map} with all Animations.
  *
- * <p>This component will build a {@link StateMachine}, where each {@link State} represents one animation that the entity
- * can have. Between {@link State}s, transitions are responsible to denote how the entity switches between states and
- * what {@link Signal}s are required to do so.
+ * <p>This component will build a {@link StateMachine}, where each {@link State} represents one
+ * animation that the entity can have. Between {@link State}s, transitions are responsible to denote
+ * how the entity switches between states and what {@link Signal}s are required to do so.
  *
  * <p>Each Animation will be created with default settings. If you want to change these settings,
  * use the methods from {@link Animation}.
@@ -55,52 +55,60 @@ public final class DrawComponent implements Component {
   /**
    * Create a new DrawComponent.
    *
-   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be assumed that the
-   *             target image file is within that folder with the same name as the folder but as png.
-   *             Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
    * @see Animation
    */
   public DrawComponent(final IPath path, AnimationConfig config) {
     stateMachine = new StateMachine(path, config);
   }
+
   public DrawComponent(final IPath path, SpritesheetConfig config) {
     stateMachine = new StateMachine(path, config);
   }
+
   public DrawComponent(final IPath path) {
     this(path, new AnimationConfig());
   }
+
   public DrawComponent(final Animation animation) {
     stateMachine = new StateMachine(animation);
   }
+
   public DrawComponent(List<State> states) {
     stateMachine = new StateMachine(states);
   }
+
   public DrawComponent(StateMachine stateMachine) {
     this.stateMachine = stateMachine;
   }
 
-  public void sendSignal(String signal, Object data){
+  public void sendSignal(String signal, Object data) {
     stateMachine.sendSignal(new Signal(signal, data));
   }
-  public void sendSignal(String signal){
+
+  public void sendSignal(String signal) {
     sendSignal(signal, null);
   }
 
-  public void update(){
+  public void update() {
     stateMachine.update();
   }
 
-  public Sprite getSprite(){
+  public Sprite getSprite() {
     return stateMachine.getSprite();
   }
-  public float getSpriteWidth(){
+
+  public float getSpriteWidth() {
     return stateMachine.getSpriteWidth();
   }
-  public float getSpriteHeight(){
+
+  public float getSpriteHeight() {
     return stateMachine.getSpriteHeight();
   }
 
-  public Animation currentAnimation(){
+  public Animation currentAnimation() {
     return stateMachine.getCurrentState().getAnimation();
   }
 
@@ -122,14 +130,15 @@ public final class DrawComponent implements Component {
     return stateMachine.isAnimationFinished();
   }
 
-  public boolean hasState(String name){
+  public boolean hasState(String name) {
     return stateMachine.getState(name) != null;
   }
-  public State currentState(){
+
+  public State currentState() {
     return stateMachine.getCurrentState();
   }
 
-  public void resetState(){
+  public void resetState() {
     stateMachine.reset();
   }
 
@@ -171,7 +180,15 @@ public final class DrawComponent implements Component {
     this.tintColor = tintColor;
   }
 
-  public StateMachine stateMachine() { return stateMachine; }
-  public int depth() { return depth; }
-  public void depth(int depth) { this.depth = depth; }
+  public StateMachine stateMachine() {
+    return stateMachine;
+  }
+
+  public int depth() {
+    return depth;
+  }
+
+  public void depth(int depth) {
+    this.depth = depth;
+  }
 }

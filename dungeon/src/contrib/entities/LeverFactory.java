@@ -13,9 +13,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 /** The LeverFactory class is responsible for creating lever entities. */
@@ -63,8 +61,7 @@ public class LeverFactory {
               lc.toggle();
               entity
                   .fetch(DrawComponent.class)
-                  .ifPresent(
-                      drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
+                  .ifPresent(drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
             }));
     return lever;
   }

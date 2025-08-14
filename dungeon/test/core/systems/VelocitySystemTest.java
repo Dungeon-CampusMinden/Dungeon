@@ -1,5 +1,7 @@
 package core.systems;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,13 +24,10 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /** Tests for the {@link VelocitySystem} class. */
 public class VelocitySystemTest {
@@ -47,7 +46,8 @@ public class VelocitySystemTest {
   /** Sets up the test environment with mock level, entity, and components. */
   @BeforeEach
   public void setup() throws IOException {
-    // Create file system handle. WARNING: This will assume all future paths to be relative to the working directory (probably the root of the project)
+    // Create file system handle. WARNING: This will assume all future paths to be relative to the
+    // working directory (probably the root of the project)
     Gdx.files = new LwjglFiles();
     TextureMap.instance().clear(); // reset any existing mappings
 
@@ -55,7 +55,8 @@ public class VelocitySystemTest {
     TextureMap instance = TextureMap.instance();
     Texture dummyTexture = Mockito.mock(Texture.class);
 
-    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to working directory.
+    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to
+    // working directory.
     String assetKey = "test_assets/textures/test_hero/test_hero.png";
     instance.put(assetKey, dummyTexture);
 
@@ -70,7 +71,8 @@ public class VelocitySystemTest {
     velocityComponent = new VelocityComponent(velocity);
     positionComponent = new PositionComponent(new Point(startXPosition, startYPosition));
 
-    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
+    Map<String, Animation> animationMap =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
     State stIdle = new DirectionalState("idle", animationMap);
     State stMove = new DirectionalState("move", animationMap, "run");
     State stDead = new State("dead", animationMap.get("die"));

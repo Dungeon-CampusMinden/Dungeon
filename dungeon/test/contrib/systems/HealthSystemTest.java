@@ -3,7 +3,6 @@ package contrib.systems;
 import static org.junit.jupiter.api.Assertions.*;
 
 import contrib.components.HealthComponent;
-import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;

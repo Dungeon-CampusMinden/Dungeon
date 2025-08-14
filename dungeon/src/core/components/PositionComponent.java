@@ -176,13 +176,16 @@ public final class PositionComponent implements Component {
 
   /**
    * Get the rotation.
+   *
    * @return The rotation.
    */
   public float rotation() {
     return rotation;
   }
+
   /**
    * Set the rotation.
+   *
    * @param rotation new rotation
    */
   public void rotation(final float rotation) {

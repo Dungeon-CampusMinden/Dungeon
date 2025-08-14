@@ -5,7 +5,6 @@ import contrib.item.Item;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;

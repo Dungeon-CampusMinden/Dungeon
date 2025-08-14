@@ -19,7 +19,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-
 import java.util.Arrays;
 import java.util.Map;
 
@@ -27,8 +26,7 @@ import java.util.Map;
 public class MiscFactory {
 
   private static final IPath STONE = new SimpleIPath("objects/stone/stone.png");
-  private static final IPath PRESSURE_PLATE =
-      new SimpleIPath("objects/pressureplate");
+  private static final IPath PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");

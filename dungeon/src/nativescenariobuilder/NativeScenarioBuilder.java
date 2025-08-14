@@ -167,14 +167,15 @@ public class NativeScenarioBuilder {
           new UIComponent(new GUICombination(new InventoryGUI(otherIc), inventory), true);
       other.add(uiComponent);
 
-      chest.fetch(DrawComponent.class).ifPresent(
-        interactedDC -> {
-          String stateName = interactedDC.stateMachine().getCurrentStateName();
-          if (!stateName.equals("opening") && !stateName.equals("open")) {
-            interactedDC.sendSignal("opening");
-          }
-        }
-      );
+      chest
+          .fetch(DrawComponent.class)
+          .ifPresent(
+              interactedDC -> {
+                String stateName = interactedDC.stateMachine().getCurrentStateName();
+                if (!stateName.equals("opening") && !stateName.equals("open")) {
+                  interactedDC.sendSignal("opening");
+                }
+              });
     };
   }
 

@@ -28,7 +28,6 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 /**

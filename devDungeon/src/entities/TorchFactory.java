@@ -52,7 +52,7 @@ public class TorchFactory {
 
     torch.add(new PositionComponent(pos));
     DrawComponent dc = new DrawComponent(new SimpleIPath("objects/torch.png"));
-    if(lit){
+    if (lit) {
       dc.sendSignal("on");
     }
     torch.add(dc);
@@ -62,14 +62,14 @@ public class TorchFactory {
 
     if (isInteractable)
       torch.add(
-        new InteractionComponent(
-          DEFAULT_INTERACTION_RADIUS,
-          true,
-          (entity, who) -> {
-            tc.toggle();
-            dc.sendSignal(tc.lit() ? "on" : "off");
-            onInteract.accept(entity, who);
-          }));
+          new InteractionComponent(
+              DEFAULT_INTERACTION_RADIUS,
+              true,
+              (entity, who) -> {
+                tc.toggle();
+                dc.sendSignal(tc.lit() ? "on" : "off");
+                onInteract.accept(entity, who);
+              }));
 
     return torch;
   }

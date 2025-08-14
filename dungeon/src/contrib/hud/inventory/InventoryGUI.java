@@ -164,10 +164,7 @@ public class InventoryGUI extends CombinableGUI {
               + (2 * BORDER_PADDING);
 
       batch.draw(
-          this.inventoryComponent
-            .items()[i]
-            .inventoryAnimation()
-            .update(),
+          this.inventoryComponent.items()[i].inventoryAnimation().update(),
           x,
           y,
           this.slotSize - (4 * BORDER_PADDING),
@@ -277,7 +274,7 @@ public class InventoryGUI extends CombinableGUI {
             payload.setObject(
                 new ItemDragPayload(InventoryGUI.this.inventoryComponent, draggedSlot, item));
 
-            //TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
+            // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
             Image image = new Image(new SpriteDrawable(item.inventoryAnimation().update()));
             image.setSize(InventoryGUI.this.slotSize, InventoryGUI.this.slotSize);
             payload.setDragActor(image);

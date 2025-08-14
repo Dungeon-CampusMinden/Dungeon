@@ -20,10 +20,7 @@ public class ItemResourceBerry extends Item {
 
   /** Create a new Berry. */
   public ItemResourceBerry() {
-    super(
-        "Berry",
-        "A berry.",
-        new Animation(new SimpleIPath("items/resource/berry.png")));
+    super("Berry", "A berry.", new Animation(new SimpleIPath("items/resource/berry.png")));
   }
 
   @Override

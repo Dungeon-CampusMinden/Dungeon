@@ -32,9 +32,7 @@ public class ItemPotionRegeneration extends Item {
   /** Constructs a new ItemPotionRegeneration. */
   public ItemPotionRegeneration() {
     super(
-        "Regeneration Potion",
-        "A potion that heals you over time",
-        new Animation(DEFAULT_TEXTURE));
+        "Regeneration Potion", "A potion that heals you over time", new Animation(DEFAULT_TEXTURE));
     this.regenerationEffect = new RegenerationEffect(HEAL_PER_SECOND, EFFECT_DURATION);
   }
 

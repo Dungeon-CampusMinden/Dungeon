@@ -20,7 +20,6 @@ import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimationPriorities;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -220,10 +219,13 @@ public final class GameLoop extends ScreenAdapter {
    */
   private void placeOnLevelStart(final Entity entity) {
     ECSManagment.add(entity);
-    entity.fetch(PositionComponent.class).ifPresent(pc -> {
-      pc.position(Game.startTile().orElseThrow());
-      pc.viewDirection(Direction.DOWN); // look down by default
-    });
+    entity
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            pc -> {
+              pc.position(Game.startTile().orElseThrow());
+              pc.viewDirection(Direction.DOWN); // look down by default
+            });
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);

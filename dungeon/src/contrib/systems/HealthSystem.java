@@ -1,7 +1,6 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
-import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;

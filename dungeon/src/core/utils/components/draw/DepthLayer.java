@@ -12,8 +12,12 @@ public enum DepthLayer {
   ;
 
   private int depth;
-  DepthLayer(int depth){
+
+  DepthLayer(int depth) {
     this.depth = depth;
   }
-  public int depth(){ return depth; }
+
+  public int depth() {
+    return depth;
+  }
 }

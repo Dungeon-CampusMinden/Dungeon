@@ -1,5 +1,8 @@
 package core.utils.components.draw.animation;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -8,12 +11,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import org.junit.jupiter.api.*;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.*;
 
 class AnimationTest {
 
@@ -56,23 +56,27 @@ class AnimationTest {
 
   @Test
   void listCtor_null_throws() {
-    assertThrows(IllegalArgumentException.class, () -> new Animation((List<IPath>) null, new AnimationConfig()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new Animation((List<IPath>) null, new AnimationConfig()));
   }
 
   @Test
   void listCtor_empty_throws() {
-    assertThrows(IllegalArgumentException.class, () -> new Animation(List.of(), new AnimationConfig()));
+    assertThrows(
+        IllegalArgumentException.class, () -> new Animation(List.of(), new AnimationConfig()));
   }
 
   // ---------- scaling using real AnimationConfig ----------
 
   @Test
   void widthHeight_respectScale_andScaleYZeroUsesScaleX() {
-    AnimationConfig cfg = new AnimationConfig()
-      .framesPerSprite(1)
-      .scaleX(2.0f) // doubled
-      .scaleY(0.0f) // use X for Y
-      .isLooping(true);
+    AnimationConfig cfg =
+        new AnimationConfig()
+            .framesPerSprite(1)
+            .scaleX(2.0f) // doubled
+            .scaleY(0.0f) // use X for Y
+            .isLooping(true);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
@@ -92,11 +96,8 @@ class AnimationTest {
 
   @Test
   void widthHeight_respectIndependentScaleY() {
-    AnimationConfig cfg = new AnimationConfig()
-      .framesPerSprite(1)
-      .scaleX(1.5f)
-      .scaleY(0.5f)
-      .isLooping(true);
+    AnimationConfig cfg =
+        new AnimationConfig().framesPerSprite(1).scaleX(1.5f).scaleY(0.5f).isLooping(true);
 
     IPath p1 = new SimpleIPath("a.png");
     TextureMap.instance().put("a.png", textureA);
@@ -114,10 +115,12 @@ class AnimationTest {
 
   @Test
   void getSprite_loops_whenLoopingEnabled() {
-    AnimationConfig cfg = new AnimationConfig()
-      .framesPerSprite(3) // 3 frames per sprite
-      .scaleX(1f).scaleY(0f)
-      .isLooping(true);
+    AnimationConfig cfg =
+        new AnimationConfig()
+            .framesPerSprite(3) // 3 frames per sprite
+            .scaleX(1f)
+            .scaleY(0f)
+            .isLooping(true);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
@@ -126,11 +129,16 @@ class AnimationTest {
 
     Animation anim = new Animation(Arrays.asList(p1, p2), cfg);
 
-    anim.frameCount(0);  Sprite s0 = anim.getSprite(); // idx 0
-    anim.frameCount(2);  Sprite s2 = anim.getSprite(); // idx 0
-    anim.frameCount(3);  Sprite s3 = anim.getSprite(); // idx 1
-    anim.frameCount(5);  Sprite s5 = anim.getSprite(); // idx 1
-    anim.frameCount(6);  Sprite s6 = anim.getSprite(); // wraps to idx 0
+    anim.frameCount(0);
+    Sprite s0 = anim.getSprite(); // idx 0
+    anim.frameCount(2);
+    Sprite s2 = anim.getSprite(); // idx 0
+    anim.frameCount(3);
+    Sprite s3 = anim.getSprite(); // idx 1
+    anim.frameCount(5);
+    Sprite s5 = anim.getSprite(); // idx 1
+    anim.frameCount(6);
+    Sprite s6 = anim.getSprite(); // wraps to idx 0
 
     assertSame(s0, s2);
     assertNotSame(s0, s3);
@@ -141,10 +149,8 @@ class AnimationTest {
 
   @Test
   void getSprite_clamps_whenNotLooping_and_isFinishedReflectsThat() {
-    AnimationConfig cfg = new AnimationConfig()
-      .framesPerSprite(2)
-      .scaleX(1f).scaleY(1f)
-      .isLooping(false);
+    AnimationConfig cfg =
+        new AnimationConfig().framesPerSprite(2).scaleX(1f).scaleY(1f).isLooping(false);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
@@ -153,10 +159,14 @@ class AnimationTest {
 
     Animation anim = new Animation(Arrays.asList(p1, p2), cfg);
 
-    anim.frameCount(0); Sprite f0 = anim.getSprite(); // first
-    anim.frameCount(1); Sprite f1 = anim.getSprite(); // first
-    anim.frameCount(2); Sprite f2 = anim.getSprite(); // second
-    anim.frameCount(3); Sprite f3 = anim.getSprite(); // second
+    anim.frameCount(0);
+    Sprite f0 = anim.getSprite(); // first
+    anim.frameCount(1);
+    Sprite f1 = anim.getSprite(); // first
+    anim.frameCount(2);
+    Sprite f2 = anim.getSprite(); // second
+    anim.frameCount(3);
+    Sprite f3 = anim.getSprite(); // second
     assertFalse(anim.isFinished());
 
     anim.frameCount(4); // index would be 2 -> finished, clamp to last
@@ -173,10 +183,8 @@ class AnimationTest {
 
   @Test
   void update_incrementsFrameCount_andReturnsCurrentSprite() {
-    AnimationConfig cfg = new AnimationConfig()
-      .framesPerSprite(2)
-      .scaleX(1f).scaleY(1f)
-      .isLooping(true);
+    AnimationConfig cfg =
+        new AnimationConfig().framesPerSprite(2).scaleX(1f).scaleY(1f).isLooping(true);
 
     IPath p1 = new SimpleIPath("a.png");
     IPath p2 = new SimpleIPath("b.png");
@@ -201,7 +209,8 @@ class AnimationTest {
 
   @Test
   void spritesheet_slicesCorrectCount_andScalingFromSpriteSize() {
-    // Stub Gdx.files.internal(...) so Animation#loadFromSingle treats the path as a file (not a directory).
+    // Stub Gdx.files.internal(...) so Animation#loadFromSingle treats the path as a file (not a
+    // directory).
     Files files = mock(Files.class);
     FileHandle fh = mock(FileHandle.class);
     when(fh.name()).thenReturn("sheet.png");
@@ -218,27 +227,32 @@ class AnimationTest {
     TextureMap.instance().put("assets/sheet.png", sheet);
 
     // 2 rows x 3 cols, sprite size 32x24, with offset
-    SpritesheetConfig ssc = new SpritesheetConfig()
-      .rows(2).columns(3)
-      .spriteWidth(32).spriteHeight(24)
-      .x(4).y(6);
+    SpritesheetConfig ssc =
+        new SpritesheetConfig().rows(2).columns(3).spriteWidth(32).spriteHeight(24).x(4).y(6);
 
-    AnimationConfig cfg = new AnimationConfig(ssc)
-      .framesPerSprite(1)
-      .scaleX(2f)    // width = 32 * 2 / 16 = 4
-      .scaleY(0.5f)  // height = 24 * 0.5 / 16 = 0.75
-      .isLooping(true);
+    AnimationConfig cfg =
+        new AnimationConfig(ssc)
+            .framesPerSprite(1)
+            .scaleX(2f) // width = 32 * 2 / 16 = 4
+            .scaleY(0.5f) // height = 24 * 0.5 / 16 = 0.75
+            .isLooping(true);
 
     Animation anim = new Animation(sheetPath, cfg);
 
     // With framesPerSprite=1 and looping, index = frameCount % 6
     Sprite s0 = anim.getSprite(); // index 0
-    anim.frameCount(1); Sprite s1 = anim.getSprite();
-    anim.frameCount(2); Sprite s2 = anim.getSprite();
-    anim.frameCount(3); Sprite s3 = anim.getSprite();
-    anim.frameCount(4); Sprite s4 = anim.getSprite();
-    anim.frameCount(5); Sprite s5 = anim.getSprite();
-    anim.frameCount(6); Sprite s6 = anim.getSprite(); // wraps to index 0
+    anim.frameCount(1);
+    Sprite s1 = anim.getSprite();
+    anim.frameCount(2);
+    Sprite s2 = anim.getSprite();
+    anim.frameCount(3);
+    Sprite s3 = anim.getSprite();
+    anim.frameCount(4);
+    Sprite s4 = anim.getSprite();
+    anim.frameCount(5);
+    Sprite s5 = anim.getSprite();
+    anim.frameCount(6);
+    Sprite s6 = anim.getSprite(); // wraps to index 0
 
     assertNotSame(s0, s1);
     assertNotSame(s1, s2);
@@ -247,7 +261,7 @@ class AnimationTest {
     assertNotSame(s4, s5);
     assertSame(s0, s6); // looped
 
-    assertEquals(32 * 2f * (1f/16f), anim.getSpriteWidth(), 1e-6);
-    assertEquals(24 * 0.5f * (1f/16f), anim.getSpriteHeight(), 1e-6);
+    assertEquals(32 * 2f * (1f / 16f), anim.getSpriteWidth(), 1e-6);
+    assertEquals(24 * 0.5f * (1f / 16f), anim.getSpriteHeight(), 1e-6);
   }
 }

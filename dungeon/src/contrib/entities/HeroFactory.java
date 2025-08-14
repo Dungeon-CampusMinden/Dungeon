@@ -145,8 +145,8 @@ public final class HeroFactory {
     sm.addTransition(stMove, "idle", stIdle);
     sm.addTransition(stIdle, "died", stDead);
     sm.addTransition(stMove, "died", stDead);
-    //Always have the hero face South when not moving after a bit
-//    sm.addEpsilonTransition(stIdle, State::isAnimationFinished, stIdle, () -> Direction.DOWN);
+    // Always have the hero face South when not moving after a bit
+    //    sm.addEpsilonTransition(stIdle, State::isAnimationFinished, stIdle, () -> Direction.DOWN);
     DrawComponent dc = new DrawComponent(sm);
     dc.depth(DepthLayer.Player.depth());
     hero.add(dc);

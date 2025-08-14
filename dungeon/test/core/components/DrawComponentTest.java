@@ -1,10 +1,12 @@
 package core.components;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
 import com.badlogic.gdx.graphics.Texture;
 import core.utils.Direction;
-import core.utils.components.draw.CoreAnimations;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
@@ -15,25 +17,23 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /** Tests for the {@link DrawComponent} class. */
 public class DrawComponentTest {
 
-  private final IPath animationPath = new SimpleIPath("test_assets/textures/test_hero/test_hero.png");
+  private final IPath animationPath =
+      new SimpleIPath("test_assets/textures/test_hero/test_hero.png");
   private final IPath simplePath = new SimpleIPath("test_assets/textures/mailbox.png");
   private DrawComponent animationComponent;
 
   /** WTF? . */
   @BeforeEach
   public void setup() throws IOException {
-    // Create file system handle. WARNING: This will assume all future paths to be relative to the working directory (probably the root of the project)
+    // Create file system handle. WARNING: This will assume all future paths to be relative to the
+    // working directory (probably the root of the project)
     Gdx.files = new LwjglFiles();
     TextureMap.instance().clear(); // reset any existing mappings
 
@@ -41,7 +41,8 @@ public class DrawComponentTest {
     TextureMap instance = TextureMap.instance();
     Texture dummyTexture = Mockito.mock(Texture.class);
 
-    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to working directory.
+    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to
+    // working directory.
     instance.put(animationPath.pathString(), dummyTexture);
     instance.put(simplePath.pathString(), dummyTexture);
 
@@ -82,7 +83,10 @@ public class DrawComponentTest {
     assertEquals("idle", simpleAnimation.currentState().name);
   }
 
-  /** Tests if the complex animation loaded from the .json file properly loads all 4 images of the animation */
+  /**
+   * Tests if the complex animation loaded from the .json file properly loads all 4 images of the
+   * animation
+   */
   @Test
   public void complexAnimationLoad() {
     assertNotEquals(null, animationComponent.stateMachine().getState("idle"));
