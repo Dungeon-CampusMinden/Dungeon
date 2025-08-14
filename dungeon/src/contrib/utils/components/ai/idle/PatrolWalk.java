@@ -80,39 +80,32 @@ public final class PatrolWalk implements Consumer<Entity> {
    * @throws MissingComponentException if the PositionComponent is missing from the entity.
    */
   private boolean initializeCheckpoints(final Entity entity) {
-    // Mark initialization as started to avoid re-initializing later
     initialized = true;
 
-    // Retrieve position of the entity
     PositionComponent position = getPositionComponent(entity);
-    Point center = position.position(); // Current position as Point(x, y)
+    Point center = position.position();
 
-    // Get the tile under the entity (may be empty if outside level)
     Optional<Tile> tileOpt = Game.tileAT(center);
-    if (tileOpt.isEmpty()) return false; // Abort if entity stands on invalid tile
+    if (tileOpt.isEmpty()) return false;
 
-    // Get all accessible tiles around the position within a certain radius
+
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
-    if (accessibleTiles.isEmpty()) return false; // Abort if nothing reachable
+    if (accessibleTiles.isEmpty()) return false;
 
-    // Randomly select unique tiles as patrol checkpoints
     int maxTries = 0;
     while (checkpoints.size() < numberCheckpoints
         && accessibleTiles.size() != checkpoints.size()
         && maxTries < 1000) {
 
-      // Pick a random tile from accessible candidates
       Tile t = accessibleTiles.get(RANDOM.nextInt(accessibleTiles.size()));
 
-      // Only add it if not already part of the list (unique checkpoints)
       if (!checkpoints.contains(t)) {
         checkpoints.add(t);
       }
 
-      maxTries++; // Prevent infinite loops
+      maxTries++;
     }
 
-    // Success if at least one checkpoint was found
     return true;
   }
 
