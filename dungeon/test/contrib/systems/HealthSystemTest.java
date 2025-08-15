@@ -2,24 +2,34 @@ package contrib.systems;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import contrib.components.HealthComponent;
-import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /** WTF? . */
 public class HealthSystemTest {
-  private static final IPath ANIMATION_PATH = new SimpleIPath("textures/test_hero");
+  private static final IPath ANIMATION_PATH = new SimpleIPath("textures/test_hero/test_hero.png");
+  private DrawComponent animationComponent;
 
   /** WTF? . */
   @AfterEach
@@ -29,15 +39,38 @@ public class HealthSystemTest {
     Game.removeAllSystems();
   }
 
+  @BeforeEach
+  public void setup() throws IOException {
+    HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+    new HeadlessApplication(new ApplicationAdapter() {}, config);
+
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(ANIMATION_PATH);
+    State stIdle = new DirectionalState("idle", animationMap);
+    State stMove = new DirectionalState("move", animationMap, "run");
+    State stHit = State.fromMap(animationMap, "hit");
+    State stDead = new State("dead", animationMap.get("die"));
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stHit, stDead));
+    sm.addTransition(stIdle, "move", stMove);
+    sm.addTransition(stIdle, "hit", stHit);
+    sm.addTransition(stIdle, "die", stDead);
+
+    sm.addTransition(stMove, "idle", stIdle);
+    sm.addTransition(stMove, "move", stMove);
+    sm.addTransition(stMove, "hit", stHit);
+    sm.addTransition(stMove, "die", stDead);
+
+    sm.addTransition(stHit, "die", stDead);
+    animationComponent = new DrawComponent(sm);
+  }
+
   /** WTF? . */
   @Test
-  public void updateEntityDies() throws IOException {
+  public void updateEntityDies() {
     Game.removeAllEntities();
     Entity entity = new Entity();
     Consumer<Entity> onDeath = entity1 -> Game.remove(entity1);
-    DrawComponent ac = new DrawComponent(ANIMATION_PATH);
     HealthComponent component = new HealthComponent(1, onDeath);
-    entity.add(ac);
+    entity.add(animationComponent);
     entity.add(component);
     Game.add(entity);
     HealthSystem system = new HealthSystem();
@@ -45,39 +78,37 @@ public class HealthSystemTest {
     component.currentHealthpoints(0);
 
     system.execute();
-    assertTrue(ac.isAnimationQueued(AdditionalAnimations.DIE));
+    assertEquals("dead", animationComponent.currentState().name);
     assertFalse(Game.entityStream().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */
   @Test
-  public void updateEntityDiesGodMode() throws IOException {
+  public void updateEntityDiesGodMode() {
     Game.removeAllEntities();
     Entity entity = new Entity();
     Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-    DrawComponent ac = new DrawComponent(ANIMATION_PATH);
     HealthComponent component = new HealthComponent(1, onDeath);
     component.godMode(true);
-    entity.add(ac);
+    entity.add(animationComponent);
     entity.add(component);
     Game.add(entity);
     HealthSystem system = new HealthSystem();
     Game.add(system);
     component.currentHealthpoints(0);
     system.execute();
-    assertFalse(ac.isCurrentAnimation(AdditionalAnimations.DIE));
+    assertNotEquals("dead", animationComponent.currentState().name);
     assertTrue(Game.entityStream().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */
   @Test
-  public void updateEntityGetDamage() throws IOException {
+  public void updateEntityGetDamage() {
     Game.removeAllEntities();
     Entity entity = new Entity();
     Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-    DrawComponent ac = new DrawComponent(ANIMATION_PATH);
     HealthComponent component = new HealthComponent(10, onDeath);
-    entity.add(ac);
+    entity.add(animationComponent);
     entity.add(component);
     Game.add(entity);
     component.receiveHit(new Damage(5, DamageType.FIRE, null));
@@ -87,18 +118,17 @@ public class HealthSystemTest {
 
     system.execute();
     assertEquals(3, component.currentHealthpoints());
-    assertTrue(ac.isAnimationQueued(AdditionalAnimations.HIT));
+    assertEquals("hit", animationComponent.currentState().name);
   }
 
   /** WTF? . */
   @Test
-  public void updateEntityGetNegativeDamage() throws IOException {
+  public void updateEntityGetNegativeDamage() {
     Game.removeAllEntities();
     Entity entity = new Entity();
     Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-    DrawComponent ac = new DrawComponent(ANIMATION_PATH);
     HealthComponent component = new HealthComponent(10, onDeath);
-    entity.add(ac);
+    entity.add(animationComponent);
     entity.add(component);
     Game.add(entity);
     component.currentHealthpoints(3);
@@ -107,18 +137,17 @@ public class HealthSystemTest {
     Game.add(system);
     system.execute();
     assertEquals(6, component.currentHealthpoints());
-    assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
+    assertNotEquals("hit", animationComponent.currentState().name);
   }
 
   /** WTF? . */
   @Test
-  public void updateEntityGetZeroDamage() throws IOException {
+  public void updateEntityGetZeroDamage() {
     Game.removeAllEntities();
     Entity entity = new Entity();
     Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
-    DrawComponent ac = new DrawComponent(ANIMATION_PATH);
     HealthComponent component = new HealthComponent(10, onDeath);
-    entity.add(ac);
+    entity.add(animationComponent);
     entity.add(component);
     Game.add(entity);
     component.receiveHit(new Damage(0, DamageType.FIRE, null));
@@ -126,7 +155,7 @@ public class HealthSystemTest {
     Game.add(system);
     system.execute();
     assertEquals(10, component.currentHealthpoints());
-    assertFalse(ac.isCurrentAnimation(AdditionalAnimations.HIT));
+    assertNotEquals("hit", animationComponent.currentState().name);
   }
 
   /** WTF? . */

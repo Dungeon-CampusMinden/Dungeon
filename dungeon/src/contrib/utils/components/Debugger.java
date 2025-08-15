@@ -27,7 +27,6 @@ import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -164,7 +163,7 @@ public class Debugger {
       monster.add(new PositionComponent(position));
       try {
         monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-      } catch (IOException e) {
+      } catch (Exception e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
       monster.add(new VelocityComponent(1));

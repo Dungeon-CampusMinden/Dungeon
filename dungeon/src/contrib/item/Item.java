@@ -10,7 +10,7 @@ import core.Entity;
 import core.Game;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.logging.CustomLogLevel;
 import java.util.HashMap;
 import java.util.Map;

@@ -8,8 +8,6 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimationPriorities;
-import core.utils.components.draw.CoreAnimations;
 import java.util.logging.Logger;
 
 /**
@@ -90,71 +88,28 @@ public final class VelocitySystem extends System {
 
     // Entity is moving
     if (x != 0 || y != 0) {
-      // Remove any queued run or idle animations to avoid conflicts
-      vsd.dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-      vsd.dc.deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
+      Direction newDirection = Direction.NONE;
 
       // Use the velocity axis with the greatest magnitude for animation direction
       if (Math.abs(x) >= Math.abs(y)) {
         if (x > 0) {
-          vsd.dc.queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-          vsd.pc.viewDirection(Direction.RIGHT);
+          newDirection = Direction.RIGHT;
         } else {
-          vsd.dc.queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-          vsd.pc.viewDirection(Direction.LEFT);
+          newDirection = Direction.LEFT;
         }
       } else if (y > 0) {
-        vsd.dc.queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-        vsd.pc.viewDirection(Direction.UP);
+        newDirection = Direction.UP;
       } else {
-        vsd.dc.queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-        vsd.pc.viewDirection(Direction.DOWN);
+        newDirection = Direction.DOWN;
       }
+
+      vsd.dc.sendSignal("move", newDirection);
+      vsd.pc.viewDirection(newDirection);
     }
     // Entity is idle
     else {
-      // Queue idle animation based on current view direction
-      switch (vsd.pc.viewDirection()) {
-        case UP ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_UP,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_RIGHT);
-        case LEFT ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_RIGHT,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_UP);
-        case DOWN ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_UP,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_RIGHT);
-        case RIGHT ->
-            vsd.dc.queueAnimation(
-                DEFAULT_FRAME_TIME,
-                CoreAnimations.IDLE_RIGHT,
-                CoreAnimations.IDLE,
-                CoreAnimations.IDLE_LEFT,
-                CoreAnimations.IDLE_DOWN,
-                CoreAnimations.IDLE_UP);
-        case NONE -> // Invalid direction, log warning
-            LOGGER.warning(
-                "Entity "
-                    + vsd.e.id()
-                    + " has an invalid view direction: "
-                    + vsd.pc.viewDirection()
-                    + ". Cannot queue idle animation.");
-      }
+      // each entity that is moving should have an idle animation
+      vsd.dc.sendSignal("idle", vsd.pc.viewDirection());
     }
   }
 

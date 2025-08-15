@@ -145,7 +145,7 @@ public class TorchRiddleRiddleHandler {
         .forEach(
             e -> {
               e.fetch(TorchComponent.class).ifPresent(tc -> tc.lit(false));
-              e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
+              e.fetch(DrawComponent.class).ifPresent(dc -> dc.sendSignal("off"));
             });
 
     level.tileAt(riddleCenter).tintColor(-1);

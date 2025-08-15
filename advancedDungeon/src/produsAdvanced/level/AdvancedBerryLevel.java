@@ -164,7 +164,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
     try {
       npc.add(new DrawComponent(new SimpleIPath(NPC_TEXTURE_PATH)));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException("Failed to load NPC texture", e);
     }
     npc.add(new CollideComponent());

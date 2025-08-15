@@ -78,7 +78,7 @@ public class Level03 extends DungeonLevel {
     npc.add(new PositionComponent(customPoints.get(0).toCenteredPoint()));
     try {
       npc.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
 

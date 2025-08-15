@@ -17,7 +17,6 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -222,7 +221,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
       dc.tintColor(tintColor());
       projectile.add(dc);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOGGER.warning(
           String.format("The DrawComponent for the projectile %s cant be created. ", entity)
               + e.getMessage());
