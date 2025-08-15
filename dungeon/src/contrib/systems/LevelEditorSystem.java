@@ -101,7 +101,7 @@ public class LevelEditorSystem extends System {
   private void fillWithFloor() {
     Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
 
-    Tile startTile = LevelSystem.level().tileAt(mosPos);
+    Tile startTile = LevelSystem.level().tileAt(mosPos).orElse(null);
     if (startTile == null) {
       return;
     }
@@ -120,7 +120,7 @@ public class LevelEditorSystem extends System {
         Vector2[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
         for (Vector2 direction : directions) {
           Tile neighbourTile =
-              currentTile.level().tileAt(currentTile.coordinate().translate(direction));
+              currentTile.level().tileAt(currentTile.coordinate().translate(direction)).orElse(null);
           if (neighbourTile != null && !queue.contains(neighbourTile)) {
             queue.add(neighbourTile);
           }
@@ -132,7 +132,7 @@ public class LevelEditorSystem extends System {
 
   private void setTile(LevelElement element) {
     Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-    Tile mouseTile = LevelSystem.level().tileAt(mosPos);
+    Tile mouseTile = LevelSystem.level().tileAt(mosPos).orElse(null);
     if (mouseTile == null) {
       return;
     }
@@ -141,7 +141,7 @@ public class LevelEditorSystem extends System {
 
   private void setCustomPoint() {
     Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-    Tile mouseTile = LevelSystem.level().tileAt(mosPos);
+    Tile mouseTile = LevelSystem.level().tileAt(mosPos).orElse(null);
     if (mouseTile == null) {
       return;
     }
