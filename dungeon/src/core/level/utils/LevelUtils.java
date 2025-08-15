@@ -169,16 +169,16 @@ public final class LevelUtils {
     Set<Tile> tiles = new HashSet<>();
     // BFS queue
     Queue<Tile> tileQueue = new ArrayDeque<>();
-    Tile start = Game.tileAT(center).orElse(null);
-    if (start != null) tileQueue.add(start);
+    Game.tileAT(center).ifPresent(tileQueue::add);
     while (tileQueue.size() > 0) {
       Tile current = tileQueue.remove();
       boolean added = tiles.add(current);
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
         for (Vector2 offset : offsets) {
-          Tile tile = current.level().tileAt(current.coordinate().translate(offset));
-          if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
+          current.level().tileAt(current.coordinate().translate(offset))
+            .filter(tile -> isInRange(center, radius, tile))
+            .ifPresent(tileQueue::add);
         }
       }
     }
@@ -312,7 +312,8 @@ public final class LevelUtils {
     // Queue to hold the cells to be explored in the form of (row, col)
     Queue<Tile> queue = new LinkedList<>();
     // Start BFS from the given start position
-    queue.add(Game.currentLevel().tileAt(new Coordinate(startX, startY)));
+    Game.currentLevel().tileAt(new Coordinate(startX, startY))
+      .ifPresent(queue::add);
     queued[startY][startX] = true;
 
     while (!queue.isEmpty()) {
@@ -419,12 +420,9 @@ public final class LevelUtils {
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile heroTile = Game.currentLevel().tileAt(pc.position());
-    if (heroTile == null) {
-      return false;
-    }
-
-    return LevelUtils.isTileWithinArea(heroTile, topLeft, bottomRight);
+    return Game.currentLevel().tileAt(pc.position())
+      .map(tile -> LevelUtils.isTileWithinArea(tile, topLeft, bottomRight))
+      .orElse(false);
   }
 
   /**
@@ -464,10 +462,8 @@ public final class LevelUtils {
 
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
-        Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
-        if (tile != null) {
-          tile.tintColor(color);
-        }
+        Game.currentLevel().tileAt(new Coordinate(x, y))
+          .ifPresent(t -> t.tintColor(color));
       }
     }
   }
