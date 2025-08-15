@@ -8,16 +8,19 @@ import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
-/** This item is a key to open a chest. */
+/** This item is a key. It can be used to unlock something. */
 public class ItemKey extends Item {
-  /** The default texture for all big keys. */
+  /** The default texture for all small keys. */
   public static final IPath KEY_TEXTURE = new SimpleIPath("items/key/small_key.png");
 
   /**
    * Create a {@link Item} that looks like a Key. It can be collected and stored in the inventory.
    */
   public ItemKey() {
-    super("Key", "May open a chest", Animation.fromSingleImage(KEY_TEXTURE));
+    super(
+        "Schlüssel",
+        "Ein silberner Schlüssel. Was er wohl öffnet?",
+        Animation.fromSingleImage(KEY_TEXTURE));
   }
 
   @Override

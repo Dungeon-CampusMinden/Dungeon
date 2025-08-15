@@ -1,10 +1,11 @@
 package contrib.entities;
 
 import contrib.components.*;
-import contrib.hud.UIUtils;
+import contrib.hud.DialogUtils;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.TextDialog;
+import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -17,6 +18,11 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.*;
+import core.level.elements.tile.DoorTile;
+import core.utils.Direction;
+import core.utils.Point;
+import core.utils.TriConsumer;
+import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.IPath;
@@ -40,6 +46,7 @@ public final class MiscFactory {
       new SimpleIPath("items/pickups/heart_pickup.png");
   private static final SimpleIPath FAIRY_TEXTURE =
       new SimpleIPath("items/pickups/fairy_pickup.png");
+  private static final SimpleIPath DOOR_BLOCKER_TEXTURE = new SimpleIPath("other/chain_lock.png");
 
   private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
   private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
@@ -244,9 +251,8 @@ public final class MiscFactory {
   public static Entity newLockedChest(
       final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType)
       throws IOException {
+
     final float defaultInteractionRadius = 1f;
-    final String BTN_YES = "Yes";
-    final String BTN_NO = "No";
     Entity lockedChest = newChest(items, position);
 
     lockedChest
@@ -261,60 +267,36 @@ public final class MiscFactory {
                         InventoryComponent invComp =
                             interactor.fetch(InventoryComponent.class).orElse(null);
                         if (invComp == null) {
-                          return; // no inventory -> no interaction
-                        }
-
-                        // 1. requiredKeyType check
-                        if (!invComp.hasItem(requiredKeyType)) {
-                          System.out.println("Missing required key: " + requiredKeyType);
                           return;
                         }
 
-                        // 2. dialog and original callback
-                        Entity dialogEntity = new Entity();
-                        UIUtils.show(
+                        if (!invComp.hasItem(requiredKeyType)) {
+                          DialogUtils.showTextPopup(
+                              "Du brauchst einen Schlüssel um diese Schatzkiste zu öffnen!",
+                              "Fehlender Schlüssel.");
+                          return;
+                        }
+
+                        String keyName =
+                            invComp
+                                .itemOfClass(requiredKeyType)
+                                .map(Item::displayName)
+                                .orElse("Schlüssel");
+
+                        YesNoDialog.showYesNoDialog(
+                            "Willst du deinen "
+                                + keyName
+                                + " verwenden, um die Schatzkiste zu öffnen?",
+                            "Locked Chest",
                             () -> {
-                              TextDialog dialog =
-                                  new TextDialog(
-                                      "Locked Chest",
-                                      UIUtils.defaultSkin(),
-                                      (dlg, buttonId) -> {
-                                        if (BTN_YES.equals(buttonId)) {
-                                          // remove key from inventory
-                                          invComp
-                                              .itemOfClass(requiredKeyType)
-                                              .ifPresent(invComp::remove);
-
-                                          // original callback
-                                          oldIC.triggerInteraction(interacted, interactor);
-
-                                          // replace wrapper with original InteractionComponent so
-                                          // chest stays unlocked
-                                          interacted.remove(InteractionComponent.class);
-                                          interacted.add(oldIC);
-
-                                          Game.remove(dialogEntity);
-                                          return true; // close dialog
-                                        }
-                                        // "No" -> only close the dialog
-                                        Game.remove(dialogEntity);
-                                        return true;
-                                      });
-
-                              // show the name of the key if available
-                              String keyName =
-                                  invComp
-                                      .itemOfClass(requiredKeyType)
-                                      .map(Item::displayName)
-                                      .orElse("key");
-                              dialog.text("Use your " + keyName + " to open the chest?");
-                              dialog.button(BTN_YES, BTN_YES);
-                              dialog.button(BTN_NO, BTN_NO);
-                              UIUtils.center(dialog);
-                              return dialog;
+                              invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
+                              oldIC.triggerInteraction(interacted, interactor);
+                              interacted.remove(InteractionComponent.class);
+                              interacted.add(oldIC);
                             },
-                            dialogEntity);
-                        Game.add(dialogEntity);
+                            () -> {
+                              // "No" - do nothing
+                            });
                       });
 
               lockedChest.remove(InteractionComponent.class);
@@ -649,12 +631,75 @@ public final class MiscFactory {
     Entity book = new Entity("book");
     book.add(new PositionComponent(position));
     book.add(
-        new InteractionComponent(
-            1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
+      new InteractionComponent(
+        1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
     book.add(
-        new DrawComponent(
-            Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
+      new DrawComponent(
+        Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
+  }
+
+  /**
+   * Creates a new Entity that blocks a door aka. locks a door tile.
+   *
+   * @param door the door Tile to be locked
+   * @param requiredKeyType the key type which is needed to unlock the door
+   * @return a new DoorBlocker Entity
+   */
+  public static Entity createDoorBlocker(DoorTile door, final Class<? extends Item> requiredKeyType) {
+    Entity doorBlocker = new Entity("doorBlocker");
+    float x = door.position().toCenteredPoint().x();
+    float y = door.position().toCenteredPoint().y();
+    Point blockerPosition = new Point(x, (y - 0.4f));
+    doorBlocker.add(new PositionComponent(blockerPosition));
+
+    doorBlocker.add(
+        new InteractionComponent(
+            2.0f,
+            true,
+            (interacted, interactor) -> {
+              Game.hero()
+                  .ifPresent(
+                      hero -> {
+                        if (!interactor.equals(hero)) {
+                          return;
+                        }
+
+                        InventoryComponent invComp =
+                            interactor.fetch(InventoryComponent.class).orElse(null);
+                        if (invComp == null) {
+                          return;
+                        }
+
+                        if (!invComp.hasItem(requiredKeyType)) {
+                          DialogUtils.showTextPopup(
+                              "Du brauchst einen Schlüssel um diese Tür zu öffnen!",
+                              "Fehlender Schlüssel.");
+                          return;
+                        }
+
+                        String keyName =
+                            invComp
+                                .itemOfClass(requiredKeyType)
+                                .map(Item::displayName)
+                                .orElse("Schlüssel");
+
+                        YesNoDialog.showYesNoDialog(
+                            "Willst du deinen " + keyName + " verwenden, um die Tür zu öffnen?",
+                            "Locked Door",
+                            () -> {
+                              invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
+                              Game.remove(interacted);
+                              door.open();
+                            },
+                            () -> {
+                              // "No" - do nothing
+                            });
+                      });
+            }));
+    door.close();
+    doorBlocker.add(new DrawComponent(Animation.fromSingleImage(DOOR_BLOCKER_TEXTURE)));
+    return doorBlocker;
   }
 
   /**

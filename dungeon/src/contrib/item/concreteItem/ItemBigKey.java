@@ -8,7 +8,7 @@ import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
-/** This item is a big key to open a chest. */
+/** This item is a big key. It can be used unlock something. */
 public class ItemBigKey extends Item {
   /** The default texture for all big keys. */
   public static final IPath BIG_KEY_TEXTURE = new SimpleIPath("items/key/big_key.png");
@@ -18,7 +18,10 @@ public class ItemBigKey extends Item {
    * inventory.
    */
   public ItemBigKey() {
-    super("Big Key", "May open a chest", Animation.fromSingleImage(BIG_KEY_TEXTURE));
+    super(
+        "Großer Schlüssel",
+        "Ein großer goldener Schlüssel. Was er wohl öffnet?",
+        Animation.fromSingleImage(BIG_KEY_TEXTURE));
   }
 
   @Override
