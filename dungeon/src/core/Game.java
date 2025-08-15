@@ -577,13 +577,12 @@ public final class Game {
    * @return tile at the coordinate of the entity
    */
   public static Tile tileAtEntity(final Entity entity) {
-    return currentLevel().tileAtEntity(entity);
+    return currentLevel().tileAtEntity(entity).orElse(null);
   }
 
   /**
    * Returns the entities on the given tile. If there is no tile at the given position,
    * an empty stream will be returned.
-   *
    * @param check Tile to check for.
    * @return Stream of all entities on the given tile
    */
