@@ -8,7 +8,6 @@ import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,18 +75,16 @@ public final class PatrolWalk implements Consumer<Entity> {
    * randomly selects unique patrol checkpoints.
    *
    * @param entity The entity around whose position patrol checkpoints are generated.
-   * @return {@code true} if at least one valid checkpoint was found within maxTries attempts, {@code false} otherwise.
-   * @throws MissingComponentException if the PositionComponent is missing from the entity.
+   * @return {@code true} if the PositionComponent is present and at least one valid checkpoint
+   *         was found within maxTries attempts, {@code false} otherwise.
    */
   private boolean initializeCheckpoints(final Entity entity) {
     initialized = true;
 
-    PositionComponent position = getPositionComponent(entity);
-    Point center = position.position();
+    Optional<PositionComponent> positionOpt = getPositionComponent(entity);
+    if (positionOpt.isEmpty()) return false;
 
-    Optional<Tile> tileOpt = Game.tileAT(center);
-    if (tileOpt.isEmpty()) return false;
-
+    Point center = positionOpt.get().position();
 
     List<Tile> accessibleTiles = LevelUtils.accessibleTilesInRange(center, radius);
     if (accessibleTiles.isEmpty()) return false;
@@ -119,7 +116,10 @@ public final class PatrolWalk implements Consumer<Entity> {
   public void accept(final Entity entity) {
     if (!initializeIfNeeded(entity) || !hasValidCheckpoints()) return;
 
-    PositionComponent position = getPositionComponent(entity);
+    Optional<PositionComponent> positionOpt = getPositionComponent(entity);
+    if (positionOpt.isEmpty()) return;
+
+    PositionComponent position = positionOpt.get();
 
     if (handleOngoingPath(entity, position)) return;
     if (handleFinishedPath(entity)) return;
@@ -159,12 +159,10 @@ public final class PatrolWalk implements Consumer<Entity> {
    * Retrieves the PositionComponent of an entity.
    *
    * @param entity The target entity.
-   * @return The PositionComponent.
+   * @return An Optional containing the PositionComponent if present, otherwise empty.
    */
-  private PositionComponent getPositionComponent(Entity entity) {
-    return entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  private Optional<PositionComponent> getPositionComponent(Entity entity) {
+    return entity.fetch(PositionComponent.class);
   }
 
   /**
