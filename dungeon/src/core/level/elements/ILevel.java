@@ -18,7 +18,6 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.components.MissingComponentException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.Optional;
@@ -330,20 +329,17 @@ public interface ILevel extends IndexedGraph<Tile> {
    * Retrieves the tile on which the given entity is standing.
    *
    * <p>The method fetches the position component of the entity using {@link Entity#fetch(Class)}
-   * and retrieves the corresponding tile using the position's coordinate. If the entity does not
-   * have a position component, a {@link MissingComponentException} is thrown.
+   * and looks up the tile at that position. If the entity has no {@link PositionComponent}
+   * or the position is out of bounds / has no tile, an empty {@link Optional} is returned.
    *
    * @param entity The entity for which to retrieve the tile.
-   * @return The tile at the coordinate of the entity's position.
-   * @throws MissingComponentException If the entity does not have a required {@link
-   *     PositionComponent}.
+   * @return An {@link Optional} containing the tile at the entity's position, or empty if unavailable.
    */
-  default Tile tileAtEntity(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return tileAt(pc.position()).orElse(null);
+  default Optional<Tile> tileAtEntity(final Entity entity) {
+    return entity
+      .fetch(PositionComponent.class)
+      .map(PositionComponent::position)
+      .flatMap(this::tileAt);
   }
 
   /**
