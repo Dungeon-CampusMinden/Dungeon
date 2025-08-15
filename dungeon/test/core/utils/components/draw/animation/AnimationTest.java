@@ -3,8 +3,11 @@ package core.utils.components.draw.animation;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -22,6 +25,9 @@ class AnimationTest {
 
   @BeforeEach
   void setUp() {
+    HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+    new HeadlessApplication(new ApplicationAdapter() {}, config);
+
     // mock textures with deterministic sizes
     textureA = mock(Texture.class);
     when(textureA.getWidth()).thenReturn(64);
@@ -90,8 +96,8 @@ class AnimationTest {
     float expectedW = 64 * 2.0f * (1f / 16f);
     float expectedH = 32 * 2.0f * (1f / 16f);
 
-    assertEquals(expectedW, anim.getSpriteWidth(), 1e-6);
-    assertEquals(expectedH, anim.getSpriteHeight(), 1e-6);
+    assertEquals(expectedW, anim.getWidth(), 1e-6);
+    assertEquals(expectedH, anim.getHeight(), 1e-6);
   }
 
   @Test
@@ -102,13 +108,13 @@ class AnimationTest {
     IPath p1 = new SimpleIPath("a.png");
     TextureMap.instance().put("a.png", textureA);
 
-    Animation anim = new Animation(List.of(p1), cfg);
+    Animation anim = new Animation(p1, cfg);
 
     float expectedW = 64 * 1.5f * (1f / 16f);
     float expectedH = 32 * 0.5f * (1f / 16f);
 
-    assertEquals(expectedW, anim.getSpriteWidth(), 1e-6);
-    assertEquals(expectedH, anim.getSpriteHeight(), 1e-6);
+    assertEquals(expectedW, anim.getWidth(), 1e-6);
+    assertEquals(expectedH, anim.getHeight(), 1e-6);
   }
 
   // ---------- looping vs. non-looping ----------
@@ -261,7 +267,9 @@ class AnimationTest {
     assertNotSame(s4, s5);
     assertSame(s0, s6); // looped
 
-    assertEquals(32 * 2f * (1f / 16f), anim.getSpriteWidth(), 1e-6);
-    assertEquals(24 * 0.5f * (1f / 16f), anim.getSpriteHeight(), 1e-6);
+    assertEquals(4, anim.getWidth(), 1e-6);
+    assertEquals(0.75f, anim.getHeight(), 1e-6);
+    assertEquals(32 * 2f, anim.getSpriteWidth(), 1e-6);
+    assertEquals(24 * 0.5f, anim.getSpriteHeight(), 1e-6);
   }
 }

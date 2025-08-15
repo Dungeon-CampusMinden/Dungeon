@@ -101,12 +101,12 @@ public class AnimationConfig {
 
   public static Map<String, AnimationConfig> loadAnimationConfigMap(String jsonFilePath) {
     JsonReader jsonReader = new JsonReader();
+    Map<String, AnimationConfig> animationMap = new HashMap<>();
+
     FileHandle f = Gdx.files.internal(jsonFilePath);
     if (!f.exists()) return null;
 
     JsonValue root = jsonReader.parse(f);
-
-    Map<String, AnimationConfig> animationMap = new HashMap<>();
 
     for (JsonValue entry = root.child; entry != null; entry = entry.next) {
       String animationName = entry.name;

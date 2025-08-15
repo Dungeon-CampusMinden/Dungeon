@@ -81,9 +81,7 @@ public class HealthSystem extends System {
         .fetch(PositionComponent.class)
         .ifPresentOrElse(
             pc -> hsd.dc.sendSignal(DEATH_SIGNAL, pc.viewDirection()),
-            () -> {
-              hsd.dc.sendSignal(DEATH_SIGNAL);
-            });
+            () -> hsd.dc.sendSignal(DEATH_SIGNAL));
     return hsd;
   }
 

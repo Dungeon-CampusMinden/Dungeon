@@ -85,6 +85,7 @@ public final class DrawComponent implements Component {
   }
 
   public void sendSignal(String signal, Object data) {
+    System.out.println("Got signal: " + signal + " | with data: " + data);
     stateMachine.sendSignal(new Signal(signal, data));
   }
 

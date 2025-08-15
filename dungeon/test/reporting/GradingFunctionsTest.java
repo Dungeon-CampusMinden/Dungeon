@@ -2,7 +2,10 @@ package reporting;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import contrib.entities.EntityFactory;
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
+import contrib.entities.HeroFactory;
 import core.Game;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +29,11 @@ public class GradingFunctionsTest {
   /** WTF? . */
   @BeforeEach
   public void setup() {
+    HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+    new HeadlessApplication(new ApplicationAdapter() {}, config);
+
     try {
-      Game.add(EntityFactory.newHero());
+      Game.add(HeroFactory.newHero());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

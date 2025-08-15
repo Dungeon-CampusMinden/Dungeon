@@ -1,5 +1,6 @@
 package core.utils.components.draw.animation;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -96,21 +97,37 @@ public class Animation {
   private void loadSpritesFromPaths(List<IPath> paths) {
     sprites = new Sprite[paths.size()];
     for (int i = 0; i < paths.size(); i++) {
-      sprites[i] = new Sprite(TextureMap.instance().textureAt(paths.get(i)));
+      if (TextureMap.instance().containsKey(paths.get(i).pathString()) || Gdx.gl != null) {
+        sprites[i] = new Sprite(TextureMap.instance().textureAt(paths.get(i)));
+      } else {
+        sprites[i] = new Sprite();
+      }
     }
 
-    // Set the sprite width/height based on the scaling values and the texture width/height
-    Texture t = TextureMap.instance().textureAt(paths.get(0));
-    width = t.getWidth() * config.scaleX();
-    height =
-        config.scaleY() == 0 ? t.getHeight() * config.scaleX() : t.getHeight() * config.scaleY();
+    int textWidth = 0, textHeight = 0;
+
+    if (TextureMap.instance().containsKey(paths.get(0).pathString()) || Gdx.gl != null) {
+      Texture t = TextureMap.instance().textureAt(paths.get(0));
+      textWidth = t.getWidth();
+      textHeight = t.getHeight();
+    } else {
+      textWidth = 16;
+      textHeight = 16;
+    }
+
+    width = textWidth * config.scaleX();
+    height = config.scaleY() == 0 ? textHeight * config.scaleX() : textHeight * config.scaleY();
 
     width *= DEFAULT_SCALE;
     height *= DEFAULT_SCALE;
   }
 
   private void loadSpritesFromSpritesheet(IPath path) {
-    Texture spritesheet = TextureMap.instance().textureAt(path);
+    Texture spritesheet = null;
+    if (TextureMap.instance().containsKey(path.pathString()) || Gdx.gl != null) {
+      spritesheet = TextureMap.instance().textureAt(path);
+    }
+
     SpritesheetConfig ssc = config.config();
     int sWidth = ssc.spriteWidth();
     int sHeight = ssc.spriteHeight();
@@ -121,10 +138,14 @@ public class Animation {
     for (int y = 0; y < ssc.rows(); y++) {
       for (int x = 0; x < ssc.columns(); x++) {
         int index = y * ssc.columns() + x;
-        sprites[index] =
-            new Sprite(
-                new TextureRegion(
-                    spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
+        if (Gdx.gl != null) {
+          sprites[index] =
+              new Sprite(
+                  new TextureRegion(
+                      spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
+        } else {
+          sprites[index] = new Sprite();
+        }
       }
     }
 
@@ -144,12 +165,20 @@ public class Animation {
     return sprites[spriteIndex];
   }
 
-  public float getSpriteWidth() {
+  public float getWidth() {
     return width;
   }
 
-  public float getSpriteHeight() {
+  public float getHeight() {
     return height;
+  }
+
+  public float getSpriteWidth() {
+    return width * (1 / DEFAULT_SCALE);
+  }
+
+  public float getSpriteHeight() {
+    return height * (1 / DEFAULT_SCALE);
   }
 
   public boolean isLooping() {

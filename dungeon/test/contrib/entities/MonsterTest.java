@@ -2,6 +2,9 @@ package contrib.entities;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -24,6 +27,9 @@ public class MonsterTest {
   /** WTF? . */
   @BeforeEach
   public void setup() {
+    HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
+    new HeadlessApplication(new ApplicationAdapter() {}, config);
+
     Game.add(new LevelSystem(() -> {}));
   }
 
@@ -47,7 +53,7 @@ public class MonsterTest {
             },
             DesignLabel.DEFAULT));
 
-    Game.add(EntityFactory.newHero());
+    Game.add(HeroFactory.newHero());
     Entity m = EntityFactory.randomMonster();
 
     Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
