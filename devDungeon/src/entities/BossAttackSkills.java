@@ -121,7 +121,7 @@ public class BossAttackSkills {
                   .orElseThrow(
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
-          Tile bossTile = Game.currentLevel().tileAt(bossPos);
+          Tile bossTile = Game.currentLevel().tileAt(bossPos).orElse(null);
           if (bossTile == null) {
             return;
           }
