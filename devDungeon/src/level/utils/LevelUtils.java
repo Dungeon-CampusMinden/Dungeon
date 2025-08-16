@@ -66,7 +66,7 @@ public class LevelUtils {
                   continue; // Skip if no direct line of sight
                 }
 
-                Tile tile = Game.currentLevel().tileAt(target);
+                Tile tile = Game.currentLevel().tileAt(target).orElse(null);
                 if (tile != null) {
                   actionPerTile.accept(tile);
                 }
@@ -100,7 +100,7 @@ public class LevelUtils {
 
     while (true) {
       // Stop if the current tile is a wall
-      Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
+      Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y)).orElse(null);
       if (tile != null && tile.levelElement() == LevelElement.WALL) {
         return false;
       }
