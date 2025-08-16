@@ -6,6 +6,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
@@ -32,7 +33,7 @@ public class FrictionSystem extends System {
   }
 
   private void applyFriction(FSData data) {
-    float friction = Game.tileAT(data.pc.position()).friction();
+    float friction = Game.tileAT(data.pc.position()).map(Tile::friction).orElse(0.0f);
     Vector2 force = data.vc().currentVelocity().scale(friction).inverse();
     if (force.isZero()) force = Vector2.ZERO;
     data.vc.applyForce("Friction", force);

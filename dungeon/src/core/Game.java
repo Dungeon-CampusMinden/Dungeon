@@ -17,7 +17,6 @@ import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.*;
@@ -413,12 +412,13 @@ public final class Game {
   /**
    * Get the tile at the given point in the level.
    *
-   * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
+   * <p>{@link Point#toCoordinate()} will be used to convert the point into a coordinate.
    *
    * @param point Point from where to get the tile
-   * @return the tile at the given point.
+   * @return An {@link Optional} containing the tile at the given point, or {@link Optional#empty()}
+   *     if there is no tile or the coordinate is out of bounds.
    */
-  public static Tile tileAT(final Point point) {
+  public static Optional<Tile> tileAT(final Point point) {
     return currentLevel().tileAt(point);
   }
 
@@ -426,12 +426,10 @@ public final class Game {
    * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
-   * @return The tile at the specified coordinate, or null if there is no tile or the coordinate is
-   *     out of bounds.
+   * @return An {@link Optional} containing the tile at the specified coordinate, or {@link
+   *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
-  public static Tile tileAT(final Coordinate coordinate) {
-    // TODO: SMELL!
-    // we really shouldn't return `null` if no tile was found, but `Optional.empty()` instead!
+  public static Optional<Tile> tileAT(final Coordinate coordinate) {
     return currentLevel().tileAt(coordinate);
   }
 
@@ -440,9 +438,10 @@ public final class Game {
    *
    * @param coordinate The starting coordinate
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given coordinate in the specified direction.
+   * @return An {@link Optional} containing the tile that is the next tile from the given coordinate
+   *     in the specified direction, or {@link Optional#empty()} if there is no such tile.
    */
-  public static Tile tileAT(final Coordinate coordinate, Direction direction) {
+  public static Optional<Tile> tileAT(final Coordinate coordinate, Direction direction) {
     return tileAT(coordinate.translate(direction));
   }
 
@@ -451,9 +450,10 @@ public final class Game {
    *
    * @param point The starting point
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given point in the specified direction.
+   * @return An {@link Optional} containing the next tile from the given point in the specified
+   *     direction, or {@link Optional#empty()} if there is no such tile.
    */
-  public static Tile tileAT(final Point point, Direction direction) {
+  public static Optional<Tile> tileAT(final Point point, Direction direction) {
     return tileAT(point.toCoordinate(), direction);
   }
 
@@ -517,28 +517,29 @@ public final class Game {
    * @return tile at the coordinate of the entity
    */
   public static Tile tileAtEntity(final Entity entity) {
-    return currentLevel().tileAtEntity(entity);
+    return currentLevel().tileAtEntity(entity).orElse(null);
   }
 
   /**
-   * Returns the entities on the given tile. If the tile is null, an empty stream will be returned.
+   * Returns the entities on the given tile. If there is no tile at the given position, an empty
+   * stream will be returned.
    *
    * @param check Tile to check for.
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
-    Tile tile = Game.tileAT(check.position());
-    if (tile == null) return Stream.empty();
-
-    return ECSManagment.entityStream(Set.of(PositionComponent.class))
-        .filter(
-            e ->
-                tile.equals(
-                    tileAT(
-                        e.fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())));
+    return Game.tileAT(check.position())
+        .map(
+            target ->
+                ECSManagment.entityStream(Set.of(PositionComponent.class))
+                    .filter(
+                        e ->
+                            e.fetch(PositionComponent.class)
+                                .map(PositionComponent::position)
+                                .flatMap(Game::tileAT)
+                                .map(target::equals)
+                                .orElse(false)))
+        .orElseGet(Stream::empty);
   }
 
   /**

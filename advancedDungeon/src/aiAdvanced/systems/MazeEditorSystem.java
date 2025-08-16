@@ -35,7 +35,7 @@ public class MazeEditorSystem extends System {
   private void setTile(LevelElement element) {
     Point mosPos = SkillTools.cursorPositionAsPoint();
     mosPos = mosPos.translate(Vector2.of(-0.5f, -0.25f));
-    Tile mouseTile = LevelSystem.level().tileAt(mosPos);
+    Tile mouseTile = LevelSystem.level().tileAt(mosPos).orElse(null);
     if (mouseTile == null) {
       return;
     }

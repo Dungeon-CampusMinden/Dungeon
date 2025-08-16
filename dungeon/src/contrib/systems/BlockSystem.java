@@ -35,14 +35,16 @@ public final class BlockSystem extends System {
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.remove(data.pc);
-        ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(data.pc.position()));
+        ((DungeonLevel) Game.currentLevel())
+            .addToPathfinding(Game.tileAT(data.pc.position()).orElse(null));
       };
 
   private final Consumer<Entity> onAdd =
       entity -> {
         BSData data = buildDataObject(entity);
         oldPositions.put(data.pc, data.pc.position());
-        ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(data.pc.position()));
+        ((DungeonLevel) Game.currentLevel())
+            .removeFromPathfinding(Game.tileAT(data.pc.position()).orElse(null));
       };
 
   /** Creates a new BlockSystem. */
@@ -77,8 +79,8 @@ public final class BlockSystem extends System {
     Point currentP = data.pc.position();
     Point oldP = oldPositions.get(data.pc);
     if (currentP.equals(oldP)) return;
-    ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP));
-    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP));
+    ((DungeonLevel) Game.currentLevel()).addToPathfinding(Game.tileAT(oldP).orElse(null));
+    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(Game.tileAT(currentP).orElse(null));
     oldPositions.put(data.pc, currentP);
   }
 

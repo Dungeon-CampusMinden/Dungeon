@@ -52,9 +52,11 @@ public class FallingSystem extends System {
             .fetch(PositionComponent.class)
             .map(PositionComponent::position)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
     if (entity.isPresent(FlyComponent.class)) return false;
 
-    Tile currentTile = Game.tileAT(entityPosition);
+    Tile currentTile = Game.tileAT(entityPosition).orElse(null);
+
     if (currentTile instanceof PitTile pitTile) {
       return pitTile.isOpen();
     }

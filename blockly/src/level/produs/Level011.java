@@ -116,8 +116,8 @@ public class Level011 extends BlocklyLevel {
               DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
               Game.remove(entity);
             });
-    door1 = (DoorTile) Game.tileAT(new Coordinate(4, 9));
-    door2 = (DoorTile) Game.tileAT(new Coordinate(14, 8));
+    door1 = (DoorTile) Game.tileAT(new Coordinate(4, 9)).orElse(null);
+    door2 = (DoorTile) Game.tileAT(new Coordinate(14, 8)).orElse(null);
     door1.close();
     door2.close();
   }

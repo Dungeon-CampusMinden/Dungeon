@@ -9,10 +9,11 @@ import core.level.Tile;
 import core.level.utils.LevelUtils;
 import core.utils.Direction;
 import core.utils.Vector2;
+import core.utils.components.MissingComponentException;
 import java.util.stream.StreamSupport;
 
 /** Utility class for AI-related operations like calculating paths. */
-public class AIUtils {
+public final class AIUtils {
 
   /**
    * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
@@ -43,6 +44,17 @@ public class AIUtils {
   }
 
   /**
+   * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
+   * end of the path.
+   *
+   * @param entity Entity moving on the path.
+   * @param path Path on which the entity moves.
+   */
+  public static void move(final Entity entity, final GraphPath<Tile> path) {
+    followPath(entity, path);
+  }
+
+  /**
    * Checks if the entity is either on the end of the path or has left the path.
    *
    * @param entity Entity to be checked.
@@ -58,15 +70,15 @@ public class AIUtils {
    *
    * @param entity Entity to be checked.
    * @param path Path on which the entity possible reached the end.
-   * @return true if the entity is on the last tile of the path; false if the entity is not at the
-   *     end or if no {@link PositionComponent} is present.
+   * @return true if the entity is on the end of the path, otherwise false.
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
-    return path.getCount() == 0
-        || entity
+    PositionComponent pc =
+        entity
             .fetch(PositionComponent.class)
-            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
-            .orElse(false);
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return path.getCount() == 0
+        || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()).orElse(null));
   }
 
   /**
@@ -74,14 +86,15 @@ public class AIUtils {
    *
    * @param entity Entity to be checked.
    * @param path Path to be checked.
-   * @return true if the entity's current tile is not part of the given path, or if no {@link
-   *     PositionComponent} is present; otherwise false.
+   * @return true if the entity has left the path, otherwise false.
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
-    return entity
-        .fetch(PositionComponent.class)
-        .map(pc -> !onPath(path, Game.tileAT(pc.position())))
-        .orElse(true);
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
+    return !onPath(path, currentTile);
   }
 
   /**

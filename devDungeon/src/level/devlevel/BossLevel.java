@@ -85,9 +85,9 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     Coordinate heroCoord = EntityUtils.getHeroCoordinate();
     if (heroCoord == null) return;
     if (heroCoord.y() > entrance.y()) {
-      changeTileElementType(tileAt(entrance), LevelElement.WALL);
+      tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.WALL));
     } else {
-      changeTileElementType(tileAt(entrance), LevelElement.FLOOR);
+      tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
     }
     handleBossAttacks();
   }
@@ -211,16 +211,13 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
     // Destroy pillars
     for (Coordinate pillarTopLeftCoord : pillars) {
-      changeTileElementType(tileAt(pillarTopLeftCoord), LevelElement.FLOOR);
-      changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y())),
-          LevelElement.FLOOR);
-      changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1)),
-          LevelElement.FLOOR);
-      changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1)),
-          LevelElement.FLOOR);
+      tileAt(pillarTopLeftCoord).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+      tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y()))
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+      tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1))
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+      tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1))
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
     }
   }
 
