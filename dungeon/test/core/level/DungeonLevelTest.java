@@ -139,7 +139,7 @@ public class DungeonLevelTest {
 
     /* How the level layout looks: (S=start, W=Wall,F=Floor,E=exit) SWE FWF FFF */
     GraphPath<Tile> path =
-        tileLevel.findPath(tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
+      tileLevel.findPath(tileLevel.startTile().orElseThrow(), tileLevel.endTile().orElseThrow());
     assertEquals(7, path.getCount());
     assertEquals(layout[0][0], path.get(0));
     assertEquals(layout[1][0], path.get(1));
@@ -309,7 +309,7 @@ public class DungeonLevelTest {
 
     DungeonLevel tileLevel = new DungeonLevel(layout, DesignLabel.DEFAULT);
 
-    Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).get();
+    Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).orElseThrow();
     assertNotNull(randomWallPoint);
     Tile randomWall = tileLevel.tileAt(randomWallPoint).orElseThrow();
     assertNotNull(randomWall);
@@ -346,8 +346,8 @@ public class DungeonLevelTest {
 
     DungeonLevel tileLevel = new DungeonLevel(layout, DesignLabel.DEFAULT);
 
-    Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).get();
-    Point randomFloorPoint = tileLevel.randomTilePoint(LevelElement.FLOOR).get();
+    Point randomWallPoint = tileLevel.randomTilePoint(LevelElement.WALL).orElseThrow();
+    Point randomFloorPoint = tileLevel.randomTilePoint(LevelElement.FLOOR).orElseThrow();
     Tile randomWall = tileLevel.tileAt(randomWallPoint).orElseThrow();
     Tile randomFloor = tileLevel.tileAt(randomFloorPoint).orElseThrow();
     assertEquals(LevelElement.WALL, randomWall.levelElement());
