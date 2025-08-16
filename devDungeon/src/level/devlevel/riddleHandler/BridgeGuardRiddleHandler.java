@@ -33,7 +33,6 @@ import item.concreteItem.ItemPotionAttackSpeed;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import systems.DevHealthSystem;
 import task.game.hud.QuizUI;
 import task.game.hud.UIAnswerCallback;
@@ -109,14 +108,14 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   private void prepareBridge() {
     LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof PitTile || tile instanceof FloorTile)
-      .map(
-        tile -> {
-          level.changeTileElementType(tile, LevelElement.PIT);
-          return level.tileAt(tile.coordinate());
-        })
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .map(tile -> (PitTile) tile)
+        .map(
+            tile -> {
+              level.changeTileElementType(tile, LevelElement.PIT);
+              return level.tileAt(tile.coordinate());
+            })
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(tile -> (PitTile) tile)
         .forEach(PitTile::open);
     LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof WallTile)
@@ -210,16 +209,22 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   public void onHealthEvent(HealthSystem.HSData hsData, HealthEvent healthEvent) {
     if (healthEvent == HealthEvent.DEATH && hsData.e().equals(bridgeGuard)) {
       LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
-      level.tileAt(riddleRoomEntrance).ifPresent(tile -> {
-        if (tile instanceof DoorTile) {
-          ((DoorTile) tile).open();
-        }
-      });
-      level.tileAt(riddleRoomExit).ifPresent(tile -> {
-        if (tile instanceof DoorTile) {
-          ((DoorTile) tile).open();
-        }
-      });
+      level
+          .tileAt(riddleRoomEntrance)
+          .ifPresent(
+              tile -> {
+                if (tile instanceof DoorTile) {
+                  ((DoorTile) tile).open();
+                }
+              });
+      level
+          .tileAt(riddleRoomExit)
+          .ifPresent(
+              tile -> {
+                if (tile instanceof DoorTile) {
+                  ((DoorTile) tile).open();
+                }
+              });
     }
   }
 

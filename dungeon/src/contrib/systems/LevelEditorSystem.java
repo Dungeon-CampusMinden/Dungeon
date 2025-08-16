@@ -120,7 +120,10 @@ public class LevelEditorSystem extends System {
         Vector2[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
         for (Vector2 direction : directions) {
           Tile neighbourTile =
-              currentTile.level().tileAt(currentTile.coordinate().translate(direction)).orElse(null);
+              currentTile
+                  .level()
+                  .tileAt(currentTile.coordinate().translate(direction))
+                  .orElse(null);
           if (neighbourTile != null && !queue.contains(neighbourTile)) {
             queue.add(neighbourTile);
           }

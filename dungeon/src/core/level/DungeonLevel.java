@@ -147,9 +147,9 @@ public class DungeonLevel implements ILevel, ITickable {
     for (Vector2 v : CONNECTION_OFFSETS) {
       Coordinate c = checkTile.coordinate().translate(v);
       this.tileAt(c)
-        .filter(Tile::isAccessible)
-        .filter(t -> !checkTile.connections().contains(new TileConnection(checkTile, t), false))
-        .ifPresent(checkTile::addConnection);
+          .filter(Tile::isAccessible)
+          .filter(t -> !checkTile.connections().contains(new TileConnection(checkTile, t), false))
+          .ifPresent(checkTile::addConnection);
     }
   }
 

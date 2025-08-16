@@ -75,8 +75,8 @@ public final class PatrolWalk implements Consumer<Entity> {
    * randomly selects unique patrol checkpoints.
    *
    * @param entity The entity around whose position patrol checkpoints are generated.
-   * @return {@code true} if the PositionComponent is present and at least one valid checkpoint
-   *         was found within maxTries attempts, {@code false} otherwise.
+   * @return {@code true} if the PositionComponent is present and at least one valid checkpoint was
+   *     found within maxTries attempts, {@code false} otherwise.
    */
   private boolean initializeCheckpoints(final Entity entity) {
     initialized = true;

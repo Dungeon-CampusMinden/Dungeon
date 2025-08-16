@@ -158,10 +158,11 @@ public class TorchRiddleRiddleHandler {
    */
   private boolean checkIfHeroIsInCenter() {
     Optional<Entity> hero = Game.hero();
-    return hero.isPresent() &&
-      level.tileAtEntity(hero.get())
-        .map(heroTile -> heroTile.equals(level.tileAt(riddleCenter).orElse(null)))
-        .orElse(false);
+    return hero.isPresent()
+        && level
+            .tileAtEntity(hero.get())
+            .map(heroTile -> heroTile.equals(level.tileAt(riddleCenter).orElse(null)))
+            .orElse(false);
   }
 
   /**
@@ -170,10 +171,11 @@ public class TorchRiddleRiddleHandler {
    * @see LevelUtils#changeVisibilityForArea(Coordinate, Coordinate, boolean)
    */
   private void solveRiddle() {
-    level.tileAt(riddleDoor)
-      .filter(tile -> tile instanceof DoorTile)
-      .map(tile -> (DoorTile) tile)
-      .ifPresent(DoorTile::open);
+    level
+        .tileAt(riddleDoor)
+        .filter(tile -> tile instanceof DoorTile)
+        .map(tile -> (DoorTile) tile)
+        .ifPresent(DoorTile::open);
     LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
   }
 
