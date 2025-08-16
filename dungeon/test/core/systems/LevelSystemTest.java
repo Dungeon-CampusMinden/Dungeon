@@ -92,7 +92,7 @@ public class LevelSystemTest {
     Point p = new Point(3, 3);
     when(end.position()).thenReturn(p);
     when(end.isOpen()).thenReturn(true);
-    when(level.tileAt((Point) any())).thenReturn(end);
+    when(level.tileAt((Point) any())).thenReturn(Optional.of(end));
     Mockito.when(level.endTile()).thenReturn(Optional.of(end));
 
     hero.fetch(PositionComponent.class).get().position(end);
