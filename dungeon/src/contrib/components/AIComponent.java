@@ -23,7 +23,7 @@ import java.util.function.Function;
  * {@link PatrolWalk}.
  *
  * <p>The {@link #fightBehavior} defines the combat behaviour, e.g. attacking with a fireball skill
- * {@link contrib.utils.components.ai.fight.RangeAI}.
+ * {@link contrib.utils.components.ai.fight.AIRangeBehaviour}.
  *
  * <p>The {@link #shouldFight} defines when the entity goes into fight mode, e.g. if the player is
  * too close to the entity {@link RangeTransition}.

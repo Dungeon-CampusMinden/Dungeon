@@ -117,7 +117,7 @@ public class ProtectOnAttackTest {
     protector.add(attackerAI);
     // when
     for (Entity e : entitiesToProtect) {
-      if (e.fetch(HealthComponent.class).isPresent()) {
+      if (e.isPresent(HealthComponent.class)) {
         HealthComponent hCp = e.fetch(HealthComponent.class).get();
         hCp.receiveHit(new Damage(1, null, attacker));
       }

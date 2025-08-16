@@ -38,7 +38,7 @@ public class ChestTest {
     Entity c = null;
     c = EntityFactory.newChest(itemData, position);
 
-    assertTrue(c.fetch(DrawComponent.class).isPresent());
+    assertTrue(c.isPresent(DrawComponent.class));
     Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
     assertTrue(inventoryComponent.isPresent());
     assertArrayEquals(
@@ -112,7 +112,7 @@ public class ChestTest {
 
     // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
     // newChest));
-    assertTrue(newChest.fetch(DrawComponent.class).isPresent());
+    assertTrue(newChest.isPresent(DrawComponent.class));
     Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
     assertTrue(inventoryComponent.isPresent());
     assertTrue(1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);

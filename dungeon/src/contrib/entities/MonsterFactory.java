@@ -41,12 +41,12 @@ public final class MonsterFactory {
     new SimpleIPath("character/monster/zombie")
   };
 
-  private static final int MIN_MONSTER_HEALTH = 10;
-  private static final int MAX_MONSTER_HEALTH = 20;
-  private static final float MIN_MONSTER_SPEED = 5.0f;
+  private static final int MIN_MONSTER_HEALTH = 1;
+  private static final int MAX_MONSTER_HEALTH = 6;
+  private static final float MIN_MONSTER_SPEED = 3.0f;
   private static final float MAX_MONSTER_SPEED = 8.5f;
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
-  private static final int MONSTER_COLLIDE_DAMAGE = 10;
+  private static final int MONSTER_COLLIDE_DAMAGE = 5;
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 

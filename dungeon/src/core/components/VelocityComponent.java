@@ -53,9 +53,11 @@ import java.util.stream.Stream;
  * }</pre>
  */
 public final class VelocityComponent implements Component {
+  /** The default mass of an entity, on no other is configurated. */
+  public static final float DEFAULT_MASS = 1;
 
   private static final Consumer<Entity> DEFAULT_ON_WALL_HIT = e -> {};
-  private static final float DEFAULT_MASS = 1;
+
   private Consumer<Entity> onWallHit;
 
   private final Map<String, Vector2> appliedForces = new HashMap<>();

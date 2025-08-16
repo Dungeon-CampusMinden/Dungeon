@@ -9,7 +9,7 @@ import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -266,8 +266,8 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
               mob.fetch(AIComponent.class)
                   .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
                   .fightBehavior();
-          if (fightAI instanceof RangeAI rangeAI) {
-            rangeAI.skill().setLastUsedToNow();
+          if (fightAI instanceof AIRangeBehaviour AIRangeBehaviour) {
+            AIRangeBehaviour.skill().setLastUsedToNow();
           }
         }
       }

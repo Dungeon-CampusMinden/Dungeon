@@ -44,7 +44,7 @@ public class InteractionComponentTest {
     e.add(component);
     component.triggerInteraction(e, null);
     verify(iInteraction).accept(e, null);
-    assertTrue(e.fetch(InteractionComponent.class).isPresent());
+    assertTrue(e.isPresent(InteractionComponent.class));
   }
 
   /** Checks if after the interaction the component gets removed. */
@@ -56,7 +56,7 @@ public class InteractionComponentTest {
     e.add(component);
     component.triggerInteraction(e, null);
     verify(iInteraction).accept(e, null);
-    assertFalse(e.fetch(InteractionComponent.class).isPresent());
+    assertFalse(e.isPresent(InteractionComponent.class));
   }
 
   /** Checks that the interaction only gets triggered for the linked iInteraction. */
@@ -86,6 +86,6 @@ public class InteractionComponentTest {
     InteractionComponent component2 = new InteractionComponent(1, false, iInteraction2);
     e2.add(component2);
     component.triggerInteraction(e, null);
-    assertTrue(e2.fetch(InteractionComponent.class).isPresent());
+    assertTrue(e2.isPresent(InteractionComponent.class));
   }
 }

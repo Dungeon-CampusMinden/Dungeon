@@ -2,6 +2,7 @@ package contrib.entities;
 
 import contrib.components.*;
 import contrib.hud.crafting.CraftingGUI;
+import contrib.hud.dialogs.OkDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
@@ -9,15 +10,14 @@ import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.TriConsumer;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Random;
@@ -34,6 +34,15 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
   private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
+  private static final SimpleIPath HEART_TEXTURE =
+      new SimpleIPath("items/pickups/heart_pickup.png");
+  private static final SimpleIPath FAIRY_TEXTURE =
+      new SimpleIPath("items/pickups/fairy_pickup.png");
+
+  private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
+  private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
+  private static final SimpleIPath SPELL_BOOK_TEXTURE =
+      new SimpleIPath("items/book/spell_book.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -224,12 +233,13 @@ public final class MiscFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
+   * @param position position of the crafting cauldron.
    * @return A new Entity.
    * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newCraftingCauldron() throws IOException {
+  public static Entity newCraftingCauldron(Point position) throws IOException {
     Entity cauldron = new Entity("cauldron");
-    cauldron.add(new PositionComponent());
+    cauldron.add(new PositionComponent(position));
     cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
     cauldron.add(new CollideComponent());
     cauldron.add(
@@ -251,6 +261,20 @@ public final class MiscFactory {
   }
 
   /**
+   * Get an Entity that can be used as a crafting cauldron.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>The Entity is placed at the {@link PositionComponent#ILLEGAL_POSITION}. >.
+   *
+   * @return A new Entity.
+   * @throws IOException if the animation could not be loaded.
+   */
+  public static Entity newCraftingCauldron() throws IOException {
+    return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
+  }
+
+  /**
    * Create a Entity that can be used as a marker on the floor (x marks the spot).
    *
    * @param position Positon where to spawn the marker.
@@ -261,6 +285,61 @@ public final class MiscFactory {
     marker.add(new PositionComponent(position));
     marker.add(new DrawComponent(Animation.fromSingleImage(MARKER_TEXTURE)));
     return marker;
+  }
+
+  /**
+   * Creates a crate entity at the given position with the specified mass and texture.
+   *
+   * <p>The crate can be pushed around by other entities. It has a default movement speed of {@code
+   * 10} . The crate includes:
+   *
+   * <ul>
+   *   <li>{@link PositionComponent} – sets the initial position
+   *   <li>{@link KineticComponent} – enables movement and collisions
+   *   <li>{@link VelocityComponent} – configured with speed {@code 10} and the given mass
+   *   <li>{@link DrawComponent} – renders the crate using the given texture
+   * </ul>
+   *
+   * @param position The starting position of the crate.
+   * @param mass The mass of the crate.
+   * @param texture The texture to render for the crate.
+   * @return The created crate entity.
+   */
+  public static Entity crate(Point position, float mass, SimpleIPath texture) {
+    Entity crate = new Entity("crate");
+    crate.add(new PositionComponent(position));
+    crate.add(new KineticComponent());
+    crate.add(new VelocityComponent(10, mass, entity -> {}, false));
+    crate.add(new DrawComponent(Animation.fromSingleImage(texture)));
+    crate.add(new CollideComponent());
+    return crate;
+  }
+
+  /**
+   * Creates a crate entity at the given position with the specified mass, using the default crate
+   * texture.
+   *
+   * <p>The crate can be pushed around and has a default movement speed of {@code 10} units.
+   *
+   * @param position The starting position of the crate.
+   * @param mass The mass of the crate.
+   * @return The created crate entity.
+   */
+  public static Entity crate(Point position, float mass) {
+    return crate(position, mass, CRATE_TEXTURE);
+  }
+
+  /**
+   * Creates a crate entity at the given position with the default mass and the default crate
+   * texture.
+   *
+   * <p>The crate can be pushed around and has a default movement speed of {@code 10} units.
+   *
+   * @param position The starting position of the crate.
+   * @return The created crate entity.
+   */
+  public static Entity crate(Point position) {
+    return crate(position, VelocityComponent.DEFAULT_MASS, CRATE_TEXTURE);
   }
 
   /**
@@ -291,6 +370,10 @@ public final class MiscFactory {
     TriConsumer<Entity, Entity, Direction> action =
         (you, other, direction) -> {
           if (!other.isPresent(CatapultableComponent.class)) return;
+          if (other
+              .fetch(CatapultableComponent.class)
+              .map(CatapultableComponent::isFlying)
+              .orElse(false)) return;
           other
               .fetch(VelocityComponent.class)
               .ifPresent(
@@ -298,7 +381,13 @@ public final class MiscFactory {
                     vc.currentVelocity(Vector2.ZERO);
                     vc.clearForces();
                   });
-          other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.deactivate().accept(other));
+          other
+              .fetch(CatapultableComponent.class)
+              .ifPresent(
+                  cc -> {
+                    cc.deactivate().accept(other);
+                    cc.flies();
+                  });
           catapultFlyEntity(other, spawnPoint, location, speed);
         };
     catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER));
@@ -328,12 +417,7 @@ public final class MiscFactory {
     VelocityComponent entityVc = other.fetch(VelocityComponent.class).orElse(null);
     other.remove(VelocityComponent.class);
     VelocityComponent vc =
-        new VelocityComponent(
-            speed,
-            entity -> {
-              resetCatapultedEntity(entity, entityVc);
-            },
-            true);
+        new VelocityComponent(speed, entity -> resetCatapultedEntity(entity, entityVc), true);
     other.add(vc);
 
     other.add(
@@ -359,12 +443,122 @@ public final class MiscFactory {
    * @param entityVc VelocityComponent restore to the entity
    */
   private static void resetCatapultedEntity(Entity other, VelocityComponent entityVc) {
-    other.fetch(CatapultableComponent.class).ifPresent(cc -> cc.reactivate().accept(other));
+    other
+        .fetch(CatapultableComponent.class)
+        .ifPresent(
+            cc -> {
+              cc.reactivate().accept(other);
+              cc.lands();
+            });
     other.remove(ProjectileComponent.class);
     other.remove(FlyComponent.class);
     if (entityVc != null) {
       other.add(entityVc);
     }
+  }
+
+  /**
+   * Creates a generic pickup item entity.
+   *
+   * <p>The pickup will be represented by the specified texture and will execute the given {@code
+   * onCollide} behavior whenever it collides with another entity.
+   *
+   * @param name the name of the pickup entity.
+   * @param spawnPoint the position in the world where the pickup will be spawned.
+   * @param texture the texture to display for this pickup.
+   * @param onCollide the action to execute when a collision occurs; the first parameter is the
+   *     pickup entity itself, the second is the colliding entity, and the third is the collision
+   *     direction.
+   * @return the created pickup entity.
+   */
+  public static Entity newPickupItem(
+      String name,
+      Point spawnPoint,
+      IPath texture,
+      TriConsumer<Entity, Entity, Direction> onCollide) {
+    Entity pickupItem = new Entity(name);
+    pickupItem.add(new PositionComponent(spawnPoint));
+    pickupItem.add(new DrawComponent(Animation.fromSingleImage(texture)));
+    pickupItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
+    return pickupItem;
+  }
+
+  /**
+   * Creates a new heart pickup entity that restores a fixed amount of health points to the player
+   * when collected.
+   *
+   * <p>Only the game's hero can collect this pickup. The actual restored amount is capped at the
+   * player's maximal health points. After collection, the pickup is removed from the game.
+   *
+   * @param spawnPoint the position in the world where the heart pickup will be spawned.
+   * @param healAmount the number of health points to restore upon collection.
+   * @return the created heart pickup entity.
+   */
+  public static Entity newHeartPickup(Point spawnPoint, int healAmount) {
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (self, other, dir) -> {
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    if (other.equals(hero)) {
+                      other
+                          .fetch(HealthComponent.class)
+                          .ifPresent(health -> health.restoreHealthpoints(healAmount));
+                      Game.remove(self);
+                    }
+                  });
+        };
+
+    return newPickupItem("heartPickup", spawnPoint, HEART_TEXTURE, onCollide);
+  }
+
+  /**
+   * Creates a new fairy pickup entity that fully restores the player's health when collected.
+   *
+   * <p>Only the game's hero can collect this pickup. After collection, the pickup is removed from
+   * the game.
+   *
+   * @param spawnPoint the position in the world where the fairy pickup will be spawned.
+   * @return the created fairy pickup entity.
+   */
+  public static Entity newFairyPickup(Point spawnPoint) {
+    TriConsumer<Entity, Entity, Direction> onCollide =
+        (self, other, dir) -> {
+          Game.hero()
+              .ifPresent(
+                  hero -> {
+                    if (other.equals(hero)) {
+                      other
+                          .fetch(HealthComponent.class)
+                          .ifPresent(
+                              health -> health.restoreHealthpoints(health.maximalHealthpoints()));
+                      Game.remove(self);
+                    }
+                  });
+        };
+
+    return newPickupItem("fairyPickup", spawnPoint, FAIRY_TEXTURE, onCollide);
+  }
+
+  /**
+   * Create a book, that the player can read.
+   *
+   * @param position Position of the book.
+   * @param text Text that is shown in a Dialog on interaction.
+   * @param title Title of the dialog.
+   * @param onClose Callback for closing the dialog.
+   * @return The book Entity.
+   */
+  public static Entity book(Point position, String text, String title, IVoidFunction onClose) {
+    Entity book = new Entity("book");
+    book.add(new PositionComponent(position));
+    book.add(
+        new InteractionComponent(
+            1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
+    book.add(
+        new DrawComponent(
+            Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
+    return book;
   }
 
   /**
