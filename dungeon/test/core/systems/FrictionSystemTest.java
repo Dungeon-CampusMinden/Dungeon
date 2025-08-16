@@ -13,10 +13,9 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.util.Optional;
-
 
 /** Unit tests for the {@link core.systems.FrictionSystem}. */
 public class FrictionSystemTest {

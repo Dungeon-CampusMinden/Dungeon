@@ -12,7 +12,6 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
-
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
@@ -327,12 +326,13 @@ public class MoveSystemTest {
     // Mock tiles along the path to be accessible
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class)))
-      .thenAnswer(invocation -> {
-        Point p = invocation.getArgument(0);
-        Tile t = mock(Tile.class);
-        when(t.isAccessible()).thenReturn(true);
-        return Optional.of(t);
-      });
+        .thenAnswer(
+            invocation -> {
+              Point p = invocation.getArgument(0);
+              Tile t = mock(Tile.class);
+              when(t.isAccessible()).thenReturn(true);
+              return Optional.of(t);
+            });
     Game.currentLevel(level);
 
     boolean result = system.isPathClearByStepping(start, end, false);
@@ -352,16 +352,17 @@ public class MoveSystemTest {
 
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class)))
-      .thenAnswer(invocation -> {
-        Point p = invocation.getArgument(0);
-        Tile t = mock(Tile.class);
-        if (p.x() >= 0.5) {
-          when(t.isAccessible()).thenReturn(false);
-        } else {
-          when(t.isAccessible()).thenReturn(true);
-        }
-        return Optional.of(t);
-      });
+        .thenAnswer(
+            invocation -> {
+              Point p = invocation.getArgument(0);
+              Tile t = mock(Tile.class);
+              if (p.x() >= 0.5) {
+                when(t.isAccessible()).thenReturn(false);
+              } else {
+                when(t.isAccessible()).thenReturn(true);
+              }
+              return Optional.of(t);
+            });
     Game.currentLevel(level);
 
     boolean result = system.isPathClearByStepping(start, end, false);
