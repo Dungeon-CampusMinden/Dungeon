@@ -20,76 +20,76 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
-* The FallingSystem is responsible for handling entities that fall into {@link PitTile}s. Falling
-* into a pit tile results in the entity dying. The system checks if an entity is falling and
-* handles the falling event accordingly.
-*
-* <p>Entities that fall into a pit tile will receive a {@link Damage} with the amount of health
-* points they have left. If the entity is a player and the {@link #DEBUG_DONT_KILL} flag is set to
-* true, the player will be teleported to a safe tile instead of dying.
-*
-* @see PitTile
-* @see Damage
-*/
+ * The FallingSystem is responsible for handling entities that fall into {@link PitTile}s. Falling
+ * into a pit tile results in the entity dying. The system checks if an entity is falling and
+ * handles the falling event accordingly.
+ *
+ * <p>Entities that fall into a pit tile will receive a {@link Damage} with the amount of health
+ * points they have left. If the entity is a player and the {@link #DEBUG_DONT_KILL} flag is set to
+ * true, the player will be teleported to a safe tile instead of dying.
+ *
+ * @see PitTile
+ * @see Damage
+ */
 public class FallingSystem extends System {
 
- /** Flag to prevent the player from dying when falling into a pit tile. */
- public static boolean DEBUG_DONT_KILL = false;
+  /** Flag to prevent the player from dying when falling into a pit tile. */
+  public static boolean DEBUG_DONT_KILL = false;
 
- /** Constructs a new FallingSystem. */
- public FallingSystem() {
-   super(PositionComponent.class, HealthComponent.class);
- }
+  /** Constructs a new FallingSystem. */
+  public FallingSystem() {
+    super(PositionComponent.class, HealthComponent.class);
+  }
 
- @Override
- public void execute() {
-   filteredEntityStream().filter(this::filterFalling).forEach(this::handleFalling);
- }
+  @Override
+  public void execute() {
+    filteredEntityStream().filter(this::filterFalling).forEach(this::handleFalling);
+  }
 
- private boolean filterFalling(Entity entity) {
-   Point entityPosition =
-       entity
-           .fetch(PositionComponent.class)
-           .map(PositionComponent::position)
-           .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-   
-   if (entity.isPresent(FlyComponent.class)) return false;
-   
-   Tile currentTile = Game.tileAT(entityPosition).orElse(null);
-   
-   if (currentTile instanceof PitTile pitTile) {
-     return pitTile.isOpen();
-   }
-   return false;
- }
+  private boolean filterFalling(Entity entity) {
+    Point entityPosition =
+        entity
+            .fetch(PositionComponent.class)
+            .map(PositionComponent::position)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
- private void handleFalling(Entity entity) {
-   LOGGER.info("Entity " + entity + " has fallen to its death");
-   entity
-       .fetch(HealthComponent.class)
-       .ifPresent(
-           hc -> {
-             if (DEBUG_DONT_KILL && entity.isPresent(PlayerComponent.class)) {
-               teleportPlayerIfPossible();
-               return;
-             }
-             hc.receiveHit(new Damage(hc.currentHealthpoints(), DamageType.FALL, entity));
-           });
- }
+    if (entity.isPresent(FlyComponent.class)) return false;
 
- private void teleportPlayerIfPossible() {
-   Point heroCoords = EntityUtils.getHeroPosition();
-   if (heroCoords != null) {
-     getSafeTile(heroCoords)
-         .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warning("No safe place to port."));
-   }
- }
+    Tile currentTile = Game.tileAT(entityPosition).orElse(null);
 
- private Optional<Tile> getSafeTile(Point heroCoords) throws NoSuchElementException {
-   try {
-     return Optional.of(Game.accessibleTilesInRange(heroCoords, 5).getFirst());
-   } catch (NoSuchElementException e) {
-     return Game.randomTile(LevelElement.FLOOR);
-   }
- }
+    if (currentTile instanceof PitTile pitTile) {
+      return pitTile.isOpen();
+    }
+    return false;
+  }
+
+  private void handleFalling(Entity entity) {
+    LOGGER.info("Entity " + entity + " has fallen to its death");
+    entity
+        .fetch(HealthComponent.class)
+        .ifPresent(
+            hc -> {
+              if (DEBUG_DONT_KILL && entity.isPresent(PlayerComponent.class)) {
+                teleportPlayerIfPossible();
+                return;
+              }
+              hc.receiveHit(new Damage(hc.currentHealthpoints(), DamageType.FALL, entity));
+            });
+  }
+
+  private void teleportPlayerIfPossible() {
+    Point heroCoords = EntityUtils.getHeroPosition();
+    if (heroCoords != null) {
+      getSafeTile(heroCoords)
+          .ifPresentOrElse(Debugger::TELEPORT, () -> LOGGER.warning("No safe place to port."));
+    }
+  }
+
+  private Optional<Tile> getSafeTile(Point heroCoords) throws NoSuchElementException {
+    try {
+      return Optional.of(Game.accessibleTilesInRange(heroCoords, 5).getFirst());
+    } catch (NoSuchElementException e) {
+      return Game.randomTile(LevelElement.FLOOR);
+    }
+  }
 }
