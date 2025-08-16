@@ -52,9 +52,9 @@ public class PositionSystemTest {
   /** WTF? . */
   @AfterEach
   public void cleanup() {
+    Game.currentLevel(null);
     Game.removeAllSystems();
     Game.removeAllEntities();
-    Game.currentLevel(null);
   }
 
   /** WTF? . */
