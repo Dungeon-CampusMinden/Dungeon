@@ -135,7 +135,7 @@ public final class DrawSystem extends System {
             .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
     if (!dc.isVisible()) return false;
 
-    Tile tile = Game.currentLevel().tileAt(pc.position());
+    Tile tile = Game.currentLevel().tileAt(pc.position()).orElse(null);
     return tile.visible();
   }
 
