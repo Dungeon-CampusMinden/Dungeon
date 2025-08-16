@@ -15,6 +15,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.util.Optional;
+
 
 /** Unit tests for the {@link core.systems.FrictionSystem}. */
 public class FrictionSystemTest {
@@ -57,7 +59,7 @@ public class FrictionSystemTest {
 
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.2f);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
 
     system.execute();
 
@@ -79,7 +81,7 @@ public class FrictionSystemTest {
 
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.5f);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
 
     system.execute();
     verify(vc).applyForce("Friction", Vector2.ZERO);
@@ -93,7 +95,7 @@ public class FrictionSystemTest {
     entity.add(new FlyComponent());
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.2f);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
     system.execute();
     assertFalse(vc.force("Friction").isPresent());
   }
