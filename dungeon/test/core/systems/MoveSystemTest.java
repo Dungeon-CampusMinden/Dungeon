@@ -12,6 +12,8 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
+
+import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,7 +84,7 @@ public class MoveSystemTest {
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
     Game.currentLevel(mockedLevel);
     Tile mockedTile = mock(Tile.class);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(mockedTile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(mockedTile));
     when(mockedTile.isAccessible()).thenReturn(true);
 
     // Execute system logic
@@ -110,7 +112,7 @@ public class MoveSystemTest {
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
     Game.currentLevel(mockedLevel);
     Tile mockedTile = mock(Tile.class);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(mockedTile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(mockedTile));
     when(mockedTile.isAccessible()).thenReturn(true);
 
     // Execute movement logic
@@ -153,10 +155,10 @@ public class MoveSystemTest {
 
     // Mock Level and inject into Game
     DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(any(Point.class))).thenReturn(defaultTile);
-    when(level.tileAt(eq(newPos))).thenReturn(newPosTile);
-    when(level.tileAt(eq(xMove))).thenReturn(xMoveTile);
-    when(level.tileAt(eq(yMove))).thenReturn(yMoveTile);
+    when(level.tileAt(any(Point.class))).thenReturn(Optional.of(defaultTile));
+    when(level.tileAt(eq(newPos))).thenReturn(Optional.of(newPosTile));
+    when(level.tileAt(eq(xMove))).thenReturn(Optional.of(xMoveTile));
+    when(level.tileAt(eq(yMove))).thenReturn(Optional.of(yMoveTile));
     Game.currentLevel(level);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
@@ -186,7 +188,7 @@ public class MoveSystemTest {
 
     // Stub all tile lookups to return the PIT tile (safe fallback)
     DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(any(Point.class))).thenReturn(pitTile);
+    when(level.tileAt(any(Point.class))).thenReturn(Optional.of(pitTile));
     Game.currentLevel(level);
 
     system.execute();
@@ -214,7 +216,7 @@ public class MoveSystemTest {
 
     // Mock level and inject into Game
     DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(eq(newPos))).thenReturn(pitTile);
+    when(level.tileAt(eq(newPos))).thenReturn(Optional.of(pitTile));
     Game.currentLevel(level);
 
     // Setup onWallHit consumer to verify callback
@@ -240,7 +242,7 @@ public class MoveSystemTest {
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
     Game.currentLevel(mockedLevel);
     Tile accessibleTile = mock(Tile.class);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(accessibleTile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
     when(accessibleTile.isAccessible()).thenReturn(true);
 
     system.execute();
@@ -264,7 +266,7 @@ public class MoveSystemTest {
     DungeonLevel mockedLevel = mock(DungeonLevel.class);
     Game.currentLevel(mockedLevel);
     Tile accessibleTile = mock(Tile.class);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(accessibleTile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
     when(accessibleTile.isAccessible()).thenReturn(true);
 
     system.execute();
@@ -300,7 +302,7 @@ public class MoveSystemTest {
     Point expectedPos =
         pc.position()
             .translate(Vector2.of(10, 10).normalize().scale(5f).scale(1f / Game.frameRate()));
-    when(level.tileAt(any(Point.class))).thenReturn(accessibleTile);
+    when(level.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
     Game.currentLevel(level);
 
     // Execute system
@@ -325,13 +327,12 @@ public class MoveSystemTest {
     // Mock tiles along the path to be accessible
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class)))
-        .thenAnswer(
-            invocation -> {
-              Point p = invocation.getArgument(0);
-              Tile t = mock(Tile.class);
-              when(t.isAccessible()).thenReturn(true);
-              return t;
-            });
+      .thenAnswer(invocation -> {
+        Point p = invocation.getArgument(0);
+        Tile t = mock(Tile.class);
+        when(t.isAccessible()).thenReturn(true);
+        return Optional.of(t);
+      });
     Game.currentLevel(level);
 
     boolean result = system.isPathClearByStepping(start, end, false);
@@ -351,18 +352,16 @@ public class MoveSystemTest {
 
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class)))
-        .thenAnswer(
-            invocation -> {
-              Point p = invocation.getArgument(0);
-              Tile t = mock(Tile.class);
-              // Block tile at 0.5 on X-axis, accessible elsewhere
-              if (p.x() >= 0.5) {
-                when(t.isAccessible()).thenReturn(false);
-              } else {
-                when(t.isAccessible()).thenReturn(true);
-              }
-              return t;
-            });
+      .thenAnswer(invocation -> {
+        Point p = invocation.getArgument(0);
+        Tile t = mock(Tile.class);
+        if (p.x() >= 0.5) {
+          when(t.isAccessible()).thenReturn(false);
+        } else {
+          when(t.isAccessible()).thenReturn(true);
+        }
+        return Optional.of(t);
+      });
     Game.currentLevel(level);
 
     boolean result = system.isPathClearByStepping(start, end, false);
@@ -397,9 +396,9 @@ public class MoveSystemTest {
     when(yMoveTile.isAccessible()).thenReturn(false);
 
     DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(eq(newPos))).thenReturn(newPosTile);
-    when(level.tileAt(eq(xMove))).thenReturn(xMoveTile);
-    when(level.tileAt(eq(yMove))).thenReturn(yMoveTile);
+    when(level.tileAt(eq(newPos))).thenReturn(Optional.of(newPosTile));
+    when(level.tileAt(eq(xMove))).thenReturn(Optional.of(xMoveTile));
+    when(level.tileAt(eq(yMove))).thenReturn(Optional.of(yMoveTile));
     Game.currentLevel(level);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
