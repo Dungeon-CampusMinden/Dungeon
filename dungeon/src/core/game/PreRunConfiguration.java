@@ -32,6 +32,9 @@ public final class PreRunConfiguration {
   private static String WINDOW_TITLE = "PM-Dungeon";
   private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
   private static boolean DISABLE_AUDIO = false;
+
+  private static boolean DRAW_CHECK_PATTERN = true;
+
   private static IVoidFunction userOnFrame = () -> {};
   private static IVoidFunction userOnSetup = () -> {};
   private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
@@ -178,6 +181,25 @@ public final class PreRunConfiguration {
    */
   public static void disableAudio(boolean disableAudio) {
     DISABLE_AUDIO = disableAudio;
+  }
+
+  /**
+   * Enables or disables the check pattern drawing mode.
+   *
+   * @param enabled {@code true} to draw the level with a check pattern, {@code false} to draw it
+   *     without
+   */
+  public static void enableCheckPattern(boolean enabled) {
+    DRAW_CHECK_PATTERN = enabled;
+  }
+
+  /**
+   * Checks if the check pattern drawing mode is enabled.
+   *
+   * @return {@code true} if the level will be drawn with a check pattern, {@code false} otherwise
+   */
+  public static boolean isCheckPatternEnabled() {
+    return DRAW_CHECK_PATTERN;
   }
 
   /**
