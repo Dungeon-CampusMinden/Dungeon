@@ -32,9 +32,7 @@ public final class PreRunConfiguration {
   private static String WINDOW_TITLE = "PM-Dungeon";
   private static IPath LOGO_PATH = new SimpleIPath("logo/cat_logo_35x35.png");
   private static boolean DISABLE_AUDIO = false;
-
   private static boolean DRAW_CHECK_PATTERN = true;
-
   private static IVoidFunction userOnFrame = () -> {};
   private static IVoidFunction userOnSetup = () -> {};
   private static Consumer<Boolean> userOnLevelLoad = (b) -> {};

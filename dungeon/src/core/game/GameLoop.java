@@ -78,7 +78,8 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.warning(e.getMessage());
         }
         hero.ifPresent(ECSManagment::add);
-        if (firstLoad) CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
+        if (firstLoad && Game.isCheckPatternEnabled())
+          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
