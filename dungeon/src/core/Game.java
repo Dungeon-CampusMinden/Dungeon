@@ -178,6 +178,25 @@ public final class Game {
   }
 
   /**
+   * Enables or disables the check pattern drawing mode.
+   *
+   * @param enabled {@code true} to draw the level with a check pattern, {@code false} to draw it
+   *     without
+   */
+  public static void enableCheckPattern(boolean enabled) {
+    PreRunConfiguration.enableCheckPattern(enabled);
+  }
+
+  /**
+   * Checks if the check pattern drawing mode is enabled.
+   *
+   * @return {@code true} if the level will be drawn with a check pattern, {@code false} otherwise
+   */
+  public static boolean isCheckPatternEnabled() {
+    return PreRunConfiguration.isCheckPatternEnabled();
+  }
+
+  /**
    * Sets the user-defined function for frame updates in the pre-run configuration.
    *
    * @param userOnFrame The new user-defined function for frame updates.

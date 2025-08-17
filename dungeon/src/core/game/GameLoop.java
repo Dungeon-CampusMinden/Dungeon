@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -77,6 +78,8 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.warning(e.getMessage());
         }
         hero.ifPresent(ECSManagment::add);
+        if (firstLoad && Game.isCheckPatternEnabled())
+          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 

@@ -6,7 +6,6 @@ import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
 import contrib.systems.BlockSystem;
-import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -40,7 +39,6 @@ public class Client {
 
   private static final boolean DEBUG_MODE = false;
   private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
-  private static final boolean DRAW_CHECKER_PATTERN = true;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
@@ -136,8 +134,6 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
-          if (DRAW_CHECKER_PATTERN)
-            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           BlocklyCodeRunner.instance().stopCode();
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
