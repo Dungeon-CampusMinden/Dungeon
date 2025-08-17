@@ -15,7 +15,6 @@ import contrib.entities.MonsterIdleSound;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
-import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -41,7 +40,6 @@ import java.util.logging.Level;
 
 /** This class starts a comparator for the pathfinding algorithms. */
 public class ComparePathfindingStarter {
-  private static final boolean DRAW_CHECKER_PATTERN = true;
   private static final Entity[] RUNNERS = new Entity[2];
 
   private static final Class<? extends PathfindingLogic> pathFindingA = BFSPathFinding.class;
@@ -61,9 +59,6 @@ public class ComparePathfindingStarter {
     configGame();
     // Set up components and level
     onSetup();
-
-    onLevelLoad();
-
     // build and start game
     Game.run();
   }
@@ -204,14 +199,6 @@ public class ComparePathfindingStarter {
             algorithms.add(Tuple.of(algo, runner));
           }
           pfs.updatePathfindingAlgorithm(algorithms.toArray(Tuple[]::new));
-        });
-  }
-
-  private static void onLevelLoad() {
-    Game.userOnLevelLoad(
-        (firstLoad) -> {
-          if (DRAW_CHECKER_PATTERN)
-            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
         });
   }
 
