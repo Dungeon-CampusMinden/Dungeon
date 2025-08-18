@@ -574,7 +574,8 @@ public final class Game {
    * Returns the tile the given entity is standing on.
    *
    * @param entity entity to check for.
-   * @return An Optional containing the tile at the coordinate of the entity, or empty if not available
+   * @return An Optional containing the tile at the coordinate of the entity, or empty if not
+   *     available
    */
   public static Optional<Tile> tileAtEntity(final Entity entity) {
     return currentLevel().tileAtEntity(entity);
