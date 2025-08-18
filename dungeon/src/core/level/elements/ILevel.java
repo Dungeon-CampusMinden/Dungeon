@@ -268,11 +268,14 @@ public interface ILevel extends IndexedGraph<Tile> {
    *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
   default Optional<Tile> tileAt(final Coordinate coordinate) {
-    try {
-      return Optional.ofNullable(layout()[coordinate.y()][coordinate.x()]);
-    } catch (IndexOutOfBoundsException e) {
+    Tile[][] layout = layout();
+    if (coordinate.y() < 0
+        || coordinate.y() >= layout.length
+        || coordinate.x() < 0
+        || coordinate.x() >= layout[0].length) {
       return Optional.empty();
     }
+    return Optional.ofNullable(layout[coordinate.y()][coordinate.x()]);
   }
 
   /**
