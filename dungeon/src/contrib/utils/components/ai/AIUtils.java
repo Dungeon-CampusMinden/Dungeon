@@ -46,6 +46,7 @@ public class AIUtils {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Checks if the entity is either on the end of the path or has left the path.
    *
    * @param entity Entity to be checked.
@@ -127,6 +128,8 @@ public class AIUtils {
   }
 
   /**
+=======
+>>>>>>> 6041f042 (AIUtils.java: Remove redundant move() method - and  Apply code formatting with spotlessApply)
    * Checks if the entity is either on the end of the path or has left the path.
    *
    * @param entity Entity to be checked.
