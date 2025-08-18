@@ -253,8 +253,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   }
 
   /**
-   * Executes the AI behavior for a given entity. Handles initialization, movement along a path,
-   * waiting at a checkpoint, and selecting the next destination based on patrol mode.
+   * Handles initialization, movement along a path,
    *
    * @param entity The entity for which the behavior is performed.
    */
