@@ -227,7 +227,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   private boolean initializeCheckpoints(final Entity entity) {
     initialized = true;
 
-    Optional<PositionComponent> positionOpt = getPositionComponent(entity);
+    Optional<PositionComponent> positionOpt = entity.fetch(PositionComponent.class);
     if (positionOpt.isEmpty()) return false;
 
     Point center = positionOpt.get().position();
@@ -307,16 +307,6 @@ public final class PatrolWalk implements Consumer<Entity> {
       return false;
     }
     return true;
-  }
-
-  /**
-   * Retrieves the PositionComponent of an entity.
-   *
-   * @param entity The target entity.
-   * @return An Optional containing the PositionComponent if present, otherwise empty.
-   */
-  private Optional<PositionComponent> getPositionComponent(Entity entity) {
-    return entity.fetch(PositionComponent.class);
   }
 
   /**
