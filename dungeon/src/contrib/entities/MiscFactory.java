@@ -4,7 +4,6 @@ import contrib.components.*;
 import contrib.hud.DialogUtils;
 import contrib.hud.crafting.CraftingGUI;
 import contrib.hud.dialogs.OkDialog;
-import contrib.hud.dialogs.TextDialog;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
@@ -17,8 +16,8 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.*;
 import core.level.elements.tile.DoorTile;
+import core.utils.*;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -631,11 +630,11 @@ public final class MiscFactory {
     Entity book = new Entity("book");
     book.add(new PositionComponent(position));
     book.add(
-      new InteractionComponent(
-        1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
+        new InteractionComponent(
+            1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
     book.add(
-      new DrawComponent(
-        Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
+        new DrawComponent(
+            Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
   }
 
@@ -646,7 +645,8 @@ public final class MiscFactory {
    * @param requiredKeyType the key type which is needed to unlock the door
    * @return a new DoorBlocker Entity
    */
-  public static Entity createDoorBlocker(DoorTile door, final Class<? extends Item> requiredKeyType) {
+  public static Entity createDoorBlocker(
+      DoorTile door, final Class<? extends Item> requiredKeyType) {
     Entity doorBlocker = new Entity("doorBlocker");
     float x = door.position().toCenteredPoint().x();
     float y = door.position().toCenteredPoint().y();
