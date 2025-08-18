@@ -658,44 +658,31 @@ public final class MiscFactory {
             2.0f,
             true,
             (interacted, interactor) -> {
-              Game.hero()
-                  .ifPresent(
-                      hero -> {
-                        if (!interactor.equals(hero)) {
-                          return;
-                        }
+              InventoryComponent invComp = interactor.fetch(InventoryComponent.class).orElse(null);
+              if (invComp == null) {
+                return;
+              }
 
-                        InventoryComponent invComp =
-                            interactor.fetch(InventoryComponent.class).orElse(null);
-                        if (invComp == null) {
-                          return;
-                        }
+              if (!invComp.hasItem(requiredKeyType)) {
+                DialogUtils.showTextPopup(
+                    "Du brauchst einen Schlüssel um diese Tür zu öffnen!", "Fehlender Schlüssel.");
+                return;
+              }
 
-                        if (!invComp.hasItem(requiredKeyType)) {
-                          DialogUtils.showTextPopup(
-                              "Du brauchst einen Schlüssel um diese Tür zu öffnen!",
-                              "Fehlender Schlüssel.");
-                          return;
-                        }
+              String keyName =
+                  invComp.itemOfClass(requiredKeyType).map(Item::displayName).orElse("Schlüssel");
 
-                        String keyName =
-                            invComp
-                                .itemOfClass(requiredKeyType)
-                                .map(Item::displayName)
-                                .orElse("Schlüssel");
-
-                        YesNoDialog.showYesNoDialog(
-                            "Willst du deinen " + keyName + " verwenden, um die Tür zu öffnen?",
-                            "Locked Door",
-                            () -> {
-                              invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
-                              Game.remove(interacted);
-                              door.open();
-                            },
-                            () -> {
-                              // "No" - do nothing
-                            });
-                      });
+              YesNoDialog.showYesNoDialog(
+                  "Willst du deinen " + keyName + " verwenden, um die Tür zu öffnen?",
+                  "Locked Door",
+                  () -> {
+                    invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
+                    Game.remove(interacted);
+                    door.open();
+                  },
+                  () -> {
+                    // "No" - do nothing
+                  });
             }));
     door.close();
     doorBlocker.add(new DrawComponent(Animation.fromSingleImage(DOOR_BLOCKER_TEXTURE)));
