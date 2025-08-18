@@ -2,9 +2,6 @@ package contrib.systems;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.backends.headless.HeadlessApplication;
-import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import contrib.components.HealthComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -41,9 +38,6 @@ public class HealthSystemTest {
 
   @BeforeEach
   public void setup() throws IOException {
-    HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
-    new HeadlessApplication(new ApplicationAdapter() {}, config);
-
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(ANIMATION_PATH);
     State stIdle = new DirectionalState("idle", animationMap);
     State stMove = new DirectionalState("move", animationMap, "run");

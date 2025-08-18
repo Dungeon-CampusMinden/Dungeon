@@ -3,8 +3,6 @@ package core.components;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
 import com.badlogic.gdx.graphics.Texture;
 import core.utils.Direction;
 import core.utils.components.draw.TextureMap;
@@ -34,7 +32,6 @@ public class DrawComponentTest {
   public void setup() throws IOException {
     // Create file system handle. WARNING: This will assume all future paths to be relative to the
     // working directory (probably the root of the project)
-    Gdx.files = new LwjglFiles();
     TextureMap.instance().clear(); // reset any existing mappings
 
     // Replace internal map logic to skip real texture loading

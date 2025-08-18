@@ -15,6 +15,7 @@ dependencies {
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
+    testImplementation supportDependencies.junitLauncher
     testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
     testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.12.0"

@@ -3,12 +3,6 @@ package core.utils.components.draw.animation;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Files;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.headless.HeadlessApplication;
-import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.utils.components.draw.TextureMap;
@@ -25,9 +19,6 @@ class AnimationTest {
 
   @BeforeEach
   void setUp() {
-    HeadlessApplicationConfiguration config = new HeadlessApplicationConfiguration();
-    new HeadlessApplication(new ApplicationAdapter() {}, config);
-
     // mock textures with deterministic sizes
     textureA = mock(Texture.class);
     when(textureA.getWidth()).thenReturn(64);
@@ -215,15 +206,6 @@ class AnimationTest {
 
   @Test
   void spritesheet_slicesCorrectCount_andScalingFromSpriteSize() {
-    // Stub Gdx.files.internal(...) so Animation#loadFromSingle treats the path as a file (not a
-    // directory).
-    Files files = mock(Files.class);
-    FileHandle fh = mock(FileHandle.class);
-    when(fh.name()).thenReturn("sheet.png");
-    when(fh.nameWithoutExtension()).thenReturn("sheet");
-    when(files.internal("assets/sheet.png")).thenReturn(fh);
-    Gdx.files = files;
-
     // Mock the spritesheet texture and preload into TextureMap
     Texture sheet = mock(Texture.class);
     when(sheet.getWidth()).thenReturn(256);
