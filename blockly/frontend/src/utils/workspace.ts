@@ -258,7 +258,7 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       if (status === "running") {
         console.log("code still running");
         await sleep(sleepingTime);
-      }else if (status === "completed") {
+      } else if (status === "completed") {
         console.log("code execution completed");
         codeRunning = false;
       } else if (status === "error"){
