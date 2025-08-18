@@ -27,10 +27,12 @@ public class AIUtils {
       return;
     }
 
-    Tile currentTile = Game.tileAtEntity(entity);
-    Tile nextTile = findNextTile(path, currentTile);
+    Tile currentTile = Game.tileAtEntity(entity).orElse(null);
+    if (currentTile == null) {
+      return;
+    }
 
-    // currentTile not in path
+    Tile nextTile = findNextTile(path, currentTile);
     if (nextTile == null) {
       return;
     }
