@@ -276,8 +276,6 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       completeLevel();
     }
 
-    // Reset values in backend
-    //await call_clear_route();  //wird nicht benötigt, weil keine blockly funktionen aus Server.java in verwendung?
 
     workspace.highlightBlock(null);
     // Enable button again
