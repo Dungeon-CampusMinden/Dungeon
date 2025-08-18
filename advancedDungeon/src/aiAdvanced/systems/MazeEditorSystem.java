@@ -60,6 +60,7 @@ public class MazeEditorSystem extends System {
       return false;
     }
 
-    return tile.levelElement() == LevelElement.EXIT || Game.tileAtEntity(hero) == tile;
+    return tile.levelElement() == LevelElement.EXIT ||
+      Game.tileAtEntity(hero).map(heroTile -> heroTile.equals(tile)).orElse(false);
   }
 }
