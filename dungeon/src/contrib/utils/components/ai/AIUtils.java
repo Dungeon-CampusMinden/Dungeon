@@ -145,15 +145,15 @@ public class AIUtils {
    *
    * @param entity Entity to be checked.
    * @param path Path on which the entity possible reached the end.
-   * @return true if the entity is on the end of the path, otherwise false.
+   * @return true if the entity is on the last tile of the path; false if the entity is not at the
+   *     end or if no {@link PositionComponent} is present.
    */
   public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     return path.getCount() == 0
-        || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()).orElse(null));
+        || entity
+            .fetch(PositionComponent.class)
+            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()).orElse(null)))
+            .orElse(false);
   }
 
   /**
@@ -161,15 +161,14 @@ public class AIUtils {
    *
    * @param entity Entity to be checked.
    * @param path Path to be checked.
-   * @return true if the entity has left the path, otherwise false.
+   * @return true if the entity's current tile is not part of the given path, or if no {@link
+   *     PositionComponent} is present; otherwise false.
    */
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
-    return !onPath(path, currentTile);
+    return entity
+        .fetch(PositionComponent.class)
+        .map(pc -> !onPath(path, Game.tileAT(pc.position()).orElse(null)))
+        .orElse(true);
   }
 
   /**
