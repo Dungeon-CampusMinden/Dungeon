@@ -202,7 +202,7 @@ public class Client {
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
   public static void createHero() {
-    Game.entityStream(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
+    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
     Entity hero;
     try {
       hero = HeroTankControlledFactory.newTankControlledHero();

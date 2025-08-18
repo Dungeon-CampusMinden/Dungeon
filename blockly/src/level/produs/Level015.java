@@ -109,7 +109,7 @@ public class Level015 extends BlocklyLevel {
       if (x >= 11) LevelManagementUtils.cameraFocusHero();
     }
 
-    if (Game.entityStream(Set.of(AIComponent.class)).findAny().isPresent()) door.close();
+    if (Game.levelEntities(Set.of(AIComponent.class)).findAny().isPresent()) door.close();
     else door.open();
   }
 }

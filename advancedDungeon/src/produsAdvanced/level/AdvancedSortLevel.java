@@ -226,7 +226,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
               // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
               if (currentIndex.get() < messages.size() - 1) {
                 currentIndex.incrementAndGet();
-                Game.entityStream(Set.of(SignComponent.class))
+                Game.levelEntities(Set.of(SignComponent.class))
                     .filter(signEntity -> signEntity.equals(entity))
                     .findFirst()
                     .ifPresent(

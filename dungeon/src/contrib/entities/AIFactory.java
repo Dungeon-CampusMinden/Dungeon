@@ -187,7 +187,7 @@ public final class AIFactory {
    */
   private static Optional<Entity> randomMonster() {
     Stream<Entity> monsterStream =
-        Game.entityStream()
+        Game.levelEntities()
             .filter(m -> m.isPresent(HealthComponent.class))
             .filter(m -> m.isPresent(AIComponent.class));
 

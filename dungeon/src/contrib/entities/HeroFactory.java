@@ -299,7 +299,7 @@ public final class HeroFactory {
         KeyboardConfig.CLOSE_UI.value(),
         (e) -> {
           var firstUI =
-              Game.entityStream() // would be nice to directly access HudSystems
+              Game.levelEntities() // would be nice to directly access HudSystems
                   // stream (no access to the System object)
                   .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
                   // that have a

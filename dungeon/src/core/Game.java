@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
  * #removeAllSystems()}
  *
- * <p>Get access via: {@link #entityStream()}, {@link #systems()}
+ * <p>Get access via: {@link #levelEntities()}, {@link #systems()}
  *
  * @see PreRunConfiguration
  * @see ECSManagment
@@ -340,12 +340,12 @@ public final class Game {
   }
 
   /**
-   * Use this stream if you want to iterate over all currently active entities.
+   * Use this stream if you want to iterate over all entities in the current level.
    *
-   * @return a stream of all entities currently in the game
+   * @return a stream of all entities currently in the level
    */
-  public static Stream<Entity> entityStream() {
-    return ECSManagment.entityStream();
+  public static Stream<Entity> levelEntities() {
+    return ECSManagment.levelEntities();
   }
 
   /**
@@ -356,8 +356,8 @@ public final class Game {
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
-  public static Stream<Entity> entityStream(final System system) {
-    return ECSManagment.entityStream(system);
+  public static Stream<Entity> levelEntities(final System system) {
+    return ECSManagment.levelEntities(system);
   }
 
   /**
@@ -366,14 +366,15 @@ public final class Game {
    * @param filter the components to check.
    * @return a stream of all entities currently in the game that contains the given components.
    */
-  public static Stream<Entity> entityStream(final Set<Class<? extends Component>> filter) {
-    return ECSManagment.entityStream(filter);
+  public static Stream<Entity> levelEntities(final Set<Class<? extends Component>> filter) {
+    return ECSManagment.levelEntities(filter);
   }
 
   /**
-   * Get the player character.
+   * Searches the current level for the player character.
    *
-   * @return the player character, can be null if not initialized
+   * @return an {@link Optional} containing the player character from the current level, or an empty
+   *     {@code Optional} if none is present
    */
   public static Optional<Entity> hero() {
     return ECSManagment.hero();
@@ -402,7 +403,7 @@ public final class Game {
   /**
    * Use this stream if you want to iterate over all active entities.
    *
-   * <p>Use {@link #entityStream()} if you want to iterate over all active entities.
+   * <p>Use {@link #levelEntities()} if you want to iterate over all active entities.
    *
    * @return a stream of all entities currently in the game
    */
@@ -411,13 +412,53 @@ public final class Game {
   }
 
   /**
-   * Find the entity that contains the given component instance.
+   * Finds the entity that contains the given component instance.
    *
-   * @param component Component instance where the entity is searched for.
-   * @return An Optional containing the found Entity, or an empty Optional if not found.
+   * <p>This searches across all entities in the game, not just those in the current level.
+   *
+   * @param component the component instance whose owning entity should be located
+   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
+   *     is found
    */
-  public static Optional<Entity> find(final Component component) {
-    return ECSManagment.find(component);
+  public static Optional<Entity> findInAll(final Component component) {
+    return ECSManagment.findInAll(component);
+  }
+
+  /**
+   * Finds the entity that contains the given component instance.
+   *
+   * <p>This searches across all entities in the current level.
+   *
+   * @param component the component instance whose owning entity should be located
+   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
+   *     is found
+   */
+  public static Optional<Entity> findInLevel(final Component component) {
+    return ECSManagment.findInLevel(component);
+  }
+
+  /**
+   * Tries to find the given entity in the game.
+   *
+   * <p>This searches in the current level.
+   *
+   * @param entity the entity to search for
+   * @return {@code true} if the entity is found, {@code false} otherwise
+   */
+  public static boolean existInLevel(Entity entity) {
+    return ECSManagment.existInLevel(entity);
+  }
+
+  /**
+   * Tries to find the given entity in the game.
+   *
+   * <p>This searches in the current level.
+   *
+   * @param entity the entity to search for
+   * @return {@code true} if the entity is found, {@code false} otherwise
+   */
+  public static boolean existInAll(final Entity entity) {
+    return ECSManagment.existInAll(entity);
   }
 
   /**
@@ -549,7 +590,7 @@ public final class Game {
     Tile tile = Game.tileAT(check.position());
     if (tile == null) return Stream.empty();
 
-    return ECSManagment.entityStream(Set.of(PositionComponent.class))
+    return ECSManagment.levelEntities(Set.of(PositionComponent.class))
         .filter(
             e ->
                 tile.equals(
@@ -719,15 +760,5 @@ public final class Game {
   /** Exits the GDX application. */
   public static void exit() {
     Gdx.app.exit();
-  }
-
-  /**
-   * Checks if the given entity is in {@link core.Game}.
-   *
-   * @param entity Entity to check.
-   * @return True if the entity is in the game, false otherwise.
-   */
-  public static boolean findEntity(final Entity entity) {
-    return ECSManagment.findEntity(entity);
   }
 }
