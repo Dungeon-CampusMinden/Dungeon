@@ -21,15 +21,13 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
-import core.utils.Direction;
-import core.utils.MissingHeroException;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
@@ -530,5 +528,15 @@ public class BlocklyCommands {
   /** Let the hero do nothing for a short moment. */
   public static void rest() {
     Server.waitDelta();
+  }
+
+  /**
+   * Executes a given function a specified number of times.
+   *
+   * @param counter the number of times to execute the function; must be non-negative
+   * @param function the function to be executed repeatedly
+   */
+  public static void times(int counter, IVoidFunction function) {
+    IntStream.range(0, counter).forEach(value -> function.execute());
   }
 }

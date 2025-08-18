@@ -9,7 +9,7 @@ export function repeat(block: Blockly.Block, generator: Blockly.Generator) {
     generator.INDENT
   );
 
-  const code = "for (int i = 0; i < "+ times +" ; i++){\n" + repeat_body + "\n}";
+  const code = "hero.times("+ times +",() ->{"+ repeat_body + "});"
   return code;
 }
 
