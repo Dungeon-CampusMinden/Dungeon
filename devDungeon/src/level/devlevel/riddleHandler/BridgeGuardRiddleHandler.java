@@ -108,32 +108,10 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
   private void prepareBridge() {
     LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
         .filter(tile -> tile instanceof PitTile || tile instanceof FloorTile)
-        .map(
-            tile -> {
-              level.changeTileElementType(tile, LevelElement.PIT);
-              return level.tileAt(tile.coordinate());
-            })
-        .filter(Optional::isPresent)
-        .map(Optional::get)
+        .peek(tile -> level.changeTileElementType(tile, LevelElement.PIT))
+        .flatMap(tile -> level.tileAt(tile.coordinate()).stream())
         .map(tile -> (PitTile) tile)
         .forEach(PitTile::open);
-    LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
-        .filter(tile -> tile instanceof WallTile)
-        .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
-        .forEach(
-            tile -> {
-              utils.EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
-            });
-
-    LevelUtils.tilesInArea(bridgeBounds[0], bridgeBounds[1]).stream()
-        .map(tile -> (PitTile) tile)
-        .forEach(
-            pitTile -> {
-              pitTile.timeToOpen(99999999);
-              pitTile.close();
-            });
-
-    prepareBridgeEntities();
   }
 
   private void prepareBridgeEntities() {
