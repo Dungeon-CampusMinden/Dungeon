@@ -28,6 +28,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -137,7 +138,10 @@ public class Level03 extends DungeonLevel {
             new Consumer<Entity>() {
               @Override
               public void accept(Entity entity) {
-                if (!Game.tileAtEntity(entity).equals(Game.tileAT(goal))) {
+                Optional<Tile> entityTile = Game.tileAtEntity(entity);
+                Optional<Tile> goalTile = Game.tileAT(goal);
+
+                if (entityTile.isEmpty() || goalTile.isEmpty() || !entityTile.equals(goalTile)) {
                   AIUtils.followPath(
                       entity,
                       LevelUtils.calculatePath(
