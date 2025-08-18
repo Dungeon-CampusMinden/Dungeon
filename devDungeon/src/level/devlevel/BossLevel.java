@@ -258,7 +258,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    * @return true if any other mobs are alive, false otherwise.
    */
   private boolean anyOtherMobsAlive() {
-    return Game.entityStream().filter(e -> e.isPresent(AIComponent.class)).toList().size()
+    return Game.levelEntities().filter(e -> e.isPresent(AIComponent.class)).toList().size()
         > 1; // 1 is the boss
   }
 

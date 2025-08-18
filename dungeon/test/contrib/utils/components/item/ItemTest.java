@@ -192,8 +192,8 @@ public class ItemTest {
 
     Point point = new Point(3, 3);
     item.drop(point);
-    assertEquals(1, Game.entityStream().count());
-    Entity worldItem = Game.entityStream().findFirst().get();
+    assertEquals(1, Game.levelEntities().count());
+    Entity worldItem = Game.levelEntities().findFirst().get();
     assertTrue(worldItem.isPresent(PositionComponent.class));
     assertTrue(worldItem.fetch(PositionComponent.class).get().position().equals(point));
     assertTrue(worldItem.isPresent(DrawComponent.class));
@@ -203,14 +203,14 @@ public class ItemTest {
   /** Tests if item is present in inventory and removed from Game world after collect. */
   @Test
   public void testCollect() {
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
     Entity collector = new Entity();
     collector.add(new InventoryComponent(3));
-    Entity worldItem = Game.entityStream().findFirst().get();
+    Entity worldItem = Game.levelEntities().findFirst().get();
 
     assertTrue(item.collect(worldItem, collector));
 
@@ -220,38 +220,38 @@ public class ItemTest {
             .map(inventoryComponent -> inventoryComponent.hasItem(item))
             .get());
 
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
   }
 
   /** Tests if item can be collected from entity with no InventoryComponent. */
   @Test
   public void testCollectNoInventory() {
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
     Entity collector = new Entity();
-    Entity worldItem = Game.entityStream().findFirst().get();
+    Entity worldItem = Game.levelEntities().findFirst().get();
 
     assertFalse(item.collect(worldItem, collector));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
   }
 
   /** Tests if item can be collected from entity with full inventory. */
   @Test
   public void testCollectFullInventory() {
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
     Entity collector = new Entity();
     collector.add(new InventoryComponent(0));
-    Entity worldItem = Game.entityStream().findFirst().get();
+    Entity worldItem = Game.levelEntities().findFirst().get();
 
     assertFalse(item.collect(worldItem, collector));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
   }
 
   /** Tests if item is removed from inventory after use. */

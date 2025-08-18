@@ -164,7 +164,7 @@ public class MobSpawnerSystem extends System {
    * @return A list of entities around the given position within the given radius.
    */
   private List<Entity> getEntitiesAround(Point position, int radius) {
-    return Game.entityStream(Collections.singleton(AIComponent.class)) // mobs
+    return Game.levelEntities(Collections.singleton(AIComponent.class)) // mobs
         .filter(
             entity -> {
               PositionComponent entityPosition =

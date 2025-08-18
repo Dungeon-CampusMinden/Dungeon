@@ -57,7 +57,7 @@ public class BlocklyCommands {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     BlocklyCommands.move(viewDirection, hero);
-    Game.allEntities()
+    Game.levelEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
         .ifPresent(
@@ -442,13 +442,15 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        // TODO this shoudl be stored central for Blockly
+        comp.vc.clearForces();
+        comp.vc.currentVelocity(Vector2.ZERO);
         comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
-        if (Game.findEntity(entities[i])
+        if (comp.vc().maxSpeed() > 0
+            && Game.existInLevel(entities[i])
             && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
           allEntitiesArrived = false;
         }

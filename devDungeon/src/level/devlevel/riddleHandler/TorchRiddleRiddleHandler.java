@@ -140,7 +140,7 @@ public class TorchRiddleRiddleHandler {
     this.rewardGiven = true;
 
     // Once the reward is given, all torches are extinguished
-    Game.entityStream()
+    Game.levelEntities()
         .filter(e -> e.isPresent(TorchComponent.class))
         .forEach(
             e -> {

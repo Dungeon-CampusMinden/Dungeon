@@ -202,7 +202,7 @@ public class AdvancedDungeon {
    * @throws IOException If hero creation fails.
    */
   private static void createHero() throws IOException {
-    Game.entityStream(Set.of(PlayerComponent.class)).forEach(Game::remove);
+    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity heroEntity = EntityFactory.newHero();
     Game.add(heroEntity);
     hero = new Hero(heroEntity, fireballSkill);
