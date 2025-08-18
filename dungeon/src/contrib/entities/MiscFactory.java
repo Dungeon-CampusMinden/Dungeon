@@ -8,6 +8,8 @@ import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
+import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemKey;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
@@ -250,7 +252,13 @@ public final class MiscFactory {
   public static Entity newLockedChest(
       final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType)
       throws IOException {
+    if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
+      throw new IllegalArgumentException(
+          "LockedChest entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
+    }
 
+    String reqKeyName =
+        requiredKeyType.equals(ItemKey.class) ? "silbernen Schlüssel" : "großen goldenen Schlüssel";
     final float defaultInteractionRadius = 1f;
     Entity lockedChest = newChest(items, position);
 
@@ -271,22 +279,18 @@ public final class MiscFactory {
 
                         if (!invComp.hasItem(requiredKeyType)) {
                           DialogUtils.showTextPopup(
-                              "Du brauchst einen Schlüssel um diese Schatzkiste zu öffnen!",
+                              "Du brauchst einen "
+                                  + reqKeyName
+                                  + " um diese Schatzkiste zu öffnen!",
                               "Fehlender Schlüssel.");
                           return;
                         }
 
-                        String keyName =
-                            invComp
-                                .itemOfClass(requiredKeyType)
-                                .map(Item::displayName)
-                                .orElse("Schlüssel");
-
                         YesNoDialog.showYesNoDialog(
                             "Willst du deinen "
-                                + keyName
+                                + reqKeyName
                                 + " verwenden, um die Schatzkiste zu öffnen?",
-                            "Locked Chest",
+                            "Verschlossene Schatzkiste.",
                             () -> {
                               invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
                               oldIC.triggerInteraction(interacted, interactor);
@@ -647,6 +651,13 @@ public final class MiscFactory {
    */
   public static Entity createDoorBlocker(
       DoorTile door, final Class<? extends Item> requiredKeyType) {
+    if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
+      throw new IllegalArgumentException(
+          "DoorBlocker entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
+    }
+
+    String reqKeyName =
+        requiredKeyType.equals(ItemKey.class) ? "silbernen Schlüssel" : "großen goldenen Schlüssel";
     Entity doorBlocker = new Entity("doorBlocker");
     float x = door.position().toCenteredPoint().x();
     float y = door.position().toCenteredPoint().y();
@@ -665,16 +676,14 @@ public final class MiscFactory {
 
               if (!invComp.hasItem(requiredKeyType)) {
                 DialogUtils.showTextPopup(
-                    "Du brauchst einen Schlüssel um diese Tür zu öffnen!", "Fehlender Schlüssel.");
+                    "Du brauchst einen " + reqKeyName + " um diese Tür zu öffnen!",
+                    "Fehlender Schlüssel.");
                 return;
               }
 
-              String keyName =
-                  invComp.itemOfClass(requiredKeyType).map(Item::displayName).orElse("Schlüssel");
-
               YesNoDialog.showYesNoDialog(
-                  "Willst du deinen " + keyName + " verwenden, um die Tür zu öffnen?",
-                  "Locked Door",
+                  "Willst du deinen " + reqKeyName + " verwenden, um die Tür zu öffnen?",
+                  "Verschlossene Tür.",
                   () -> {
                     invComp.itemOfClass(requiredKeyType).ifPresent(invComp::remove);
                     Game.remove(interacted);
