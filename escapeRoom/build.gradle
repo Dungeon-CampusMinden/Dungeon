@@ -5,10 +5,16 @@ plugins {
 
 dependencies {
     api project(':dungeon')
+
+    // JUnit and Mockito for testing
+    testImplementation supportDependencies.junit
+    testRuntimeOnly supportDependencies.junitLauncher
+    testImplementation supportDependencies.mockito_core
 }
 
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
+sourceSets.test.java.srcDirs = ['test/']
 
 tasks.register('runCoopDungeon', JavaExec) {
     group 'starter'
@@ -19,4 +25,8 @@ tasks.register('runCoopDungeon', JavaExec) {
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
 }
