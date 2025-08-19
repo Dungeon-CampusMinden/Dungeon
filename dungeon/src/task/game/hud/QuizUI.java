@@ -139,7 +139,7 @@ public class QuizUI {
       String buttonMsg,
       String dialogTitle,
       Function<Entity, BiFunction<TextDialog, String, Boolean>> resulthandlerLinker) {
-    Entity entity = new Entity("quizDialogEntity");
+    Entity entity = new Entity("quizDialogEntity_" + dialogTitle);
 
     UIUtils.show(
         () -> {
