@@ -156,7 +156,7 @@ public final class HeroFactory {
               sound.setVolume(soundId, 0.9f);
 
               // relink components for camera
-              Entity cameraDummy = new Entity();
+              Entity cameraDummy = new Entity("heroCamera");
               cameraDummy.add(cc);
               cameraDummy.add(poc);
               Game.add(cameraDummy);
