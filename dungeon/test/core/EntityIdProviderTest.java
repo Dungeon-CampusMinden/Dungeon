@@ -12,14 +12,25 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests for the Entity ID provider, ensuring that both explicit and auto-generated IDs are handled
+ * correctly, and that concurrent ID generation does not lead to collisions.
+ */
 public class EntityIdProviderTest {
 
+  /**
+   * Cleans up after each test by removing all entities from the game to avoid cross-test
+   * interference and ID reservation leaks.
+   */
   @AfterEach
-  public void tearDown() {
+  public void cleanup() {
     Game.removeAllEntities();
   }
 
   private Entity createEntityWithFreshExplicitId(String name) {
+    // Derive a non-negative, time-varying int seed from nanoTime by masking to 30 bits
+    // (0x3FFF_FFFF)
+    // to avoid the sign bit and minimize collisions across runs.
     int start = (int) (java.lang.System.nanoTime() & 0x3FFF_FFFF);
     int attempts = 0;
     while (attempts < 10000) {
@@ -31,9 +42,13 @@ public class EntityIdProviderTest {
       }
     }
     fail("Could not create entity with a fresh explicit id for test");
-    return null;
+    return new Entity(name); //  should never hit
   }
 
+  /**
+   * Verifies that creating an entity with an explicit, fresh ID succeeds, keeps the provided name
+   * unchanged, and produces a toString containing the id suffix.
+   */
   @Test
   public void explicitIdIsSetAndNameUnchanged() {
     Entity e = createEntityWithFreshExplicitId("Foo");
@@ -42,6 +57,10 @@ public class EntityIdProviderTest {
     assertTrue(e.toString().endsWith("_" + e.id()));
   }
 
+  /**
+   * Ensures that attempting to create a second entity with the same explicit ID results in an
+   * IllegalArgumentException, preventing ID collisions.
+   */
   @Test
   public void duplicateExplicitIdThrows() {
     Entity first = createEntityWithFreshExplicitId("First");
@@ -49,6 +68,13 @@ public class EntityIdProviderTest {
     assertThrows(IllegalArgumentException.class, () -> new Entity(id, "Second"));
   }
 
+  /**
+   * Stress-tests concurrent ID generation to assert that all auto-generated IDs are unique across
+   * multiple threads under load and within a reasonable time bound.
+   *
+   * @throws InterruptedException if the concurrency helpers are interrupted while awaiting
+   *     completion
+   */
   @Test
   public void concurrentGenerationProducesUniqueIds() throws InterruptedException {
     final int threads = 8;
