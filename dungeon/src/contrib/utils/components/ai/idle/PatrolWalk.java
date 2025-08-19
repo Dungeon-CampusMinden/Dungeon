@@ -253,7 +253,7 @@ public final class PatrolWalk implements Consumer<Entity> {
   }
 
   /**
-   * Handles initialization, movement along a path,
+   * Handles initialization, movement along a path.
    *
    * @param entity The entity for which the behavior is performed.
    */
