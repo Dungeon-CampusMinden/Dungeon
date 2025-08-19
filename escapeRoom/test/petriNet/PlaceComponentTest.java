@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Tests basic token operations: adding, removing, and querying the token count.
  */
-class PlaceComponentTest {
+public class PlaceComponentTest {
 
   private PlaceComponent place;
 

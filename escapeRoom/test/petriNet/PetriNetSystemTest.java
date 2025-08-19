@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Tests basic firing behavior of transitions with simple input and output places.
  */
-class PetriNetSystemTest {
+public class PetriNetSystemTest {
 
   private PetriNetSystem system;
 
