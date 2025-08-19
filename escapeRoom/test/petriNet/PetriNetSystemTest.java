@@ -362,12 +362,11 @@ class PetriNetSystemTest {
     PetriNetSystem.addOutputArc(t2, p3);
 
     p1.produce();
-    system.execute(); // t1 should fire
+    //// t1 should fire thant t2; execute two times because we cant make assumption about checking
+    // order
+    system.execute();
+    system.execute();
     assertEquals(0, p1.tokenCount());
-    assertEquals(1, p2.tokenCount());
-    assertEquals(0, p3.tokenCount());
-
-    system.execute(); // t2 should fire
     assertEquals(0, p2.tokenCount());
     assertEquals(1, p3.tokenCount());
   }
