@@ -9,8 +9,10 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemHammer;
 import contrib.item.concreteItem.ItemKey;
 import contrib.utils.components.draw.ChestAnimations;
+import contrib.utils.components.draw.StoneAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -53,6 +55,9 @@ public final class MiscFactory {
   private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
   private static final SimpleIPath SPELL_BOOK_TEXTURE =
       new SimpleIPath("items/book/spell_book.png");
+  private static final SimpleIPath VASE_TEXTURE = new SimpleIPath("objects/vase/vase.png");
+  private static final SimpleIPath STONE_TEXTURE = new SimpleIPath("objects/stone/stone.png");
+  private static final SimpleIPath BROKEN_STONE_TEXTURE = new SimpleIPath("objects/stone/broken_stone.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -696,6 +701,74 @@ public final class MiscFactory {
     door.close();
     doorBlocker.add(new DrawComponent(Animation.fromSingleImage(DOOR_BLOCKER_TEXTURE)));
     return doorBlocker;
+  }
+
+  public static Entity newVase(Point spawnPoint) {
+    Entity vase = new Entity("vase");
+    vase.add(new PositionComponent(spawnPoint));
+    vase.add(new DrawComponent(Animation.fromSingleImage(VASE_TEXTURE)));
+    vase.add(
+      new InteractionComponent(
+        2.0f, true, (interacted, interactor) -> {
+
+      }
+      ));
+    return vase;
+  }
+
+  public static Entity newStone(Point spawnPoint) throws IOException {
+    Entity stone = new Entity("stone");
+    stone.add(new PositionComponent(spawnPoint));
+
+    stone.add(
+      new InteractionComponent(
+        2.0f, true, (interacted, interactor) -> {
+        InventoryComponent invComp = interactor.fetch(InventoryComponent.class).orElse(null);
+        if (invComp == null) {
+          return;
+        }
+
+        if(invComp.hasItem(ItemHammer.class)){
+          System.out.println("HELD HAT HAMMER!!!");
+          // change Animation to broken stone
+          interacted.fetch(DrawComponent.class)
+            .ifPresent(drawComp -> {
+              // Animation „zerbrechen“ starten
+              drawComp.queueAnimation(StoneAnimations.BREAKING);
+
+              // TODO: nach dem Breaking --> auf BROKEN wechseln, funktioniert noch nicht. Breaking wird übersprungen
+              drawComp.deQueueByPriority(StoneAnimations.BREAKING.priority());
+              drawComp.queueAnimation(StoneAnimations.BROKEN);
+            });
+          // drop pickUpItem
+          if (Math.random() < 0.3) {
+            double roll = Math.random();
+            if (roll < 0.75) {
+              // 75% Herz
+              Game.add(newHeartPickup(spawnPoint, 5));
+            } else {
+              // 25% Fairy
+              Game.add(newFairyPickup(spawnPoint));
+            }
+          }
+        }
+      }
+      ));
+    // DrawComponent für Stein initialisieren
+    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/stone"));
+    var mapping = dc.animationMap();
+
+    // set default idle (intakter Stein)
+    mapping.put(CoreAnimations.IDLE.pathString(), mapping.get(StoneAnimations.INTACT.pathString()));
+    // BREAKING soll nicht loopen
+    mapping.get(StoneAnimations.BREAKING.pathString()).loop(false);
+
+    dc.animationMap(mapping);
+    dc.deQueueByPriority(CoreAnimations.IDLE.priority());
+    dc.currentAnimation(CoreAnimations.IDLE);
+    stone.add(dc);
+
+    return stone;
   }
 
   /**
