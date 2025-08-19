@@ -13,7 +13,7 @@ import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
-import core.components.PlayerComponent;
+import core.components.InputComponent;
 import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.systems.LevelSystem;
@@ -86,10 +86,10 @@ public class PathfinderStarter {
           Game.hero()
               .ifPresent(
                   hero -> {
-                    hero.fetch(PlayerComponent.class)
+                    hero.fetch(InputComponent.class)
                         .ifPresent(
-                            pc -> {
-                              pc.registerCallback(
+                            ic -> {
+                              ic.registerCallback(
                                   KeyboardConfig.SELECT_DFS.value(),
                                   caller -> {
                                     selectPathfindingAlgorithm(
@@ -97,7 +97,7 @@ public class PathfinderStarter {
                                         false,
                                         hero);
                                   });
-                              pc.registerCallback(
+                              ic.registerCallback(
                                   KeyboardConfig.SELECT_BFS.value(),
                                   caller -> {
                                     selectPathfindingAlgorithm(
@@ -105,7 +105,7 @@ public class PathfinderStarter {
                                         false,
                                         hero);
                                   });
-                              pc.registerCallback(
+                              ic.registerCallback(
                                   KeyboardConfig.SELECT_SUS_ALGO.value(),
                                   caller -> {
                                     selectPathfindingAlgorithm(
@@ -166,7 +166,7 @@ public class PathfinderStarter {
     hero.remove(CameraComponent.class);
     Game.add(hero);
 
-    hero.fetch(PlayerComponent.class).ifPresent(PlayerComponent::removeCallbacks);
+    hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
   }
 
   /**
