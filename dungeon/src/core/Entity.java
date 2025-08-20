@@ -49,7 +49,7 @@ public final class Entity implements Comparable<Entity> {
     this.id = EntityIdProvider.nextId();
     this.components = new HashMap<>();
     this.name = name;
-    LOGGER.info("The entity '" + this.name + "' was created.");
+    LOGGER.info(this + " was created.");
   }
 
   /**
@@ -62,7 +62,7 @@ public final class Entity implements Comparable<Entity> {
     this.id = EntityIdProvider.nextId();
     this.components = new HashMap<>();
     this.name = "_" + this.id;
-    LOGGER.info("The entity '" + this.name + "' was created.");
+    LOGGER.info(this + " was created.");
   }
 
   /**
@@ -79,7 +79,7 @@ public final class Entity implements Comparable<Entity> {
     this.id = id;
     this.components = new HashMap<>();
     this.name = name;
-    LOGGER.info("The entity '" + this.name + "' was created.");
+    LOGGER.info(this + " was created.");
   }
 
   /**
@@ -177,8 +177,7 @@ public final class Entity implements Comparable<Entity> {
 
   @Override
   public String toString() {
-    if (name.contains("_" + id)) return name;
-    else return name + "_" + id;
+    return "Entity{" + "id=" + id + ", name='" + name + '\'' + '}';
   }
 
   @Override

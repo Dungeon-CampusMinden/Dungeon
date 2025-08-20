@@ -54,7 +54,7 @@ public final class HealthBarSystem extends System {
           ProgressBar newHealthBar =
               createNewHealthBar(x.fetch(PositionComponent.class).orElseThrow());
           LOGGER.log(CustomLogLevel.TRACE, "created a new health bar");
-          Entity e = new Entity("HealthBar");
+          Entity e = new Entity("HealthBar_" + x);
           LOGGER.log(CustomLogLevel.TRACE, "created a new Entity for the health bar");
           Container<ProgressBar> group = new Container<>(newHealthBar);
           // disabling layout enforcing from parent

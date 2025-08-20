@@ -49,7 +49,7 @@ public final class ECSManagment {
   public static void informAboutChanges(Entity entity) {
     if (levelEntities().anyMatch(entity1 -> entity1.equals(entity))) {
       activeEntityStorage.forEach(f -> f.update(entity));
-      LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+      LOGGER.info(entity + " informed the Game about component changes.");
     }
   }
 
@@ -77,7 +77,7 @@ public final class ECSManagment {
     EntityIdProvider.ensureRegistered(entity.id());
 
     activeEntityStorage.forEach(f -> f.add(entity));
-    LOGGER.info("Entity: " + entity + " will be added to the Game.");
+    LOGGER.info(entity + " will be added to the Game.");
   }
 
   /**
@@ -90,7 +90,7 @@ public final class ECSManagment {
   public static void remove(Entity entity) {
     activeEntityStorage.forEach(f -> f.remove(entity));
     EntityIdProvider.unregister(entity.id());
-    LOGGER.info("Entity: " + entity + " will be removed from the Game.");
+    LOGGER.info(entity + " will be removed from the Game.");
   }
 
   /**
