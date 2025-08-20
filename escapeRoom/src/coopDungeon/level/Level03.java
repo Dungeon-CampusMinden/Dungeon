@@ -141,7 +141,7 @@ public class Level03 extends DungeonLevel {
                 Optional<Tile> entityTile = Game.tileAtEntity(entity);
                 Optional<Tile> goalTile = Game.tileAT(goal);
 
-                if (entityTile.isEmpty() || goalTile.isEmpty() || !entityTile.equals(goalTile)) {
+                if (entityTile.isPresent() && goalTile.isPresent() && !entityTile.get().equals(goalTile.get())) {
                   AIUtils.followPath(
                       entity,
                       LevelUtils.calculatePath(
