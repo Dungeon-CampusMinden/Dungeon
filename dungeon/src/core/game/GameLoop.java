@@ -268,6 +268,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
-    ECSManagment.add(new PlayerSystem());
+    ECSManagment.add(new InputSystem());
   }
 }
