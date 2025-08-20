@@ -17,7 +17,6 @@ import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.*;
@@ -254,7 +253,7 @@ public final class Game {
    * @throws IOException If the file could not be read.
    */
   public static void loadConfig(final IPath path, final Class<?>... keyboardConfigClass)
-          throws IOException {
+      throws IOException {
     PreRunConfiguration.loadConfig(path, keyboardConfigClass);
   }
 
@@ -476,9 +475,9 @@ public final class Game {
    * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
    *
    * @param point Point from where to get the tile
-   * @return the tile at the given point.
+   * @return the tile at the given point or an empty Optional.
    */
-  public static Tile tileAT(final Point point) {
+  public static Optional<Tile> tileAT(final Point point) {
     return currentLevel().tileAt(point);
   }
 
@@ -486,12 +485,10 @@ public final class Game {
    * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
-   * @return The tile at the specified coordinate, or null if there is no tile or the coordinate is
-   *     out of bounds.
+   * @return The tile at the specified coordinate, or an empty Optional. if there is no tile or the
+   *     coordinate is out of bounds.
    */
-  public static Tile tileAT(final Coordinate coordinate) {
-    // TODO: SMELL!
-    // we really shouldn't return `null` if no tile was found, but `Optional.empty()` instead!
+  public static Optional<Tile> tileAT(final Coordinate coordinate) {
     return currentLevel().tileAt(coordinate);
   }
 
@@ -500,9 +497,10 @@ public final class Game {
    *
    * @param coordinate The starting coordinate
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given coordinate in the specified direction.
+   * @return The tile that is the next tile from the given coordinate in the specified direction or
+   *     an empty Optional..
    */
-  public static Tile tileAT(final Coordinate coordinate, Direction direction) {
+  public static Optional<Tile> tileAT(final Coordinate coordinate, Direction direction) {
     return tileAT(coordinate.translate(direction));
   }
 
@@ -511,9 +509,10 @@ public final class Game {
    *
    * @param point The starting point
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given point in the specified direction.
+   * @return The tile that is the next tile from the given point in the specified direction or an
+   *     empty Optional..
    */
-  public static Tile tileAT(final Point point, Direction direction) {
+  public static Optional<Tile> tileAT(final Point point, Direction direction) {
     return tileAT(point.toCoordinate(), direction);
   }
 
@@ -564,7 +563,7 @@ public final class Game {
   /**
    * Get the start tile.
    *
-   * @return The start tile.
+   * @return The start tile or an empty Optional if there is no dedicated start tile.
    */
   public static Optional<Tile> startTile() {
     return currentLevel().startTile();
@@ -574,9 +573,9 @@ public final class Game {
    * Returns the tile the given entity is standing on.
    *
    * @param entity entity to check for.
-   * @return tile at the coordinate of the entity
+   * @return tile at the coordinate of the entity or an empty Optional.
    */
-  public static Tile tileAtEntity(final Entity entity) {
+  public static Optional<Tile> tileAtEntity(final Entity entity) {
     return currentLevel().tileAtEntity(entity);
   }
 
@@ -587,25 +586,29 @@ public final class Game {
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
-    Tile tile = Game.tileAT(check.position());
-    if (tile == null) return Stream.empty();
+    return Game.tileAT(check.position())
+        .map(
+            target -> {
+              Set<Class<? extends Component>> filter = new HashSet<>();
+              filter.add(PositionComponent.class);
 
-    return ECSManagment.levelEntities(Set.of(PositionComponent.class))
-            .filter(
-                    e ->
-                            tile.equals(
-                                    tileAT(
-                                            e.fetch(PositionComponent.class)
-                                                    .orElseThrow(
-                                                            () -> MissingComponentException.build(e, PositionComponent.class))
-                                                    .position())));
+              return ECSManagment.levelEntities(filter)
+                  .filter(
+                      e ->
+                          e.fetch(PositionComponent.class)
+                              .map(PositionComponent::position)
+                              .flatMap(Game::tileAT)
+                              .map(target::equals)
+                              .orElse(false));
+            })
+        .orElseGet(Stream::empty);
   }
 
   /**
    * Get a random tile of the given type.
    *
    * @param elementType Type of the tile.
-   * @return A random tile of the given type.
+   * @return A random tile of the given type or an empty Optional if there is no tile of that type.
    */
   public static Optional<Tile> randomTile(final LevelElement elementType) {
     return currentLevel().randomTile(elementType);
@@ -624,7 +627,7 @@ public final class Game {
    * Get the position of a random Tile as Point.
    *
    * @param elementTyp Type of the Tile.
-   * @return Position of the Tile as Point.
+   * @return Position of the Tile as Point or an empty Optional if there is no tile of that type.
    */
   public static Optional<Point> randomTilePoint(final LevelElement elementTyp) {
     return currentLevel().randomTilePoint(elementTyp);
@@ -637,8 +640,8 @@ public final class Game {
    */
   public static Set<Tile> allTiles() {
     return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
-            .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
-            .collect(Collectors.toSet()); // Collect the elements into a Set
+        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
+        .collect(Collectors.toSet()); // Collect the elements into a Set
   }
 
   /**
@@ -649,9 +652,9 @@ public final class Game {
    */
   public static Set<Tile> allTiles(Predicate<Tile> filterRule) {
     return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
-            .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
-            .filter(filterRule) // Apply the predicate to filter the tiles
-            .collect(Collectors.toSet()); // Collect the elements into a Set
+        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
+        .filter(filterRule) // Apply the predicate to filter the tiles
+        .collect(Collectors.toSet()); // Collect the elements into a Set
   }
 
   /**
