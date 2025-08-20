@@ -176,9 +176,11 @@ public final class LevelUtils {
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
         for (Vector2 offset : offsets) {
-          current.level().tileAt(current.coordinate().translate(offset))
-            .filter(tile -> isInRange(center, radius, tile))
-            .ifPresent(tileQueue::add);
+          current
+              .level()
+              .tileAt(current.coordinate().translate(offset))
+              .filter(tile -> isInRange(center, radius, tile))
+              .ifPresent(tileQueue::add);
         }
       }
     }
@@ -312,8 +314,7 @@ public final class LevelUtils {
     // Queue to hold the cells to be explored in the form of (row, col)
     Queue<Tile> queue = new LinkedList<>();
     // Start BFS from the given start position
-    Game.currentLevel().tileAt(new Coordinate(startX, startY))
-      .ifPresent(queue::add);
+    Game.currentLevel().tileAt(new Coordinate(startX, startY)).ifPresent(queue::add);
     queued[startY][startX] = true;
 
     while (!queue.isEmpty()) {
@@ -420,9 +421,10 @@ public final class LevelUtils {
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    return Game.currentLevel().tileAt(pc.position())
-      .map(tile -> LevelUtils.isTileWithinArea(tile, topLeft, bottomRight))
-      .orElse(false);
+    return Game.currentLevel()
+        .tileAt(pc.position())
+        .map(tile -> LevelUtils.isTileWithinArea(tile, topLeft, bottomRight))
+        .orElse(false);
   }
 
   /**
@@ -462,8 +464,7 @@ public final class LevelUtils {
 
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
-        Game.currentLevel().tileAt(new Coordinate(x, y))
-          .ifPresent(t -> t.tintColor(color));
+        Game.currentLevel().tileAt(new Coordinate(x, y)).ifPresent(t -> t.tintColor(color));
       }
     }
   }

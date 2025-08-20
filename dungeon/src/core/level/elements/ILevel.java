@@ -19,8 +19,9 @@ import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
 import java.util.*;
-import java.util.function.Function;
 import java.util.Optional;
+import java.util.function.Function;
+
 /**
  * Defines the API for Levels in the dungeon.
  *
@@ -277,11 +278,13 @@ public interface ILevel extends IndexedGraph<Tile> {
   /**
    * Retrieves the tile at the specified position within the level.
    *
-   * <p>The {@link Point} is converted to a {@link Coordinate} via {@link Point#toCoordinate()}.
-   * If the resulting coordinate is out of bounds or there is no tile, an empty {@link Optional} is returned.
+   * <p>The {@link Point} is converted to a {@link Coordinate} via {@link Point#toCoordinate()}. If
+   * the resulting coordinate is out of bounds or there is no tile, an empty {@link Optional} is
+   * returned.
    *
    * @param point The position from which to retrieve the tile, converted to a coordinate.
-   * @return An {@link Optional} containing the tile at the given point, or {@link Optional#empty()}.
+   * @return An {@link Optional} containing the tile at the given point, or {@link
+   *     Optional#empty()}.
    */
   default Optional<Tile> tileAt(final Point point) {
     return tileAt(point.toCoordinate());
@@ -329,17 +332,18 @@ public interface ILevel extends IndexedGraph<Tile> {
    * Retrieves the tile on which the given entity is standing.
    *
    * <p>The method fetches the position component of the entity using {@link Entity#fetch(Class)}
-   * and looks up the tile at that position. If the entity has no {@link PositionComponent}
-   * or the position is out of bounds / has no tile, an empty {@link Optional} is returned.
+   * and looks up the tile at that position. If the entity has no {@link PositionComponent} or the
+   * position is out of bounds / has no tile, an empty {@link Optional} is returned.
    *
    * @param entity The entity for which to retrieve the tile.
-   * @return An {@link Optional} containing the tile at the entity's position, or empty if unavailable.
+   * @return An {@link Optional} containing the tile at the entity's position, or empty if
+   *     unavailable.
    */
   default Optional<Tile> tileAtEntity(final Entity entity) {
     return entity
-      .fetch(PositionComponent.class)
-      .map(PositionComponent::position)
-      .flatMap(this::tileAt);
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .flatMap(this::tileAt);
   }
 
   /**

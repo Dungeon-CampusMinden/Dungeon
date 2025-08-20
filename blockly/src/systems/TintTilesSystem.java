@@ -78,10 +78,13 @@ public class TintTilesSystem extends System {
         .filter(coord -> !currentlyAffectedCoordinates.contains(coord))
         .forEach(
             coord -> {
-              level.tileAt(coord).ifPresent(tile -> {
-                tintTile(tile, tintViewComp.originalColor(coord));
-                tintViewComp.removeOriginalColor(coord);
-              });
+              level
+                  .tileAt(coord)
+                  .ifPresent(
+                      tile -> {
+                        tintTile(tile, tintViewComp.originalColor(coord));
+                        tintViewComp.removeOriginalColor(coord);
+                      });
             });
   }
 
@@ -101,10 +104,13 @@ public class TintTilesSystem extends System {
         .originalColors()
         .forEach(
             coord -> {
-              level.tileAt(coord).ifPresent(tile -> {
-                tintTile(tile, tintViewComp.originalColor(coord));
-                tintViewComp.removeOriginalColor(coord);
-              });
+              level
+                  .tileAt(coord)
+                  .ifPresent(
+                      tile -> {
+                        tintTile(tile, tintViewComp.originalColor(coord));
+                        tintViewComp.removeOriginalColor(coord);
+                      });
             });
 
     // Clear the original colors map

@@ -213,11 +213,11 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
     for (Coordinate pillarTopLeftCoord : pillars) {
       tileAt(pillarTopLeftCoord).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
       tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y()))
-        .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
       tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1))
-        .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
       tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1))
-        .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
     }
   }
 

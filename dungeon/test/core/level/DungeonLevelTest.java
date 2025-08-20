@@ -225,10 +225,9 @@ public class DungeonLevelTest {
     layout[0][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 0), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
-    Tile endTile   = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
+    Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
 
-    assertThrows(IllegalArgumentException.class,
-      () -> tileLevel.findPath(startTile, endTile));
+    assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(startTile, endTile));
   }
 
   /** WTF? . */
@@ -244,10 +243,9 @@ public class DungeonLevelTest {
     layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
-    Tile endTile   = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
+    Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
 
-    assertThrows(IllegalArgumentException.class,
-      () -> tileLevel.findPath(startTile, endTile));
+    assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(startTile, endTile));
   }
 
   /** WTF? . */
@@ -264,10 +262,9 @@ public class DungeonLevelTest {
     layout[2][1] = new WallTile(new SimpleIPath(""), new Coordinate(1, 2), DesignLabel.DEFAULT);
     DungeonLevel tileLevel = new DungeonLevel(layout);
     Tile startTile = tileLevel.tileAt(layout[0][1].coordinate()).orElseThrow();
-    Tile endTile   = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
+    Tile endTile = tileLevel.tileAt(layout[2][1].coordinate()).orElseThrow();
 
-    assertThrows(IllegalArgumentException.class,
-      () -> tileLevel.findPath(startTile, endTile));
+    assertThrows(IllegalArgumentException.class, () -> tileLevel.findPath(startTile, endTile));
   }
 
   /** WTF? . */
@@ -280,7 +277,8 @@ public class DungeonLevelTest {
     }
     levelLayout[0][0] = LevelElement.EXIT;
     var level = new DungeonLevel(levelLayout, DesignLabel.DEFAULT);
-    assertEquals(levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).orElseThrow().levelElement());
+    assertEquals(
+        levelLayout[1][2], level.tileAt(new Coordinate(2, 1)).orElseThrow().levelElement());
   }
 
   /** WTF? . */
@@ -570,7 +568,8 @@ public class DungeonLevelTest {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
-    level.changeTileElementType(level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.FLOOR);
+    level.changeTileElementType(
+        level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.FLOOR);
     assertEquals(3, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
@@ -589,7 +588,8 @@ public class DungeonLevelTest {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
-    level.changeTileElementType(level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.EXIT);
+    level.changeTileElementType(
+        level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.EXIT);
     assertEquals(3, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
@@ -608,7 +608,8 @@ public class DungeonLevelTest {
           new LevelElement[] {LevelElement.FLOOR, LevelElement.FLOOR, LevelElement.FLOOR}
         };
     DungeonLevel level = new DungeonLevel(layout, DesignLabel.DEFAULT);
-    level.changeTileElementType(level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.WALL);
+    level.changeTileElementType(
+        level.tileAt(new Coordinate(0, 0)).orElseThrow(), LevelElement.WALL);
     assertEquals(2, level.getNodeCount());
     AtomicInteger counter = new AtomicInteger();
     Arrays.stream(level.layout())
@@ -638,7 +639,8 @@ public class DungeonLevelTest {
         .sorted(Comparator.comparingInt(Tile::index))
         .filter(Tile::isAccessible)
         .forEachOrdered(x -> assertEquals(counter.getAndIncrement(), x.index()));
-    assertNotEquals(LevelElement.WALL, level.tileAt(new Coordinate(1, 0)).orElseThrow().levelElement());
+    assertNotEquals(
+        LevelElement.WALL, level.tileAt(new Coordinate(1, 0)).orElseThrow().levelElement());
     assertEquals(3, counter.get());
   }
 }

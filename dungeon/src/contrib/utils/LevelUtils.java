@@ -35,10 +35,8 @@ public class LevelUtils {
         return false; // if there is a blockFireball in the way, we can't see through
       }
 
-      currentTile = currentTile
-        .level()
-        .tileAt(currentTile.position().translate(direction))
-        .orElse(null);
+      currentTile =
+          currentTile.level().tileAt(currentTile.position().translate(direction)).orElse(null);
     }
     return true;
   }

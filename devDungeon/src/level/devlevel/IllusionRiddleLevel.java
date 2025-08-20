@@ -193,11 +193,11 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
 
     // Draw teleporter connections
     teleporterSystem.teleporter().stream()
-      .map(Teleporter::from)
-      .forEach(tp -> tileAt(tp).ifPresent(t -> t.tintColor(0x444444FF)));
+        .map(Teleporter::from)
+        .forEach(tp -> tileAt(tp).ifPresent(t -> t.tintColor(0x444444FF)));
     teleporterSystem.teleporter().stream()
-      .map(Teleporter::to)
-      .forEach(tp -> tileAt(tp).ifPresent(t -> t.tintColor(0x444444FF)));
+        .map(Teleporter::to)
+        .forEach(tp -> tileAt(tp).ifPresent(t -> t.tintColor(0x444444FF)));
 
     Entity b =
         utils.EntityUtils.spawnBoss(
