@@ -60,18 +60,19 @@ public final class EntityIdProvider {
   }
 
   /**
-   * Ensure the given ID is registered as used, without throwing if already present. Useful when
-   * entities are constructed externally and then added to the game.
+   * Ensure the given ID is registered as used. Does not throw if already present.
    *
    * @param id the id to ensure registration for
+   * @return true if the id was newly registered; false if it was already registered
    * @throws IllegalArgumentException if id is negative
    */
-  public static void ensureRegistered(int id) {
+  public static boolean ensureRegistered(int id) {
     if (id < 0) {
       throw new IllegalArgumentException("Entity id must be non-negative");
     }
-    USED.putIfAbsent(id, Boolean.TRUE);
+    boolean registered = USED.putIfAbsent(id, Boolean.TRUE) == null;
     bumpNextIfNeeded(id + 1);
+    return registered;
   }
 
   /**
