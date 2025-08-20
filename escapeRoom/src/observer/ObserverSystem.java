@@ -117,6 +117,5 @@ public class ObserverSystem extends System {
     return new OSData(e, oc);
   }
 
-  /** Internal record to hold an entity and its ObservableComponent. */
   private record OSData(Entity e, ObservableComponent oc) {}
 }
