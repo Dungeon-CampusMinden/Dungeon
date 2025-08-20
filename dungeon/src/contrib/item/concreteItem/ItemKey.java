@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
 import core.components.PositionComponent;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -17,10 +17,7 @@ public class ItemKey extends Item {
    * Create a {@link Item} that looks like a Key. It can be collected and stored in the inventory.
    */
   public ItemKey() {
-    super(
-        "Schlüssel",
-        "Ein silberner Schlüssel. Was er wohl öffnet?",
-        Animation.fromSingleImage(KEY_TEXTURE));
+    super("Schlüssel", "Ein silberner Schlüssel. Was er wohl öffnet?", new Animation(KEY_TEXTURE));
   }
 
   @Override
