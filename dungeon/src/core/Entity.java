@@ -179,8 +179,9 @@ public final class Entity implements Comparable<Entity> {
 
   /**
    * Sets whether this entity is persistent across level loads.
-   * <p>
-   * If an entity is persistent, it will be carried over to the next level when the current level is loaded.
+   *
+   * <p>If an entity is persistent, it will be carried over to the next level when the current level
+   * is loaded.
    *
    * @param persistent true to make the entity persistent across levels, false otherwise
    */
@@ -196,7 +197,6 @@ public final class Entity implements Comparable<Entity> {
   public boolean isPersistent() {
     return this.persistent;
   }
-
 
   @Override
   public String toString() {
