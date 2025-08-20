@@ -45,8 +45,8 @@ public class Level02 extends DungeonLevel {
     setupCrateRiddle();
     setupExitLevers();
 
-    door1 = (DoorTile) Game.tileAT(customPoints.get(12)).orElse(null);
-    door2 = (DoorTile) Game.tileAT(customPoints.get(13)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(customPoints.get(12)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(customPoints.get(13)).orElse(null);
     door1.close();
     door2.close();
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();

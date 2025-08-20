@@ -84,8 +84,8 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
     Game.add(lever1);
     Game.add(lever2);
     Game.add(lever3);
-    door1 = (DoorTile) Game.tileAT(customPoints().get(3)).orElse(null);
-    door2 = (DoorTile) Game.tileAT(customPoints().get(4)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(customPoints().get(3)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(customPoints().get(4)).orElse(null);
     door1.close();
     door2.close();
     customPoints().remove(0);

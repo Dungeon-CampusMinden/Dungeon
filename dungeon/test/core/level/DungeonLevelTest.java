@@ -324,7 +324,7 @@ public class DungeonLevelTest {
       Arrays.fill(levelLayout[y], LevelElement.FLOOR);
     }
     var level = new DungeonLevel(levelLayout, DesignLabel.DEFAULT);
-    Point randomPoint = level.randomTilePoint();
+    Point randomPoint = level.randomTilePoint().orElse(null);
     assertNotNull(randomPoint);
     assertTrue(level.tileAt(randomPoint).isPresent());
   }

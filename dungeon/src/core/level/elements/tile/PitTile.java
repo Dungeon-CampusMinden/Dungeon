@@ -47,7 +47,7 @@ public class PitTile extends Tile {
   public void open() {
     this.open = true;
 
-    ((DungeonLevel) Game.currentLevel()).removeFromPathfinding(this);
+    ((DungeonLevel) Game.currentLevel().orElse(null)).removeFromPathfinding(this);
   }
 
   /**
@@ -62,7 +62,7 @@ public class PitTile extends Tile {
 
     this.open = false;
 
-    ((DungeonLevel) Game.currentLevel()).addToPathfinding(this);
+    ((DungeonLevel) Game.currentLevel().orElse(null)).addToPathfinding(this);
   }
 
   /**

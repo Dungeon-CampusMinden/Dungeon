@@ -6,6 +6,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -74,7 +75,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
    *
    * @return The Design of this level.
    */
-  public DesignLabel designLabel() {
-    return designLabel;
+  public Optional<DesignLabel> designLabel() {
+    return Optional.ofNullable(designLabel);
   }
 }

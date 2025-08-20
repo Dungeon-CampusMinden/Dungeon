@@ -294,7 +294,7 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @return Whether the item was dropped successfully.
    */
   public boolean drop(final Point position) {
-    Tile tile = Game.tileAT(position).orElse(null);
+    Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof FloorTile) {
       Game.add(WorldItemBuilder.buildWorldItem(this, position));
       return true;

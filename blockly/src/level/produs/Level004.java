@@ -70,9 +70,9 @@ public class Level004 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.zoomDefault();
-    door1 = (DoorTile) Game.tileAT(new Coordinate(8, 3)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(new Coordinate(8, 3)).orElse(null);
     door1.close();
-    door2 = (DoorTile) Game.tileAT(new Coordinate(16, 3)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(new Coordinate(16, 3)).orElse(null);
     door1.close();
     door2.close();
     Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());

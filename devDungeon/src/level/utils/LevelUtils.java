@@ -29,7 +29,7 @@ public class LevelUtils {
   public static Point getRandomTPTargetForCurrentLevel() {
     DevDungeonLevel level;
     try {
-      level = (DevDungeonLevel) Game.currentLevel();
+      level = (DevDungeonLevel) Game.currentLevel().orElse(null);
     } catch (ClassCastException e) {
       return null;
     }
@@ -66,7 +66,7 @@ public class LevelUtils {
                   continue; // Skip if no direct line of sight
                 }
 
-                Tile tile = Game.currentLevel().tileAt(target).orElse(null);
+                Tile tile = Game.tileAt(target).orElse(null);
                 if (tile != null) {
                   actionPerTile.accept(tile);
                 }
@@ -100,7 +100,7 @@ public class LevelUtils {
 
     while (true) {
       // Stop if the current tile is a wall
-      Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y)).orElse(null);
+      Tile tile = Game.tileAt(new Coordinate(x, y)).orElse(null);
       if (tile != null && tile.levelElement() == LevelElement.WALL) {
         return false;
       }

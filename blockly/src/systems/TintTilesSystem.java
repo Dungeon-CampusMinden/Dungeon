@@ -57,7 +57,7 @@ public class TintTilesSystem extends System {
    */
   private void applyTint(TintTileSystemData data) {
     Set<Coordinate> currentlyAffectedCoordinates = new HashSet<>();
-    ILevel level = Game.currentLevel();
+    ILevel level = Game.currentLevel().orElse(null);
     if (level == null) return;
 
     Direction viewDirection = data.viewDirection;
@@ -94,7 +94,7 @@ public class TintTilesSystem extends System {
    * @param data The data object containing the entity's view direction and tinting information.
    */
   private void removeTint(TintTileSystemData data) {
-    ILevel level = Game.currentLevel();
+    ILevel level = Game.currentLevel().orElse(null);
     if (level == null) return;
 
     TintDirectionComponent tintViewComp = data.tintDirectionComponent;

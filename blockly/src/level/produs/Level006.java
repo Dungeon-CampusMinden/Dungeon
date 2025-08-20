@@ -84,7 +84,7 @@ public class Level006 extends BlocklyLevel {
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
-    door = (DoorTile) Game.tileAT(new Coordinate(5, 12)).orElse(null);
+    door = (DoorTile) Game.tileAt(new Coordinate(5, 12)).orElse(null);
     door.close();
   }
 

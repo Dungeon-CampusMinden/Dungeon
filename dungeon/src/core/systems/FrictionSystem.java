@@ -35,7 +35,7 @@ public class FrictionSystem extends System {
   }
 
   private void applyFriction(FSData data) {
-    float friction = Game.tileAT(data.pc.position()).map(Tile::friction).orElse(DEFAULT_FRICTION);
+    float friction = Game.tileAt(data.pc.position()).map(Tile::friction).orElse(DEFAULT_FRICTION);
     Vector2 force = data.vc().currentVelocity().scale(friction).inverse();
     if (force.isZero()) force = Vector2.ZERO;
     data.vc.applyForce("Friction", force);

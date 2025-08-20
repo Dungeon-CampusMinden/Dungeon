@@ -114,7 +114,7 @@ public class TintDirectionComponent implements Component {
    * @return List of affected tiles
    */
   public ArrayList<Tile> affectedTiles(Direction direction) {
-    ILevel level = Game.currentLevel();
+    ILevel level = Game.currentLevel().orElse(null);
     ArrayList<Tile> tiles = new ArrayList<>(range);
     if (level == null) return tiles;
 

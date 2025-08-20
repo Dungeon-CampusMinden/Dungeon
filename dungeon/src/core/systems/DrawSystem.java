@@ -102,7 +102,7 @@ public final class DrawSystem extends System {
     List<Entity> players = partitionedEntities.get(true);
     List<Entity> npcs = partitionedEntities.get(false);
 
-    drawLevel(Game.currentLevel());
+    Game.currentLevel().ifPresent(this::drawLevel);
     npcs.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
     players.stream().filter(this::shouldDraw).forEach(entity -> draw(buildDataObject(entity)));
   }
@@ -125,18 +125,17 @@ public final class DrawSystem extends System {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    if (Game.currentLevel().tileAt(pc.position()) == null) {
-      return false;
-    }
-
     DrawComponent dc =
         entity
             .fetch(DrawComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+
     if (!dc.isVisible()) return false;
 
-    Tile tile = Game.currentLevel().tileAt(pc.position()).orElse(null);
-    return tile.visible();
+    return Game.currentLevel()
+        .flatMap(level -> level.tileAt(pc.position()))
+        .map(Tile::visible)
+        .orElse(false);
   }
 
   private void draw(final DSData dsd) {

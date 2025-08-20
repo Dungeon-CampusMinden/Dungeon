@@ -12,7 +12,6 @@ import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.loader.DungeonLoader;
-import core.level.utils.*;
 import core.utils.IVoidFunction;
 import core.utils.Tuple;
 import core.utils.components.MissingComponentException;
@@ -65,10 +64,10 @@ public final class LevelSystem extends System {
   /**
    * Get the currently loaded level.
    *
-   * @return The currently loaded level.
+   * @return The currently loaded level or an empty Optional if there is no level.
    */
-  public static ILevel level() {
-    return currentLevel;
+  public static Optional<ILevel> level() {
+    return Optional.ofNullable(currentLevel);
   }
 
   /**
@@ -95,7 +94,7 @@ public final class LevelSystem extends System {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
+    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
     if (currentTile == null) {
       return false;
     }
@@ -110,7 +109,7 @@ public final class LevelSystem extends System {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
+    Tile currentTile = Game.tileAt(pc.position()).orElse(null);
 
     if (!(currentTile instanceof DoorTile doorTile)) {
       return Optional.empty();

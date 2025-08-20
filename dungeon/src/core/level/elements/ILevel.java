@@ -301,8 +301,9 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return A randomly selected tile from the level.
    */
-  default Tile randomTile() {
-    return layout()[RANDOM.nextInt(layout().length)][RANDOM.nextInt(layout()[0].length)];
+  default Optional<Tile> randomTile() {
+    return Optional.ofNullable(
+        layout()[RANDOM.nextInt(layout().length)][RANDOM.nextInt(layout()[0].length)]);
   }
 
   /**
@@ -357,8 +358,8 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return The position of a randomly selected tile in the level as a {@link Point}.
    */
-  default Point randomTilePoint() {
-    return randomTile().position();
+  default Optional<Point> randomTilePoint() {
+    return randomTile().map(Tile::position);
   }
 
   /**
@@ -412,8 +413,8 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return The DesignLabel of the level
    */
-  default DesignLabel designLabel() {
-    return randomTile().designLabel();
+  default Optional<DesignLabel> designLabel() {
+    return randomTile().map(Tile::designLabel);
   }
 
   /**

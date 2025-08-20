@@ -73,7 +73,7 @@ public class ItemWoodenBow extends Item {
         .flatMap(hero -> hero.fetch(InputComponent.class))
         .ifPresent(ic -> ic.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
 
-    return Game.tileAT(position)
+    return Game.tileAt(position)
         .filter(FloorTile.class::isInstance)
         .map(
             tile -> {

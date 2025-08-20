@@ -179,7 +179,7 @@ public class Hero {
    */
   public Berry getBerryAt(Point point) {
     if (point == null) return null;
-    Tile t = Game.tileAT(point).orElse(null);
+    Tile t = Game.tileAt(point).orElse(null);
     if (t == null) return null;
     return (Berry)
         Game.entityAtTile(t)
@@ -216,7 +216,7 @@ public class Hero {
    */
   public void destroyItemAt(Point point) {
     if (point == null) return;
-    Tile tile = Game.tileAT(point).orElse(null);
+    Tile tile = Game.tileAt(point).orElse(null);
     if (tile == null) return;
     Game.entityAtTile(tile)
         .filter(e -> e.isPresent(ItemComponent.class))

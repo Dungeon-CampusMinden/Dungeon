@@ -163,10 +163,10 @@ public class FogOfWarSystem extends System {
         } else {
           // Our light beam is touching this square; light it
           if (dx * dx + dy * dy < radius * radius) {
-            Tile tile = Game.tileAT(new Point(X, Y)).orElse(null);
+            Tile tile = Game.tileAt(new Point(X, Y)).orElse(null);
             visibleTiles.add(tile);
           }
-          Tile tile = Game.tileAT(new Point(X, Y)).orElse(null);
+          Tile tile = Game.tileAt(new Point(X, Y)).orElse(null);
           if (tile == null) {
             continue;
           }
@@ -275,7 +275,7 @@ public class FogOfWarSystem extends System {
           entity
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-      Tile tile = Game.tileAT(pc.position()).orElse(null);
+      Tile tile = Game.tileAt(pc.position()).orElse(null);
       if (!darkenedTiles.containsKey(tile) || tile.tintColor() >= HIDE_ENTITY_THRESHOLD) {
         DrawComponent dc =
             entity
@@ -300,7 +300,7 @@ public class FogOfWarSystem extends System {
     revertTilesBackToLight(tilesOutsideView);
 
     List<Tile> visibleTiles = new ArrayList<>();
-    visibleTiles.add(Game.tileAT(heroPos).orElse(null));
+    visibleTiles.add(Game.tileAt(heroPos).orElse(null));
     // Cast light into the surrounding tiles
     for (int octant = 0; octant < 8; octant++) {
       visibleTiles.addAll(

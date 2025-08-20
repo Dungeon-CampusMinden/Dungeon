@@ -7,6 +7,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
 import core.utils.Point;
@@ -101,7 +102,7 @@ public class MobSpawnerSystem extends System {
       throw new IllegalStateException("No possible spawn locations found for mob spawner");
     }
 
-    Tile spawnTile = possibleSpawns.get(Game.currentLevel().RANDOM.nextInt(possibleSpawns.size()));
+    Tile spawnTile = possibleSpawns.get(ILevel.RANDOM.nextInt(possibleSpawns.size()));
     mobSpawner.spawnRandomMonster(spawnTile.coordinate().toCenteredPoint());
     lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
   }

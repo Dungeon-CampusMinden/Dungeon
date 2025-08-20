@@ -83,10 +83,10 @@ public class LevelEditorSystem extends System {
       setCustomPoint();
     }
     if (Gdx.input.isKeyJustPressed(SAVE_BUTTON)) {
-      if (Game.currentLevel() instanceof DungeonLevel) {
+      if (Game.currentLevel().orElse(null) instanceof DungeonLevel) {
         DungeonSaver.saveCurrentDungeon();
       } else {
-        java.lang.System.out.println(Game.currentLevel().printLevel());
+        java.lang.System.out.println(Game.currentLevel().orElse(null).printLevel());
       }
     }
     if (Gdx.input.isKeyJustPressed(FILL_WITH_FLOOR)) {
@@ -101,7 +101,7 @@ public class LevelEditorSystem extends System {
   private void fillWithFloor() {
     Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
 
-    Tile startTile = LevelSystem.level().tileAt(mosPos).orElse(null);
+    Tile startTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
     if (startTile == null) {
       return;
     }
@@ -115,7 +115,7 @@ public class LevelEditorSystem extends System {
       }
       if (currentTile.levelElement() == LevelElement.SKIP
           || currentTile.levelElement() == LevelElement.FLOOR) {
-        LevelSystem.level().changeTileElementType(currentTile, LevelElement.FLOOR);
+        LevelSystem.level().orElse(null).changeTileElementType(currentTile, LevelElement.FLOOR);
 
         Vector2[] directions = {Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT};
         for (Vector2 direction : directions) {
@@ -135,20 +135,20 @@ public class LevelEditorSystem extends System {
 
   private void setTile(LevelElement element) {
     Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-    Tile mouseTile = LevelSystem.level().tileAt(mosPos).orElse(null);
+    Tile mouseTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
     if (mouseTile == null) {
       return;
     }
-    LevelSystem.level().changeTileElementType(mouseTile, element);
+    LevelSystem.level().orElse(null).changeTileElementType(mouseTile, element);
   }
 
   private void setCustomPoint() {
     Point mosPos = SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-    Tile mouseTile = LevelSystem.level().tileAt(mosPos).orElse(null);
+    Tile mouseTile = LevelSystem.level().orElse(null).tileAt(mosPos).orElse(null);
     if (mouseTile == null) {
       return;
     }
-    if (Game.currentLevel() instanceof DungeonLevel devDungeonLevel) {
+    if (Game.currentLevel().orElse(null) instanceof DungeonLevel devDungeonLevel) {
       if (devDungeonLevel.customPoints().contains(mouseTile.coordinate())) {
         java.lang.System.out.println("[-] Custom point: " + mouseTile.coordinate());
         devDungeonLevel.removeCustomPoint(mouseTile.coordinate());

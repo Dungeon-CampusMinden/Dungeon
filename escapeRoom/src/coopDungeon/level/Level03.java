@@ -139,7 +139,7 @@ public class Level03 extends DungeonLevel {
               @Override
               public void accept(Entity entity) {
                 Optional<Tile> entityTile = Game.tileAtEntity(entity);
-                Optional<Tile> goalTile = Game.tileAT(goal);
+                Optional<Tile> goalTile = Game.tileAt(goal);
 
                 if (entityTile.isPresent()
                     && goalTile.isPresent()

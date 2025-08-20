@@ -43,7 +43,7 @@ public class PitSystem extends System {
         .forEach(
             entity -> {
               PositionComponent positionComponent = getPositionComponent(entity);
-              Tile currentTile = Game.tileAT(positionComponent.position()).orElse(null);
+              Tile currentTile = Game.tileAt(positionComponent.position()).orElse(null);
 
               if (currentTile instanceof PitTile pitTile) {
                 // camera focus point entity should not trigger pit
