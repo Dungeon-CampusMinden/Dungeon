@@ -22,6 +22,7 @@ import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.FloorTile;
 import core.level.elements.tile.PitTile;
+import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -110,6 +111,24 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         .flatMap(tile -> level.tileAt(tile.coordinate()).stream())
         .map(tile -> (PitTile) tile)
         .forEach(PitTile::open);
+
+    LevelUtils.tilesInArea(bridgePitsBounds[0], bridgePitsBounds[1]).stream()
+        .filter(tile -> tile instanceof WallTile)
+        .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
+        .forEach(
+            tile -> {
+              utils.EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
+            });
+
+    LevelUtils.tilesInArea(bridgeBounds[0], bridgeBounds[1]).stream()
+        .map(tile -> (PitTile) tile)
+        .forEach(
+            pitTile -> {
+              pitTile.timeToOpen(99999999);
+              pitTile.close();
+            });
+
+    prepareBridgeEntities();
   }
 
   private void prepareBridgeEntities() {
