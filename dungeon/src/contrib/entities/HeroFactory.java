@@ -136,6 +136,7 @@ public final class HeroFactory {
    */
   public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
     Entity hero = new Entity("hero");
+    hero.persistent(true);
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
     CameraComponent cc = new CameraComponent();
