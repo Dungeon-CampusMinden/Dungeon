@@ -43,6 +43,7 @@ public class AIUtils {
   }
 
   /**
+<<<<<<< HEAD
    * Checks if the entity is either on the end of the path or has left the path.
    *
    * @param entity Entity to be checked.
@@ -112,6 +113,89 @@ public class AIUtils {
   }
 
   /**
+=======
+   * Sets the velocity of the passed entity so that it takes the next necessary step to get to the
+   * end of the path.
+   *
+   * @param entity Entity moving on the path.
+   * @param path Path on which the entity moves.
+   */
+  public static void move(final Entity entity, final GraphPath<Tile> path) {
+    followPath(entity, path);
+  }
+
+  /**
+   * Checks if the entity is either on the end of the path or has left the path.
+   *
+   * @param entity Entity to be checked.
+   * @param path Path which the entity possibly left or has reached the end of.
+   * @return true if the entity is on the end of the path or has left the path, otherwise false.
+   */
+  public static boolean pathFinishedOrLeft(final Entity entity, final GraphPath<Tile> path) {
+    return pathFinished(entity, path) || pathLeft(entity, path);
+  }
+
+  /**
+   * Checks if the entity is on the end of the path.
+   *
+   * @param entity Entity to be checked.
+   * @param path Path on which the entity possible reached the end.
+   * @return true if the entity is on the end of the path, otherwise false.
+   */
+  public static boolean pathFinished(final Entity entity, final GraphPath<Tile> path) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return path.getCount() == 0
+        || LevelUtils.lastTile(path).equals(Game.tileAT(pc.position()).orElse(null));
+  }
+
+  /**
+   * Checks if the entity has left the path.
+   *
+   * @param entity Entity to be checked.
+   * @param path Path to be checked.
+   * @return true if the entity has left the path, otherwise false.
+   */
+  public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    Tile currentTile = Game.tileAT(pc.position()).orElse(null);
+    return !onPath(path, currentTile);
+  }
+
+  /**
+   * Finds the next tile in the path after the current tile.
+   *
+   * @param path The path on which the entity is moving.
+   * @param currentTile The tile the entity is currently standing on.
+   * @return The next tile in the path after the current tile, or {@code null} if the current tile
+   *     is not found or is at the end of the path.
+   */
+  private static Tile findNextTile(GraphPath<Tile> path, Tile currentTile) {
+    return StreamSupport.stream(path.spliterator(), false)
+        .dropWhile(t -> !t.equals(currentTile))
+        .skip(1)
+        .findFirst()
+        .orElse(null);
+  }
+
+  /**
+   * Checks if the current tile is on the given path.
+   *
+   * @param path The path to be checked.
+   * @param currentTile The tile to look for on the path.
+   * @return true if the current tile is on the path, otherwise false.
+   */
+  private static boolean onPath(GraphPath<Tile> path, Tile currentTile) {
+    return StreamSupport.stream(path.spliterator(), false).anyMatch(t -> t.equals(currentTile));
+  }
+
+  /**
+>>>>>>> 93a40dbe (Apply spotless formatting)
    * Calculates the direction vector from the current tile to the next tile in the path.
    *
    * @param currentTile The tile the entity is currently on.
