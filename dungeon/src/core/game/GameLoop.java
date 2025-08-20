@@ -77,7 +77,9 @@ public final class GameLoop extends ScreenAdapter {
         } catch (MissingComponentException e) {
           LOGGER.warning(e.getMessage());
         }
-        hero.ifPresent(ECSManagment::add);
+        ECSManagment.allEntities()
+            .filter(entity -> entity.isPersistent())
+            .forEach(ECSManagment::add);
         if (firstLoad && Game.isCheckPatternEnabled())
           CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
