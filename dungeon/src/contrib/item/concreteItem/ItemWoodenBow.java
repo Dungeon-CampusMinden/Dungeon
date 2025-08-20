@@ -73,11 +73,10 @@ public class ItemWoodenBow extends Item {
         .flatMap(hero -> hero.fetch(InputComponent.class))
         .ifPresent(ic -> ic.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
 
-    if (Game.tileAT(position) instanceof FloorTile) {
-      Game.add(WorldItemBuilder.buildWorldItem(this, position));
-      return true;
-    }
-    return false;
+    return Game.tileAT(position)
+      .filter(FloorTile.class::isInstance)
+      .map(tile -> { Game.add(WorldItemBuilder.buildWorldItem(this, position)); return true; })
+      .orElse(false);
   }
 
   @Override
