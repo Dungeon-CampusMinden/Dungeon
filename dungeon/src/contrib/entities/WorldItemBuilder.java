@@ -19,7 +19,7 @@ public final class WorldItemBuilder {
    * @return the newly created Entity
    */
   public static Entity buildWorldItem(final Item item) {
-    Entity droppedItem = new Entity();
+    Entity droppedItem = new Entity("worldItem_" + item.displayName());
     droppedItem.add(new PositionComponent(PositionComponent.ILLEGAL_POSITION));
     droppedItem.add(new DrawComponent(item.worldAnimation()));
     droppedItem.add(new ItemComponent(item));

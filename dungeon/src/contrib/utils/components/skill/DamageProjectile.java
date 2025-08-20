@@ -65,7 +65,6 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Consumer<Entity> onWallHit;
   private final Consumer<Entity> onSpawn;
   private final String name;
-  private static int nextId = 0;
   private final List<Entity> ignoreEntities = new ArrayList<>();
 
   /**
@@ -108,7 +107,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Consumer<Entity> onWallHit,
       final BiConsumer<Entity, Entity> onEntityHit,
       final Consumer<Entity> onSpawn) {
-    this.name = name + "_" + nextId++;
+    this.name = name;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;

@@ -39,7 +39,7 @@ public class AiMazeLevel extends AdvancedLevel {
   protected void onFirstTick() {
     float x = Game.currentLevel().layout()[0].length / 2.0f;
     float y = Game.currentLevel().layout().length / 2.0f;
-    Entity cameraFocusPoint = new Entity();
+    Entity cameraFocusPoint = new Entity("cameraFocusPoint");
     cameraFocusPoint.add(new PositionComponent(x + 0.5f, y + 0.25f));
     cameraFocusPoint.add(new CameraComponent());
     CameraSystem.camera().zoom = ZOOM_LEVEL;

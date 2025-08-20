@@ -29,7 +29,7 @@ public class LevelManagementUtils {
         .filter(e -> e.isPresent(CameraComponent.class))
         .forEach(entity -> entity.remove(CameraComponent.class));
 
-    Entity focusPoint = new Entity();
+    Entity focusPoint = new Entity("cameraFocusPoint");
     focusPoint.add(new PositionComponent(coordinate.toPoint()));
     focusPoint.add(new CameraComponent());
     Game.add(focusPoint);

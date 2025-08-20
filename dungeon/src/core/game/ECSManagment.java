@@ -5,6 +5,7 @@ import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
+import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import java.util.*;
 import java.util.function.Consumer;
@@ -48,22 +49,35 @@ public final class ECSManagment {
   public static void informAboutChanges(Entity entity) {
     if (levelEntities().anyMatch(entity1 -> entity1.equals(entity))) {
       activeEntityStorage.forEach(f -> f.update(entity));
-      LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+      LOGGER.info(entity + " informed the Game about component changes.");
     }
   }
 
   /**
    * The given entity will be added to the game.
    *
+   * <p>If given entity has an id that is already used by another entity, an {@link
+   * IllegalArgumentException} will be thrown.
+   *
    * <p>For each {@link System}, it will be checked if the {@link System} will process this entity.
    *
    * <p>If necessary, the {@link System} will trigger {@link System#triggerOnAdd(Entity)} .
    *
    * @param entity the entity to add.
+   * @throws IllegalArgumentException if an entity with the same id already exists in the game.
    */
   public static void add(Entity entity) {
+    // Prevent duplicate IDs for different entity instances
+    boolean duplicateIdExists = allEntities().anyMatch(e -> e != entity && e.id() == entity.id());
+    if (duplicateIdExists)
+      throw new IllegalArgumentException(
+          "An Entity with id " + entity.id() + " already exists in the game.");
+
+    // Ensure the provider knows about this id (idempotent).
+    EntityIdProvider.ensureRegistered(entity.id());
+
     activeEntityStorage.forEach(f -> f.add(entity));
-    LOGGER.info("Entity: " + entity + " will be added to the Game.");
+    LOGGER.info(entity + " will be added to the Game.");
   }
 
   /**
@@ -75,7 +89,8 @@ public final class ECSManagment {
    */
   public static void remove(Entity entity) {
     activeEntityStorage.forEach(f -> f.remove(entity));
-    LOGGER.info("Entity: " + entity + " will be removed from the Game.");
+    EntityIdProvider.unregister(entity.id());
+    LOGGER.info(entity + " will be removed from the Game.");
   }
 
   /**
