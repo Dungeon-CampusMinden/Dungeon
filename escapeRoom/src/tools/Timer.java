@@ -17,7 +17,7 @@ public class Timer {
    * @param milliseconds the delay in milliseconds before the action is executed
    * @return a ScheduledAction representing the scheduled event
    */
-  public static EventScheduler.ScheduledAction START_TIMER_TO_END_GAME(int milliseconds) {
+  public static EventScheduler.ScheduledAction startTimeToEndGame(int milliseconds) {
     return EventScheduler.scheduleAction(
         () -> OkDialog.showOkDialog("TIME OVER", "GAME OVER", () -> Game.exit()), milliseconds);
   }
