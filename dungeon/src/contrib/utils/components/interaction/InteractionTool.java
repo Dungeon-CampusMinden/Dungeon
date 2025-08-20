@@ -37,7 +37,7 @@ public final class InteractionTool {
         who.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(who, PositionComponent.class));
     Optional<InteractionData> data =
-        Game.entityStream()
+        Game.levelEntities()
             .filter(x -> x.isPresent(InteractionComponent.class))
             .map(x -> convertToData(x, heroPosition))
             .filter(iReachable::apply)

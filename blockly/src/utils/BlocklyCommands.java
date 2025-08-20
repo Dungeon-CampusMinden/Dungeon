@@ -21,15 +21,13 @@ import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
-import core.utils.Direction;
-import core.utils.MissingHeroException;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
@@ -57,7 +55,7 @@ public class BlocklyCommands {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
     BlocklyCommands.move(viewDirection, hero);
-    Game.allEntities()
+    Game.levelEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
         .ifPresent(
@@ -442,13 +440,15 @@ public class BlocklyCommands {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
         EntityComponents comp = entityComponents.get(i);
-        // TODO this shoudl be stored central for Blockly
+        comp.vc.clearForces();
+        comp.vc.currentVelocity(Vector2.ZERO);
         comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
         lastDistances[i] = distances[i];
         distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
-        if (Game.findEntity(entities[i])
+        if (comp.vc().maxSpeed() > 0
+            && Game.existInLevel(entities[i])
             && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
           allEntitiesArrived = false;
         }
@@ -528,5 +528,15 @@ public class BlocklyCommands {
   /** Let the hero do nothing for a short moment. */
   public static void rest() {
     Server.waitDelta();
+  }
+
+  /**
+   * Executes a given function a specified number of times.
+   *
+   * @param counter the number of times to execute the function; must be non-negative
+   * @param function the function to be executed repeatedly
+   */
+  public static void times(int counter, IVoidFunction function) {
+    IntStream.range(0, counter).forEach(value -> function.execute());
   }
 }

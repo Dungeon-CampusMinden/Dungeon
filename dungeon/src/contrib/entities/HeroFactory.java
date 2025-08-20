@@ -113,9 +113,9 @@ public final class HeroFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
-   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent}, {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}{, {@link PlayerComponent},
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
@@ -129,9 +129,9 @@ public final class HeroFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
-   * <p>It will have a {@link CameraComponent}, {@link core.components.PlayerComponent}. {@link
-   * PositionComponent}, {@link VelocityComponent}, {@link core.components.DrawComponent}, {@link
-   * contrib.components.CollideComponent} and {@link HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
    *
    * @param deathCallback function that will be executed if the hero dies
    * @return A new Entity.
@@ -139,6 +139,8 @@ public final class HeroFactory {
    */
   public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
     Entity hero = new Entity("hero");
+    PlayerComponent pc = new PlayerComponent();
+    hero.add(pc);
     CameraComponent cc = new CameraComponent();
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
@@ -207,29 +209,31 @@ public final class HeroFactory {
         });
     hero.add(col);
 
-    PlayerComponent pc = new PlayerComponent();
+    InputComponent inputComp = new InputComponent();
     hero.add(
         new CatapultableComponent(
-            entity -> pc.deactivateControls(true), entity -> pc.deactivateControls(false)));
-    hero.add(pc);
-    InventoryComponent ic = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
-    hero.add(ic);
+            entity -> inputComp.deactivateControls(true),
+            entity -> inputComp.deactivateControls(false)));
+    hero.add(inputComp);
+    InventoryComponent invComp = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
+    hero.add(invComp);
 
     // hero movement
-    registerMovement(pc, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Vector2.of(0, 1));
     registerMovement(
-        pc, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Vector2.of(0, -1));
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Vector2.of(0, 1));
     registerMovement(
-        pc, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Vector2.of(1, 0));
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Vector2.of(0, -1));
     registerMovement(
-        pc, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Vector2.of(-1, 0));
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Vector2.of(1, 0));
+    registerMovement(
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Vector2.of(-1, 0));
 
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
-      registerMouseLeftClick(pc);
+      registerMouseLeftClick(inputComp);
 
       // Mouse Movement (Right Click)
-      pc.registerCallback(
+      inputComp.registerCallback(
           KeyboardConfig.MOUSE_MOVE.value(),
           innerHero -> {
             // Small adjustment to get the correct tile
@@ -269,23 +273,23 @@ public final class HeroFactory {
     }
 
     // UI controls
-    pc.registerCallback(
+    inputComp.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (entity) -> toggleInventory(entity, pc, ic),
+        (entity) -> toggleInventory(entity, pc, invComp),
         false,
         true);
 
     if (ENABLE_MOUSE_MOVEMENT) {
-      pc.registerCallback(
+      inputComp.registerCallback(
           KeyboardConfig.MOUSE_INVENTORY_TOGGLE.value(),
-          (entity) -> toggleInventory(entity, pc, ic),
+          (entity) -> toggleInventory(entity, pc, invComp),
           false,
           true);
     }
 
-    registerCloseUI(pc);
+    registerCloseUI(inputComp);
 
-    pc.registerCallback(
+    inputComp.registerCallback(
         KeyboardConfig.INTERACT_WORLD.value(),
         entity -> {
           UIComponent uiComponent = entity.fetch(UIComponent.class).orElse(null);
@@ -301,7 +305,7 @@ public final class HeroFactory {
         false);
 
     // skills
-    pc.registerCallback(
+    inputComp.registerCallback(
         KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
 
     return hero;
@@ -312,14 +316,14 @@ public final class HeroFactory {
    *
    * <p>This will close the topmost UI dialog that has the close key configured to close it.
    *
-   * @param pc The PlayerComponent of the hero.
+   * @param ic The {@link InputComponent} of the hero.
    */
-  public static void registerCloseUI(PlayerComponent pc) {
-    pc.registerCallback(
+  public static void registerCloseUI(InputComponent ic) {
+    ic.registerCallback(
         KeyboardConfig.CLOSE_UI.value(),
         (e) -> {
           var firstUI =
-              Game.entityStream() // would be nice to directly access HudSystems
+              Game.levelEntities() // would be nice to directly access HudSystems
                   // stream (no access to the System object)
                   .filter(x -> x.isPresent(UIComponent.class)) // find all Entities
                   // that have a
@@ -369,8 +373,8 @@ public final class HeroFactory {
     }
   }
 
-  private static void registerMovement(PlayerComponent pc, int key, Vector2 direction) {
-    pc.registerCallback(
+  private static void registerMovement(InputComponent ic, int key, Vector2 direction) {
+    ic.registerCallback(
         key,
         entity -> {
           VelocityComponent vc =
@@ -396,12 +400,12 @@ public final class HeroFactory {
         });
   }
 
-  private static void registerMouseLeftClick(PlayerComponent pc) {
+  private static void registerMouseLeftClick(InputComponent ic) {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
-      pc.registerCallback(
+      ic.registerCallback(
           KeyboardConfig.MOUSE_FIRST_SKILL.value(), hero -> HERO_SKILL.execute(hero), true, false);
-      pc.registerCallback(
+      ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
           false,
@@ -409,7 +413,7 @@ public final class HeroFactory {
     } else {
       // If interact and skill are the same, only one callback can be used, so we only interact if
       // interaction is possible
-      pc.registerCallback(
+      ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           (hero) -> {
             Point mousePosition = SkillTools.cursorPositionAsPoint();

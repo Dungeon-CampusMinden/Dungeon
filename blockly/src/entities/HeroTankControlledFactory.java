@@ -3,7 +3,7 @@ package entities;
 import client.Client;
 import contrib.entities.EntityFactory;
 import core.Entity;
-import core.components.PlayerComponent;
+import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
@@ -28,26 +28,25 @@ public class HeroTankControlledFactory {
    */
   public static Entity newTankControlledHero() throws IOException {
     Entity hero = EntityFactory.newHero();
-    PlayerComponent pc =
-        hero.fetch(PlayerComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PlayerComponent.class));
+
+    InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls
-    pc.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
-    pc.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());
-    pc.removeCallback(KeyboardConfig.MOVEMENT_LEFT.value());
-    pc.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_LEFT.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
 
     // Add tank controls
-    pc.registerCallback(
+    ic.registerCallback(
         KeyboardConfig.MOVEMENT_UP.value(), HeroTankControlledFactory::moveEntityInFacingDirection);
 
     // Add rotation controls
-    pc.registerCallback(
+    ic.registerCallback(
         KeyboardConfig.MOVEMENT_LEFT.value(),
         (entity) -> BlocklyCommands.rotate(Direction.LEFT),
         false);
-    pc.registerCallback(
+    ic.registerCallback(
         KeyboardConfig.MOVEMENT_RIGHT.value(),
         (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
         false);

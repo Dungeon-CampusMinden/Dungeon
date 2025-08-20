@@ -156,6 +156,8 @@ public class Server {
     codeContext.setHandler(this::handleCodeRequest);
     HttpContext languageContext = server.createContext("/language");
     languageContext.setHandler(this::handleLanguageRequest);
+    HttpContext statusContext = server.createContext("/status");
+    statusContext.setHandler(this::handleStatusRequest);
     server.start();
     return server;
   }
@@ -495,6 +497,28 @@ public class Server {
     String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "server";
 
     String response = LanguageServer.GenerateCompletionItems(objectName);
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the status request. This function will return the current status of the Blockly -
+   * UserScript Code.
+   *
+   * @param exchange Exchange object
+   * @throws IOException If an error occurs while sending the response
+   */
+  private void handleStatusRequest(HttpExchange exchange) throws IOException {
+    String response;
+    if (BlocklyCodeRunner.instance().isCodeRunning()) {
+      response = "running";
+    } else {
+      response = "completed";
+    }
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());

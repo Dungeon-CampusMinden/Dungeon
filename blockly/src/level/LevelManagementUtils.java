@@ -25,7 +25,7 @@ public class LevelManagementUtils {
    * @param coordinate The coordinate to focus the camera on.
    */
   public static void cameraFocusOn(Coordinate coordinate) {
-    Game.entityStream()
+    Game.levelEntities()
         .filter(e -> e.isPresent(CameraComponent.class))
         .forEach(entity -> entity.remove(CameraComponent.class));
 
@@ -42,7 +42,7 @@ public class LevelManagementUtils {
    * @throws MissingHeroException if the hero entity is not present.
    */
   public static void cameraFocusHero() {
-    Game.entityStream()
+    Game.levelEntities()
         .filter(e -> e.isPresent(CameraComponent.class))
         .forEach(entity -> entity.remove(CameraComponent.class));
     Game.hero().orElseThrow(() -> new MissingHeroException()).add(new CameraComponent());

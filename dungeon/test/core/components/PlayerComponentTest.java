@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test;
 public class PlayerComponentTest {
 
   private static final int counter = 0;
-  private PlayerComponent playableComponent;
+  private InputComponent inputComponent;
 
   /** WTF? . */
   @BeforeEach
   public void setup() {
-    playableComponent = new PlayerComponent();
+    inputComponent = new InputComponent();
   }
 
   /** WTF? . */
@@ -28,7 +28,7 @@ public class PlayerComponentTest {
           @Override
           public void accept(Entity entity) {}
         };
-    assertTrue(playableComponent.registerCallback(1, function).isEmpty());
+    assertTrue(inputComponent.registerCallback(1, function).isEmpty());
   }
 
   /** WTF? . */
@@ -43,7 +43,7 @@ public class PlayerComponentTest {
           @Override
           public void accept(Entity entity) {}
         };
-    playableComponent.registerCallback(1, function).get();
-    assertEquals(function, playableComponent.registerCallback(1, newfunction).get());
+    inputComponent.registerCallback(1, function).get();
+    assertEquals(function, inputComponent.registerCallback(1, newfunction).get());
   }
 }

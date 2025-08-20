@@ -6,11 +6,11 @@ export function interact(_block: Blockly.Block, _generator: Blockly.Generator) {
 }
 
 export function fireball(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "feuerball();";
+  return "hero.shootFireball();";
 }
 
 export function wait(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "warte();";
+  return "hero.rest();";
 }
 
 export function use(
@@ -18,19 +18,19 @@ export function use(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  return "benutzen(" + dir + ");";
+  return "hero.interact(" + dir + ");";
 }
 
 export function push(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "schieben();";
+  return "hero.push();";
 }
 
 export function pull(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "ziehen();";
+  return "hero.pull();";
 }
 
 export function pickup(_block: Blockly.Block, _generator: Blockly.Generator) {
-  return "aufsammeln();";
+  return "hero.pickup();";
 }
 
 export function drop_item(
@@ -38,6 +38,6 @@ export function drop_item(
   generator: Blockly.Generator
 ) {
   const item = generator.valueToCode(block, "ITEM", Order.NONE);
-  return "fallen_lassen(" + item + ");";
+  return "hero.dropItem(" + item + ");";
 }
 

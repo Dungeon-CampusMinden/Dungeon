@@ -9,7 +9,7 @@ import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
-import core.components.PlayerComponent;
+import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
@@ -23,7 +23,7 @@ import core.utils.components.path.SimpleIPath;
  * <p>Registers and removes the callback for the second_skill.
  */
 public class ItemWoodenBow extends Item {
-  /** The default texture for all health potions. */
+  /** The default texture for all wooden bows. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/weapon/wooden_bow.png");
 
   private static final int BOW_COOLDOWN = 500;
@@ -44,10 +44,10 @@ public class ItemWoodenBow extends Item {
             inventoryComponent -> {
               if (inventoryComponent.add(this)) {
                 collector
-                    .fetch(PlayerComponent.class)
+                    .fetch(InputComponent.class)
                     .ifPresent(
-                        pc ->
-                            pc.registerCallback(
+                        ic ->
+                            ic.registerCallback(
                                 KeyboardConfig.SECOND_SKILL.value(),
                                 collectorEntity -> {
                                   inventoryComponent
@@ -69,8 +69,8 @@ public class ItemWoodenBow extends Item {
   @Override
   public boolean drop(final Point position) {
     Game.hero()
-        .flatMap(hero -> hero.fetch(PlayerComponent.class))
-        .ifPresent(pc -> pc.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
+        .flatMap(hero -> hero.fetch(InputComponent.class))
+        .ifPresent(ic -> ic.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
 
     if (Game.tileAT(position) instanceof FloorTile) {
       Game.add(WorldItemBuilder.buildWorldItem(this, position));

@@ -73,7 +73,7 @@ public class HealthSystemTest {
 
     system.execute();
     assertEquals("dead", animationComponent.currentState().name);
-    assertFalse(Game.entityStream().anyMatch(e -> e == entity));
+    assertFalse(Game.levelEntities().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */
@@ -92,7 +92,7 @@ public class HealthSystemTest {
     component.currentHealthpoints(0);
     system.execute();
     assertNotEquals("dead", animationComponent.currentState().name);
-    assertTrue(Game.entityStream().anyMatch(e -> e == entity));
+    assertTrue(Game.levelEntities().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */

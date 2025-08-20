@@ -178,7 +178,7 @@ public abstract class System {
    */
   public final Stream<Entity> filteredEntityStream(
       final Set<Class<? extends Component>> filterRules) {
-    return Game.entityStream(filterRules);
+    return Game.levelEntities(filterRules);
   }
 
   /**
