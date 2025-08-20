@@ -64,9 +64,10 @@ public final class ECSManagment {
    * <p>If necessary, the {@link System} will trigger {@link System#triggerOnAdd(Entity)} .
    *
    * @param entity the entity to add.
+   * @return added entity for chaining
    * @throws IllegalArgumentException if an entity with the same id already exists in the game.
    */
-  public static void add(Entity entity) {
+  public static Entity add(Entity entity) {
     // Prevent duplicate IDs for different entity instances
     boolean duplicateIdExists = allEntities().anyMatch(e -> e != entity && e.id() == entity.id());
     if (duplicateIdExists)
@@ -78,6 +79,7 @@ public final class ECSManagment {
 
     activeEntityStorage.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
+    return entity;
   }
 
   /**
@@ -86,11 +88,13 @@ public final class ECSManagment {
    * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
    *
    * @param entity the entity to remove
+   * @return removed entity for chaining
    */
-  public static void remove(Entity entity) {
+  public static Entity remove(Entity entity) {
     activeEntityStorage.forEach(f -> f.remove(entity));
     EntityIdProvider.unregister(entity.id());
     LOGGER.info(entity + " will be removed from the Game.");
+    return entity;
   }
 
   /**

@@ -79,6 +79,7 @@ public final class GameLoop extends ScreenAdapter {
         }
         ECSManagment.allEntities()
             .filter(entity -> entity.isPersistent())
+            .map(ECSManagment::remove)
             .forEach(ECSManagment::add);
         if (firstLoad && Game.isCheckPatternEnabled())
           CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
