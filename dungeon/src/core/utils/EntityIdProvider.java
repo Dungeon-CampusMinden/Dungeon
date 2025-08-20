@@ -16,13 +16,27 @@ public final class EntityIdProvider {
   /**
    * Get the next unique ID.
    *
+   * <p>This method generates a unique, non-negative ID that is guaranteed not to collide with any
+   * previously registered IDs. It also registers the ID as used to prevent future collisions.
+   *
+   * <p>Overflow-safe: the internal counter saturates at Integer.MAX_VALUE. If no free IDs remain
+   * (e.g., MAX_VALUE is already taken), this method throws an IllegalStateException.
+   *
    * @return a unique, non-negative ID
+   * @throws IllegalStateException if the ID space is exhausted
    */
   public static int nextId() {
     while (true) {
-      int id = NEXT.getAndIncrement();
+      // Saturating increment to avoid int overflow into negative values.
+      int id = NEXT.getAndUpdate(curr -> curr == Integer.MAX_VALUE ? Integer.MAX_VALUE : curr + 1);
+
       if (USED.putIfAbsent(id, Boolean.TRUE) == null) {
         return id;
+      }
+
+      // If Integer.MAX_VALUE is already taken, no further IDs are available.
+      if (id == Integer.MAX_VALUE) {
+        throw new IllegalStateException("Entity ID space exhausted");
       }
       // collision with an explicitly registered id, try next
     }
@@ -70,6 +84,10 @@ public final class EntityIdProvider {
   }
 
   private static void bumpNextIfNeeded(int minNext) {
+    // Clamp to valid range and avoid overflow (id == Integer.MAX_VALUE -> minNext becomes negative)
+    if (minNext < 0) {
+      minNext = Integer.MAX_VALUE;
+    }
     int prev;
     do {
       prev = NEXT.get();
