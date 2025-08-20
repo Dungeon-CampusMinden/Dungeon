@@ -3,7 +3,7 @@ package contrib.utils.components.draw;
 import core.utils.components.draw.CoreAnimationPriorities;
 import core.utils.components.path.IPath;
 
-/** Enum representing the animations for any destroyable object */
+/** Enum representing the animations for any destroyable object. */
 public enum DestroyableObjectsAnimations implements IPath {
   /** The basic texture of a destroyable object. */
   INTACT("intact", CoreAnimationPriorities.IDLE.priority()),
