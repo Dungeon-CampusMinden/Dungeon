@@ -12,7 +12,7 @@ import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemHammer;
 import contrib.item.concreteItem.ItemKey;
 import contrib.utils.components.draw.ChestAnimations;
-import contrib.utils.components.draw.StoneAnimations;
+import contrib.utils.components.draw.DestroyableObjectsAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -55,9 +55,6 @@ public final class MiscFactory {
   private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
   private static final SimpleIPath SPELL_BOOK_TEXTURE =
       new SimpleIPath("items/book/spell_book.png");
-  private static final SimpleIPath VASE_TEXTURE = new SimpleIPath("objects/vase/vase.png");
-  private static final SimpleIPath STONE_TEXTURE = new SimpleIPath("objects/stone/stone.png");
-  private static final SimpleIPath BROKEN_STONE_TEXTURE = new SimpleIPath("objects/stone/broken_stone.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -703,72 +700,125 @@ public final class MiscFactory {
     return doorBlocker;
   }
 
-  public static Entity newVase(Point spawnPoint) {
-    Entity vase = new Entity("vase");
-    vase.add(new PositionComponent(spawnPoint));
-    vase.add(new DrawComponent(Animation.fromSingleImage(VASE_TEXTURE)));
-    vase.add(
-      new InteractionComponent(
-        2.0f, true, (interacted, interactor) -> {
+  /**
+   * Creates a generic destroyable object entity.
+   *
+   * @param name The entity name (e.g. "stone", "vase").
+   * @param texturePath The path prefix for the textures (e.g. "objects/stone").
+   * @param spawnPoint The world position where the entity should be created.
+   * @param requiresHammer Whether the entity requires a hammer to be destroyed.
+   * @param dropChance The overall probability (0..1) that the entity drops something.
+   * @param heartChance The probability (0..1) that the drop is a heart (otherwise fairy).
+   * @return A new {@link Entity} configured with destruction behavior and animations.
+   * @throws IOException If loading the textures or animations fails.
+   */
+  public static Entity newDestroyableObject(
+      String name,
+      String texturePath,
+      Point spawnPoint,
+      boolean requiresHammer,
+      double dropChance,
+      double heartChance)
+      throws IOException {
 
-      }
-      ));
-    return vase;
-  }
-
-  public static Entity newStone(Point spawnPoint) throws IOException {
-    Entity stone = new Entity("stone");
-    stone.add(new PositionComponent(spawnPoint));
-
-    stone.add(
-      new InteractionComponent(
-        2.0f, true, (interacted, interactor) -> {
-        InventoryComponent invComp = interactor.fetch(InventoryComponent.class).orElse(null);
-        if (invComp == null) {
-          return;
-        }
-
-        if(invComp.hasItem(ItemHammer.class)){
-          System.out.println("HELD HAT HAMMER!!!");
-          // change Animation to broken stone
-          interacted.fetch(DrawComponent.class)
-            .ifPresent(drawComp -> {
-              // Animation „zerbrechen“ starten
-              drawComp.queueAnimation(StoneAnimations.BREAKING);
-
-              // TODO: nach dem Breaking --> auf BROKEN wechseln, funktioniert noch nicht. Breaking wird übersprungen
-              drawComp.deQueueByPriority(StoneAnimations.BREAKING.priority());
-              drawComp.queueAnimation(StoneAnimations.BROKEN);
+    Entity obj = new Entity(name);
+    obj.add(new PositionComponent(spawnPoint));
+    // Initial InteractionComponent
+    InteractionComponent baseIC =
+        new InteractionComponent(
+            2.0f,
+            true,
+            (interacted, interactor) -> {
+              // Original behavior will be wrapped below
             });
-          // drop pickUpItem
-          if (Math.random() < 0.3) {
-            double roll = Math.random();
-            if (roll < 0.75) {
-              // 75% Herz
-              Game.add(newHeartPickup(spawnPoint, 5));
-            } else {
-              // 25% Fairy
-              Game.add(newFairyPickup(spawnPoint));
-            }
-          }
-        }
-      }
-      ));
-    // DrawComponent für Stein initialisieren
-    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/stone"));
+    obj.add(baseIC);
+
+    // Wrapper-InteractionComponent
+    obj.fetch(InteractionComponent.class)
+        .ifPresent(
+            oldIC -> {
+              InteractionComponent wrapperIC =
+                  new InteractionComponent(
+                      2.0f,
+                      true,
+                      (interacted, interactor) -> {
+                        // check if a hammer is required
+                        if (requiresHammer) {
+                          InventoryComponent invComp =
+                              interactor.fetch(InventoryComponent.class).orElse(null);
+                          if (invComp == null || !invComp.hasItem(ItemHammer.class)) return;
+                        }
+
+                        // Breaking Animation starten
+                        interacted
+                            .fetch(DrawComponent.class)
+                            .ifPresent(
+                                drawComp ->
+                                    drawComp.queueAnimation(DestroyableObjectsAnimations.BREAKING));
+
+                        // Drop roll
+                        if (Math.random() < dropChance) {
+                          double roll = Math.random();
+                          if (roll < heartChance) {
+                            Game.add(newHeartPickup(spawnPoint, 5));
+                          } else {
+                            Game.add(newFairyPickup(spawnPoint));
+                          }
+                        }
+
+                        // remove interaction after successfully destroying the object
+                        interacted.remove(InteractionComponent.class);
+                      });
+
+              obj.remove(InteractionComponent.class);
+              obj.add(wrapperIC);
+            });
+
+    // init DrawComponent
+    DrawComponent dc = new DrawComponent(new SimpleIPath(texturePath));
     var mapping = dc.animationMap();
 
-    // set default idle (intakter Stein)
-    mapping.put(CoreAnimations.IDLE.pathString(), mapping.get(StoneAnimations.INTACT.pathString()));
-    // BREAKING soll nicht loopen
-    mapping.get(StoneAnimations.BREAKING.pathString()).loop(false);
+    // set intact texture as idle
+    mapping.put(
+        CoreAnimations.IDLE.pathString(),
+        mapping.get(DestroyableObjectsAnimations.INTACT.pathString()));
+    // BREAKING should not loop
+    mapping.get(DestroyableObjectsAnimations.BREAKING.pathString()).loop(false);
 
     dc.animationMap(mapping);
     dc.deQueueByPriority(CoreAnimations.IDLE.priority());
     dc.currentAnimation(CoreAnimations.IDLE);
-    stone.add(dc);
+    obj.add(dc);
 
-    return stone;
+    return obj;
+  }
+
+  /**
+   * Creates a destructible vase entity.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, String, Point, boolean, double, double)} with
+   * parameters suitable for a vase: does not require a hammer to break and has preset drop chances.
+   *
+   * @param spawnPoint The world position where the vase should be spawned.
+   * @return A new {@link Entity} representing the destructible vase.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newVase(Point spawnPoint) throws IOException {
+    return newDestroyableObject("vase", "objects/vase", spawnPoint, false, 0.3, 0.90);
+  }
+
+  /**
+   * Creates a destructible stone entity.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, String, Point, boolean, double, double)} with
+   * parameters suitable for a stone: requires a hammer to break and has preset drop chances.
+   *
+   * @param spawnPoint The world position where the stone should be spawned.
+   * @return A new {@link Entity} representing the destructible stone.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newStone(Point spawnPoint) throws IOException {
+    return newDestroyableObject("stone", "objects/stone", spawnPoint, true, 0.5, 0.75);
   }
 
   /**

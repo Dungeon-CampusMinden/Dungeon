@@ -9,25 +9,29 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
 /**
- * This item is a hammer. It is required for destroying objects like a stone.
+ * Represents a hammer item, which is required to destroy certain destructible objects like stones.
  */
 public class ItemHammer extends Item {
-
+  /** The default texture for all hammers . */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/tools/hammer.png");
 
+  /**
+   * Create a {@link Item} that looks like a hammer. It can be collected and stored in the
+   * inventory.
+   */
   public ItemHammer() {
     super(
-      "Hammer", "A powerful tool to destroy objects", Animation.fromSingleImage(DEFAULT_TEXTURE));
+        "Hammer", "A powerful tool to destroy objects", Animation.fromSingleImage(DEFAULT_TEXTURE));
   }
 
   @Override
   public void use(final Entity user) {
     user.fetch(PositionComponent.class)
-      .map(PositionComponent::position)
-      .ifPresent(
-        pos -> {
-          drop(pos);
-          user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
-        });
+        .map(PositionComponent::position)
+        .ifPresent(
+            pos -> {
+              drop(pos);
+              user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
+            });
   }
 }
