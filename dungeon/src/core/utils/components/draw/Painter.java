@@ -47,7 +47,7 @@ public class Painter {
    * @param rotation Rotation in degree.
    */
   public void draw(
-      final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
+      final Point position, final Sprite sprite, final PainterConfig config, double rotation) {
     Point realPos = position.translate(config.offset());
     if (CameraSystem.isPointInFrustum(realPos)) {
       // Size & Position
@@ -56,7 +56,7 @@ public class Painter {
 
       // Rotation
       sprite.setOriginCenter();
-      sprite.setRotation(rotation);
+      sprite.setRotation((float) rotation);
 
       // Tint
       if (config.tintColor() != -1) {

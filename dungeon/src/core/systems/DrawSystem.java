@@ -109,6 +109,11 @@ public final class DrawSystem extends System {
     }
   }
 
+  /**
+   * Notifies this system of an entity changing its depth, to update the cached depths.
+   *
+   * @param entity The entity that changed its depth
+   */
   public void onEntityChangedDepth(Entity entity) {
     DSData data = buildDataObject(entity);
     int oldDepth = Integer.MIN_VALUE;
