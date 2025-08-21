@@ -6,9 +6,9 @@
       "x": 0,
       "y": 0,
       "rows": 1,
-      "columns": 6
+      "columns": 1
     },
-    "framesPerSprite": 2,
+    "framesPerSprite": 10,
     "scaleX": 1,
     "scaleY": 0,
     "isLooping": true,
