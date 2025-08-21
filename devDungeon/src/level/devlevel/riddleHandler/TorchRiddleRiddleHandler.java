@@ -81,7 +81,7 @@ public class TorchRiddleRiddleHandler {
   /** Handles the first tick of the riddle. */
   public void onFirstTick() {
     Game.add(riddleSign);
-    level.tileAt(riddleCenter).tintColor(0x22FF22FF);
+    level.tileAt(riddleCenter).ifPresent(tile -> tile.tintColor(0x22FF22FF));
     try {
       updateRiddleSign(getSumOfLitTorches());
     } catch (UnsupportedOperationException e) {
@@ -148,7 +148,7 @@ public class TorchRiddleRiddleHandler {
               e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
             });
 
-    level.tileAt(riddleCenter).tintColor(-1);
+    level.tileAt(riddleCenter).ifPresent(tile -> tile.tintColor(-1));
   }
 
   /**
@@ -158,8 +158,11 @@ public class TorchRiddleRiddleHandler {
    */
   private boolean checkIfHeroIsInCenter() {
     Optional<Entity> hero = Game.hero();
-    return hero.filter(entity -> level.tileAtEntity(entity).equals(level.tileAt(riddleCenter)))
-        .isPresent();
+    return hero.isPresent()
+        && level
+            .tileAtEntity(hero.get())
+            .map(heroTile -> heroTile.equals(level.tileAt(riddleCenter).orElse(null)))
+            .orElse(false);
   }
 
   /**
@@ -168,8 +171,11 @@ public class TorchRiddleRiddleHandler {
    * @see LevelUtils#changeVisibilityForArea(Coordinate, Coordinate, boolean)
    */
   private void solveRiddle() {
-    DoorTile door = (DoorTile) level.tileAt(riddleDoor);
-    door.open();
+    level
+        .tileAt(riddleDoor)
+        .filter(tile -> tile instanceof DoorTile)
+        .map(tile -> (DoorTile) tile)
+        .ifPresent(DoorTile::open);
     LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
   }
 

@@ -22,8 +22,10 @@ import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
 import core.systems.InputSystem;
@@ -35,6 +37,7 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -84,7 +87,7 @@ public class ComparePathfindingStarter {
   }
 
   private static void adjustWindowSize() {
-    Tile[][] layout = Game.currentLevel().layout();
+    Tile[][] layout = Game.currentLevel().orElse(null).layout();
     int levelHeight = layout.length;
 
     Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
@@ -111,7 +114,7 @@ public class ComparePathfindingStarter {
 
   private static void loadNextLevel() {
     DungeonLoader.loadNextLevel();
-    Tile[][] curLevel = Game.currentLevel().layout();
+    Tile[][] curLevel = Game.currentLevel().orElse(null).layout();
 
     // Create duplicated level layout
     LevelElement[][] newLevel = duplicateLevelVertically(curLevel);
@@ -122,7 +125,9 @@ public class ComparePathfindingStarter {
     Coordinate newStart = orgStart.translate(Vector2.of(0, rows + 1));
     Game.currentLevel(
         new AiMazeLevel(
-            newLevel, Game.currentLevel().designLabel(), Game.currentLevel().customPoints()));
+            newLevel,
+            Game.currentLevel().flatMap(ILevel::designLabel).orElse(DesignLabel.DEFAULT),
+            Game.currentLevel().map(ILevel::customPoints).orElse(Collections.emptyList())));
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());
@@ -187,7 +192,7 @@ public class ComparePathfindingStarter {
             if (runner == null) continue;
 
             Coordinate spawn = runner.fetch(PositionComponent.class).orElseThrow().coordinate();
-            Coordinate end = Game.currentLevel().endTile().orElseThrow().coordinate();
+            Coordinate end = Game.endTile().orElseThrow().coordinate();
 
             if (i == 1) {
               end = end.translate(Vector2.of(0, rows + 1));

@@ -13,6 +13,7 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +58,7 @@ public class FrictionSystemTest {
 
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.2f);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
 
     system.execute();
 
@@ -79,7 +80,7 @@ public class FrictionSystemTest {
 
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.5f);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
 
     system.execute();
     verify(vc).applyForce("Friction", Vector2.ZERO);
@@ -93,7 +94,7 @@ public class FrictionSystemTest {
     entity.add(new FlyComponent());
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.2f);
-    when(mockedLevel.tileAt(any(Point.class))).thenReturn(tile);
+    when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
     system.execute();
     assertFalse(vc.force("Friction").isPresent());
   }

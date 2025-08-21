@@ -441,7 +441,7 @@ public final class HeroFactory {
       throws MissingComponentException {
     pos = pos.translate(Vector2.of(-0.5f, -0.25f));
 
-    Tile mouseTile = Game.tileAT(pos);
+    Tile mouseTile = Game.tileAt(pos).orElse(null);
     if (mouseTile == null) return Optional.empty();
 
     return Game.entityAtTile(mouseTile)

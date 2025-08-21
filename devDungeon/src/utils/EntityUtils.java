@@ -46,7 +46,7 @@ public class EntityUtils {
    * @see MonsterType
    */
   public static Entity spawnMonster(MonsterType monsterType, Point position) {
-    Tile tile = Game.tileAT(position);
+    Tile tile = Game.tileAt(position).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
           "Cannot spawn monster at "
@@ -70,7 +70,7 @@ public class EntityUtils {
    * @see MonsterType
    */
   public static Entity spawnMonster(MonsterType monsterType, Coordinate coordinate) {
-    Tile tile = Game.tileAT(coordinate);
+    Tile tile = Game.tileAt(coordinate).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
           "Cannot spawn monster at "
@@ -243,7 +243,7 @@ public class EntityUtils {
               hc ->
                   hc.onDeath(
                       (e) -> {
-                        ((ExitTile) Game.currentLevel().endTile().orElseThrow())
+                        ((ExitTile) Game.endTile().orElseThrow())
                             .open(); // open exit when chort dies
                         onBossDeath.accept(e);
                         Game.remove(e);

@@ -90,10 +90,10 @@ public class Level007 extends BlocklyLevel {
     Game.add(s3);
     Game.add(s4);
 
-    door1 = (DoorTile) Game.tileAT(new Coordinate(10, 7));
-    door2 = (DoorTile) Game.tileAT(new Coordinate(4, 7));
-    door3 = (DoorTile) Game.tileAT(new Coordinate(7, 4));
-    door4 = (DoorTile) Game.tileAT(new Coordinate(7, 10));
+    door1 = (DoorTile) Game.tileAt(new Coordinate(10, 7)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(new Coordinate(4, 7)).orElse(null);
+    door3 = (DoorTile) Game.tileAt(new Coordinate(7, 4)).orElse(null);
+    door4 = (DoorTile) Game.tileAt(new Coordinate(7, 10)).orElse(null);
     door1.close();
     door2.close();
     door3.close();

@@ -67,7 +67,7 @@ public final class GameLoop extends ScreenAdapter {
         ECSManagment.removeAllSystems();
         ECSManagment.activeEntityStorage(
             ECSManagment.levelStorageMap()
-                .computeIfAbsent(Game.currentLevel(), k -> new HashSet<>()));
+                .computeIfAbsent(Game.currentLevel().orElse(null), k -> new HashSet<>()));
         // readd the systems so that each triggerOnAdd(entity) will be called (basically
         // setup). This will also create new EntitySystemMapper if needed.
         s.values().forEach(ECSManagment::add);
@@ -82,7 +82,7 @@ public final class GameLoop extends ScreenAdapter {
             .map(ECSManagment::remove)
             .forEach(ECSManagment::add);
         if (firstLoad && Game.isCheckPatternEnabled())
-          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
+          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 

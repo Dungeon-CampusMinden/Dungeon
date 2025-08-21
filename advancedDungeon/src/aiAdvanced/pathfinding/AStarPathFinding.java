@@ -54,8 +54,8 @@ public class AStarPathFinding extends PathfindingLogic {
    */
   private double heuristicCost(Coordinate from, Coordinate to) {
     // Create temporary Tile objects to use with TileHeuristic
-    Tile fromTile = Game.tileAT(from);
-    Tile toTile = Game.tileAT(to);
+    Tile fromTile = Game.tileAt(from).orElse(null);
+    Tile toTile = Game.tileAt(to).orElse(null);
 
     return heuristic.estimate(fromTile, toTile);
   }
@@ -141,8 +141,8 @@ public class AStarPathFinding extends PathfindingLogic {
    */
   private double connectionCost(Coordinate from, Coordinate to) {
     // Create temporary Tile objects
-    Tile fromTile = Game.tileAT(from);
-    Tile toTile = Game.tileAT(to);
+    Tile fromTile = Game.tileAt(from).orElse(null);
+    Tile toTile = Game.tileAt(to).orElse(null);
 
     // Create a TileConnection between the tiles and get its cost
     TileConnection connection = new TileConnection(fromTile, toTile);

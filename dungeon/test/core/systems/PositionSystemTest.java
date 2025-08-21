@@ -52,9 +52,9 @@ public class PositionSystemTest {
   /** WTF? . */
   @AfterEach
   public void cleanup() {
+    Game.currentLevel(null);
     Game.removeAllSystems();
     Game.removeAllEntities();
-    Game.currentLevel(null);
   }
 
   /** WTF? . */
@@ -71,7 +71,7 @@ public class PositionSystemTest {
         .thenAnswer(
             invocation -> {
               Coordinate c = invocation.getArgument(0);
-              return layout[c.y()][c.x()];
+              return Optional.of(layout[c.y()][c.x()]);
             });
     pc.position(PositionComponent.ILLEGAL_POSITION);
     // entities will be placed in the center of a tile, so add the offset for check

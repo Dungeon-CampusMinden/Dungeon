@@ -73,7 +73,7 @@ public class Level021 extends BlocklyLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              Tile t = Game.tileAT(coordinate);
+              Tile t = Game.tileAt(coordinate).orElse(null);
               if (t instanceof PitTile pt) {
                 pt.timeToOpen(22000);
                 pt.close();

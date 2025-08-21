@@ -171,7 +171,7 @@ public class PathfindingVisualizer {
    * @param blockToColor A tuple containing the node and its tile state
    */
   private static void colorTile(Tuple<Coordinate, TileState> blockToColor) {
-    Tile tile = Game.tileAT(blockToColor.a());
+    Tile tile = Game.tileAt(blockToColor.a()).orElse(null);
     if (tile == null) {
       return;
     }

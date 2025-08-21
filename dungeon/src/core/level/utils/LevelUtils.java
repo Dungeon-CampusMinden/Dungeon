@@ -46,11 +46,11 @@ public final class LevelUtils {
    * @return Path from the start coordinate to the end coordinate.
    */
   public static GraphPath<Tile> calculatePath(final Coordinate from, final Coordinate to) {
-    Tile fromTile = Game.tileAT(from);
-    Tile toTile = Game.tileAT(to);
+    Tile fromTile = Game.tileAt(from).orElse(null);
+    Tile toTile = Game.tileAt(to).orElse(null);
     if (fromTile == null || !fromTile.isAccessible()) return new DefaultGraphPath<>();
     if (toTile == null || !toTile.isAccessible()) return new DefaultGraphPath<>();
-    return Game.findPath(fromTile, toTile);
+    return Game.findPath(fromTile, toTile).orElse(new DefaultGraphPath<>());
   }
 
   /**
@@ -169,16 +169,18 @@ public final class LevelUtils {
     Set<Tile> tiles = new HashSet<>();
     // BFS queue
     Queue<Tile> tileQueue = new ArrayDeque<>();
-    Tile start = Game.tileAT(center);
-    if (start != null) tileQueue.add(start);
+    Game.tileAt(center).ifPresent(tileQueue::add);
     while (tileQueue.size() > 0) {
       Tile current = tileQueue.remove();
       boolean added = tiles.add(current);
       if (added) {
         // Tile is a new Tile so add the neighbours to be checked
         for (Vector2 offset : offsets) {
-          Tile tile = current.level().tileAt(current.coordinate().translate(offset));
-          if (tile != null && isInRange(center, radius, tile)) tileQueue.add(tile);
+          current
+              .level()
+              .tileAt(current.coordinate().translate(offset))
+              .filter(tile -> isInRange(center, radius, tile))
+              .ifPresent(tileQueue::add);
         }
       }
     }
@@ -304,7 +306,7 @@ public final class LevelUtils {
    * @return An Optional containing a random free tile if available, otherwise an empty Optional.
    */
   public static Optional<Tile> freeTile() {
-    Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().orElse(null).size();
     int startX = RANDOM.nextInt(0, levelSize.a());
     int startY = RANDOM.nextInt(0, levelSize.b());
     boolean[][] queued = new boolean[levelSize.b()][levelSize.a()];
@@ -312,7 +314,7 @@ public final class LevelUtils {
     // Queue to hold the cells to be explored in the form of (row, col)
     Queue<Tile> queue = new LinkedList<>();
     // Start BFS from the given start position
-    queue.add(Game.currentLevel().tileAt(new Coordinate(startX, startY)));
+    Game.tileAt(new Coordinate(startX, startY)).ifPresent(queue::add);
     queued[startY][startX] = true;
 
     while (!queue.isEmpty()) {
@@ -346,8 +348,8 @@ public final class LevelUtils {
   public static Set<Tile> neighbours(final Tile tile) {
     // Direction vectors for moving up, down, left, and right+
     Set<Tile> returnSet = new HashSet<>();
-    Tuple<Integer, Integer> levelSize = Game.currentLevel().size();
-    Tile[][] layout = Game.currentLevel().layout();
+    Tuple<Integer, Integer> levelSize = Game.currentLevel().orElse(null).size();
+    Tile[][] layout = Game.currentLevel().orElse(null).layout();
     Coordinate coordinate = tile.coordinate();
     for (Vector2 deltaVector : DELTA_VECTORS) {
       Coordinate newCoordinate = coordinate.translate(deltaVector);
@@ -383,10 +385,7 @@ public final class LevelUtils {
       Coordinate topLeft, Coordinate bottomRight, boolean visible) {
     for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
       for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
-        Tile tile = Game.tileAT(new Coordinate(x, y));
-        if (tile != null) {
-          tile.visible(visible);
-        }
+        Game.tileAt(new Coordinate(x, y)).ifPresent(tile -> tile.visible(visible));
       }
     }
   }
@@ -422,12 +421,9 @@ public final class LevelUtils {
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    Tile heroTile = Game.currentLevel().tileAt(pc.position());
-    if (heroTile == null) {
-      return false;
-    }
-
-    return LevelUtils.isTileWithinArea(heroTile, topLeft, bottomRight);
+    return Game.tileAt(pc.position())
+        .map(tile -> LevelUtils.isTileWithinArea(tile, topLeft, bottomRight))
+        .orElse(false);
   }
 
   /**
@@ -442,7 +438,7 @@ public final class LevelUtils {
    * @return A list of tiles within the specified rectangular area in the level.
    */
   public static List<Tile> tilesInArea(Coordinate topLeft, Coordinate bottomRight) {
-    Tile[][] layout = Game.currentLevel().layout();
+    Tile[][] layout = Game.currentLevel().orElse(null).layout();
     List<Tile> tiles = new java.util.ArrayList<>();
     for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
       for (int y = bottomRight.y(); y <= topLeft.y(); y++) {
@@ -467,10 +463,7 @@ public final class LevelUtils {
 
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
-        Tile tile = Game.currentLevel().tileAt(new Coordinate(x, y));
-        if (tile != null) {
-          tile.tintColor(color);
-        }
+        Game.tileAt(new Coordinate(x, y)).ifPresent(t -> t.tintColor(color));
       }
     }
   }

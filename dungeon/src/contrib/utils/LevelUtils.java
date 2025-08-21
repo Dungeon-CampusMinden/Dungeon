@@ -22,9 +22,9 @@ public class LevelUtils {
       Coordinate coordinateA, Coordinate CoordinateB, Direction direction) {
     if (coordinateA.equals(CoordinateB)) return true;
 
-    Tile firstTile = Game.currentLevel().tileAt(coordinateA);
-    Tile currentTile = Game.currentLevel().tileAt(coordinateA);
-    Tile targetTile = Game.currentLevel().tileAt(CoordinateB);
+    Tile firstTile = Game.tileAt(coordinateA).orElse(null);
+    Tile currentTile = Game.tileAt(coordinateA).orElse(null);
+    Tile targetTile = Game.tileAt(CoordinateB).orElse(null);
     if (targetTile == null || !targetTile.canSeeThrough()) return false;
     while (!targetTile.equals(currentTile)) {
       if (currentTile == null || !currentTile.canSeeThrough()) return false;
@@ -35,7 +35,8 @@ public class LevelUtils {
         return false; // if there is a blockFireball in the way, we can't see through
       }
 
-      currentTile = currentTile.level().tileAt(currentTile.position().translate(direction));
+      currentTile =
+          currentTile.level().tileAt(currentTile.position().translate(direction)).orElse(null);
     }
     return true;
   }
@@ -47,7 +48,7 @@ public class LevelUtils {
    * @return true if the tile at the given coordinate is accessible, false otherwise.
    */
   public static boolean isWalkable(Coordinate coord) {
-    Tile tile = Game.tileAT(coord);
+    Tile tile = Game.tileAt(coord).orElse(null);
     return tile != null && tile.isAccessible();
   }
 

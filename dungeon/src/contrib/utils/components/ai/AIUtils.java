@@ -27,7 +27,7 @@ public class AIUtils {
       return;
     }
 
-    Tile currentTile = Game.tileAtEntity(entity);
+    Tile currentTile = Game.tileAtEntity(entity).orElse(null);
     Tile nextTile = findNextTile(path, currentTile);
 
     // currentTile not in path
@@ -65,7 +65,7 @@ public class AIUtils {
     return path.getCount() == 0
         || entity
             .fetch(PositionComponent.class)
-            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAT(pc.position())))
+            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAt(pc.position())))
             .orElse(false);
   }
 
@@ -80,7 +80,7 @@ public class AIUtils {
   public static boolean pathLeft(final Entity entity, final GraphPath<Tile> path) {
     return entity
         .fetch(PositionComponent.class)
-        .map(pc -> !onPath(path, Game.tileAT(pc.position())))
+        .map(pc -> !onPath(path, Game.tileAt(pc.position()).orElse(null)))
         .orElse(true);
   }
 

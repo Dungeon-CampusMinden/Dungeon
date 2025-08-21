@@ -61,7 +61,7 @@ public final class PatrolWalk implements Consumer<Entity> {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point center = position.position();
-    Tile tile = Game.tileAT(position.position());
+    Tile tile = Game.tileAt(position.position()).orElse(null);
 
     if (tile == null) {
       return;
