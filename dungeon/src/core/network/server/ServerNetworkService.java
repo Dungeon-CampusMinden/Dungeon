@@ -1,9 +1,9 @@
 package core.network.server;
 
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
-import core.network.SnapshotTranslator;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
@@ -71,7 +71,6 @@ public final class ServerNetworkService {
   private EventLoopGroup workerGroup;
   private Channel tcpServerChannel;
   private Channel udpChannel;
-  private volatile SnapshotTranslator snapshotTranslator;
 
   public void start(int port) {
     if (bossGroup != null || workerGroup != null) {
@@ -117,18 +116,6 @@ public final class ServerNetworkService {
 
   public Map<ChannelId, Integer> tcpClientMap() {
     return Map.copyOf(tcpChannelToClientId);
-  }
-
-  public SnapshotTranslator snapshotTranslator() {
-    SnapshotTranslator t = snapshotTranslator;
-    if (t == null)
-      throw new IllegalStateException(
-          "SnapshotTranslator not set on ServerNetworkService. Set via setSnapshotTranslator(...) before starting server loop.");
-    return t;
-  }
-
-  public void setSnapshotTranslator(SnapshotTranslator translator) {
-    if (translator != null) this.snapshotTranslator = translator;
   }
 
   public Optional<String> clientName(int clientId) {
@@ -278,17 +265,14 @@ public final class ServerNetworkService {
   }
 
   private void handleRequestEntitySpawn(ChannelHandlerContext ctx, RequestEntitySpawn req) {
-    String entityName = req.entityName();
+    int entityId = req.entityId();
     LOGGER.info(
-        "Received RequestEntitySpawn for entityName='{}' from channel={}",
-        entityName,
-        ctx.channel());
+        "Received RequestEntitySpawn for entityId='{}' from channel={}", entityId, ctx.channel());
 
-    Optional<core.Entity> entity =
-        core.Game.entityStream().filter(e -> Objects.equals(e.name(), entityName)).findFirst();
+    Optional<core.Entity> entity = Game.levelEntities().filter(e -> e.id() == entityId).findFirst();
 
     if (entity.isEmpty()) {
-      LOGGER.warn("Could not find entity with name='{}' to send to client", entityName);
+      LOGGER.warn("Could not find entity with id='{}' to send to client", entityId);
       return;
     }
     core.Entity e = entity.get();
@@ -297,14 +281,14 @@ public final class ServerNetworkService {
 
     if (pc == null || dc == null) {
       LOGGER.warn(
-          "Entity with name='{}' is missing PositionComponent or DrawComponent, cannot send spawn event",
-          entityName);
+          "Entity with id='{}' is missing PositionComponent or DrawComponent, cannot send spawn event",
+          entityId);
       return;
     }
 
     EntitySpawnEvent spawnEvent =
         new EntitySpawnEvent(
-            e.name(),
+            e.id(),
             pc.position(),
             pc.viewDirection(),
             dc.currentAnimationPath(),

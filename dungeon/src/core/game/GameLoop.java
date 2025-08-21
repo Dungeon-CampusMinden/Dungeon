@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.utils.CheckPatternPainter;
-import contrib.components.HealthComponent;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -229,16 +228,16 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         EntitySpawnEvent.class,
         (ctx, event) -> {
-          LOGGER.info("Received EntitySpawnEvent event: " + event.entityName());
+          LOGGER.info("Received EntitySpawnEvent event: " + event.entityId());
 
           // check if the entity already exists
-          if (Game.entityStream().anyMatch(e -> Objects.equals(e.name(), event.entityName()))) {
+          if (Game.allEntities().anyMatch(e -> e.id() == event.entityId())) {
             LOGGER.warn(
-                "Received spawn event for already existing entity with ID: " + event.entityName());
+                "Received spawn event for already existing entity with ID: " + event.entityId());
             return;
           }
 
-          Entity newEntity = new Entity(event.entityName());
+          Entity newEntity = new Entity(event.entityId());
           PositionComponent pc = new PositionComponent(event.position());
           pc.viewDirection(event.viewDirection());
           newEntity.add(pc);
@@ -259,16 +258,13 @@ public final class GameLoop extends ScreenAdapter {
         (ctx, event) -> {
           LOGGER.info(
               "Received EntityDespawnEvent event: "
-                  + event.entityName()
+                  + event.entityId()
                   + ", reason: "
                   + event.reason());
           Entity entity =
-              Game.entityStream()
-                  .filter(e -> Objects.equals(e.name(), event.entityName()))
-                  .findFirst()
-                  .orElse(null);
+              Game.allEntities().filter(e -> e.id() == event.entityId()).findFirst().orElse(null);
           if (entity == null) {
-            LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityName());
+            LOGGER.warn("Received despawn event for unknown entity with ID: " + event.entityId());
             return;
           }
           Game.remove(entity);
@@ -302,7 +298,7 @@ public final class GameLoop extends ScreenAdapter {
         GameOverEvent.class,
         (ctx, event) -> {
           LOGGER.info("Received GameOverEvent event");
-          Game.exit();
+          Game.exit("Game Over");
         });
 
     dispatcher.registerHandler(

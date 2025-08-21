@@ -1,5 +1,7 @@
 package core;
 
+import static com.badlogic.gdx.scenes.scene2d.InputEvent.Type.exit;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -82,13 +84,20 @@ public final class Game {
       LOGGER.info("Network handler initialized and started.");
     } catch (NetworkException e) {
       LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
-      // Decide on fallback strategy
     }
 
     // Start the main game loop
-    GameLoop.run();
-    // Shutdown the network handler after the game loop ends
-    networkHandler.shutdown();
+    if (!PreRunConfiguration.isNetworkServer()) {
+      GameLoop.run();
+    }
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  LOGGER.info("Stopping server...");
+                  networkHandler.shutdown();
+                }));
   }
 
   /**
@@ -800,10 +809,10 @@ public final class Game {
   }
 
   /** Exits the GDX application and shuts down the network handler. */
-  public static void exit() {
+  public static void exit(String reason) {
     if (networkHandler != null) {
       try {
-        networkHandler.shutdown();
+        networkHandler.shutdown(reason);
       } catch (Exception e) {
         LOGGER.log(Level.WARNING, "Error shutting down network handler", e);
       }
@@ -830,6 +839,11 @@ public final class Game {
    */
   public static boolean findEntity(final Entity entity) {
     return ECSManagment.findEntity(entity);
+  }
+
+  /** Exits the GDX application and shuts down the network handler. */
+  public static void exit() {
+    exit("Exit Game");
   }
 
   /**

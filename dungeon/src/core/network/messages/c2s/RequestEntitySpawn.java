@@ -8,4 +8,4 @@ import core.network.messages.NetworkMessage;
  *
  * @param entityName The name of the entity to spawn.
  */
-public record RequestEntitySpawn(String entityName) implements NetworkMessage {}
+public record RequestEntitySpawn(int entityId) implements NetworkMessage {}
