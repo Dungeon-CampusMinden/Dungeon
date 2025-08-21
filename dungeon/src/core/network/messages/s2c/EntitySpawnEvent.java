@@ -7,7 +7,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
 public record EntitySpawnEvent(
-    String entityName,
+    int entityId,
     Point position,
     Direction viewDirection,
     String texturePathString,

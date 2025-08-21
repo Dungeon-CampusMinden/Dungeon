@@ -62,38 +62,38 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
     List<EntityState> list = new ArrayList<>(clientEntities.size());
 
-    Game.entityStream().forEach(
-      e -> {
-        EntityState.Builder builder = EntityState.builder();
-        builder.entityName(e.name());
+    Game.levelEntities()
+        .forEach(
+            e -> {
+              EntityState.Builder builder = EntityState.builder();
+              builder.entityId(e.id());
 
-        // Position
-        e.fetch(PositionComponent.class)
-          .ifPresent(
-            pc -> {
-              builder.position(pc.position());
-              builder.viewDirection(pc.viewDirection());
+              // Position
+              e.fetch(PositionComponent.class)
+                  .ifPresent(
+                      pc -> {
+                        builder.position(pc.position());
+                        builder.viewDirection(pc.viewDirection());
+                      });
+
+              // Health
+              e.fetch(HealthComponent.class)
+                  .ifPresent(
+                      hc -> {
+                        builder.currentHealth(hc.currentHealthpoints());
+                        builder.maxHealth(hc.maximalHealthpoints());
+                      });
+
+              // Animation
+              e.fetch(DrawComponent.class)
+                  .ifPresent(
+                      dc -> {
+                        builder.animation(dc.currentAnimationName());
+                        builder.tintColor(dc.tintColor());
+                      });
+
+              list.add(builder.build());
             });
-
-        // Health
-        e.fetch(HealthComponent.class)
-          .ifPresent(
-            hc -> {
-              builder.currentHealth(hc.currentHealthpoints());
-              builder.maxHealth(hc.maximalHealthpoints());
-            });
-
-        // Animation
-        e.fetch(DrawComponent.class)
-          .ifPresent(
-            dc -> {
-              builder.animation(dc.currentAnimationName());
-              builder.tintColor(dc.tintColor());
-            });
-
-        list.add(builder.build());
-      }
-    );
     return Optional.of(new SnapshotMessage(serverTick, list));
   }
 
@@ -115,15 +115,13 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
         .forEach(
             snap -> {
               try {
-                final String entityName = snap.entityName();
-                Optional<Entity> targetEntity = resolveEntityByName(entityName);
+                final int entityId = snap.entityId();
+                Optional<Entity> targetEntity = resolveEntityById(entityId);
 
                 if (targetEntity.isEmpty()) {
                   LOGGER.warn(
-                      "No entity found for snapshot with Name: "
-                          + entityName
-                          + ". Requesting spawn.");
-                  Game.network().send(new RequestEntitySpawn(entityName));
+                      "No entity found for snapshot with id: " + entityId + ". Requesting spawn.");
+                  Game.network().send(new RequestEntitySpawn(entityId));
                   return;
                 }
 
@@ -164,7 +162,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
             });
   }
 
-  private static Optional<Entity> resolveEntityByName(String entityName) {
-    return Game.entityStream().filter(e -> e.name().equals(entityName)).findFirst();
+  private static Optional<Entity> resolveEntityById(int entityId) {
+    return Game.allEntities().filter(e -> e.id() == entityId).findFirst();
   }
 }

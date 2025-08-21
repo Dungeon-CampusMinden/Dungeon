@@ -1,11 +1,6 @@
 package core.components;
 
 import core.Component;
-import core.Entity;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Marker component for the player entity.
@@ -13,6 +8,7 @@ import java.util.function.Consumer;
  * <p>This component keeps track of the number of open dialogs in the game. It provides methods to
  * increment and decrement the dialog counter, as well as a method to check if any dialogs are
  * currently open.
+ *
  * <p>This component is used to identify the player entity in the game. It contains information
  * about whether the player is the local hero and manages the count of open dialogs.
  *

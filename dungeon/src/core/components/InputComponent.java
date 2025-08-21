@@ -151,22 +151,4 @@ public class InputComponent implements Component {
       this(repeat, callback, false);
     }
   }
-
-  /**
-   * Enables or disables the player controls.
-   *
-   * @param deactivate true to disable player controls; false to enable them
-   */
-  public void deactivateControls(boolean deactivate) {
-    this.deactivate = deactivate;
-  }
-
-  /**
-   * Returns whether the player controls are currently deactivated.
-   *
-   * @return true if controls are disabled; false if they are active
-   */
-  public boolean deactivateControls() {
-    return this.deactivate;
-  }
 }
