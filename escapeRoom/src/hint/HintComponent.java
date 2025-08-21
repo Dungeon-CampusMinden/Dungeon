@@ -70,4 +70,9 @@ public class HintComponent implements Component {
   public boolean isLastHintShown() {
     return next > hints.length - 1;
   }
+
+  /** Resets the index to 0. */
+  public void resetIndex() {
+    next = 0;
+  }
 }

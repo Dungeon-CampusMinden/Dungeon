@@ -47,8 +47,11 @@ import petriNet.PlaceComponent;
  */
 public class HintSystem extends System {
 
-  private final Set<Entity> hintQueue =
-      new LinkedHashSet<>(); // Maintains uniqueness and insertion order
+  /** Text to show if there is no hint left. */
+  public static final String NO_HINT_TEXT = "No more hints";
+
+  private final Set<Entity> hintQueue = new LinkedHashSet<>();
+
   private HintComponent currentHint = null;
 
   /**
@@ -86,7 +89,7 @@ public class HintSystem extends System {
                                     entity.fetch(HintComponent.class).orElse(null))) {
                               currentHint = null;
                             }
-                            hintQueue.remove(entity);
+                            removeHint(entity);
                           }
                         }));
   }
@@ -102,16 +105,17 @@ public class HintSystem extends System {
   public String nextHint() {
     if (currentHint == null) {
       currentHint = fetchNextEntityHint();
-      if (currentHint == null) return "No more hints";
+      if (currentHint == null) return NO_HINT_TEXT;
     }
 
     String hint = currentHint.hint();
     currentHint.increaseIndex();
 
     if (currentHint.isLastHintShown()) {
+      currentHint.resetIndex();
       currentHint = fetchNextEntityHint();
     }
-
+    if (hint.equals("")) hint = NO_HINT_TEXT;
     return hint;
   }
 

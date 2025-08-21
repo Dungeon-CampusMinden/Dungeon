@@ -64,9 +64,14 @@ class HintSystemTest {
   @Test
   void testNextHintOrder() {
     assertEquals("Hint 1-1", hintSystem.nextHint());
+    hintSystem.execute();
     assertEquals("Hint 1-2", hintSystem.nextHint());
+    hintSystem.execute();
     assertEquals("Hint 2-1", hintSystem.nextHint());
-    assertEquals("No more hints", hintSystem.nextHint());
+    hintSystem.execute();
+    assertEquals("Hint 1-1", hintSystem.nextHint());
+    hintSystem.execute();
+    assertEquals("Hint 1-2", hintSystem.nextHint());
   }
 
   /**
@@ -76,10 +81,13 @@ class HintSystemTest {
   @Test
   void testEntityRemovalOnZeroTokens() {
     assertEquals("Hint 1-1", hintSystem.nextHint());
+    hintSystem.execute();
     entity1.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     hintSystem.execute();
     assertEquals("Hint 2-1", hintSystem.nextHint());
-    assertEquals("No more hints", hintSystem.nextHint());
+    entity2.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
+    hintSystem.execute();
+    assertEquals(HintSystem.NO_HINT_TEXT, hintSystem.nextHint());
   }
 
   /** Tests that {@link HintSystem} returns "No more hints" if there are no entities with tokens. */
@@ -88,13 +96,16 @@ class HintSystemTest {
     entity1.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     entity2.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     hintSystem.execute();
-    assertEquals("No more hints", hintSystem.nextHint());
+    hintSystem.execute();
+    assertEquals(HintSystem.NO_HINT_TEXT, hintSystem.nextHint());
   }
 
   /** Tests that hints are removed correctly when an entity is removed from the game. */
   @Test
   void testHintRemovalOnEntityRemove() {
     Game.remove(entity1);
-    assertEquals("Hint 2-1", hintSystem.nextHint());
+    Game.remove(entity2);
+    hintSystem.execute();
+    assertEquals(HintSystem.NO_HINT_TEXT, hintSystem.nextHint());
   }
 }
