@@ -1,10 +1,12 @@
 package coopDungeon.level;
 
+import com.badlogic.gdx.Input;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
+import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
@@ -13,6 +15,7 @@ import contrib.utils.components.ai.AIUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.DungeonLevel;
@@ -25,12 +28,17 @@ import core.level.utils.LevelUtils;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+import hint.HintComponent;
+import hint.HintSystem;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import petriNet.PetriNetSystem;
+import petriNet.PlaceComponent;
+import petriNet.TransitionComponent;
 
 /**
  * The last levle of the coop Dungeon.
@@ -43,7 +51,18 @@ public class Level03 extends DungeonLevel {
   private LeverComponent p;
   private boolean spawnMushroom = true;
 
+  private HintSystem hintSystem;
+  private PetriNetSystem petriNetSystem;
+
   private ExitTile exit;
+
+  // hint system
+  Entity craftPotionRiddle;
+  Entity findRecipeRiddle;
+  Entity talkToNPCRiddle;
+  PlaceComponent talkToNPCRiddlePlace;
+  PlaceComponent findRecipeRiddlePlace;
+  PlaceComponent craftPotionRiddlePlace;
 
   /**
    * Creates a new Level03.
@@ -59,6 +78,8 @@ public class Level03 extends DungeonLevel {
   @Override
   protected void onFirstTick() {
     DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
+    setupHints();
+
     npc();
     crafting();
     books();
@@ -67,6 +88,77 @@ public class Level03 extends DungeonLevel {
 
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     exit.close();
+  }
+
+  private void setupHints() {
+    hintSystem = new HintSystem();
+    Game.add(hintSystem);
+
+    petriNetSystem = new PetriNetSystem();
+    Game.add(petriNetSystem);
+
+    Game.hero()
+        .ifPresent(
+            hero ->
+                hero.fetch(InputComponent.class)
+                    .ifPresent(
+                        inputComponent ->
+                            inputComponent.registerCallback(
+                                Input.Keys.T,
+                                entity ->
+                                    OkDialog.showOkDialog(hintSystem.nextHint(), "Hint", () -> {}),
+                                false,
+                                true)));
+
+    // Talk to NPC riddle
+    talkToNPCRiddle = new Entity("Talk to monster riddle");
+    talkToNPCRiddle.add(
+        new HintComponent(
+            "Du solltest schauen, woher die Geräusche kamen.",
+            "Nicht jedes Monster ist böse.",
+            "Rede mit dem roten Monster auf der anderen Seite des Abgrunds."));
+    talkToNPCRiddlePlace = new PlaceComponent();
+    talkToNPCRiddle.add(talkToNPCRiddlePlace);
+    Game.add(talkToNPCRiddle);
+
+    // This is the first quest, so activate it
+    talkToNPCRiddlePlace.produce();
+
+    // Find recipe riddle
+    findRecipeRiddle = new Entity("Find recipe riddle");
+    findRecipeRiddlePlace = new PlaceComponent();
+    findRecipeRiddle.add(
+        new HintComponent(
+            "Vielleicht kann ich hier irgendwo ein Rezept finden.",
+            "Ich sollte in die Bibliothek.",
+            "Ich kann die Bücher lesen."));
+    findRecipeRiddle.add(findRecipeRiddlePlace);
+    Game.add(findRecipeRiddle);
+
+    TransitionComponent t1 = new TransitionComponent();
+    petriNetSystem.addInputArc(t1, talkToNPCRiddlePlace, 2);
+    petriNetSystem.addOutputArc(t1, findRecipeRiddlePlace);
+
+    // Craft potion riddle
+    craftPotionRiddle = new Entity("Craft potion riddle");
+    craftPotionRiddlePlace = new PlaceComponent();
+    craftPotionRiddle.add(
+        new HintComponent(
+            "Die Zutaten kann ich im Level suchen.",
+            "Ich sollte die Monster besiegen.",
+            "In der Schatzkiste ist bestimmt auch was.",
+            "Am Crafting-Tisch kann ich Zutaten mischen.",
+            "Das Gegengift muss zum NPC."));
+    craftPotionRiddle.add(craftPotionRiddlePlace);
+    Game.add(craftPotionRiddle);
+
+    TransitionComponent t2 = new TransitionComponent();
+    petriNetSystem.addInputArc(t2, findRecipeRiddlePlace, 2);
+    petriNetSystem.addOutputArc(t2, craftPotionRiddlePlace);
+
+    // For removing the last hints if potion was given to the entity
+    TransitionComponent t3 = new TransitionComponent();
+    petriNetSystem.addInputArc(t3, craftPotionRiddlePlace, 2);
   }
 
   private void npc() {
@@ -92,6 +184,8 @@ public class Level03 extends DungeonLevel {
                     "Ich brauche dringend ein Heilmittel gegen meine Vergiftung.",
                     "Muschel esser.",
                     () -> {
+                      talkToNPCRiddlePlace.produce();
+                      Game.remove(talkToNPCRiddle);
                       entity.remove(InteractionComponent.class);
                       entity.add(
                           new InteractionComponent(
@@ -108,6 +202,8 @@ public class Level03 extends DungeonLevel {
                                               "Das ist nicht das richitge Mittel.", "Falsch.");
                                         } else {
                                           DialogUtils.showTextPopup("Danke", "Richtig");
+                                          craftPotionRiddlePlace.produce();
+                                          Game.remove(craftPotionRiddle);
                                           moveNpc(entity);
                                           npc.remove(InteractionComponent.class);
                                         }
@@ -175,7 +271,10 @@ public class Level03 extends DungeonLevel {
             p2,
             "Um ein Gegengift zu erstellen, muss man etwas Giftiges mit Wasser aufkochen.",
             "Gifte und Gegengifte",
-            () -> {}));
+            () -> {
+              findRecipeRiddlePlace.produce();
+              Game.remove(findRecipeRiddle);
+            }));
   }
 
   private void monster() {

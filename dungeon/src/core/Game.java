@@ -576,7 +576,7 @@ public final class Game {
    * @return tile at the coordinate of the entity or an empty Optional.
    */
   public static Optional<Tile> tileAtEntity(final Entity entity) {
-    return currentLevel().flatMap(level -> tileAtEntity(entity));
+    return currentLevel().flatMap(level -> level.tileAtEntity(entity));
   }
 
   /**
