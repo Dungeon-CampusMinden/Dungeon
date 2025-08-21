@@ -48,7 +48,6 @@ public interface INetworkHandler {
   default void shutdown() {
     shutdown("No reason given.");
   }
-  ;
 
   /**
    * Stops the handler and cleans up resources.
