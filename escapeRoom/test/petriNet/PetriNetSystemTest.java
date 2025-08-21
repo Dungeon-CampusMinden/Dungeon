@@ -475,4 +475,86 @@ public class PetriNetSystemTest {
     assertEquals(0, p1.tokenCount(), "No new input tokens, so transition should not fire again");
     assertEquals(1, p2.tokenCount(), "Output should remain unchanged");
   }
+
+  /** Tests that a transition consumes multiple tokens from an input place based on its weight. */
+  @Test
+  void testTransitionConsumesWeightedTokens() {
+    PlaceComponent input = new PlaceComponent();
+    input.produce(3);
+    PlaceComponent output = new PlaceComponent();
+
+    TransitionComponent transition = new TransitionComponent();
+
+    PetriNetSystem.addInputArc(transition, input, 2);
+    PetriNetSystem.addOutputArc(transition, output);
+
+    PetriNetSystem system = new PetriNetSystem();
+    system.execute();
+
+    assertEquals(1, input.tokenCount(), "Input should have 1 token left after consuming 2");
+    assertEquals(1, output.tokenCount(), "Output should have 1 token produced");
+  }
+
+  /**
+   * Tests that a transition does not fire if the input place has fewer tokens than required by
+   * weight.
+   */
+  @Test
+  void testTransitionNotEnabledWhenInsufficientTokens() {
+    PlaceComponent input = new PlaceComponent();
+    input.produce();
+    PlaceComponent output = new PlaceComponent();
+
+    TransitionComponent transition = new TransitionComponent();
+
+    PetriNetSystem.addInputArc(transition, input, 2);
+    PetriNetSystem.addOutputArc(transition, output);
+
+    PetriNetSystem system = new PetriNetSystem();
+    system.execute();
+
+    assertEquals(1, input.tokenCount(), "Input should still have 1 token (not enough to fire)");
+    assertEquals(0, output.tokenCount(), "Output should have 0 tokens (transition not enabled)");
+  }
+
+  /** Tests that a transition produces multiple tokens in an output place based on its weight. */
+  @Test
+  void testTransitionProducesWeightedTokens() {
+    PlaceComponent input = new PlaceComponent();
+    input.produce(2);
+    PlaceComponent output = new PlaceComponent();
+
+    TransitionComponent transition = new TransitionComponent();
+
+    PetriNetSystem.addInputArc(transition, input, 2);
+    PetriNetSystem.addOutputArc(transition, output, 3);
+
+    PetriNetSystem system = new PetriNetSystem();
+    system.execute();
+
+    assertEquals(0, input.tokenCount(), "Input should have 0 tokens left after consuming 2");
+    assertEquals(3, output.tokenCount(), "Output should have 3 tokens produced");
+  }
+
+  /** Tests that adding an output arc with a weight of 0 throws an exception. */
+  @Test
+  void testAddOutputArcWithZeroWeightThrows() {
+    TransitionComponent transition = new TransitionComponent();
+    PlaceComponent place = new PlaceComponent();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PetriNetSystem.addOutputArc(transition, place, 0),
+        "Weight 0 should not be allowed");
+  }
+
+  /** Tests that adding an output arc with a negative weight throws an exception. */
+  @Test
+  void testAddOutputArcWithNegativeWeightThrows() {
+    TransitionComponent transition = new TransitionComponent();
+    PlaceComponent place = new PlaceComponent();
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PetriNetSystem.addOutputArc(transition, place, -1),
+        "Negative weight should not be allowed");
+  }
 }
