@@ -139,6 +139,7 @@ public final class HeroFactory {
    */
   public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
     Entity hero = new Entity("hero");
+    hero.persistent(true);
     PlayerComponent pc = new PlayerComponent();
     hero.add(pc);
     CameraComponent cc = new CameraComponent();
@@ -178,7 +179,7 @@ public final class HeroFactory {
               sound.setVolume(soundId, 0.9f);
 
               // relink components for camera
-              Entity cameraDummy = new Entity();
+              Entity cameraDummy = new Entity("heroCamera");
               cameraDummy.add(cc);
               cameraDummy.add(poc);
               Game.add(cameraDummy);
@@ -460,7 +461,7 @@ public final class HeroFactory {
       throws MissingComponentException {
     pos = pos.translate(Vector2.of(-0.5f, -0.25f));
 
-    Tile mouseTile = Game.tileAT(pos);
+    Tile mouseTile = Game.tileAt(pos).orElse(null);
     if (mouseTile == null) return Optional.empty();
 
     return Game.entityAtTile(mouseTile)

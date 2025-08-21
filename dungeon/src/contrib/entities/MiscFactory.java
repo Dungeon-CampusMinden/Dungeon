@@ -428,7 +428,7 @@ public final class MiscFactory {
    * @return the catapult entity that initiates the launch on collision
    */
   public static Entity catapult(Point spawnPoint, Point location, float speed) {
-    Entity catapult = new Entity();
+    Entity catapult = new Entity("catapult");
     catapult.add(new PositionComponent(spawnPoint));
     catapult.add(new DrawComponent(new Animation(CATAPULT)));
     TriConsumer<Entity, Entity, Direction> action =

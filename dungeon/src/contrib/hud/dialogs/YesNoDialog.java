@@ -58,7 +58,7 @@ public final class YesNoDialog {
       final String title,
       final IVoidFunction onYes,
       final IVoidFunction onNo) {
-    Entity entity = new Entity();
+    Entity entity = new Entity("yesNoDialog_" + title);
 
     UIUtils.show(
         () -> {

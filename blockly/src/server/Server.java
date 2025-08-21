@@ -342,7 +342,7 @@ public class Server {
     }
 
     response.append(DungeonLoader.currentLevel()).append(" ");
-    for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel())) {
+    for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel().orElse(null))) {
       response.append(blockedBlock).append(" ");
     }
     response.deleteCharAt(response.length() - 1); // Remove last space

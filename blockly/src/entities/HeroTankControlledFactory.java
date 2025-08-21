@@ -28,7 +28,6 @@ public class HeroTankControlledFactory {
    */
   public static Entity newTankControlledHero() throws IOException {
     Entity hero = EntityFactory.newHero();
-
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls

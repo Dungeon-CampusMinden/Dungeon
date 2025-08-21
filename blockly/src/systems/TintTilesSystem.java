@@ -57,7 +57,7 @@ public class TintTilesSystem extends System {
    */
   private void applyTint(TintTileSystemData data) {
     Set<Coordinate> currentlyAffectedCoordinates = new HashSet<>();
-    ILevel level = Game.currentLevel();
+    ILevel level = Game.currentLevel().orElse(null);
     if (level == null) return;
 
     Direction viewDirection = data.viewDirection;
@@ -78,11 +78,13 @@ public class TintTilesSystem extends System {
         .filter(coord -> !currentlyAffectedCoordinates.contains(coord))
         .forEach(
             coord -> {
-              Tile tile = level.tileAt(coord);
-              if (tile != null) {
-                tintTile(tile, tintViewComp.originalColor(coord));
-                tintViewComp.removeOriginalColor(coord);
-              }
+              level
+                  .tileAt(coord)
+                  .ifPresent(
+                      tile -> {
+                        tintTile(tile, tintViewComp.originalColor(coord));
+                        tintViewComp.removeOriginalColor(coord);
+                      });
             });
   }
 
@@ -92,7 +94,7 @@ public class TintTilesSystem extends System {
    * @param data The data object containing the entity's view direction and tinting information.
    */
   private void removeTint(TintTileSystemData data) {
-    ILevel level = Game.currentLevel();
+    ILevel level = Game.currentLevel().orElse(null);
     if (level == null) return;
 
     TintDirectionComponent tintViewComp = data.tintDirectionComponent;
@@ -102,9 +104,13 @@ public class TintTilesSystem extends System {
         .originalColors()
         .forEach(
             coord -> {
-              Tile tile = level.tileAt(coord);
-              tintTile(tile, tintViewComp.originalColor(coord));
-              tintViewComp.removeOriginalColor(coord);
+              level
+                  .tileAt(coord)
+                  .ifPresent(
+                      tile -> {
+                        tintTile(tile, tintViewComp.originalColor(coord));
+                        tintViewComp.removeOriginalColor(coord);
+                      });
             });
 
     // Clear the original colors map

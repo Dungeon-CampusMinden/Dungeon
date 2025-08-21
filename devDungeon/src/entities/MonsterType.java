@@ -148,7 +148,7 @@ public enum MonsterType {
       0),
   /** The tutorial monster. Almost no health and attacks. */
   TUTORIAL(
-      "Tutorial",
+      "Tutorial Goblin",
       "character/monster/goblin",
       2,
       7.5f,

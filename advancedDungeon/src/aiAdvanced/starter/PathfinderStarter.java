@@ -73,15 +73,15 @@ public class PathfinderStarter {
     Game.userOnLevelLoad(
         (firstLoad) -> {
           if (DRAW_CHECKER_PATTERN)
-            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
+            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
 
           // Rest pathfinding algos
           pathfindingSystem.reset();
           pathfindings = Tuple.of(null, null);
           Game.updateWindowTitle(GAME_TITEL + " – No Algorithm selected");
 
-          Coordinate startCoords = Game.currentLevel().startTile().orElseThrow().coordinate();
-          Coordinate endTileCoords = Game.currentLevel().endTile().orElseThrow().coordinate();
+          Coordinate startCoords = Game.startTile().orElseThrow().coordinate();
+          Coordinate endTileCoords = Game.endTile().orElseThrow().coordinate();
 
           Game.hero()
               .ifPresent(

@@ -99,16 +99,16 @@ public class Level008 extends BlocklyLevel {
     Game.add(s4);
     Game.add(s5);
 
-    door1 = (DoorTile) Game.tileAT(new Coordinate(7, 15));
+    door1 = (DoorTile) Game.tileAt(new Coordinate(7, 15)).orElse(null);
     door1.close();
 
-    door2 = (DoorTile) Game.tileAT(new Coordinate(12, 17));
+    door2 = (DoorTile) Game.tileAt(new Coordinate(12, 17)).orElse(null);
     door2.close();
-    door3 = (DoorTile) Game.tileAT(new Coordinate(12, 12));
+    door3 = (DoorTile) Game.tileAt(new Coordinate(12, 12)).orElse(null);
     door3.close();
-    door4 = (DoorTile) Game.tileAT(new Coordinate(10, 9));
+    door4 = (DoorTile) Game.tileAt(new Coordinate(10, 9)).orElse(null);
     door4.close();
-    door5 = (DoorTile) Game.tileAT(new Coordinate(8, 5));
+    door5 = (DoorTile) Game.tileAt(new Coordinate(8, 5)).orElse(null);
     door5.close();
 
     Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));

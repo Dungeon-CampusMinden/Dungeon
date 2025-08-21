@@ -112,7 +112,7 @@ public class InventoryGUI extends CombinableGUI {
   public InventoryGUI(InventoryComponent inventoryComponent) {
     this(
         Game.findInAll(inventoryComponent)
-            .map(Entity::toString)
+            .map(Entity::name)
             .orElse("Inventory")
             .split("_(?=\\d+)")[0]
             .toUpperCase(),

@@ -47,7 +47,7 @@ public class PathComponent implements Component {
     }
     this.path = new DefaultGraphPath<>();
     for (Coordinate coordinate : path) {
-      Tile tile = Game.tileAT(coordinate);
+      Tile tile = Game.tileAt(coordinate).orElse(null);
       if (tile == null) {
         throw new IllegalArgumentException("Path contains an invalid coordinate: " + coordinate);
       }

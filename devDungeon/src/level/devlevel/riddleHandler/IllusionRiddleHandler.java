@@ -69,8 +69,7 @@ public class IllusionRiddleHandler {
 
   /** Handles the first tick of the riddle room. */
   public void onFirstTick() {
-    if (level.tileAt(riddleRewardSpawn) != null)
-      level.tileAt(riddleRewardSpawn).tintColor(0x22FF22FF);
+    level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(0x22FF22FF));
   }
 
   /** Handles the tick logic of the riddle room. */
@@ -103,7 +102,7 @@ public class IllusionRiddleHandler {
         new BurningFireballSkill(
             SkillTools::cursorPositionAsPoint)); // Update the current hero skill
     this.rewardGiven = true;
-    level.tileAt(riddleRewardSpawn).tintColor(-1);
+    level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }
 
   /**

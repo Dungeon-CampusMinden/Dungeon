@@ -6,6 +6,7 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 
@@ -17,6 +18,8 @@ import core.utils.components.MissingComponentException;
  * the entity’s current position, then applies this force opposite to the entity’s current velocity.
  */
 public class FrictionSystem extends System {
+
+  private static final float DEFAULT_FRICTION = 0.0f;
 
   /** Create a new FrictionSystem. */
   public FrictionSystem() {
@@ -32,7 +35,7 @@ public class FrictionSystem extends System {
   }
 
   private void applyFriction(FSData data) {
-    float friction = Game.tileAT(data.pc.position()).friction();
+    float friction = Game.tileAt(data.pc.position()).map(Tile::friction).orElse(DEFAULT_FRICTION);
     Vector2 force = data.vc().currentVelocity().scale(friction).inverse();
     if (force.isZero()) force = Vector2.ZERO;
     data.vc.applyForce("Friction", force);

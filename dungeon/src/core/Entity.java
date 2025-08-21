@@ -1,6 +1,7 @@
 package core;
 
 import core.game.ECSManagment;
+import core.utils.EntityIdProvider;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -9,7 +10,8 @@ import java.util.stream.Stream;
 /**
  * An Entity is a container for {@link Component}s.
  *
- * <p>An entity needs to be registered with the {@link Game} via {@link Game#add}.
+ * <p>An entity needs to be registered with the {@link Game} via {@link Game#add}. Each Entity has a
+ * unique id, which is automatically generated or can be explicitly set.
  *
  * <p>Add different components to an entity to define it. Based on the components inside an entity,
  * the {@link System}s will decide whether to process the entity.
@@ -28,37 +30,68 @@ import java.util.stream.Stream;
  *
  * @see Component
  * @see System
+ * @see EntityIdProvider
  */
 public final class Entity implements Comparable<Entity> {
   private static final Logger LOGGER = Logger.getLogger(Entity.class.getSimpleName());
-  private static int nextId = 0;
   private final int id;
   private final HashMap<Class<? extends Component>, Component> components;
   private String name;
 
+  private boolean persistent = false;
+
   /**
-   * Create a new Entity.
+   * Create a new Entity with a generated id.
    *
    * <p>Remember to register it in {@link Game} using {@link Game#add}.
    *
    * @param name the name of the entity, used for better logging and debugging
    */
   public Entity(final String name) {
-    id = nextId++;
-    components = new HashMap<>();
+    this.id = EntityIdProvider.nextId();
+    this.components = new HashMap<>();
     this.name = name;
-    LOGGER.info("The entity '" + name + "' was created.");
+    LOGGER.info(this + " was created.");
   }
 
   /**
-   * Create a new Entity.
+   * Create a new Entity with a generated id. The name of the entity will be its id, prefixed by an
+   * underscore.
    *
    * <p>Remember to register it in {@link Game} using {@link Game#add}.
-   *
-   * <p>The name of the entity will be its id
    */
   public Entity() {
-    this("_" + nextId);
+    this.id = EntityIdProvider.nextId();
+    this.components = new HashMap<>();
+    this.name = "_" + this.id;
+    LOGGER.info(this + " was created.");
+  }
+
+  /**
+   * Create a new Entity with an explicit id.
+   *
+   * <p>Will throw if the id is already in use.
+   *
+   * @param id the explicit id to use
+   * @param name the name of the entity
+   * @throws IllegalArgumentException if the id is already in use or invalid
+   */
+  public Entity(final int id, final String name) {
+    EntityIdProvider.registerOrThrow(id);
+    this.id = id;
+    this.components = new HashMap<>();
+    this.name = name;
+    LOGGER.info(this + " was created.");
+  }
+
+  /**
+   * Create a new Entity with an explicit id and default name of "_id".
+   *
+   * @param id the explicit id to use
+   * @throws IllegalArgumentException if the id is already in use or invalid
+   */
+  public Entity(final int id) {
+    this(id, "_" + id);
   }
 
   /**
@@ -144,10 +177,30 @@ public final class Entity implements Comparable<Entity> {
     return name;
   }
 
+  /**
+   * Sets whether this entity is persistent across level loads.
+   *
+   * <p>If an entity is persistent, it will be carried over to the next level when the current level
+   * is loaded.
+   *
+   * @param persistent true to make the entity persistent across levels, false otherwise
+   */
+  public void persistent(boolean persistent) {
+    this.persistent = persistent;
+  }
+
+  /**
+   * Checks whether this entity is persistent across level loads.
+   *
+   * @return true if the entity is persistent and will move to the next level, false otherwise
+   */
+  public boolean isPersistent() {
+    return this.persistent;
+  }
+
   @Override
   public String toString() {
-    if (name.contains("_" + id)) return name;
-    else return name + "_" + id;
+    return "Entity{" + "id=" + id + ", name='" + name + '\'' + '}';
   }
 
   @Override

@@ -18,8 +18,8 @@ import core.level.utils.LevelElement;
 import core.level.utils.TileTextureFactory;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.components.MissingComponentException;
 import java.util.*;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -261,32 +261,35 @@ public interface ILevel extends IndexedGraph<Tile> {
    * Retrieves the tile at the specified position within the level.
    *
    * <p>The method uses the provided coordinate to access the tile in the level layout. If the
-   * coordinate is out of bounds, the method returns null.
+   * coordinate is out of bounds, the method returns an empty Optional.
    *
    * @param coordinate The position from which to retrieve the tile.
-   * @return The tile at the specified coordinate, or null if there is no tile or the coordinate is
-   *     out of bounds.
+   * @return An {@link Optional} containing the tile at the specified coordinate, or {@link
+   *     Optional#empty()} if there is no tile or the coordinate is out of bounds.
    */
-  default Tile tileAt(final Coordinate coordinate) {
-    try {
-      return layout()[coordinate.y()][coordinate.x()];
-    } catch (IndexOutOfBoundsException e) {
-      return null;
+  default Optional<Tile> tileAt(final Coordinate coordinate) {
+    Tile[][] layout = layout();
+    if (coordinate.y() < 0
+        || coordinate.y() >= layout.length
+        || coordinate.x() < 0
+        || coordinate.x() >= layout[0].length) {
+      return Optional.empty();
     }
+    return Optional.ofNullable(layout[coordinate.y()][coordinate.x()]);
   }
 
   /**
    * Retrieves the tile at the specified position within the level.
    *
-   * <p>The method uses the provided point and converts it to a coordinate using {@link
-   * Point#toCoordinate}, then retrieves the corresponding tile in the level layout. If the
-   * resulting coordinate is out of bounds, the method returns null.
+   * <p>The {@link Point} is converted to a {@link Coordinate} via {@link Point#toCoordinate()}. If
+   * the resulting coordinate is out of bounds or there is no tile, an empty {@link Optional} is
+   * returned.
    *
    * @param point The position from which to retrieve the tile, converted to a coordinate.
-   * @return The tile at the specified point, or null if there is no tile or the coordinate is out
-   *     of bounds.
+   * @return An {@link Optional} containing the tile at the given point, or {@link
+   *     Optional#empty()}.
    */
-  default Tile tileAt(final Point point) {
+  default Optional<Tile> tileAt(final Point point) {
     return tileAt(point.toCoordinate());
   }
 
@@ -298,8 +301,9 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return A randomly selected tile from the level.
    */
-  default Tile randomTile() {
-    return layout()[RANDOM.nextInt(layout().length)][RANDOM.nextInt(layout()[0].length)];
+  default Optional<Tile> randomTile() {
+    return Optional.ofNullable(
+        layout()[RANDOM.nextInt(layout().length)][RANDOM.nextInt(layout()[0].length)]);
   }
 
   /**
@@ -332,20 +336,18 @@ public interface ILevel extends IndexedGraph<Tile> {
    * Retrieves the tile on which the given entity is standing.
    *
    * <p>The method fetches the position component of the entity using {@link Entity#fetch(Class)}
-   * and retrieves the corresponding tile using the position's coordinate. If the entity does not
-   * have a position component, a {@link MissingComponentException} is thrown.
+   * and looks up the tile at that position. If the entity has no {@link PositionComponent} or the
+   * position is out of bounds / has no tile, an empty {@link Optional} is returned.
    *
    * @param entity The entity for which to retrieve the tile.
-   * @return The tile at the coordinate of the entity's position.
-   * @throws MissingComponentException If the entity does not have a required {@link
-   *     PositionComponent}.
+   * @return An {@link Optional} containing the tile at the entity's position, or empty if
+   *     unavailable.
    */
-  default Tile tileAtEntity(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return tileAt(pc.position());
+  default Optional<Tile> tileAtEntity(final Entity entity) {
+    return entity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .flatMap(this::tileAt);
   }
 
   /**
@@ -356,8 +358,8 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return The position of a randomly selected tile in the level as a {@link Point}.
    */
-  default Point randomTilePoint() {
-    return randomTile().position();
+  default Optional<Point> randomTilePoint() {
+    return randomTile().map(Tile::position);
   }
 
   /**
@@ -411,8 +413,8 @@ public interface ILevel extends IndexedGraph<Tile> {
    *
    * @return The DesignLabel of the level
    */
-  default DesignLabel designLabel() {
-    return randomTile().designLabel();
+  default Optional<DesignLabel> designLabel() {
+    return randomTile().map(Tile::designLabel);
   }
 
   /**

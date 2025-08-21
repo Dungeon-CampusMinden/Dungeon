@@ -153,7 +153,7 @@ public final class DrawSystem extends System {
     BATCH.setProjectionMatrix(CameraSystem.camera().combined);
     BATCH.begin();
 
-    drawLevel(Game.currentLevel());
+    Game.currentLevel().ifPresent(this::drawLevel);
 
     sortedEntities.values().stream()
         .flatMap(
@@ -178,10 +178,11 @@ public final class DrawSystem extends System {
    * @see DrawComponent#isVisible()
    */
   private boolean shouldDraw(DSData data) {
-    Tile tile = Game.currentLevel().tileAt(data.pc.position());
-    if (tile == null) return false;
-    if (!data.dc.isVisible()) return false;
-    return tile.visible();
+    return Game.currentLevel()
+            .flatMap(level -> level.tileAt(data.pc.position()))
+            .map(Tile::visible)
+            .orElse(false)
+        && data.dc.isVisible();
   }
 
   private void draw(final DSData dsd) {

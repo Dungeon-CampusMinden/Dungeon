@@ -335,7 +335,7 @@ public class DungeonLoader {
       newLevel = getLevel(DungeonLoader.currentLevel(), layout, designLabel, customPoints);
 
       // Set Hero Position
-      Tile heroTile = newLevel.tileAt(heroPos);
+      Tile heroTile = newLevel.tileAt(heroPos).orElse(null);
       if (heroTile == null) {
         throw new RuntimeException("Invalid Hero Position: " + heroPos);
       }

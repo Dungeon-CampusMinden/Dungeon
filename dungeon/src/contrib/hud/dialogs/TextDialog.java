@@ -69,7 +69,7 @@ public final class TextDialog extends Dialog {
    */
   public static Entity textDialog(
       final String content, final String buttonText, final String windowText) {
-    Entity entity = new Entity();
+    Entity entity = new Entity("textDialog_" + windowText);
     UIUtils.show(
         () -> {
           Dialog textDialog =
