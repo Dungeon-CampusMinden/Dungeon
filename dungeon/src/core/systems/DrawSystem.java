@@ -183,15 +183,14 @@ public final class DrawSystem extends System {
     dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
-        new PainterConfig(
-            0, 0, dsd.dc.getSpriteWidth(), dsd.dc.getSpriteHeight(), dsd.dc.tintColor());
+        new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
     if (dsd.dc.currentAnimation().getConfig().centered()) {
       conf =
           new PainterConfig(
-              -dsd.dc.getSpriteWidth() / 2,
-              -dsd.dc.getSpriteHeight() / 2,
-              dsd.dc.getSpriteWidth(),
-              dsd.dc.getSpriteHeight(),
+              -dsd.dc.getWidth() / 2,
+              -dsd.dc.getHeight() / 2,
+              dsd.dc.getWidth(),
+              dsd.dc.getHeight(),
               dsd.dc.tintColor());
     }
     PAINTER.draw(dsd.pc.position(), sprite, conf, dsd.pc.rotation());

@@ -101,6 +101,14 @@ public final class DrawComponent implements Component {
     return stateMachine.getSprite();
   }
 
+  public float getWidth() {
+    return stateMachine.getWidth();
+  }
+
+  public float getHeight() {
+    return stateMachine.getHeight();
+  }
+
   public float getSpriteWidth() {
     return stateMachine.getSpriteWidth();
   }

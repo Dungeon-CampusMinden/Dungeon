@@ -53,6 +53,14 @@ public class State {
     return getAnimation().getSprite();
   }
 
+  public float getWidth() {
+    return getAnimation().getWidth();
+  }
+
+  public float getHeight() {
+    return getAnimation().getHeight();
+  }
+
   public float getSpriteWidth() {
     return getAnimation().getSpriteWidth();
   }

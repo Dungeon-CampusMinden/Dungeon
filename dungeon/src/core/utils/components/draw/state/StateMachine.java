@@ -215,6 +215,14 @@ public class StateMachine {
     return currentState.getSprite();
   }
 
+  public float getWidth() {
+    return currentState.getWidth();
+  }
+
+  public float getHeight() {
+    return currentState.getHeight();
+  }
+
   public float getSpriteWidth() {
     return currentState.getSpriteWidth();
   }
