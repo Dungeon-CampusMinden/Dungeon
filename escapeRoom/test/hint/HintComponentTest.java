@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * HintComponent#nextHint()}, proper index incrementing using {@link HintComponent#increaseIndex()},
  * and correct handling when the last hint has been shown.
  */
-class HintComponentTest {
+public class HintComponentTest {
 
   /**
    * Tests that the constructor correctly initializes a HintComponent with valid hints. Verifies
