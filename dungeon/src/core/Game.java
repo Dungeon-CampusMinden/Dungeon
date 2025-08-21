@@ -611,7 +611,7 @@ public final class Game {
    * @return A random tile of the given type or an empty Optional if there is no tile of that type.
    */
   public static Optional<Tile> randomTile(final LevelElement elementType) {
-    return currentLevel().flatMap(level -> randomTile(elementType));
+    return currentLevel().flatMap(level -> level.randomTile(elementType));
   }
 
   /**
