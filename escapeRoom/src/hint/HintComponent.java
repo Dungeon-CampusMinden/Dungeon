@@ -6,7 +6,7 @@ import core.Component;
  * Component that manages a sequence of hints. Each hint can be accessed by index, and the component
  * tracks the next hint index.
  *
- * <p>Use {@link #nextHint()} to get the next hint in the sequence. Note that the internal index is
+ * <p>Use {@link #hint()} to get the next hint in the sequence. Note that the internal index is
  * <b>not automatically updated</b>; you must call {@link #increaseIndex()} manually to advance to
  * the next hint.
  *
@@ -52,7 +52,7 @@ public class HintComponent implements Component {
    *
    * @return the next hint string, or an empty string if all hints have been shown
    */
-  public String nextHint() {
+  public String hint() {
     if (isLastHintShown()) return "";
     return hint(next);
   }
