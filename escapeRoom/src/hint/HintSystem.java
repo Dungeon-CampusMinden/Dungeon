@@ -112,6 +112,7 @@ public class HintSystem extends System {
     currentHint.increaseIndex();
 
     if (currentHint.isLastHintShown()) {
+      // this allows requesting the hint again.
       currentHint.resetIndex();
       currentHint = fetchNextEntityHint();
     }
