@@ -39,6 +39,7 @@ class HintSystemTest {
     entity1.add(p1);
     entity1.add(new HintComponent("Hint 1-1", "Hint 1-2"));
     Game.add(entity1);
+    hintSystem.execute();
 
     entity2 = new Entity();
     PlaceComponent p2 = new PlaceComponent();
@@ -46,6 +47,7 @@ class HintSystemTest {
     entity2.add(p2);
     entity2.add(new HintComponent("Hint 2-1"));
     Game.add(entity2);
+    hintSystem.execute();
   }
 
   /** Clears all entities and systems from the game after each test to ensure test isolation. */
@@ -61,16 +63,9 @@ class HintSystemTest {
    */
   @Test
   void testNextHintOrder() {
-    hintSystem.execute();
-
-    // First entity's hints
     assertEquals("Hint 1-1", hintSystem.nextHint());
     assertEquals("Hint 1-2", hintSystem.nextHint());
-
-    // Should now move to second entity
     assertEquals("Hint 2-1", hintSystem.nextHint());
-
-    // No more hints after both entities are exhausted
     assertEquals("No more hints", hintSystem.nextHint());
   }
 
@@ -80,13 +75,9 @@ class HintSystemTest {
    */
   @Test
   void testEntityRemovalOnZeroTokens() {
-    hintSystem.execute();
     assertEquals("Hint 1-1", hintSystem.nextHint());
-    // Remove all tokens from entity1
     entity1.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     hintSystem.execute();
-
-    // entity1 should be removed, so next hint comes from entity2
     assertEquals("Hint 2-1", hintSystem.nextHint());
     assertEquals("No more hints", hintSystem.nextHint());
   }
@@ -94,24 +85,16 @@ class HintSystemTest {
   /** Tests that {@link HintSystem} returns "No more hints" if there are no entities with tokens. */
   @Test
   void testNoHintsWhenQueueEmpty() {
-    // Remove all tokens from both entities
     entity1.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     entity2.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
-
     hintSystem.execute();
-
     assertEquals("No more hints", hintSystem.nextHint());
   }
 
   /** Tests that hints are removed correctly when an entity is removed from the game. */
   @Test
   void testHintRemovalOnEntityRemove() {
-    hintSystem.execute();
-
-    // Remove entity1 manually
     Game.remove(entity1);
-
-    // entity1's hints should be skipped, next hint comes from entity2
     assertEquals("Hint 2-1", hintSystem.nextHint());
   }
 }
