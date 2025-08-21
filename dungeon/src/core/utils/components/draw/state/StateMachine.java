@@ -5,72 +5,131 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
+/**
+ * A finite state machine implementation for handling animations and state transitions.
+ *
+ * <p>Supports named states, regular transitions triggered by signals, and epsilon transitions that
+ * are evaluated each update cycle.
+ */
 public class StateMachine {
+
+  /** Default name for the idle state. */
+  public static final String IDLE_STATE = "idle";
 
   private State currentState;
   private final List<State> states;
   private final Map<State, List<Transition>> transitions = new HashMap<>();
   private final Map<State, List<EpsilonTransition>> epsilonTransitions = new HashMap<>();
 
+  /**
+   * Constructs a StateMachine from a path and a spritesheet configuration.
+   *
+   * @param path the path to the spritesheet
+   * @param config the configuration for animations
+   */
   public StateMachine(IPath path, SpritesheetConfig config) {
     this(path, new AnimationConfig(config));
   }
 
+  /**
+   * Constructs a StateMachine with a single state based on an animation.
+   *
+   * @param animation the animation for the default state
+   */
   public StateMachine(Animation animation) {
     states = new ArrayList<>();
-    states.add(new State("idle", animation));
-    currentState = states.get(0);
+    states.add(new State(IDLE_STATE, animation));
+    setInitialState();
   }
 
+  /**
+   * Constructs a StateMachine from a path using the default animation configuration.
+   *
+   * @param path the path to the spritesheet
+   */
   public StateMachine(IPath path) {
     this(path, new AnimationConfig());
   }
 
+  /**
+   * Constructs a StateMachine from a path and a custom animation configuration.
+   *
+   * @param path the path to the spritesheet
+   * @param config the animation configuration
+   */
   public StateMachine(IPath path, AnimationConfig config) {
     states = new ArrayList<>();
 
     Map<String, Animation> map = Animation.loadAnimationSpritesheet(path);
     if (map != null) {
-      // If the path leads to a spritesheet with an animation map, load all states via the map
-      map.keySet()
-          .forEach(
-              s -> {
-                states.add(new State(s, map.get(s)));
-              });
+      map.keySet().forEach(s -> states.add(new State(s, map.get(s))));
     } else {
-      states.add(new State("idle", path, config));
+      states.add(new State(IDLE_STATE, path, config));
     }
 
-    currentState = states.get(0);
+    setInitialState();
   }
 
+  /**
+   * Constructs a StateMachine with a list of pre-defined states.
+   *
+   * @param states the list of states
+   * @throws IllegalArgumentException if the list of states is empty
+   */
   public StateMachine(List<State> states) {
     if (states.size() == 0) throw new IllegalArgumentException("State list can't be empty");
     this.states = states;
-    currentState = states.get(0);
+    setInitialState();
   }
 
+  private void setInitialState() {
+    states.stream()
+        .filter(s -> IDLE_STATE.equals(s.name))
+        .findFirst()
+        .ifPresentOrElse(s -> currentState = s, () -> currentState = states.get(0));
+  }
+
+  /**
+   * Returns the current active state.
+   *
+   * @return the current state
+   */
   public State getCurrentState() {
     return currentState;
   }
 
+  /**
+   * Returns the name of the current active state.
+   *
+   * @return the current state's name
+   */
   public String getCurrentStateName() {
     return currentState.name;
   }
 
+  /**
+   * Retrieves a state by name.
+   *
+   * @param name the name of the state
+   * @return the state with the given name, or null if not found
+   * @throws IllegalArgumentException if the name is null
+   */
   public State getState(String name) {
     if (name == null) throw new IllegalArgumentException("name can't be empty");
     return states.stream().filter(s -> s.name.equals(name)).findFirst().orElse(null);
   }
 
+  /**
+   * Adds a new state to the state machine. If a state with the same name exists, it will be
+   * replaced.
+   *
+   * @param state the state to add
+   * @return the replaced state if it existed, otherwise null
+   */
   public State addState(State state) {
     State existing = getState(state.name);
     if (existing != null) removeState(existing);
@@ -78,17 +137,38 @@ public class StateMachine {
     return existing;
   }
 
+  /**
+   * Removes a state by its name.
+   *
+   * @param name the name of the state to remove
+   * @return the removed state, or null if no state with that name exists
+   */
   public State removeState(String name) {
     State existing = getState(name);
     if (existing != null) removeState(existing);
     return existing;
   }
 
+  /**
+   * Removes a state.
+   *
+   * @param state the state to remove
+   * @return true if the state was removed, false otherwise
+   */
   public boolean removeState(State state) {
     removeAllTransitions(state);
     return states.remove(state);
   }
 
+  /**
+   * Adds a transition between two states triggered by a signal.
+   *
+   * @param from the name of the source state
+   * @param signal the signal triggering the transition
+   * @param to the name of the target state
+   * @return the replaced transition if it existed, otherwise null
+   * @throws IllegalArgumentException if either state doesn't exist
+   */
   public Transition addTransition(String from, String signal, String to) {
     State stFrom = getState(from);
     State stTo = getState(to);
@@ -97,6 +177,14 @@ public class StateMachine {
     return addTransition(stFrom, signal, stTo);
   }
 
+  /**
+   * Adds a transition between two states.
+   *
+   * @param from the source state
+   * @param signal the signal triggering the transition
+   * @param to the target state
+   * @return the replaced transition if it existed, otherwise null
+   */
   public Transition addTransition(State from, String signal, State to) {
     List<Transition> fromTransitions = getTransitionList(from);
     Transition existing =
@@ -106,6 +194,16 @@ public class StateMachine {
     return existing;
   }
 
+  /**
+   * Adds an epsilon transition between states. Epsilon transitions are evaluated on each update and
+   * automatically trigger if their function returns true.
+   *
+   * @param from the source state
+   * @param function the condition function evaluated for the current state
+   * @param to the target state
+   * @param dataSupplier supplier of the data to pass to the target state
+   * @return the replaced epsilon transition if it existed, otherwise null
+   */
   public EpsilonTransition addEpsilonTransition(
       State from, Function<State, Boolean> function, State to, Supplier<Object> dataSupplier) {
     List<EpsilonTransition> fromTransitions = getEpsilonTransitionList(from);
@@ -116,44 +214,54 @@ public class StateMachine {
     return existing;
   }
 
+  /**
+   * Adds an epsilon transition without a data supplier.
+   *
+   * @param from the source state
+   * @param function the condition function
+   * @param to the target state
+   * @return the replaced epsilon transition if it existed, otherwise null
+   */
   public EpsilonTransition addEpsilonTransition(
       State from, Function<State, Boolean> function, State to) {
     return addEpsilonTransition(from, function, to, null);
   }
 
+  /**
+   * Removes all transitions to and from a given state.
+   *
+   * @param state the state whose transitions will be removed
+   */
   private void removeAllTransitions(State state) {
-    // Remove the state from the transitions
     transitions.remove(state);
     epsilonTransitions.remove(state);
-    // Also remove any transition targeting the state
-    transitions
-        .values()
-        .forEach(
-            transitionList -> {
-              List<Transition> toRemove =
-                  transitionList.stream()
-                      .filter(t -> t.targetState() == state)
-                      .collect(Collectors.toList());
-              toRemove.forEach(transitionList::remove);
-            });
-    epsilonTransitions
-        .values()
-        .forEach(
-            transitionList -> {
-              List<EpsilonTransition> toRemove =
-                  transitionList.stream()
-                      .filter(t -> t.targetState() == state)
-                      .collect(Collectors.toList());
-              toRemove.forEach(transitionList::remove);
-            });
+
+    transitions.values().forEach(list -> list.removeIf(t -> t.targetState() == state));
+
+    epsilonTransitions.values().forEach(list -> list.removeIf(t -> t.targetState() == state));
   }
 
+  /**
+   * Removes a transition by state name and signal.
+   *
+   * @param from the source state's name
+   * @param signal the signal triggering the transition
+   * @return true if a transition was removed, false otherwise
+   * @throws IllegalArgumentException if the state doesn't exist
+   */
   public boolean removeTransition(String from, String signal) {
     State stFrom = getState(from);
     if (stFrom == null) throw new IllegalArgumentException("State '" + from + "' doesn't exist");
     return removeTransition(stFrom, signal);
   }
 
+  /**
+   * Removes a transition from a state.
+   *
+   * @param from the source state
+   * @param signal the signal triggering the transition
+   * @return true if a transition was removed, false otherwise
+   */
   public boolean removeTransition(State from, String signal) {
     List<Transition> fromTransitions = getTransitionList(from);
     Transition transition =
@@ -176,6 +284,11 @@ public class StateMachine {
     return transitions.get(state);
   }
 
+  /**
+   * Sends a signal to the current state to trigger a transition.
+   *
+   * @param signal the signal to send
+   */
   public void sendSignal(Signal signal) {
     Transition transition =
         getTransitionList(currentState).stream()
@@ -195,6 +308,7 @@ public class StateMachine {
     }
   }
 
+  /** Updates the current state and evaluates epsilon transitions. */
   public void update() {
     currentState.update();
     List<EpsilonTransition> epsilonTransitions = getEpsilonTransitionList(currentState);
@@ -206,31 +320,61 @@ public class StateMachine {
     }
   }
 
-  /** Resets the state to the default state (first state in the list) */
+  /** Resets the state machine to the default state (first state in the list). */
   public void reset() {
     changeState(states.get(0), null);
   }
 
+  /**
+   * Retrieves the current state's sprite.
+   *
+   * @return the {@link Sprite} of the current state
+   */
   public Sprite getSprite() {
     return currentState.getSprite();
   }
 
+  /**
+   * Retrieves the width of the current state's sprite in world coordinates.
+   *
+   * @return the width of the current state's sprite in world units
+   */
   public float getWidth() {
     return currentState.getWidth();
   }
 
+  /**
+   * Retrieves the height of the current state's sprite in world coordinates.
+   *
+   * @return the height of the current state's sprite in world units
+   */
   public float getHeight() {
     return currentState.getHeight();
   }
 
+  /**
+   * Retrieves the width of the sprite's texture region.
+   *
+   * @return the width of the sprite's texture region
+   */
   public float getSpriteWidth() {
     return currentState.getSpriteWidth();
   }
 
+  /**
+   * Retrieves the height of the sprite's texture region.
+   *
+   * @return the height of the sprite's texture region
+   */
   public float getSpriteHeight() {
     return currentState.getSpriteHeight();
   }
 
+  /**
+   * Checks whether the current animation has finished playing.
+   *
+   * @return true if the animation has finished, false otherwise
+   */
   public boolean isAnimationFinished() {
     return currentState.isAnimationFinished();
   }

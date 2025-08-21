@@ -36,6 +36,7 @@ public class HealthSystemTest {
     Game.removeAllSystems();
   }
 
+  /** WTF? . */
   @BeforeEach
   public void setup() throws IOException {
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(ANIMATION_PATH);

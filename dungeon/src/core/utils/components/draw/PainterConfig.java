@@ -1,6 +1,7 @@
 package core.utils.components.draw;
 
 import com.badlogic.gdx.graphics.Texture;
+import core.components.DrawComponent;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 
@@ -43,6 +44,15 @@ public final class PainterConfig {
     this(TextureMap.instance().textureAt(texturePath));
   }
 
+  /**
+   * Creates a painter config with the given offset, scaling and tint.
+   *
+   * @param xOffset The x offset
+   * @param yOffset The y offset
+   * @param xScaling The x scaling
+   * @param yScaling The y scaling
+   * @param tintColor The tint color as used by the {@link DrawComponent}
+   */
   public PainterConfig(
       float xOffset, float yOffset, float xScaling, float yScaling, int tintColor) {
     this.offset = Vector2.of(xOffset, yOffset);

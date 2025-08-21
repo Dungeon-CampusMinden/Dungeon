@@ -9,10 +9,31 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
 
+/**
+ * Represents an animation consisting of one or more {@link Sprite}s.
+ *
+ * <p>An {@code Animation} can be created from:
+ *
+ * <ul>
+ *   <li>a single image file,
+ *   <li>a folder of images,
+ *   <li>a spritesheet with an accompanying {@link SpritesheetConfig},
+ *   <li>or a list of explicit paths to images.
+ * </ul>
+ *
+ * <p>The animation uses an {@link AnimationConfig} to determine scaling, frame duration, looping
+ * behavior, and optionally spritesheet layout.
+ *
+ * <p>Animation frames are stored internally as {@link Sprite} objects and can be updated
+ * frame-by-frame with {@link #update()}.
+ */
 public class Animation {
 
+  /** Path to the missing texture fallback image. */
   private static final IPath MISSING_TEXTURE_PATH =
       new SimpleIPath("animation/missing_texture.png");
+
+  /** Default scale factor applied to all sprites. */
   private static final float DEFAULT_SCALE = 1f / 16;
 
   private final AnimationConfig config;
@@ -22,10 +43,11 @@ public class Animation {
   private Sprite[] sprites;
 
   /**
-   * A new animation
+   * Create a new animation from a path.
    *
-   * @param path An IPath to either a single image or a folder of images
-   * @param config The configuration to use for this animation
+   * @param path An {@link IPath} to either a single image or a folder of images.
+   * @param config The configuration to use for this animation.
+   * @throws IllegalArgumentException if the path is null or empty.
    */
   public Animation(IPath path, AnimationConfig config) {
     if (path == null || path.pathString().isEmpty())
@@ -35,15 +57,21 @@ public class Animation {
     loadFromSingle(path);
   }
 
+  /**
+   * Create a new animation with default configuration.
+   *
+   * @param path An {@link IPath} to either a single image or a folder of images.
+   */
   public Animation(IPath path) {
     this(path, new AnimationConfig());
   }
 
   /**
-   * A new animation
+   * Create a new animation from multiple paths.
    *
-   * @param paths A series of textures to use
-   * @param config The configuration to use for this animation
+   * @param paths A list of image paths to use.
+   * @param config The configuration to use for this animation.
+   * @throws IllegalArgumentException if paths is null or empty.
    */
   public Animation(List<IPath> paths, AnimationConfig config) {
     if (paths == null || paths.size() == 0)
@@ -53,25 +81,29 @@ public class Animation {
     loadSpritesFromPaths(paths);
   }
 
+  /**
+   * Create a new animation from multiple paths with default configuration.
+   *
+   * @param paths A varargs array of image paths.
+   */
   public Animation(IPath... paths) {
     this(Arrays.asList(paths), new AnimationConfig());
   }
 
+  /**
+   * Create a new animation from a list of paths with default configuration.
+   *
+   * @param paths A list of image paths.
+   */
   public Animation(List<IPath> paths) {
     this(paths, new AnimationConfig());
   }
 
-  /*
-   * Algorithm:
-   * 1. Figure out if we are running from a jar
-   * 2. Get all Textures specified through the AnimationConfig (cached)
-   * 2.1. If single path, load the image as single Texture in a Texture[]
-   * 2.2. If the path leads to a directory, assume its meant to target the image .png with the same name as the directory
-   * 2.3. If single path and SpritesheetConfig is set, load the image as single Texture and get all relevant regions as TextureRegion[]
-   * 3. Load Textures into Sprites (cached)
-   * 3.1. If Texture[], load into Sprites (cached)
-   * 3.2. If TextureRegion[], load into Sprites (cached (somehow))
-   * 4. Set the sprites array
+  /**
+   * Load sprites from a single path, resolving whether it is a single image, a folder with an
+   * implied image, or a spritesheet.
+   *
+   * @param path The input path.
    */
   private void loadFromSingle(IPath path) {
     String pathString = path.pathString();
@@ -85,15 +117,20 @@ public class Animation {
 
     List<IPath> paths = new ArrayList<>();
     if (config.config() == null) {
-      // Case: 2.1.
+      // Case: single image
       paths.add(exactPath);
       loadSpritesFromPaths(paths);
     } else {
-      // Case: 2.3.
+      // Case: spritesheet
       loadSpritesFromSpritesheet(exactPath);
     }
   }
 
+  /**
+   * Load sprites directly from a list of image paths.
+   *
+   * @param paths A list of image paths.
+   */
   private void loadSpritesFromPaths(List<IPath> paths) {
     sprites = new Sprite[paths.size()];
     for (int i = 0; i < paths.size(); i++) {
@@ -122,6 +159,11 @@ public class Animation {
     height *= DEFAULT_SCALE;
   }
 
+  /**
+   * Load sprites from a spritesheet using {@link SpritesheetConfig}.
+   *
+   * @param path Path to the spritesheet image.
+   */
   private void loadSpritesFromSpritesheet(IPath path) {
     Texture spritesheet = null;
     if (TextureMap.instance().containsKey(path.pathString()) || Gdx.gl != null) {
@@ -155,6 +197,11 @@ public class Animation {
     height *= DEFAULT_SCALE;
   }
 
+  /**
+   * Get the current sprite frame based on the frame counter and configuration.
+   *
+   * @return The current {@link Sprite}.
+   */
   public Sprite getSprite() {
     int spriteIndex = frameCount / config.framesPerSprite();
     if (config.isLooping()) {
@@ -165,49 +212,94 @@ public class Animation {
     return sprites[spriteIndex];
   }
 
+  /**
+   * Get the logical width of the animation in world units.
+   *
+   * @return The width of the animation.
+   */
   public float getWidth() {
     return width;
   }
 
+  /**
+   * Get the logical height of the animation in world units.
+   *
+   * @return The height of the animation.
+   */
   public float getHeight() {
     return height;
   }
 
+  /**
+   * Get the pixel width of the underlying sprite frame.
+   *
+   * @return The sprite width in pixels.
+   */
   public float getSpriteWidth() {
     return width * (1 / DEFAULT_SCALE);
   }
 
+  /**
+   * Get the pixel height of the underlying sprite frame.
+   *
+   * @return The sprite height in pixels.
+   */
   public float getSpriteHeight() {
     return height * (1 / DEFAULT_SCALE);
   }
 
+  /**
+   * Check whether this animation is set to loop.
+   *
+   * @return true if the animation loops, false otherwise.
+   */
   public boolean isLooping() {
     return config.isLooping();
   }
 
+  /**
+   * Check whether this animation has finished playing.
+   *
+   * @return true if the animation has finished, false otherwise.
+   */
   public boolean isFinished() {
     int spriteIndex = frameCount / config.framesPerSprite();
     return spriteIndex >= sprites.length;
   }
 
   /**
-   * Updates the animation frame counter
+   * Update the animation by advancing the frame counter.
    *
-   * @return The updated sprite
+   * @return The updated current {@link Sprite}.
    */
   public Sprite update() {
     frameCount++;
     return getSprite();
   }
 
+  /**
+   * Get the current frame counter.
+   *
+   * @return The frame counter.
+   */
   public int frameCount() {
     return frameCount;
   }
 
+  /**
+   * Set the frame counter.
+   *
+   * @param frameCount The new frame count value.
+   */
   public void frameCount(int frameCount) {
     this.frameCount = frameCount;
   }
 
+  /**
+   * Get the {@link AnimationConfig} used by this animation.
+   *
+   * @return The animation configuration.
+   */
   public AnimationConfig getConfig() {
     return config;
   }
@@ -228,6 +320,16 @@ public class Animation {
         + '}';
   }
 
+  /**
+   * Load multiple animations from a spritesheet and its accompanying JSON configuration file.
+   *
+   * <p>The JSON file must be placed next to the spritesheet and have the same base name. It defines
+   * a map of animation names to {@link AnimationConfig} objects.
+   *
+   * @param path Path to the spritesheet image or folder.
+   * @return A map of animation names to {@link Animation} instances, or null if no config was
+   *     found.
+   */
   public static Map<String, Animation> loadAnimationSpritesheet(IPath path) {
     String pathString = path.pathString();
     String jsonPath;

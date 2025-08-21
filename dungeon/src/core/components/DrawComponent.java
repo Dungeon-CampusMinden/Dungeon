@@ -23,9 +23,10 @@ import java.util.logging.Logger;
  * <p>Example: "character/knight" resolves to "assets/character/knight/knight.png".
  *
  * <p>To make loading spritesheets easier, the function {@link
- * Animation.loadAnimationSpritesheet(IPath)} will check if there is a .json file with the same name
- * next to the image file, containing a {@link Map}<String, {@link AnimationConfig}>, outlining the
- * different Animations found in the image, and load this {@link Map} with all Animations.
+ * Animation#loadAnimationSpritesheet(IPath)} will check if there is a .json file with the same name
+ * next to the image file, containing a {@link Map}{@code <String, }{@link AnimationConfig}{@code
+ * >}, outlining the different Animations found in the image, and load this {@link Map} with all
+ * Animations.
  *
  * <p>This component will build a {@link StateMachine}, where each {@link State} represents one
  * animation that the entity can have. Between {@link State}s, transitions are responsible to denote
@@ -58,65 +59,139 @@ public final class DrawComponent implements Component {
    * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
    *     assumed that the target image file is within that folder with the same name as the folder
    *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param config The animation config to use
    * @see Animation
    */
   public DrawComponent(final IPath path, AnimationConfig config) {
     stateMachine = new StateMachine(path, config);
   }
 
+  /**
+   * Create a new DrawComponent from a spritesheet configuration.
+   *
+   * @param path Path to the spritesheet in the assets folder.
+   * @param config The spritesheet configuration to use.
+   * @see SpritesheetConfig
+   */
   public DrawComponent(final IPath path, SpritesheetConfig config) {
     stateMachine = new StateMachine(path, config);
   }
 
+  /**
+   * Create a new DrawComponent with a default {@link AnimationConfig}.
+   *
+   * @param path Path to the image in the assets folder.
+   * @see AnimationConfig
+   */
   public DrawComponent(final IPath path) {
     this(path, new AnimationConfig());
   }
 
+  /**
+   * Create a new DrawComponent from a single {@link Animation}.
+   *
+   * @param animation The animation to initialize the component with.
+   */
   public DrawComponent(final Animation animation) {
     stateMachine = new StateMachine(animation);
   }
 
+  /**
+   * Create a new DrawComponent from a list of states.
+   *
+   * @param states The list of states to initialize the state machine with.
+   */
   public DrawComponent(List<State> states) {
     stateMachine = new StateMachine(states);
   }
 
+  /**
+   * Create a new DrawComponent directly from a {@link StateMachine}.
+   *
+   * @param stateMachine The state machine to use for this component.
+   */
   public DrawComponent(StateMachine stateMachine) {
     this.stateMachine = stateMachine;
   }
 
+  /**
+   * Send a {@link Signal} with associated data to the {@link StateMachine}.
+   *
+   * @param signal The signal name.
+   * @param data The data to pass along with the signal.
+   */
   public void sendSignal(String signal, Object data) {
-    System.out.println("Got signal: " + signal + " | with data: " + data);
     stateMachine.sendSignal(new Signal(signal, data));
   }
 
+  /**
+   * Send a {@link Signal} without data to the {@link StateMachine}.
+   *
+   * @param signal The signal name.
+   */
   public void sendSignal(String signal) {
     sendSignal(signal, null);
   }
 
+  /**
+   * Update the {@link StateMachine} of this component.
+   *
+   * <p>This should be called once per game loop to progress animations and handle transitions.
+   */
   public void update() {
     stateMachine.update();
   }
 
+  /**
+   * Get the current {@link Sprite} of this component.
+   *
+   * @return The current sprite frame.
+   */
   public Sprite getSprite() {
     return stateMachine.getSprite();
   }
 
+  /**
+   * Get the logical width of this component (may differ from sprite width).
+   *
+   * @return The width in world units.
+   */
   public float getWidth() {
     return stateMachine.getWidth();
   }
 
+  /**
+   * Get the logical height of this component (may differ from sprite height).
+   *
+   * @return The height in world units.
+   */
   public float getHeight() {
     return stateMachine.getHeight();
   }
 
+  /**
+   * Get the pixel width of the current sprite.
+   *
+   * @return The width of the current sprite frame in pixels.
+   */
   public float getSpriteWidth() {
     return stateMachine.getSpriteWidth();
   }
 
+  /**
+   * Get the pixel height of the current sprite.
+   *
+   * @return The height of the current sprite frame in pixels.
+   */
   public float getSpriteHeight() {
     return stateMachine.getSpriteHeight();
   }
 
+  /**
+   * Get the current {@link Animation}.
+   *
+   * @return The active animation of the component.
+   */
   public Animation currentAnimation() {
     return stateMachine.getCurrentState().getAnimation();
   }
@@ -139,22 +214,44 @@ public final class DrawComponent implements Component {
     return stateMachine.isAnimationFinished();
   }
 
+  /**
+   * Check whether a state with the given name exists.
+   *
+   * @param name The name of the state.
+   * @return true if the state exists, false otherwise.
+   */
   public boolean hasState(String name) {
     return stateMachine.getState(name) != null;
   }
 
+  /**
+   * Get the current {@link State}.
+   *
+   * @return The active state of the component.
+   */
   public State currentState() {
     return stateMachine.getCurrentState();
   }
 
+  /**
+   * Get the name of the current state.
+   *
+   * @return The name of the active state.
+   */
   public String currentStateName() {
     return stateMachine.getCurrentStateName();
   }
 
+  /**
+   * Get the data associated with the current state.
+   *
+   * @return The data object attached to the current state.
+   */
   public Object currentStateData() {
     return stateMachine.getCurrentState().getData();
   }
 
+  /** Reset the {@link StateMachine} to its initial state. */
   public void resetState() {
     stateMachine.reset();
   }
@@ -197,14 +294,35 @@ public final class DrawComponent implements Component {
     this.tintColor = tintColor;
   }
 
+  /**
+   * Get the underlying {@link StateMachine}.
+   *
+   * @return The state machine of this component.
+   */
   public StateMachine stateMachine() {
     return stateMachine;
   }
 
+  /**
+   * Get the rendering depth of this component.
+   *
+   * <p>The depth determines the draw order. Lower values are drawn earlier (behind), higher values
+   * later (in front).
+   *
+   * @return The depth value.
+   */
   public int depth() {
     return depth;
   }
 
+  /**
+   * Set the rendering depth of this component.
+   *
+   * <p>The depth determines the draw order. Lower values are drawn earlier (behind), higher values
+   * later (in front).
+   *
+   * @param depth The new depth value.
+   */
   public void depth(int depth) {
     this.depth = depth;
   }

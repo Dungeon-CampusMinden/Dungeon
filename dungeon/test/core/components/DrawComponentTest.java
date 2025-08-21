@@ -12,7 +12,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,9 +26,9 @@ public class DrawComponentTest {
   private final IPath simplePath = new SimpleIPath("test_assets/textures/mailbox.png");
   private DrawComponent animationComponent;
 
-  /** WTF? . */
+  /** Creates a {@link DrawComponent} to be used in testing, similar to a basic hero. */
   @BeforeEach
-  public void setup() throws IOException {
+  public void setup() {
     // Create file system handle. WARNING: This will assume all future paths to be relative to the
     // working directory (probably the root of the project)
     TextureMap.instance().clear(); // reset any existing mappings
@@ -56,6 +55,12 @@ public class DrawComponentTest {
     animationComponent = new DrawComponent(sm);
   }
 
+  /**
+   * Tests sending multiple signals to the {@link DrawComponent} and ensures that state transitions
+   * are applied correctly.
+   *
+   * <p>Checks initial state, transition to a new state, and self-transitions with updated data.
+   */
   @Test
   public void complexAnimationTransition() {
     // Ensure that the current animation is initially set to the expected value
@@ -73,7 +78,10 @@ public class DrawComponentTest {
     assertEquals(Direction.UP, animationComponent.currentState().getData());
   }
 
-  /** Tests a simple image loading properly into a DrawComponent */
+  /**
+   * Tests that a simple image can be loaded into a {@link DrawComponent} and that the default state
+   * is correctly set to "idle".
+   */
   @Test
   public void simpleAnimation() {
     DrawComponent simpleAnimation = new DrawComponent(simplePath);
@@ -81,8 +89,10 @@ public class DrawComponentTest {
   }
 
   /**
-   * Tests if the complex animation loaded from the .json file properly loads all 4 images of the
-   * animation
+   * Tests that a complex animation loaded from a spritesheet (.json) correctly loads all states and
+   * configuration.
+   *
+   * <p>Verifies that all expected states exist and that the animation configuration is correct.
    */
   @Test
   public void complexAnimationLoad() {

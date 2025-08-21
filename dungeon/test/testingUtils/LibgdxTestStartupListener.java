@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestPlan;
 
+/** Initializes a headless libgdx environment for testing. */
 public class LibgdxTestStartupListener implements TestExecutionListener {
   private static final AtomicBoolean INITIALIZED = new AtomicBoolean(false);
 
