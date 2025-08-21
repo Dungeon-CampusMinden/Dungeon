@@ -230,7 +230,10 @@ public final class GameLoop extends ScreenAdapter {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    pc.position(Game.startTile().orElseThrow());
+    Game.startTile()
+        .ifPresentOrElse(
+            pc::position, () -> LOGGER.warning("No start tile found for the current level"));
+
     pc.viewDirection(Direction.DOWN); // look down by default
 
     // reset animations
