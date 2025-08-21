@@ -8,6 +8,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.ECSTickRunner;
+import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
@@ -67,17 +68,12 @@ public final class AuthoritativeServerLoop {
               t.setDaemon(true);
               return t;
             });
-    // Make translator available through the server network service as well
-    try {
-      this.net.setSnapshotTranslator(translator);
-    } catch (Throwable ignored) {
-    }
   }
 
   /** Starts the simulation and snapshot senders. */
   public void start() {
     try {
-      core.game.PreRunConfiguration.frameRate(TICK_HZ);
+      PreRunConfiguration.frameRate(TICK_HZ);
     } catch (Throwable ignored) {
     }
 
@@ -175,7 +171,7 @@ public final class AuthoritativeServerLoop {
     broadcast(new LevelChangeEvent(levelName, null));
   }
 
-  private void broadcast(NetworkMessage event) {
+  public void broadcast(NetworkMessage event) {
     for (Map.Entry<Integer, InetSocketAddress> entry : net.udpClients().entrySet()) {
       net.sendUdpObject(entry.getValue(), event);
     }

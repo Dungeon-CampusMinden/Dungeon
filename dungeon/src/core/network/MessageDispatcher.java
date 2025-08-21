@@ -75,7 +75,8 @@ public final class MessageDispatcher {
     if (handler != null) {
       try {
         @SuppressWarnings("unchecked")
-        BiConsumer<ChannelHandlerContext, Object> c = (BiConsumer<ChannelHandlerContext, Object>) handler;
+        BiConsumer<ChannelHandlerContext, Object> c =
+            (BiConsumer<ChannelHandlerContext, Object>) handler;
         c.accept(ctx, message);
       } catch (Exception e) {
         LOGGER.log(

@@ -1,21 +1,23 @@
 package core.network.handler;
 
+import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.*;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.s2c.ConnectAck;
+import core.network.server.AuthoritativeServerLoop;
+import core.network.server.ServerNetworkService;
 import core.utils.Tuple;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.*;
@@ -81,13 +83,15 @@ public final class NettyNetworkHandler implements INetworkHandler {
   private String remoteHost;
   private int port;
 
+  private AuthoritativeServerLoop serverLoop;
+  private ServerNetworkService serverNetworkService;
+
   // Event loop groups
   private EventLoopGroup bossGroup; // server TCP acceptor
   private EventLoopGroup workerGroup; // server TCP workers and UDP
   private EventLoopGroup clientGroup; // client TCP/UDP
 
   // Channels
-  private Channel serverTcpChannel; // server listening socket
   private Channel clientTcpChannel; // client TCP connection
   private Channel udpChannel; // UDP channel (server bind or client bind)
 
@@ -134,84 +138,16 @@ public final class NettyNetworkHandler implements INetworkHandler {
   }
 
   private void startServer() {
-    try {
-      // TCP server
-      ServerBootstrap sb = new ServerBootstrap();
-      sb.group(bossGroup, workerGroup)
-          .channel(NioServerSocketChannel.class)
-          .childHandler(
-              new ChannelInitializer<SocketChannel>() {
-                @Override
-                protected void initChannel(SocketChannel ch) {
-                  ChannelPipeline p = ch.pipeline();
-                  p.addLast(new LengthFieldBasedFrameDecoder(MAX_OBJECT_SIZE + 4, 0, 4, 0, 4));
-                  p.addLast(
-                      new SimpleChannelInboundHandler<ByteBuf>() {
-                        @Override
-                        protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) {
-                          try {
-                            int size = frame.readableBytes();
-                            Object object = deserialize(frame);
-                            if (object instanceof NetworkMessage nm) {
-                              inboundQueue.offer(Tuple.of(ctx, nm));
-                              LOGGER.info(
-                                  "TCP server inbound message type={} size={}B",
-                                  object.getClass().getSimpleName(),
-                                  size);
-                            }
-                          } catch (Exception e) {
-                            LOGGER.warn("TCP server decode error", e);
-                          }
-                        }
-
-                        @Override
-                        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                          LOGGER.warn("TCP server handler error", cause);
-                          ctx.close();
-                          notifyDisconnected(cause);
-                        }
-                      });
-                }
-              });
-      ChannelFuture bindFuture = sb.bind(port).syncUninterruptibly();
-      serverTcpChannel = bindFuture.channel();
-
-      // UDP server (bind to same port)
-      Bootstrap ub = new Bootstrap();
-      ub.group(workerGroup)
-          .channel(NioDatagramChannel.class)
-          .handler(
-              new SimpleChannelInboundHandler<DatagramPacket>() {
-                @Override
-                protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket packet) {
-                  try {
-                    Object object = deserialize(packet.content());
-                    if (object instanceof NetworkMessage nm) {
-                      inboundQueue.offer(Tuple.of(ctx, nm));
-                    }
-                  } catch (Exception e) {
-                    LOGGER.warn("UDP server decode error", e);
-                  }
-                }
-
-                @Override
-                public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-                  LOGGER.warn("UDP server handler error", cause);
-                }
-              });
-      ChannelFuture udpBind = ub.bind(port).syncUninterruptibly();
-      udpChannel = udpBind.channel();
-
-      connected.set(true);
-      enqueueLifecycle(this::notifyConnected);
-      LOGGER.info("NettyNetworkHandler server started on port " + port);
-    } catch (Exception e) {
-      LOGGER.error("Failed to start Netty server", e);
-      notifyDisconnected(e);
-    }
+    LOGGER.info("Starting server on port {}", PreRunConfiguration.networkPort());
+    this.serverNetworkService = new ServerNetworkService();
+    this.serverNetworkService.start(PreRunConfiguration.networkPort());
+    this.serverLoop =
+        new AuthoritativeServerLoop(serverNetworkService, new DefaultSnapshotTranslator());
+    this.serverLoop.start();
   }
 
   private void startClient() {
+    LOGGER.info("Starting client to {}:{}", remoteHost, port);
     try {
       // TCP client
       Bootstrap cb = new Bootstrap();
@@ -273,9 +209,8 @@ public final class NettyNetworkHandler implements INetworkHandler {
                         @Override
                         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                           LOGGER.warn("TCP client handler error", cause);
-                          ctx.close();
-                          connected.set(false);
-                          enqueueLifecycle(() -> notifyDisconnected(cause));
+
+                          Game.exit("TCP channel closed due to error: " + cause.getMessage());
                         }
                       });
                 }
@@ -375,7 +310,6 @@ public final class NettyNetworkHandler implements INetworkHandler {
   public void shutdown(String reason) {
     if (!running.compareAndSet(true, false)) return;
     try {
-      if (serverTcpChannel != null) serverTcpChannel.close().syncUninterruptibly();
       if (clientTcpChannel != null) clientTcpChannel.close().syncUninterruptibly();
       if (udpChannel != null) udpChannel.close().syncUninterruptibly();
     } catch (Exception e) {
@@ -388,6 +322,11 @@ public final class NettyNetworkHandler implements INetworkHandler {
       if (clientGroup != null) clientGroup.shutdownGracefully();
     } catch (Exception e) {
       LOGGER.warn("Error while shutting down event loops", e);
+    }
+
+    if (serverMode) {
+      this.serverLoop.stop();
+      this.serverNetworkService.stop();
     }
 
     connected.set(false);
@@ -438,6 +377,12 @@ public final class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public void send(NetworkMessage message) {
+
+    if (isServer()) {
+      serverLoop.broadcast(message);
+      return;
+    }
+
     if (!running.get()
         || !isConnected()
         || clientTcpChannel == null

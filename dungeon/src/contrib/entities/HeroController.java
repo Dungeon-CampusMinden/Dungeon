@@ -14,6 +14,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.AbstractMap;
 import java.util.Optional;
 
 public class HeroController {
@@ -84,13 +85,16 @@ public class HeroController {
   }
 
   public static void interact(Entity hero, Point point) {
-    Game.entityAtTile(Game.tileAT(point))
-        .findFirst()
-        .ifPresent(
-            interactable -> {
-              interactable
-                  .fetch(InteractionComponent.class)
-                  .ifPresent(ic -> ic.triggerInteraction(interactable, hero));
-            });
+    Game.tileAt(point)
+        .flatMap(
+            tile ->
+                Game.entityAtTile(tile)
+                    .filter(e -> e.fetch(InteractionComponent.class).isPresent())
+                    .findFirst()
+                    .flatMap(
+                        e ->
+                            e.fetch(InteractionComponent.class)
+                                .map(ic -> new AbstractMap.SimpleEntry<>(e, ic))))
+        .ifPresent(pair -> pair.getValue().triggerInteraction(pair.getKey(), hero));
   }
 }
