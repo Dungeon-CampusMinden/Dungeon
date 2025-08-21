@@ -386,7 +386,7 @@ public class BlocklyCommands {
         dir ->
             Optional.ofNullable(EntityUtils.getHeroCoordinate())
                 .map(coord -> coord.translate(dir))
-                .flatMap(Game::tileAt); // <— statt .map(...)
+                .flatMap(Game::tileAt);
 
     // calculate direction to check relative to hero's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
