@@ -1,0 +1,107 @@
+{
+  "attack": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 16,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 3
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "die": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 28,
+      "x": 0,
+      "y": 16,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "hit": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 28,
+      "x": 0,
+      "y": 44,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "idle_left": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 28,
+      "x": 0,
+      "y": 72,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "idle_right": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 28,
+      "x": 0,
+      "y": 100,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run_left": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 28,
+      "x": 0,
+      "y": 128,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run_right": {
+    "config": {
+      "spriteWidth": 16,
+      "spriteHeight": 28,
+      "x": 0,
+      "y": 156,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  }
+}

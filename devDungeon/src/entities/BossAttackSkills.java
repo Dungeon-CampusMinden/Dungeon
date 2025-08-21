@@ -24,7 +24,6 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -144,13 +143,9 @@ public class BossAttackSkills {
                     new PositionComponent(tile.coordinate().toCenteredPoint());
                 entity.add(posComp);
                 entity.add(new CollideComponent());
-                try {
-                  DrawComponent drawComp = new DrawComponent(new SimpleIPath("skills/fireball"));
-                  drawComp.currentAnimation("run_down");
-                  entity.add(drawComp);
-                } catch (IOException e) {
-                  throw new RuntimeException("Could not load fireball texture" + e);
-                }
+                DrawComponent drawComp = new DrawComponent(new SimpleIPath("skills/fireball.png"));
+                entity.add(drawComp);
+
                 entity.add(
                     new SpikyComponent(
                         FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 4));

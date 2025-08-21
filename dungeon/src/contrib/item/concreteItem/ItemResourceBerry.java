@@ -6,7 +6,7 @@ import contrib.item.Item;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 
 /**
@@ -20,10 +20,7 @@ public class ItemResourceBerry extends Item {
 
   /** Create a new Berry. */
   public ItemResourceBerry() {
-    super(
-        "Berry",
-        "A berry.",
-        Animation.fromSingleImage(new SimpleIPath("items/resource/berry.png")));
+    super("Berry", "A berry.", new Animation(new SimpleIPath("items/resource/berry.png")));
   }
 
   @Override

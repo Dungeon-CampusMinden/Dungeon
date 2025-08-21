@@ -2,7 +2,7 @@ package task.game.content;
 
 import contrib.item.Item;
 import core.Entity;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import task.game.components.TaskContentComponent;
 
 /**

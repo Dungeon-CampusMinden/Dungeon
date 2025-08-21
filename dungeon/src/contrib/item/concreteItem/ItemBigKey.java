@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
 import core.components.PositionComponent;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -21,7 +21,7 @@ public class ItemBigKey extends Item {
     super(
         "Großer Schlüssel",
         "Ein großer goldener Schlüssel. Was er wohl öffnet?",
-        Animation.fromSingleImage(BIG_KEY_TEXTURE));
+        new Animation(BIG_KEY_TEXTURE));
   }
 
   @Override

@@ -122,9 +122,6 @@ public final class MonsterFactory {
   }
 
   private static Sound randomMonsterDeathSound() {
-    if (Gdx.files == null)
-      return null; // This is a workaround for the Gdx.files being null in tests
-
     List<String> deathSoundsPaths =
         Arrays.asList(
             "sounds/die_01.wav", "sounds/die_02.wav", "sounds/die_03.wav", "sounds/die_04.wav");

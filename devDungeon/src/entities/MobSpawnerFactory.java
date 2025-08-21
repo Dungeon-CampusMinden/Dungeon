@@ -5,7 +5,7 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -45,7 +45,7 @@ public class MobSpawnerFactory {
     Entity mobSpawner = new Entity("mobSpawner");
 
     mobSpawner.add(new PositionComponent(pos.toCenteredPoint()));
-    mobSpawner.add(new DrawComponent(Animation.fromSingleImage(SPAWNER_TEXTURE)));
+    mobSpawner.add(new DrawComponent(new Animation(SPAWNER_TEXTURE)));
     mobSpawner.add(
         new MobSpawnerComponent(
             monsterTypes,

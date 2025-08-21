@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
 import core.components.PositionComponent;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -29,8 +29,8 @@ public class ItemWoodenArrow extends Item {
     super(
         "Wooden Arrow",
         "Ammunition for a Bow",
-        Animation.fromSingleImage(DEFAULT_TEXTURE),
-        Animation.fromSingleImage(DEFAULT_TEXTURE),
+        new Animation(DEFAULT_TEXTURE),
+        new Animation(DEFAULT_TEXTURE),
         amount,
         MAX_ARROW_STACK_SIZE);
   }

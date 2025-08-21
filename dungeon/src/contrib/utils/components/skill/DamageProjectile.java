@@ -17,7 +17,6 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -215,13 +214,14 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    projectile.add(new PositionComponent(epc.position()));
+    PositionComponent ppc = new PositionComponent((epc.position()));
+    projectile.add(ppc);
 
     try {
       DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
       dc.tintColor(tintColor());
       projectile.add(dc);
-    } catch (IOException e) {
+    } catch (Exception e) {
       LOGGER.warning(
           String.format("The DrawComponent for the projectile %s cant be created. ", entity)
               + e.getMessage());
@@ -239,6 +239,9 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     Point aimedOn = new Point(selectionFunction.get());
     Point targetPoint =
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
+
+    // Rotate the entity, so it always points in the direction it is moving
+    ppc.rotation(startPoint.vectorTo(aimedOn).angleDeg());
 
     // Calculate the velocity of the projectile
     Vector2 forceToApply =
