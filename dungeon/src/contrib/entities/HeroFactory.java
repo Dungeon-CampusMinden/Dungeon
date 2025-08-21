@@ -17,6 +17,7 @@ import core.Game;
 import core.components.*;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
+import core.level.loader.DungeonLoader;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InputMessage.Action;
 import core.utils.Direction;

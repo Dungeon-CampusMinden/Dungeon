@@ -215,11 +215,11 @@ public class LocalNetworkHandler implements INetworkHandler {
     }
 
     List<EntityState> snapshotEntities = new ArrayList<>();
-    Game.entityStream()
+    Game.levelEntities()
         .forEach(
             entity -> {
               EntityState.Builder builder = EntityState.builder();
-              builder.entityName(entity.name());
+              builder.entityId(entity.id());
 
               // PositionComponent
               Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
