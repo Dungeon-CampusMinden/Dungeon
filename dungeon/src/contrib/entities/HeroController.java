@@ -80,8 +80,10 @@ public class HeroController {
   public static void useSkill(Entity hero, int skillId, Point target) {
     // TODO: Implement logic to use skillId; Use target to determine direction
     // TODO: Temporarily set the skill callback to override selectionFunc
-    HeroFactory.setHeroSkillCallback(new FireballSkill(() -> target));
-    HeroFactory.getHeroSkill().execute(hero);
+    if (HeroFactory.getHeroSkill().canBeUsedAgain()) {
+      HeroFactory.setHeroSkillCallback(new FireballSkill(() -> target));
+      HeroFactory.getHeroSkill().execute(hero);
+    }
   }
 
   public static void interact(Entity hero, Point point) {
