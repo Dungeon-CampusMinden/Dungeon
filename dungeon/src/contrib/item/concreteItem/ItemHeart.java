@@ -6,6 +6,7 @@ import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
 import core.Entity;
 import core.Game;
+import core.level.Tile;
 import core.level.elements.tile.FloorTile;
 import core.utils.Direction;
 import core.utils.Point;
@@ -49,7 +50,8 @@ public class ItemHeart extends Item {
 
   @Override
   public boolean drop(final Point position) {
-    if (Game.tileAT(position) instanceof FloorTile) {
+    Tile tile = Game.tileAt(position).orElse(null);
+    if (tile instanceof FloorTile) {
       TriConsumer<Entity, Entity, Direction> onCollide =
           (self, other, dir) -> {
             Game.hero()
