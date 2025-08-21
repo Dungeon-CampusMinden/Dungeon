@@ -11,6 +11,7 @@ import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -143,5 +144,63 @@ public final class EntityFactory {
    */
   public static Entity newCraftingCauldron() throws IOException {
     return MiscFactory.newCraftingCauldron();
+  }
+
+  /**
+   * Creates a destructible stone entity.
+   *
+   * <p>The stone requires a hammer to break. All items in {@code items} are stored inside and
+   * dropped upon destruction.
+   *
+   * @param spawnPoint the world position where the stone is spawned
+   * @param items the items stored inside the stone
+   * @return a new {@link Entity} representing the stone
+   * @throws IOException if loading textures or animations fails
+   */
+  public static Entity newStone(Point spawnPoint, final Set<Item> items) throws IOException {
+    return MiscFactory.newStone(spawnPoint, items);
+  }
+
+  /**
+   * Creates a destructible stone entity with no stored items.
+   *
+   * <p>The stone requires a hammer to break.
+   *
+   * @param spawnPoint the world position where the stone is spawned
+   * @return a new {@link Entity} representing the stone
+   * @throws IOException if loading textures or animations fails
+   */
+  public static Entity newStone(Point spawnPoint) throws IOException {
+    Set<Item> stoneItems = new HashSet<>();
+    return MiscFactory.newStone(spawnPoint, stoneItems);
+  }
+
+  /**
+   * Creates a destructible vase entity.
+   *
+   * <p>The vase does not require a hammer to break. All items in {@code items} are stored inside
+   * and dropped upon destruction.
+   *
+   * @param spawnPoint the world position where the vase is spawned
+   * @param items the items stored inside the vase
+   * @return a new {@link Entity} representing the vase
+   * @throws IOException if loading textures or animations fails
+   */
+  public static Entity newVase(Point spawnPoint, final Set<Item> items) throws IOException {
+    return MiscFactory.newVase(spawnPoint, items);
+  }
+
+  /**
+   * Creates a destructible vase entity with no stored items.
+   *
+   * <p>The vase does not require a hammer to break.
+   *
+   * @param spawnPoint the world position where the vase is spawned
+   * @return a new {@link Entity} representing the vase
+   * @throws IOException if loading textures or animations fails
+   */
+  public static Entity newVase(Point spawnPoint) throws IOException {
+    Set<Item> vaseItems = new HashSet<>();
+    return MiscFactory.newVase(spawnPoint, vaseItems);
   }
 }
