@@ -57,9 +57,12 @@ public class Level03 extends DungeonLevel {
   private ExitTile exit;
 
   // hint system
+  Entity craftPotionRiddle;
+  Entity findRecipeRiddle;
+  Entity talkToNPCRiddle;
   PlaceComponent talkToNPCRiddlePlace;
   PlaceComponent findRecipeRiddlePlace;
-  PlaceComponent craftHealthPotionRiddlePlace;
+  PlaceComponent craftPotionRiddlePlace;
 
   /**
    * Creates a new Level03.
@@ -108,7 +111,7 @@ public class Level03 extends DungeonLevel {
                                 true)));
 
     // Talk to NPC riddle
-    Entity talkToNPCRiddle = new Entity("Talk to monster riddle");
+    talkToNPCRiddle = new Entity("Talk to monster riddle");
     talkToNPCRiddle.add(
         new HintComponent(
             "Du solltest schauen, woher die Geräusche kamen.",
@@ -122,7 +125,7 @@ public class Level03 extends DungeonLevel {
     talkToNPCRiddlePlace.produce();
 
     // Find recipe riddle
-    Entity findRecipeRiddle = new Entity("Find recipe riddle");
+    findRecipeRiddle = new Entity("Find recipe riddle");
     findRecipeRiddlePlace = new PlaceComponent();
     findRecipeRiddle.add(
         new HintComponent(
@@ -137,8 +140,8 @@ public class Level03 extends DungeonLevel {
     petriNetSystem.addOutputArc(t1, findRecipeRiddlePlace);
 
     // Craft potion riddle
-    Entity craftPotionRiddle = new Entity("Craft potion riddle");
-    craftHealthPotionRiddlePlace = new PlaceComponent();
+    craftPotionRiddle = new Entity("Craft potion riddle");
+    craftPotionRiddlePlace = new PlaceComponent();
     craftPotionRiddle.add(
         new HintComponent(
             "Die Zutaten kann ich im Level suchen.",
@@ -146,16 +149,16 @@ public class Level03 extends DungeonLevel {
             "In der Schatzkiste ist bestimmt auch was.",
             "Am Crafting-Tisch kann ich Zutaten mischen.",
             "Das Gegengift muss zum NPC."));
-    craftPotionRiddle.add(craftHealthPotionRiddlePlace);
+    craftPotionRiddle.add(craftPotionRiddlePlace);
     Game.add(craftPotionRiddle);
 
     TransitionComponent t2 = new TransitionComponent();
     petriNetSystem.addInputArc(t2, findRecipeRiddlePlace, 2);
-    petriNetSystem.addOutputArc(t2, craftHealthPotionRiddlePlace);
+    petriNetSystem.addOutputArc(t2, craftPotionRiddlePlace);
 
     // For removing the last hints if potion was given to the entity
     TransitionComponent t3 = new TransitionComponent();
-    petriNetSystem.addInputArc(t3, craftHealthPotionRiddlePlace, 2);
+    petriNetSystem.addInputArc(t3, craftPotionRiddlePlace, 2);
   }
 
   private void npc() {
@@ -182,6 +185,7 @@ public class Level03 extends DungeonLevel {
                     "Muschel esser.",
                     () -> {
                       talkToNPCRiddlePlace.produce();
+                      Game.remove(talkToNPCRiddle);
                       entity.remove(InteractionComponent.class);
                       entity.add(
                           new InteractionComponent(
@@ -198,7 +202,8 @@ public class Level03 extends DungeonLevel {
                                               "Das ist nicht das richitge Mittel.", "Falsch.");
                                         } else {
                                           DialogUtils.showTextPopup("Danke", "Richtig");
-                                          craftHealthPotionRiddlePlace.produce();
+                                          craftPotionRiddlePlace.produce();
+                                          Game.remove(craftPotionRiddle);
                                           moveNpc(entity);
                                           npc.remove(InteractionComponent.class);
                                         }
@@ -268,6 +273,7 @@ public class Level03 extends DungeonLevel {
             "Gifte und Gegengifte",
             () -> {
               findRecipeRiddlePlace.produce();
+              Game.remove(findRecipeRiddle);
             }));
   }
 
