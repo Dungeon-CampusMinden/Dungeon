@@ -206,14 +206,14 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
       LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
       level
           .tileAt(riddleRoomEntrance)
-	      .filter(tile -> tile instanceof DoorTile)
-	      .map(tile -> (DoorTile) tile)
-	      .ifPresent(DoorTile::open);
+          .filter(tile -> tile instanceof DoorTile)
+          .map(tile -> (DoorTile) tile)
+          .ifPresent(DoorTile::open);
       level
           .tileAt(riddleRoomEntrance)
-	      .filter(tile -> tile instanceof DoorTile)
-	      .map(tile -> (DoorTile) tile)
-	      .ifPresent(DoorTile::open);
+          .filter(tile -> tile instanceof DoorTile)
+          .map(tile -> (DoorTile) tile)
+          .ifPresent(DoorTile::open);
     }
   }
 
