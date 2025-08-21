@@ -30,6 +30,8 @@ public class ItemHeart extends Item {
    * Creates a new heart pickup item.
    *
    * <p>The item heals the collector on collision and cannot be stored in the inventory.
+   *
+   * @param healAmount the amount of healing applied.
    */
   public ItemHeart(int healAmount) {
     super("Herz", "Heilt ein wenig HP.", Animation.fromSingleImage(HEART_TEXTURE));

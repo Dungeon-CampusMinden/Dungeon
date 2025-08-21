@@ -624,6 +624,7 @@ public final class MiscFactory {
    * @param texturePath The path prefix for the textures (e.g. "objects/stone").
    * @param spawnPoint The world position where the entity should be created.
    * @param requiresHammer Whether the entity requires a hammer to be destroyed.
+   * @param item the items contained in the object that will drop upon destruction.
    * @return A new {@link Entity} configured with destruction behavior and animations.
    * @throws IOException If loading the textures or animations fails.
    */
