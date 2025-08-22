@@ -172,7 +172,7 @@ public final class DrawSystem extends System {
    *   <li>The entity itself is visible
    * </ol>
    *
-   * @param data the entity to check
+   * @param data the components of the entity to check
    * @return true if the entity should be drawn, false otherwise
    * @see DrawComponent#isVisible()
    */

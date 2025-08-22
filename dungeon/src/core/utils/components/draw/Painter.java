@@ -49,7 +49,7 @@ public class Painter {
    * @param rotation rotation in degrees (clockwise)
    */
   public void draw(
-      final Point position, final Sprite sprite, final PainterConfig config, double rotation) {
+      final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
 
     // Apply offset from configuration
     Point realPos = position.translate(config.offset());
@@ -63,7 +63,7 @@ public class Painter {
 
       // Set rotation around the sprite's center
       sprite.setOriginCenter();
-      sprite.setRotation((float) rotation);
+      sprite.setRotation(rotation);
 
       // Apply tint color if specified
       if (config.tintColor() != -1) {

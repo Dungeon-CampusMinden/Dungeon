@@ -37,7 +37,7 @@ public final class PositionComponent implements Component {
 
   private Point position;
   private Direction viewDirection;
-  private double rotation;
+  private float rotation;
 
   /**
    * Create a new PositionComponent with given position.
@@ -181,7 +181,7 @@ public final class PositionComponent implements Component {
    *
    * @return The rotation.
    */
-  public double rotation() {
+  public float rotation() {
     return rotation;
   }
 
@@ -190,7 +190,7 @@ public final class PositionComponent implements Component {
    *
    * @param rotation new rotation
    */
-  public void rotation(final double rotation) {
+  public void rotation(final float rotation) {
     this.rotation = rotation;
   }
 }
