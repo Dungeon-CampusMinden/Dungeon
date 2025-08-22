@@ -2,6 +2,9 @@
 
 *.cmd text eol=crlf
 *.bat text eol=crlf
+*.md   text eol=lf
+*.markdown text eol=lf
+*.txt  text eol=lf
 
 *.java diff=java
 *.ts   diff=typescript
