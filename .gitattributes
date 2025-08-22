@@ -3,10 +3,19 @@
 *.cmd text eol=crlf
 *.bat text eol=crlf
 
-*.png binary
-*.jpg binary
+*.png  binary
+*.jpg  binary
 *.jpeg binary
-*.gif binary
-*.pdf binary
-*.zip binary
-*.exe binary
+*.gif  binary
+*.webp binary
+*.pdf  binary
+*.zip  binary
+*.jar  binary
+*.7z   binary
+*.mp4  binary
+*.mp3  binary
+*.mov  binary
+*.ttf  binary
+*.otf  binary
+*.psd  binary
+*.ai   binary
