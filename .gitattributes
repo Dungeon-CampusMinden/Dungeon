@@ -1,18 +1,37 @@
+# -----------------------
+# End-of-line settings
+# -----------------------
+# Default: treat all files as text and normalize line endings to LF (Unix style)
 * text=auto eol=lf
 
+# Windows batch scripts should use CRLF line endings
 *.cmd text eol=crlf
 *.bat text eol=crlf
-*.md   text eol=lf
-*.markdown text eol=lf
-*.txt  text eol=lf
 
+# Markdown and plain text files always use LF line endings
+*.md        text eol=lf
+*.markdown  text eol=lf
+*.txt       text eol=lf
+
+# JSON files: treat as text and enforce LF line endings
+*.json      text eol=lf
+
+# -----------------------
+# Language-specific diffs
+# -----------------------
+# Enables Git to show intelligent diffs for these file types
 *.java diff=java
 *.ts   diff=typescript
 *.tsx  diff=typescript
 *.js   diff=javascript
 *.css  diff=css
 *.html diff=html
+*.json diff   # plain text diff for JSON files
 
+# -----------------------
+# Binary files
+# -----------------------
+# Git will not try to convert line endings or generate diffs for these
 *.png  binary
 *.jpg  binary
 *.jpeg binary
@@ -30,12 +49,21 @@
 *.psd  binary
 *.ai   binary
 
+# -----------------------
+# GitHub Linguist settings
+# -----------------------
+# Mark documentation folders/files so GitHub counts them as documentation
 */doc/** linguist-documentation
 *.md   linguist-documentation
 *.txt  linguist-documentation
 
+# Force GitHub to detect correct programming languages for syntax highlighting and repo stats
 *.java linguist-language=Java
 *.ts   linguist-language=TypeScript
 *.tsx  linguist-language=TypeScript
 *.css  linguist-language=CSS
 *.html linguist-language=HTML
+
+# JSON files are treated as data/config, not counted as code
+*.json linguist-vendored
+
