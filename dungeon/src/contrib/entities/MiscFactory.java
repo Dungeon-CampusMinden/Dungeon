@@ -8,9 +8,9 @@ import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
-import contrib.item.concreteItem.ItemBigKey;
-import contrib.item.concreteItem.ItemKey;
+import contrib.item.concreteItem.*;
 import contrib.utils.components.draw.ChestAnimations;
+import contrib.utils.components.draw.DestroyableObjectsAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -26,11 +26,9 @@ import core.utils.TriConsumer;
 import core.utils.Vector2;
 import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
-import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -43,16 +41,14 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
   private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
-  private static final SimpleIPath HEART_TEXTURE =
-      new SimpleIPath("items/pickups/heart_pickup.png");
-  private static final SimpleIPath FAIRY_TEXTURE =
-      new SimpleIPath("items/pickups/fairy_pickup.png");
   private static final SimpleIPath DOOR_BLOCKER_TEXTURE = new SimpleIPath("other/chain_lock.png");
 
   private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
   private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
   private static final SimpleIPath SPELL_BOOK_TEXTURE =
       new SimpleIPath("items/book/spell_book.png");
+  private static final SimpleIPath STONE_TEXTURES = new SimpleIPath("objects/stone");
+  private static final SimpleIPath VASE_TEXTURES = new SimpleIPath("objects/vase");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -539,89 +535,6 @@ public final class MiscFactory {
   }
 
   /**
-   * Creates a generic pickup item entity.
-   *
-   * <p>The pickup will be represented by the specified texture and will execute the given {@code
-   * onCollide} behavior whenever it collides with another entity.
-   *
-   * @param name the name of the pickup entity.
-   * @param spawnPoint the position in the world where the pickup will be spawned.
-   * @param texture the texture to display for this pickup.
-   * @param onCollide the action to execute when a collision occurs; the first parameter is the
-   *     pickup entity itself, the second is the colliding entity, and the third is the collision
-   *     direction.
-   * @return the created pickup entity.
-   */
-  public static Entity newPickupItem(
-      String name,
-      Point spawnPoint,
-      IPath texture,
-      TriConsumer<Entity, Entity, Direction> onCollide) {
-    Entity pickupItem = new Entity(name);
-    pickupItem.add(new PositionComponent(spawnPoint));
-    pickupItem.add(new DrawComponent(Animation.fromSingleImage(texture)));
-    pickupItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
-    return pickupItem;
-  }
-
-  /**
-   * Creates a new heart pickup entity that restores a fixed amount of health points to the player
-   * when collected.
-   *
-   * <p>Only the game's hero can collect this pickup. The actual restored amount is capped at the
-   * player's maximal health points. After collection, the pickup is removed from the game.
-   *
-   * @param spawnPoint the position in the world where the heart pickup will be spawned.
-   * @param healAmount the number of health points to restore upon collection.
-   * @return the created heart pickup entity.
-   */
-  public static Entity newHeartPickup(Point spawnPoint, int healAmount) {
-    TriConsumer<Entity, Entity, Direction> onCollide =
-        (self, other, dir) -> {
-          Game.hero()
-              .ifPresent(
-                  hero -> {
-                    if (other.equals(hero)) {
-                      other
-                          .fetch(HealthComponent.class)
-                          .ifPresent(health -> health.restoreHealthpoints(healAmount));
-                      Game.remove(self);
-                    }
-                  });
-        };
-
-    return newPickupItem("heartPickup", spawnPoint, HEART_TEXTURE, onCollide);
-  }
-
-  /**
-   * Creates a new fairy pickup entity that fully restores the player's health when collected.
-   *
-   * <p>Only the game's hero can collect this pickup. After collection, the pickup is removed from
-   * the game.
-   *
-   * @param spawnPoint the position in the world where the fairy pickup will be spawned.
-   * @return the created fairy pickup entity.
-   */
-  public static Entity newFairyPickup(Point spawnPoint) {
-    TriConsumer<Entity, Entity, Direction> onCollide =
-        (self, other, dir) -> {
-          Game.hero()
-              .ifPresent(
-                  hero -> {
-                    if (other.equals(hero)) {
-                      other
-                          .fetch(HealthComponent.class)
-                          .ifPresent(
-                              health -> health.restoreHealthpoints(health.maximalHealthpoints()));
-                      Game.remove(self);
-                    }
-                  });
-        };
-
-    return newPickupItem("fairyPickup", spawnPoint, FAIRY_TEXTURE, onCollide);
-  }
-
-  /**
    * Create a book, that the player can read.
    *
    * @param position Position of the book.
@@ -696,6 +609,204 @@ public final class MiscFactory {
     door.close();
     doorBlocker.add(new DrawComponent(Animation.fromSingleImage(DOOR_BLOCKER_TEXTURE)));
     return doorBlocker;
+  }
+
+  /**
+   * Creates a generic destroyable object entity.
+   *
+   * <p>It has an {@link InventoryComponent} and can store items. All stored items are dropped upon
+   * destruction.
+   *
+   * @param name The entity name (e.g. "stone", "vase").
+   * @param texturePath The path prefix for the textures (e.g. "objects/stone").
+   * @param spawnPoint The world position where the entity should be created.
+   * @param requiredItemClass the class of an {@link Item} that must be present in the interactor's
+   *     inventory to destroy this object. If {@code null}, no item is required for destruction.
+   * @param items the items contained in the object that will drop upon destruction.
+   * @return A new {@link Entity} configured with destruction behavior and animations.
+   * @throws IOException If loading the textures or animations fails.
+   */
+  public static Entity newDestroyableObject(
+      String name,
+      SimpleIPath texturePath,
+      Point spawnPoint,
+      final Class<? extends Item> requiredItemClass,
+      final Set<Item> items)
+      throws IOException {
+
+    Entity destroyableObj = new Entity(name);
+    destroyableObj.add(new PositionComponent(spawnPoint));
+    InventoryComponent objInvComp = new InventoryComponent(items.size());
+    destroyableObj.add(objInvComp);
+    items.forEach(objInvComp::add);
+    // Initial InteractionComponent
+    InteractionComponent baseIC =
+        new InteractionComponent(
+            2.0f,
+            true,
+            (interacted, interactor) -> {
+              // Original behavior will be wrapped below
+            });
+    destroyableObj.add(baseIC);
+
+    // Wrapper-InteractionComponent
+    destroyableObj
+        .fetch(InteractionComponent.class)
+        .ifPresent(
+            oldIC -> {
+              InteractionComponent wrapperIC =
+                  new InteractionComponent(
+                      2.0f,
+                      true,
+                      (interacted, interactor) -> {
+                        // check if a specific item is required for destruction
+                        if (requiredItemClass != null) {
+                          boolean hasRequiredItem =
+                              interactor
+                                  .fetch(InventoryComponent.class)
+                                  .map(inv -> inv.hasItem(requiredItemClass))
+                                  .orElse(false);
+
+                          if (!hasRequiredItem) {
+                            return;
+                          }
+                        }
+
+                        // start breaking Animation
+                        interacted
+                            .fetch(DrawComponent.class)
+                            .ifPresent(
+                                drawComp ->
+                                    drawComp.queueAnimation(DestroyableObjectsAnimations.BREAKING));
+
+                        // Drop all items from DestroyableObject inventory
+                        Arrays.stream(objInvComp.items())
+                            .filter(Objects::nonNull)
+                            .forEach(
+                                itemInInv -> {
+                                  itemInInv.drop(spawnPoint);
+                                  objInvComp.remove(itemInInv);
+                                });
+
+                        // remove interaction after successfully destroying the object
+                        interacted.remove(InteractionComponent.class);
+                      });
+
+              destroyableObj.remove(InteractionComponent.class);
+              destroyableObj.add(wrapperIC);
+            });
+
+    // init DrawComponent
+    DrawComponent dc = new DrawComponent(texturePath);
+    var mapping = dc.animationMap();
+    // set intact texture as idle
+    mapping.put(
+        CoreAnimations.IDLE.pathString(),
+        mapping.get(DestroyableObjectsAnimations.INTACT.pathString()));
+    // BREAKING should not loop
+    mapping.get(DestroyableObjectsAnimations.BREAKING.pathString()).loop(false);
+    dc.animationMap(mapping);
+    // reset intact animation
+    dc.deQueueByPriority(CoreAnimations.IDLE.priority());
+    dc.currentAnimation(CoreAnimations.IDLE);
+    destroyableObj.add(dc);
+
+    return destroyableObj;
+  }
+
+  /**
+   * Creates a destructible vase entity.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
+   * suitable for a vase: does not require a hammer to break and drops all items stored inside the
+   * vase.
+   *
+   * @param spawnPoint The world position where the vase should be spawned.
+   * @param items the items contained in the vase that will drop upon destruction.
+   * @return A new {@link Entity} representing the destructible vase.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newVase(Point spawnPoint, final Set<Item> items) throws IOException {
+    return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
+  }
+
+  /**
+   * Creates a destructible stone entity.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
+   * suitable for a stone: requires a hammer to break and drops all items stored inside the stone.
+   *
+   * @param spawnPoint The world position where the stone should be spawned.
+   * @param items the items contained in the stone that will drop upon destruction.
+   * @return A new {@link Entity} representing the destructible stone.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newStone(Point spawnPoint, final Set<Item> items) throws IOException {
+    return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
+  }
+
+  /**
+   * Creates a destructible vase entity with randomized drops.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
+   * suitable for a vase: does not require a hammer to break and drops all items stored inside the
+   * vase.
+   *
+   * @param spawnPoint The world position where the vase should be spawned.
+   * @param dropChance A value between 0.0 and 1.0 indicating the probability that the vase drops an
+   *     item. If the random roll fails, the vase will drop nothing.
+   * @return A new {@link Entity} representing the destructible vase.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newVase(Point spawnPoint, float dropChance) throws IOException {
+    Set<Item> items = generateRandomDrop(dropChance);
+    return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
+  }
+
+  /**
+   * Creates a destructible stone entity with randomized drops.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
+   * suitable for a stone: requires a hammer to break and drops all items stored inside the stone.
+   *
+   * @param spawnPoint The world position where the stone should be spawned.
+   * @param dropChance A value between 0.0 and 1.0 indicating the probability that the stone drops
+   *     an item. If the random roll fails, the stone will drop nothing.
+   * @return A new {@link Entity} representing the destructible stone.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newStone(Point spawnPoint, float dropChance) throws IOException {
+    Set<Item> items = generateRandomDrop(dropChance);
+    return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
+  }
+
+  /**
+   * Helper to create a random drop set based on probability.
+   *
+   * <p>Item distribution is hardcoded as an example:
+   *
+   * <ul>
+   *   <li>50% Heart
+   *   <li>30% Arrows
+   *   <li>20% Fairy
+   * </ul>
+   *
+   * @param dropChance probability that any item will drop.
+   * @return a set containing one random item, or empty if no drop occurs.
+   */
+  private static Set<Item> generateRandomDrop(float dropChance) {
+    Set<Item> result = new HashSet<>();
+    if (Math.random() <= dropChance) {
+      double roll = Math.random();
+      if (roll < 0.5) {
+        result.add(new ItemHeart(5));
+      } else if (roll < 0.8) {
+        result.add(new ItemWoodenArrow(8));
+      } else {
+        result.add(new ItemFairy());
+      }
+    }
+    return result;
   }
 
   /**
