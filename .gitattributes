@@ -3,6 +3,13 @@
 *.cmd text eol=crlf
 *.bat text eol=crlf
 
+*.java diff=java
+*.ts   diff=typescript
+*.tsx  diff=typescript
+*.js   diff=javascript
+*.css  diff=css
+*.html diff=html
+
 *.png  binary
 *.jpg  binary
 *.jpeg binary
