@@ -123,6 +123,18 @@ export const toolbox: Blockly.utils.toolbox.ToolboxDefinition = {
           kind: "block",
           type: "controls_ifelse",
         },
+        {
+          kind: "block",
+          type: "switch_case",
+        },
+        {
+          kind: "block",
+          type: "case_block",
+        },
+        {
+          kind: "block",
+          type: "default_block",
+        }
       ],
     },
     {
