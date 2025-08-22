@@ -26,3 +26,13 @@
 *.otf  binary
 *.psd  binary
 *.ai   binary
+
+*/doc/** linguist-documentation
+*.md   linguist-documentation
+*.txt  linguist-documentation
+
+*.java linguist-language=Java
+*.ts   linguist-language=TypeScript
+*.tsx  linguist-language=TypeScript
+*.css  linguist-language=CSS
+*.html linguist-language=HTML
