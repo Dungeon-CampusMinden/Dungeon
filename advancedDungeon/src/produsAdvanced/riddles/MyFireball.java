@@ -40,6 +40,6 @@ public class MyFireball extends Fireball {
    */
   @Override
   public void onBerryHit(Berry berry) {
-    if(berry.isToxic()) berry.destroy();
+    throw new UnsupportedOperationException("Diese Methode muss noch implementiert werden.");
   }
 }
