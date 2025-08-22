@@ -152,10 +152,10 @@ public final class EntityFactory {
    * <p>The stone requires a hammer to break. All items in {@code items} are stored inside and
    * dropped upon destruction.
    *
-   * @param spawnPoint the world position where the stone is spawned
-   * @param items the items stored inside the stone
-   * @return a new {@link Entity} representing the stone
-   * @throws IOException if loading textures or animations fails
+   * @param spawnPoint the world position where the stone is spawned.
+   * @param items the items stored inside the stone.
+   * @return a new {@link Entity} representing the stone.
+   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newStone(Point spawnPoint, final Set<Item> items) throws IOException {
     return MiscFactory.newStone(spawnPoint, items);
@@ -166,13 +166,29 @@ public final class EntityFactory {
    *
    * <p>The stone requires a hammer to break.
    *
-   * @param spawnPoint the world position where the stone is spawned
-   * @return a new {@link Entity} representing the stone
-   * @throws IOException if loading textures or animations fails
+   * @param spawnPoint the world position where the stone is spawned.
+   * @return a new {@link Entity} representing the stone.
+   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newStone(Point spawnPoint) throws IOException {
     Set<Item> stoneItems = new HashSet<>();
     return MiscFactory.newStone(spawnPoint, stoneItems);
+  }
+
+  /**
+   * Creates a destructible stone entity with randomized drops.
+   *
+   * <p>The stone requires a hammer to break. Instead of a fixed set of items, a single random item
+   * may be dropped based on {@code dropChance}.
+   *
+   * @param spawnPoint the world position where the stone is spawned.
+   * @param dropChance a value between 0.0 and 1.0 indicating the probability that the stone drops
+   *     an item when destroyed.
+   * @return a new {@link Entity} representing the stone.
+   * @throws IOException if loading textures or animations fails.
+   */
+  public static Entity newStone(Point spawnPoint, float dropChance) throws IOException {
+    return MiscFactory.newStone(spawnPoint, dropChance);
   }
 
   /**
@@ -181,10 +197,10 @@ public final class EntityFactory {
    * <p>The vase does not require a hammer to break. All items in {@code items} are stored inside
    * and dropped upon destruction.
    *
-   * @param spawnPoint the world position where the vase is spawned
-   * @param items the items stored inside the vase
-   * @return a new {@link Entity} representing the vase
-   * @throws IOException if loading textures or animations fails
+   * @param spawnPoint the world position where the vase is spawned.
+   * @param items the items stored inside the vase.
+   * @return a new {@link Entity} representing the vase.
+   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newVase(Point spawnPoint, final Set<Item> items) throws IOException {
     return MiscFactory.newVase(spawnPoint, items);
@@ -195,12 +211,28 @@ public final class EntityFactory {
    *
    * <p>The vase does not require a hammer to break.
    *
-   * @param spawnPoint the world position where the vase is spawned
-   * @return a new {@link Entity} representing the vase
-   * @throws IOException if loading textures or animations fails
+   * @param spawnPoint the world position where the vase is spawned.
+   * @return a new {@link Entity} representing the vase.
+   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newVase(Point spawnPoint) throws IOException {
     Set<Item> vaseItems = new HashSet<>();
     return MiscFactory.newVase(spawnPoint, vaseItems);
+  }
+
+  /**
+   * Creates a destructible vase entity with randomized drops.
+   *
+   * <p>The vase does not require a hammer to break. Instead of a fixed set of items, a single
+   * random item may be dropped based on {@code dropChance}.
+   *
+   * @param spawnPoint the world position where the vase is spawned.
+   * @param dropChance a value between 0.0 and 1.0 indicating the probability that the vase drops an
+   *     item when destroyed.
+   * @return a new {@link Entity} representing the vase.
+   * @throws IOException if loading textures or animations fails.
+   */
+  public static Entity newVase(Point spawnPoint, float dropChance) throws IOException {
+    return MiscFactory.newVase(spawnPoint, dropChance);
   }
 }

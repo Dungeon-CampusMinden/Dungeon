@@ -8,9 +8,7 @@ import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
-import contrib.item.concreteItem.ItemBigKey;
-import contrib.item.concreteItem.ItemHammer;
-import contrib.item.concreteItem.ItemKey;
+import contrib.item.concreteItem.*;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.draw.DestroyableObjectsAnimations;
 import contrib.utils.components.item.ItemGenerator;
@@ -30,10 +28,7 @@ import core.utils.components.draw.Animation;
 import core.utils.components.draw.CoreAnimations;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,7 +37,6 @@ public final class MiscFactory {
 
   private static final Random RANDOM = new Random();
   private static final int DEFAULT_CHEST_SIZE = 12;
-  private static final int DEFAULT_DROP_AMOUNT = 3;
   private static final int MAX_AMOUNT_OF_ITEMS_ON_RANDOM = 5;
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
@@ -53,6 +47,8 @@ public final class MiscFactory {
   private static final SimpleIPath BOOK_TEXTURE = new SimpleIPath("items/book/red_book.png");
   private static final SimpleIPath SPELL_BOOK_TEXTURE =
       new SimpleIPath("items/book/spell_book.png");
+  private static final SimpleIPath STONE_TEXTURES = new SimpleIPath("objects/stone");
+  private static final SimpleIPath VASE_TEXTURES = new SimpleIPath("objects/vase");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -618,29 +614,31 @@ public final class MiscFactory {
   /**
    * Creates a generic destroyable object entity.
    *
-   * <p>It can store up to a certain amount of items ({@value DEFAULT_DROP_AMOUNT}).
+   * <p>It has an {@link InventoryComponent} and can store items. All stored items are dropped upon
+   * destruction.
    *
    * @param name The entity name (e.g. "stone", "vase").
    * @param texturePath The path prefix for the textures (e.g. "objects/stone").
    * @param spawnPoint The world position where the entity should be created.
-   * @param requiresHammer Whether the entity requires a hammer to be destroyed.
-   * @param item the items contained in the object that will drop upon destruction.
+   * @param requiredItemClass the class of an {@link Item} that must be present in the interactor's
+   *     inventory to destroy this object. If {@code null}, no item is required for destruction.
+   * @param items the items contained in the object that will drop upon destruction.
    * @return A new {@link Entity} configured with destruction behavior and animations.
    * @throws IOException If loading the textures or animations fails.
    */
   public static Entity newDestroyableObject(
       String name,
-      String texturePath,
+      SimpleIPath texturePath,
       Point spawnPoint,
-      boolean requiresHammer,
-      final Set<Item> item)
+      final Class<? extends Item> requiredItemClass,
+      final Set<Item> items)
       throws IOException {
 
     Entity destroyableObj = new Entity(name);
     destroyableObj.add(new PositionComponent(spawnPoint));
-    InventoryComponent objInvComp = new InventoryComponent(DEFAULT_DROP_AMOUNT);
+    InventoryComponent objInvComp = new InventoryComponent(items.size());
     destroyableObj.add(objInvComp);
-    item.forEach(objInvComp::add);
+    items.forEach(objInvComp::add);
     // Initial InteractionComponent
     InteractionComponent baseIC =
         new InteractionComponent(
@@ -661,12 +659,17 @@ public final class MiscFactory {
                       2.0f,
                       true,
                       (interacted, interactor) -> {
-                        // check if a hammer is required for destruction
-                        if (requiresHammer) {
-                          InventoryComponent interactorInvComp =
-                              interactor.fetch(InventoryComponent.class).orElse(null);
-                          if (interactorInvComp == null
-                              || !interactorInvComp.hasItem(ItemHammer.class)) return;
+                        // check if a specific item is required for destruction
+                        if (requiredItemClass != null) {
+                          boolean hasRequiredItem =
+                              interactor
+                                  .fetch(InventoryComponent.class)
+                                  .map(inv -> inv.hasItem(requiredItemClass))
+                                  .orElse(false);
+
+                          if (!hasRequiredItem) {
+                            return;
+                          }
                         }
 
                         // start breaking Animation
@@ -694,7 +697,7 @@ public final class MiscFactory {
             });
 
     // init DrawComponent
-    DrawComponent dc = new DrawComponent(new SimpleIPath(texturePath));
+    DrawComponent dc = new DrawComponent(texturePath);
     var mapping = dc.animationMap();
     // set intact texture as idle
     mapping.put(
@@ -714,7 +717,7 @@ public final class MiscFactory {
   /**
    * Creates a destructible vase entity.
    *
-   * <p>Uses {@link #newDestroyableObject(String, String, Point, boolean, Set)} with parameters
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
    * suitable for a vase: does not require a hammer to break and drops all items stored inside the
    * vase.
    *
@@ -724,13 +727,13 @@ public final class MiscFactory {
    * @throws IOException If loading textures or animations fails.
    */
   public static Entity newVase(Point spawnPoint, final Set<Item> items) throws IOException {
-    return newDestroyableObject("vase", "objects/vase", spawnPoint, false, items);
+    return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
   }
 
   /**
    * Creates a destructible stone entity.
    *
-   * <p>Uses {@link #newDestroyableObject(String, String, Point, boolean, Set)} with parameters
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
    * suitable for a stone: requires a hammer to break and drops all items stored inside the stone.
    *
    * @param spawnPoint The world position where the stone should be spawned.
@@ -739,7 +742,71 @@ public final class MiscFactory {
    * @throws IOException If loading textures or animations fails.
    */
   public static Entity newStone(Point spawnPoint, final Set<Item> items) throws IOException {
-    return newDestroyableObject("stone", "objects/stone", spawnPoint, true, items);
+    return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
+  }
+
+  /**
+   * Creates a destructible vase entity with randomized drops.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
+   * suitable for a vase: does not require a hammer to break and drops all items stored inside the
+   * vase.
+   *
+   * @param spawnPoint The world position where the vase should be spawned.
+   * @param dropChance A value between 0.0 and 1.0 indicating the probability that the vase drops an
+   *     item. If the random roll fails, the vase will drop nothing.
+   * @return A new {@link Entity} representing the destructible vase.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newVase(Point spawnPoint, float dropChance) throws IOException {
+    Set<Item> items = generateRandomDrop(dropChance);
+    return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
+  }
+
+  /**
+   * Creates a destructible stone entity with randomized drops.
+   *
+   * <p>Uses {@link #newDestroyableObject(String, SimpleIPath, Point, Class, Set)} with parameters
+   * suitable for a stone: requires a hammer to break and drops all items stored inside the stone.
+   *
+   * @param spawnPoint The world position where the stone should be spawned.
+   * @param dropChance A value between 0.0 and 1.0 indicating the probability that the stone drops
+   *     an item. If the random roll fails, the stone will drop nothing.
+   * @return A new {@link Entity} representing the destructible stone.
+   * @throws IOException If loading textures or animations fails.
+   */
+  public static Entity newStone(Point spawnPoint, float dropChance) throws IOException {
+    Set<Item> items = generateRandomDrop(dropChance);
+    return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
+  }
+
+  /**
+   * Helper to create a random drop set based on probability.
+   *
+   * <p>Item distribution is hardcoded as an example:
+   *
+   * <ul>
+   *   <li>50% Heart
+   *   <li>30% Arrows
+   *   <li>20% Fairy
+   * </ul>
+   *
+   * @param dropChance probability that any item will drop.
+   * @return a set containing one random item, or empty if no drop occurs.
+   */
+  private static Set<Item> generateRandomDrop(float dropChance) {
+    Set<Item> result = new HashSet<>();
+    if (Math.random() <= dropChance) {
+      double roll = Math.random();
+      if (roll < 0.5) {
+        result.add(new ItemHeart(5));
+      } else if (roll < 0.8) {
+        result.add(new ItemWoodenArrow(8));
+      } else {
+        result.add(new ItemFairy());
+      }
+    }
+    return result;
   }
 
   /**
