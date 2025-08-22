@@ -1,5 +1,6 @@
 package contrib.utils.components.skill;
 
+import com.badlogic.gdx.Gdx;
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
@@ -273,7 +274,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
     projectile.add(
         new CollideComponent(CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, collide, null));
     Game.add(projectile);
-    playSound();
+    if (Gdx.files != null) playSound();
     onSpawn.accept(projectile);
   }
 

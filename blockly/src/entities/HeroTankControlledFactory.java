@@ -1,7 +1,7 @@
 package entities;
 
 import client.Client;
-import contrib.entities.EntityFactory;
+import contrib.entities.HeroFactory;
 import core.Entity;
 import core.components.InputComponent;
 import core.components.PositionComponent;
@@ -27,8 +27,10 @@ public class HeroTankControlledFactory {
    * @throws IOException if there is an error creating the hero
    */
   public static Entity newTankControlledHero() throws IOException {
-    Entity hero = EntityFactory.newHero();
-    InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
+    Entity hero = HeroFactory.newHero();
+    InputComponent ic =
+        hero.fetch(InputComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, InputComponent.class));
 
     // Remove any original movement controls
     ic.removeCallback(KeyboardConfig.MOVEMENT_UP.value());

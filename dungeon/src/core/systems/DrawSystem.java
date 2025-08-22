@@ -42,14 +42,16 @@ import java.util.stream.Collectors;
  */
 public final class DrawSystem extends System {
 
+  public static boolean ALLOW_RENDER = true;
+
   /**
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = new SpriteBatch();
+  private final SpriteBatch BATCH = ALLOW_RENDER ? new SpriteBatch() : null;
 
   /** Draws objects. */
-  private static final Painter PAINTER = new Painter(BATCH);
+  private final Painter PAINTER = new Painter(BATCH);
 
   /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls. */
   private static final float X_OFFSET = 0.5f;
@@ -73,7 +75,7 @@ public final class DrawSystem extends System {
    *
    * @return the {@link #PAINTER} of the DrawSystem
    */
-  public static Painter painter() {
+  public Painter painter() {
     return PAINTER;
   }
 
@@ -82,7 +84,7 @@ public final class DrawSystem extends System {
    *
    * @return the {@link #BATCH} of the DrawSystem
    */
-  public static SpriteBatch batch() {
+  public SpriteBatch batch() {
     return BATCH;
   }
 
@@ -142,6 +144,7 @@ public final class DrawSystem extends System {
     reduceFrameTimer(dsd.dc);
     setNextAnimation(dsd.dc);
     final Animation animation = dsd.dc.currentAnimation();
+    if (!ALLOW_RENDER || animation == null) return;
     IPath currentAnimationTexture = animation.nextAnimationTexturePath();
     if (!configs.containsKey(currentAnimationTexture)) {
       configs.put(
@@ -212,6 +215,8 @@ public final class DrawSystem extends System {
   }
 
   private void drawLevel(ILevel currentLevel) {
+    if (!ALLOW_RENDER) return;
+
     if (currentLevel == null) throw new IllegalArgumentException("Level to draw can´t be null.");
     Map<IPath, PainterConfig> mapping = new HashMap<>();
 
