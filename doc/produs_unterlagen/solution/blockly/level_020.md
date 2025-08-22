@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 20"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_020.png)
+![solution](./img/loesung_level_020.png)
 
 ## Code 
 

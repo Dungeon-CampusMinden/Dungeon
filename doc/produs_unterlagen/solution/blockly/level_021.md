@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 21"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_021.png)
+![solution](./img/loesung_level_021.png)
 
 ## Code 
 

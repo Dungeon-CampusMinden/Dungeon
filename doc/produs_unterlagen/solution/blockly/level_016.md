@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 16"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_016.png)
+![solution](./img/loesung_level_016.png)
 
 ## Code 
 
@@ -26,3 +26,4 @@ while(true){
 }
 ```
 
+/

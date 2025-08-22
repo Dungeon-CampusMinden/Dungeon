@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 9"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_009.png)
+![solution](./img/loesung_level_009.png)
 
 ## Code 
 

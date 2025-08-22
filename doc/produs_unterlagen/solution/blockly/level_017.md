@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 17"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_017.png)
+![solution](./img/loesung_level_017.png)
 
 ## Code 
 

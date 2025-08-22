@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 6"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_006.png)
+![solution](./img/loesung_level_006.png)
 
 ## Code 
 

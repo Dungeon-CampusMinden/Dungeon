@@ -3,10 +3,10 @@ title: "Blockly Lösung: Level 8"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_008_1.png)
-![solution](.img/loesung_level_008_2.png)
-![solution](.img/loesung_level_008_3.png)
-![solution](.img/loesung_level_008_4.png)
+![solution](./img/loesung_level_008_1.png)
+![solution](./img/loesung_level_008_2.png)
+![solution](./img/loesung_level_008_3.png)
+![solution](./img/loesung_level_008_4.png)
 
 ## Code 
 

@@ -3,8 +3,8 @@ title: "Blockly Lösung: Level 15"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_015_1.png)
-![solution](.img/loesung_level_015_2.png)
+![solution](./img/loesung_level_015_1.png)
+![solution](./img/loesung_level_015_2.png)
 
 ## Code 
 

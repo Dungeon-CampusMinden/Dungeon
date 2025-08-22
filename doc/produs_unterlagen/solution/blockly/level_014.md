@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 14"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_014.png)
+![solution](./img/loesung_level_014.png)
 
 ## Code 
 

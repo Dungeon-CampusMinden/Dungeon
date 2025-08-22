@@ -3,7 +3,7 @@ title: "Blockly Lösung: Level 22"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_022.png)
+![solution](./img/loesung_level_022.png)
 
 ## Code 
 

@@ -3,10 +3,10 @@ title: "Blockly Lösung: Level 11"
 ---
 
 ## Blöcke
-![solution](.img/loesung_level_011_1.png)
-![solution](.img/loesung_level_011_2.png)
-![solution](.img/loesung_level_011_3.png)
-![solution](.img/loesung_level_011_4.png)
+![solution](./img/loesung_level_011_1.png)
+![solution](./img/loesung_level_011_2.png)
+![solution](./img/loesung_level_011_3.png)
+![solution](./img/loesung_level_011_4.png)
 
 ## Code 
 
