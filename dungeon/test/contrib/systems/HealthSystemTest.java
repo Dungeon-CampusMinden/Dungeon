@@ -14,7 +14,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -38,7 +37,7 @@ public class HealthSystemTest {
 
   /** WTF? . */
   @BeforeEach
-  public void setup() throws IOException {
+  public void setup() {
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(ANIMATION_PATH);
     State stIdle = new DirectionalState("idle", animationMap);
     State stMove = new DirectionalState("move", animationMap, "run");

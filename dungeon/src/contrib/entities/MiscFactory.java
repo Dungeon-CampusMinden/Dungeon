@@ -29,7 +29,6 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -76,10 +75,9 @@ public final class MiscFactory {
    * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
    *
    * @return A new Entity representing the chest.
-   * @throws IOException if the animation could not be loaded.
    * @see MiscFactory#generateRandomItems(int, int) generateRandomItems
    */
-  public static Entity newChest() throws IOException {
+  public static Entity newChest() {
     return newChest(FILL_CHEST.RANDOM);
   }
 
@@ -97,9 +95,8 @@ public final class MiscFactory {
    * @param type The type of chest to be created. It can either be RANDOM (filled with random items)
    *     or EMPTY.
    * @return A new Entity representing the chest.
-   * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newChest(FILL_CHEST type) throws IOException {
+  public static Entity newChest(FILL_CHEST type) {
     return switch (type) {
       case RANDOM ->
           newChest(
@@ -152,9 +149,8 @@ public final class MiscFactory {
    * @param item Items that should be in the chest.
    * @param position Where should the chest be placed?
    * @return A new Entity.
-   * @throws IOException If the animation could not be loaded.
    */
-  public static Entity newChest(final Set<Item> item, final Point position) throws IOException {
+  public static Entity newChest(final Set<Item> item, final Point position) {
     final float defaultInteractionRadius = 1f;
     Entity chest = new Entity("chest");
 
@@ -171,14 +167,8 @@ public final class MiscFactory {
     State stOpen = FillState.fromMap(animationMap, "open");
     StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen));
     sm.addTransition(stClosed, "open", stOpening);
-
     // Automatically transition to open state when opening animation is finished playing
     sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() == 0);
-
-    // If we didn't have a direct way of controlling when the full/empty check should happen, an
-    // epsilon transition to itself would still work
-    //    sm.addEpsilonTransition(stOpen, s -> (boolean)s.getData() != (ic.count() == 0), stOpen, ()
-    // -> ic.count() == 0);
     DrawComponent dc = new DrawComponent(sm);
     chest.add(dc);
 
@@ -230,11 +220,9 @@ public final class MiscFactory {
    * @param position The position where the chest should be placed.
    * @param requiredKeyType The type of key item required to open the chest.
    * @return A new locked chest entity.
-   * @throws IOException If the animation could not be loaded.
    */
   public static Entity newLockedChest(
-      final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType)
-      throws IOException {
+      final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType) {
     if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
       throw new IllegalArgumentException(
           "LockedChest entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
@@ -299,9 +287,8 @@ public final class MiscFactory {
    *
    * @param position position of the crafting cauldron.
    * @return A new Entity.
-   * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newCraftingCauldron(Point position) throws IOException {
+  public static Entity newCraftingCauldron(Point position) {
     Entity cauldron = new Entity("cauldron");
     cauldron.add(new PositionComponent(position));
     cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
@@ -332,9 +319,8 @@ public final class MiscFactory {
    * <p>The Entity is placed at the {@link PositionComponent#ILLEGAL_POSITION}. >.
    *
    * @return A new Entity.
-   * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newCraftingCauldron() throws IOException {
+  public static Entity newCraftingCauldron() {
     return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
   }
 
@@ -694,7 +680,7 @@ public final class MiscFactory {
   }
 
   private static class FillState extends State {
-    private Animation empty;
+    private final Animation empty;
 
     public FillState(String name, IPath pathFull, IPath pathEmpty, AnimationConfig config) {
       super(name, pathFull, config);

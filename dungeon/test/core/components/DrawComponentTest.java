@@ -99,6 +99,6 @@ public class DrawComponentTest {
     assertNotEquals(null, animationComponent.stateMachine().getState("idle"));
     assertNotEquals(null, animationComponent.stateMachine().getState("move"));
     assertNotEquals(null, animationComponent.stateMachine().getState("dead"));
-    assertEquals(4, animationComponent.currentAnimation().getConfig().config().columns());
+    assertEquals(4, animationComponent.currentAnimation().getConfig().config().get().columns());
   }
 }

@@ -64,7 +64,7 @@ public class Level002 extends BlocklyLevel {
     guardBuilder.viewDirection(Direction.LEFT);
     guardBuilder.addToGame();
     guardBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
-    guardBuilder.build().orElseThrow();
+    guardBuilder.build();
     customPoints().remove(0);
 
     BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();

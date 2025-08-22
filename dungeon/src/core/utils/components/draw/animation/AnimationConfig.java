@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Configuration class for an {@link Animation}. Defines scaling, frame timing, looping behavior,
@@ -52,10 +53,10 @@ public class AnimationConfig {
   }
 
   /**
-   * @return the {@link SpritesheetConfig} (may be {@code null})
+   * @return an Optional of the {@link SpritesheetConfig}
    */
-  public SpritesheetConfig config() {
-    return config;
+  public Optional<SpritesheetConfig> config() {
+    return Optional.ofNullable(config);
   }
 
   /**

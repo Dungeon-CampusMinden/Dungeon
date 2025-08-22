@@ -162,11 +162,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
     Entity npc = new Entity("NPC");
     npc.add(new PositionComponent(customPoints().get(0).toCenteredPoint()));
 
-    try {
-      npc.add(new DrawComponent(new SimpleIPath(NPC_TEXTURE_PATH)));
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load NPC texture", e);
-    }
+    npc.add(new DrawComponent(new SimpleIPath(NPC_TEXTURE_PATH)));
     npc.add(new CollideComponent());
     npc.add(new HealthComponent(999, (entity -> {})));
     makeInvincible(npc);

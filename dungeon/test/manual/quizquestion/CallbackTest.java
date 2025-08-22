@@ -87,11 +87,7 @@ public class CallbackTest {
         });
     Game.userOnLevelLoad(
         (loadFirstTime) -> {
-          try {
-            if (loadFirstTime) Game.add(questWizard());
-          } catch (IOException e) {
-            throw new RuntimeException();
-          }
+          if (loadFirstTime) Game.add(questWizard());
         });
     Game.windowTitle("Quest Wizard");
 
@@ -99,7 +95,7 @@ public class CallbackTest {
     Game.run();
   }
 
-  private static Entity questWizard() throws IOException {
+  private static Entity questWizard() {
     Entity wizard = new Entity("Quest Wizard");
     wizard.add(new PositionComponent());
     wizard.add(new DrawComponent(new SimpleIPath("character/wizard")));

@@ -178,8 +178,7 @@ public final class MonsterFactory {
       AIComponent ai,
       int collideDamage,
       int collideCooldown,
-      IPath idleSoundPath)
-      throws IOException {
+      IPath idleSoundPath) {
     Entity monster = new Entity(name);
 
     InventoryComponent ic = new InventoryComponent(1);

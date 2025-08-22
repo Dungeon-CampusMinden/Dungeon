@@ -77,7 +77,10 @@ public final class GameLoop extends ScreenAdapter {
         } catch (MissingComponentException e) {
           LOGGER.warning(e.getMessage());
         }
-        hero.ifPresent(ECSManagment::add);
+        ECSManagment.allEntities()
+            .filter(Entity::isPersistent)
+            .map(ECSManagment::remove)
+            .forEach(ECSManagment::add);
         if (firstLoad && Game.isCheckPatternEnabled())
           CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
@@ -227,7 +230,10 @@ public final class GameLoop extends ScreenAdapter {
         .fetch(PositionComponent.class)
         .ifPresent(
             pc -> {
-              pc.position(Game.startTile().orElseThrow());
+              Game.startTile()
+                  .ifPresentOrElse(
+                      pc::position,
+                      () -> LOGGER.warning("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
 

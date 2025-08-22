@@ -16,8 +16,6 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -288,28 +286,23 @@ public enum BlocklyMonster {
      * @return An Optional containing the built monster entity, or an empty Optional if the build
      *     failed.
      */
-    public Optional<Entity> build() {
+    public Entity build() {
       Entity monster;
-      try {
-        monster =
-            MonsterFactory.buildMonster(
-                monsterType.name,
-                monsterType.texture,
-                this.maxHealth,
-                (this.speed < 0) ? monsterType.speed : this.speed,
-                monsterType.itemChance,
-                monsterType.deathSound,
-                new AIComponent(
-                    monsterType.fightAISupplier.get(),
-                    monsterType.idleAISupplier.get(),
-                    monsterType.transitionAISupplier.get()),
-                this.collideDamage,
-                monsterType.collideCooldown,
-                monsterType.idleSoundPath);
-      } catch (IOException e) {
-        LOGGER.severe("Failed to load monster animation: " + e.getMessage());
-        return Optional.empty();
-      }
+      monster =
+          MonsterFactory.buildMonster(
+              monsterType.name,
+              monsterType.texture,
+              this.maxHealth,
+              (this.speed < 0) ? monsterType.speed : this.speed,
+              monsterType.itemChance,
+              monsterType.deathSound,
+              new AIComponent(
+                  monsterType.fightAISupplier.get(),
+                  monsterType.idleAISupplier.get(),
+                  monsterType.transitionAISupplier.get()),
+              this.collideDamage,
+              monsterType.collideCooldown,
+              monsterType.idleSoundPath);
 
       monster.add(new BlockViewComponent());
 
@@ -337,7 +330,7 @@ public enum BlocklyMonster {
         Game.add(monster);
       }
 
-      return Optional.of(monster);
+      return monster;
     }
   }
 }

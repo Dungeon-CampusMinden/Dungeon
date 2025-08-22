@@ -62,7 +62,7 @@ public class Level022 extends BlocklyLevel {
     bossBuilder.viewDirection(Direction.LEFT);
     bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
 
-    Entity boss = bossBuilder.build().orElseThrow();
+    Entity boss = bossBuilder.build();
     boss.fetch(HealthComponent.class)
         .orElseThrow()
         .onDeath(

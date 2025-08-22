@@ -15,7 +15,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -160,92 +159,86 @@ public class ArrayCreateLevel extends AdvancedLevel {
   }
 
   private void spawnMonsterByType(int monsterType, Coordinate pos) {
-    try {
-      Entity monster =
-          switch (monsterType) {
-            case 0 -> // monster elemental
-                MonsterFactory.buildMonster(
-                    "Monster Elemental",
-                    new SimpleIPath("character/monster/elemental_goo_small"),
-                    4,
-                    5.0f,
-                    0.1f,
-                    MonsterDeathSound.HIGH_PITCH.sound(),
-                    new AIComponent(
-                        entity -> {}, // keine Kampf-KI
-                        entity -> {}, // keine Idle-KI
-                        entity -> false), // keine Übergänge
-                    0, // kein Kollisionsschaden
-                    0, // keine Kollisions-Abklingzeit
-                    MonsterIdleSound.BURP.path());
-            case 1 -> // Chort
-                MonsterFactory.buildMonster(
-                    "Static Chort",
-                    new SimpleIPath("character/monster/chort"),
-                    1,
-                    0.0f,
-                    0.0f,
-                    MonsterDeathSound.LOWER_PITCH.sound(),
-                    new AIComponent(entity -> {}, entity -> {}, entity -> false),
-                    0,
-                    0,
-                    MonsterIdleSound.BURP.path());
-            case 2 -> // Imp
-                MonsterFactory.buildMonster(
-                    "Imp",
-                    new SimpleIPath("character/monster/imp"),
-                    4,
-                    5.0f,
-                    0.1f,
-                    MonsterDeathSound.HIGH_PITCH.sound(),
-                    new AIComponent(
-                        entity -> {}, // keine Kampf-KI
-                        entity -> {}, // keine Idle-KI
-                        entity -> false), // keine Übergänge
-                    0, // kein Kollisionsschaden
-                    0, // keine Kollisions-Abklingzeit
-                    MonsterIdleSound.BURP.path());
-            case 3 -> // Doc
-                MonsterFactory.buildMonster(
-                    "Doc",
-                    new SimpleIPath("character/monster/doc"),
-                    4,
-                    5.0f,
-                    0.1f,
-                    MonsterDeathSound.HIGH_PITCH.sound(),
-                    new AIComponent(
-                        entity -> {}, // keine Kampf-KI
-                        entity -> {}, // keine Idle-KI
-                        entity -> false), // keine Übergänge
-                    0, // kein Kollisionsschaden
-                    0, // keine Kollisions-Abklingzeit
-                    MonsterIdleSound.BURP.path());
-            case 4 -> // Goblin
-                MonsterFactory.buildMonster(
-                    "Goblin",
-                    new SimpleIPath("character/monster/goblin"),
-                    4,
-                    5.0f,
-                    0.1f,
-                    MonsterDeathSound.HIGH_PITCH.sound(),
-                    new AIComponent(
-                        entity -> {}, // keine Kampf-KI
-                        entity -> {}, // keine Idle-KI
-                        entity -> false), // keine Übergänge
-                    0, // kein Kollisionsschaden
-                    0, // keine Kollisions-Abklingzeit
-                    MonsterIdleSound.BURP.path());
-            default ->
-                throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
-          };
+    Entity monster =
+        switch (monsterType) {
+          case 0 -> // monster elemental
+              MonsterFactory.buildMonster(
+                  "Monster Elemental",
+                  new SimpleIPath("character/monster/elemental_goo_small"),
+                  4,
+                  5.0f,
+                  0.1f,
+                  MonsterDeathSound.HIGH_PITCH.sound(),
+                  new AIComponent(
+                      entity -> {}, // keine Kampf-KI
+                      entity -> {}, // keine Idle-KI
+                      entity -> false), // keine Übergänge
+                  0, // kein Kollisionsschaden
+                  0, // keine Kollisions-Abklingzeit
+                  MonsterIdleSound.BURP.path());
+          case 1 -> // Chort
+              MonsterFactory.buildMonster(
+                  "Static Chort",
+                  new SimpleIPath("character/monster/chort"),
+                  1,
+                  0.0f,
+                  0.0f,
+                  MonsterDeathSound.LOWER_PITCH.sound(),
+                  new AIComponent(entity -> {}, entity -> {}, entity -> false),
+                  0,
+                  0,
+                  MonsterIdleSound.BURP.path());
+          case 2 -> // Imp
+              MonsterFactory.buildMonster(
+                  "Imp",
+                  new SimpleIPath("character/monster/imp"),
+                  4,
+                  5.0f,
+                  0.1f,
+                  MonsterDeathSound.HIGH_PITCH.sound(),
+                  new AIComponent(
+                      entity -> {}, // keine Kampf-KI
+                      entity -> {}, // keine Idle-KI
+                      entity -> false), // keine Übergänge
+                  0, // kein Kollisionsschaden
+                  0, // keine Kollisions-Abklingzeit
+                  MonsterIdleSound.BURP.path());
+          case 3 -> // Doc
+              MonsterFactory.buildMonster(
+                  "Doc",
+                  new SimpleIPath("character/monster/doc"),
+                  4,
+                  5.0f,
+                  0.1f,
+                  MonsterDeathSound.HIGH_PITCH.sound(),
+                  new AIComponent(
+                      entity -> {}, // keine Kampf-KI
+                      entity -> {}, // keine Idle-KI
+                      entity -> false), // keine Übergänge
+                  0, // kein Kollisionsschaden
+                  0, // keine Kollisions-Abklingzeit
+                  MonsterIdleSound.BURP.path());
+          case 4 -> // Goblin
+              MonsterFactory.buildMonster(
+                  "Goblin",
+                  new SimpleIPath("character/monster/goblin"),
+                  4,
+                  5.0f,
+                  0.1f,
+                  MonsterDeathSound.HIGH_PITCH.sound(),
+                  new AIComponent(
+                      entity -> {}, // keine Kampf-KI
+                      entity -> {}, // keine Idle-KI
+                      entity -> false), // keine Übergänge
+                  0, // kein Kollisionsschaden
+                  0, // keine Kollisions-Abklingzeit
+                  MonsterIdleSound.BURP.path());
+          default -> throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
+        };
 
-      monster.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos.toCenteredPoint()));
+    monster.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos.toCenteredPoint()));
 
-      Game.add(monster);
-
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create monster entity at " + pos, e);
-    }
+    Game.add(monster);
   }
 
   private void spawnSigns() {

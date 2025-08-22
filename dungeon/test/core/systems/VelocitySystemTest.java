@@ -18,7 +18,6 @@ import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -44,7 +43,7 @@ public class VelocitySystemTest {
    * world.
    */
   @BeforeEach
-  public void setup() throws IOException {
+  public void setup() {
     // Create file system handle. WARNING: This will assume all future paths to be relative to the
     // working directory (probably the root of the project)
     TextureMap.instance().clear(); // reset any existing mappings

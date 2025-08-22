@@ -41,11 +41,7 @@ public class NativeScenarioBuilder {
   public static Set<Set<Entity>> quizOnHud(Quiz quiz) {
     Entity questowner = new Entity("Questgeber");
     questowner.add(new PositionComponent());
-    try {
-      questowner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    questowner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
     new TaskComponent(quiz, questowner);
 
     questowner.add(askOnInteractionQuiz(quiz));
@@ -80,11 +76,7 @@ public class NativeScenarioBuilder {
     // setup quest owner
     Entity questowner = new Entity("Questgeber");
     questowner.add(new PositionComponent());
-    try {
-      questowner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    questowner.add(new DrawComponent(new SimpleIPath("character/blue_knight")));
     new TaskComponent(task, questowner);
     questowner.add(askOnInteractionYesNo(task));
     roomSet.add(questowner);

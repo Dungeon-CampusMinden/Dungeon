@@ -5,28 +5,20 @@ import components.*;
 import contrib.components.*;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
-import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Direction;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.components.draw.animation.Animation;
-import core.utils.components.draw.state.State;
-import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Arrays;
-import java.util.Map;
 
 /** Factory class for creating miscellaneous game entities. */
 public class MiscFactory {
 
   private static final IPath STONE = new SimpleIPath("objects/stone/stone.png");
-  private static final IPath PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
 
   private static final IPath PICKUP_BOCK_PATH = new SimpleIPath("items/book/spell_book.png");
   private static final IPath BREADCRUMB_PATH = new SimpleIPath("items/breadcrumbs.png");
@@ -55,42 +47,7 @@ public class MiscFactory {
   }
 
   /**
-   * <<<<<<< HEAD Creates a pressure plate entity at the given position.
-   *
-   * <p>The pressure plate is an entity that reacts to collisions by toggling its lever state.
-   *
-   * @param position The initial position of the pressure plate.
-   * @return A new pressure plate entity lever and collision behavior.
-   */
-  public static Entity pressurePlate(Point position) {
-    Entity pressurePlate = new Entity("pressureplate");
-    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
-
-    Map<String, Animation> map = Animation.loadAnimationSpritesheet(PRESSURE_PLATE);
-    State stOff = State.fromMap(map, "off");
-    State stOn = State.fromMap(map, "on");
-    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
-    sm.addTransition(stOff, "on", stOn);
-    sm.addTransition(stOn, "off", stOff);
-    DrawComponent dc = new DrawComponent(sm);
-    pressurePlate.add(dc);
-
-    LeverComponent lc = new LeverComponent(false, ICommand.NOOP);
-    pressurePlate.add(lc);
-    TriConsumer<Entity, Entity, Direction> collide =
-        (entity, entity2, direction) -> {
-          // dont trigger for projectiles
-          if (entity2.isPresent(ProjectileComponent.class)) return;
-          lc.toggle();
-          if (lc.isOn()) dc.sendSignal("on");
-          else dc.sendSignal("off");
-        };
-    pressurePlate.add(new CollideComponent(collide, collide));
-    return pressurePlate;
-  }
-
-  /**
-   * ======= >>>>>>> master Create a Lever with a {@link BlockComponent}.
+   * Create a Lever with a {@link BlockComponent}.
    *
    * @param position Position to place on (will be centered)
    * @return lever entity

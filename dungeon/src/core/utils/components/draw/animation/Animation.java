@@ -116,14 +116,18 @@ public class Animation {
     IPath exactPath = new SimpleIPath(pathString);
 
     List<IPath> paths = new ArrayList<>();
-    if (config.config() == null) {
-      // Case: single image
-      paths.add(exactPath);
-      loadSpritesFromPaths(paths);
-    } else {
-      // Case: spritesheet
-      loadSpritesFromSpritesheet(exactPath);
-    }
+    config
+        .config()
+        .ifPresentOrElse(
+            c -> {
+              // Case: spritesheet
+              loadSpritesFromSpritesheet(exactPath);
+            },
+            () -> {
+              // Case: single image
+              paths.add(exactPath);
+              loadSpritesFromPaths(paths);
+            });
   }
 
   /**
@@ -141,7 +145,7 @@ public class Animation {
       }
     }
 
-    int textWidth = 0, textHeight = 0;
+    int textWidth, textHeight;
 
     if (TextureMap.instance().containsKey(paths.get(0).pathString()) || Gdx.gl != null) {
       Texture t = TextureMap.instance().textureAt(paths.get(0));
@@ -170,7 +174,7 @@ public class Animation {
       spritesheet = TextureMap.instance().textureAt(path);
     }
 
-    SpritesheetConfig ssc = config.config();
+    SpritesheetConfig ssc = config.config().orElseThrow();
     int sWidth = ssc.spriteWidth();
     int sHeight = ssc.spriteHeight();
     int offsetX = ssc.x();
@@ -339,9 +343,16 @@ public class Animation {
       String dirName = pathString.replaceAll("/$", ""); // remove trailing slash if present
       String baseName = dirName.substring(dirName.lastIndexOf('/') + 1); // get last path component
       jsonPath = dirName + "/" + baseName + ".json";
+      pathString = dirName + "/" + baseName + ".png";
     } else {
       // It's an image path → replace extension with `.json`
       jsonPath = pathString.replaceAll("\\.(png|jpg|jpeg)$", ".json");
+    }
+
+    // Check if image file exists
+    if (Gdx.files != null && Gdx.gl != null) {
+      // Throws a GdxRuntimeException if the image isn't found.
+      TextureMap.instance().textureAt(new SimpleIPath(pathString));
     }
 
     // Load configs

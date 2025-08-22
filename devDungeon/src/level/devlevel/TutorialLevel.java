@@ -26,7 +26,6 @@ import core.utils.components.MissingComponentException;
 import entities.MonsterType;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
-import java.io.IOException;
 import java.util.List;
 import level.DevDungeonLevel;
 
@@ -87,21 +86,10 @@ public class TutorialLevel extends DevDungeonLevel {
                       mobDoor.open();
                       Game.remove(entity);
                     }));
-    Entity chest;
-    Entity chest2;
-    try {
-      chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
-      chest2 = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create tutorial chest");
-    }
+    Entity chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
+    Entity chest2 = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
     setupChest(chest, chest2);
-    Entity cauldron;
-    try {
-      cauldron = MiscFactory.newCraftingCauldron();
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create tutorial cauldron");
-    }
+    Entity cauldron = MiscFactory.newCraftingCauldron();
     setupCauldron(cauldron);
   }
 

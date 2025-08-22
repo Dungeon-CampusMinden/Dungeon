@@ -95,7 +95,7 @@ public class Level021 extends BlocklyLevel {
     bossBuilder.addToGame();
     bossBuilder.viewDirection(Direction.LEFT);
     bossBuilder.spawnPoint(c.toCenteredPoint());
-    boss = bossBuilder.build().orElseThrow();
+    boss = bossBuilder.build();
     bossPC =
         boss.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));

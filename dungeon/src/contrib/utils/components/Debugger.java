@@ -161,11 +161,7 @@ public class Debugger {
 
       // Add components to the monster entity
       monster.add(new PositionComponent(position));
-      try {
-        monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-      } catch (Exception e) {
-        LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
-      }
+      monster.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
       monster.add(new VelocityComponent(1));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());

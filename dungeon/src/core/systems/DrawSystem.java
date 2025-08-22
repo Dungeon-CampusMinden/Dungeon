@@ -150,7 +150,6 @@ public final class DrawSystem extends System {
    */
   @Override
   public void execute() {
-    BATCH.setProjectionMatrix(CameraSystem.camera().combined);
     BATCH.begin();
 
     Game.currentLevel().ifPresent(this::drawLevel);
