@@ -72,7 +72,7 @@ public class Level01 extends DungeonLevel {
    * @param customPoints The custom points of the level.
    */
   public Level01(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Coop 3");
+    super(layout, designLabel, customPoints, "Demo");
   }
 
   @Override
@@ -204,6 +204,7 @@ public class Level01 extends DungeonLevel {
                                           DialogUtils.showTextPopup("Danke", "Richtig");
                                           craftPotionRiddlePlace.produce();
                                           Game.remove(craftPotionRiddle);
+                                          Game.remove(findRecipeRiddle);
                                           moveNpc(entity);
                                           npc.remove(InteractionComponent.class);
                                         }
