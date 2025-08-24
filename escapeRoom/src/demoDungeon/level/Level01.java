@@ -1,4 +1,4 @@
-package coopDungeon.level;
+package demoDungeon.level;
 
 import com.badlogic.gdx.Input;
 import contrib.components.*;
@@ -41,11 +41,11 @@ import petriNet.PlaceComponent;
 import petriNet.TransitionComponent;
 
 /**
- * The last levle of the coop Dungeon.
+ * The Demolevel.
  *
- * <p>The players have to crafta heal potion.
+ * <p>The player has to craft a heal potion.
  */
-public class Level03 extends DungeonLevel {
+public class Level01 extends DungeonLevel {
 
   private Set<Entity> monster;
   private LeverComponent p;
@@ -71,8 +71,8 @@ public class Level03 extends DungeonLevel {
    * @param designLabel The design label of the level.
    * @param customPoints The custom points of the level.
    */
-  public Level03(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Coop 3");
+  public Level01(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Demo");
   }
 
   @Override
@@ -204,6 +204,7 @@ public class Level03 extends DungeonLevel {
                                           DialogUtils.showTextPopup("Danke", "Richtig");
                                           craftPotionRiddlePlace.produce();
                                           Game.remove(craftPotionRiddle);
+                                          Game.remove(findRecipeRiddle);
                                           moveNpc(entity);
                                           npc.remove(InteractionComponent.class);
                                         }

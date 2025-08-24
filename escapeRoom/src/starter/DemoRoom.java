@@ -6,26 +6,18 @@ import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
-import coopDungeon.level.*;
 import core.Entity;
 import core.Game;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
+import demoDungeon.level.Level01;
 import java.io.IOException;
 import java.util.logging.Level;
 
-/**
- * Starter for the Coop Dungeon.
- *
- * <p>The Coop Dungeon is designed for two players.
- *
- * <p>The players have to work together to solve small parkour-style riddles, such as jumping over
- * pits or using levers to open gates to reach the end.
- */
-public class CoopDungeon {
+/** Starter for the Demo Escaperoom Dungeon. */
+public class DemoRoom {
   private static final boolean DEBUG_MODE = false;
-
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
 
@@ -44,7 +36,7 @@ public class CoopDungeon {
       Debugger debugger = new Debugger();
       Game.userOnFrame(() -> debugger.execute());
     }
-    Game.windowTitle("Coop-Dungeon");
+    Game.windowTitle("Demo-Room");
     Game.run();
   }
 
@@ -52,8 +44,7 @@ public class CoopDungeon {
     Game.userOnSetup(
         () -> {
           setupMusic();
-          DungeonLoader.addLevel(Tuple.of("coop1", Level01.class));
-          DungeonLoader.addLevel(Tuple.of("coop2", Level02.class));
+          DungeonLoader.addLevel(Tuple.of("demo", Level01.class));
           createSystems();
           try {
             createHero();

@@ -22,6 +22,12 @@ tasks.register('runCoopDungeon', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runDemoRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.DemoRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -29,4 +35,36 @@ processResources {
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+}
+
+tasks.register('buildDemoRoom', Jar) {
+    group = 'jar'
+    archiveBaseName.set('EscaperoomDemo')
+    archiveFileName.set('EscapeRoomDemo.jar')
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // include compiled classes
+    from sourceSets.main.output
+    from project(':dungeon').sourceSets.main.output
+
+    // include dependencies
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // include assets
+    into('assets') {
+        from new File(project(':dungeon').projectDir, '/assets')
+    }
+
+    // manifest
+    manifest {
+        attributes(
+                'Main-Class': 'starter.DemoRoom'
+        )
+    }
+
+    // exclude signature files
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
 }
