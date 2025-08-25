@@ -68,17 +68,46 @@ public class AdvancedSortLevel extends AdvancedLevel {
           "Wichtig: Rufe swapPosition() auf dem ERSTEN Monster auf und übergib das ZWEITE als Parameter.",
           "Denke daran: Nach jedem Tausch im Array auch swapPosition() aufrufen!");
 
+  // Dynamische Titelgenerierung (statt statischer Liste)
+  private String titleFor(int idx) {
+    int lastIndex = messages.size() - 1;
+    int remaining = lastIndex - idx;
+    if (remaining <= 0) return "letzter Hinweis";
+    if (remaining == 1) return "noch ein Hinweis";
+    return "noch " + numberToGerman(remaining) + " Hinweise";
+  }
+
+  private String numberToGerman(int n) {
+    switch (n) {
+      case 2:
+        return "zwei";
+      case 3:
+        return "drei";
+      case 4:
+        return "vier";
+      case 5:
+        return "fünf";
+      case 6:
+        return "sechs";
+      case 7:
+        return "sieben";
+      case 8:
+        return "acht";
+      case 9:
+        return "neun";
+      case 10:
+        return "zehn";
+      default:
+        return String.valueOf(n);
+    }
+  }
+
   // todo build dynamically
-  private static final List<String> titles =
-      Arrays.asList(
-          "noch sechs Hinweise",
-          "noch fünf Hinweise",
-          "noch vier Hinweise",
-          "noch drei Hinweise",
-          "noch zwei Hinweise",
-          "noch ein Hinweis",
-          "letzter Hinweis");
+  // Entferne statische titles-Liste und behalte nur den Index
   AtomicInteger currentIndex = new AtomicInteger(-1);
+
+  // Neu: Merker, ob der Schalter mindestens einmal betätigt wurde
+  private boolean hasUsedLeverOnce = false;
 
   private boolean isSorting = false;
 
@@ -106,6 +135,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
             if (!isLeverActivated && !isSorting) {
               isLeverActivated = true;
               isSorting = true;
+              hasUsedLeverOnce = true; // ab jetzt erste Schild-Nachricht überspringen
               checkPlayerSolution();
             }
           }
@@ -228,23 +258,36 @@ public class AdvancedSortLevel extends AdvancedLevel {
             "", // Titel
             new Point(3.5F, 7.5F), // Position des Schildes
             (entity, hero) -> {
+              // Vor der ersten Hebel-Aktivierung: nur den ersten Hinweis anzeigen
+              if (!hasUsedLeverOnce) {
+                SignComponent sc =
+                    entity
+                        .fetch(SignComponent.class)
+                        .orElseThrow(() -> new RuntimeException("SignComponent not found"));
+                sc.text(messages.get(0));
+                sc.title("");
+                return;
+              }
 
-              // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
+              // Danach: Hinweise weiterblättern, den ersten Hinweis überspringen
               if (currentIndex.get() < messages.size() - 1) {
-                currentIndex.incrementAndGet();
+                int nextIndex = currentIndex.incrementAndGet();
+                if (hasUsedLeverOnce && nextIndex == 0) {
+                  nextIndex = currentIndex.incrementAndGet();
+                }
+                final int idx = nextIndex;
                 Game.entityStream(Set.of(SignComponent.class))
                     .filter(signEntity -> signEntity.equals(entity))
                     .findFirst()
                     .ifPresent(
                         signEntity -> {
-                          // Aktualisiere den Text des Schildes
                           SignComponent signComponent =
                               signEntity
                                   .fetch(SignComponent.class)
                                   .orElseThrow(
                                       () -> new RuntimeException("SignComponent not found"));
-                          signComponent.text(messages.get(currentIndex.get()));
-                          signComponent.title(titles.get(currentIndex.get()));
+                          signComponent.text(messages.get(idx));
+                          signComponent.title(titleFor(idx));
                         });
               }
             });
