@@ -3,7 +3,6 @@ package level.produs;
 import client.Client;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
-import contrib.utils.Direction;
 import contrib.utils.IAction;
 import core.Entity;
 import core.Game;
@@ -15,8 +14,8 @@ import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import java.util.List;
@@ -63,7 +62,7 @@ public class Level020 extends BlocklyLevel {
   private PositionComponent bosspc;
   private IAction turnAction =
       () -> {
-        if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
+        if (bosspc.viewDirection() == Direction.LEFT) {
           BlocklyCommands.turnEntity(boss, Direction.RIGHT);
           executeCheck = false;
         } else {
@@ -99,7 +98,7 @@ public class Level020 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusOn(CAMERA_POINT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     heropc =
         hero.fetch(PositionComponent.class)
@@ -110,12 +109,12 @@ public class Level020 extends BlocklyLevel {
 
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
     Coordinate c =
-        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Vector2.LEFT);
+        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Direction.LEFT);
 
     BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
     bossBuilder.range(0);
     bossBuilder.addToGame();
-    bossBuilder.viewDirection(PositionComponent.Direction.RIGHT);
+    bossBuilder.viewDirection(Direction.RIGHT);
     bossBuilder.spawnPoint(c.toCenteredPoint());
     boss = bossBuilder.build().orElseThrow();
     bosspc =
@@ -160,7 +159,7 @@ public class Level020 extends BlocklyLevel {
     // The small area at the beginning is a safe zone
     boolean inSafeZone = x <= 6 || (x <= 3 && y >= 6 && y <= 8);
     if (!inSafeZone) {
-      if (bosspc.viewDirection() == PositionComponent.Direction.LEFT) {
+      if (bosspc.viewDirection() == Direction.LEFT) {
         if (herovc.currentVelocity().length() > 0) {
           DialogUtils.showTextPopup("HAB ICH DICH!", "GAME OVER!", Client::restart);
         }

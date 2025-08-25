@@ -4,10 +4,10 @@ import static level.LevelManagementUtils.cameraFocusOn;
 
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
@@ -62,7 +62,7 @@ public class Level005 extends BlocklyLevel {
       showText = false;
     }
     cameraFocusOn(new Coordinate(7, 6));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(1);
@@ -78,19 +78,19 @@ public class Level005 extends BlocklyLevel {
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
     guardBuilder.range(6);
-    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.viewDirection(Direction.LEFT);
     guardBuilder.spawnPoint(m1C.toCenteredPoint());
     guardBuilder.build();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.RIGHT);
+    guardBuilder.viewDirection(Direction.RIGHT);
     guardBuilder.spawnPoint(m2C.toCenteredPoint());
     guardBuilder.build();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.UP);
+    guardBuilder.viewDirection(Direction.UP);
     guardBuilder.spawnPoint(m3C.toCenteredPoint());
     guardBuilder.build();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.UP);
+    guardBuilder.viewDirection(Direction.UP);
     guardBuilder.spawnPoint(m4C.toCenteredPoint());
     guardBuilder.build();
   }

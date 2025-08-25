@@ -1,6 +1,7 @@
 package contrib.utils.components.skill;
 
 import contrib.components.CollideComponent;
+import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
 import contrib.utils.components.health.Damage;
@@ -10,7 +11,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
@@ -64,7 +65,6 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   private final Consumer<Entity> onWallHit;
   private final Consumer<Entity> onSpawn;
   private final String name;
-  private static int nextId = 0;
   private final List<Entity> ignoreEntities = new ArrayList<>();
 
   /**
@@ -107,7 +107,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
       final Consumer<Entity> onWallHit,
       final BiConsumer<Entity, Entity> onEntityHit,
       final Consumer<Entity> onSpawn) {
-    this.name = name + "_" + nextId++;
+    this.name = name;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.damageAmount = damageAmount;
     this.damageType = damageType;
@@ -209,6 +209,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
   @Override
   public void accept(final Entity entity) {
     Entity projectile = new Entity(name);
+    projectile.add(new FlyComponent());
     // Get the PositionComponent of the entity
     PositionComponent epc =
         entity
@@ -240,17 +241,18 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
     // Calculate the velocity of the projectile
-    Vector2 velocity = SkillTools.calculateVelocity(startPoint, targetPoint, projectileSpeed);
+    Vector2 forceToApply =
+        SkillTools.calculateDirection(startPoint, targetPoint).scale(projectileSpeed);
 
     // Add the VelocityComponent to the projectile
-    VelocityComponent vc = new VelocityComponent(velocity, onWallHit, true);
-    projectile.add(vc);
+    projectile.add(new VelocityComponent(projectileSpeed, onWallHit, true));
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
-    projectile.add(new ProjectileComponent(startPoint, targetPoint));
+    projectile.add(
+        new ProjectileComponent(startPoint, targetPoint, forceToApply, p -> Game.remove(p)));
 
     // Create a collision handler for the projectile
-    TriConsumer<Entity, Entity, Tile.Direction> collide =
+    TriConsumer<Entity, Entity, Direction> collide =
         (a, b, from) -> {
           if (b != entity && !ignoreEntities.contains(b)) {
             b.fetch(HealthComponent.class)

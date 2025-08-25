@@ -3,6 +3,7 @@ package core.components;
 import core.Component;
 import core.level.Tile;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import core.utils.Point;
 
 /**
@@ -119,9 +120,11 @@ public final class PositionComponent implements Component {
    * Set the position.
    *
    * @param position new Position
+   * @return the given position
    */
-  public void position(final Point position) {
+  public Point position(final Point position) {
     this.position = new Point(position);
+    return position;
   }
 
   /**
@@ -170,31 +173,5 @@ public final class PositionComponent implements Component {
    */
   public void viewDirection(final Direction direction) {
     this.viewDirection = direction;
-  }
-
-  /** Represents the possible directions an entity can face. */
-  public enum Direction {
-    /** Direction up (away from camera). */
-    UP,
-    /** Direction down (facing camera). */
-    DOWN,
-    /** Direction left. */
-    LEFT,
-    /** Direction right. */
-    RIGHT;
-
-    /**
-     * Returns the opposite direction.
-     *
-     * @return the opposite Direction
-     */
-    public Direction opposite() {
-      return switch (this) {
-        case UP -> DOWN;
-        case DOWN -> UP;
-        case LEFT -> RIGHT;
-        case RIGHT -> LEFT;
-      };
-    }
   }
 }

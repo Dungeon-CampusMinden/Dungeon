@@ -7,7 +7,7 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
 import core.utils.Point;
@@ -24,7 +24,7 @@ import java.util.List;
 public class IllusionRiddleHandler {
 
   private static final int LAP_REWARD = 3;
-  private final TileLevel level;
+  private final DungeonLevel level;
   private final Coordinate[][] initTeleporterSpawns;
   private final Coordinate[][] lastTeleporterSpawns;
   private final Coordinate[][] lapCheckpoints; // [location][3 tiles wide]
@@ -44,7 +44,7 @@ public class IllusionRiddleHandler {
    * @param customPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public IllusionRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public IllusionRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
     this.initTeleporterSpawns =
         new Coordinate[][] {
           {customPoints.get(136), customPoints.get(137), customPoints.get(138)},
@@ -69,8 +69,7 @@ public class IllusionRiddleHandler {
 
   /** Handles the first tick of the riddle room. */
   public void onFirstTick() {
-    if (level.tileAt(riddleRewardSpawn) != null)
-      level.tileAt(riddleRewardSpawn).tintColor(0x22FF22FF);
+    level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(0x22FF22FF));
   }
 
   /** Handles the tick logic of the riddle room. */
@@ -103,7 +102,7 @@ public class IllusionRiddleHandler {
         new BurningFireballSkill(
             SkillTools::cursorPositionAsPoint)); // Update the current hero skill
     this.rewardGiven = true;
-    level.tileAt(riddleRewardSpawn).tintColor(-1);
+    level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }
 
   /**

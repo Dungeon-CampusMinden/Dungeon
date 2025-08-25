@@ -10,7 +10,7 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
@@ -31,7 +31,7 @@ public class DamagedBridgeRiddleHandler {
 
   // The reward for solving the riddle (max health points)
   private static final int RIDDLE_REWARD = 5;
-  private final TileLevel level;
+  private final DungeonLevel level;
   private final Coordinate[] riddleRoomBounds; // TopLeft, BottomRight
   private final DoorTile riddleEntrance; // The entrance to the riddle room
   private final Coordinate riddleEntranceSign; // The sign next to the riddle entrance
@@ -52,14 +52,24 @@ public class DamagedBridgeRiddleHandler {
    * @param customPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public DamagedBridgeRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
     this.riddleRoomBounds = new Coordinate[] {customPoints.get(0), customPoints.get(1)};
-    this.riddleEntrance = (DoorTile) level.tileAt(customPoints.get(2));
+    this.riddleEntrance =
+        level
+            .tileAt(customPoints.get(2))
+            .filter(DoorTile.class::isInstance)
+            .map(DoorTile.class::cast)
+            .orElse(null);
     this.riddleEntranceSign = customPoints.get(3);
     this.riddlePitBounds = new Coordinate[] {customPoints.get(4), customPoints.get(5)};
     this.riddleChestSpawn = customPoints.get(6);
     this.riddleRewardSpawn = new Coordinate(customPoints.get(6).x(), customPoints.get(6).y() - 1);
-    this.riddleExit = (DoorTile) level.tileAt(customPoints.get(7));
+    this.riddleExit =
+        level
+            .tileAt(customPoints.get(7))
+            .filter(DoorTile.class::isInstance)
+            .map(DoorTile.class::cast)
+            .orElse(null);
     this.speedPotionChest = customPoints.get(9);
     this.speedPotionChestHint = customPoints.get(10);
 
@@ -72,7 +82,7 @@ public class DamagedBridgeRiddleHandler {
     spawnSigns();
     spawnChest();
     preparePits();
-    level.tileAt(riddleRewardSpawn).tintColor(0x22FF22FF);
+    level.tileAt(riddleRewardSpawn).ifPresent(t -> t.tintColor(0x22FF22FF));
   }
 
   /** Handles the tick of the riddle room. */
@@ -109,7 +119,7 @@ public class DamagedBridgeRiddleHandler {
               hc.maximalHealthpoints(hc.maximalHealthpoints() + RIDDLE_REWARD);
               hc.receiveHit(new Damage(-RIDDLE_REWARD, DamageType.HEAL, null));
               this.rewardGiven = true;
-              level.tileAt(riddleRewardSpawn).tintColor(-1);
+              level.tileAt(riddleRewardSpawn).ifPresent(t -> t.tintColor(-1));
             });
   }
 
@@ -129,8 +139,8 @@ public class DamagedBridgeRiddleHandler {
       return true; // if hero dies due to pit, still show riddle room
     }
     return LevelUtils.isHeroInArea(riddleRoomBounds[0], riddleRoomBounds[1])
-        || level.tileAt(heroPos).equals(riddleEntrance)
-        || level.tileAt(heroPos).equals(riddleExit);
+        || level.tileAt(heroPos).map(t -> t == riddleEntrance).orElse(false)
+        || level.tileAt(heroPos).map(t -> t == riddleExit).orElse(false);
   }
 
   /**
@@ -147,18 +157,25 @@ public class DamagedBridgeRiddleHandler {
     int timeToOpen = 500;
 
     for (int x = bottomRight.x(); x >= topLeft.x(); x--) {
+      final int currentTimeToOpen = timeToOpen; // final variable for lambda
       for (int y = bottomRight.y() + 1; y <= topLeft.y() - 1; y++) {
-        PitTile pitTile = (PitTile) level.tileAt(new Coordinate(x, y));
-        pitTile.timeToOpen(timeToOpen);
+        level
+            .tileAt(new Coordinate(x, y))
+            .filter(PitTile.class::isInstance)
+            .map(PitTile.class::cast)
+            .ifPresent(p -> p.timeToOpen(currentTimeToOpen));
       }
-      timeToOpen = Math.max(50, timeToOpen - 100); // force after 5 pits to be 50
+      timeToOpen = Math.max(50, timeToOpen - 100);
     }
 
     int[] bordersYs = new int[] {topLeft.y(), bottomRight.y()};
     for (int y : bordersYs) {
       for (int x = topLeft.x(); x <= bottomRight.x(); x++) {
-        PitTile pitTile = (PitTile) level.tileAt(new Coordinate(x, y));
-        pitTile.open();
+        level
+            .tileAt(new Coordinate(x, y))
+            .filter(PitTile.class::isInstance)
+            .map(PitTile.class::cast)
+            .ifPresent(PitTile::open);
       }
     }
   }

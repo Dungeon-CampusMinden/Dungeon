@@ -8,7 +8,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -38,7 +38,7 @@ public class ChestTest {
     Entity c = null;
     c = EntityFactory.newChest(itemData, position);
 
-    assertTrue(c.fetch(DrawComponent.class).isPresent());
+    assertTrue(c.isPresent(DrawComponent.class));
     Optional<InventoryComponent> inventoryComponent = c.fetch(InventoryComponent.class);
     assertTrue(inventoryComponent.isPresent());
     assertArrayEquals(
@@ -101,7 +101,7 @@ public class ChestTest {
     Game.add(new LevelSystem(() -> {}));
 
     Game.currentLevel(
-        new TileLevel(
+        new DungeonLevel(
             new LevelElement[][] {
               new LevelElement[] {
                 LevelElement.FLOOR,
@@ -112,7 +112,7 @@ public class ChestTest {
 
     // assertTrue("Chest is added to Game", Game.getEntitiesStream().anyMatch(e -> e ==
     // newChest));
-    assertTrue(newChest.fetch(DrawComponent.class).isPresent());
+    assertTrue(newChest.isPresent(DrawComponent.class));
     Optional<InventoryComponent> inventoryComponent = newChest.fetch(InventoryComponent.class);
     assertTrue(inventoryComponent.isPresent());
     assertTrue(1 <= inventoryComponent.map(InventoryComponent.class::cast).get().items().length);

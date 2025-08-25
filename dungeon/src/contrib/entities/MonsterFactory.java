@@ -12,7 +12,6 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -42,12 +41,12 @@ public final class MonsterFactory {
     new SimpleIPath("character/monster/zombie")
   };
 
-  private static final int MIN_MONSTER_HEALTH = 10;
-  private static final int MAX_MONSTER_HEALTH = 20;
-  private static final float MIN_MONSTER_SPEED = 5.0f;
+  private static final int MIN_MONSTER_HEALTH = 1;
+  private static final int MAX_MONSTER_HEALTH = 6;
+  private static final float MIN_MONSTER_SPEED = 3.0f;
   private static final float MAX_MONSTER_SPEED = 8.5f;
   private static final DamageType MONSTER_COLLIDE_DAMAGE_TYPE = DamageType.PHYSICAL;
-  private static final int MONSTER_COLLIDE_DAMAGE = 10;
+  private static final int MONSTER_COLLIDE_DAMAGE = 5;
   private static final int MONSTER_COLLIDE_COOL_DOWN = 2 * Game.frameRate();
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
@@ -197,6 +196,7 @@ public final class MonsterFactory {
         (e, who) -> {
           playDeathSoundIfNearby(deathSound, e);
           new DropItemsInteraction().accept(e, who);
+          Game.remove(e);
         };
     monster.add(new HealthComponent(health, (e) -> onDeath.accept(e, null)));
 
@@ -206,7 +206,7 @@ public final class MonsterFactory {
     }
     monster.add(ai);
     monster.add(new DrawComponent(texture));
-    monster.add(new VelocityComponent(Vector2.of(speed, speed)));
+    monster.add(new VelocityComponent(speed));
     monster.add(new CollideComponent());
     if (collideDamage > 0) {
       monster.add(new SpikyComponent(collideDamage, MONSTER_COLLIDE_DAMAGE_TYPE, collideCooldown));

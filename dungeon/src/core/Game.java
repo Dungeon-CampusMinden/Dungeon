@@ -14,10 +14,9 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.systems.LevelSystem;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.*;
@@ -45,7 +44,7 @@ import java.util.stream.Stream;
  * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
  * #removeAllSystems()}
  *
- * <p>Get access via: {@link #entityStream()}, {@link #systems()}
+ * <p>Get access via: {@link #levelEntities()}, {@link #systems()}
  *
  * @see PreRunConfiguration
  * @see ECSManagment
@@ -175,6 +174,25 @@ public final class Game {
    */
   public static void disableAudio(boolean disableAudio) {
     PreRunConfiguration.disableAudio(disableAudio);
+  }
+
+  /**
+   * Enables or disables the check pattern drawing mode.
+   *
+   * @param enabled {@code true} to draw the level with a check pattern, {@code false} to draw it
+   *     without
+   */
+  public static void enableCheckPattern(boolean enabled) {
+    PreRunConfiguration.enableCheckPattern(enabled);
+  }
+
+  /**
+   * Checks if the check pattern drawing mode is enabled.
+   *
+   * @return {@code true} if the level will be drawn with a check pattern, {@code false} otherwise
+   */
+  public static boolean isCheckPatternEnabled() {
+    return PreRunConfiguration.isCheckPatternEnabled();
   }
 
   /**
@@ -321,12 +339,12 @@ public final class Game {
   }
 
   /**
-   * Use this stream if you want to iterate over all currently active entities.
+   * Use this stream if you want to iterate over all entities in the current level.
    *
-   * @return a stream of all entities currently in the game
+   * @return a stream of all entities currently in the level
    */
-  public static Stream<Entity> entityStream() {
-    return ECSManagment.entityStream();
+  public static Stream<Entity> levelEntities() {
+    return ECSManagment.levelEntities();
   }
 
   /**
@@ -337,8 +355,8 @@ public final class Game {
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
-  public static Stream<Entity> entityStream(final System system) {
-    return ECSManagment.entityStream(system);
+  public static Stream<Entity> levelEntities(final System system) {
+    return ECSManagment.levelEntities(system);
   }
 
   /**
@@ -347,14 +365,15 @@ public final class Game {
    * @param filter the components to check.
    * @return a stream of all entities currently in the game that contains the given components.
    */
-  public static Stream<Entity> entityStream(final Set<Class<? extends Component>> filter) {
-    return ECSManagment.entityStream(filter);
+  public static Stream<Entity> levelEntities(final Set<Class<? extends Component>> filter) {
+    return ECSManagment.levelEntities(filter);
   }
 
   /**
-   * Get the player character.
+   * Searches the current level for the player character.
    *
-   * @return the player character, can be null if not initialized
+   * @return an {@link Optional} containing the player character from the current level, or an empty
+   *     {@code Optional} if none is present
    */
   public static Optional<Entity> hero() {
     return ECSManagment.hero();
@@ -383,7 +402,7 @@ public final class Game {
   /**
    * Use this stream if you want to iterate over all active entities.
    *
-   * <p>Use {@link #entityStream()} if you want to iterate over all active entities.
+   * <p>Use {@link #levelEntities()} if you want to iterate over all active entities.
    *
    * @return a stream of all entities currently in the game
    */
@@ -392,21 +411,61 @@ public final class Game {
   }
 
   /**
-   * Find the entity that contains the given component instance.
+   * Finds the entity that contains the given component instance.
    *
-   * @param component Component instance where the entity is searched for.
-   * @return An Optional containing the found Entity, or an empty Optional if not found.
+   * <p>This searches across all entities in the game, not just those in the current level.
+   *
+   * @param component the component instance whose owning entity should be located
+   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
+   *     is found
    */
-  public static Optional<Entity> find(final Component component) {
-    return ECSManagment.find(component);
+  public static Optional<Entity> findInAll(final Component component) {
+    return ECSManagment.findInAll(component);
+  }
+
+  /**
+   * Finds the entity that contains the given component instance.
+   *
+   * <p>This searches across all entities in the current level.
+   *
+   * @param component the component instance whose owning entity should be located
+   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
+   *     is found
+   */
+  public static Optional<Entity> findInLevel(final Component component) {
+    return ECSManagment.findInLevel(component);
+  }
+
+  /**
+   * Tries to find the given entity in the game.
+   *
+   * <p>This searches in the current level.
+   *
+   * @param entity the entity to search for
+   * @return {@code true} if the entity is found, {@code false} otherwise
+   */
+  public static boolean existInLevel(Entity entity) {
+    return ECSManagment.existInLevel(entity);
+  }
+
+  /**
+   * Tries to find the given entity in the game.
+   *
+   * <p>This searches in the current level.
+   *
+   * @param entity the entity to search for
+   * @return {@code true} if the entity is found, {@code false} otherwise
+   */
+  public static boolean existInAll(final Entity entity) {
+    return ECSManagment.existInAll(entity);
   }
 
   /**
    * Get the current level.
    *
-   * @return the currently loaded level
+   * @return the currently loaded level or an empty Optional if there is no level.
    */
-  public static ILevel currentLevel() {
+  public static Optional<ILevel> currentLevel() {
     return LevelSystem.level();
   }
 
@@ -416,23 +475,21 @@ public final class Game {
    * <p>{@link Point#toCoordinate} will be used, to convert the point into a coordinate.
    *
    * @param point Point from where to get the tile
-   * @return the tile at the given point.
+   * @return the tile at the given point or an empty Optional.
    */
-  public static Tile tileAT(final Point point) {
-    return currentLevel().tileAt(point);
+  public static Optional<Tile> tileAt(final Point point) {
+    return currentLevel().flatMap(level -> level.tileAt(point));
   }
 
   /**
    * Get the tile at the given coordinate in the level.
    *
    * @param coordinate Coordinate from where to get the tile
-   * @return The tile at the specified coordinate, or null if there is no tile or the coordinate is
-   *     out of bounds.
+   * @return The tile at the specified coordinate, or an empty Optional. if there is no tile or the
+   *     coordinate is out of bounds.
    */
-  public static Tile tileAT(final Coordinate coordinate) {
-    // TODO: SMELL!
-    // we really shouldn't return `null` if no tile was found, but `Optional.empty()` instead!
-    return currentLevel().tileAt(coordinate);
+  public static Optional<Tile> tileAt(final Coordinate coordinate) {
+    return currentLevel().flatMap(level -> level.tileAt(coordinate));
   }
 
   /**
@@ -440,17 +497,11 @@ public final class Game {
    *
    * @param coordinate The starting coordinate
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given coordinate in the specified direction.
+   * @return The tile that is the next tile from the given coordinate in the specified direction or
+   *     an empty Optional.
    */
-  public static Tile tileAT(final Coordinate coordinate, PositionComponent.Direction direction) {
-    Vector2 vector =
-        switch (direction) {
-          case UP -> Vector2.UP;
-          case LEFT -> Vector2.LEFT;
-          case DOWN -> Vector2.DOWN;
-          case RIGHT -> Vector2.RIGHT;
-        };
-    return tileAT(coordinate.translate(vector));
+  public static Optional<Tile> tileAt(final Coordinate coordinate, Direction direction) {
+    return tileAt(coordinate.translate(direction));
   }
 
   /**
@@ -458,19 +509,20 @@ public final class Game {
    *
    * @param point The starting point
    * @param direction The direction in which to find the next tile
-   * @return The tile that is the next tile from the given point in the specified direction.
+   * @return The tile that is the next tile from the given point in the specified direction or an
+   *     empty Optional.
    */
-  public static Tile tileAT(final Point point, PositionComponent.Direction direction) {
-    return tileAT(point.toCoordinate(), direction);
+  public static Optional<Tile> tileAt(final Point point, Direction direction) {
+    return tileAt(point.toCoordinate(), direction);
   }
 
   /**
    * Get a random tile in the level.
    *
-   * @return a random Tile in the Level
+   * @return a random Tile in the Level or an empty Optional if there is no tile in the level.
    */
-  public static Tile randomTile() {
-    return currentLevel().randomTile();
+  public static Optional<Tile> randomTile() {
+    return currentLevel().flatMap(ILevel::randomTile);
   }
 
   /**
@@ -496,7 +548,7 @@ public final class Game {
    */
   @Deprecated
   public static Optional<Tile> endTile() {
-    return currentLevel().endTile();
+    return currentLevel().flatMap(ILevel::endTile);
   }
 
   /**
@@ -505,26 +557,26 @@ public final class Game {
    * @return Set containing the end tiles of the level.
    */
   public static Set<ExitTile> endTiles() {
-    return currentLevel().endTiles();
+    return currentLevel().map(ILevel::endTiles).orElseGet(Collections::emptySet);
   }
 
   /**
    * Get the start tile.
    *
-   * @return The start tile.
+   * @return The start tile or an empty Optional if there is no dedicated start tile.
    */
   public static Optional<Tile> startTile() {
-    return currentLevel().startTile();
+    return currentLevel().flatMap(ILevel::startTile);
   }
 
   /**
    * Returns the tile the given entity is standing on.
    *
    * @param entity entity to check for.
-   * @return tile at the coordinate of the entity
+   * @return tile at the coordinate of the entity or an empty Optional.
    */
-  public static Tile tileAtEntity(final Entity entity) {
-    return currentLevel().tileAtEntity(entity);
+  public static Optional<Tile> tileAtEntity(final Entity entity) {
+    return currentLevel().flatMap(level -> level.tileAtEntity(entity));
   }
 
   /**
@@ -534,47 +586,51 @@ public final class Game {
    * @return Stream of all entities on the given tile
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
-    Tile tile = Game.tileAT(check.position());
-    if (tile == null) return Stream.empty();
+    return Game.tileAt(check.position())
+        .map(
+            target -> {
+              Set<Class<? extends Component>> filter = new HashSet<>();
+              filter.add(PositionComponent.class);
 
-    return ECSManagment.entityStream(Set.of(PositionComponent.class))
-        .filter(
-            e ->
-                tile.equals(
-                    tileAT(
-                        e.fetch(PositionComponent.class)
-                            .orElseThrow(
-                                () -> MissingComponentException.build(e, PositionComponent.class))
-                            .position())));
+              return ECSManagment.levelEntities(filter)
+                  .filter(
+                      e ->
+                          e.fetch(PositionComponent.class)
+                              .map(PositionComponent::position)
+                              .flatMap(Game::tileAt)
+                              .map(target::equals)
+                              .orElse(false));
+            })
+        .orElseGet(Stream::empty);
   }
 
   /**
    * Get a random tile of the given type.
    *
    * @param elementType Type of the tile.
-   * @return A random tile of the given type.
+   * @return A random tile of the given type or an empty Optional if there is no tile of that type.
    */
   public static Optional<Tile> randomTile(final LevelElement elementType) {
-    return currentLevel().randomTile(elementType);
+    return currentLevel().flatMap(level -> level.randomTile(elementType));
   }
 
   /**
    * Get the position of a random Tile as Point.
    *
-   * @return Position of the Tile as Point.
+   * @return Position of the Tile as Point or an empty Optional if there is no tile in the level.
    */
-  public static Point randomTilePoint() {
-    return currentLevel().randomTilePoint();
+  public static Optional<Point> randomTilePoint() {
+    return currentLevel().flatMap(ILevel::randomTilePoint);
   }
 
   /**
    * Get the position of a random Tile as Point.
    *
    * @param elementTyp Type of the Tile.
-   * @return Position of the Tile as Point.
+   * @return Position of the Tile as Point or an empty Optional if there is no tile of that type.
    */
   public static Optional<Point> randomTilePoint(final LevelElement elementTyp) {
-    return currentLevel().randomTilePoint(elementTyp);
+    return currentLevel().flatMap(level -> randomTilePoint(elementTyp));
   }
 
   /**
@@ -583,9 +639,11 @@ public final class Game {
    * @return A Set containing all tiles in the current level.
    */
   public static Set<Tile> allTiles() {
-    return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
-        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
-        .collect(Collectors.toSet()); // Collect the elements into a Set
+    return currentLevel()
+        .map(
+            level ->
+                Arrays.stream(level.layout()).flatMap(Arrays::stream).collect(Collectors.toSet()))
+        .orElseGet(Collections::emptySet);
   }
 
   /**
@@ -595,10 +653,14 @@ public final class Game {
    * @return A Set containing all tiles in the current level that satisfy the predicate.
    */
   public static Set<Tile> allTiles(Predicate<Tile> filterRule) {
-    return Arrays.stream(currentLevel().layout()) // Stream the layout (2D array)
-        .flatMap(Arrays::stream) // Flatten it into a stream of individual elements
-        .filter(filterRule) // Apply the predicate to filter the tiles
-        .collect(Collectors.toSet()); // Collect the elements into a Set
+    return currentLevel()
+        .map(
+            level ->
+                Arrays.stream(level.layout())
+                    .flatMap(Arrays::stream)
+                    .filter(filterRule)
+                    .collect(Collectors.toSet()))
+        .orElseGet(Collections::emptySet);
   }
 
   /**
@@ -668,16 +730,17 @@ public final class Game {
   }
 
   /**
-   * Starts the indexed A* pathfinding algorithm a returns a path
+   * Starts the indexed A* pathfinding algorithm and returns a path.
    *
-   * <p>Throws an IllegalArgumentException if start or end is non-accessible.
+   * <p>Returns an empty Optional if there is no current level.
    *
    * @param start Start tile
    * @param end End tile
-   * @return Generated path
+   * @return Generated path or Optional.empty() if no current level
    */
-  public static GraphPath<Tile> findPath(final Tile start, final Tile end) {
-    return currentLevel().findPath(start, end);
+  public static Optional<GraphPath<Tile>> findPath(final Tile start, final Tile end) {
+    return currentLevel()
+        .map(level -> level.findPath(start, end)); // map liefert Optional<GraphPath<Tile>>
   }
 
   /**
@@ -707,15 +770,5 @@ public final class Game {
   /** Exits the GDX application. */
   public static void exit() {
     Gdx.app.exit();
-  }
-
-  /**
-   * Checks if the given entity is in {@link core.Game}.
-   *
-   * @param entity Entity to check.
-   * @return True if the entity is in the game, false otherwise.
-   */
-  public static boolean findEntity(final Entity entity) {
-    return ECSManagment.findEntity(entity);
   }
 }

@@ -14,6 +14,7 @@ import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.InputComponent;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
@@ -58,11 +59,11 @@ public class Hero {
 
     if (!AdvancedDungeon.DEBUG_MODE) {
       // Entfernt alle bisherigen Tastenzuweisungen
-      heroInstance.fetch(PlayerComponent.class).ifPresent(PlayerComponent::removeCallbacks);
+      heroInstance.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     }
     this.fireballSkill = fireballSkill;
     // uncap max hero speed
-    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.velocity(Vector2.MAX));
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
 
   /**
@@ -77,12 +78,12 @@ public class Hero {
   public void setController(PlayerController controller) {
     if (controller == null) return;
     String[] mousebuttons = {"LMB", "RMB", "MMB"};
-    hero.fetch(PlayerComponent.class)
+    hero.fetch(InputComponent.class)
         .ifPresent(
-            pc -> {
+            ic -> {
               for (int key = 0; key <= Input.Keys.MAX_KEYCODE; key++) {
                 int finalKey = key;
-                pc.registerCallback(
+                ic.registerCallback(
                     key,
                     entity -> {
                       try {
@@ -96,7 +97,7 @@ public class Hero {
                     });
               }
               // Callback zum Schließen von UI-Dialogen
-              HeroFactory.registerCloseUI(pc);
+              HeroFactory.registerCloseUI(ic);
             });
   }
 
@@ -106,7 +107,7 @@ public class Hero {
    * @param speed Geschwindigkeit in x und y Richtung.
    */
   public void setSpeed(Vector2 speed) {
-    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.currentVelocity(speed));
+    hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.applyForce("MOVEMENT", speed));
   }
 
   /**
@@ -116,7 +117,7 @@ public class Hero {
    */
   public void setXSpeed(float speed) {
     hero.fetch(VelocityComponent.class)
-        .ifPresent(vc -> vc.currentVelocity(Vector2.of(speed, vc.currentVelocity().y())));
+        .ifPresent(vc -> vc.applyForce("MOVEMENT_X", Vector2.of(speed, 0)));
   }
 
   /**
@@ -125,8 +126,9 @@ public class Hero {
    * @param speed Geschwindigkeit in Y-Richtung.
    */
   public void setYSpeed(float speed) {
+
     hero.fetch(VelocityComponent.class)
-        .ifPresent(vc -> vc.currentVelocity(Vector2.of(vc.currentVelocity().x(), speed)));
+        .ifPresent(vc -> vc.applyForce("MOVEMENT_Y", Vector2.of(0, speed)));
   }
 
   /**
@@ -177,7 +179,7 @@ public class Hero {
    */
   public Berry getBerryAt(Point point) {
     if (point == null) return null;
-    Tile t = Game.tileAT(point);
+    Tile t = Game.tileAt(point).orElse(null);
     if (t == null) return null;
     return (Berry)
         Game.entityAtTile(t)
@@ -214,7 +216,9 @@ public class Hero {
    */
   public void destroyItemAt(Point point) {
     if (point == null) return;
-    Game.entityAtTile(Game.tileAT(point))
+    Tile tile = Game.tileAt(point).orElse(null);
+    if (tile == null) return;
+    Game.entityAtTile(tile)
         .filter(e -> e.isPresent(ItemComponent.class))
         .findFirst()
         .ifPresent(Game::remove);

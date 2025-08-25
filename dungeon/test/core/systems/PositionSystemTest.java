@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.FloorTile;
 import core.level.utils.Coordinate;
@@ -52,9 +52,9 @@ public class PositionSystemTest {
   /** WTF? . */
   @AfterEach
   public void cleanup() {
+    Game.currentLevel(null);
     Game.removeAllSystems();
     Game.removeAllEntities();
-    Game.currentLevel(null);
   }
 
   /** WTF? . */
@@ -64,14 +64,14 @@ public class PositionSystemTest {
         new LevelElement[][] {
           {LevelElement.FLOOR, LevelElement.WALL}, {LevelElement.WALL, LevelElement.WALL}
         };
-    Tile[][] layout = new TileLevel(elementsLayout, DesignLabel.DEFAULT).layout();
+    Tile[][] layout = new DungeonLevel(elementsLayout, DesignLabel.DEFAULT).layout();
     Mockito.when(level.layout()).thenReturn(layout);
     Mockito.when(level.size()).thenReturn(new Tuple<>(2, 2));
     Mockito.when(level.tileAt(Mockito.any(Coordinate.class)))
         .thenAnswer(
             invocation -> {
               Coordinate c = invocation.getArgument(0);
-              return layout[c.y()][c.x()];
+              return Optional.of(layout[c.y()][c.x()]);
             });
     pc.position(PositionComponent.ILLEGAL_POSITION);
     // entities will be placed in the center of a tile, so add the offset for check

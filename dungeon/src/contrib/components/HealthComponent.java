@@ -6,6 +6,7 @@ import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Component;
 import core.Entity;
+import core.Game;
 import core.utils.logging.CustomLogLevel;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.logging.Logger;
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 public final class HealthComponent implements Component {
+  private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
   private Consumer<Entity> onDeath;
@@ -38,7 +40,6 @@ public final class HealthComponent implements Component {
   private int maximalHealthpoints;
   private int currentHealthpoints;
   private @Null Entity lastCause = null;
-
   private boolean godMode = false;
 
   /**
@@ -56,12 +57,25 @@ public final class HealthComponent implements Component {
   }
 
   /**
+   * Create a new HealthComponent.
+   *
+   * <p>onDeath function will remove the entity from * the game.
+   *
+   * @param maximalHitPoints Maximum amount of health points; currentHitPoints cannot be greater
+   *     than that
+   */
+  public HealthComponent(int maximalHitPoints) {
+    this(maximalHitPoints, REMOVE_DEAD_ENTITY);
+  }
+
+  /**
    * Create a HealthComponent with default values.
    *
-   * <p>The maximum health points are set to 1, and the onDeath function is empty.
+   * <p>The maximum health points are set to 1, and the onDeath function will remove the entity from
+   * the game.
    */
   public HealthComponent() {
-    this(1, onDeath -> {});
+    this(1, REMOVE_DEAD_ENTITY);
   }
 
   /**
@@ -176,6 +190,19 @@ public final class HealthComponent implements Component {
    */
   public int maximalHealthpoints() {
     return maximalHealthpoints;
+  }
+
+  /**
+   * Restores a given amount of health points to the entity.
+   *
+   * <p>The health will not exceed the maximal health points defined for the entity. If the amount
+   * is zero or negative, no restoration will be applied.
+   *
+   * @param amount the number of health points to restore; must be positive to have an effect.
+   */
+  public void restoreHealthpoints(int amount) {
+    if (amount <= 0) return;
+    this.currentHealthpoints = Math.min(currentHealthpoints + amount, maximalHealthpoints);
   }
 
   /**

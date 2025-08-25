@@ -59,17 +59,17 @@ public class GameTest {
     DummyComponent dc = new DummyComponent();
     e.add(dc);
     Game.add(e);
-    assertEquals(e, Game.find(dc).get());
+    assertEquals(e, Game.findInAll(dc).get());
     // load ne level to check if it still works
     ILevel level = Mockito.mock(ILevel.class);
-    assertEquals(e, Game.find(dc).get());
+    assertEquals(e, Game.findInAll(dc).get());
   }
 
   /** WTF? . */
   @Test
   public void find_nonExisting() {
     DummyComponent dc = new DummyComponent();
-    assertTrue(Game.find(dc).isEmpty());
+    assertTrue(Game.findInAll(dc).isEmpty());
   }
 
   private static class DummyComponent implements Component {}

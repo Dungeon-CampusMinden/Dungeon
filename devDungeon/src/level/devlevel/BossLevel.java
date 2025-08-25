@@ -9,7 +9,7 @@ import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
 import core.Game;
@@ -17,7 +17,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -29,10 +28,11 @@ import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemReward;
 import java.util.List;
 import java.util.function.Consumer;
+import level.DevDungeonLevel;
 import systems.DevHealthSystem;
 
 /** The Final Boss Level. */
-public class BossLevel extends DungeonLevel implements IHealthObserver {
+public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
   private static final MonsterType BOSS_TYPE = MonsterType.FINAL_BOSS;
   private static final int MIN_MOB_COUNT = 5;
@@ -85,9 +85,9 @@ public class BossLevel extends DungeonLevel implements IHealthObserver {
     Coordinate heroCoord = EntityUtils.getHeroCoordinate();
     if (heroCoord == null) return;
     if (heroCoord.y() > entrance.y()) {
-      changeTileElementType(tileAt(entrance), LevelElement.WALL);
+      tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.WALL));
     } else {
-      changeTileElementType(tileAt(entrance), LevelElement.FLOOR);
+      tileAt(entrance).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
     }
     handleBossAttacks();
   }
@@ -148,11 +148,11 @@ public class BossLevel extends DungeonLevel implements IHealthObserver {
     AIComponent aiComp =
         boss.fetch(AIComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, AIComponent.class));
-    if (!(aiComp.fightBehavior() instanceof RangeAI rangeAI)) return;
+    if (!(aiComp.fightBehavior() instanceof AIRangeBehaviour AIRangeBehaviour)) return;
 
     if (isBoss2ndPhase) {
       if (anyOtherMobsAlive()) {
-        rangeAI.skill(BossAttackSkills.SKILL_NONE());
+        AIRangeBehaviour.skill(BossAttackSkills.SKILL_NONE());
         return;
       } else {
         boss.remove(MagicShieldComponent.class);
@@ -164,10 +164,10 @@ public class BossLevel extends DungeonLevel implements IHealthObserver {
     if (System.currentTimeMillis() - lastAttackChange > getBossAttackChangeDelay()
         && isBossNormalAttacking) {
       this.lastAttackChange = System.currentTimeMillis();
-      rangeAI.skill(BossAttackSkills.getFinalBossSkill(boss));
+      AIRangeBehaviour.skill(BossAttackSkills.getFinalBossSkill(boss));
       this.isBossNormalAttacking = false;
     } else if (!isBossNormalAttacking) {
-      rangeAI.skill(BossAttackSkills.normalAttack(AIFactory.FIREBALL_COOL_DOWN));
+      AIRangeBehaviour.skill(BossAttackSkills.normalAttack(AIFactory.FIREBALL_COOL_DOWN));
       this.isBossNormalAttacking = true;
     }
   }
@@ -211,16 +211,13 @@ public class BossLevel extends DungeonLevel implements IHealthObserver {
 
     // Destroy pillars
     for (Coordinate pillarTopLeftCoord : pillars) {
-      changeTileElementType(tileAt(pillarTopLeftCoord), LevelElement.FLOOR);
-      changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y())),
-          LevelElement.FLOOR);
-      changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1)),
-          LevelElement.FLOOR);
-      changeTileElementType(
-          tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1)),
-          LevelElement.FLOOR);
+      tileAt(pillarTopLeftCoord).ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+      tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y()))
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+      tileAt(new Coordinate(pillarTopLeftCoord.x(), pillarTopLeftCoord.y() - 1))
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
+      tileAt(new Coordinate(pillarTopLeftCoord.x() + 1, pillarTopLeftCoord.y() - 1))
+          .ifPresent(t -> changeTileElementType(t, LevelElement.FLOOR));
     }
   }
 
@@ -258,7 +255,7 @@ public class BossLevel extends DungeonLevel implements IHealthObserver {
    * @return true if any other mobs are alive, false otherwise.
    */
   private boolean anyOtherMobsAlive() {
-    return Game.entityStream().filter(e -> e.isPresent(AIComponent.class)).toList().size()
+    return Game.levelEntities().filter(e -> e.isPresent(AIComponent.class)).toList().size()
         > 1; // 1 is the boss
   }
 

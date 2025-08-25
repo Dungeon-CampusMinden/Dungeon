@@ -44,7 +44,6 @@ tasks.register('runBlockly', JavaExec) {
 
 tasks.register('buildBlocklyJar', Jar) {
     group 'jar'
-    dependsOn ':dungeon:jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
     from project(':dungeon').sourceSets.main.output
@@ -62,7 +61,7 @@ tasks.register('buildBlocklyJar', Jar) {
         includeEmptyDirs = false
     }
     from(projectDir) {
-        include 'src/utils/Direction.java'
+        include 'src/core/utils/Direction.java'
         include 'src/utils/BlocklyCommands.java'
         // Remove 'src/' prefix from paths
         eachFile { file ->

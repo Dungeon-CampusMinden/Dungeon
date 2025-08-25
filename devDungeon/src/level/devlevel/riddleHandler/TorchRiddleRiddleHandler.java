@@ -7,7 +7,7 @@ import contrib.hud.DialogUtils;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -36,7 +36,7 @@ public class TorchRiddleRiddleHandler {
   /** The sign next to the riddle door. */
   private final Entity riddleSign;
 
-  private final TileLevel level;
+  private final DungeonLevel level;
   private final Coordinate riddleDoor;
   private final Coordinate[] riddleRoomBounds;
   private final Coordinate riddleCenter;
@@ -50,7 +50,7 @@ public class TorchRiddleRiddleHandler {
    * @param customPoints The custom points of the riddle room.
    * @param level The level of the riddle room.
    */
-  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, TileLevel level) {
+  public TorchRiddleRiddleHandler(List<Coordinate> customPoints, DungeonLevel level) {
     this.level = level;
     // First point is the riddle door
     this.riddleDoor = customPoints.getFirst();
@@ -81,7 +81,7 @@ public class TorchRiddleRiddleHandler {
   /** Handles the first tick of the riddle. */
   public void onFirstTick() {
     Game.add(riddleSign);
-    level.tileAt(riddleCenter).tintColor(0x22FF22FF);
+    level.tileAt(riddleCenter).ifPresent(tile -> tile.tintColor(0x22FF22FF));
     try {
       updateRiddleSign(getSumOfLitTorches());
     } catch (UnsupportedOperationException e) {
@@ -140,7 +140,7 @@ public class TorchRiddleRiddleHandler {
     this.rewardGiven = true;
 
     // Once the reward is given, all torches are extinguished
-    Game.entityStream()
+    Game.levelEntities()
         .filter(e -> e.isPresent(TorchComponent.class))
         .forEach(
             e -> {
@@ -148,7 +148,7 @@ public class TorchRiddleRiddleHandler {
               e.fetch(DrawComponent.class).ifPresent(dc -> dc.currentAnimation("off"));
             });
 
-    level.tileAt(riddleCenter).tintColor(-1);
+    level.tileAt(riddleCenter).ifPresent(tile -> tile.tintColor(-1));
   }
 
   /**
@@ -158,8 +158,11 @@ public class TorchRiddleRiddleHandler {
    */
   private boolean checkIfHeroIsInCenter() {
     Optional<Entity> hero = Game.hero();
-    return hero.filter(entity -> level.tileAtEntity(entity).equals(level.tileAt(riddleCenter)))
-        .isPresent();
+    return hero.isPresent()
+        && level
+            .tileAtEntity(hero.get())
+            .map(heroTile -> heroTile.equals(level.tileAt(riddleCenter).orElse(null)))
+            .orElse(false);
   }
 
   /**
@@ -168,8 +171,11 @@ public class TorchRiddleRiddleHandler {
    * @see LevelUtils#changeVisibilityForArea(Coordinate, Coordinate, boolean)
    */
   private void solveRiddle() {
-    DoorTile door = (DoorTile) level.tileAt(riddleDoor);
-    door.open();
+    level
+        .tileAt(riddleDoor)
+        .filter(tile -> tile instanceof DoorTile)
+        .map(tile -> (DoorTile) tile)
+        .ifPresent(DoorTile::open);
     LevelUtils.changeVisibilityForArea(riddleRoomBounds[0], riddleRoomBounds[1], true);
   }
 

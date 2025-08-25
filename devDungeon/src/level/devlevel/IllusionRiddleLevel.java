@@ -9,13 +9,12 @@ import contrib.entities.MiscFactory;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.ai.fight.RangeAI;
+import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -25,13 +24,14 @@ import entities.levercommands.OpenPassageCommand;
 import item.concreteItem.ItemPotionSpeed;
 import java.util.*;
 import java.util.function.Consumer;
+import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.IllusionRiddleHandler;
 import level.utils.Teleporter;
 import systems.FogOfWarSystem;
 import systems.TeleporterSystem;
 
 /** The Illusion Riddle Level. TODO: Refactor this class */
-public class IllusionRiddleLevel extends DungeonLevel {
+public class IllusionRiddleLevel extends DevDungeonLevel {
 
   /** The types of monsters that can spawn in this level. */
   public static final MonsterType[] MONSTER_TYPES =
@@ -194,10 +194,10 @@ public class IllusionRiddleLevel extends DungeonLevel {
     // Draw teleporter connections
     teleporterSystem.teleporter().stream()
         .map(Teleporter::from)
-        .forEach((tp) -> tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
+        .forEach(tp -> tileAt(tp).ifPresent(t -> t.tintColor(0x444444FF)));
     teleporterSystem.teleporter().stream()
         .map(Teleporter::to)
-        .forEach((tp) -> tileAt(tp).tintColor(0x444444FF)); // dark tint for teleporter
+        .forEach(tp -> tileAt(tp).ifPresent(t -> t.tintColor(0x444444FF)));
 
     Entity b =
         utils.EntityUtils.spawnBoss(
@@ -266,8 +266,8 @@ public class IllusionRiddleLevel extends DungeonLevel {
               mob.fetch(AIComponent.class)
                   .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
                   .fightBehavior();
-          if (fightAI instanceof RangeAI rangeAI) {
-            rangeAI.skill().setLastUsedToNow();
+          if (fightAI instanceof AIRangeBehaviour AIRangeBehaviour) {
+            AIRangeBehaviour.skill().setLastUsedToNow();
           }
         }
       }

@@ -27,7 +27,8 @@ public final class RangeTransition implements Function<Entity, Boolean> {
   }
 
   /**
-   * Switches to combat mode when the player is within range of the entity.
+   * Switches to combat mode when the player is within range of the entity. Uses {@code
+   * stayInFightMode = false} by default.
    *
    * @param range Range of the entity.
    */
@@ -40,9 +41,7 @@ public final class RangeTransition implements Function<Entity, Boolean> {
     if (LevelUtils.playerInRange(entity, range)) {
       hasBeenInFightMode = true;
       return true;
-    } else {
-      return stayInFightMode
-          && hasBeenInFightMode; // Stay in fight mode if player has been in range
     }
+    return stayInFightMode && hasBeenInFightMode; // Stay in fight mode if player has been in range
   }
 }

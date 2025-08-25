@@ -1,13 +1,13 @@
 package level;
 
 import contrib.systems.FogSystem;
-import contrib.utils.Direction;
 import core.Entity;
 import core.Game;
 import core.components.CameraComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.systems.CameraSystem;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import utils.BlocklyCommands;
@@ -25,11 +25,11 @@ public class LevelManagementUtils {
    * @param coordinate The coordinate to focus the camera on.
    */
   public static void cameraFocusOn(Coordinate coordinate) {
-    Game.entityStream()
+    Game.levelEntities()
         .filter(e -> e.isPresent(CameraComponent.class))
         .forEach(entity -> entity.remove(CameraComponent.class));
 
-    Entity focusPoint = new Entity();
+    Entity focusPoint = new Entity("cameraFocusPoint");
     focusPoint.add(new PositionComponent(coordinate.toPoint()));
     focusPoint.add(new CameraComponent());
     Game.add(focusPoint);
@@ -42,7 +42,7 @@ public class LevelManagementUtils {
    * @throws MissingHeroException if the hero entity is not present.
    */
   public static void cameraFocusHero() {
-    Game.entityStream()
+    Game.levelEntities()
         .filter(e -> e.isPresent(CameraComponent.class))
         .forEach(entity -> entity.remove(CameraComponent.class));
     Game.hero().orElseThrow(() -> new MissingHeroException()).add(new CameraComponent());
@@ -68,9 +68,9 @@ public class LevelManagementUtils {
    * @param viewDirection The new viewing direction to be set for the hero.
    * @throws MissingHeroException if the hero entity is not present.
    */
-  public static void heroViewDirection(PositionComponent.Direction viewDirection) {
+  public static void heroViewDirection(Direction viewDirection) {
     Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
-    BlocklyCommands.turnEntity(hero, Direction.fromPositionCompDirection(viewDirection));
+    BlocklyCommands.turnEntity(hero, viewDirection);
   }
 
   /** Zooms the camera in by decreasing the zoom factor. */

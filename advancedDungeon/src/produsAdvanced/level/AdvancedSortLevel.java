@@ -276,7 +276,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
                   nextIndex = currentIndex.incrementAndGet();
                 }
                 final int idx = nextIndex;
-                Game.entityStream(Set.of(SignComponent.class))
+                Game.levelEntities(Set.of(SignComponent.class))
                     .filter(signEntity -> signEntity.equals(entity))
                     .findFirst()
                     .ifPresent(

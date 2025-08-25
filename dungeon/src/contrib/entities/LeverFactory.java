@@ -1,12 +1,16 @@
 package contrib.entities;
 
-import contrib.components.InteractionComponent;
-import contrib.components.LeverComponent;
+import contrib.components.*;
+import contrib.systems.EventScheduler;
 import contrib.utils.ICommand;
+import contrib.utils.IEntityCommand;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
@@ -23,8 +27,11 @@ public class LeverFactory {
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
    * lever is initially off. The lever is interactable and can be toggled on and off.
    *
+   * <p>The given `onInteract` command can be a simple {@link ICommand} or if needed an {@link
+   * IEntityCommand} that takes the lever entity as context.
+   *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param onInteract The behavior when the lever is interacted with.
    * @param design defines the textures for the lever
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
@@ -51,10 +58,6 @@ public class LeverFactory {
                       .orElseThrow(
                           () -> MissingComponentException.build(entity, LeverComponent.class));
               lc.toggle();
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      drawComponent -> drawComponent.currentAnimation(lc.isOn() ? "on" : "off"));
             }));
     return lever;
   }
@@ -63,10 +66,13 @@ public class LeverFactory {
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
    * lever is initially off. The lever is interactable and can be toggled on and off.
    *
+   * <p>The given `onInteract` command can be a simple {@link ICommand} or if needed an {@link
+   * IEntityCommand} that takes the lever entity as context.
+   *
    * <p>The lever will use the default leaver design.
    *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param onInteract The behavior when the lever is interacted with.
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
@@ -76,13 +82,30 @@ public class LeverFactory {
   }
 
   /**
+   * Creates a timed lever entity at the specified position.
+   *
+   * <p>Once activated, the lever will automatically reset to the "off" state after the specified
+   * time duration.
+   *
+   * <p><strong>Note:</strong> Requires a properly functioning {@code EventScheduler} and {@link
+   * core.systems.LevelSystem} to work.
+   *
+   * @param pos the position at which to place the lever
+   * @param time the duration after which the lever resets itself to "off"
+   * @return the configured lever entity with a timed reset behavior
+   */
+  public static Entity createTimedLever(Point pos, int time) {
+    return createLever(pos, leverTimer(time));
+  }
+
+  /**
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
    * lever is initially off. The lever is interactable and can be toggled on and off.
    *
    * <p>The lever will use the torch design.
    *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param onInteract The behavior when the lever is interacted with.
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
@@ -128,6 +151,126 @@ public class LeverFactory {
   }
 
   /**
+   * Creates a pressure plate entity at the specified position.
+   *
+   * <p>The pressure plate acts as a switch that becomes active (i.e., {@code true}) if the total
+   * mass of entities with a {@code CollideComponent} standing on it reaches or exceeds the
+   * specified mass trigger threshold.
+   *
+   * <p>Entities that have a {@code ProjectileComponent} are excluded and do not trigger the plate.
+   *
+   * <p>This pressure plate does not emit any events on interaction; it solely toggles the {@link
+   * LeverComponent#isOn()} state based on the mass currently on the plate.
+   *
+   * @param position the position where the pressure plate entity should be created
+   * @param massTrigger the mass threshold at which the pressure plate becomes triggered
+   * @return the newly created pressure plate entity
+   */
+  public static Entity pressurePlate(Point position, float massTrigger) {
+    Entity pressurePlate = new Entity("pressureplate");
+    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
+    DrawComponent drawComponent =
+        new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
+    Map<String, Animation> animations =
+        Map.of(
+            "off", drawComponent.currentAnimation(),
+            "on", Animation.fromCollection(Design.PLATE.texturesOn));
+    drawComponent.animationMap(animations);
+    drawComponent.currentAnimation("off");
+    pressurePlate.add(drawComponent);
+    LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
+    pressurePlate.add(leverComponent);
+    PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
+    pressurePlate.add(pressurePlateComponent);
+    TriConsumer<Entity, Entity, Direction> onCollideEnter =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+
+          other
+              .fetch(VelocityComponent.class)
+              .ifPresent(vc -> pressurePlateComponent.increase(vc.mass()));
+        };
+
+    TriConsumer<Entity, Entity, Direction> onCollideLeave =
+        (self, other, dir) -> {
+          if (other.isPresent(ProjectileComponent.class)) return;
+
+          other
+              .fetch(VelocityComponent.class)
+              .ifPresent(vc -> pressurePlateComponent.decrease(vc.mass()));
+        };
+
+    pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave));
+    return pressurePlate;
+  }
+
+  /**
+   * Creates a pressure plate entity at the specified position.
+   *
+   * <p>The pressure plate acts as a switch that becomes active (i.e., {@code true}) if at least one
+   * entity with a {@code CollideComponent} stands on it, triggering at the default mass threshold.
+   *
+   * <p>Entities with a {@code ProjectileComponent} do not trigger the pressure plate.
+   *
+   * <p>The plate does not emit events on interaction; it only toggles the {@link
+   * LeverComponent#isOn()} state.
+   *
+   * <p>The plate triggers at the default mass threshold defined by {@link
+   * PressurePlateComponent#DEFAULT_MASS_TRIGGER}.
+   *
+   * @param position the position where the pressure plate entity should be created
+   * @return the newly created pressure plate entity
+   */
+  public static Entity pressurePlate(Point position) {
+    return pressurePlate(position, PressurePlateComponent.DEFAULT_MASS_TRIGGER);
+  }
+
+  /**
+   * Creates a command that automatically turns off a lever after a specified delay.
+   *
+   * <p>This command is intended to be attached to a {@link LeverComponent}. When the lever is
+   * activated, it schedules an action via the {@link EventScheduler} to toggle the lever off after
+   * the given time delay. If the command is executed again while a previous action is still
+   * pending, no new action will be scheduled.
+   *
+   * <p>The {@code undo} method cancels the scheduled toggle action if it hasn't executed yet.
+   *
+   * <p><strong>Note:</strong> Requires a properly functioning {@code EventScheduler} and {@link
+   * core.systems.LevelSystem} to work.
+   *
+   * @param timeInMs the time in milliseconds after which the lever should automatically toggle off
+   * @return an {@link IEntityCommand} that schedules a timed lever reset
+   */
+  private static IEntityCommand leverTimer(int timeInMs) {
+    return new IEntityCommand() {
+      private EventScheduler.ScheduledAction scheduledAction;
+
+      @Override
+      public void execute(Entity lever) {
+        // prevent recursive calling
+        if (scheduledAction == null || !EventScheduler.isScheduled(scheduledAction)) {
+          scheduledAction =
+              EventScheduler.scheduleAction(
+                  () ->
+                      lever
+                          .fetch(LeverComponent.class)
+                          .filter(LeverComponent::isOn)
+                          .ifPresent(LeverComponent::toggle),
+                  timeInMs);
+        }
+      }
+
+      @Override
+      public void undo(Entity lever) {
+        if (scheduledAction != null) {
+          EventScheduler.cancelAction(scheduledAction);
+          scheduledAction = null;
+        }
+      }
+    };
+  }
+
+  /**
    * Represents different design types with associated texture paths. Each design has a list of
    * textures for both "on" and "off" states.
    */
@@ -149,7 +292,12 @@ public class LeverFactory {
             new SimpleIPath("objects/torch/on/torch_6.png"),
             new SimpleIPath("objects/torch/on/torch_7.png"),
             new SimpleIPath("objects/torch/on/torch_8.png")),
-        List.of(new SimpleIPath("objects/torch/off/torch_0.png")));
+        List.of(new SimpleIPath("objects/torch/off/torch_0.png"))),
+
+    /** Represents a pressure plate with multiple textures for "on" (animated) and one for "off". */
+    PLATE(
+        List.of(new SimpleIPath("objects/pressureplate/on/pressureplate_0.png")),
+        List.of(new SimpleIPath("objects/pressureplate/off/pressureplate_0.png")));
 
     private final List<IPath> texturesOn;
     private final List<IPath> texturesOff;

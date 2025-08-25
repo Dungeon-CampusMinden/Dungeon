@@ -9,11 +9,11 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
-import contrib.utils.Direction;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
+import core.utils.Direction;
 import core.utils.Point;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -156,6 +156,8 @@ public class Server {
     codeContext.setHandler(this::handleCodeRequest);
     HttpContext languageContext = server.createContext("/language");
     languageContext.setHandler(this::handleLanguageRequest);
+    HttpContext statusContext = server.createContext("/status");
+    statusContext.setHandler(this::handleStatusRequest);
     server.start();
     return server;
   }
@@ -340,7 +342,7 @@ public class Server {
     }
 
     response.append(DungeonLoader.currentLevel()).append(" ");
-    for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel())) {
+    for (String blockedBlock : blockedBlocksForLevel(Game.currentLevel().orElse(null))) {
       response.append(blockedBlock).append(" ");
     }
     response.deleteCharAt(response.length() - 1); // Remove last space
@@ -495,6 +497,28 @@ public class Server {
     String objectName = query != null && query.contains("object=") ? query.split("=")[1] : "server";
 
     String response = LanguageServer.GenerateCompletionItems(objectName);
+    exchange.sendResponseHeaders(200, response.getBytes().length);
+    OutputStream os = exchange.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+
+  /**
+   * Handles the status request. This function will return the current status of the Blockly -
+   * UserScript Code.
+   *
+   * @param exchange Exchange object
+   * @throws IOException If an error occurs while sending the response
+   */
+  private void handleStatusRequest(HttpExchange exchange) throws IOException {
+    String response;
+    if (BlocklyCodeRunner.instance().isCodeRunning()) {
+      response = "running";
+    } else {
+      response = "completed";
+    }
+
+    exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
     exchange.sendResponseHeaders(200, response.getBytes().length);
     OutputStream os = exchange.getResponseBody();
     os.write(response.getBytes());
@@ -1297,7 +1321,12 @@ public class Server {
       case "drehe" -> {
         Direction firstArg;
         if (args[0] instanceof String firstArgStr) {
-          firstArg = Direction.fromString(firstArgStr);
+          try {
+            firstArg = Direction.fromString(firstArgStr);
+          } catch (IllegalArgumentException e) {
+            setError("Invalid direction: " + firstArgStr);
+            return;
+          }
         } else {
           setError("Unexpected type for direction " + args[0]);
           return;

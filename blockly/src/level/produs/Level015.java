@@ -9,6 +9,7 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.MissingHeroException;
 import entities.BlocklyMonster;
 import java.util.List;
@@ -64,7 +65,7 @@ public class Level015 extends BlocklyLevel {
     }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusOn(new Coordinate(11, 7));
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.UP);
+    LevelManagementUtils.heroViewDirection(Direction.UP);
     LevelManagementUtils.zoomDefault();
     Game.hero()
         .orElseThrow(MissingHeroException::new)
@@ -92,7 +93,7 @@ public class Level015 extends BlocklyLevel {
 
     DoorTile[] doors = new DoorTile[coords.length];
     for (int i = 0; i < coords.length; i++) {
-      doors[i] = (DoorTile) Game.tileAT(coords[i]);
+      doors[i] = (DoorTile) Game.tileAt(coords[i]).orElse(null);
     }
 
     for (int i = 0; i < doors.length; i++) {
@@ -108,7 +109,7 @@ public class Level015 extends BlocklyLevel {
       if (x >= 11) LevelManagementUtils.cameraFocusHero();
     }
 
-    if (Game.entityStream(Set.of(AIComponent.class)).findAny().isPresent()) door.close();
+    if (Game.levelEntities(Set.of(AIComponent.class)).findAny().isPresent()) door.close();
     else door.open();
   }
 }

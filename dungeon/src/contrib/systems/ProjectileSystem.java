@@ -2,7 +2,6 @@ package contrib.systems;
 
 import contrib.components.ProjectileComponent;
 import core.Entity;
-import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -12,18 +11,17 @@ import core.utils.components.MissingComponentException;
 /**
  * The ProjectileSystem class represents a system responsible for managing {@link
  * ProjectileComponent}s in the game. It checks if projectiles have reached their endpoints and
- * removes entities that have reached their endpoints.
+ * executes the {@link ProjectileComponent#onGoalReached()} callback.
  *
  * <p>Note that the velocity of the projectile is not managed in this system. That is done by the
  * {@link core.systems.VelocitySystem}.
- *
- * <p>The components required for this system are {@link ProjectileComponent}, {@link
- * PositionComponent}, and {@link VelocityComponent}.
  *
  * <p>Entities with the {@link ProjectileComponent}, a {@link PositionComponent} and {@link
  * VelocityComponent} will be processed by this system.
  */
 public final class ProjectileSystem extends System {
+
+  private final String PROJECTILE_FORCE = "Projectile";
 
   /** Create a new ProjectileSystem. */
   public ProjectileSystem() {
@@ -37,11 +35,11 @@ public final class ProjectileSystem extends System {
             ProjectileComponent.class, PositionComponent.class, VelocityComponent.class)
         // Consider only entities that have a ProjectileComponent
         .map(this::buildDataObject)
-        .map(this::setVelocity)
+        .map(this::applyForce)
         // Filter all entities that have reached their endpoint
         .filter(this::hasReachedEndpoint)
-        // Remove all entities who reached their endpoint
-        .forEach(this::removeEntitiesOnEndpoint);
+        // Trigger endpoint-callback for all entities who reached their endpoint
+        .forEach(this::executeEntitiesOnEndpoint);
   }
 
   private PSData buildDataObject(final Entity entity) {
@@ -61,14 +59,14 @@ public final class ProjectileSystem extends System {
     return new PSData(entity, prc, pc, vc);
   }
 
-  private PSData setVelocity(final PSData data) {
-    data.vc.currentVelocity(data.vc.velocity());
-
+  private PSData applyForce(final PSData data) {
+    if (data.vc().currentVelocity().isZero())
+      data.vc.applyForce(PROJECTILE_FORCE, data.prc.forceToApply());
     return data;
   }
 
-  private void removeEntitiesOnEndpoint(final PSData data) {
-    Game.remove(data.e);
+  private void executeEntitiesOnEndpoint(final PSData data) {
+    data.prc().onGoalReached().accept(data.e());
   }
 
   /**

@@ -52,6 +52,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     previousStatement: null,
     nextStatement: null,
     message0: "%{BKY_VARIABLES_SET}",
+    tooltip: "Verändert den Wert einer existierenden Variable",
     args0: [
       {
         type: "field_variable",
@@ -61,16 +62,17 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "VALUE",
-        check: "Number",
+        check: ["Expression", "Array_get", "Number"],
       },
     ],
-    colour: 230,
+    colour:220,
   },
   {
     type: "set_number_expression",
     previousStatement: null,
     nextStatement: null,
-    message0: "%{BKY_VARIABLES_SET}",
+    message0: "erstelle und %{BKY_VARIABLES_SET}",
+    tooltip: "Erstellt eine neue Variable mit einem Wert",
     args0: [
       {
         type: "field_variable",

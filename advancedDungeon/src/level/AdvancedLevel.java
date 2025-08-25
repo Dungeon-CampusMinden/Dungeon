@@ -1,10 +1,11 @@
 package level;
 
-import core.level.loader.DungeonLevel;
+import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
@@ -29,7 +30,7 @@ public abstract class AdvancedLevel extends DungeonLevel {
       DesignLabel designLabel,
       List<Coordinate> customPoints,
       String name) {
-    super(layout, designLabel, customPoints, name, "");
+    super(layout, designLabel, customPoints, name);
     this.designLabel = designLabel;
   }
 
@@ -47,7 +48,7 @@ public abstract class AdvancedLevel extends DungeonLevel {
    *
    * @return The Design of this level.
    */
-  public DesignLabel designLabel() {
-    return designLabel;
+  public Optional<DesignLabel> designLabel() {
+    return Optional.ofNullable(designLabel);
   }
 }

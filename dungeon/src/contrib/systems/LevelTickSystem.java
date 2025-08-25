@@ -20,11 +20,11 @@ public class LevelTickSystem extends System {
 
   @Override
   public void execute() {
-    if (Game.currentLevel() instanceof ITickable tickable) {
-      tickable.onTick(currentLevel != Game.currentLevel());
+    if (Game.currentLevel().orElse(null) instanceof ITickable tickable) {
+      tickable.onTick(currentLevel != Game.currentLevel().orElse(null));
     }
-    if (currentLevel != Game.currentLevel()) {
-      this.currentLevel = Game.currentLevel();
+    if (currentLevel != Game.currentLevel().orElse(null)) {
+      this.currentLevel = Game.currentLevel().orElse(null);
     }
   }
 }

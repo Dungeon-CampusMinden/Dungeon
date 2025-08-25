@@ -52,7 +52,7 @@ public final class OkDialog {
    */
   public static Entity showOkDialog(
       final Skin skin, final String text, final String title, final IVoidFunction onOk) {
-    Entity entity = new Entity();
+    Entity entity = new Entity("okDialog_" + title);
 
     UIUtils.show(
         () -> {

@@ -31,7 +31,7 @@ public class ItemResourceMushroomRed extends Item {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.remove(this);
+              component.removeOne(this);
               e.fetch(HealthComponent.class)
                   .ifPresent(
                       hc -> hc.receiveHit(new Damage(DAMAGE_AMOUNT, DamageType.POISON, null)));

@@ -1,12 +1,12 @@
 package components;
 
-import contrib.utils.Direction;
 import contrib.utils.LevelUtils;
 import core.Component;
 import core.Game;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,7 +114,7 @@ public class TintDirectionComponent implements Component {
    * @return List of affected tiles
    */
   public ArrayList<Tile> affectedTiles(Direction direction) {
-    ILevel level = Game.currentLevel();
+    ILevel level = Game.currentLevel().orElse(null);
     ArrayList<Tile> tiles = new ArrayList<>(range);
     if (level == null) return tiles;
 
@@ -125,11 +125,7 @@ public class TintDirectionComponent implements Component {
       if (!LevelUtils.canSee(origin, targetCoord, direction)) {
         break;
       }
-
-      Tile tile = level.tileAt(targetCoord);
-      if (tile != null) {
-        tiles.add(tile);
-      }
+      level.tileAt(targetCoord).ifPresent(tiles::add);
     }
     return tiles;
   }

@@ -17,7 +17,6 @@ import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
-import core.level.loader.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -29,9 +28,10 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
 import java.util.List;
+import level.DevDungeonLevel;
 
 /** The Tutorial Level. */
-public class TutorialLevel extends DungeonLevel {
+public class TutorialLevel extends DevDungeonLevel {
 
   // Entity spawn points
   private final Coordinate mobSpawn;
@@ -78,8 +78,15 @@ public class TutorialLevel extends DungeonLevel {
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }
-    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
-    mob.fetch(HealthComponent.class).ifPresent(hc -> hc.onDeath((e) -> mobDoor.open()));
+    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5)).orElse(null);
+    mob.fetch(HealthComponent.class)
+        .ifPresent(
+            hc ->
+                hc.onDeath(
+                    entity -> {
+                      mobDoor.open();
+                      Game.remove(entity);
+                    }));
     Entity chest;
     Entity chest2;
     try {
@@ -109,11 +116,11 @@ public class TutorialLevel extends DungeonLevel {
   }
 
   private void handleTextPopups() {
-    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4));
-    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5));
-    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6));
+    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4)).orElse(null);
+    DoorTile mobDoor = (DoorTile) tileAt(customPoints().get(5)).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6)).orElse(null);
     if (EntityUtils.getHeroCoordinate() == null) return;
-    Tile heroTile = tileAt(EntityUtils.getHeroCoordinate());
+    Tile heroTile = tileAt(EntityUtils.getHeroCoordinate()).orElse(null);
     if (heroTile == null) return;
 
     if (frontDoor.coordinate().equals(heroTile.coordinate())) {
@@ -158,8 +165,8 @@ public class TutorialLevel extends DungeonLevel {
    * mob.
    */
   private void handleDoors() {
-    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4));
-    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6));
+    DoorTile frontDoor = (DoorTile) tileAt(customPoints().get(4)).orElse(null);
+    DoorTile CraftingDoor = (DoorTile) tileAt(customPoints().get(6)).orElse(null);
     Point heroPos;
     try {
       heroPos = SkillTools.heroPositionAsPoint();

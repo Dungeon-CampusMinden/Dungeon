@@ -3,7 +3,7 @@ package contrib.components;
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
-import core.level.Tile;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * hitbox of a different entity. The system can detect two different types of collisions. The first
  * one is a new collision, which occurs if the collision between the two hitboxes was not present at
  * the last check. If a new collision is detected, the {@link contrib.systems.CollisionSystem} will
- * call {@link #onEnter(Entity, Entity, Tile.Direction)}. The second type of collision is a leaving
+ * call {@link #onEnter(Entity, Entity, Direction)}. The second type of collision is a leaving
  * collision, which occurs if a collision that was present in the last check is no longer present in
  * the current check. If a leaving collision is detected, the {@link
  * contrib.systems.CollisionSystem} will call {@link #collideLeave(TriConsumer)}.
@@ -31,10 +31,12 @@ import java.util.logging.Logger;
  * spiky monster.
  *
  * <p>The {@link #collideEnter} and {@link #collideLeave} are {@link TriConsumer} that will be
- * executed at {@link #onEnter(Entity, Entity, Tile.Direction)} or {@link #onLeave(Entity, Entity,
- * Tile.Direction)} respectively. The first parameter is the entity of this component, the second
+ * executed at {@link #onEnter(Entity, Entity, Direction)} or {@link #onLeave(Entity, Entity,
+ * Direction)} respectively. The first parameter is the entity of this component, the second
  * parameter is the entity with which the collision is happening, and the third parameter defines
  * the direction from where the collision is happening.
+ *
+ * <p>The {@link #collideHold} will be executed for ongoing collisions.
  *
  * @see contrib.systems.CollisionSystem
  */
@@ -46,14 +48,14 @@ public final class CollideComponent implements Component {
   public static final Vector2 DEFAULT_SIZE = Vector2.of(0.5f, 0.5f);
 
   /** The default collision behaviour. */
-  public static final TriConsumer<Entity, Entity, Tile.Direction> DEFAULT_COLLIDER =
-      (a, b, c) -> {};
+  public static final TriConsumer<Entity, Entity, Direction> DEFAULT_COLLIDER = (a, b, c) -> {};
 
   private final Vector2 offset;
   private final Vector2 size;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
-  private TriConsumer<Entity, Entity, Tile.Direction> collideEnter;
-  private TriConsumer<Entity, Entity, Tile.Direction> collideLeave;
+  private TriConsumer<Entity, Entity, Direction> collideEnter;
+  private TriConsumer<Entity, Entity, Direction> collideLeave;
+  private TriConsumer<Entity, Entity, Direction> collideHold;
 
   /**
    * Create a new CollisionComponent.
@@ -69,12 +71,13 @@ public final class CollideComponent implements Component {
   public CollideComponent(
       final Vector2 offset,
       final Vector2 size,
-      final TriConsumer<Entity, Entity, Tile.Direction> collideEnter,
-      final TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
+      final TriConsumer<Entity, Entity, Direction> collideEnter,
+      final TriConsumer<Entity, Entity, Direction> collideLeave) {
     this.offset = offset;
     this.size = size;
     this.collideEnter = collideEnter;
     this.collideLeave = collideLeave;
+    this.collideHold = DEFAULT_COLLIDER;
   }
 
   /**
@@ -87,8 +90,8 @@ public final class CollideComponent implements Component {
    *     empty function.
    */
   public CollideComponent(
-      final TriConsumer<Entity, Entity, Tile.Direction> collideEnter,
-      final TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
+      final TriConsumer<Entity, Entity, Direction> collideEnter,
+      final TriConsumer<Entity, Entity, Direction> collideLeave) {
     this(DEFAULT_OFFSET, DEFAULT_SIZE, collideEnter, collideLeave);
   }
 
@@ -107,7 +110,7 @@ public final class CollideComponent implements Component {
    * @param other Component of the colliding entity
    * @param direction Direction in which the collision happens
    */
-  public void onEnter(final Entity entity, final Entity other, final Tile.Direction direction) {
+  public void onEnter(final Entity entity, final Entity other, final Direction direction) {
     if (collideEnter != null) collideEnter.accept(entity, other, direction);
   }
 
@@ -118,7 +121,7 @@ public final class CollideComponent implements Component {
    * @param other Component of the colliding entity
    * @param direction Direction in which the collision happens
    */
-  public void onLeave(final Entity entity, final Entity other, final Tile.Direction direction) {
+  public void onLeave(final Entity entity, final Entity other, final Direction direction) {
     if (collideLeave != null) {
       LOGGER.log(
           CustomLogLevel.DEBUG,
@@ -130,6 +133,36 @@ public final class CollideComponent implements Component {
               + "'.");
       collideLeave.accept(entity, other, direction);
     }
+  }
+
+  /**
+   * Function to be executed at ongoing collisions.
+   *
+   * @param entity associated entity of this component.
+   * @param other Component of the colliding entity
+   * @param direction Direction in which the collision happens
+   */
+  public void onHold(final Entity entity, final Entity other, final Direction direction) {
+    if (collideHold != null) {
+      LOGGER.log(
+          CustomLogLevel.DEBUG,
+          this.getClass().getSimpleName()
+              + " is processing collision hold between entities '"
+              + entity.getClass().getSimpleName()
+              + "' and '"
+              + other.getClass().getSimpleName()
+              + "'.");
+      collideHold.accept(entity, other, direction);
+    }
+  }
+
+  /**
+   * Set the callback function for ongoing collisions.
+   *
+   * @param collideHold New callback function.
+   */
+  public void onHold(TriConsumer<Entity, Entity, Direction> collideHold) {
+    this.collideHold = collideHold;
   }
 
   /**
@@ -179,7 +212,7 @@ public final class CollideComponent implements Component {
    *
    * @param collideEnter new collideMethod of the associated entity
    */
-  public void collideEnter(TriConsumer<Entity, Entity, Tile.Direction> collideEnter) {
+  public void collideEnter(TriConsumer<Entity, Entity, Direction> collideEnter) {
     this.collideEnter = collideEnter;
   }
 
@@ -188,7 +221,7 @@ public final class CollideComponent implements Component {
    *
    * @param collideLeave new collideMethod of the associated entity
    */
-  public void collideLeave(TriConsumer<Entity, Entity, Tile.Direction> collideLeave) {
+  public void collideLeave(TriConsumer<Entity, Entity, Direction> collideLeave) {
     this.collideLeave = collideLeave;
   }
 

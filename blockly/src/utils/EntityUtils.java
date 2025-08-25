@@ -1,10 +1,10 @@
 package utils;
 
-import contrib.utils.Direction;
 import contrib.utils.LevelUtils;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 
 /** EntityUtils is a utility class that provides methods for entity-related operations. */
@@ -31,7 +31,7 @@ public class EntityUtils {
     Coordinate entityCoordinate = entityPos.coordinate();
     Coordinate otherCoordinate = otherPos.coordinate();
     if (entityCoordinate.equals(otherCoordinate)) return true;
-    Direction viewDirectionEntity = Direction.fromPositionCompDirection(entityPos.viewDirection());
+    Direction viewDirectionEntity = entityPos.viewDirection();
 
     return LevelUtils.canSee(entityCoordinate, otherCoordinate, viewDirectionEntity)
         && entityCoordinate.distance(otherCoordinate) < viewDistance;

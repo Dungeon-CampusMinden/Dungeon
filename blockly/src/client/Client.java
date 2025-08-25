@@ -6,7 +6,6 @@ import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
 import contrib.systems.BlockSystem;
-import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -14,10 +13,11 @@ import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
+import core.systems.InputSystem;
 import core.systems.LevelSystem;
-import core.systems.PlayerSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
@@ -34,9 +34,11 @@ import utils.BlocklyCodeRunner;
  */
 public class Client {
 
+  /** Force to apply for movement of all entities. */
+  public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
+
   private static final boolean DEBUG_MODE = false;
   private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
-  private static final boolean DRAW_CHECKER_PATTERN = true;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
@@ -121,7 +123,7 @@ public class Client {
           Crafting.loadRecipes();
 
           if (KEYBOARD_DEACTIVATION) {
-            Game.remove(PlayerSystem.class);
+            Game.remove(InputSystem.class);
           }
 
           LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
@@ -132,8 +134,6 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
-          if (DRAW_CHECKER_PATTERN)
-            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
           BlocklyCodeRunner.instance().stopCode();
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
@@ -170,6 +170,7 @@ public class Client {
     Game.add(new TintTilesSystem());
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
+    Game.add(new PressurePlateSystem());
     Game.add(
         new System() {
           @Override
@@ -201,7 +202,7 @@ public class Client {
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
   public static void createHero() {
-    Game.entityStream(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
+    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
     Entity hero;
     try {
       hero = HeroTankControlledFactory.newTankControlledHero();

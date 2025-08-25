@@ -1,5 +1,6 @@
 package contrib.systems;
 
+import contrib.components.FlyComponent;
 import contrib.components.HealthComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.Debugger;
@@ -51,7 +52,9 @@ public class FallingSystem extends System {
             .fetch(PositionComponent.class)
             .map(PositionComponent::position)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Tile currentTile = Game.tileAT(entityPosition);
+    if (entity.isPresent(FlyComponent.class)) return false;
+    Tile currentTile = Game.tileAt(entityPosition).orElse(null);
+
     if (currentTile instanceof PitTile pitTile) {
       return pitTile.isOpen();
     }

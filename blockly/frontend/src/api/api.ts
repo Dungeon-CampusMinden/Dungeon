@@ -187,3 +187,50 @@ export const call_level_route = async (levelName = ""): Promise<Level> => {
     block_blocks: data.length > 1 ? data.slice(1) : undefined,
   };
 }
+
+/**
+ * Call the code route of the server
+ *
+ * <p> This route is used to send the full program code to the server
+ *
+ * @param code The full program code to send to the server
+ *
+ * @returns true if the program was successfully started, false otherwise
+ */
+export const call_code_route = async (code: string): Promise<boolean> => {
+  console.log("Call Code route: ", code);
+  const code_response = await api.post(`code`, code);
+  const response = await handleResponse(code_response);
+  if (response.error !== "" && response.error !== "Programm unterbrochen!") {
+    console.error("Fehler beim Ausführen des Programms", response);
+  }
+  return response.error === "";
+};
+
+/**
+ * Checks the current execution status of the program code on the server.
+ *
+ * <p> This function sends a request to the `/status` endpoint on the server to determine whether
+ * the code is still running, has completed execution, or if an error occurred during the process.
+ *
+ * @returns `"running"` – if the code is currently being executed,
+ *          `"completed"` – if the code has finished executing,
+ *          `"error"` – if a server error occurred or an unexpected response was received.
+ */
+export const call_code_status_route = async (): Promise<"running" | "completed" | "error"> => {
+  const status_response = await api.post("status");
+  const response = await handleResponse(status_response);
+  if (response.error !== "" && response.error !== "Programm unterbrochen!") {
+    console.error("Fehler beim Ausführen des Programms", response);
+    return "error";
+  }
+
+  const status = response.data.trim();
+
+  if (status === "running" || status === "completed") {
+    return status;
+  }
+
+  console.warn("Unerwartete Antwort vom Server:", status);
+  return "error";
+}

@@ -1,10 +1,10 @@
 package level.produs;
 
 import contrib.hud.DialogUtils;
-import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -50,7 +50,7 @@ public class Level001 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.DOWN);
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(

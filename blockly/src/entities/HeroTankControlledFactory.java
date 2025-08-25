@@ -1,12 +1,13 @@
 package entities;
 
+import client.Client;
 import contrib.entities.EntityFactory;
-import contrib.utils.Direction;
 import core.Entity;
-import core.components.PlayerComponent;
+import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.configuration.KeyboardConfig;
+import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
@@ -27,26 +28,24 @@ public class HeroTankControlledFactory {
    */
   public static Entity newTankControlledHero() throws IOException {
     Entity hero = EntityFactory.newHero();
-    PlayerComponent pc =
-        hero.fetch(PlayerComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PlayerComponent.class));
+    InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls
-    pc.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
-    pc.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());
-    pc.removeCallback(KeyboardConfig.MOVEMENT_LEFT.value());
-    pc.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_LEFT.value());
+    ic.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
 
     // Add tank controls
-    pc.registerCallback(
+    ic.registerCallback(
         KeyboardConfig.MOVEMENT_UP.value(), HeroTankControlledFactory::moveEntityInFacingDirection);
 
     // Add rotation controls
-    pc.registerCallback(
+    ic.registerCallback(
         KeyboardConfig.MOVEMENT_LEFT.value(),
         (entity) -> BlocklyCommands.rotate(Direction.LEFT),
         false);
-    pc.registerCallback(
+    ic.registerCallback(
         KeyboardConfig.MOVEMENT_RIGHT.value(),
         (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
         false);
@@ -58,7 +57,7 @@ public class HeroTankControlledFactory {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    PositionComponent.Direction direction = pc.viewDirection();
+    Direction direction = pc.viewDirection();
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)
@@ -66,11 +65,11 @@ public class HeroTankControlledFactory {
 
     Vector2 newVelocity = Vector2.ZERO;
     switch (direction) {
-      case UP -> newVelocity = Vector2.of(0, vc.velocity().y());
-      case DOWN -> newVelocity = Vector2.of(0, -vc.velocity().y());
-      case LEFT -> newVelocity = Vector2.of(-vc.velocity().x(), 0);
-      case RIGHT -> newVelocity = Vector2.of(vc.velocity().x(), 0);
+      case UP -> newVelocity = Vector2.of(0, Client.MOVEMENT_FORCE.y());
+      case DOWN -> newVelocity = Vector2.of(0, -Client.MOVEMENT_FORCE.y());
+      case LEFT -> newVelocity = Vector2.of(-Client.MOVEMENT_FORCE.x(), 0);
+      case RIGHT -> newVelocity = Vector2.of(Client.MOVEMENT_FORCE.x(), 0);
     }
-    vc.currentVelocity(newVelocity);
+    vc.applyForce("MOVEMENT", newVelocity);
   }
 }

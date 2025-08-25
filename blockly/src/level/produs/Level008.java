@@ -5,11 +5,11 @@ import contrib.entities.LeverFactory;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.BlocklyMonster;
 import entities.MiscFactory;
@@ -57,7 +57,7 @@ public class Level008 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.heroViewDirection(PositionComponent.Direction.RIGHT);
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.zoomDefault();
@@ -65,15 +65,15 @@ public class Level008 extends BlocklyLevel {
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.UP);
+    guardBuilder.viewDirection(Direction.UP);
     guardBuilder.spawnPoint(customPoints().get(7).toCenteredPoint());
     guardBuilder.build();
     guardBuilder.range(5);
-    guardBuilder.viewDirection(PositionComponent.Direction.LEFT);
+    guardBuilder.viewDirection(Direction.LEFT);
     guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
     guardBuilder.build();
 
-    Entity s1 = MiscFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());
     Entity s3 = LeverFactory.createLever(customPoints().get(4).toCenteredPoint());
     Entity s4 = LeverFactory.createLever(customPoints().get(5).toCenteredPoint());
@@ -99,16 +99,16 @@ public class Level008 extends BlocklyLevel {
     Game.add(s4);
     Game.add(s5);
 
-    door1 = (DoorTile) Game.tileAT(new Coordinate(7, 15));
+    door1 = (DoorTile) Game.tileAt(new Coordinate(7, 15)).orElse(null);
     door1.close();
 
-    door2 = (DoorTile) Game.tileAT(new Coordinate(12, 17));
+    door2 = (DoorTile) Game.tileAt(new Coordinate(12, 17)).orElse(null);
     door2.close();
-    door3 = (DoorTile) Game.tileAT(new Coordinate(12, 12));
+    door3 = (DoorTile) Game.tileAt(new Coordinate(12, 12)).orElse(null);
     door3.close();
-    door4 = (DoorTile) Game.tileAT(new Coordinate(10, 9));
+    door4 = (DoorTile) Game.tileAt(new Coordinate(10, 9)).orElse(null);
     door4.close();
-    door5 = (DoorTile) Game.tileAT(new Coordinate(8, 5));
+    door5 = (DoorTile) Game.tileAt(new Coordinate(8, 5)).orElse(null);
     door5.close();
 
     Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));

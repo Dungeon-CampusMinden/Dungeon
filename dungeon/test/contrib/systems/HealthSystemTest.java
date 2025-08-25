@@ -34,7 +34,7 @@ public class HealthSystemTest {
   public void updateEntityDies() throws IOException {
     Game.removeAllEntities();
     Entity entity = new Entity();
-    Consumer<Entity> onDeath = Mockito.mock(Consumer.class);
+    Consumer<Entity> onDeath = entity1 -> Game.remove(entity1);
     DrawComponent ac = new DrawComponent(ANIMATION_PATH);
     HealthComponent component = new HealthComponent(1, onDeath);
     entity.add(ac);
@@ -46,7 +46,7 @@ public class HealthSystemTest {
 
     system.execute();
     assertTrue(ac.isAnimationQueued(AdditionalAnimations.DIE));
-    assertFalse(Game.entityStream().anyMatch(e -> e == entity));
+    assertFalse(Game.levelEntities().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */
@@ -66,7 +66,7 @@ public class HealthSystemTest {
     component.currentHealthpoints(0);
     system.execute();
     assertFalse(ac.isCurrentAnimation(AdditionalAnimations.DIE));
-    assertTrue(Game.entityStream().anyMatch(e -> e == entity));
+    assertTrue(Game.levelEntities().anyMatch(e -> e == entity));
   }
 
   /** WTF? . */

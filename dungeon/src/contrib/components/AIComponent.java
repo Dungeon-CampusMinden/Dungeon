@@ -1,12 +1,13 @@
 package contrib.components;
 
 import contrib.systems.AISystem;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
 import core.Component;
 import core.Entity;
+import core.utils.Vector2;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -22,7 +23,7 @@ import java.util.function.Function;
  * {@link PatrolWalk}.
  *
  * <p>The {@link #fightBehavior} defines the combat behaviour, e.g. attacking with a fireball skill
- * {@link contrib.utils.components.ai.fight.RangeAI}.
+ * {@link contrib.utils.components.ai.fight.AIRangeBehaviour}.
  *
  * <p>The {@link #shouldFight} defines when the entity goes into fight mode, e.g. if the player is
  * too close to the entity {@link RangeTransition}.
@@ -30,10 +31,33 @@ import java.util.function.Function;
  * @see AISystem
  */
 public final class AIComponent implements Component {
+
+  private static final Vector2 DEFAULT_SPEED = Vector2.of(5, 5);
   private final Consumer<Entity> fightBehavior;
   private final Consumer<Entity> idleBehavior;
   private final Function<Entity, Boolean> shouldFight;
+
+  private Vector2 movementForce;
   private boolean active = true;
+
+  /**
+   * Create an AIComponent with the given behavior.
+   *
+   * @param fightBehavior The combat behavior.
+   * @param idleBehavior The idle behavior.
+   * @param shouldFight Determines when to fight.
+   * @param movementForce Force to apply on the Ai-Entity for movement.
+   */
+  public AIComponent(
+      final Consumer<Entity> fightBehavior,
+      final Consumer<Entity> idleBehavior,
+      final Function<Entity, Boolean> shouldFight,
+      Vector2 movementForce) {
+    this.fightBehavior = fightBehavior;
+    this.idleBehavior = idleBehavior;
+    this.shouldFight = shouldFight;
+    this.movementForce = movementForce;
+  }
 
   /**
    * Create an AIComponent with the given behavior.
@@ -46,19 +70,17 @@ public final class AIComponent implements Component {
       final Consumer<Entity> fightBehavior,
       final Consumer<Entity> idleBehavior,
       final Function<Entity, Boolean> shouldFight) {
-    this.fightBehavior = fightBehavior;
-    this.idleBehavior = idleBehavior;
-    this.shouldFight = shouldFight;
+    this(fightBehavior, idleBehavior, shouldFight, DEFAULT_SPEED);
   }
 
   /**
    * Create an AIComponent with default behavior.
    *
    * <p>The default behavior uses {@link RadiusWalk} as the idle behavior, {@link RangeTransition}
-   * as the transition function, and {@link CollideAI} as the fight behavior.
+   * as the transition function, and {@link AIChaseBehaviour} as the fight behavior.
    */
   public AIComponent() {
-    this(new CollideAI(2f), new RadiusWalk(5, 2), new RangeTransition(5f));
+    this(new AIChaseBehaviour(2f), new RadiusWalk(5, 2), new RangeTransition(5f), DEFAULT_SPEED);
   }
 
   /**
@@ -110,5 +132,14 @@ public final class AIComponent implements Component {
    */
   public boolean active() {
     return this.active;
+  }
+
+  /**
+   * Returns the movement force vector currently acting on the entity.
+   *
+   * @return The movement force vector
+   */
+  public Vector2 movementForce() {
+    return movementForce;
   }
 }

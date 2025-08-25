@@ -8,6 +8,7 @@ import contrib.entities.WorldItemBuilder;
 import contrib.item.concreteItem.*;
 import core.Entity;
 import core.Game;
+import core.level.Tile;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
 import core.utils.components.draw.Animation;
@@ -174,12 +175,17 @@ public class Item implements CraftingIngredient, CraftingResult {
   }
 
   /**
-   * Get the display name of this item.
+   * Gets the display name of this item.
+   *
+   * <p>If there is more than one item in the stack, a prefix in the format "Count x DisplayName" is
+   * returned.
    *
    * @return The display name.
    */
   public String displayName() {
-    return this.displayName;
+    String prefix = "";
+    if (this.stackSize > 1) prefix = this.stackSize() + " x ";
+    return prefix.concat(this.displayName);
   }
 
   /**
@@ -288,7 +294,8 @@ public class Item implements CraftingIngredient, CraftingResult {
    * @return Whether the item was dropped successfully.
    */
   public boolean drop(final Point position) {
-    if (Game.tileAT(position) instanceof FloorTile) {
+    Tile tile = Game.tileAt(position).orElse(null);
+    if (tile instanceof FloorTile) {
       Game.add(WorldItemBuilder.buildWorldItem(this, position));
       return true;
     }

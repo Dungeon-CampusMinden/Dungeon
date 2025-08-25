@@ -107,7 +107,7 @@ public class Berry extends Item {
                 .filter(i -> i.equals(this))
                 .isPresent();
 
-    return Game.entityStream(Set.of(ItemComponent.class))
+    return Game.levelEntities(Set.of(ItemComponent.class))
         .filter(isThisBerry::test)
         .findFirst()
         .orElse(null);

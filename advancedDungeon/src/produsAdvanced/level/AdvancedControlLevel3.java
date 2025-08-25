@@ -84,8 +84,8 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
     Game.add(lever1);
     Game.add(lever2);
     Game.add(lever3);
-    door1 = (DoorTile) Game.tileAT(customPoints().get(3));
-    door2 = (DoorTile) Game.tileAT(customPoints().get(4));
+    door1 = (DoorTile) Game.tileAt(customPoints().get(3)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(customPoints().get(4)).orElse(null);
     door1.close();
     door2.close();
     customPoints().remove(0);
@@ -114,7 +114,7 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
     else door1.close();
     if (l2.isOn() && l3.isOn()) door2.open();
     else door2.close();
-    if (Game.entityStream(Set.of(AIComponent.class)).findAny().isEmpty()) exit.open();
+    if (Game.levelEntities(Set.of(AIComponent.class)).findAny().isEmpty()) exit.open();
   }
 
   private void addSign() {
@@ -128,7 +128,7 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
               // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
               if (currentIndex.get() < messages.size() - 1) {
                 currentIndex.incrementAndGet();
-                Game.entityStream(Set.of(SignComponent.class))
+                Game.levelEntities(Set.of(SignComponent.class))
                     .filter(signEntity -> signEntity.equals(entity))
                     .findFirst()
                     .ifPresent(

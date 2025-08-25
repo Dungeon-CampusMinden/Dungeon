@@ -2,7 +2,7 @@ package starter;
 
 import core.Game;
 import core.configuration.KeyboardConfig;
-import core.level.loader.BasicDungeonLevel;
+import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -22,7 +22,7 @@ public class BasicStarter {
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
-    DungeonLoader.addLevel(Tuple.of("maze", BasicDungeonLevel.class));
+    DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(true);
     Game.frameRate(30);

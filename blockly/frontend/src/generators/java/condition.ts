@@ -5,7 +5,7 @@ export function logic_boolean(
   block: Blockly.Block,
   _generator: Blockly.Generator
 ) {
-  const code = block.getFieldValue("BOOL") === "TRUE" ? "wahr" : "falsch";
+  const code = block.getFieldValue("BOOL") === "TRUE" ? "true" : "false";
   return [code, Order.NONE];
 }
 
@@ -36,7 +36,7 @@ export function not_condition(
   generator: Blockly.Generator
 ) {
   const input_a = generator.valueToCode(block, "INPUT_A", Order.NONE);
-  const code = 'nicht ' + input_a;
+  const code = '!' + input_a;
   return [code, Order.NONE];
 }
 
@@ -45,7 +45,7 @@ export function logic_wall_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "naheWand(" + dir + ")";
+  const code = "hero.isNearTile(LevelElement.WALL, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -54,7 +54,7 @@ export function logic_floor_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "naheBoden(" + dir + ")";
+  const code = "hero.isNearTile(LevelElement.FLOOR, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -63,7 +63,7 @@ export function logic_pit_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "nahePit(" + dir + ")";
+  const code = "hero.isNearTile(LevelElement.PIT, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -72,7 +72,7 @@ export function logic_monster_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "naheMonster(" + dir + ")";
+  const code = "hero.isNearComponent(AIComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 export function logic_switch_direction(
@@ -80,7 +80,7 @@ export function logic_switch_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "naheSchalter(" + dir + ")";
+  const code = "hero.isNearComponent(LeverComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -89,7 +89,7 @@ export function logic_breadcrumbs_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "naheBrotkrume(" + dir + ")";
+  const code = "hero.isNearComponent(BreadcrumbComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -98,7 +98,7 @@ export function logic_clover_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "naheKleeblatt(" + dir + ")";
+  const code = "hero.isNearComponent(CloverComponent.class, " + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -107,7 +107,7 @@ export function logic_active_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "aktiv(" + dir + ")";
+  const code = "hero.active(" + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -116,7 +116,7 @@ export function logic_bossView_direction(
   generator: Blockly.Generator
 ) {
   const dir = generator.valueToCode(block, "DIRECTION", Order.NONE);
-  const code = "bossBlickrichtung(" + dir + ")";
+  const code = "hero.checkBossViewDirection(" + dir + ")";
   return [code, Order.NONE];
 }
 
@@ -144,7 +144,7 @@ export function controls_if(
     }
     code +=
       (n > 0 ? " else " : "") +
-      "falls (" +
+      "if (" +
       conditionCode +
       ") {\n" +
       branchCode +
@@ -161,7 +161,7 @@ export function controls_if(
           generator.INDENT
         ) + branchCode;
     }
-    code += "sonst {\n" + branchCode + "\n}";
+    code += "else {\n" + branchCode + "\n}";
   }
   return code;
 }

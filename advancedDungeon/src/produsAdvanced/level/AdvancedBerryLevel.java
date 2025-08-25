@@ -150,7 +150,12 @@ public class AdvancedBerryLevel extends AdvancedLevel {
             new Berry(isToxic),
             Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
     berry.name("Berry");
-    HealthComponent health = new HealthComponent(999, (entity -> {}));
+    HealthComponent health =
+        new HealthComponent(
+            999,
+            (entity -> {
+              Game.remove(entity);
+            }));
     berry.add(health);
     makeInvincible(berry);
     berry.add(new CollideComponent());
@@ -293,7 +298,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
                   nextIndex = currentIndex.incrementAndGet();
                 }
                 final int idx = nextIndex;
-                Game.entityStream(Set.of(SignComponent.class))
+                Game.levelEntities(Set.of(SignComponent.class))
                     .filter(signEntity -> signEntity.equals(entity))
                     .findFirst()
                     .ifPresent(

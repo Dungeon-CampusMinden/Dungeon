@@ -15,7 +15,6 @@ import contrib.entities.MonsterIdleSound;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
-import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
@@ -23,13 +22,14 @@ import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.loader.DungeonLevel;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
+import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
+import core.systems.InputSystem;
 import core.systems.LevelSystem;
-import core.systems.PlayerSystem;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -37,12 +37,12 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
 /** This class starts a comparator for the pathfinding algorithms. */
 public class ComparePathfindingStarter {
-  private static final boolean DRAW_CHECKER_PATTERN = true;
   private static final Entity[] RUNNERS = new Entity[2];
 
   private static final Class<? extends PathfindingLogic> pathFindingA = BFSPathFinding.class;
@@ -62,9 +62,6 @@ public class ComparePathfindingStarter {
     configGame();
     // Set up components and level
     onSetup();
-
-    onLevelLoad();
-
     // build and start game
     Game.run();
   }
@@ -81,7 +78,7 @@ public class ComparePathfindingStarter {
 
           Game.system(
               LevelSystem.class, ls -> ls.onEndTile(ComparePathfindingStarter::loadNextLevel));
-          Game.remove(PlayerSystem.class);
+          Game.remove(InputSystem.class);
           loadNextLevel();
 
           // Wait for Level to Load
@@ -90,7 +87,7 @@ public class ComparePathfindingStarter {
   }
 
   private static void adjustWindowSize() {
-    Tile[][] layout = Game.currentLevel().layout();
+    Tile[][] layout = Game.currentLevel().orElse(null).layout();
     int levelHeight = layout.length;
 
     Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
@@ -117,7 +114,7 @@ public class ComparePathfindingStarter {
 
   private static void loadNextLevel() {
     DungeonLoader.loadNextLevel();
-    Tile[][] curLevel = Game.currentLevel().layout();
+    Tile[][] curLevel = Game.currentLevel().orElse(null).layout();
 
     // Create duplicated level layout
     LevelElement[][] newLevel = duplicateLevelVertically(curLevel);
@@ -129,8 +126,8 @@ public class ComparePathfindingStarter {
     Game.currentLevel(
         new AiMazeLevel(
             newLevel,
-            Game.currentLevel().designLabel(),
-            ((DungeonLevel) Game.currentLevel()).customPoints()));
+            Game.currentLevel().flatMap(ILevel::designLabel).orElse(DesignLabel.DEFAULT),
+            Game.currentLevel().map(ILevel::customPoints).orElse(Collections.emptyList())));
 
     // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());
@@ -195,7 +192,7 @@ public class ComparePathfindingStarter {
             if (runner == null) continue;
 
             Coordinate spawn = runner.fetch(PositionComponent.class).orElseThrow().coordinate();
-            Coordinate end = Game.currentLevel().endTile().orElseThrow().coordinate();
+            Coordinate end = Game.endTile().orElseThrow().coordinate();
 
             if (i == 1) {
               end = end.translate(Vector2.of(0, rows + 1));
@@ -207,14 +204,6 @@ public class ComparePathfindingStarter {
             algorithms.add(Tuple.of(algo, runner));
           }
           pfs.updatePathfindingAlgorithm(algorithms.toArray(Tuple[]::new));
-        });
-  }
-
-  private static void onLevelLoad() {
-    Game.userOnLevelLoad(
-        (firstLoad) -> {
-          if (DRAW_CHECKER_PATTERN)
-            CheckPatternPainter.paintCheckerPattern(Game.currentLevel().layout());
         });
   }
 

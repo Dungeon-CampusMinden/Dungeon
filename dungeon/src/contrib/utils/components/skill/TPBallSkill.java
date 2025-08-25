@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 public final class TPBallSkill extends DamageProjectile {
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
-  private static final float PROJECTILE_SPEED = 7.0f;
+  private static final float PROJECTILE_SPEED = 6.0f;
   private static final int DAMAGE_AMOUNT = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);

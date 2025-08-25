@@ -7,7 +7,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.level.elements.ILevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -26,7 +26,7 @@ public class InteractionToolTest {
         layout[y][x] = LevelElement.FLOOR;
       }
     }
-    return new TileLevel(layout, DesignLabel.DEFAULT);
+    return new DungeonLevel(layout, DesignLabel.DEFAULT);
   }
 
   /**

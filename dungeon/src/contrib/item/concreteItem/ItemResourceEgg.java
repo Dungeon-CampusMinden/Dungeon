@@ -30,7 +30,7 @@ public class ItemResourceEgg extends Item {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.remove(this);
+              component.removeOne(this);
               try {
                 Entity monster = EntityFactory.randomMonster();
                 monster

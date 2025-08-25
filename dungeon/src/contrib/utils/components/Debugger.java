@@ -7,7 +7,7 @@ import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
-import contrib.utils.components.ai.fight.CollideAI;
+import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
@@ -21,9 +21,9 @@ import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import core.utils.logging.CustomLogLevel;
@@ -72,13 +72,13 @@ public class Debugger {
             end -> {
               Coordinate endTile = end.coordinate();
               Coordinate[] neighborTiles = {
-                endTile.translate(Vector2.UP),
-                endTile.translate(Vector2.DOWN),
-                endTile.translate(Vector2.LEFT),
-                endTile.translate(Vector2.RIGHT),
+                endTile.translate(Direction.UP),
+                endTile.translate(Direction.DOWN),
+                endTile.translate(Direction.LEFT),
+                endTile.translate(Direction.RIGHT),
               };
               for (Coordinate neighborTile : neighborTiles) {
-                Tile neighbor = Game.tileAT(neighborTile);
+                Tile neighbor = Game.tileAt(neighborTile).orElse(null);
                 if (neighbor.isAccessible()) {
                   TELEPORT(neighbor);
                   return;
@@ -125,7 +125,7 @@ public class Debugger {
 
       // Attempt to teleport to targetLocation
       LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
-      Tile t = Game.tileAT(targetLocation);
+      Tile t = Game.tileAt(targetLocation).orElse(null);
       if (t == null || !t.isAccessible()) {
         LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
         return;
@@ -151,7 +151,7 @@ public class Debugger {
     // Get the tile at the given position
     Tile tile = null;
     try {
-      tile = Game.tileAT(position);
+      tile = Game.tileAt(position).orElse(null);
     } catch (NullPointerException ex) {
       LOGGER.info(ex.getMessage());
     }
@@ -167,11 +167,12 @@ public class Debugger {
       } catch (IOException e) {
         LOGGER.warning("The DrawComponent for the chort cant be created. " + e.getMessage());
       }
-      monster.add(new VelocityComponent(Vector2.ONE));
+      monster.add(new VelocityComponent(1));
       monster.add(new HealthComponent());
       monster.add(new CollideComponent());
       monster.add(
-          new AIComponent(new CollideAI(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
+          new AIComponent(
+              new AIChaseBehaviour(1), new RadiusWalk(5, 1), new SelfDefendTransition()));
 
       Game.add(monster);
       // Log that the monster was spawned

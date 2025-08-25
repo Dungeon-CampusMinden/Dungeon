@@ -10,6 +10,7 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -99,7 +100,7 @@ public enum BlocklyMonster {
       "Blockly Black Knight",
       "character/knight",
       3,
-      0.0f,
+      0f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
       () -> entity -> {},
@@ -184,10 +185,12 @@ public enum BlocklyMonster {
   public static class BlocklyMonsterBuilder {
     private final BlocklyMonster monsterType;
     private Point spawnPoint = new Point(0, 0);
-    private PositionComponent.Direction viewDirection = PositionComponent.Direction.DOWN;
+    private Direction viewDirection = Direction.DOWN;
     private int range = -1; // -1 means use default range
     private int maxHealth;
     private int collideDamage;
+
+    private float speed = -1; // <0 means use default speed
     private boolean addToGame = false;
 
     /**
@@ -218,7 +221,7 @@ public enum BlocklyMonster {
      * @param viewDirection The direction the monster should face.
      * @return This builder for method chaining.
      */
-    public BlocklyMonsterBuilder viewDirection(PositionComponent.Direction viewDirection) {
+    public BlocklyMonsterBuilder viewDirection(Direction viewDirection) {
       this.viewDirection = viewDirection;
       return this;
     }
@@ -231,6 +234,17 @@ public enum BlocklyMonster {
      */
     public BlocklyMonsterBuilder range(int range) {
       this.range = range;
+      return this;
+    }
+
+    /**
+     * Maximum movement speed of the monster.
+     *
+     * @param speed The movement speed to set for the monster
+     * @return This builder instance for method chaining.
+     */
+    public BlocklyMonsterBuilder speed(float speed) {
+      this.speed = speed;
       return this;
     }
 
@@ -282,7 +296,7 @@ public enum BlocklyMonster {
                 monsterType.name,
                 monsterType.texture,
                 this.maxHealth,
-                monsterType.speed,
+                (this.speed < 0) ? monsterType.speed : this.speed,
                 monsterType.itemChance,
                 monsterType.deathSound,
                 new AIComponent(

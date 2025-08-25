@@ -5,6 +5,7 @@ import core.Entity;
 import core.System;
 import core.components.PlayerComponent;
 import core.level.elements.ILevel;
+import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import java.util.*;
 import java.util.function.Consumer;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
  * <p>For System management use: {@link #add(System)}, {@link #remove(Class)} or {@link
  * #removeAllSystems()}
  *
- * <p>Get access via: {@link #entityStream()}, {@link #systems()}
+ * <p>Get access via: {@link #levelEntities()}, {@link #systems()}
  *
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
@@ -46,24 +47,39 @@ public final class ECSManagment {
    * @param entity the entity that has changes in its Component Collection.
    */
   public static void informAboutChanges(Entity entity) {
-    if (entityStream().anyMatch(entity1 -> entity1.equals(entity))) {
+    if (levelEntities().anyMatch(entity1 -> entity1.equals(entity))) {
       activeEntityStorage.forEach(f -> f.update(entity));
-      LOGGER.info("Entity: " + entity + " informed the Game about component changes.");
+      LOGGER.info(entity + " informed the Game about component changes.");
     }
   }
 
   /**
    * The given entity will be added to the game.
    *
+   * <p>If given entity has an id that is already used by another entity, an {@link
+   * IllegalArgumentException} will be thrown.
+   *
    * <p>For each {@link System}, it will be checked if the {@link System} will process this entity.
    *
    * <p>If necessary, the {@link System} will trigger {@link System#triggerOnAdd(Entity)} .
    *
    * @param entity the entity to add.
+   * @return added entity for chaining
+   * @throws IllegalArgumentException if an entity with the same id already exists in the game.
    */
-  public static void add(Entity entity) {
+  public static Entity add(Entity entity) {
+    // Prevent duplicate IDs for different entity instances
+    boolean duplicateIdExists = allEntities().anyMatch(e -> e != entity && e.id() == entity.id());
+    if (duplicateIdExists)
+      throw new IllegalArgumentException(
+          "An Entity with id " + entity.id() + " already exists in the game.");
+
+    // Ensure the provider knows about this id (idempotent).
+    EntityIdProvider.ensureRegistered(entity.id());
+
     activeEntityStorage.forEach(f -> f.add(entity));
-    LOGGER.info("Entity: " + entity + " will be added to the Game.");
+    LOGGER.info(entity + " will be added to the Game.");
+    return entity;
   }
 
   /**
@@ -72,10 +88,13 @@ public final class ECSManagment {
    * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
    *
    * @param entity the entity to remove
+   * @return removed entity for chaining
    */
-  public static void remove(Entity entity) {
+  public static Entity remove(Entity entity) {
     activeEntityStorage.forEach(f -> f.remove(entity));
-    LOGGER.info("Entity: " + entity + " will be removed from the Game.");
+    EntityIdProvider.unregister(entity.id());
+    LOGGER.info(entity + " will be removed from the Game.");
+    return entity;
   }
 
   /**
@@ -97,7 +116,7 @@ public final class ECSManagment {
       Set<Class<? extends Component>> filter) {
     EntitySystemMapper mapper = new EntitySystemMapper(filter);
     activeEntityStorage.add(mapper);
-    entityStream().forEach(mapper::add);
+    levelEntities().forEach(mapper::add);
     return mapper;
   }
 
@@ -173,12 +192,12 @@ public final class ECSManagment {
   }
 
   /**
-   * Use this stream if you want to iterate over all currently active entities.
+   * Use this stream if you want to iterate over all entities in the current level.
    *
-   * @return a stream of all entities currently in the game
+   * @return a stream of all entities currently in the level
    */
-  public static Stream<Entity> entityStream() {
-    return entityStream(new HashSet<>());
+  public static Stream<Entity> levelEntities() {
+    return levelEntities(new HashSet<>());
   }
 
   /**
@@ -189,17 +208,18 @@ public final class ECSManagment {
    * @return a stream of all entities currently in the game that should be processed by the given
    *     system.
    */
-  public static Stream<Entity> entityStream(final System system) {
-    return entityStream(system.filterRules());
+  public static Stream<Entity> levelEntities(final System system) {
+    return levelEntities(system.filterRules());
   }
 
   /**
-   * Use this stream if you want to iterate over all entities that contain the given components.
+   * Use this stream if you want to iterate over all entities in the current level, that contain the
+   * given components.
    *
    * @param filter Set of Component classes that define the filter rules.
-   * @return a stream of all entities currently in the game that contains the given components.
+   * @return a stream of all entities currently in the level, that contains the given components.
    */
-  public static Stream<Entity> entityStream(Set<Class<? extends Component>> filter) {
+  public static Stream<Entity> levelEntities(Set<Class<? extends Component>> filter) {
     Stream<Entity> returnStream;
     Optional<EntitySystemMapper> rf =
         activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
@@ -212,11 +232,13 @@ public final class ECSManagment {
   }
 
   /**
-   * @return the player character, can be null if not initialized
-   * @see Optional
+   * Searches the current level for the player character.
+   *
+   * @return an {@link Optional} containing the player character from the current level, or an empty
+   *     {@code Optional} if none is present
    */
   public static Optional<Entity> hero() {
-    return entityStream().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
+    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
   }
 
   /**
@@ -242,9 +264,11 @@ public final class ECSManagment {
   }
 
   /**
-   * Use this stream if you want to iterate over all active entities.
+   * Use this stream if you want to iterate over all entities in the game.
    *
-   * <p>Use {@link #entityStream()} if you want to iterate over all active entities.
+   * <p>This will return <strong>all</strong> entities, not just those in the current level.
+   *
+   * <p>Use {@link #levelEntities()} instead if you only want the entities of the current level.
    *
    * @return a stream of all entities currently in the game
    */
@@ -261,24 +285,56 @@ public final class ECSManagment {
   }
 
   /**
-   * Find the entity that contains the given component instance.
+   * Finds the entity that contains the given component instance.
    *
-   * @param component Component instance where the entity is searched for.
-   * @return An Optional containing the found Entity, or an empty Optional if not found.
+   * <p>This searches across all entities in the game, not just those in the current level.
+   *
+   * @param component the component instance whose owning entity should be located
+   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
+   *     is found
    */
-  public static Optional<Entity> find(final Component component) {
+  public static Optional<Entity> findInAll(final Component component) {
     return allEntities()
         .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
         .findFirst();
   }
 
   /**
-   * Try to find the entity in the game.
+   * Finds the entity that contains the given component instance.
    *
-   * @param entity The entity to search for.
-   * @return True if the entity is found, false otherwise.
+   * <p>This searches across all entities in the current level.
+   *
+   * @param component the component instance whose owning entity should be located
+   * @return an {@link Optional} containing the found entity, or an empty {@code Optional} if none
+   *     is found
    */
-  public static boolean findEntity(Entity entity) {
+  public static Optional<Entity> findInLevel(final Component component) {
+    return levelEntities()
+        .filter(entity -> entity.fetch(component.getClass()).map(component::equals).orElse(false))
+        .findFirst();
+  }
+
+  /**
+   * Tries to find the given entity in the game.
+   *
+   * <p>This searches across all entities in the game, not just those in the current level.
+   *
+   * @param entity the entity to search for
+   * @return {@code true} if the entity is found, {@code false} otherwise
+   */
+  public static boolean existInAll(Entity entity) {
     return allEntities().anyMatch(entity1 -> entity1.equals(entity));
+  }
+
+  /**
+   * Tries to find the given entity in the game.
+   *
+   * <p>This searches in the current level.
+   *
+   * @param entity the entity to search for
+   * @return {@code true} if the entity is found, {@code false} otherwise
+   */
+  public static boolean existInLevel(Entity entity) {
+    return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
   }
 }

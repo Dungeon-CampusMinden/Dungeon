@@ -6,7 +6,9 @@ import {
   call_clear_route, call_level_route,
   call_reset_route,
   call_start_route,
-  call_variables_route
+  call_variables_route,
+  call_code_route,
+  call_code_status_route
 } from "../api/api.ts";
 import {completeLevel, getCurrentLevel} from "./level.ts";
 let startBlock: Blockly.Block | null = null;
@@ -221,30 +223,50 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
 
     workspace.highlightBlock(null);
     currentBlock = getStartBlock(workspace);
-    let first = true;
+
+    // collect all code snippets
+    const codeSnippets: string[] = [];
     while (currentBlock !== null) {
       // Highlight current block
-      if (currentBlock) {
-        workspace.highlightBlock(currentBlock.id);
+      workspace.highlightBlock(currentBlock.id);
+
+      // Skip the start block itself
+      if (currentBlock.type !== "start") {
+        const snippet = javaGenerator.blockToCode(currentBlock, true) as string;
+        codeSnippets.push(snippet.trim());
       }
-      // Do nothing except highlighting on start block
-      if (currentBlock.type === "start") {
-        currentBlock = currentBlock.getNextBlock();
-        continue;
-      }
 
-      // Get code of the current block
-      const currentCode = javaGenerator.blockToCode(currentBlock, true);
-
-      const apiResponse = await call_start_route(currentCode as string, currentBlock, first);
-      first = false;
-      if (!apiResponse) break;
-
-      await call_variables_route();
-
-      // Get next block and sleep x seconds
       currentBlock = currentBlock.getNextBlock();
-      await sleep(sleepingTime);
+    }
+
+    // send the full program in a single request
+    const fullProgram = codeSnippets.join("\n");
+
+    const apiResponse = await call_code_route(fullProgram);
+    if (!apiResponse) {
+      await call_clear_route();
+      workspace.highlightBlock(null);
+      buttons.startBtn.disabled = false;
+      buttons.stepBtn.disabled = false;
+      return;
+    }
+
+    //wait for the full programm code to run
+    let status = await call_code_status_route();
+    let codeRunning = true;
+    while(codeRunning) {
+      if (status === "running") {
+        console.log("code still running");
+        await sleep(sleepingTime);
+      } else if (status === "completed") {
+        console.log("code execution completed");
+        codeRunning = false;
+      } else if (status === "error"){
+        console.error("Error while running code: " + codeRunning);
+        codeRunning = false;
+      }
+
+      status = await call_code_status_route();
     }
 
     // Check if we reach next level
@@ -254,8 +276,6 @@ const setupStartButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg, del
       completeLevel();
     }
 
-    // Reset values in backend
-    await call_clear_route();
 
     workspace.highlightBlock(null);
     // Enable button again

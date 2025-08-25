@@ -51,6 +51,11 @@ public class ExitTile extends Tile {
     this.open = false;
   }
 
+  @Override
+  public boolean isAccessible() {
+    return isOpen();
+  }
+
   /**
    * Check if the exit is open.
    *

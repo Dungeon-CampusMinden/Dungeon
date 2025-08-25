@@ -33,7 +33,7 @@ public class ItemPotionWater extends Item {
     e.fetch(InventoryComponent.class)
         .ifPresent(
             component -> {
-              component.remove(this);
+              component.removeOne(this);
               e.fetch(HealthComponent.class)
                   .ifPresent(hc -> hc.receiveHit(new Damage(-HEAL_AMOUNT, DamageType.HEAL, null)));
             });

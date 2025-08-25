@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import core.Game;
-import core.level.TileLevel;
+import core.level.DungeonLevel;
 import core.systems.LevelSystem;
 import core.utils.IVoidFunction;
 import core.utils.Point;
@@ -30,7 +30,7 @@ public class LevelUtilsTest {
     Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
 
     Game.currentLevel(
-        new TileLevel(
+        new DungeonLevel(
             new LevelElement[][] {
               new LevelElement[] {
                 LevelElement.WALL,

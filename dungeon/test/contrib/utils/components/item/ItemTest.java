@@ -9,8 +9,8 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.level.DungeonLevel;
 import core.level.Tile;
-import core.level.TileLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
@@ -38,8 +38,8 @@ public class ItemTest {
   public void before() {
     Game.add(new LevelSystem(Mockito.mock(IVoidFunction.class)));
 
-    TileLevel level =
-        new TileLevel(
+    DungeonLevel level =
+        new DungeonLevel(
             new LevelElement[][] {
               new LevelElement[] {
                 LevelElement.FLOOR,
@@ -123,7 +123,7 @@ public class ItemTest {
   public void testConstructorSixParameter() {
     Item item =
         new Item("Test item 3", "More description", inventoryAnimation, worldAnimation, 2, 6);
-    assertEquals(item.displayName(), "Test item 3");
+    assertEquals(item.displayName(), "2 x Test item 3");
     assertEquals(item.description(), "More description");
     assertEquals(item.inventoryAnimation(), inventoryAnimation);
     assertEquals(item.worldAnimation(), worldAnimation);
@@ -192,8 +192,8 @@ public class ItemTest {
 
     Point point = new Point(3, 3);
     item.drop(point);
-    assertEquals(1, Game.entityStream().count());
-    Entity worldItem = Game.entityStream().findFirst().get();
+    assertEquals(1, Game.levelEntities().count());
+    Entity worldItem = Game.levelEntities().findFirst().get();
     assertTrue(worldItem.isPresent(PositionComponent.class));
     assertTrue(worldItem.fetch(PositionComponent.class).get().position().equals(point));
     assertTrue(worldItem.isPresent(DrawComponent.class));
@@ -203,14 +203,14 @@ public class ItemTest {
   /** Tests if item is present in inventory and removed from Game world after collect. */
   @Test
   public void testCollect() {
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
     Entity collector = new Entity();
     collector.add(new InventoryComponent(3));
-    Entity worldItem = Game.entityStream().findFirst().get();
+    Entity worldItem = Game.levelEntities().findFirst().get();
 
     assertTrue(item.collect(worldItem, collector));
 
@@ -220,38 +220,38 @@ public class ItemTest {
             .map(inventoryComponent -> inventoryComponent.hasItem(item))
             .get());
 
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
   }
 
   /** Tests if item can be collected from entity with no InventoryComponent. */
   @Test
   public void testCollectNoInventory() {
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
     Entity collector = new Entity();
-    Entity worldItem = Game.entityStream().findFirst().get();
+    Entity worldItem = Game.levelEntities().findFirst().get();
 
     assertFalse(item.collect(worldItem, collector));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
   }
 
   /** Tests if item can be collected from entity with full inventory. */
   @Test
   public void testCollectFullInventory() {
-    assertEquals(0, Game.entityStream().count());
+    assertEquals(0, Game.levelEntities().count());
 
     Item item = new Item("Test item", "Test description", defaultAnimation);
     item.drop(new Point(0, 0));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
     Entity collector = new Entity();
     collector.add(new InventoryComponent(0));
-    Entity worldItem = Game.entityStream().findFirst().get();
+    Entity worldItem = Game.levelEntities().findFirst().get();
 
     assertFalse(item.collect(worldItem, collector));
-    assertEquals(1, Game.entityStream().count());
+    assertEquals(1, Game.levelEntities().count());
   }
 
   /** Tests if item is removed from inventory after use. */

@@ -16,29 +16,6 @@ tasks.register('runDevDungeon', JavaExec) {
     mainClass = 'starter.DevDungeon'
     classpath = sourceSets.main.runtimeClasspath
 }
-tasks.register('buildDevDungeonJar', Jar) {
-    group 'jar'
-    dependsOn ':dungeon:jar'
-    archiveBaseName = 'DevDungeon'
-    from sourceSets.main.output
-    from project(':dungeon').sourceSets.main.output
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    manifest {
-        attributes 'Main-Class': 'starter.DevDungeon'
-    }
-
-    archiveFileName = 'DevDungeon.jar'
-
-    into('assets') {
-        from new File(project(':dungeon').projectDir, '/assets')
-    }
-
-    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-}
 
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')

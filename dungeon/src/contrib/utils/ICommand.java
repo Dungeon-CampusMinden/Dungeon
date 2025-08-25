@@ -21,10 +21,6 @@ public interface ICommand {
   /** Executes the command. */
   void execute();
 
-  /**
-   * Undoes the command.
-   *
-   * <p>The default implementation does nothing.
-   */
+  /** Undoes the command. */
   void undo();
 }

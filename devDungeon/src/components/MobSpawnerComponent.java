@@ -1,7 +1,7 @@
 package components;
 
 import core.Component;
-import core.Game;
+import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.utils.Point;
 import entities.MonsterType;
@@ -66,8 +66,7 @@ public class MobSpawnerComponent implements Component {
   }
 
   private void setNextSpawnDelay() {
-    this.currentSpawnDelay =
-        Game.currentLevel().RANDOM.nextInt(maxSpawnDelay - minSpawnDelay) + minSpawnDelay;
+    this.currentSpawnDelay = ILevel.RANDOM.nextInt(maxSpawnDelay - minSpawnDelay) + minSpawnDelay;
   }
 
   /**
@@ -79,7 +78,7 @@ public class MobSpawnerComponent implements Component {
    * @return A random MonsterType from the array of monster types.
    */
   private MonsterType getRandomMonsterType() {
-    return monsterTypes[Game.currentLevel().RANDOM.nextInt(monsterTypes.length)];
+    return monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
   }
 
   /**

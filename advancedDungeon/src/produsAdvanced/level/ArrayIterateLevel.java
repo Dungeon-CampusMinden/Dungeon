@@ -153,14 +153,14 @@ public class ArrayIterateLevel extends AdvancedLevel {
   }
 
   private void closeDoor(Point position) {
-    Tile tile = Game.tileAT(position);
+    Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof DoorTile) {
       ((DoorTile) tile).close();
     }
   }
 
   private void openDoor(Point position) {
-    Tile tile = Game.tileAT(position);
+    Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof DoorTile) {
       ((DoorTile) tile).open();
     }

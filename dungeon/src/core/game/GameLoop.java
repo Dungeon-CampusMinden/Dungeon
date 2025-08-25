@@ -11,12 +11,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.*;
+import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.CoreAnimationPriorities;
@@ -65,7 +67,7 @@ public final class GameLoop extends ScreenAdapter {
         ECSManagment.removeAllSystems();
         ECSManagment.activeEntityStorage(
             ECSManagment.levelStorageMap()
-                .computeIfAbsent(Game.currentLevel(), k -> new HashSet<>()));
+                .computeIfAbsent(Game.currentLevel().orElse(null), k -> new HashSet<>()));
         // readd the systems so that each triggerOnAdd(entity) will be called (basically
         // setup). This will also create new EntitySystemMapper if needed.
         s.values().forEach(ECSManagment::add);
@@ -75,7 +77,12 @@ public final class GameLoop extends ScreenAdapter {
         } catch (MissingComponentException e) {
           LOGGER.warning(e.getMessage());
         }
-        hero.ifPresent(ECSManagment::add);
+        ECSManagment.allEntities()
+            .filter(entity -> entity.isPersistent())
+            .map(ECSManagment::remove)
+            .forEach(ECSManagment::add);
+        if (firstLoad && Game.isCheckPatternEnabled())
+          CheckPatternPainter.paintCheckerPattern(Game.currentLevel().orElse(null).layout());
         PreRunConfiguration.userOnLevelLoad().accept(firstLoad);
       };
 
@@ -223,8 +230,11 @@ public final class GameLoop extends ScreenAdapter {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    pc.position(Game.startTile().orElseThrow());
-    pc.viewDirection(PositionComponent.Direction.DOWN); // look down by default
+    Game.startTile()
+        .ifPresentOrElse(
+            pc::position, () -> LOGGER.warning("No start tile found for the current level"));
+
+    pc.viewDirection(Direction.DOWN); // look down by default
 
     // reset animations
     DrawComponent dc =
@@ -262,6 +272,8 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new LevelSystem(onLevelLoad));
     ECSManagment.add(new DrawSystem());
     ECSManagment.add(new VelocitySystem());
-    ECSManagment.add(new PlayerSystem());
+    ECSManagment.add(new FrictionSystem());
+    ECSManagment.add(new MoveSystem());
+    ECSManagment.add(new InputSystem());
   }
 }
