@@ -110,8 +110,12 @@ public class Level01 extends DungeonLevel {
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    OkDialog.showOkDialog(
-                                        hintSystem.nextHint().text(), "Hint", () -> {}),
+                                    hintSystem
+                                        .nextHint()
+                                        .ifPresent(
+                                            hint ->
+                                                OkDialog.showOkDialog(
+                                                    hint.text(), hint.titel(), () -> {})),
                                 false,
                                 true)));
 

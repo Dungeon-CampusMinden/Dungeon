@@ -4,6 +4,7 @@ import core.Entity;
 import core.System;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import petriNet.PlaceComponent;
 
@@ -46,9 +47,6 @@ import petriNet.PlaceComponent;
  * allows hints to be provided fairly and in the order entities became eligible (i.e., had tokens).
  */
 public class HintSystem extends System {
-
-  /** Hint to return if there is no hint left. */
-  public static final Hint NO_HINT = new Hint("No Hints", "There are not hints");
 
   private final Set<Entity> hintQueue = new LinkedHashSet<>();
 
@@ -95,20 +93,22 @@ public class HintSystem extends System {
   }
 
   /**
-   * Returns the next hint from the current entity in the queue.
+   * Returns the next {@link Hint} from the current entity in the queue.
    *
-   * <p>If the current entity has no more hints, the system automatically moves to the next entity
-   * in the queue. If all entities have been exhausted, the method returns {@link #NO_HINT}.
+   * <p>If the current entity has no remaining hints, the system automatically advances to the next
+   * entity in the queue. If all entities have been exhausted, this method returns {@link
+   * Optional#empty()}.
    *
-   * @return the next hint string, or the {@link #NO_HINT} if no hint is left.
+   * @return an {@link Optional} containing the next hint if available, or {@link Optional#empty()}
+   *     if no more hints remain
    */
-  public Hint nextHint() {
+  public Optional<Hint> nextHint() {
     if (currentHint == null) {
       currentHint = fetchNextEntityHint();
-      if (currentHint == null) return NO_HINT;
+      if (currentHint == null) return Optional.empty();
     }
 
-    Hint hint = currentHint.hint().orElse(NO_HINT);
+    Optional<Hint> hint = currentHint.hint();
     currentHint.increaseIndex();
 
     if (currentHint.isLastHintShown()) {

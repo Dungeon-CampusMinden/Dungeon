@@ -67,15 +67,15 @@ class HintSystemTest {
    */
   @Test
   void testNextHintOrder() {
-    assertEquals(hint1_1, hintSystem.nextHint());
+    assertEquals(hint1_1, hintSystem.nextHint().get());
     hintSystem.execute();
-    assertEquals(hint1_2, hintSystem.nextHint());
+    assertEquals(hint1_2, hintSystem.nextHint().get());
     hintSystem.execute();
-    assertEquals(hint2_1, hintSystem.nextHint());
+    assertEquals(hint2_1, hintSystem.nextHint().get());
     hintSystem.execute();
-    assertEquals(hint1_1, hintSystem.nextHint());
+    assertEquals(hint1_1, hintSystem.nextHint().get());
     hintSystem.execute();
-    assertEquals(hint1_2, hintSystem.nextHint());
+    assertEquals(hint1_2, hintSystem.nextHint().get());
   }
 
   /**
@@ -84,14 +84,14 @@ class HintSystemTest {
    */
   @Test
   void testEntityRemovalOnZeroTokens() {
-    assertEquals(hint1_1, hintSystem.nextHint());
+    assertEquals(hint1_1, hintSystem.nextHint().get());
     hintSystem.execute();
     entity1.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     hintSystem.execute();
-    assertEquals(hint2_1, hintSystem.nextHint());
+    assertEquals(hint2_1, hintSystem.nextHint().get());
     entity2.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     hintSystem.execute();
-    assertEquals(HintSystem.NO_HINT, hintSystem.nextHint());
+    assertTrue(hintSystem.nextHint().isEmpty());
   }
 
   /** Tests that {@link HintSystem} returns "No more hints" if there are no entities with tokens. */
@@ -101,7 +101,7 @@ class HintSystemTest {
     entity2.fetch(PlaceComponent.class).ifPresent(p -> p.consume(p.tokenCount()));
     hintSystem.execute();
     hintSystem.execute();
-    assertEquals(HintSystem.NO_HINT, hintSystem.nextHint());
+    assertTrue(hintSystem.nextHint().isEmpty());
   }
 
   /** Tests that hints are removed correctly when an entity is removed from the game. */
@@ -110,6 +110,6 @@ class HintSystemTest {
     Game.remove(entity1);
     Game.remove(entity2);
     hintSystem.execute();
-    assertEquals(HintSystem.NO_HINT, hintSystem.nextHint());
+    assertTrue(hintSystem.nextHint().isEmpty());
   }
 }
