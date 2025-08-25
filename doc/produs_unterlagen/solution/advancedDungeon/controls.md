@@ -1,4 +1,7 @@
-## Solutions for all Control Levels and the Berry Level
+---
+title: "AdvancedDungeon: Lösung Steuerrung und Beeren Level"
+---
+
 
 ### Solution for `MyPlayerController`
 
@@ -45,3 +48,4 @@ private void destroyItem() {
     hero.destroyItemAt(hero.getMousePosition());
 }
 ```
+
