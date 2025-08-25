@@ -626,6 +626,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "SWITCH",
+        check: ["Variable"],
       },
     ],
     message1: "%1", // Platz für case/default-Blöcke
@@ -648,6 +649,7 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
       {
         type: "input_value",
         name: "CASE",
+        check: ["Number"]
       },
     ],
     message1: "%1",

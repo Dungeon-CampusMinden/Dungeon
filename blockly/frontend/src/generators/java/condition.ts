@@ -171,7 +171,7 @@ export const controls_ifelse = controls_if;
 export function switch_case(block: Blockly.Block, generator: Blockly.Generator) {
   const switch_expr = generator.valueToCode(block, "SWITCH", Order.NONE);
   const cases_code = generator.statementToCode(block, "CASES");
-  const code = "switch(" + switch_expr + ") {\n" + cases_code + "\n}";
+  const code = "switch (" + switch_expr + ") {\n" + cases_code + "\n}";
   return code;
 }
 
