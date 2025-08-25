@@ -18,6 +18,8 @@ import java.util.function.BiConsumer;
 public class HintGiverFactory {
 
   private static final IPath MAILBOX_TEXTURE = new SimpleIPath("objects/mailbox/mailbox_2.png");
+  private static final String ASK_FOR_HINT = "Willst du einen Tipp?";
+  private static final String AKS_FOR_HINT_TITLE = "Tipps";
 
   /**
    * Creates a mailbox entity at the given position that gives hints to the player.
@@ -58,8 +60,8 @@ public class HintGiverFactory {
    */
   private static void showHintConfirmation(Entity player, Hint hint) {
     YesNoDialog.showYesNoDialog(
-        "Willst du einen Tipp?",
-        "Tipps",
+        ASK_FOR_HINT,
+        AKS_FOR_HINT_TITLE,
         () -> showHintText(player, hint),
         () -> {
           /* no-op on cancel */
