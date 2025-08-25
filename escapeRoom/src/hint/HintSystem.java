@@ -47,8 +47,8 @@ import petriNet.PlaceComponent;
  */
 public class HintSystem extends System {
 
-  /** Text to show if there is no hint left. */
-  public static final String NO_HINT_TEXT = "No more hints";
+  /** Hint to return if there is no hint left. */
+  public static final Hint NO_HINT = new Hint("No Hints", "There are not hints");
 
   private final Set<Entity> hintQueue = new LinkedHashSet<>();
 
@@ -98,17 +98,17 @@ public class HintSystem extends System {
    * Returns the next hint from the current entity in the queue.
    *
    * <p>If the current entity has no more hints, the system automatically moves to the next entity
-   * in the queue. If all entities have been exhausted, the method returns "No more hints".
+   * in the queue. If all entities have been exhausted, the method returns {@link #NO_HINT}.
    *
-   * @return the next hint string, or "No more hints" if no hints remain
+   * @return the next hint string, or the {@link #NO_HINT} if no hint is left.
    */
-  public String nextHint() {
+  public Hint nextHint() {
     if (currentHint == null) {
       currentHint = fetchNextEntityHint();
-      if (currentHint == null) return NO_HINT_TEXT;
+      if (currentHint == null) return NO_HINT;
     }
 
-    String hint = currentHint.hint();
+    Hint hint = currentHint.hint().orElse(NO_HINT);
     currentHint.increaseIndex();
 
     if (currentHint.isLastHintShown()) {
@@ -116,7 +116,6 @@ public class HintSystem extends System {
       currentHint.resetIndex();
       currentHint = fetchNextEntityHint();
     }
-    if (hint.equals("")) hint = NO_HINT_TEXT;
     return hint;
   }
 
