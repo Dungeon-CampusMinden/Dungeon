@@ -38,11 +38,11 @@ public final class HintLogDialog {
    *
    * <p>If the storage contains no hints, a fallback hint will be displayed.
    *
-   * @param storage the {@link HintLogComponent} containing all available hints
+   * @param log the {@link HintLogComponent} containing all available hints
    * @return the {@link Entity} that holds the dialog
    */
-  public static Entity showHintLog(HintLogComponent storage) {
-    Entity entity = showHintLog(defaultSkin(), storage, storage.hints.size() - 1);
+  public static Entity showHintLog(HintLogComponent log) {
+    Entity entity = showHintLog(defaultSkin(), log, log.hints.size() - 1);
     return entity;
   }
 
@@ -53,14 +53,14 @@ public final class HintLogDialog {
    * instead.
    *
    * @param skin the UI {@link Skin} to use for styling
-   * @param storage the {@link HintLogComponent} containing all available hints
+   * @param log the {@link HintLogComponent} containing all available hints
    * @param index the index of the hint to display
    * @return the {@link Entity} that holds the dialog
    */
-  private static Entity showHintLog(final Skin skin, HintLogComponent storage, int index) {
+  private static Entity showHintLog(final Skin skin, HintLogComponent log, int index) {
     Hint hint;
-    if (index < 0 || index > storage.hints.size() - 1) hint = NO_HINT;
-    else hint = storage.hints().get(index);
+    if (index < 0 || index > log.hints.size() - 1) hint = NO_HINT;
+    else hint = log.hints().get(index);
     if (hint == null) hint = NO_HINT;
 
     Entity entity = new Entity("hintDialog_" + hint.titel());
@@ -70,7 +70,7 @@ public final class HintLogDialog {
         () -> {
           Dialog dialog =
               createHintDialog(
-                  skin, finalHint, createResultHandlerNextPrev(skin, entity, storage, index));
+                  skin, finalHint, createResultHandlerNextPrev(skin, entity, log, index));
           UIUtils.center(dialog);
           return dialog;
         },
@@ -116,26 +116,26 @@ public final class HintLogDialog {
    *
    * @param skin the UI {@link Skin} to use for styling
    * @param entity the current dialog {@link Entity} to remove after navigation
-   * @param hintStorage the storage containing all available hints
+   * @param log the storage containing all available hints
    * @param index the index of the currently displayed hint
    * @return a {@link BiFunction} that processes dialog button clicks
    */
   private static BiFunction<TextDialog, String, Boolean> createResultHandlerNextPrev(
-      final Skin skin, final Entity entity, final HintLogComponent hintStorage, final int index) {
+      final Skin skin, final Entity entity, final HintLogComponent log, final int index) {
     return (d, id) -> {
       if (Objects.equals(id, DEFAULT_DIALOG_NEXT)) {
-        if (hintStorage.hints().size() != 0) {
-          int i = (index + 1) % hintStorage.hints().size();
-          showHintLog(skin, hintStorage, i);
-        } else showHintLog(hintStorage);
+        if (log.hints().size() != 0) {
+          int i = (index + 1) % log.hints().size();
+          showHintLog(skin, log, i);
+        } else showHintLog(log);
         Game.remove(entity);
         return true;
       }
       if (Objects.equals(id, DEFAULT_DIALOG_PREVIOUS)) {
-        if (hintStorage.hints().size() != 0) {
-          int i = (index - 1 + hintStorage.hints().size()) % hintStorage.hints().size();
-          showHintLog(skin, hintStorage, i);
-        } else showHintLog(hintStorage);
+        if (log.hints().size() != 0) {
+          int i = (index - 1 + log.hints().size()) % log.hints().size();
+          showHintLog(skin, log, i);
+        } else showHintLog(log);
         Game.remove(entity);
         return true;
       }

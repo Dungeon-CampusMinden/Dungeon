@@ -75,8 +75,6 @@ public class Level01 extends DungeonLevel {
     new Hint(riddle3Title + " 5", "Das Gegengift muss zum NPC.")
   };
 
-  private HintSystem hintSystem;
-
   private Set<Entity> monster;
   private LeverComponent preasurePlate;
   private boolean spawnMushroom = true;
@@ -110,7 +108,7 @@ public class Level01 extends DungeonLevel {
   }
 
   private void setupHints() {
-    hintSystem = new HintSystem();
+    HintSystem hintSystem = new HintSystem();
     Game.add(hintSystem);
     Game.add(HintGiverFactory.mailbox(new Point(1, 5).toCenteredPoint()));
 
@@ -226,17 +224,17 @@ public class Level01 extends DungeonLevel {
 
   private void removeTalkToMonsterRiddle(Entity hero) {
     Game.remove(riddle1);
-    hero.fetch(HintLogComponent.class).ifPresent(hs -> hs.removeHint(riddle1Hints));
+    hero.fetch(HintLogComponent.class).ifPresent(log -> log.removeHint(riddle1Hints));
   }
 
   private void removeFindRecipeRiddle(Entity hero) {
     Game.remove(riddle2);
-    hero.fetch(HintLogComponent.class).ifPresent(hs -> hs.removeHint(riddle2Hints));
+    hero.fetch(HintLogComponent.class).ifPresent(log -> log.removeHint(riddle2Hints));
   }
 
   private void removeCraftPotionRiddle(Entity hero) {
     Game.remove(riddle3);
-    hero.fetch(HintLogComponent.class).ifPresent(hs -> hs.removeHint(riddle3Hints));
+    hero.fetch(HintLogComponent.class).ifPresent(log -> log.removeHint(riddle3Hints));
   }
 
   private boolean checkForHealItem(Entity player) {
