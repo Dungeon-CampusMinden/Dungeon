@@ -66,7 +66,7 @@ public class MushRoom {
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
-    Game.disableAudio(false);
+    Game.disableAudio(DEBUG_MODE);
     Game.frameRate(30);
   }
 
