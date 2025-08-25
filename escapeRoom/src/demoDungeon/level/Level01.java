@@ -112,23 +112,11 @@ public class Level01 extends DungeonLevel {
   private void setupHints() {
     hintSystem = new HintSystem();
     Game.add(hintSystem);
+    Game.add(HintGiverFactory.mailbox(new Point(1, 5).toCenteredPoint()));
 
     PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
-    Game.hero()
-        .ifPresent(
-            hero ->
-                hero.fetch(InputComponent.class)
-                    .ifPresent(
-                        inputComponent ->
-                            inputComponent.registerCallback(
-                                Input.Keys.Z,
-                                entity ->
-                                    hero.fetch(HintStorageComponent.class)
-                                        .ifPresent(
-                                            hs -> hs.addHint(hintSystem.nextHint().orElse(null))),
-                                false,
-                                true)));
+    // register hint log
     Game.hero()
         .ifPresent(
             hero ->
