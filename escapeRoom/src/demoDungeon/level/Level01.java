@@ -94,6 +94,7 @@ public class Level01 extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.hero().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
     DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
     setupHints();
 
