@@ -1,6 +1,7 @@
 package hint;
 
 import core.Component;
+import java.util.Optional;
 
 /**
  * Component that manages a sequence of hints. Each hint can be accessed by index, and the component
@@ -14,7 +15,7 @@ import core.Component;
  */
 public class HintComponent implements Component {
 
-  private final String[] hints;
+  private final Hint[] hints;
   private int next = 0;
 
   /**
@@ -23,7 +24,7 @@ public class HintComponent implements Component {
    * @param hints the array of hints; must not be null or empty
    * @throws IllegalArgumentException if hints is null or empty
    */
-  public HintComponent(String... hints) {
+  public HintComponent(Hint... hints) {
     if (hints == null || hints.length == 0) {
       throw new IllegalArgumentException("Hints must not be null or empty");
     }
@@ -34,10 +35,10 @@ public class HintComponent implements Component {
    * Returns the hint at the specified index.
    *
    * @param index the index of the hint to retrieve
-   * @return the hint string at the specified index
+   * @return the hint at the specified index
    * @throws IllegalArgumentException if index is out of bounds
    */
-  public String hint(int index) {
+  public Hint hint(int index) {
     if (index < 0 || index >= hints.length) {
       throw new IllegalArgumentException("Given index is out of bounds.");
     }
@@ -45,16 +46,18 @@ public class HintComponent implements Component {
   }
 
   /**
-   * Returns the next hint based on the internal index. The internal index is <b>not automatically
-   * incremented</b>; call {@link #increaseIndex()} to move forward.
+   * Returns the next {@link Hint} based on the current internal index. The internal index is <b>not
+   * automatically incremented</b>; call {@link #increaseIndex()} to advance to the next hint.
    *
-   * <p>If the last hint has already been shown, an empty string is returned.
+   * <p>If all available hints have already been shown, this method returns {@link
+   * Optional#empty()}.
    *
-   * @return the next hint string, or an empty string if all hints have been shown
+   * @return an {@link Optional} containing the next hint, or {@link Optional#empty()} if no further
+   *     hints are available
    */
-  public String hint() {
-    if (isLastHintShown()) return "";
-    return hint(next);
+  public Optional<Hint> hint() {
+    if (isLastHintShown()) return Optional.empty();
+    return Optional.ofNullable(hint(next));
   }
 
   /** Increases the internal index by one. The index will not exceed the last valid hint index. */

@@ -28,6 +28,7 @@ import core.level.utils.LevelUtils;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
+import hint.Hint;
 import hint.HintComponent;
 import hint.HintSystem;
 import java.io.IOException;
@@ -47,6 +48,9 @@ import petriNet.TransitionComponent;
  */
 public class Level01 extends DungeonLevel {
 
+  private final String monsterRiddleTitle = "Hilfe wird gesucht";
+  private final String rezeptRiddleTitle = "Rezept";
+  private final String potionRiddleTitle = "Heiltrank";
   private Set<Entity> monster;
   private LeverComponent p;
   private boolean spawnMushroom = true;
@@ -106,7 +110,12 @@ public class Level01 extends DungeonLevel {
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    OkDialog.showOkDialog(hintSystem.nextHint(), "Hint", () -> {}),
+                                    hintSystem
+                                        .nextHint()
+                                        .ifPresent(
+                                            hint ->
+                                                OkDialog.showOkDialog(
+                                                    hint.text(), hint.titel(), () -> {})),
                                 false,
                                 true)));
 
@@ -114,9 +123,11 @@ public class Level01 extends DungeonLevel {
     talkToNPCRiddle = new Entity("Talk to monster riddle");
     talkToNPCRiddle.add(
         new HintComponent(
-            "Du solltest schauen, woher die Geräusche kamen.",
-            "Nicht jedes Monster ist böse.",
-            "Rede mit dem roten Monster auf der anderen Seite des Abgrunds."));
+            new Hint(monsterRiddleTitle, "Du solltest schauen, woher die Geräusche kamen."),
+            new Hint(monsterRiddleTitle, "Nicht jedes Monster ist böse."),
+            new Hint(
+                monsterRiddleTitle,
+                "Rede mit dem roten Monster auf der anderen Seite des Abgrunds.")));
     talkToNPCRiddlePlace = new PlaceComponent();
     talkToNPCRiddle.add(talkToNPCRiddlePlace);
     Game.add(talkToNPCRiddle);
@@ -129,9 +140,9 @@ public class Level01 extends DungeonLevel {
     findRecipeRiddlePlace = new PlaceComponent();
     findRecipeRiddle.add(
         new HintComponent(
-            "Vielleicht kann ich hier irgendwo ein Rezept finden.",
-            "Ich sollte in die Bibliothek.",
-            "Ich kann die Bücher lesen."));
+            new Hint(rezeptRiddleTitle, "Vielleicht kann ich hier irgendwo ein Rezept finden."),
+            new Hint(rezeptRiddleTitle, "Ich sollte in die Bibliothek."),
+            new Hint(rezeptRiddleTitle, "Ich kann die Bücher lesen.")));
     findRecipeRiddle.add(findRecipeRiddlePlace);
     Game.add(findRecipeRiddle);
 
@@ -144,11 +155,11 @@ public class Level01 extends DungeonLevel {
     craftPotionRiddlePlace = new PlaceComponent();
     craftPotionRiddle.add(
         new HintComponent(
-            "Die Zutaten kann ich im Level suchen.",
-            "Ich sollte die Monster besiegen.",
-            "In der Schatzkiste ist bestimmt auch was.",
-            "Am Crafting-Tisch kann ich Zutaten mischen.",
-            "Das Gegengift muss zum NPC."));
+            new Hint(potionRiddleTitle, "Die Zutaten kann ich im Level suchen."),
+            new Hint(potionRiddleTitle, "Ich sollte die Monster besiegen."),
+            new Hint(potionRiddleTitle, "In der Schatzkiste ist bestimmt auch was."),
+            new Hint(potionRiddleTitle, "Am Crafting-Tisch kann ich Zutaten mischen."),
+            new Hint(potionRiddleTitle, "Das Gegengift muss zum NPC.")));
     craftPotionRiddle.add(craftPotionRiddlePlace);
     Game.add(craftPotionRiddle);
 
