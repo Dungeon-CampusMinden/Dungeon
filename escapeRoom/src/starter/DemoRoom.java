@@ -12,6 +12,7 @@ import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import demoDungeon.level.Level01;
+import hint.HintStorageComponent;
 import java.io.IOException;
 import java.util.logging.Level;
 
@@ -58,6 +59,7 @@ public class DemoRoom {
 
   private static void createHero() throws IOException {
     Entity hero = HeroFactory.newHero();
+    hero.add(new HintStorageComponent());
     Game.add(hero);
   }
 
