@@ -78,6 +78,6 @@ public class HintGiverFactory {
     OkDialog.showOkDialog(
         hint.text(),
         hint.titel(),
-        () -> player.fetch(HintStorageComponent.class).ifPresent(hs -> hs.addHint(hint)));
+        () -> player.fetch(HintLogComponent.class).ifPresent(hs -> hs.addHint(hint)));
   }
 }

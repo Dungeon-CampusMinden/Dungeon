@@ -126,8 +126,8 @@ public class Level01 extends DungeonLevel {
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    hero.fetch(HintStorageComponent.class)
-                                        .ifPresent(HintLog::showHintLog),
+                                    hero.fetch(HintLogComponent.class)
+                                        .ifPresent(HintLogDialog::showHintLog),
                                 false,
                                 true)));
 
@@ -226,17 +226,17 @@ public class Level01 extends DungeonLevel {
 
   private void removeTalkToMonsterRiddle(Entity hero) {
     Game.remove(riddle1);
-    hero.fetch(HintStorageComponent.class).ifPresent(hs -> hs.removeHint(riddle1Hints));
+    hero.fetch(HintLogComponent.class).ifPresent(hs -> hs.removeHint(riddle1Hints));
   }
 
   private void removeFindRecipeRiddle(Entity hero) {
     Game.remove(riddle2);
-    hero.fetch(HintStorageComponent.class).ifPresent(hs -> hs.removeHint(riddle2Hints));
+    hero.fetch(HintLogComponent.class).ifPresent(hs -> hs.removeHint(riddle2Hints));
   }
 
   private void removeCraftPotionRiddle(Entity hero) {
     Game.remove(riddle3);
-    hero.fetch(HintStorageComponent.class).ifPresent(hs -> hs.removeHint(riddle3Hints));
+    hero.fetch(HintLogComponent.class).ifPresent(hs -> hs.removeHint(riddle3Hints));
   }
 
   private boolean checkForHealItem(Entity player) {

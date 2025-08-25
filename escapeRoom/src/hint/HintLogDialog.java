@@ -20,7 +20,7 @@ import java.util.function.BiFunction;
  * and navigate back and forth between them. It integrates with the {@link Game} entity system,
  * attaching dialogs to {@link Entity} objects.
  */
-public final class HintLog {
+public final class HintLogDialog {
 
   private static final Hint NO_HINT = new Hint("No hint", "There is no hint left");
 
@@ -38,10 +38,10 @@ public final class HintLog {
    *
    * <p>If the storage contains no hints, a fallback hint will be displayed.
    *
-   * @param storage the {@link HintStorageComponent} containing all available hints
+   * @param storage the {@link HintLogComponent} containing all available hints
    * @return the {@link Entity} that holds the dialog
    */
-  public static Entity showHintLog(HintStorageComponent storage) {
+  public static Entity showHintLog(HintLogComponent storage) {
     Entity entity = showHintLog(defaultSkin(), storage, storage.hints.size() - 1);
     return entity;
   }
@@ -53,11 +53,11 @@ public final class HintLog {
    * instead.
    *
    * @param skin the UI {@link Skin} to use for styling
-   * @param storage the {@link HintStorageComponent} containing all available hints
+   * @param storage the {@link HintLogComponent} containing all available hints
    * @param index the index of the hint to display
    * @return the {@link Entity} that holds the dialog
    */
-  private static Entity showHintLog(final Skin skin, HintStorageComponent storage, int index) {
+  private static Entity showHintLog(final Skin skin, HintLogComponent storage, int index) {
     Hint hint;
     if (index < 0 || index > storage.hints.size() - 1) hint = NO_HINT;
     else hint = storage.hints().get(index);
@@ -121,10 +121,7 @@ public final class HintLog {
    * @return a {@link BiFunction} that processes dialog button clicks
    */
   private static BiFunction<TextDialog, String, Boolean> createResultHandlerNextPrev(
-      final Skin skin,
-      final Entity entity,
-      final HintStorageComponent hintStorage,
-      final int index) {
+      final Skin skin, final Entity entity, final HintLogComponent hintStorage, final int index) {
     return (d, id) -> {
       if (Objects.equals(id, DEFAULT_DIALOG_NEXT)) {
         if (hintStorage.hints().size() != 0) {

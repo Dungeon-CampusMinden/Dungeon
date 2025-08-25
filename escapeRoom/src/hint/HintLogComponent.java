@@ -9,18 +9,18 @@ import java.util.List;
  *
  * <p>The {@code HintStorage} acts as a container that can be attached to an entity to track which
  * hints the player has discovered during gameplay. These stored hints are the ones displayed in the
- * {@link HintLog} when the player opens the hint log dialog.
+ * {@link HintLogDialog} when the player opens the hint log dialog.
  *
  * <p>The class ensures that duplicate hints are not stored and provides methods for adding,
  * removing, clearing, and retrieving the list of collected hints.
  */
-public class HintStorageComponent implements Component {
+public class HintLogComponent implements Component {
 
   /** The list of collected hints. */
   List<Hint> hints;
 
   /** Creates an empty hint storage. */
-  public HintStorageComponent() {
+  public HintLogComponent() {
     hints = new ArrayList<>();
   }
 
