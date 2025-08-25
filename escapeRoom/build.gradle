@@ -28,6 +28,12 @@ tasks.register('runDemoRoom', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+tasks.register('runMushRoom', JavaExec) {
+    group 'starter'
+    mainClass = 'starter.MushRoom'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 processResources {
     from new File(project(':dungeon').projectDir, '/assets')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
