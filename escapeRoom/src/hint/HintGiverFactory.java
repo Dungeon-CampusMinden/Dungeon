@@ -36,10 +36,9 @@ public class HintGiverFactory {
   }
 
   /**
-   * Returns the interaction logic.
+   * Build the Consumer for the Yes/No Dialog.
    *
-   * <p>Shows a Yes/No dialog asking if the player wants a hint. If yes, the hint is shown in an OK
-   * dialog and added to the player's HintStorage.
+   * @return Consumer for the Yes/No Dialog.
    */
   private static BiConsumer<Entity, Entity> wantHintInteraction() {
     return (mailbox, player) ->
