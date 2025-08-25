@@ -48,9 +48,9 @@ import petriNet.TransitionComponent;
  */
 public class Level01 extends DungeonLevel {
 
-  public static final String riddleOneTitle = "Hilfe wird gesucht";
-  public static final String rezeptRiddleTitle = "Rezept";
-  public static final String potionRiddleTitel = "Heiltrank";
+  private final String monsterRiddleTitle = "Hilfe wird gesucht";
+  private final String rezeptRiddleTitle = "Rezept";
+  private final String potionRiddleTitle = "Heiltrank";
   private Set<Entity> monster;
   private LeverComponent p;
   private boolean spawnMushroom = true;
@@ -119,10 +119,11 @@ public class Level01 extends DungeonLevel {
     talkToNPCRiddle = new Entity("Talk to monster riddle");
     talkToNPCRiddle.add(
         new HintComponent(
-            new Hint(riddleOneTitle, "Du solltest schauen, woher die Geräusche kamen."),
-            new Hint(riddleOneTitle, "Nicht jedes Monster ist böse."),
+            new Hint(monsterRiddleTitle, "Du solltest schauen, woher die Geräusche kamen."),
+            new Hint(monsterRiddleTitle, "Nicht jedes Monster ist böse."),
             new Hint(
-                riddleOneTitle, "Rede mit dem roten Monster auf der anderen Seite des Abgrunds.")));
+                monsterRiddleTitle,
+                "Rede mit dem roten Monster auf der anderen Seite des Abgrunds.")));
     talkToNPCRiddlePlace = new PlaceComponent();
     talkToNPCRiddle.add(talkToNPCRiddlePlace);
     Game.add(talkToNPCRiddle);
@@ -150,11 +151,11 @@ public class Level01 extends DungeonLevel {
     craftPotionRiddlePlace = new PlaceComponent();
     craftPotionRiddle.add(
         new HintComponent(
-            new Hint(potionRiddleTitel, "Die Zutaten kann ich im Level suchen."),
-            new Hint(potionRiddleTitel, "Ich sollte die Monster besiegen."),
-            new Hint(potionRiddleTitel, "In der Schatzkiste ist bestimmt auch was."),
-            new Hint(potionRiddleTitel, "Am Crafting-Tisch kann ich Zutaten mischen."),
-            new Hint(potionRiddleTitel, "Das Gegengift muss zum NPC.")));
+            new Hint(potionRiddleTitle, "Die Zutaten kann ich im Level suchen."),
+            new Hint(potionRiddleTitle, "Ich sollte die Monster besiegen."),
+            new Hint(potionRiddleTitle, "In der Schatzkiste ist bestimmt auch was."),
+            new Hint(potionRiddleTitle, "Am Crafting-Tisch kann ich Zutaten mischen."),
+            new Hint(potionRiddleTitle, "Das Gegengift muss zum NPC.")));
     craftPotionRiddle.add(craftPotionRiddlePlace);
     Game.add(craftPotionRiddle);
 
