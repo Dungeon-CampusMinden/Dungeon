@@ -4,7 +4,6 @@ import client.Client;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
-import contrib.entities.HeroFactory;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.DamageProjectile;
 import core.Game;
@@ -58,7 +57,6 @@ public class InevitableFireballSkill extends DamageProjectile {
         (projectile, entity) -> {
           // Set the velocity back to the original value (hero only)
           if (!entity.isPresent(PlayerComponent.class)) return;
-          Vector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
           entity
               .fetch(VelocityComponent.class)
               .ifPresent(

@@ -3,7 +3,9 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
+import contrib.components.InteractionComponent;
 import contrib.components.InventoryComponent;
+import contrib.configuration.KeyboardConfig;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.entities.MiscFactory;
@@ -14,10 +16,12 @@ import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.components.InputComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
@@ -28,6 +32,7 @@ import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.io.IOException;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
@@ -35,11 +40,14 @@ import systems.DevHealthSystem;
 
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
-  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
+    private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
+    public static final int BF_DEFAULT_COOLDOWN = 500;
 
-  /**
+    public static   Skill bf;
+
+    /**
    * Main method to start the game.
    *
    * @param args The arguments passed to the game.
@@ -86,9 +94,6 @@ public class DevDungeon {
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
 
-          HeroFactory.setHeroSkillCallback(
-              new BurningFireballSkill(
-                  SkillTools::cursorPositionAsPoint)); // Override default skill
           try {
             createHero();
           } catch (IOException e) {
@@ -105,7 +110,16 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
+       bf = new Skill(                            new BurningFireballSkill(
+              SkillTools::cursorPositionAsPoint), BF_DEFAULT_COOLDOWN);
+
+
     Entity hero = HeroFactory.newHero();
+    hero.fetch(InputComponent.class).ifPresent(inputComponent -> {
+        inputComponent.registerCallback(
+                KeyboardConfig.FIRST_SKILL.value(),
+                heroEntity -> bf.execute(heroEntity));
+    });
     Game.add(hero);
   }
 
@@ -180,9 +194,13 @@ public class DevDungeon {
               } else {
                 BurningFireballSkill.DAMAGE_AMOUNT = 2;
               }
-              HeroFactory.setHeroSkillCallback(
-                  new BurningFireballSkill(
-                      SkillTools::cursorPositionAsPoint)); // Update the current hero skill
+              bf = new Skill(                            new BurningFireballSkill(
+                      SkillTools::cursorPositionAsPoint),BF_DEFAULT_COOLDOWN);
+                Game.hero().ifPresent(hero -> hero.fetch(InputComponent.class).ifPresent(inputComponent -> {
+                    inputComponent.registerCallback(
+                            KeyboardConfig.FIRST_SKILL.value(),
+                            heroEntity -> bf.execute(heroEntity)); // Override default skill
+                }));
               DialogUtils.showTextPopup(
                   "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
                   "Cheat: Fireball Damage");

@@ -1,5 +1,8 @@
 package starter;
 
+import contrib.entities.HeroClass;
+import contrib.entities.HeroFactory;
+import contrib.systems.ProjectileSystem;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;

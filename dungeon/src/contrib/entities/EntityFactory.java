@@ -13,7 +13,6 @@ import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
@@ -49,12 +48,11 @@ public final class EntityFactory {
    * PositionComponent}, {@link VelocityComponent} {@link core.components.DrawComponent}, {@link
    * contrib.components.CollideComponent} and {@link HealthComponent}.
    *
-   * @param deathCallback function that will be executed if the hero dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
-    return HeroFactory.newHero(deathCallback);
+  public static Entity newHero(HeroClass heroClass) throws IOException {
+    return HeroFactory.newHero(heroClass);
   }
 
   /**

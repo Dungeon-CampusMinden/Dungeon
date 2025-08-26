@@ -1,11 +1,14 @@
 package level.devlevel.riddleHandler;
 
+import contrib.configuration.KeyboardConfig;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.utils.EntityUtils;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
@@ -14,6 +17,8 @@ import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import entities.BurningFireballSkill;
+import starter.DevDungeon;
+
 import java.util.List;
 
 /**
@@ -98,9 +103,7 @@ public class IllusionRiddleHandler {
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;
     BurningFireballSkill.PROJECTILE_RANGE += 1f;
-    HeroFactory.setHeroSkillCallback(
-        new BurningFireballSkill(
-            SkillTools::cursorPositionAsPoint)); // Update the current hero skill
+    DevDungeon.bf = new Skill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint),500);
     this.rewardGiven = true;
     level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }

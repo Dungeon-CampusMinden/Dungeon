@@ -42,15 +42,9 @@ public class AttackSpeedEffect {
    * @throws UnsupportedOperationException if the target entity is not a player.
    */
   public void applyAttackSpeed(Entity target) {
-    if (target.fetch(PlayerComponent.class).isEmpty()) {
-      throw new UnsupportedOperationException(
+    //TODO REFACTOR SKILL SYSTEM AND REPLACE THIS MAGIC NUMBERS
+    throw new UnsupportedOperationException(
           "Attack speed can only be applied to player entities.");
     }
 
-    this.originalFireballCoolDown = HeroFactory.getWizzardSkill().cooldown();
-    HeroFactory.getWizzardSkill().cooldown((long) (originalFireballCoolDown / speedMultiplier));
-
-    EventScheduler.scheduleAction(
-        () -> HeroFactory.getWizzardSkill().cooldown(originalFireballCoolDown), duration * 1000L);
-  }
 }
