@@ -35,14 +35,14 @@ public enum Monster {
         3,                     
         e -> {},               
         true,                  
-        new MonsterDeathSound("sounds/die_01.wav"),
+        MonsterDeathSound.BASIC,
         Set.of(),              
         0.2f,                  
         Set.of(),              
-        new MonsterIdleSound("sounds/monster1.wav"),
-        () -> AIFactory::fightAI,      
-        () -> AIFactory::idleAI,       
-        () -> AIFactory::transitionAI, 
+        MonsterIdleSound.BASIC,
+        () -> AIFactory.randomFightAI(),   
+        () -> AIFactory.randomIdleAI(),     
+        () -> (self) -> AIFactory.randomTransition(self).apply(self),
         5,                     
         2 * Game.frameRate(),  
         DamageType.PHYSICAL    
@@ -199,7 +199,7 @@ public enum Monster {
     }
 
     private Optional<IdleSoundComponent> buildIdleSoundComponent() {
-        if (idleSound == null || idleSound.path().isEmpty()) {
+        if (idleSound == null || idleSound.path().pathString().isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(new IdleSoundComponent(idleSound.path()));
