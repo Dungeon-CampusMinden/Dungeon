@@ -6,7 +6,6 @@ import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
-import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
@@ -25,18 +24,14 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
-import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-import hint.Hint;
-import hint.HintComponent;
-import hint.HintSystem;
+import hint.*;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import petriNet.PetriNetSystem;
 import petriNet.PlaceComponent;
 import petriNet.TransitionComponent;
@@ -44,32 +39,42 @@ import petriNet.TransitionComponent;
 /**
  * The Demolevel.
  *
- * <p>The player has to craft a heal potion.
+ * <p>The player has to craft a Healpotion.
  */
 public class Level01 extends DungeonLevel {
-
-  private final String monsterRiddleTitle = "Hilfe wird gesucht";
-  private final String rezeptRiddleTitle = "Rezept";
-  private final String potionRiddleTitle = "Heiltrank";
+  Entity riddle1;
+  PlaceComponent riddle1Place;
+  private final String riddle1Title = "Hilfe wird gesucht";
+  private final Hint[] riddle1Hints = {
+    new Hint(riddle1Title + " 1", "Du solltest schauen, woher die Geräusche kamen."),
+    new Hint(riddle1Title + " 2", "Nicht jedes Monster ist böse."),
+    new Hint(riddle1Title + " 3", "Rede mit dem roten Monster auf der anderen Seite des Abgrunds.")
+  };
+  Entity riddle2;
+  PlaceComponent riddle2Place;
+  private final String riddle2Title = "Rezept";
+  private final Hint[] riddle2Hints = {
+    new Hint(riddle2Title + " 1", "Vielleicht kann ich hier irgendwo ein Rezept finden."),
+    new Hint(riddle2Title + " 2", "Ich sollte in die Bibliothek."),
+    new Hint(riddle2Title + " 3", "Ich kann die Bücher lesen.")
+  };
+  Entity riddle3;
+  PlaceComponent riddle3Place;
+  private final String riddle3Title = "Heiltrank";
+  private final Hint[] riddle3Hints = {
+    new Hint(riddle3Title + " 1", "Die Zutaten kann ich im Level suchen."),
+    new Hint(riddle3Title + " 2", "Ich sollte die Monster besiegen."),
+    new Hint(riddle3Title + " 3", "In der Schatzkiste ist bestimmt auch was."),
+    new Hint(riddle3Title + " 4", "Am Crafting-Tisch kann ich Zutaten mischen."),
+    new Hint(riddle3Title + " 5", "Das Gegengift muss zum NPC.")
+  };
   private Set<Entity> monster;
-  private LeverComponent p;
+  private LeverComponent preasurePlate;
   private boolean spawnMushroom = true;
-
-  private HintSystem hintSystem;
-  private PetriNetSystem petriNetSystem;
-
   private ExitTile exit;
 
-  // hint system
-  Entity craftPotionRiddle;
-  Entity findRecipeRiddle;
-  Entity talkToNPCRiddle;
-  PlaceComponent talkToNPCRiddlePlace;
-  PlaceComponent findRecipeRiddlePlace;
-  PlaceComponent craftPotionRiddlePlace;
-
   /**
-   * Creates a new Level03.
+   * Creates a new Demo Level.
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
@@ -81,26 +86,25 @@ public class Level01 extends DungeonLevel {
 
   @Override
   protected void onFirstTick() {
+    Game.hero().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
     DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
     setupHints();
-
     npc();
     crafting();
     books();
     monster();
     chest();
-
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     exit.close();
   }
 
   private void setupHints() {
-    hintSystem = new HintSystem();
+    HintSystem hintSystem = new HintSystem();
     Game.add(hintSystem);
-
-    petriNetSystem = new PetriNetSystem();
+    Game.add(HintGiverFactory.mailbox(new Point(1, 5).toCenteredPoint()));
+    PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
-
+    // register hint log
     Game.hero()
         .ifPresent(
             hero ->
@@ -110,71 +114,45 @@ public class Level01 extends DungeonLevel {
                             inputComponent.registerCallback(
                                 Input.Keys.T,
                                 entity ->
-                                    hintSystem
-                                        .nextHint()
-                                        .ifPresent(
-                                            hint ->
-                                                OkDialog.showOkDialog(
-                                                    hint.text(), hint.titel(), () -> {})),
+                                    hero.fetch(HintLogComponent.class)
+                                        .ifPresent(HintLogDialog::showHintLog),
                                 false,
                                 true)));
 
     // Talk to NPC riddle
-    talkToNPCRiddle = new Entity("Talk to monster riddle");
-    talkToNPCRiddle.add(
-        new HintComponent(
-            new Hint(monsterRiddleTitle, "Du solltest schauen, woher die Geräusche kamen."),
-            new Hint(monsterRiddleTitle, "Nicht jedes Monster ist böse."),
-            new Hint(
-                monsterRiddleTitle,
-                "Rede mit dem roten Monster auf der anderen Seite des Abgrunds.")));
-    talkToNPCRiddlePlace = new PlaceComponent();
-    talkToNPCRiddle.add(talkToNPCRiddlePlace);
-    Game.add(talkToNPCRiddle);
-
+    riddle1 = new Entity("Talk to monster riddle");
+    riddle1.add(new HintComponent(riddle1Hints));
+    riddle1Place = new PlaceComponent();
+    riddle1.add(riddle1Place);
+    Game.add(riddle1);
     // This is the first quest, so activate it
-    talkToNPCRiddlePlace.produce();
-
+    riddle1Place.produce();
     // Find recipe riddle
-    findRecipeRiddle = new Entity("Find recipe riddle");
-    findRecipeRiddlePlace = new PlaceComponent();
-    findRecipeRiddle.add(
-        new HintComponent(
-            new Hint(rezeptRiddleTitle, "Vielleicht kann ich hier irgendwo ein Rezept finden."),
-            new Hint(rezeptRiddleTitle, "Ich sollte in die Bibliothek."),
-            new Hint(rezeptRiddleTitle, "Ich kann die Bücher lesen.")));
-    findRecipeRiddle.add(findRecipeRiddlePlace);
-    Game.add(findRecipeRiddle);
-
+    riddle2 = new Entity("Find recipe riddle");
+    riddle2Place = new PlaceComponent();
+    riddle2.add(new HintComponent(riddle2Hints));
+    riddle2.add(riddle2Place);
+    Game.add(riddle2);
     TransitionComponent t1 = new TransitionComponent();
-    petriNetSystem.addInputArc(t1, talkToNPCRiddlePlace, 2);
-    petriNetSystem.addOutputArc(t1, findRecipeRiddlePlace);
-
+    petriNetSystem.addInputArc(t1, riddle1Place, 2);
+    petriNetSystem.addOutputArc(t1, riddle2Place);
     // Craft potion riddle
-    craftPotionRiddle = new Entity("Craft potion riddle");
-    craftPotionRiddlePlace = new PlaceComponent();
-    craftPotionRiddle.add(
-        new HintComponent(
-            new Hint(potionRiddleTitle, "Die Zutaten kann ich im Level suchen."),
-            new Hint(potionRiddleTitle, "Ich sollte die Monster besiegen."),
-            new Hint(potionRiddleTitle, "In der Schatzkiste ist bestimmt auch was."),
-            new Hint(potionRiddleTitle, "Am Crafting-Tisch kann ich Zutaten mischen."),
-            new Hint(potionRiddleTitle, "Das Gegengift muss zum NPC.")));
-    craftPotionRiddle.add(craftPotionRiddlePlace);
-    Game.add(craftPotionRiddle);
-
+    riddle3 = new Entity("Craft potion riddle");
+    riddle3Place = new PlaceComponent();
+    riddle3.add(new HintComponent(riddle3Hints));
+    riddle3.add(riddle3Place);
+    Game.add(riddle3);
     TransitionComponent t2 = new TransitionComponent();
-    petriNetSystem.addInputArc(t2, findRecipeRiddlePlace, 2);
-    petriNetSystem.addOutputArc(t2, craftPotionRiddlePlace);
-
+    petriNetSystem.addInputArc(t2, riddle2Place, 2);
+    petriNetSystem.addOutputArc(t2, riddle3Place);
     // For removing the last hints if potion was given to the entity
     TransitionComponent t3 = new TransitionComponent();
-    petriNetSystem.addInputArc(t3, craftPotionRiddlePlace, 2);
+    petriNetSystem.addInputArc(t3, riddle3Place, 2);
   }
 
   private void npc() {
     Entity plate = LeverFactory.pressurePlate(customPoints.get(6).toCenteredPoint());
-    p = plate.fetch(LeverComponent.class).get();
+    preasurePlate = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
     Entity npc = new Entity();
     npc.add(new VelocityComponent(5));
@@ -185,7 +163,6 @@ public class Level01 extends DungeonLevel {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
     npc.add(
         new InteractionComponent(
             3,
@@ -195,8 +172,9 @@ public class Level01 extends DungeonLevel {
                     "Ich brauche dringend ein Heilmittel gegen meine Vergiftung.",
                     "Muschel esser.",
                     () -> {
-                      talkToNPCRiddlePlace.produce();
-                      Game.remove(talkToNPCRiddle);
+                      riddle1Place.produce();
+                      removeTalkToMonsterRiddle(hero);
+
                       entity.remove(InteractionComponent.class);
                       entity.add(
                           new InteractionComponent(
@@ -213,22 +191,31 @@ public class Level01 extends DungeonLevel {
                                               "Das ist nicht das richitge Mittel.", "Falsch.");
                                         } else {
                                           DialogUtils.showTextPopup("Danke", "Richtig");
-                                          craftPotionRiddlePlace.produce();
-                                          Game.remove(craftPotionRiddle);
-                                          Game.remove(findRecipeRiddle);
+                                          riddle3Place.produce();
+                                          removeCraftPotionRiddle(hero);
+                                          removeFindRecipeRiddle(hero);
                                           moveNpc(entity);
                                           npc.remove(InteractionComponent.class);
                                         }
                                       },
-                                      new IVoidFunction() {
-                                        @Override
-                                        public void execute() {
-                                          DialogUtils.showTextPopup("Beeile dich.", "Hilfe.");
-                                        }
-                                      })));
+                                      () -> DialogUtils.showTextPopup("Beeile dich.", "Hilfe."))));
                     })));
-
     Game.add(npc);
+  }
+
+  private void removeTalkToMonsterRiddle(Entity hero) {
+    Game.remove(riddle1);
+    hero.fetch(HintLogComponent.class).ifPresent(log -> log.removeHint(riddle1Hints));
+  }
+
+  private void removeFindRecipeRiddle(Entity hero) {
+    Game.remove(riddle2);
+    hero.fetch(HintLogComponent.class).ifPresent(log -> log.removeHint(riddle2Hints));
+  }
+
+  private void removeCraftPotionRiddle(Entity hero) {
+    Game.remove(riddle3);
+    hero.fetch(HintLogComponent.class).ifPresent(log -> log.removeHint(riddle3Hints));
   }
 
   private boolean checkForHealItem(Entity player) {
@@ -243,20 +230,17 @@ public class Level01 extends DungeonLevel {
     npc.add(
         new AIComponent(
             entity -> {},
-            new Consumer<Entity>() {
-              @Override
-              public void accept(Entity entity) {
-                Optional<Tile> entityTile = Game.tileAtEntity(entity);
-                Optional<Tile> goalTile = Game.tileAt(goal);
+            entity -> {
+              Optional<Tile> entityTile = Game.tileAtEntity(entity);
+              Optional<Tile> goalTile = Game.tileAt(goal);
 
-                if (entityTile.isPresent()
-                    && goalTile.isPresent()
-                    && !entityTile.get().equals(goalTile.get())) {
-                  AIUtils.followPath(
-                      entity,
-                      LevelUtils.calculatePath(
-                          entity.fetch(PositionComponent.class).get().position(), goal));
-                }
+              if (entityTile.isPresent()
+                  && goalTile.isPresent()
+                  && !entityTile.get().equals(goalTile.get())) {
+                AIUtils.followPath(
+                    entity,
+                    LevelUtils.calculatePath(
+                        entity.fetch(PositionComponent.class).get().position(), goal));
               }
             },
             entity -> false));
@@ -284,8 +268,8 @@ public class Level01 extends DungeonLevel {
             "Um ein Gegengift zu erstellen, muss man etwas Giftiges mit Wasser aufkochen.",
             "Gifte und Gegengifte",
             () -> {
-              findRecipeRiddlePlace.produce();
-              Game.remove(findRecipeRiddle);
+              riddle2Place.produce();
+              removeFindRecipeRiddle(Game.hero().orElseThrow());
             }));
   }
 
@@ -293,7 +277,6 @@ public class Level01 extends DungeonLevel {
     monster = new HashSet<>();
     List<Tile> points =
         LevelUtils.accessibleTilesInRange(customPoints.get(7).toCenteredPoint(), 5f);
-
     for (int i = 0; i < 5; i++) {
       try {
         Entity m = MonsterFactory.randomMonster();
@@ -328,7 +311,6 @@ public class Level01 extends DungeonLevel {
     Game.add(MiscFactory.marker(customPoints.get(10).toCenteredPoint()));
     Game.add(MiscFactory.marker(customPoints.get(12).toCenteredPoint()));
     Game.add(MiscFactory.marker(customPoints.get(14).toCenteredPoint()));
-
     try {
       Game.add(
           MiscFactory.newChest(
@@ -340,8 +322,7 @@ public class Level01 extends DungeonLevel {
 
   @Override
   protected void onTick() {
-    if (p.isOn()) exit.open();
-
+    if (preasurePlate.isOn()) exit.open();
     if (spawnMushroom && monster.isEmpty()) {
       spawnMushroom = false;
       ItemResourceMushroomRed mushroom = new ItemResourceMushroomRed();
