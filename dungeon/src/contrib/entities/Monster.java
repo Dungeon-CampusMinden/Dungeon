@@ -107,6 +107,9 @@ public enum Monster {
         monster.add(buildAIComponent());
         monster.add(buildHealthComponent());
         monster.add(buildInventoryComponent());
+
+        buildIdleSoundComponent().ifPresent(c -> monster.add(c));
+        
         return monster;
     }
 
@@ -171,6 +174,13 @@ public enum Monster {
 
     private DrawComponent buildDrawComponent() throws IOException {
         return new DrawComponent(texture);
+    }
+
+    private Optional<IdleSoundComponent> buildIdleSoundComponent() {
+        if (idleSound == null || idleSound.path().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new IdleSoundComponent(idleSound.path()));
     }
 
     private static void playMonsterDieSound(Sound sound) {
