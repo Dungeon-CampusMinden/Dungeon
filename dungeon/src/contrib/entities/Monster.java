@@ -4,6 +4,7 @@ import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 
 public enum Monster {
     ;
@@ -109,7 +111,7 @@ public enum Monster {
         monster.add(buildInventoryComponent());
 
         buildIdleSoundComponent().ifPresent(c -> monster.add(c));
-        
+
         return monster;
     }
 
@@ -159,10 +161,7 @@ public enum Monster {
             playDeathSoundIfNearby(deathSound.sound(), entity);
 
             entity.fetch(InventoryComponent.class).ifPresent(inventoryComponent -> {
-                // TODO: Implement actual dropping into the world
-                for (Item item : inventoryComponent.items()) {
-                    System.out.println("Monster dropped: " + item);
-                }
+                new DropItemsInteraction().accept(entity, null);
             });
 
             if (removeOnDeath)
