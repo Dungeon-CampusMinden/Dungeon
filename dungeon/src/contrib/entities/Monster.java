@@ -14,6 +14,8 @@ import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
+
 
 import java.io.IOException;
 import java.util.*;
@@ -23,7 +25,28 @@ import java.util.function.Supplier;
 
 
 public enum Monster {
-    ;
+    IMP(
+        "Imp",                 
+        5.0f,                  
+        1.0f,                  
+        e -> {},               
+        true,                  
+        new SimpleIPath("character/monster/imp"), 
+        3,                     
+        e -> {},               
+        true,                  
+        new MonsterDeathSound("sounds/die_01.wav"),
+        Set.of(),              
+        0.2f,                  
+        Set.of(),              
+        new MonsterIdleSound("sounds/monster1.wav"),
+        () -> AIFactory::fightAI,      
+        () -> AIFactory::idleAI,       
+        () -> AIFactory::transitionAI, 
+        5,                     
+        2 * Game.frameRate(),  
+        DamageType.PHYSICAL    
+    );
 
     public static Random RANDOM = new Random();
     private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
