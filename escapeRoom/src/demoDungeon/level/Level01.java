@@ -42,7 +42,6 @@ import petriNet.TransitionComponent;
  * <p>The player has to craft a Healpotion.
  */
 public class Level01 extends DungeonLevel {
-
   Entity riddle1;
   PlaceComponent riddle1Place;
   private final String riddle1Title = "Hilfe wird gesucht";
@@ -51,20 +50,15 @@ public class Level01 extends DungeonLevel {
     new Hint(riddle1Title + " 2", "Nicht jedes Monster ist böse."),
     new Hint(riddle1Title + " 3", "Rede mit dem roten Monster auf der anderen Seite des Abgrunds.")
   };
-
   Entity riddle2;
-
   PlaceComponent riddle2Place;
   private final String riddle2Title = "Rezept";
-
   private final Hint[] riddle2Hints = {
     new Hint(riddle2Title + " 1", "Vielleicht kann ich hier irgendwo ein Rezept finden."),
     new Hint(riddle2Title + " 2", "Ich sollte in die Bibliothek."),
     new Hint(riddle2Title + " 3", "Ich kann die Bücher lesen.")
   };
-
   Entity riddle3;
-
   PlaceComponent riddle3Place;
   private final String riddle3Title = "Heiltrank";
   private final Hint[] riddle3Hints = {
@@ -74,15 +68,13 @@ public class Level01 extends DungeonLevel {
     new Hint(riddle3Title + " 4", "Am Crafting-Tisch kann ich Zutaten mischen."),
     new Hint(riddle3Title + " 5", "Das Gegengift muss zum NPC.")
   };
-
   private Set<Entity> monster;
   private LeverComponent preasurePlate;
   private boolean spawnMushroom = true;
-
   private ExitTile exit;
 
   /**
-   * Creates a new Level03.
+   * Creates a new Demo Level.
    *
    * @param layout The layout of the level.
    * @param designLabel The design label of the level.
@@ -97,13 +89,11 @@ public class Level01 extends DungeonLevel {
     Game.hero().flatMap(h -> h.fetch(HintLogComponent.class)).ifPresent(HintLogComponent::clear);
     DialogUtils.showTextPopup("HALLO? IST DA WER? ICH BRAUCHE HILFE?", "HILFE!");
     setupHints();
-
     npc();
     crafting();
     books();
     monster();
     chest();
-
     exit = (ExitTile) Game.randomTile(LevelElement.EXIT).get();
     exit.close();
   }
@@ -112,7 +102,6 @@ public class Level01 extends DungeonLevel {
     HintSystem hintSystem = new HintSystem();
     Game.add(hintSystem);
     Game.add(HintGiverFactory.mailbox(new Point(1, 5).toCenteredPoint()));
-
     PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
     // register hint log
@@ -136,33 +125,26 @@ public class Level01 extends DungeonLevel {
     riddle1Place = new PlaceComponent();
     riddle1.add(riddle1Place);
     Game.add(riddle1);
-
     // This is the first quest, so activate it
     riddle1Place.produce();
-
     // Find recipe riddle
     riddle2 = new Entity("Find recipe riddle");
     riddle2Place = new PlaceComponent();
     riddle2.add(new HintComponent(riddle2Hints));
     riddle2.add(riddle2Place);
     Game.add(riddle2);
-
     TransitionComponent t1 = new TransitionComponent();
     petriNetSystem.addInputArc(t1, riddle1Place, 2);
     petriNetSystem.addOutputArc(t1, riddle2Place);
-
     // Craft potion riddle
     riddle3 = new Entity("Craft potion riddle");
     riddle3Place = new PlaceComponent();
     riddle3.add(new HintComponent(riddle3Hints));
-
     riddle3.add(riddle3Place);
     Game.add(riddle3);
-
     TransitionComponent t2 = new TransitionComponent();
     petriNetSystem.addInputArc(t2, riddle2Place, 2);
     petriNetSystem.addOutputArc(t2, riddle3Place);
-
     // For removing the last hints if potion was given to the entity
     TransitionComponent t3 = new TransitionComponent();
     petriNetSystem.addInputArc(t3, riddle3Place, 2);
@@ -181,7 +163,6 @@ public class Level01 extends DungeonLevel {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
     npc.add(
         new InteractionComponent(
             3,
@@ -219,7 +200,6 @@ public class Level01 extends DungeonLevel {
                                       },
                                       () -> DialogUtils.showTextPopup("Beeile dich.", "Hilfe."))));
                     })));
-
     Game.add(npc);
   }
 
@@ -297,7 +277,6 @@ public class Level01 extends DungeonLevel {
     monster = new HashSet<>();
     List<Tile> points =
         LevelUtils.accessibleTilesInRange(customPoints.get(7).toCenteredPoint(), 5f);
-
     for (int i = 0; i < 5; i++) {
       try {
         Entity m = MonsterFactory.randomMonster();
@@ -332,7 +311,6 @@ public class Level01 extends DungeonLevel {
     Game.add(MiscFactory.marker(customPoints.get(10).toCenteredPoint()));
     Game.add(MiscFactory.marker(customPoints.get(12).toCenteredPoint()));
     Game.add(MiscFactory.marker(customPoints.get(14).toCenteredPoint()));
-
     try {
       Game.add(
           MiscFactory.newChest(
@@ -345,7 +323,6 @@ public class Level01 extends DungeonLevel {
   @Override
   protected void onTick() {
     if (preasurePlate.isOn()) exit.open();
-
     if (spawnMushroom && monster.isEmpty()) {
       spawnMushroom = false;
       ItemResourceMushroomRed mushroom = new ItemResourceMushroomRed();
