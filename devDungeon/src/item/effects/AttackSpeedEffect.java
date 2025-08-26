@@ -47,10 +47,10 @@ public class AttackSpeedEffect {
           "Attack speed can only be applied to player entities.");
     }
 
-    this.originalFireballCoolDown = HeroFactory.getHeroSkill().cooldown();
-    HeroFactory.getHeroSkill().cooldown((long) (originalFireballCoolDown / speedMultiplier));
+    this.originalFireballCoolDown = HeroFactory.getWizzardSkill().cooldown();
+    HeroFactory.getWizzardSkill().cooldown((long) (originalFireballCoolDown / speedMultiplier));
 
     EventScheduler.scheduleAction(
-        () -> HeroFactory.getHeroSkill().cooldown(originalFireballCoolDown), duration * 1000L);
+        () -> HeroFactory.getWizzardSkill().cooldown(originalFireballCoolDown), duration * 1000L);
   }
 }
