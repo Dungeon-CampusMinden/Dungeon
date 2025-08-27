@@ -107,12 +107,14 @@ public final class AIFactory {
           new AIRangeBehaviour(
               RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
               RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
-              FireballSkill.fireballSkill(monster,SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
+              FireballSkill.fireballSkill(
+                  monster, SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
       default ->
           new AIMeleeBehaviour(
               RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH),
               1f,
-              FireballSkill.fireballSkill(monster,SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
+              FireballSkill.fireballSkill(
+                  monster, SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
     };
   }
 

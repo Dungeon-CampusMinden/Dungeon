@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
-import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
