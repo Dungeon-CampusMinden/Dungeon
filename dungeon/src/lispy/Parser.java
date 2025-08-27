@@ -56,7 +56,7 @@ public class Parser {
       case FALSE -> parseFalse();
       case ID -> parseSymbol();
       case LPAREN -> parseList();
-      default -> throw error("unexpected token in expr: " + lookahead);
+      default -> throw new RuntimeException("unexpected token in expr: " + lookahead);
     };
   }
 
@@ -95,7 +95,7 @@ public class Parser {
         elements.add(new SymbolExpr(lookahead.lexeme()));
         consume();
       }
-      default -> throw error("ID or OP expected, got " + lookahead);
+      default -> throw new RuntimeException("ID or OP expected, got " + lookahead);
     }
 
     while (isExprStart(lookahead.type())) {
@@ -123,10 +123,6 @@ public class Parser {
       consume();
       return t;
     }
-    throw error("expected: " + expected + ", found: " + lookahead);
-  }
-
-  private static RuntimeException error(String msg) {
-    return new RuntimeException(msg);
+    throw new RuntimeException("expected: " + expected + ", found: " + lookahead);
   }
 }
