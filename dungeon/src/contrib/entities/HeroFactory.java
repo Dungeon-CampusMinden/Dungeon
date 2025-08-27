@@ -120,20 +120,10 @@ public final class HeroFactory {
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
-    Skill heroSkill =
-        TPBallSkill.tpBallSkill(
-            hero,
-            SkillTools::cursorPositionAsPoint,
-            new Supplier<Point>() {
-              @Override
-              public Point get() {
-                return Game.randomTilePoint(LevelElement.PIT).get();
-              }
-            },
-            500,
-            10,
-            10,
-            1);
+
+
+
+    Skill heroSkill = HealTarget.healTarget(4,30);
 
     HealthComponent hc =
         new HealthComponent(
