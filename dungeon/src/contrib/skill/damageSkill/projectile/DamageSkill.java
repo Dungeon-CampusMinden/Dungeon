@@ -1,8 +1,8 @@
-package contrib.utils.components.skill.damageSkill.projectile;
+package contrib.skill.damageSkill.projectile;
 
+import contrib.skill.Skill;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.utils.Direction;
 

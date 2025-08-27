@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:dungeon/src/contrib/skill/projectileSkill/BowSkill.java
 package contrib.utils.components.skill.projectileSkill;
+========
+package contrib.skill.damageSkill.projectile;
+>>>>>>>> 4b224fd1 (wip):dungeon/src/contrib/skill/damageSkill/projectile/BowSkill.java
 
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
@@ -78,10 +82,24 @@ public class BowSkill extends DamageProjectileSkill {
   public BowSkill(final Supplier<Point> targetSelection) {
     this(
         targetSelection,
+<<<<<<<< HEAD:dungeon/src/contrib/skill/projectileSkill/BowSkill.java
         BOW_COOLDOWN,
         DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
         DEFAULT_DAMAGE_AMOUNT,
         COST);
+========
+        damageAmount,
+        DAMAGE_TYPE,
+        PROJECTILE_TEXTURES,
+        speed,
+        range,
+        HIT_BOX_SIZE,
+        DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_SPAWN,
+        damageAmount1,
+        type,
+        DEFAULT_BONUS_EFFECT);
+>>>>>>>> 4b224fd1 (wip):dungeon/src/contrib/skill/damageSkill/projectile/BowSkill.java
   }
 }
