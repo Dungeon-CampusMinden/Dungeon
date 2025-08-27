@@ -630,7 +630,7 @@ public final class Game {
    * @return Position of the Tile as Point or an empty Optional if there is no tile of that type.
    */
   public static Optional<Point> randomTilePoint(final LevelElement elementTyp) {
-    return currentLevel().flatMap(level -> randomTilePoint(elementTyp));
+    return currentLevel().flatMap(level -> level.randomTilePoint(elementTyp));
   }
 
   /**
