@@ -43,9 +43,9 @@ public class Interpreter {
   private static Value eval(AST expr, Env env) {
     return switch (expr) {
       case Program p -> evalProgram(p, env);
-      case NumberLiteral n -> num(n.value());
-      case StringLiteral s -> str(s.value());
-      case BoolLiteral b -> bool(b.value());
+      case NumberLiteral n -> new NumVal(n.value());
+      case StringLiteral s -> new StrVal(s.value());
+      case BoolLiteral b -> new BoolVal(b.value());
       case SymbolExpr s -> env.get(s.name());
       case ListExpr list -> evalList(list, env);
     };
@@ -54,22 +54,24 @@ public class Interpreter {
   private static Value evalProgram(Program program, Env env) {
     return program.expressions().stream()
         .map(e -> eval(e, env))
-        .reduce(bool(false), (prev, curr) -> curr);
+        .reduce(new BoolVal(false), (prev, curr) -> curr);
   }
 
   private static Value evalList(ListExpr list, Env env) {
     List<Expr> elems = list.elements();
-    if (elems.isEmpty()) throw error("cannot evaluate empty list");
+    if (elems.isEmpty()) throw new RuntimeException("cannot evaluate empty list");
 
     return switch (elems.getFirst()) {
       case SymbolExpr s -> evalList(s, list, env);
-      default -> throw error("first element must be a symbol or op, got" + elems.getFirst());
+      default ->
+          throw new RuntimeException(
+              "first element must be a symbol or op, got" + elems.getFirst());
     };
   }
 
   private static Value evalList(SymbolExpr headExpr, ListExpr list, Env env) {
     List<Expr> elems = list.elements();
-    if (elems.isEmpty()) throw error("cannot evaluate empty list");
+    if (elems.isEmpty()) throw new RuntimeException("cannot evaluate empty list");
 
     return switch (headExpr.name()) {
       case "let" -> evalLet(elems, env);
@@ -82,14 +84,16 @@ public class Interpreter {
   }
 
   private static Value evalLet(List<Expr> elems, Env env) {
-    if (elems.size() < 3) throw error("let: too few arguments");
+    if (elems.size() < 3) throw new RuntimeException("let: too few arguments");
 
     return switch (elems.get(1)) {
       // variable: (let vname expr)
       case SymbolExpr nameSym -> evalLetVariable(nameSym, elems.get(2), env);
       // function: (let (fname p1 p2 ...) body)
       case ListExpr fnSig -> evalLetFunction(fnSig, elems.get(2), env);
-      default -> throw error("let: expected '(let vname expr)' or '(let (fname p1 p2 ...) body)'");
+      default ->
+          throw new RuntimeException(
+              "let: expected '(let vname expr)' or '(let (fname p1 p2 ...) body)'");
     };
   }
 
@@ -105,13 +109,15 @@ public class Interpreter {
   private static ClosureFn evalLetFunction(ListExpr fnSig, Expr body, Env env) {
     // function: (let (fname p1 p2 ...) body)
     List<Expr> sigElems = fnSig.elements();
-    if (sigElems.isEmpty()) throw error("let: function signature expected (fname p1 p2 ...)");
+    if (sigElems.isEmpty())
+      throw new RuntimeException("let: function signature expected (fname p1 p2 ...)");
 
     // fname
     String fname =
         switch (sigElems.getFirst()) {
           case SymbolExpr(String name) -> name;
-          default -> throw error("let: function name needs to be lispy.ast.SymbolExpr");
+          default ->
+              throw new RuntimeException("let: function name needs to be lispy.ast.SymbolExpr");
         };
 
     // parameters
@@ -123,7 +129,7 @@ public class Interpreter {
                     switch (e) {
                       case SymbolExpr(String name) -> name;
                       default ->
-                          throw error(
+                          throw new RuntimeException(
                               "let: function parameters needs to be" + " lispy.ast.SymbolExpr");
                     })
             .toList();
@@ -136,9 +142,9 @@ public class Interpreter {
   }
 
   private static Value evalIf(List<Expr> elems, Env env) {
-    if (elems.size() < 3) throw error("expected '(if cond then [else])'");
+    if (elems.size() < 3) throw new RuntimeException("expected '(if cond then [else])'");
 
-    Value res = bool(false);
+    Value res = new BoolVal(false);
     Expr cond = elems.get(1);
     Expr thenexpr = elems.get(2);
     Expr elseexpr = (elems.size() >= 4) ? elems.get(3) : new BoolLiteral(false);
@@ -150,9 +156,9 @@ public class Interpreter {
   }
 
   private static Value evalWhile(List<Expr> elems, Env env) {
-    if (elems.size() < 2) throw error("expected '(while cond body)'");
+    if (elems.size() < 2) throw new RuntimeException("expected '(while cond body)'");
 
-    Value res = bool(false);
+    Value res = new BoolVal(false);
     Expr cond = elems.get(1);
     Expr body = elems.get(2);
 
@@ -162,11 +168,11 @@ public class Interpreter {
   }
 
   private static Value evalAnd(List<Expr> elems, Env env) {
-    return bool(elems.stream().skip(1).map(e -> eval(e, env)).allMatch(Value::isTruthy));
+    return new BoolVal(elems.stream().skip(1).map(e -> eval(e, env)).allMatch(Value::isTruthy));
   }
 
   private static Value evalOr(List<Expr> elems, Env env) {
-    return bool(elems.stream().skip(1).map(e -> eval(e, env)).anyMatch(Value::isTruthy));
+    return new BoolVal(elems.stream().skip(1).map(e -> eval(e, env)).anyMatch(Value::isTruthy));
   }
 
   private static Value evalFn(SymbolExpr headExpr, List<Expr> elems, Env env) {
@@ -174,7 +180,7 @@ public class Interpreter {
     FnVal fn =
         switch (eval(headExpr, env)) {
           case FnVal f -> f;
-          default -> throw error("function expected: " + headExpr);
+          default -> throw new RuntimeException("function expected: " + headExpr);
         };
 
     // evaluate args in current env
@@ -192,38 +198,40 @@ public class Interpreter {
         new BuiltinFn(
             "+",
             args -> {
-              if (args.isEmpty()) throw error("+: expected at least one argument");
-              return num(args.stream().map(Value::asNum).reduce(0, Integer::sum));
+              if (args.isEmpty()) throw new RuntimeException("+: expected at least one argument");
+              return new NumVal(args.stream().map(Value::asNum).reduce(0, Integer::sum));
             }));
     env.define(
         "-",
         new BuiltinFn(
             "-",
             args -> {
-              if (args.isEmpty()) throw error("-: expected at least one argument");
+              if (args.isEmpty()) throw new RuntimeException("-: expected at least one argument");
 
               int res = Value.asNum(args.getFirst());
-              if (args.size() == 1) return num(-1 * res);
-              return num(args.stream().skip(1).map(Value::asNum).reduce(res, (a, b) -> a - b));
+              if (args.size() == 1) return new NumVal(-1 * res);
+              return new NumVal(
+                  args.stream().skip(1).map(Value::asNum).reduce(res, (a, b) -> a - b));
             }));
     env.define(
         "*",
         new BuiltinFn(
             "*",
             args -> {
-              if (args.isEmpty()) throw error("*: expected at least one argument");
-              return num(args.stream().map(Value::asNum).reduce(1, (a, b) -> a * b));
+              if (args.isEmpty()) throw new RuntimeException("*: expected at least one argument");
+              return new NumVal(args.stream().map(Value::asNum).reduce(1, (a, b) -> a * b));
             }));
     env.define(
         "/",
         new BuiltinFn(
             "/",
             args -> {
-              if (args.isEmpty()) throw error("/: expected at least one argument");
+              if (args.isEmpty()) throw new RuntimeException("/: expected at least one argument");
 
               int res = Value.asNum(args.getFirst());
-              if (args.size() == 1) return num(1 / res);
-              return num(args.stream().skip(1).map(Value::asNum).reduce(res, (a, b) -> a / b));
+              if (args.size() == 1) return new NumVal(1 / res);
+              return new NumVal(
+                  args.stream().skip(1).map(Value::asNum).reduce(res, (a, b) -> a / b));
             }));
 
     // comparison
@@ -232,21 +240,21 @@ public class Interpreter {
         new BuiltinFn(
             "=",
             args -> {
-              if (args.isEmpty()) throw error("=: expected at least one argument");
+              if (args.isEmpty()) throw new RuntimeException("=: expected at least one argument");
 
-              if (args.size() == 1) return bool(true);
+              if (args.size() == 1) return new BoolVal(true);
               Value res = args.getFirst();
-              return bool(args.stream().skip(1).allMatch(v -> Value.valueEquals(res, v)));
+              return new BoolVal(args.stream().skip(1).allMatch(v -> Value.valueEquals(res, v)));
             }));
     env.define(
         ">",
         new BuiltinFn(
             ">",
             args -> {
-              if (args.isEmpty()) throw error(">: expected at least one argument");
+              if (args.isEmpty()) throw new RuntimeException(">: expected at least one argument");
 
               List<Integer> list = args.stream().map(Value::asNum).toList();
-              return bool(
+              return new BoolVal(
                   IntStream.range(1, list.size())
                       .allMatch(i -> list.get(i - 1).compareTo(list.get(i)) > 0));
             }));
@@ -255,10 +263,10 @@ public class Interpreter {
         new BuiltinFn(
             "<",
             args -> {
-              if (args.isEmpty()) throw error("<: expected at least one argument");
+              if (args.isEmpty()) throw new RuntimeException("<: expected at least one argument");
 
               List<Integer> list = args.stream().map(Value::asNum).toList();
-              return bool(
+              return new BoolVal(
                   IntStream.range(1, list.size())
                       .allMatch(i -> list.get(i - 1).compareTo(list.get(i)) < 0));
             }));
@@ -269,8 +277,8 @@ public class Interpreter {
         new BuiltinFn(
             "not",
             args -> {
-              if (args.size() != 1) throw error("not: expected one argument");
-              return bool(!Value.isTruthy(args.getFirst()));
+              if (args.size() != 1) throw new RuntimeException("not: expected one argument");
+              return new BoolVal(!Value.isTruthy(args.getFirst()));
             }));
 
     // print
@@ -282,7 +290,7 @@ public class Interpreter {
               String line =
                   args.stream().map(Value::pretty).reduce((a, b) -> a + " " + b).orElse("");
               System.out.println(line);
-              return (args.isEmpty()) ? bool(true) : args.getLast();
+              return args.isEmpty() ? new BoolVal(true) : args.getLast();
             }));
 
     // native support for lists
@@ -292,7 +300,7 @@ public class Interpreter {
         new BuiltinFn(
             "cons",
             args -> {
-              if (args.size() != 2) throw error("cons: expected two arguments");
+              if (args.size() != 2) throw new RuntimeException("cons: expected two arguments");
 
               Value head = args.getFirst();
               ListVal tail = Value.asList(args.getLast());
@@ -306,10 +314,10 @@ public class Interpreter {
         new BuiltinFn(
             "head",
             args -> {
-              if (args.size() != 1) throw error("head: expected one argument");
+              if (args.size() != 1) throw new RuntimeException("head: expected one argument");
 
               ListVal l = Value.asList(args.getFirst());
-              if (l.isEmpty()) throw error("head: got empty list");
+              if (l.isEmpty()) throw new RuntimeException("head: got empty list");
               return l.elements().getFirst();
             }));
     env.define(
@@ -317,10 +325,10 @@ public class Interpreter {
         new BuiltinFn(
             "tail",
             args -> {
-              if (args.size() != 1) throw error("tail: expected one argument");
+              if (args.size() != 1) throw new RuntimeException("tail: expected one argument");
 
               ListVal l = Value.asList(args.getFirst());
-              if (l.isEmpty()) throw error("tail: got empty list");
+              if (l.isEmpty()) throw new RuntimeException("tail: got empty list");
               return ListVal.of(l.elements().subList(1, l.elements().size()));
             }));
     env.define(
@@ -328,20 +336,20 @@ public class Interpreter {
         new BuiltinFn(
             "empty?",
             args -> {
-              if (args.size() != 1) throw error("empty?: expected one argument");
+              if (args.size() != 1) throw new RuntimeException("empty?: expected one argument");
 
               ListVal l = Value.asList(args.getFirst());
-              return bool(l.isEmpty());
+              return new BoolVal(l.isEmpty());
             }));
     env.define(
         "length",
         new BuiltinFn(
             "length",
             args -> {
-              if (args.size() != 1) throw error("length: expected one argument");
+              if (args.size() != 1) throw new RuntimeException("length: expected one argument");
 
               ListVal l = Value.asList(args.getFirst());
-              return num(l.elements().size());
+              return new NumVal(l.elements().size());
             }));
     env.define(
         "append",
@@ -358,31 +366,16 @@ public class Interpreter {
         new BuiltinFn(
             "nth",
             args -> {
-              if (args.size() != 2) throw error("nth: expected two arguments");
+              if (args.size() != 2) throw new RuntimeException("nth: expected two arguments");
 
               int i = Value.asNum(args.getFirst());
               ListVal l = Value.asList(args.getLast());
-              if (i < 0 || i >= l.elements().size()) throw error("nth: index out of bounds");
+              if (i < 0 || i >= l.elements().size())
+                throw new RuntimeException("nth: index out of bounds");
               return l.elements().get(i);
             }));
 
     // allow for chaining of operations
     return env;
-  }
-
-  private static NumVal num(int v) {
-    return new NumVal(v);
-  }
-
-  private static StrVal str(String v) {
-    return new StrVal(v);
-  }
-
-  private static BoolVal bool(boolean v) {
-    return new BoolVal(v);
-  }
-
-  private static RuntimeException error(String msg) {
-    return new RuntimeException(msg);
   }
 }
