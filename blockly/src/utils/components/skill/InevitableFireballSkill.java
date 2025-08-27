@@ -5,8 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.entities.HeroFactory;
+import contrib.skill.damageSkill.projectile.DamageProjectileSkill;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.damageSkill.projectile.DamageProjectileSkill;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -72,6 +72,8 @@ public class InevitableFireballSkill extends DamageProjectileSkill {
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .ifPresent(PositionComponent::centerPositionOnTile);
         },
+        damageAmount1,
+        type,
         (projectile, entity) -> {
           // Set the velocity back to the original value (hero only)
           if (!entity.isPresent(PlayerComponent.class)) return;

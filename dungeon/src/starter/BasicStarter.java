@@ -1,5 +1,7 @@
 package starter;
 
+import contrib.entities.HeroFactory;
+import contrib.systems.ProjectileSystem;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.DungeonLevel;
@@ -25,6 +27,8 @@ public class BasicStarter {
     DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(true);
+    Game.add(HeroFactory.newHero());
+    Game.add(new ProjectileSystem());
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();

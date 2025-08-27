@@ -1,13 +1,15 @@
-package contrib.utils.components.skill.damageSkill.projectile;
+package contrib.skill.damageSkill.projectile;
 
-import static contrib.utils.components.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_BONUS_EFFECT;
-import static contrib.utils.components.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_ON_WALL_HIT;
+import static contrib.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_BONUS_EFFECT;
+import static contrib.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_ON_WALL_HIT;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
+import contrib.skill.ProjectileSkill;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -49,9 +51,9 @@ public final class FireballSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public static DamageProjectileSkill fireballSkill(final Supplier<Point> targetSelection) {
+  public static DamageProjectileSkill fireballSkill(final Entity owner, final Supplier<Point> targetSelection) {
     return fireballSkill(
-        targetSelection, DEFAULT_PROJECTILE_RANGE, DEFAULT_PROJECTILE_SPEED, DEFAULT_DAMAGE_AMOUNT);
+        owner,targetSelection,COOLDOWN);
   }
 
   /**
@@ -61,63 +63,30 @@ public final class FireballSkill {
    * @see DamageProjectileSkill
    */
   public static DamageProjectileSkill fireballSkill(
-      final Supplier<Point> targetSelection, long cooldown) {
+      final Entity owner, final Supplier<Point> targetSelection, long cooldown) {
     return fireballSkill(
-        targetSelection,
-        DEFAULT_PROJECTILE_RANGE,
-        DEFAULT_PROJECTILE_SPEED,
-        DEFAULT_DAMAGE_AMOUNT,
-        cooldown);
-  }
-
-  /**
-   * Creates a new FireballSkill with the specified target selection, range, speed, and damage
-   * amount. The target selection is a function used to select the point where the projectile should
-   * fly to. The range is the maximum distance the projectile can travel. The speed is the speed at
-   * which the projectile travels. The damage amount is the amount of damage the projectile will
-   * deal upon impact.
-   *
-   * @param targetSelection A function used to select the point where the projectile should fly to.
-   * @param range The maximum distance the projectile can travel.
-   * @param speed The speed at which the projectile travels.
-   * @param damageAmount The amount of damage the projectile will deal upon impact.
-   */
-  public static DamageProjectileSkill fireballSkill(
-      final Supplier<Point> targetSelection,
-      float range,
-      float speed,
-      int damageAmount,
-      long cooldown) {
-    return new DamageProjectileSkill(
-        SKILL_NAME,
-        cooldown,
-        targetSelection,
-        damageAmount,
-        DAMAGE_TYPE,
-        PROJECTILE_TEXTURES,
-        speed,
-        range,
-        HIT_BOX_SIZE,
-        DEFAULT_ON_WALL_HIT,
-        ON_SPAWN_PLAY_SOUND,
-        DEFAULT_BONUS_EFFECT) {};
+        owner, targetSelection, cooldown, DEFAULT_PROJECTILE_RANGE,DEFAULT_PROJECTILE_SPEED,DEFAULT_DAMAGE_AMOUNT);
   }
 
   public static DamageProjectileSkill fireballSkill(
-      final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
+          final Entity owner, final Supplier<Point> target, long cooldown, float range, float speed, int damageAmount) {
     return new DamageProjectileSkill(
-        SKILL_NAME,
-        COOLDOWN,
-        targetSelection,
-        damageAmount,
-        DAMAGE_TYPE,
-        PROJECTILE_TEXTURES,
-        speed,
-        range,
-        HIT_BOX_SIZE,
-        DEFAULT_ON_WALL_HIT,
-        ON_SPAWN_PLAY_SOUND,
-        DEFAULT_BONUS_EFFECT);
+            SKILL_NAME,
+            cooldown,
+            (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
+            target,
+            PROJECTILE_TEXTURES,
+            speed,
+            range,
+            HIT_BOX_SIZE,
+            ProjectileSkill.DEFAULT_ON_WALL_HIT,
+            ON_SPAWN_PLAY_SOUND,
+            ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
+            ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
+            owner,
+            damageAmount,
+            DAMAGE_TYPE,
+            DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
   }
 
   private static void playSound() {

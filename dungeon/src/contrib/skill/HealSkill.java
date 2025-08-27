@@ -1,4 +1,4 @@
-package contrib.utils.components.skill;
+package contrib.skill;
 
 import core.Entity;
 

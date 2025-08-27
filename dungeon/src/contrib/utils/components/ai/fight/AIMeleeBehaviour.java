@@ -1,7 +1,7 @@
 package contrib.utils.components.ai.fight;
 
+import contrib.skill.Skill;
 import contrib.utils.components.ai.ISkillUser;
-import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.level.utils.LevelUtils;
 import java.util.function.Consumer;

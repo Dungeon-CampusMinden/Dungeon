@@ -2,7 +2,7 @@ package aiAdvanced.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import contrib.utils.components.skill.SkillTools;
+import contrib.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;

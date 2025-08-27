@@ -8,11 +8,11 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.skill.Skill;
+import contrib.skill.SkillTools;
+import contrib.skill.damageSkill.projectile.FireballSkill;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
-import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.SkillTools;
-import contrib.utils.components.skill.damageSkill.projectile.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -48,7 +48,6 @@ public final class HeroFactory {
   private static final float HERO_MAX_SPEED = STEP_SPEED.x();
   private static final String MOVEMENT_ID = "Movement";
   private static final float HERO_MASS = 1.3f;
-  private static Skill HERO_SKILL = FireballSkill.fireballSkill(SkillTools::cursorPositionAsPoint);
 
   private static Consumer<Entity> HERO_DEATH =
       (hero) ->
@@ -70,15 +69,6 @@ public final class HeroFactory {
    */
   public static Vector2 defaultHeroSpeed() {
     return Vector2.of(STEP_SPEED);
-  }
-
-  /**
-   * Gets the current skill of the hero.
-   *
-   * @return The current skill of the hero.
-   */
-  public static Skill getHeroSkill() {
-    return HERO_SKILL;
   }
 
   /**
@@ -130,7 +120,9 @@ public final class HeroFactory {
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
-    HealthComponent hc =
+  Skill heroSkill = FireballSkill.fireballSkill(hero,SkillTools::cursorPositionAsPoint);
+
+      HealthComponent hc =
         new HealthComponent(
             HERO_HP,
             entity -> {
@@ -196,7 +188,7 @@ public final class HeroFactory {
 
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
-      registerMouseLeftClick(inputComp);
+      registerMouseLeftClick(inputComp,heroSkill);
 
       // Mouse Movement (Right Click)
       inputComp.registerCallback(
@@ -270,9 +262,10 @@ public final class HeroFactory {
         },
         false);
 
-    // skills
+
+      // skills
     inputComp.registerCallback(
-        KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
+        KeyboardConfig.FIRST_SKILL.value(), heroEntity -> heroSkill.execute(heroEntity));
 
     return hero;
   }
@@ -366,11 +359,11 @@ public final class HeroFactory {
         });
   }
 
-  private static void registerMouseLeftClick(InputComponent ic) {
+  private static void registerMouseLeftClick(InputComponent ic, Skill heroSkill) {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       ic.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), hero -> HERO_SKILL.execute(hero), true, false);
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), hero -> heroSkill.execute(hero), true, false);
       ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
@@ -385,7 +378,7 @@ public final class HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              HERO_SKILL.execute(hero);
+                heroSkill.execute(hero);
             } else {
               handleInteractWithClosestInteractable(hero);
             }

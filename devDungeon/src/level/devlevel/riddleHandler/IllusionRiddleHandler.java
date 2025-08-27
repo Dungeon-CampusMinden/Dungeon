@@ -2,8 +2,8 @@ package level.devlevel.riddleHandler;
 
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
+import contrib.skill.SkillTools;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;

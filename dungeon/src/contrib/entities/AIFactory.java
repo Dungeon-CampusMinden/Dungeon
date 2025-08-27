@@ -2,6 +2,8 @@ package contrib.entities;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
+import contrib.skill.SkillTools;
+import contrib.skill.damageSkill.projectile.FireballSkill;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
@@ -12,8 +14,6 @@ import contrib.utils.components.ai.transition.ProtectOnApproach;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
-import contrib.utils.components.skill.SkillTools;
-import contrib.utils.components.skill.damageSkill.projectile.FireballSkill;
 import core.Entity;
 import core.Game;
 import java.util.List;

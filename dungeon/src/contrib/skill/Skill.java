@@ -1,26 +1,25 @@
-package contrib.utils.components.skill;
+package contrib.skill;
 
 import core.Entity;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class Skill {
+  protected static final Logger LOGGER = Logger.getLogger(Skill.class.getSimpleName());
 
   public static final Skill NONE =
       new Skill() {
-        @Override
-        protected void executeSkill(Entity caster) {
-          return;
-        }
-        ;
+        protected void executeSkill(Entity caster) {}
       };
+
   private String name;
   private long cooldown;
-
-  protected static final Logger LOGGER = Logger.getLogger(Skill.class.getSimpleName());
   private Instant lastUsed;
   private Instant nextUsableAt = Instant.now();
+
+  private Map<Resource, Integer> resourceCost;
 
   public Skill(String name, long cooldown) {
     this.name = name;
@@ -31,12 +30,24 @@ public abstract class Skill {
 
   protected abstract void executeSkill(Entity caster);
 
-  public final void execute(final Entity entity) {
-    if (canBeUsedAgain()) {
+  public final boolean execute(final Entity entity) {
+    if (canBeUsedAgain() && checkRessources(entity)) {
       executeSkill(entity);
+      consumeResoruces(entity);
       lastUsed = Instant.now();
       activateCoolDown();
+      return true;
     }
+    return false;
+  }
+
+  private boolean checkRessources(Entity caster) {
+    // TODO
+    return true;
+  }
+
+  private void consumeResoruces(Entity caster) {
+    // TODO
   }
 
   public String name() {
