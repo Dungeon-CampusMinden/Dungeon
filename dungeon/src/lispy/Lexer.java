@@ -80,7 +80,7 @@ public class Lexer {
               default -> Token.of(Type.ID, id);
             };
           }
-          throw error("unexpected character '" + c + "'");
+          throw new RuntimeException("unexpected character '" + c + "'");
         }
       }
     }
@@ -125,8 +125,9 @@ public class Lexer {
 
     if (peek() == '"') consume(); // closing '"'
     else if (peek() == '\n' || peek() == '\r')
-      throw error("string not terminated (found line end before matching '\"')");
-    else if (peek() == '\0') throw error("string not terminated (found EOF before matching '\"')");
+      throw new RuntimeException("string not terminated (found line end before matching '\"')");
+    else if (peek() == '\0')
+      throw new RuntimeException("string not terminated (found EOF before matching '\"')");
 
     return s;
   }
@@ -149,9 +150,5 @@ public class Lexer {
 
   private static boolean isLetterOrDigit(char c) {
     return isLetter(c) || isDigit(c);
-  }
-
-  private static RuntimeException error(String msg) {
-    return new RuntimeException(msg);
   }
 }
