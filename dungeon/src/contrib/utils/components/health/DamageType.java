@@ -12,6 +12,7 @@ public enum DamageType {
   HEAL,
   /** Damage that is dealt over time. */
   POISON,
+  SKILL,
   /** Damage caused by falling from a height. */
   FALL
 }

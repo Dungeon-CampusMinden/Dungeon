@@ -1,10 +1,14 @@
 package contrib.skill;
 
 import core.Entity;
+import core.utils.Tuple;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public abstract class Skill {
   protected static final Logger LOGGER = Logger.getLogger(Skill.class.getSimpleName());
@@ -21,9 +25,18 @@ public abstract class Skill {
 
   private Map<Resource, Integer> resourceCost;
 
-  public Skill(String name, long cooldown) {
+  public Skill(String name, long cooldown, Tuple<Resource, Integer>... resources) {
     this.name = name;
     this.cooldown = cooldown;
+    // Convert the tuple array into a HashMap
+    this.resourceCost =
+        Arrays.stream(resources)
+            .collect(
+                Collectors.toMap(
+                    tuple -> tuple.a(), // Resource
+                    tuple -> tuple.b() // Integer
+                    ));
+    System.out.println(resourceCost);
   }
 
   private Skill() {}
@@ -31,9 +44,9 @@ public abstract class Skill {
   protected abstract void executeSkill(Entity caster);
 
   public final boolean execute(final Entity entity) {
-    if (canBeUsedAgain() && checkRessources(entity)) {
+    if (canBeUsedAgain() && checkResources(entity)) {
       executeSkill(entity);
-      consumeResoruces(entity);
+      consumeResources(entity);
       lastUsed = Instant.now();
       activateCoolDown();
       return true;
@@ -41,13 +54,25 @@ public abstract class Skill {
     return false;
   }
 
-  private boolean checkRessources(Entity caster) {
-    // TODO
+  private boolean checkResources(Entity caster) {
+    // For each required resource, check if the entity has enough
+    for (Map.Entry<Resource, Integer> entry : resourceCost.entrySet()) {
+      Resource resource = entry.getKey();
+      int requiredAmount = entry.getValue();
+      int currentAmount = resource.apply(caster);
+      if (currentAmount < requiredAmount) {
+        return false; // not enough resource
+      }
+    }
     return true;
   }
 
-  private void consumeResoruces(Entity caster) {
-    // TODO
+  private void consumeResources(Entity caster) {
+    for (Map.Entry<Resource, Integer> entry : resourceCost.entrySet()) {
+      Resource resource = entry.getKey();
+      int amount = entry.getValue();
+      resource.consume(caster, amount);
+    }
   }
 
   public String name() {
@@ -99,5 +124,27 @@ public abstract class Skill {
   public void setLastUsedToNow() {
     this.lastUsed = Instant.now();
     activateCoolDown();
+  }
+
+  public Map<Resource, Integer> getResourceCost() {
+    return new HashMap<>(resourceCost);
+  }
+
+  public void setResourceCost(Map<Resource, Integer> newResourceCost) {
+    this.resourceCost = new HashMap<>(newResourceCost);
+  }
+
+  public void updateResourceCost(Resource resource, int newAmount) {
+    if (resourceCost.containsKey(resource)) {
+      resourceCost.put(resource, newAmount);
+    }
+  }
+
+  public void addResource(Resource resource, int amount) {
+    resourceCost.put(resource, amount);
+  }
+
+  public void removeResource(Resource resource) {
+    resourceCost.remove(resource);
   }
 }

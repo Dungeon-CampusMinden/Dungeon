@@ -1,9 +1,11 @@
 package contrib.skill.cursorSkill;
 
 import contrib.components.HealthComponent;
+import contrib.skill.Resource;
 import core.Entity;
 import core.Game;
 import core.utils.Point;
+import core.utils.Tuple;
 import java.util.function.BiConsumer;
 
 public class HealTarget extends CursorSkill {
@@ -14,8 +16,8 @@ public class HealTarget extends CursorSkill {
   private BiConsumer<Entity, Point> heal =
       (entity, point) -> Game.entityAtPoint(point).findFirst().ifPresent(e -> heal(e));
 
-  public HealTarget(long cooldown, int healAmount) {
-    super(NAME, cooldown);
+  public HealTarget(long cooldown, int healAmount, Tuple<Resource, Integer>... resourceCost) {
+    super(NAME, cooldown, resourceCost);
     this.healAmount = healAmount;
     this.executeOnCursor(heal);
   }

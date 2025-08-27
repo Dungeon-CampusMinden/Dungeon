@@ -216,6 +216,10 @@ public final class InventoryComponent implements Component {
     return (int) Arrays.stream(this.inventory).filter(Objects::nonNull).count();
   }
 
+  public int count(Class<? extends Item> klass) {
+    return items(klass).stream().mapToInt(Item::stackSize).sum();
+  }
+
   /**
    * Get a Set of items stored in this component.
    *
@@ -296,5 +300,24 @@ public final class InventoryComponent implements Component {
       }
     }
     return false;
+  }
+
+  public void remove(Class<? extends Item> klass, int amount) {
+    Set<Item> itemSet = this.items(klass);
+
+    Iterator<Item> iterator = itemSet.iterator();
+    while (iterator.hasNext() && amount > 0) {
+      Item item = iterator.next();
+      int stack = item.stackSize();
+
+      if (stack <= amount) {
+        amount -= stack;
+        this.remove(item);
+        iterator.remove(); // safe removal from Set
+      } else {
+        item.stackSize(stack - amount);
+        amount = 0;
+      }
+    }
   }
 }

@@ -35,6 +35,41 @@ public class TPBallSkill {
   private static final Consumer<Entity> ON_SPAWN_PLAY_SOUND = entity -> playSound();
   private static final long COOLDOWN = 2000;
 
+  /** Uses all default values: cooldown, range, speed, and damage. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner, final Supplier<Point> target, Supplier<Point> tpTarget) {
+    return tpBallSkill(
+        owner, target, tpTarget, COOLDOWN, PROJECTILE_RANGE, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  }
+
+  /** Uses default speed, range, and damage but custom cooldown. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner, final Supplier<Point> target, Supplier<Point> tpTarget, long cooldown) {
+    return tpBallSkill(
+        owner, target, tpTarget, cooldown, PROJECTILE_RANGE, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  }
+
+  /** Uses default damage and speed, but allows custom cooldown and range. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float range) {
+    return tpBallSkill(owner, target, tpTarget, cooldown, range, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  }
+
+  /** Uses default damage, but allows custom cooldown, range, and speed. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float range,
+      float speed) {
+    return tpBallSkill(owner, target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT);
+  }
+
   /**
    * Create a {@link DamageProjectileSkill} that looks like a magic ball and will cause magic damage
    * and teleport the entity to a random or specific location.
