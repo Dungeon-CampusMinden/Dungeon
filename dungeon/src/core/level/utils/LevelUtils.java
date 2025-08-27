@@ -262,7 +262,13 @@ public final class LevelUtils {
    */
   public static Optional<Point> randomAccessibleTileInRangeAsPoint(
       final Point center, float radius) {
-    return accessibleTilesInRange(center, radius).stream().map(Tile::position).findAny();
+    List<Tile> accessible = accessibleTilesInRange(center, radius);
+    if (accessible.isEmpty()) return Optional.empty();
+
+    return accessible.stream()
+        .map(Tile::position)
+        .skip(RANDOM.nextInt(accessible.size()))
+        .findFirst();
   }
 
   /**

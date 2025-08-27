@@ -65,7 +65,7 @@ public class AIUtils {
     return path.getCount() == 0
         || entity
             .fetch(PositionComponent.class)
-            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAt(pc.position())))
+            .map(pc -> LevelUtils.lastTile(path).equals(Game.tileAt(pc.position()).orElse(null)))
             .orElse(false);
   }
 
