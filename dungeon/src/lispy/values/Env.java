@@ -1,8 +1,10 @@
 package lispy.values;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /** memory model for interpreter. */
 public class Env {
@@ -28,9 +30,22 @@ public class Env {
    *
    * @param name name
    * @param value value
+   * @return this environment (for chaining operations)
    */
-  public void define(String name, Value value) {
+  public Env define(String name, Value value) {
     values.put(Objects.requireNonNull(name), Objects.requireNonNull(value));
+    return this;
+  }
+
+  /**
+   * bind a name to a value.
+   *
+   * @param builtins map of name/value pairs
+   * @return this environment (for chaining operations)
+   */
+  public Env define(Map<String, Function<List<Value>, Value>> builtins) {
+    builtins.forEach((n, fn) -> define(n, new BuiltinFn(n, fn)));
+    return this;
   }
 
   /**
