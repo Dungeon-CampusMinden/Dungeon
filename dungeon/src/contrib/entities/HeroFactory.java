@@ -48,7 +48,7 @@ public final class HeroFactory {
   private static final float HERO_MAX_SPEED = STEP_SPEED.x();
   private static final String MOVEMENT_ID = "Movement";
   private static final float HERO_MASS = 1.3f;
-  private static Skill HERO_SKILL = new FireballSkill(SkillTools::cursorPositionAsPoint);
+  private static Skill HERO_SKILL = FireballSkill.fireballSkill(SkillTools::cursorPositionAsPoint);
 
   private static Consumer<Entity> HERO_DEATH =
       (hero) ->

@@ -25,7 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class DamageProjectileSkill extends DamageSkill {
+public class DamageProjectileSkill extends DamageSkill {
 
   /**
    * The default behavior when the projectile gets spawned.
