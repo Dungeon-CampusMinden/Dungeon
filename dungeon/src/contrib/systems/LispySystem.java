@@ -76,7 +76,7 @@ public class LispySystem extends System {
       Program p = Parser.parseString(task.code);
       for (Expr e : p.expressions()) {
         Value v = Interpreter.evaluate(e, env);
-        task.results.add(v.pretty());
+        task.results.add(Value.pretty(v));
       }
     } catch (Exception e) {
       task.error.add("interpreter error: " + e.getMessage());

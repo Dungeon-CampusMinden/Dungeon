@@ -1,7 +1,6 @@
 package lispy;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import lispy.ast.*;
 import lispy.values.Value;
@@ -18,7 +17,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("42", res.pretty());
+    assertEquals("42", Value.pretty(res));
   }
 
   @Test
@@ -30,7 +29,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("\"wuppieFluppie\"", res.pretty());
+    assertEquals("\"wuppieFluppie\"", Value.pretty(res));
   }
 
   @Test
@@ -42,7 +41,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("true", res.pretty());
+    assertEquals("true", Value.pretty(res));
   }
 
   @Test
@@ -54,7 +53,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("false", res.pretty());
+    assertEquals("false", Value.pretty(res));
   }
 
   @Test
@@ -81,7 +80,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("(42 7 \"wuppie\")", res.pretty());
+    assertEquals("(42 7 \"wuppie\")", Value.pretty(res));
   }
 
   @Test
@@ -101,7 +100,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("42", res.pretty());
+    assertEquals("42", Value.pretty(res));
   }
 
   @Test
@@ -121,7 +120,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("(7 \"wuppie\")", res.pretty());
+    assertEquals("(7 \"wuppie\")", Value.pretty(res));
   }
 
   @Test
@@ -144,7 +143,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("(true 7 \"wuppie\")", res.pretty());
+    assertEquals("(true 7 \"wuppie\")", Value.pretty(res));
   }
 
   @Test
@@ -162,7 +161,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("\"true\"", res.pretty());
+    assertEquals("\"true\"", Value.pretty(res));
   }
 
   @Test
@@ -180,7 +179,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("\"WUPPIE\"", res.pretty());
+    assertEquals("\"WUPPIE\"", Value.pretty(res));
   }
 
   @Test
@@ -195,7 +194,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("5", res.pretty());
+    assertEquals("5", Value.pretty(res));
   }
 
   @Test
@@ -220,7 +219,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("<fn foo>", res.pretty());
+    assertEquals("<fn foo>", Value.pretty(res));
   }
 
   @Test
@@ -256,7 +255,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("10", res.pretty());
+    assertEquals("10", Value.pretty(res));
   }
 
   @Test
@@ -301,7 +300,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("1111", res.pretty());
+    assertEquals("1111", Value.pretty(res));
   }
 
   @Test
@@ -319,7 +318,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("89", res.pretty());
+    assertEquals("89", Value.pretty(res));
   }
 
   @Test
@@ -337,7 +336,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("2000", res.pretty());
+    assertEquals("2000", Value.pretty(res));
   }
 
   @Test
@@ -355,7 +354,7 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("5", res.pretty());
+    assertEquals("5", Value.pretty(res));
   }
 
   @Test
@@ -383,6 +382,6 @@ class InterpreterTest {
     Value res = Interpreter.evaluate(p);
 
     // then
-    assertEquals("120", res.pretty());
+    assertEquals("120", Value.pretty(res));
   }
 }

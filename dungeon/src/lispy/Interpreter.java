@@ -143,7 +143,7 @@ public class Interpreter {
     Expr thenexpr = elems.get(2);
     Expr elseexpr = (elems.size() >= 4) ? elems.get(3) : new BoolLiteral(false);
 
-    if (isTruthy(eval(cond, env))) res = eval(thenexpr, env);
+    if (Value.isTruthy(eval(cond, env))) res = eval(thenexpr, env);
     else if (elems.size() >= 4) res = eval(elseexpr, env);
 
     return res;
@@ -156,17 +156,17 @@ public class Interpreter {
     Expr cond = elems.get(1);
     Expr body = elems.get(2);
 
-    while (isTruthy(eval(cond, env))) res = eval(body, env);
+    while (Value.isTruthy(eval(cond, env))) res = eval(body, env);
 
     return res;
   }
 
   private static Value evalAnd(List<Expr> elems, Env env) {
-    return bool(elems.stream().skip(1).map(e -> eval(e, env)).allMatch(Interpreter::isTruthy));
+    return bool(elems.stream().skip(1).map(e -> eval(e, env)).allMatch(Value::isTruthy));
   }
 
   private static Value evalOr(List<Expr> elems, Env env) {
-    return bool(elems.stream().skip(1).map(e -> eval(e, env)).anyMatch(Interpreter::isTruthy));
+    return bool(elems.stream().skip(1).map(e -> eval(e, env)).anyMatch(Value::isTruthy));
   }
 
   private static Value evalFn(SymbolExpr headExpr, List<Expr> elems, Env env) {
@@ -193,7 +193,7 @@ public class Interpreter {
             "+",
             args -> {
               if (args.isEmpty()) throw error("+: expected at least one argument");
-              return num(args.stream().map(Interpreter::asNum).reduce(0, Integer::sum));
+              return num(args.stream().map(Value::asNum).reduce(0, Integer::sum));
             }));
     env.define(
         "-",
@@ -202,10 +202,9 @@ public class Interpreter {
             args -> {
               if (args.isEmpty()) throw error("-: expected at least one argument");
 
-              int res = asNum(args.getFirst());
+              int res = Value.asNum(args.getFirst());
               if (args.size() == 1) return num(-1 * res);
-              return num(
-                  args.stream().skip(1).map(Interpreter::asNum).reduce(res, (a, b) -> a - b));
+              return num(args.stream().skip(1).map(Value::asNum).reduce(res, (a, b) -> a - b));
             }));
     env.define(
         "*",
@@ -213,7 +212,7 @@ public class Interpreter {
             "*",
             args -> {
               if (args.isEmpty()) throw error("*: expected at least one argument");
-              return num(args.stream().map(Interpreter::asNum).reduce(1, (a, b) -> a * b));
+              return num(args.stream().map(Value::asNum).reduce(1, (a, b) -> a * b));
             }));
     env.define(
         "/",
@@ -222,10 +221,9 @@ public class Interpreter {
             args -> {
               if (args.isEmpty()) throw error("/: expected at least one argument");
 
-              int res = asNum(args.getFirst());
+              int res = Value.asNum(args.getFirst());
               if (args.size() == 1) return num(1 / res);
-              return num(
-                  args.stream().skip(1).map(Interpreter::asNum).reduce(res, (a, b) -> a / b));
+              return num(args.stream().skip(1).map(Value::asNum).reduce(res, (a, b) -> a / b));
             }));
 
     // comparison
@@ -238,7 +236,7 @@ public class Interpreter {
 
               if (args.size() == 1) return bool(true);
               Value res = args.getFirst();
-              return bool(args.stream().skip(1).allMatch(v -> valueEquals(res, v)));
+              return bool(args.stream().skip(1).allMatch(v -> Value.valueEquals(res, v)));
             }));
     env.define(
         ">",
@@ -247,7 +245,7 @@ public class Interpreter {
             args -> {
               if (args.isEmpty()) throw error(">: expected at least one argument");
 
-              List<Integer> list = args.stream().map(Interpreter::asNum).toList();
+              List<Integer> list = args.stream().map(Value::asNum).toList();
               return bool(
                   IntStream.range(1, list.size())
                       .allMatch(i -> list.get(i - 1).compareTo(list.get(i)) > 0));
@@ -259,7 +257,7 @@ public class Interpreter {
             args -> {
               if (args.isEmpty()) throw error("<: expected at least one argument");
 
-              List<Integer> list = args.stream().map(Interpreter::asNum).toList();
+              List<Integer> list = args.stream().map(Value::asNum).toList();
               return bool(
                   IntStream.range(1, list.size())
                       .allMatch(i -> list.get(i - 1).compareTo(list.get(i)) < 0));
@@ -272,7 +270,7 @@ public class Interpreter {
             "not",
             args -> {
               if (args.size() != 1) throw error("not: expected one argument");
-              return bool(!isTruthy(args.getFirst()));
+              return bool(!Value.isTruthy(args.getFirst()));
             }));
 
     // print
@@ -297,7 +295,7 @@ public class Interpreter {
               if (args.size() != 2) throw error("cons: expected two arguments");
 
               Value head = args.getFirst();
-              ListVal tail = asList(args.getLast());
+              ListVal tail = Value.asList(args.getLast());
               List<Value> out = new ArrayList<>(tail.elements().size() + 1);
               out.add(head);
               out.addAll(tail.elements());
@@ -310,7 +308,7 @@ public class Interpreter {
             args -> {
               if (args.size() != 1) throw error("head: expected one argument");
 
-              ListVal l = asList(args.getFirst());
+              ListVal l = Value.asList(args.getFirst());
               if (l.isEmpty()) throw error("head: got empty list");
               return l.elements().getFirst();
             }));
@@ -321,7 +319,7 @@ public class Interpreter {
             args -> {
               if (args.size() != 1) throw error("tail: expected one argument");
 
-              ListVal l = asList(args.getFirst());
+              ListVal l = Value.asList(args.getFirst());
               if (l.isEmpty()) throw error("tail: got empty list");
               return ListVal.of(l.elements().subList(1, l.elements().size()));
             }));
@@ -332,7 +330,7 @@ public class Interpreter {
             args -> {
               if (args.size() != 1) throw error("empty?: expected one argument");
 
-              ListVal l = asList(args.getFirst());
+              ListVal l = Value.asList(args.getFirst());
               return bool(l.isEmpty());
             }));
     env.define(
@@ -342,7 +340,7 @@ public class Interpreter {
             args -> {
               if (args.size() != 1) throw error("length: expected one argument");
 
-              ListVal l = asList(args.getFirst());
+              ListVal l = Value.asList(args.getFirst());
               return num(l.elements().size());
             }));
     env.define(
@@ -352,7 +350,7 @@ public class Interpreter {
             args ->
                 ListVal.of(
                     args.stream()
-                        .map(Interpreter::asList)
+                        .map(Value::asList)
                         .flatMap(l -> l.elements().stream())
                         .toList())));
     env.define(
@@ -362,8 +360,8 @@ public class Interpreter {
             args -> {
               if (args.size() != 2) throw error("nth: expected two arguments");
 
-              int i = asNum(args.getFirst());
-              ListVal l = asList(args.getLast());
+              int i = Value.asNum(args.getFirst());
+              ListVal l = Value.asList(args.getLast());
               if (i < 0 || i >= l.elements().size()) throw error("nth: index out of bounds");
               return l.elements().get(i);
             }));
@@ -382,60 +380,6 @@ public class Interpreter {
 
   private static BoolVal bool(boolean v) {
     return new BoolVal(v);
-  }
-
-  private static Integer asNum(Value v) {
-    return switch (v) {
-      case NumVal(int value) -> value;
-      default -> throw error("number expected, got: " + v.pretty());
-    };
-  }
-
-  private static ListVal asList(Value v) {
-    return switch (v) {
-      case ListVal l -> l;
-      default -> throw error("list expected, got: " + v.pretty());
-    };
-  }
-
-  private static boolean isTruthy(Value v) {
-    return switch (v) {
-      case BoolVal(boolean value) -> value;
-      default -> true;
-    };
-  }
-
-  private static boolean valueEquals(Value a, Value b) {
-    return switch (a) {
-      case NumVal an ->
-          switch (b) {
-            case NumVal bn -> an.value() == bn.value();
-            default -> false;
-          };
-      case StrVal as ->
-          switch (b) {
-            case StrVal bs -> as.value().equals(bs.value());
-            default -> false;
-          };
-      case BoolVal ab ->
-          switch (b) {
-            case BoolVal bb -> ab.value() == bb.value();
-            default -> false;
-          };
-      case ListVal al ->
-          switch (b) {
-            case ListVal bl -> {
-              List<Value> aElems = al.elements();
-              List<Value> bElems = bl.elements();
-              yield aElems.size() == bElems.size()
-                  && IntStream.range(0, aElems.size())
-                      .allMatch(i -> valueEquals(aElems.get(i), bElems.get(i)));
-            }
-            default -> false;
-          };
-
-      case FnVal af -> af == b; // functions: use identity
-    };
   }
 
   private static RuntimeException error(String msg) {
