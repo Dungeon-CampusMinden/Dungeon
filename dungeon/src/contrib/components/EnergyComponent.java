@@ -6,10 +6,12 @@ public class EnergyComponent implements Component {
 
   private int maxAmount;
   private int currentAmount;
+  private float restorePerSecond;
 
-  public EnergyComponent(int maxAmount, int currentAmount) {
+  public EnergyComponent(int maxAmount, int currentAmount, float restorePerSecond) {
     this.maxAmount = maxAmount;
     this.currentAmount = Math.min(currentAmount, maxAmount);
+    this.restorePerSecond=restorePerSecond;
   }
 
   // Getters
@@ -53,5 +55,12 @@ public class EnergyComponent implements Component {
 
   public void restore(int amount) {
     currentAmount = Math.min(currentAmount + amount, maxAmount);
+  }
+
+  public float getRestorePerSecond() {
+    return restorePerSecond;
+  }
+  public void setRestorePerSecond(float restorePerSecond) {
+    this.restorePerSecond = restorePerSecond;
   }
 }
