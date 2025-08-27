@@ -15,8 +15,21 @@ public class CursorSkill extends Skill {
     this.executeOnCursor = executeOnCursor;
   }
 
+  public CursorSkill(String name, long cooldown) {
+    super(name, cooldown);
+  }
+
+  public BiConsumer<Entity, Point> executeOnCursor() {
+    return executeOnCursor;
+  }
+
+  public void executeOnCursor(BiConsumer<Entity, Point> executeOnCursor) {
+    this.executeOnCursor = executeOnCursor;
+  }
+
   @Override
   protected void executeSkill(Entity caster) {
-    executeOnCursor.accept(caster, SkillTools.cursorPositionAsPoint());
+
+    if (executeOnCursor != null) executeOnCursor.accept(caster, SkillTools.cursorPositionAsPoint());
   }
 }

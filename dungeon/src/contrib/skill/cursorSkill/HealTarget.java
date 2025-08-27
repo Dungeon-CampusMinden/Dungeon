@@ -8,23 +8,27 @@ import java.util.function.BiConsumer;
 
 public class HealTarget extends CursorSkill {
 
-  int healAmount;
+  public static final String NAME = "HEAL_ON_CURSOR";
+  private int healAmount;
 
-  public HealTarget healTarget(int healAmount, int cooldown) {
-    return new CursorSkill(
-        "Heal target",
-        500,
-        new BiConsumer<Entity, Point>() {
-          @Override
-          public void accept(Entity entity, Point point) {
-            Game.entityAtTile(Game.tileAt(point).get())
-                .findFirst()
-                .ifPresent(
-                    target ->
-                        target
-                            .fetch(HealthComponent.class)
-                            .ifPresent(hc -> hc.restoreHealthpoints(healAmount)));
-          }
-        });
+  private BiConsumer<Entity, Point> heal =
+      (entity, point) -> Game.entityAtPoint(point).findFirst().ifPresent(e -> heal(e));
+
+  public HealTarget(long cooldown, int healAmount) {
+    super(NAME, cooldown);
+    this.healAmount = healAmount;
+    this.executeOnCursor(heal);
+  }
+
+  private void heal(Entity entity) {
+    entity.fetch(HealthComponent.class).ifPresent(hc -> hc.restoreHealthpoints(healAmount));
+  }
+
+  public void healAmount(int healAmount) {
+    this.healAmount = healAmount;
+  }
+
+  public int healAmount() {
+    return healAmount;
   }
 }

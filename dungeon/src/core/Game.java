@@ -771,4 +771,8 @@ public final class Game {
   public static void exit() {
     Gdx.app.exit();
   }
+
+  public static Stream<Entity> entityAtPoint(Point point) {
+    return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
+  }
 }
