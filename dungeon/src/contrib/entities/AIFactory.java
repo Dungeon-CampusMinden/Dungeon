@@ -2,8 +2,8 @@ package contrib.entities;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
+import contrib.skill.FireballSkill;
 import contrib.skill.SkillTools;
-import contrib.skill.damageSkill.projectile.FireballSkill;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
@@ -89,7 +89,7 @@ public final class AIFactory {
    * @return The AIComponent, ready to be added to an entity.
    */
   public static AIComponent randomAI(final Entity entity) {
-    return new AIComponent(randomFightAI(), randomIdleAI(), randomTransition(entity));
+    return new AIComponent(randomFightAI(entity), randomIdleAI(), randomTransition(entity));
   }
 
   /**
@@ -98,7 +98,7 @@ public final class AIFactory {
    *
    * @return the generated FightAI
    */
-  public static Consumer<Entity> randomFightAI() {
+  public static Consumer<Entity> randomFightAI(Entity monster) {
     int index = RANDOM.nextInt(0, 3);
 
     return switch (index) {
@@ -107,12 +107,12 @@ public final class AIFactory {
           new AIRangeBehaviour(
               RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
               RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
-              FireballSkill.fireballSkill(SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
+              FireballSkill.fireballSkill(monster,SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
       default ->
           new AIMeleeBehaviour(
               RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH),
               1f,
-              FireballSkill.fireballSkill(SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
+              FireballSkill.fireballSkill(monster,SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
     };
   }
 

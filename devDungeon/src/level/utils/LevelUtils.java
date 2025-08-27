@@ -1,6 +1,6 @@
 package level.utils;
 
-import contrib.skill.damageSkill.projectile.TPBallSkill;
+import contrib.skill.TPBallSkill;
 import contrib.systems.EventScheduler;
 import core.Game;
 import core.level.Tile;

@@ -1,12 +1,8 @@
-package contrib.skill.damageSkill.projectile;
-
-import static contrib.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_BONUS_EFFECT;
-import static contrib.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_ON_WALL_HIT;
+package contrib.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
-import contrib.skill.ProjectileSkill;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.components.PositionComponent;
@@ -51,9 +47,9 @@ public final class FireballSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public static DamageProjectileSkill fireballSkill(final Entity owner, final Supplier<Point> targetSelection) {
-    return fireballSkill(
-        owner,targetSelection,COOLDOWN);
+  public static DamageProjectileSkill fireballSkill(
+      final Entity owner, final Supplier<Point> targetSelection) {
+    return fireballSkill(owner, targetSelection, COOLDOWN);
   }
 
   /**
@@ -65,28 +61,38 @@ public final class FireballSkill {
   public static DamageProjectileSkill fireballSkill(
       final Entity owner, final Supplier<Point> targetSelection, long cooldown) {
     return fireballSkill(
-        owner, targetSelection, cooldown, DEFAULT_PROJECTILE_RANGE,DEFAULT_PROJECTILE_SPEED,DEFAULT_DAMAGE_AMOUNT);
+        owner,
+        targetSelection,
+        cooldown,
+        DEFAULT_PROJECTILE_RANGE,
+        DEFAULT_PROJECTILE_SPEED,
+        DEFAULT_DAMAGE_AMOUNT);
   }
 
   public static DamageProjectileSkill fireballSkill(
-          final Entity owner, final Supplier<Point> target, long cooldown, float range, float speed, int damageAmount) {
+      final Entity owner,
+      final Supplier<Point> target,
+      long cooldown,
+      float range,
+      float speed,
+      int damageAmount) {
     return new DamageProjectileSkill(
-            SKILL_NAME,
-            cooldown,
-            (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
-            target,
-            PROJECTILE_TEXTURES,
-            speed,
-            range,
-            HIT_BOX_SIZE,
-            ProjectileSkill.DEFAULT_ON_WALL_HIT,
-            ON_SPAWN_PLAY_SOUND,
-            ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
-            ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
-            owner,
-            damageAmount,
-            DAMAGE_TYPE,
-            DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
+        SKILL_NAME,
+        cooldown,
+        (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
+        target,
+        PROJECTILE_TEXTURES,
+        speed,
+        range,
+        HIT_BOX_SIZE,
+        ProjectileSkill.DEFAULT_ON_WALL_HIT,
+        ON_SPAWN_PLAY_SOUND,
+        ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
+        ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
+        owner,
+        damageAmount,
+        DAMAGE_TYPE,
+        DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
   }
 
   private static void playSound() {

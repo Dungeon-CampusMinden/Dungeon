@@ -1,6 +1,8 @@
-package contrib.skill.damageSkill.projectile;
+package contrib.skill;
 
 import contrib.utils.components.health.DamageType;
+import core.Entity;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -19,7 +21,7 @@ import java.util.function.Supplier;
  *
  * <p>To use the BowSkill, the player needs bow and arrow in their inventory.
  */
-public class BowSkill extends DamageProjectileSkill {
+public class BowSkill {
 
   private static final String SKILL_NAME = "Bow";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
@@ -31,15 +33,23 @@ public class BowSkill extends DamageProjectileSkill {
 
   private static final long BOW_COOLDOWN = 500;
 
+  private BowSkill() {}
+
   /**
    * Create a {@link DamageProjectileSkill} that looks like an arrow and will cause physical damage.
    *
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public BowSkill(final Supplier<Point> targetSelection) {
-    this(
-        targetSelection, DEFAULT_PROJECTILE_RANGE, DEFAULT_PROJECTILE_SPEED, DEFAULT_DAMAGE_AMOUNT);
+  public static DamageProjectileSkill bowSkill(
+      final Entity owner, final Supplier<Point> targetSelection) {
+    return bowSkill(
+        owner,
+        targetSelection,
+        BOW_COOLDOWN,
+        DEFAULT_PROJECTILE_RANGE,
+        DEFAULT_PROJECTILE_SPEED,
+        DEFAULT_DAMAGE_AMOUNT);
   }
 
   /**
@@ -49,27 +59,33 @@ public class BowSkill extends DamageProjectileSkill {
    * the projectile travels. The damage amount is the amount of damage the projectile will deal upon
    * impact.
    *
-   * @param targetSelection A function used to select the point where the projectile should fly to.
    * @param range The maximum distance the projectile can travel.
    * @param speed The speed at which the projectile travels.
    * @param damageAmount The amount of damage the projectile will deal upon impact.
    */
-  public BowSkill(
-      final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
-    super(
+  public static DamageProjectileSkill bowSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      long cooldown,
+      float range,
+      float speed,
+      int damageAmount) {
+    return new DamageProjectileSkill(
         SKILL_NAME,
-        BOW_COOLDOWN,
-        targetSelection,
-        damageAmount,
-        DAMAGE_TYPE,
+        cooldown,
+        (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
+        target,
         PROJECTILE_TEXTURES,
         speed,
         range,
         HIT_BOX_SIZE,
-        DEFAULT_ON_WALL_HIT,
-        DEFAULT_ON_SPAWN,
-        damageAmount1,
-        type,
-        DEFAULT_BONUS_EFFECT);
+        ProjectileSkill.DEFAULT_ON_WALL_HIT,
+        ProjectileSkill.DEFAULT_ON_SPAWN,
+        ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
+        ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
+        owner,
+        damageAmount,
+        DAMAGE_TYPE,
+        DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
   }
 }

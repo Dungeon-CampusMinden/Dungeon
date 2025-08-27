@@ -9,9 +9,9 @@ import contrib.entities.MonsterDeathSound;
 import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
 import contrib.hud.DialogUtils;
+import contrib.skill.FireballSkill;
 import contrib.skill.SkillTools;
-import contrib.skill.damageSkill.projectile.FireballSkill;
-import contrib.skill.damageSkill.projectile.TPBallSkill;
+import contrib.skill.TPBallSkill;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
@@ -205,7 +205,7 @@ public enum MonsterType {
           new AIRangeBehaviour(
               9f,
               0f,
-              new TPBallSkill(
+              TPBallSkill.tpBallSkill(
                   SkillTools::heroPositionAsPoint, LevelUtils::getRandomTPTargetForCurrentLevel)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(6, false),
