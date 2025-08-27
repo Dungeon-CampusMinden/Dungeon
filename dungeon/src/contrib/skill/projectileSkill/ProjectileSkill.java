@@ -1,8 +1,10 @@
-package contrib.skill;
+package contrib.skill.projectileSkill;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
+import contrib.skill.Skill;
+import contrib.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;

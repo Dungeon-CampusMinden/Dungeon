@@ -9,6 +9,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.skill.*;
+import contrib.skill.cursorSkill.HealTarget;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
 import core.Entity;
@@ -16,7 +17,6 @@ import core.Game;
 import core.components.*;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
@@ -121,9 +120,7 @@ public final class HeroFactory {
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
 
-
-
-    Skill heroSkill = HealTarget.healTarget(4,30);
+    Skill heroSkill = HealTarget.healTarget(4, 30);
 
     HealthComponent hc =
         new HealthComponent(

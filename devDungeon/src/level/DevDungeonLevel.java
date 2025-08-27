@@ -1,7 +1,7 @@
 package level;
 
 import contrib.hud.DialogUtils;
-import contrib.skill.TPBallSkill;
+import contrib.skill.projectileSkill.TPBallSkill;
 import contrib.utils.level.ITickable;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;

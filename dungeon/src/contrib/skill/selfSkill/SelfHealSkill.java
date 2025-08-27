@@ -1,6 +1,7 @@
-package contrib.skill;
+package contrib.skill.selfSkill;
 
 import contrib.components.HealthComponent;
+import contrib.skill.HealSkill;
 import core.Entity;
 
 public class SelfHealSkill extends HealSkill {

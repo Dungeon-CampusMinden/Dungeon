@@ -1,4 +1,4 @@
-package contrib.skill;
+package contrib.skill.projectileSkill;
 
 import contrib.utils.components.health.DamageType;
 import core.Entity;
