@@ -1,5 +1,8 @@
 package contrib.utils.components.skill.damageSkill.projectile;
 
+import static contrib.utils.components.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_BONUS_EFFECT;
+import static contrib.utils.components.skill.damageSkill.projectile.DamageProjectileSkill.DEFAULT_ON_WALL_HIT;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
@@ -22,7 +25,7 @@ import java.util.function.Supplier;
  * be removed from the game. It will also be removed from the game if it hits a wall or has reached
  * the maximum distance.
  */
-public final class FireballSkill extends DamageProjectileSkill {
+public final class FireballSkill {
 
   private static final String SKILL_NAME = "fireball";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
@@ -37,14 +40,17 @@ public final class FireballSkill extends DamageProjectileSkill {
 
   private static final long COOLDOWN = 500;
 
+  private FireballSkill() {}
+  ;
+
   /**
    * Create a {@link DamageProjectileSkill} that looks like a fireball and will cause fire damage.
    *
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public FireballSkill(final Supplier<Point> targetSelection) {
-    this(
+  public static DamageProjectileSkill fireballSkill(final Supplier<Point> targetSelection) {
+    return fireballSkill(
         targetSelection, DEFAULT_PROJECTILE_RANGE, DEFAULT_PROJECTILE_SPEED, DEFAULT_DAMAGE_AMOUNT);
   }
 
@@ -54,8 +60,9 @@ public final class FireballSkill extends DamageProjectileSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public FireballSkill(final Supplier<Point> targetSelection, long cooldown) {
-    this(
+  public static DamageProjectileSkill fireballSkill(
+      final Supplier<Point> targetSelection, long cooldown) {
+    return fireballSkill(
         targetSelection,
         DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
@@ -75,13 +82,13 @@ public final class FireballSkill extends DamageProjectileSkill {
    * @param speed The speed at which the projectile travels.
    * @param damageAmount The amount of damage the projectile will deal upon impact.
    */
-  public FireballSkill(
+  public static DamageProjectileSkill fireballSkill(
       final Supplier<Point> targetSelection,
       float range,
       float speed,
       int damageAmount,
       long cooldown) {
-    super(
+    return new DamageProjectileSkill(
         SKILL_NAME,
         cooldown,
         targetSelection,
@@ -93,12 +100,12 @@ public final class FireballSkill extends DamageProjectileSkill {
         HIT_BOX_SIZE,
         DEFAULT_ON_WALL_HIT,
         ON_SPAWN_PLAY_SOUND,
-        DEFAULT_BONUS_EFFECT);
+        DEFAULT_BONUS_EFFECT) {};
   }
 
-  public FireballSkill(
+  public static DamageProjectileSkill fireballSkill(
       final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
-    super(
+    return new DamageProjectileSkill(
         SKILL_NAME,
         COOLDOWN,
         targetSelection,
