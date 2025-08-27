@@ -7,7 +7,7 @@ import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
 import contrib.components.BlockComponent;
-import contrib.skill.damageSkill.projectile.FireballSkill;
+import contrib.skill.FireballSkill;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.OldSkill;
 import core.Component;

@@ -1,4 +1,4 @@
-package contrib.skill.damageSkill.projectile;
+package contrib.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -7,6 +7,7 @@ import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -24,7 +25,7 @@ import java.util.function.Supplier;
  * entity to a random or specific location. It will also be removed from the game if it hits a wall
  * or has reached the maximum distance.
  */
-public class TPBallSkill extends DamageProjectileSkill {
+public class TPBallSkill {
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float PROJECTILE_SPEED = 6.0f;
@@ -39,33 +40,40 @@ public class TPBallSkill extends DamageProjectileSkill {
    * Create a {@link DamageProjectileSkill} that looks like a magic ball and will cause magic damage
    * and teleport the entity to a random or specific location.
    *
-   * @param targetSelection A function used to select the point where the projectile should fly to.
    * @param tpTarget A supplier that provides the target point for teleportation.
    * @see DamageProjectileSkill
    */
-  public TPBallSkill(final Supplier<Point> targetSelection, Supplier<Point> tpTarget) {
-    super(
-        "tpball",
-        COOLDOWN,
-        targetSelection,
-        DAMAGE_AMOUNT,
-        DAMAGE_TYPE,
-        PROJECTILE_TEXTURES,
-        PROJECTILE_SPEED,
-        PROJECTILE_RANGE,
-        HIT_BOX_SIZE,
-        DEFAULT_ON_WALL_HIT,
-        ON_SPAWN_PLAY_SOUND,
-        ,
-        type,
-        (projectile, entity) -> {
-          // only tp hero (for now)
-          if (entity.fetch(PlayerComponent.class).isEmpty()) {
-            return;
-          }
-          EntityUtils.teleportEntityTo(entity, tpTarget.get());
-        });
-    tintColor(0xFF00FFFF);
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float range,
+      float speed,
+      int damageAmount) {
+    DamageProjectileSkill skill =
+        new DamageProjectileSkill(
+            "tp",
+            cooldown,
+            () -> owner.fetch(PositionComponent.class).get().position(),
+            target,
+            PROJECTILE_TEXTURES,
+            speed,
+            range,
+            HIT_BOX_SIZE,
+            ProjectileSkill.DEFAULT_ON_WALL_HIT,
+            ON_SPAWN_PLAY_SOUND,
+            ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
+            ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
+            owner,
+            damageAmount,
+            DAMAGE_TYPE,
+            (projectile, entity) -> {
+              // only tp hero (for now)
+              EntityUtils.teleportEntityTo(entity, tpTarget.get());
+            });
+    skill.tintColor(0xFF00FFFF);
+    return skill;
   }
 
   private static void playSound() {

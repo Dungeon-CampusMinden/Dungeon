@@ -4,8 +4,8 @@ import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
+import contrib.skill.BowSkill;
 import contrib.skill.SkillTools;
-import contrib.skill.damageSkill.projectile.BowSkill;
 import core.Entity;
 import core.Game;
 import core.components.InputComponent;
@@ -24,8 +24,6 @@ import core.utils.components.path.SimpleIPath;
 public class ItemWoodenBow extends Item {
   /** The default texture for all wooden bows. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/weapon/wooden_bow.png");
-
-  private static BowSkill BOW_SKILL = new BowSkill(SkillTools::cursorPositionAsPoint);
 
   /** Create a {@link Item} that looks like a bow and can be collected to unlock the BOW_SKILL. */
   public ItemWoodenBow() {
@@ -47,13 +45,10 @@ public class ItemWoodenBow extends Item {
                             ic.registerCallback(
                                 KeyboardConfig.SECOND_SKILL.value(),
                                 collectorEntity -> {
-                                  inventoryComponent
-                                      .itemOfClass(ItemWoodenArrow.class)
-                                      .filter(
-                                          item ->
-                                              BOW_SKILL.canBeUsedAgain()
-                                                  && inventoryComponent.removeOne(item))
-                                      .ifPresent(item -> BOW_SKILL.execute(collectorEntity));
+                                  // TODO FIX creation of new bow skill at evry execute
+                                  BowSkill.bowSkill(
+                                          collectorEntity, SkillTools::cursorPositionAsPoint)
+                                      .execute(collectorEntity);
                                 }));
                 Game.remove(itemEntity);
                 return true;
