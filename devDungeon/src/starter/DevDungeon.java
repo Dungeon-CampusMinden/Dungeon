@@ -157,6 +157,8 @@ public class DevDungeon {
     Game.add(new MobSpawnerSystem());
     Game.add(new MagicShieldSystem());
 
+    Game.add(LispySystem.instance());
+
     /* Cheats */
     if (ENABLE_CHEATS) {
       enableCheats();

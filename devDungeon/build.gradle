@@ -15,6 +15,7 @@ tasks.register('runDevDungeon', JavaExec) {
     group 'starter'
     mainClass = 'starter.DevDungeon'
     classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
 }
 
 processResources {
