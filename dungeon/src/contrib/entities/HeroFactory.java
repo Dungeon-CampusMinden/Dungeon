@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
@@ -121,12 +120,20 @@ public final class HeroFactory {
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
-    Skill heroSkill = TPBallSkill.tpBallSkill(hero, SkillTools::cursorPositionAsPoint, new Supplier<Point>() {
-        @Override
-        public Point get() {
-           return Game.randomTilePoint(LevelElement.PIT).get();
-        }
-    },500,10,10,1);
+    Skill heroSkill =
+        TPBallSkill.tpBallSkill(
+            hero,
+            SkillTools::cursorPositionAsPoint,
+            new Supplier<Point>() {
+              @Override
+              public Point get() {
+                return Game.randomTilePoint(LevelElement.PIT).get();
+              }
+            },
+            500,
+            10,
+            10,
+            1);
 
     HealthComponent hc =
         new HealthComponent(

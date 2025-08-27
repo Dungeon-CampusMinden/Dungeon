@@ -26,11 +26,11 @@ public class DamageProjectileSkill extends ProjectileSkill {
         @Override
         public void accept(Entity projectile, Entity target, Direction direction) {
 
-          if(owner==target) return;
+          if (owner == target) return;
           target
               .fetch(HealthComponent.class)
               .ifPresent(hc -> hc.receiveHit(calculateDamage(owner, target, direction)));
-          bonusEffect.accept(owner,target);
+          bonusEffect.accept(owner, target);
         }
       };
 
