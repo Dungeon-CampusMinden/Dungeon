@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.entities.HeroFactory;
-import contrib.skill.DamageProjectileSkill;
+import contrib.skill.projectileSkill.DamageProjectileSkill;
 import contrib.utils.components.health.DamageType;
 import core.Game;
 import core.components.PlayerComponent;

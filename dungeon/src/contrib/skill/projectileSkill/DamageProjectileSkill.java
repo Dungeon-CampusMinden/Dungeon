@@ -1,4 +1,4 @@
-package contrib.skill;
+package contrib.skill.projectileSkill;
 
 import contrib.components.HealthComponent;
 import contrib.utils.components.health.Damage;
