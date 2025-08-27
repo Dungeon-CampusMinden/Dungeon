@@ -120,7 +120,7 @@ public final class HeroFactory {
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
 
-    Skill heroSkill = HealTarget.healTarget(4, 30);
+    Skill heroSkill = new HealTarget(300, 2);
 
     HealthComponent hc =
         new HealthComponent(
