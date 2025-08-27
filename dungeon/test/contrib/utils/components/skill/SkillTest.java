@@ -16,13 +16,13 @@ public class SkillTest {
   private final int baseCoolDownInMilliSeconds = 2000;
   private final Consumer<Entity> skillFunction = entity -> value++;
   private Entity entity;
-  private Skill skill;
+  private OldSkill skill;
 
   /** WTF? . */
   @BeforeEach
   public void setup() {
     entity = new Entity();
-    skill = new Skill(skillFunction, baseCoolDownInMilliSeconds);
+    skill = new OldSkill(skillFunction, baseCoolDownInMilliSeconds);
   }
 
   /** WTF? . */
@@ -54,7 +54,7 @@ public class SkillTest {
   @Test
   public void executeWhenCoolDownExpired() throws InterruptedException {
     final long baseCoolDown = 1;
-    skill = new Skill(skillFunction, baseCoolDown);
+    skill = new OldSkill(skillFunction, baseCoolDown);
     skill.execute(entity);
     assertEquals(1, value);
     Thread.sleep(5);

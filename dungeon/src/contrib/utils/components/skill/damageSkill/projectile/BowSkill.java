@@ -1,4 +1,4 @@
-package contrib.utils.components.skill;
+package contrib.utils.components.skill.damageSkill.projectile;
 
 import contrib.utils.components.health.DamageType;
 import core.utils.Point;
@@ -8,9 +8,9 @@ import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
 /**
- * Subclass of {@link DamageProjectile}.
+ * Subclass of {@link DamageProjectileSkill}.
  *
- * <p>The BowSkill class extends the functionality of {@link DamageProjectile} to implement the
+ * <p>The BowSkill class extends the functionality of {@link DamageProjectileSkill} to implement the
  * specific behavior of the bow skill. *
  *
  * <p>The projectile will fly through the dungeon, and if it hits an entity, it will deal damage and
@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  *
  * <p>To use the BowSkill, the player needs bow and arrow in their inventory.
  */
-public class BowSkill extends DamageProjectile {
+public class BowSkill extends DamageProjectileSkill {
 
   private static final String SKILL_NAME = "Bow";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
@@ -29,11 +29,13 @@ public class BowSkill extends DamageProjectile {
   private static final DamageType DAMAGE_TYPE = DamageType.PHYSICAL;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
 
+  private static final long BOW_COOLDOWN = 500;
+
   /**
-   * Create a {@link DamageProjectile} that looks like an arrow and will cause physical damage.
+   * Create a {@link DamageProjectileSkill} that looks like an arrow and will cause physical damage.
    *
    * @param targetSelection A function used to select the point where the projectile should fly to.
-   * @see DamageProjectile
+   * @see DamageProjectileSkill
    */
   public BowSkill(final Supplier<Point> targetSelection) {
     this(
@@ -56,12 +58,16 @@ public class BowSkill extends DamageProjectile {
       final Supplier<Point> targetSelection, float range, float speed, int damageAmount) {
     super(
         SKILL_NAME,
-        PROJECTILE_TEXTURES,
-        speed,
+        BOW_COOLDOWN,
+        targetSelection,
         damageAmount,
         DAMAGE_TYPE,
+        PROJECTILE_TEXTURES,
+        speed,
+        range,
         HIT_BOX_SIZE,
-        targetSelection,
-        range);
+        DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_SPAWN,
+        DEFAULT_BONUS_EFFECT);
   }
 }

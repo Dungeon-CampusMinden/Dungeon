@@ -10,9 +10,9 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
-import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.damageSkill.projectile.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -44,13 +44,11 @@ public final class HeroFactory {
 
   private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
   private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
-  private static final int FIREBALL_COOL_DOWN = 500;
   private static final int HERO_HP = 25;
   private static final float HERO_MAX_SPEED = STEP_SPEED.x();
   private static final String MOVEMENT_ID = "Movement";
   private static final float HERO_MASS = 1.3f;
-  private static Skill HERO_SKILL =
-      new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
+  private static Skill HERO_SKILL = new FireballSkill(SkillTools::cursorPositionAsPoint);
 
   private static Consumer<Entity> HERO_DEATH =
       (hero) ->
@@ -81,19 +79,6 @@ public final class HeroFactory {
    */
   public static Skill getHeroSkill() {
     return HERO_SKILL;
-  }
-
-  /**
-   * Set the skill callback for the hero. The skill callback is executed when the hero uses the
-   * skill.
-   *
-   * <p>By default, the hero uses the {@link FireballSkill}.
-   *
-   * @param skillCallback The skill callback.
-   * @see Skill#Skill(Consumer, long)
-   */
-  public static void setHeroSkillCallback(Consumer<Entity> skillCallback) {
-    HERO_SKILL = new Skill(skillCallback, FIREBALL_COOL_DOWN);
   }
 
   /**
