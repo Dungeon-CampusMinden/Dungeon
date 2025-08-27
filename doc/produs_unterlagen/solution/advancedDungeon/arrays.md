@@ -1,4 +1,6 @@
-## Solutions for Array Levels
+---
+title: "AdvancedDungeon: Lösung Array Level"
+---
 
 ### Solution for `MyArrayCreator`
 ```java
@@ -56,7 +58,4 @@ public Monster[] sortMonsters(Monster[] monsterArray) {
     return monsterArray;
 }
 ```
-
-
-
 

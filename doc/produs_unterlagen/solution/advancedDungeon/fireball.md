@@ -1,4 +1,7 @@
-## Solutions for all Control Levels and the Berry Level
+---
+title: "AdvancedDungeon: Lösung Feuerball"
+---
+
 
 ### Solution for `MyFireball`
 
@@ -27,3 +30,4 @@ public void onBerryHit(Berry berry) {
 }
 
 ```
+
