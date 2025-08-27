@@ -16,7 +16,8 @@ public class Interpreter {
         .define(Builtins.mathsupport)
         .define(Builtins.logicsupport)
         .define(Builtins.print)
-        .define(Builtins.listsupport);
+        .define(Builtins.listsupport)
+        .define(Builtins.dungeonsupport);
   }
 
   /**
