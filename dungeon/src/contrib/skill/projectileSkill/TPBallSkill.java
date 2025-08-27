@@ -35,6 +35,41 @@ public class TPBallSkill extends DamageProjectileSkill {
 
   private final Supplier<Point> tpTarget;
 
+  /** Uses all default values: cooldown, range, speed, and damage. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner, final Supplier<Point> target, Supplier<Point> tpTarget) {
+    return tpBallSkill(
+        owner, target, tpTarget, COOLDOWN, PROJECTILE_RANGE, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  }
+
+  /** Uses default speed, range, and damage but custom cooldown. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner, final Supplier<Point> target, Supplier<Point> tpTarget, long cooldown) {
+    return tpBallSkill(
+        owner, target, tpTarget, cooldown, PROJECTILE_RANGE, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  }
+
+  /** Uses default damage and speed, but allows custom cooldown and range. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float range) {
+    return tpBallSkill(owner, target, tpTarget, cooldown, range, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  }
+
+  /** Uses default damage, but allows custom cooldown, range, and speed. */
+  public static DamageProjectileSkill tpBallSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float range,
+      float speed) {
+    return tpBallSkill(owner, target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT);
+  }
+
   /**
    * Creates a TPBallSkill with full custom parameters.
    *
