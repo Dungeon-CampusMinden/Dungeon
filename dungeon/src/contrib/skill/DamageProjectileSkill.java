@@ -1,7 +1,6 @@
-package contrib.skill.damageSkill.projectile;
+package contrib.skill;
 
 import contrib.components.HealthComponent;
-import contrib.skill.ProjectileSkill;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
@@ -16,9 +15,8 @@ import java.util.function.Supplier;
 
 public class DamageProjectileSkill extends ProjectileSkill {
 
-  public static final BiConsumer<Entity, Entity> DEFAULT_BONUS_EFFECT = (entity, entity2) -> {
+  public static final BiConsumer<Entity, Entity> DEFAULT_BONUS_EFFECT = (entity, entity2) -> {};
 
-  };
   protected int damageAmount;
   protected DamageType damageType;
   protected Entity owner;
@@ -27,9 +25,12 @@ public class DamageProjectileSkill extends ProjectileSkill {
       new TriConsumer<>() {
         @Override
         public void accept(Entity projectile, Entity target, Direction direction) {
+
+          if(owner==target) return;
           target
               .fetch(HealthComponent.class)
               .ifPresent(hc -> hc.receiveHit(calculateDamage(owner, target, direction)));
+          bonusEffect.accept(owner,target);
         }
       };
 

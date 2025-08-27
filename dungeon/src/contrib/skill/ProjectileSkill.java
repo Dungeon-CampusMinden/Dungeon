@@ -21,12 +21,13 @@ import java.util.function.Supplier;
 
 public class ProjectileSkill extends Skill {
 
-  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT =entity -> Game.remove(entity);
-  public static final Consumer<Entity> DEFAULT_ON_TARGET_REACHED =entity -> Game.remove(entity);
-  public static final TriConsumer<Entity, Entity, Direction> DEFAULT_ON_COLLIDE_LEAVE = (entity, entity2, direction) -> {
+  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT = entity -> Game.remove(entity);
+  public static final Consumer<Entity> DEFAULT_ON_TARGET_REACHED = entity -> Game.remove(entity);
+  public static final TriConsumer<Entity, Entity, Direction> DEFAULT_ON_COLLIDE_LEAVE =
+      (entity, entity2, direction) -> {};
 
-  };
-  ;
+  public static final Consumer<Entity> DEFAULT_ON_SPAWN = entity -> {};
+
   private final Supplier<Point> start;
   private final Supplier<Point> target;
   private final IPath pathToTexturesOfProjectile;

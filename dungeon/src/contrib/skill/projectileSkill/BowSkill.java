@@ -1,4 +1,5 @@
 <<<<<<<< HEAD:dungeon/src/contrib/skill/projectileSkill/BowSkill.java
+<<<<<<<< HEAD:dungeon/src/contrib/skill/projectileSkill/BowSkill.java
 package contrib.utils.components.skill.projectileSkill;
 ========
 package contrib.skill.damageSkill.projectile;
@@ -6,6 +7,13 @@ package contrib.skill.damageSkill.projectile;
 
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
+========
+package contrib.skill;
+
+import contrib.utils.components.health.DamageType;
+import core.Entity;
+import core.components.PositionComponent;
+>>>>>>>> c9537001 (wip):dungeon/src/contrib/skill/BowSkill.java
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -25,7 +33,7 @@ import java.util.function.Supplier;
  *
  * <p>To use the BowSkill, the player needs bow and arrow in their inventory.
  */
-public class BowSkill extends DamageProjectileSkill {
+public class BowSkill {
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "BOW_SKILL";
@@ -39,6 +47,8 @@ public class BowSkill extends DamageProjectileSkill {
   private static final Vector2 HIT_BOX_SIZE = Vector2.ONE;
   private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
+
+  private BowSkill() {}
 
   /**
    * Create a new Bow Skill.
@@ -79,6 +89,7 @@ public class BowSkill extends DamageProjectileSkill {
    * @param targetSelection A Supplier used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
+<<<<<<<< HEAD:dungeon/src/contrib/skill/projectileSkill/BowSkill.java
   public BowSkill(final Supplier<Point> targetSelection) {
     this(
         targetSelection,
@@ -91,15 +102,62 @@ public class BowSkill extends DamageProjectileSkill {
 ========
         damageAmount,
         DAMAGE_TYPE,
+========
+  public static DamageProjectileSkill bowSkill(
+      final Entity owner, final Supplier<Point> targetSelection) {
+    return bowSkill(
+        owner,
+        targetSelection,
+        BOW_COOLDOWN,
+        DEFAULT_PROJECTILE_RANGE,
+        DEFAULT_PROJECTILE_SPEED,
+        DEFAULT_DAMAGE_AMOUNT);
+  }
+
+  /**
+   * Creates a new BowSkill with the specified target selection, range, speed, and damage amount.
+   * The target selection is a function used to select the point where the projectile should fly to.
+   * The range is the maximum distance the projectile can travel. The speed is the speed at which
+   * the projectile travels. The damage amount is the amount of damage the projectile will deal upon
+   * impact.
+   *
+   * @param range The maximum distance the projectile can travel.
+   * @param speed The speed at which the projectile travels.
+   * @param damageAmount The amount of damage the projectile will deal upon impact.
+   */
+  public static DamageProjectileSkill bowSkill(
+      final Entity owner,
+      final Supplier<Point> target,
+      long cooldown,
+      float range,
+      float speed,
+      int damageAmount) {
+    return new DamageProjectileSkill(
+        SKILL_NAME,
+        cooldown,
+        (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
+        target,
+>>>>>>>> c9537001 (wip):dungeon/src/contrib/skill/BowSkill.java
         PROJECTILE_TEXTURES,
         speed,
         range,
         HIT_BOX_SIZE,
+<<<<<<<< HEAD:dungeon/src/contrib/skill/projectileSkill/BowSkill.java
         DEFAULT_ON_WALL_HIT,
         DEFAULT_ON_SPAWN,
         damageAmount1,
         type,
         DEFAULT_BONUS_EFFECT);
 >>>>>>>> 4b224fd1 (wip):dungeon/src/contrib/skill/damageSkill/projectile/BowSkill.java
+========
+        ProjectileSkill.DEFAULT_ON_WALL_HIT,
+        ProjectileSkill.DEFAULT_ON_SPAWN,
+        ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
+        ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
+        owner,
+        damageAmount,
+        DAMAGE_TYPE,
+        DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
+>>>>>>>> c9537001 (wip):dungeon/src/contrib/skill/BowSkill.java
   }
 }
