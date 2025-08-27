@@ -3,6 +3,7 @@ package contrib.skill.projectileSkill;
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
+import contrib.skill.Resource;
 import contrib.skill.Skill;
 import contrib.skill.SkillTools;
 import core.Entity;
@@ -10,10 +11,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.TriConsumer;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,8 +56,9 @@ public class ProjectileSkill extends Skill {
       Consumer<Entity> onSpawn,
       Consumer<Entity> onTargetReached,
       TriConsumer<Entity, Entity, Direction> onCollide,
-      TriConsumer<Entity, Entity, Direction> onCollideLeave) {
-    super(name, cooldown);
+      TriConsumer<Entity, Entity, Direction> onCollideLeave,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(name, cooldown, resourceCost);
     this.start = start;
     this.target = target;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
@@ -166,5 +165,57 @@ public class ProjectileSkill extends Skill {
 
   protected void onCollide(TriConsumer<Entity, Entity, Direction> onCollide) {
     this.onCollide = onCollide;
+  }
+
+  public Supplier<Point> getStart() {
+    return start;
+  }
+
+  public Supplier<Point> getTarget() {
+    return target;
+  }
+
+  public IPath getPathToTexturesOfProjectile() {
+    return pathToTexturesOfProjectile;
+  }
+
+  public float getProjectileSpeed() {
+    return projectileSpeed;
+  }
+
+  public float getProjectileRange() {
+    return projectileRange;
+  }
+
+  public Vector2 getProjectileHitBoxSize() {
+    return projectileHitBoxSize;
+  }
+
+  public Consumer<Entity> getOnWallHit() {
+    return onWallHit;
+  }
+
+  public Consumer<Entity> getOnSpawn() {
+    return onSpawn;
+  }
+
+  public Consumer<Entity> getOnTargetReached() {
+    return onTargetReached;
+  }
+
+  public TriConsumer<Entity, Entity, Direction> getOnCollide() {
+    return onCollide;
+  }
+
+  public void setOnCollide(TriConsumer<Entity, Entity, Direction> onCollide) {
+    this.onCollide = onCollide;
+  }
+
+  public TriConsumer<Entity, Entity, Direction> getOnCollideLeave() {
+    return onCollideLeave;
+  }
+
+  public List<Entity> getIgnoreEntities() {
+    return ignoreEntities;
   }
 }

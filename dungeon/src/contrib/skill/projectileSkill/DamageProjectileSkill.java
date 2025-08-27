@@ -1,13 +1,11 @@
 package contrib.skill.projectileSkill;
 
 import contrib.components.HealthComponent;
+import contrib.skill.Resource;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.TriConsumer;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.path.IPath;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -50,7 +48,8 @@ public class DamageProjectileSkill extends ProjectileSkill {
       Entity owner,
       int damageAmount,
       DamageType damageType,
-      BiConsumer<Entity, Entity> bonusEffect) {
+      BiConsumer<Entity, Entity> bonusEffect,
+      Tuple<Resource, Integer>... resourceCost) {
     super(
         name,
         cooldown,
@@ -64,7 +63,8 @@ public class DamageProjectileSkill extends ProjectileSkill {
         onSpawn,
         onTargetReached,
         null,
-        onCollideLeave);
+        onCollideLeave,
+        resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.owner = owner;
@@ -75,5 +75,46 @@ public class DamageProjectileSkill extends ProjectileSkill {
   protected Damage calculateDamage(Entity caster, Entity target, Direction direction) {
     // toodo add weaknesses to the game
     return new Damage(damageAmount, damageType, owner);
+  }
+
+  public int getDamageAmount() {
+    return damageAmount;
+  }
+
+  public void setDamageAmount(int damageAmount) {
+    this.damageAmount = damageAmount;
+  }
+
+  public DamageType getDamageType() {
+    return damageType;
+  }
+
+  public void setDamageType(DamageType damageType) {
+    this.damageType = damageType;
+  }
+
+  public Entity getOwner() {
+    return owner;
+  }
+
+  public void setOwner(Entity owner) {
+    this.owner = owner;
+  }
+
+  public BiConsumer<Entity, Entity> getBonusEffect() {
+    return bonusEffect;
+  }
+
+  public void setBonusEffect(BiConsumer<Entity, Entity> bonusEffect) {
+    this.bonusEffect = bonusEffect;
+  }
+
+  public TriConsumer<Entity, Entity, Direction> getOnCollide() {
+    return onCollide;
+  }
+
+  public void setOnCollide(TriConsumer<Entity, Entity, Direction> onCollide) {
+    this.onCollide = onCollide;
+    this.onCollide(onCollide); // ensure ProjectileSkill also gets updated
   }
 }

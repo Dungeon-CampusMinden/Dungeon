@@ -9,7 +9,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.skill.*;
-import contrib.skill.cursorSkill.HealTarget;
+import contrib.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
 import core.Entity;
@@ -119,8 +119,10 @@ public final class HeroFactory {
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
-
-    Skill heroSkill = new HealTarget(300, 2);
+    hero.add(new ManaComponent(100, 100));
+    Skill heroSkill =
+        FireballSkill.fireballSkill(
+            hero, SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.HP, 1));
 
     HealthComponent hc =
         new HealthComponent(

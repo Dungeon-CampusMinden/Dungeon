@@ -1,9 +1,11 @@
 package contrib.skill.projectileSkill;
 
+import contrib.skill.Resource;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -23,14 +25,14 @@ import java.util.function.Supplier;
  */
 public class BowSkill {
 
-  private static final String SKILL_NAME = "Bow";
+  public static final String SKILL_NAME = "BOW";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
   private static final float DEFAULT_PROJECTILE_SPEED = 13f;
   private static final int DEFAULT_DAMAGE_AMOUNT = 2;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.PHYSICAL;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
-
+  private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
 
   private BowSkill() {}
@@ -49,7 +51,8 @@ public class BowSkill {
         BOW_COOLDOWN,
         DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
-        DEFAULT_DAMAGE_AMOUNT);
+        DEFAULT_DAMAGE_AMOUNT,
+        COST);
   }
 
   /**
@@ -69,7 +72,8 @@ public class BowSkill {
       long cooldown,
       float range,
       float speed,
-      int damageAmount) {
+      int damageAmount,
+      Tuple<Resource, Integer>... resourceCost) {
     return new DamageProjectileSkill(
         SKILL_NAME,
         cooldown,
@@ -86,6 +90,7 @@ public class BowSkill {
         owner,
         damageAmount,
         DAMAGE_TYPE,
-        DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
+        DamageProjectileSkill.DEFAULT_BONUS_EFFECT,
+        resourceCost);
   }
 }

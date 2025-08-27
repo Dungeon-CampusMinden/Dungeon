@@ -3,10 +3,12 @@ package contrib.skill.projectileSkill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
+import contrib.skill.Resource;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.components.PositionComponent;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -25,7 +27,7 @@ import java.util.function.Supplier;
  */
 public final class FireballSkill {
 
-  private static final String SKILL_NAME = "fireball";
+  public static final String SKILL_NAME = "FIREBALL";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float DEFAULT_PROJECTILE_SPEED = 13f;
@@ -48,8 +50,10 @@ public final class FireballSkill {
    * @see DamageProjectileSkill
    */
   public static DamageProjectileSkill fireballSkill(
-      final Entity owner, final Supplier<Point> targetSelection) {
-    return fireballSkill(owner, targetSelection, COOLDOWN);
+      final Entity owner,
+      final Supplier<Point> targetSelection,
+      Tuple<Resource, Integer>... resourceCost) {
+    return fireballSkill(owner, targetSelection, COOLDOWN, resourceCost);
   }
 
   /**
@@ -59,14 +63,18 @@ public final class FireballSkill {
    * @see DamageProjectileSkill
    */
   public static DamageProjectileSkill fireballSkill(
-      final Entity owner, final Supplier<Point> targetSelection, long cooldown) {
+      final Entity owner,
+      final Supplier<Point> targetSelection,
+      long cooldown,
+      Tuple<Resource, Integer>... resourceCost) {
     return fireballSkill(
         owner,
         targetSelection,
         cooldown,
         DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
-        DEFAULT_DAMAGE_AMOUNT);
+        DEFAULT_DAMAGE_AMOUNT,
+        resourceCost);
   }
 
   public static DamageProjectileSkill fireballSkill(
@@ -75,7 +83,8 @@ public final class FireballSkill {
       long cooldown,
       float range,
       float speed,
-      int damageAmount) {
+      int damageAmount,
+      Tuple<Resource, Integer>... resourceCost) {
     return new DamageProjectileSkill(
         SKILL_NAME,
         cooldown,
@@ -92,7 +101,8 @@ public final class FireballSkill {
         owner,
         damageAmount,
         DAMAGE_TYPE,
-        DamageProjectileSkill.DEFAULT_BONUS_EFFECT);
+        DamageProjectileSkill.DEFAULT_BONUS_EFFECT,
+        resourceCost);
   }
 
   private static void playSound() {
