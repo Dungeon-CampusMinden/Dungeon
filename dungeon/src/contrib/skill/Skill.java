@@ -59,7 +59,7 @@ public abstract class Skill {
     for (Map.Entry<Resource, Integer> entry : resourceCost.entrySet()) {
       Resource resource = entry.getKey();
       int requiredAmount = entry.getValue();
-      int currentAmount = resource.apply(caster);
+      float currentAmount = resource.apply(caster);
       if (currentAmount < requiredAmount) {
         return false; // not enough resource
       }

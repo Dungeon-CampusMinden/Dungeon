@@ -75,6 +75,8 @@ public class DemoRoom {
   private static void createSystems() {
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
+    Game.add(new ManaBarSystem());
+    Game.add(new ManaRestoreSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());

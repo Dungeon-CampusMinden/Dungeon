@@ -119,10 +119,10 @@ public final class HeroFactory {
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
-    hero.add(new ManaComponent(100, 100));
+    hero.add(new ManaComponent(100, 100,3f));
     Skill heroSkill =
         FireballSkill.fireballSkill(
-            hero, SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.HP, 1));
+            hero, SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30));
 
     HealthComponent hc =
         new HealthComponent(
