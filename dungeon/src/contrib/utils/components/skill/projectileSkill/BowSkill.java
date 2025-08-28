@@ -1,9 +1,7 @@
 package contrib.utils.components.skill.projectileSkill;
 
-import contrib.utils.components.skill.Resource;
 import contrib.utils.components.health.DamageType;
-import core.Entity;
-import core.components.PositionComponent;
+import contrib.utils.components.skill.Resource;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -23,19 +21,40 @@ import java.util.function.Supplier;
  *
  * <p>To use the BowSkill, the player needs bow and arrow in their inventory.
  */
-public class BowSkill {
+public class BowSkill extends DamageProjectileSkill {
 
   public static final String SKILL_NAME = "BOW";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
   private static final float DEFAULT_PROJECTILE_SPEED = 13f;
   private static final int DEFAULT_DAMAGE_AMOUNT = 2;
+  private static final boolean IS_PIRCING = false;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.PHYSICAL;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
 
-  private BowSkill() {}
+  public BowSkill(
+      Supplier<Point> target,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(
+        SKILL_NAME,
+        cooldown,
+        PROJECTILE_TEXTURES,
+        target,
+        speed,
+        range,
+        IS_PIRCING,
+        damageAmount,
+        DAMAGE_TYPE,
+        NOOP_EFFECT,
+        HIT_BOX_SIZE,
+        resourceCost);
+  }
 
   /**
    * Create a {@link DamageProjectileSkill} that looks like an arrow and will cause physical damage.
@@ -43,54 +62,13 @@ public class BowSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public static DamageProjectileSkill bowSkill(
-      final Entity owner, final Supplier<Point> targetSelection) {
-    return bowSkill(
-        owner,
+  public BowSkill(final Supplier<Point> targetSelection) {
+    this(
         targetSelection,
         BOW_COOLDOWN,
         DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
         DEFAULT_DAMAGE_AMOUNT,
         COST);
-  }
-
-  /**
-   * Creates a new BowSkill with the specified target selection, range, speed, and damage amount.
-   * The target selection is a function used to select the point where the projectile should fly to.
-   * The range is the maximum distance the projectile can travel. The speed is the speed at which
-   * the projectile travels. The damage amount is the amount of damage the projectile will deal upon
-   * impact.
-   *
-   * @param range The maximum distance the projectile can travel.
-   * @param speed The speed at which the projectile travels.
-   * @param damageAmount The amount of damage the projectile will deal upon impact.
-   */
-  public static DamageProjectileSkill bowSkill(
-      final Entity owner,
-      final Supplier<Point> target,
-      long cooldown,
-      float range,
-      float speed,
-      int damageAmount,
-      Tuple<Resource, Integer>... resourceCost) {
-    return new DamageProjectileSkill(
-        SKILL_NAME,
-        cooldown,
-        (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
-        target,
-        PROJECTILE_TEXTURES,
-        speed,
-        range,
-        HIT_BOX_SIZE,
-        ProjectileSkill.DEFAULT_ON_WALL_HIT,
-        ProjectileSkill.DEFAULT_ON_SPAWN,
-        ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
-        ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
-        owner,
-        damageAmount,
-        DAMAGE_TYPE,
-        DamageProjectileSkill.DEFAULT_BONUS_EFFECT,
-        resourceCost);
   }
 }

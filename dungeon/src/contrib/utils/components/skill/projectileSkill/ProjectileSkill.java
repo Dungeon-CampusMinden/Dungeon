@@ -17,113 +17,126 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ProjectileSkill extends Skill {
+public abstract class ProjectileSkill extends Skill {
 
-  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT = entity -> Game.remove(entity);
-  public static final Consumer<Entity> DEFAULT_ON_TARGET_REACHED = entity -> Game.remove(entity);
-  public static final TriConsumer<Entity, Entity, Direction> DEFAULT_ON_COLLIDE_LEAVE =
-      (entity, entity2, direction) -> {};
+  public static final Consumer<Entity> REMOVE_CONSUMER = projectile -> Game.remove(projectile);
+  public static final TriConsumer<Entity, Entity, Direction> NOOP_TRICONSUMER =
+      (entity1, entity2, direction) -> {};
+  public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.of(1, 1);
+  public static final Function<Entity, Consumer<Entity>> NOOP_FUNCTION = entity -> entity1 -> {};
+  public static final Consumer<Entity> NOOP_CONSUMER = entity -> {};
 
-  public static final Consumer<Entity> DEFAULT_ON_SPAWN = entity -> {};
+  protected IPath texture;
+  protected Supplier<Point> start;
+  protected Supplier<Point> end;
+  protected float speed;
+  protected float range;
+  protected Vector2 hitBoxSize;
+  protected int tintColor = -1;
 
-  private final Supplier<Point> start;
-  private final Supplier<Point> target;
-  private final IPath pathToTexturesOfProjectile;
-  private final float projectileSpeed;
-  private final float projectileRange;
-  private final Vector2 projectileHitBoxSize;
-  private final Consumer<Entity> onWallHit;
-  private final Consumer<Entity> onSpawn;
-  private final Consumer<Entity> onTargetReached;
-  private TriConsumer<Entity, Entity, Direction> onCollide;
-  private final TriConsumer<Entity, Entity, Direction> onCollideLeave;
-
-  private final List<Entity> ignoreEntities = new ArrayList<>();
-  private int tintColor = -1; // -1 means no tint
+  protected List<Entity> ignoreEntities;
 
   public ProjectileSkill(
       String name,
       long cooldown,
-      Supplier<Point> start,
-      Supplier<Point> target,
-      IPath pathToTexturesOfProjectile,
-      float projectileSpeed,
-      float projectileRange,
-      Vector2 projectileHitBoxSize,
-      Consumer<Entity> onWallHit,
-      Consumer<Entity> onSpawn,
-      Consumer<Entity> onTargetReached,
-      TriConsumer<Entity, Entity, Direction> onCollide,
-      TriConsumer<Entity, Entity, Direction> onCollideLeave,
+      IPath texture,
+      float speed,
+      float range,
+      Vector2 hitBoxSize,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, resourceCost);
-    this.start = start;
-    this.target = target;
-    this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
-    this.projectileSpeed = projectileSpeed;
-    this.projectileRange = projectileRange;
-    this.projectileHitBoxSize = projectileHitBoxSize;
-    this.onWallHit = onWallHit;
-    this.onSpawn = onSpawn;
-    this.onTargetReached = onTargetReached;
-    this.onCollide = onCollide;
-    this.onCollideLeave = onCollideLeave;
+    this.texture = texture;
+    this.speed = speed;
+    this.range = range;
+    this.hitBoxSize = hitBoxSize;
+    this.ignoreEntities = new ArrayList<>();
   }
 
   @Override
   protected void executeSkill(Entity caster) {
-    spawnProjectile(caster);
-  }
+    Entity projectile = new Entity(name() + "_projectile");
+    ignoreEntities.add(caster);
+    ignoreEntities.add(projectile);
 
-  protected Entity spawnProjectile(Entity caster) {
-    Entity projectile = new Entity(this.name() + "_projectile");
+    Point start = start(caster);
     projectile.add(new FlyComponent());
-    projectile.add(new PositionComponent(start.get()));
+    projectile.add(new PositionComponent(start));
 
     try {
-      DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
-      dc.tintColor(tintColor());
+      DrawComponent dc = new DrawComponent(texture);
+      dc.tintColor(tintColor);
       projectile.add(dc);
     } catch (IOException e) {
       Skill.LOGGER.warning(
-          String.format("The DrawComponent for the projectile %s cant be created. ", caster)
+          String.format("The DrawComponent for the projectile %s cant be created. ")
               + e.getMessage());
       throw new RuntimeException();
     }
 
-    Point startPoint =
-        caster
-            .fetch(CollideComponent.class)
-            .map(collideComponent -> collideComponent.center(caster))
-            .orElse(new Point(0, 0));
-
     // Get the target point based on the selection function and projectile range.
     // Use a copy, so you do not change the actual value (for example the hero position)
-    Point aimedOn = new Point(target.get());
-    Point targetPoint =
-        SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
+    Point aimedOn = new Point(end(caster));
+    Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
 
     // Calculate the velocity of the projectile
-    Vector2 forceToApply =
-        SkillTools.calculateDirection(startPoint, targetPoint).scale(projectileSpeed);
+    Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
 
     // Add the VelocityComponent to the projectile
-    projectile.add(new VelocityComponent(projectileSpeed, onWallHit, true));
+    projectile.add(new VelocityComponent(speed, onWallHit(caster), true));
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
-    projectile.add(new ProjectileComponent(startPoint, targetPoint, forceToApply, onTargetReached));
+    projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
     // Add the CollideComponent with the appropriate hit box size and collision handler to the
     // projectile
-    projectile.add(
+    CollideComponent cc =
         new CollideComponent(
-            CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, onCollide, onCollideLeave));
+            CollideComponent.DEFAULT_OFFSET,
+            hitBoxSize,
+            onCollideEnter(caster),
+            onCollideLeave(caster));
+    cc.onHold(onCollideHold(caster));
+    projectile.add(cc);
     Game.add(projectile);
-    onSpawn.accept(projectile);
-    return projectile;
+    onSpawn(caster, projectile);
   }
+
+  protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
+    return NOOP_TRICONSUMER;
+  }
+
+  protected TriConsumer<Entity, Entity, Direction> onCollideHold(Entity caster) {
+    return NOOP_TRICONSUMER;
+  }
+
+  protected TriConsumer<Entity, Entity, Direction> onCollideLeave(Entity caster) {
+    return NOOP_TRICONSUMER;
+  }
+
+  protected Consumer<Entity> onWallHit(Entity caster) {
+    return REMOVE_CONSUMER;
+  }
+
+  protected Consumer<Entity> onEndReached(Entity caster) {
+    return REMOVE_CONSUMER;
+  }
+
+  protected void onSpawn(Entity caster, Entity projectile) {
+    return;
+  }
+
+  protected Point start(Entity caster) {
+    return caster
+        .fetch(CollideComponent.class)
+        .map(collideComponent -> collideComponent.center(caster))
+        .orElse(new Point(0, 0));
+  }
+  ;
+
+  protected abstract Point end(Entity caster);
 
   /**
    * Adds an entity to the list of entities to be ignored by the projectile. Entities in this list
@@ -161,61 +174,5 @@ public class ProjectileSkill extends Skill {
    */
   public int tintColor() {
     return tintColor;
-  }
-
-  protected void onCollide(TriConsumer<Entity, Entity, Direction> onCollide) {
-    this.onCollide = onCollide;
-  }
-
-  public Supplier<Point> getStart() {
-    return start;
-  }
-
-  public Supplier<Point> getTarget() {
-    return target;
-  }
-
-  public IPath getPathToTexturesOfProjectile() {
-    return pathToTexturesOfProjectile;
-  }
-
-  public float getProjectileSpeed() {
-    return projectileSpeed;
-  }
-
-  public float getProjectileRange() {
-    return projectileRange;
-  }
-
-  public Vector2 getProjectileHitBoxSize() {
-    return projectileHitBoxSize;
-  }
-
-  public Consumer<Entity> getOnWallHit() {
-    return onWallHit;
-  }
-
-  public Consumer<Entity> getOnSpawn() {
-    return onSpawn;
-  }
-
-  public Consumer<Entity> getOnTargetReached() {
-    return onTargetReached;
-  }
-
-  public TriConsumer<Entity, Entity, Direction> getOnCollide() {
-    return onCollide;
-  }
-
-  public void setOnCollide(TriConsumer<Entity, Entity, Direction> onCollide) {
-    this.onCollide = onCollide;
-  }
-
-  public TriConsumer<Entity, Entity, Direction> getOnCollideLeave() {
-    return onCollideLeave;
-  }
-
-  public List<Entity> getIgnoreEntities() {
-    return ignoreEntities;
   }
 }

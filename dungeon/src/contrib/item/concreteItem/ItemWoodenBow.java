@@ -1,14 +1,13 @@
 package contrib.item.concreteItem;
 
 import contrib.components.InventoryComponent;
-import contrib.configuration.KeyboardConfig;
+import contrib.components.SkillComponent;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
 import core.Entity;
 import core.Game;
-import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
@@ -39,17 +38,9 @@ public class ItemWoodenBow extends Item {
             inventoryComponent -> {
               if (inventoryComponent.add(this)) {
                 collector
-                    .fetch(InputComponent.class)
-                    .ifPresent(
-                        ic ->
-                            ic.registerCallback(
-                                KeyboardConfig.SECOND_SKILL.value(),
-                                collectorEntity -> {
-                                  // TODO FIX creation of new bow skill at evry execute
-                                  BowSkill.bowSkill(
-                                          collectorEntity, SkillTools::cursorPositionAsPoint)
-                                      .execute(collectorEntity);
-                                }));
+                    .fetch(SkillComponent.class)
+                    .ifPresent(sc -> sc.addSkill(new BowSkill(SkillTools::cursorPositionAsPoint)));
+
                 Game.remove(itemEntity);
                 return true;
               }
@@ -61,8 +52,8 @@ public class ItemWoodenBow extends Item {
   @Override
   public boolean drop(final Point position) {
     Game.hero()
-        .flatMap(hero -> hero.fetch(InputComponent.class))
-        .ifPresent(ic -> ic.removeCallback(KeyboardConfig.SECOND_SKILL.value()));
+        .flatMap(hero -> hero.fetch(SkillComponent.class))
+        .ifPresent(sc -> sc.removeSkill(BowSkill.class));
 
     return Game.tileAt(position)
         .filter(FloorTile.class::isInstance)

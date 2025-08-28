@@ -5,13 +5,11 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.Resource;
 import core.Entity;
-import core.components.PositionComponent;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -24,93 +22,84 @@ import java.util.function.Supplier;
  * entity to a random or specific location. It will also be removed from the game if it hits a wall
  * or has reached the maximum distance.
  */
-public class TPBallSkill {
-  private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
+public class TPBallSkill extends DamageProjectileSkill {
+  private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float PROJECTILE_SPEED = 6.0f;
   private static final int DAMAGE_AMOUNT = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final float PROJECTILE_RANGE = 7f;
-  private static final Consumer<Entity> ON_SPAWN_PLAY_SOUND = entity -> playSound();
   private static final long COOLDOWN = 2000;
+  public static final String SKILL_NAME = "TPBall";
+  public static final boolean IS_PIRCING = false;
+
+  public TPBallSkill(
+      Supplier<Point> target,
+      Supplier<Point> tpTarget,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(
+        SKILL_NAME,
+        cooldown,
+        TEXTURE,
+        target,
+        speed,
+        range,
+        IS_PIRCING,
+        damageAmount,
+        DAMAGE_TYPE,
+        (projectile, target1, direction) -> EntityUtils.teleportEntityTo(target1, tpTarget.get()),
+        HIT_BOX_SIZE,
+        resourceCost);
+    tintColor(0xFF00FFFF);
+  }
 
   /** Uses all default values: cooldown, range, speed, and damage. */
-  public static DamageProjectileSkill tpBallSkill(
-      final Entity owner, final Supplier<Point> target, Supplier<Point> tpTarget) {
-    return tpBallSkill(
-        owner, target, tpTarget, COOLDOWN, PROJECTILE_RANGE, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+  public TPBallSkill(
+      Supplier<Point> target, Supplier<Point> tpTarget, Tuple<Resource, Integer>... resourceCost) {
+    this(
+        target,
+        tpTarget,
+        COOLDOWN,
+        PROJECTILE_RANGE,
+        PROJECTILE_SPEED,
+        DAMAGE_AMOUNT,
+        resourceCost);
   }
 
   /** Uses default speed, range, and damage but custom cooldown. */
-  public static DamageProjectileSkill tpBallSkill(
-      final Entity owner, final Supplier<Point> target, Supplier<Point> tpTarget, long cooldown) {
-    return tpBallSkill(
-        owner, target, tpTarget, cooldown, PROJECTILE_RANGE, PROJECTILE_SPEED, DAMAGE_AMOUNT);
-  }
-
-  /** Uses default damage and speed, but allows custom cooldown and range. */
-  public static DamageProjectileSkill tpBallSkill(
-      final Entity owner,
-      final Supplier<Point> target,
+  public TPBallSkill(
+      Supplier<Point> target,
       Supplier<Point> tpTarget,
       long cooldown,
-      float range) {
-    return tpBallSkill(owner, target, tpTarget, cooldown, range, PROJECTILE_SPEED, DAMAGE_AMOUNT);
+      Tuple<Resource, Integer>... resourceCost) {
+    this(
+        target,
+        tpTarget,
+        cooldown,
+        PROJECTILE_RANGE,
+        PROJECTILE_SPEED,
+        DAMAGE_AMOUNT,
+        resourceCost);
   }
 
   /** Uses default damage, but allows custom cooldown, range, and speed. */
-  public static DamageProjectileSkill tpBallSkill(
-      final Entity owner,
-      final Supplier<Point> target,
-      Supplier<Point> tpTarget,
-      long cooldown,
-      float range,
-      float speed) {
-    return tpBallSkill(owner, target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT);
-  }
-
-  /**
-   * Create a {@link DamageProjectileSkill} that looks like a magic ball and will cause magic damage
-   * and teleport the entity to a random or specific location.
-   *
-   * @param tpTarget A supplier that provides the target point for teleportation.
-   * @see DamageProjectileSkill
-   */
-  public static DamageProjectileSkill tpBallSkill(
-      final Entity owner,
+  public TPBallSkill(
       final Supplier<Point> target,
       Supplier<Point> tpTarget,
       long cooldown,
       float range,
       float speed,
-      int damageAmount) {
-    DamageProjectileSkill skill =
-        new DamageProjectileSkill(
-            "tp",
-            cooldown,
-            () -> owner.fetch(PositionComponent.class).get().position(),
-            target,
-            PROJECTILE_TEXTURES,
-            speed,
-            range,
-            HIT_BOX_SIZE,
-            ProjectileSkill.DEFAULT_ON_WALL_HIT,
-            ON_SPAWN_PLAY_SOUND,
-            ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
-            ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
-            owner,
-            damageAmount,
-            DAMAGE_TYPE,
-            (projectile, entity) -> {
-              // only tp hero (for now)
-              EntityUtils.teleportEntityTo(entity, tpTarget.get());
-            });
-    skill.tintColor(0xFF00FFFF);
-    return skill;
+      Tuple<Resource, Integer>... resourceCost) {
+    this(target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT, resourceCost);
   }
 
-  private static void playSound() {
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
 
     // Generate a random pitch between 1.5f and 2.0f

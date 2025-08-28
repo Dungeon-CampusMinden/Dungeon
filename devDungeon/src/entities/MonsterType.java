@@ -14,10 +14,9 @@ import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
-import contrib.utils.components.skill.FireballSkill;
-import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
-import contrib.utils.components.skill.TPBallSkill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
+import contrib.utils.components.skill.projectileSkill.TPBallSkill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -86,9 +85,7 @@ public enum MonsterType {
           new AIRangeBehaviour(
               7f,
               0f,
-              new Skill(
-                  new FireballSkill(SkillTools::heroPositionAsPoint),
-                  AIFactory.FIREBALL_COOL_DOWN)),
+              new FireballSkill(SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)),
       () -> new RadiusWalk(5f, 2),
       () -> new RangeTransition(8),
       0,
@@ -137,9 +134,7 @@ public enum MonsterType {
           new AIRangeBehaviour(
               3f,
               0f,
-              new Skill(
-                  new FireballSkill(SkillTools::heroPositionAsPoint),
-                  AIFactory.FIREBALL_COOL_DOWN)),
+              new FireballSkill(SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(5, true),
       2,
@@ -218,10 +213,9 @@ public enum MonsterType {
           new AIRangeBehaviour(
               9f,
               0f,
-              new Skill(
-                  new TPBallSkill(
-                      SkillTools::heroPositionAsPoint,
-                      LevelUtils::getRandomTPTargetForCurrentLevel),
+              new TPBallSkill(
+                  SkillTools::heroPositionAsPoint,
+                  LevelUtils::getRandomTPTargetForCurrentLevel,
                   AIFactory.FIREBALL_COOL_DOWN * 4)),
       () -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH),
       () -> new RangeTransition(6, false),
