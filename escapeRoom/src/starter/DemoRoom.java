@@ -22,7 +22,7 @@ public class DemoRoom {
   private static final boolean DEBUG_MODE = false;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
-  private static final CharacterClass CHARACTER_CLASS = CharacterClass.GOBLIN;
+  private static final CharacterClass CHARACTER_CLASS = CharacterClass.KNIGHT;
 
   /**
    * Main method to start the game.
@@ -80,7 +80,7 @@ public class DemoRoom {
     Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new EnergyRestoreSystem());
-    Game.add(new EnergyBarSystem());
+    Game.add(new StaminaBarSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());

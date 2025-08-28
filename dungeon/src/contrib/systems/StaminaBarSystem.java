@@ -1,7 +1,7 @@
 package contrib.systems;
 
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import contrib.components.EnergyComponent;
+import contrib.components.StaminaComponent;
 import contrib.utils.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;
@@ -12,24 +12,24 @@ import java.util.Map;
 /**
  * Creates a progress bar that follows an entity and shows its current energy percentage.
  *
- * <p>Entities with {@link EnergyComponent}, {@link PositionComponent}, and {@link DrawComponent}
+ * <p>Entities with {@link StaminaComponent}, {@link PositionComponent}, and {@link DrawComponent}
  * will be processed by this system.
  */
-public final class EnergyBarSystem extends System {
+public final class StaminaBarSystem extends System {
 
   private final Map<Integer, ProgressBar> barMapping = new HashMap<>();
   private static final float OFFSET = 40f;
 
-  public EnergyBarSystem() {
-    super(DrawComponent.class, EnergyComponent.class, PositionComponent.class);
+  public StaminaBarSystem() {
+    super(DrawComponent.class, StaminaComponent.class, PositionComponent.class);
 
     this.onEntityAdd =
         entity ->
             AttributeBarUtil.addBarToEntity(
                 entity,
-                e -> e.fetch(EnergyComponent.class).orElseThrow(),
+                e -> e.fetch(StaminaComponent.class).orElseThrow(),
                 barMapping,
-                "energybar",
+                "staminabar",
                 OFFSET);
 
     this.onEntityRemove =
@@ -48,7 +48,7 @@ public final class EnergyBarSystem extends System {
                     entity,
                     e ->
                         new AttributeBarUtil.AttributeProvider() {
-                          final EnergyComponent ec = e.fetch(EnergyComponent.class).orElseThrow();
+                          final StaminaComponent ec = e.fetch(StaminaComponent.class).orElseThrow();
 
                           @Override
                           public float current() {

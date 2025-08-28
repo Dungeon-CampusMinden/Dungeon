@@ -1,6 +1,6 @@
 package contrib.utils.components.skill;
 
-import contrib.components.EnergyComponent;
+import contrib.components.StaminaComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
@@ -28,7 +28,7 @@ import java.util.function.Function;
  *   <li>{@link #HP} – the entity's health points
  *   <li>{@link #ARROW} – the entity's count of {@link ItemWoodenArrow}s in the inventory
  *   <li>{@link #MANA} – the entity's mana
- *   <li>{@link #ENERGY} – the entity's stamina or energy
+ *   <li>{@link #STAMINA} – the entity's stamina or energy
  * </ul>
  */
 public enum Resource {
@@ -85,13 +85,13 @@ public enum Resource {
   /**
    * Energy resource.
    *
-   * <p>Supplied from {@link EnergyComponent#currentAmount()} ()}. Consuming energy calls {@link
-   * EnergyComponent#consume(float)}.
+   * <p>Supplied from {@link StaminaComponent#currentAmount()} ()}. Consuming stamina calls {@link
+   * StaminaComponent#consume(float)}.
    */
-  ENERGY(
+  STAMINA(
       entity ->
-          entity.fetch(EnergyComponent.class).map(EnergyComponent::currentAmount).orElse((float) 0),
-      (entity, amount) -> entity.fetch(EnergyComponent.class).orElseThrow().consume(amount));
+          entity.fetch(StaminaComponent.class).map(StaminaComponent::currentAmount).orElse((float) 0),
+      (entity, amount) -> entity.fetch(StaminaComponent.class).orElseThrow().consume(amount));
 
   /** Function that supplies the current resource amount from an entity. */
   private final Function<Entity, Float> supplier;

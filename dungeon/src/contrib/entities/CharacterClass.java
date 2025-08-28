@@ -40,7 +40,7 @@ public enum CharacterClass {
       35,
       Set.of(
           new BowSkill(SkillTools::cursorPositionAsPoint),
-          new DashSkill(5, 180, 120, new Tuple<>(Resource.ENERGY, 20))),
+          new DashSkill(5, 180, 120, new Tuple<>(Resource.STAMINA, 20))),
       Set.of(
           new ItemWoodenBow(),
           new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),

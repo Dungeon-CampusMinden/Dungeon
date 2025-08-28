@@ -57,7 +57,7 @@ public final class HeroFactory {
                 hero.fetch(HealthComponent.class)
                     .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
                 hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
-                hero.fetch(EnergyComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
+                hero.fetch(StaminaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
                 // reset the animation queue
                 hero.fetch(DrawComponent.class).ifPresent(DrawComponent::deQueueAll);
                 DungeonLoader.reloadCurrentLevel();
@@ -119,7 +119,7 @@ public final class HeroFactory {
             true));
     hero.add(new DrawComponent(characterClass.textures()));
     hero.add(new ManaComponent(100, 100, 10f));
-    hero.add(new EnergyComponent(100, 100, 40f));
+    hero.add(new StaminaComponent(100, 100, 40f));
 
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
