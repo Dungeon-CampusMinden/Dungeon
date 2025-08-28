@@ -1,4 +1,4 @@
-package contrib.skill;
+package contrib.utils.components.skill;
 
 import contrib.components.EnergyComponent;
 import contrib.components.HealthComponent;

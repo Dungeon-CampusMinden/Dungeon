@@ -2,8 +2,8 @@ package contrib.entities;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
-import contrib.skill.SkillTools;
-import contrib.skill.projectileSkill.FireballSkill;
+import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;

@@ -1,7 +1,7 @@
-package contrib.skill.cursorSkill;
+package contrib.utils.components.skill.cursorSkill;
 
 import contrib.components.HealthComponent;
-import contrib.skill.Resource;
+import contrib.utils.components.skill.Resource;
 import core.Entity;
 import core.Game;
 import core.utils.Point;

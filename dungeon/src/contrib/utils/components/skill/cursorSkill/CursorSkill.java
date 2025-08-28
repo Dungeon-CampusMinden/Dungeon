@@ -1,8 +1,8 @@
-package contrib.skill.cursorSkill;
+package contrib.utils.components.skill.cursorSkill;
 
-import contrib.skill.Resource;
-import contrib.skill.Skill;
-import contrib.skill.SkillTools;
+import contrib.utils.components.skill.Resource;
+import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.utils.Point;
 import core.utils.Tuple;
