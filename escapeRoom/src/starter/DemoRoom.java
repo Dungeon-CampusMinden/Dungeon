@@ -77,6 +77,8 @@ public class DemoRoom {
     Game.add(new CollisionSystem());
     Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
+    Game.add(new EnergyRestoreSystem());
+    Game.add(new EnergyBarSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());

@@ -12,14 +12,11 @@ import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
 /**
- * Subclass of {@link DamageProjectileSkill}.
+ * A fireball projectile skill that deals fire damage on impact.
  *
- * <p>The FireballSkill class extends the functionality of {@link DamageProjectileSkill} to
- * implement the specific behavior of the fireball skill. *
- *
- * <p>The projectile will fly through the dungeon, and if it hits an entity, it will deal damage and
- * be removed from the game. It will also be removed from the game if it hits a wall or has reached
- * the maximum distance.
+ * <p>This class extends {@link DamageProjectileSkill} to implement a fireball-specific skill. The
+ * projectile will travel toward a target point, deal fire damage on collision with an entity, and
+ * be removed if it hits a wall or reaches its maximum range.
  */
 public class FireballSkill extends DamageProjectileSkill {
 
@@ -35,26 +32,40 @@ public class FireballSkill extends DamageProjectileSkill {
   private static final boolean IS_PIRCING = false;
 
   /**
-   * Create a {@link DamageProjectileSkill} that looks like a fireball and will cause fire damage.
+   * Creates a fireball skill with default cooldown.
    *
-   * @param targetSelection A function used to select the point where the projectile should fly to.
-   * @see DamageProjectileSkill
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
+  @SafeVarargs
   public FireballSkill(Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
     this(targetSelection, COOLDOWN, resourceCost);
   }
 
   /**
-   * Create a {@link DamageProjectileSkill} that looks like a fireball and will cause fire damage.
+   * Creates a fireball skill with a custom cooldown.
    *
-   * @param targetSelection A function used to select the point where the projectile should fly to.
-   * @see DamageProjectileSkill
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param cooldown Cooldown in milliseconds for the skill.
+   * @param resourceCost Resource costs required to use the skill.
    */
+  @SafeVarargs
   public FireballSkill(
       Supplier<Point> targetSelection, long cooldown, Tuple<Resource, Integer>... resourceCost) {
     this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, resourceCost);
   }
 
+  /**
+   * Creates a fully customized fireball skill.
+   *
+   * @param target Function providing the target point.
+   * @param cooldown Cooldown in ms.
+   * @param speed Travel speed of the projectile.
+   * @param range Maximum travel range.
+   * @param damageAmount Base damage dealt.
+   * @param resourceCost Resource costs for casting.
+   */
+  @SafeVarargs
   public FireballSkill(
       Supplier<Point> target,
       long cooldown,
@@ -77,20 +88,26 @@ public class FireballSkill extends DamageProjectileSkill {
         resourceCost);
   }
 
+  /**
+   * Called when the fireball projectile spawns in the game world.
+   *
+   * <p>Plays a fireball sound effect with a random pitch for variation.
+   *
+   * @param caster The entity casting the fireball.
+   * @param projectile The projectile entity spawned.
+   */
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
 
-    // Generate a random pitch between 1.5f and 2.0f
+    // Generate a random pitch between minPitch and maxPitch
     float minPitch = 2f;
     float maxPitch = 3f;
     float randomPitch = MathUtils.random(minPitch, maxPitch);
 
-    // Play the sound with the adjusted pitch
+    // Play the sound with adjusted pitch and low volume
     long soundId = soundEffect.play();
     soundEffect.setPitch(soundId, randomPitch);
-
-    // Set the volume
     soundEffect.setVolume(soundId, 0.05f);
   }
 }
