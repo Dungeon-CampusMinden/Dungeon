@@ -38,12 +38,6 @@ com.badlogic.gdx.graphics.Color: {
 		b: 1
 		a: 1
 	},
-	energy_green: {
-		r: 0
-		g: 1
-		b: 0
-		a: 1
-	}
 	orange: {
 		r: 0.94509804
 		g: 0.6745098
@@ -139,9 +133,9 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 		minWidth: 1
 		minHeight: 10
 	},
-	progress-bar-fill-energy: {
-		name: progress-bar-fill
-		color: energy_green
+	progress-bar-fill-stamina: {
+		name: progress-bar-fill,
+		color: orange,
 		minWidth: 1
 		minHeight: 10
 	}
@@ -234,9 +228,9 @@ com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
 		background: progress-bar-smaller
 		knobBefore: progress-bar-fill-mana
 	},
-	energybar: {
+	staminabar: {
 		background: progress-bar-smaller
-		knobBefore: progress-bar-fill-energy
+		knobBefore: progress-bar-fill-stamina
 	}
 	experiencebar: {
 		background: progress-bar-smaller

@@ -1,11 +1,11 @@
 package contrib.systems;
 
-import contrib.components.EnergyComponent;
+import contrib.components.StaminaComponent;
 import core.Game;
 import core.System;
 
 /**
- * A system that restores energy to all entities with an {@link EnergyComponent}.
+ * A system that restores energy to all entities with an {@link StaminaComponent}.
  *
  * <p>The restoration amount is calculated based on the energy regeneration rate defined in each
  * {@code EnergyComponent}. To ensure frame-rate-independent behavior, the per-second restoration
@@ -16,14 +16,14 @@ public class EnergyRestoreSystem extends System {
   /**
    * Creates a new {@code EnergyRestoreSystem}.
    *
-   * <p>This system processes all entities that contain an {@link EnergyComponent}.
+   * <p>This system processes all entities that contain an {@link StaminaComponent}.
    */
   public EnergyRestoreSystem() {
-    super(EnergyComponent.class);
+    super(StaminaComponent.class);
   }
 
   /**
-   * Executes the energy restoration for all entities that contain an {@link EnergyComponent}.
+   * Executes the energy restoration for all entities that contain an {@link StaminaComponent}.
    *
    * <p>For each entity, the system restores an amount of energy equal to:
    *
@@ -36,7 +36,7 @@ public class EnergyRestoreSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream()
-        .flatMap(e -> e.fetch(EnergyComponent.class).stream())
+        .flatMap(e -> e.fetch(StaminaComponent.class).stream())
         .forEach(c -> c.restore(c.restorePerSecond() / Game.frameRate()));
   }
 }
