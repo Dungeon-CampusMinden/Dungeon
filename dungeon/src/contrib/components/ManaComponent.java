@@ -4,27 +4,27 @@ import core.Component;
 
 public class ManaComponent implements Component {
 
-  private int maxAmount;
-  private int currentAmount;
+  private float maxAmount;
+  private float currentAmount;
   private float restorePerSecond;
 
-  public ManaComponent(int maxAmount, int currentAmount, float restorePerSecond) {
+  public ManaComponent(float maxAmount, float currentAmount, float restorePerSecond) {
     this.maxAmount = maxAmount;
     this.currentAmount = Math.min(currentAmount, maxAmount);
-    this.restorePerSecond=restorePerSecond;
+    this.restorePerSecond = restorePerSecond;
   }
 
   // Getters
-  public int getMaxAmount() {
+  public float getMaxAmount() {
     return maxAmount;
   }
 
-  public int getCurrentAmount() {
+  public float getCurrentAmount() {
     return currentAmount;
   }
 
   // Setters
-  public void setMaxAmount(int maxAmount) {
+  public void setMaxAmount(float maxAmount) {
     this.maxAmount = maxAmount;
     // Ensure currentAmount does not exceed new max
     if (currentAmount > maxAmount) {
@@ -32,21 +32,21 @@ public class ManaComponent implements Component {
     }
   }
 
-  public void setCurrentAmount(int currentAmount) {
+  public void setCurrentAmount(float currentAmount) {
     this.currentAmount = Math.min(currentAmount, maxAmount);
   }
 
   // Increase/decrease max mana
-  public void increaseMaxAmount(int amount) {
+  public void increaseMaxAmount(float amount) {
     setMaxAmount(maxAmount + amount);
   }
 
-  public void decreaseMaxAmount(int amount) {
+  public void decreaseMaxAmount(float amount) {
     setMaxAmount(Math.max(0, maxAmount - amount));
   }
 
   // Consume/restore current mana
-  public boolean consume(int amount) {
+  public boolean consume(float amount) {
     if (amount <= currentAmount) {
       currentAmount -= amount;
       return true; // Successfully consumed
@@ -54,15 +54,15 @@ public class ManaComponent implements Component {
     return false; // Not enough mana
   }
 
-  public void restore(int amount) {
+  public void restore(float amount) {
     currentAmount = Math.min(currentAmount + amount, maxAmount);
   }
 
   public float getRestorePerSecond() {
     return restorePerSecond;
   }
+
   public void setRestorePerSecond(float restorePerSecond) {
     this.restorePerSecond = restorePerSecond;
   }
-
 }
