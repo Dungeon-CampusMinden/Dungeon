@@ -1,6 +1,6 @@
 package contrib.utils.components.ai.fight;
 
-import contrib.skill.Skill;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.ai.ISkillUser;
 import core.Entity;
 import core.level.utils.LevelUtils;
