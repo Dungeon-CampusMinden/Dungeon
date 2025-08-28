@@ -9,13 +9,13 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.projectileSkill.TPBallSkill;
-import contrib.utils.components.health.Damage;
-import contrib.utils.components.interaction.InteractionTool;
 import core.Entity;
 import core.Game;
 import core.components.*;
@@ -74,6 +74,8 @@ public final class HeroFactory {
                   });
         }
       };
+  public static final FireballSkill FIREBALL_SKILL =
+      new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30));
 
   private static Consumer<Entity> HERO_DEATH =
       (hero) ->
@@ -150,10 +152,12 @@ public final class HeroFactory {
 
     hero.add(
         new SkillComponent(
-            FireballSkill.fireballSkill(
-                hero, SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30)),
-            TPBallSkill.tpBallSkill(
-                hero, SkillTools::cursorPositionAsPoint, SkillTools::cursorPositionAsPoint)));
+            FIREBALL_SKILL,
+            new TPBallSkill(
+                SkillTools::cursorPositionAsPoint,
+                SkillTools::cursorPositionAsPoint,
+                500,
+                new Tuple<>(Resource.MANA, 70))));
 
     HealthComponent hc =
         new HealthComponent(

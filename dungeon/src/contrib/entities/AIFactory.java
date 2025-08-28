@@ -2,8 +2,6 @@ package contrib.entities;
 
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
-import contrib.utils.components.skill.SkillTools;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
@@ -14,6 +12,8 @@ import contrib.utils.components.ai.transition.ProtectOnApproach;
 import contrib.utils.components.ai.transition.ProtectOnAttack;
 import contrib.utils.components.ai.transition.RangeTransition;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
+import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import java.util.List;
@@ -107,14 +107,12 @@ public final class AIFactory {
           new AIRangeBehaviour(
               RANDOM.nextFloat(ATTACK_RANGE_LOW, ATTACK_RANGE_HIGH),
               RANDOM.nextFloat(DISTANCE_LOW, DISTANCE_HIGH),
-              FireballSkill.fireballSkill(
-                  monster, SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
+              new FireballSkill(SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
       default ->
           new AIMeleeBehaviour(
               RANDOM.nextFloat(RUSH_RANGE_LOW, RUSH_RANGE_HIGH),
               1f,
-              FireballSkill.fireballSkill(
-                  monster, SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
+              new FireballSkill(SkillTools::heroPositionAsPoint, FIREBALL_COOL_DOWN));
     };
   }
 

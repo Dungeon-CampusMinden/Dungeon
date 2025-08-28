@@ -3,16 +3,12 @@ package contrib.utils.components.skill.projectileSkill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
-import contrib.utils.components.skill.Resource;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.Resource;
 import core.Entity;
-import core.components.PositionComponent;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -25,23 +21,18 @@ import java.util.function.Supplier;
  * be removed from the game. It will also be removed from the game if it hits a wall or has reached
  * the maximum distance.
  */
-public final class FireballSkill {
+public class FireballSkill extends DamageProjectileSkill {
 
   public static final String SKILL_NAME = "FIREBALL";
-  private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
-  private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
-  private static final float DEFAULT_PROJECTILE_SPEED = 13f;
-  private static final int DEFAULT_DAMAGE_AMOUNT = 2;
-  private static final float DEFAULT_PROJECTILE_RANGE = 7f;
+  private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
+  private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
+  private static final float SPEED = 13f;
+  private static final int DAMAGE = 2;
+  private static final float RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
-
-  private static final Consumer<Entity> ON_SPAWN_PLAY_SOUND = entity -> playSound();
-
   private static final long COOLDOWN = 500;
-
-  private FireballSkill() {}
-  ;
+  private static final boolean IS_PIRCING = false;
 
   /**
    * Create a {@link DamageProjectileSkill} that looks like a fireball and will cause fire damage.
@@ -49,11 +40,8 @@ public final class FireballSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public static DamageProjectileSkill fireballSkill(
-      final Entity owner,
-      final Supplier<Point> targetSelection,
-      Tuple<Resource, Integer>... resourceCost) {
-    return fireballSkill(owner, targetSelection, COOLDOWN, resourceCost);
+  public FireballSkill(Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, COOLDOWN, resourceCost);
   }
 
   /**
@@ -62,51 +50,36 @@ public final class FireballSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
-  public static DamageProjectileSkill fireballSkill(
-      final Entity owner,
-      final Supplier<Point> targetSelection,
-      long cooldown,
-      Tuple<Resource, Integer>... resourceCost) {
-    return fireballSkill(
-        owner,
-        targetSelection,
-        cooldown,
-        DEFAULT_PROJECTILE_RANGE,
-        DEFAULT_PROJECTILE_SPEED,
-        DEFAULT_DAMAGE_AMOUNT,
-        resourceCost);
+  public FireballSkill(
+      Supplier<Point> targetSelection, long cooldown, Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, resourceCost);
   }
 
-  public static DamageProjectileSkill fireballSkill(
-      final Entity owner,
-      final Supplier<Point> target,
+  public FireballSkill(
+      Supplier<Point> target,
       long cooldown,
-      float range,
       float speed,
+      float range,
       int damageAmount,
       Tuple<Resource, Integer>... resourceCost) {
-    return new DamageProjectileSkill(
+    super(
         SKILL_NAME,
         cooldown,
-        (Supplier<Point>) () -> owner.fetch(PositionComponent.class).get().position(),
+        TEXTURE,
         target,
-        PROJECTILE_TEXTURES,
         speed,
         range,
-        HIT_BOX_SIZE,
-        ProjectileSkill.DEFAULT_ON_WALL_HIT,
-        ON_SPAWN_PLAY_SOUND,
-        ProjectileSkill.DEFAULT_ON_TARGET_REACHED,
-        ProjectileSkill.DEFAULT_ON_COLLIDE_LEAVE,
-        owner,
+        IS_PIRCING,
         damageAmount,
         DAMAGE_TYPE,
-        DamageProjectileSkill.DEFAULT_BONUS_EFFECT,
+        NOOP_EFFECT,
+        HIT_BOX_SIZE,
         resourceCost);
   }
 
-  private static void playSound() {
-    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
+    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
 
     // Generate a random pitch between 1.5f and 2.0f
     float minPitch = 2f;

@@ -5,9 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import core.Game;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
-import core.utils.MissingHeroException;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 
 /** SkillTools is a collection of helper methods used for skills. */
