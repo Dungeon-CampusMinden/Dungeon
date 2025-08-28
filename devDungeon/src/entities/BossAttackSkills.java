@@ -4,13 +4,13 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.SpikyComponent;
 import contrib.entities.AIFactory;
-import contrib.skill.Skill;
-import contrib.skill.SkillTools;
-import contrib.skill.projectileSkill.DamageProjectileSkill;
-import contrib.skill.projectileSkill.FireballSkill;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.DamageProjectile;
+import contrib.utils.components.skill.FireballSkill;
+import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -60,7 +60,7 @@ public class BossAttackSkills {
    * @return The skill that does nothing.
    */
   public static Skill SKILL_NONE() {
-    return Skill.NONE;
+    return new Skill((skillUser) -> {}, 1000);
   }
 
   /**
@@ -69,8 +69,8 @@ public class BossAttackSkills {
    * @param wallWidth The width of the wall. The wall will be centered on the boss.
    * @return The skill that shoots the fire wall.
    */
-  public static OldSkill fireWall(int wallWidth) {
-    return new OldSkill(
+  public static Skill fireWall(int wallWidth) {
+    return new Skill(
         (skillUser) -> {
           // Firewall
           Point heroPos = SkillTools.heroPositionAsPoint();
@@ -112,8 +112,8 @@ public class BossAttackSkills {
    * @return The skill that starts the shock wave.
    * @see LevelUtils#explosionAt(Coordinate, int, long, java.util.function.Consumer) explosionAt
    */
-  public static OldSkill fireShockWave(int radius) {
-    return new OldSkill(
+  public static Skill fireShockWave(int radius) {
+    return new Skill(
         (skillUser) -> {
           Point bossPos =
               skillUser
@@ -178,9 +178,9 @@ public class BossAttackSkills {
    * @param fireballDamage The damage of the fireballs.
    * @return The skill that shoots the fire cone.
    */
-  public static OldSkill fireCone(
+  public static Skill fireCone(
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
-    return new OldSkill(
+    return new Skill(
         (skillUser) -> {
           Point heroPos = EntityUtils.getHeroPosition();
           if (heroPos == null) {
@@ -237,8 +237,8 @@ public class BossAttackSkills {
    * @param delayBetweenFireballs The delay between each fireball.
    * @return The skill that shoots the fireballs.
    */
-  public static OldSkill fireStorm(int totalFireBalls, int delayBetweenFireballs) {
-    return new OldSkill(
+  public static Skill fireStorm(int totalFireBalls, int delayBetweenFireballs) {
+    return new Skill(
         (skillUser) -> {
           // Fire Storm
           Point bossPos =
@@ -299,7 +299,7 @@ public class BossAttackSkills {
       float speed,
       int damage) {
     Entity shooter;
-    DamageProjectileSkill skill = new FireballSkill(() -> target, maxRange, speed, damage);
+    DamageProjectile skill = new FireballSkill(() -> target, maxRange, speed, damage);
     skill.ignoreEntity(skillUser);
     if (start.equals(bossPos)) {
       shooter = skillUser;
@@ -309,7 +309,7 @@ public class BossAttackSkills {
       shooter.add(new CollideComponent());
     }
 
-    skill.execute(shooter);
+    skill.accept(shooter);
   }
 
   /**
@@ -330,7 +330,7 @@ public class BossAttackSkills {
    * @return The skill that the final boss should use.
    * @see level.devlevel.BossLevel BossLevel
    */
-  public static OldSkill getFinalBossSkill(Entity boss) {
+  public static Skill getFinalBossSkill(Entity boss) {
     double healthPercentage = calculateBossHealthPercentage(boss);
 
     if (healthPercentage > 75) { // High health - more simple attacks
@@ -398,8 +398,8 @@ public class BossAttackSkills {
    * @param coolDown The cool down of the skill.
    * @return The skill that shoots the fireballs.
    */
-  public static OldSkill normalAttack(int coolDown) {
-    return new OldSkill(
+  public static Skill normalAttack(int coolDown) {
+    return new Skill(
         (skillUser) -> {
           Point heroPos = EntityUtils.getHeroPosition();
           if (heroPos == null) {
