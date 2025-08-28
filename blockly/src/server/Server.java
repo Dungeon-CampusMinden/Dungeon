@@ -48,31 +48,10 @@ public class Server {
   private static final int DEFAULT_PORT = 8080;
 
   /**
-   * This variable holds all active scopes in a stack. The value at the top of the stack is the
-   * current scope. It can hold the following values: if, while, repeat, function.
-   */
-  public final Stack<String> active_scopes = new Stack<>();
-
-  /**
    * Hashmap storing all variables. This is public, so we can easily access it in the
    * BlocklyConditionVisitor
    */
   public final HashMap<String, Variable> variables = new HashMap<>();
-
-  /** Hashmap storing all functions. */
-  private final HashMap<String, FuncStats> functions = new HashMap<>();
-
-  /** Stack containing all active scopes. */
-  public final Stack<RepeatStats> active_repeats = new Stack<>();
-
-  /** Stack containing all active while loops. */
-  public final Stack<WhileStats> active_whiles = new Stack<>();
-
-  /** Stack containing all active ifs. */
-  public final Stack<IfStats> active_ifs = new Stack<>();
-
-  /** Stack containing all active func defs. */
-  public final Stack<FuncStats> active_func_defs = new Stack<>();
 
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
@@ -87,7 +66,6 @@ public class Server {
   public String errorMsg = "";
 
   private boolean clearHUD = false;
-  private final Stack<String> currently_repeating_scope = new Stack<>();
 
   /** Constructor of the server. */
   private Server() {}
@@ -411,21 +389,12 @@ public class Server {
     BlocklyCodeRunner.instance().stopCode();
 
     // Reset values
-    active_scopes.clear();
-    currently_repeating_scope.clear();
-    active_ifs.clear();
-    active_whiles.clear();
-    active_repeats.clear();
-    active_func_defs.clear();
-    variables.clear();
-    functions.clear();
     interruptExecution = false;
     errorOccurred = false;
     errorMsg = "";
     // Set clear HUD to true so the HUD will be cleared next time the start route will be used.
     clearHUD = true;
     System.out.println("Values cleared");
-    printScopes();
   }
 
   /**
@@ -440,18 +409,6 @@ public class Server {
     interruptExecution = true;
     errorOccurred = true;
     errorMsg = errMsg;
-  }
-
-  /** Prints all current scopes, repeating scopes, variables and functions. */
-  private void printScopes() {
-    System.out.print("Current scopes: ");
-    System.out.println(active_scopes);
-    System.out.print("Currently repeating scopes: ");
-    System.out.println(currently_repeating_scope);
-    System.out.print("Current variables: ");
-    System.out.println(variables);
-    System.out.print("Available functions: ");
-    System.out.println(functions);
   }
 
   /**
