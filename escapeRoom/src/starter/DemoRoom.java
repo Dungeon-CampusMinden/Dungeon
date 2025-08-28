@@ -3,6 +3,7 @@ package starter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
+import contrib.entities.CharacterClass;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
@@ -21,6 +22,7 @@ public class DemoRoom {
   private static final boolean DEBUG_MODE = false;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
+  private static final CharacterClass CHARACTER_CLASS = CharacterClass.KNIGHT;
 
   /**
    * Main method to start the game.
@@ -58,7 +60,7 @@ public class DemoRoom {
   }
 
   private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero();
+    Entity hero = HeroFactory.newHero(CHARACTER_CLASS);
     hero.add(new HintLogComponent());
     Game.add(hero);
   }
