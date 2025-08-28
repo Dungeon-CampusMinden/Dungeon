@@ -3,6 +3,7 @@ package contrib.utils.components.skill.selfSkill;
 import contrib.components.HealthComponent;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.utils.Tuple;
 
@@ -14,6 +15,8 @@ import core.utils.Tuple;
  * again.
  */
 public class SelfHealSkill extends Skill {
+
+  public static final String NAME = "SELF HEAL";
 
   /** The amount of health restored when the skill is executed. */
   protected int healAmount;
@@ -27,9 +30,8 @@ public class SelfHealSkill extends Skill {
    * @param resourceCost Optional resource costs required to use this skill.
    */
   @SafeVarargs
-  public SelfHealSkill(
-      String name, long cooldown, int healAmount, Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, resourceCost);
+  public SelfHealSkill(long cooldown, int healAmount, Tuple<Resource, Integer>... resourceCost) {
+    super(NAME, cooldown, resourceCost);
     this.healAmount = healAmount;
   }
 
@@ -43,7 +45,13 @@ public class SelfHealSkill extends Skill {
    */
   @Override
   protected void executeSkill(Entity caster) {
-    caster.fetch(HealthComponent.class).ifPresent(hc -> hc.restoreHealthpoints(healAmount()));
+    caster
+        .fetch(HealthComponent.class)
+        .ifPresent(
+            hc -> {
+              hc.restoreHealthpoints(healAmount());
+              SkillTools.blink(caster, 0x00FF00FF, 120, 4);
+            });
   }
 
   /**
