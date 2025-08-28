@@ -2,7 +2,11 @@ package contrib.utils.components.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
+import contrib.systems.EventScheduler;
+import contrib.utils.IAction;
+import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.*;
@@ -64,5 +68,31 @@ public final class SkillTools {
             .orElseThrow(
                 () -> MissingComponentException.build(Game.hero().get(), PositionComponent.class));
     return pc.position();
+  }
+
+  public static void blink(Entity caster, int tint, long totalDuration, int times) {
+    // Each blink has two phases: on and off
+    long interval = totalDuration / (times * 2);
+
+    for (int i = 0; i < times * 2; i++) {
+      final int step = i;
+      EventScheduler.scheduleAction(
+          new IAction() {
+            @Override
+            public void execute() {
+              caster
+                  .fetch(DrawComponent.class)
+                  .ifPresent(
+                      dc -> {
+                        if (step % 2 == 0) {
+                          dc.tintColor(tint); // blink color
+                        } else {
+                          dc.tintColor(0xFFFFFFFF); // normal color
+                        }
+                      });
+            }
+          },
+          interval * i);
+    }
   }
 }

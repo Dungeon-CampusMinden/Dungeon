@@ -10,6 +10,7 @@ import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.DashSkill;
+import contrib.utils.components.skill.selfSkill.SelfHealSkill;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -24,7 +25,7 @@ public enum CharacterClass {
       15,
       Set.of(
           new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30)),
-          new DashSkill(10, 180, new Tuple<>(Resource.ENERGY, 40))),
+          new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80))),
       Set.of(new ItemPotionHealth()),
       6,
       100,
@@ -38,7 +39,7 @@ public enum CharacterClass {
       35,
       Set.of(
           new BowSkill(SkillTools::cursorPositionAsPoint),
-          new DashSkill(5, 180, new Tuple<>(Resource.ENERGY, 20))),
+          new DashSkill(5, 180, 120, new Tuple<>(Resource.ENERGY, 20))),
       Set.of(
           new ItemWoodenBow(),
           new ItemWoodenArrow(ItemWoodenArrow.MAX_ARROW_STACK_SIZE),
