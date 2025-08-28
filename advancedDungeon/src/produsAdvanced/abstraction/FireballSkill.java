@@ -4,9 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.components.ItemComponent;
-import contrib.skill.Skill;
-import contrib.skill.projectileSkill.DamageProjectileSkill;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.DamageProjectile;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -33,7 +33,7 @@ import produsAdvanced.AdvancedDungeon;
  *
  * @see Hero#shootFireball(Point)
  */
-public class FireballSkill extends DamageProjectileSkill {
+public class FireballSkill extends DamageProjectile {
   private static final Logger LOGGER = Logger.getLogger(FireballSkill.class.getName());
 
   /** Debug-Textur für den Feuerball. */
@@ -50,7 +50,7 @@ public class FireballSkill extends DamageProjectileSkill {
   private static final int DEFAULT_RANGE = 5;
   private static final float DEFAULT_SPEED = 5f;
   private static final int DEFAULT_COOL_DOWN = 500; // ms
-  private static final Consumer<Entity> ON_SPAWN_PLAY_SOUND = entity -> playSound();
+
   private Point target = new Point(0, 0);
   private IPath texture = new SimpleIPath("skills/fireball");
   private int range;
@@ -58,7 +58,7 @@ public class FireballSkill extends DamageProjectileSkill {
   private int damage;
   private int coolDown; // ms
   private Consumer<Berry> onBerryHit = (berry) -> {};
-  private Skill skill = AdvancedDungeon.fireballSkill;
+  private Skill skill = new Skill(AdvancedDungeon.fireballSkill, coolDown);
 
   /**
    * Erstellt einen neuen Feuerball mit angepassten Eigenschaften.
@@ -83,19 +83,16 @@ public class FireballSkill extends DamageProjectileSkill {
       Consumer<Entity> onHit) {
     super(
         SKILL_NAME,
-        coolDown,
-        targetSelection,
-        damageAmount,
-        DAMAGE_TYPE,
         texture,
         speed,
-        range,
+        damageAmount,
+        DAMAGE_TYPE,
         HIT_BOX_SIZE,
-        DamageProjectileSkill.DEFAULT_ON_WALL_HIT,
-        ON_SPAWN_PLAY_SOUND,
-        damageAmount1,
-        type,
-        (projectile, target) -> onHit.accept(target));
+        targetSelection,
+        range,
+        DamageProjectile.DEFAULT_ON_WALL_HIT,
+        (projectile, target) -> onHit.accept(target),
+        DamageProjectile.DEFAULT_ON_SPAWN);
     this.texture = texture;
     this.range = range;
     this.speed = speed;
@@ -127,7 +124,8 @@ public class FireballSkill extends DamageProjectileSkill {
   }
 
   /** Spielt den Soundeffekt für den Feuerball ab. */
-  private static final void playSound() {
+  @Override
+  protected final void playSound() {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
 
     // Generate a random pitch between 1.5f and 2.0f
@@ -288,7 +286,10 @@ public class FireballSkill extends DamageProjectileSkill {
     this.target = new Point(target);
 
     skill =
-        new FireballSkill(() -> this.target, texture, range, speed, damage, coolDown, this::onHit);
+        new Skill(
+            new FireballSkill(
+                () -> this.target, texture, range, speed, damage, coolDown, this::onHit),
+            coolDown);
     skill.execute(user);
   }
 
