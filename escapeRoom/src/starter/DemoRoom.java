@@ -22,7 +22,7 @@ public class DemoRoom {
   private static final boolean DEBUG_MODE = false;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
-  private static final CharacterClass CHARACTER_CLASS = CharacterClass.WIZARD;
+  private static final CharacterClass CHARACTER_CLASS = CharacterClass.GOBLIN;
 
   /**
    * Main method to start the game.
