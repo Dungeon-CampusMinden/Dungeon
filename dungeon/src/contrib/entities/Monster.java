@@ -296,6 +296,14 @@ public enum Monster {
         }
     }
 
+    public static final class MonsterTable {
+        private static final Monster[] all = Monster.values();
+
+        public static Monster getRandomMonsterType(Random r) {
+            return all[r.nextInt(all.length)];
+        }
+    }
+
     public MonsterBuilder builder() {
         return new MonsterBuilder(this);
     }
