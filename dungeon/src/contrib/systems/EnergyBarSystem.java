@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import contrib.components.ManaComponent;
+import contrib.components.EnergyComponent;
 import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
@@ -21,14 +21,14 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Creates a progress bar that follows an entity and shows its current mana percentage.
+ * Creates a progress bar that follows an entity and shows its current energy percentage.
  *
- * <p>Entities with {@link ManaComponent}, {@link PositionComponent}, and {@link DrawComponent} will
- * be processed by this system.
+ * <p>Entities with {@link EnergyComponent}, {@link PositionComponent}, and {@link DrawComponent}
+ * will be processed by this system.
  */
-public final class ManaBarSystem extends System {
+public final class EnergyBarSystem extends System {
 
-  private static final Logger LOGGER = Logger.getLogger(ManaBarSystem.class.getSimpleName());
+  private static final Logger LOGGER = Logger.getLogger(EnergyBarSystem.class.getSimpleName());
 
   private static final float MIN = 0f;
   private static final float MAX = 1f;
@@ -36,39 +36,39 @@ public final class ManaBarSystem extends System {
   private static final float UPDATE_DURATION = 0.1f;
   private static final int BAR_WIDTH = 50;
   private static final int BAR_HEIGHT = 10;
-  private static final int OFFSET_TO_HP_BAR = 20;
+  private static final int OFFSET_TO_HEALTH_BAR = 40;
 
-  /** Maps entity IDs to their mana progress bars. */
-  private final Map<Integer, ProgressBar> manaBarMapping = new HashMap<>();
+  /** Maps entity IDs to their energy progress bars. */
+  private final Map<Integer, ProgressBar> energyBarMapping = new HashMap<>();
 
-  /** Creates a new ManaBarSystem. */
-  public ManaBarSystem() {
-    super(DrawComponent.class, ManaComponent.class, PositionComponent.class);
+  /** Creates a new EnergyBarSystem. */
+  public EnergyBarSystem() {
+    super(DrawComponent.class, EnergyComponent.class, PositionComponent.class);
 
     this.onEntityAdd =
         entity -> {
-          LOGGER.log(CustomLogLevel.TRACE, "Adding ManaBar for entity " + entity);
+          LOGGER.log(CustomLogLevel.TRACE, "Adding EnergyBar for entity " + entity);
 
           PositionComponent pc = entity.fetch(PositionComponent.class).orElseThrow();
-          ProgressBar bar = createManaBar(pc);
+          ProgressBar bar = createEnergyBar(pc);
 
-          Entity barEntity = new Entity("ManaBar_" + entity.id());
+          Entity barEntity = new Entity("EnergyBar_" + entity.id());
           Container<ProgressBar> container = new Container<>(bar);
           container.setLayoutEnabled(false);
           barEntity.add(new UIComponent(container, false, false));
           Game.add(barEntity);
 
-          manaBarMapping.put(entity.id(), bar);
-          LOGGER.log(CustomLogLevel.TRACE, "ManaBar added to mapping for entity " + entity.id());
+          energyBarMapping.put(entity.id(), bar);
+          LOGGER.log(CustomLogLevel.TRACE, "EnergyBar added to mapping for entity " + entity.id());
         };
 
     this.onEntityRemove =
         entity -> {
-          ProgressBar bar = manaBarMapping.remove(entity.id());
+          ProgressBar bar = energyBarMapping.remove(entity.id());
           if (bar != null) bar.remove();
         };
 
-    LOGGER.info("ManaBarSystem created");
+    LOGGER.info("EnergyBarSystem created");
   }
 
   @Override
@@ -76,22 +76,22 @@ public final class ManaBarSystem extends System {
     filteredEntityStream().map(this::buildDataObject).forEach(this::updateBar);
   }
 
-  private void updateBar(EnemyData data) {
-    data.pb.setVisible(data.dc.isVisible() && data.mc.currentAmount() != data.mc.maxAmount());
+  private void updateBar(BarData data) {
+    data.pb.setVisible(data.dc.isVisible() && data.ec.currentAmount() != data.ec.maxAmount());
     updatePosition(data.pb, data.pc);
-    data.pb.setValue(data.mc.currentAmount() / data.mc.maxAmount());
+    data.pb.setValue(data.ec.currentAmount() / data.ec.maxAmount());
   }
 
-  private EnemyData buildDataObject(Entity entity) {
-    return new EnemyData(
+  private BarData buildDataObject(Entity entity) {
+    return new BarData(
         entity.fetch(DrawComponent.class).orElseThrow(),
-        entity.fetch(ManaComponent.class).orElseThrow(),
+        entity.fetch(EnergyComponent.class).orElseThrow(),
         entity.fetch(PositionComponent.class).orElseThrow(),
-        manaBarMapping.get(entity.id()));
+        energyBarMapping.get(entity.id()));
   }
 
-  private ProgressBar createManaBar(PositionComponent pc) {
-    ProgressBar bar = new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), "manabar");
+  private ProgressBar createEnergyBar(PositionComponent pc) {
+    ProgressBar bar = new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), "energybar");
     bar.setAnimateDuration(UPDATE_DURATION);
     bar.setSize(BAR_WIDTH, BAR_HEIGHT);
     updatePosition(bar, pc);
@@ -114,9 +114,9 @@ public final class ManaBarSystem extends System {
     screenCoords.x = screenCoords.x / stage.getViewport().getScreenWidth() * stage.getWidth();
     screenCoords.y = screenCoords.y / stage.getViewport().getScreenHeight() * stage.getHeight();
 
-    bar.setPosition(screenCoords.x, screenCoords.y - OFFSET_TO_HP_BAR);
+    bar.setPosition(screenCoords.x, screenCoords.y - OFFSET_TO_HEALTH_BAR);
   }
 
-  private record EnemyData(
-      DrawComponent dc, ManaComponent mc, PositionComponent pc, ProgressBar pb) {}
+  private record BarData(
+      DrawComponent dc, EnergyComponent ec, PositionComponent pc, ProgressBar pb) {}
 }

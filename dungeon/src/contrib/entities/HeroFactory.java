@@ -76,6 +76,12 @@ public final class HeroFactory {
       };
   public static final FireballSkill FIREBALL_SKILL =
       new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30));
+  public static final TPBallSkill TPBALL_SKILL =
+      new TPBallSkill(
+          SkillTools::cursorPositionAsPoint,
+          SkillTools::cursorPositionAsPoint,
+          500,
+          new Tuple<>(Resource.ENERGY, 70));
 
   private static Consumer<Entity> HERO_DEATH =
       (hero) ->
@@ -148,16 +154,10 @@ public final class HeroFactory {
     hero.add(poc);
     hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
     hero.add(new DrawComponent(HERO_FILE_PATH));
-    hero.add(new ManaComponent(100, 100, 3f));
+    hero.add(new ManaComponent(100, 100, 10f));
+    hero.add(new EnergyComponent(100, 100, 40f));
 
-    hero.add(
-        new SkillComponent(
-            FIREBALL_SKILL,
-            new TPBallSkill(
-                SkillTools::cursorPositionAsPoint,
-                SkillTools::cursorPositionAsPoint,
-                500,
-                new Tuple<>(Resource.MANA, 70))));
+    hero.add(new SkillComponent(FIREBALL_SKILL, TPBALL_SKILL));
 
     HealthComponent hc =
         new HealthComponent(

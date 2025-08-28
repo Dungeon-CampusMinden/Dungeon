@@ -267,7 +267,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
                   .orElseThrow(() -> MissingComponentException.build(mob, AIComponent.class))
                   .fightBehavior();
           if (fightAI instanceof AIRangeBehaviour AIRangeBehaviour) {
-            AIRangeBehaviour.skill().setLastUsedToNow();
+            AIRangeBehaviour.skill().lastUsedToNow();
           }
         }
       }
