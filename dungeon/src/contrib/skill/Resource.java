@@ -14,7 +14,11 @@ import java.util.function.Function;
 public enum Resource {
   HP(
       entity ->
-              Float.valueOf(entity.fetch(HealthComponent.class).map(HealthComponent::currentHealthpoints).orElse(0)),
+          Float.valueOf(
+              entity
+                  .fetch(HealthComponent.class)
+                  .map(HealthComponent::currentHealthpoints)
+                  .orElse(0)),
       (entity, amount) ->
           entity
               .fetch(HealthComponent.class)
@@ -22,7 +26,8 @@ public enum Resource {
               .receiveHit(new Damage(amount, DamageType.SKILL, entity))),
   ARROW(
       entity ->
-              Float.valueOf(entity
+          Float.valueOf(
+              entity
                   .fetch(InventoryComponent.class)
                   .map(ic -> ic.count(ItemWoodenArrow.class))
                   .orElse(0)),
@@ -32,11 +37,15 @@ public enum Resource {
               .orElseThrow()
               .remove(ItemWoodenArrow.class, amount)),
   MANA(
-      entity -> entity.fetch(ManaComponent.class).map(ManaComponent::getCurrentAmount).orElse((float) 0),
+      entity ->
+          entity.fetch(ManaComponent.class).map(ManaComponent::getCurrentAmount).orElse((float) 0),
       (entity, amount) -> entity.fetch(ManaComponent.class).orElseThrow().consume(amount)),
   ENERGY(
       entity ->
-          entity.fetch(EnergyComponent.class).map(EnergyComponent::getCurrentAmount).orElse((float) 0),
+          entity
+              .fetch(EnergyComponent.class)
+              .map(EnergyComponent::getCurrentAmount)
+              .orElse((float) 0),
       (entity, amount) -> entity.fetch(EnergyComponent.class).orElseThrow().consume(amount));
 
   private final Function<Entity, Float> supplier;
