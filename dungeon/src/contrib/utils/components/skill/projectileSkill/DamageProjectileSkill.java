@@ -1,7 +1,7 @@
-package contrib.skill.projectileSkill;
+package contrib.utils.components.skill.projectileSkill;
 
 import contrib.components.HealthComponent;
-import contrib.skill.Resource;
+import contrib.utils.components.skill.Resource;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import core.Entity;

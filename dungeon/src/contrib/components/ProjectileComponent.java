@@ -1,6 +1,6 @@
 package contrib.components;
 
-import contrib.skill.projectileSkill.FireballSkill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.utils.Point;

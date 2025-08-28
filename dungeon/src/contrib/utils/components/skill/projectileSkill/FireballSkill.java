@@ -1,9 +1,9 @@
-package contrib.skill.projectileSkill;
+package contrib.utils.components.skill.projectileSkill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
-import contrib.skill.Resource;
+import contrib.utils.components.skill.Resource;
 import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.components.PositionComponent;

@@ -1,6 +1,6 @@
 package contrib.components;
 
-import contrib.skill.Skill;
+import contrib.utils.components.skill.Skill;
 import core.Component;
 import java.util.ArrayList;
 import java.util.Arrays;

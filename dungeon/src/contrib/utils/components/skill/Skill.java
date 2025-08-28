@@ -1,4 +1,4 @@
-package contrib.skill;
+package contrib.utils.components.skill;
 
 import core.Entity;
 import core.utils.Tuple;

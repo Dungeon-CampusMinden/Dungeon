@@ -1,6 +1,6 @@
 package contrib.utils.components.ai;
 
-import contrib.skill.Skill;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.ai.fight.AIMeleeBehaviour;
 import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import core.Entity;

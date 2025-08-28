@@ -1,8 +1,8 @@
-package contrib.skill.selfSkill;
+package contrib.utils.components.skill.selfSkill;
 
 import contrib.components.HealthComponent;
-import contrib.skill.Resource;
-import contrib.skill.Skill;
+import contrib.utils.components.skill.Resource;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.utils.Tuple;
 

@@ -9,7 +9,7 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
-import contrib.skill.SkillTools;
+import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.draw.ChestAnimations;
 import contrib.utils.components.draw.DestroyableObjectsAnimations;
 import contrib.utils.components.item.ItemGenerator;
