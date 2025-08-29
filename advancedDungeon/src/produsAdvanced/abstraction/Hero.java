@@ -1,9 +1,7 @@
 package produsAdvanced.abstraction;
 
 import com.badlogic.gdx.Input;
-import contrib.components.InventoryComponent;
-import contrib.components.ItemComponent;
-import contrib.components.UIComponent;
+import contrib.components.*;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
@@ -11,6 +9,7 @@ import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
 import contrib.utils.components.interaction.InteractionTool;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
@@ -21,6 +20,7 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import produsAdvanced.AdvancedDungeon;
+import produsAdvanced.riddles.MyFireballSkill;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -41,27 +41,19 @@ public class Hero {
   private Entity hero;
 
   /**
-   * Die Feuerball-Fähigkeit, die für diesen Helden verwendet wird.
-   *
-   * @see Fireball
-   */
-  private final FireballSkill fireballSkill;
-
-  /**
    * Konstruktor.
    *
    * @param heroInstance Die Entity, die diesen Helden darstellt. Muss ein {@link PlayerComponent}
    *     enthalten.
-   * @param fireballSkill Die Feuerball-Fähigkeit, die für diesen Helden verwendet wird.
    */
-  public Hero(Entity heroInstance, FireballSkill fireballSkill) {
+  public Hero(Entity heroInstance) {
     this.hero = heroInstance;
-
+    heroInstance.remove(SkillComponent.class);
+    heroInstance.add(new SkillComponent());
     if (!AdvancedDungeon.DEBUG_MODE) {
       // Entfernt alle bisherigen Tastenzuweisungen
       heroInstance.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     }
-    this.fireballSkill = fireballSkill;
     // uncap max hero speed
     hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.maxSpeed(Vector2.MAX.x()));
   }
@@ -140,14 +132,10 @@ public class Hero {
     return SkillTools.cursorPositionAsPoint();
   }
 
-  /**
-   * Führt die Feuerball-Fähigkeit in die angegebene Richtung aus, sofern die Abklingzeit abgelaufen
-   * ist.
-   *
-   * @param direction Zielposition des Feuerballs.
-   */
-  public void shootFireball(Point direction) {
-    fireballSkill.shoot(hero, direction);
+  /** Feuert den Feuerball ab. */
+  public void shootFireball() {
+    hero.fetch(SkillComponent.class)
+        .ifPresent(sc -> sc.getSkill(MyFireballSkill.class).ifPresent(fs -> fs.execute(hero)));
   }
 
   /**
@@ -222,5 +210,14 @@ public class Hero {
         .filter(e -> e.isPresent(ItemComponent.class))
         .findFirst()
         .ifPresent(Game::remove);
+  }
+
+  /**
+   * Bringt dem Helden einen neuen Skill bei.
+   *
+   * @param skill Der neue Skill.
+   */
+  public void addSkill(Skill skill) {
+    hero.fetch(SkillComponent.class).ifPresent(sc -> sc.addSkill(skill));
   }
 }

@@ -83,7 +83,6 @@ public class FireballSkill extends DamageProjectileSkill {
         IS_PIRCING,
         damageAmount,
         DAMAGE_TYPE,
-        NOOP_EFFECT,
         HIT_BOX_SIZE,
         resourceCost);
   }
