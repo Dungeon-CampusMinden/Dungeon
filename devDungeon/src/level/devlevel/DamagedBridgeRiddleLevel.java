@@ -54,7 +54,12 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
     this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.bridgeMobSpawn = customPoints.get(8);
 
-    this.secretWay = Arrays.stream(getCoordinates(11, 17)).map(this::tileAt).toArray(Tile[]::new);
+    this.secretWay =
+        Arrays.stream(getCoordinates(11, 17))
+            .map(this::tileAt) // returns Optional<Tile>
+            .flatMap(Optional::stream) // only keep present values
+            .toArray(Tile[]::new);
+
     this.mobSpawns = getCoordinates(18, customPoints().size() - 2);
     this.levelBossSpawn = customPoints().getLast();
   }
