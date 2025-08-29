@@ -20,9 +20,7 @@ import contrib.utils.components.skill.projectileSkill.BurningFireballSkill;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
-import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import item.concreteItem.ItemPotionWater;
@@ -81,8 +79,6 @@ public class DevDungeon {
               Tuple.of("illusionRiddle", IllusionRiddleLevel.class),
               Tuple.of("bridgeGuard", BridgeGuardRiddleLevel.class),
               Tuple.of("finalBoss", BossLevel.class));
-          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
