@@ -55,7 +55,6 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
         "I heard that a powerful artifact is hidden nearby. Rumor says it's just beyond an old bridge. Let's see if we can find it.");
     this.riddleHandler = new DamagedBridgeRiddleHandler(customPoints, this);
     this.bridgeMobSpawn = customPoints.get(8);
-
     this.secretWay = Arrays.stream(getCoordinates(11, 17)).map(this::tileAt).toArray(Tile[]::new);
     this.mobSpawns = getCoordinates(18, customPoints().size() - 2);
     this.levelBossSpawn = customPoints().getLast();
