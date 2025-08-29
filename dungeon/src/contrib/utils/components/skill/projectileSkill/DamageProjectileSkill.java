@@ -90,7 +90,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         target
             .fetch(HealthComponent.class)
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
-        bonusEffect(caster).accept(projectile, target, direction);
+        bonusEffect(caster, projectile, target, direction);
 
         if (pircing) {
           ignoreEntities.add(target);
@@ -128,21 +128,19 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   }
 
   /**
-   * Defines additional behaivor on Damage-Collision.
-   *
-   * <p>The TriConsumer will get the Projectile Entity, the Entity it is collided with and the
-   * collide direciton.
+   * Defines additional behavior on Damage-Collision.
    *
    * <p>Overwrite this function to define what should happen, if damage is applied
    *
    * <p>Default Bonus Effect does nothing.
    *
    * @param caster The entity casting the projectile.
-   * @return Bonuseffect to execute on damage applying.
+   * @param projectile The projectile Entity
+   * @param target The Entity that was hit
+   * @param direction The colide Direction
    */
-  protected TriConsumer<Entity, Entity, Direction> bonusEffect(Entity caster) {
-    return NOOP_TRICONSUMER;
-  }
+  protected void bonusEffect(
+      Entity caster, Entity projectile, Entity target, Direction direction) {}
 
   /**
    * Returns the base damage amount of this projectile skill.

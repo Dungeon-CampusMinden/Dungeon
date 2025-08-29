@@ -89,21 +89,10 @@ public class MyFireballSkill extends DamageProjectileSkill {
     System.out.println("Beere getroffen");
   }
 
-  /**
-   * Zusätzliche Effekte, wenn der Feuerball ein Ziel trifft.
-   *
-   * <p>Hier kannst du einstellen, was neben dem Schaden noch passiert. Zum Beispiel: Wenn der
-   * Feuerball eine Beere trifft, wird eine Nachricht ausgegeben.
-   *
-   * @param caster Die Figur (Entity), die den Feuerball abgeschossen hat.
-   * @return Eine Aktion, die ausgeführt wird, wenn der Feuerball Schaden macht.
-   */
   @Override
-  protected TriConsumer<Entity, Entity, Direction> bonusEffect(Entity caster) {
-    return (fireball, target, direction) -> {
-      if (target.name().equals(Berry.NAME)) {
-        onBerryHit(target);
-      }
-    };
+  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+    if (target.name().equals(Berry.NAME)) {
+      onBerryHit(target);
+    }
   }
 }
