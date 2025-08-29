@@ -31,7 +31,7 @@ public class ManaRestoreSystem extends System {
    * restorePerSecond / Game.frameRate()
    * </pre>
    *
-   * This ensures a smooth, frame-rate-independent regeneration of mana.
+   * <p>This ensures a smooth, frame-rate-independent regeneration of mana.
    */
   @Override
   public void execute() {

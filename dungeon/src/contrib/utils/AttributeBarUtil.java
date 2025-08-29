@@ -112,8 +112,19 @@ public final class AttributeBarUtil {
 
   /** Simple interface to generalize components with current/max values. */
   public interface AttributeProvider {
+
+    /**
+     * Returns the current value of the attribute.
+     *
+     * @return the current value
+     */
     float current();
 
+    /**
+     * Returns the maximum possible value of the attribute.
+     *
+     * @return the maximum value
+     */
     float max();
   }
 }

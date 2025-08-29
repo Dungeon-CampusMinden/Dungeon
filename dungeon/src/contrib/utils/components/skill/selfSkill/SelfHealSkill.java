@@ -8,14 +8,18 @@ import core.Entity;
 import core.utils.Tuple;
 
 /**
- * A self-targeted healing skill.
+ * A skill that allows the caster to restore its own health.
  *
- * <p>This skill restores health points to the caster based on its configured heal amount. It
- * consumes specified resources (e.g., mana, energy) and respects a cooldown before it can be used
- * again.
+ * <p>When executed, this skill heals the caster by a configurable amount of health points. The
+ * skill can only be used if the caster has a {@link HealthComponent}. After execution, a visual
+ * blink effect is triggered to indicate healing.
+ *
+ * <p>Resource costs (such as mana or energy) can be configured and will be consumed when the skill
+ * is used. The skill is subject to a cooldown period before it can be cast again.
  */
 public class SelfHealSkill extends Skill {
 
+  /** Name of this skill. */
   public static final String NAME = "SELF HEAL";
 
   /** The amount of health restored when the skill is executed. */
@@ -24,7 +28,6 @@ public class SelfHealSkill extends Skill {
   /**
    * Creates a new self-healing skill.
    *
-   * @param name The name of the skill.
    * @param cooldown The cooldown in milliseconds before the skill can be used again.
    * @param healAmount The amount of health restored when executed.
    * @param resourceCost Optional resource costs required to use this skill.

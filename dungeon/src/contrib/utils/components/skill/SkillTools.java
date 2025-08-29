@@ -3,7 +3,6 @@ package contrib.utils.components.skill;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import contrib.systems.EventScheduler;
-import contrib.utils.IAction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -70,28 +69,36 @@ public final class SkillTools {
     return pc.position();
   }
 
-  public static void blink(Entity caster, int tint, long totalDuration, int times) {
+  /**
+   * Makes an entity visually "blink" by alternating its tint color for a specified duration.
+   *
+   * <p>The blink effect is created by scheduling alternating color changes between the given {@code
+   * tint} color and the default color ({@code 0xFFFFFFFF}) over the total duration. Each blink
+   * consists of two phases: "on" (tint applied) and "off" (default color).
+   *
+   * @param entity the entity to apply the blink effect on; must have a {@link DrawComponent}
+   * @param tint the ARGB color to use for the blink (e.g. {@code 0xFFFF0000} for red)
+   * @param totalDuration the total time (in milliseconds) the blinking should last
+   * @param times the number of full blinks (each blink = on + off cycle)
+   */
+  public static void blink(Entity entity, int tint, long totalDuration, int times) {
     // Each blink has two phases: on and off
     long interval = totalDuration / (times * 2);
 
     for (int i = 0; i < times * 2; i++) {
       final int step = i;
       EventScheduler.scheduleAction(
-          new IAction() {
-            @Override
-            public void execute() {
-              caster
+          () ->
+              entity
                   .fetch(DrawComponent.class)
                   .ifPresent(
                       dc -> {
                         if (step % 2 == 0) {
                           dc.tintColor(tint); // blink color
                         } else {
-                          dc.tintColor(0xFFFFFFFF); // normal color
+                          dc.tintColor(-1); // normal color
                         }
-                      });
-            }
-          },
+                      }),
           interval * i);
     }
   }

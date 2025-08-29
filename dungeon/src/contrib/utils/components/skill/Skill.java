@@ -89,7 +89,7 @@ public abstract class Skill {
    *   <li>the entity has enough resources ({@link #checkResources(Entity)} returns {@code true})
    * </ul>
    *
-   * If successful, the skill behavior is executed, resources are consumed, and the cooldown is
+   * <p>If successful, the skill behavior is executed, resources are consumed, and the cooldown is
    * activated.
    *
    * @param entity the entity attempting to use the skill

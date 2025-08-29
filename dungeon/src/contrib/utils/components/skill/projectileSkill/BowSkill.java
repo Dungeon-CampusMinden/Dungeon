@@ -23,7 +23,9 @@ import java.util.function.Supplier;
  */
 public class BowSkill extends DamageProjectileSkill {
 
-  public static final String SKILL_NAME = "BOW";
+  /** Name of the Skill. */
+  public static final String SKILL_NAME = "BOW Skill";
+
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
   private static final float DEFAULT_PROJECTILE_SPEED = 13f;
   private static final int DEFAULT_DAMAGE_AMOUNT = 2;
@@ -34,6 +36,16 @@ public class BowSkill extends DamageProjectileSkill {
   private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
 
+  /**
+   * Create a new Bow Skill.
+   *
+   * @param target Supplier that gives the target Point for the arrow.
+   * @param cooldown cooldown between two arrows
+   * @param speed speed of the arrow
+   * @param range range of the arrow
+   * @param damageAmount damage of the arrow; will be Physical
+   * @param resourceCost resource cost of the arrow
+   */
   public BowSkill(
       Supplier<Point> target,
       long cooldown,
@@ -58,7 +70,9 @@ public class BowSkill extends DamageProjectileSkill {
   /**
    * Create a {@link DamageProjectileSkill} that looks like an arrow and will cause physical damage.
    *
-   * @param targetSelection A function used to select the point where the projectile should fly to.
+   * <p>This will consume one arrow from the inventory.
+   *
+   * @param targetSelection A Supplier used to select the point where the projectile should fly to.
    * @see DamageProjectileSkill
    */
   public BowSkill(final Supplier<Point> targetSelection) {
