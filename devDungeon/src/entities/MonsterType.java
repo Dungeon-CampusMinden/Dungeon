@@ -72,7 +72,7 @@ public enum MonsterType {
       () -> new RangeTransition(5),
       7,
       2 * Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH,
+      MonsterIdleSound.LOWER_PITCH,
       0),
   /** An Imp monster. Fast, weak but annoying. */
   IMP(
@@ -108,7 +108,7 @@ public enum MonsterType {
       () -> new RangeTransition(6),
       10,
       5 * Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH,
+      MonsterIdleSound.LOWER_PITCH,
       1),
   /** An Orc Warrior monster. Average speed and health but only melee attack. */
   ORC_WARRIOR(
@@ -123,7 +123,7 @@ public enum MonsterType {
       () -> new RangeTransition(5),
       5,
       2 * Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH,
+      MonsterIdleSound.LOWER_PITCH,
       0),
   /** Orc Shaman monster. Average speed and health but ranged attack. */
   ORC_SHAMAN(
@@ -144,7 +144,7 @@ public enum MonsterType {
       () -> new RangeTransition(5, true),
       2,
       2 * Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH,
+      MonsterIdleSound.LOWER_PITCH,
       0),
   /** The tutorial monster. Almost no health and attacks. */
   TUTORIAL(
@@ -227,7 +227,7 @@ public enum MonsterType {
       () -> new RangeTransition(6, false),
       5,
       2 * Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH,
+      MonsterIdleSound.LOWER_PITCH,
       0),
   /** The Bridge Guard monster. Immortal, no AI, no damage. */
   BRIDGE_GUARD(
@@ -259,7 +259,7 @@ public enum MonsterType {
       () -> new RangeTransition(6, true),
       10,
       Game.frameRate(),
-      MonsterIdleSound.LOW_PITCH,
+      MonsterIdleSound.LOWER_PITCH,
       1),
   /** The Illusion Boss monster. Very strong and special ranged attacks. */
   ILLUSION_BOSS(
