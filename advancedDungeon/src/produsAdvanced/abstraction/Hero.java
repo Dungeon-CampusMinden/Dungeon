@@ -20,7 +20,6 @@ import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import produsAdvanced.AdvancedDungeon;
-import produsAdvanced.riddles.MyFireballSkill;
 
 /**
  * Die Klasse {@code Hero} kapselt eine Spielfigur (Entity) und stellt Methoden zur Steuerung und
@@ -135,7 +134,7 @@ public class Hero {
   /** Feuert den Feuerball ab. */
   public void shootFireball() {
     hero.fetch(SkillComponent.class)
-        .ifPresent(sc -> sc.getSkill(MyFireballSkill.class).ifPresent(fs -> fs.execute(hero)));
+        .ifPresent(sc -> sc.activeSkill().ifPresent(fs -> fs.execute(hero)));
   }
 
   /**
