@@ -1,7 +1,6 @@
 package contrib.entities;
 
 import contrib.item.Item;
-import contrib.item.concreteItem.ItemKey;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.item.concreteItem.ItemWoodenBow;
@@ -64,20 +63,7 @@ public enum CharacterClass {
       0,
       0,
       120,
-      5),
-
-  GOBLIN(
-      "character/monster/goblin",
-      Vector2.of(20, 20),
-      1,
-      100,
-      Set.of(),
-      Set.of(new ItemKey()),
-      10,
-      0,
-      0,
-      0,
-      0);
+      5);
 
   private final IPath textures;
   private final Vector2 speed;
