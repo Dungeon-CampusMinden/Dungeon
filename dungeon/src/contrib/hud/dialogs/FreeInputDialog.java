@@ -47,7 +47,7 @@ public final class FreeInputDialog {
    * @return The configured, centered Dialog ready to be displayed.
    */
   private static Dialog buildDialog(
-      String title, String question, Consumer<Optional<String>> callback, Entity uiEntity) {
+      String title, String question, Consumer<String> callback, Entity uiEntity) {
 
     Skin skin = UIUtils.defaultSkin();
     TextField input = new TextField("", skin);
@@ -58,12 +58,9 @@ public final class FreeInputDialog {
           // result() is always called when a button is clicked on
           @Override
           protected void result(Object obj) {
-            Optional<String> value = Optional.empty();
+            String value = "";
             if ("OK".equals(obj)) {
-              String text = input.getText().trim();
-              if (!text.isEmpty()) {
-                value = Optional.of(text);
-              }
+              value = input.getText().trim();
             }
 
             callback.accept(value);
