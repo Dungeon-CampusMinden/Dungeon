@@ -2,9 +2,9 @@ package demoDungeon.level;
 
 import com.badlogic.gdx.Input;
 import contrib.components.*;
+import contrib.entities.DungeonMonster;
 import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
-import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -271,9 +271,9 @@ public class Level01 extends DungeonLevel {
         LevelUtils.accessibleTilesInRange(customPoints.get(7).toCenteredPoint(), 5f);
     for (int i = 0; i < 5; i++) {
       try {
-        Entity m = MonsterFactory.randomMonster();
-        m.fetch(PositionComponent.class)
-            .map(pc -> pc.position(points.get(RANDOM.nextInt(points.size())).position()));
+        Entity m =
+            DungeonMonster.MonsterTable.randomMonsterType()
+                .build(points.get(RANDOM.nextInt(points.size())).position());
         m.fetch(HealthComponent.class)
             .ifPresent(
                 healthComponent ->

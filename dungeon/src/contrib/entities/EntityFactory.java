@@ -9,7 +9,6 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,8 +18,7 @@ import java.util.function.Consumer;
  * A utility class for building entities in the game world. The {@link EntityFactory} class provides
  * static methods to construct various types of entities with different components.
  *
- * <p>This class only references Methods of the {@link HeroFactory},{@link MonsterFactory} and
- * {@link MiscFactory}
+ * <p>This class only references Methods of the {@link HeroFactory} and {@link MiscFactory}
  */
 public final class EntityFactory {
 
@@ -68,30 +66,14 @@ public final class EntityFactory {
    * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
    * death.
    *
+   * <p>The Monster will be placed at the {@link PositionComponent#ILLEGAL_POSITION}.
+   *
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity randomMonster() throws IOException {
-    return MonsterFactory.randomMonster();
-  }
-
-  /**
-   * Get an Entity that can be used as a monster.
-   *
-   * <p>The Entity is not added to the game yet. *
-   *
-   * <p>It will have a {@link PositionComponent}, {@link HealthComponent}, {@link AIComponent} with
-   * random AIs from the {@link AIFactory} class, {@link DrawComponent} with a randomly set
-   * Animation, {@link VelocityComponent}, {@link CollideComponent} and a 10% chance for an {@link
-   * InventoryComponent}. If it has an Inventory it will use the {@link DropItemsInteraction} on
-   * death.
-   *
-   * @param pathToTexture Textures to use for the monster.
-   * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
-   */
-  public static Entity randomMonster(IPath pathToTexture) throws IOException {
-    return MonsterFactory.randomMonster(pathToTexture);
+    return DungeonMonster.MonsterTable.randomMonsterType()
+        .build((PositionComponent.ILLEGAL_POSITION));
   }
 
   /**

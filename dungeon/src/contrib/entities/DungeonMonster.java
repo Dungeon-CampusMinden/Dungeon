@@ -20,14 +20,19 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public enum Monster {
+/** Defines and build Monster-Entitys for the Dungeon. */
+public enum DungeonMonster {
+  /**
+   * A small, mischievous demon. Fast and light, deals low damage, and can enter open pits. Has a
+   * high-pitched death sound and random fight/idle AI.
+   */
   IMP(
       "Imp",
       5.0f,
       1.0f,
       e -> {},
       true,
-      new SimpleIPath("character/monster/imp"),
+      "character/monster/imp",
       3,
       e -> {},
       true,
@@ -42,13 +47,17 @@ public enum Monster {
       5,
       2 * Game.frameRate(),
       DamageType.PHYSICAL),
+  /**
+   * A slow-moving undead. Relatively low health but moderate mass. Cannot enter open pits. Emits a
+   * low-pitched death sound and has random fight/idle AI.
+   */
   ZOMBIE(
       "Zombie",
       3.2f,
       1.3f,
       e -> {},
       false,
-      new SimpleIPath("character/monster/big_zombie"),
+      "character/monster/big_zombie",
       6,
       e -> {},
       true,
@@ -63,13 +72,17 @@ public enum Monster {
       4,
       2 * Game.frameRate(),
       DamageType.PHYSICAL),
+  /**
+   * A large, powerful monster. Slow but deals high collision damage. Cannot enter open pits. Emits
+   * a lower-pitched death sound and uses random fight/idle AI.
+   */
   OGRE(
       "Ogre",
       2.5f,
       2.5f,
       e -> {},
       false,
-      new SimpleIPath("character/monster/ogre"),
+      "character/monster/ogre",
       9,
       e -> {},
       true,
@@ -84,13 +97,17 @@ public enum Monster {
       8,
       2 * Game.frameRate(),
       DamageType.PHYSICAL),
+  /**
+   * A small, agile goblin. Fast and light, deals low collision damage. Cannot enter open pits. Uses
+   * basic death and idle sounds with random fight/idle AI.
+   */
   GOBLIN(
       "Goblin",
       4.2f,
       1.0f,
       e -> {},
       false,
-      new SimpleIPath("character/monster/goblin"),
+      "character/monster/goblin",
       4,
       e -> {},
       true,
@@ -105,13 +122,17 @@ public enum Monster {
       3,
       2 * Game.frameRate(),
       DamageType.PHYSICAL),
+  /**
+   * An undead ice-themed monster. Moderate speed and health. Cannot enter open pits. Emits a
+   * lower-pitched death sound and uses random fight/idle AI.
+   */
   ICE_ZOMBIE(
       "Ice Zombie",
       2.8f,
       1.3f,
       e -> {},
       false,
-      new SimpleIPath("character/monster/ice_zombie"),
+      "character/monster/ice_zombie",
       6,
       e -> {},
       true,
@@ -126,13 +147,18 @@ public enum Monster {
       4,
       2 * Game.frameRate(),
       DamageType.PHYSICAL),
+
+  /**
+   * A magical orc shaman. Moderate speed and health, cannot enter open pits. Uses basic death
+   * sound, lower-pitched idle sound, and random fight/idle AI.
+   */
   ORC_SHAMAN(
       "Orc Shaman",
       3.4f,
       1.2f,
       e -> {},
       false,
-      new SimpleIPath("character/monster/orc_shaman"),
+      "character/monster/orc_shaman",
       5,
       e -> {},
       true,
@@ -148,7 +174,9 @@ public enum Monster {
       2 * Game.frameRate(),
       DamageType.PHYSICAL);
 
+  /** Random instance for dungeon monster. */
   public static Random RANDOM = new Random();
+
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   private final String name;
@@ -203,13 +231,13 @@ public enum Monster {
    * @param collideCooldown Cooldown time (in frames) between consecutive collision damage events.
    * @param damageType The type of damage the monster deals on collision (e.g., physical, magical).
    */
-  Monster(
+  DungeonMonster(
       String name,
       float speed,
       float mass,
       Consumer<Entity> onWallHit,
       boolean canEnterOpenPits,
-      IPath texture,
+      String texture,
       int health,
       Consumer<Entity> onDeath,
       boolean removeOnDeath,
@@ -229,7 +257,7 @@ public enum Monster {
     this.mass = mass;
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
-    this.texture = texture;
+    this.texture = new SimpleIPath(texture);
     this.health = health;
     this.onDeath = onDeath;
     this.removeOnDeath = removeOnDeath;
@@ -348,13 +376,16 @@ public enum Monster {
 
   /** Builder class for creating and configuring monster entities. */
   public static class MonsterBuilder {
-    private final Monster type;
+    private final DungeonMonster type;
     private Point spawnPoint = new Point(0, 0);
-
     private boolean addToGame = false;
 
-    /** Builder for creating and configuring monster entities. */
-    MonsterBuilder(Monster type) {
+    /**
+     * Builder for creating and configuring monster entities.
+     *
+     * @param type Type of monster to build.
+     */
+    private MonsterBuilder(DungeonMonster type) {
       this.type = type;
     }
 
@@ -406,16 +437,15 @@ public enum Monster {
 
   /** Utility class providing random monster selection. */
   public static final class MonsterTable {
-    private static final Monster[] all = Monster.values();
+    private static final DungeonMonster[] all = DungeonMonster.values();
 
     /**
      * Returns a random monster type.
      *
-     * @param r Random generator instance.
-     * @return A random {@link Monster}.
+     * @return A random {@link DungeonMonster}.
      */
-    public static Monster getRandomMonsterType(Random r) {
-      return all[r.nextInt(all.length)];
+    public static DungeonMonster randomMonsterType() {
+      return all[RANDOM.nextInt(all.length)];
     }
   }
 

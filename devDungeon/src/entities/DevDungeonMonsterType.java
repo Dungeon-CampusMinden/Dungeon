@@ -1,12 +1,12 @@
 package entities;
 
+import static contrib.entities.DungeonMonster.RANDOM;
+
 import com.badlogic.gdx.audio.Sound;
-import components.ReviveComponent;
-import contrib.components.AIComponent;
-import contrib.components.InteractionComponent;
+import contrib.components.*;
 import contrib.entities.AIFactory;
+import contrib.entities.MiscFactory;
 import contrib.entities.MonsterDeathSound;
-import contrib.entities.MonsterFactory;
 import contrib.entities.MonsterIdleSound;
 import contrib.hud.DialogUtils;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
@@ -14,12 +14,18 @@ import contrib.utils.components.ai.fight.AIRangeBehaviour;
 import contrib.utils.components.ai.idle.PatrolWalk;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
+import contrib.utils.components.health.DamageType;
+import contrib.utils.components.interaction.DropItemsInteraction;
+import contrib.utils.components.skill.FireballSkill;
+import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.projectileSkill.TPBallSkill;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
@@ -28,6 +34,7 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -57,7 +64,7 @@ import task.tasktype.Quiz;
  *
  * <p>Each monster type can be built into an entity using the {@link #buildMonster()} method.
  */
-public enum MonsterType {
+public enum DevDungeonMonsterType {
   /** A Chort monster. Slow but tanky and strong. */
   CHORT(
       "Chort",
@@ -290,6 +297,7 @@ public enum MonsterType {
       MonsterIdleSound.BURP,
       0);
 
+  private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
   private final String name;
   private final IPath texture;
   private final Sound deathSound;
@@ -301,7 +309,7 @@ public enum MonsterType {
   private final IPath idleSoundPath;
   private final int health;
   private final float speed;
-  private final float itemChance; // 0.0f means no items, 1.0f means always items
+  private final float dropChance; // 0.0f means no items, 1.0f means always items
   private final int reviveCount;
 
   /**
@@ -322,7 +330,7 @@ public enum MonsterType {
    * @param idleSound The sound to play when the monster is idle.
    * @param reviveCount The amount of times the monster can revive itself.
    */
-  MonsterType(
+  DevDungeonMonsterType(
       String name,
       String texture,
       int health,
@@ -340,7 +348,7 @@ public enum MonsterType {
     this.texture = new SimpleIPath(texture);
     this.health = health;
     this.speed = speed;
-    this.itemChance = canHaveItems;
+    this.dropChance = canHaveItems;
     this.deathSound = deathSound.sound();
     this.reviveCount = reviveCount;
     this.fightAISupplier = fightAISupplier;
@@ -363,7 +371,7 @@ public enum MonsterType {
   public static Entity createBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
     Entity bridgeGuard;
     try {
-      bridgeGuard = MonsterType.BRIDGE_GUARD.buildMonster();
+      bridgeGuard = DevDungeonMonsterType.BRIDGE_GUARD.buildMonster();
     } catch (IOException e) {
       throw new RuntimeException("Failed to create bridge guard");
     }
@@ -389,26 +397,88 @@ public enum MonsterType {
    *
    * @return A new Entity representing the monster.
    * @throws IOException if the animation could not be loaded.
-   * @see MonsterFactory#buildMonster(String, IPath, int, float, float, Sound, AIComponent, int,
-   *     int, IPath) MonsterFactory.buildMonster
    */
   public Entity buildMonster() throws IOException {
-    Entity newEntity =
-        MonsterFactory.buildMonster(
-            name,
-            texture,
-            health,
-            speed,
-            itemChance,
-            deathSound,
-            new AIComponent(
-                fightAISupplier.get(), idleAISupplier.get(), transitionAISupplier.get()),
-            collideDamage,
-            collideCooldown,
-            idleSoundPath);
-    if (reviveCount > 0) {
-      newEntity.add(new ReviveComponent(reviveCount));
+    Entity monster = new Entity(name);
+    monster.add(new PositionComponent());
+    monster.add(buildDrawComponent());
+    monster.add(buildVelocityComponent());
+    monster.add(new CollideComponent());
+    monster.add(buildSpikeComponent());
+    monster.add(buildAIComponent());
+    monster.add(buildHealthComponent());
+    monster.add(buildInventoryComponent());
+
+    buildIdleSoundComponent().ifPresent(monster::add);
+    return monster;
+  }
+
+  private InventoryComponent buildInventoryComponent() {
+    InventoryComponent ic = new InventoryComponent(1);
+    // 2. Chance-based drops
+    if (RANDOM.nextFloat() < dropChance) {
+      ic.add(MiscFactory.randomItemGenerator().generateItemData());
     }
-    return newEntity;
+    return ic;
+  }
+
+  private SpikyComponent buildSpikeComponent() {
+    return new SpikyComponent(collideDamage, DamageType.PHYSICAL, collideCooldown);
+  }
+
+  private AIComponent buildAIComponent() {
+    return new AIComponent(fightAISupplier.get(), idleAISupplier.get(), transitionAISupplier.get());
+  }
+
+  private VelocityComponent buildVelocityComponent() {
+    return new VelocityComponent(speed);
+  }
+
+  private HealthComponent buildHealthComponent() {
+    Consumer<Entity> constructedOnDeath =
+        entity -> {
+          playDeathSoundIfNearby(deathSound, entity);
+
+          entity
+              .fetch(InventoryComponent.class)
+              .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+          Game.remove(entity);
+        };
+
+    return new HealthComponent(health, constructedOnDeath);
+  }
+
+  private DrawComponent buildDrawComponent() throws IOException {
+    return new DrawComponent(texture);
+  }
+
+  private Optional<IdleSoundComponent> buildIdleSoundComponent() {
+    if (idleSoundPath == null || idleSoundPath.pathString().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new IdleSoundComponent(idleSoundPath));
+  }
+
+  private static void playMonsterDieSound(Sound sound) {
+    if (sound == null) {
+      return;
+    }
+    long soundID = sound.play();
+    sound.setLooping(soundID, false);
+    sound.setVolume(soundID, 0.35f);
+  }
+
+  private static void playDeathSoundIfNearby(Sound deathSound, Entity e) {
+    if (Game.hero().isEmpty()) return;
+    Entity hero = Game.hero().get();
+    PositionComponent pc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+    PositionComponent monsterPc =
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+    if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
+      playMonsterDieSound(deathSound);
+    }
   }
 }

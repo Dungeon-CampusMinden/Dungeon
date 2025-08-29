@@ -23,7 +23,7 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
+import entities.DevDungeonMonsterType;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
 import java.util.List;
@@ -73,7 +73,7 @@ public class TutorialLevel extends DevDungeonLevel {
         "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
     buildBridge();
-    Entity mob = utils.EntityUtils.spawnMonster(MonsterType.TUTORIAL, mobSpawn);
+    Entity mob = utils.EntityUtils.spawnMonster(DevDungeonMonsterType.TUTORIAL, mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }

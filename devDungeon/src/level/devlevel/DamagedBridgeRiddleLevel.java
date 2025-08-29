@@ -13,7 +13,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
+import entities.DevDungeonMonsterType;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
@@ -24,9 +24,11 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;
-  private static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
-  private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
+  private static final DevDungeonMonsterType[] MONSTER_TYPES =
+      new DevDungeonMonsterType[] {
+        DevDungeonMonsterType.ORC_WARRIOR, DevDungeonMonsterType.ORC_SHAMAN
+      };
+  private static final DevDungeonMonsterType BOSS_TYPE = DevDungeonMonsterType.CHORT;
 
   // Spawn Points / Locations
   private final Coordinate bridgeMobSpawn;
@@ -88,7 +90,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   }
 
   private void prepareBridge() {
-    EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, bridgeMobSpawn);
+    EntityUtils.spawnMonster(DevDungeonMonsterType.BRIDGE_MOB, bridgeMobSpawn);
     List<PitTile> bridge =
         pitTiles().stream().filter(pit -> pit.coordinate().y() == bridgeMobSpawn.y()).toList();
     int timeToOpen = 500;

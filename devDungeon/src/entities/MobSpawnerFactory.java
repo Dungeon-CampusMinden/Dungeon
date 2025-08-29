@@ -41,7 +41,7 @@ public class MobSpawnerFactory {
    * @return The created mob spawner entity.
    */
   public static Entity createMobSpawner(
-      Coordinate pos, MonsterType[] monsterTypes, int maxMobCount) {
+      Coordinate pos, DevDungeonMonsterType[] monsterTypes, int maxMobCount) {
     Entity mobSpawner = new Entity("mobSpawner");
 
     mobSpawner.add(new PositionComponent(pos.toCenteredPoint()));

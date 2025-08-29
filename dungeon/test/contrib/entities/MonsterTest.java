@@ -13,6 +13,7 @@ import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
+import core.utils.Point;
 import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -47,9 +48,7 @@ public class MonsterTest {
             },
             DesignLabel.DEFAULT));
 
-    Game.add(HeroFactory.newHero());
-    Entity m = EntityFactory.randomMonster();
-
+    Entity m = DungeonMonster.MonsterTable.randomMonsterType().build(new Point(0, 0));
     Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
     assertTrue(drawComponent.isPresent());
 

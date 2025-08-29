@@ -8,7 +8,6 @@ import contrib.components.SkillComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.entities.MiscFactory;
-import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
@@ -129,7 +128,7 @@ public class DevDungeon {
     ig.addItem(ItemResourceMushroomRed::new, 2);
 
     MiscFactory.randomItemGenerator(ig);
-    MonsterFactory.randomItemGenerator(ig);
+    MiscFactory.randomItemGenerator(ig);
   }
 
   private static void createSystems() {

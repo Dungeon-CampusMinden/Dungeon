@@ -1,20 +1,23 @@
 package entities.monster;
 
-import com.badlogic.gdx.audio.Sound;
+import antlr.BlocklyConditionVisitor;
 import components.TintDirectionComponent;
-import contrib.components.AIComponent;
-import contrib.components.BlockViewComponent;
+import contrib.components.*;
 import contrib.entities.*;
+import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -28,14 +31,9 @@ import java.util.logging.Logger;
  *   <li>A texture path
  *   <li>A health value
  *   <li>A speed value
- *   <li>A chance to drop an item
- *   <li>A death sound
  *   <li>A fight AI
- *   <li>An idle AI
- *   <li>A transition AI
  *   <li>A collide damage value
  *   <li>A collide cooldown value
- *   <li>An idle sound path
  * </ul>
  *
  * <p>Each monster type can be built into an entity using the builder pattern with {@link
@@ -57,51 +55,36 @@ public enum BlocklyMonster {
       () -> entity -> {}, // no idle needed
       () -> entity -> true, // instant fight
       99999, // one hit kill
-      0,
-      MonsterIdleSound.BURP),
+      0),
   /** A static non-moving guard monster. */
   HEDGEHOG(
       "Blockly Hedgehog",
       "character/monster/ogre",
       1,
       0.0f,
-      0.0f,
-      MonsterDeathSound.LOWER_PITCH,
       () -> entity -> {},
-      () -> entity -> {}, // no idle needed
-      () -> entity -> false, // instant fight
       99999, // one hit kill
-      0,
-      MonsterIdleSound.BURP),
+      0),
   /** The Boss of Produs Blockly. */
   BLACK_KNIGHT(
       "Blockly Black Knight",
       "character/knight",
       3,
       0f,
-      0.0f,
-      MonsterDeathSound.LOWER_PITCH,
       () -> entity -> {},
-      () -> entity -> {}, // no idle needed
-      () -> entity -> false, // instant fight
       99999, // one hit kill
-      0,
-      MonsterIdleSound.BURP);
+      0);
 
-  private static final Logger LOGGER = Logger.getLogger(BlocklyMonster.class.getSimpleName());
-
+  private static final Logger LOGGER =
+      Logger.getLogger(BlocklyConditionVisitor.class.getSimpleName());
+  private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
   private final String name;
   private final IPath texture;
-  private final Sound deathSound;
   private final Supplier<Consumer<Entity>> fightAISupplier;
-  private final Supplier<Consumer<Entity>> idleAISupplier;
-  private final Supplier<Function<Entity, Boolean>> transitionAISupplier;
   private final int collideDamage;
   private final int collideCooldown;
-  private final IPath idleSoundPath;
   private final int maxHealth;
   private final float speed;
-  private final float itemChance; // 0.0f means no items, 1.0f means always items
 
   /**
    * Creates a new MonsterType with the given parameters.
@@ -112,41 +95,25 @@ public enum BlocklyMonster {
    * @param texture The path to the texture to use for the monster.
    * @param maxHealth The amount of health the monster has.
    * @param speed The speed of the monster.
-   * @param canHaveItems The chance that the monster will drop an item upon death. If 0, no item
-   *     will be dropped. If 1, an item will always be dropped.
-   * @param deathSound The sound to play when the monster dies.
    * @param fightAISupplier The supplier for the fight AI.
-   * @param idleAISupplier The supplier for the idle AI.
-   * @param transitionAISupplier The supplier for the transition AI.
    * @param collideDamage The damage the monster inflicts upon collision.
    * @param collideCooldown The cooldown time between monster's collision damage.
-   * @param idleSound The sound to play when the monster is idle.
    */
   BlocklyMonster(
       String name,
       String texture,
       int maxHealth,
       float speed,
-      float canHaveItems,
-      MonsterDeathSound deathSound,
       Supplier<Consumer<Entity>> fightAISupplier,
-      Supplier<Consumer<Entity>> idleAISupplier,
-      Supplier<Function<Entity, Boolean>> transitionAISupplier,
       int collideDamage,
-      int collideCooldown,
-      MonsterIdleSound idleSound) {
+      int collideCooldown) {
     this.name = name;
     this.texture = new SimpleIPath(texture);
     this.maxHealth = maxHealth;
     this.speed = speed;
-    this.itemChance = canHaveItems;
-    this.deathSound = deathSound.sound();
     this.fightAISupplier = fightAISupplier;
-    this.idleAISupplier = idleAISupplier;
-    this.transitionAISupplier = transitionAISupplier;
     this.collideDamage = collideDamage;
     this.collideCooldown = collideCooldown;
-    this.idleSoundPath = idleSound.path();
   }
 
   /**
@@ -265,38 +232,23 @@ public enum BlocklyMonster {
      * @return An Optional containing the built monster entity, or an empty Optional if the build
      *     failed.
      */
-    public Entity build() {
-      Entity monster;
-      monster =
-          MonsterFactory.buildMonster(
-              monsterType.name,
-              monsterType.texture,
-              this.maxHealth,
-              (this.speed < 0) ? monsterType.speed : this.speed,
-              monsterType.itemChance,
-              monsterType.deathSound,
-              new AIComponent(
-                  monsterType.fightAISupplier.get(),
-                  monsterType.idleAISupplier.get(),
-                  monsterType.transitionAISupplier.get()),
-              this.collideDamage,
-              monsterType.collideCooldown,
-              monsterType.idleSoundPath);
+    public Optional<Entity> build() {
+      Entity monster = new Entity(monsterType.name);
 
-      monster.add(new BlockViewComponent());
-
-      PositionComponent pc =
-          monster
-              .fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(monster, PositionComponent.class));
-
+      try {
+        monster.add(new DrawComponent(monsterType.texture));
+      } catch (IOException e) {
+        LOGGER.severe("Failed to load monster animation: " + e.getMessage());
+        return Optional.empty();
+      }
+      PositionComponent pc = new PositionComponent();
       pc.viewDirection(viewDirection);
       pc.position(spawnPoint);
+      monster.add(pc);
 
       AIComponent aic =
-          monster
-              .fetch(AIComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(monster, AIComponent.class));
+          new AIComponent(monsterType.fightAISupplier.get(), entity -> {}, entity -> true);
+      monster.add(aic);
       if (aic.fightBehavior() instanceof StraightRangeAI straightRangeAI) {
         if (range == -1) {
           range = straightRangeAI.range();
@@ -304,7 +256,13 @@ public enum BlocklyMonster {
         straightRangeAI.range(this.range);
         monster.add(new TintDirectionComponent(pc.coordinate(), this.range));
       }
-
+      monster.add(new HealthComponent(this.maxHealth));
+      float vcspeed = (this.speed < 0) ? monsterType.speed : this.speed;
+      monster.add(new VelocityComponent(vcspeed));
+      monster.add(new CollideComponent());
+      monster.add(
+          new SpikyComponent(this.collideDamage, DamageType.PHYSICAL, monsterType.collideCooldown));
+      monster.add(new BlockViewComponent());
       if (addToGame) {
         Game.add(monster);
       }
