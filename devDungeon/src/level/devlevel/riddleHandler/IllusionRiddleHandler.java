@@ -98,7 +98,15 @@ public class IllusionRiddleHandler {
             + "You now can see and attack further than before.",
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;
-    BurningFireballSkill.PROJECTILE_RANGE += 1f;
+    BurningFireballSkill burningFireballSkill =
+        (BurningFireballSkill)
+            (Game.hero()
+                .orElseThrow()
+                .fetch(SkillComponent.class)
+                .orElseThrow()
+                .getSkill(BurningFireballSkill.class)
+                .orElseThrow());
+    burningFireballSkill.range(burningFireballSkill.range() + 1f);
     Game.hero()
         .flatMap(hero -> hero.fetch(SkillComponent.class))
         .ifPresent(
