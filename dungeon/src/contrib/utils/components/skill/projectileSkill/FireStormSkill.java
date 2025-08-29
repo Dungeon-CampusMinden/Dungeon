@@ -9,6 +9,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
+/** Launches a fireball in every direction around the boss. Sort of like a fire spin attack. */
 public class FireStormSkill extends DamageProjectileSkill {
 
   /*
@@ -78,6 +79,12 @@ public class FireStormSkill extends DamageProjectileSkill {
         resourceCost);
   }
 
+  /**
+   * Launches a fireball in every direction. Sort of like a fire spin attack.
+   *
+   * @param totalFireBalls The total number of fireballs to shoot.
+   * @param delayBetweenFireballs The delay between each fireball.
+   */
   public FireStormSkill(int totalFireBalls, int delayBetweenFireballs) {
     this(
         "",

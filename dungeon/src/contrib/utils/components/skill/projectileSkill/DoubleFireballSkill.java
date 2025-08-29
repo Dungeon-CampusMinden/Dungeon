@@ -9,6 +9,10 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
+/**
+ * An enchantment version of a normal attack. Shoots two fireballs at the hero. One directly at the
+ * hero and one is trying to predict the hero's movement.
+ */
 public class DoubleFireballSkill extends DamageProjectileSkill {
 
   /*
@@ -84,6 +88,12 @@ public class DoubleFireballSkill extends DamageProjectileSkill {
         resourceCost);
   }
 
+  /**
+   * An enchantment version of a normal attack. Shoots two fireballs at the hero. One directly at
+   * the hero and one is trying to predict the hero's movement.
+   *
+   * @param cooldown The cool down of the skill.
+   */
   public DoubleFireballSkill(long cooldown) {
     this(
         "",

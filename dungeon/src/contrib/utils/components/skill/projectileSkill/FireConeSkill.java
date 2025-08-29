@@ -9,6 +9,16 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
+/**
+ * Shoots a fire cone towards the hero. The fire cone consists of six fireballs.
+ *
+ * <ul>
+ *   <li>One fireball directly at the hero.
+ *   <li>Two fireballs to the left and right of the hero. (X degrees)
+ *   <li>One delayed fireball directly at the hero. With updated hero position.
+ *   <li>Two delayed fireballs left and right offset to that previous fireball. (X-5 degrees)
+ * </ul>
+ */
 public class FireConeSkill extends DamageProjectileSkill {
 
   /*
@@ -104,6 +114,21 @@ public class FireConeSkill extends DamageProjectileSkill {
         resourceCost);
   }
 
+  /**
+   * Shoots a fire cone towards the hero. The fire cone consists of six fireballs.
+   *
+   * <ul>
+   *   <li>One fireball directly at the hero.
+   *   <li>Two fireballs to the left and right of the hero. (X degrees)
+   *   <li>One delayed fireball directly at the hero. With updated hero position.
+   *   <li>Two delayed fireballs left and right offset to that previous fireball. (X-5 degrees)
+   * </ul>
+   *
+   * @param degree The degree of the fire cone.
+   * @param delayMillis The delay between the first and second round of fireballs.
+   * @param fireballSpeed The speed of the fireballs.
+   * @param fireballDamage The damage of the fireballs.
+   */
   public FireConeSkill(int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
     this(
         "",
