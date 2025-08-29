@@ -36,8 +36,8 @@ public enum Monster {
       0.2f,
       Set.of(),
       MonsterIdleSound.HIGH_PITCH,
-      () -> AIFactory.randomFightAI(),
-      () -> AIFactory.randomIdleAI(),
+      AIFactory::randomFightAI,
+      AIFactory::randomIdleAI,
       () -> (self) -> AIFactory.randomTransition(self).apply(self),
       5,
       2 * Game.frameRate(),
@@ -57,8 +57,8 @@ public enum Monster {
       0.15f,
       Set.of(),
       MonsterIdleSound.BURP,
-      () -> AIFactory.randomFightAI(),
-      () -> AIFactory.randomIdleAI(),
+      AIFactory::randomFightAI,
+      AIFactory::randomIdleAI,
       () -> (self) -> AIFactory.randomTransition(self).apply(self),
       4,
       2 * Game.frameRate(),
@@ -78,8 +78,8 @@ public enum Monster {
       0.25f,
       Set.of(),
       MonsterIdleSound.LOWER_PITCH,
-      () -> AIFactory.randomFightAI(),
-      () -> AIFactory.randomIdleAI(),
+      AIFactory::randomFightAI,
+      AIFactory::randomIdleAI,
       () -> (self) -> AIFactory.randomTransition(self).apply(self),
       8,
       2 * Game.frameRate(),
@@ -99,8 +99,8 @@ public enum Monster {
       0.18f,
       Set.of(),
       MonsterIdleSound.BASIC,
-      () -> AIFactory.randomFightAI(),
-      () -> AIFactory.randomIdleAI(),
+      AIFactory::randomFightAI,
+      AIFactory::randomIdleAI,
       () -> (self) -> AIFactory.randomTransition(self).apply(self),
       3,
       2 * Game.frameRate(),
@@ -120,8 +120,8 @@ public enum Monster {
       0.20f,
       Set.of(),
       MonsterIdleSound.LOWER_PITCH,
-      () -> AIFactory.randomFightAI(),
-      () -> AIFactory.randomIdleAI(),
+      AIFactory::randomFightAI,
+      AIFactory::randomIdleAI,
       () -> (self) -> AIFactory.randomTransition(self).apply(self),
       4,
       2 * Game.frameRate(),
@@ -141,8 +141,8 @@ public enum Monster {
       0.22f,
       Set.of(),
       MonsterIdleSound.LOWER_PITCH,
-      () -> AIFactory.randomFightAI(),
-      () -> AIFactory.randomIdleAI(),
+      AIFactory::randomFightAI,
+      AIFactory::randomIdleAI,
       () -> (self) -> AIFactory.randomTransition(self).apply(self),
       4,
       2 * Game.frameRate(),
@@ -164,9 +164,9 @@ public enum Monster {
   private final boolean removeOnDeath;
   private final MonsterDeathSound deathSound;
   // Drops
-  final Set<Class<? extends Item>> drops;
+  final Set<Item> drops;
   final float dropChance;
-  final Set<Class<? extends Item>> guaranteedDrops; // NEW
+  final Set<Item> guaranteedDrops; // NEW
   // Idle sound
   private final MonsterIdleSound idleSound;
   // AI
@@ -178,6 +178,31 @@ public enum Monster {
   private final int collideCooldown;
   private final DamageType damageType;
 
+  /**
+   * Creates a new monster archetype with the given configuration.
+   *
+   * @param name Human-readable monster name.
+   * @param speed Movement speed of the monster (affects velocity).
+   * @param mass Mass of the monster (affects velocity).
+   * @param onWallHit Callback executed when the monster collides with a wall.
+   * @param canEnterOpenPits Whether the monster can move into open pits.
+   * @param texture Path to the texture used for rendering this monster.
+   * @param health Initial health points of the monster.
+   * @param onDeath Callback executed when the monster dies.
+   * @param removeOnDeath If true, the monster entity will be removed from the game upon death.
+   * @param deathSound Sound to play when the monster dies.
+   * @param drops Set of items that can randomly drop when the monster dies.
+   * @param dropChance Probability (0–1) of dropping an item from {@code drops}.
+   * @param guaranteedDrops Set of item that are always dropped when the monster dies.
+   * @param idleSound Sound to play at intervals when the monster is idle.
+   * @param fightAISupplier Supplier that provides the monster's fight behavior (AI).
+   * @param idleAISupplier Supplier that provides the monster's idle behavior (AI).
+   * @param transitionAISupplier Supplier that provides AI transitions between fight and idle
+   *     states.
+   * @param collideDamage Amount of damage dealt when the monster collides with another entity.
+   * @param collideCooldown Cooldown time (in frames) between consecutive collision damage events.
+   * @param damageType The type of damage the monster deals on collision (e.g., physical, magical).
+   */
   Monster(
       String name,
       float speed,
@@ -189,9 +214,9 @@ public enum Monster {
       Consumer<Entity> onDeath,
       boolean removeOnDeath,
       MonsterDeathSound deathSound,
-      Set<Class<? extends Item>> drops,
+      Set<Item> drops,
       float dropChance,
-      Set<Class<? extends Item>> guaranteedDrops,
+      Set<Item> guaranteedDrops,
       MonsterIdleSound idleSound,
       Supplier<Consumer<Entity>> fightAISupplier,
       Supplier<Consumer<Entity>> idleAISupplier,
@@ -221,6 +246,13 @@ public enum Monster {
     this.damageType = damageType;
   }
 
+  /**
+   * Builds an {@link Entity} of this monster type at the given position.
+   *
+   * @param position The spawn position.
+   * @return A configured {@link Entity} with components attached.
+   * @throws IOException If the monster’s texture cannot be loaded.
+   */
   public Entity build(Point position) throws IOException {
     Entity monster = new Entity(name);
     monster.add(new PositionComponent(position));
@@ -232,8 +264,7 @@ public enum Monster {
     monster.add(buildHealthComponent());
     monster.add(buildInventoryComponent());
 
-    buildIdleSoundComponent().ifPresent(c -> monster.add(c));
-
+    buildIdleSoundComponent().ifPresent(monster::add);
     return monster;
   }
 
@@ -241,24 +272,16 @@ public enum Monster {
     InventoryComponent ic = new InventoryComponent(drops.size() + guaranteedDrops.size());
 
     // 1. Always drop guaranteed items
-    for (Class<? extends Item> clazz : guaranteedDrops) {
-      ic.add(buildItem(clazz));
+    for (Item item : guaranteedDrops) {
+      ic.add(item);
     }
 
     // 2. Chance-based drops
     if (!drops.isEmpty() && RANDOM.nextFloat() < dropChance) {
-      ic.add(buildItem(drops.stream().skip(RANDOM.nextInt(drops.size())).findFirst().orElse(null)));
+      ic.add(drops.stream().skip(RANDOM.nextInt(drops.size())).findFirst().orElse(null));
     }
 
     return ic;
-  }
-
-  private Item buildItem(Class<? extends Item> clazz) {
-    try {
-      return clazz.getDeclaredConstructor().newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create Item instance", e);
-    }
   }
 
   private SpikyComponent buildSpikeComponent() {
@@ -281,10 +304,7 @@ public enum Monster {
 
           entity
               .fetch(InventoryComponent.class)
-              .ifPresent(
-                  inventoryComponent -> {
-                    new DropItemsInteraction().accept(entity, null);
-                  });
+              .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
 
           if (removeOnDeath) Game.remove(entity);
         };
@@ -326,38 +346,84 @@ public enum Monster {
     }
   }
 
-  // --- Builder ---
+  /** Builder class for creating and configuring monster entities. */
   public static class MonsterBuilder {
     private final Monster type;
     private Point spawnPoint = new Point(0, 0);
 
+    private boolean addToGame = false;
+
+    /** Builder for creating and configuring monster entities. */
     MonsterBuilder(Monster type) {
       this.type = type;
     }
 
+    /**
+     * Add this entity to the {@link core.Game Game} upon building it.
+     *
+     * @return This builder for method chaining.
+     * @see Game#add(Entity)
+     */
+    public MonsterBuilder addToGame() {
+      this.addToGame = true;
+      return this;
+    }
+
+    /**
+     * Sets the spawn point for the monster.
+     *
+     * @param spawnPoint The position to spawn the monster.
+     * @return This builder.
+     */
     public MonsterBuilder spawn(Point spawnPoint) {
       this.spawnPoint = spawnPoint;
       return this;
     }
 
-    public MonsterBuilder addGuaranteedDrop(Class<? extends Item> itemClass) {
-      this.type.guaranteedDrops.add(itemClass);
+    /**
+     * Adds a guaranteed item drop for the monster.
+     *
+     * @param item Item to guarantee as a drop.
+     * @return This builder.
+     */
+    public MonsterBuilder addGuaranteedDrop(Item item) {
+      this.type.guaranteedDrops.add(item);
       return this;
     }
 
+    /**
+     * Builds and returns the configured monster entity.
+     *
+     * @return A configured {@link Entity}.
+     * @throws IOException If texture loading fails.
+     */
     public Entity build() throws IOException {
-      return type.build(spawnPoint);
+      Entity monster = type.build(spawnPoint);
+      if (addToGame) Game.add(monster);
+      return monster;
     }
   }
 
+  /** Utility class providing random monster selection. */
   public static final class MonsterTable {
     private static final Monster[] all = Monster.values();
 
+    /**
+     * Returns a random monster type.
+     *
+     * @param r Random generator instance.
+     * @return A random {@link Monster}.
+     */
     public static Monster getRandomMonsterType(Random r) {
       return all[r.nextInt(all.length)];
     }
   }
 
+  /**
+   * Creates a {@link MonsterBuilder} for this monster type.
+   *
+   * @return A builder instance for configuring and spawning this monster.
+   */
   public MonsterBuilder builder() {
     return new MonsterBuilder(this);
   }
