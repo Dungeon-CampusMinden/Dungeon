@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.Align;
 import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -20,6 +19,9 @@ import java.util.function.Consumer;
  */
 public final class FreeInputDialog {
 
+  private static final String OK_BUTTON = "OK";
+  private static final String CANCEL_BUTTON = "Abbrechen";
+
   /**
    * Creates and shows a text input dialog with the given title and question. The dialog is added as
    * a HUD-Entity to the game and is displayed on the screen.
@@ -28,8 +30,7 @@ public final class FreeInputDialog {
    * @param question The prompt text displayed above the input field.
    * @param callback A consumer that receives the player's answer (trimmed) or null.
    */
-  public static void showTextInputDialog(
-      String title, String question, Consumer<Optional<String>> callback) {
+  public static void showTextInputDialog(String title, String question, Consumer<String> callback) {
     final Entity uiEntity = new Entity();
 
     UIUtils.show(() -> buildDialog(title, question, callback, uiEntity), uiEntity);
@@ -41,8 +42,7 @@ public final class FreeInputDialog {
    *
    * @param title The dialog window title.
    * @param question The text shown as the question/prompt.
-   * @param callback A consumer that receives the players trimmed answer wrapped in Optional, or
-   *     Optional.empty() if canceled or empty.
+   * @param callback A consumer that receives the players trimmed answer; "" if canceled or empty.
    * @param uiEntity The UI-Entity that hosts this dialog; will be removed on close.
    * @return The configured, centered Dialog ready to be displayed.
    */
@@ -59,7 +59,7 @@ public final class FreeInputDialog {
           @Override
           protected void result(Object obj) {
             String value = "";
-            if ("OK".equals(obj)) {
+            if (OK_BUTTON.equals(obj)) {
               value = input.getText().trim();
             }
 
@@ -78,8 +78,8 @@ public final class FreeInputDialog {
     content.add(new Label(question, skin)).align(Align.center).padBottom(10).row();
     content.add(input).width(200).padBottom(10).row();
 
-    dialog.button("OK", "OK");
-    dialog.button("Abbrechen", "CANCEL");
+    dialog.button(OK_BUTTON, OK_BUTTON);
+    dialog.button(CANCEL_BUTTON, CANCEL_BUTTON);
     dialog.setSize(700, 350);
     UIUtils.center(dialog);
 
