@@ -202,7 +202,15 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Debugger.TELEPORT_TO_CURSOR();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
-              BurningFireballSkill.UNLOCKED = !BurningFireballSkill.UNLOCKED;
+              BurningFireballSkill burningFireballSkill =
+                  (BurningFireballSkill)
+                      (Game.hero()
+                          .orElseThrow()
+                          .fetch(SkillComponent.class)
+                          .orElseThrow()
+                          .getSkill(BurningFireballSkill.class)
+                          .orElseThrow());
+              burningFireballSkill.toggleLock();
             }
           }
         });

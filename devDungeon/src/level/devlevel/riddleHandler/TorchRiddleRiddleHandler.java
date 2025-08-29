@@ -2,6 +2,7 @@ package level.devlevel.riddleHandler;
 
 import components.TorchComponent;
 import contrib.components.SignComponent;
+import contrib.components.SkillComponent;
 import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
 import contrib.utils.components.skill.projectileSkill.BurningFireballSkill;
@@ -136,7 +137,15 @@ public class TorchRiddleRiddleHandler {
         "You will receive the new burning fireball skill\nas a reward for solving this puzzle!"
             + "Your fireballs will now deal extra burning damage.",
         "Riddle solved");
-    BurningFireballSkill.UNLOCKED = true;
+    BurningFireballSkill burningFireballSkill =
+        (BurningFireballSkill)
+            (Game.hero()
+                .orElseThrow()
+                .fetch(SkillComponent.class)
+                .orElseThrow()
+                .getSkill(BurningFireballSkill.class)
+                .orElseThrow());
+    burningFireballSkill.unlock();
     this.rewardGiven = true;
 
     // Once the reward is given, all torches are extinguished
