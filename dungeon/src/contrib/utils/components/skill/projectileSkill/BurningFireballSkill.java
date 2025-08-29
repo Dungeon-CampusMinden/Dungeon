@@ -28,7 +28,7 @@ public final class BurningFireballSkill extends FireballSkill {
   public static float PROJECTILE_RANGE = 7f;
 
   /** Whether the burning effect is unlocked. */
-  public static boolean UNLOCKED = false;
+  private boolean unlocked = false;
 
   /** The amount of damage the fireball will deal. */
   public static int DAMAGE_AMOUNT = 2;
@@ -45,11 +45,26 @@ public final class BurningFireballSkill extends FireballSkill {
 
   @Override
   protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
-    if (UNLOCKED) BURNING_EFFECT.applyBurning(target);
+    if (unlocked) BURNING_EFFECT.applyBurning(target);
+  }
+
+  /** Unlock the burningeffect. */
+  public void unlock() {
+    this.unlocked = true;
+  }
+
+  /** Lock the burningeffect. */
+  public void lock() {
+    this.unlocked = false;
+  }
+
+  /** Toggle the unlock stage of the burningeffect. */
+  public void toggleLock() {
+    unlocked = !unlocked;
   }
 
   @Override
   public int tintColor() {
-    return UNLOCKED ? 0xFF9999FF : -1;
+    return unlocked ? 0xFF9999FF : -1;
   }
 }
