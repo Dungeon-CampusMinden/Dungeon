@@ -178,10 +178,19 @@ public class DevDungeon {
                   .orElseThrow()
                   .add(new ItemPotionHealth(HealthPotionType.GREATER));
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
+              BurningFireballSkill burningFireballSkill =
+                  (BurningFireballSkill)
+                      (Game.hero()
+                          .orElseThrow()
+                          .fetch(SkillComponent.class)
+                          .orElseThrow()
+                          .getSkill(BurningFireballSkill.class)
+                          .orElseThrow());
+
               if (BurningFireballSkill.DAMAGE_AMOUNT == 2) {
-                BurningFireballSkill.DAMAGE_AMOUNT = 6;
+                burningFireballSkill.damageAmount(6);
               } else {
-                BurningFireballSkill.DAMAGE_AMOUNT = 2;
+                burningFireballSkill.damageAmount(2);
               }
               DialogUtils.showTextPopup(
                   "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,

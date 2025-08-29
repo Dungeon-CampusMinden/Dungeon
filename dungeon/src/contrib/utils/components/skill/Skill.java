@@ -67,7 +67,9 @@ public abstract class Skill {
   }
 
   /** Private constructor for creating special skills such as {@link #NONE}. */
-  private Skill() {}
+  private Skill() {
+    resourceCost = new HashMap<>();
+  }
 
   /**
    * Defines the behavior of the skill when executed.
@@ -203,6 +205,7 @@ public abstract class Skill {
    * @param newResourceCost the new resource requirements
    */
   public void resourceCost(Map<Resource, Integer> newResourceCost) {
+    if (newResourceCost == null) newResourceCost = new HashMap<>();
     this.resourceCost = new HashMap<>(newResourceCost);
   }
 
