@@ -9,6 +9,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
+/** Starts a shock wave from the boss. The shock wave is a circular explosion of fireballs. */
 public class FireShockWaveSkill extends DamageProjectileSkill {
 
   /*
@@ -103,6 +104,11 @@ public class FireShockWaveSkill extends DamageProjectileSkill {
         resourceCost);
   }
 
+  /**
+   * Starts a shock wave from the boss. The shock wave is a circular explosion of fireballs.
+   *
+   * @param radius The radius of the shock wave.
+   */
   public FireShockWaveSkill(int radius) {
     this(
         "",

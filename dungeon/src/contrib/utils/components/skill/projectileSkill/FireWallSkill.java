@@ -9,6 +9,7 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
+/** Shoots a fire wall (made of fireballs). */
 public class FireWallSkill extends DamageProjectileSkill {
 
   /*
@@ -89,6 +90,11 @@ public class FireWallSkill extends DamageProjectileSkill {
         resourceCost);
   }
 
+  /**
+   * Create a FireWallSkill.
+   *
+   * @param wallWidth The width of the wall. The wall will be centered on the boss.
+   */
   public FireWallSkill(int wallWidth) {
     this(
         "",
