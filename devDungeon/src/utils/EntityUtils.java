@@ -11,7 +11,7 @@ import core.level.utils.Coordinate;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
+import entities.DevDungeonMonsterType;
 import entities.TorchFactory;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,9 +43,9 @@ public class EntityUtils {
    * @throws MissingComponentException if the monster does not have a PositionComponent
    * @throws RuntimeException if an error occurs while spawning the monster
    * @see Game#add(Entity)
-   * @see MonsterType
+   * @see DevDungeonMonsterType
    */
-  public static Entity spawnMonster(MonsterType monsterType, Point position) {
+  public static Entity spawnMonster(DevDungeonMonsterType monsterType, Point position) {
     Tile tile = Game.tileAt(position).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
@@ -67,9 +67,9 @@ public class EntityUtils {
    * @throws MissingComponentException if the monster does not have a PositionComponent
    * @throws RuntimeException if an error occurs while spawning the monster
    * @see Game#add(Entity)
-   * @see MonsterType
+   * @see DevDungeonMonsterType
    */
-  public static Entity spawnMonster(MonsterType monsterType, Coordinate coordinate) {
+  public static Entity spawnMonster(DevDungeonMonsterType monsterType, Coordinate coordinate) {
     Tile tile = Game.tileAt(coordinate).orElse(null);
     if (tile == null || !tile.isAccessible()) {
       LOGGER.warning(
@@ -95,17 +95,17 @@ public class EntityUtils {
   /**
    * Spawns a bridge guard at the given position and adds it to the game. The bridge guard neutral
    * NPC that gives the player a series of {@link task.tasktype.Quiz quizzes} to solve. The bridge
-   * guard is created using the {@link entities.MonsterType#BRIDGE_GUARD BRIDGE_GUARD} monster type.
-   * The bridge guard is then added to the game.
+   * guard is created using the {@link DevDungeonMonsterType#BRIDGE_GUARD BRIDGE_GUARD} monster
+   * type. The bridge guard is then added to the game.
    *
    * @param pos The position where the bridge guard should be spawned.
    * @param quizzes The list of quizzes to give the player.
    * @param onFinished The action to perform when all quizzes have been solved.
    * @return The spawned bridge guard entity.
-   * @see MonsterType#createBridgeGuard(Point, List, IVoidFunction) createBridgeGuard
+   * @see DevDungeonMonsterType#createBridgeGuard(Point, List, IVoidFunction) createBridgeGuard
    */
   public static Entity spawnBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
-    Entity bridgeGuard = MonsterType.createBridgeGuard(pos, quizzes, onFinished);
+    Entity bridgeGuard = DevDungeonMonsterType.createBridgeGuard(pos, quizzes, onFinished);
     Game.add(bridgeGuard);
     return bridgeGuard;
   }
@@ -174,7 +174,7 @@ public class EntityUtils {
    * @return The spawned mob spawner entity.
    */
   public static Entity spawnMobSpawner(
-      Coordinate pos, MonsterType[] monsterTypes, int maxMobCount) {
+      Coordinate pos, DevDungeonMonsterType[] monsterTypes, int maxMobCount) {
     Entity mobSpawner = entities.MobSpawnerFactory.createMobSpawner(pos, monsterTypes, maxMobCount);
     Game.add(mobSpawner);
     return mobSpawner;
@@ -193,10 +193,10 @@ public class EntityUtils {
    * @return A list of the spawned entities. The last entity in the list is the level boss monster.
    * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
    * @throws RuntimeException if an error occurs while spawning a monster.
-   * @see #spawnBoss(MonsterType, Coordinate, Consumer) spawnBoss
+   * @see #spawnBoss(DevDungeonMonsterType, Coordinate, Consumer) spawnBoss
    */
   public static List<Entity> spawnMobs(
-      int mobCount, MonsterType[] monsterTypes, Coordinate[] mobSpawns) {
+      int mobCount, DevDungeonMonsterType[] monsterTypes, Coordinate[] mobSpawns) {
     if (mobCount > mobSpawns.length) {
       throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
     }
@@ -208,7 +208,7 @@ public class EntityUtils {
     for (Coordinate mobPos : randomSpawns) {
       try {
         // Choose a random monster type from the monsterTypes array.
-        MonsterType randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
+        DevDungeonMonsterType randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
         // Spawn the monster at the current spawn point.
         spawnedMobs.add(EntityUtils.spawnMonster(randomType, mobPos));
       } catch (RuntimeException e) {
@@ -230,7 +230,7 @@ public class EntityUtils {
    * @throws RuntimeException if an error occurs while spawning a monster.
    */
   public static Entity spawnBoss(
-      MonsterType bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
+      DevDungeonMonsterType bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
     try {
       Entity bossMob = EntityUtils.spawnMonster(bossType, levelBossSpawn);
       if (bossMob == null) {
@@ -263,7 +263,7 @@ public class EntityUtils {
    * @return The spawned boss monster entity.
    * @throws RuntimeException if an error occurs while spawning a monster.
    */
-  public static Entity spawnBoss(MonsterType bossType, Coordinate levelBossSpawn) {
+  public static Entity spawnBoss(DevDungeonMonsterType bossType, Coordinate levelBossSpawn) {
     return spawnBoss(bossType, levelBossSpawn, (e) -> {});
   }
 }
