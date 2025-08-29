@@ -29,6 +29,8 @@ public class TPBallSkill extends DamageProjectileSkill {
   private static final float PROJECTILE_RANGE = 7f;
   private static final long COOLDOWN = 2000;
   private static final boolean IS_PIRCING = false;
+
+  /** Name of the Skill. */
   public static final String SKILL_NAME = "TPBall";
 
   private final Supplier<Point> tpTarget;

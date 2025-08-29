@@ -23,15 +23,15 @@ public class EnergyRestoreSystem extends System {
   }
 
   /**
-   * Executes the energy restoration for all entities that contain an {@link StaminaComponent}.
+   * Executes the stamina restoration for all entities that contain an {@link StaminaComponent}.
    *
-   * <p>For each entity, the system restores an amount of energy equal to:
+   * <p>For each entity, the system restores an amount of stamina equal to:
    *
    * <pre>
    * restorePerSecond / Game.frameRate()
    * </pre>
    *
-   * ensuring smooth, frame-rate-independent regeneration.
+   * <p>ensuring smooth, frame-rate-independent regeneration.
    */
   @Override
   public void execute() {

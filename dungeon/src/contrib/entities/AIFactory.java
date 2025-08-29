@@ -89,7 +89,7 @@ public final class AIFactory {
    * @return The AIComponent, ready to be added to an entity.
    */
   public static AIComponent randomAI(final Entity entity) {
-    return new AIComponent(randomFightAI(entity), randomIdleAI(), randomTransition(entity));
+    return new AIComponent(randomFightAI(), randomIdleAI(), randomTransition(entity));
   }
 
   /**
@@ -98,7 +98,7 @@ public final class AIFactory {
    *
    * @return the generated FightAI
    */
-  public static Consumer<Entity> randomFightAI(Entity monster) {
+  public static Consumer<Entity> randomFightAI() {
     int index = RANDOM.nextInt(0, 3);
 
     return switch (index) {

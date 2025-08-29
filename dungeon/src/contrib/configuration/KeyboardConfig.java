@@ -69,10 +69,12 @@ public class KeyboardConfig {
   public static final ConfigKey<Integer> SECOND_SKILL =
       new ConfigKey<>(new String[] {"skill", "wooden_bow"}, new ConfigIntValue(Input.Keys.T));
 
+  /** Select the next skill as active Skill in the {@link contrib.components.SkillComponent}. */
   public static final ConfigKey<Integer> NEXT_SKILL =
       new ConfigKey<>(
           new String[] {"skill", "select next skill"}, new ConfigIntValue(Input.Keys.PERIOD));
 
+  /** Select the previous skill as active Skill in the {@link contrib.components.SkillComponent}. */
   public static final ConfigKey<Integer> PREV_SKILL =
       new ConfigKey<>(
           new String[] {"skill", "select prev skill"}, new ConfigIntValue(Input.Keys.COMMA));

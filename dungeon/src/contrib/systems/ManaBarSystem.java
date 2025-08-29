@@ -11,16 +11,32 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Displays a mana bar above entities that have a {@link ManaComponent}, {@link PositionComponent},
- * and {@link DrawComponent}.
+ * A system responsible for displaying mana bars above entities that have a {@link ManaComponent},
+ * {@link PositionComponent}, and {@link DrawComponent}.
+ *
+ * <p>Each entity with these components will have a progress bar rendered above it, showing the
+ * current and maximum mana of the entity. The bars are automatically created when the entity is
+ * added to the system and removed when the entity is removed from the system.
+ *
+ * <p>The vertical position of the bar above the entity is defined by {@link #VERTICAL_OFFSET}. Mana
+ * values are fetched in real-time from the {@link ManaComponent} and updated each frame in {@link
+ * #execute()}.
  */
 public final class ManaBarSystem extends System {
 
   private static final Logger LOGGER = Logger.getLogger(ManaBarSystem.class.getSimpleName());
   private static final float VERTICAL_OFFSET = 20f;
 
+  /** Mapping from entity IDs to their corresponding mana bars. */
   private final Map<Integer, ProgressBar> barMapping = new HashMap<>();
 
+  /**
+   * Creates a new {@code ManaBarSystem}.
+   *
+   * <p>Registers listeners for entity addition and removal. When an entity with the required
+   * components is added, a mana bar is created and attached. When the entity is removed, the
+   * corresponding mana bar is removed.
+   */
   public ManaBarSystem() {
     super(DrawComponent.class, ManaComponent.class, PositionComponent.class);
 
@@ -57,6 +73,12 @@ public final class ManaBarSystem extends System {
     LOGGER.info("ManaBarSystem created");
   }
 
+  /**
+   * Updates all mana bars for the entities managed by this system.
+   *
+   * <p>This method queries the current and maximum mana from each entity's {@link ManaComponent}
+   * and updates the corresponding progress bar.
+   */
   @Override
   public void execute() {
     filteredEntityStream()

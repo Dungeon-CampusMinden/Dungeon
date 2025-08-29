@@ -17,6 +17,7 @@ public class ItemWoodenArrow extends Item {
   /** The default texture for all wooden arrows. */
   public static final IPath DEFAULT_TEXTURE = new SimpleIPath("items/weapon/wooden_arrow.png");
 
+  /** The maximum amount of arrows per stack. */
   public static final int MAX_ARROW_STACK_SIZE = 16;
 
   /**

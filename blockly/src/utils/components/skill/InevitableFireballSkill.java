@@ -33,6 +33,7 @@ public class InevitableFireballSkill extends FireballSkill {
               .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
               .orElse(null);
 
+  /** Create a Fireball that will freez and kill the player. */
   public InevitableFireballSkill() {
     super(TARGET_HERO, 500);
     this.damageAmount = 9999;

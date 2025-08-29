@@ -59,6 +59,21 @@ public final class HeroFactory {
                 hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
                 hero.fetch(StaminaComponent.class)
                     .ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
+
+                // reset inventory
+                hero.fetch(CharacterClassComponent.class)
+                    .ifPresent(
+                        characterClassComponent -> {
+                          InventoryComponent invComp =
+                              new InventoryComponent(
+                                  characterClassComponent.characterClass().inventorySize());
+                          characterClassComponent
+                              .characterClass()
+                              .startItems()
+                              .forEach(item -> invComp.add(item));
+                          hero.add(invComp);
+                        });
+
                 // reset the animation queue
                 hero.fetch(DrawComponent.class).ifPresent(DrawComponent::deQueueAll);
                 DungeonLoader.reloadCurrentLevel();
@@ -98,6 +113,7 @@ public final class HeroFactory {
    * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
    * CollideComponent} and {@link HealthComponent}.
    *
+   * @param characterClass Class of the hero.
    * @param deathCallback function that will be executed if the hero dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
@@ -119,9 +135,12 @@ public final class HeroFactory {
             (e) -> {},
             true));
     hero.add(new DrawComponent(characterClass.textures()));
-    hero.add(new ManaComponent(100, 100, 10f));
-    hero.add(new StaminaComponent(100, 100, 40f));
-
+    hero.add(
+        new ManaComponent(
+            characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
+    hero.add(
+        new StaminaComponent(
+            characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
     HealthComponent hc =
@@ -186,22 +205,22 @@ public final class HeroFactory {
         inputComp,
         core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
         characterClass.speed(),
-        Vector2.of(0, 1));
+        Direction.UP);
     registerMovement(
         inputComp,
         core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
         characterClass.speed(),
-        Vector2.of(0, -1));
+        Direction.DOWN);
     registerMovement(
         inputComp,
         core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
         characterClass.speed(),
-        Vector2.of(1, 0));
+        Direction.RIGHT);
     registerMovement(
         inputComp,
         core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
         characterClass.speed(),
-        Vector2.of(-1, 0));
+        Direction.LEFT);
 
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
@@ -481,6 +500,13 @@ public final class HeroFactory {
     vc2.applyForce("Collision", newVelocity);
   }
 
+  /**
+   * Create a new Hero based on the given class with the default death callback (restart level).
+   *
+   * @param characterClass The class of the hero.
+   * @return The Hero Entity-
+   * @throws IOException if animations could not be created.
+   */
   public static Entity newHero(CharacterClass characterClass) throws IOException {
     return newHero(characterClass, DEFAULT_DEATH);
   }
