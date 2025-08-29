@@ -79,7 +79,7 @@ public class DemoRoom {
     Game.add(new CollisionSystem());
     Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
-    Game.add(new EnergyRestoreSystem());
+    Game.add(new StaminaRestoreSystem());
     Game.add(new StaminaBarSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());

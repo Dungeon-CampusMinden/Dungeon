@@ -5,20 +5,20 @@ import core.Game;
 import core.System;
 
 /**
- * A system that restores energy to all entities with an {@link StaminaComponent}.
+ * A system that restores stamina to all entities with an {@link StaminaComponent}.
  *
- * <p>The restoration amount is calculated based on the energy regeneration rate defined in each
- * {@code EnergyComponent}. To ensure frame-rate-independent behavior, the per-second restoration
+ * <p>The restoration amount is calculated based on the stamina regeneration rate defined in each
+ * {@code StaminaComponent}. To ensure frame-rate-independent behavior, the per-second restoration
  * value is divided by the current game frame rate.
  */
-public class EnergyRestoreSystem extends System {
+public class StaminaRestoreSystem extends System {
 
   /**
    * Creates a new {@code EnergyRestoreSystem}.
    *
    * <p>This system processes all entities that contain an {@link StaminaComponent}.
    */
-  public EnergyRestoreSystem() {
+  public StaminaRestoreSystem() {
     super(StaminaComponent.class);
   }
 
