@@ -32,7 +32,7 @@ public abstract class Skill {
       };
 
   /** The name of the skill. */
-  private String name;
+  protected String name;
 
   /** The cooldown duration in milliseconds. */
   private long cooldown;

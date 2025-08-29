@@ -1,7 +1,6 @@
 package entities.monster;
 
 import client.Client;
-import contrib.entities.CharacterClass;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
@@ -10,7 +9,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.TriConsumer;
 import core.utils.Vector2;
 import java.util.function.Supplier;
 
@@ -56,18 +54,14 @@ public class InevitableFireballSkill extends FireballSkill {
         .ifPresent(PositionComponent::centerPositionOnTile);
   }
 
-  @Override
-  protected TriConsumer<Entity, Entity, Direction> bonusEffect(Entity caster) {
-    return (projectile, entity, direction) -> {
-      // Set the velocity back to the original value (hero only)
-      if (!entity.isPresent(PlayerComponent.class)) return;
-      Vector2 defaultHeroSpeed = CharacterClass.WIZARD.speed();
-      entity
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              velocityComponent -> {
-                velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
-              });
-    };
+  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+    // Set the velocity back to the original value (hero only)
+    if (!target.isPresent(PlayerComponent.class)) return;
+    target
+        .fetch(VelocityComponent.class)
+        .ifPresent(
+            velocityComponent -> {
+              velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
+            });
   }
 }

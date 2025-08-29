@@ -72,6 +72,11 @@ public class SkillComponent implements Component {
     }
   }
 
+  /** Remove all skills. */
+  public void removeAll() {
+    skills.clear();
+  }
+
   /**
    * Removes all skills of the given class (or subclasses).
    *

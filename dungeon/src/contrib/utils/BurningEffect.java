@@ -1,4 +1,4 @@
-package item.effects;
+package contrib.utils;
 
 import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;

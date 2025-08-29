@@ -137,8 +137,8 @@ public class TPBallSkill extends DamageProjectileSkill {
   }
 
   @Override
-  protected TriConsumer<Entity, Entity, Direction> bonusEffect(Entity caster) {
-    return (projectile, target, direction) -> EntityUtils.teleportEntityTo(caster, tpTarget.get());
+  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+    EntityUtils.teleportEntityTo(caster, tpTarget.get());
   }
 
   /**

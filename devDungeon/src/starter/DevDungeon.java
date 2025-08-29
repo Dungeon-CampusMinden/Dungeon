@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.InventoryComponent;
+import contrib.components.SkillComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.entities.MiscFactory;
@@ -15,6 +16,7 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.BurningFireballSkill;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -23,7 +25,6 @@ import core.level.loader.DungeonLoader;
 import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import entities.BurningFireballSkill;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
@@ -85,10 +86,6 @@ public class DevDungeon {
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
-
-          HeroFactory.setHeroSkillCallback(
-              new BurningFireballSkill(
-                  SkillTools::cursorPositionAsPoint)); // Override default skill
           try {
             createHero();
           } catch (IOException e) {
@@ -106,6 +103,12 @@ public class DevDungeon {
 
   private static void createHero() throws IOException {
     Entity hero = HeroFactory.newHero();
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            sc -> {
+              sc.removeAll();
+              sc.addSkill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint));
+            });
     Game.add(hero);
   }
 
@@ -180,9 +183,6 @@ public class DevDungeon {
               } else {
                 BurningFireballSkill.DAMAGE_AMOUNT = 2;
               }
-              HeroFactory.setHeroSkillCallback(
-                  new BurningFireballSkill(
-                      SkillTools::cursorPositionAsPoint)); // Update the current hero skill
               DialogUtils.showTextPopup(
                   "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
                   "Cheat: Fireball Damage");
