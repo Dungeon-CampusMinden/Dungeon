@@ -31,6 +31,8 @@ public class TPBallSkill extends DamageProjectileSkill {
   private static final boolean IS_PIRCING = false;
   public static final String SKILL_NAME = "TPBall";
 
+  private final Supplier<Point> tpTarget;
+
   /**
    * Creates a TPBallSkill with full custom parameters.
    *
@@ -61,9 +63,9 @@ public class TPBallSkill extends DamageProjectileSkill {
         IS_PIRCING,
         damageAmount,
         DAMAGE_TYPE,
-        (projectile, target1, direction) -> EntityUtils.teleportEntityTo(target1, tpTarget.get()),
         HIT_BOX_SIZE,
         resourceCost);
+    this.tpTarget = tpTarget;
     tintColor(0xFF00FFFF);
   }
 
@@ -130,6 +132,11 @@ public class TPBallSkill extends DamageProjectileSkill {
       float speed,
       Tuple<Resource, Integer>... resourceCost) {
     this(target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT, resourceCost);
+  }
+
+  @Override
+  protected TriConsumer<Entity, Entity, Direction> bonusEffect(Entity caster) {
+    return (projectile, target, direction) -> EntityUtils.teleportEntityTo(caster, tpTarget.get());
   }
 
   /**

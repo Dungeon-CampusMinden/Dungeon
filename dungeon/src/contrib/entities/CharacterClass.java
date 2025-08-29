@@ -52,19 +52,18 @@ public enum CharacterClass {
       120,
       5),
 
-  GOBLIN (
-          "character/monster/goblin",
-          Vector2.of(20,20),
-          1,
-          100,
-          Set.of(),
-          Set.of(new ItemKey()),
-          10,
-          0,
-          0,
-          0,
-          0
-  );
+  GOBLIN(
+      "character/monster/goblin",
+      Vector2.of(20, 20),
+      1,
+      100,
+      Set.of(),
+      Set.of(new ItemKey()),
+      10,
+      0,
+      0,
+      0,
+      0);
 
   private final IPath textures;
   private final Vector2 speed;

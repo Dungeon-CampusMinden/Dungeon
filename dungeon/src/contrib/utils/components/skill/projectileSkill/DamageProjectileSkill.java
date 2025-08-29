@@ -36,9 +36,6 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   /** A supplier that provides the target endpoint of the projectile. */
   protected Supplier<Point> end;
 
-  /** An optional bonus effect that is executed on collision with a target. */
-  private final TriConsumer<Entity, Entity, Direction> bonusEffect;
-
   /**
    * Create a new {@link DamageProjectileSkill}.
    *
@@ -52,7 +49,6 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    *     (false).
    * @param damageAmount The base damage dealt by the projectile.
    * @param damageType The type of damage inflicted by the projectile.
-   * @param bonusEffect An additional effect to apply when the projectile collides with a target.
    * @param hitBoxSize The hitbox size of the projectile used for collision detection.
    * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
    */
@@ -67,14 +63,12 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       boolean pircing,
       int damageAmount,
       DamageType damageType,
-      TriConsumer<Entity, Entity, Direction> bonusEffect,
       Vector2 hitBoxSize,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, texture, speed, range, hitBoxSize, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.pircing = pircing;
-    this.bonusEffect = bonusEffect != null ? bonusEffect : NOOP_EFFECT;
     this.end = end;
   }
 
@@ -96,7 +90,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         target
             .fetch(HealthComponent.class)
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
-        bonusEffect.accept(caster, target, direction);
+        bonusEffect(caster).accept(projectile, target, direction);
 
         if (pircing) {
           ignoreEntities.add(target);
@@ -131,6 +125,23 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected Damage calculateDamage(Entity caster, Entity target, Direction direction) {
     // TODO: Integrate weaknesses/resistances once the system is implemented.
     return new Damage(damageAmount, damageType, caster);
+  }
+
+  /**
+   * Defines additional behaivor on Damage-Collision.
+   *
+   * <p>The TriConsumer will get the Projectile Entity, the Entity it is collided with and the
+   * collide direciton.
+   *
+   * <p>Overwrite this function to define what should happen, if damage is applied
+   *
+   * <p>Default Bonus Effect does nothing.
+   *
+   * @param caster The entity casting the projectile.
+   * @return Bonuseffect to execute on damage applying.
+   */
+  protected TriConsumer<Entity, Entity, Direction> bonusEffect(Entity caster) {
+    return NOOP_TRICONSUMER;
   }
 
   /**

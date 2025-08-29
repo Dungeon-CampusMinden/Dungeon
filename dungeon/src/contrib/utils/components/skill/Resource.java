@@ -1,9 +1,9 @@
 package contrib.utils.components.skill;
 
-import contrib.components.StaminaComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.components.ManaComponent;
+import contrib.components.StaminaComponent;
 import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -90,7 +90,10 @@ public enum Resource {
    */
   STAMINA(
       entity ->
-          entity.fetch(StaminaComponent.class).map(StaminaComponent::currentAmount).orElse((float) 0),
+          entity
+              .fetch(StaminaComponent.class)
+              .map(StaminaComponent::currentAmount)
+              .orElse((float) 0),
       (entity, amount) -> entity.fetch(StaminaComponent.class).orElseThrow().consume(amount));
 
   /** Function that supplies the current resource amount from an entity. */
