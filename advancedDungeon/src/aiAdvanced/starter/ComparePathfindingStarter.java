@@ -7,20 +7,14 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.systems.PathfindingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import contrib.components.AIComponent;
 import contrib.entities.HeroFactory;
-import contrib.entities.MonsterDeathSound;
-import contrib.entities.MonsterFactory;
-import contrib.entities.MonsterIdleSound;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.CameraComponent;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
+import core.components.*;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
@@ -33,7 +27,6 @@ import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -132,14 +125,7 @@ public class ComparePathfindingStarter {
     // Position the runners
     Debugger.TELEPORT(orgStart.toCenteredPoint());
 
-    RUNNERS[1] = createRunnerMob();
-    PositionComponent pc =
-        RUNNERS[1]
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(RUNNERS[1], PositionComponent.class));
-    pc.position(newStart.toCenteredPoint());
-
+    RUNNERS[1] = createRunnerMob(newStart.toCenteredPoint());
     setupPathFindingSystem(rows);
   }
 
@@ -259,27 +245,19 @@ public class ComparePathfindingStarter {
    * Creates and adds a new runnerMob entity to the game. This monster looks and moves like the
    * hero.
    *
+   * @param startPoint Spawn Point of the runner,
    * @return The newly created runnerMob
    * @throws RuntimeException if an {@link IOException} occurs during runnerMob creation
    */
-  public static Entity createRunnerMob() {
-    Entity runnerMob;
+  private static Entity createRunnerMob(Point startPoint) {
+    Entity runnerMob = new Entity("KI-Runner");
     try {
-      runnerMob =
-          MonsterFactory.buildMonster(
-              "KI Runner",
-              new SimpleIPath("character/wizard"),
-              1,
-              HeroFactory.defaultHeroSpeed().x(), // same speed as hero
-              0.0f,
-              MonsterDeathSound.LOWER_PITCH.sound(),
-              new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
-              0,
-              0,
-              MonsterIdleSound.BURP.path());
+      runnerMob.add(new DrawComponent(new SimpleIPath("character/wizard")));
     } catch (IOException e) {
       throw new RuntimeException("Failed to create monster entity as RUNNER", e);
     }
+    runnerMob.add(new VelocityComponent(5));
+    runnerMob.add(new PositionComponent(startPoint));
     Game.add(runnerMob);
     return runnerMob;
   }

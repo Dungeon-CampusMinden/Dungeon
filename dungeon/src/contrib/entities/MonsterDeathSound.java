@@ -23,7 +23,7 @@ public enum MonsterDeathSound {
   private final Sound sound;
 
   MonsterDeathSound(String path) {
-    if (path.isEmpty()) {
+    if (path.isEmpty() || Gdx.files == null) {
       this.sound = null;
     } else {
       this.sound = Gdx.audio.newSound(Gdx.files.internal(path));
