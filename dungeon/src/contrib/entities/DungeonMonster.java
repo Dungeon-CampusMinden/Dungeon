@@ -31,7 +31,7 @@ public enum DungeonMonster {
       5.0f,
       1.0f,
       e -> {},
-      true,
+      false,
       "character/monster/imp",
       3,
       e -> {},
