@@ -1,6 +1,5 @@
 package entities;
 
-import antlr.BlocklyConditionVisitor;
 import com.badlogic.gdx.audio.Sound;
 import components.TintDirectionComponent;
 import contrib.components.AIComponent;
@@ -110,8 +109,7 @@ public enum BlocklyMonster {
       0,
       MonsterIdleSound.BURP);
 
-  private static final Logger LOGGER =
-      Logger.getLogger(BlocklyConditionVisitor.class.getSimpleName());
+  private static final Logger LOGGER = Logger.getLogger(BlocklyMonster.class.getSimpleName());
 
   private final String name;
   private final IPath texture;
