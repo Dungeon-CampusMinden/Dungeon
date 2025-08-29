@@ -20,22 +20,10 @@ import level.BlocklyLevel;
 import utils.BlocklyCodeRunner;
 
 /**
- * This class controls the communication between the blockly frontend and the dungeon. It has three
- * interfaces that can be used by the blockly frontend: /start /reset /clear The main interface is
- * "/start". This interface receives a string representing the code that should be executed in the
- * dungeon. The string can contain multiple lines or just one line. The "/reset" interface will stop
- * the current execution and will reset all values. The "/clear" interface will reset all values and
- * will typically be called after the blockly program run into an error or the execution finished
- * (when the whole program was executed and not just a step). The most important function of this
- * class is the function "processAction". This function will be executed for each action that needs
- * to be performed. If you add a block in the blockly-frontend this function is a good starting
- * point. You will probably want to add a new function to evaluate if the current action was
- * produced by your new block. You can easily check this with simple regex matching. If your regex
- * matched, perform the logic of your block. Place your function on the right place in the
- * processAction and think about side effects. For example: Does your block influence if other
- * action may be performed? Does your block needs its own scope? If yes, at least add it to the
- * active_scopes stack. Compare to while-loops/repeat-loops/if-statements and func definitions.
- * Don't forget to add a test to the TestServer class for your new block.
+ * Controls communication between the Blockly frontend and the dungeon game. Provides HTTP endpoints
+ * for executing Java code (/code), resetting execution (/reset), clearing global values (/clear),
+ * querying levels (/levels, /level), retrieving language info (/language), and checking execution
+ * status (/status).
  */
 public class Server {
 
@@ -46,12 +34,6 @@ public class Server {
 
   /** Default port for the server. */
   private static final int DEFAULT_PORT = 8080;
-
-  /**
-   * Hashmap storing all variables. This is public, so we can easily access it in the
-   * BlocklyConditionVisitor
-   */
-  public final HashMap<String, Variable> variables = new HashMap<>();
 
   /**
    * This boolean will be set to true on error or if the user clicked the reset button in the
