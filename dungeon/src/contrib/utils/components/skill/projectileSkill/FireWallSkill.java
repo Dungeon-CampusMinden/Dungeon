@@ -1,7 +1,11 @@
 package contrib.utils.components.skill.projectileSkill;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.MathUtils;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
+import core.Entity;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -12,46 +16,24 @@ import java.util.function.Supplier;
 /** Shoots a fire wall (made of fireballs). */
 public class FireWallSkill extends DamageProjectileSkill {
 
-  /*
-       return new Skill(
-           (skillUser) -> {
-             // Firewall
-             Point heroPos = SkillTools.heroPositionAsPoint();
-             Point bossPos =
-                 skillUser
-                     .fetch(PositionComponent.class)
-                     .orElseThrow(
-                         () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                     .position();
-             Vector2 direction = heroPos.vectorTo(bossPos).normalize();
-             // Main shoot is directly at the hero
-             // every other fireball is offset left and right of the main shoot
-             Vector2 right = direction.rotateDeg(90);
-             Vector2 left = direction.rotateDeg(-90);
-             for (int i = -wallWidth / 2; i < wallWidth / 2; i++) {
-               if (i == 0) {
-                 launchFireBall(bossPos, heroPos, bossPos, skillUser);
-               } else {
-                 launchFireBall(
-                     bossPos.translate(right.scale(i)),
-                     heroPos.translate(right.scale(i)),
-                     bossPos,
-                     skillUser);
-                 launchFireBall(
-                     bossPos.translate(left.scale(i)),
-                     heroPos.translate(left.scale(i)),
-                     bossPos,
-                     skillUser);
-               }
-             }
-           },
-           AIFactory.FIREBALL_COOL_DOWN * 3);
-  */
+  /** Name of the Skill. */
+  public static final String NAME = "Firewall";
+
+  private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
+  private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
+  private static final long COOLDOWN = 1500;
+  private static final float SPEED = 4.5f;
+  private static final int DAMAGE = 2;
+  private static final float RANGE = 25f;
+
+  /** Size of the gap between two fireballs. */
+  private static final float GAP_SIZE = 2.5f;
+
+  private final int wallWidth;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
    *
-   * @param name The name of the skill.
    * @param cooldown The cooldown time (in ms) before the skill can be used again.
    * @param texture The visual texture used for the projectile.
    * @param end A supplier providing the endpoint (target location) of the projectile.
@@ -62,10 +44,11 @@ public class FireWallSkill extends DamageProjectileSkill {
    * @param damageAmount The base damage dealt by the projectile.
    * @param damageType The type of damage inflicted by the projectile.
    * @param hitBoxSize The hitbox size of the projectile used for collision detection.
+   * @param wallWidth Width of the firewall
    * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
    */
+  @SafeVarargs
   public FireWallSkill(
-      String name,
       long cooldown,
       IPath texture,
       Supplier<Point> end,
@@ -75,9 +58,10 @@ public class FireWallSkill extends DamageProjectileSkill {
       int damageAmount,
       DamageType damageType,
       Vector2 hitBoxSize,
+      int wallWidth,
       Tuple<Resource, Integer>... resourceCost) {
     super(
-        name,
+        NAME,
         cooldown,
         texture,
         end,
@@ -88,29 +72,75 @@ public class FireWallSkill extends DamageProjectileSkill {
         damageType,
         hitBoxSize,
         resourceCost);
+    this.wallWidth = wallWidth;
   }
 
   /**
    * Create a FireWallSkill.
    *
-   * @param wallWidth The width of the wall. The wall will be centered on the boss.
+   * @param target Supplier to get the target Point of the projectiles.
+   * @param wallWidth The width of the wall. The wall will be centered on the caster.
    */
-  public FireWallSkill(int wallWidth) {
+  public FireWallSkill(Supplier<Point> target, int wallWidth) {
     this(
-        "",
-        0,
-        new SimpleIPath(""),
-        new Supplier<Point>() {
-          @Override
-          public Point get() {
-            return new Point(0, 0);
-          }
-        },
-        0,
-        0,
+        COOLDOWN,
+        TEXTURE,
+        target,
+        SPEED,
+        RANGE,
         false,
-        0,
+        DAMAGE,
         DamageType.FIRE,
-        Vector2.ZERO);
+        DEFAULT_HITBOX_SIZE,
+        wallWidth);
+  }
+
+  @Override
+  protected void executeSkill(Entity caster) {
+    super.shootProjectile(caster, start(caster), end((caster)));
+    Point targetPoint = end(caster);
+    Point startPoint = start(caster);
+    Vector2 direction = targetPoint.vectorTo(startPoint).normalize();
+    // Main shoot is directly at the target
+    // every other fireball is offset left and right of the main shoot
+    Vector2 right = direction.rotateDeg(90);
+    Vector2 left = direction.rotateDeg(-90);
+    for (int i = -wallWidth / 2; i < wallWidth / 2; i++) {
+      if (i == 0) {
+        super.shootProjectile(caster, startPoint, targetPoint);
+      } else {
+        super.shootProjectile(
+            caster,
+            startPoint.translate(right.scale(i)),
+            targetPoint.translate(right.scale(i * GAP_SIZE)));
+        super.shootProjectile(
+            caster,
+            startPoint.translate(left.scale(i)),
+            targetPoint.translate(left.scale(i * GAP_SIZE)));
+      }
+    }
+  }
+
+  /**
+   * Called when the fireball projectile spawns in the game world.
+   *
+   * <p>Plays a fireball sound effect with a random pitch for variation.
+   *
+   * @param caster The entity casting the fireball.
+   * @param projectile The projectile entity spawned.
+   */
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
+    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
+
+    // Generate a random pitch between minPitch and maxPitch
+    float minPitch = 2f;
+    float maxPitch = 3f;
+    float randomPitch = MathUtils.random(minPitch, maxPitch);
+
+    // Play the sound with adjusted pitch and low volume
+    long soundId = soundEffect.play();
+    soundEffect.setPitch(soundId, randomPitch);
+    soundEffect.setVolume(soundId, 0.05f);
   }
 }
