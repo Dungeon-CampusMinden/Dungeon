@@ -7,7 +7,6 @@ import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -96,26 +95,18 @@ public class DoubleFireballSkill extends DamageProjectileSkill {
 
   @Override
   protected void executeSkill(Entity caster) {
-    Point targetPosition = end.get();
-    superExceute(caster);
+    Point targetPosition = end(caster);
+    shootProjectile(caster, start(caster), end(caster));
     EventScheduler.scheduleAction(
         () -> {
-          Point casterPosition = caster.fetch(PositionComponent.class).get().position();
-          Point newTargetPosition = end.get();
+          Point newTargetPosition = end(caster);
           Vector2 targetDirection = targetPosition.vectorTo(newTargetPosition).normalize();
           targetDirection =
-              targetDirection.scale((float) (casterPosition.distance(targetPosition)) * 2);
+              targetDirection.scale((float) (start(caster).distance(targetPosition)) * 2);
           Point predictedTargetPostion = newTargetPosition.translate(targetDirection);
-          Supplier<Point> oldEnd = end;
-          end = () -> predictedTargetPostion;
-          superExceute(caster);
-          end = oldEnd;
+          shootProjectile(caster, start(caster), predictedTargetPostion);
         },
         DELAY_BETWEEN_FIREBALLS);
-  }
-
-  private void superExceute(Entity caster) {
-    super.executeSkill(caster);
   }
 
   /**

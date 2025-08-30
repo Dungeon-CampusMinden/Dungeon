@@ -53,7 +53,7 @@ public class BossAttackSkills {
    * @return The skill that shoots the fire wall.
    */
   public static Skill fireWall(int wallWidth) {
-    return new FireWallSkill(wallWidth);
+    return new FireWallSkill(HERO_POSITION, wallWidth);
   }
 
   /**

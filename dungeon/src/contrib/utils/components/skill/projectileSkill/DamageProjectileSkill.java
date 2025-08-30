@@ -21,10 +21,6 @@ import java.util.function.Supplier;
  */
 public abstract class DamageProjectileSkill extends ProjectileSkill {
 
-  /** A no-op effect applied on collision if no additional effect is specified. */
-  protected static final TriConsumer<Entity, Entity, Direction> NOOP_EFFECT =
-      (entity, entity2, direction) -> {};
-
   /** The base damage amount dealt by the projectile. */
   protected int damageAmount;
 
@@ -35,7 +31,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected boolean pircing;
 
   /** A supplier that provides the target endpoint of the projectile. */
-  protected Supplier<Point> end;
+  private Supplier<Point> endPointSupplier;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
@@ -70,7 +66,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.pircing = pircing;
-    this.end = end;
+    this.endPointSupplier = end;
   }
 
   /**
@@ -111,7 +107,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    */
   @Override
   protected Point end(Entity caster) {
-    return end.get();
+    return endPointSupplier.get();
   }
 
   /**

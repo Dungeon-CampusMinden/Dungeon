@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * A base class for projectile-based skills. Handles creation, movement, collision, and lifecycle of
@@ -40,17 +38,9 @@ public abstract class ProjectileSkill extends Skill {
   /** Default hitbox size for projectiles. */
   public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.of(1, 1);
 
-  /** A no-op function returning a no-op consumer. */
-  public static final Function<Entity, Consumer<Entity>> NOOP_FUNCTION = entity -> entity1 -> {};
-
-  /** A no-op entity consumer. */
-  public static final Consumer<Entity> NOOP_CONSUMER = entity -> {};
-
   protected boolean ignoreOtherProjectiles = true;
 
   protected IPath texture;
-  protected Supplier<Point> start;
-  protected Supplier<Point> end;
   protected float speed;
   protected float range;
   protected Vector2 hitBoxSize;
@@ -93,11 +83,14 @@ public abstract class ProjectileSkill extends Skill {
    */
   @Override
   protected void executeSkill(Entity caster) {
+    shootProjectile(caster, start(caster), end(caster));
+  }
+
+  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);
 
-    Point start = start(caster);
     projectile.add(new FlyComponent());
     Point position = caster.fetch(PositionComponent.class).map(pc -> pc.position()).orElse(start);
 
@@ -115,7 +108,6 @@ public abstract class ProjectileSkill extends Skill {
     }
 
     // Target point calculation
-    Point aimedOn = new Point(end(caster));
     Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
 
     // Calculate velocity
