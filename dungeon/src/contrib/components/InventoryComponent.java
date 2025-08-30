@@ -217,6 +217,19 @@ public final class InventoryComponent implements Component {
   }
 
   /**
+   * Returns the total number of items of the specified type in the inventory.
+   *
+   * <p>This method sums the {@link Item#stackSize()} of all items that are instances of the given
+   * class.
+   *
+   * @param klass the class of items to count
+   * @return the total number of items of the specified type
+   */
+  public int count(Class<? extends Item> klass) {
+    return items(klass).stream().mapToInt(Item::stackSize).sum();
+  }
+
+  /**
    * Get a Set of items stored in this component.
    *
    * @return A copy of the inventory.
@@ -296,5 +309,35 @@ public final class InventoryComponent implements Component {
       }
     }
     return false;
+  }
+
+  /**
+   * Removes a specified number of items of a given type from the inventory.
+   *
+   * <p>If multiple stacks of the item exist, the method will remove items from each stack until the
+   * requested amount has been removed. If a stack contains fewer items than needed, the entire
+   * stack is removed and the method continues with the remaining amount. Partial stacks are reduced
+   * accordingly.
+   *
+   * @param klass the class of the items to remove
+   * @param amount the total number of items to remove
+   */
+  public void remove(Class<? extends Item> klass, int amount) {
+    Set<Item> itemSet = this.items(klass);
+
+    Iterator<Item> iterator = itemSet.iterator();
+    while (iterator.hasNext() && amount > 0) {
+      Item item = iterator.next();
+      int stack = item.stackSize();
+
+      if (stack <= amount) {
+        amount -= stack;
+        this.remove(item);
+        iterator.remove(); // safe removal from Set
+      } else {
+        item.stackSize(stack - amount);
+        amount = 0;
+      }
+    }
   }
 }

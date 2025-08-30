@@ -65,11 +65,11 @@ public class AdvancedBerryLevel extends AdvancedLevel {
       Arrays.asList(
           "Sprich mit dem Ork.",
           "Schau dir zuerst die Klasse 'Berry' an, bevor Code schreibst! Wie kann man mit einer Beere interagieren, um zu erkennen, ob sie giftig ist?",
-          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an. Habe keine Angst auch eigene Methoden zu schreiben.",
+          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireballSkill' an. Habe keine Angst auch eigene Methoden zu schreiben.",
           "Kleiner Tipp: Wenn du noch keine Beere im Code hast, kannst du dir mit 'hero.getBerryAt()' eine Beere an einer bestimmten Position in den Code holen.",
           "Mit '.toxic()' kannst du prüfen, ob eine Beere giftig ist.",
           "Vielleicht kannst du deinen Feuerball verbessern, damit er giftige Beeren erkennt.",
-          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an.");
+          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireballSkill' an.");
 
   // Dynamische Titelgenerierung statt statischer Liste
   private String titleFor(int idx) {
@@ -149,7 +149,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
         WorldItemBuilder.buildWorldItem(
             new Berry(isToxic),
             Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
-    berry.name("Berry");
+    berry.name(Berry.NAME);
     HealthComponent health =
         new HealthComponent(
             999,

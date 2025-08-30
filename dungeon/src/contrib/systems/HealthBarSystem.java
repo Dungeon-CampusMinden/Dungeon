@@ -1,130 +1,107 @@
 package contrib.systems;
 
-import static contrib.hud.UIUtils.defaultSkin;
-
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import contrib.components.HealthComponent;
-import contrib.components.UIComponent;
-import core.Entity;
-import core.Game;
+import contrib.utils.AttributeBarUtil;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.systems.CameraSystem;
-import core.utils.Point;
-import core.utils.logging.CustomLogLevel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Creates a progress bar which follows the associated Entity and shows the current health
- * percentage. *
+ * A system that displays health bars above entities.
  *
- * <p>Entities with the {@link HealthComponent} and {@link PositionComponent} will be processed by
- * this system.
+ * <p>Entities with {@link HealthComponent}, {@link PositionComponent}, and {@link DrawComponent}
+ * will have a progress bar rendered above them, showing their current health points relative to the
+ * maximum health.
+ *
+ * <p>Health bars are automatically created when entities are added to the system and removed when
+ * entities are removed. The bars are updated each frame to reflect the current health of the
+ * entity.
  */
 public final class HealthBarSystem extends System {
 
-  // well percentage =)
-  private static final float MIN = 0;
-  private static final float MAX = 1;
-  // bar percentage precision
-  private static final float STEP_SIZE = 0.01f;
   private static final Logger LOGGER = Logger.getLogger(HealthBarSystem.class.getSimpleName());
-  // how long the change to the health bar should take in seconds
-  private static final float HEALTH_BAR_UPDATE_DURATION = 0.1f;
-  // the height of the health bar which can´t be smaller than the nineslicedrawable
-  private static final int HEALTH_BAR_HEIGHT = 10;
-  // the width of the health bar which can´t be smaller than the nineslicedrawable
-  private static final int HEALTH_BAR_WIDTH = 50;
 
-  /** Mapping from actual entity and health bar of this entity. */
-  private final Map<Integer, ProgressBar> healthBarMapping = new HashMap<>();
+  /** Vertical offset of the health bar above the entity. */
+  private static final float VERTICAL_OFFSET = 0f;
 
-  /** Create a new HealthBarSystem. */
+  /** Mapping from entity IDs to their corresponding health bars. */
+  private final Map<Integer, ProgressBar> barMapping = new HashMap<>();
+
+  /**
+   * Creates a new {@code HealthBarSystem}.
+   *
+   * <p>Registers listeners for entity addition and removal. When an entity with the required
+   * components is added, a health bar is created and attached. When the entity is removed, the
+   * corresponding health bar is removed.
+   */
   public HealthBarSystem() {
     super(DrawComponent.class, HealthComponent.class, PositionComponent.class);
+
     this.onEntityAdd =
-        (x) -> {
-          LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem got send a new Entity");
-          ProgressBar newHealthBar =
-              createNewHealthBar(x.fetch(PositionComponent.class).orElseThrow());
-          LOGGER.log(CustomLogLevel.TRACE, "created a new health bar");
-          Entity e = new Entity("HealthBar_" + x);
-          LOGGER.log(CustomLogLevel.TRACE, "created a new Entity for the health bar");
-          Container<ProgressBar> group = new Container<>(newHealthBar);
-          // disabling layout enforcing from parent
-          group.setLayoutEnabled(false);
-          e.add(new UIComponent(group, false, false));
-          Game.add(e);
-          LOGGER.log(CustomLogLevel.TRACE, "created a new UIComponent for the health bar");
-          healthBarMapping.put(x.id(), newHealthBar);
-          LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem added to temporary mapping");
+        entity -> {
+          LOGGER.fine("Adding health bar for entity " + entity.id());
+          AttributeBarUtil.addBarToEntity(
+              entity,
+              e ->
+                  new AttributeBarUtil.AttributeProvider() {
+                    final HealthComponent hc = e.fetch(HealthComponent.class).orElseThrow();
+
+                    @Override
+                    public float current() {
+                      return hc.currentHealthpoints();
+                    }
+
+                    @Override
+                    public float max() {
+                      return hc.maximalHealthpoints();
+                    }
+                  },
+              barMapping,
+              "healthbar",
+              VERTICAL_OFFSET);
         };
-    LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem onEntityAdd was changed");
-    this.onEntityRemove = (x) -> healthBarMapping.remove(x.id()).remove();
-    LOGGER.log(CustomLogLevel.TRACE, "HealthBarSystem onEntityRemove was changed");
+
+    this.onEntityRemove =
+        entity -> {
+          ProgressBar bar = barMapping.remove(entity.id());
+          if (bar != null) bar.remove();
+        };
+
     LOGGER.info("HealthBarSystem created");
   }
 
+  /**
+   * Updates all health bars for the entities managed by this system.
+   *
+   * <p>Each entity's {@link HealthComponent} is queried for current and maximum health points, and
+   * the corresponding progress bar is updated accordingly.
+   */
   @Override
   public void execute() {
-    filteredEntityStream(DrawComponent.class, HealthComponent.class, PositionComponent.class)
-        .map(this::buildDataObject)
-        .forEach(this::update);
+    filteredEntityStream()
+        .forEach(
+            entity ->
+                AttributeBarUtil.updateBar(
+                    entity,
+                    e ->
+                        new AttributeBarUtil.AttributeProvider() {
+                          final HealthComponent hc = e.fetch(HealthComponent.class).orElseThrow();
+
+                          @Override
+                          public float current() {
+                            return hc.currentHealthpoints();
+                          }
+
+                          @Override
+                          public float max() {
+                            return hc.maximalHealthpoints();
+                          }
+                        },
+                    barMapping,
+                    VERTICAL_OFFSET));
   }
-
-  private void update(final EnemyData ed) {
-    // set visible only if entity lost health and if entity is visible
-    ed.pb.setVisible(
-        ed.dc.isVisible() && ed.hc.currentHealthpoints() != ed.hc.maximalHealthpoints());
-    updatePosition(ed.pb, ed.pc);
-
-    // set value to health percent
-    ed.pb.setValue((float) ed.hc.currentHealthpoints() / ed.hc.maximalHealthpoints());
-  }
-
-  private EnemyData buildDataObject(final Entity entity) {
-    return new EnemyData(
-        entity.fetch(DrawComponent.class).orElseThrow(),
-        entity.fetch(HealthComponent.class).orElseThrow(),
-        entity.fetch(PositionComponent.class).orElseThrow(),
-        healthBarMapping.get(entity.id()));
-  }
-
-  private ProgressBar createNewHealthBar(PositionComponent pc) {
-    ProgressBar progressBar =
-        new ProgressBar(MIN, MAX, STEP_SIZE, false, defaultSkin(), "healthbar");
-    progressBar.setAnimateDuration(HEALTH_BAR_UPDATE_DURATION);
-    progressBar.setSize(HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT);
-    progressBar.setVisible(true);
-    updatePosition(progressBar, pc);
-    return progressBar;
-  }
-
-  /**
-   * Moves the Progressbar to follow the Entity.
-   *
-   * @param pb WTF? .
-   * @param pc WTF? .
-   */
-  private void updatePosition(ProgressBar pb, PositionComponent pc) {
-    Point position = pc.position();
-    Vector3 conveered = new Vector3(position.x(), position.y(), 0);
-    // map Entity coordinates to window coordinates
-    Vector3 screenPosition = CameraSystem.camera().project(conveered);
-    // get the stage of the Game
-    Stage stage = Game.stage().orElseThrow(() -> new RuntimeException("No Stage available"));
-    // remap window coordinates against stage coordinates
-    screenPosition.x = screenPosition.x / stage.getViewport().getScreenWidth() * stage.getWidth();
-    screenPosition.y = screenPosition.y / stage.getViewport().getScreenHeight() * stage.getHeight();
-    pb.setPosition(screenPosition.x, screenPosition.y);
-  }
-
-  private record EnemyData(
-      DrawComponent dc, HealthComponent hc, PositionComponent pc, ProgressBar pb) {}
 }

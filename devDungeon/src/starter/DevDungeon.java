@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Music;
 import contrib.components.InventoryComponent;
+import contrib.components.SkillComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.entities.MiscFactory;
@@ -15,15 +16,13 @@ import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.BurningFireballSkill;
 import core.Entity;
 import core.Game;
 import core.System;
-import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
-import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
-import entities.BurningFireballSkill;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemResourceMushroomRed;
@@ -38,6 +37,7 @@ public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
+  private static final int START_LEVEL = ENABLE_CHEATS ? 0 : 5;
 
   /**
    * Main method to start the game.
@@ -80,15 +80,9 @@ public class DevDungeon {
               Tuple.of("illusionRiddle", IllusionRiddleLevel.class),
               Tuple.of("bridgeGuard", BridgeGuardRiddleLevel.class),
               Tuple.of("finalBoss", BossLevel.class));
-          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
-
           createSystems();
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
-
-          HeroFactory.setHeroSkillCallback(
-              new BurningFireballSkill(
-                  SkillTools::cursorPositionAsPoint)); // Override default skill
           try {
             createHero();
           } catch (IOException e) {
@@ -99,13 +93,19 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DungeonLoader.loadLevel(1); // First Level
           } else {
-            DungeonLoader.loadLevel(0); // Tutorial
+            DungeonLoader.loadLevel(START_LEVEL); // Tutorial
           }
         });
   }
 
   private static void createHero() throws IOException {
     Entity hero = HeroFactory.newHero();
+    hero.fetch(SkillComponent.class)
+        .ifPresent(
+            sc -> {
+              sc.removeAll();
+              sc.addSkill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint));
+            });
     Game.add(hero);
   }
 
@@ -175,14 +175,20 @@ public class DevDungeon {
                   .orElseThrow()
                   .add(new ItemPotionHealth(HealthPotionType.GREATER));
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
+              BurningFireballSkill burningFireballSkill =
+                  (BurningFireballSkill)
+                      (Game.hero()
+                          .orElseThrow()
+                          .fetch(SkillComponent.class)
+                          .orElseThrow()
+                          .getSkill(BurningFireballSkill.class)
+                          .orElseThrow());
+
               if (BurningFireballSkill.DAMAGE_AMOUNT == 2) {
-                BurningFireballSkill.DAMAGE_AMOUNT = 6;
+                burningFireballSkill.damageAmount(6);
               } else {
-                BurningFireballSkill.DAMAGE_AMOUNT = 2;
+                burningFireballSkill.damageAmount(2);
               }
-              HeroFactory.setHeroSkillCallback(
-                  new BurningFireballSkill(
-                      SkillTools::cursorPositionAsPoint)); // Update the current hero skill
               DialogUtils.showTextPopup(
                   "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
                   "Cheat: Fireball Damage");
@@ -197,7 +203,15 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Debugger.TELEPORT_TO_CURSOR();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
-              BurningFireballSkill.UNLOCKED = !BurningFireballSkill.UNLOCKED;
+              BurningFireballSkill burningFireballSkill =
+                  (BurningFireballSkill)
+                      (Game.hero()
+                          .orElseThrow()
+                          .fetch(SkillComponent.class)
+                          .orElseThrow()
+                          .getSkill(BurningFireballSkill.class)
+                          .orElseThrow());
+              burningFireballSkill.toggleLock();
             }
           }
         });

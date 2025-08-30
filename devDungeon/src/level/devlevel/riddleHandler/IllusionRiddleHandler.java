@@ -1,9 +1,11 @@
 package level.devlevel.riddleHandler;
 
-import contrib.entities.HeroFactory;
+import contrib.components.SkillComponent;
 import contrib.hud.DialogUtils;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.BurningFireballSkill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -13,7 +15,6 @@ import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import entities.BurningFireballSkill;
 import java.util.List;
 
 /**
@@ -97,10 +98,22 @@ public class IllusionRiddleHandler {
             + "You now can see and attack further than before.",
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;
-    BurningFireballSkill.PROJECTILE_RANGE += 1f;
-    HeroFactory.setHeroSkillCallback(
-        new BurningFireballSkill(
-            SkillTools::cursorPositionAsPoint)); // Update the current hero skill
+    BurningFireballSkill burningFireballSkill =
+        (BurningFireballSkill)
+            (Game.hero()
+                .orElseThrow()
+                .fetch(SkillComponent.class)
+                .orElseThrow()
+                .getSkill(BurningFireballSkill.class)
+                .orElseThrow());
+    burningFireballSkill.range(burningFireballSkill.range() + 1f);
+    Game.hero()
+        .flatMap(hero -> hero.fetch(SkillComponent.class))
+        .ifPresent(
+            sc -> {
+              sc.removeSkill(FireballSkill.class);
+              sc.addSkill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint));
+            });
     this.rewardGiven = true;
     level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }
