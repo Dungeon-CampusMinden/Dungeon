@@ -46,6 +46,8 @@ public abstract class ProjectileSkill extends Skill {
   /** A no-op entity consumer. */
   public static final Consumer<Entity> NOOP_CONSUMER = entity -> {};
 
+  protected boolean ignoreOtherProjectiles = true;
+
   protected IPath texture;
   protected Supplier<Point> start;
   protected Supplier<Point> end;

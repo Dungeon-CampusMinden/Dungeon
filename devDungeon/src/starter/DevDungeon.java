@@ -37,6 +37,7 @@ public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
+  private static final int START_LEVEL = ENABLE_CHEATS ? 0 : 5;
 
   /**
    * Main method to start the game.
@@ -92,7 +93,7 @@ public class DevDungeon {
           if (SKIP_TUTORIAL) {
             DungeonLoader.loadLevel(1); // First Level
           } else {
-            DungeonLoader.loadLevel(0); // Tutorial
+            DungeonLoader.loadLevel(START_LEVEL); // Tutorial
           }
         });
   }

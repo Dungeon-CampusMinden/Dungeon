@@ -7,7 +7,6 @@ import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
-import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Tuple;
@@ -22,26 +21,6 @@ import java.util.function.Supplier;
  */
 public class DoubleFireballSkill extends DamageProjectileSkill {
 
-  /*
-    return new Skill(
-        (skillUser) -> {
-          Point heroPos = EntityUtils.getHeroPosition();
-          if (heroPos == null) {
-            return;
-          }
-          Point bossPos =
-              skillUser
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                  .position();
-          launchFireBall(bossPos, heroPos, bossPos, skillUser);
-
-        },
-        coolDown);
-  }
-    */
-
   /** Name of the Skill. */
   public static final String SKILL_NAME = "Double Fireball";
 
@@ -50,11 +29,7 @@ public class DoubleFireballSkill extends DamageProjectileSkill {
   private static final float SPEED = 4.5f;
   private static final int DAMAGE = 2;
   private static final float RANGE = 25f;
-  private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
-  private static final long COOLDOWN = 500;
-  private static final boolean IS_PIRCING = false;
-  public static final int DELAY_BETWEEN_FIREBALLS = Game.frameRate();
+  private static final int DELAY_BETWEEN_FIREBALLS = 50;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
@@ -99,17 +74,18 @@ public class DoubleFireballSkill extends DamageProjectileSkill {
   }
 
   /**
-   * An enchantment version of a normal attack. Shoots two fireballs at the hero. One directly at
-   * the hero and one is trying to predict the hero's movement.
+   * An enchantment version of a normal attack. Shoots two fireballs at the target. One directly at
+   * the target and one is trying to predict the targets movement.
    *
    * @param cooldown The cool down of the skill.
+   * @param endPosition Supplier to get the position of the target.
    */
-  public DoubleFireballSkill(long cooldown, Supplier<Point> target) {
+  public DoubleFireballSkill(long cooldown, Supplier<Point> endPosition) {
     this(
         SKILL_NAME,
         cooldown,
         TEXTURE,
-        target,
+        endPosition,
         SPEED,
         RANGE,
         false,
