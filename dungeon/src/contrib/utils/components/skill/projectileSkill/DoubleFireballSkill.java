@@ -1,7 +1,14 @@
 package contrib.utils.components.skill.projectileSkill;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.MathUtils;
+import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -29,22 +36,25 @@ public class DoubleFireballSkill extends DamageProjectileSkill {
                       () -> MissingComponentException.build(skillUser, PositionComponent.class))
                   .position();
           launchFireBall(bossPos, heroPos, bossPos, skillUser);
-          EventScheduler.scheduleAction(
-              () -> {
-                Point heroPos2 = EntityUtils.getHeroPosition();
-                if (heroPos2 == null) {
-                  return;
-                }
-                Vector2 heroDirection = heroPos.vectorTo(heroPos2).normalize();
-                heroDirection = heroDirection.scale((float) (bossPos.distance(heroPos)) * 2);
-                Point predictedHeroPos = heroPos2.translate(heroDirection);
-                launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
-              },
-              50L);
+
         },
         coolDown);
   }
     */
+
+  /** Name of the Skill. */
+  public static final String SKILL_NAME = "Double Fireball";
+
+  private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
+  private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
+  private static final float SPEED = 4.5f;
+  private static final int DAMAGE = 2;
+  private static final float RANGE = 25f;
+  private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
+  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
+  private static final long COOLDOWN = 500;
+  private static final boolean IS_PIRCING = false;
+  public static final int DELAY_BETWEEN_FIREBALLS = Game.frameRate();
 
   /**
    * Create a new {@link DamageProjectileSkill}.
@@ -94,22 +104,64 @@ public class DoubleFireballSkill extends DamageProjectileSkill {
    *
    * @param cooldown The cool down of the skill.
    */
-  public DoubleFireballSkill(long cooldown) {
+  public DoubleFireballSkill(long cooldown, Supplier<Point> target) {
     this(
-        "",
-        0,
-        new SimpleIPath(""),
-        new Supplier<Point>() {
-          @Override
-          public Point get() {
-            return new Point(0, 0);
-          }
-        },
-        0,
-        0,
+        SKILL_NAME,
+        cooldown,
+        TEXTURE,
+        target,
+        SPEED,
+        RANGE,
         false,
-        0,
+        DAMAGE,
         DamageType.FIRE,
-        Vector2.ZERO);
+        DEFAULT_HITBOX_SIZE);
+  }
+
+  @Override
+  protected void executeSkill(Entity caster) {
+    Point targetPosition = end.get();
+    superExceute(caster);
+    EventScheduler.scheduleAction(
+        () -> {
+          Point casterPosition = caster.fetch(PositionComponent.class).get().position();
+          Point newTargetPosition = end.get();
+          Vector2 targetDirection = targetPosition.vectorTo(newTargetPosition).normalize();
+          targetDirection =
+              targetDirection.scale((float) (casterPosition.distance(targetPosition)) * 2);
+          Point predictedTargetPostion = newTargetPosition.translate(targetDirection);
+          Supplier<Point> oldEnd = end;
+          end = () -> predictedTargetPostion;
+          superExceute(caster);
+          end = oldEnd;
+        },
+        DELAY_BETWEEN_FIREBALLS);
+  }
+
+  private void superExceute(Entity caster) {
+    super.executeSkill(caster);
+  }
+
+  /**
+   * Called when the fireball projectile spawns in the game world.
+   *
+   * <p>Plays a fireball sound effect with a random pitch for variation.
+   *
+   * @param caster The entity casting the fireball.
+   * @param projectile The projectile entity spawned.
+   */
+  @Override
+  protected void onSpawn(Entity caster, Entity projectile) {
+    Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
+
+    // Generate a random pitch between minPitch and maxPitch
+    float minPitch = 2f;
+    float maxPitch = 3f;
+    float randomPitch = MathUtils.random(minPitch, maxPitch);
+
+    // Play the sound with adjusted pitch and low volume
+    long soundId = soundEffect.play();
+    soundEffect.setPitch(soundId, randomPitch);
+    soundEffect.setVolume(soundId, 0.05f);
   }
 }
