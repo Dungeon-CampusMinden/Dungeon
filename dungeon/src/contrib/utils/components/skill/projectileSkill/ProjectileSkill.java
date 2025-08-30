@@ -41,6 +41,8 @@ public abstract class ProjectileSkill extends Skill {
 
   protected boolean ignoreOtherProjectiles = true;
 
+  protected boolean ignoreOtherProjectiles = true;
+
   protected IPath texture;
   protected float speed;
   protected float range;
