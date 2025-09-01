@@ -175,4 +175,31 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   public void damageType(DamageType damageType) {
     this.damageType = damageType;
   }
+
+  /**
+   * Increase the amount of damage of this skill.
+   *
+   * @param amount amount to add on top of the current damage amount.
+   */
+  public void increaseDamage(int amount) {
+    this.damageAmount += amount;
+  }
+
+  /**
+   * Increase the speed of this skill.
+   *
+   * @param amount amount to add on top of the current speed.
+   */
+  public void increaseSpeed(float amount) {
+    this.speed += speed;
+  }
+
+  /**
+   * Increase the range of this skill.
+   *
+   * @param amount amount to add on top of the current range.
+   */
+  public void increaseRange(float amount) {
+    this.range += range;
+  }
 }

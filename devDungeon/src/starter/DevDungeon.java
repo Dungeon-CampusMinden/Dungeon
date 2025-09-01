@@ -37,7 +37,7 @@ public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
-  private static final int START_LEVEL = ENABLE_CHEATS ? 0 : 5;
+  private static final int START_LEVEL = ENABLE_CHEATS ? 5 : 0;
 
   /**
    * Main method to start the game.

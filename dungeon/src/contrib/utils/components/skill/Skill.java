@@ -185,7 +185,7 @@ public abstract class Skill {
    *
    * <p>This effectively resets the cooldown.
    */
-  public void lastUsedToNow() {
+  public void setLastUsedToNow() {
     this.lastUsed = Instant.now();
     activateCoolDown();
   }

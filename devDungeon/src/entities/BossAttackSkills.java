@@ -7,12 +7,10 @@ import contrib.utils.components.skill.projectileSkill.*;
 import contrib.utils.components.skill.selfSkill.FireShockWaveSkill;
 import core.Entity;
 import core.level.elements.ILevel;
-import core.level.utils.Coordinate;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import java.util.Random;
 import java.util.function.Supplier;
-import level.utils.LevelUtils;
 
 /**
  * A utility class for building different boss attack skills. The boss will use different attacks
@@ -22,16 +20,13 @@ import level.utils.LevelUtils;
  */
 public class BossAttackSkills {
 
-  private static final Supplier<Point> HERO_POSITION = () -> EntityUtils.getHeroPosition();
+  private static final Supplier<Point> HERO_POSITION = EntityUtils::getHeroPosition;
 
   /** Damage for the fireball skill that the boss uses. (default: 2) */
   private static final int FIREBALL_DAMAGE = 2;
 
   /** Speed for the fireball skill that the boss uses. (default: 4.50f) */
   private static final float FIREBALL_SPEED = 4.50f;
-
-  /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
-  private static final float FIREBALL_MAX_RANGE = 25f;
 
   /**
    * A skill that does nothing.
@@ -59,7 +54,6 @@ public class BossAttackSkills {
    *
    * @param radius The radius of the shock wave.
    * @return The skill that starts the shock wave.
-   * @see LevelUtils#explosionAt(Coordinate, int, long, java.util.function.Consumer) explosionAt
    */
   public static Skill fireShockWave(int radius) {
     return new FireShockWaveSkill(radius);
@@ -83,7 +77,7 @@ public class BossAttackSkills {
    */
   public static Skill fireCone(
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
-    return new FireConeSkill(degree, delayMillis, fireballSpeed, fireballDamage);
+    return new FireConeSkill(HERO_POSITION, degree, delayMillis, fireballSpeed, fireballDamage);
   }
 
   /**
@@ -184,7 +178,6 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill normalAttack(int coolDown) {
-    return new FireShockWaveSkill(20);
-    // return new DoubleFireballSkill(coolDown, HERO_POSITION);
+    return new DoubleFireballSkill(coolDown, HERO_POSITION);
   }
 }
