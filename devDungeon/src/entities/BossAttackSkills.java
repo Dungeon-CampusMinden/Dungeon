@@ -4,6 +4,7 @@ import contrib.components.HealthComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.*;
+import contrib.utils.components.skill.selfSkill.FireShockWaveSkill;
 import core.Entity;
 import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
@@ -22,9 +23,6 @@ import level.utils.LevelUtils;
 public class BossAttackSkills {
 
   private static final Supplier<Point> HERO_POSITION = () -> EntityUtils.getHeroPosition();
-
-  /** Damage for the fire shock wave skill that the boss uses. (default: 1) */
-  private static final int FIRE_SHOCKWAVE_DAMAGE = 1;
 
   /** Damage for the fireball skill that the boss uses. (default: 2) */
   private static final int FIREBALL_DAMAGE = 2;
@@ -186,6 +184,7 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill normalAttack(int coolDown) {
-    return new DoubleFireballSkill(coolDown, HERO_POSITION);
+    return new FireShockWaveSkill(20);
+    // return new DoubleFireballSkill(coolDown, HERO_POSITION);
   }
 }
