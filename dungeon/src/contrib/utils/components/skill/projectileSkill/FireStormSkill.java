@@ -26,7 +26,6 @@ public class FireStormSkill extends DamageProjectileSkill {
   private static final int DAMAGE = 2;
   private static final float RANGE = 25f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final long COOLDOWN = 500;
   private static final boolean IS_PIRCING = false;
 
@@ -107,7 +106,7 @@ public class FireStormSkill extends DamageProjectileSkill {
         RANGE,
         IS_PIRCING,
         DAMAGE,
-        DamageType.FIRE,
+        DAMAGE_TYPE,
         DEFAULT_HITBOX_SIZE,
         totalFireBalls,
         delayBetweenFireballs);
