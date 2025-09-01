@@ -1,7 +1,6 @@
 import * as Blockly from "blockly";
 import {javaGenerator} from "../generators/java.ts";
 import {sleep} from "./utils.ts";
-import * as VariableListUtils from "./variableList.ts";
 import {
   call_clear_route, call_level_route,
   call_reset_route,
@@ -281,7 +280,6 @@ const setupResetButton = (buttons: Buttons, workspace: Blockly.WorkspaceSvg) => 
     workspace.highlightBlock(null);
     // Reset currentBlock for step button
     currentBlock = getStartBlock(workspace);
-    VariableListUtils.resetVariables();
     await call_reset_route();
   });
 }
