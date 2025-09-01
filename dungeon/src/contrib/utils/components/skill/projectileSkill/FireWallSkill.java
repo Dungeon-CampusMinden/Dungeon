@@ -95,32 +95,6 @@ public class FireWallSkill extends DamageProjectileSkill {
         wallWidth);
   }
 
-  @Override
-  protected void executeSkill(Entity caster) {
-    super.shootProjectile(caster, start(caster), end((caster)));
-    Point targetPoint = end(caster);
-    Point startPoint = start(caster);
-    Vector2 direction = targetPoint.vectorTo(startPoint).normalize();
-    // Main shoot is directly at the target
-    // every other fireball is offset left and right of the main shoot
-    Vector2 right = direction.rotateDeg(90);
-    Vector2 left = direction.rotateDeg(-90);
-    for (int i = -wallWidth / 2; i < wallWidth / 2; i++) {
-      if (i == 0) {
-        super.shootProjectile(caster, startPoint, targetPoint);
-      } else {
-        super.shootProjectile(
-            caster,
-            startPoint.translate(right.scale(i)),
-            targetPoint.translate(right.scale(i * GAP_SIZE)));
-        super.shootProjectile(
-            caster,
-            startPoint.translate(left.scale(i)),
-            targetPoint.translate(left.scale(i * GAP_SIZE)));
-      }
-    }
-  }
-
   /**
    * Called when the fireball projectile spawns in the game world.
    *
