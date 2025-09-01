@@ -7,12 +7,10 @@ import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
-import core.components.PositionComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -81,12 +79,7 @@ public class FireStormSkill extends DamageProjectileSkill {
 
   @Override
   protected void executeSkill(Entity caster) {
-    // Fire Storm
-    Point casterPosition =
-        caster
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class))
-            .position();
+    Point casterPosition = start(caster);
 
     for (int i = 0; i < totalFireballs; i++) {
       final int degree = i * 360 / totalFireballs;
