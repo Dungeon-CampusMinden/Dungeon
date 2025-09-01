@@ -13,7 +13,6 @@ import {
   placeDefaultStartBlock,
   setupButtons
 } from "./utils/workspace.ts";
-import * as VariableListUtils from "./utils/variableList.ts";
 import {getCurrentLevel, LevelChangedEvent, setupLevelSelector, updateLevelList} from "./utils/level.ts";
 
 Blockly.setLocale(De as any); // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -81,20 +80,6 @@ levelSelector.addEventListener("levelChanged", (event) => {
   workspace.getToolbox()?.refreshSelection();
 });
 
-// Variable List
-const addVarCallback = () => {
-  Blockly.Variables.createVariableButtonHandler(workspace);
-}
-const removeVarCallback = (varName: string) => {
-  const variable = Blockly.Variables.getVariable(workspace, null, varName, '');
-  if (variable === null) return;
-  if (window.confirm(`Soll die Variable "${varName}" wirklich gelöscht werden?`)) {
-    workspace.deleteVariableById(variable.getId())
-  }
-}
-VariableListUtils.setupVariableDisplay(addVarCallback);
-workspace.registerButtonCallback("createVariable", addVarCallback);
-
 // This function resets the code and output divs, shows the
 // generated code from the workspace, and evals the code.
 // In a real application, you probably shouldn't use `eval`.
@@ -150,24 +135,6 @@ workspace.addChangeListener((e: Blockly.Events.Abstract) => {
   if (update) {
     LimitUtils.refreshToolbox(workspace);
     workspace.getToolbox()?.refreshSelection();
-  }
-});
-
-// Link Variable List to the workspace
-workspace.addChangeListener((e: Blockly.Events.Abstract) => {
-  if (e.type == Blockly.Events.VAR_CREATE) {
-    const newVariableName = (e as Blockly.Events.VarCreate).varName;
-    if (newVariableName === undefined) return;
-    VariableListUtils.addVariable(newVariableName, removeVarCallback);
-  } else if (e.type == Blockly.Events.VAR_DELETE) {
-    const oldVariableName = (e as Blockly.Events.VarDelete).varName;
-    if (oldVariableName === undefined) return;
-    VariableListUtils.removeVariable(oldVariableName);
-  } else if (e.type == Blockly.Events.VAR_RENAME) {
-    const oldVariableName = (e as Blockly.Events.VarRename).oldName;
-    const newVariableName = (e as Blockly.Events.VarRename).newName;
-    if (oldVariableName === undefined || newVariableName === undefined) return;
-    VariableListUtils.renameVariable(oldVariableName, newVariableName);
   }
 });
 
