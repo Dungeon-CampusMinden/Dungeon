@@ -585,16 +585,28 @@ public final class DrawComponent implements Component {
   /**
    * Returns the tint color of the DrawComponent.
    *
-   * @return The tint color of the DrawComponent. If the tint color is -1, no tint is applied.
+   * @return The tint color in RGBA of the DrawComponent. If the tint color is -1, no tint is
+   *     applied.
    */
   public int tintColor() {
     return this.tintColor;
   }
 
   /**
-   * Sets the tint color of the DrawComponent. Set it to -1 to remove the tint.
+   * Sets the tint color of the DrawComponent.
    *
-   * @param tintColor The new tint color to set.
+   * <p>The color must be specified as a 32-bit RGBA integer in the form {@code 0xRRGGBBAA}:
+   *
+   * <ul>
+   *   <li>{@code RR} = Red component (0x00–0xFF)
+   *   <li>{@code GG} = Green component (0x00–0xFF)
+   *   <li>{@code BB} = Blue component (0x00–0xFF)
+   *   <li>{@code AA} = Alpha (transparency), 0x00 is fully transparent, 0xFF is fully opaque
+   * </ul>
+   *
+   * <p>Passing {@code -1} will remove the tint.
+   *
+   * @param tintColor The new tint color to set, in RGBA format ({@code 0xRRGGBBAA}).
    */
   public void tintColor(int tintColor) {
     this.tintColor = tintColor;
