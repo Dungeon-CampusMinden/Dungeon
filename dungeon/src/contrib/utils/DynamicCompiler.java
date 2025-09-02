@@ -57,10 +57,10 @@ import javax.tools.*;
  * class MyClass implements Wuppie {}
  *
  * // with type inference
- * Wuppie x = DynamicCompiler.loadUserInstance2(MyClass.class);
+ * Wuppie x = DynamicCompiler.loadUserInstance(MyClass.class);
  *
  * // with explicit type parameter
- * Wuppie x = DynamicCompiler.<Wuppie>loadUserInstance2(MyClass.class);
+ * Wuppie x = DynamicCompiler.<Wuppie>loadUserInstance(MyClass.class);
  * }</pre>
  */
 public class DynamicCompiler {
