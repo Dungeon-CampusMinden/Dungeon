@@ -31,3 +31,16 @@ tasks.register('runPathFindingComparison', JavaExec) {
     mainClass = 'aiAdvanced.starter.ComparePathfindingStarter'
     classpath = sourceSets.main.runtimeClasspath
 }
+
+
+tasks.register('demo1', JavaExec) {
+    group 'starter'
+    mainClass = 'chamberofnosecrets.MyMain'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('demo2', JavaExec) {
+    group 'starter'
+    mainClass = 'chamberofsecrets.MyMain'
+    classpath = sourceSets.main.runtimeClasspath
+}
