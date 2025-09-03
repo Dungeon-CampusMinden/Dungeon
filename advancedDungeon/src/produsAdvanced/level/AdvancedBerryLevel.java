@@ -40,7 +40,8 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   private static String msg =
       "Der Ork dort sieht verzweifelt aus. Mal schauen, ob ich ihm helfen kann.";
 
-  private static String task = "Finde einen Weg die giftigen Beeren zu erkennen.";
+  private static String task =
+      "Finde einen Weg die giftigen Beeren durch deinen Code zu erkennen. Vielleicht steht ja etwas Hilfreiches auf dem Schild?";
   private static String titel = "Level 5";
   private static final int BERRY_GOAL = 5;
   private static final String NPC_TEXTURE_PATH = "character/monster/orc_shaman";
@@ -62,23 +63,52 @@ public class AdvancedBerryLevel extends AdvancedLevel {
 
   private static final List<String> messages =
       Arrays.asList(
-          "Sprich mit dem NPC.",
-          "Schau dir die Datei Berry an.",
-          "Mit 'hero.getBerryAt()' kannst du dir eine Beere an einer bestimmten Position in den Code holen",
-          "Mit '.toxic()' kannst du prüfen ob eine Beere giftig ist.",
-          "Vielleicht kannst du deinen Feuerball verbessern, damit er gifitige Beeren erkennt.",
-          "Du könntest giftige Beeren auch einfärben.");
+          "Sprich mit dem Ork.",
+          "Schau dir zuerst die Klasse 'Berry' an, bevor Code schreibst! Wie kann man mit einer Beere interagieren, um zu erkennen, ob sie giftig ist?",
+          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an. Habe keine Angst auch eigene Methoden zu schreiben.",
+          "Kleiner Tipp: Wenn du noch keine Beere im Code hast, kannst du dir mit 'hero.getBerryAt()' eine Beere an einer bestimmten Position in den Code holen.",
+          "Mit '.toxic()' kannst du prüfen, ob eine Beere giftig ist.",
+          "Vielleicht kannst du deinen Feuerball verbessern, damit er giftige Beeren erkennt.",
+          "Um Code zu schreiben, schaust du dir am besten die Klassen 'MyPlayerController' oder 'MyFireball' an.");
 
-  // todo build dynamically
-  private static final List<String> titles =
-      Arrays.asList(
-          "noch fünf Hinweise",
-          "noch vier Hinweise",
-          "noch drei Hinweise",
-          "noch zwei Hinweise",
-          "noch ein Hinweis",
-          "letzter Hinweis");
+  // Dynamische Titelgenerierung statt statischer Liste
+  private String titleFor(int idx) {
+    int lastIndex = messages.size() - 1; // letzter Index der Hinweise
+    int remaining = lastIndex - idx; // verbleibende Hinweise nach dem aktuellen
+    if (remaining <= 0) return "letzter Hinweis";
+    if (remaining == 1) return "noch ein Hinweis";
+    return "noch " + numberToGerman(remaining) + " Hinweise";
+  }
+
+  private String numberToGerman(int n) {
+    switch (n) {
+      case 2:
+        return "zwei";
+      case 3:
+        return "drei";
+      case 4:
+        return "vier";
+      case 5:
+        return "fünf";
+      case 6:
+        return "sechs";
+      case 7:
+        return "sieben";
+      case 8:
+        return "acht";
+      case 9:
+        return "neun";
+      case 10:
+        return "zehn";
+      default:
+        return String.valueOf(n);
+    }
+  }
+
   AtomicInteger currentIndex = new AtomicInteger(-1);
+
+  // Status, ob bereits mit dem Ork gesprochen wurde
+  private boolean hasSpokenToOrc = false;
 
   private Entity chest;
   private ExitTile door;
@@ -170,50 +200,52 @@ public class AdvancedBerryLevel extends AdvancedLevel {
         new InteractionComponent(
             1,
             true,
-            (entity, hero) ->
-                DialogUtils.showTextPopup(
-                    String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
-                    DIALOG_TITLE_HUNGER,
-                    () -> {
-                      DialogUtils.showTextPopup(task, titel);
-                      entity.remove(InteractionComponent.class);
-                      entity.add(
-                          new InteractionComponent(
-                              1,
-                              true,
-                              (entity1, entity2) ->
-                                  YesNoDialog.showYesNoDialog(
-                                      DIALOG_LOGIN,
-                                      DIALOG_TITLE_HUNGER,
-                                      () -> {
-                                        int count = checkBerryCount();
-                                        if (count < BERRY_GOAL) {
-                                          DialogUtils.showTextPopup(
-                                              String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
-                                              DIALOG_TITLE_HUNGER);
-                                        } else if (checkBerries()) {
-                                          DialogUtils.showTextPopup(
-                                              DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
-                                          door.open();
-                                          npc.remove(InteractionComponent.class);
-                                          chest.remove(InteractionComponent.class);
-                                          chest.add(
-                                              new InteractionComponent(
-                                                  1,
-                                                  true,
-                                                  (e1, e2) ->
-                                                      DialogUtils.showTextPopup(
-                                                          DIALOG_MESSAGE_CHEST,
-                                                          DIALOG_TITLE_MINE)));
-                                        } else {
-                                          DialogUtils.showTextPopup(
-                                              DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
-                                        }
-                                      },
-                                      () ->
-                                          DialogUtils.showTextPopup(
-                                              DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER))));
-                    })));
+            (entity, hero) -> {
+              // Markiere, dass der Spieler mit dem Ork interagiert hat
+              hasSpokenToOrc = true;
+              DialogUtils.showTextPopup(
+                  String.format(DIALOG_MESSAGE_START, BERRY_GOAL),
+                  DIALOG_TITLE_HUNGER,
+                  () -> {
+                    DialogUtils.showTextPopup(task, titel);
+                    entity.remove(InteractionComponent.class);
+                    entity.add(
+                        new InteractionComponent(
+                            1,
+                            true,
+                            (entity1, entity2) ->
+                                YesNoDialog.showYesNoDialog(
+                                    DIALOG_LOGIN,
+                                    DIALOG_TITLE_HUNGER,
+                                    () -> {
+                                      int count = checkBerryCount();
+                                      if (count < BERRY_GOAL) {
+                                        DialogUtils.showTextPopup(
+                                            String.format(DIALOG_MESSAGE_NOT_ENOUGH, BERRY_GOAL),
+                                            DIALOG_TITLE_HUNGER);
+                                      } else if (checkBerries()) {
+                                        DialogUtils.showTextPopup(
+                                            DIALOG_MESSAGE_SUCCESS, DIALOG_TITLE_SATISFIED);
+                                        door.open();
+                                        npc.remove(InteractionComponent.class);
+                                        chest.remove(InteractionComponent.class);
+                                        chest.add(
+                                            new InteractionComponent(
+                                                1,
+                                                true,
+                                                (e1, e2) ->
+                                                    DialogUtils.showTextPopup(
+                                                        DIALOG_MESSAGE_CHEST, DIALOG_TITLE_MINE)));
+                                      } else {
+                                        DialogUtils.showTextPopup(
+                                            DIALOG_MESSAGE_TOXIC, DIALOG_TITLE_HUNGER);
+                                      }
+                                    },
+                                    () ->
+                                        DialogUtils.showTextPopup(
+                                            DIALOG_MESSAGE_LATER, DIALOG_TITLE_HUNGER))));
+                  });
+            }));
     Game.add(npc);
   }
 
@@ -242,27 +274,38 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   private void addSign() {
     Entity sign =
         SignFactory.createSign(
-            "", // Der Text, der angezeigt werden soll
-            "", // Titel
-            new Point(5f, 19f), // Position des Schildes
+            "",
+            "",
+            new Point(5f, 19f),
             (entity, hero) -> {
+              if (!hasSpokenToOrc) {
+                SignComponent sc =
+                    entity
+                        .fetch(SignComponent.class)
+                        .orElseThrow(() -> new RuntimeException("SignComponent not found"));
+                sc.text("Sprich mit dem Ork.");
+                sc.title("");
+                return;
+              }
 
-              // Falls noch weitere Nachrichten vorhanden sind, zum nächsten Text wechseln
               if (currentIndex.get() < messages.size() - 1) {
-                currentIndex.incrementAndGet();
+                int nextIndex = currentIndex.incrementAndGet();
+                if (hasSpokenToOrc && nextIndex == 0) {
+                  nextIndex = currentIndex.incrementAndGet();
+                }
+                final int idx = nextIndex;
                 Game.levelEntities(Set.of(SignComponent.class))
                     .filter(signEntity -> signEntity.equals(entity))
                     .findFirst()
                     .ifPresent(
                         signEntity -> {
-                          // Aktualisiere den Text des Schildes
                           SignComponent signComponent =
                               signEntity
                                   .fetch(SignComponent.class)
                                   .orElseThrow(
                                       () -> new RuntimeException("SignComponent not found"));
-                          signComponent.text(messages.get(currentIndex.get()));
-                          signComponent.title(titles.get(currentIndex.get()));
+                          signComponent.text(messages.get(idx));
+                          signComponent.title(titleFor(idx));
                         });
               }
             });

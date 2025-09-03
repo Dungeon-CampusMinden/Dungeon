@@ -1,5 +1,7 @@
 package starter;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
@@ -23,6 +25,8 @@ import java.util.logging.Level;
  */
 public class CoopDungeon {
   private static final boolean DEBUG_MODE = false;
+
+  private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
 
   /**
@@ -47,9 +51,9 @@ public class CoopDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          setupMusic();
           DungeonLoader.addLevel(Tuple.of("coop1", Level01.class));
           DungeonLoader.addLevel(Tuple.of("coop2", Level02.class));
-          DungeonLoader.addLevel(Tuple.of("coop3", Level03.class));
           createSystems();
           try {
             createHero();
@@ -71,7 +75,7 @@ public class CoopDungeon {
         new SimpleIPath("dungeon_config.json"),
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
-    Game.disableAudio(true);
+    Game.disableAudio(false);
     Game.frameRate(30);
   }
 
@@ -91,5 +95,13 @@ public class CoopDungeon {
     Game.add(new EventScheduler());
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
+    Game.add(new IdleSoundSystem());
+  }
+
+  private static void setupMusic() {
+    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
+    backgroundMusic.setLooping(true);
+    backgroundMusic.play();
+    backgroundMusic.setVolume(.05f);
   }
 }

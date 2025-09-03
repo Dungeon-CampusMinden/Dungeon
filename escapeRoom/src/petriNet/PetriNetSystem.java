@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class PetriNetSystem extends System {
 
-  private static Map<TransitionComponent, TransitionBinding> transitions = new HashMap<>();
+  private Map<TransitionComponent, TransitionBinding> transitions = new HashMap<>();
 
   @Override
   public void execute() {
@@ -46,7 +46,7 @@ public class PetriNetSystem extends System {
    *     zero
    * @throws IllegalArgumentException if {@code weight} is zero or less.
    */
-  public static void addInputArc(TransitionComponent transition, PlaceComponent place, int weight) {
+  public void addInputArc(TransitionComponent transition, PlaceComponent place, int weight) {
     if (weight <= 0) {
       throw new IllegalArgumentException("Arc weight must not higher than zero.");
     }
@@ -63,7 +63,7 @@ public class PetriNetSystem extends System {
    * @param transition the transition from which the place should be connected as input
    * @param place the input place to add
    */
-  public static void addInputArc(TransitionComponent transition, PlaceComponent place) {
+  public void addInputArc(TransitionComponent transition, PlaceComponent place) {
     addInputArc(transition, place, 1);
   }
 
@@ -77,8 +77,7 @@ public class PetriNetSystem extends System {
    *     zero
    * @throws IllegalArgumentException if {@code weight} is zero or less.
    */
-  public static void addOutputArc(
-      TransitionComponent transition, PlaceComponent place, int weight) {
+  public void addOutputArc(TransitionComponent transition, PlaceComponent place, int weight) {
     if (weight <= 0) {
       throw new IllegalArgumentException("Arc weight must not higher than zero.");
     }
@@ -96,7 +95,7 @@ public class PetriNetSystem extends System {
    * @param transition the transition from which the place should be connected as output
    * @param place the output place to add
    */
-  public static void addOutputArc(TransitionComponent transition, PlaceComponent place) {
+  public void addOutputArc(TransitionComponent transition, PlaceComponent place) {
     addOutputArc(transition, place, 1);
   }
 
@@ -109,7 +108,7 @@ public class PetriNetSystem extends System {
    * <p>Note: This does not remove any entities or components from the game itself; it only clears
    * the internal transition mapping within the Petri net system.
    */
-  public static void clear() {
+  public void clear() {
     transitions.clear();
   }
 

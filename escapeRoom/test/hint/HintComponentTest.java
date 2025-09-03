@@ -19,9 +19,11 @@ public class HintComponentTest {
    */
   @Test
   void testConstructorWithValidHints() {
-    HintComponent hc = new HintComponent("hint1", "hint2");
+    Hint h1 = new Hint("hint1", "hint1");
+    Hint h2 = new Hint("hint2", "hint2");
+    HintComponent hc = new HintComponent(h1, h2);
     assertNotNull(hc, "HintComponent should be created with valid hints");
-    assertEquals("hint1", hc.hint(), "Next hint should initially be the first hint");
+    assertEquals(h1, hc.hint().get(), "Next hint should initially be the first hint");
   }
 
   /** Tests that the constructor throws an IllegalArgumentException when called with no hints. */
@@ -41,10 +43,13 @@ public class HintComponentTest {
    */
   @Test
   void testHintByIndex() {
-    HintComponent hc = new HintComponent("a", "b", "c");
-    assertEquals("a", hc.hint(0));
-    assertEquals("b", hc.hint(1));
-    assertEquals("c", hc.hint(2));
+    Hint a = new Hint("a", "a");
+    Hint b = new Hint("b", "b");
+    Hint c = new Hint("c", "c");
+    HintComponent hc = new HintComponent(a, b, c);
+    assertEquals(a, hc.hint(0));
+    assertEquals(b, hc.hint(1));
+    assertEquals(c, hc.hint(2));
 
     assertThrows(IllegalArgumentException.class, () -> hc.hint(-1));
     assertThrows(IllegalArgumentException.class, () -> hc.hint(3));
@@ -57,20 +62,22 @@ public class HintComponentTest {
    */
   @Test
   void testNextHintAndIncreaseIndex() {
-    HintComponent hc = new HintComponent("first", "second");
+    Hint h1 = new Hint("hint1", "hint1");
+    Hint h2 = new Hint("hint2", "hint2");
+    HintComponent hc = new HintComponent(h1, h2);
 
     // Initially, nextHint returns first hint
-    assertEquals("first", hc.hint());
+    assertEquals(h1, hc.hint().get());
     assertFalse(hc.isLastHintShown());
 
     // Increase index and get next hint
     hc.increaseIndex();
-    assertEquals("second", hc.hint());
+    assertEquals(h2, hc.hint().get());
     assertFalse(hc.isLastHintShown());
 
     // Increase index beyond last hint
     hc.increaseIndex();
-    assertEquals("", hc.hint(), "Next hint should be empty after last hint");
+    assertTrue(hc.hint().isEmpty(), "Next hint should be empty after last hint");
     assertTrue(hc.isLastHintShown());
   }
 
@@ -81,11 +88,11 @@ public class HintComponentTest {
    */
   @Test
   void testMultipleIncreaseIndexCalls() {
-    HintComponent hc = new HintComponent("x", "y");
+    HintComponent hc = new HintComponent(new Hint("x", "x"), new Hint("y", "y"));
     hc.increaseIndex();
     hc.increaseIndex();
     hc.increaseIndex(); // should not throw
-    assertEquals("", hc.hint());
+    assertTrue(hc.hint().isEmpty());
     assertTrue(hc.isLastHintShown());
   }
 }

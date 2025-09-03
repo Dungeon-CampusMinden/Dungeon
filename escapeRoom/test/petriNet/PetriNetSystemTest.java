@@ -23,7 +23,6 @@ public class PetriNetSystemTest {
 
   @AfterEach
   void cleanup() {
-    PetriNetSystem.clear();
     Game.removeAllSystems();
     Game.removeAllEntities();
   }
@@ -44,8 +43,8 @@ public class PetriNetSystemTest {
     transition = new TransitionComponent();
 
     // Connect input and output places to the transition
-    PetriNetSystem.addInputArc(transition, inputPlace);
-    PetriNetSystem.addOutputArc(transition, outputPlace);
+    system.addInputArc(transition, inputPlace);
+    system.addOutputArc(transition, outputPlace);
 
     // Start with one token in the input place
     inputPlace.produce();
@@ -95,9 +94,9 @@ public class PetriNetSystemTest {
     TransitionComponent transition = new TransitionComponent();
 
     // Connect input and output places to the transition
-    PetriNetSystem.addInputArc(transition, inputPlace1);
-    PetriNetSystem.addInputArc(transition, inputPlace2);
-    PetriNetSystem.addOutputArc(transition, outputPlace);
+    system.addInputArc(transition, inputPlace1);
+    system.addInputArc(transition, inputPlace2);
+    system.addOutputArc(transition, outputPlace);
 
     // Case 1: Only one input has a token, transition should NOT fire
     inputPlace1.produce();
@@ -139,9 +138,9 @@ public class PetriNetSystemTest {
     TransitionComponent transition = new TransitionComponent();
 
     // Connect input and output places to the transition
-    PetriNetSystem.addInputArc(transition, inputPlace);
-    PetriNetSystem.addOutputArc(transition, outputPlace1);
-    PetriNetSystem.addOutputArc(transition, outputPlace2);
+    system.addInputArc(transition, inputPlace);
+    system.addOutputArc(transition, outputPlace1);
+    system.addOutputArc(transition, outputPlace2);
 
     // Start with one token in the input place
     inputPlace.produce();
@@ -173,10 +172,10 @@ public class PetriNetSystemTest {
     TransitionComponent transition = new TransitionComponent();
 
     // Connect input and output places to the transition
-    PetriNetSystem.addInputArc(transition, inputPlace1);
-    PetriNetSystem.addInputArc(transition, inputPlace2);
-    PetriNetSystem.addOutputArc(transition, outputPlace1);
-    PetriNetSystem.addOutputArc(transition, outputPlace2);
+    system.addInputArc(transition, inputPlace1);
+    system.addInputArc(transition, inputPlace2);
+    system.addOutputArc(transition, outputPlace1);
+    system.addOutputArc(transition, outputPlace2);
 
     // Start with only one token in inputPlace1
     inputPlace1.produce();
@@ -216,11 +215,11 @@ public class PetriNetSystemTest {
     TransitionComponent t1 = new TransitionComponent();
     TransitionComponent t2 = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t1, sharedInput);
-    PetriNetSystem.addInputArc(t2, sharedInput);
+    system.addInputArc(t1, sharedInput);
+    system.addInputArc(t2, sharedInput);
 
-    PetriNetSystem.addOutputArc(t1, output1);
-    PetriNetSystem.addOutputArc(t2, output2);
+    system.addOutputArc(t1, output1);
+    system.addOutputArc(t2, output2);
 
     // Start with 2 tokens so both transitions can fire
     sharedInput.produce();
@@ -251,11 +250,11 @@ public class PetriNetSystemTest {
     TransitionComponent t1 = new TransitionComponent();
     TransitionComponent t2 = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t1, sharedInput);
-    PetriNetSystem.addInputArc(t2, sharedInput);
+    system.addInputArc(t1, sharedInput);
+    system.addInputArc(t2, sharedInput);
 
-    PetriNetSystem.addOutputArc(t1, output1);
-    PetriNetSystem.addOutputArc(t2, output2);
+    system.addOutputArc(t1, output1);
+    system.addOutputArc(t2, output2);
 
     // Only 1 token available
     sharedInput.produce();
@@ -286,9 +285,9 @@ public class PetriNetSystemTest {
 
     TransitionComponent transition = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(transition, input);
-    PetriNetSystem.addOutputArc(transition, output1);
-    PetriNetSystem.addOutputArc(transition, output2);
+    system.addInputArc(transition, input);
+    system.addOutputArc(transition, output1);
+    system.addOutputArc(transition, output2);
 
     // Start with one token in the input place
     input.produce();
@@ -319,11 +318,11 @@ public class PetriNetSystemTest {
     TransitionComponent t1 = new TransitionComponent();
     TransitionComponent t2 = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t1, input1);
-    PetriNetSystem.addInputArc(t2, input2);
+    system.addInputArc(t1, input1);
+    system.addInputArc(t2, input2);
 
-    PetriNetSystem.addOutputArc(t1, sharedOutput);
-    PetriNetSystem.addOutputArc(t2, sharedOutput);
+    system.addOutputArc(t1, sharedOutput);
+    system.addOutputArc(t2, sharedOutput);
 
     // Give each input one token
     input1.produce();
@@ -355,11 +354,11 @@ public class PetriNetSystemTest {
     TransitionComponent t1 = new TransitionComponent();
     TransitionComponent t2 = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t1, p1);
-    PetriNetSystem.addOutputArc(t1, p2);
+    system.addInputArc(t1, p1);
+    system.addOutputArc(t1, p2);
 
-    PetriNetSystem.addInputArc(t2, p2);
-    PetriNetSystem.addOutputArc(t2, p3);
+    system.addInputArc(t2, p2);
+    system.addOutputArc(t2, p3);
 
     p1.produce();
     //// t1 should fire thant t2; execute two times because we cant make assumption about checking
@@ -380,8 +379,8 @@ public class PetriNetSystemTest {
     PlaceComponent p1 = new PlaceComponent();
     TransitionComponent t = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t, p1);
-    PetriNetSystem.addOutputArc(t, p1);
+    system.addInputArc(t, p1);
+    system.addOutputArc(t, p1);
 
     p1.produce();
     system.execute();
@@ -401,11 +400,11 @@ public class PetriNetSystemTest {
     TransitionComponent t1 = new TransitionComponent();
     TransitionComponent t2 = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t1, sharedInput);
-    PetriNetSystem.addInputArc(t2, sharedInput);
+    system.addInputArc(t1, sharedInput);
+    system.addInputArc(t2, sharedInput);
 
-    PetriNetSystem.addOutputArc(t1, out1);
-    PetriNetSystem.addOutputArc(t2, out2);
+    system.addOutputArc(t1, out1);
+    system.addOutputArc(t2, out2);
 
     sharedInput.produce(); // only 1 token
 
@@ -427,8 +426,8 @@ public class PetriNetSystemTest {
     PlaceComponent p2 = new PlaceComponent();
     TransitionComponent t = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t, p1);
-    PetriNetSystem.addOutputArc(t, p2);
+    system.addInputArc(t, p1);
+    system.addOutputArc(t, p2);
 
     // No tokens added to p1
     system.execute();
@@ -445,7 +444,7 @@ public class PetriNetSystemTest {
     PlaceComponent p1 = new PlaceComponent();
     TransitionComponent t = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t, p1);
+    system.addInputArc(t, p1);
     // No output arcs added
 
     p1.produce();
@@ -463,8 +462,8 @@ public class PetriNetSystemTest {
     PlaceComponent p2 = new PlaceComponent();
     TransitionComponent t = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(t, p1);
-    PetriNetSystem.addOutputArc(t, p2);
+    system.addInputArc(t, p1);
+    system.addOutputArc(t, p2);
 
     p1.produce(); // Only 1 token
     system.execute(); // First firing
@@ -485,10 +484,9 @@ public class PetriNetSystemTest {
 
     TransitionComponent transition = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(transition, input, 2);
-    PetriNetSystem.addOutputArc(transition, output);
+    system.addInputArc(transition, input, 2);
+    system.addOutputArc(transition, output);
 
-    PetriNetSystem system = new PetriNetSystem();
     system.execute();
 
     assertEquals(1, input.tokenCount(), "Input should have 1 token left after consuming 2");
@@ -507,8 +505,8 @@ public class PetriNetSystemTest {
 
     TransitionComponent transition = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(transition, input, 2);
-    PetriNetSystem.addOutputArc(transition, output);
+    system.addInputArc(transition, input, 2);
+    system.addOutputArc(transition, output);
 
     PetriNetSystem system = new PetriNetSystem();
     system.execute();
@@ -526,10 +524,9 @@ public class PetriNetSystemTest {
 
     TransitionComponent transition = new TransitionComponent();
 
-    PetriNetSystem.addInputArc(transition, input, 2);
-    PetriNetSystem.addOutputArc(transition, output, 3);
+    system.addInputArc(transition, input, 2);
+    system.addOutputArc(transition, output, 3);
 
-    PetriNetSystem system = new PetriNetSystem();
     system.execute();
 
     assertEquals(0, input.tokenCount(), "Input should have 0 tokens left after consuming 2");
@@ -543,7 +540,7 @@ public class PetriNetSystemTest {
     PlaceComponent place = new PlaceComponent();
     assertThrows(
         IllegalArgumentException.class,
-        () -> PetriNetSystem.addOutputArc(transition, place, 0),
+        () -> system.addOutputArc(transition, place, 0),
         "Weight 0 should not be allowed");
   }
 
@@ -554,7 +551,7 @@ public class PetriNetSystemTest {
     PlaceComponent place = new PlaceComponent();
     assertThrows(
         IllegalArgumentException.class,
-        () -> PetriNetSystem.addOutputArc(transition, place, -1),
+        () -> system.addOutputArc(transition, place, -1),
         "Negative weight should not be allowed");
   }
 }
