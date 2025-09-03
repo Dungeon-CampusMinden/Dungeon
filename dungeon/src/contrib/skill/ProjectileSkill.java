@@ -1,12 +1,8 @@
-package contrib.utils.components.skill.damageSkill.projectile;
+package contrib.skill;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
-import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
-import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -16,72 +12,62 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class DamageProjectileSkill extends DamageSkill {
+public class ProjectileSkill extends Skill {
 
-  /**
-   * The default behavior when the projectile gets spawned.
-   *
-   * <p>The default behavior is to do nothing.
-   */
-  public static final Consumer<Entity> DEFAULT_ON_SPAWN = (a) -> {};
+  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT =entity -> Game.remove(entity);
+  public static final Consumer<Entity> DEFAULT_ON_TARGET_REACHED =entity -> Game.remove(entity);
+  public static final TriConsumer<Entity, Entity, Direction> DEFAULT_ON_COLLIDE_LEAVE = (entity, entity2, direction) -> {
 
-  /**
-   * The default behavior when a wall is hit by the projectile.
-   *
-   * <p>The default behavior is to remove the projectile from the game.
-   */
-  public static final Consumer<Entity> DEFAULT_ON_WALL_HIT = Game::remove;
-
-  /**
-   * The default behavior when an entity is hit by the projectile.
-   *
-   * <p>The default behavior is to do nothing.
-   */
-  public static final BiConsumer<Entity, Entity> DEFAULT_BONUS_EFFECT = (a, b) -> {};
-
+  };
+  ;
+  private final Supplier<Point> start;
+  private final Supplier<Point> target;
   private final IPath pathToTexturesOfProjectile;
   private final float projectileSpeed;
   private final float projectileRange;
   private final Vector2 projectileHitBoxSize;
   private final Consumer<Entity> onWallHit;
   private final Consumer<Entity> onSpawn;
+  private final Consumer<Entity> onTargetReached;
+  private TriConsumer<Entity, Entity, Direction> onCollide;
+  private final TriConsumer<Entity, Entity, Direction> onCollideLeave;
+
   private final List<Entity> ignoreEntities = new ArrayList<>();
   private int tintColor = -1; // -1 means no tint
-  private Supplier<Point> targetSelector;
 
-  private BiConsumer<Entity, Entity> bonusEffect;
-
-  public DamageProjectileSkill(
+  public ProjectileSkill(
       String name,
       long cooldown,
-      Supplier<Point> targetSelector,
-      int damageAmount,
-      DamageType damageType,
+      Supplier<Point> start,
+      Supplier<Point> target,
       IPath pathToTexturesOfProjectile,
       float projectileSpeed,
       float projectileRange,
       Vector2 projectileHitBoxSize,
       Consumer<Entity> onWallHit,
       Consumer<Entity> onSpawn,
-      BiConsumer<Entity, Entity> bonusEffect) {
-    super(name, cooldown, damageAmount, damageType);
-    this.targetSelector = targetSelector;
+      Consumer<Entity> onTargetReached,
+      TriConsumer<Entity, Entity, Direction> onCollide,
+      TriConsumer<Entity, Entity, Direction> onCollideLeave) {
+    super(name, cooldown);
+    this.start = start;
+    this.target = target;
     this.pathToTexturesOfProjectile = pathToTexturesOfProjectile;
     this.projectileSpeed = projectileSpeed;
     this.projectileRange = projectileRange;
     this.projectileHitBoxSize = projectileHitBoxSize;
     this.onWallHit = onWallHit;
     this.onSpawn = onSpawn;
-    this.bonusEffect = bonusEffect;
+    this.onTargetReached = onTargetReached;
+    this.onCollide = onCollide;
+    this.onCollideLeave = onCollideLeave;
   }
 
   @Override
@@ -92,12 +78,7 @@ public class DamageProjectileSkill extends DamageSkill {
   protected Entity spawnProjectile(Entity caster) {
     Entity projectile = new Entity(this.name() + "_projectile");
     projectile.add(new FlyComponent());
-    // Get the PositionComponent of the entity
-    PositionComponent epc =
-        caster
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class));
-    projectile.add(new PositionComponent(epc.position()));
+    projectile.add(new PositionComponent(start.get()));
 
     try {
       DrawComponent dc = new DrawComponent(pathToTexturesOfProjectile);
@@ -118,7 +99,7 @@ public class DamageProjectileSkill extends DamageSkill {
 
     // Get the target point based on the selection function and projectile range.
     // Use a copy, so you do not change the actual value (for example the hero position)
-    Point aimedOn = new Point(targetSelector.get());
+    Point aimedOn = new Point(target.get());
     Point targetPoint =
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
@@ -130,30 +111,13 @@ public class DamageProjectileSkill extends DamageSkill {
     projectile.add(new VelocityComponent(projectileSpeed, onWallHit, true));
 
     // Add the ProjectileComponent with the initial and target positions to the projectile
-    projectile.add(
-        new ProjectileComponent(startPoint, targetPoint, forceToApply, p -> Game.remove(p)));
-
-    // Create a collision handler for the projectile
-    TriConsumer<Entity, Entity, Direction> collide =
-        (a, b, from) -> {
-          if (b != caster && !ignoreEntities.contains(b)) {
-            b.fetch(HealthComponent.class)
-                .ifPresent(
-                    hc -> {
-                      bonusEffect.accept(projectile, b);
-                      // Apply the projectile damage to the collided entity
-                      hc.receiveHit(calculateDamage(caster, b, from));
-
-                      // Remove the projectile entity from the game
-                      Game.remove(projectile);
-                    });
-          }
-        };
+    projectile.add(new ProjectileComponent(startPoint, targetPoint, forceToApply, onTargetReached));
 
     // Add the CollideComponent with the appropriate hit box size and collision handler to the
     // projectile
     projectile.add(
-        new CollideComponent(CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, collide, null));
+        new CollideComponent(
+            CollideComponent.DEFAULT_OFFSET, projectileHitBoxSize, onCollide, onCollideLeave));
     Game.add(projectile);
     onSpawn.accept(projectile);
     return projectile;
@@ -195,5 +159,9 @@ public class DamageProjectileSkill extends DamageSkill {
    */
   public int tintColor() {
     return tintColor;
+  }
+
+  protected void onCollide(TriConsumer<Entity, Entity, Direction> onCollide) {
+    this.onCollide = onCollide;
   }
 }

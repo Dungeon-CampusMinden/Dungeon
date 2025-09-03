@@ -1,4 +1,4 @@
-package contrib.utils.components.skill.damageSkill.projectile;
+package contrib.skill.damageSkill.projectile;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
@@ -54,8 +54,10 @@ public class TPBallSkill extends DamageProjectileSkill {
         PROJECTILE_SPEED,
         PROJECTILE_RANGE,
         HIT_BOX_SIZE,
-        DamageProjectileSkill.DEFAULT_ON_WALL_HIT,
+        DEFAULT_ON_WALL_HIT,
         ON_SPAWN_PLAY_SOUND,
+        ,
+        type,
         (projectile, entity) -> {
           // only tp hero (for now)
           if (entity.fetch(PlayerComponent.class).isEmpty()) {

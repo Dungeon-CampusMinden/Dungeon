@@ -1,4 +1,4 @@
-package contrib.utils.components.skill.damageSkill.projectile;
+package contrib.skill.damageSkill.projectile;
 
 import contrib.utils.components.health.DamageType;
 import core.utils.Point;
@@ -68,6 +68,8 @@ public class BowSkill extends DamageProjectileSkill {
         HIT_BOX_SIZE,
         DEFAULT_ON_WALL_HIT,
         DEFAULT_ON_SPAWN,
+        damageAmount1,
+        type,
         DEFAULT_BONUS_EFFECT);
   }
 }

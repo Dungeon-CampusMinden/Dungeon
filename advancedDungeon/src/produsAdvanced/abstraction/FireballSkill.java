@@ -4,9 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.components.ItemComponent;
+import contrib.skill.Skill;
+import contrib.skill.damageSkill.projectile.DamageProjectileSkill;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.damageSkill.projectile.DamageProjectileSkill;
 import core.Entity;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -93,6 +93,8 @@ public class FireballSkill extends DamageProjectileSkill {
         HIT_BOX_SIZE,
         DamageProjectileSkill.DEFAULT_ON_WALL_HIT,
         ON_SPAWN_PLAY_SOUND,
+        damageAmount1,
+        type,
         (projectile, target) -> onHit.accept(target));
     this.texture = texture;
     this.range = range;

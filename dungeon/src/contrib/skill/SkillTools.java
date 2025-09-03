@@ -1,4 +1,4 @@
-package contrib.utils.components.skill;
+package contrib.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
