@@ -4,6 +4,8 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
 import core.components.PositionComponent;
 import core.level.Tile;
@@ -24,7 +26,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
   private GraphPath<Tile> currentPath;
 
   private final float attackRange;
-  private Skill fightSkill;
+  private DamageProjectileSkill fightSkill;
   private final Direction shootDirection;
   private long lastAttackTime = 0;
 
@@ -42,13 +44,18 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
     this.pointA = pointA;
     this.pointB = pointB;
     this.attackRange = attackRange;
-    this.fightSkill = fightSkill;
     this.shootDirection = shootDirection;
+    if (fightSkill instanceof DamageProjectileSkill dps) {
+      this.fightSkill = dps;
+    } else {
+      throw new IllegalArgumentException(
+          "Skill for SentryFightBehaviour must be a DamageProjectileSkill!");
+    }
   }
 
   @Override
   public void accept(Entity entity) {
-    PositionComponent position =
+    PositionComponent entityPosComp =
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
@@ -56,7 +63,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
     // Patrouillieren
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
       if (AIUtils.pathLeft(entity, currentPath)) {
-        currentPath = LevelUtils.calculatePath(position.position(), getTargetPoint());
+        currentPath = LevelUtils.calculatePath(entityPosComp.position(), getTargetPoint());
       }
       AIUtils.followPath(entity, currentPath);
     } else {
@@ -65,9 +72,15 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
         currentPath = null;
       }
       if (currentPath == null) {
-        currentPath = LevelUtils.calculatePath(position.position(), getTargetPoint());
+        currentPath = LevelUtils.calculatePath(entityPosComp.position(), getTargetPoint());
       }
     }
+
+    // set a new targetEndPoint based on the current Position of the entity and the given direction
+    Point targetEndPoint =
+        SkillTools.calculateLastPointInDirection(
+            entityPosComp.position(), shootDirection, attackRange);
+    fightSkill.setNewEndpoint(targetEndPoint);
 
     // Angriff, falls Held in Reichweite
     System.out.println("TRYING TO ATTACK");
@@ -106,6 +119,10 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
 
   @Override
   public void skill(Skill skill) {
-    this.fightSkill = skill;
+    if (skill instanceof DamageProjectileSkill dps) {
+      this.fightSkill = dps;
+    } else {
+      throw new IllegalArgumentException("Skill must be a DamageProjectileSkill!");
+    }
   }
 }
