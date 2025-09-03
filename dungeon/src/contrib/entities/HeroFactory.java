@@ -32,6 +32,9 @@ public final class HeroFactory {
   /** If true, the hero can be moved with the mouse. */
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
 
+  /** The default Hero class, used if no other class is specified. */
+  public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
+
   private static final String MOVEMENT_ID = "Movement";
   private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
       entity ->
@@ -48,6 +51,7 @@ public final class HeroFactory {
                                   skill.execute(entity);
                                 }
                               }));
+
   private static Consumer<Entity> DEFAULT_DEATH =
       (hero) ->
           DialogUtils.showTextPopup(
@@ -101,7 +105,7 @@ public final class HeroFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero() throws IOException {
-    return newHero(CharacterClass.WIZARD, DEFAULT_DEATH);
+    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH);
   }
 
   /**
