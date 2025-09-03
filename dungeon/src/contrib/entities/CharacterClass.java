@@ -8,7 +8,6 @@ import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
-import contrib.utils.components.skill.projectileSkill.FireWallSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.DashSkill;
 import contrib.utils.components.skill.selfSkill.SelfHealSkill;
