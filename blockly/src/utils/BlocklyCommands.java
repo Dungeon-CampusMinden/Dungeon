@@ -115,7 +115,6 @@ public class BlocklyCommands {
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
         .ifPresent(boss -> BlocklyCommands.turnEntity(boss, newDirection.opposite()));
-    Server.waitDelta();
   }
 
   /**
@@ -125,7 +124,6 @@ public class BlocklyCommands {
    */
   public static void shootFireball() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-
     hero.fetch(AmmunitionComponent.class)
         .filter(AmmunitionComponent::checkAmmunition)
         .ifPresent(ac -> aimAndShoot(ac, hero));
@@ -287,7 +285,6 @@ public class BlocklyCommands {
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, viewDirection);
-    Server.waitDelta();
     DISABLE_SHOOT_ON_HERO = false;
   }
 
