@@ -78,7 +78,6 @@ public class DynamicCompiler {
     outputFile.getParentFile().mkdirs();
 
     Path filePath = Paths.get(sourcePath.pathString());
-    System.out.println("Current dir " + System.getProperty("user.dir"));
     String sourceCode = Files.readString(filePath);
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
