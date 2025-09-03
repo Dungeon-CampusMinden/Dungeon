@@ -39,6 +39,7 @@ public class Animation {
   private final AnimationConfig config;
   private float width = 1;
   private float height = 1;
+  private float spriteScale;
   private int frameCount;
   private Sprite[] sprites;
 
@@ -202,13 +203,9 @@ public class Animation {
    * @param spriteHeight the height of the sprite
    */
   private void calculateWorldSize(int spriteWidth, int spriteHeight) {
-    float scaleX = config.scaleX();
-    float scaleY = config.scaleY() == 0 ? config.scaleX() : config.scaleY();
-
-    int smallestDimension = Math.min(spriteWidth, spriteHeight);
-
-    width = (float) spriteWidth / smallestDimension * scaleX;
-    height = (float) spriteHeight / smallestDimension * scaleY;
+    spriteScale = (float) 1 / Math.min(spriteWidth, spriteHeight);
+    width = (float) spriteWidth * spriteScale * getScaleX();
+    height = (float) spriteHeight * spriteScale * getScaleY();
   }
 
   /**
@@ -245,12 +242,30 @@ public class Animation {
   }
 
   /**
+   * Get the scale factor in the X direction.
+   *
+   * @return The scale factor in the X direction.
+   */
+  public float getScaleX() {
+    return config.scaleX();
+  }
+
+  /**
+   * Get the scale factor in the Y direction. If scaleY is not set, return scaleX.
+   *
+   * @return The scale factor in the Y direction.
+   */
+  public float getScaleY() {
+    return config.scaleY() == 0 ? config.scaleX() : config.scaleY();
+  }
+
+  /**
    * Get the pixel width of the underlying sprite frame.
    *
    * @return The sprite width in pixels.
    */
   public float getSpriteWidth() {
-    return width * (1 / DEFAULT_SCALE);
+    return width / spriteScale / getScaleX();
   }
 
   /**
@@ -259,7 +274,7 @@ public class Animation {
    * @return The sprite height in pixels.
    */
   public float getSpriteHeight() {
-    return height * (1 / DEFAULT_SCALE);
+    return height / spriteScale / getScaleY();
   }
 
   /**

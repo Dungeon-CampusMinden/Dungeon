@@ -84,8 +84,8 @@ class AnimationTest {
 
     Animation anim = new Animation(Arrays.asList(p1, p2), cfg);
 
-    float expectedW = 64 * 2.0f * (1f / 16f);
-    float expectedH = 32 * 2.0f * (1f / 16f);
+    float expectedW = 2 * 2.0f;
+    float expectedH = 1 * 2.0f;
 
     assertEquals(expectedW, anim.getWidth(), 1e-6);
     assertEquals(expectedH, anim.getHeight(), 1e-6);
@@ -101,8 +101,8 @@ class AnimationTest {
 
     Animation anim = new Animation(p1, cfg);
 
-    float expectedW = 64 * 1.5f * (1f / 16f);
-    float expectedH = 32 * 0.5f * (1f / 16f);
+    float expectedW = 2 * 1.5f;
+    float expectedH = 1 * 0.5f;
 
     assertEquals(expectedW, anim.getWidth(), 1e-6);
     assertEquals(expectedH, anim.getHeight(), 1e-6);
@@ -216,13 +216,13 @@ class AnimationTest {
 
     // 2 rows x 3 cols, sprite size 32x24, with offset
     SpritesheetConfig ssc =
-        new SpritesheetConfig().rows(2).columns(3).spriteWidth(32).spriteHeight(24).x(4).y(6);
+        new SpritesheetConfig().rows(2).columns(3).spriteWidth(32).spriteHeight(16).x(4).y(6);
 
     AnimationConfig cfg =
         new AnimationConfig(ssc)
             .framesPerSprite(1)
-            .scaleX(2f) // width = 32 * 2 / 16 = 4
-            .scaleY(0.5f) // height = 24 * 0.5 / 16 = 0.75
+            .scaleX(2f) // width = 2 * 2 = 4
+            .scaleY(0.5f) // height = 1 * 0.5 = 0.5
             .isLooping(true);
 
     Animation anim = new Animation(sheetPath, cfg);
@@ -250,8 +250,8 @@ class AnimationTest {
     assertSame(s0, s6); // looped
 
     assertEquals(4, anim.getWidth(), 1e-6);
-    assertEquals(0.75f, anim.getHeight(), 1e-6);
-    assertEquals(32 * 2f, anim.getSpriteWidth(), 1e-6);
-    assertEquals(24 * 0.5f, anim.getSpriteHeight(), 1e-6);
+    assertEquals(0.5f, anim.getHeight(), 1e-6);
+    assertEquals(32, anim.getSpriteWidth(), 1e-6);
+    assertEquals(16, anim.getSpriteHeight(), 1e-6);
   }
 }
