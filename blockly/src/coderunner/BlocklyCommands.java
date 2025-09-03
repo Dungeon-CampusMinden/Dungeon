@@ -8,8 +8,7 @@ import components.PushableComponent;
 import contrib.components.*;
 import contrib.components.BlockComponent;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.FireballSkill;
-import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -227,19 +226,17 @@ public class BlocklyCommands {
    * @param hero Entity to be used as hero for positioning
    * @return Nice new fireball, ready to be launched.
    */
-  private static Skill newFireballSkill(Entity hero) {
-    return new Skill(
-        new FireballSkill(
-            () ->
-                hero.fetch(CollideComponent.class)
-                    .map(cc -> cc.center(hero))
-                    .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
-                    .orElseThrow(
-                        () -> MissingComponentException.build(hero, CollideComponent.class)),
-            FIREBALL_RANGE,
-            FIREBALL_SPEED,
-            FIREBALL_DMG),
-        1);
+  private static FireballSkill newFireballSkill(Entity hero) {
+    return new FireballSkill(
+        () ->
+            hero.fetch(CollideComponent.class)
+                .map(cc -> cc.center(hero))
+                .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
+                .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class)),
+        1,
+        FIREBALL_SPEED,
+        FIREBALL_RANGE,
+        FIREBALL_DMG);
   }
 
   /**

@@ -2,6 +2,7 @@ package entities;
 
 import client.Client;
 import coderunner.BlocklyCommands;
+import contrib.components.SkillComponent;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.components.InputComponent;
@@ -30,6 +31,7 @@ public class HeroTankControlledFactory {
     Entity hero = EntityFactory.newHero();
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
+    hero.remove(SkillComponent.class);
     // Remove any original movement controls
     ic.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
     ic.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());

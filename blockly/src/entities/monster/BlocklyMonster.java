@@ -56,6 +56,7 @@ public enum BlocklyMonster {
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
       () -> new StraightRangeAI(6, new InevitableFireballSkill()),
+      () -> entity -> {}, // no idle needed
       () -> entity -> true, // instant fight
       99999, // one hit kill
       0,
