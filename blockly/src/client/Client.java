@@ -13,9 +13,7 @@ import core.System;
 import core.components.PlayerComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
-import core.systems.InputSystem;
-import core.systems.LevelSystem;
-import core.systems.PositionSystem;
+import core.systems.*;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
@@ -64,6 +62,10 @@ public class Client {
 
     // build and start game
     try {
+      // pause this systems again to avoid multitreading related problems
+      Game.system(VelocitySystem.class, s -> s.stop());
+      Game.system(MoveSystem.class, s -> s.stop());
+      Game.system(FrictionSystem.class, s -> s.stop());
       Game.run();
     } finally {
       // Ensure that the server is stopped when the game ends

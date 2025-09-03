@@ -153,6 +153,7 @@ public abstract class System {
    * processed when the system is running.
    */
   public void stop() {
+    java.lang.System.out.println("STOP " + this.getClass().getName());
     if (run) LOGGER.info(String.format("%s is now paused", this.getClass().getName()));
     run = false;
   }

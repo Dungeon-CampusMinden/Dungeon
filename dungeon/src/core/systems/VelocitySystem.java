@@ -61,6 +61,7 @@ public final class VelocitySystem extends System {
    * @return updated VSData with modified velocity
    */
   private VSData calculateVelocity(VSData vsd) {
+    java.lang.System.out.println("TEST");
     Vector2 sumForces = vsd.vc.appliedForcesStream().reduce(Vector2.of(0, 0), Vector2::add);
 
     float mass = vsd.vc().mass();

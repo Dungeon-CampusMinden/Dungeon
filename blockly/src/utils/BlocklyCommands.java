@@ -115,7 +115,6 @@ public class BlocklyCommands {
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
         .ifPresent(boss -> BlocklyCommands.turnEntity(boss, newDirection.opposite()));
-    Server.waitDelta();
   }
 
   /**
@@ -125,7 +124,6 @@ public class BlocklyCommands {
    */
   public static void shootFireball() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-
     hero.fetch(AmmunitionComponent.class)
         .filter(AmmunitionComponent::checkAmmunition)
         .ifPresent(ac -> aimAndShoot(ac, hero));
@@ -287,7 +285,6 @@ public class BlocklyCommands {
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, viewDirection);
-    Server.waitDelta();
     DISABLE_SHOOT_ON_HERO = false;
   }
 
@@ -465,7 +462,7 @@ public class BlocklyCommands {
       ec.vc.currentVelocity(Vector2.ZERO);
       ec.vc.clearForces();
       // check the position-tile via new request in case a new level was loaded
-      Tile endTile = Game.tileAt(ec.pc.position()).orElse(null);
+      Tile endTile = Game.tileAt(ec.targetPosition()).orElse(null);
       if (endTile != null) ec.pc.position(endTile); // snap to grid
     }
   }
@@ -487,8 +484,6 @@ public class BlocklyCommands {
    *
    * <p>This will also update the animation.
    *
-   * <p>This does not call {@link Server#waitDelta()}.
-   *
    * @param entity Entity to turn.
    * @param direction direction to turn to.
    */
@@ -506,6 +501,7 @@ public class BlocklyCommands {
     vc.applyForce(MOVEMENT_FORCE_ID, direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
+    Server.waitDelta();
   }
 
   /**
