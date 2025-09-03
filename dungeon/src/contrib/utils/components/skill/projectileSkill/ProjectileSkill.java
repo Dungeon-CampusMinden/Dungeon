@@ -37,7 +37,7 @@ public abstract class ProjectileSkill extends Skill {
       (entity1, entity2, direction) -> {};
 
   /** Default hitbox size for projectiles. */
-  public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.of(1, 1);
+  public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.ONE;
 
   protected boolean ignoreOtherProjectiles = true;
 
@@ -134,7 +134,7 @@ public abstract class ProjectileSkill extends Skill {
   /**
    * Defines what happens when the projectile collides with another entity (on collision enter).
    *
-   * @param caster The entity that cast the projectile.
+   * @param caster The entity that cast the projectile. (x
    * @return A collision handler.
    */
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {

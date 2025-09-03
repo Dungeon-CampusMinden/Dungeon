@@ -28,6 +28,18 @@ public class BossAttackSkills {
   /** Speed for the fireball skill that the boss uses. (default: 4.50f) */
   private static final float FIREBALL_SPEED = 4.50f;
 
+  /** Cooldown for the fireball skill that the boss uses. (default: 750L) */
+  private static final long FIREBALL_COOLDOWN = 750L;
+
+  /**
+   * Range for the fireball skill that the boss uses. (default: 8)
+   */
+  public static final int FIREBALL_RANGE = 8;
+
+  /* Shockwave fields */
+  private static final int SHOCKWAVE_DAMAGE = 3;
+  private static final int SHOCKWAVE_RADIUS = 6;
+
   /**
    * A skill that does nothing.
    *
@@ -46,7 +58,7 @@ public class BossAttackSkills {
    * @return The skill that shoots the fire wall.
    */
   public static Skill fireWall(int wallWidth) {
-    return new FireWallSkill(HERO_POSITION, wallWidth);
+    return new FireballWallSkill(HERO_POSITION, FIREBALL_COOLDOWN, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE, wallWidth);
   }
 
   /**
@@ -56,7 +68,7 @@ public class BossAttackSkills {
    * @return The skill that starts the shock wave.
    */
   public static Skill fireShockWave(int radius) {
-    return new FireShockWaveSkill(radius);
+    return new FireShockWaveSkill(radius, SHOCKWAVE_DAMAGE, SHOCKWAVE_RADIUS);
   }
 
   /**
@@ -77,7 +89,7 @@ public class BossAttackSkills {
    */
   public static Skill fireCone(
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
-    return new FireConeSkill(HERO_POSITION, degree, delayMillis, fireballSpeed, fireballDamage);
+    return new FireballConeSkill(HERO_POSITION, FIREBALL_COOLDOWN, fireballSpeed, FIREBALL_RANGE, fireballDamage, degree, delayMillis);
   }
 
   /**
@@ -88,7 +100,7 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill fireStorm(int totalFireBalls, int delayBetweenFireballs) {
-    return new FireStormSkill(totalFireBalls, delayBetweenFireballs);
+    return new FireballStormSkill(FIREBALL_COOLDOWN, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE, totalFireBalls, delayBetweenFireballs);
   }
 
   /**
@@ -178,6 +190,6 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill normalAttack(int coolDown) {
-    return new DoubleFireballSkill(coolDown, HERO_POSITION);
+    return new DoubleFireballSkill(HERO_POSITION, coolDown, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE);
   }
 }

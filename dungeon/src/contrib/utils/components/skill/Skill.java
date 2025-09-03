@@ -61,8 +61,8 @@ public abstract class Skill {
         Arrays.stream(resources)
             .collect(
                 Collectors.toMap(
-                    tuple -> tuple.a(), // Resource
-                    tuple -> tuple.b() // Integer
+                  Tuple::a, // Resource
+                  Tuple::b // Integer
                     ));
   }
 

@@ -26,17 +26,16 @@ import java.util.List;
 /** Starts a shock wave from the boss. The shock wave is a circular explosion of fireballs. */
 public class FireShockWaveSkill extends Skill {
 
-  /** Name of the Skill. */
-  public static final String SKILL_NAME = "Fireshockwave";
+  private static final String SKILL_NAME = "FIRE_SHOCKWAVE";
 
   private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
-  private static final int DAMAGE = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final long COOLDOWN = 10000;
   private static final int REMOVE_AFTER = 2000;
+  private static final long DELAY_BETWEEN_WAVES = 250L;
   private static final int HIT_COOLDOWN = Game.frameRate() / 4;
-  private int radius;
-  private int damageAmount;
+
+  private final int radius;
+  private final int damage;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
@@ -46,20 +45,12 @@ public class FireShockWaveSkill extends Skill {
    * @param radius The radius of the shockwave.
    * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
    */
+  @SafeVarargs
   public FireShockWaveSkill(
       long cooldown, int damageAmount, int radius, Tuple<Resource, Integer>... resourceCost) {
     super(SKILL_NAME, cooldown, resourceCost);
     this.radius = radius;
-    this.damageAmount = damageAmount;
-  }
-
-  /**
-   * Starts a shock wave from the boss. The shock wave is a circular explosion of fireballs.
-   *
-   * @param radius The radius of the shock wave.
-   */
-  public FireShockWaveSkill(int radius) {
-    this(COOLDOWN, DAMAGE, radius);
+    this.damage = damageAmount;
   }
 
   @Override
@@ -72,8 +63,8 @@ public class FireShockWaveSkill extends Skill {
     List<Coordinate> placedPositions = new ArrayList<>();
     LevelUtils.explosionAt(
         casterTile.coordinate(),
-        radius,
-        250L,
+      radius,
+      DELAY_BETWEEN_WAVES,
         (tile -> {
           if (tile == null
               || tile.levelElement() == LevelElement.WALL
@@ -94,7 +85,7 @@ public class FireShockWaveSkill extends Skill {
           } catch (IOException e) {
             throw new RuntimeException("Could not load fireball texture" + e);
           }
-          entity.add(new SpikyComponent(damageAmount, DAMAGE_TYPE, HIT_COOLDOWN));
+          entity.add(new SpikyComponent(damage, DAMAGE_TYPE, HIT_COOLDOWN));
           Game.add(entity);
 
           EventScheduler.scheduleAction(() -> Game.remove(entity), REMOVE_AFTER);

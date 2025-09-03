@@ -31,30 +31,42 @@ public class FireballSkill extends DamageProjectileSkill {
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final long COOLDOWN = 500;
-  private static final boolean IS_PIRCING = false;
+  private static final boolean IS_PIERCING = false;
 
   /**
-   * Creates a fireball skill with default cooldown.
+   * Creates a fully customized fireball skill with a custom name.
    *
-   * @param targetSelection Function providing the target point where the fireball should fly.
-   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   * <p>This constructor allows for subclassing and customization of the fireball skill, including its name,
+   * target selection, cooldown, speed, range, damage amount, and resource costs.
+   *
+   * @param target Function providing the target point.
+   * @param cooldown Cooldown in ms.
+   * @param speed Travel speed of the projectile.
+   * @param range Maximum travel range.
+   * @param damageAmount Base damage dealt.
+   * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
-  public FireballSkill(Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
-    this(targetSelection, COOLDOWN, resourceCost);
-  }
-
-  /**
-   * Creates a fireball skill with a custom cooldown.
-   *
-   * @param targetSelection Function providing the target point where the fireball should fly.
-   * @param cooldown Cooldown in milliseconds for the skill.
-   * @param resourceCost Resource costs required to use the skill.
-   */
-  @SafeVarargs
-  public FireballSkill(
-      Supplier<Point> targetSelection, long cooldown, Tuple<Resource, Integer>... resourceCost) {
-    this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, resourceCost);
+  FireballSkill(
+    String name,
+    Supplier<Point> target,
+    long cooldown,
+    float speed,
+    float range,
+    int damageAmount,
+    Tuple<Resource, Integer>... resourceCost) {
+    super(
+      name,
+      cooldown,
+      TEXTURE,
+      target,
+      speed,
+      range,
+      IS_PIERCING,
+      damageAmount,
+      DAMAGE_TYPE,
+      HIT_BOX_SIZE,
+      resourceCost);
   }
 
   /**
@@ -69,24 +81,45 @@ public class FireballSkill extends DamageProjectileSkill {
    */
   @SafeVarargs
   public FireballSkill(
-      Supplier<Point> target,
-      long cooldown,
-      float speed,
-      float range,
-      int damageAmount,
-      Tuple<Resource, Integer>... resourceCost) {
-    super(
-        SKILL_NAME,
-        cooldown,
-        TEXTURE,
-        target,
-        speed,
-        range,
-        IS_PIRCING,
-        damageAmount,
-        DAMAGE_TYPE,
-        HIT_BOX_SIZE,
-        resourceCost);
+    Supplier<Point> target,
+    long cooldown,
+    float speed,
+    float range,
+    int damageAmount,
+    Tuple<Resource, Integer>... resourceCost) {
+    this(
+      SKILL_NAME,
+      target,
+      cooldown,
+      speed,
+      range,
+      damageAmount,
+      resourceCost
+    );
+  }
+
+  /**
+   * Creates a fireball skill with default values with a custom name.
+   *
+   * <p>This constructor allows for subclassing and customization of the fireball skill with a custom name,
+   * using default values for cooldown, speed, range, and damage.
+   *
+   * @param name The name of the skill.
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   */
+  FireballSkill(String name, Supplier<Point> targetSelection) {
+    this(name, targetSelection, COOLDOWN, SPEED, RANGE, DAMAGE);
+  }
+
+  /**
+   * Creates a fireball skill with default cooldown.
+   *
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   */
+  @SafeVarargs
+  public FireballSkill(Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, COOLDOWN, SPEED, RANGE, DAMAGE, resourceCost);
   }
 
   /**
