@@ -1,4 +1,4 @@
-package utils.components.ai.fight;
+package entities.monster;
 
 import contrib.utils.components.skill.ISkillUser;
 import contrib.utils.components.skill.Skill;
@@ -7,7 +7,7 @@ import core.Game;
 import core.utils.MissingHeroException;
 import java.util.function.Consumer;
 import utils.BlocklyCommands;
-import utils.EntityUtils;
+import entities.EntityUtils;
 
 /**
  * Attacks the player if he is the view range of the entity. The entity will only shoot in its view

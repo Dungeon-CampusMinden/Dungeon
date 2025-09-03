@@ -11,7 +11,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyMonster;
+import entities.monster.BlocklyMonster;
 import entities.MiscFactory;
 import java.util.List;
 import level.BlocklyLevel;

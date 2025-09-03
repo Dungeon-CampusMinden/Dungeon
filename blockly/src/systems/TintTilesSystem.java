@@ -12,7 +12,7 @@ import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import java.util.HashSet;
 import java.util.Set;
-import utils.components.ai.fight.StraightRangeAI;
+import entities.monster.StraightRangeAI;
 
 /**
  * The TintTilesSystem is responsible for applying a tinting effect to tiles in the range of an

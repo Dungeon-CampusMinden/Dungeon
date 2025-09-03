@@ -1,4 +1,4 @@
-package entities;
+package entities.monster;
 
 import com.badlogic.gdx.audio.Sound;
 import components.TintDirectionComponent;
@@ -21,8 +21,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
-import utils.components.ai.fight.StraightRangeAI;
-import utils.components.skill.InevitableFireballSkill;
 
 /**
  * Enum representing the different types of monsters in Blockly.

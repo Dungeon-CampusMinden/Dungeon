@@ -1,4 +1,4 @@
-package utils;
+package entities;
 
 import contrib.utils.LevelUtils;
 import core.Entity;
