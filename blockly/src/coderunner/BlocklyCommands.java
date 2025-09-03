@@ -465,7 +465,7 @@ public class BlocklyCommands {
       ec.vc.currentVelocity(Vector2.ZERO);
       ec.vc.clearForces();
       // check the position-tile via new request in case a new level was loaded
-      Tile endTile = Game.tileAt(ec.pc.position()).orElse(null);
+      Tile endTile = Game.tileAt(ec.targetPosition()).orElse(null);
       if (endTile != null) ec.pc.position(endTile); // snap to grid
     }
   }
