@@ -8,6 +8,7 @@ import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BowSkill;
+import contrib.utils.components.skill.projectileSkill.FireWallSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.DashSkill;
 import contrib.utils.components.skill.selfSkill.SelfHealSkill;
@@ -32,7 +33,8 @@ public enum CharacterClass {
       15,
       Set.of(
           new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30)),
-          new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80))),
+          new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80)),
+          new FireWallSkill(SkillTools::cursorPositionAsPoint, 10)),
       Set.of(new ItemPotionHealth()),
       6,
       100,
