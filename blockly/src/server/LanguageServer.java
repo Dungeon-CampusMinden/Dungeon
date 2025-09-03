@@ -1,5 +1,7 @@
 package server;
 
+import coderunner.BlocklyCommands;
+import coderunner.HideLanguage;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.body.EnumConstantDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -19,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import utils.BlocklyCommands;
-import utils.HideLanguage;
 
 /**
  * This Class contains utility methods to generate completion items for the blockly language server.
@@ -43,13 +43,7 @@ public class LanguageServer {
           "LevelElement",
           LevelElement.class);
   private static final String[] SOURCE_PATHS = {
-    "./src/",
-    "blockly/src/",
-    "game/src/",
-    "dungeon/src/",
-    "../src/",
-    "../game/src/",
-    "../dungeon/src/"
+    "./src/", "blockly/src/", "dungeon/src/", "../src/", "../dungeon/src/"
   };
 
   /**

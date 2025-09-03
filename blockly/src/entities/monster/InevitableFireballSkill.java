@@ -1,4 +1,4 @@
-package utils.components.skill;
+package entities.monster;
 
 import client.Client;
 import com.badlogic.gdx.Gdx;

@@ -1,5 +1,6 @@
 package client;
 
+import coderunner.BlocklyCodeRunner;
 import com.sun.net.httpserver.HttpServer;
 import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
@@ -26,7 +27,6 @@ import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
 import systems.TintTilesSystem;
-import utils.BlocklyCodeRunner;
 
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't

@@ -1,5 +1,6 @@
 package level;
 
+import coderunner.BlocklyCommands;
 import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
@@ -10,7 +11,6 @@ import core.systems.CameraSystem;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import utils.BlocklyCommands;
 
 /**
  * Utility class for managing level-related features such as camera control, hero positioning, zoom

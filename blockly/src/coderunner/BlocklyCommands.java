@@ -1,4 +1,4 @@
-package utils;
+package coderunner;
 
 import client.Client;
 import com.badlogic.gdx.ai.pfa.GraphPath;
