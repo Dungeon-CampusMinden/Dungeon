@@ -9,6 +9,9 @@ import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
+import core.systems.FrictionSystem;
+import core.systems.MoveSystem;
+import core.systems.VelocitySystem;
 import core.utils.Point;
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -376,7 +379,7 @@ public class Server {
     errorMsg = "";
     // Set clear HUD to true so the HUD will be cleared next time the start route will be used.
     clearHUD = true;
-    System.out.println("Values cleared");
+    java.lang.System.out.println("Values cleared");
   }
 
   /**
@@ -399,11 +402,22 @@ public class Server {
    * <p>Used to wait for the game loop to finish the current frame before executing the next action.
    */
   public static void waitDelta() {
+    // reactivate the systems so the gameloop can execute them.
+    Game.system(VelocitySystem.class, s -> s.run());
+    Game.system(MoveSystem.class, s -> s.run());
+    Game.system(FrictionSystem.class, s -> s.run());
+
+    // let the ecs execute the gameloop for some time
     long timeout = (long) (Gdx.graphics.getDeltaTime() * 1000);
     try {
       TimeUnit.MILLISECONDS.sleep(timeout - 1);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+
+    // pause this systems again to avoid multitreading related problems
+    Game.system(VelocitySystem.class, s -> s.stop());
+    Game.system(MoveSystem.class, s -> s.stop());
+    Game.system(FrictionSystem.class, s -> s.stop());
   }
 }
