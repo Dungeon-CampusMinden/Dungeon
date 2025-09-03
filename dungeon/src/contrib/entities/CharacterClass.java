@@ -33,8 +33,7 @@ public enum CharacterClass {
       15,
       Set.of(
           new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30)),
-          new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80)),
-          new FireWallSkill(SkillTools::cursorPositionAsPoint, 10)),
+          new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80))),
       Set.of(new ItemPotionHealth()),
       6,
       100,

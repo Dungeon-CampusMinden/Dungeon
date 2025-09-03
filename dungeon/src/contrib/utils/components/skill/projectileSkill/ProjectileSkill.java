@@ -93,7 +93,7 @@ public abstract class ProjectileSkill extends Skill {
     ignoreEntities.add(projectile);
 
     projectile.add(new FlyComponent());
-    Point position = caster.fetch(PositionComponent.class).map(pc -> pc.position()).orElse(start);
+    Point position = start;
 
     projectile.add(new PositionComponent(position));
 
