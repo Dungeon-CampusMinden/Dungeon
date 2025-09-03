@@ -417,7 +417,7 @@ public class Server {
 
     // pause this systems again to avoid multitreading related problems
     Game.system(VelocitySystem.class, s -> s.stop());
-    Game.system(MoveSystem.class, s -> s.stop());
     Game.system(FrictionSystem.class, s -> s.stop());
+    Game.system(MoveSystem.class, s -> s.stop());
   }
 }
