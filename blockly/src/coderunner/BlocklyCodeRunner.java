@@ -1,4 +1,4 @@
-package utils;
+package coderunner;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -67,7 +67,7 @@ public class BlocklyCodeRunner {
 
   private static final String CodeWrapper =
       """
-      import utils.BlocklyCommands;
+      import coderunner.BlocklyCommands;
       import core.utils.Direction;
       import core.level.utils.LevelElement;
       import contrib.components.*;

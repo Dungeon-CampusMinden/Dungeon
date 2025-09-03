@@ -10,9 +10,9 @@ import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.components.MissingComponentException;
+import entities.monster.StraightRangeAI;
 import java.util.HashSet;
 import java.util.Set;
-import entities.monster.StraightRangeAI;
 
 /**
  * The TintTilesSystem is responsible for applying a tinting effect to tiles in the range of an

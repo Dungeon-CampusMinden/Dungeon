@@ -1,6 +1,7 @@
 package server;
 
 import client.Client;
+import coderunner.BlocklyCodeRunner;
 import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -17,7 +18,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import level.BlocklyLevel;
-import utils.BlocklyCodeRunner;
 
 /**
  * Controls communication between the Blockly frontend and the dungeon game. Provides HTTP endpoints
