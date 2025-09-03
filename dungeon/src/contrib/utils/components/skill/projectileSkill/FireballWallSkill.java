@@ -15,6 +15,7 @@ public class FireballWallSkill extends FireballSkill {
   /**
    * Create a new customized {@link DamageProjectileSkill}.
    *
+   * @param target Function providing the target point.
    * @param cooldown The cooldown time (in ms) before the skill can be used again.
    * @param speed The travel speed of the projectile.
    * @param range The maximum range the projectile can travel.

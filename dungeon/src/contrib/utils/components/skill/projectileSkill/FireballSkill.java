@@ -39,6 +39,7 @@ public class FireballSkill extends DamageProjectileSkill {
    * <p>This constructor allows for subclassing and customization of the fireball skill, including
    * its name, target selection, cooldown, speed, range, damage amount, and resource costs.
    *
+   * @param name Name of the skill.
    * @param target Function providing the target point.
    * @param cooldown Cooldown in ms.
    * @param speed Travel speed of the projectile.
@@ -94,6 +95,7 @@ public class FireballSkill extends DamageProjectileSkill {
    * Creates a fireball skill with default values and custom cooldown.
    *
    * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param cooldown Cooldown time (in ms) before the skill can be used again.
    * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
   @SafeVarargs
