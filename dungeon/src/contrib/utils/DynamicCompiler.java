@@ -129,10 +129,9 @@ public class DynamicCompiler {
   public static <T> T loadUserInstance(Class<? extends T> dynClasz, Tuple<Class<?>, Object>... args)
       throws Exception {
     if (args == null) args = new Tuple[0];
-
     IPath path =
         new SimpleIPath(
-            System.getProperty("SOURCEDIR") + dynClasz.getName().replace(".", "/") + ".java");
+            System.getProperty("SOURCEDIR") + "/" + dynClasz.getName().replace(".", "/") + ".java");
     Class<?> compiledClass = DynamicCompiler.compileAndLoad(path, dynClasz.getName());
     Class<?>[] paramTypes = Arrays.stream(args).map(Tuple::a).toArray(Class[]::new);
     Object[] paramValues = Arrays.stream(args).map(Tuple::b).toArray();

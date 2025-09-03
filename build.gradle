@@ -1,3 +1,5 @@
+import java.nio.file.Path
+
 buildscript {
     apply from: 'dependencies.gradle'
 }
@@ -25,7 +27,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-
     tasks.withType(JavaExec).configureEach {
         dependsOn classes
         standardInput = System.in
@@ -36,7 +37,7 @@ allprojects {
         workingDir = rootProject.projectDir
         def sourceDirs = sourceSets.main.java.srcDirs[0].absolutePath
         def projectDir = project.rootDir.absolutePath
-        def relativePath = new File(projectDir).toURI().relativize(new File(sourceDirs).toURI()).getPath()
+        def relativePath = Path.of(projectDir).relativize(Path.of(sourceDirs))
         systemProperty 'SOURCEDIR', relativePath
     }
 
