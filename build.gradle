@@ -30,6 +30,7 @@ allprojects {
         dependsOn classes
         standardInput = System.in
         ignoreExitValue true
+        workingDir = rootProject.projectDir
         systemProperty 'BASELOGDIR', project.baseLogDir
         systemProperty 'BASEREFLECTIONDIR', project.baseReflectionDir
     }
