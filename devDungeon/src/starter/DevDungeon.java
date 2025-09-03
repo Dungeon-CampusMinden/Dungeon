@@ -11,10 +11,10 @@ import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
-import contrib.skill.SkillTools;
 import contrib.systems.*;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -86,7 +86,7 @@ public class DevDungeon {
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
 
-          HeroFactory.setHeroSkill(
+          HeroFactory.setHeroSkillCallback(
               new BurningFireballSkill(
                   SkillTools::cursorPositionAsPoint)); // Override default skill
           try {
@@ -180,7 +180,7 @@ public class DevDungeon {
               } else {
                 BurningFireballSkill.DAMAGE_AMOUNT = 2;
               }
-              HeroFactory.setHeroSkill(
+              HeroFactory.setHeroSkillCallback(
                   new BurningFireballSkill(
                       SkillTools::cursorPositionAsPoint)); // Update the current hero skill
               DialogUtils.showTextPopup(

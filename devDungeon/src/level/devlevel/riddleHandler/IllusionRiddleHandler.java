@@ -2,8 +2,8 @@ package level.devlevel.riddleHandler;
 
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
-import contrib.skill.SkillTools;
 import contrib.utils.EntityUtils;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -98,7 +98,7 @@ public class IllusionRiddleHandler {
         "Run " + LAP_REWARD + " Laps");
     CameraSystem.camera().zoom += 0.1f;
     BurningFireballSkill.PROJECTILE_RANGE += 1f;
-    HeroFactory.setHeroSkill(
+    HeroFactory.setHeroSkillCallback(
         new BurningFireballSkill(
             SkillTools::cursorPositionAsPoint)); // Update the current hero skill
     this.rewardGiven = true;

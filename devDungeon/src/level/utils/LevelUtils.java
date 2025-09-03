@@ -1,7 +1,7 @@
 package level.utils;
 
-import contrib.skill.projectileSkill.TPBallSkill;
 import contrib.systems.EventScheduler;
+import contrib.utils.components.skill.TPBallSkill;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.Coordinate;

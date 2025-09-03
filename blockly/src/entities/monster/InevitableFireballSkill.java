@@ -5,8 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import contrib.entities.HeroFactory;
-import contrib.skill.projectileSkill.DamageProjectileSkill;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.DamageProjectile;
 import core.Game;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
@@ -18,13 +18,13 @@ import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
 /**
- * Subclass of {@link DamageProjectileSkill}.
+ * Subclass of {@link DamageProjectile}.
  *
  * <p>This skill is inevitable, meaning that it will always hit the target. Once fired, the intended
  * target will get frozen in place and the projectile will fly towards the target. The target will
  * not be able to move or dodge the projectile.
  */
-public class InevitableFireballSkill extends DamageProjectileSkill {
+public class InevitableFireballSkill extends DamageProjectile {
   private static final String SKILL_NAME = "inevitable_fireball";
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/fireball");
   private static final IPath PROJECTILE_SOUND = new SimpleIPath("sounds/fireball.wav");
@@ -33,32 +33,40 @@ public class InevitableFireballSkill extends DamageProjectileSkill {
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
-  private static final int COOLDOWN = 750;
 
   /**
-   * Create a {@link DamageProjectileSkill} that looks like a fireball and will cause fire damage.
+   * Create a {@link DamageProjectile} that looks like a fireball and will cause fire damage.
    *
    * <p>This skill is inevitable, meaning that it will always hit the target. Once fired, the
    * intended target will get frozen in place and the projectile will fly towards the target. The
    * target will not be able to move or dodge the projectile.
    *
    * @param targetSelection A function used to select the point where the projectile should fly to.
-   * @see DamageProjectileSkill
+   * @see DamageProjectile
    */
   public InevitableFireballSkill(final Supplier<Point> targetSelection) {
     super(
         SKILL_NAME,
-        COOLDOWN,
-        targetSelection,
-        DEFAULT_DAMAGE_AMOUNT,
-        DAMAGE_TYPE,
         PROJECTILE_TEXTURES,
         DEFAULT_PROJECTILE_SPEED,
-        DEFAULT_PROJECTILE_RANGE,
+        DEFAULT_DAMAGE_AMOUNT,
+        DAMAGE_TYPE,
         HIT_BOX_SIZE,
-        DamageProjectileSkill.DEFAULT_ON_WALL_HIT,
+        targetSelection,
+        DEFAULT_PROJECTILE_RANGE,
+        DamageProjectile.DEFAULT_ON_WALL_HIT,
+        (projectile, entity) -> {
+          // Set the velocity back to the original value (hero only)
+          if (!entity.isPresent(PlayerComponent.class)) return;
+          Vector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
+          entity
+              .fetch(VelocityComponent.class)
+              .ifPresent(
+                  velocityComponent -> {
+                    velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
+                  });
+        },
         (projectile) -> {
-          playSound();
           // Set the velocity to zero to freeze the entity (hero only)
           Game.hero()
               .flatMap(hero -> hero.fetch(VelocityComponent.class))
@@ -71,23 +79,11 @@ public class InevitableFireballSkill extends DamageProjectileSkill {
           Game.hero()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .ifPresent(PositionComponent::centerPositionOnTile);
-        },
-        damageAmount1,
-        type,
-        (projectile, entity) -> {
-          // Set the velocity back to the original value (hero only)
-          if (!entity.isPresent(PlayerComponent.class)) return;
-          Vector2 defaultHeroSpeed = HeroFactory.defaultHeroSpeed();
-          entity
-              .fetch(VelocityComponent.class)
-              .ifPresent(
-                  velocityComponent -> {
-                    velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
-                  });
         });
   }
 
-  private static void playSound() {
+  @Override
+  protected void playSound() {
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(PROJECTILE_SOUND.pathString()));
 
     // Generate a random pitch between 1.5f and 2.0f
