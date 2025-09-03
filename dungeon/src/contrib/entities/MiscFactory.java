@@ -318,7 +318,6 @@ public final class MiscFactory {
     Entity cauldron = new Entity("cauldron");
     cauldron.add(new PositionComponent(position));
     cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
-    cauldron.add(new CollideComponent());
     cauldron.add(
         new InteractionComponent(
             1f,

@@ -35,7 +35,6 @@ import systems.DevHealthSystem;
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
-  private static final boolean SKIP_TUTORIAL = false;
   private static final boolean ENABLE_CHEATS = false;
   private static final int START_LEVEL = ENABLE_CHEATS ? 5 : 0;
 
@@ -90,11 +89,7 @@ public class DevDungeon {
           }
           setupMusic();
           Crafting.loadRecipes();
-          if (SKIP_TUTORIAL) {
-            DungeonLoader.loadLevel(1); // First Level
-          } else {
-            DungeonLoader.loadLevel(START_LEVEL); // Tutorial
-          }
+          DungeonLoader.loadLevel(START_LEVEL); // Tutorial
         });
   }
 

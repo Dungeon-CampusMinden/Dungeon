@@ -22,16 +22,16 @@ public class FireballSkill extends DamageProjectileSkill {
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "FIREBALL";
-
   private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
   private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float SPEED = 13f;
   private static final int DAMAGE = 2;
   private static final float RANGE = 7f;
-  private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final long COOLDOWN = 500;
   private static final boolean IS_PIERCING = false;
+
+  private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
+  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
 
   /**
    * Creates a fully customized fireball skill with a custom name.
@@ -48,7 +48,7 @@ public class FireballSkill extends DamageProjectileSkill {
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
-  FireballSkill(
+  protected FireballSkill(
       String name,
       Supplier<Point> target,
       long cooldown,

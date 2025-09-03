@@ -84,22 +84,20 @@ public final class SkillTools {
   public static void blink(Entity entity, int tint, long totalDuration, int times) {
     // Each blink has two phases: on and off
     long interval = totalDuration / (times * 2);
-
+    DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow(() -> MissingComponentException.build(entity,DrawComponent.class));
+    int oldtint = dc.tintColor();
     for (int i = 0; i < times * 2; i++) {
       final int step = i;
       EventScheduler.scheduleAction(
-          () ->
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      dc -> {
+          () ->{
                         if (step % 2 == 0) {
                           dc.tintColor(tint); // blink color
                         } else {
                           dc.tintColor(-1); // normal color
-                        }
-                      }),
+                        }}
+                      ,
           interval * i);
     }
+    dc.tintColor(oldtint);
   }
 }
