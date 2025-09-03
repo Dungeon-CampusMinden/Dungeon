@@ -11,7 +11,7 @@ import core.level.elements.tile.FloorTile;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -34,7 +34,7 @@ public class ItemHeart extends Item {
    * @param healAmount the amount of healing applied.
    */
   public ItemHeart(int healAmount) {
-    super("Herz", "Heilt ein wenig HP.", Animation.fromSingleImage(HEART_TEXTURE));
+    super("Herz", "Heilt ein wenig HP.", new Animation(HEART_TEXTURE));
     this.healAmount = healAmount;
   }
 

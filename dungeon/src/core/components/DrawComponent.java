@@ -63,7 +63,21 @@ public final class DrawComponent implements Component {
    * @see Animation
    */
   public DrawComponent(final IPath path, AnimationConfig config) {
-    stateMachine = new StateMachine(path, config);
+    this(path, config, null);
+  }
+
+  /**
+   * Create a new DrawComponent.
+   *
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param config The animation config to use
+   * @param defaultStateName Name of the default state to use
+   * @see Animation
+   */
+  public DrawComponent(final IPath path, AnimationConfig config, String defaultStateName) {
+    stateMachine = new StateMachine(path, config, defaultStateName);
   }
 
   /**
@@ -80,11 +94,26 @@ public final class DrawComponent implements Component {
   /**
    * Create a new DrawComponent with a default {@link AnimationConfig}.
    *
-   * @param path Path to the image in the assets folder.
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
    * @see AnimationConfig
    */
   public DrawComponent(final IPath path) {
-    this(path, new AnimationConfig());
+    this(path, new AnimationConfig(), null);
+  }
+
+  /**
+   * Create a new DrawComponent with a default {@link AnimationConfig}.
+   *
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param defaultStateName Name of the state to be used as default
+   * @see AnimationConfig
+   */
+  public DrawComponent(final IPath path, String defaultStateName) {
+    this(path, new AnimationConfig(), defaultStateName);
   }
 
   /**
@@ -103,6 +132,16 @@ public final class DrawComponent implements Component {
    */
   public DrawComponent(List<State> states) {
     stateMachine = new StateMachine(states);
+  }
+
+  /**
+   * Create a new DrawComponent from a list of states.
+   *
+   * @param states The list of states to initialize the state machine with.
+   * @param defaultState The state to be used as default
+   */
+  public DrawComponent(List<State> states, State defaultState) {
+    stateMachine = new StateMachine(states, defaultState);
   }
 
   /**

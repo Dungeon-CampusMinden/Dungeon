@@ -234,7 +234,7 @@ public abstract class DamageProjectile implements Consumer<Entity> {
         SkillTools.calculateLastPositionInRange(startPoint, aimedOn, projectileRange);
 
     // Rotate the entity, so it always points in the direction it is moving
-    ppc.rotation((float)startPoint.vectorTo(aimedOn).angleDeg());
+    ppc.rotation((float) startPoint.vectorTo(aimedOn).angleDeg());
 
     // Calculate the velocity of the projectile
     Vector2 forceToApply =

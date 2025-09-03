@@ -158,14 +158,56 @@ def process_multi_mode(parent_folder):
         except Exception as e:
             print(f"Failed to delete {img_path}: {e}")
 
+def unpack_spritesheet(base_path):
+    image_path = base_path + ".png"
+    json_path = base_path + ".json"
+
+    if not os.path.exists(image_path) or not os.path.exists(json_path):
+        print(f"Error: Missing .png or .json for base path: {base_path}")
+        return
+
+    with open(json_path, "r") as f:
+        config_data = json.load(f)
+
+    sheet = Image.open(image_path)
+
+    for anim_name, anim_cfg in config_data.items():
+        cfg = anim_cfg["config"]
+        sprite_width = cfg["spriteWidth"]
+        sprite_height = cfg["spriteHeight"]
+        x_start = cfg["x"]
+        y_start = cfg["y"]
+        rows = cfg["rows"]
+        cols = cfg["columns"]
+
+        output_dir = os.path.join(os.path.dirname(base_path), anim_name)
+        os.makedirs(output_dir, exist_ok=True)
+
+        frame_index = 0
+        for row in range(rows):
+            for col in range(cols):
+                frame_index += 1
+                left = x_start + col * sprite_width
+                top = y_start + row * sprite_height
+                right = left + sprite_width
+                bottom = top + sprite_height
+                frame = sheet.crop((left, top, right, bottom))
+                out_path = os.path.join(output_dir, f"{anim_name}_{frame_index:02d}.png")
+                frame.save(out_path)
+        print(f"Extracted {frame_index} frames for animation '{anim_name}' into {output_dir}")
+
+# CLI
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate a sprite sheet and config from a folder of images.")
-    parser.add_argument("folder", help="Path to the folder containing images or subfolders")
+    parser = argparse.ArgumentParser(description="Generate or unpack a sprite sheet and config from a folder of images.")
+    parser.add_argument("folder", help="Path to the folder (or base path if --unpack)")
     parser.add_argument("--stack", action="store_true", help="Stack images vertically (allows varying sizes)")
     parser.add_argument("--single", action="store_true", help="Only process a single folder of images (no subfolders)")
+    parser.add_argument("--unpack", action="store_true", help="Unpack a sprite sheet (.png + .json) into individual frames")
     args = parser.parse_args()
 
-    if args.single:
+    if args.unpack:
+        unpack_spritesheet(args.folder)
+    elif args.single:
         folder_name = os.path.basename(os.path.abspath(args.folder))
         parent_folder = os.path.dirname(os.path.abspath(args.folder))
         image_files = [

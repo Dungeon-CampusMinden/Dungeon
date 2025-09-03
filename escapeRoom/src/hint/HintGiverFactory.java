@@ -8,7 +8,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class HintGiverFactory {
   public static Entity mailbox(Point point) {
     Entity mailbox = new Entity("Hint Mailbox");
     mailbox.add(new PositionComponent(point));
-    mailbox.add(new DrawComponent(Animation.fromSingleImage(MAILBOX_TEXTURE)));
+    mailbox.add(new DrawComponent(new Animation(MAILBOX_TEXTURE)));
     mailbox.add(new InteractionComponent(1, true, wantHintInteraction()));
     return mailbox;
   }

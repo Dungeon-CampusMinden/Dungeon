@@ -8,10 +8,9 @@ import contrib.hud.dialogs.YesNoDialog;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
+import contrib.item.concreteItem.*;
 import contrib.item.concreteItem.ItemBigKey;
 import contrib.item.concreteItem.ItemKey;
-import contrib.item.concreteItem.*;
-import contrib.utils.components.draw.DestroyableObjectsAnimations;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -31,11 +30,11 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,9 +48,9 @@ public final class MiscFactory {
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
   private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
   private static final SimpleIPath HEART_TEXTURE =
-    new SimpleIPath("items/pickups/heart_pickup.png");
+      new SimpleIPath("items/pickups/heart_pickup.png");
   private static final SimpleIPath FAIRY_TEXTURE =
-    new SimpleIPath("items/pickups/fairy_pickup.png");
+      new SimpleIPath("items/pickups/fairy_pickup.png");
   private static final SimpleIPath DOOR_BLOCKER_TEXTURE = new SimpleIPath("other/chain_lock.png");
 
   private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
@@ -170,7 +169,7 @@ public final class MiscFactory {
     State stClosed = State.fromMap(animationMap, "closed");
     State stOpening = State.fromMap(animationMap, "opening");
     State stOpen = FillState.fromMap(animationMap, "open");
-    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen));
+    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen), stClosed);
     sm.addTransition(stClosed, "open", stOpening);
     // Automatically transition to open state when opening animation is finished playing
     sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() == 0);
@@ -690,8 +689,7 @@ public final class MiscFactory {
       SimpleIPath texturePath,
       Point spawnPoint,
       final Class<? extends Item> requiredItemClass,
-      final Set<Item> items)
-      {
+      final Set<Item> items) {
 
     Entity destroyableObj = new Entity(name);
     destroyableObj.add(new PositionComponent(spawnPoint));
@@ -707,6 +705,16 @@ public final class MiscFactory {
               // Original behavior will be wrapped below
             });
     destroyableObj.add(baseIC);
+
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
+    State stIdle = State.fromMap(animationMap, "idle");
+    State stBreaking = State.fromMap(animationMap, "breaking");
+    State stBroken = State.fromMap(animationMap, "broken");
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stBreaking, stBroken), stIdle);
+    sm.addTransition(stIdle, "break", stBreaking);
+    sm.addEpsilonTransition(stBreaking, State::isAnimationFinished, stBroken);
+    DrawComponent dc = new DrawComponent(sm);
+    destroyableObj.add(dc);
 
     // Wrapper-InteractionComponent
     destroyableObj
@@ -732,11 +740,7 @@ public final class MiscFactory {
                         }
 
                         // start breaking Animation
-                        interacted
-                            .fetch(DrawComponent.class)
-                            .ifPresent(
-                                drawComp ->
-                                    drawComp.queueAnimation(DestroyableObjectsAnimations.BREAKING));
+                        dc.sendSignal("break");
 
                         // Drop all items from DestroyableObject inventory
                         Arrays.stream(objInvComp.items())
@@ -754,21 +758,6 @@ public final class MiscFactory {
               destroyableObj.remove(InteractionComponent.class);
               destroyableObj.add(wrapperIC);
             });
-
-    // init DrawComponent
-    DrawComponent dc = new DrawComponent(texturePath);
-    var mapping = dc.animationMap();
-    // set intact texture as idle
-    mapping.put(
-        CoreAnimations.IDLE.pathString(),
-        mapping.get(DestroyableObjectsAnimations.INTACT.pathString()));
-    // BREAKING should not loop
-    mapping.get(DestroyableObjectsAnimations.BREAKING.pathString()).loop(false);
-    dc.animationMap(mapping);
-    // reset intact animation
-    dc.deQueueByPriority(CoreAnimations.IDLE.priority());
-    dc.currentAnimation(CoreAnimations.IDLE);
-    destroyableObj.add(dc);
 
     return destroyableObj;
   }

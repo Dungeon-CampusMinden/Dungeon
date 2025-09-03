@@ -56,6 +56,16 @@ public class StateMachine {
   }
 
   /**
+   * Constructs a StateMachine from a path using the default animation configuration.
+   *
+   * @param path the path to the spritesheet
+   * @param defaultStateName name of the state to be used as default
+   */
+  public StateMachine(IPath path, String defaultStateName) {
+    this(path, new AnimationConfig(), defaultStateName);
+  }
+
+  /**
    * Constructs a StateMachine from a path and a custom animation configuration.
    *
    * @param path the path to the spritesheet
@@ -75,6 +85,18 @@ public class StateMachine {
   }
 
   /**
+   * Constructs a StateMachine from a path and a custom animation configuration.
+   *
+   * @param path the path to the spritesheet
+   * @param config the animation configuration
+   * @param defaultStateName name of the state to be used as default
+   */
+  public StateMachine(IPath path, AnimationConfig config, String defaultStateName) {
+    this(path, config);
+    setInitialState(defaultStateName);
+  }
+
+  /**
    * Constructs a StateMachine with a list of pre-defined states.
    *
    * @param states the list of states
@@ -86,11 +108,43 @@ public class StateMachine {
     setInitialState();
   }
 
+  /**
+   * Constructs a StateMachine with a list of pre-defined states and a specific default state.
+   *
+   * @param states the list of states
+   * @param defaultState the default state
+   * @throws IllegalArgumentException if the list of states is empty or the default state is not in
+   *     the state list
+   */
+  public StateMachine(List<State> states, State defaultState) {
+    this(states);
+    if (defaultState == null) {
+      setInitialState();
+      return;
+    }
+    if (!states.contains(defaultState))
+      throw new IllegalArgumentException("Default state has to be in the state list");
+    this.currentState = defaultState;
+  }
+
   private void setInitialState() {
+    setInitialState(null);
+  }
+
+  private void setInitialState(String name) {
+    String targetName = name == null ? IDLE_STATE : name;
     states.stream()
-        .filter(s -> IDLE_STATE.equals(s.name))
+        .filter(s -> targetName.equals(s.name))
         .findFirst()
-        .ifPresentOrElse(s -> currentState = s, () -> currentState = states.get(0));
+        .ifPresentOrElse(
+            s -> currentState = s,
+            () -> {
+              if (IDLE_STATE.equals(targetName)) {
+                currentState = states.get(0);
+              } else {
+                throw new IllegalArgumentException("Default state name not found in states list");
+              }
+            });
   }
 
   /**
@@ -315,7 +369,8 @@ public class StateMachine {
     for (int i = 0; i < epsilonTransitions.size(); i++) {
       EpsilonTransition transition = epsilonTransitions.get(i);
       if (transition.function().apply(currentState)) {
-        changeState(transition.targetState(), transition.data().get());
+        Object data = transition.data() != null ? transition.data().get() : null;
+        changeState(transition.targetState(), data);
       }
     }
   }
