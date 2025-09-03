@@ -31,7 +31,7 @@ public final class ECSManagment {
   private static final Logger LOGGER = Logger.getLogger(ECSManagment.class.getSimpleName());
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
-  private static Set<EntitySystemMapper> activeEntityStorage = new LinkedHashSet<>();
+  private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
 
   static {
     LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
@@ -222,7 +222,7 @@ public final class ECSManagment {
   public static Stream<Entity> levelEntities(Set<Class<? extends Component>> filter) {
     Stream<Entity> returnStream;
     Optional<EntitySystemMapper> rf =
-        new HashSet(activeEntityStorage).stream().filter(f -> f.equals(filter)).findFirst();
+        activeEntityStorage.stream().filter(f -> f.equals(filter)).findFirst();
 
     if (rf.isEmpty()) {
       EntitySystemMapper newMapper = createNewEntitySystemMapper(filter);
