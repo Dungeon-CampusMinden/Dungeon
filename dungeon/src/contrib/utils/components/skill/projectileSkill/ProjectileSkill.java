@@ -16,6 +16,7 @@ import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Tuple;
 import core.utils.Vector2;
+import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -198,7 +199,8 @@ public abstract class ProjectileSkill extends Skill {
     return caster
         .fetch(CollideComponent.class)
         .map(collideComponent -> collideComponent.center(caster))
-        .orElse(new Point(0, 0));
+        .or(() -> caster.fetch(PositionComponent.class).map(PositionComponent::position))
+        .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class));
   }
 
   /**
