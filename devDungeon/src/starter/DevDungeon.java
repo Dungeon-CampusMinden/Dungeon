@@ -86,7 +86,7 @@ public class DevDungeon {
           FogOfWarSystem fogOfWarSystem = (FogOfWarSystem) Game.systems().get(FogOfWarSystem.class);
           fogOfWarSystem.active(false); // Default: Fog of War is disabled
 
-          HeroFactory.setHeroSkillCallback(
+          HeroFactory.setHeroSkill(
               new BurningFireballSkill(
                   SkillTools::cursorPositionAsPoint)); // Override default skill
           try {
@@ -180,7 +180,7 @@ public class DevDungeon {
               } else {
                 BurningFireballSkill.DAMAGE_AMOUNT = 2;
               }
-              HeroFactory.setHeroSkillCallback(
+              HeroFactory.setHeroSkill(
                   new BurningFireballSkill(
                       SkillTools::cursorPositionAsPoint)); // Update the current hero skill
               DialogUtils.showTextPopup(

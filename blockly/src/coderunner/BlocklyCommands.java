@@ -8,8 +8,8 @@ import components.PushableComponent;
 import contrib.components.*;
 import contrib.components.BlockComponent;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.FireballSkill;
-import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.OldSkill;
+import contrib.utils.components.skill.damageSkill.projectile.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -227,8 +227,8 @@ public class BlocklyCommands {
    * @param hero Entity to be used as hero for positioning
    * @return Nice new fireball, ready to be launched.
    */
-  private static Skill newFireballSkill(Entity hero) {
-    return new Skill(
+  private static OldSkill newFireballSkill(Entity hero) {
+    return new OldSkill(
         new FireballSkill(
             () ->
                 hero.fetch(CollideComponent.class)
