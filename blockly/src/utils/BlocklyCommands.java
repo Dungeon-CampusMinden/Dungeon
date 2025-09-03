@@ -487,8 +487,6 @@ public class BlocklyCommands {
    *
    * <p>This will also update the animation.
    *
-   * <p>This does not call {@link Server#waitDelta()}.
-   *
    * @param entity Entity to turn.
    * @param direction direction to turn to.
    */
@@ -506,6 +504,7 @@ public class BlocklyCommands {
     vc.applyForce(MOVEMENT_FORCE_ID, direction);
     // so the player can not glitch inside the next tile
     pc.position(oldP);
+    Server.waitDelta();
   }
 
   /**
