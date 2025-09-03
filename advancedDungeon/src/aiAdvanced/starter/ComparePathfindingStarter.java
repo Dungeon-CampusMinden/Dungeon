@@ -265,7 +265,7 @@ public class ComparePathfindingStarter {
       runnerMob =
           MonsterFactory.buildMonster(
               "KI Runner",
-              (HeroFactory.DEFAULT_HERO_CLASS.textures()),
+              HeroFactory.DEFAULT_HERO_CLASS.textures(),
               1,
               HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
               0.0f,

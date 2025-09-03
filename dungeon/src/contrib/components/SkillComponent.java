@@ -64,11 +64,7 @@ public class SkillComponent implements Component {
    */
   public void removeSkill(Skill skill) {
     if (skills.remove(skill)) {
-      if (skills.isEmpty()) {
-        activeSkill = -1;
-      } else if (activeSkill >= skills.size()) {
-        activeSkill = skills.size() - 1;
-      }
+      activeSkill = skills.size() - 1;
     }
   }
 
@@ -87,11 +83,7 @@ public class SkillComponent implements Component {
    */
   public void removeSkill(Class<? extends Skill> skillClass) {
     skills.removeIf(s -> skillClass.isAssignableFrom(s.getClass()));
-    if (skills.isEmpty()) {
-      activeSkill = -1;
-    } else if (activeSkill >= skills.size()) {
-      activeSkill = skills.size() - 1;
-    }
+    activeSkill = skills.size() - 1;
   }
 
   /**

@@ -107,13 +107,6 @@ public class IllusionRiddleHandler {
                 .getSkill(BurningFireballSkill.class)
                 .orElseThrow());
     burningFireballSkill.range(burningFireballSkill.range() + 1f);
-    Game.hero()
-        .flatMap(hero -> hero.fetch(SkillComponent.class))
-        .ifPresent(
-            sc -> {
-              sc.removeSkill(FireballSkill.class);
-              sc.addSkill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint));
-            });
     this.rewardGiven = true;
     level.tileAt(riddleRewardSpawn).ifPresent(tile -> tile.tintColor(-1));
   }

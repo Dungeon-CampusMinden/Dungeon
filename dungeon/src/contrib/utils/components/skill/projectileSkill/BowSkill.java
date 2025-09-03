@@ -32,7 +32,7 @@ public class BowSkill extends DamageProjectileSkill {
   private static final boolean IS_PIRCING = false;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.PHYSICAL;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
+  private static final Vector2 HIT_BOX_SIZE = Vector2.ONE;
   private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
 
