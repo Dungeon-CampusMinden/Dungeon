@@ -105,7 +105,11 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero();
+    // TODO: Only testing, revert later
+    Entity hero = HeroFactory.newHero(false);
+    Game.add(hero);
+    hero = HeroFactory.newHero(true);
+    // hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     Game.add(hero);
   }
 

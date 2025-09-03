@@ -44,7 +44,7 @@ public class ProtectOnAttackTest {
 
     // Get an attacker
     attacker = new Entity();
-    attacker.add(new PlayerComponent());
+    attacker.add(new PlayerComponent(true));
 
     // Prepare a list of entities with a HealthComponent
     entitiesToProtect = new ArrayList<>();
