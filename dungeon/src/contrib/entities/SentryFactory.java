@@ -1,6 +1,7 @@
 package contrib.entities;
 
 import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
 import contrib.utils.components.ai.fight.SentryFightBehaviour;
 import contrib.utils.components.ai.idle.SentryPatrolWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
@@ -57,6 +58,7 @@ public class SentryFactory {
     sentry.add(ai);
     sentry.add(new DrawComponent(texture));
     sentry.add(new VelocityComponent(speed));
+    sentry.add(new CollideComponent());
 
     return sentry;
   }
