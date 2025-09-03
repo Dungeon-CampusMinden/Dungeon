@@ -156,11 +156,7 @@ public class Animation {
       textHeight = 16;
     }
 
-    width = textWidth * config.scaleX();
-    height = config.scaleY() == 0 ? textHeight * config.scaleX() : textHeight * config.scaleY();
-
-    width *= DEFAULT_SCALE;
-    height *= DEFAULT_SCALE;
+    calculateWorldSize(textWidth, textHeight);
   }
 
   /**
@@ -195,10 +191,24 @@ public class Animation {
       }
     }
 
-    width = sWidth * config.scaleX();
-    height = config.scaleY() == 0 ? sHeight * config.scaleX() : sHeight * config.scaleY();
-    width *= DEFAULT_SCALE;
-    height *= DEFAULT_SCALE;
+    calculateWorldSize(sWidth, sHeight);
+  }
+
+  /**
+   * Sets the width and height of the animation. Assumes the smallest dimension to be 1 tile in the
+   * world (before scale is applied).
+   *
+   * @param spriteWidth the width of the sprite
+   * @param spriteHeight the height of the sprite
+   */
+  private void calculateWorldSize(int spriteWidth, int spriteHeight) {
+    float scaleX = config.scaleX();
+    float scaleY = config.scaleY() == 0 ? config.scaleX() : config.scaleY();
+
+    int smallestDimension = Math.min(spriteWidth, spriteHeight);
+
+    width = (float) spriteWidth / smallestDimension * scaleX;
+    height = (float) spriteHeight / smallestDimension * scaleY;
   }
 
   /**
