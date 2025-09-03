@@ -2,7 +2,6 @@ package entities;
 
 import client.Client;
 import coderunner.BlocklyCommands;
-import contrib.components.SkillComponent;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.components.InputComponent;

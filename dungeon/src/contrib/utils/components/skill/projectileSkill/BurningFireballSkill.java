@@ -44,7 +44,8 @@ public final class BurningFireballSkill extends FireballSkill {
   }
 
   @Override
-  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+  protected void additionalEffectAfterDamage(
+      Entity caster, Entity projectile, Entity target, Direction direction) {
     if (unlocked) BURNING_EFFECT.applyBurning(target);
   }
 

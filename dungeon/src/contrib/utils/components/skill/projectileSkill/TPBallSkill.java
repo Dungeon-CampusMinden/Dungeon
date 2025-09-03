@@ -137,7 +137,8 @@ public class TPBallSkill extends DamageProjectileSkill {
   }
 
   @Override
-  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+  protected void additionalEffectAfterDamage(
+      Entity caster, Entity projectile, Entity target, Direction direction) {
     EntityUtils.teleportEntityTo(caster, tpTarget.get());
   }
 

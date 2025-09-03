@@ -88,7 +88,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         target
             .fetch(HealthComponent.class)
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
-        bonusEffect(caster, projectile, target, direction);
+        additionalEffectAfterDamage(caster, projectile, target, direction);
 
         if (pircing) {
           ignoreEntities.add(target);
@@ -137,7 +137,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    * @param target The Entity that was hit
    * @param direction The colide Direction
    */
-  protected void bonusEffect(
+  protected void additionalEffectAfterDamage(
       Entity caster, Entity projectile, Entity target, Direction direction) {}
 
   /**

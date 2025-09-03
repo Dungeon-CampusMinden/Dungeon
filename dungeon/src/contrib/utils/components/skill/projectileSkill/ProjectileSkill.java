@@ -93,7 +93,7 @@ public abstract class ProjectileSkill extends Skill {
     ignoreEntities.add(projectile);
 
     projectile.add(new FlyComponent());
-    Point position = start.translate(hitBoxSize.scale(-0.5)); //+offset
+    Point position = start.translate(hitBoxSize.scale(-0.5)); // +offset
 
     projectile.add(new PositionComponent(position));
 

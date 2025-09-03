@@ -54,7 +54,8 @@ public class InevitableFireballSkill extends FireballSkill {
         .ifPresent(PositionComponent::centerPositionOnTile);
   }
 
-  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+  protected void additionalEffectAfterDamage(
+      Entity caster, Entity projectile, Entity target, Direction direction) {
     // Set the velocity back to the original value (hero only)
     if (!target.isPresent(PlayerComponent.class)) return;
     target

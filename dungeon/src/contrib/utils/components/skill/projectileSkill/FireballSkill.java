@@ -22,6 +22,7 @@ public class FireballSkill extends DamageProjectileSkill {
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "FIREBALL";
+
   private static final IPath TEXTURE = new SimpleIPath("skills/fireball");
   private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float SPEED = 13f;

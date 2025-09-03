@@ -13,7 +13,7 @@ public enum DamageType {
   /** Damage that is dealt over time. */
   POISON,
   /** Damage caused by a Skill (eg. if the skill needed hp to be cast). */
-  SKILL,
+  LIFE_RESOURCE,
   /** Damage caused by falling from a height. */
   FALL
 }

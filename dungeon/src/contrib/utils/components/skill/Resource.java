@@ -37,7 +37,8 @@ public enum Resource {
    * Health points (HP).
    *
    * <p>Supplied from {@link HealthComponent#currentHealthpoints()}. Consuming HP applies damage to
-   * the entity using {@link HealthComponent#receiveHit(Damage)} with type {@link DamageType#SKILL}.
+   * the entity using {@link HealthComponent#receiveHit(Damage)} with type {@link
+   * DamageType#LIFE_RESOURCE}.
    */
   HP(
       entity ->
@@ -50,7 +51,7 @@ public enum Resource {
           entity
               .fetch(HealthComponent.class)
               .orElseThrow()
-              .receiveHit(new Damage(amount, DamageType.SKILL, entity))),
+              .receiveHit(new Damage(amount, DamageType.LIFE_RESOURCE, entity))),
 
   /**
    * Arrows in the inventory.

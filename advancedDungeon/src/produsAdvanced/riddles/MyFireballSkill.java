@@ -90,7 +90,8 @@ public class MyFireballSkill extends DamageProjectileSkill {
   }
 
   @Override
-  protected void bonusEffect(Entity caster, Entity projectile, Entity target, Direction direction) {
+  protected void additionalEffectAfterDamage(
+      Entity caster, Entity projectile, Entity target, Direction direction) {
     if (target.name().equals(Berry.NAME)) {
       onBerryHit(target);
     }
