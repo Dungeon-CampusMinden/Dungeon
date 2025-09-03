@@ -22,23 +22,20 @@ public class BossAttackSkills {
 
   private static final Supplier<Point> HERO_POSITION = EntityUtils::getHeroPosition;
 
+  /** Damage for the fire shock wave skill that the boss uses. (default: 1) */
+  private static final int SHOCKWAVE_DAMAGE = 1;
+
   /** Damage for the fireball skill that the boss uses. (default: 2) */
   private static final int FIREBALL_DAMAGE = 2;
 
   /** Speed for the fireball skill that the boss uses. (default: 4.50f) */
   private static final float FIREBALL_SPEED = 4.50f;
 
-  /** Cooldown for the fireball skill that the boss uses. (default: 750L) */
+  /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
+  private static final float FIREBALL_RANGE = 25f;
+
+  /** Cool down for the fireball skill that the boss uses (in milliseconds). (default: 750L) */
   private static final long FIREBALL_COOLDOWN = 750L;
-
-  /**
-   * Range for the fireball skill that the boss uses. (default: 8)
-   */
-  public static final int FIREBALL_RANGE = 8;
-
-  /* Shockwave fields */
-  private static final int SHOCKWAVE_DAMAGE = 3;
-  private static final int SHOCKWAVE_RADIUS = 6;
 
   /**
    * A skill that does nothing.
@@ -68,7 +65,7 @@ public class BossAttackSkills {
    * @return The skill that starts the shock wave.
    */
   public static Skill fireShockWave(int radius) {
-    return new FireShockWaveSkill(radius, SHOCKWAVE_DAMAGE, SHOCKWAVE_RADIUS);
+    return new FireShockWaveSkill(radius, SHOCKWAVE_DAMAGE, radius);
   }
 
   /**
