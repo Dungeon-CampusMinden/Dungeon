@@ -265,9 +265,9 @@ public class ComparePathfindingStarter {
       runnerMob =
           MonsterFactory.buildMonster(
               "KI Runner",
-              new SimpleIPath("character/wizard"),
+              (HeroFactory.DEFAULT_HERO_CLASS.textures()),
               1,
-              CharacterClass.WIZARD.speed().x(), // same speed as hero
+              HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
               0.0f,
               MonsterDeathSound.LOWER_PITCH.sound(),
               new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
