@@ -1,17 +1,9 @@
 package contrib.utils.components.skill.projectileSkill;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.math.MathUtils;
 import contrib.systems.EventScheduler;
-import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.Resource;
 import core.Entity;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -53,20 +45,6 @@ public class FireballConeSkill extends FireballSkill {
       int degree,
       int delayMillis) {
     super(SKILL_NAME, target, cooldown, speed, range, damageAmount);
-    this.degree = degree;
-    this.delayMillis = delayMillis;
-  }
-
-  /**
-   * Create a new default {@link DamageProjectileSkill} based on {@link FireballSkill}.
-   * @param degree The degree of the fire cone.
-   * @param delayMillis The delay between the first and second round of fireballs.
-   */
-  public FireballConeSkill(
-    Supplier<Point> target,
-    int degree,
-    int delayMillis) {
-    super(SKILL_NAME, target);
     this.degree = degree;
     this.delayMillis = delayMillis;
   }

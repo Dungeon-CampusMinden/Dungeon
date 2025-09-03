@@ -3,7 +3,6 @@ package contrib.utils.components.skill.projectileSkill;
 import core.Entity;
 import core.utils.Point;
 import core.utils.Vector2;
-
 import java.util.function.Supplier;
 
 /** Shoots a fire wall (made of fireballs). */
@@ -30,18 +29,6 @@ public class FireballWallSkill extends FireballSkill {
       int damageAmount,
       int wallWidth) {
     super(SKILL_NAME, target, cooldown, speed, range, damageAmount);
-    this.wallWidth = wallWidth;
-  }
-
-  /**
-   * Create a new default {@link DamageProjectileSkill} based on {@link FireballSkill}.
-   *
-   * @param wallWidth Width of the firewall
-   */
-  public FireballWallSkill(
-    Supplier<Point> target,
-    int wallWidth) {
-    super(SKILL_NAME, target);
     this.wallWidth = wallWidth;
   }
 

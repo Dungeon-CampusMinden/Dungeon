@@ -1,17 +1,9 @@
 package contrib.utils.components.skill.projectileSkill;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.math.MathUtils;
 import contrib.systems.EventScheduler;
-import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.Resource;
 import core.Entity;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
 
 /**
@@ -34,21 +26,8 @@ public class DoubleFireballSkill extends FireballSkill {
    * @param damageAmount The base damage dealt by the projectile.
    */
   public DoubleFireballSkill(
-    Supplier<Point> target,
-    long cooldown,
-    float speed,
-    float range,
-    int damageAmount) {
+      Supplier<Point> target, long cooldown, float speed, float range, int damageAmount) {
     super(SKILL_NAME, target, cooldown, speed, range, damageAmount);
-  }
-
-  /**
-   * Create a new default {@link DamageProjectileSkill} based on {@link FireballSkill}.
-   *
-   * @param target Function providing the target point.
-   */
-  public DoubleFireballSkill(Supplier<Point> target) {
-    super(SKILL_NAME, target);
   }
 
   @Override

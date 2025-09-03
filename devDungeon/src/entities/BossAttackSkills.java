@@ -1,6 +1,7 @@
 package entities;
 
 import contrib.components.HealthComponent;
+import contrib.entities.AIFactory;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.*;
@@ -34,8 +35,11 @@ public class BossAttackSkills {
   /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
   private static final float FIREBALL_RANGE = 25f;
 
-  /** Cool down for the fireball skill that the boss uses (in milliseconds). (default: 750L) */
-  private static final long FIREBALL_COOLDOWN = 750L;
+  /**
+   * Cool down for the fireball skill that the boss uses (in milliseconds). (default: {@link
+   * AIFactory#FIREBALL_COOL_DOWN})
+   */
+  private static final long FIREBALL_COOLDOWN = AIFactory.FIREBALL_COOL_DOWN;
 
   /**
    * A skill that does nothing.
@@ -55,7 +59,13 @@ public class BossAttackSkills {
    * @return The skill that shoots the fire wall.
    */
   public static Skill fireWall(int wallWidth) {
-    return new FireballWallSkill(HERO_POSITION, FIREBALL_COOLDOWN, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE, wallWidth);
+    return new FireballWallSkill(
+        HERO_POSITION,
+        FIREBALL_COOLDOWN,
+        FIREBALL_SPEED,
+        FIREBALL_RANGE,
+        FIREBALL_DAMAGE,
+        wallWidth);
   }
 
   /**
@@ -86,7 +96,14 @@ public class BossAttackSkills {
    */
   public static Skill fireCone(
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
-    return new FireballConeSkill(HERO_POSITION, FIREBALL_COOLDOWN, fireballSpeed, FIREBALL_RANGE, fireballDamage, degree, delayMillis);
+    return new FireballConeSkill(
+        HERO_POSITION,
+        FIREBALL_COOLDOWN,
+        fireballSpeed,
+        FIREBALL_RANGE,
+        fireballDamage,
+        degree,
+        delayMillis);
   }
 
   /**
@@ -97,7 +114,13 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill fireStorm(int totalFireBalls, int delayBetweenFireballs) {
-    return new FireballStormSkill(FIREBALL_COOLDOWN, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE, totalFireBalls, delayBetweenFireballs);
+    return new FireballStormSkill(
+        FIREBALL_COOLDOWN,
+        FIREBALL_SPEED,
+        FIREBALL_RANGE,
+        FIREBALL_DAMAGE,
+        totalFireBalls,
+        delayBetweenFireballs);
   }
 
   /**
@@ -187,6 +210,7 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill normalAttack(int coolDown) {
-    return new DoubleFireballSkill(HERO_POSITION, coolDown, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE);
+    return new DoubleFireballSkill(
+        HERO_POSITION, coolDown, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE);
   }
 }

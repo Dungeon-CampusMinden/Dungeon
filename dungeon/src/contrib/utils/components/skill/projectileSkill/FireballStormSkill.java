@@ -5,7 +5,6 @@ import core.Entity;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
-
 import java.util.function.Supplier;
 
 /** Launches a fireball in every direction around the boss. Sort of like a fire spin attack. */
@@ -13,7 +12,8 @@ public class FireballStormSkill extends FireballSkill {
 
   private static final String SKILL_NAME = "FIRESTORM";
 
-  private static final Supplier<Point> TARGET = () -> new Point(0, 0); // Target is not used in this skill
+  private static final Supplier<Point> TARGET =
+      () -> new Point(0, 0); // Target is not used in this skill
 
   private final int delayBetweenFireballs;
   private final int totalFireballs;
@@ -36,18 +36,6 @@ public class FireballStormSkill extends FireballSkill {
       int totalFireBalls,
       int delayBetweenFireballs) {
     super(SKILL_NAME, TARGET, cooldown, speed, range, damageAmount);
-    this.delayBetweenFireballs = delayBetweenFireballs;
-    this.totalFireballs = totalFireBalls;
-  }
-
-  /**
-   * Create a new default {@link DamageProjectileSkill} based on {@link FireballSkill}.
-   *
-   * @param totalFireBalls The total number of fireballs to shoot.
-   * @param delayBetweenFireballs The delay between each fireball.
-   */
-  public FireballStormSkill(int totalFireBalls, int delayBetweenFireballs) {
-    super(SKILL_NAME, TARGET);
     this.delayBetweenFireballs = delayBetweenFireballs;
     this.totalFireballs = totalFireBalls;
   }

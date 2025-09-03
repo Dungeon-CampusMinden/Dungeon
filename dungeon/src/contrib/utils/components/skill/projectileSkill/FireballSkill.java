@@ -36,8 +36,8 @@ public class FireballSkill extends DamageProjectileSkill {
   /**
    * Creates a fully customized fireball skill with a custom name.
    *
-   * <p>This constructor allows for subclassing and customization of the fireball skill, including its name,
-   * target selection, cooldown, speed, range, damage amount, and resource costs.
+   * <p>This constructor allows for subclassing and customization of the fireball skill, including
+   * its name, target selection, cooldown, speed, range, damage amount, and resource costs.
    *
    * @param target Function providing the target point.
    * @param cooldown Cooldown in ms.
@@ -48,25 +48,25 @@ public class FireballSkill extends DamageProjectileSkill {
    */
   @SafeVarargs
   FireballSkill(
-    String name,
-    Supplier<Point> target,
-    long cooldown,
-    float speed,
-    float range,
-    int damageAmount,
-    Tuple<Resource, Integer>... resourceCost) {
+      String name,
+      Supplier<Point> target,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      Tuple<Resource, Integer>... resourceCost) {
     super(
-      name,
-      cooldown,
-      TEXTURE,
-      target,
-      speed,
-      range,
-      IS_PIERCING,
-      damageAmount,
-      DAMAGE_TYPE,
-      HIT_BOX_SIZE,
-      resourceCost);
+        name,
+        cooldown,
+        TEXTURE,
+        target,
+        speed,
+        range,
+        IS_PIERCING,
+        damageAmount,
+        DAMAGE_TYPE,
+        HIT_BOX_SIZE,
+        resourceCost);
   }
 
   /**
@@ -81,45 +81,36 @@ public class FireballSkill extends DamageProjectileSkill {
    */
   @SafeVarargs
   public FireballSkill(
-    Supplier<Point> target,
-    long cooldown,
-    float speed,
-    float range,
-    int damageAmount,
-    Tuple<Resource, Integer>... resourceCost) {
-    this(
-      SKILL_NAME,
-      target,
-      cooldown,
-      speed,
-      range,
-      damageAmount,
-      resourceCost
-    );
+      Supplier<Point> target,
+      long cooldown,
+      float speed,
+      float range,
+      int damageAmount,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(SKILL_NAME, target, cooldown, speed, range, damageAmount, resourceCost);
   }
 
   /**
-   * Creates a fireball skill with default values with a custom name.
+   * Creates a fireball skill with default values and custom cooldown.
    *
-   * <p>This constructor allows for subclassing and customization of the fireball skill with a custom name,
-   * using default values for cooldown, speed, range, and damage.
-   *
-   * @param name The name of the skill.
    * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
-  FireballSkill(String name, Supplier<Point> targetSelection) {
-    this(name, targetSelection, COOLDOWN, SPEED, RANGE, DAMAGE);
+  @SafeVarargs
+  public FireballSkill(
+      Supplier<Point> targetSelection, long cooldown, Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, resourceCost);
   }
 
   /**
-   * Creates a fireball skill with default cooldown.
+   * Creates a fireball skill with default values.
    *
    * @param targetSelection Function providing the target point where the fireball should fly.
    * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
   @SafeVarargs
   public FireballSkill(Supplier<Point> targetSelection, Tuple<Resource, Integer>... resourceCost) {
-    this(targetSelection, COOLDOWN, SPEED, RANGE, DAMAGE, resourceCost);
+    this(targetSelection, COOLDOWN, resourceCost);
   }
 
   /**

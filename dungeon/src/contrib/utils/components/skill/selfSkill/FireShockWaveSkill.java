@@ -63,8 +63,8 @@ public class FireShockWaveSkill extends Skill {
     List<Coordinate> placedPositions = new ArrayList<>();
     LevelUtils.explosionAt(
         casterTile.coordinate(),
-      radius,
-      DELAY_BETWEEN_WAVES,
+        radius,
+        DELAY_BETWEEN_WAVES,
         (tile -> {
           if (tile == null
               || tile.levelElement() == LevelElement.WALL
