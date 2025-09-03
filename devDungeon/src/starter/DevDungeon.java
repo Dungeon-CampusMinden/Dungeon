@@ -17,6 +17,8 @@ import contrib.utils.components.Debugger;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.BurningFireballSkill;
+import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -30,7 +32,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
-import systems.DevHealthSystem;
 
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
@@ -99,7 +100,7 @@ public class DevDungeon {
         .ifPresent(
             sc -> {
               sc.removeAll();
-              sc.addSkill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint));
+              sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint));
             });
     Game.add(hero);
   }
@@ -170,19 +171,19 @@ public class DevDungeon {
                   .orElseThrow()
                   .add(new ItemPotionHealth(HealthPotionType.GREATER));
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_2)) {
-              BurningFireballSkill burningFireballSkill =
-                  (BurningFireballSkill)
-                      (Game.hero()
+              DamageProjectileSkill skill =
+                  (DamageProjectileSkill)
+                      Game.hero()
                           .orElseThrow()
                           .fetch(SkillComponent.class)
                           .orElseThrow()
-                          .getSkill(BurningFireballSkill.class)
-                          .orElseThrow());
+                          .activeSkill()
+                          .orElseThrow();
 
-              if (BurningFireballSkill.DAMAGE_AMOUNT == 2) {
-                burningFireballSkill.damageAmount(6);
+              if (skill.damageAmount() <= 2) {
+                skill.damageAmount(6);
               } else {
-                burningFireballSkill.damageAmount(2);
+                skill.damageAmount(2);
               }
               DialogUtils.showTextPopup(
                   "Fireball damage set to " + BurningFireballSkill.DAMAGE_AMOUNT,
@@ -198,15 +199,11 @@ public class DevDungeon {
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_5)) {
               Debugger.TELEPORT_TO_CURSOR();
             } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_6)) {
-              BurningFireballSkill burningFireballSkill =
-                  (BurningFireballSkill)
-                      (Game.hero()
-                          .orElseThrow()
-                          .fetch(SkillComponent.class)
-                          .orElseThrow()
-                          .getSkill(BurningFireballSkill.class)
-                          .orElseThrow());
-              burningFireballSkill.toggleLock();
+              Game.hero()
+                  .orElseThrow()
+                  .fetch(SkillComponent.class)
+                  .orElseThrow()
+                  .addSkill(new BurningFireballSkill(SkillTools::cursorPositionAsPoint));
             }
           }
         });

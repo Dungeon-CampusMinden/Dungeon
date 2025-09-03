@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  * Subclass of {@link contrib.utils.components.skill.projectileSkill.DamageProjectileSkill}.
  *
  * <p>The FireballSkill class extends the functionality of {@link FireballSkill} to implement the
- * specific behavior of the fireball skill. *
+ * specific behavior of the fireball skill.
  *
  * <p>The projectile will fly through the dungeon, and if it hits an entity, it will deal damage and
  * be removed from the game. It will also be removed from the game if it hits a wall or has reached
@@ -26,9 +26,6 @@ public final class BurningFireballSkill extends FireballSkill {
    * from the game.
    */
   public static float PROJECTILE_RANGE = 7f;
-
-  /** Whether the burning effect is unlocked. */
-  private boolean unlocked = false;
 
   /** The amount of damage the fireball will deal. */
   public static int DAMAGE_AMOUNT = 2;
@@ -46,26 +43,11 @@ public final class BurningFireballSkill extends FireballSkill {
   @Override
   protected void additionalEffectAfterDamage(
       Entity caster, Entity projectile, Entity target, Direction direction) {
-    if (unlocked) BURNING_EFFECT.applyBurning(target);
-  }
-
-  /** Unlock the burningeffect. */
-  public void unlock() {
-    this.unlocked = true;
-  }
-
-  /** Lock the burningeffect. */
-  public void lock() {
-    this.unlocked = false;
-  }
-
-  /** Toggle the unlock stage of the burningeffect. */
-  public void toggleLock() {
-    unlocked = !unlocked;
+    BURNING_EFFECT.applyBurning(target);
   }
 
   @Override
   public int tintColor() {
-    return unlocked ? 0xFF9999FF : -1;
+    return 0xFF9999FF; // orange
   }
 }
