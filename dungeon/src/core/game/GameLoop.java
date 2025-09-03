@@ -168,7 +168,6 @@ public final class GameLoop extends ScreenAdapter {
       if (newLevelWasLoadedInThisLoop) break;
       system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
       if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
-        java.lang.System.out.println("EXECUTE " + system);
         system.execute();
         system.lastExecuteInFrames(0);
       }

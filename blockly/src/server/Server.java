@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import contrib.systems.LevelTickSystem;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
@@ -406,6 +407,7 @@ public class Server {
     Game.system(VelocitySystem.class, s -> s.run());
     Game.system(MoveSystem.class, s -> s.run());
     Game.system(FrictionSystem.class, s -> s.run());
+    Game.system(LevelTickSystem.class, s -> s.run());
 
     // let the ecs execute the gameloop for some time
     long timeout = (long) (Gdx.graphics.getDeltaTime() * 1000);
@@ -419,5 +421,6 @@ public class Server {
     Game.system(VelocitySystem.class, s -> s.stop());
     Game.system(FrictionSystem.class, s -> s.stop());
     Game.system(MoveSystem.class, s -> s.stop());
+    Game.system(LevelTickSystem.class, s -> s.stop());
   }
 }

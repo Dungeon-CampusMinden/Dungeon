@@ -66,6 +66,7 @@ public class Client {
       Game.system(VelocitySystem.class, s -> s.stop());
       Game.system(MoveSystem.class, s -> s.stop());
       Game.system(FrictionSystem.class, s -> s.stop());
+      Game.system(LevelTickSystem.class, s -> s.stop());
       Game.run();
     } finally {
       // Ensure that the server is stopped when the game ends
@@ -227,18 +228,17 @@ public class Client {
    * be placed before the level is fully loaded.
    */
   public static void restart() {
-
     // if not the main thread, schedule restart
     if (!Thread.currentThread().getName().equals("main")) {
       scheduleRestart = true;
       Server.waitDelta(); // wait for the next tick to execute the restart
       return;
     }
-
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
     createHero();
     DungeonLoader.reloadCurrentLevel();
+    Game.system(LevelTickSystem.class,s->s.execute());
     Game.system(PositionSystem.class, System::run);
   }
 }
