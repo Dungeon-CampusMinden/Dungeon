@@ -77,7 +77,7 @@ public final class SkillTools {
    * consists of two phases: "on" (tint applied) and "off" (default color).
    *
    * @param entity the entity to apply the blink effect on; must have a {@link DrawComponent}
-   * @param tint the ARGB color to use for the blink (e.g. {@code 0xFFFF0000} for red)
+   * @param tint the RGBA color to use for the blink (e.g. {@code 0xFF0000FF} for red)
    * @param totalDuration the total time (in milliseconds) the blinking should last
    * @param times the number of full blinks (each blink = on + off cycle)
    */
