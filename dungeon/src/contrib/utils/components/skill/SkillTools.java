@@ -96,11 +96,10 @@ public final class SkillTools {
             if (step % 2 == 0) {
               dc.tintColor(tint); // blink color
             } else {
-              dc.tintColor(-1); // normal color
+              dc.tintColor(oldtint); // old color
             }
           },
           interval * i);
     }
-    dc.tintColor(oldtint);
   }
 }
