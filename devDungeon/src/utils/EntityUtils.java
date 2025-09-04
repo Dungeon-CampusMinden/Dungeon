@@ -112,7 +112,7 @@ public class EntityUtils {
    * @return The spawned mob spawner entity.
    */
   public static Entity spawnMobSpawner(
-      Coordinate pos, MonsterBuilder[] monsterTypes, int maxMobCount) {
+      Coordinate pos, MonsterBuilder<?>[] monsterTypes, int maxMobCount) {
     Entity mobSpawner = entities.MobSpawnerFactory.createMobSpawner(pos, monsterTypes, maxMobCount);
     Game.add(mobSpawner);
     return mobSpawner;
@@ -134,7 +134,7 @@ public class EntityUtils {
    * @see #spawnBoss(MonsterBuilder, Coordinate)
    */
   public static List<Entity> spawnMobs(
-      int mobCount, MonsterBuilder[] monsterTypes, Coordinate[] mobSpawns) {
+      int mobCount, MonsterBuilder<?>[] monsterTypes, Coordinate[] mobSpawns) {
     if (mobCount > mobSpawns.length) {
       throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
     }
@@ -145,7 +145,7 @@ public class EntityUtils {
     // Spawns the monsters at the random spawn points.
     for (Coordinate mobPos : randomSpawns) {
       // Choose a random monster type from the monsterTypes array.
-      MonsterBuilder randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
+      MonsterBuilder<?> randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
       try {
         spawnedMobs.add(randomType.addToGame().build(mobPos));
       } catch (IOException e) {
@@ -167,7 +167,7 @@ public class EntityUtils {
    * @throws RuntimeException if an error occurs while spawning a monster.
    */
   public static Entity spawnBoss(
-      MonsterBuilder bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
+      MonsterBuilder<?> bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
     try {
       Entity bossMob;
       try {
@@ -205,7 +205,7 @@ public class EntityUtils {
    * @return The spawned boss monster entity.
    * @throws RuntimeException if an error occurs while spawning a monster.
    */
-  public static Entity spawnBoss(MonsterBuilder bossType, Coordinate levelBossSpawn) {
+  public static Entity spawnBoss(MonsterBuilder<?> bossType, Coordinate levelBossSpawn) {
     return spawnBoss(bossType, levelBossSpawn, (e) -> {});
   }
 }

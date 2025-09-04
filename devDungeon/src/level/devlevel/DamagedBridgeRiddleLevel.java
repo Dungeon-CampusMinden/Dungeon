@@ -26,9 +26,9 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;
-  private static final MonsterBuilder[] MONSTER_TYPES =
-      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR, DevDungeonMonster.ORC_SHAMAN};
-  private static final MonsterBuilder BOSS_TYPE = DevDungeonMonster.CHORT;
+  private static final MonsterBuilder<?>[] MONSTER_TYPES =
+      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR(), DevDungeonMonster.ORC_SHAMAN()};
+  private static final MonsterBuilder<?> BOSS_TYPE = DevDungeonMonster.CHORT();
 
   // Spawn Points / Locations
   private final Coordinate bridgeMobSpawn;
@@ -91,7 +91,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   private void prepareBridge() {
     try {
-      DevDungeonMonster.BRIDGE_MOB.addToGame().build(bridgeMobSpawn);
+      DevDungeonMonster.BRIDGE_MOB().addToGame().build(bridgeMobSpawn);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -35,16 +35,16 @@ import systems.TeleporterSystem;
 public class IllusionRiddleLevel extends DevDungeonLevel {
 
   /** The types of monsters that can spawn in this level. */
-  public static final MonsterBuilder[] MONSTER_TYPES =
+  public static final MonsterBuilder<?>[] MONSTER_TYPES =
       new MonsterBuilder[] {
-        DevDungeonMonster.DARK_GOO,
-        DevDungeonMonster.DARK_GOO, // 2/5 chance
-        DevDungeonMonster.SMALL_DARK_GOO,
-        DevDungeonMonster.SMALL_DARK_GOO, // 2/5 chance
-        DevDungeonMonster.DOC // 1/5 chance
+        DevDungeonMonster.DARK_GOO(),
+        DevDungeonMonster.DARK_GOO(), // 2/5 chance
+        DevDungeonMonster.SMALL_DARK_GOO(),
+        DevDungeonMonster.SMALL_DARK_GOO(), // 2/5 chance
+        DevDungeonMonster.DOC() // 1/5 chance
       };
 
-  private static final MonsterBuilder BOSS_TYPE = DevDungeonMonster.ILLUSION_BOSS;
+  private static final MonsterBuilder<?> BOSS_TYPE = DevDungeonMonster.ILLUSION_BOSS();
 
   // Spawn Points / Locations
   private final List<DevDungeonRoom> rooms;

@@ -291,7 +291,7 @@ public enum AdvancedDungeonMonster {
     Consumer<Entity> constructedOnDeath =
         entity -> {
           onDeath.accept(entity);
-          playDeathSoundIfNearby(deathSound.sound(), entity);
+          playDeathSoundIfNearby(deathSound.path(), entity);
 
           entity
               .fetch(InventoryComponent.class)

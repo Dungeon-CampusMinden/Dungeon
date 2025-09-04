@@ -35,8 +35,8 @@ import systems.*;
 /** Starter class for the DevDungeon game. */
 public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
-  private static final boolean ENABLE_CHEATS = true;
-  private static final int START_LEVEL = ENABLE_CHEATS ? 2 : 0;
+  private static final boolean ENABLE_CHEATS = false;
+  private static final int START_LEVEL = ENABLE_CHEATS ? 5 : 0;
 
   /**
    * Main method to start the game.

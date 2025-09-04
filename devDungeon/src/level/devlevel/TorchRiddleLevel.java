@@ -28,9 +28,9 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 12;
-  private static final MonsterBuilder[] MONSTER_TYPES =
-      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR, DevDungeonMonster.ORC_SHAMAN};
-  private static final MonsterBuilder BOSS_TYPE = DevDungeonMonster.ZOMBIE;
+  private static final MonsterBuilder<?>[] MONSTER_TYPES =
+    new DevDungeonMonster.Builder[]{DevDungeonMonster.ORC_WARRIOR(), DevDungeonMonster.ORC_SHAMAN()};
+  private static final MonsterBuilder<?> BOSS_TYPE = DevDungeonMonster.ZOMBIE();
 
   // Spawn Points / Locations
   private final Coordinate[] torchPositions;

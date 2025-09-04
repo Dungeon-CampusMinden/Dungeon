@@ -50,388 +50,450 @@ import task.tasktype.Quiz;
  * <p>Each monster type can be built into an entity using the {@link Builder}.
  */
 public final class DevDungeonMonster {
-  /** A Chort monster. Slow but tanky and strong. */
-  public static final Builder CHORT =
-    (Builder) new Builder()
-        .name("Chort")
-        .speed(2.5f)
-        .mass(2.5f)
-        .onWallHit(e -> {})
-        .canEnterOpenPits(false)
-        .texturePath("character/monster/chort")
-        .health(16)
-        .onDeath(e -> {})
-        .removeOnDeath(true)
-        .deathSound(MonsterDeathSound.LOWER_PITCH)
-        .drops(Set.of())
-        .dropChance(0.33f)
-        .guaranteedDrops(Set.of())
-        .idleSound(MonsterIdleSound.LOWER_PITCH)
-        .fightAI(() -> new AIChaseBehaviour(0.5f))
-        .idleAI(() -> new RadiusWalk(2f, 2))
-        .transitionAI(() -> new RangeTransition(5))
-        .collideDamage(7)
-        .collideCooldown(2 * Game.frameRate())
-        .damageType(DamageType.PHYSICAL);
+  private DevDungeonMonster() {
+    // utility class
+  }
 
+  /** A Chort monster. Slow but tanky and strong. */
+  public static Builder CHORT() {
+    return createChort();
+  }
+
+  private static Builder createChort() {
+    return new Builder()
+      .name("Chort")
+      .speed(2.5f)
+      .mass(2.5f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/chort")
+      .health(16)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(0.33f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.LOWER_PITCH)
+      .fightAI(() -> new AIChaseBehaviour(0.5f))
+      .idleAI(() -> new RadiusWalk(2f, 2))
+      .transitionAI(() -> new RangeTransition(5))
+      .collideDamage(7)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** An Imp monster. Fast, weak but annoying. */
-  public static final Builder IMP =
-      (Builder) new Builder()
-                  .name("Imp")
-                  .speed(5.0f)
-                  .mass(1.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/imp")
-                  .health(4)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.HIGH_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.1f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.HIGH_PITCH)
-                  .fightAI(
-                      () ->
-                          new AIRangeBehaviour(
-                              7f,
-                              0f,
-                              new FireballSkill(
-                                  SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
-                  .idleAI(() -> new RadiusWalk(5f, 2))
-                  .transitionAI(() -> new RangeTransition(8))
-                  .collideDamage(0)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder IMP() {
+    return createImp();
+  }
+
+  private static Builder createImp() {
+    return new Builder()
+      .name("Imp")
+      .speed(5.0f)
+      .mass(1.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/imp")
+      .health(4)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.HIGH_PITCH)
+      .drops(Set.of())
+      .dropChance(0.1f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.HIGH_PITCH)
+      .fightAI(
+        () ->
+          new AIRangeBehaviour(
+            7f,
+            0f,
+            new FireballSkill(
+              SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
+      .idleAI(() -> new RadiusWalk(5f, 2))
+      .transitionAI(() -> new RangeTransition(8))
+      .collideDamage(0)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** A Zombie monster. Average speed and health but can revive itself. */
-  public static final Builder ZOMBIE =
-      (Builder)
-              new Builder()
-                .reviveCount(1)
-                  .name("Zombie")
-                  .speed(3.5f)
-                  .mass(1.3f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/zombie")
-                  .health(10)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOW_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.33f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.LOWER_PITCH)
-                  .fightAI(() -> new AIChaseBehaviour(1.0f))
-                  .idleAI(() -> new RadiusWalk(3f, 4))
-                  .transitionAI(() -> new RangeTransition(6))
-                  .collideDamage(10)
-                  .collideCooldown(5 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder ZOMBIE() {
+    return createZombie();
+  }
+
+  private static Builder createZombie() {
+    return new Builder()
+      .reviveCount(1)
+      .name("Zombie")
+      .speed(3.5f)
+      .mass(1.3f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/zombie")
+      .health(10)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOW_PITCH)
+      .drops(Set.of())
+      .dropChance(0.33f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.LOWER_PITCH)
+      .fightAI(() -> new AIChaseBehaviour(1.0f))
+      .idleAI(() -> new RadiusWalk(3f, 4))
+      .transitionAI(() -> new RangeTransition(6))
+      .collideDamage(10)
+      .collideCooldown(5 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** An Orc Warrior monster. Average speed and health but only melee attack. */
-  public static final Builder ORC_WARRIOR =
-      (Builder)
-              new Builder()
-                .reviveCount(0)
-                  .name("Orc Warrior")
-                  .speed(4f)
-                  .mass(1.8f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/orc_warrior")
-                  .health(8)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOWER_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.1f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.LOWER_PITCH)
-                  .fightAI(() -> new AIChaseBehaviour(0.5f))
-                  .idleAI(() -> new RadiusWalk(3f, 2))
-                  .transitionAI(() -> new RangeTransition(5))
-                  .collideDamage(5)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder ORC_WARRIOR() {
+    return createOrcWarrior();
+  }
+
+  private static Builder createOrcWarrior() {
+    return new Builder()
+      .reviveCount(0)
+      .name("Orc Warrior")
+      .speed(4f)
+      .mass(1.8f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/orc_warrior")
+      .health(8)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(0.1f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.LOWER_PITCH)
+      .fightAI(() -> new AIChaseBehaviour(0.5f))
+      .idleAI(() -> new RadiusWalk(3f, 2))
+      .transitionAI(() -> new RangeTransition(5))
+      .collideDamage(5)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** Orc Shaman monster. Average speed and health but ranged attack. */
-  public static final Builder ORC_SHAMAN =
-      (Builder)
-              new Builder()
-                  .name("Orc Shaman")
-                  .speed(3.0f)
-                  .mass(1.2f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/orc_shaman")
-                  .health(4)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOWER_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.1f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.LOWER_PITCH)
-                  .fightAI(
-                      () ->
-                          new AIRangeBehaviour(
-                              3f,
-                              0f,
-                              new FireballSkill(
-                                  SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
-                  .idleAI(() -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH))
-                  .transitionAI(() -> new RangeTransition(5, true))
-                  .collideDamage(2)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder ORC_SHAMAN() {
+    return createOrcShaman();
+  }
+
+  private static Builder createOrcShaman() {
+    return new Builder()
+      .name("Orc Shaman")
+      .speed(3.0f)
+      .mass(1.2f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/orc_shaman")
+      .health(4)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(0.1f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.LOWER_PITCH)
+      .fightAI(
+        () ->
+          new AIRangeBehaviour(
+            3f,
+            0f,
+            new FireballSkill(
+              SkillTools::heroPositionAsPoint, AIFactory.FIREBALL_COOL_DOWN)))
+      .idleAI(() -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH))
+      .transitionAI(() -> new RangeTransition(5, true))
+      .collideDamage(2)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** The tutorial monster. Almost no health and attacks. */
-  public static final Builder TUTORIAL =
-      (Builder)
-              new Builder()
-                  .name("Tutorial Goblin")
-                  .speed(7.5f)
-                  .mass(0.5f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/goblin")
-                  .health(2)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.NONE)
-                  .drops(Set.of())
-                  .dropChance(0.0f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.NONE)
-                  .fightAI(() -> new AIChaseBehaviour(1.0f))
-                  .idleAI(() -> (entity) -> {}) // Stand still if not fighting
-                  .transitionAI(() -> new RangeTransition(5, true))
-                  .collideDamage(1)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder TUTORIAL() {
+    return createTutorial();
+  }
+
+  private static Builder createTutorial() {
+    return new Builder()
+      .name("Tutorial Goblin")
+      .speed(7.5f)
+      .mass(0.5f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/goblin")
+      .health(2)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.NONE)
+      .drops(Set.of())
+      .dropChance(0.0f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.NONE)
+      .fightAI(() -> new AIChaseBehaviour(1.0f))
+      .idleAI(() -> (entity) -> {}) // Stand still if not fighting
+      .transitionAI(() -> new RangeTransition(5, true))
+      .collideDamage(1)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
+
   /** The Bridge Mob monster. Immortal, no AI, no damage. */
-  public static final Builder BRIDGE_MOB =
-      (Builder)
-              new Builder()
-                  .name("Bridge Mob")
-                  .speed(4f)
-                  .mass(4.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/orc_warrior")
-                  .health(999)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOWER_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.0f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.NONE)
-                  .fightAI(() -> new AIChaseBehaviour(0.5f))
-                  .idleAI(() -> (entity) -> {}) // no idle needed
-                  .transitionAI(() -> (entity) -> true) // Always fight
-                  .collideDamage(30)
-                  .collideCooldown(Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder BRIDGE_MOB() {
+    return createBridgeMob();
+  }
+
+  private static Builder createBridgeMob() {
+    return new Builder()
+      .name("Bridge Mob")
+      .speed(4f)
+      .mass(4.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/orc_warrior")
+      .health(999)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(0.0f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.NONE)
+      .fightAI(() -> new AIChaseBehaviour(0.5f))
+      .idleAI(() -> (entity) -> {}) // no idle needed
+      .transitionAI(() -> (entity) -> true) // Always fight
+      .collideDamage(30)
+      .collideCooldown(Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** Dark_Goo monster. Slow with fast weak melee attacks. */
-  public static final Builder DARK_GOO =
-      (Builder)
-              new Builder()
-                  .name("Dark Goo")
-                  .speed(3.75f)
-                  .mass(3.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/elemental_goo")
-                  .health(12)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.BASIC)
-                  .drops(Set.of())
-                  .dropChance(0.1f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.BURP)
-                  .fightAI(() -> new AIChaseBehaviour(0.5f))
-                  .idleAI(() -> new RadiusWalk(3f, 2))
-                  .transitionAI(() -> new RangeTransition(7))
-                  .collideDamage(3)
-                  .collideCooldown(Game.frameRate() / 2)
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder DARK_GOO() {
+    return createDarkGoo();
+  }
+
+  private static Builder createDarkGoo() {
+    return new Builder()
+      .name("Dark Goo")
+      .speed(3.75f)
+      .mass(3.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/elemental_goo")
+      .health(12)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.BASIC)
+      .drops(Set.of())
+      .dropChance(0.1f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.BURP)
+      .fightAI(() -> new AIChaseBehaviour(0.5f))
+      .idleAI(() -> new RadiusWalk(3f, 2))
+      .transitionAI(() -> new RangeTransition(7))
+      .collideDamage(3)
+      .collideCooldown(Game.frameRate() / 2)
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** Small Dark Goo monster. Fast with average fast melee attacks. */
-  public static final Builder SMALL_DARK_GOO =
-      (Builder)
-              new Builder()
-                  .name("Small Dark Goo")
-                  .speed(5f)
-                  .mass(1.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/elemental_goo_small")
-                  .health(6)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.HIGH_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.05f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.BURP)
-                  .fightAI(() -> new AIChaseBehaviour(1f))
-                  .idleAI(() -> new RadiusWalk(2f, 1))
-                  .transitionAI(() -> new RangeTransition(4))
-                  .collideDamage(1)
-                  .collideCooldown(Game.frameRate() / 2)
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder SMALL_DARK_GOO() {
+    return createSmallDarkGoo();
+  }
+
+  private static Builder createSmallDarkGoo() {
+    return new Builder()
+      .name("Small Dark Goo")
+      .speed(5f)
+      .mass(1.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/elemental_goo_small")
+      .health(6)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.HIGH_PITCH)
+      .drops(Set.of())
+      .dropChance(0.05f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.BURP)
+      .fightAI(() -> new AIChaseBehaviour(1f))
+      .idleAI(() -> new RadiusWalk(2f, 1))
+      .transitionAI(() -> new RangeTransition(4))
+      .collideDamage(1)
+      .collideCooldown(Game.frameRate() / 2)
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** TP Doc monster. Average speed and health with ranged Teleportation attacks. */
-  public static final Builder DOC =
-      (Builder)
-              new Builder()
-                  .name("Doc")
-                  .speed(4.0f)
-                  .mass(1.5f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/doc")
-                  .health(6)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOW_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.25f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.LOWER_PITCH)
-                  .fightAI(
-                      () ->
-                          new AIRangeBehaviour(
-                              9f,
-                              0f,
-                              new TPBallSkill(
-                                  SkillTools::heroPositionAsPoint,
-                                  LevelUtils::getRandomTPTargetForCurrentLevel,
-                                  AIFactory.FIREBALL_COOL_DOWN * 4)))
-                  .idleAI(() -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH))
-                  .transitionAI(() -> new RangeTransition(6, false))
-                  .collideDamage(5)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder DOC() {
+    return createDoc();
+  }
+
+  private static Builder createDoc() {
+    return new Builder()
+      .name("Doc")
+      .speed(4.0f)
+      .mass(1.5f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/doc")
+      .health(6)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOW_PITCH)
+      .drops(Set.of())
+      .dropChance(0.25f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.LOWER_PITCH)
+      .fightAI(
+        () ->
+          new AIRangeBehaviour(
+            9f,
+            0f,
+            new TPBallSkill(
+              SkillTools::heroPositionAsPoint,
+              LevelUtils::getRandomTPTargetForCurrentLevel,
+              AIFactory.FIREBALL_COOL_DOWN * 4)))
+      .idleAI(() -> new PatrolWalk(3f, 8, 5, PatrolWalk.MODE.BACK_AND_FORTH))
+      .transitionAI(() -> new RangeTransition(6, false))
+      .collideDamage(5)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** The Bridge Guard monster. Immortal, no AI, no damage. */
-  public static final Builder BRIDGE_GUARD =
-      (Builder)
-              new Builder()
-                  .name("Bridge Guard")
-                  .speed(0.0f)
-                  .mass(4.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/big_zombie")
-                  .health(9999999)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOWER_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.0f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.NONE)
-                  .fightAI(() -> (entity) -> {}) // no fight needed
-                  .idleAI(() -> (entity) -> {}) // no idle needed
-                  .transitionAI(() -> (entity) -> false) // never transition
-                  .collideDamage(0)
-                  .collideCooldown(500)
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder BRIDGE_GUARD() {
+    return createBridgeGuardBuilder();
+  }
+
+  private static Builder createBridgeGuardBuilder() {
+    return new Builder()
+      .name("Bridge Guard")
+      .speed(0.0f)
+      .mass(4.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/big_zombie")
+      .health(9999999)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(0.0f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.NONE)
+      .fightAI(() -> (entity) -> {}) // no fight needed
+      .idleAI(() -> (entity) -> {}) // no idle needed
+      .transitionAI(() -> (entity) -> false) // never transition
+      .collideDamage(0)
+      .collideCooldown(500)
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** Pumpkin Boi monster. Small field boss, strong and special ranged attacks. */
-  public static final Builder PUMPKIN_BOI =
-      (Builder)
-              new Builder()
-                  .name("Pumpkin Boi")
-                  .speed(6f)
-                  .mass(3.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/pumpkin_dude")
-                  .health(16)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOW_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.5f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.LOWER_PITCH)
-                  .fightAI(
-                      () ->
-                          new AIRangeBehaviour(
-                              7,
-                              6,
-                              BossAttackSkills.normalAttack(
-                                  (int) (AIFactory.FIREBALL_COOL_DOWN * 1.5f))))
-                  .idleAI(() -> new RadiusWalk(3f, 4))
-                  .transitionAI(() -> new RangeTransition(6, true))
-                  .collideDamage(10)
-                  .collideCooldown(Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder PUMPKIN_BOI() {
+    return createPumpkinBoi();
+  }
+
+  private static Builder createPumpkinBoi() {
+    return new Builder()
+      .name("Pumpkin Boi")
+      .speed(6f)
+      .mass(3.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/pumpkin_dude")
+      .health(16)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOW_PITCH)
+      .drops(Set.of())
+      .dropChance(0.5f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.LOWER_PITCH)
+      .fightAI(
+        () ->
+          new AIRangeBehaviour(
+            7,
+            6,
+            BossAttackSkills.normalAttack(
+              (int) (AIFactory.FIREBALL_COOL_DOWN * 1.5f))))
+      .idleAI(() -> new RadiusWalk(3f, 4))
+      .transitionAI(() -> new RangeTransition(6, true))
+      .collideDamage(10)
+      .collideCooldown(Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /** The Illusion Boss monster. Very strong and special ranged attacks. */
-  public static final Builder ILLUSION_BOSS =
-      (Builder)
-              new Builder()
-                  .name("Illusion Boss")
-                  .speed(0.0f)
-                  .mass(5.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/necromancer")
-                  .health(50)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOWER_PITCH)
-                  .drops(Set.of())
-                  .dropChance(1.0f)
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.BURP)
-                  .fightAI(
-                      () ->
-                          new AIRangeBehaviour(
-                              15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)))
-                  .idleAI(() -> (entity) -> {}) // no idle needed
-                  .transitionAI(() -> new RangeTransition(7, true))
-                  .collideDamage(10)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder ILLUSION_BOSS() {
+    return createIllusionBoss();
+  }
+
+  private static Builder createIllusionBoss() {
+    return new Builder()
+      .name("Illusion Boss")
+      .speed(0.0f)
+      .mass(5.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/necromancer")
+      .health(50)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(1.0f)
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.BURP)
+      .fightAI(
+        () ->
+          new AIRangeBehaviour(
+            15f, 0f, BossAttackSkills.fireCone(35, 125, 12.0f, 3)))
+      .idleAI(() -> (entity) -> {}) // no idle needed
+      .transitionAI(() -> new RangeTransition(7, true))
+      .collideDamage(10)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /**
    * The Final Boss monster. Super strong and a lot of special ranged attacks.
    *
    * @see BossAttackSkills
    */
-  public static final Builder FINAL_BOSS =
-      (Builder)
-              new Builder()
-                  .name("Final Boss")
-                  .speed(0.0f)
-                  .mass(6.0f)
-                  .onWallHit(e -> {})
-                  .canEnterOpenPits(false)
-                  .texturePath("character/monster/big_daemon")
-                  .health(100)
-                  .onDeath(e -> {})
-                  .removeOnDeath(true)
-                  .deathSound(MonsterDeathSound.LOWER_PITCH)
-                  .drops(Set.of())
-                  .dropChance(0.0f) // custom logic noted in original enum
-                  .guaranteedDrops(Set.of())
-                  .idleSound(MonsterIdleSound.BURP)
-                  .fightAI(() -> new AIRangeBehaviour(17f, 0f, null))
-                  .idleAI(() -> (entity) -> {}) // no idle needed
-                  .transitionAI(() -> new RangeTransition(7, true))
-                  .collideDamage(10)
-                  .collideCooldown(2 * Game.frameRate())
-                  .damageType(DamageType.PHYSICAL);
+  public static Builder FINAL_BOSS() {
+    return createFinalBoss();
+  }
+
+  private static Builder createFinalBoss() {
+    return new Builder()
+      .name("Final Boss")
+      .speed(0.0f)
+      .mass(6.0f)
+      .onWallHit(e -> {})
+      .canEnterOpenPits(false)
+      .texturePath("character/monster/big_daemon")
+      .health(100)
+      .onDeath(e -> {})
+      .removeOnDeath(true)
+      .deathSound(MonsterDeathSound.LOWER_PITCH)
+      .drops(Set.of())
+      .dropChance(0.0f) // custom logic noted in original enum
+      .guaranteedDrops(Set.of())
+      .idleSound(MonsterIdleSound.BURP)
+      .fightAI(() -> new AIRangeBehaviour(17f, 0f, null))
+      .idleAI(() -> (entity) -> {}) // no idle needed
+      .transitionAI(() -> new RangeTransition(7, true))
+      .collideDamage(10)
+      .collideCooldown(2 * Game.frameRate())
+      .damageType(DamageType.PHYSICAL);
+  }
 
   /**
    * Creates a bridge guard entity with a list of quizzes.
@@ -445,25 +507,25 @@ public final class DevDungeonMonster {
   public static Entity createBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
     Entity bridgeGuard;
     try {
-      bridgeGuard = DevDungeonMonster.BRIDGE_GUARD.build(pos);
+      bridgeGuard = DevDungeonMonster.BRIDGE_GUARD().build(pos);
     } catch (IOException e) {
       throw new RuntimeException("Failed to create bridge guard");
     }
 
     bridgeGuard.add(
-        new InteractionComponent(
-            InteractionComponent.DEFAULT_INTERACTION_RADIUS,
-            true,
-            (me, who) -> {
-              Iterator<Quiz> quizIterator = quizzes.iterator();
-              DialogUtils.presentQuiz(quizIterator, onFinished);
-            }));
+      new InteractionComponent(
+        InteractionComponent.DEFAULT_INTERACTION_RADIUS,
+        true,
+        (me, who) -> {
+          Iterator<Quiz> quizIterator = quizzes.iterator();
+          DialogUtils.presentQuiz(quizIterator, onFinished);
+        }));
 
     return bridgeGuard;
   }
 
   /** Builder class for creating DevDungeon monsters. */
-  public static class Builder extends MonsterBuilder {
+  public static class Builder extends MonsterBuilder<Builder> {
 
     private int reviveCount = 0;
 
@@ -502,18 +564,18 @@ public final class DevDungeonMonster {
 
     private HealthComponent buildHealthComponent() {
       Consumer<Entity> constructedOnDeath =
-          entity -> {
-            deathSound()
-                .ifPresent(
-                    deathSound ->
-                        playDeathSoundIfNearby(
-                            deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
+        entity -> {
+          deathSound()
+            .ifPresent(
+              deathSound ->
+                playDeathSoundIfNearby(
+                  deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
 
-            entity
-                .fetch(InventoryComponent.class)
-                .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
-            Game.remove(entity);
-          };
+          entity
+            .fetch(InventoryComponent.class)
+            .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+          Game.remove(entity);
+        };
 
       return new HealthComponent(health(), constructedOnDeath);
     }

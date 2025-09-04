@@ -45,8 +45,13 @@ import java.util.logging.Logger;
  *
  * <p>Overridable factories: - velocityFactory - inventoryFactory - healthFactory -
  * extraComponentsHook - onDeathExtra
+ *
+ * <p>This builder uses a self-typed generic parameter (CRTP) so fluent methods return the concrete
+ * builder subtype and prevent the need for unsafe casts.
+ *
+ * @param <T> concrete builder type
  */
-public class MonsterBuilder {
+public class MonsterBuilder<T extends MonsterBuilder<T>> {
   private static final Logger LOGGER = Logger.getLogger(MonsterBuilder.class.getSimpleName());
 
   /** Random instance for monsters. */
@@ -112,9 +117,9 @@ public class MonsterBuilder {
    * @param name the display name
    * @return this builder
    */
-  public MonsterBuilder name(String name) {
+  public T name(String name) {
     this.name = name;
-    return this;
+    return self();
   }
 
   /**
@@ -123,9 +128,9 @@ public class MonsterBuilder {
    * @param direction the initial view direction
    * @return this builder
    */
-  public MonsterBuilder viewDirection(Direction direction) {
+  public T viewDirection(Direction direction) {
     this.viewDirection = direction;
-    return this;
+    return self();
   }
 
   /**
@@ -134,9 +139,9 @@ public class MonsterBuilder {
    * @param path path string for the texture
    * @return this builder
    */
-  public MonsterBuilder texturePath(String path) {
+  public T texturePath(String path) {
     this.texture = new SimpleIPath(path);
-    return this;
+    return self();
   }
 
   /**
@@ -145,9 +150,9 @@ public class MonsterBuilder {
    * @param path the IPath to use
    * @return this builder
    */
-  public MonsterBuilder texture(IPath path) {
+  public T texture(IPath path) {
     this.texture = path;
-    return this;
+    return self();
   }
 
   /**
@@ -156,9 +161,9 @@ public class MonsterBuilder {
    * @param health health value
    * @return this builder
    */
-  public MonsterBuilder health(int health) {
+  public T health(int health) {
     this.health = health;
-    return this;
+    return self();
   }
 
   /**
@@ -167,9 +172,9 @@ public class MonsterBuilder {
    * @param onDeath The callback
    * @return this builder
    */
-  public MonsterBuilder onDeath(Consumer<Entity> onDeath) {
+  public T onDeath(Consumer<Entity> onDeath) {
     this.onDeath = onDeath;
-    return this;
+    return self();
   }
 
   /**
@@ -178,9 +183,9 @@ public class MonsterBuilder {
    * @param removeOnDeath true to remove on death
    * @return this builder
    */
-  public MonsterBuilder removeOnDeath(boolean removeOnDeath) {
+  public T removeOnDeath(boolean removeOnDeath) {
     this.removeOnDeath = removeOnDeath;
-    return this;
+    return self();
   }
 
   /**
@@ -189,9 +194,9 @@ public class MonsterBuilder {
    * @param sound death sound
    * @return this builder
    */
-  public MonsterBuilder deathSound(MonsterDeathSound sound) {
+  public T deathSound(MonsterDeathSound sound) {
     this.deathSound = sound;
-    return this;
+    return self();
   }
 
   /**
@@ -200,9 +205,9 @@ public class MonsterBuilder {
    * @param sound idle sound
    * @return this builder
    */
-  public MonsterBuilder idleSound(MonsterIdleSound sound) {
+  public T idleSound(MonsterIdleSound sound) {
     this.idleSound = sound;
-    return this;
+    return self();
   }
 
   /**
@@ -211,9 +216,9 @@ public class MonsterBuilder {
    * @param fight supplier providing fight AI consumer
    * @return this builder
    */
-  public MonsterBuilder fightAI(Supplier<Consumer<Entity>> fight) {
+  public T fightAI(Supplier<Consumer<Entity>> fight) {
     this.fightAISupplier = fight;
-    return this;
+    return self();
   }
 
   /**
@@ -222,9 +227,9 @@ public class MonsterBuilder {
    * @param idle supplier providing idle AI consumer
    * @return this builder
    */
-  public MonsterBuilder idleAI(Supplier<Consumer<Entity>> idle) {
+  public T idleAI(Supplier<Consumer<Entity>> idle) {
     this.idleAISupplier = idle;
-    return this;
+    return self();
   }
 
   /**
@@ -233,9 +238,9 @@ public class MonsterBuilder {
    * @param transition supplier providing transition AI function
    * @return this builder
    */
-  public MonsterBuilder transitionAI(Supplier<Function<Entity, Boolean>> transition) {
+  public T transitionAI(Supplier<Function<Entity, Boolean>> transition) {
     this.transitionAISupplier = transition;
-    return this;
+    return self();
   }
 
   /**
@@ -244,9 +249,9 @@ public class MonsterBuilder {
    * @param speed speed value
    * @return this builder
    */
-  public MonsterBuilder speed(float speed) {
+  public T speed(float speed) {
     this.speed = speed;
-    return this;
+    return self();
   }
 
   /**
@@ -255,9 +260,9 @@ public class MonsterBuilder {
    * @param mass mass value
    * @return this builder
    */
-  public MonsterBuilder mass(float mass) {
+  public T mass(float mass) {
     this.mass = mass;
-    return this;
+    return self();
   }
 
   /**
@@ -266,9 +271,9 @@ public class MonsterBuilder {
    * @param can true if can enter open pits
    * @return this builder
    */
-  public MonsterBuilder canEnterOpenPits(boolean can) {
+  public T canEnterOpenPits(boolean can) {
     this.canEnterOpenPits = can;
-    return this;
+    return self();
   }
 
   /**
@@ -277,9 +282,9 @@ public class MonsterBuilder {
    * @param onWallHit consumer receiving the entity
    * @return this builder
    */
-  public MonsterBuilder onWallHit(Consumer<Entity> onWallHit) {
+  public T onWallHit(Consumer<Entity> onWallHit) {
     this.onWallHit = onWallHit;
-    return this;
+    return self();
   }
 
   /**
@@ -288,9 +293,9 @@ public class MonsterBuilder {
    * @param damage damage dealt on collision
    * @return this builder
    */
-  public MonsterBuilder collideDamage(int damage) {
+  public T collideDamage(int damage) {
     this.collideDamage = damage;
-    return this;
+    return self();
   }
 
   /**
@@ -299,9 +304,9 @@ public class MonsterBuilder {
    * @param cooldownFrames cooldown frames
    * @return this builder
    */
-  public MonsterBuilder collideCooldown(int cooldownFrames) {
+  public T collideCooldown(int cooldownFrames) {
     this.collideCooldown = cooldownFrames;
-    return this;
+    return self();
   }
 
   /**
@@ -310,9 +315,9 @@ public class MonsterBuilder {
    * @param type damage type
    * @return this builder
    */
-  public MonsterBuilder damageType(DamageType type) {
+  public T damageType(DamageType type) {
     this.damageType = type;
-    return this;
+    return self();
   }
 
   /**
@@ -321,9 +326,9 @@ public class MonsterBuilder {
    * @param item item to add to potential drops
    * @return this builder
    */
-  public MonsterBuilder addDrop(Item item) {
+  public T addDrop(Item item) {
     this.drops().add(item);
-    return this;
+    return self();
   }
 
   /**
@@ -332,10 +337,10 @@ public class MonsterBuilder {
    * @param items set of items
    * @return this builder
    */
-  public MonsterBuilder drops(Set<Item> items) {
+  public T drops(Set<Item> items) {
     this.drops().clear();
     this.drops().addAll(items);
-    return this;
+    return self();
   }
 
   /**
@@ -344,9 +349,9 @@ public class MonsterBuilder {
    * @param item item guaranteed to drop
    * @return this builder
    */
-  public MonsterBuilder addGuaranteedDrop(Item item) {
+  public T addGuaranteedDrop(Item item) {
     this.guaranteedDrops().add(item);
-    return this;
+    return self();
   }
 
   /**
@@ -355,10 +360,10 @@ public class MonsterBuilder {
    * @param items set of guaranteed items
    * @return this builder
    */
-  public MonsterBuilder guaranteedDrops(Set<Item> items) {
+  public T guaranteedDrops(Set<Item> items) {
     this.guaranteedDrops().clear();
     this.guaranteedDrops().addAll(items);
-    return this;
+    return self();
   }
 
   /**
@@ -367,9 +372,9 @@ public class MonsterBuilder {
    * @param chance between 0.0 and 1.0
    * @return this builder
    */
-  public MonsterBuilder dropChance(float chance) {
+  public T dropChance(float chance) {
     this.dropChance = chance;
-    return this;
+    return self();
   }
 
   /**
@@ -377,9 +382,9 @@ public class MonsterBuilder {
    *
    * @return this builder
    */
-  public MonsterBuilder addToGame() {
+  public T addToGame() {
     this.addToGame = true;
-    return this;
+    return self();
   }
 
   /**
@@ -388,9 +393,9 @@ public class MonsterBuilder {
    * @param add whether to add
    * @return this builder
    */
-  public MonsterBuilder addToGame(boolean add) {
+  public T addToGame(boolean add) {
     this.addToGame = add;
-    return this;
+    return self();
   }
 
   /**
@@ -447,29 +452,29 @@ public class MonsterBuilder {
     return removeOnDeath;
   }
 
-/**
-     * Get the optional death sound.
-     *
-     * @return optional death sound
-     */
-    public Optional<MonsterDeathSound> deathSound() {
-        if (deathSound == null || deathSound.path().pathString().isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(deathSound);
+  /**
+   * Get the optional death sound.
+   *
+   * @return optional death sound
+   */
+  public Optional<MonsterDeathSound> deathSound() {
+    if (deathSound == null || deathSound.path().pathString().isEmpty()) {
+      return Optional.empty();
     }
+    return Optional.of(deathSound);
+  }
 
-    /**
-     * Get the optional idle sound path.
-     *
-     * @return optional idle sound IPath
-     */
-    public Optional<MonsterIdleSound> idleSoundPath() {
-        if (idleSound == null || idleSound.path().pathString().isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(idleSound);
+  /**
+   * Get the optional idle sound path.
+   *
+   * @return optional idle sound IPath
+   */
+  public Optional<MonsterIdleSound> idleSoundPath() {
+    if (idleSound == null || idleSound.path().pathString().isEmpty()) {
+      return Optional.empty();
     }
+    return Optional.of(idleSound);
+  }
 
   /**
    * Get the fight AI supplier.
@@ -605,8 +610,8 @@ public class MonsterBuilder {
     if (collideDamage() > 0)
       monster.add(new SpikyComponent(collideDamage(), damageType(), collideCooldown()));
     monster.add(
-        new AIComponent(
-            fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));
+      new AIComponent(
+        fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));
     monster.add(buildInventoryComponent());
     monster.add(buildHealthComponent());
 
@@ -642,20 +647,20 @@ public class MonsterBuilder {
 
   private HealthComponent buildHealthComponent() {
     Consumer<Entity> constructedOnDeath =
-        entity -> {
-          onDeath().accept(entity);
-          deathSound()
-              .ifPresent(
-                  deathSound ->
-                      playDeathSoundIfNearby(
-                          deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
+      entity -> {
+        onDeath().accept(entity);
+        deathSound()
+          .ifPresent(
+            deathSound ->
+              playDeathSoundIfNearby(
+                deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
 
-          entity
-              .fetch(InventoryComponent.class)
-              .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+        entity
+          .fetch(InventoryComponent.class)
+          .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
 
-          if (removeOnDeath()) Game.remove(entity);
-        };
+        if (removeOnDeath()) Game.remove(entity);
+      };
 
     return new HealthComponent(health, constructedOnDeath);
   }
@@ -718,15 +723,25 @@ public class MonsterBuilder {
 
     Entity hero = Game.hero().get();
     PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+      hero.fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     PositionComponent monsterPc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
       playMonsterDieSound(soundPath, disposeDelay);
     }
+  }
+
+  /**
+   * Return this as the concrete builder type.
+   *
+   * @return this cast to T
+   */
+  @SuppressWarnings("unchecked")
+  protected final T self() {
+    return (T) this;
   }
 }

@@ -16,9 +16,9 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 15;
-  private static final MonsterBuilder[] MONSTER_TYPES =
-      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR, DevDungeonMonster.ORC_SHAMAN};
-  private static final MonsterBuilder BOSS_TYPE = DevDungeonMonster.PUMPKIN_BOI;
+  private static final MonsterBuilder<?>[] MONSTER_TYPES =
+      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR(), DevDungeonMonster.ORC_SHAMAN()};
+  private static final MonsterBuilder<?> BOSS_TYPE = DevDungeonMonster.PUMPKIN_BOI();
   private static final int MOB_COUNT_PER_CAMP = 3;
 
   // Spawn Points / Locations

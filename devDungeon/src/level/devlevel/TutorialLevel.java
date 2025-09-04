@@ -75,7 +75,7 @@ public class TutorialLevel extends DevDungeonLevel {
     buildBridge();
     Entity mob;
     try {
-      mob = DevDungeonMonster.TUTORIAL.addToGame().build(mobSpawn);
+      mob = DevDungeonMonster.TUTORIAL().addToGame().build(mobSpawn);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
