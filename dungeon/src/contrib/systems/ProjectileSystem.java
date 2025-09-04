@@ -11,7 +11,7 @@ import core.utils.components.MissingComponentException;
 /**
  * The ProjectileSystem class represents a system responsible for managing {@link
  * ProjectileComponent}s in the game. It checks if projectiles have reached their endpoints and
- * executes the {@link ProjectileComponent#onGoalReached()} callback.
+ * executes the {@link ProjectileComponent#onEndReached()} callback.
  *
  * <p>Note that the velocity of the projectile is not managed in this system. That is done by the
  * {@link core.systems.VelocitySystem}.
@@ -66,7 +66,7 @@ public final class ProjectileSystem extends System {
   }
 
   private void executeEntitiesOnEndpoint(final PSData data) {
-    data.prc().onGoalReached().accept(data.e());
+    data.prc().onEndReached().accept(data.e());
   }
 
   /**

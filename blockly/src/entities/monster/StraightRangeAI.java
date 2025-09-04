@@ -1,7 +1,7 @@
 package entities.monster;
 
 import coderunner.BlocklyCommands;
-import contrib.utils.components.skill.ISkillUser;
+import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;

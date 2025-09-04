@@ -1,36 +1,17 @@
 package entities;
 
-import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
-import contrib.components.SpikyComponent;
 import contrib.entities.AIFactory;
-import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.DamageProjectile;
-import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.*;
+import contrib.utils.components.skill.selfSkill.FireShockWaveSkill;
 import core.Entity;
-import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
-import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.utils.Coordinate;
-import core.level.utils.LevelElement;
-import core.utils.Direction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import level.utils.LevelUtils;
+import java.util.function.Supplier;
 
 /**
  * A utility class for building different boss attack skills. The boss will use different attacks
@@ -40,8 +21,10 @@ import level.utils.LevelUtils;
  */
 public class BossAttackSkills {
 
+  private static final Supplier<Point> HERO_POSITION = EntityUtils::getHeroPosition;
+
   /** Damage for the fire shock wave skill that the boss uses. (default: 1) */
-  private static final int FIRE_SHOCKWAVE_DAMAGE = 1;
+  private static final int SHOCKWAVE_DAMAGE = 1;
 
   /** Damage for the fireball skill that the boss uses. (default: 2) */
   private static final int FIREBALL_DAMAGE = 2;
@@ -50,7 +33,13 @@ public class BossAttackSkills {
   private static final float FIREBALL_SPEED = 4.50f;
 
   /** Maximum range for the fireball skill that the boss uses. (default: 25f) */
-  private static final float FIREBALL_MAX_RANGE = 25f;
+  private static final float FIREBALL_RANGE = 25f;
+
+  /**
+   * Cool down for the fireball skill that the boss uses (in milliseconds). (default: {@link
+   * AIFactory#FIREBALL_COOL_DOWN})
+   */
+  private static final long FIREBALL_COOLDOWN = AIFactory.FIREBALL_COOL_DOWN;
 
   /**
    * A skill that does nothing.
@@ -60,7 +49,7 @@ public class BossAttackSkills {
    * @return The skill that does nothing.
    */
   public static Skill SKILL_NONE() {
-    return new Skill((skillUser) -> {}, 1000);
+    return Skill.NONE;
   }
 
   /**
@@ -70,39 +59,13 @@ public class BossAttackSkills {
    * @return The skill that shoots the fire wall.
    */
   public static Skill fireWall(int wallWidth) {
-    return new Skill(
-        (skillUser) -> {
-          // Firewall
-          Point heroPos = SkillTools.heroPositionAsPoint();
-          Point bossPos =
-              skillUser
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                  .position();
-          Vector2 direction = heroPos.vectorTo(bossPos).normalize();
-          // Main shoot is directly at the hero
-          // every other fireball is offset left and right of the main shoot
-          Vector2 right = direction.rotateDeg(90);
-          Vector2 left = direction.rotateDeg(-90);
-          for (int i = -wallWidth / 2; i < wallWidth / 2; i++) {
-            if (i == 0) {
-              launchFireBall(bossPos, heroPos, bossPos, skillUser);
-            } else {
-              launchFireBall(
-                  bossPos.translate(right.scale(i)),
-                  heroPos.translate(right.scale(i)),
-                  bossPos,
-                  skillUser);
-              launchFireBall(
-                  bossPos.translate(left.scale(i)),
-                  heroPos.translate(left.scale(i)),
-                  bossPos,
-                  skillUser);
-            }
-          }
-        },
-        AIFactory.FIREBALL_COOL_DOWN * 3);
+    return new FireballWallSkill(
+        HERO_POSITION,
+        FIREBALL_COOLDOWN,
+        FIREBALL_SPEED,
+        FIREBALL_RANGE,
+        FIREBALL_DAMAGE,
+        wallWidth);
   }
 
   /**
@@ -110,56 +73,9 @@ public class BossAttackSkills {
    *
    * @param radius The radius of the shock wave.
    * @return The skill that starts the shock wave.
-   * @see LevelUtils#explosionAt(Coordinate, int, long, java.util.function.Consumer) explosionAt
    */
   public static Skill fireShockWave(int radius) {
-    return new Skill(
-        (skillUser) -> {
-          Point bossPos =
-              skillUser
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                  .position();
-          Tile bossTile = Game.tileAt(bossPos).orElse(null);
-          if (bossTile == null) {
-            return;
-          }
-          List<Coordinate> placedPositions = new ArrayList<>();
-          LevelUtils.explosionAt(
-              bossTile.coordinate(),
-              radius,
-              250L,
-              (tile -> {
-                if (tile == null
-                    || tile.levelElement() == LevelElement.WALL
-                    || tile.coordinate().equals(bossTile.coordinate())
-                    || placedPositions.contains(tile.coordinate())) {
-                  return;
-                }
-                placedPositions.add(tile.coordinate());
-
-                Entity entity = new Entity("fire");
-                PositionComponent posComp =
-                    new PositionComponent(tile.coordinate().toCenteredPoint());
-                entity.add(posComp);
-                entity.add(new CollideComponent());
-                try {
-                  DrawComponent drawComp = new DrawComponent(new SimpleIPath("skills/fireball"));
-                  drawComp.currentAnimation("run_down");
-                  entity.add(drawComp);
-                } catch (IOException e) {
-                  throw new RuntimeException("Could not load fireball texture" + e);
-                }
-                entity.add(
-                    new SpikyComponent(
-                        FIRE_SHOCKWAVE_DAMAGE, DamageType.FIRE, Game.frameRate() / 4));
-                Game.add(entity);
-
-                EventScheduler.scheduleAction(() -> Game.remove(entity), 2000);
-              }));
-        },
-        10 * 1000);
+    return new FireShockWaveSkill(radius, SHOCKWAVE_DAMAGE, radius);
   }
 
   /**
@@ -180,54 +96,14 @@ public class BossAttackSkills {
    */
   public static Skill fireCone(
       int degree, int delayMillis, float fireballSpeed, int fireballDamage) {
-    return new Skill(
-        (skillUser) -> {
-          Point heroPos = EntityUtils.getHeroPosition();
-          if (heroPos == null) {
-            return;
-          }
-          Point bossPos =
-              skillUser
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                  .position();
-          Vector2 direction = bossPos.vectorTo(heroPos).normalize();
-
-          // Function to calculate the fireball target position
-          Function<Integer, Point> calculateFireballTarget =
-              (angle) -> {
-                Vector2 offset =
-                    direction.rotateDeg(angle).scale(bossPos.vectorTo(heroPos).length());
-                return bossPos.translate(offset);
-              };
-
-          Consumer<Integer> launchFireBallWithDegree =
-              (degreeValue) ->
-                  launchFireBall(
-                      bossPos,
-                      calculateFireballTarget.apply(degreeValue),
-                      bossPos,
-                      skillUser,
-                      FIREBALL_MAX_RANGE,
-                      fireballSpeed,
-                      fireballDamage);
-
-          // Launch fireballs
-          launchFireBallWithDegree.accept(degree);
-          launchFireBallWithDegree.accept(-degree);
-          launchFireBallWithDegree.accept(0);
-
-          // Schedule another round of fireballs
-          EventScheduler.scheduleAction(
-              () -> {
-                launchFireBallWithDegree.accept(degree - 5);
-                launchFireBallWithDegree.accept(-(degree - 5));
-                launchFireBallWithDegree.accept(0);
-              },
-              delayMillis);
-        },
-        AIFactory.FIREBALL_COOL_DOWN * 2);
+    return new FireballConeSkill(
+        HERO_POSITION,
+        FIREBALL_COOLDOWN,
+        fireballSpeed,
+        FIREBALL_RANGE,
+        fireballDamage,
+        degree,
+        delayMillis);
   }
 
   /**
@@ -238,78 +114,13 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill fireStorm(int totalFireBalls, int delayBetweenFireballs) {
-    return new Skill(
-        (skillUser) -> {
-          // Fire Storm
-          Point bossPos =
-              skillUser
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                  .position();
-
-          for (int i = 0; i < totalFireBalls; i++) {
-            final int degree = i * 360 / totalFireBalls;
-            EventScheduler.scheduleAction(
-                () -> {
-                  Vector2 direction = Direction.UP.rotateDeg(degree);
-                  Point target = bossPos.translate(direction.scale(FIREBALL_MAX_RANGE * 0.5f));
-                  launchFireBall(bossPos, target, bossPos, skillUser);
-                },
-                (long) i * delayBetweenFireballs);
-          }
-        },
-        AIFactory.FIREBALL_COOL_DOWN * 4);
-  }
-
-  /**
-   * Launches a fireball from the start position to the target position. If the start position is
-   * the same as the boss position, the fireball will be launched from the boss. Otherwise, a
-   * temporary entity will be created to launch the fireball.
-   *
-   * @param start The start position of the fireball.
-   * @param target The target position of the fireball.
-   * @param bossPos The position of the boss.
-   * @param skillUser The entity that uses the skill.
-   */
-  private static void launchFireBall(Point start, Point target, Point bossPos, Entity skillUser) {
-    BossAttackSkills.launchFireBall(
-        start, target, bossPos, skillUser, FIREBALL_MAX_RANGE, FIREBALL_SPEED, FIREBALL_DAMAGE);
-  }
-
-  /**
-   * Launches a fireball from the start position to the target position. If the start position is
-   * the same as the boss position, the fireball will be launched from the boss. Otherwise, a
-   * temporary entity will be created to launch the fireball.
-   *
-   * @param start The start position of the fireball.
-   * @param target The target position of the fireball.
-   * @param bossPos The position of the boss.
-   * @param skillUser The entity that uses the skill.
-   * @param maxRange The maximum range of the fireball.
-   * @param speed The speed of the fireball.
-   * @param damage The damage of the fireball.
-   */
-  private static void launchFireBall(
-      Point start,
-      Point target,
-      Point bossPos,
-      Entity skillUser,
-      float maxRange,
-      float speed,
-      int damage) {
-    Entity shooter;
-    DamageProjectile skill = new FireballSkill(() -> target, maxRange, speed, damage);
-    skill.ignoreEntity(skillUser);
-    if (start.equals(bossPos)) {
-      shooter = skillUser;
-    } else {
-      shooter = new Entity("Fireball Shooter");
-      shooter.add(new PositionComponent(start));
-      shooter.add(new CollideComponent());
-    }
-
-    skill.accept(shooter);
+    return new FireballStormSkill(
+        FIREBALL_COOLDOWN,
+        FIREBALL_SPEED,
+        FIREBALL_RANGE,
+        FIREBALL_DAMAGE,
+        totalFireBalls,
+        delayBetweenFireballs);
   }
 
   /**
@@ -399,32 +210,7 @@ public class BossAttackSkills {
    * @return The skill that shoots the fireballs.
    */
   public static Skill normalAttack(int coolDown) {
-    return new Skill(
-        (skillUser) -> {
-          Point heroPos = EntityUtils.getHeroPosition();
-          if (heroPos == null) {
-            return;
-          }
-          Point bossPos =
-              skillUser
-                  .fetch(PositionComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(skillUser, PositionComponent.class))
-                  .position();
-          launchFireBall(bossPos, heroPos, bossPos, skillUser);
-          EventScheduler.scheduleAction(
-              () -> {
-                Point heroPos2 = EntityUtils.getHeroPosition();
-                if (heroPos2 == null) {
-                  return;
-                }
-                Vector2 heroDirection = heroPos.vectorTo(heroPos2).normalize();
-                heroDirection = heroDirection.scale((float) (bossPos.distance(heroPos)) * 2);
-                Point predictedHeroPos = heroPos2.translate(heroDirection);
-                launchFireBall(bossPos, predictedHeroPos, bossPos, skillUser);
-              },
-              50L);
-        },
-        coolDown);
+    return new DoubleFireballSkill(
+        HERO_POSITION, coolDown, FIREBALL_SPEED, FIREBALL_RANGE, FIREBALL_DAMAGE);
   }
 }

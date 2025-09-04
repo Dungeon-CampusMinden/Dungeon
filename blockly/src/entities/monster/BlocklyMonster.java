@@ -5,13 +5,11 @@ import components.TintDirectionComponent;
 import contrib.components.AIComponent;
 import contrib.components.BlockViewComponent;
 import contrib.entities.*;
-import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -57,22 +55,7 @@ public enum BlocklyMonster {
       0.0f,
       0.0f,
       MonsterDeathSound.LOWER_PITCH,
-      () ->
-          new StraightRangeAI(
-              6,
-              new Skill(
-                  new InevitableFireballSkill(
-                      // Adjust the position of the target to the center of the tile so the fireball
-                      // flies in a straight line
-                      () ->
-                          Game.hero()
-                              .flatMap(hero -> hero.fetch(PositionComponent.class))
-                              .map(PositionComponent::position)
-                              .map(Point::toCenteredPoint)
-                              // offset for error with fireball path calculation (#2230)
-                              .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
-                              .orElse(null)),
-                  AIFactory.FIREBALL_COOL_DOWN)),
+      () -> new StraightRangeAI(6, new InevitableFireballSkill()),
       () -> entity -> {}, // no idle needed
       () -> entity -> true, // instant fight
       99999, // one hit kill
