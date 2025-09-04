@@ -89,6 +89,30 @@ public class BowSkill extends DamageProjectileSkill {
         COST);
   }
 
+  /**
+   * Create a {@link DamageProjectileSkill} that looks like an arrow and will cause physical damage.
+   *
+   * <p>This variant does NOT require or consume any resource and is intended for automated entities
+   * such as the projectileLaunchingSentry.
+   *
+   * @param target A Supplier used to select the point where the projectile should fly to.
+   * @param cooldown cooldown between two arrows.
+   * @see DamageProjectileSkill
+   */
+  public BowSkill(final Supplier<Point> target, long cooldown) {
+    super(
+      SKILL_NAME,
+      cooldown,
+      PROJECTILE_TEXTURES,
+      target,
+      DEFAULT_PROJECTILE_SPEED,
+      DEFAULT_PROJECTILE_RANGE,
+      IS_PIRCING,
+      DEFAULT_DAMAGE_AMOUNT,
+      DAMAGE_TYPE,
+      HIT_BOX_SIZE);
+  }
+
   @Override
   protected Consumer<Entity> onWallHit(Entity caster) {
     return projectile -> {

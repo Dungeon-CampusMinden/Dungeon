@@ -3,11 +3,15 @@ package contrib.entities;
 import contrib.components.*;
 import contrib.item.Item;
 import contrib.utils.components.interaction.DropItemsInteraction;
+import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.BowSkill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.components.CameraComponent;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.utils.Direction;
 import core.utils.Point;
 import java.io.IOException;
 import java.util.HashSet;
@@ -215,5 +219,37 @@ public final class EntityFactory {
    */
   public static Entity newVase(Point spawnPoint, float dropChance) throws IOException {
     return MiscFactory.newVase(spawnPoint, dropChance);
+  }
+
+  /**
+   * Creates a moving and fireball shooting sentry.
+   *
+   * @param a the first patrol point and spawn position.
+   * @param b the second patrol point.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param cooldown cooldown between fireballs.
+   * @return a sentry entity that patrols and launches fireball projectiles.
+   * @throws IOException if loading textures or animations fails.
+   */
+  public static Entity newMovingFireballSentry(
+      Point a, Point b, Direction shootDirection, long cooldown) throws IOException {
+    return SentryFactory.projectileLauncherSentry(
+        a, b, shootDirection, new FireballSkill(SkillTools::heroPositionAsPoint, cooldown));
+  }
+
+  /**
+   * Creates a moving and fireball shooting sentry.
+   *
+   * @param a the first patrol point and spawn position.
+   * @param b the second patrol point.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param cooldown cooldown between fireballs.
+   * @return a sentry entity that patrols and launches fireball projectiles.
+   * @throws IOException if loading textures or animations fails.
+   */
+  public static Entity newMovingArrowSentry(
+      Point a, Point b, Direction shootDirection, long cooldown) throws IOException {
+    return SentryFactory.projectileLauncherSentry(
+        a, b, shootDirection, new BowSkill(SkillTools::heroPositionAsPoint, cooldown));
   }
 }
