@@ -19,7 +19,6 @@ import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,13 +77,8 @@ public class FireShockWaveSkill extends Skill {
           PositionComponent posComp = new PositionComponent(tile.coordinate().toCenteredPoint());
           entity.add(posComp);
           entity.add(new CollideComponent());
-          try {
-            DrawComponent drawComp = new DrawComponent(TEXTURE);
-            drawComp.currentAnimation("run_down");
-            entity.add(drawComp);
-          } catch (IOException e) {
-            throw new RuntimeException("Could not load fireball texture" + e);
-          }
+          DrawComponent drawComp = new DrawComponent(TEXTURE);
+          entity.add(drawComp);
           entity.add(new SpikyComponent(damage, DAMAGE_TYPE, HIT_COOLDOWN));
           Game.add(entity);
 
