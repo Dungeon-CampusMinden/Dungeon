@@ -3,7 +3,10 @@ package produsAdvanced;
 import contrib.components.SkillComponent;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e27b0a78 (added dummy portal skill)
 import contrib.crafting.Crafting;
 >>>>>>> ca4f8ed2 (added dummy portal skill)
 =======
@@ -36,6 +39,7 @@ import produsAdvanced.abstraction.PlayerController;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
 import produsAdvanced.abstraction.portalSkills.PortalSkill;
@@ -51,6 +55,9 @@ import produsAdvanced.abstraction.portalSkills.PortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 >>>>>>> 20f3a7f9 (restructed portal related files)
+=======
+import produsAdvanced.abstraction.PortalSkill;
+>>>>>>> e27b0a78 (added dummy portal skill)
 import produsAdvanced.level.*;
 
 /**
@@ -160,6 +167,7 @@ public class AdvancedDungeon {
             sc.removeAll();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
 <<<<<<< HEAD
@@ -173,6 +181,9 @@ public class AdvancedDungeon {
 =======
             sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+            sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
+>>>>>>> e27b0a78 (added dummy portal skill)
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
