@@ -7,7 +7,6 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-
 import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
@@ -59,8 +58,7 @@ public class Level010 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(4).toCenteredPoint()));
 
     try {
-      BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.attackRange(5);
-      guardBuilder.addToGame();
+      BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD().attackRange(5).addToGame();
       guardBuilder.viewDirection(Direction.DOWN);
       guardBuilder.build(customPoints().get(5).toCenteredPoint());
       guardBuilder.build(customPoints().get(8).toCenteredPoint());

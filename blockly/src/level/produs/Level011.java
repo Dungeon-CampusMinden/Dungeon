@@ -97,7 +97,7 @@ public class Level011 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(9).toCenteredPoint()));
 
     try {
-      BlocklyMonster.GUARD
+      BlocklyMonster.GUARD()
           .attackRange(5)
           .viewDirection(Direction.LEFT)
           .addToGame()
@@ -107,7 +107,7 @@ public class Level011 extends BlocklyLevel {
     }
 
     try {
-      BlocklyMonster.BLACK_KNIGHT
+      BlocklyMonster.BLACK_KNIGHT()
           .attackRange(0)
           .addToGame()
           .viewDirection(Direction.UP)

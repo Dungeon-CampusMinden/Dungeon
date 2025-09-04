@@ -9,6 +9,7 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
 import entities.monster.BlocklyMonster;
+import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -54,20 +55,21 @@ public class Level018 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(Direction.LEFT);
-    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG().attackRange(0).addToGame();
     Game.hero()
         .orElseThrow(MissingHeroException::new)
         .fetch(AmmunitionComponent.class)
         .orElseThrow()
         .currentAmmunition(20);
-    hedgehogBuilder.range(0);
-    hedgehogBuilder.addToGame();
 
     customPoints()
         .forEach(
             coordinate -> {
-              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
-              hedgehogBuilder.build();
+              try {
+                hedgehogBuilder.build(coordinate.toCenteredPoint());
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
             });
   }
 

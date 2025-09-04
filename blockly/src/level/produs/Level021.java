@@ -90,7 +90,7 @@ public class Level021 extends BlocklyLevel {
     // BOSS
     try {
       Entity boss =
-          BlocklyMonster.BLACK_KNIGHT
+          BlocklyMonster.BLACK_KNIGHT()
               .attackRange(0)
               .addToGame()
               .viewDirection(Direction.LEFT)

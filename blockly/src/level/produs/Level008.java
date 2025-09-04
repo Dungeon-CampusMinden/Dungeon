@@ -13,7 +13,6 @@ import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-
 import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
@@ -65,8 +64,7 @@ public class Level008 extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
 
     try {
-      BlocklyMonster.Builder guardBuilder = (BlocklyMonster.Builder) BlocklyMonster.GUARD.addToGame();
-      guardBuilder.addToGame();
+      BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD().addToGame();
       guardBuilder.attackRange(5);
       guardBuilder.viewDirection(Direction.UP);
       guardBuilder.build(customPoints().get(7).toCenteredPoint());

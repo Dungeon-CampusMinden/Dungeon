@@ -37,7 +37,8 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
   private static final MonsterBuilder<?> BOSS_TYPE = DevDungeonMonster.FINAL_BOSS();
   private static final int MIN_MOB_COUNT = 5;
   private static final int MAX_MOB_COUNT = 7;
-  private static final MonsterBuilder<?>[] MOB_TYPES = new MonsterBuilder[] {DevDungeonMonster.IMP()};
+  private static final MonsterBuilder<?>[] MOB_TYPES =
+      new MonsterBuilder[] {DevDungeonMonster.IMP()};
 
   // Spawn Points / Locations
   private final Coordinate levelBossSpawn;

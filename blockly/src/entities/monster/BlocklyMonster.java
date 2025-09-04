@@ -11,7 +11,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Enum representing the different types of monsters in Blockly.
@@ -35,67 +34,77 @@ import java.util.logging.Logger;
  */
 public class BlocklyMonster {
 
-  private static final Logger LOGGER = Logger.getLogger(BlocklyMonster.class.getName());
-
   /** A static non-moving guard and shooting monster. */
-  public static final Builder GUARD =
-      (Builder)
-          new Builder()
-              .name("Blockly Guard")
-              .speed(0.0f)
-              .mass(4.0f)
-              .onWallHit(e -> {})
-              .canEnterOpenPits(false)
-              .texturePath("character/monster/big_daemon")
-              .health(1)
-              .deathSound(MonsterDeathSound.LOWER_PITCH)
-              .idleSound(MonsterIdleSound.NONE)
-              .fightAI(() -> new StraightRangeAI(6, new InevitableFireballSkill()))
-              .idleAI(() -> entity -> {}) // no idle needed
-              .transitionAI(() -> entity -> true) // instant fight
-              .collideDamage(99999) // one hit kill
-              .collideCooldown(0);
+  public static Builder GUARD() {
+    return createGuard();
+  }
+
+  private static Builder createGuard() {
+    return new Builder()
+        .name("Blockly Guard")
+        .speed(0.0f)
+        .mass(4.0f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/big_daemon")
+        .health(1)
+        .deathSound(MonsterDeathSound.LOWER_PITCH)
+        .idleSound(MonsterIdleSound.NONE)
+        .fightAI(() -> new StraightRangeAI(6, new InevitableFireballSkill()))
+        .idleAI(() -> entity -> {}) // no idle needed
+        .transitionAI(() -> entity -> true) // instant fight
+        .collideDamage(99999) // one hit kill
+        .collideCooldown(0);
+  }
 
   /** A static non-moving guard monster. */
-  public static final Builder HEDGEHOG =
-      (Builder)
-          new Builder()
-              .name("Blockly Hedgehog")
-              .speed(0.0f)
-              .mass(2.5f)
-              .onWallHit(e -> {})
-              .canEnterOpenPits(false)
-              .texturePath("character/monster/ogre")
-              .health(1)
-              .deathSound(MonsterDeathSound.LOWER_PITCH)
-              .idleSound(MonsterIdleSound.NONE)
-              .fightAI(() -> (entity) -> {}) // static, no fight behavior provided
-              .idleAI(() -> (entity) -> {})
-              .transitionAI(() -> (entity) -> true) // instant fight/contact behavior
-              .collideDamage(99999) // one hit kill
-              .collideCooldown(0);
+  public static Builder HEDGEHOG() {
+    return createHedgehog();
+  }
+
+  private static Builder createHedgehog() {
+    return new Builder()
+        .name("Blockly Hedgehog")
+        .speed(0.0f)
+        .mass(2.5f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/ogre")
+        .health(1)
+        .deathSound(MonsterDeathSound.LOWER_PITCH)
+        .idleSound(MonsterIdleSound.NONE)
+        .fightAI(() -> (entity) -> {}) // static, no fight behavior provided
+        .idleAI(() -> (entity) -> {})
+        .transitionAI(() -> (entity) -> true) // instant fight/contact behavior
+        .collideDamage(99999) // one hit kill
+        .collideCooldown(0);
+  }
 
   /** The Boss of Produs Blockly. */
-  public static final Builder BLACK_KNIGHT =
-      (Builder)
-          new Builder()
-              .name("Blockly Black Knight")
-              .speed(0.0f)
-              .mass(3.0f)
-              .onWallHit(e -> {})
-              .canEnterOpenPits(false)
-              .texturePath("character/knight")
-              .health(3)
-              .deathSound(MonsterDeathSound.LOWER_PITCH)
-              .idleSound(MonsterIdleSound.NONE)
-              .fightAI(() -> (entity) -> {}) // static, provided no fight behavior
-              .idleAI(() -> (entity) -> {})
-              .transitionAI(() -> (entity) -> true) // instant contact
-              .collideDamage(99999) // one hit kill
-              .collideCooldown(0);
+  public static Builder BLACK_KNIGHT() {
+    return createBlackKnight();
+  }
+
+  private static Builder createBlackKnight() {
+    return new Builder()
+        .name("Blockly Black Knight")
+        .speed(0.0f)
+        .mass(3.0f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/knight")
+        .health(3)
+        .deathSound(MonsterDeathSound.LOWER_PITCH)
+        .idleSound(MonsterIdleSound.NONE)
+        .fightAI(() -> (entity) -> {}) // static, provided no fight behavior
+        .idleAI(() -> (entity) -> {})
+        .transitionAI(() -> (entity) -> true) // instant contact
+        .collideDamage(99999) // one hit kill
+        .collideCooldown(0);
+  }
 
   /** Builder class for creating Blockly monsters. */
-  public static class Builder extends MonsterBuilder {
+  public static class Builder extends MonsterBuilder<Builder> {
 
     private int attackRange = -1;
 
@@ -149,4 +158,6 @@ public class BlocklyMonster {
       return monster;
     }
   }
+
+  private BlocklyMonster() {}
 }

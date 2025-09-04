@@ -24,26 +24,26 @@ public final class DungeonMonster {
 
   private static MonsterBuilder<?> createImp() {
     return new MonsterBuilder<>()
-      .name("Imp")
-      .speed(5.0f)
-      .mass(1.0f)
-      .onWallHit(e -> {})
-      .canEnterOpenPits(false)
-      .texturePath("character/monster/imp")
-      .health(3)
-      .onDeath(e -> {})
-      .removeOnDeath(true)
-      .deathSound(MonsterDeathSound.HIGH_PITCH)
-      .drops(Set.of())
-      .dropChance(0.2f)
-      .guaranteedDrops(Set.of())
-      .idleSound(MonsterIdleSound.HIGH_PITCH)
-      .fightAI(AIFactory::randomFightAI)
-      .idleAI(AIFactory::randomIdleAI)
-      .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
-      .collideDamage(5)
-      .collideCooldown(2 * Game.frameRate())
-      .damageType(DamageType.PHYSICAL);
+        .name("Imp")
+        .speed(5.0f)
+        .mass(1.0f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/imp")
+        .health(3)
+        .onDeath(e -> {})
+        .removeOnDeath(true)
+        .deathSound(MonsterDeathSound.HIGH_PITCH)
+        .drops(Set.of())
+        .dropChance(0.2f)
+        .guaranteedDrops(Set.of())
+        .idleSound(MonsterIdleSound.HIGH_PITCH)
+        .fightAI(AIFactory::randomFightAI)
+        .idleAI(AIFactory::randomIdleAI)
+        .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
+        .collideDamage(5)
+        .collideCooldown(2 * Game.frameRate())
+        .damageType(DamageType.PHYSICAL);
   }
 
   /**
@@ -56,26 +56,26 @@ public final class DungeonMonster {
 
   private static MonsterBuilder<?> createZombie() {
     return new MonsterBuilder<>()
-      .name("Zombie")
-      .speed(3.2f)
-      .mass(1.3f)
-      .onWallHit(e -> {})
-      .canEnterOpenPits(false)
-      .texturePath("character/monster/big_zombie")
-      .health(6)
-      .onDeath(e -> {})
-      .removeOnDeath(true)
-      .deathSound(MonsterDeathSound.LOW_PITCH)
-      .drops(Set.of())
-      .dropChance(0.15f)
-      .guaranteedDrops(Set.of())
-      .idleSound(MonsterIdleSound.BURP)
-      .fightAI(AIFactory::randomFightAI)
-      .idleAI(AIFactory::randomIdleAI)
-      .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
-      .collideDamage(4)
-      .collideCooldown(2 * Game.frameRate())
-      .damageType(DamageType.PHYSICAL);
+        .name("Zombie")
+        .speed(3.2f)
+        .mass(1.3f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/big_zombie")
+        .health(6)
+        .onDeath(e -> {})
+        .removeOnDeath(true)
+        .deathSound(MonsterDeathSound.LOW_PITCH)
+        .drops(Set.of())
+        .dropChance(0.15f)
+        .guaranteedDrops(Set.of())
+        .idleSound(MonsterIdleSound.BURP)
+        .fightAI(AIFactory::randomFightAI)
+        .idleAI(AIFactory::randomIdleAI)
+        .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
+        .collideDamage(4)
+        .collideCooldown(2 * Game.frameRate())
+        .damageType(DamageType.PHYSICAL);
   }
 
   /**
@@ -88,26 +88,26 @@ public final class DungeonMonster {
 
   private static MonsterBuilder<?> createOgre() {
     return new MonsterBuilder<>()
-      .name("Ogre")
-      .speed(2.5f)
-      .mass(2.5f)
-      .onWallHit(e -> {})
-      .canEnterOpenPits(false)
-      .texturePath("character/monster/ogre")
-      .health(9)
-      .onDeath(e -> {})
-      .removeOnDeath(true)
-      .deathSound(MonsterDeathSound.LOWER_PITCH)
-      .drops(Set.of())
-      .dropChance(0.25f)
-      .guaranteedDrops(Set.of())
-      .idleSound(MonsterIdleSound.LOWER_PITCH)
-      .fightAI(AIFactory::randomFightAI)
-      .idleAI(AIFactory::randomIdleAI)
-      .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
-      .collideDamage(8)
-      .collideCooldown(2 * Game.frameRate())
-      .damageType(DamageType.PHYSICAL);
+        .name("Ogre")
+        .speed(2.5f)
+        .mass(2.5f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/ogre")
+        .health(9)
+        .onDeath(e -> {})
+        .removeOnDeath(true)
+        .deathSound(MonsterDeathSound.LOWER_PITCH)
+        .drops(Set.of())
+        .dropChance(0.25f)
+        .guaranteedDrops(Set.of())
+        .idleSound(MonsterIdleSound.LOWER_PITCH)
+        .fightAI(AIFactory::randomFightAI)
+        .idleAI(AIFactory::randomIdleAI)
+        .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
+        .collideDamage(8)
+        .collideCooldown(2 * Game.frameRate())
+        .damageType(DamageType.PHYSICAL);
   }
 
   /**
@@ -120,26 +120,26 @@ public final class DungeonMonster {
 
   private static MonsterBuilder<?> createGoblin() {
     return new MonsterBuilder<>()
-      .name("Goblin")
-      .speed(4.2f)
-      .mass(1.0f)
-      .onWallHit(e -> {})
-      .canEnterOpenPits(false)
-      .texturePath("character/monster/goblin")
-      .health(4)
-      .onDeath(e -> {})
-      .removeOnDeath(true)
-      .deathSound(MonsterDeathSound.BASIC)
-      .drops(Set.of())
-      .dropChance(0.18f)
-      .guaranteedDrops(Set.of())
-      .idleSound(MonsterIdleSound.BASIC)
-      .fightAI(AIFactory::randomFightAI)
-      .idleAI(AIFactory::randomIdleAI)
-      .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
-      .collideDamage(3)
-      .collideCooldown(2 * Game.frameRate())
-      .damageType(DamageType.PHYSICAL);
+        .name("Goblin")
+        .speed(4.2f)
+        .mass(1.0f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/goblin")
+        .health(4)
+        .onDeath(e -> {})
+        .removeOnDeath(true)
+        .deathSound(MonsterDeathSound.BASIC)
+        .drops(Set.of())
+        .dropChance(0.18f)
+        .guaranteedDrops(Set.of())
+        .idleSound(MonsterIdleSound.BASIC)
+        .fightAI(AIFactory::randomFightAI)
+        .idleAI(AIFactory::randomIdleAI)
+        .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
+        .collideDamage(3)
+        .collideCooldown(2 * Game.frameRate())
+        .damageType(DamageType.PHYSICAL);
   }
 
   /**
@@ -152,26 +152,26 @@ public final class DungeonMonster {
 
   private static MonsterBuilder<?> createIceZombie() {
     return new MonsterBuilder<>()
-      .name("Ice Zombie")
-      .speed(2.8f)
-      .mass(1.3f)
-      .onWallHit(e -> {})
-      .canEnterOpenPits(false)
-      .texturePath("character/monster/ice_zombie")
-      .health(6)
-      .onDeath(e -> {})
-      .removeOnDeath(true)
-      .deathSound(MonsterDeathSound.LOW_PITCH)
-      .drops(Set.of())
-      .dropChance(0.20f)
-      .guaranteedDrops(Set.of())
-      .idleSound(MonsterIdleSound.LOWER_PITCH)
-      .fightAI(AIFactory::randomFightAI)
-      .idleAI(AIFactory::randomIdleAI)
-      .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
-      .collideDamage(4)
-      .collideCooldown(2 * Game.frameRate())
-      .damageType(DamageType.PHYSICAL);
+        .name("Ice Zombie")
+        .speed(2.8f)
+        .mass(1.3f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/ice_zombie")
+        .health(6)
+        .onDeath(e -> {})
+        .removeOnDeath(true)
+        .deathSound(MonsterDeathSound.LOW_PITCH)
+        .drops(Set.of())
+        .dropChance(0.20f)
+        .guaranteedDrops(Set.of())
+        .idleSound(MonsterIdleSound.LOWER_PITCH)
+        .fightAI(AIFactory::randomFightAI)
+        .idleAI(AIFactory::randomIdleAI)
+        .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
+        .collideDamage(4)
+        .collideCooldown(2 * Game.frameRate())
+        .damageType(DamageType.PHYSICAL);
   }
 
   /**
@@ -184,26 +184,26 @@ public final class DungeonMonster {
 
   private static MonsterBuilder<?> createOrcShaman() {
     return new MonsterBuilder<>()
-      .name("Orc Shaman")
-      .speed(3.4f)
-      .mass(1.2f)
-      .onWallHit(e -> {})
-      .canEnterOpenPits(false)
-      .texturePath("character/monster/orc_shaman")
-      .health(5)
-      .onDeath(e -> {})
-      .removeOnDeath(true)
-      .deathSound(MonsterDeathSound.BASIC)
-      .drops(Set.of())
-      .dropChance(0.22f)
-      .guaranteedDrops(Set.of())
-      .idleSound(MonsterIdleSound.LOWER_PITCH)
-      .fightAI(AIFactory::randomFightAI)
-      .idleAI(AIFactory::randomIdleAI)
-      .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
-      .collideDamage(4)
-      .collideCooldown(2 * Game.frameRate())
-      .damageType(DamageType.PHYSICAL);
+        .name("Orc Shaman")
+        .speed(3.4f)
+        .mass(1.2f)
+        .onWallHit(e -> {})
+        .canEnterOpenPits(false)
+        .texturePath("character/monster/orc_shaman")
+        .health(5)
+        .onDeath(e -> {})
+        .removeOnDeath(true)
+        .deathSound(MonsterDeathSound.BASIC)
+        .drops(Set.of())
+        .dropChance(0.22f)
+        .guaranteedDrops(Set.of())
+        .idleSound(MonsterIdleSound.LOWER_PITCH)
+        .fightAI(AIFactory::randomFightAI)
+        .idleAI(AIFactory::randomIdleAI)
+        .transitionAI(() -> (self) -> AIFactory.randomTransition(self).apply(self))
+        .collideDamage(4)
+        .collideCooldown(2 * Game.frameRate())
+        .damageType(DamageType.PHYSICAL);
   }
 
   /**
@@ -220,10 +220,10 @@ public final class DungeonMonster {
       int mods = method.getModifiers();
       // public static no-arg methods returning MonsterBuilder
       if (Modifier.isStatic(mods)
-        && Modifier.isPublic(mods)
-        && method.getParameterCount() == 0
-        && MonsterBuilder.class.equals(method.getReturnType())
-        && !method.getName().equals("RANDOM")) {
+          && Modifier.isPublic(mods)
+          && method.getParameterCount() == 0
+          && MonsterBuilder.class.equals(method.getReturnType())
+          && !method.getName().equals("RANDOM")) {
         try {
           Object result = method.invoke(null);
           if (result instanceof MonsterBuilder) {
@@ -240,6 +240,5 @@ public final class DungeonMonster {
     return builders.get(MonsterBuilder.RANDOM.nextInt(builders.size()));
   }
 
-  private DungeonMonster() {
-  }
+  private DungeonMonster() {}
 }

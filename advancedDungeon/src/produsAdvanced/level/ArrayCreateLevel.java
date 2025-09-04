@@ -161,11 +161,11 @@ public class ArrayCreateLevel extends AdvancedLevel {
     try {
       Entity monster =
           switch (monsterType) {
-            case 0 -> AdvancedDungeonMonster.ELEMENTAL.build(pos.toCenteredPoint());
-            case 1 -> AdvancedDungeonMonster.STATIC_CHORT.build(pos.toCenteredPoint());
-            case 2 -> AdvancedDungeonMonster.IMP.build(pos.toCenteredPoint());
-            case 3 -> AdvancedDungeonMonster.DOC.build(pos.toCenteredPoint());
-            case 4 -> AdvancedDungeonMonster.GOBLIN.build(pos.toCenteredPoint());
+            case 0 -> AdvancedDungeonMonster.ELEMENTAL().build(pos.toCenteredPoint());
+            case 1 -> AdvancedDungeonMonster.STATIC_CHORT().build(pos.toCenteredPoint());
+            case 2 -> AdvancedDungeonMonster.IMP().build(pos.toCenteredPoint());
+            case 3 -> AdvancedDungeonMonster.DOC().build(pos.toCenteredPoint());
+            case 4 -> AdvancedDungeonMonster.GOBLIN().build(pos.toCenteredPoint());
             default ->
                 throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
           };

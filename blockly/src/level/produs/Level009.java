@@ -8,6 +8,7 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
+import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -60,15 +61,14 @@ public class Level009 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
 
-    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
-    hedgehogBuilder.range(0);
-    hedgehogBuilder.addToGame();
-    hedgehogBuilder.spawnPoint(customPoints().get(2).toCenteredPoint());
-    hedgehogBuilder.build();
-    hedgehogBuilder.spawnPoint(customPoints().get(3).toCenteredPoint());
-    hedgehogBuilder.build();
-    hedgehogBuilder.spawnPoint(customPoints().get(4).toCenteredPoint());
-    hedgehogBuilder.build();
+    try {
+      BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG().attackRange(0).addToGame();
+      hedgehogBuilder.build(customPoints().get(2).toCenteredPoint());
+      hedgehogBuilder.build(customPoints().get(3).toCenteredPoint());
+      hedgehogBuilder.build(customPoints().get(4).toCenteredPoint());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

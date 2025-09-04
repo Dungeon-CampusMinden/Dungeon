@@ -55,7 +55,7 @@ public class Level022 extends BlocklyLevel {
     Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).close());
 
     try {
-      BlocklyMonster.BLACK_KNIGHT
+      BlocklyMonster.BLACK_KNIGHT()
           .attackRange(0)
           .speed(Client.MOVEMENT_FORCE.x())
           .addToGame()

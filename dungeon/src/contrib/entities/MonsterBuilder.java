@@ -610,8 +610,8 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
     if (collideDamage() > 0)
       monster.add(new SpikyComponent(collideDamage(), damageType(), collideCooldown()));
     monster.add(
-      new AIComponent(
-        fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));
+        new AIComponent(
+            fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));
     monster.add(buildInventoryComponent());
     monster.add(buildHealthComponent());
 
@@ -647,20 +647,19 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
   private HealthComponent buildHealthComponent() {
     Consumer<Entity> constructedOnDeath =
-      entity -> {
-        onDeath().accept(entity);
-        deathSound()
-          .ifPresent(
-            deathSound ->
-              playDeathSoundIfNearby(
-                deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
+        entity -> {
+          onDeath().accept(entity);
+          deathSound()
+              .ifPresent(
+                  deathSound ->
+                      playDeathSoundIfNearby(deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
 
-        entity
-          .fetch(InventoryComponent.class)
-          .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+          entity
+              .fetch(InventoryComponent.class)
+              .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
 
-        if (removeOnDeath()) Game.remove(entity);
-      };
+          if (removeOnDeath()) Game.remove(entity);
+        };
 
     return new HealthComponent(health, constructedOnDeath);
   }
@@ -701,7 +700,10 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
     try {
       sound = Gdx.audio.newSound(Gdx.files.internal(soundPath.pathString()));
     } catch (GdxRuntimeException e) {
-      LOGGER.log(Level.SEVERE, "Failed to load sound at path: " + soundPath.pathString() + " (" + e + ")", e);
+      LOGGER.log(
+          Level.SEVERE,
+          "Failed to load sound at path: " + soundPath.pathString() + " (" + e + ")",
+          e);
       return;
     }
     long id = sound.play();
@@ -723,12 +725,12 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
     Entity hero = Game.hero().get();
     PositionComponent pc =
-      hero.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     PositionComponent monsterPc =
-      entity
-        .fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
       playMonsterDieSound(soundPath, disposeDelay);
