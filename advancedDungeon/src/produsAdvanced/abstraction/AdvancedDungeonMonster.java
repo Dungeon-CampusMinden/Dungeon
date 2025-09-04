@@ -11,7 +11,11 @@ import java.util.*;
 /** Monster for the AdvancedDungeon. */
 public class AdvancedDungeonMonster {
 
-  /** Elemental monster. */
+  /**
+   * Elemental monster.
+   *
+   * @return a builder for an elemental monster
+   */
   public static MonsterBuilder<?> ELEMENTAL() {
     return createElemental();
   }
@@ -40,7 +44,11 @@ public class AdvancedDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** A non moving chort. */
+  /**
+   * A non moving chort.
+   *
+   * @return a builder for a static chort monster
+   */
   public static MonsterBuilder<?> STATIC_CHORT() {
     return createStaticChort();
   }
@@ -69,7 +77,11 @@ public class AdvancedDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** A small red imp. */
+  /**
+   * A small red imp.
+   *
+   * @return a builder for an imp monster
+   */
   public static MonsterBuilder<?> IMP() {
     return createImp();
   }
@@ -98,7 +110,11 @@ public class AdvancedDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** Dr. acula. */
+  /**
+   * Dr. acula.
+   *
+   * @return a builder for a doc monster
+   */
   public static MonsterBuilder<?> DOC() {
     return createDoc();
   }
@@ -127,7 +143,11 @@ public class AdvancedDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** Looks familiar. */
+  /**
+   * Looks familiar.
+   *
+   * @return a builder for a goblin monster
+   */
   public static MonsterBuilder<?> GOBLIN() {
     return createGoblin();
   }

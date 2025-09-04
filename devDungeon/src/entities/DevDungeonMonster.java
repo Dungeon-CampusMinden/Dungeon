@@ -54,7 +54,11 @@ public final class DevDungeonMonster {
     // utility class
   }
 
-  /** A Chort monster. Slow but tanky and strong. */
+  /**
+   * A Chort monster. Slow but tanky and strong.
+   *
+   * @return A Builder for a Chort monster.
+   */
   public static Builder CHORT() {
     return createChort();
   }
@@ -83,7 +87,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** An Imp monster. Fast, weak but annoying. */
+  /**
+   * An Imp monster. Fast, weak but annoying.
+   *
+   * @return A Builder for an Imp monster.
+   */
   public static Builder IMP() {
     return createImp();
   }
@@ -118,7 +126,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** A Zombie monster. Average speed and health but can revive itself. */
+  /**
+   * A Zombie monster. Average speed and health but can revive itself.
+   *
+   * @return A Builder for a Zombie monster.
+   */
   public static Builder ZOMBIE() {
     return createZombie();
   }
@@ -148,7 +160,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** An Orc Warrior monster. Average speed and health but only melee attack. */
+  /**
+   * An Orc Warrior monster. Average speed and health but only melee attack.
+   *
+   * @return A Builder for an Orc Warrior monster.
+   */
   public static Builder ORC_WARRIOR() {
     return createOrcWarrior();
   }
@@ -178,7 +194,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** Orc Shaman monster. Average speed and health but ranged attack. */
+  /**
+   * Orc Shaman monster. Average speed and health but ranged attack.
+   *
+   * @return A Builder for an Orc Shaman monster.
+   */
   public static Builder ORC_SHAMAN() {
     return createOrcShaman();
   }
@@ -213,7 +233,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** The tutorial monster. Almost no health and attacks. */
+  /**
+   * The tutorial monster. Almost no health and attacks
+   *
+   * @return A Builder for a Tutorial monster. .
+   */
   public static Builder TUTORIAL() {
     return createTutorial();
   }
@@ -242,7 +266,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** The Bridge Mob monster. Immortal, no AI, no damage. */
+  /**
+   * The Bridge Mob monster. Immortal, no AI, no damage.
+   *
+   * @return A Builder for a Bridge Mob monster.
+   */
   public static Builder BRIDGE_MOB() {
     return createBridgeMob();
   }
@@ -271,7 +299,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** Dark_Goo monster. Slow with fast weak melee attacks. */
+  /**
+   * Dark_Goo monster. Slow with fast weak melee attacks.
+   *
+   * @return A Builder for a Dark_Goo monster.
+   */
   public static Builder DARK_GOO() {
     return createDarkGoo();
   }
@@ -300,7 +332,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** Small Dark Goo monster. Fast with average fast melee attacks. */
+  /**
+   * Small Dark Goo monster. Fast with average fast melee attacks.
+   *
+   * @return A Builder for a Small Dark Goo monster.
+   */
   public static Builder SMALL_DARK_GOO() {
     return createSmallDarkGoo();
   }
@@ -329,7 +365,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** TP Doc monster. Average speed and health with ranged Teleportation attacks. */
+  /**
+   * TP Doc monster. Average speed and health with ranged Teleportation attacks.
+   *
+   * @return A Builder for a TP Doc monster.
+   */
   public static Builder DOC() {
     return createDoc();
   }
@@ -366,7 +406,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** The Bridge Guard monster. Immortal, no AI, no damage. */
+  /**
+   * The Bridge Guard monster. Immortal, no AI, no damage.
+   *
+   * @return A Builder for a Bridge Guard monster.
+   */
   public static Builder BRIDGE_GUARD() {
     return createBridgeGuardBuilder();
   }
@@ -395,7 +439,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** Pumpkin Boi monster. Small field boss, strong and special ranged attacks. */
+  /**
+   * Pumpkin Boi monster. Small field boss, strong and special ranged attacks.
+   *
+   * @return A Builder for a Pumpkin Boi monster.
+   */
   public static Builder PUMPKIN_BOI() {
     return createPumpkinBoi();
   }
@@ -429,7 +477,11 @@ public final class DevDungeonMonster {
         .damageType(DamageType.PHYSICAL);
   }
 
-  /** The Illusion Boss monster. Very strong and special ranged attacks. */
+  /**
+   * The Illusion Boss monster. Very strong and special ranged attacks.
+   *
+   * @return A Builder for an Illusion Boss monster.
+   */
   public static Builder ILLUSION_BOSS() {
     return createIllusionBoss();
   }
@@ -461,6 +513,7 @@ public final class DevDungeonMonster {
   /**
    * The Final Boss monster. Super strong and a lot of special ranged attacks.
    *
+   * @return A Builder for a Final Boss monster.
    * @see BossAttackSkills
    */
   public static Builder FINAL_BOSS() {
@@ -552,7 +605,7 @@ public final class DevDungeonMonster {
 
     private InventoryComponent buildInventoryComponent() {
       InventoryComponent ic = new InventoryComponent(1);
-      if (RANDOM.nextFloat() < dropChance()) {
+      if (DungeonMonster.RANDOM.nextFloat() < dropChance()) {
         ic.add(MiscFactory.randomItemGenerator().generateItemData());
       }
       return ic;

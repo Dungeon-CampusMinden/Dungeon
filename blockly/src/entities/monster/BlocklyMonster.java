@@ -34,7 +34,11 @@ import java.io.IOException;
  */
 public class BlocklyMonster {
 
-  /** A static non-moving guard and shooting monster. */
+  /**
+   * A static non-moving guard and shooting monster.
+   *
+   * @return a builder for a guard monster
+   */
   public static Builder GUARD() {
     return createGuard();
   }
@@ -57,7 +61,11 @@ public class BlocklyMonster {
         .collideCooldown(0);
   }
 
-  /** A static non-moving guard monster. */
+  /**
+   * A static non-moving guard monster.
+   *
+   * @return a builder for a hedgehog monster
+   */
   public static Builder HEDGEHOG() {
     return createHedgehog();
   }
@@ -80,7 +88,11 @@ public class BlocklyMonster {
         .collideCooldown(0);
   }
 
-  /** The Boss of Produs Blockly. */
+  /**
+   * The Boss of Produs Blockly.
+   *
+   * @return a builder for a black knight monster
+   */
   public static Builder BLACK_KNIGHT() {
     return createBlackKnight();
   }

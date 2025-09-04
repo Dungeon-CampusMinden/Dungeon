@@ -48,7 +48,7 @@ public class MonsterTest {
             },
             DesignLabel.DEFAULT));
 
-    Entity m = DungeonMonster.RANDOM().spawnPoint(new Point(0, 0)).build();
+    Entity m = DungeonMonster.RANDOM().build(new Point(0, 0));
     Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
     assertTrue(drawComponent.isPresent());
 

@@ -272,9 +272,7 @@ public class Level01 extends DungeonLevel {
     for (int i = 0; i < 5; i++) {
       try {
         Entity m =
-            DungeonMonster.RANDOM()
-                .spawnPoint(points.get(RANDOM.nextInt(points.size())).position())
-                .build();
+            DungeonMonster.RANDOM().build(points.get(RANDOM.nextInt(points.size())).position());
         m.fetch(HealthComponent.class)
             .ifPresent(
                 healthComponent ->

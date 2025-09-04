@@ -20,6 +20,8 @@ public final class DungeonMonster {
   /**
    * A small, mischievous demon. Fast and light, deals low damage, and can enter open pits. Has a
    * high-pitched death sound and random fight/idle AI.
+   *
+   * @return a MonsterBuilder for an Imp
    */
   public static MonsterBuilder<?> IMP() {
     return createImp();
@@ -52,6 +54,8 @@ public final class DungeonMonster {
   /**
    * A slow-moving undead. Relatively low health but moderate mass. Cannot enter open pits. Emits a
    * low-pitched death sound and has random fight/idle AI.
+   *
+   * @return a MonsterBuilder for a Zombie
    */
   public static MonsterBuilder<?> ZOMBIE() {
     return createZombie();
@@ -84,6 +88,8 @@ public final class DungeonMonster {
   /**
    * A large, powerful monster. Slow but deals high collision damage. Cannot enter open pits. Emits
    * a lower-pitched death sound and uses random fight/idle AI.
+   *
+   * @return a MonsterBuilder for an Ogre
    */
   public static MonsterBuilder<?> OGRE() {
     return createOgre();
@@ -116,6 +122,8 @@ public final class DungeonMonster {
   /**
    * A small, agile goblin. Fast and light, deals low collision damage. Cannot enter open pits. Uses
    * basic death and idle sounds with random fight/idle AI.
+   *
+   * @return a MonsterBuilder for a Goblin
    */
   public static MonsterBuilder<?> GOBLIN() {
     return createGoblin();
@@ -148,6 +156,8 @@ public final class DungeonMonster {
   /**
    * An undead ice-themed monster. Moderate speed and health. Cannot enter open pits. Emits a
    * lower-pitched death sound and uses random fight/idle AI.
+   *
+   * @return a MonsterBuilder for an Ice Zombie
    */
   public static MonsterBuilder<?> ICE_ZOMBIE() {
     return createIceZombie();
@@ -180,6 +190,8 @@ public final class DungeonMonster {
   /**
    * A magical orc shaman. Moderate speed and health, cannot enter open pits. Uses basic death
    * sound, lower-pitched idle sound, and random fight/idle AI.
+   *
+   * @return a MonsterBuilder for an Orc Shaman
    */
   public static MonsterBuilder<?> ORC_SHAMAN() {
     return createOrcShaman();
