@@ -4,8 +4,7 @@ import contrib.components.AIComponent;
 import contrib.utils.components.ai.fight.SentryFightBehaviour;
 import contrib.utils.components.ai.idle.SentryPatrolWalk;
 import contrib.utils.components.ai.transition.RangeTransition;
-import contrib.utils.components.skill.SkillTools;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
+import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -24,19 +23,21 @@ import java.io.IOException;
  * fight logic, e.g. a projectile-launching sentry.
  */
 public class SentryFactory {
-  private static final IPath PROJECTILE_LAUNCHER_PATH =
-      new SimpleIPath("character/monster/necromancer");
+  private static final IPath SENTRY_FACING_UP = new SimpleIPath("objects/sentrys/sentrys_up");
+  private static final IPath SENTRY_FACING_DOWN = new SimpleIPath("objects/sentrys/sentrys_down");
+  private static final IPath SENTRY_FACING_LEFT = new SimpleIPath("objects/sentrys/sentrys_left");
+  private static final IPath SENTRY_FACING_RIGHT = new SimpleIPath("objects/sentrys/sentrys_right");
 
   /**
    * Creates a generic sentry entity with the given attributes and behavior.
    *
-   * @param name the name of the entity
-   * @param texture the texture path for the entity's draw component
-   * @param speed the movement speed of the entity
-   * @param ai the AI component controlling this sentry
-   * @param a the spawn position (and also one patrol point)
-   * @return a fully constructed sentry entity
-   * @throws IOException if the texture cannot be loaded
+   * @param name the name of the entity.
+   * @param texture the texture path for the entity's draw component.
+   * @param speed the movement speed of the entity.
+   * @param ai the AI component controlling this sentry.
+   * @param a the spawn position (and also one patrol point).
+   * @return a fully constructed sentry entity.
+   * @throws IOException if the texture cannot be loaded.
    */
   public static Entity buildSentry(
       String name, IPath texture, float speed, AIComponent ai, Point a, Point b)
@@ -74,28 +75,41 @@ public class SentryFactory {
    * <ul>
    *   <li>Patrols between two points {@code a} and {@code b}.
    *   <li>Uses {@link SentryFightBehaviour} to fire projectiles in the given {@link Direction}.
-   *   <li>Attacks with a {@link FireballSkill} when the hero is within range.
+   *   <li>Attacks with a {@link DamageProjectileSkill} when the hero is within range.
    * </ul>
    *
-   * @param a the first patrol point and spawn position
-   * @param b the second patrol point
-   * @param shootDirection the fixed direction in which the sentry will shoot
-   * @return a sentry entity that patrols and launches projectiles
-   * @throws IOException if the texture cannot be loaded
+   * @param a the first patrol point and spawn position.
+   * @param b the second patrol point.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param dps the {@link DamageProjectileSkill} used to attack.
+   * @return a sentry entity that patrols and launches projectiles.
+   * @throws IOException if the texture cannot be loaded.
    */
   public static Entity projectileLauncherSentry(
-      Point a, Point b, Direction shootDirection, long cooldown) throws IOException {
+      Point a, Point b, Direction shootDirection, DamageProjectileSkill dps) throws IOException {
+    IPath sentryTexture;
+    switch (shootDirection) {
+      case Direction.UP:
+        sentryTexture = SENTRY_FACING_UP;
+        break;
+      case Direction.DOWN:
+        sentryTexture = SENTRY_FACING_DOWN;
+        break;
+      case Direction.LEFT:
+        sentryTexture = SENTRY_FACING_LEFT;
+        break;
+      case Direction.RIGHT:
+        sentryTexture = SENTRY_FACING_RIGHT;
+        break;
+      default:
+        sentryTexture = SENTRY_FACING_UP;
+    }
     return buildSentry(
         "projectileLauncher",
-        PROJECTILE_LAUNCHER_PATH,
+        sentryTexture,
         4.0f,
         new AIComponent(
-            new SentryFightBehaviour(
-                a,
-                b,
-                10.0f,
-                new FireballSkill(SkillTools::heroPositionAsPoint, cooldown),
-                shootDirection),
+            new SentryFightBehaviour(a, b, 10.0f, dps, shootDirection),
             new SentryPatrolWalk(a, b),
             new RangeTransition(5.0f)),
         a,
