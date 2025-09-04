@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 public class BowSkill extends DamageProjectileSkill {
 
   /** Name of the Skill. */
-  public static final String SKILL_NAME = "BOW Skill";
+  public static final String SKILL_NAME = "BOW_SKILL";
 
   private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
   private static final float DEFAULT_PROJECTILE_SPEED = 13f;
