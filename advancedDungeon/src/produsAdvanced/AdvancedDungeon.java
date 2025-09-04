@@ -7,6 +7,7 @@ import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -22,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import produsAdvanced.abstraction.Fireball;
-import produsAdvanced.abstraction.FireballSkill;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.*;
@@ -56,9 +55,6 @@ public class AdvancedDungeon {
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
 
-  /** Global reference to the {@link FireballSkill} instance used in the game. */
-  public static FireballSkill fireballSkill = new FireballSkill();
-
   /** If true, the {@link produsAdvanced.riddles.MyPlayerController} will not be recompiled. */
   private static boolean recompilePaused = false;
 
@@ -70,12 +66,12 @@ public class AdvancedDungeon {
       new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
 
   private static final SimpleIPath FIREBALL_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyFireball.java");
+      new SimpleIPath("src/produsAdvanced/riddles/MyFireballSkill.java");
 
   /** Fully qualified class name of the custom player controller. */
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
 
-  private static final String FIREBALL_CLASSNAME = "produsAdvanced.riddles.MyFireball";
+  private static final String FIREBALL_CLASSNAME = "produsAdvanced.riddles.MyFireballSkill";
 
   /**
    * Function called every frame to check for manual recompilation trigger.
@@ -96,11 +92,9 @@ public class AdvancedDungeon {
   private static void recompileHeroControl() {
     if (recompilePaused) return;
     try {
-      Object o =
-          DynamicCompiler.loadUserInstance(
-              FIREBALL_PATH, FIREBALL_CLASSNAME, new Tuple<>(FireballSkill.class, fireballSkill));
-      fireballSkill.setController((Fireball) o);
 
+      Object o = DynamicCompiler.loadUserInstance(FIREBALL_PATH, FIREBALL_CLASSNAME);
+      hero.addSkill((Skill) o);
       o =
           DynamicCompiler.loadUserInstance(
               HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
@@ -205,7 +199,7 @@ public class AdvancedDungeon {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity heroEntity = EntityFactory.newHero();
     Game.add(heroEntity);
-    hero = new Hero(heroEntity, fireballSkill);
+    hero = new Hero(heroEntity);
 
     if (!DEBUG_MODE) recompileHeroControl();
   }

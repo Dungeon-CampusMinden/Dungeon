@@ -10,7 +10,6 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
-import contrib.utils.components.skill.FireballSkill;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -26,8 +25,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -38,24 +35,27 @@ public final class HeroFactory {
   /** If true, the hero can be moved with the mouse. */
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
 
-  /**
-   * The default size of the inventory.
-   *
-   * @see InventoryComponent
-   */
-  public static final int DEFAULT_INVENTORY_SIZE = 6;
+  /** The default Hero class, used if no other class is specified. */
+  public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
 
-  private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
-  private static final int FIREBALL_COOL_DOWN = 500;
-  private static final int HERO_HP = 25;
-  private static final float HERO_MAX_SPEED = STEP_SPEED.x();
   private static final String MOVEMENT_ID = "Movement";
-  private static final float HERO_MASS = 1.3f;
-  private static Skill HERO_SKILL =
-      new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
+  private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
+      entity ->
+          entity
+              .fetch(SkillComponent.class)
+              .ifPresent(
+                  skillComponent ->
+                      skillComponent
+                          .activeSkill()
+                          .ifPresent(
+                              new Consumer<Skill>() {
+                                @Override
+                                public void accept(Skill skill) {
+                                  skill.execute(entity);
+                                }
+                              }));
 
-  private static Consumer<Entity> HERO_DEATH =
+  private static Consumer<Entity> DEFAULT_DEATH =
       (hero) ->
           DialogUtils.showTextPopup(
               "You died!",
@@ -63,41 +63,28 @@ public final class HeroFactory {
               () -> {
                 hero.fetch(HealthComponent.class)
                     .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
+                hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
+                hero.fetch(StaminaComponent.class)
+                    .ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
+
+                // reset inventory
+                hero.fetch(CharacterClassComponent.class)
+                    .ifPresent(
+                        characterClassComponent -> {
+                          InventoryComponent invComp =
+                              new InventoryComponent(
+                                  characterClassComponent.characterClass().inventorySize());
+                          characterClassComponent
+                              .characterClass()
+                              .startItems()
+                              .forEach(item -> invComp.add(item));
+                          hero.add(invComp);
+                        });
+
                 // reset the animation queue
                 hero.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
                 DungeonLoader.reloadCurrentLevel();
               });
-
-  /**
-   * The default speed of the hero.
-   *
-   * @return Copy of the default speed of the hero.
-   */
-  public static Vector2 defaultHeroSpeed() {
-    return Vector2.of(STEP_SPEED);
-  }
-
-  /**
-   * Gets the current skill of the hero.
-   *
-   * @return The current skill of the hero.
-   */
-  public static Skill getHeroSkill() {
-    return HERO_SKILL;
-  }
-
-  /**
-   * Set the skill callback for the hero. The skill callback is executed when the hero uses the
-   * skill.
-   *
-   * <p>By default, the hero uses the {@link FireballSkill}.
-   *
-   * @param skillCallback The skill callback.
-   * @see Skill#Skill(Consumer, long)
-   */
-  public static void setHeroSkillCallback(Consumer<Entity> skillCallback) {
-    HERO_SKILL = new Skill(skillCallback, FIREBALL_COOL_DOWN);
-  }
 
   /**
    * Sets the callback to execute when the hero dies.
@@ -105,7 +92,7 @@ public final class HeroFactory {
    * @param deathCallback Callback that will be executed on the hero's death.
    */
   public static void heroDeath(Consumer<Entity> deathCallback) {
-    HERO_DEATH = deathCallback;
+    DEFAULT_DEATH = deathCallback;
   }
 
   /**
@@ -121,7 +108,7 @@ public final class HeroFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero() throws IOException {
-    return newHero(HERO_DEATH);
+    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH);
   }
 
   /**
@@ -133,11 +120,13 @@ public final class HeroFactory {
    * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
    * CollideComponent} and {@link HealthComponent}.
    *
+   * @param characterClass Class of the hero.
    * @param deathCallback function that will be executed if the hero dies
    * @return A new Entity.
    * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
+  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback)
+      throws IOException {
     Entity hero = new Entity("hero");
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent();
@@ -147,7 +136,8 @@ public final class HeroFactory {
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
 
-    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(HERO_FILE_PATH);
+    Map<String, Animation> animationMap =
+        Animation.loadAnimationSpritesheet(characterClass.textures());
     State stIdle = new DirectionalState("idle", animationMap);
     State stMove = new DirectionalState("move", animationMap, "run");
     State stDead = new State("dead", animationMap.get("idle_down"));
@@ -157,17 +147,27 @@ public final class HeroFactory {
     sm.addTransition(stMove, "idle", stIdle);
     sm.addTransition(stIdle, "died", stDead);
     sm.addTransition(stMove, "died", stDead);
-    // Always have the hero face South when not moving after a bit
-    //    sm.addEpsilonTransition(stIdle, State::isAnimationFinished, stIdle, () -> Direction.DOWN);
     DrawComponent dc = new DrawComponent(sm);
     dc.depth(DepthLayer.Player.depth());
     hero.add(dc);
 
-    hero.add(new VelocityComponent(HERO_MAX_SPEED, HERO_MASS, (e) -> {}, true));
+    hero.add(
+        new VelocityComponent(
+            Math.max(characterClass.speed().x(), characterClass.speed().y()),
+            characterClass.mass(),
+            (e) -> {},
+            true));
+    hero.add(
+        new ManaComponent(
+            characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));
+    hero.add(
+        new StaminaComponent(
+            characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
+    hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
     HealthComponent hc =
         new HealthComponent(
-            HERO_HP,
+            characterClass.hp(),
             entity -> {
               // play sound
               Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
@@ -186,6 +186,7 @@ public final class HeroFactory {
 
               deathCallback.accept(entity);
             });
+    hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
     CollideComponent col =
         new CollideComponent(
@@ -216,18 +217,41 @@ public final class HeroFactory {
             entity -> inputComp.deactivateControls(true),
             entity -> inputComp.deactivateControls(false)));
     hero.add(inputComp);
-    InventoryComponent invComp = new InventoryComponent(DEFAULT_INVENTORY_SIZE);
+
+    InventoryComponent invComp = new InventoryComponent(characterClass.inventorySize());
+    characterClass.startItems().forEach(item -> invComp.add(item));
     hero.add(invComp);
 
     // hero movement
     registerMovement(
-        inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Vector2.of(0, 1));
+        inputComp,
+        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
+        characterClass.speed(),
+        Direction.UP);
     registerMovement(
-        inputComp, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Vector2.of(0, -1));
+        inputComp,
+        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
+        characterClass.speed(),
+        Direction.DOWN);
     registerMovement(
-        inputComp, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Vector2.of(1, 0));
+        inputComp,
+        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
+        characterClass.speed(),
+        Direction.RIGHT);
     registerMovement(
-        inputComp, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Vector2.of(-1, 0));
+        inputComp,
+        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
+        characterClass.speed(),
+        Direction.LEFT);
+
+    inputComp.registerCallback(
+        KeyboardConfig.NEXT_SKILL.value(),
+        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
+        false);
+    inputComp.registerCallback(
+        KeyboardConfig.PREV_SKILL.value(),
+        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
+        false);
 
     if (ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
@@ -306,8 +330,7 @@ public final class HeroFactory {
         false);
 
     // skills
-    inputComp.registerCallback(
-        KeyboardConfig.FIRST_SKILL.value(), heroEntity -> HERO_SKILL.execute(heroEntity));
+    inputComp.registerCallback(KeyboardConfig.FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL);
 
     return hero;
   }
@@ -374,7 +397,8 @@ public final class HeroFactory {
     }
   }
 
-  private static void registerMovement(InputComponent ic, int key, Vector2 direction) {
+  private static void registerMovement(
+      InputComponent ic, int key, Vector2 speed, Vector2 direction) {
     ic.registerCallback(
         key,
         entity -> {
@@ -385,13 +409,13 @@ public final class HeroFactory {
                       () -> MissingComponentException.build(entity, VelocityComponent.class));
 
           Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
-          Vector2 newForce = STEP_SPEED.scale(direction);
+          Vector2 newForce = speed.scale(direction);
 
           Vector2 updatedForce =
               existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
 
           if (updatedForce.lengthSquared() > 0) {
-            updatedForce = updatedForce.normalize().scale(STEP_SPEED.length());
+            updatedForce = updatedForce.normalize().scale(speed.length());
             vc.applyForce(MOVEMENT_ID, updatedForce);
           }
 
@@ -405,7 +429,7 @@ public final class HeroFactory {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       ic.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), hero -> HERO_SKILL.execute(hero), true, false);
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL, true, false);
       ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
@@ -420,7 +444,7 @@ public final class HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              HERO_SKILL.execute(hero);
+              EXECUTE_ACTIVE_HERO_SKILL.accept(hero);
             } else {
               handleInteractWithClosestInteractable(hero);
             }
@@ -496,5 +520,16 @@ public final class HeroFactory {
     Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
     vc1.applyForce("Collision", newVelocity.scale(-1));
     vc2.applyForce("Collision", newVelocity);
+  }
+
+  /**
+   * Create a new Hero based on the given class with the default death callback (restart level).
+   *
+   * @param characterClass The class of the hero.
+   * @return The Hero Entity-
+   * @throws IOException if animations could not be created.
+   */
+  public static Entity newHero(CharacterClass characterClass) throws IOException {
+    return newHero(characterClass, DEFAULT_DEATH);
   }
 }

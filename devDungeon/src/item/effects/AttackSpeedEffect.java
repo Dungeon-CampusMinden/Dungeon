@@ -1,8 +1,11 @@
 package item.effects;
 
-import contrib.entities.HeroFactory;
+import contrib.components.SkillComponent;
 import contrib.systems.EventScheduler;
+import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
+import core.Game;
 import core.components.PlayerComponent;
 
 /**
@@ -47,10 +50,20 @@ public class AttackSpeedEffect {
           "Attack speed can only be applied to player entities.");
     }
 
-    this.originalFireballCoolDown = HeroFactory.getHeroSkill().cooldown();
-    HeroFactory.getHeroSkill().cooldown((long) (originalFireballCoolDown / speedMultiplier));
+    Skill fireball = heroFireballSkill();
+    if (fireball != null) {
+      this.originalFireballCoolDown = fireball.cooldown();
+      fireball.cooldown((long) (originalFireballCoolDown / speedMultiplier));
 
-    EventScheduler.scheduleAction(
-        () -> HeroFactory.getHeroSkill().cooldown(originalFireballCoolDown), duration * 1000L);
+      EventScheduler.scheduleAction(
+          () -> fireball.cooldown(originalFireballCoolDown), duration * 1000L);
+    }
+  }
+
+  private Skill heroFireballSkill() {
+    return Game.hero()
+        .flatMap(hero -> hero.fetch(SkillComponent.class))
+        .flatMap(sc -> sc.getSkill(FireballSkill.class))
+        .orElse(null);
   }
 }

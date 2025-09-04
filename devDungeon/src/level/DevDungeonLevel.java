@@ -1,7 +1,7 @@
 package level;
 
 import contrib.hud.DialogUtils;
-import contrib.utils.components.skill.TPBallSkill;
+import contrib.utils.components.skill.projectileSkill.TPBallSkill;
 import contrib.utils.level.ITickable;
 import core.level.DungeonLevel;
 import core.level.elements.ILevel;
@@ -87,8 +87,8 @@ public abstract class DevDungeonLevel extends DungeonLevel {
   /**
    * Adds a new teleport target to the list.
    *
-   * <p>The teleport target is a point where the {@link TPBallSkill TPBallSkill} will teleport the
-   * entity to if it hits an entity.
+   * <p>The teleport target is a point where the {@link TPBallSkill} will teleport the entity to if
+   * it hits an entity.
    *
    * @param points The teleport target to be added. Multiple points can be added at once.
    * @see TPBallSkill TPBallSkill

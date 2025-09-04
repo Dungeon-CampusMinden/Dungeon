@@ -8,10 +8,7 @@ import aiAdvanced.systems.PathfindingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import contrib.components.AIComponent;
-import contrib.entities.HeroFactory;
-import contrib.entities.MonsterDeathSound;
-import contrib.entities.MonsterFactory;
-import contrib.entities.MonsterIdleSound;
+import contrib.entities.*;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.PathSystem;
@@ -262,13 +259,12 @@ public class ComparePathfindingStarter {
    * @return The newly created runnerMob
    */
   public static Entity createRunnerMob() {
-    Entity runnerMob;
-    runnerMob =
+    Entity runnerMob =
         MonsterFactory.buildMonster(
             "KI Runner",
-            new SimpleIPath("character/wizard"),
+            HeroFactory.DEFAULT_HERO_CLASS.textures(),
             1,
-            HeroFactory.defaultHeroSpeed().x(), // same speed as hero
+            HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
             0.0f,
             MonsterDeathSound.LOWER_PITCH.sound(),
             new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai

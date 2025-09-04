@@ -771,4 +771,15 @@ public final class Game {
   public static void exit() {
     Gdx.app.exit();
   }
+
+  /**
+   * Returns the entities on the given point. If the point is null, an empty stream will be
+   * returned.
+   *
+   * @param point Point to check for.
+   * @return Stream of all entities on the given tile
+   */
+  public static Stream<Entity> entityAtPoint(Point point) {
+    return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
+  }
 }

@@ -1,6 +1,7 @@
 package level.produs;
 
 import client.Client;
+import coderunner.BlocklyCommands;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
@@ -17,11 +18,10 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import entities.BlocklyMonster;
+import entities.monster.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
-import utils.BlocklyCommands;
 
 /**
  * This is the first level of the 3-stage boss fight. It features a Red-Light Green-Light mechanic:

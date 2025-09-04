@@ -54,7 +54,7 @@ public final class EntityFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero(Consumer<Entity> deathCallback) throws IOException {
-    return HeroFactory.newHero(deathCallback);
+    return HeroFactory.newHero(HeroFactory.DEFAULT_HERO_CLASS, deathCallback);
   }
 
   /**

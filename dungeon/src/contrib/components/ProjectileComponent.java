@@ -1,5 +1,6 @@
 package contrib.components;
 
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.utils.Point;
@@ -20,8 +21,7 @@ import java.util.function.Consumer;
  * core.components.VelocityComponent} of the entity accordingly. If the goal location is reached,
  * the entity will be removed from the game.
  *
- * <p>Examples of projectiles are {@link contrib.utils.components.skill.FireballSkill fireballs} or
- * arrows.
+ * <p>Examples of projectiles are {@link FireballSkill fireballs} or arrows.
  *
  * <p>The {@link #goalLocation()} method retrieves the goal position of the projectile. The {@link
  * #startPosition()} method retrieves the start position of the projectile.
@@ -29,9 +29,9 @@ import java.util.function.Consumer;
  * @param startPosition The point from which to start the calculation to the goal location.
  * @param goalLocation The point where the projectile should fly to.
  * @param forceToApply The force the projectile should move with.
- * @param onGoalReached Callback to execute when the projectile reached the goal location.
+ * @param onEndReached Callback to execute when the projectile reached the goal location.
  * @see contrib.utils.components.skill.DamageProjectile
  */
 public record ProjectileComponent(
-    Point startPosition, Point goalLocation, Vector2 forceToApply, Consumer<Entity> onGoalReached)
+    Point startPosition, Point goalLocation, Vector2 forceToApply, Consumer<Entity> onEndReached)
     implements Component {}

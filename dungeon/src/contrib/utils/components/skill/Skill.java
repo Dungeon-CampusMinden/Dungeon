@@ -1,102 +1,243 @@
 package contrib.utils.components.skill;
 
 import core.Entity;
+import core.utils.Tuple;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
- * Skill implements the base functionality of every skill.
+ * Represents an abstract skill that can be used by an {@link Entity}.
  *
- * <p>The base functionality consists of checking if the cool down expired, executing the specific
- * functionality of the skill, saving the time when the skill was last used and (re)activate the
- * cool down timer.
+ * <p>A skill has a name, a cooldown period, and a set of resource costs (such as mana or energy)
+ * required to execute it. Subclasses must implement the {@link #executeSkill(Entity)} method, which
+ * defines the behavior of the skill when executed.
  *
- * <p>{@link #canBeUsedAgain()} checks if the time between the last use and now is enough to use the
- * skill again.
- *
- * <p>The {@link #activateCoolDown}-Method adds the specified cool down time to the time the skill
- * was last used. While the cool down is active, the skill can not be used again.
+ * <p>This class also provides a static {@link #NONE} instance that represents a no-op skill.
  */
-public class Skill {
+public abstract class Skill {
 
-  private final Consumer<Entity> skillFunction;
-  private long coolDownInMilliSeconds;
+  /** Logger for skill-related events. */
+  protected static final Logger LOGGER = Logger.getLogger(Skill.class.getSimpleName());
+
+  /** A placeholder skill that does nothing when executed. */
+  public static final Skill NONE =
+      new Skill() {
+        @Override
+        protected void executeSkill(Entity caster) {}
+      };
+
+  /** The name of the skill. */
+  protected String name;
+
+  /** The cooldown duration in milliseconds. */
+  private long cooldown;
+
+  /** The last time the skill was used. */
   private Instant lastUsed;
+
+  /** The next time at which this skill can be used again. */
   private Instant nextUsableAt = Instant.now();
 
+  /** The resource cost required to execute this skill. */
+  private Map<Resource, Integer> resourceCost;
+
   /**
-   * Create a new {@link Skill}.
+   * Creates a new skill with the given parameters.
    *
-   * @param skillFunction Functionality of the skill.
-   * @param coolDownInMilliSeconds The time that needs to pass between use of the skill and the next
-   *     possible use of the skill.
+   * @param name the name of the skill
+   * @param cooldown the cooldown in milliseconds
+   * @param resources the resources and their required amounts, provided as {@link Tuple}s
    */
-  public Skill(final Consumer<Entity> skillFunction, final long coolDownInMilliSeconds) {
-    this.skillFunction = skillFunction;
-    this.coolDownInMilliSeconds = coolDownInMilliSeconds;
+  @SafeVarargs
+  public Skill(String name, long cooldown, Tuple<Resource, Integer>... resources) {
+    this.name = name;
+    this.cooldown = cooldown;
+    this.resourceCost =
+        Arrays.stream(resources)
+            .collect(
+                Collectors.toMap(
+                    Tuple::a, // Resource
+                    Tuple::b // Integer
+                    ));
+  }
+
+  /** Private constructor for creating special skills such as {@link #NONE}. */
+  private Skill() {
+    resourceCost = new HashMap<>();
   }
 
   /**
-   * Executes the method of this skill, saves the time the skill was last used and updates when it
-   * can be used again.
+   * Defines the behavior of the skill when executed.
    *
-   * <p>If the skill was used, the cool down will be set.
+   * <p>Subclasses must implement this method to specify what happens when the skill is successfully
+   * triggered.
    *
-   * @param entity The entity which uses this skill.
+   * @param caster the entity using the skill
    */
-  public void execute(final Entity entity) {
-    if (canBeUsedAgain()) {
-      skillFunction.accept(entity);
+  protected abstract void executeSkill(Entity caster);
+
+  /**
+   * Attempts to execute the skill for the given entity.
+   *
+   * <p>The execution is successful if:
+   *
+   * <ul>
+   *   <li>the skill is not on cooldown ({@link #canBeUsedAgain()} returns {@code true}), and
+   *   <li>the entity has enough resources ({@link #checkResources(Entity)} returns {@code true})
+   * </ul>
+   *
+   * <p>If successful, the skill behavior is executed, resources are consumed, and the cooldown is
+   * activated.
+   *
+   * @param entity the entity attempting to use the skill
+   * @return {@code true} if the skill was executed, {@code false} otherwise
+   */
+  public final boolean execute(final Entity entity) {
+    if (canBeUsedAgain() && checkResources(entity)) {
+      executeSkill(entity);
+      consumeResources(entity);
       lastUsed = Instant.now();
       activateCoolDown();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks whether the given entity has enough resources to use this skill.
+   *
+   * @param caster the entity attempting to use the skill
+   * @return {@code true} if all resource requirements are met, {@code false} otherwise
+   */
+  private boolean checkResources(Entity caster) {
+    for (Map.Entry<Resource, Integer> entry : resourceCost.entrySet()) {
+      Resource resource = entry.getKey();
+      int requiredAmount = entry.getValue();
+      float currentAmount = resource.apply(caster);
+      if (currentAmount < requiredAmount) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Consumes the required resources from the given entity when the skill is used.
+   *
+   * @param caster the entity using the skill
+   */
+  private void consumeResources(Entity caster) {
+    for (Map.Entry<Resource, Integer> entry : resourceCost.entrySet()) {
+      Resource resource = entry.getKey();
+      int amount = entry.getValue();
+      resource.consume(caster, amount);
     }
   }
 
   /**
-   * Checks if the cool down has passed and the skill can be used again.
+   * Returns the name of the skill.
    *
-   * @return true if the specified time (coolDownInSeconds) has passed.
+   * @return the skill name
+   */
+  public String name() {
+    return name;
+  }
+
+  /**
+   * Checks whether the cooldown has passed and the skill can be used again.
+   *
+   * @return {@code true} if the cooldown period has elapsed
    */
   public boolean canBeUsedAgain() {
-    // check if the cool down is active, return the negated result (this avoids some problems in
-    // nano-sec range)
     return !(Duration.between(Instant.now(), nextUsableAt).toMillis() > 0);
   }
 
   /**
-   * Sets the cooldown of this skill.
+   * Sets the cooldown duration of this skill.
    *
-   * @param newCoolDown The new cooldown in milliseconds.
+   * @param newCoolDown the new cooldown in milliseconds
    */
   public void cooldown(long newCoolDown) {
-    this.coolDownInMilliSeconds = newCoolDown;
+    this.cooldown = newCoolDown;
   }
 
   /**
-   * Returns the cooldown of this skill.
+   * Returns the cooldown duration of this skill.
    *
-   * @return int The cooldown in milliseconds.
+   * @return the cooldown in milliseconds
    */
   public long cooldown() {
-    return coolDownInMilliSeconds;
+    return cooldown;
   }
 
-  /**
-   * Adds coolDownInMilliSeconds to the time the skill was last used and updates when this skill can
-   * be used again.
-   */
+  /** Activates the cooldown timer by setting the next usable time based on the last usage. */
   private void activateCoolDown() {
-    nextUsableAt = lastUsed.plusMillis(coolDownInMilliSeconds);
+    nextUsableAt = lastUsed.plusMillis(cooldown);
   }
 
   /**
-   * Sets the last used time to now.
+   * Sets the last used time of this skill to the current moment.
    *
-   * <p>This method is used to reset the cool down of the skill.
+   * <p>This effectively resets the cooldown.
    */
   public void setLastUsedToNow() {
     this.lastUsed = Instant.now();
     activateCoolDown();
+  }
+
+  /**
+   * Returns a copy of the resource cost map for this skill.
+   *
+   * @return a copy of the resource requirements
+   */
+  public Map<Resource, Integer> resourceCost() {
+    return new HashMap<>(resourceCost);
+  }
+
+  /**
+   * Replaces the resource cost map of this skill with a new one.
+   *
+   * @param newResourceCost the new resource requirements
+   */
+  public void resourceCost(Map<Resource, Integer> newResourceCost) {
+    if (newResourceCost == null) newResourceCost = new HashMap<>();
+    this.resourceCost = new HashMap<>(newResourceCost);
+  }
+
+  /**
+   * Updates the required amount of a specific resource, if it exists in the cost map.
+   *
+   * @param resource the resource to update
+   * @param newAmount the new required amount
+   */
+  public void updateResourceCost(Resource resource, int newAmount) {
+    if (resourceCost.containsKey(resource)) {
+      resourceCost.put(resource, newAmount);
+    }
+  }
+
+  /**
+   * Adds a new resource requirement to this skill or replaces the amount if the resource is already
+   * present.
+   *
+   * @param resource the resource to add
+   * @param amount the required amount
+   */
+  public void addResource(Resource resource, int amount) {
+    resourceCost.put(resource, amount);
+  }
+
+  /**
+   * Removes a resource requirement from this skill.
+   *
+   * @param resource the resource to remove
+   */
+  public void removeResource(Resource resource) {
+    resourceCost.remove(resource);
   }
 }

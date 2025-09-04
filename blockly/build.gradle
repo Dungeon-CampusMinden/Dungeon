@@ -62,7 +62,7 @@ tasks.register('buildBlocklyJar', Jar) {
     }
     from(projectDir) {
         include 'src/core/utils/Direction.java'
-        include 'src/utils/BlocklyCommands.java'
+        include 'src/coderunner/BlocklyCommands.java'
         // Remove 'src/' prefix from paths
         eachFile { file ->
             file.path = file.path.replaceFirst('src/', '')

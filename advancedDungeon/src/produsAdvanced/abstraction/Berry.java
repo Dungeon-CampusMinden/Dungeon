@@ -20,6 +20,9 @@ import java.util.function.Predicate;
  */
 public class Berry extends Item {
 
+  /** Name der Beere. */
+  public static final String NAME = "BERRY";
+
   /** Pfad zur Textur eines Donuts (optional verwendbar). */
   public static String DONUT_TEXTURE = "items/resource/donut.png";
 

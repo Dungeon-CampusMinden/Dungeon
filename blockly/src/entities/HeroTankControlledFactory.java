@@ -1,6 +1,7 @@
 package entities;
 
 import client.Client;
+import coderunner.BlocklyCommands;
 import contrib.entities.EntityFactory;
 import core.Entity;
 import core.components.InputComponent;
@@ -11,7 +12,6 @@ import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
-import utils.BlocklyCommands;
 
 /**
  * This class is used to create a hero entity with tank controls. The hero can only move in the

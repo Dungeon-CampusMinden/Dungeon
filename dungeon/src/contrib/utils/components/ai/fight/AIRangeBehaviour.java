@@ -4,7 +4,7 @@ import static core.level.utils.LevelUtils.accessibleTilesInRange;
 
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
-import contrib.utils.components.skill.ISkillUser;
+import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;

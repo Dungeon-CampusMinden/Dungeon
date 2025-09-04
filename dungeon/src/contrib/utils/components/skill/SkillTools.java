@@ -2,12 +2,13 @@ package contrib.utils.components.skill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
+import contrib.systems.EventScheduler;
+import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.systems.CameraSystem;
-import core.utils.MissingHeroException;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 
 /** SkillTools is a collection of helper methods used for skills. */
@@ -66,5 +67,39 @@ public final class SkillTools {
             .orElseThrow(
                 () -> MissingComponentException.build(Game.hero().get(), PositionComponent.class));
     return pc.position();
+  }
+
+  /**
+   * Makes an entity visually "blink" by alternating its tint color for a specified duration.
+   *
+   * <p>The blink effect is created by scheduling alternating color changes between the given {@code
+   * tint} color and the default color ({@code 0xFFFFFFFF}) over the total duration. Each blink
+   * consists of two phases: "on" (tint applied) and "off" (default color).
+   *
+   * @param entity the entity to apply the blink effect on; must have a {@link DrawComponent}
+   * @param tint the RGBA color to use for the blink (e.g. {@code 0xFF0000FF} for red)
+   * @param totalDuration the total time (in milliseconds) the blinking should last
+   * @param times the number of full blinks (each blink = on + off cycle)
+   */
+  public static void blink(Entity entity, int tint, long totalDuration, int times) {
+    // Each blink has two phases: on and off
+    long interval = totalDuration / (times * 2);
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    int oldtint = dc.tintColor();
+    for (int i = 0; i < times * 2; i++) {
+      final int step = i;
+      EventScheduler.scheduleAction(
+          () -> {
+            if (step % 2 == 0) {
+              dc.tintColor(tint); // blink color
+            } else {
+              dc.tintColor(oldtint); // old color
+            }
+          },
+          interval * i);
+    }
   }
 }
