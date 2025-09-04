@@ -1,5 +1,6 @@
 package produsAdvanced;
 
+import contrib.components.SkillComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
@@ -7,6 +8,7 @@ import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
+import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
@@ -24,6 +26,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
+import produsAdvanced.abstraction.PortalSkill;
 import produsAdvanced.level.*;
 
 /**
@@ -125,6 +128,17 @@ public class AdvancedDungeon {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
+          DungeonLoader.addLevel(Tuple.of("portal", PlayGroundLevel.class));
+
+          try {
+            Game.add(HeroFactory.newHero());
+            SkillComponent sc = Game.hero().get().fetch(SkillComponent.class).get();
+            sc.removeAll();
+            sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          /*
           DungeonLoader.addLevel(Tuple.of("control1", AdvancedControlLevel1.class));
           DungeonLoader.addLevel(Tuple.of("control2", AdvancedControlLevel2.class));
           DungeonLoader.addLevel(Tuple.of("control3", AdvancedControlLevel3.class));
@@ -134,21 +148,19 @@ public class AdvancedDungeon {
           DungeonLoader.addLevel(Tuple.of("arrayremove", ArrayRemoveLevel.class));
           DungeonLoader.addLevel(Tuple.of("arrayiterate", ArrayIterateLevel.class));
           DungeonLoader.addLevel(Tuple.of("sort", AdvancedSortLevel.class));
+          */
           createSystems();
 
-          WindowEventManager.registerFocusChangeListener(
+         /*WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus) recompileHeroControl();
               });
 
           HeroFactory.heroDeath(entity -> restart());
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          Crafting.loadRecipes();
-          DungeonLoader.loadLevel(loadLevelIndex());
+
+          */
+        //Crafting.loadRecipes();
+        //DungeonLoader.loadLevel(loadLevelIndex());
         });
   }
 
@@ -244,7 +256,7 @@ public class AdvancedDungeon {
       File file = new File(AdvancedDungeon.SAVE_FILE);
       // Ensure parent directory exists
       try (OutputStreamWriter osw =
-          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+             new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
         osw.write(content);
       }
     } catch (Exception ignored) {
