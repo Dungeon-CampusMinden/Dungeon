@@ -1,9 +1,7 @@
 package level.produs;
 
 import client.Client;
-import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
-import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
@@ -13,6 +11,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.monster.BlocklyMonster;
+import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -55,23 +54,21 @@ public class Level022 extends BlocklyLevel {
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
     Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).close());
 
-    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
-    bossBuilder.range(0);
-    bossBuilder.speed(Client.MOVEMENT_FORCE.x());
-    bossBuilder.addToGame();
-    bossBuilder.viewDirection(Direction.LEFT);
-    bossBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
-
-    Entity boss = bossBuilder.build();
-    boss.fetch(HealthComponent.class)
-        .orElseThrow()
-        .onDeath(
-            entity -> {
+    try {
+      BlocklyMonster.BLACK_KNIGHT
+          .attackRange(0)
+          .speed(Client.MOVEMENT_FORCE.x())
+          .addToGame()
+          .viewDirection(Direction.LEFT)
+          .onDeath(
               // todo we shouldnt just end the game, we need a real end screen
-              DialogUtils.showTextPopup(
-                  "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit);
-              Game.remove(entity);
-            });
+              entity ->
+                  DialogUtils.showTextPopup(
+                      "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit))
+          .build(customPoints().getFirst());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {

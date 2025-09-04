@@ -392,7 +392,7 @@ public enum AdvancedDungeonMonster {
      * @return A configured {@link Entity}.
      * @throws IOException If texture loading fails.
      */
-    public Entity build() throws IOException {
+    public Entity build(Point spawnPoint) throws IOException {
       Entity monster = type.build(spawnPoint);
       if (addToGame) Game.add(monster);
       return monster;

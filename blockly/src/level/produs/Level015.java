@@ -73,7 +73,7 @@ public class Level015 extends BlocklyLevel {
         .orElseThrow()
         .currentAmmunition(4);
     final int[] counter = {0};
-    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
     hedgehogBuilder.range(0);
     hedgehogBuilder.addToGame();
 

@@ -54,7 +54,7 @@ public class Level018 extends BlocklyLevel {
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
     LevelManagementUtils.heroViewDirection(Direction.LEFT);
-    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
+    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
     Game.hero()
         .orElseThrow(MissingHeroException::new)
         .fetch(AmmunitionComponent.class)

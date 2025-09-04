@@ -1,6 +1,7 @@
 package entities;
 
 import components.MobSpawnerComponent;
+import contrib.entities.MonsterBuilder;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -41,7 +42,7 @@ public class MobSpawnerFactory {
    * @return The created mob spawner entity.
    */
   public static Entity createMobSpawner(
-      Coordinate pos, DevDungeonMonsterType[] monsterTypes, int maxMobCount) {
+      Coordinate pos, MonsterBuilder[] monsterTypes, int maxMobCount) {
     Entity mobSpawner = new Entity("mobSpawner");
 
     mobSpawner.add(new PositionComponent(pos.toCenteredPoint()));

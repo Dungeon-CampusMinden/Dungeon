@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.components.HealthComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
@@ -14,6 +13,7 @@ import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
+import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -96,26 +96,29 @@ public class Level011 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(8).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(9).toCenteredPoint()));
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.addToGame();
-    guardBuilder.range(5);
-    guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(customPoints().get(10).toCenteredPoint());
-    guardBuilder.build();
+    try {
+      BlocklyMonster.GUARD
+          .attackRange(5)
+          .viewDirection(Direction.LEFT)
+          .addToGame()
+          .build(customPoints().get(10));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
 
-    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
-    bossBuilder.range(0);
-    bossBuilder.addToGame();
-    bossBuilder.viewDirection(Direction.UP);
-    bossBuilder.spawnPoint(customPoints().get(11).toCenteredPoint());
-    Entity boss = bossBuilder.build();
-    boss.fetch(HealthComponent.class)
-        .orElseThrow()
-        .onDeath(
-            entity -> {
-              DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
-              Game.remove(entity);
-            });
+    try {
+      BlocklyMonster.BLACK_KNIGHT
+          .attackRange(0)
+          .addToGame()
+          .viewDirection(Direction.UP)
+          .onDeath(
+              entity ->
+                  DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!"))
+          .build(customPoints().get(11));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
     door1 = (DoorTile) Game.tileAt(new Coordinate(4, 9)).orElse(null);
     door2 = (DoorTile) Game.tileAt(new Coordinate(14, 8)).orElse(null);
     door1.close();

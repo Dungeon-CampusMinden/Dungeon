@@ -1,6 +1,8 @@
 package contrib.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
@@ -16,6 +18,9 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.utils.Coordinate;
+import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Animation;
@@ -29,36 +34,40 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Shared monster builder to reduce duplication between different monster enums across projects.
  *
- * <p>- Provides sensible defaults for the "core framework" (Dungeon). - Allows sub-projects
- * (e.g., DevDungeon) to override specific parts via factories/hooks.
+ * <p>- Provides sensible defaults for the "core framework" (Dungeon). - Allows sub-projects (e.g.,
+ * DevDungeon) to override specific parts via factories/hooks.
  *
- * <p>Overridable factories: - velocityFactory - inventoryFactory - healthFactory - extraComponentsHook
- * - onDeathExtra
+ * <p>Overridable factories: - velocityFactory - inventoryFactory - healthFactory -
+ * extraComponentsHook - onDeathExtra
  */
-public final class MonsterBuilder {
-  /**
-   * Random instance for monsters.
-   */
+public class MonsterBuilder {
+  private static final Logger LOGGER = Logger.getLogger(MonsterBuilder.class.getSimpleName());
+
+  /** Random instance for monsters. */
   public static Random RANDOM = new Random();
 
-  /**
-   * Maximum distance from hero within which to play the death sound when the monster dies.
-   */
+  /** Maximum distance from hero within which to play the death sound when the monster dies. */
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
 
   private static final float DEATH_SOUND_VOLUME = 0.35f;
-  /** The delay in seconds, for when the death sound should be disposed.
-   * <p> This value practically defines the maximum length of a death sound.
-   **/
-  private static final int DEATH_SOUND_DISPOSE_DELAY = 10;
+
+  /**
+   * The delay in seconds, for when the death sound should be disposed.
+   *
+   * <p>This value practically defines the maximum length of a death sound.
+   */
+  protected static final int DEATH_SOUND_DISPOSE_DELAY = 10;
 
   // Basic config
   private String name = "";
   private IPath texture = Animation.MISSING_TEXTURE;
+  private Direction viewDirection = Direction.DOWN;
 
   // Health
   private int health = 1;
@@ -90,9 +99,8 @@ public final class MonsterBuilder {
   private final Set<Item> guaranteedDrops = new HashSet<>();
   private float dropChance = 0.0f;
 
-  // Position / lifecycle
-  private Point spawnPoint = new Point(0, 0);
-  private boolean addToGame = false;
+  // Lifecycle
+  protected boolean addToGame = false;
 
   // -------------------
   // Builder API
@@ -106,6 +114,17 @@ public final class MonsterBuilder {
    */
   public MonsterBuilder name(String name) {
     this.name = name;
+    return this;
+  }
+
+  /**
+   * Set the initial view direction of the monster.
+   *
+   * @param direction the initial view direction
+   * @return this builder
+   */
+  public MonsterBuilder viewDirection(Direction direction) {
+    this.viewDirection = direction;
     return this;
   }
 
@@ -354,17 +373,6 @@ public final class MonsterBuilder {
   }
 
   /**
-   * Set the spawnPoint point for the monster.
-   *
-   * @param spawn spawnPoint point
-   * @return this builder
-   */
-  public MonsterBuilder spawnPoint(Point spawn) {
-    this.spawnPoint = spawn;
-    return this;
-  }
-
-  /**
    * Mark this monster to be added to the Game when built.
    *
    * @return this builder
@@ -392,6 +400,15 @@ public final class MonsterBuilder {
    */
   public String name() {
     return name;
+  }
+
+  /**
+   * Get the configured initial view direction.
+   *
+   * @return the initial view direction
+   */
+  public Direction viewDirection() {
+    return viewDirection;
   }
 
   /**
@@ -430,23 +447,29 @@ public final class MonsterBuilder {
     return removeOnDeath;
   }
 
-  /**
-   * Get the optional death sound.
-   *
-   * @return optional death sound
-   */
-  public Optional<MonsterDeathSound> deathSound() {
-    return Optional.ofNullable(deathSound);
-  }
+/**
+     * Get the optional death sound.
+     *
+     * @return optional death sound
+     */
+    public Optional<MonsterDeathSound> deathSound() {
+        if (deathSound == null || deathSound.path().pathString().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(deathSound);
+    }
 
-  /**
-   * Get the optional idle sound path.
-   *
-   * @return optional idle sound IPath
-   */
-  public Optional<MonsterIdleSound> idleSoundPath() {
-    return Optional.ofNullable(idleSound);
-  }
+    /**
+     * Get the optional idle sound path.
+     *
+     * @return optional idle sound IPath
+     */
+    public Optional<MonsterIdleSound> idleSoundPath() {
+        if (idleSound == null || idleSound.path().pathString().isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(idleSound);
+    }
 
   /**
    * Get the fight AI supplier.
@@ -566,32 +589,24 @@ public final class MonsterBuilder {
   }
 
   /**
-   * Get spawnPoint point.
-   *
-   * @return spawnPoint point
-   */
-  public Point spawnPoint() {
-    return spawnPoint;
-  }
-
-  // Build
-
-  /**
    * Construct the Entity configured by this builder.
    *
+   * @param spawnPoint coordinate to spawn on (centered point)
    * @return constructed Entity
    * @throws IOException if resource loading fails
    */
-  public Entity build() throws IOException {
+  public Entity build(Point spawnPoint) throws IOException {
     Entity monster = new Entity(name);
 
-    monster.add(new PositionComponent(spawnPoint()));
+    monster.add(new PositionComponent(spawnPoint));
     monster.add(new DrawComponent(texture()));
     monster.add(new VelocityComponent(speed(), mass(), onWallHit(), canEnterOpenPits()));
     monster.add(new CollideComponent());
     if (collideDamage() > 0)
       monster.add(new SpikyComponent(collideDamage(), damageType(), collideCooldown()));
-    monster.add(new AIComponent(fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));
+    monster.add(
+        new AIComponent(
+            fightAISupplier().get(), idleAISupplier().get(), transitionAISupplier().get()));
     monster.add(buildInventoryComponent());
     monster.add(buildHealthComponent());
 
@@ -603,18 +618,44 @@ public final class MonsterBuilder {
     return monster;
   }
 
+  /**
+   * Construct the Entity configured by this builder.
+   *
+   * @param spawnPoint coordinate to spawn on (centered point)
+   * @return constructed Entity
+   * @throws IOException if resource loading fails
+   */
+  public Entity build(Coordinate spawnPoint) throws IOException {
+    return build(spawnPoint.toCenteredPoint());
+  }
+
+  /**
+   * Construct the Entity configured by this builder.
+   *
+   * @param spawnTile tile to spawn on (centered point)
+   * @return constructed Entity
+   * @throws IOException if resource loading fails
+   */
+  public Entity build(Tile spawnTile) throws IOException {
+    return build(spawnTile.coordinate().toCenteredPoint());
+  }
+
   private HealthComponent buildHealthComponent() {
     Consumer<Entity> constructedOnDeath =
-      entity -> {
-        onDeath().accept(entity);
-        deathSound().ifPresent(deathSound -> playDeathSoundIfNearby(deathSound.sound(), DEATH_SOUND_DISPOSE_DELAY, entity));
+        entity -> {
+          onDeath().accept(entity);
+          deathSound()
+              .ifPresent(
+                  deathSound ->
+                      playDeathSoundIfNearby(
+                          deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
 
-        entity
-          .fetch(InventoryComponent.class)
-          .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+          entity
+              .fetch(InventoryComponent.class)
+              .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
 
-        if (removeOnDeath()) Game.remove(entity);
-      };
+          if (removeOnDeath()) Game.remove(entity);
+        };
 
     return new HealthComponent(health, constructedOnDeath);
   }
@@ -636,46 +677,56 @@ public final class MonsterBuilder {
   }
 
   private Optional<IdleSoundComponent> buildIdleSoundComponent() {
-    return idleSoundPath().flatMap(
-      p -> Optional.of(new IdleSoundComponent(p.path())));
+    return idleSoundPath().flatMap(p -> Optional.of(new IdleSoundComponent(p.path())));
   }
 
   /**
    * Play the monster death sound with predefined volume and dispose delay.
    *
-   * @param sound The sound to be played.
+   * @param soundPath The sound path to be played.
    * @param disposeDelay The delay in seconds after which the sound should be disposed.
    */
-  protected void playMonsterDieSound(Sound sound, long disposeDelay) {
+  protected void playMonsterDieSound(IPath soundPath, long disposeDelay) {
     // TODO: Replace with a more robust sound management system
-    if (sound == null) return;
+    if (Gdx.audio == null || Gdx.files == null) {
+      LOGGER.warning("Audio system not initialized, cannot play sound. (path=" + soundPath + ")");
+      return;
+    }
+    Sound sound;
+    try {
+      sound = Gdx.audio.newSound(Gdx.files.internal(soundPath.pathString()));
+    } catch (GdxRuntimeException e) {
+      LOGGER.log(Level.SEVERE, "Failed to load sound at path: " + soundPath.pathString() + " (" + e + ")", e);
+      return;
+    }
     long id = sound.play();
     sound.setLooping(id, false);
     sound.setVolume(id, DEATH_SOUND_VOLUME);
 
-    EventScheduler.scheduleAction(sound::dispose, disposeDelay  * 1000L);
+    EventScheduler.scheduleAction(sound::dispose, disposeDelay * 1000L);
   }
 
   /**
    * Play the death sound if the hero is within a certain distance.
    *
    * @param entity The entity that died.
-   * @param sound The sound to be played
-   *              @param disposeDelay The delay in seconds after which the sound should be disposed.
+   * @param soundPath The sound path to be played.
+   * @param disposeDelay The delay in seconds after which the sound should be disposed.
    */
-  protected void playDeathSoundIfNearby(Sound sound, long disposeDelay, Entity entity) {
+  protected void playDeathSoundIfNearby(IPath soundPath, long disposeDelay, Entity entity) {
     if (Game.hero().isEmpty()) return;
 
     Entity hero = Game.hero().get();
     PositionComponent pc =
-      hero.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     PositionComponent monsterPc =
-      entity.fetch(PositionComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
     if (pc.position().distance(monsterPc.position()) < MAX_DISTANCE_FOR_DEATH_SOUND) {
-      playMonsterDieSound(sound, disposeDelay);
+      playMonsterDieSound(soundPath, disposeDelay);
     }
   }
 }

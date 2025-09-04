@@ -6,6 +6,8 @@ import core.Entity;
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
+
+import java.io.IOException;
 import java.util.List;
 import utils.EntityUtils;
 
@@ -103,11 +105,12 @@ public class DevDungeonRoom {
   private Entity[] spawnMobs(Coordinate[] mobSpawns) {
     Entity[] mobs = new Entity[mobSpawns.length];
     for (int i = 0; i < mobSpawns.length; i++) {
-      mobs[i] =
-          EntityUtils.spawnMonster(
-              IllusionRiddleLevel.MONSTER_TYPES[
-                  (int) (Math.random() * IllusionRiddleLevel.MONSTER_TYPES.length)],
-              mobSpawns[i]);
+      try {
+        mobs[i] = IllusionRiddleLevel.MONSTER_TYPES[
+          (int) (Math.random() * IllusionRiddleLevel.MONSTER_TYPES.length)].addToGame().build(mobSpawns[i]);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
       if (mobs[i] != null)
         mobs[i]
             .fetch(AIComponent.class)

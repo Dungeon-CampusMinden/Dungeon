@@ -10,6 +10,8 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
+
+import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -75,24 +77,24 @@ public class Level005 extends BlocklyLevel {
     Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
     Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.addToGame();
-    guardBuilder.range(6);
-    guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(m1C.toCenteredPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
-    guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.spawnPoint(m2C.toCenteredPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
-    guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(m3C.toCenteredPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
-    guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(m4C.toCenteredPoint());
-    guardBuilder.build();
+    try {
+      BlocklyMonster.Builder guardBuilder = (BlocklyMonster.Builder) BlocklyMonster.GUARD.addToGame();
+      guardBuilder.addToGame();
+      guardBuilder.attackRange(6);
+      guardBuilder.viewDirection(Direction.LEFT);
+      guardBuilder.build(m1C.toCenteredPoint());
+      guardBuilder.attackRange(5);
+      guardBuilder.viewDirection(Direction.RIGHT);
+      guardBuilder.build(m2C.toCenteredPoint());
+      guardBuilder.attackRange(5);
+      guardBuilder.viewDirection(Direction.UP);
+      guardBuilder.build(m3C.toCenteredPoint());
+      guardBuilder.attackRange(5);
+      guardBuilder.viewDirection(Direction.UP);
+      guardBuilder.build(m4C.toCenteredPoint());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

@@ -3,6 +3,7 @@ package level.devlevel;
 import components.TorchComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.entities.MonsterBuilder;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.utils.EntityUtils;
@@ -16,7 +17,7 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import entities.DevDungeonMonsterType;
+import entities.DevDungeonMonster;
 import item.concreteItem.ItemResourceBerry;
 import java.util.*;
 import level.DevDungeonLevel;
@@ -27,11 +28,9 @@ public class TorchRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 12;
-  private static final DevDungeonMonsterType[] MONSTER_TYPES =
-      new DevDungeonMonsterType[] {
-        DevDungeonMonsterType.ORC_WARRIOR, DevDungeonMonsterType.ORC_SHAMAN
-      };
-  private static final DevDungeonMonsterType BOSS_TYPE = DevDungeonMonsterType.ZOMBIE;
+  private static final MonsterBuilder[] MONSTER_TYPES =
+      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR, DevDungeonMonster.ORC_SHAMAN};
+  private static final MonsterBuilder BOSS_TYPE = DevDungeonMonster.ZOMBIE;
 
   // Spawn Points / Locations
   private final Coordinate[] torchPositions;

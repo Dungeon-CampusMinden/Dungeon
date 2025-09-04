@@ -1,10 +1,11 @@
 package level.devlevel;
 
+import contrib.entities.MonsterBuilder;
 import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import entities.DevDungeonMonsterType;
+import entities.DevDungeonMonster;
 import java.util.List;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
@@ -15,11 +16,9 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 15;
-  private static final DevDungeonMonsterType[] MONSTER_TYPES =
-      new DevDungeonMonsterType[] {
-        DevDungeonMonsterType.ORC_WARRIOR, DevDungeonMonsterType.ORC_SHAMAN
-      };
-  private static final DevDungeonMonsterType BOSS_TYPE = DevDungeonMonsterType.PUMPKIN_BOI;
+  private static final MonsterBuilder[] MONSTER_TYPES =
+      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR, DevDungeonMonster.ORC_SHAMAN};
+  private static final MonsterBuilder BOSS_TYPE = DevDungeonMonster.PUMPKIN_BOI;
   private static final int MOB_COUNT_PER_CAMP = 3;
 
   // Spawn Points / Locations
