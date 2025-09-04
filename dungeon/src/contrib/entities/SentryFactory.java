@@ -36,21 +36,26 @@ public class SentryFactory {
    * @param speed the movement speed of the entity
    * @param ai the AI component controlling this sentry
    * @param a the spawn position (and also one patrol point)
-   * @param shootDirection the fixed direction in which the sentry will shoot
-   * @param timeBetweenShoots the cooldown between shots (currently unused)
    * @return a fully constructed sentry entity
    * @throws IOException if the texture cannot be loaded
    */
   public static Entity buildSentry(
-      String name,
-      IPath texture,
-      float speed,
-      AIComponent ai,
-      Point a,
-      Direction shootDirection,
-      int timeBetweenShoots)
+      String name, IPath texture, float speed, AIComponent ai, Point a, Point b)
       throws IOException {
     Entity sentry = new Entity(name);
+
+    // Check whether the points are aligned horizontally or vertically
+    boolean alignedHorizontally = a.y() == b.y();
+    boolean alignedVertically = a.x() == b.x();
+
+    if (!(alignedHorizontally || alignedVertically)) {
+      throw new IllegalArgumentException(
+          "Points a ("
+              + a
+              + ") and b ("
+              + b
+              + ") must be either horizontally or vertically aligned.");
+    }
 
     PositionComponent positionComponent = new PositionComponent();
     positionComponent.position(a);
@@ -80,19 +85,22 @@ public class SentryFactory {
    * @return a sentry entity that patrols and launches projectiles
    * @throws IOException if the texture cannot be loaded
    */
-  public static Entity projectileLauncherSentry(Point a, Point b, Direction shootDirection)
-      throws IOException {
+  public static Entity projectileLauncherSentry(
+      Point a, Point b, Direction shootDirection, long cooldown) throws IOException {
     return buildSentry(
         "projectileLauncher",
         PROJECTILE_LAUNCHER_PATH,
         4.0f,
         new AIComponent(
             new SentryFightBehaviour(
-                a, b, 10.0f, new FireballSkill(SkillTools::heroPositionAsPoint), shootDirection),
+                a,
+                b,
+                10.0f,
+                new FireballSkill(SkillTools::heroPositionAsPoint, cooldown),
+                shootDirection),
             new SentryPatrolWalk(a, b),
             new RangeTransition(5.0f)),
         a,
-        shootDirection,
-        1);
+        b);
   }
 }
