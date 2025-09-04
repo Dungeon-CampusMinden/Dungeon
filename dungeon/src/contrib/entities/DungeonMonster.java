@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 
 /** Defines and build Monster-Entities for the Dungeon. */
 public final class DungeonMonster {
+  /** Random instance for monsters. */
+  public static Random RANDOM = new Random();
+
   private static final Logger LOGGER = Logger.getLogger(DungeonMonster.class.getName());
 
   /**
@@ -237,7 +240,7 @@ public final class DungeonMonster {
     if (builders.isEmpty()) {
       throw new RuntimeException("No MonsterBuilders found in DungeonMonster class.");
     }
-    return builders.get(MonsterBuilder.RANDOM.nextInt(builders.size()));
+    return builders.get(RANDOM.nextInt(builders.size()));
   }
 
   private DungeonMonster() {}

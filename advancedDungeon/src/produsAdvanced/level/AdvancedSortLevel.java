@@ -154,7 +154,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
             coordinate -> {
               Entity mob = null;
               try {
-                mob = DungeonMonster.RANDOM().spawnPoint(coordinate.toCenteredPoint()).build();
+                mob = DungeonMonster.RANDOM().build(coordinate.toCenteredPoint());
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }

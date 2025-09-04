@@ -7,7 +7,6 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.systems.PathfindingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
@@ -250,26 +249,15 @@ public class ComparePathfindingStarter {
    * @return The newly created runnerMob
    */
   private static Entity createRunnerMob(Point startPoint) {
-    Entity runnerMob = new Entity("KI-Runner");
     try {
-      runnerMob =
-          MonsterFactory.buildMonster(
-              "KI Runner",
-              new SimpleIPath("character/wizard"),
-              1,
-              HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
-              0.0f,
-              MonsterDeathSound.LOWER_PITCH.sound(),
-              new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
-              0,
-              0,
-              MonsterIdleSound.BURP.path());
+      return new MonsterBuilder<>()
+          .name("KI Runner")
+          .texture(new SimpleIPath("character/wizard"))
+          .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as hero
+          .addToGame()
+          .build(startPoint);
     } catch (IOException e) {
       throw new RuntimeException("Failed to create monster entity as RUNNER", e);
     }
-    runnerMob.add(new VelocityComponent(5));
-    runnerMob.add(new PositionComponent(startPoint));
-    Game.add(runnerMob);
-    return runnerMob;
   }
 }

@@ -29,7 +29,6 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -53,9 +52,6 @@ import java.util.logging.Logger;
  */
 public class MonsterBuilder<T extends MonsterBuilder<T>> {
   private static final Logger LOGGER = Logger.getLogger(MonsterBuilder.class.getSimpleName());
-
-  /** Random instance for monsters. */
-  public static Random RANDOM = new Random();
 
   /** Maximum distance from hero within which to play the death sound when the monster dies. */
   private static final int MAX_DISTANCE_FOR_DEATH_SOUND = 15;
@@ -673,8 +669,12 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
     }
 
     // 2. Chance-based drops
-    if (!drops().isEmpty() && RANDOM.nextFloat() < dropChance()) {
-      ic.add(drops().stream().skip(RANDOM.nextInt(drops().size())).findFirst().orElse(null));
+    if (!drops().isEmpty() && DungeonMonster.RANDOM.nextFloat() < dropChance()) {
+      ic.add(
+          drops().stream()
+              .skip(DungeonMonster.RANDOM.nextInt(drops().size()))
+              .findFirst()
+              .orElse(null));
     }
 
     return ic;
