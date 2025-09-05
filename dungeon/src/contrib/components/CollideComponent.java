@@ -63,9 +63,11 @@ public final class CollideComponent implements Component {
    */
   public static final TriConsumer<Entity, Entity, Direction> DEFAULT_COLLIDER = (a, b, c) -> {};
 
+  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+
   private final Vector2 offset;
   private final Vector2 size;
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+  private boolean isSolid = true;
 
   /**
    * Handler invoked when the entity first collides with another entity (collision enter).
@@ -324,5 +326,32 @@ public final class CollideComponent implements Component {
    */
   public Vector2 size() {
     return Vector2.of(size);
+  }
+
+  /**
+   * Get the offset of the hitbox.
+   *
+   * @return the offset of the component
+   */
+  public Vector2 offset() {
+    return Vector2.of(offset);
+  }
+
+  /**
+   * Get the solid state of the hitbox.
+   * @return true if the hitbox is solid, false otherwise
+   */
+  public boolean isSolid() {
+    return isSolid;
+  }
+
+  /**
+   * Set the solid state of the hitbox.
+   * @param isSolid true if the hitbox should be solid, false otherwise
+   * @return this component for chaining
+   */
+  public CollideComponent isSolid(boolean isSolid){
+    this.isSolid = isSolid;
+    return this;
   }
 }
