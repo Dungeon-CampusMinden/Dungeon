@@ -20,10 +20,13 @@ import core.level.loader.DungeonLoader;
 import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.*;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
 /** A utility class for building the hero entity in the game world. */
@@ -79,7 +82,7 @@ public final class HeroFactory {
                         });
 
                 // reset the animation queue
-                hero.fetch(DrawComponent.class).ifPresent(DrawComponent::deQueueAll);
+                hero.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
                 DungeonLoader.reloadCurrentLevel();
               });
 
@@ -132,13 +135,28 @@ public final class HeroFactory {
     hero.add(cc);
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
+
+    Map<String, Animation> animationMap =
+        Animation.loadAnimationSpritesheet(characterClass.textures());
+    State stIdle = new DirectionalState("idle", animationMap);
+    State stMove = new DirectionalState("move", animationMap, "run");
+    State stDead = new State("dead", animationMap.get("idle_down"));
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
+    sm.addTransition(stIdle, "move", stMove);
+    sm.addTransition(stMove, "move", stMove);
+    sm.addTransition(stMove, "idle", stIdle);
+    sm.addTransition(stIdle, "died", stDead);
+    sm.addTransition(stMove, "died", stDead);
+    DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.Player.depth());
+    hero.add(dc);
+
     hero.add(
         new VelocityComponent(
             Math.max(characterClass.speed().x(), characterClass.speed().y()),
             characterClass.mass(),
             (e) -> {},
             true));
-    hero.add(new DrawComponent(characterClass.textures()));
     hero.add(
         new ManaComponent(
             characterClass.mana(), characterClass.mana(), characterClass.manaRestore()));

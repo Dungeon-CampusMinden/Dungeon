@@ -37,6 +37,9 @@ public interface Vector2 {
   /** Unit vector with both components set to 1. */
   Vector2 ONE = Vector2.of(1, 1);
 
+  /** Vector of the default direction to relate angles to. */
+  Vector2 DEFAULT = Vector2.of(1, 0);
+
   /** Vector with maximum double values for both components. */
   Vector2 MAX = Vector2.of(Double.MAX_VALUE, Double.MAX_VALUE);
 
@@ -202,6 +205,25 @@ public interface Vector2 {
    */
   default double distance(Vector2 other) {
     return subtract(other).length();
+  }
+
+  /**
+   * Calculates the angle between this vector and the default direction vector (RIGHT) in degrees.
+   *
+   * @return The angle in degrees between this vector and the default direction vector
+   */
+  default double angleDeg() {
+    return angleDeg(DEFAULT);
+  }
+
+  /**
+   * Calculates the angle between this vector and another vector in degrees.
+   *
+   * @param other The other vector
+   * @return The angle in degrees between the two vectors
+   */
+  default double angleDeg(Vector2 other) {
+    return Math.toDegrees(Math.atan2(this.y() - other.y(), this.x() - other.x()));
   }
 
   /**

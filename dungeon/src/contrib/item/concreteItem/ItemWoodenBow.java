@@ -11,7 +11,7 @@ import core.Game;
 import core.components.PositionComponent;
 import core.level.elements.tile.FloorTile;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -26,8 +26,7 @@ public class ItemWoodenBow extends Item {
 
   /** Create a {@link Item} that looks like a bow and can be collected to unlock the BOW_SKILL. */
   public ItemWoodenBow() {
-    super(
-        "Wooden Bow", "It needs arrows as ammunition", Animation.fromSingleImage(DEFAULT_TEXTURE));
+    super("Wooden Bow", "It needs arrows as ammunition", new Animation(DEFAULT_TEXTURE));
   }
 
   @Override

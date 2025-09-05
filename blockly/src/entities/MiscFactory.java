@@ -11,7 +11,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -41,7 +41,7 @@ public class MiscFactory {
     stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
     stone.add(new CollideComponent());
     stone.add(new BlockViewComponent());
-    DrawComponent dc = new DrawComponent(Animation.fromSingleImage(STONE));
+    DrawComponent dc = new DrawComponent(new Animation(STONE));
     stone.add(dc);
     return stone;
   }
@@ -85,7 +85,7 @@ public class MiscFactory {
   public static Entity bookPickup(Point position, String title, String pickupText) {
     Entity pickup = new Entity("Book Pickup");
     pickup.add(new PositionComponent(position.toCenteredPoint()));
-    pickup.add(new DrawComponent(Animation.fromSingleImage(PICKUP_BOCK_PATH)));
+    pickup.add(new DrawComponent(new Animation(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
             0,
@@ -109,7 +109,7 @@ public class MiscFactory {
   public static Entity breadcrumb(Point position) {
     Entity breadcrumb = new Entity("breadcrumb");
     breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
-    breadcrumb.add(new DrawComponent(Animation.fromSingleImage(BREADCRUMB_PATH)));
+    breadcrumb.add(new DrawComponent(new Animation(BREADCRUMB_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new BreadcrumbComponent());
     breadcrumb.add(
@@ -134,7 +134,7 @@ public class MiscFactory {
   public static Entity clover(Point position) {
     Entity breadcrumb = new Entity("clover");
     breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
-    breadcrumb.add(new DrawComponent(Animation.fromSingleImage(CLOVER_PATH)));
+    breadcrumb.add(new DrawComponent(new Animation(CLOVER_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new CloverComponent());
     breadcrumb.add(
@@ -159,7 +159,7 @@ public class MiscFactory {
   public static Entity fireballScroll(Point position) {
     Entity fireballScroll = new Entity("fireballScroll");
     fireballScroll.add(new PositionComponent(position.toCenteredPoint()));
-    fireballScroll.add(new DrawComponent(Animation.fromSingleImage(SCROLL_PATH)));
+    fireballScroll.add(new DrawComponent(new Animation(SCROLL_PATH)));
     fireballScroll.add(new BlocklyItemComponent());
     fireballScroll.add(
         new InteractionComponent(

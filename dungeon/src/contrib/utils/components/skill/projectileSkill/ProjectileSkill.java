@@ -18,7 +18,6 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -97,16 +96,9 @@ public abstract class ProjectileSkill extends Skill {
 
     projectile.add(new PositionComponent(position));
 
-    try {
-      DrawComponent dc = new DrawComponent(texture);
-      dc.tintColor(tintColor);
-      projectile.add(dc);
-    } catch (IOException e) {
-      Skill.LOGGER.warning(
-          String.format("The DrawComponent for the projectile %s cant be created. ", name())
-              + e.getMessage());
-      throw new RuntimeException(e);
-    }
+    DrawComponent dc = new DrawComponent(texture);
+    dc.tintColor(tintColor);
+    projectile.add(dc);
 
     // Target point calculation
     Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);

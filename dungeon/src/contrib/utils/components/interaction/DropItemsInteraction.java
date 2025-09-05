@@ -66,13 +66,6 @@ public final class DropItemsInteraction implements BiConsumer<Entity, Entity> {
         this.dropItemAtHeroPosition(item);
       }
     }
-
-    entity
-        .fetch(DrawComponent.class)
-        .ifPresent(
-            x ->
-                x.animation(CoreAnimations.IDLE_RIGHT)
-                    .ifPresent(y -> x.queueAnimation(y.duration(), CoreAnimations.IDLE_RIGHT)));
   }
 
   /**

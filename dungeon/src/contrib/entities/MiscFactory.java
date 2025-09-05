@@ -9,8 +9,8 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
-import contrib.utils.components.draw.ChestAnimations;
-import contrib.utils.components.draw.DestroyableObjectsAnimations;
+import contrib.item.concreteItem.ItemBigKey;
+import contrib.item.concreteItem.ItemKey;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -24,11 +24,17 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.components.draw.Animation;
-import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.animation.AnimationConfig;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
+import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,6 +47,10 @@ public final class MiscFactory {
   private static final int MIN_AMOUNT_OF_ITEMS_ON_RANDOM = 1;
   private static final SimpleIPath CATAPULT = new SimpleIPath("other/red_dot.png");
   private static final SimpleIPath MARKER_TEXTURE = new SimpleIPath("other/blue_dot.png");
+  private static final SimpleIPath HEART_TEXTURE =
+      new SimpleIPath("items/pickups/heart_pickup.png");
+  private static final SimpleIPath FAIRY_TEXTURE =
+      new SimpleIPath("items/pickups/fairy_pickup.png");
   private static final SimpleIPath DOOR_BLOCKER_TEXTURE = new SimpleIPath("other/chain_lock.png");
 
   private static final SimpleIPath CRATE_TEXTURE = new SimpleIPath("objects/crate/basic.png");
@@ -69,10 +79,9 @@ public final class MiscFactory {
    * contrib.utils.components.interaction.DropItemsInteraction} on interaction.
    *
    * @return A new Entity representing the chest.
-   * @throws IOException if the animation could not be loaded.
    * @see MiscFactory#generateRandomItems(int, int) generateRandomItems
    */
-  public static Entity newChest() throws IOException {
+  public static Entity newChest() {
     return newChest(FILL_CHEST.RANDOM);
   }
 
@@ -90,9 +99,8 @@ public final class MiscFactory {
    * @param type The type of chest to be created. It can either be RANDOM (filled with random items)
    *     or EMPTY.
    * @return A new Entity representing the chest.
-   * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newChest(FILL_CHEST type) throws IOException {
+  public static Entity newChest(FILL_CHEST type) {
     return switch (type) {
       case RANDOM ->
           newChest(
@@ -145,9 +153,8 @@ public final class MiscFactory {
    * @param item Items that should be in the chest.
    * @param position Where should the chest be placed?
    * @return A new Entity.
-   * @throws IOException If the animation could not be loaded.
    */
-  public static Entity newChest(final Set<Item> item, final Point position) throws IOException {
+  public static Entity newChest(final Set<Item> item, final Point position) {
     final float defaultInteractionRadius = 1f;
     Entity chest = new Entity("chest");
 
@@ -156,80 +163,54 @@ public final class MiscFactory {
     InventoryComponent ic = new InventoryComponent(DEFAULT_CHEST_SIZE);
     chest.add(ic);
     item.forEach(ic::add);
+
+    Map<String, Animation> animationMap =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/treasurechest"));
+    State stClosed = State.fromMap(animationMap, "closed");
+    State stOpening = State.fromMap(animationMap, "opening");
+    State stOpen = FillState.fromMap(animationMap, "open");
+    StateMachine sm = new StateMachine(Arrays.asList(stClosed, stOpening, stOpen), stClosed);
+    sm.addTransition(stClosed, "open", stOpening);
+    // Automatically transition to open state when opening animation is finished playing
+    sm.addEpsilonTransition(stOpening, State::isAnimationFinished, stOpen, () -> ic.count() == 0);
+    DrawComponent dc = new DrawComponent(sm);
+    chest.add(dc);
+
     chest.add(
         new InteractionComponent(
             defaultInteractionRadius,
             true,
-            (interacted, interactor) -> {
-              interactor
-                  .fetch(InventoryComponent.class)
-                  .ifPresent(
-                      whoIc -> {
-                        UIComponent uiComponent =
-                            new UIComponent(
-                                new GUICombination(
-                                    new InventoryGUI(whoIc), new InventoryGUI("Chest", ic, 6)),
-                                true);
-                        uiComponent.onClose(
-                            () ->
-                                interacted
-                                    .fetch(DrawComponent.class)
-                                    .ifPresent(
-                                        interactedDC -> {
-                                          // remove all
-                                          // prior
-                                          // opened
-                                          // animations
-                                          interactedDC.deQueueByPriority(
-                                              ChestAnimations.OPEN_FULL.priority());
-                                          if (ic.count() > 0) {
-                                            // as long
-                                            // as
-                                            // there is
-                                            // an
-                                            // item
-                                            // inside
-                                            // the chest
-                                            // show a
-                                            // full
-                                            // chest
-                                            interactedDC.queueAnimation(ChestAnimations.OPEN_FULL);
-                                          } else {
-                                            // empty
-                                            // chest
-                                            // show the
-                                            // empty
-                                            // animation
-                                            interactedDC.queueAnimation(ChestAnimations.OPEN_EMPTY);
-                                          }
-                                        }));
-                        interactor.add(uiComponent);
-                      });
-              interacted
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      interactedDC -> {
-                        // only add opening animation when it is not
-                        // finished
-                        if (interactedDC
-                            .animation(ChestAnimations.OPENING)
-                            .map(animation -> !animation.isFinished())
-                            .orElse(true)) {
-                          interactedDC.queueAnimation(ChestAnimations.OPENING);
-                        }
-                      });
-            }));
-    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/treasurechest"));
-    var mapping = dc.animationMap();
-    // set the closed chest as default idle
-    mapping.put(CoreAnimations.IDLE.pathString(), mapping.get(ChestAnimations.CLOSED.pathString()));
-    // opening animation should not loop
-    mapping.get(ChestAnimations.OPENING.pathString()).loop(false);
-    dc.animationMap(mapping);
-    // reset Idle Animation
-    dc.deQueueByPriority(CoreAnimations.IDLE.priority());
-    dc.currentAnimation(CoreAnimations.IDLE);
-    chest.add(dc);
+            (interacted, interactor) ->
+                interactor
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(
+                        whoIc -> {
+                          UIComponent uiComponent =
+                              new UIComponent(
+                                  new GUICombination(
+                                      new InventoryGUI(whoIc), new InventoryGUI("Chest", ic, 6)),
+                                  true);
+                          uiComponent.onClose(
+                              () ->
+                                  interacted
+                                      .fetch(DrawComponent.class)
+                                      .ifPresent(
+                                          interactedDC -> {
+                                            // only add opening animation when it is not finished.
+                                            // If
+                                            // we close the GUI before the opening
+                                            // animation finishes, the epsilon transition will
+                                            // handle
+                                            // setting the data correctly
+                                            if (!interactedDC
+                                                .stateMachine()
+                                                .getCurrentStateName()
+                                                .equals("opening")) {
+                                              interactedDC.sendSignal("open", ic.count() == 0);
+                                            }
+                                          }));
+                          interactor.add(uiComponent);
+                        })));
 
     return chest;
   }
@@ -243,11 +224,9 @@ public final class MiscFactory {
    * @param position The position where the chest should be placed.
    * @param requiredKeyType The type of key item required to open the chest.
    * @return A new locked chest entity.
-   * @throws IOException If the animation could not be loaded.
    */
   public static Entity newLockedChest(
-      final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType)
-      throws IOException {
+      final Set<Item> items, final Point position, final Class<? extends Item> requiredKeyType) {
     if (!ItemKey.class.equals(requiredKeyType) && !ItemBigKey.class.equals(requiredKeyType)) {
       throw new IllegalArgumentException(
           "LockedChest entity could not be created: Only ItemKey.class or ItemBigKey.class are allowed as requiredKeyType");
@@ -312,9 +291,8 @@ public final class MiscFactory {
    *
    * @param position position of the crafting cauldron.
    * @return A new Entity.
-   * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newCraftingCauldron(Point position) throws IOException {
+  public static Entity newCraftingCauldron(Point position) {
     Entity cauldron = new Entity("cauldron");
     cauldron.add(new PositionComponent(position));
     cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
@@ -344,9 +322,8 @@ public final class MiscFactory {
    * <p>The Entity is placed at the {@link PositionComponent#ILLEGAL_POSITION}. >.
    *
    * @return A new Entity.
-   * @throws IOException if the animation could not be loaded.
    */
-  public static Entity newCraftingCauldron() throws IOException {
+  public static Entity newCraftingCauldron() {
     return newCraftingCauldron(PositionComponent.ILLEGAL_POSITION);
   }
 
@@ -359,7 +336,7 @@ public final class MiscFactory {
   public static Entity marker(Point position) {
     Entity marker = new Entity("marker");
     marker.add(new PositionComponent(position));
-    marker.add(new DrawComponent(Animation.fromSingleImage(MARKER_TEXTURE)));
+    marker.add(new DrawComponent(new Animation(MARKER_TEXTURE)));
     return marker;
   }
 
@@ -386,7 +363,7 @@ public final class MiscFactory {
     crate.add(new PositionComponent(position));
     crate.add(new KineticComponent());
     crate.add(new VelocityComponent(10, mass, entity -> {}, false));
-    crate.add(new DrawComponent(Animation.fromSingleImage(texture)));
+    crate.add(new DrawComponent(new Animation(texture)));
     crate.add(new CollideComponent());
     return crate;
   }
@@ -442,7 +419,7 @@ public final class MiscFactory {
   public static Entity catapult(Point spawnPoint, Point location, float speed) {
     Entity catapult = new Entity("catapult");
     catapult.add(new PositionComponent(spawnPoint));
-    catapult.add(new DrawComponent(Animation.fromSingleImage(CATAPULT)));
+    catapult.add(new DrawComponent(new Animation(CATAPULT)));
     TriConsumer<Entity, Entity, Direction> action =
         (you, other, direction) -> {
           if (!other.isPresent(CatapultableComponent.class)) return;
@@ -549,8 +526,7 @@ public final class MiscFactory {
         new InteractionComponent(
             1, true, (entity, entity2) -> OkDialog.showOkDialog(text, title, onClose)));
     book.add(
-        new DrawComponent(
-            Animation.fromSingleImage(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
+        new DrawComponent(new Animation(Math.random() < 0.5 ? BOOK_TEXTURE : SPELL_BOOK_TEXTURE)));
     return book;
   }
 
@@ -606,7 +582,7 @@ public final class MiscFactory {
                   });
             }));
     door.close();
-    doorBlocker.add(new DrawComponent(Animation.fromSingleImage(DOOR_BLOCKER_TEXTURE)));
+    doorBlocker.add(new DrawComponent(new Animation(DOOR_BLOCKER_TEXTURE)));
     return doorBlocker;
   }
 
@@ -623,15 +599,13 @@ public final class MiscFactory {
    *     inventory to destroy this object. If {@code null}, no item is required for destruction.
    * @param items the items contained in the object that will drop upon destruction.
    * @return A new {@link Entity} configured with destruction behavior and animations.
-   * @throws IOException If loading the textures or animations fails.
    */
   public static Entity newDestroyableObject(
       String name,
       SimpleIPath texturePath,
       Point spawnPoint,
       final Class<? extends Item> requiredItemClass,
-      final Set<Item> items)
-      throws IOException {
+      final Set<Item> items) {
 
     Entity destroyableObj = new Entity(name);
     destroyableObj.add(new PositionComponent(spawnPoint));
@@ -647,6 +621,16 @@ public final class MiscFactory {
               // Original behavior will be wrapped below
             });
     destroyableObj.add(baseIC);
+
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
+    State stIdle = State.fromMap(animationMap, "idle");
+    State stBreaking = State.fromMap(animationMap, "breaking");
+    State stBroken = State.fromMap(animationMap, "broken");
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stBreaking, stBroken), stIdle);
+    sm.addTransition(stIdle, "break", stBreaking);
+    sm.addEpsilonTransition(stBreaking, State::isAnimationFinished, stBroken);
+    DrawComponent dc = new DrawComponent(sm);
+    destroyableObj.add(dc);
 
     // Wrapper-InteractionComponent
     destroyableObj
@@ -672,11 +656,7 @@ public final class MiscFactory {
                         }
 
                         // start breaking Animation
-                        interacted
-                            .fetch(DrawComponent.class)
-                            .ifPresent(
-                                drawComp ->
-                                    drawComp.queueAnimation(DestroyableObjectsAnimations.BREAKING));
+                        dc.sendSignal("break");
 
                         // Drop all items from DestroyableObject inventory
                         Arrays.stream(objInvComp.items())
@@ -695,21 +675,6 @@ public final class MiscFactory {
               destroyableObj.add(wrapperIC);
             });
 
-    // init DrawComponent
-    DrawComponent dc = new DrawComponent(texturePath);
-    var mapping = dc.animationMap();
-    // set intact texture as idle
-    mapping.put(
-        CoreAnimations.IDLE.pathString(),
-        mapping.get(DestroyableObjectsAnimations.INTACT.pathString()));
-    // BREAKING should not loop
-    mapping.get(DestroyableObjectsAnimations.BREAKING.pathString()).loop(false);
-    dc.animationMap(mapping);
-    // reset intact animation
-    dc.deQueueByPriority(CoreAnimations.IDLE.priority());
-    dc.currentAnimation(CoreAnimations.IDLE);
-    destroyableObj.add(dc);
-
     return destroyableObj;
   }
 
@@ -723,9 +688,8 @@ public final class MiscFactory {
    * @param spawnPoint The world position where the vase should be spawned.
    * @param items the items contained in the vase that will drop upon destruction.
    * @return A new {@link Entity} representing the destructible vase.
-   * @throws IOException If loading textures or animations fails.
    */
-  public static Entity newVase(Point spawnPoint, final Set<Item> items) throws IOException {
+  public static Entity newVase(Point spawnPoint, final Set<Item> items) {
     return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
   }
 
@@ -738,9 +702,8 @@ public final class MiscFactory {
    * @param spawnPoint The world position where the stone should be spawned.
    * @param items the items contained in the stone that will drop upon destruction.
    * @return A new {@link Entity} representing the destructible stone.
-   * @throws IOException If loading textures or animations fails.
    */
-  public static Entity newStone(Point spawnPoint, final Set<Item> items) throws IOException {
+  public static Entity newStone(Point spawnPoint, final Set<Item> items) {
     return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
   }
 
@@ -755,9 +718,8 @@ public final class MiscFactory {
    * @param dropChance A value between 0.0 and 1.0 indicating the probability that the vase drops an
    *     item. If the random roll fails, the vase will drop nothing.
    * @return A new {@link Entity} representing the destructible vase.
-   * @throws IOException If loading textures or animations fails.
    */
-  public static Entity newVase(Point spawnPoint, float dropChance) throws IOException {
+  public static Entity newVase(Point spawnPoint, float dropChance) {
     Set<Item> items = generateRandomDrop(dropChance);
     return newDestroyableObject("vase", VASE_TEXTURES, spawnPoint, null, items);
   }
@@ -772,9 +734,8 @@ public final class MiscFactory {
    * @param dropChance A value between 0.0 and 1.0 indicating the probability that the stone drops
    *     an item. If the random roll fails, the stone will drop nothing.
    * @return A new {@link Entity} representing the destructible stone.
-   * @throws IOException If loading textures or animations fails.
    */
-  public static Entity newStone(Point spawnPoint, float dropChance) throws IOException {
+  public static Entity newStone(Point spawnPoint, float dropChance) {
     Set<Item> items = generateRandomDrop(dropChance);
     return newDestroyableObject("stone", STONE_TEXTURES, spawnPoint, ItemHammer.class, items);
   }
@@ -819,5 +780,34 @@ public final class MiscFactory {
     RANDOM,
     /** Represents an empty chest. */
     EMPTY,
+  }
+
+  private static class FillState extends State {
+    private final Animation empty;
+
+    public FillState(String name, IPath pathFull, IPath pathEmpty, AnimationConfig config) {
+      super(name, pathFull, config);
+      empty = new Animation(pathEmpty, config);
+    }
+
+    public FillState(String name, IPath pathFull, IPath pathEmpty) {
+      this(name, pathFull, pathEmpty, null);
+    }
+
+    public FillState(String name, Animation full, Animation empty) {
+      super(name, full);
+      this.empty = empty;
+    }
+
+    @Override
+    public Animation getAnimation() {
+      boolean isEmpty = (boolean) data;
+      return isEmpty ? empty : super.getAnimation();
+    }
+
+    public static FillState fromMap(Map<String, Animation> animationMap, String name) {
+      return new FillState(
+          name, animationMap.get(name + "_full"), animationMap.get(name + "_empty"));
+    }
   }
 }

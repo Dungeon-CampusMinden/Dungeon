@@ -15,8 +15,12 @@ dependencies {
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
+    testImplementation supportDependencies.junitLauncher
     testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
+    testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.12.0"
+    testImplementation("com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion")
+    testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }
 
 
@@ -24,7 +28,7 @@ sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['assets/']
 
 sourceSets.test.java.srcDirs = ['test/']
-sourceSets.test.resources.srcDirs = ['test_resources/']
+sourceSets.test.resources.srcDirs = ['test_assets/']
 
 tasks.register('runBasicStarter', JavaExec) {
     group 'starter'

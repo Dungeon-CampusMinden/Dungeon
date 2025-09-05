@@ -1,352 +1,238 @@
 package core.components;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import core.Component;
-import core.systems.VelocitySystem;
-import core.utils.components.draw.Animation;
-import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.*;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.animation.AnimationConfig;
+import core.utils.components.draw.animation.SpritesheetConfig;
+import core.utils.components.draw.state.Signal;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
+import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
-import core.utils.logging.CustomLogLevel;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Store all {@link Animation}s for an entity.
  *
- * <p>At creation, the component will read in each subdirectory in the given path and create an
- * animation for each subdirectory.
+ * <p>At creation, the component will read in a single file, which can directly be a sprite or a
+ * spritesheet.
+ *
+ * <p>Example: "character/knight" resolves to "assets/character/knight/knight.png".
+ *
+ * <p>To make loading spritesheets easier, the function {@link
+ * Animation#loadAnimationSpritesheet(IPath)} will check if there is a .json file with the same name
+ * next to the image file, containing a {@link Map}{@code <String, }{@link AnimationConfig}{@code
+ * >}, outlining the different Animations found in the image, and load this {@link Map} with all
+ * Animations.
+ *
+ * <p>This component will build a {@link StateMachine}, where each {@link State} represents one
+ * animation that the entity can have. Between {@link State}s, transitions are responsible to denote
+ * how the entity switches between states and what {@link Signal}s are required to do so.
  *
  * <p>Each Animation will be created with default settings. If you want to change these settings,
  * use the methods from {@link Animation}.
  *
- * <p>The {@link core.systems.DrawSystem} uses a Priority-based queue. Use {@link
- * #queueAnimation(IPath...)} or {@link #queueAnimation(int, IPath...)} to add an animation to the
- * queue. The {@link core.systems.DrawSystem} will always show the animation with the highest
- * priority in the queue.
- *
- * <p>Use {@link #currentAnimation} to get the current active animation or use {@link #animation} to
- * get a specific animation.
- *
- * <p>Use {@link #hasAnimation} to check if the component has the desired animation.
- *
- * <p>If you want to add your own Animations, create a subdirectory for the animation and add the
- * path to an enum that implements the {@link IPath} interface. So if you want to add a jump
- * animation to the hero, just create a new directory "jump" in the asset directory of your hero
- * (for example character/hero) and then add a new Enum-Value JUMP("jump") to the enum that
- * implements {@link IPath}.
- *
  * <p>Animations will be searched in the default asset directory. Normally, this is "game/assets",
  * but you can change it in the "gradle.build" file if you like.
  *
- * <p>Note: Each entity needs at least a {@link CoreAnimations#IDLE} Animation.
- *
+ * @see StateMachine
+ * @see State
+ * @see Transition
  * @see Animation
  * @see IPath
  */
 public final class DrawComponent implements Component {
   private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
 
-  /** Set of supported filetypes. */
-  private static final Set<String> IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg", "bmp");
+  private final StateMachine stateMachine;
+  private int depth = DepthLayer.Normal.depth();
 
-  /** Allows only one Element from a certain priority and orders them. */
-  private final Map<IPath, Integer> animationQueue =
-      new TreeMap<>(Comparator.comparingInt(IPath::priority));
-
-  private Map<String, Animation> animationMap = null;
-  private Animation currentAnimation;
   private int tintColor = -1; // -1 means no tinting
   private boolean isVisible = true;
 
   /**
    * Create a new DrawComponent.
    *
-   * <p>Will read in all subdirectories of the given path and use each file in the subdirectory to
-   * create an animation. So each subdirectory should contain only the files for one animation.
-   *
-   * <p>Animations should not be set directly via {@link #currentAnimation()} but rather be queued
-   * via {@link #queueAnimation(IPath...)} or {@link #queueAnimation(int, IPath...)}.
-   *
-   * <p>Will set the current animation to either idle down, idle left, idle right, idle up, or idle,
-   * depending on which one of these animations exists.
-   *
-   * <p>If no animations for any idle-state exist, {@link Animation#defaultAnimation()} for "IDLE"
-   * is set.
-   *
-   * @param path Path (as a string) to the directory in the assets folder where the subdirectories
-   *     containing the animation files are stored. Example: "character/knight".
-   * @throws IOException if the given path does not exist.
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param config The animation config to use
    * @see Animation
    */
-  public DrawComponent(final IPath path) throws IOException {
-    // fetch available animations
-    try {
-      loadAnimationAssets(path);
-      currentAnimation(
-          CoreAnimations.IDLE_DOWN,
-          CoreAnimations.IDLE_LEFT,
-          CoreAnimations.IDLE_RIGHT,
-          CoreAnimations.IDLE_UP,
-          CoreAnimations.IDLE);
-
-      // if no idle animation exists, set the missing texture animation as idle
-      if (currentAnimation == null) {
-        animationMap.put(CoreAnimations.IDLE.pathString(), Animation.defaultAnimation());
-        currentAnimation(CoreAnimations.IDLE);
-      }
-    } catch (NullPointerException np) {
-      // We convert the "NullPointerException" to a "FileNotFoundException" because the only
-      // reason for a NullPointerException is if the directory does not exist.
-      throw new FileNotFoundException("Path " + path + " not found.");
-    }
+  public DrawComponent(final IPath path, AnimationConfig config) {
+    this(path, config, null);
   }
 
   /**
-   * Create a new DrawComponent with a specific animation.
+   * Create a new DrawComponent.
    *
-   * <p>The given animation will be used as the idle animation.
-   *
-   * <p>This constructor is for a special case only. Use {@link DrawComponent} if possible.
-   *
-   * @param idle Animation to use as the idle animation.
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param config The animation config to use
+   * @param defaultStateName Name of the default state to use
+   * @see Animation
    */
-  public DrawComponent(final Animation idle) {
-    animationMap = new HashMap<>();
-    animationMap.put(CoreAnimations.IDLE_LEFT.pathString(), idle);
-    animationMap.put(CoreAnimations.IDLE_RIGHT.pathString(), idle);
-    currentAnimation = idle;
+  public DrawComponent(final IPath path, AnimationConfig config, String defaultStateName) {
+    stateMachine = new StateMachine(path, config, defaultStateName);
   }
 
   /**
-   * @param subDir in which to look for files for the animation
-   * @return a basic configured Animation
+   * Create a new DrawComponent from a spritesheet configuration.
+   *
+   * @param path Path to the spritesheet in the assets folder.
+   * @param config The spritesheet configuration to use.
+   * @see SpritesheetConfig
    */
-  private static Animation allFilesFromDirectory(final File subDir) {
-    return Animation.fromCollection(
-        Arrays.stream(Objects.requireNonNull(subDir.listFiles()))
-            // only look for direct Files no recursive search
-            .filter(File::isFile)
-            // File object needs to be converted to IPath
-            .map(file -> new SimpleIPath(file.getPath()))
-            // only look for images
-            .filter(DrawComponent::hasImageExtension)
-            // sort by name streams may lose the ordering by name
-            .sorted(Comparator.comparing(SimpleIPath::pathString))
-            .collect(Collectors.toList()));
+  public DrawComponent(final IPath path, SpritesheetConfig config) {
+    stateMachine = new StateMachine(path, config);
   }
 
   /**
-   * Checks whether the given path is an image file based on its extension.
+   * Create a new DrawComponent with a default {@link AnimationConfig}.
    *
-   * <p>The method determines the file extension by looking at the substring after the last '.'
-   * character in the filename (case-insensitive). It returns {@code true} if the extension matches
-   * one of the predefined image extensions defined in {@link #IMAGE_EXTENSIONS}.
-   *
-   * @param path the {@link SimpleIPath} to check; must not be {@code null}
-   * @return {@code true} if the path has an image extension, {@code false} otherwise
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @see AnimationConfig
    */
-  private static boolean hasImageExtension(final SimpleIPath path) {
-    if (path == null) throw new IllegalArgumentException("Path can not be null");
-    String name = path.pathString();
-    int dotIndex = name.lastIndexOf('.');
-    if (dotIndex < 0) return false;
-    String ext = name.substring(dotIndex + 1);
-    return IMAGE_EXTENSIONS.contains(ext);
+  public DrawComponent(final IPath path) {
+    this(path, new AnimationConfig(), null);
   }
 
   /**
-   * Get the current animation being displayed on the entity.
+   * Create a new DrawComponent with a default {@link AnimationConfig}.
    *
-   * @return The current animation of the entity.
+   * @param path Path to the image in the assets folder. If the path leads to a folder, it will be
+   *     assumed that the target image file is within that folder with the same name as the folder
+   *     but as png. Example: "character/knight" resolves to "assets/character/knight/knight.png".
+   * @param defaultStateName Name of the state to be used as default
+   * @see AnimationConfig
+   */
+  public DrawComponent(final IPath path, String defaultStateName) {
+    this(path, new AnimationConfig(), defaultStateName);
+  }
+
+  /**
+   * Create a new DrawComponent from a single {@link Animation}.
+   *
+   * @param animation The animation to initialize the component with.
+   */
+  public DrawComponent(final Animation animation) {
+    stateMachine = new StateMachine(animation);
+  }
+
+  /**
+   * Create a new DrawComponent from a list of states.
+   *
+   * @param states The list of states to initialize the state machine with.
+   */
+  public DrawComponent(List<State> states) {
+    stateMachine = new StateMachine(states);
+  }
+
+  /**
+   * Create a new DrawComponent from a list of states.
+   *
+   * @param states The list of states to initialize the state machine with.
+   * @param defaultState The state to be used as default
+   */
+  public DrawComponent(List<State> states, State defaultState) {
+    stateMachine = new StateMachine(states, defaultState);
+  }
+
+  /**
+   * Create a new DrawComponent directly from a {@link StateMachine}.
+   *
+   * @param stateMachine The state machine to use for this component.
+   */
+  public DrawComponent(StateMachine stateMachine) {
+    this.stateMachine = stateMachine;
+  }
+
+  /**
+   * Send a {@link Signal} with associated data to the {@link StateMachine}.
+   *
+   * @param signal The signal name.
+   * @param data The data to pass along with the signal.
+   */
+  public void sendSignal(String signal, Object data) {
+    stateMachine.sendSignal(new Signal(signal, data));
+  }
+
+  /**
+   * Send a {@link Signal} without data to the {@link StateMachine}.
+   *
+   * @param signal The signal name.
+   */
+  public void sendSignal(String signal) {
+    sendSignal(signal, null);
+  }
+
+  /**
+   * Update the {@link StateMachine} of this component.
+   *
+   * <p>This should be called once per game loop to progress animations and handle transitions.
+   */
+  public void update() {
+    stateMachine.update();
+  }
+
+  /**
+   * Get the current {@link Sprite} of this component.
+   *
+   * @return The current sprite frame.
+   */
+  public Sprite getSprite() {
+    return stateMachine.getSprite();
+  }
+
+  /**
+   * Get the logical width of this component (may differ from sprite width).
+   *
+   * @return The width in world units.
+   */
+  public float getWidth() {
+    return stateMachine.getWidth();
+  }
+
+  /**
+   * Get the logical height of this component (may differ from sprite height).
+   *
+   * @return The height in world units.
+   */
+  public float getHeight() {
+    return stateMachine.getHeight();
+  }
+
+  /**
+   * Get the pixel width of the current sprite.
+   *
+   * @return The width of the current sprite frame in pixels.
+   */
+  public float getSpriteWidth() {
+    return stateMachine.getSpriteWidth();
+  }
+
+  /**
+   * Get the pixel height of the current sprite.
+   *
+   * @return The height of the current sprite frame in pixels.
+   */
+  public float getSpriteHeight() {
+    return stateMachine.getSpriteHeight();
+  }
+
+  /**
+   * Get the current {@link Animation}.
+   *
+   * @return The active animation of the component.
    */
   public Animation currentAnimation() {
-    return currentAnimation;
-  }
-
-  /**
-   * Set the current animation displayed on the entity.
-   *
-   * <p>If the animation passed is not displayed on the entity, there may be another point in the
-   * code where the animation is overwritten on the same tick (e.g., in {@link VelocitySystem}).
-   *
-   * <p>If the given animation is not stored in this component, a warning is logged.
-   *
-   * @param animationName Path of the new current animation (this is the name of the directory). If
-   *     more than one path is given, the first one that exists will be set as the new current
-   *     animation.
-   * @see IPath
-   */
-  public void currentAnimation(final IPath... animationName) {
-    for (IPath animationPath : animationName) {
-      Animation animation = animationMap.get(animationPath.pathString());
-      if (animation != null) {
-        currentAnimation = animation;
-        return;
-      } else
-        LOGGER.warning(
-            "Animation "
-                + animationPath
-                + " can not be set, because the given Animation could not be found.");
-    }
-  }
-
-  /**
-   * Sets the current animation displayed on the entity.
-   *
-   * <p>This method attempts to set the current animation to the animation specified by the provided
-   * name. If the animation exists in the animation map, it is set as the current animation. If the
-   * animation does not exist, a warning is logged and the current animation remains unchanged.
-   *
-   * @param animationName The name of the animation to set as the current animation.
-   */
-  public void currentAnimation(final String animationName) {
-    if (animationMap.containsKey(animationName)) {
-      currentAnimation = animationMap.get(animationName);
-    } else {
-      LOGGER.warning(
-          "Animation "
-              + animationName
-              + " can not be set, because the given Animation could not be found.");
-    }
-  }
-
-  /**
-   * Enqueue the first existing animation in the queue of animations to be played next.
-   *
-   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
-   * actually existing animation will be added to the queue. The duration of this animation (i.e.
-   * how many frames should the animation be displayed) is specified by the given parameter.
-   *
-   * @param forFrames Number of frames the animation is to be displayed for
-   * @param next List of potential next animations (represented via <code>IPath</code> objects)
-   */
-  public void queueAnimation(int forFrames, final IPath... next) {
-    Consumer<IPath> fn = path -> animationQueue.put(path, duration(path, forFrames));
-
-    queueAnimation(fn, next);
-  }
-
-  /**
-   * Enqueue the first existing animation in the queue of animations to be played next.
-   *
-   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
-   * actually existing animation will be added to the queue. The number of steps in this animation
-   * is used as the duration of the animation (i.e. how many frames the animation should be
-   * displayed).
-   *
-   * @param next List of potential next animations (represented via <code>IPath</code> objects)
-   */
-  public void queueAnimation(final IPath... next) {
-    Consumer<IPath> fn =
-        path -> animationQueue.put(path, duration(path, animation(path).orElseThrow().duration()));
-
-    queueAnimation(fn, next);
-  }
-
-  /**
-   * Enqueue the first existing animation in the queue of animations to be played next.
-   *
-   * <p>Animations to be considered are given as a number of {@link IPath} objects. The first
-   * actually existing animation will be added to the queue. The duration of the animation (i.e. how
-   * many frames should the animation be displayed) is specified in the given consumer function.
-   *
-   * <p>This is an internal auxiliary function.
-   *
-   * @param fn Function to perform the actual enqueuing
-   * @param next List of potential next animations (represented via <code>IPath</code> objects)
-   */
-  private void queueAnimation(final Consumer<IPath> fn, final IPath... next) {
-    Arrays.stream(next).filter(this::hasAnimation).findFirst().ifPresent(fn);
-  }
-
-  /**
-   * Calculate the duration (in frames) for a given animation.
-   *
-   * <p>If the animation is already enqueued, the new duration will be the maximum of the old value
-   * (in the queue) and the value specified by the parameter. Otherwise, it's just the value
-   * specified by the parameter.
-   *
-   * @param path IPath representing the animation
-   * @param forFrames Number of frames the animation is to be shown for
-   * @return max(forFrames, current value) if already enqueued; forFrames otherwise
-   */
-  private int duration(IPath path, int forFrames) {
-    return Math.max(animationQueue.getOrDefault(path, 0), forFrames);
-  }
-
-  /**
-   * Remove the given animation from the animation queue.
-   *
-   * <p>This method removes the animation specified by the provided path from the animation queue.
-   *
-   * @param animation The path of the animation to remove from the queue.
-   */
-  public void deQueue(final IPath animation) {
-    animationQueue.remove(animation);
-  }
-
-  /**
-   * Remove all animations with the given priority from the animation queue.
-   *
-   * <p>This method removes all animations from the animation queue that have the specified
-   * priority.
-   *
-   * @param prio The priority of animations to remove.
-   */
-  public void deQueueByPriority(int prio) {
-    animationQueue.keySet().removeIf(e -> e.priority() == prio);
-  }
-
-  /** Remove all animations from the animation queue. */
-  public void deQueueAll() {
-    animationQueue.clear();
-  }
-
-  /**
-   * Get the Animation at the given path.
-   *
-   * <p>Can be null if the component does not store an animation with this path.
-   *
-   * @param path Path of the Animation.
-   * @return The animation or null.
-   */
-  public Optional<Animation> animation(final IPath path) {
-    return Optional.ofNullable(animationMap.get(path.pathString()));
-  }
-
-  /**
-   * Check if the component stores an animation with the given path.
-   *
-   * @param path Path of the animation to look for.
-   * @return true if the animation exists in this component, false if not.
-   */
-  public boolean hasAnimation(final IPath path) {
-    return animationMap.containsKey(path.pathString());
-  }
-
-  /**
-   * Check if the animation at the given path is the current animation.
-   *
-   * <p>Will log a warning if no animation is stored for the given path.
-   *
-   * @param path Path to the animation to check.
-   * @return true if the current animation equals the animation at the given path, false if not, or
-   *     no animation for the given path is stored in this component.
-   */
-  public boolean isCurrentAnimation(final IPath path) {
-    Optional<Animation> animation = animation(path);
-    if (animation.isPresent()) return animation.get() == currentAnimation;
-    LOGGER.warning("Animation " + path + " is not stored.");
-    return false;
+    return stateMachine.getCurrentState().getAnimation();
   }
 
   /**
@@ -355,7 +241,7 @@ public final class DrawComponent implements Component {
    * @return true if the current animation is looping.
    */
   public boolean isCurrentAnimationLooping() {
-    return currentAnimation.isLooping();
+    return currentAnimation().isLooping();
   }
 
   /**
@@ -364,177 +250,49 @@ public final class DrawComponent implements Component {
    * @return true if the current animation has finished playing.
    */
   public boolean isCurrentAnimationFinished() {
-    return currentAnimation.isFinished();
+    return stateMachine.isAnimationFinished();
   }
 
   /**
-   * Check if the Animation is queued up.
+   * Check whether a state with the given name exists.
    *
-   * @param requestedAnimation The path of the animation to check.
-   * @return true if the Animation is in the queue.
+   * @param name The name of the state.
+   * @return true if the state exists, false otherwise.
    */
-  public boolean isAnimationQueued(final IPath requestedAnimation) {
-    for (Map.Entry<IPath, Integer> animationArr : animationQueue.entrySet()) {
-      if (animationArr.getKey().pathString().equals(requestedAnimation.pathString())) return true;
-    }
-    return false;
+  public boolean hasState(String name) {
+    return stateMachine.getState(name) != null;
   }
 
   /**
-   * Get a copy of the animation queue.
+   * Get the current {@link State}.
    *
-   * @return The entire queue of animations.
+   * @return The active state of the component.
    */
-  public Map<IPath, Integer> animationQueue() {
-    return new HashMap<>(animationQueue);
+  public State currentState() {
+    return stateMachine.getCurrentState();
   }
 
   /**
-   * Get a copy of the Map that contains all the Animations in this component.
+   * Get the name of the current state.
    *
-   * <p>This method returns a new HashMap containing a copy of the original animationMap. Modifying
-   * the returned map will not affect the internal state of this component.
-   *
-   * @return A new Map containing a copy of the animationMap.
+   * @return The name of the active state.
    */
-  public Map<String, Animation> animationMap() {
-    return new HashMap<>(animationMap);
+  public String currentStateName() {
+    return stateMachine.getCurrentStateName();
   }
 
   /**
-   * Replace the current animationMap with a new Map.
+   * Get the data associated with the current state.
    *
-   * <p>This method allows replacing the entire animationMap with a new one provided as a parameter.
-   * The new animationMap is a mapping of animation names (String) to their corresponding Animation
-   * objects.
-   *
-   * @param animationMap the new animationMap.
+   * @return The data object attached to the current state.
    */
-  public void animationMap(final Map<String, Animation> animationMap) {
-    if (animationMap == null) throw new IllegalArgumentException("AnimationMap can not be null");
-    this.animationMap = new HashMap<>(animationMap);
+  public Object currentStateData() {
+    return stateMachine.getCurrentState().getData();
   }
 
-  /**
-   * Loading animation assets.
-   *
-   * <p>Checks if the game is running in a JAR or not and will execute the corresponding loading
-   * logic.
-   *
-   * <p>TODO: This is only a quick fix! We need to implement a proper way of loading assets. (See <a
-   * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/1361">Issue #1361</a>)
-   *
-   * @param path The path of the animation assets.
-   */
-  private void loadAnimationAssets(final IPath path) throws IOException {
-
-    Thread thread = Thread.currentThread();
-    StackTraceElement[] stack = thread.getStackTrace();
-
-    StackTraceElement currentElement = null;
-    Class<?> clazz = null;
-    for (int i = 1; i < stack.length; i++) {
-      currentElement = stack[i];
-      if (!currentElement.getClassName().equals(DrawComponent.class.getName())) {
-        try {
-          clazz = ClassLoader.getSystemClassLoader().loadClass(currentElement.getClassName());
-        } catch (ClassNotFoundException e) {
-          System.err.println(
-              "Could not load class " + currentElement.getClassName() + " from stacktrace.");
-        }
-        break;
-      }
-    }
-
-    File jarFile =
-        new File(
-            (clazz == null ? getClass() : clazz)
-                .getProtectionDomain()
-                .getCodeSource()
-                .getLocation()
-                .getPath());
-    if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
-    else loadAnimationsFromIDE(path);
-  }
-
-  /**
-   * Load the animation assets if the game is running in a JAR.
-   *
-   * <p>This function will create a map of directories ({@link String}) and the files ({@link
-   * LinkedList}) inside these directories. The map will be filled with the directories inside the
-   * given path (e.g., "character/knight"). Ultimately, this function will manually create an
-   * Animation for each entry within this map.
-   *
-   * @param path Path to the assets.
-   * @param jarFile Path to the JAR files.
-   * @throws IOException if the JAR file or the files in the JAR file cannot be read.
-   */
-  private void loadAnimationsFromJar(final IPath path, final File jarFile) throws IOException {
-    JarFile jar = new JarFile(jarFile);
-    Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
-
-    // This will be used to map the directory names (e.g., "idle") and the texture files.
-    // Ultimately, we will create animations out of this by using the
-    // Animation(LinkedList<String>) constructor.
-
-    HashMap<String, List<IPath>> storage = new HashMap<>();
-    animationMap = new HashMap<>();
-
-    // Iterate over each file and directory in the JAR.
-
-    while (entries.hasMoreElements()) {
-      // example: character/knight/idle_down/idle_down_knight_1.png
-      // but also: character/knight/idle/
-      // and: character/knight/
-      String fileName = entries.nextElement().getName();
-
-      // If the entry starts with the path name (character/knight/idle),
-      // this is true for entries like (character/knight/idle_down/idle_down_knight_1.png) and
-      // (character/knight/idle/).
-      if (fileName.startsWith(path.pathString() + "/")) {
-
-        // Get the index of the last FileSeparator; every character after that separator is
-        // part of the filename.
-        int lastSlashIndex = fileName.lastIndexOf("/");
-
-        // Ignore directories, so we only work with strings like
-        // (character/knight/idle_down/idle_down_knight_1.png).
-        if (lastSlashIndex != fileName.length() - 1) {
-          // Get the index of the second-to-last part of the string.
-          // For example, in "character/knight/idle_down/idle_down_knight_1.png", this would be the
-          // index of the slash in "/idle".
-
-          int secondLastSlashIndex = fileName.lastIndexOf("/", lastSlashIndex - 1);
-
-          // Get the name of the directory. The directory name is between the
-          // second-to-last and the last separator index.
-          // The directory name serves as the key of the animation in the animation map
-          // (similar to what the IPATh values are for them).
-          // For example: "idle"
-
-          String lastDir = fileName.substring(secondLastSlashIndex + 1, lastSlashIndex);
-          SimpleIPath simplepath = new SimpleIPath(fileName);
-          if (hasImageExtension(simplepath)) {
-            // add animation-files to new or existing storage map
-            if (storage.containsKey(lastDir)) {
-              storage.get(lastDir).add(simplepath);
-            } else {
-              LinkedList<IPath> list = new LinkedList<>();
-              list.add(simplepath);
-              storage.put(lastDir, list);
-            }
-          }
-        }
-      }
-    }
-
-    // sort the files in lexicographic order (like the most os)
-    // animations will be played in order
-    storage.values().forEach(x -> x.sort(Comparator.comparing(IPath::pathString)));
-    // create animations
-    storage.forEach(
-        (name, textureSet) -> animationMap.put(name, Animation.fromCollection(textureSet)));
-    jar.close();
+  /** Reset the {@link StateMachine} to its initial state. */
+  public void resetState() {
+    stateMachine.reset();
   }
 
   /**
@@ -555,31 +313,6 @@ public final class DrawComponent implements Component {
    */
   public void setVisible(boolean visible) {
     isVisible = visible;
-  }
-
-  /**
-   * Load animations if the game is running in the IDE (or over the shell).
-   *
-   * @param path Path to the animations.
-   */
-  private void loadAnimationsFromIDE(final IPath path) {
-    URL url = DrawComponent.class.getResource("/" + path.pathString());
-    if (url != null) {
-      try {
-        try {
-          File apps = new File(url.toURI());
-          animationMap =
-              Arrays.stream(Objects.requireNonNull(apps.listFiles()))
-                  .filter(File::isDirectory)
-                  .collect(Collectors.toMap(File::getName, DrawComponent::allFilesFromDirectory));
-        } catch (IllegalArgumentException e) {
-          LOGGER.log(
-              CustomLogLevel.ERROR, "Could not load animations from directory: " + url.toURI(), e);
-        }
-      } catch (URISyntaxException e) {
-        LOGGER.log(CustomLogLevel.ERROR, "Could not load animations from directory", e);
-      }
-    }
   }
 
   /**
@@ -610,5 +343,38 @@ public final class DrawComponent implements Component {
    */
   public void tintColor(int tintColor) {
     this.tintColor = tintColor;
+  }
+
+  /**
+   * Get the underlying {@link StateMachine}.
+   *
+   * @return The state machine of this component.
+   */
+  public StateMachine stateMachine() {
+    return stateMachine;
+  }
+
+  /**
+   * Get the rendering depth of this component.
+   *
+   * <p>The depth determines the draw order. Lower values are drawn earlier (behind), higher values
+   * later (in front).
+   *
+   * @return The depth value.
+   */
+  public int depth() {
+    return depth;
+  }
+
+  /**
+   * Set the rendering depth of this component.
+   *
+   * <p>The depth determines the draw order. Lower values are drawn earlier (behind), higher values
+   * later (in front).
+   *
+   * @param depth The new depth value.
+   */
+  public void depth(int depth) {
+    this.depth = depth;
   }
 }

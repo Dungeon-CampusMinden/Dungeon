@@ -1,19 +1,29 @@
 package core.systems;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+import com.badlogic.gdx.graphics.Texture;
 import core.Entity;
 import core.Game;
-import core.components.*;
+import core.components.DrawComponent;
+import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
-import core.utils.components.draw.Animation;
-import core.utils.components.draw.CoreAnimationPriorities;
-import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.TextureMap;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
+import core.utils.components.path.SimpleIPath;
+import java.util.Arrays;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /** Unit tests for the {@link VelocitySystem}. */
 public class VelocitySystemTest {
@@ -33,17 +43,48 @@ public class VelocitySystemTest {
    * world.
    */
   @BeforeEach
-  void setUp() {
-    entity = new Entity();
+  public void setup() {
+    // Create file system handle. WARNING: This will assume all future paths to be relative to the
+    // working directory (probably the root of the project)
+    TextureMap.instance().clear(); // reset any existing mappings
+
+    // Replace internal map logic to skip real texture loading
+    TextureMap instance = TextureMap.instance();
+    Texture dummyTexture = Mockito.mock(Texture.class);
+
+    // Trick: preload the keys you need for your test with dummy textures. Paths must be relative to
+    // working directory.
+    String assetKey = "test_assets/textures/test_hero/test_hero.png";
+    instance.put(assetKey, dummyTexture);
+
+    // Remaining test logic
+    Game.add(new LevelSystem(() -> {}));
+    //    Game.currentLevel(level);
+    //    Mockito.when(tile.friction()).thenReturn(0.75f);
+    //    Mockito.when(level.tileAt((Point) Mockito.any())).thenReturn(tile);
+    system = new VelocitySystem();
+    Game.add(system);
+
+    Entity entity = new Entity();
     vc = new VelocityComponent(speed);
     vc.mass(mass);
     pc = new PositionComponent();
-    dc = new DrawComponent(mock(Animation.class));
+    Map<String, Animation> animationMap =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
+    State stIdle = new DirectionalState("idle", animationMap);
+    State stMove = new DirectionalState("move", animationMap, "run");
+    State stDead = new State("dead", animationMap.get("die"));
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
+    sm.addTransition(stIdle, "move", stMove);
+    sm.addTransition(stMove, "move", stMove);
+    sm.addTransition(stMove, "idle", stIdle);
+    sm.addTransition(stIdle, "died", stDead);
+    sm.addTransition(stMove, "died", stDead);
+    dc = new DrawComponent(sm);
     entity.add(vc);
     entity.add(pc);
     entity.add(dc);
     Game.add(entity);
-    system = new VelocitySystem();
   }
 
   @AfterEach
@@ -128,94 +169,35 @@ public class VelocitySystemTest {
     assertEquals(0, vc.appliedForcesStream().count());
   }
 
-  /** Tests that when the entity is idle and facing UP, the correct idle animations are queued. */
+  /** Tests that when the entity is idle the correct idle animations are played. */
   @Test
-  void setAnimationIdleUp() {
+  void setAnimationIdle() {
     vc.currentVelocity(Vector2.ZERO);
     pc.viewDirection(Direction.UP);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
+    // Test right movement
+    vc.currentVelocity(Vector2.of(1, 1));
     system.execute();
+    assertEquals("move", dc.currentState().name);
+    assertEquals(Direction.RIGHT, dc.currentState().getData());
 
-    verify(mockDraw)
-        .queueAnimation(
-            eq(1),
-            eq(CoreAnimations.IDLE_UP),
-            eq(CoreAnimations.IDLE),
-            eq(CoreAnimations.IDLE_DOWN),
-            eq(CoreAnimations.IDLE_LEFT),
-            eq(CoreAnimations.IDLE_RIGHT));
-  }
-
-  /** Tests that when the entity is idle and facing LEFT, the correct idle animations are queued. */
-  @Test
-  void setAnimationIdleLeft() {
+    // Test idle right
     vc.currentVelocity(Vector2.ZERO);
-    pc.viewDirection(Direction.LEFT);
-
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
+    assertEquals("idle", dc.currentState().name);
+    assertEquals(Direction.RIGHT, dc.currentState().getData());
 
-    verify(mockDraw)
-        .queueAnimation(
-            eq(1),
-            eq(CoreAnimations.IDLE_LEFT),
-            eq(CoreAnimations.IDLE),
-            eq(CoreAnimations.IDLE_RIGHT),
-            eq(CoreAnimations.IDLE_DOWN),
-            eq(CoreAnimations.IDLE_UP));
-  }
+    // Test left movement
+    vc.currentVelocity(Vector2.of(-1, 0));
+    system.execute();
+    assertEquals("move", dc.currentState().name);
+    assertEquals(Direction.LEFT, dc.currentState().getData());
 
-  /** Tests that when the entity is idle and facing DOWN, the correct idle animations are queued. */
-  @Test
-  void setAnimationIdleDown() {
+    // Test idle left
     vc.currentVelocity(Vector2.ZERO);
-    pc.viewDirection(Direction.DOWN);
-
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
-
-    verify(mockDraw)
-        .queueAnimation(
-            eq(1),
-            eq(CoreAnimations.IDLE_DOWN),
-            eq(CoreAnimations.IDLE),
-            eq(CoreAnimations.IDLE_UP),
-            eq(CoreAnimations.IDLE_LEFT),
-            eq(CoreAnimations.IDLE_RIGHT));
-  }
-
-  /**
-   * Tests that when the entity is idle and facing RIGHT, the correct idle animations are queued.
-   */
-  @Test
-  void setAnimationIdleRight() {
-    vc.currentVelocity(Vector2.ZERO);
-    pc.viewDirection(Direction.RIGHT);
-
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
-    system.execute();
-
-    verify(mockDraw)
-        .queueAnimation(
-            eq(1),
-            eq(CoreAnimations.IDLE_RIGHT),
-            eq(CoreAnimations.IDLE),
-            eq(CoreAnimations.IDLE_LEFT),
-            eq(CoreAnimations.IDLE_DOWN),
-            eq(CoreAnimations.IDLE_UP));
+    assertEquals("idle", dc.currentState().name);
+    assertEquals(Direction.LEFT, dc.currentState().getData());
   }
 
   /**
@@ -223,92 +205,45 @@ public class VelocitySystemTest {
    * VelocitySystem queues the RUN_RIGHT animation and sets the view direction to RIGHT.
    */
   @Test
-  void queueRunAnimationWhenMovingRight() {
-    // Set velocity to move right only
+  void setAnimationRunning() {
+    // MOVE RIGHT
     vc.currentVelocity(Vector2.of(5, 0));
-
-    // Initial direction can be anything, e.g., NONE or UP
     pc.viewDirection(Direction.NONE);
-
-    // Replace DrawComponent with a mock to verify animation calls
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
 
     system.execute();
 
-    // Verify that RUN_RIGHT animation is queued
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-
-    // Verify that view direction is set to RIGHT
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.RIGHT, dc.currentStateData());
     assertEquals(Direction.RIGHT, pc.viewDirection());
-  }
 
-  /**
-   * Tests that when the entity has a negative horizontal velocity (moving left), the VelocitySystem
-   * queues the RUN_LEFT animation and sets the view direction to LEFT.
-   */
-  @Test
-  void queueRunAnimationWhenMovingLeft() {
+    // MOVE LEFT
     vc.currentVelocity(Vector2.of(-5, 0));
     pc.viewDirection(Direction.NONE);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
 
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.LEFT, dc.currentStateData());
     assertEquals(Direction.LEFT, pc.viewDirection());
-  }
 
-  /**
-   * Tests that when the entity has a positive vertical velocity (moving up), the VelocitySystem
-   * queues the RUN_UP animation and sets the view direction to UP.
-   */
-  @Test
-  void queueRunAnimationWhenMovingUp() {
+    // MOVE UP
     vc.currentVelocity(Vector2.of(0, 5));
     pc.viewDirection(Direction.NONE);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
 
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.UP, dc.currentStateData());
     assertEquals(Direction.UP, pc.viewDirection());
-  }
 
-  /**
-   * Tests that when the entity has a negative vertical velocity (moving down), the VelocitySystem
-   * queues the RUN_DOWN animation and sets the view direction to DOWN.
-   */
-  @Test
-  void queueRunAnimationWhenMovingDown() {
+    // MOVE DOWN
     vc.currentVelocity(Vector2.of(0, -5));
     pc.viewDirection(Direction.NONE);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
 
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.DOWN, dc.currentStateData());
     assertEquals(Direction.DOWN, pc.viewDirection());
   }
 
@@ -317,20 +252,14 @@ public class VelocitySystemTest {
    * queues the vertical run animation (up or down) accordingly and sets the correct view direction.
    */
   @Test
-  void queueRunAnimationWhenVerticalVelocityDominates() {
+  void setAnimationRunWhenVerticalVelocityDominates() {
     vc.currentVelocity(Vector2.of(3, 5)); // Vertical > Horizontal
     pc.viewDirection(Direction.NONE);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
 
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_UP, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.UP, dc.currentStateData());
     assertEquals(Direction.UP, pc.viewDirection());
 
     // Also test for downward vertical dominance
@@ -338,10 +267,8 @@ public class VelocitySystemTest {
     pc.viewDirection(Direction.NONE);
     system.execute();
 
-    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_DOWN, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.DOWN, dc.currentStateData());
     assertEquals(Direction.DOWN, pc.viewDirection());
   }
 
@@ -351,20 +278,14 @@ public class VelocitySystemTest {
    * direction.
    */
   @Test
-  void queueRunAnimationWhenHorizontalVelocityDominates() {
+  void setAnimationRunWhenHorizontalVelocityDominates() {
     vc.currentVelocity(Vector2.of(7, 4)); // Horizontal > Vertical
     pc.viewDirection(Direction.NONE);
 
-    DrawComponent mockDraw = mock(DrawComponent.class);
-    entity.remove(DrawComponent.class);
-    entity.add(mockDraw);
-
     system.execute();
 
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_RIGHT, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.RIGHT, dc.currentStateData());
     assertEquals(Direction.RIGHT, pc.viewDirection());
 
     // Also test for left dominance
@@ -372,10 +293,8 @@ public class VelocitySystemTest {
     pc.viewDirection(Direction.NONE);
     system.execute();
 
-    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.RUN.priority());
-    verify(mockDraw, times(2)).deQueueByPriority(CoreAnimationPriorities.IDLE.priority());
-    verify(mockDraw).queueAnimation(CoreAnimations.RUN_LEFT, CoreAnimations.RUN);
-
+    assertEquals("move", dc.currentStateName());
+    assertEquals(Direction.LEFT, dc.currentStateData());
     assertEquals(Direction.LEFT, pc.viewDirection());
   }
 }

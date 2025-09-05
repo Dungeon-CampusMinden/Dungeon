@@ -12,16 +12,20 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 /** The LeverFactory class is responsible for creating lever entities. */
 public class LeverFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
+  private static final IPath LEVER_PATH = new SimpleIPath("objects/lever");
+  private static final IPath TORCH_PATH = new SimpleIPath("objects/torch");
 
   /**
    * Creates a lever entity at a given position, with a specified behavior when interacted with. The
@@ -31,21 +35,25 @@ public class LeverFactory {
    * IEntityCommand} that takes the lever entity as context.
    *
    * @param pos The position where the lever will be created.
-   * @param onInteract The behavior when the lever is interacted with.
-   * @param design defines the textures for the lever
+   * @param onInteract The behavior when the lever is interacted with. (isOn, lever, who)
+   * @param texturePath defines the texture(s) to use for the lever
    * @return The created lever entity.
    * @see LeverComponent LeverComponent
    * @see contrib.systems.LeverSystem LeverSystem
    */
-  public static Entity createLever(Point pos, ICommand onInteract, Design design) {
+  public static Entity createLever(Point pos, ICommand onInteract, IPath texturePath) {
     Entity lever = new Entity("lever");
     lever.add(new PositionComponent(pos));
-    DrawComponent dc = new DrawComponent(Animation.fromCollection(design.texturesOff));
-    Map<String, Animation> animationMap =
-        Map.of("off", dc.currentAnimation(), "on", Animation.fromCollection(design.texturesOn));
-    dc.animationMap(animationMap);
-    dc.currentAnimation("off");
+
+    Map<String, Animation> map = Animation.loadAnimationSpritesheet(texturePath);
+    State stOff = State.fromMap(map, "off");
+    State stOn = State.fromMap(map, "on");
+    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
+    sm.addTransition(stOff, "on", stOn);
+    sm.addTransition(stOn, "off", stOff);
+    DrawComponent dc = new DrawComponent(sm);
     lever.add(dc);
+
     lever.add(new LeverComponent(false, onInteract));
     lever.add(
         new InteractionComponent(
@@ -58,6 +66,9 @@ public class LeverFactory {
                       .orElseThrow(
                           () -> MissingComponentException.build(entity, LeverComponent.class));
               lc.toggle();
+              entity
+                  .fetch(DrawComponent.class)
+                  .ifPresent(drawComponent -> drawComponent.sendSignal(lc.isOn() ? "on" : "off"));
             }));
     return lever;
   }
@@ -78,7 +89,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createLever(Point pos, ICommand onInteract) {
-    return createLever(pos, onInteract, Design.LEAVER);
+    return createLever(pos, onInteract, LEVER_PATH);
   }
 
   /**
@@ -111,7 +122,7 @@ public class LeverFactory {
    * @see contrib.systems.LeverSystem LeverSystem
    */
   public static Entity createTorch(Point pos, ICommand onInteract) {
-    return createLever(pos, onInteract, Design.TORCH);
+    return createLever(pos, onInteract, TORCH_PATH);
   }
 
   /**
@@ -169,15 +180,17 @@ public class LeverFactory {
   public static Entity pressurePlate(Point position, float massTrigger) {
     Entity pressurePlate = new Entity("pressureplate");
     pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
-    DrawComponent drawComponent =
-        new DrawComponent(Animation.fromCollection(Design.PLATE.texturesOff));
-    Map<String, Animation> animations =
-        Map.of(
-            "off", drawComponent.currentAnimation(),
-            "on", Animation.fromCollection(Design.PLATE.texturesOn));
-    drawComponent.animationMap(animations);
-    drawComponent.currentAnimation("off");
-    pressurePlate.add(drawComponent);
+
+    Map<String, Animation> map =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/pressureplate"));
+    State stOff = State.fromMap(map, "off");
+    State stOn = State.fromMap(map, "on");
+    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
+    sm.addTransition(stOff, "on", stOn);
+    sm.addTransition(stOn, "off", stOff);
+    DrawComponent dc = new DrawComponent(sm);
+    pressurePlate.add(dc);
+
     LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
     pressurePlate.add(leverComponent);
     PressurePlateComponent pressurePlateComponent = new PressurePlateComponent(massTrigger);
@@ -268,49 +281,5 @@ public class LeverFactory {
         }
       }
     };
-  }
-
-  /**
-   * Represents different design types with associated texture paths. Each design has a list of
-   * textures for both "on" and "off" states.
-   */
-  public enum Design {
-
-    /** Represents a lever with one texture for "on" and one for "off". */
-    LEAVER(
-        List.of(new SimpleIPath("objects/lever/on/lever_0.png")),
-        List.of(new SimpleIPath("objects/lever/off/lever_0.png"))),
-
-    /** Represents a torch with multiple textures for "on" (animated) and one for "off". */
-    TORCH(
-        List.of(
-            new SimpleIPath("objects/torch/on/torch_1.png"),
-            new SimpleIPath("objects/torch/on/torch_2.png"),
-            new SimpleIPath("objects/torch/on/torch_3.png"),
-            new SimpleIPath("objects/torch/on/torch_4.png"),
-            new SimpleIPath("objects/torch/on/torch_5.png"),
-            new SimpleIPath("objects/torch/on/torch_6.png"),
-            new SimpleIPath("objects/torch/on/torch_7.png"),
-            new SimpleIPath("objects/torch/on/torch_8.png")),
-        List.of(new SimpleIPath("objects/torch/off/torch_0.png"))),
-
-    /** Represents a pressure plate with multiple textures for "on" (animated) and one for "off". */
-    PLATE(
-        List.of(new SimpleIPath("objects/pressureplate/on/pressureplate_0.png")),
-        List.of(new SimpleIPath("objects/pressureplate/off/pressureplate_0.png")));
-
-    private final List<IPath> texturesOn;
-    private final List<IPath> texturesOff;
-
-    /**
-     * Constructs a new {@code Design} with specified "on" and "off" textures.
-     *
-     * @param texturesOn List of textures representing the "on" state.
-     * @param texturesOff List of textures representing the "off" state.
-     */
-    Design(final List<IPath> texturesOn, final List<IPath> texturesOff) {
-      this.texturesOn = texturesOn;
-      this.texturesOff = texturesOff;
-    }
   }
 }

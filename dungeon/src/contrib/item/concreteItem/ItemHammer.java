@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
 import core.components.PositionComponent;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -20,8 +20,7 @@ public class ItemHammer extends Item {
    * inventory.
    */
   public ItemHammer() {
-    super(
-        "Hammer", "A powerful tool to destroy objects", Animation.fromSingleImage(DEFAULT_TEXTURE));
+    super("Hammer", "A powerful tool to destroy objects", new Animation(DEFAULT_TEXTURE));
   }
 
   @Override

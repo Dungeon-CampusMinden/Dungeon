@@ -100,7 +100,7 @@ public class Level012 extends BlocklyLevel {
                         .fetch(DrawComponent.class)
                         .orElseThrow(
                             () -> MissingComponentException.build(torch, DrawComponent.class));
-                dc.currentAnimation("on");
+                dc.sendSignal("on");
                 coin[0] = false;
               } else coin[0] = true;
             });

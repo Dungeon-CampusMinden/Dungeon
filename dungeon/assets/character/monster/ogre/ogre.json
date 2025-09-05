@@ -1,0 +1,32 @@
+{
+  "idle": {
+    "config": {
+      "spriteWidth": 32,
+      "spriteHeight": 36,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "run": {
+    "config": {
+      "spriteWidth": 32,
+      "spriteHeight": 36,
+      "x": 0,
+      "y": 36,
+      "rows": 1,
+      "columns": 4
+    },
+    "framesPerSprite": 10,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  }
+}

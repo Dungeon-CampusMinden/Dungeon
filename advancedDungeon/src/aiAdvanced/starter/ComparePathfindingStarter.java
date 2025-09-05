@@ -257,26 +257,20 @@ public class ComparePathfindingStarter {
    * hero.
    *
    * @return The newly created runnerMob
-   * @throws RuntimeException if an {@link IOException} occurs during runnerMob creation
    */
   public static Entity createRunnerMob() {
-    Entity runnerMob;
-    try {
-      runnerMob =
-          MonsterFactory.buildMonster(
-              "KI Runner",
-              HeroFactory.DEFAULT_HERO_CLASS.textures(),
-              1,
-              HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
-              0.0f,
-              MonsterDeathSound.LOWER_PITCH.sound(),
-              new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
-              0,
-              0,
-              MonsterIdleSound.BURP.path());
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create monster entity as RUNNER", e);
-    }
+    Entity runnerMob =
+        MonsterFactory.buildMonster(
+            "KI Runner",
+            HeroFactory.DEFAULT_HERO_CLASS.textures(),
+            1,
+            HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
+            0.0f,
+            MonsterDeathSound.LOWER_PITCH.sound(),
+            new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
+            0,
+            0,
+            MonsterIdleSound.BURP.path());
     Game.add(runnerMob);
     return runnerMob;
   }

@@ -122,9 +122,6 @@ public final class MonsterFactory {
   }
 
   private static Sound randomMonsterDeathSound() {
-    if (Gdx.files == null)
-      return null; // This is a workaround for the Gdx.files being null in tests
-
     List<String> deathSoundsPaths =
         Arrays.asList(
             "sounds/die_01.wav", "sounds/die_02.wav", "sounds/die_03.wav", "sounds/die_04.wav");
@@ -181,8 +178,7 @@ public final class MonsterFactory {
       AIComponent ai,
       int collideDamage,
       int collideCooldown,
-      IPath idleSoundPath)
-      throws IOException {
+      IPath idleSoundPath) {
     Entity monster = new Entity(name);
 
     InventoryComponent ic = new InventoryComponent(1);

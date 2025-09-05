@@ -109,11 +109,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
    */
   private void spawnChestsAndCauldrons() {
     Entity chest;
-    try {
-      chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create speed potion chest");
-    }
+    chest = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
     PositionComponent pc =
         chest
             .fetch(PositionComponent.class)

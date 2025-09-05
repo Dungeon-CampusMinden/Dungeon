@@ -11,7 +11,7 @@ import core.level.elements.tile.FloorTile;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -31,7 +31,7 @@ public class ItemFairy extends Item {
    * <p>The item heals the collector on collision and cannot be stored in the inventory.
    */
   public ItemFairy() {
-    super("Fee", "Heilt volle HP.", Animation.fromSingleImage(FAIRY_TEXTURE));
+    super("Fee", "Heilt volle HP.", new Animation(FAIRY_TEXTURE));
   }
 
   /**

@@ -1,14 +1,12 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
-import contrib.utils.components.draw.AdditionalAnimations;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +24,10 @@ import java.util.stream.Stream;
  */
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
+
+  private static final String DEATH_STATE = "dead";
+  private static final String DEATH_SIGNAL = "die";
+  private static final String DAMAGE_SIGNAL = "hit";
 
   /** Create a new HealthSystem. */
   public HealthSystem() {
@@ -59,7 +61,7 @@ public class HealthSystem extends System {
     int dmgAmount = calculateDamage(hsd);
 
     // if we have some damage, let's show a little dance
-    if (dmgAmount > 0) hsd.dc.queueAnimation(AdditionalAnimations.HIT);
+    if (dmgAmount > 0) hsd.dc.sendSignal(DAMAGE_SIGNAL);
 
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
@@ -75,10 +77,11 @@ public class HealthSystem extends System {
   }
 
   protected HSData activateDeathAnimation(final HSData hsd) {
-    // set DeathAnimation as active animation
-    hsd.dc.queueAnimation(deathAnimationBasedOnViewdirection(hsd));
-
-    // return data object to enable method chaining/streaming
+    hsd.e
+        .fetch(PositionComponent.class)
+        .ifPresentOrElse(
+            pc -> hsd.dc.sendSignal(DEATH_SIGNAL, pc.viewDirection()),
+            () -> hsd.dc.sendSignal(DEATH_SIGNAL));
     return hsd;
   }
 
@@ -96,37 +99,17 @@ public class HealthSystem extends System {
   protected boolean isDeathAnimationFinished(final HSData hsd) {
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
-        (drawComponent) -> drawComponent.hasAnimation(AdditionalAnimations.DIE);
+        (drawComponent) -> drawComponent.hasState(DEATH_STATE);
     // test if Animation is looping
     Predicate<DrawComponent> isAnimationLooping = DrawComponent::isCurrentAnimationLooping;
     // test if Animation has finished playing
     Predicate<DrawComponent> isAnimationFinished = DrawComponent::isCurrentAnimationFinished;
     Predicate<DrawComponent> currentAnimationIsDeath =
-        drawComponent -> {
-          return hsd.dc().hasAnimation(deathAnimationBasedOnViewdirection(hsd));
-        };
+        drawComponent -> hsd.dc().stateMachine().getCurrentStateName().equals(DEATH_STATE);
 
     return !hasDeathAnimation.test(hsd.dc)
         || (currentAnimationIsDeath.test(hsd.dc) && isAnimationLooping.test(hsd.dc))
         || (currentAnimationIsDeath.test(hsd.dc) && isAnimationFinished.test(hsd.dc));
-  }
-
-  private IPath deathAnimationBasedOnViewdirection(HSData hsd) {
-    IPath animation =
-        hsd.e()
-            .fetch(PositionComponent.class)
-            .map(PositionComponent::viewDirection)
-            .map(
-                direction ->
-                    switch (direction) {
-                      case UP -> AdditionalAnimations.DIE_UP;
-                      case DOWN -> AdditionalAnimations.DIE_DOWN;
-                      case LEFT -> AdditionalAnimations.DIE_LEFT;
-                      case RIGHT -> AdditionalAnimations.DIE_RIGHT;
-                      case NONE -> AdditionalAnimations.DIE;
-                    })
-            .orElse(AdditionalAnimations.DIE);
-    return animation;
   }
 
   /**

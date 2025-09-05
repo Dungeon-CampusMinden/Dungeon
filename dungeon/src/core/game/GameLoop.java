@@ -21,7 +21,6 @@ import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.CoreAnimationPriorities;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +58,8 @@ public final class GameLoop extends ScreenAdapter {
       () -> {
         newLevelWasLoadedInThisLoop = true;
         Optional<Entity> hero = ECSManagment.hero();
-        boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel());
+        boolean firstLoad =
+            !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().orElseThrow());
         hero.ifPresent(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
@@ -78,7 +78,7 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.warning(e.getMessage());
         }
         ECSManagment.allEntities()
-            .filter(entity -> entity.isPersistent())
+            .filter(Entity::isPersistent)
             .map(ECSManagment::remove)
             .forEach(ECSManagment::add);
         if (firstLoad && Game.isCheckPatternEnabled())
@@ -226,22 +226,19 @@ public final class GameLoop extends ScreenAdapter {
    */
   private void placeOnLevelStart(final Entity entity) {
     ECSManagment.add(entity);
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    Game.startTile()
-        .ifPresentOrElse(
-            pc::position, () -> LOGGER.warning("No start tile found for the current level"));
-
-    pc.viewDirection(Direction.DOWN); // look down by default
+    entity
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            pc -> {
+              Game.startTile()
+                  .ifPresentOrElse(
+                      pc::position,
+                      () -> LOGGER.warning("No start tile found for the current level"));
+              pc.viewDirection(Direction.DOWN); // look down by default
+            });
 
     // reset animations
-    DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
-    dc.deQueueByPriority(CoreAnimationPriorities.RUN.priority());
+    entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
   }
 
   /**

@@ -158,11 +158,7 @@ public class Level01 extends DungeonLevel {
     npc.add(new VelocityComponent(5));
     npc.add(new CollideComponent());
     npc.add(new PositionComponent(customPoints.get(0).toCenteredPoint()));
-    try {
-      npc.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    npc.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
     npc.add(
         new InteractionComponent(
             3,
@@ -247,11 +243,7 @@ public class Level01 extends DungeonLevel {
   }
 
   private void crafting() {
-    try {
-      Game.add(MiscFactory.newCraftingCauldron(customPoints.get(1).toCenteredPoint()));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Game.add(MiscFactory.newCraftingCauldron(customPoints.get(1).toCenteredPoint()));
   }
 
   private void books() {
@@ -311,13 +303,8 @@ public class Level01 extends DungeonLevel {
     Game.add(MiscFactory.marker(customPoints.get(10).toCenteredPoint()));
     Game.add(MiscFactory.marker(customPoints.get(12).toCenteredPoint()));
     Game.add(MiscFactory.marker(customPoints.get(14).toCenteredPoint()));
-    try {
-      Game.add(
-          MiscFactory.newChest(
-              Set.of(new ItemPotionWater()), customPoints.get(8).toCenteredPoint()));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Game.add(
+        MiscFactory.newChest(Set.of(new ItemPotionWater()), customPoints.get(8).toCenteredPoint()));
   }
 
   @Override

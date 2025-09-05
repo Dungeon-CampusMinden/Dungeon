@@ -3,7 +3,7 @@ package item.concreteItem;
 import contrib.components.InventoryComponent;
 import contrib.item.Item;
 import core.Entity;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import item.effects.RegenerationEffect;
@@ -32,9 +32,7 @@ public class ItemPotionRegeneration extends Item {
   /** Constructs a new ItemPotionRegeneration. */
   public ItemPotionRegeneration() {
     super(
-        "Regeneration Potion",
-        "A potion that heals you over time",
-        Animation.fromSingleImage(DEFAULT_TEXTURE));
+        "Regeneration Potion", "A potion that heals you over time", new Animation(DEFAULT_TEXTURE));
     this.regenerationEffect = new RegenerationEffect(HEAL_PER_SECOND, EFFECT_DURATION);
   }
 

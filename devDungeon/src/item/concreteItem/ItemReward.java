@@ -4,7 +4,7 @@ import contrib.components.InventoryComponent;
 import contrib.hud.DialogUtils;
 import contrib.item.Item;
 import core.Entity;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -21,7 +21,7 @@ public class ItemReward extends Item {
     super(
         "A rock",
         "You did it! You have defeated the final boss and now you are rewarded with the ultimate reward. A boulder. Its not just a boulder it's A rock!",
-        Animation.fromSingleImage(DEFAULT_TEXTURE));
+        new Animation(DEFAULT_TEXTURE));
   }
 
   @Override

@@ -7,11 +7,9 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -53,13 +51,14 @@ public class TorchFactory {
     Entity torch = new Entity("torch");
 
     torch.add(new PositionComponent(pos));
-    DrawComponent dc = new DrawComponent(Animation.fromSingleImage(TORCH_TEXTURE_OFF));
-    Map<String, Animation> animationMap =
-        Map.of("off", dc.currentAnimation(), "on", Animation.fromCollection(TORCH_TEXTURE_ON));
-    dc.animationMap(animationMap);
-    dc.currentAnimation(lit ? "on" : "off");
+    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/torch.png"), "off");
+    if (lit) {
+      dc.sendSignal("on");
+    }
     torch.add(dc);
-    torch.add(new TorchComponent(lit, value));
+
+    TorchComponent tc = new TorchComponent(lit, value);
+    torch.add(tc);
 
     if (isInteractable)
       torch.add(
@@ -67,22 +66,8 @@ public class TorchFactory {
               DEFAULT_INTERACTION_RADIUS,
               true,
               (entity, who) -> {
-                entity.fetch(TorchComponent.class).ifPresent(TorchComponent::toggle);
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        drawComponent -> {
-                          if (entity
-                              .fetch(TorchComponent.class)
-                              .orElseThrow(
-                                  () ->
-                                      MissingComponentException.build(torch, TorchComponent.class))
-                              .lit()) {
-                            drawComponent.currentAnimation("on");
-                          } else {
-                            drawComponent.currentAnimation("off");
-                          }
-                        });
+                tc.toggle();
+                dc.sendSignal(tc.lit() ? "on" : "off");
                 onInteract.accept(entity, who);
               }));
 
