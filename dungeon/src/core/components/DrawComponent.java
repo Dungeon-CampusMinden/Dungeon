@@ -453,8 +453,10 @@ public final class DrawComponent implements Component {
                 .getCodeSource()
                 .getLocation()
                 .getPath());
+    // if we run in a jar (or a sub-project) check the jar for the files
     if (jarFile.isFile()) loadAnimationsFromJar(path, jarFile);
-    else loadAnimationsFromIDE(path);
+    // always check the normal fileystem too
+    loadAnimationsFromFileSystem(path);
   }
 
   /**
@@ -558,11 +560,11 @@ public final class DrawComponent implements Component {
   }
 
   /**
-   * Load animations if the game is running in the IDE (or over the shell).
+   * Load animations from the normal filesystem.
    *
    * @param path Path to the animations.
    */
-  private void loadAnimationsFromIDE(final IPath path) {
+  private void loadAnimationsFromFileSystem(final IPath path) {
     URL url = DrawComponent.class.getResource("/" + path.pathString());
     if (url != null) {
       try {
