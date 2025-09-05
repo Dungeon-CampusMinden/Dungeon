@@ -92,16 +92,20 @@ public abstract class ProjectileSkill extends Skill {
     ignoreEntities.add(projectile);
 
     projectile.add(new FlyComponent());
-    Point position = start.translate(hitBoxSize.scale(-0.5)); // +offset
-
-    projectile.add(new PositionComponent(position));
-
     DrawComponent dc = new DrawComponent(texture);
+
     dc.tintColor(tintColor);
     projectile.add(dc);
 
     // Target point calculation
     Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
+
+    Point position = start.translate(hitBoxSize.scale(-0.5)); // +offset
+    PositionComponent pc = new PositionComponent(position);
+    projectile.add(pc);
+    // calculate rotation
+    double angleDeg = Vector2.of(targetPoint).angleDeg(Vector2.of(position));
+    pc.rotation((float) angleDeg);
 
     // Calculate velocity
     Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
