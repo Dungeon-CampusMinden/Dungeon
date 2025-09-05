@@ -5,18 +5,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.CollideComponent;
+import contrib.components.KineticComponent;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
-import core.level.Tile;
+import core.components.VelocityComponent;
 import core.systems.CameraSystem;
-import core.systems.DrawSystem;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -36,9 +35,7 @@ import java.util.stream.Stream;
  */
 public final class CollisionSystem extends System {
 
-  /**
-   * Solid entities will be kept at this distance after colliding
-   */
+  /** Solid entities will be kept at this distance after colliding */
   private static final float COLLIDE_SET_DISTANCE = 0.01f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
@@ -62,7 +59,7 @@ public final class CollisionSystem extends System {
         .forEach(this::onEnterLeaveCheck);
   }
 
-  private Entity testRender(Entity e){
+  private Entity testRender(Entity e) {
     CollideComponent cc = e.fetch(CollideComponent.class).orElseThrow();
     renderRect(cc.bottomLeft(e), cc.size().x(), cc.size().y(), new Color(1, 1, 1, 0.5f));
     return e;
@@ -128,7 +125,7 @@ public final class CollisionSystem extends System {
     CollisionKey key = new CollisionKey(cdata.ea.id(), cdata.eb.id());
 
     if (checkForCollision(cdata.ea, cdata.a, cdata.eb, cdata.b)) {
-      Direction d = checkDirectionOfCollision(cdata);
+      Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
       // a collision is currently happening
       if (!collisions.containsKey(key)) {
         // a new collision should call the onEnter on both entities
@@ -142,15 +139,38 @@ public final class CollisionSystem extends System {
 
       // Check if both entities are solids, and if so, separate them
       if (cdata.a.isSolid() && cdata.b.isSolid()) {
-        solidCollide(cdata, d);
+        checkSolidCollision(cdata, d);
       }
 
     } else if (collisions.remove(key) != null) {
-      Direction d = checkDirectionOfCollision(cdata);
+      Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
       // a collision was happening and the two entities are no longer colliding, on Leave
       // called once
       cdata.a.onLeave(cdata.ea, cdata.eb, d);
       cdata.b.onLeave(cdata.eb, cdata.ea, d.opposite());
+    }
+  }
+
+  private void checkSolidCollision(CollisionData cdata, Direction d){
+    if (cdata.a.isStationary() && cdata.b.isStationary()) {
+      LOGGER.warning(
+        "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
+    } else if (cdata.a.isStationary()) {
+      solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
+    } else if (cdata.b.isStationary()) {
+      solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
+    } else {
+      // Two non-stationary solids collide. what now?
+      cdata.ea.fetch(VelocityComponent.class).ifPresent(v1 -> {
+        cdata.eb.fetch(VelocityComponent.class).ifPresent(v2 -> {
+          // Determine which entity moves based on their weight. The heavier entity moves the lighter one.
+          if(v1.mass() >= v2.mass()){
+            solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
+          } else {
+            solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
+          }
+        });
+      });
     }
   }
 
@@ -174,71 +194,80 @@ public final class CollisionSystem extends System {
         && hitBox1.topRight(h1).y() > hitBox2.bottomLeft(h2).y();
   }
 
-
   /**
    * Calculates the direction of a collision.
    *
-   * @param cdata The CollisionData containing the two entities and their CollideComponents.
+   * @param ea First entity.
+   * @param a First entity's hitBox.
+   * @param eb Second entity.
+   * @param b Second entity's hitBox.
    * @return Direction of the collision between the entities
    */
-  Direction checkDirectionOfCollision(CollisionData cdata) {
-    Point c1Pos = cdata.a.bottomLeft(cdata.ea);
-    Vector2 c1Size = cdata.a.size();
-    Point c2Pos = cdata.b.bottomLeft(cdata.eb);
-    Vector2 c2Size = cdata.b.size();
+  Direction checkDirectionOfCollision(
+      Entity ea, CollideComponent a, Entity eb, CollideComponent b) {
+    Point c1Pos = a.bottomLeft(ea);
+    Vector2 c1Size = a.size();
+    Point c2Pos = b.bottomLeft(eb);
+    Vector2 c2Size = b.size();
 
     float x1 = c1Pos.x() + c1Size.x() - (c2Pos.x());
-    float x2 = c1Pos.x()              - (c2Pos.x() + c2Size.x());
+    float x2 = c1Pos.x() - (c2Pos.x() + c2Size.x());
     float y1 = c1Pos.y() + c1Size.y() - (c2Pos.y());
-    float y2 = c1Pos.y()              - (c2Pos.y() + c2Size.y());
+    float y2 = c1Pos.y() - (c2Pos.y() + c2Size.y());
 
     List<Tuple<Float, Direction>> directions = new ArrayList<>();
-    //South & North first, so that they take precedence over E/W. This is important for when 2 solids are directly
-    //next to each other horizontally, as with E/W first there would be a seam that you could continuously walk into.
+    // South & North first, so that they take precedence over E/W. This is important for when 2
+    // solids are directly
+    // next to each other horizontally, as with E/W first there would be a seam that you could
+    // continuously walk into.
     directions.add(new Tuple<>(y1, Direction.DOWN));
     directions.add(new Tuple<>(y2, Direction.UP));
     directions.add(new Tuple<>(x1, Direction.RIGHT));
     directions.add(new Tuple<>(x2, Direction.LEFT));
 
-    Direction d = directions.stream().min(Comparator.comparingDouble(t -> Math.abs(t.a()))).get().b();
+    Direction d =
+        directions.stream().min(Comparator.comparingDouble(t -> Math.abs(t.a()))).get().b();
     return d;
   }
 
-  private void solidCollide(CollisionData cdata, Direction direction){
-    Point c1Pos = cdata.a.bottomLeft(cdata.ea);
-    Vector2 c1Size = cdata.a.size();
-    Point c2Pos = cdata.b.bottomLeft(cdata.eb);
-    Vector2 c2Size = cdata.b.size();
+  private void solidCollide(
+      Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction) {
+    Point c1Pos = a.bottomLeft(ea);
+    Vector2 c1Size = a.size();
+    Point c2Pos = b.bottomLeft(eb);
+    Vector2 c2Size = b.size();
 
-    Point newColliderPos = switch(direction){
-      case UP -> new Point(c2Pos.x(), c1Pos.y() - c2Size.y() - COLLIDE_SET_DISTANCE);
-      case LEFT -> new Point(c1Pos.x() - c2Size.x() - COLLIDE_SET_DISTANCE, c2Pos.y());
-      case DOWN -> new Point(c2Pos.x(), c1Pos.y() + c1Size.y() + COLLIDE_SET_DISTANCE);
-      case RIGHT -> new Point(c1Pos.x() + c1Size.x() + COLLIDE_SET_DISTANCE, c2Pos.y());
-      case NONE -> null;
-    };
+    Point newColliderPos =
+        switch (direction) {
+          case UP -> new Point(c2Pos.x(), c1Pos.y() - c2Size.y() - COLLIDE_SET_DISTANCE);
+          case LEFT -> new Point(c1Pos.x() - c2Size.x() - COLLIDE_SET_DISTANCE, c2Pos.y());
+          case DOWN -> new Point(c2Pos.x(), c1Pos.y() + c1Size.y() + COLLIDE_SET_DISTANCE);
+          case RIGHT -> new Point(c1Pos.x() + c1Size.x() + COLLIDE_SET_DISTANCE, c2Pos.y());
+          case NONE -> null;
+        };
 
-    if(newColliderPos == null) {
+    if (newColliderPos == null) {
       LOGGER.warning("Direction was NONE in solid collision, this should never happen!");
       return;
     }
 
-    Point newPos = newColliderPos.translate(cdata.b.offset().inverse());
-//    Point newPos = newColliderPos;
+    Point newPos = newColliderPos.translate(b.offset().inverse());
+    //    Point newPos = newColliderPos;
 
-    cdata.eb.fetch(PositionComponent.class).ifPresent(pc -> {
-      pc.position(newPos);
-    });
+    eb.fetch(PositionComponent.class)
+        .ifPresent(
+            pc -> {
+              pc.position(newPos);
+            });
   }
 
   private record CollisionKey(int a, int b) {}
 
   protected record CollisionData(Entity ea, CollideComponent a, Entity eb, CollideComponent b) {}
 
-
-
   private static final ShapeRenderer renderer = new ShapeRenderer();
-  private static void renderRect(Point point, float width, float height, Color color){
+
+  private static void renderRect(Point point, float width, float height, Color color) {
     renderer.setProjectionMatrix(CameraSystem.camera().combined);
     renderer.begin(ShapeRenderer.ShapeType.Line);
     Gdx.gl.glEnable(GL20.GL_BLEND);
