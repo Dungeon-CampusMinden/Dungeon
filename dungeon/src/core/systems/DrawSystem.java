@@ -1,5 +1,6 @@
 package core.systems;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.Entity;
@@ -12,6 +13,7 @@ import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
+import core.utils.components.MissingComponentException;
 import core.utils.components.draw.Painter;
 import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.animation.Animation;
@@ -214,8 +216,14 @@ public final class DrawSystem extends System {
    * @return The data record
    */
   private DSData buildDataObject(final Entity entity) {
-    DrawComponent dc = entity.fetch(DrawComponent.class).get();
-    PositionComponent pc = entity.fetch(PositionComponent.class).get();
+    DrawComponent dc =
+        entity
+            .fetch(DrawComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     return new DSData(entity, dc, pc);
   }
 
