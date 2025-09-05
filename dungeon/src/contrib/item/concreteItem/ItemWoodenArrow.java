@@ -36,6 +36,16 @@ public class ItemWoodenArrow extends Item {
         MAX_ARROW_STACK_SIZE);
   }
 
+  /**
+   * Create a {@link Item} that looks like an arrow and can be collected to be used as ammunition
+   * for the bow item.
+   *
+   * <p>The stack size will be set to one.
+   */
+  public ItemWoodenArrow() {
+    this(1);
+  }
+
   @Override
   public void use(final Entity user) {
     user.fetch(PositionComponent.class)
