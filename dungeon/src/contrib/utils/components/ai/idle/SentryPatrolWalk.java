@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 public final class SentryPatrolWalk implements Consumer<Entity> {
   private final Point pointA;
   private final Point pointB;
+  private final boolean canEnterWalls;
 
   private boolean toB = true; // true = moving towards B, false = towards A
   private GraphPath<Tile> currentPath;
@@ -30,9 +31,10 @@ public final class SentryPatrolWalk implements Consumer<Entity> {
    * @param pointA the first patrol point
    * @param pointB the second patrol point
    */
-  public SentryPatrolWalk(Point pointA, Point pointB) {
+  public SentryPatrolWalk(Point pointA, Point pointB, boolean canEnterWalls) {
     this.pointA = pointA;
     this.pointB = pointB;
+    this.canEnterWalls = canEnterWalls;
   }
 
   @Override
@@ -42,29 +44,36 @@ public final class SentryPatrolWalk implements Consumer<Entity> {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    // falls wir schon einen Weg haben und er nicht fertig ist → weiter folgen
+    // path not finished
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
       if (AIUtils.pathLeft(entity, currentPath)) {
-        // neu berechnen, falls Entity vom Weg abgekommen ist
-        currentPath = LevelUtils.calculatePath(position.position(), getTargetPoint());
+        pathCalculator(position.position(), getTargetPoint());
       }
       AIUtils.followPath(entity, currentPath);
       return;
     }
 
-    // Weg fertig → Richtung umdrehen
+    // path finished --> change direction
     if (currentPath != null && AIUtils.pathFinished(entity, currentPath)) {
-      toB = !toB; // Ziel wechseln
+      toB = !toB;
       currentPath = null;
     }
 
-    // neuen Pfad berechnen
+    // new path
     if (currentPath == null) {
-      currentPath = LevelUtils.calculatePath(position.position(), getTargetPoint());
+      pathCalculator(position.position(), getTargetPoint());
     }
   }
 
   private Point getTargetPoint() {
     return toB ? pointB : pointA;
+  }
+
+  private void pathCalculator(Point from, Point to) {
+    if (canEnterWalls) {
+      currentPath = LevelUtils.calculatePathInsideWall(from, to);
+    } else {
+      currentPath = LevelUtils.calculatePath(from, to);
+    }
   }
 }
