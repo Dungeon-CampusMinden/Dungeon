@@ -68,6 +68,7 @@ public final class CollideComponent implements Component {
   private final Vector2 offset;
   private final Vector2 size;
   private boolean isSolid = true;
+  private boolean isStationary = false;
 
   /**
    * Handler invoked when the entity first collides with another entity (collision enter).
@@ -339,6 +340,7 @@ public final class CollideComponent implements Component {
 
   /**
    * Get the solid state of the hitbox.
+   *
    * @return true if the hitbox is solid, false otherwise
    */
   public boolean isSolid() {
@@ -347,11 +349,32 @@ public final class CollideComponent implements Component {
 
   /**
    * Set the solid state of the hitbox.
+   *
    * @param isSolid true if the hitbox should be solid, false otherwise
    * @return this component for chaining
    */
-  public CollideComponent isSolid(boolean isSolid){
+  public CollideComponent isSolid(boolean isSolid) {
     this.isSolid = isSolid;
+    return this;
+  }
+
+  /**
+   * Check if the entity is stationary in collisions.
+   *
+   * @return true if the entity is stationary, false otherwise
+   */
+  public boolean isStationary() {
+    return isStationary;
+  }
+
+  /**
+   * Set the stationary state of the entity in collisions.
+   *
+   * @param isStationary true if the entity should be stationary, false otherwise
+   * @return this component for chaining
+   */
+  public CollideComponent isStationary(boolean isStationary) {
+    this.isStationary = isStationary;
     return this;
   }
 }
