@@ -1,12 +1,23 @@
 package contrib.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.System;
+import core.components.PositionComponent;
+import core.level.Tile;
+import core.systems.CameraSystem;
+import core.systems.DrawSystem;
 import core.utils.Direction;
+import core.utils.Point;
+import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -25,6 +36,11 @@ import java.util.stream.Stream;
  */
 public final class CollisionSystem extends System {
 
+  /**
+   * Solid entities will be kept at this distance after colliding
+   */
+  private static final float COLLIDE_SET_DISTANCE = 0.01f;
+
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
   /** Create a new CollisionSystem. */
@@ -41,8 +57,15 @@ public final class CollisionSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(CollideComponent.class)
+        .map(this::testRender)
         .flatMap(this::createDataPairs)
         .forEach(this::onEnterLeaveCheck);
+  }
+
+  private Entity testRender(Entity e){
+    CollideComponent cc = e.fetch(CollideComponent.class).orElseThrow();
+    renderRect(cc.bottomLeft(e), cc.size().x(), cc.size().y(), new Color(1, 1, 1, 0.5f));
+    return e;
   }
 
   /**
@@ -105,24 +128,27 @@ public final class CollisionSystem extends System {
     CollisionKey key = new CollisionKey(cdata.ea.id(), cdata.eb.id());
 
     if (checkForCollision(cdata.ea, cdata.a, cdata.eb, cdata.b)) {
+      Direction d = checkDirectionOfCollision(cdata);
       // a collision is currently happening
       if (!collisions.containsKey(key)) {
         // a new collision should call the onEnter on both entities
         collisions.put(key, cdata);
-        Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
         cdata.a.onEnter(cdata.ea, cdata.eb, d);
         cdata.b.onEnter(cdata.eb, cdata.ea, d.opposite());
       }
       // collision is ongoing
-      else {
-        Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
-        cdata.a.onHold(cdata.ea, cdata.eb, d);
-        cdata.b.onHold(cdata.eb, cdata.ea, d.opposite());
+      cdata.a.onHold(cdata.ea, cdata.eb, d);
+      cdata.b.onHold(cdata.eb, cdata.ea, d.opposite());
+
+      // Check if both entities are solids, and if so, separate them
+      if (cdata.a.isSolid() && cdata.b.isSolid()) {
+        solidCollide(cdata, d);
       }
+
     } else if (collisions.remove(key) != null) {
+      Direction d = checkDirectionOfCollision(cdata);
       // a collision was happening and the two entities are no longer colliding, on Leave
       // called once
-      Direction d = checkDirectionOfCollision(cdata.ea, cdata.a, cdata.eb, cdata.b);
       cdata.a.onLeave(cdata.ea, cdata.eb, d);
       cdata.b.onLeave(cdata.eb, cdata.ea, d.opposite());
     }
@@ -131,9 +157,9 @@ public final class CollisionSystem extends System {
   /**
    * Check if two hitBoxes intersect.
    *
-   * @param h1 WTF? .
+   * @param h1 First entity.
    * @param hitBox1 First hitBox.
-   * @param h2 WTF? .
+   * @param h2 Second entity.
    * @param hitBox2 Second hitBox.
    * @return true if intersection exists, otherwise false.
    */
@@ -148,38 +174,76 @@ public final class CollisionSystem extends System {
         && hitBox1.topRight(h1).y() > hitBox2.bottomLeft(h2).y();
   }
 
+
   /**
-   * Calculates the direction based on a square, can be broken once the hitBoxes are rectangular.
+   * Calculates the direction of a collision.
    *
-   * @param h1 WTF? .
-   * @param hitBox1 The first hitBox.
-   * @param h2 WTF? .
-   * @param hitBox2 The second hitBox.
-   * @return Tile direction for where hitBox2 is compared to hitBox1.
+   * @param cdata The CollisionData containing the two entities and their CollideComponents.
+   * @return Direction of the collision between the entities
    */
-  Direction checkDirectionOfCollision(
-      final Entity h1,
-      final CollideComponent hitBox1,
-      final Entity h2,
-      final CollideComponent hitBox2) {
-    float y = hitBox2.center(h2).y() - hitBox1.center(h1).y();
-    float x = hitBox2.center(h2).x() - hitBox1.center(h1).x();
-    float rads = (float) Math.atan2(y, x);
-    double piQuarter = Math.PI / 4;
-    if (rads < 3 * -piQuarter) {
-      return Direction.LEFT;
-    } else if (rads < -piQuarter) {
-      return Direction.DOWN;
-    } else if (rads < piQuarter) {
-      return Direction.RIGHT;
-    } else if (rads < 3 * piQuarter) {
-      return Direction.UP;
-    } else {
-      return Direction.LEFT;
+  Direction checkDirectionOfCollision(CollisionData cdata) {
+    Point c1Pos = cdata.a.bottomLeft(cdata.ea);
+    Vector2 c1Size = cdata.a.size();
+    Point c2Pos = cdata.b.bottomLeft(cdata.eb);
+    Vector2 c2Size = cdata.b.size();
+
+    float x1 = c1Pos.x() + c1Size.x() - (c2Pos.x());
+    float x2 = c1Pos.x()              - (c2Pos.x() + c2Size.x());
+    float y1 = c1Pos.y() + c1Size.y() - (c2Pos.y());
+    float y2 = c1Pos.y()              - (c2Pos.y() + c2Size.y());
+
+    List<Tuple<Float, Direction>> directions = new ArrayList<>();
+    //South & North first, so that they take precedence over E/W. This is important for when 2 solids are directly
+    //next to each other horizontally, as with E/W first there would be a seam that you could continuously walk into.
+    directions.add(new Tuple<>(y1, Direction.DOWN));
+    directions.add(new Tuple<>(y2, Direction.UP));
+    directions.add(new Tuple<>(x1, Direction.RIGHT));
+    directions.add(new Tuple<>(x2, Direction.LEFT));
+
+    Direction d = directions.stream().min(Comparator.comparingDouble(t -> Math.abs(t.a()))).get().b();
+    return d;
+  }
+
+  private void solidCollide(CollisionData cdata, Direction direction){
+    Point c1Pos = cdata.a.bottomLeft(cdata.ea);
+    Vector2 c1Size = cdata.a.size();
+    Point c2Pos = cdata.b.bottomLeft(cdata.eb);
+    Vector2 c2Size = cdata.b.size();
+
+    Point newColliderPos = switch(direction){
+      case UP -> new Point(c2Pos.x(), c1Pos.y() - c2Size.y() - COLLIDE_SET_DISTANCE);
+      case LEFT -> new Point(c1Pos.x() - c2Size.x() - COLLIDE_SET_DISTANCE, c2Pos.y());
+      case DOWN -> new Point(c2Pos.x(), c1Pos.y() + c1Size.y() + COLLIDE_SET_DISTANCE);
+      case RIGHT -> new Point(c1Pos.x() + c1Size.x() + COLLIDE_SET_DISTANCE, c2Pos.y());
+      case NONE -> null;
+    };
+
+    if(newColliderPos == null) {
+      LOGGER.warning("Direction was NONE in solid collision, this should never happen!");
+      return;
     }
+
+    Point newPos = newColliderPos.translate(cdata.b.offset().inverse());
+//    Point newPos = newColliderPos;
+
+    cdata.eb.fetch(PositionComponent.class).ifPresent(pc -> {
+      pc.position(newPos);
+    });
   }
 
   private record CollisionKey(int a, int b) {}
 
   protected record CollisionData(Entity ea, CollideComponent a, Entity eb, CollideComponent b) {}
+
+
+
+  private static final ShapeRenderer renderer = new ShapeRenderer();
+  private static void renderRect(Point point, float width, float height, Color color){
+    renderer.setProjectionMatrix(CameraSystem.camera().combined);
+    renderer.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    renderer.setColor(color);
+    renderer.rect(point.x(), point.y(), width, height);
+    renderer.end();
+  }
 }
