@@ -46,6 +46,7 @@ tasks.register('buildBlocklyJar', Jar) {
     group 'jar'
     archiveBaseName = 'Blockly'
     from sourceSets.main.output
+    dependsOn project(':dungeon').tasks.named('jar') // <-- ensure dungeon.jar is built
     from project(':dungeon').sourceSets.main.output
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }

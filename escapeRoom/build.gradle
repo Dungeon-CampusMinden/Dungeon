@@ -41,6 +41,7 @@ tasks.register('buildDemoRoom', Jar) {
     group = 'jar'
     archiveBaseName.set('EscaperoomDemo')
     archiveFileName.set('EscapeRoomDemo.jar')
+    dependsOn project(':dungeon').tasks.named('jar')
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
