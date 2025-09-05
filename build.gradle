@@ -33,6 +33,11 @@ allprojects {
         workingDir = rootProject.projectDir
         systemProperty 'BASELOGDIR', project.baseLogDir
         systemProperty 'BASEREFLECTIONDIR', project.baseReflectionDir
+        workingDir = rootProject.projectDir
+        def sourceDirs = sourceSets.main.java.srcDirs[0].absolutePath
+        def projectDir = project.rootDir.absolutePath
+        def relativePath = new File(projectDir).toURI().relativize(new File(sourceDirs).toURI()).getPath()
+        systemProperty 'SOURCEDIR', relativePath
     }
 
     clean {

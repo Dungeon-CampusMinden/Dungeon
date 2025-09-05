@@ -7,7 +7,6 @@ import contrib.hud.DialogUtils;
 import contrib.systems.*;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
-import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -16,7 +15,6 @@ import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.JsonHandler;
 import core.utils.Tuple;
-import core.utils.components.path.SimpleIPath;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -24,8 +22,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
-import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.level.*;
+import produsAdvanced.riddles.MyFireballSkill;
+import produsAdvanced.riddles.MyPlayerController;
 
 /**
  * Entry point for the "Advanced Dungeon" game setup.
@@ -61,13 +60,6 @@ public class AdvancedDungeon {
   private static final String ERROR_MSG_CONTROLLER =
       "Da scheint etwas mit meinem Steuerrungscode nicht zu stimmen.";
 
-  /** Path to the Java source file of the custom player controller. */
-  private static final SimpleIPath HERO_CONTROLLER_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
-
-  private static final SimpleIPath FIREBALL_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyFireballSkill.java");
-
   /** Fully qualified class name of the custom player controller. */
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
 
@@ -92,13 +84,10 @@ public class AdvancedDungeon {
   private static void recompileHeroControl() {
     if (recompilePaused) return;
     try {
-
-      Object o = DynamicCompiler.loadUserInstance(FIREBALL_PATH, FIREBALL_CLASSNAME);
-      hero.addSkill((Skill) o);
-      o =
+      hero.addSkill(DynamicCompiler.loadUserInstance(MyFireballSkill.class));
+      hero.setController(
           DynamicCompiler.loadUserInstance(
-              HERO_CONTROLLER_PATH, CONTROLLER_CLASSNAME, new Tuple<>(Hero.class, hero));
-      hero.setController((PlayerController) o);
+              MyPlayerController.class, new Tuple<>(Hero.class, hero)));
     } catch (Exception e) {
       recompilePaused = true;
       if (DEBUG_MODE) e.printStackTrace();

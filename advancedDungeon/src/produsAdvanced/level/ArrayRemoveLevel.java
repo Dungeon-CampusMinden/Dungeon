@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
-import produsAdvanced.abstraction.ArrayRemover;
+import produsAdvanced.riddles.MyArrayRemover;
 
 /**
  * Manager for an advanced dungeon level.
@@ -38,9 +38,6 @@ public class ArrayRemoveLevel extends AdvancedLevel {
   private final Point doorPosition = new Point(28, 11); // Das erwartete Array
   private boolean isLeverActivated = false;
 
-  private static final SimpleIPath ARRAY_REMOVER_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArrayRemover.java");
-  private static final String ARRAY_REMOVER_CLASSNAME = "produsAdvanced.riddles.MyArrayRemover";
   private static String title = "Array-Aufgabe";
   private static String msg =
       "Schon wieder hier! Du bist wirklich hartnäckig! Finde wieder den Ausgang des Levels, die Lösung ist jetzt aber eine andere!.";
@@ -85,11 +82,8 @@ public class ArrayRemoveLevel extends AdvancedLevel {
 
     try {
       playerArray =
-          ((ArrayRemover)
-                  DynamicCompiler.loadUserInstance(
-                      ARRAY_REMOVER_PATH,
-                      ARRAY_REMOVER_CLASSNAME,
-                      new Tuple<>(int[].class, arrayToPass)))
+          DynamicCompiler.loadUserInstance(
+                  MyArrayRemover.class, new Tuple<>(int[].class, arrayToPass))
               .removePosition();
 
     } catch (UnsupportedOperationException e) {

@@ -2,6 +2,7 @@ package contrib.utils;
 
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.net.*;
@@ -20,10 +21,6 @@ import javax.tools.*;
  * <h2>Key Requirements and Design Considerations</h2>
  *
  * <ul>
- *   <li><strong>Correct Class Name:</strong> The provided class name <em>must</em> exactly match
- *       the package and class declaration inside the target source file. For example, if the class
- *       is declared as {@code package my.riddle; public class Answer { ... }}, then the input must
- *       be {@code "my.riddle.Answer"}.
  *   <li><strong>Isolation via Custom ClassLoader:</strong> A custom class loader is used to load
  *       freshly compiled classes from disk instead of reusing classes already loaded by the JVM.
  *       This is essential for scenarios where the same class name may be compiled multiple times
@@ -53,6 +50,18 @@ import javax.tools.*;
  *             enabling highly customizable runtime extensions.
  *       </ul>
  * </ul>
+ *
+ * <p>Usage example:
+ *
+ * <pre>{@code
+ * class MyClass implements Wuppie {}
+ *
+ * // with type inference
+ * Wuppie x = DynamicCompiler.loadUserInstance2(MyClass.class);
+ *
+ * // with explicit type parameter
+ * Wuppie x = DynamicCompiler.<Wuppie>loadUserInstance2(MyClass.class);
+ * }</pre>
  */
 public class DynamicCompiler {
   /**
@@ -63,12 +72,13 @@ public class DynamicCompiler {
    * @return The compiled and loaded {@link Class} object.
    * @throws Exception If compilation or loading fails.
    */
-  public static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
+  private static Class<?> compileAndLoad(IPath sourcePath, String className) throws Exception {
     File outputRoot = new File(System.getProperty("BASEREFLECTIONDIR"));
     File outputFile = new File(outputRoot, className.replace('.', '/') + ".java");
     outputFile.getParentFile().mkdirs();
 
     Path filePath = Paths.get(sourcePath.pathString());
+    System.out.println("Current dir " + System.getProperty("user.dir"));
     String sourceCode = Files.readString(filePath);
 
     try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
@@ -103,9 +113,10 @@ public class DynamicCompiler {
    * <p>This method compiles the provided Java source file, loads the resulting class using a custom
    * class loader, and creates a new instance using the specified constructor arguments.
    *
-   * @param sourcePath Path to the Java source file.
-   * @param className Fully qualified name of the class to load (including package name). This must
-   *     exactly match the package and class declaration inside the file.
+   * @param <T> The expected type of the returned instance. Must match or be a superclass/interface
+   *     of the compiled class.
+   * @param dynClasz The Class to load in (eg MyClass.class) if you want to load an instanz of that
+   *     class.
    * @param args Optional constructor arguments as {@code Tuple<Class<?>, Object>}: each tuple
    *     specifies the expected parameter type and the value to pass. The order of the arguments
    *     must match the parameter order in the target constructor.
@@ -116,16 +127,21 @@ public class DynamicCompiler {
    *     NoSuchMethodException} will be thrown.
    */
   @SafeVarargs
-  public static Object loadUserInstance(
-      IPath sourcePath, String className, Tuple<Class<?>, Object>... args) throws Exception {
-    if (args == null) throw new IllegalArgumentException("Args can not be null");
+  public static <T> T loadUserInstance(Class<? extends T> dynClasz, Tuple<Class<?>, Object>... args)
+      throws Exception {
+    if (args == null) args = new Tuple[0];
 
-    Class<?> newClass = DynamicCompiler.compileAndLoad(sourcePath, className);
+    IPath path =
+        new SimpleIPath(
+            System.getProperty("SOURCEDIR") + dynClasz.getName().replace(".", "/") + ".java");
+    Class<?> compiledClass = DynamicCompiler.compileAndLoad(path, dynClasz.getName());
     Class<?>[] paramTypes = Arrays.stream(args).map(Tuple::a).toArray(Class[]::new);
     Object[] paramValues = Arrays.stream(args).map(Tuple::b).toArray();
 
-    Constructor<?> ctor = newClass.getConstructor(paramTypes);
-    return ctor.newInstance(paramValues);
+    Constructor<?> ctor = compiledClass.getConstructor(paramTypes);
+    Object instance = ctor.newInstance(paramValues);
+
+    return ((T) instance);
   }
 
   /**

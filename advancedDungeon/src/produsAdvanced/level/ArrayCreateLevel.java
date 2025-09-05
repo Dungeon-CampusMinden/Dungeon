@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
-import produsAdvanced.abstraction.ArrayCreator;
+import produsAdvanced.riddles.MyArrayCreator;
 
 /**
  * Manager for an advanced dungeon level.
@@ -35,11 +35,6 @@ public class ArrayCreateLevel extends AdvancedLevel {
   private final int[] correctArray = {1, 5, 4, 3, 2};
   private final Point doorPosition = new Point(28, 11); // Das erwartete Array
   private boolean isLeverActivated = false;
-
-  private static final SimpleIPath ARRAY_CREATOR_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArrayCreator.java");
-  private static final String ARRAY_CREATOR_CLASSNAME = "produsAdvanced.riddles.MyArrayCreator";
-
   private static String title = "Array-Aufgabe";
   private static String msg =
       "Finde den Ausgang des Levels! Noch ist er verschlossen, doch er wird sich öffnen, wenn du die richtige Lösung übergibst.";
@@ -83,10 +78,7 @@ public class ArrayCreateLevel extends AdvancedLevel {
     int[] playerArray;
 
     try {
-      playerArray =
-          ((ArrayCreator)
-                  DynamicCompiler.loadUserInstance(ARRAY_CREATOR_PATH, ARRAY_CREATOR_CLASSNAME))
-              .countMonstersInRooms();
+      playerArray = DynamicCompiler.loadUserInstance(MyArrayCreator.class).countMonstersInRooms();
     } catch (UnsupportedOperationException e) {
       // Spezifische Behandlung für nicht implementierte Methode
       DialogUtils.showTextPopup(
