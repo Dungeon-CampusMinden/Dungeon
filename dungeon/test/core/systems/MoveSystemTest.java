@@ -335,7 +335,7 @@ public class MoveSystemTest {
             });
     Game.currentLevel(level);
 
-    boolean result = system.isPathClearByStepping(start, end, false);
+    boolean result = system.isPathClearByStepping(start, end, false, false);
     assertTrue(result, "Path should be clear when all tiles are accessible");
   }
 
@@ -365,7 +365,7 @@ public class MoveSystemTest {
             });
     Game.currentLevel(level);
 
-    boolean result = system.isPathClearByStepping(start, end, false);
+    boolean result = system.isPathClearByStepping(start, end, false, false);
     assertFalse(result, "Path should be blocked when any tile in path is inaccessible");
   }
 

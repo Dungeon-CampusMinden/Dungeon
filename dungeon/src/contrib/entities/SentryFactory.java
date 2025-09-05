@@ -36,11 +36,19 @@ public class SentryFactory {
    * @param speed the movement speed of the entity.
    * @param ai the AI component controlling this sentry.
    * @param a the spawn position (and also one patrol point).
+   * @param b the second patrol point
+   * @param canEnterWalls whether the sentry can move inside walls.
    * @return a fully constructed sentry entity.
    * @throws IOException if the texture cannot be loaded.
    */
   public static Entity buildSentry(
-      String name, IPath texture, float speed, AIComponent ai, Point a, Point b)
+      String name,
+      IPath texture,
+      float speed,
+      AIComponent ai,
+      Point a,
+      Point b,
+      boolean canEnterWalls)
       throws IOException {
     Entity sentry = new Entity(name);
 
@@ -63,6 +71,14 @@ public class SentryFactory {
     sentry.add(ai);
     sentry.add(new DrawComponent(texture));
     sentry.add(new VelocityComponent(speed));
+    if (canEnterWalls) {
+      sentry
+          .fetch(VelocityComponent.class)
+          .ifPresent(
+              vc -> {
+                vc.canEnterWalls(true);
+              });
+    }
 
     return sentry;
   }
@@ -87,32 +103,68 @@ public class SentryFactory {
    */
   public static Entity projectileLauncherSentry(
       Point a, Point b, Direction shootDirection, DamageProjectileSkill dps) throws IOException {
-    IPath sentryTexture;
-    switch (shootDirection) {
-      case Direction.UP:
-        sentryTexture = SENTRY_FACING_UP;
-        break;
-      case Direction.DOWN:
-        sentryTexture = SENTRY_FACING_DOWN;
-        break;
-      case Direction.LEFT:
-        sentryTexture = SENTRY_FACING_LEFT;
-        break;
-      case Direction.RIGHT:
-        sentryTexture = SENTRY_FACING_RIGHT;
-        break;
-      default:
-        sentryTexture = SENTRY_FACING_UP;
-    }
+    IPath sentryTexture = chooseTexture(shootDirection);
+
     return buildSentry(
         "projectileLauncher",
         sentryTexture,
         4.0f,
         new AIComponent(
-            new SentryFightBehaviour(a, b, 10.0f, dps, shootDirection),
-            new SentryPatrolWalk(a, b),
+            new SentryFightBehaviour(a, b, 10.0f, dps, shootDirection, false),
+            new SentryPatrolWalk(a, b, false),
             new RangeTransition(5.0f)),
         a,
-        b);
+        b,
+        false);
+  }
+
+  /**
+   * Creates a projectile-launching sentry.
+   *
+   * <p>This sentry:
+   *
+   * <ul>
+   *   <li>Patrols between two points {@code a} and {@code b}.
+   *   <li>Uses {@link SentryFightBehaviour} to fire projectiles in the given {@link Direction}.
+   *   <li>Attacks with a {@link DamageProjectileSkill} when the hero is within range.
+   * </ul>
+   *
+   * @param a the first patrol point and spawn position.
+   * @param b the second patrol point.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param dps the {@link DamageProjectileSkill} used to attack.
+   * @return a sentry entity that patrols and launches projectiles.
+   * @throws IOException if the texture cannot be loaded.
+   */
+  public static Entity projectileLauncherWallSentry(
+      Point a, Point b, Direction shootDirection, DamageProjectileSkill dps) throws IOException {
+    IPath sentryTexture = chooseTexture(shootDirection);
+
+    return buildSentry(
+        "projectileLauncher",
+        sentryTexture,
+        4.0f,
+        new AIComponent(
+            new SentryFightBehaviour(a, b, 10.0f, dps, shootDirection, true),
+            new SentryPatrolWalk(a, b, true),
+            new RangeTransition(5.0f)),
+        a,
+        b,
+        true);
+  }
+
+  private static IPath chooseTexture(Direction direction) {
+    switch (direction) {
+      case Direction.UP:
+        return SENTRY_FACING_UP;
+      case Direction.DOWN:
+        return SENTRY_FACING_DOWN;
+      case Direction.LEFT:
+        return SENTRY_FACING_LEFT;
+      case Direction.RIGHT:
+        return SENTRY_FACING_RIGHT;
+      default:
+        return SENTRY_FACING_UP;
+    }
   }
 }
