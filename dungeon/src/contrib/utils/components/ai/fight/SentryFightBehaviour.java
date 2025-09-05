@@ -16,12 +16,13 @@ import core.utils.components.MissingComponentException;
 import java.util.function.Consumer;
 
 /**
- * A fight behavior for a stationary or patrolling "sentry" entity that patrols back and forth
- * between two points (A and B) and attacks when the player is within a given range.
+ * A fight behavior for a patrolling "sentry" entity that patrols back and forth between two points
+ * (A and B) and attacks when the player is within a given range.
  */
 public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
   private final Point pointA;
   private final Point pointB;
+  private final boolean canEnterWalls;
   private boolean toB = true; // true = moving towards B, false = towards A
   private GraphPath<Tile> currentPath;
 
@@ -40,11 +41,17 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
    * @param shootDirection the fixed direction in which the sentry fires its attacks
    */
   public SentryFightBehaviour(
-      Point pointA, Point pointB, float attackRange, Skill fightSkill, Direction shootDirection) {
+      Point pointA,
+      Point pointB,
+      float attackRange,
+      Skill fightSkill,
+      Direction shootDirection,
+      boolean canEnterWalls) {
     this.pointA = pointA;
     this.pointB = pointB;
     this.attackRange = attackRange;
     this.shootDirection = shootDirection;
+    this.canEnterWalls = canEnterWalls;
     if (fightSkill instanceof DamageProjectileSkill dps) {
       this.fightSkill = dps;
     } else {
@@ -60,19 +67,19 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
 
-    // Patrouillieren
+    // patrol
     if (currentPath != null && !AIUtils.pathFinished(entity, currentPath)) {
       if (AIUtils.pathLeft(entity, currentPath)) {
-        currentPath = LevelUtils.calculatePath(entityPosComp.position(), getTargetPoint());
+        pathCalculator(entityPosComp.position(), getTargetPoint());
       }
       AIUtils.followPath(entity, currentPath);
     } else {
       if (currentPath != null && AIUtils.pathFinished(entity, currentPath)) {
-        toB = !toB; // Ziel wechseln
+        toB = !toB; // change destination
         currentPath = null;
       }
       if (currentPath == null) {
-        currentPath = LevelUtils.calculatePath(entityPosComp.position(), getTargetPoint());
+        pathCalculator(entityPosComp.position(), getTargetPoint());
       }
     }
 
@@ -82,8 +89,7 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
             entityPosComp.position(), shootDirection, attackRange);
     fightSkill.setNewEndpoint(targetEndPoint);
 
-    // Angriff, falls Held in Reichweite
-    System.out.println("TRYING TO ATTACK");
+    // attack if hero is in range
     tryAttack(entity);
   }
 
@@ -97,10 +103,17 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
     if (LevelUtils.playerInRange(entity, attackRange)) {
       long now = System.currentTimeMillis();
       if (now - lastAttackTime >= fightSkill.cooldown()) {
-        System.out.println("ATTACKING");
         useSkill(fightSkill, entity);
         lastAttackTime = now;
       }
+    }
+  }
+
+  private void pathCalculator(Point from, Point to) {
+    if (canEnterWalls) {
+      currentPath = LevelUtils.calculatePathInsideWall(from, to);
+    } else {
+      currentPath = LevelUtils.calculatePath(from, to);
     }
   }
 
@@ -108,7 +121,6 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
   public void useSkill(Skill fightSkill, Entity skillUser) {
     if (fightSkill != null) {
       fightSkill.execute(skillUser);
-      System.out.println("SKILL EXECUTED-----------------------");
     }
   }
 

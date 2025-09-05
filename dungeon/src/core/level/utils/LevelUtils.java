@@ -54,6 +54,64 @@ public final class LevelUtils {
   }
 
   /**
+   * Calculates a path of tiles between two points, assuming they lie on a straight horizontal or
+   * vertical line.
+   *
+   * @param from the start point
+   * @param to the end point
+   * @return a path containing all tiles from {@code from} to {@code to}
+   */
+  public static GraphPath<Tile> calculatePathInsideWall(final Point from, final Point to) {
+    return calculatePathInsideWall(from.toCoordinate(), to.toCoordinate());
+  }
+
+  /**
+   * Calculates a path of tiles between two coordinates, assuming they lie on a straight horizontal
+   * or vertical line.
+   *
+   * @param from the start coordinate
+   * @param to the end coordinate
+   * @return a path containing all tiles from {@code from} to {@code to}, or an empty path if
+   *     invalid
+   */
+  public static GraphPath<Tile> calculatePathInsideWall(
+      final Coordinate from, final Coordinate to) {
+    GraphPath<Tile> path = new DefaultGraphPath<>();
+
+    Tile fromTile = Game.tileAt(from).orElse(null);
+    Tile toTile = Game.tileAt(to).orElse(null);
+
+    if (fromTile == null || toTile == null) {
+      return path; // leer zurückgeben, falls Koordinaten ungültig
+    }
+
+    // Start-Koordinate
+    Coordinate current = new Coordinate(from);
+
+    while (!current.equals(to)) {
+      Tile currentTile = Game.tileAt(current).orElse(null);
+      if (currentTile == null) break; // Sicherheitscheck
+      path.add(currentTile);
+
+      // Schritt in Richtung Ziel
+      if (current.x() < to.x()) {
+        current = new Coordinate(current.x() + 1, current.y());
+      } else if (current.x() > to.x()) {
+        current = new Coordinate(current.x() - 1, current.y());
+      } else if (current.y() < to.y()) {
+        current = new Coordinate(current.x(), current.y() + 1);
+      } else if (current.y() > to.y()) {
+        current = new Coordinate(current.x(), current.y() - 1);
+      }
+    }
+
+    // Ziel-Tile auch noch hinzufügen
+    path.add(toTile);
+
+    return path;
+  }
+
+  /**
    * Finds the path to a random (accessible) tile in the given radius, starting from the given
    * point.
    *

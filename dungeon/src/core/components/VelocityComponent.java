@@ -87,6 +87,7 @@ public final class VelocityComponent implements Component {
   private float maxSpeed;
 
   private boolean canEnterOpenPits;
+  private boolean canEnterWalls;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -101,6 +102,7 @@ public final class VelocityComponent implements Component {
     this.mass(mass);
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
+    this.canEnterWalls = false;
     this.maxSpeed = maxSpeed;
     moveboxOffset = MOVEBOX_DEFAULT_OFFSET;
     moveboxSize = MOVEBOX_DEFAULT_SIZE;
@@ -195,6 +197,24 @@ public final class VelocityComponent implements Component {
    */
   public boolean canEnterOpenPits() {
     return canEnterOpenPits;
+  }
+
+  /**
+   * Set whether the entity can enter wall tiles.
+   *
+   * @param canEnterWalls true if entity can enter walls, false otherwise.
+   */
+  public void canEnterWalls(boolean canEnterWalls) {
+    this.canEnterWalls = canEnterWalls;
+  }
+
+  /**
+   * Check if the entity can enter wall tiles.
+   *
+   * @return true if it can wall tiles, false otherwise.
+   */
+  public boolean canEnterWalls() {
+    return canEnterWalls;
   }
 
   /**

@@ -252,4 +252,40 @@ public final class EntityFactory {
     return SentryFactory.projectileLauncherSentry(
         a, b, shootDirection, new BowSkill(SkillTools::heroPositionAsPoint, cooldown));
   }
+
+  /**
+   * Creates a moving and fireball shooting sentry.
+   *
+   * <p>This variant is intended for sentries placed inside a wall.
+   *
+   * @param a the first patrol point and spawn position.
+   * @param b the second patrol point.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param cooldown cooldown between fireballs.
+   * @return a sentry entity that patrols and launches fireball projectiles.
+   * @throws IOException if loading textures or animations fails.
+   */
+  public static Entity newMovingFireballWallSentry(
+      Point a, Point b, Direction shootDirection, long cooldown) throws IOException {
+    return SentryFactory.projectileLauncherWallSentry(
+        a, b, shootDirection, new FireballSkill(SkillTools::heroPositionAsPoint, cooldown));
+  }
+
+  /**
+   * Creates a moving and fireball shooting sentry.
+   *
+   * <p>This variant is intended for sentries placed inside a wall.
+   *
+   * @param a the first patrol point and spawn position.
+   * @param b the second patrol point.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param cooldown cooldown between fireballs.
+   * @return a sentry entity that patrols and launches fireball projectiles.
+   * @throws IOException if loading textures or animations fails.
+   */
+  public static Entity newMovingArrowWallSentry(
+      Point a, Point b, Direction shootDirection, long cooldown) throws IOException {
+    return SentryFactory.projectileLauncherWallSentry(
+        a, b, shootDirection, new BowSkill(SkillTools::heroPositionAsPoint, cooldown));
+  }
 }
