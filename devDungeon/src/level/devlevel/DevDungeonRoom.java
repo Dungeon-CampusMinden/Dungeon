@@ -104,15 +104,11 @@ public class DevDungeonRoom {
   private Entity[] spawnMobs(Coordinate[] mobSpawns) {
     Entity[] mobs = new Entity[mobSpawns.length];
     for (int i = 0; i < mobSpawns.length; i++) {
-      try {
         mobs[i] =
             IllusionRiddleLevel.MONSTER_TYPES[
                 (int) (Math.random() * IllusionRiddleLevel.MONSTER_TYPES.length)]
                 .addToGame()
                 .build(mobSpawns[i]);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
       if (mobs[i] != null)
         mobs[i]
             .fetch(AIComponent.class)

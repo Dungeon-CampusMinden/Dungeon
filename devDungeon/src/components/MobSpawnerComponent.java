@@ -58,12 +58,7 @@ public class MobSpawnerComponent implements Component {
    * @param position The position where the monster should be spawned.
    */
   public void spawnRandomMonster(Point position) {
-    MonsterBuilder monsterType = getRandomMonsterType();
-    try {
-      monsterType.addToGame().build(position);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    getRandomMonsterType().addToGame().build(position);
 
     setNextSpawnDelay();
   }
@@ -80,7 +75,7 @@ public class MobSpawnerComponent implements Component {
    *
    * @return A random MonsterType from the array of monster types.
    */
-  private MonsterBuilder getRandomMonsterType() {
+  private MonsterBuilder<?> getRandomMonsterType() {
     return monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
   }
 
@@ -89,7 +84,7 @@ public class MobSpawnerComponent implements Component {
    *
    * @return The array of MonsterTypes that the mob spawner can spawn.
    */
-  public MonsterBuilder[] monsterTypes() {
+  public MonsterBuilder<?>[] monsterTypes() {
     return monsterTypes;
   }
 

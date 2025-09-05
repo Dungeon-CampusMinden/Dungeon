@@ -90,11 +90,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   }
 
   private void prepareBridge() {
-    try {
-      DevDungeonMonster.BRIDGE_MOB().addToGame().build(bridgeMobSpawn);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    DevDungeonMonster.BRIDGE_MOB().addToGame().build(bridgeMobSpawn);
     List<PitTile> bridge =
         pitTiles().stream().filter(pit -> pit.coordinate().y() == bridgeMobSpawn.y()).toList();
     int timeToOpen = 500;

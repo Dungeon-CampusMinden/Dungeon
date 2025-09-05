@@ -23,7 +23,7 @@ import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
@@ -67,7 +67,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
 
   // Basic config
   private String name = "";
-  private IPath texture = Animation.MISSING_TEXTURE;
+  private IPath texture = Animation.MISSING_TEXTURE_PATH;
   private Direction viewDirection = Direction.DOWN;
 
   // Health
@@ -594,9 +594,8 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    *
    * @param spawnPoint coordinate to spawn on (centered point)
    * @return constructed Entity
-   * @throws IOException if resource loading fails
    */
-  public Entity build(Point spawnPoint) throws IOException {
+  public Entity build(Point spawnPoint) {
     Entity monster = new Entity(name);
 
     monster.add(new PositionComponent(spawnPoint));
@@ -624,9 +623,8 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    *
    * @param spawnPoint coordinate to spawn on (centered point)
    * @return constructed Entity
-   * @throws IOException if resource loading fails
    */
-  public Entity build(Coordinate spawnPoint) throws IOException {
+  public Entity build(Coordinate spawnPoint) {
     return build(spawnPoint.toCenteredPoint());
   }
 
@@ -635,9 +633,8 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    *
    * @param spawnTile tile to spawn on (centered point)
    * @return constructed Entity
-   * @throws IOException if resource loading fails
    */
-  public Entity build(Tile spawnTile) throws IOException {
+  public Entity build(Tile spawnTile) {
     return build(spawnTile.coordinate().toCenteredPoint());
   }
 

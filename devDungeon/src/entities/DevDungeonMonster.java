@@ -554,12 +554,7 @@ public final class DevDungeonMonster {
    * @see level.devlevel.riddleHandler.BridgeGuardRiddleHandler BridgeGuardRiddleHandler
    */
   public static Entity createBridgeGuard(Point pos, List<Quiz> quizzes, IVoidFunction onFinished) {
-    Entity bridgeGuard;
-    try {
-      bridgeGuard = DevDungeonMonster.BRIDGE_GUARD().build(pos);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create bridge guard");
-    }
+    Entity bridgeGuard = DevDungeonMonster.BRIDGE_GUARD().build(pos);
 
     bridgeGuard.add(
         new InteractionComponent(
@@ -579,7 +574,7 @@ public final class DevDungeonMonster {
     private int reviveCount = 0;
 
     @Override
-    public Entity build(Point spawnPoint) throws IOException {
+    public Entity build(Point spawnPoint) {
       Entity entity = super.build(spawnPoint);
       if (this.reviveCount() > 0) {
         entity.add(new ReviveComponent(this.reviveCount()));

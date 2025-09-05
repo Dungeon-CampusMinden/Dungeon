@@ -146,11 +146,7 @@ public class EntityUtils {
     for (Coordinate mobPos : randomSpawns) {
       // Choose a random monster type from the monsterTypes array.
       MonsterBuilder<?> randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
-      try {
-        spawnedMobs.add(randomType.addToGame().build(mobPos));
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to spawn monster: " + e.getMessage());
-      }
+      spawnedMobs.add(randomType.addToGame().build(mobPos));
     }
 
     return spawnedMobs;
@@ -169,12 +165,7 @@ public class EntityUtils {
   public static Entity spawnBoss(
       MonsterBuilder<?> bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
     try {
-      Entity bossMob;
-      try {
-        bossMob = bossType.addToGame().build(levelBossSpawn);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      Entity bossMob = bossType.addToGame().build(levelBossSpawn);
       if (bossMob == null) {
         throw new RuntimeException("Failed to spawn level boss monster");
       }
