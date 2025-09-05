@@ -69,20 +69,26 @@ public class MoveSystem extends System {
     Point newPos = oldPos.translate(sv);
 
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
+    boolean canEnterWalls = data.vc.canEnterWalls();
 
-    if (isPathClearByStepping(oldPos, newPos, canEnterOpenPits)) data.pc.position(newPos);
+    if (isPathClearByStepping(oldPos, newPos, canEnterOpenPits, canEnterWalls))
+      data.pc.position(newPos);
     else {
       // Try moving only along x or y axis for wall sliding
       Point xMove = new Point(newPos.x(), oldPos.y());
       Point yMove = new Point(oldPos.x(), newPos.y());
 
-      boolean xAccessible = isAccessible(Game.tileAt(xMove).orElse(null), canEnterOpenPits);
-      boolean yAccessible = isAccessible(Game.tileAt(yMove).orElse(null), canEnterOpenPits);
+      boolean xAccessible =
+          isAccessible(Game.tileAt(xMove).orElse(null), canEnterOpenPits, canEnterWalls);
+      boolean yAccessible =
+          isAccessible(Game.tileAt(yMove).orElse(null), canEnterOpenPits, canEnterWalls);
 
       if (xAccessible) {
-        if (isPathClearByStepping(oldPos, xMove, canEnterOpenPits)) data.pc.position(xMove);
+        if (isPathClearByStepping(oldPos, xMove, canEnterOpenPits, canEnterWalls))
+          data.pc.position(xMove);
       } else if (yAccessible) {
-        if (isPathClearByStepping(oldPos, yMove, canEnterOpenPits)) data.pc.position(yMove);
+        if (isPathClearByStepping(oldPos, yMove, canEnterOpenPits, canEnterWalls))
+          data.pc.position(yMove);
       }
 
       // Notify entity that it hit a wall
@@ -104,10 +110,12 @@ public class MoveSystem extends System {
    * @param from the starting point
    * @param to the target point
    * @param canEnterPitTiles whether the entity is allowed to walk into pit tiles
+   * @param canEnterWalls whether the entity is allowed to walk into wall tiles
    * @return true if the entire path from start to target is clear; false if a tile in between is
    *     blocked
    */
-  boolean isPathClearByStepping(Point from, Point to, boolean canEnterPitTiles) {
+  boolean isPathClearByStepping(
+      Point from, Point to, boolean canEnterPitTiles, boolean canEnterWalls) {
     Vector2 direction = from.vectorTo(to);
     double distance = direction.length();
 
@@ -120,14 +128,14 @@ public class MoveSystem extends System {
     // Step from start to end and check each tile along the way
     for (float traveled = 0; traveled <= distance; traveled += step.length()) {
       Tile tile = Game.tileAt(current).orElse(null);
-      if (!isAccessible(tile, canEnterPitTiles)) {
+      if (!isAccessible(tile, canEnterPitTiles, canEnterWalls)) {
         return false;
       }
       current = current.translate(step);
     }
 
     // Ensure that the final destination tile is also checked
-    return isAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles);
+    return isAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles, canEnterWalls);
   }
 
   /**
@@ -138,12 +146,14 @@ public class MoveSystem extends System {
    *
    * @param tile the tile to check for accessibility
    * @param canEnterPitTiles whether the entity can enter pit tiles
+   * @param canEnterWalls whether the entity can enter wall tiles
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
-  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
+  private boolean isAccessible(Tile tile, boolean canEnterPitTiles, boolean canEnterWalls) {
     return tile != null
         && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
+            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
+            || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
   }
 
   /**
