@@ -157,7 +157,8 @@ public abstract class ProjectileSkill extends Skill {
    * Defines what happens when the projectile hits a wall.
    *
    * @param caster The entity that cast the projectile.
-   * @return A consumer handling wall collisions.
+   * @return A consumer handling wall collisions. The Entity for the Consumer will be the projectile
+   *     entity.
    */
   protected Consumer<Entity> onWallHit(Entity caster) {
     return REMOVE_CONSUMER;

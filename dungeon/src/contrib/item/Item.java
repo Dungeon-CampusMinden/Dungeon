@@ -15,6 +15,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.logging.CustomLogLevel;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -288,18 +289,20 @@ public class Item implements CraftingIngredient, CraftingResult {
   }
 
   /**
-   * Called when an item should be dropped.
+   * Drops an item at the specified position and adds the created entity to the game.
    *
-   * @param position The position where the item should be dropped.
-   * @return Whether the item was dropped successfully.
+   * @param position the position where the item should be dropped
+   * @return an {@code Optional} containing the dropped item entity if the drop was successful, or
+   *     an empty {@code Optional} otherwise
    */
-  public boolean drop(final Point position) {
+  public Optional<Entity> drop(final Point position) {
     Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof FloorTile) {
-      Game.add(WorldItemBuilder.buildWorldItem(this, position));
-      return true;
+      Entity item = (WorldItemBuilder.buildWorldItem(this, position));
+      Game.add(item);
+      return Optional.of(item);
     }
-    return false;
+    return Optional.empty();
   }
 
   /**

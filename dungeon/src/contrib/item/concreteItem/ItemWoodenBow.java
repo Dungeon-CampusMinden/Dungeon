@@ -14,6 +14,7 @@ import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Optional;
 
 /**
  * This item is a bow. It can be used to shoot arrows, if any are stored in the inventory.
@@ -49,7 +50,7 @@ public class ItemWoodenBow extends Item {
   }
 
   @Override
-  public boolean drop(final Point position) {
+  public Optional<Entity> drop(final Point position) {
     Game.hero()
         .flatMap(hero -> hero.fetch(SkillComponent.class))
         .ifPresent(sc -> sc.removeSkill(BowSkill.class));
@@ -58,10 +59,11 @@ public class ItemWoodenBow extends Item {
         .filter(FloorTile.class::isInstance)
         .map(
             tile -> {
-              Game.add(WorldItemBuilder.buildWorldItem(this, position));
-              return true;
+              Entity bow = WorldItemBuilder.buildWorldItem(this, position);
+              Game.add(bow);
+              return Optional.of(bow);
             })
-        .orElse(false);
+        .orElse(Optional.empty());
   }
 
   @Override
