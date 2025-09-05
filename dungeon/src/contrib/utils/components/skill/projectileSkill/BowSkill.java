@@ -79,8 +79,8 @@ public class BowSkill extends DamageProjectileSkill {
     this(
         targetSelection,
         BOW_COOLDOWN,
-        DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
+        DEFAULT_PROJECTILE_RANGE,
         DEFAULT_DAMAGE_AMOUNT,
         COST);
   }
