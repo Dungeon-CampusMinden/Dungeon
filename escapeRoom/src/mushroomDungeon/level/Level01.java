@@ -20,7 +20,7 @@ import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import core.utils.components.draw.Animation;
+import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.List;
@@ -99,7 +99,7 @@ public class Level01 extends DungeonLevel {
             tile -> {
               Entity waterTile = new Entity("Water");
               waterTile.add(new PositionComponent(tile.coordinate().toCenteredPoint()));
-              waterTile.add(new DrawComponent(Animation.fromSingleImage(WATER_TEXTURE)));
+              waterTile.add(new DrawComponent(new Animation(WATER_TEXTURE)));
               Game.add(waterTile);
             });
   }
