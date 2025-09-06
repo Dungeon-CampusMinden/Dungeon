@@ -23,7 +23,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** This class starts the dungeon Ai level to visualize the DFS and BFS. */
+/**
+ * This class starts the dungeon Ai level to visualize the DFS and BFS.
+ *
+ * <p>Usage: run with the Gradle task {@code runPathfinder}.
+ */
 public class PathfinderStarter {
   private static final Logger LOGGER = Logger.getLogger(PathfinderStarter.class.getName());
   private static final boolean DRAW_CHECKER_PATTERN = true;

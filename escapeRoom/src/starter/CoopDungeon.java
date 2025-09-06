@@ -22,6 +22,8 @@ import java.util.logging.Level;
  *
  * <p>The players have to work together to solve small parkour-style riddles, such as jumping over
  * pits or using levers to open gates to reach the end.
+ *
+ * <p>Usage: run with the Gradle task {@code runCoopDungeon}.
  */
 public class CoopDungeon {
   private static final boolean DEBUG_MODE = false;
@@ -96,6 +98,10 @@ public class CoopDungeon {
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());
+    Game.add(new ManaRestoreSystem());
+    Game.add(new StaminaRestoreSystem());
+    Game.add(new ManaBarSystem());
+    Game.add(new StaminaBarSystem());
   }
 
   private static void setupMusic() {

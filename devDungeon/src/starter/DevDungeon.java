@@ -33,7 +33,11 @@ import java.util.logging.Level;
 import level.devlevel.*;
 import systems.*;
 
-/** Starter class for the DevDungeon game. */
+/**
+ * Starter class for the DevDungeon game.
+ *
+ * <p>Usage: run with the Gradle task {@code runDevDungeon}.
+ */
 public class DevDungeon {
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final boolean ENABLE_CHEATS = false;
