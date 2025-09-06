@@ -1,6 +1,7 @@
 package contrib.utils.components.skill.selfSkill;
 
 import contrib.components.CollideComponent;
+import contrib.components.ProjectileComponent;
 import contrib.components.SpikyComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.LevelUtils;
@@ -17,6 +18,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
@@ -75,11 +77,15 @@ public class FireShockWaveSkill extends Skill {
 
           Entity entity = new Entity(SKILL_NAME + "_entity");
           PositionComponent posComp = new PositionComponent(tile.coordinate().toCenteredPoint());
+          posComp.rotation(-90f); // Look like sitting on the ground
           entity.add(posComp);
           entity.add(new CollideComponent());
           DrawComponent drawComp = new DrawComponent(TEXTURE);
           entity.add(drawComp);
           entity.add(new SpikyComponent(damage, DAMAGE_TYPE, HIT_COOLDOWN));
+          // To allow shooting through
+          entity.add(
+              new ProjectileComponent(new Point(0, 0), new Point(0, 0), Vector2.ZERO, e -> {}));
           Game.add(entity);
 
           EventScheduler.scheduleAction(() -> Game.remove(entity), REMOVE_AFTER);

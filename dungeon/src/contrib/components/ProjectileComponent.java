@@ -30,7 +30,7 @@ import java.util.function.Consumer;
  * @param goalLocation The point where the projectile should fly to.
  * @param forceToApply The force the projectile should move with.
  * @param onEndReached Callback to execute when the projectile reached the goal location.
- * @see contrib.utils.components.skill.DamageProjectile
+ * @see contrib.utils.components.skill.projectileSkill.DamageProjectileSkill
  */
 public record ProjectileComponent(
     Point startPosition, Point goalLocation, Vector2 forceToApply, Consumer<Entity> onEndReached)
