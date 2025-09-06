@@ -14,10 +14,9 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.components.path.SimpleIPath;
 import java.util.List;
 import level.AdvancedLevel;
-import produsAdvanced.abstraction.ArraySummarizer;
+import produsAdvanced.riddles.MyArraySummarizer;
 
 /**
  * Manager for an advanced dungeon level.
@@ -35,11 +34,6 @@ public class ArrayIterateLevel extends AdvancedLevel {
   private static boolean showMsg = true;
 
   private final int[] arrayToPass = {15, 5, 9, 7, 8}; // Summe = 44
-
-  private static final SimpleIPath ARRAY_SUMMARIZER_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArraySummarizer.java");
-  private static final String ARRAY_SUMMARIZER_CLASSNAME =
-      "produsAdvanced.riddles.MyArraySummarizer";
 
   private static String title = "Array-Aufgabe";
   private static String msg =
@@ -122,11 +116,8 @@ public class ArrayIterateLevel extends AdvancedLevel {
 
     try {
       playerSolution =
-          ((ArraySummarizer)
-                  DynamicCompiler.loadUserInstance(
-                      ARRAY_SUMMARIZER_PATH,
-                      ARRAY_SUMMARIZER_CLASSNAME,
-                      new Tuple<>(int[].class, arrayToPass)))
+          DynamicCompiler.loadUserInstance(
+                  MyArraySummarizer.class, new Tuple<>(int[].class, arrayToPass))
               .summarizeArray();
     } catch (UnsupportedOperationException e) {
       // Spezifische Behandlung für nicht implementierte Methode

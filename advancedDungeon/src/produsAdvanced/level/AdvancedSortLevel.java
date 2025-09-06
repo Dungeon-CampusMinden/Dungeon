@@ -18,13 +18,12 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
-import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
 import produsAdvanced.abstraction.Monster;
-import produsAdvanced.abstraction.MonsterSort;
+import produsAdvanced.riddles.MyMonsterSort;
 
 /**
  * Manager for an advanced dungeon level.
@@ -50,11 +49,6 @@ public class AdvancedSortLevel extends AdvancedLevel {
   private final int[] monsterHPArray = {5, 7, 3, 6, 9, 2, 1};
   private DoorTile door;
   private boolean isLeverActivated = false;
-
-  private static final SimpleIPath MONSTER_SORT_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyMonsterSort.java");
-  private static final String MONSTER_SORT_CLASSNAME = "produsAdvanced.riddles.MyMonsterSort";
-
   private static final String msg =
       "Da herrscht ja ein heilloses Durcheinander! Vielleicht öffnet sich ja die Tür, wenn ich hier für Ordnung sorge.";
   private static final String title = "Level 9";
@@ -184,8 +178,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
   private void checkPlayerSolution() {
     try {
       solution =
-          ((MonsterSort)
-                  DynamicCompiler.loadUserInstance(MONSTER_SORT_PATH, MONSTER_SORT_CLASSNAME))
+          DynamicCompiler.loadUserInstance(MyMonsterSort.class)
               .sortMonsters(mobs.toArray(new Monster[0]));
       sortListLikeArray(mobs, solution);
     } catch (UnsupportedOperationException e) {
