@@ -6,6 +6,7 @@ import contrib.entities.LeverFactory;
 import contrib.entities.MiscFactory;
 import contrib.entities.MonsterFactory;
 import contrib.hud.DialogUtils;
+import contrib.hud.dialogs.OkDialog;
 import contrib.hud.dialogs.YesNoDialog;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.item.concreteItem.ItemPotionWater;
@@ -113,9 +114,16 @@ public class Level01 extends DungeonLevel {
                         inputComponent ->
                             inputComponent.registerCallback(
                                 Input.Keys.T,
-                                entity ->
-                                    hero.fetch(HintLogComponent.class)
-                                        .ifPresent(HintLogDialog::showHintLog),
+                                entity -> {
+                                  hero.fetch(HintLogComponent.class)
+                                      .ifPresent(HintLogDialog::showHintLog);
+                                  hintSystem
+                                      .nextHint()
+                                      .ifPresent(
+                                          hint ->
+                                              OkDialog.showOkDialog(
+                                                  hint.text(), hint.titel(), () -> {}));
+                                },
                                 false,
                                 true)));
 
