@@ -38,7 +38,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-/** This class starts a comparator for the pathfinding algorithms. */
+/**
+ * This class starts a comparator for the pathfinding algorithms.
+ *
+ * <p>Usage: run with the Gradle task {@code runPathFindingComparison}.
+ */
 public class ComparePathfindingStarter {
   private static final Entity[] RUNNERS = new Entity[2];
 

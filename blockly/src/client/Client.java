@@ -31,6 +31,10 @@ import systems.TintTilesSystem;
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
  * have any effect
+ *
+ * <p>Usage: run with the Gradle task {@code runBlockly}.
+ *
+ * <p>For the Web-Ui you have to start the frontend yourself.
  */
 public class Client {
 
