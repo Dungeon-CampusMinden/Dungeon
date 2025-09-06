@@ -40,8 +40,8 @@ public interface Vector2 {
   /** Vector of the default direction to relate angles to. */
   Vector2 DEFAULT = Vector2.of(1, 0);
 
-  /** Vector with maximum double values for both components. */
-  Vector2 MAX = Vector2.of(Double.MAX_VALUE, Double.MAX_VALUE);
+  /** Vector with maximum float values for both components. */
+  Vector2 MAX = Vector2.of(Float.MAX_VALUE, Float.MAX_VALUE);
 
   /** A small tolerance for floating-point comparisons. */
   double EPSILON = 1e-9;
@@ -142,6 +142,8 @@ public interface Vector2 {
   }
 
   /**
+   * Returns the Euclidean length (magnitude) of this vector.
+   *
    * @return The length of the vector.
    */
   default double length() {
@@ -149,12 +151,14 @@ public interface Vector2 {
   }
 
   /**
-   * Checks if the vector is a zero vector.
+   * Checks if the vector is a zero vector (within {@link #EPSILON} tolerance).
+   *
+   * <p>Uses squared length for better performance and to avoid an unnecessary sqrt.
    *
    * @return true if the vector is a zero vector, false otherwise.
    */
   default boolean isZero() {
-    return Math.abs(length()) < EPSILON;
+    return lengthSquared() < EPSILON * EPSILON;
   }
 
   /**
@@ -163,14 +167,15 @@ public interface Vector2 {
    * <p>Normalization is useful for ensuring that the vector maintains its direction but has a
    * length of 1.
    *
-   * <p>If the vector is zero (length 0), it returns the zero vector.
+   * <p>If the vector is effectively zero (length &lt; {@link #EPSILON}), it returns the zero
+   * vector.
    *
    * @return A new vector that is the normalized version of this vector or the zero vector if the
-   *     length is 0.
+   *     length is (near) zero.
    */
   default Vector2 normalize() {
     double len = length();
-    if (isZero()) {
+    if (len < EPSILON) {
       return Vector2.ZERO;
     }
     return Vector2.of(x() / len, y() / len);
@@ -188,8 +193,8 @@ public interface Vector2 {
   }
 
   /**
-   * Calculates the squared length of the vector. This is more efficient than length() when you only
-   * need to compare distances or when the actual length value isn't needed.
+   * Calculates the squared length of the vector. This is more efficient than {@link #length()} when
+   * you only need to compare distances or when the actual length value isn't needed.
    *
    * @return The squared length of the vector
    */
@@ -208,26 +213,37 @@ public interface Vector2 {
   }
 
   /**
-   * Calculates the angle between this vector and the default direction vector (RIGHT) in degrees.
+   * Calculates the angle of this vector relative to the positive X axis (0° = +X) in degrees.
    *
-   * @return The angle in degrees between this vector and the default direction vector
+   * <p>This is equivalent to {@code Math.toDegrees(Math.atan2(y(), x()))}.
+   *
+   * @return the angle in degrees between this vector (as a displacement from origin) and the
+   *     positive X axis.
    */
   default double angleDeg() {
-    return angleDeg(DEFAULT);
+    return Math.toDegrees(Math.atan2(y(), x()));
   }
 
   /**
-   * Calculates the angle between this vector and another vector in degrees.
+   * Calculates the angle from this vector to the {@code target} vector in degrees.
    *
-   * @param other The other vector
-   * @return The angle in degrees between the two vectors
+   * <p>Semantics: returns {@code Math.toDegrees(Math.atan2(target.y() - this.y(), target.x() -
+   * this.x()))}. Use this when you want the angle pointing from {@code this} to {@code target}
+   * (i.e. {@code this -> target}).
+   *
+   * @param target the destination vector
+   * @return the angle in degrees from this vector to {@code target}
    */
-  default double angleDeg(Vector2 other) {
-    return Math.toDegrees(Math.atan2(this.y() - other.y(), this.x() - other.x()));
+  default double angleToDeg(Vector2 target) {
+    return Math.toDegrees(Math.atan2(target.y() - y(), target.x() - x()));
   }
 
   /**
    * Rotates this vector by a specified angle in degrees.
+   *
+   * <p>Positive angles rotate counter-clockwise in a standard Cartesian coordinate system (Y up).
+   * If your rendering coordinate system has Y down (screen coordinates), you may need to negate the
+   * angle when applying it to sprites.
    *
    * @param degrees The angle in degrees to rotate the vector.
    * @return A new vector that is the result of rotating this vector by the specified angle.
@@ -241,6 +257,8 @@ public interface Vector2 {
 
   /**
    * Rotates this vector by a specified angle in radians.
+   *
+   * <p>Positive angles rotate counter-clockwise in a standard Cartesian coordinate system (Y up).
    *
    * @param radians The angle in radians to rotate the vector
    * @return A new vector rotated by the specified angle
@@ -265,29 +283,20 @@ public interface Vector2 {
   /**
    * Determines the cardinal {@link Direction} based on the vector components.
    *
-   * <p>This method computes the angle of the vector defined by the {@code x()} and {@code y()}
-   * components relative to the positive x-axis using {@link Math#atan2(float, float)}. The angle is
-   * measured in radians and ranges from -π to π.
+   * <p>Selection rule: - If |x| >= |y| the vector is considered horizontal: RIGHT if x > 0, LEFT
+   * otherwise. - Otherwise the vector is considered vertical: UP if y > 0, DOWN otherwise.
    *
-   * <p>Based on this angle, the method returns one of four cardinal directions: LEFT, DOWN, RIGHT,
-   * or UP. The full circle is divided into four equal sectors, each spanning π/2 radians, offset by
-   * π/4 radians to align the sectors with the directions.
+   * <p>This ties in favor of horizontal direction when |x| == |y|.
    *
-   * @return the {@link Direction} corresponding to the vector's angle
+   * @return the {@link Direction} corresponding to the vector's dominant axis
    */
   default Direction direction() {
-    float rads = (float) Math.atan2(y(), x());
-    double piQuarter = Math.PI / 4;
-    if (rads < 3 * -piQuarter) {
-      return Direction.LEFT;
-    } else if (rads < -piQuarter) {
-      return Direction.DOWN;
-    } else if (rads < piQuarter) {
-      return Direction.RIGHT;
-    } else if (rads < 3 * piQuarter) {
-      return Direction.UP;
+    double ax = Math.abs(x());
+    double ay = Math.abs(y());
+    if (ax >= ay) {
+      return x() >= 0 ? Direction.RIGHT : Direction.LEFT;
     } else {
-      return Direction.LEFT;
+      return y() >= 0 ? Direction.UP : Direction.DOWN;
     }
   }
 
