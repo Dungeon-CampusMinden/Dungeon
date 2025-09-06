@@ -37,9 +37,6 @@ public interface Vector2 {
   /** Unit vector with both components set to 1. */
   Vector2 ONE = Vector2.of(1, 1);
 
-  /** Vector of the default direction to relate angles to. */
-  Vector2 DEFAULT = Vector2.of(1, 0);
-
   /** Vector with maximum float values for both components. */
   Vector2 MAX = Vector2.of(Float.MAX_VALUE, Float.MAX_VALUE);
 
