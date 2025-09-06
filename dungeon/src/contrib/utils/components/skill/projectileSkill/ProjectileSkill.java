@@ -104,9 +104,8 @@ public abstract class ProjectileSkill extends Skill {
     PositionComponent pc = new PositionComponent(position);
     projectile.add(pc);
     // calculate rotation
-    double angleDeg = Vector2.of(targetPoint).angleDeg(Vector2.of(position));
+    double angleDeg = Vector2.of(position).angleToDeg(Vector2.of(targetPoint));
     pc.rotation((float) angleDeg);
-
     // Calculate velocity
     Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
 
@@ -128,51 +127,67 @@ public abstract class ProjectileSkill extends Skill {
   }
 
   /**
-   * Defines what happens when the projectile collides with another entity (on collision enter).
+   * Defines the behavior when the projectile collides with another entity (on collision enter).
    *
-   * @param caster The entity that cast the projectile. (x
-   * @return A collision handler.
+   * @param caster the entity that created or cast the projectile
+   * @return a collision handler; the parameters are:
+   *     <ul>
+   *       <li>the projectile entity
+   *       <li>the entity the projectile collides with
+   *       <li>the collision direction, relative to the projectile
+   *     </ul>
    */
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
     return NOOP_TRICONSUMER;
   }
 
   /**
-   * Defines what happens when the projectile stays in collision (on hold).
+   * Defines the behavior while the projectile remains in collision with another entity.
    *
-   * @param caster The entity that cast the projectile.
-   * @return A collision handler.
+   * @param caster the entity that created or cast the projectile
+   * @return a collision handler; the parameters are:
+   *     <ul>
+   *       <li>the projectile entity
+   *       <li>the entity the projectile is colliding with
+   *       <li>the collision direction, relative to the projectile
+   *     </ul>
    */
   protected TriConsumer<Entity, Entity, Direction> onCollideHold(Entity caster) {
     return NOOP_TRICONSUMER;
   }
 
   /**
-   * Defines what happens when the projectile leaves a collision.
+   * Defines the behavior when the projectile ends a collision with another entity.
    *
-   * @param caster The entity that cast the projectile.
-   * @return A collision handler.
+   * @param caster the entity that created or cast the projectile
+   * @return a collision handler; the parameters are:
+   *     <ul>
+   *       <li>the projectile entity
+   *       <li>the entity the projectile collided with
+   *       <li>the collision direction, relative to the projectile
+   *     </ul>
    */
   protected TriConsumer<Entity, Entity, Direction> onCollideLeave(Entity caster) {
     return NOOP_TRICONSUMER;
   }
 
   /**
-   * Defines what happens when the projectile hits a wall.
+   * Defines the behavior when the projectile collides with a wall.
    *
-   * @param caster The entity that cast the projectile.
-   * @return A consumer handling wall collisions. The Entity for the Consumer will be the projectile
-   *     entity.
+   * @param caster the entity that created or cast the projectile
+   * @return a {@link Consumer} that handles wall collisions; the projectile entity is passed to the
+   *     consumer
    */
   protected Consumer<Entity> onWallHit(Entity caster) {
     return REMOVE_CONSUMER;
   }
 
   /**
-   * Defines what happens when the projectile reaches its target point.
+   * Defines the behavior when the projectile reaches its target point.
    *
-   * @param caster The entity that cast the projectile.
-   * @return A consumer handling end of trajectory.
+   * @param caster the entity that created or cast the projectile
+   * @return a {@link Consumer} that is invoked when the projectile ends its trajectory; the
+   *     projectile entity is passed to the consumer
    */
   protected Consumer<Entity> onEndReached(Entity caster) {
     return REMOVE_CONSUMER;
@@ -229,7 +244,7 @@ public abstract class ProjectileSkill extends Skill {
   /**
    * Sets the tint color of the projectile. Use -1 to disable tinting.
    *
-   * @param tintColor The tint color.
+   * @param tintColor The tint color in RGBA.
    */
   public void tintColor(int tintColor) {
     this.tintColor = tintColor;
@@ -238,7 +253,7 @@ public abstract class ProjectileSkill extends Skill {
   /**
    * Returns the current tint color of the projectile.
    *
-   * @return The tint color, or -1 if none.
+   * @return The tint color in RGBA, or -1 if none.
    */
   public int tintColor() {
     return tintColor;

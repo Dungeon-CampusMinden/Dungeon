@@ -47,26 +47,86 @@ public final class CollideComponent implements Component {
   /** The default size of the hit box. */
   public static final Vector2 DEFAULT_SIZE = Vector2.of(0.5f, 0.5f);
 
-  /** The default collision behaviour. */
+  /**
+   * The default collision behavior for projectiles.
+   *
+   * <p>This handler does nothing and can be used as a placeholder or default value for collision
+   * events (enter, leave, or hold).
+   *
+   * <p>Parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   */
   public static final TriConsumer<Entity, Entity, Direction> DEFAULT_COLLIDER = (a, b, c) -> {};
 
   private final Vector2 offset;
   private final Vector2 size;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+
+  /**
+   * Handler invoked when the entity first collides with another entity (collision enter).
+   *
+   * <p>Parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   */
   private TriConsumer<Entity, Entity, Direction> collideEnter;
+
+  /**
+   * Handler invoked when the entity stops colliding with another entity (collision leave).
+   *
+   * <p>Parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   */
   private TriConsumer<Entity, Entity, Direction> collideLeave;
+
+  /**
+   * Handler invoked while the entity remains in collision with another entity (collision hold).
+   *
+   * <p>Parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   */
   private TriConsumer<Entity, Entity, Direction> collideHold;
 
   /**
-   * Create a new CollisionComponent.
+   * Creates a new {@code CollideComponent}.
    *
-   * @param offset the offset for the hitbox to the position; use {@link #DEFAULT_OFFSET} for the
-   *     default offset,
-   * @param size the size for the hitbox Use {@link #DEFAULT_SIZE} for the default size.
-   * @param collideEnter behaviour if a collision started; use {@link #DEFAULT_COLLIDER} for an
-   *     empty function.
-   * @param collideLeave behaviour if a collision stopped; use {@link #DEFAULT_COLLIDER} for an
-   *     empty function.
+   * <p>This component handles collisions for an entity using a hitbox defined by {@code offset} and
+   * {@code size}, and custom behavior for collision events.
+   *
+   * <p>The collision handlers use a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param offset the offset of the hitbox relative to the entity's position; use {@link
+   *     #DEFAULT_OFFSET} for the default offset
+   * @param size the size of the hitbox; use {@link #DEFAULT_SIZE} for the default size
+   * @param collideEnter behavior when a collision starts; use {@link #DEFAULT_COLLIDER} for a no-op
+   *     handler
+   * @param collideLeave behavior when a collision ends; use {@link #DEFAULT_COLLIDER} for a no-op
+   *     handler
    */
   public CollideComponent(
       final Vector2 offset,
@@ -81,13 +141,21 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Create a new CollisionComponent with a default offset of 0.25f x 0.25f and a default size of
-   * 0.5f x 0.5f.
+   * Creates a new {@code CollideComponent} with a default offset of 0.25f x 0.25f and a default
+   * size of 0.5f x 0.5f.
    *
-   * @param collideEnter behaviour if a collision started; use {@link #DEFAULT_COLLIDER} for an
-   *     empty function.
-   * @param collideLeave behaviour if a collision stopped; use {@link #DEFAULT_COLLIDER} for an
-   *     empty function.
+   * <p>The collision handlers use a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param collideEnter behavior when a collision starts; use {@link #DEFAULT_COLLIDER} for a no-op
+   *     handler
+   * @param collideLeave behavior when a collision ends; use {@link #DEFAULT_COLLIDER} for a no-op
+   *     handler
    */
   public CollideComponent(
       final TriConsumer<Entity, Entity, Direction> collideEnter,
@@ -157,9 +225,17 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Set the callback function for ongoing collisions.
+   * Sets the callback function for ongoing collisions (collision hold).
    *
-   * @param collideHold New callback function.
+   * <p>The collision handler uses a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param collideHold the new callback function to handle collisions while they are ongoing
    */
   public void onHold(TriConsumer<Entity, Entity, Direction> collideHold) {
     this.collideHold = collideHold;
@@ -208,18 +284,34 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Set function to execute at start of a collision.
+   * Sets the callback function to execute at the start of a collision (collision enter).
    *
-   * @param collideEnter new collideMethod of the associated entity
+   * <p>The collision handler uses a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param collideEnter the new callback function to handle collision start events
    */
   public void collideEnter(TriConsumer<Entity, Entity, Direction> collideEnter) {
     this.collideEnter = collideEnter;
   }
 
   /**
-   * Set function to execute at end of a collision.
+   * Sets the callback function to execute at the end of a collision (collision leave).
    *
-   * @param collideLeave new collideMethod of the associated entity
+   * <p>The collision handler uses a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param collideLeave the new callback function to handle collision end events
    */
   public void collideLeave(TriConsumer<Entity, Entity, Direction> collideLeave) {
     this.collideLeave = collideLeave;
