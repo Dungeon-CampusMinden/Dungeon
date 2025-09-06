@@ -36,7 +36,7 @@ public class ArrayCreateLevel extends AdvancedLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath ARRAY_CREATOR_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArrayCreator.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyArrayCreator.java");
   private static final String ARRAY_CREATOR_CLASSNAME = "produsAdvanced.riddles.MyArrayCreator";
 
   private static String title = "Array-Aufgabe";

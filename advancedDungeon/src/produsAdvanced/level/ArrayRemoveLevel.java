@@ -38,7 +38,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath ARRAY_REMOVER_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArrayRemover.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyArrayRemover.java");
   private static final String ARRAY_REMOVER_CLASSNAME = "produsAdvanced.riddles.MyArrayRemover";
   private static String title = "Array-Aufgabe";
   private static String msg =

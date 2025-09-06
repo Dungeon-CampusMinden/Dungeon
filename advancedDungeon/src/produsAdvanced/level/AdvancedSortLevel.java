@@ -52,7 +52,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath MONSTER_SORT_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyMonsterSort.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyMonsterSort.java");
   private static final String MONSTER_SORT_CLASSNAME = "produsAdvanced.riddles.MyMonsterSort";
 
   private static final String msg =
