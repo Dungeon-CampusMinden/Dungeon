@@ -2,6 +2,7 @@ package level.devlevel;
 
 import contrib.components.InventoryComponent;
 import contrib.entities.MiscFactory;
+import contrib.entities.MonsterBuilder;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import core.Entity;
@@ -13,7 +14,8 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
+import entities.DevDungeonMonster;
+import java.io.IOException;
 import java.util.*;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.DamagedBridgeRiddleHandler;
@@ -24,9 +26,9 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 7;
-  private static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
-  private static final MonsterType BOSS_TYPE = MonsterType.CHORT;
+  private static final MonsterBuilder<?>[] MONSTER_TYPES =
+      new MonsterBuilder[] {DevDungeonMonster.ORC_WARRIOR(), DevDungeonMonster.ORC_SHAMAN()};
+  private static final MonsterBuilder<?> BOSS_TYPE = DevDungeonMonster.CHORT();
 
   // Spawn Points / Locations
   private final Coordinate bridgeMobSpawn;
@@ -88,7 +90,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
   }
 
   private void prepareBridge() {
-    EntityUtils.spawnMonster(MonsterType.BRIDGE_MOB, bridgeMobSpawn);
+    DevDungeonMonster.BRIDGE_MOB().addToGame().build(bridgeMobSpawn);
     List<PitTile> bridge =
         pitTiles().stream().filter(pit -> pit.coordinate().y() == bridgeMobSpawn.y()).toList();
     int timeToOpen = 500;

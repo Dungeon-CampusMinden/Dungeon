@@ -1,11 +1,10 @@
 package components;
 
+import contrib.entities.MonsterBuilder;
 import core.Component;
 import core.level.elements.ILevel;
-import core.level.utils.Coordinate;
 import core.utils.Point;
-import entities.MonsterType;
-import utils.EntityUtils;
+import java.io.IOException;
 
 /**
  * A component that stores the spawn parameters of a mob spawner entity.
@@ -15,11 +14,10 @@ import utils.EntityUtils;
  * spawn parameters (e.g., spawn delay, spawn radius).
  *
  * @see entities.MobSpawnerFactory MobSpawnerFactory
- * @see entities.MobSpawnerFactory#createMobSpawner(Coordinate, MonsterType[], int) createMobSpawner
  * @see systems.MobSpawnerSystem MobSpawnerSystem
  */
 public class MobSpawnerComponent implements Component {
-  private final MonsterType[] monsterTypes;
+  private final MonsterBuilder[] monsterTypes;
   private final int maxMobCount;
   private final int minSpawnDelay;
   private final int maxSpawnDelay;
@@ -39,7 +37,7 @@ public class MobSpawnerComponent implements Component {
    * @param maxSpawnRadius The maximum radius around the mob spawner where monsters can spawn.
    */
   public MobSpawnerComponent(
-      MonsterType[] monsterTypes,
+      MonsterBuilder[] monsterTypes,
       int maxMobCount,
       int minSpawnDelay,
       int maxSpawnDelay,
@@ -60,8 +58,8 @@ public class MobSpawnerComponent implements Component {
    * @param position The position where the monster should be spawned.
    */
   public void spawnRandomMonster(Point position) {
-    MonsterType monsterType = getRandomMonsterType();
-    EntityUtils.spawnMonster(monsterType, position);
+    getRandomMonsterType().addToGame().build(position);
+
     setNextSpawnDelay();
   }
 
@@ -77,7 +75,7 @@ public class MobSpawnerComponent implements Component {
    *
    * @return A random MonsterType from the array of monster types.
    */
-  private MonsterType getRandomMonsterType() {
+  private MonsterBuilder<?> getRandomMonsterType() {
     return monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
   }
 
@@ -86,7 +84,7 @@ public class MobSpawnerComponent implements Component {
    *
    * @return The array of MonsterTypes that the mob spawner can spawn.
    */
-  public MonsterType[] monsterTypes() {
+  public MonsterBuilder<?>[] monsterTypes() {
     return monsterTypes;
   }
 

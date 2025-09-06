@@ -30,11 +30,8 @@ import java.util.*;
 public class Animation {
 
   /** Path to the missing texture fallback image. */
-  private static final IPath MISSING_TEXTURE_PATH =
+  public static final IPath MISSING_TEXTURE_PATH =
       new SimpleIPath("animation/missing_texture.png");
-
-  /** Default scale factor applied to all sprites. */
-  private static final float DEFAULT_SCALE = 1f / 16;
 
   private final AnimationConfig config;
   private float width = 1;

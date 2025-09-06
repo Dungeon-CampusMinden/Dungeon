@@ -328,9 +328,9 @@ public final class MiscFactory {
   }
 
   /**
-   * Create a Entity that can be used as a marker on the floor (x marks the spot).
+   * Creates an Entity that can be used as a marker on the floor (x marks the spot).
    *
-   * @param position Positon where to spawn the marker.
+   * @param position Position where to spawn the marker.
    * @return The Marker-Entity.
    */
   public static Entity marker(Point position) {

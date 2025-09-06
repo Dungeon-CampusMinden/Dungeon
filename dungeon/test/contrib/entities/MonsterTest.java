@@ -13,21 +13,22 @@ import core.level.DungeonLevel;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.systems.LevelSystem;
+import core.utils.Point;
 import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** WTF? . */
+/** Tests for the MonsterBuilder and the DungeonMonster class. */
 public class MonsterTest {
-  /** WTF? . */
+  /** Setup a LevelSystem before each test. */
   @BeforeEach
   public void setup() {
     Game.add(new LevelSystem(() -> {}));
   }
 
-  /** WTF? . */
+  /** Cleanup after each test. */
   @AfterEach
   public void cleanup() {
     Game.removeAllEntities();
@@ -35,7 +36,7 @@ public class MonsterTest {
     Game.removeAllSystems();
   }
 
-  /** WTF? . */
+  /** Tests the creation of a DungeonMonster. */
   @Test
   public void checkCreation() throws IOException {
     Game.currentLevel(
@@ -47,9 +48,7 @@ public class MonsterTest {
             },
             DesignLabel.DEFAULT));
 
-    Game.add(HeroFactory.newHero());
-    Entity m = EntityFactory.randomMonster();
-
+    Entity m = DungeonMonster.RANDOM().build(new Point(0, 0));
     Optional<DrawComponent> drawComponent = m.fetch(DrawComponent.class);
     assertTrue(drawComponent.isPresent());
 
