@@ -31,7 +31,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected boolean piercing;
 
   /** A supplier that provides the target endpoint of the projectile. */
-  private Supplier<Point> endPointSupplier;
+  private final Supplier<Point> endPointSupplier;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
