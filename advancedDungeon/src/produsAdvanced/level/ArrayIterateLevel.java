@@ -37,7 +37,7 @@ public class ArrayIterateLevel extends AdvancedLevel {
   private final int[] arrayToPass = {15, 5, 9, 7, 8}; // Summe = 44
 
   private static final SimpleIPath ARRAY_SUMMARIZER_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArraySummarizer.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyArraySummarizer.java");
   private static final String ARRAY_SUMMARIZER_CLASSNAME =
       "produsAdvanced.riddles.MyArraySummarizer";
 
