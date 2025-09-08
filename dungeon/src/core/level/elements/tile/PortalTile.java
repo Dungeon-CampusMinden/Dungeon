@@ -1,10 +1,12 @@
 package core.level.elements.tile;
 
+import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
 import core.utils.components.path.IPath;
 
-public class PortalTile extends WallTile {
+public class PortalTile extends Tile {
   /**
    * Creates a new Tile.
    *
@@ -14,5 +16,6 @@ public class PortalTile extends WallTile {
    */
   public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
+    levelElement = LevelElement.PORTAL;
   }
 }
