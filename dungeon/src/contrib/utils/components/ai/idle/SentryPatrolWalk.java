@@ -28,8 +28,9 @@ public final class SentryPatrolWalk implements Consumer<Entity> {
   /**
    * Creates a new {@code SentryPatrolWalk}.
    *
-   * @param pointA the first patrol point
-   * @param pointB the second patrol point
+   * @param pointA the first patrol point.
+   * @param pointB the second patrol point.
+   * @param canEnterWalls whether the sentry can move inside walls.
    */
   public SentryPatrolWalk(Point pointA, Point pointB, boolean canEnterWalls) {
     this.pointA = pointA;
