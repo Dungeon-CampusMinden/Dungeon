@@ -34,6 +34,13 @@ public class TileTextureFactory {
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
+    if (levelPart.element == LevelElement.PORTAL) {
+      path = findTexturePathPortalWall(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
+    }
+
 
     path = findTexturePathWall(levelPart);
     if (path != null) {
@@ -180,6 +187,19 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/wall_outer_corner_upper_right");
     } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_outer_corner_upper_left");
+    }
+    return null;
+  }
+
+  private static IPath findTexturePathPortalWall(LevelPart levelPart) {
+    if (isRightWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("portal/portal_right");
+    } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("portal/portal_left");
+    } else if (isTopWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("portal/portal_top");
+    } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("portal/portal_bottom");
     }
     return null;
   }
@@ -415,7 +435,7 @@ public class TileTextureFactory {
    */
   private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y() + 1][p.x()] == LevelElement.WALL;
+      return (layout[p.y() + 1][p.x()] == LevelElement.WALL || layout[p.y() + 1][p.x()] == LevelElement.PORTAL);
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -431,8 +451,7 @@ public class TileTextureFactory {
    */
   private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y() - 1][p.x()] == LevelElement.WALL;
-
+      return (layout[p.y() - 1][p.x()] == LevelElement.WALL || layout[p.y() - 1][p.x()] == LevelElement.PORTAL);
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
     }
@@ -447,7 +466,7 @@ public class TileTextureFactory {
    */
   private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y()][p.x() - 1] == LevelElement.WALL;
+      return (layout[p.y()][p.x() - 1] == LevelElement.WALL || layout[p.y()][p.x() - 1] == LevelElement.PORTAL);
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -463,7 +482,7 @@ public class TileTextureFactory {
    */
   private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
     try {
-      return layout[p.y()][p.x() + 1] == LevelElement.WALL;
+      return (layout[p.y()][p.x() + 1] == LevelElement.WALL || layout[p.y()][p.x() + 1] == LevelElement.PORTAL);
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
