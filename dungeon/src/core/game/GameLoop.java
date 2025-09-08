@@ -28,6 +28,8 @@ import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import java.util.*;
+
+import core.utils.components.path.SimpleIPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,13 +243,7 @@ public final class GameLoop extends ScreenAdapter {
           PositionComponent pc = new PositionComponent(event.position());
           pc.viewDirection(event.viewDirection());
           newEntity.add(pc);
-          DrawComponent dc;
-          try {
-            dc = new DrawComponent(event.texturePath());
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          dc.currentAnimation(event.currentAnimation());
+          DrawComponent dc = new DrawComponent(new SimpleIPath(event.texturePath()), event.initialState());
           dc.tintColor(event.tintColor());
           newEntity.add(dc);
           Game.add(newEntity);
@@ -349,7 +345,7 @@ public final class GameLoop extends ScreenAdapter {
               Game.startTile()
                   .ifPresentOrElse(
                       pc::position,
-                      () -> LOGGER.warning("No start tile found for the current level"));
+                      () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
 

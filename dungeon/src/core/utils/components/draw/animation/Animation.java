@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
@@ -29,6 +31,8 @@ import java.util.*;
  */
 public class Animation {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(Animation.class);
+
   /** Path to the missing texture fallback image. */
   private static final IPath MISSING_TEXTURE_PATH =
       new SimpleIPath("animation/missing_texture.png");
@@ -37,6 +41,7 @@ public class Animation {
   private static final float DEFAULT_SCALE = 1f / 16;
 
   private final AnimationConfig config;
+  private final IPath path;
   private float width = 1;
   private float height = 1;
   private float spriteScale;
@@ -56,6 +61,7 @@ public class Animation {
     if (config == null) this.config = new AnimationConfig();
     else this.config = config;
     loadFromSingle(path);
+    this.path = path;
   }
 
   /**
@@ -75,11 +81,12 @@ public class Animation {
    * @throws IllegalArgumentException if paths is null or empty.
    */
   public Animation(List<IPath> paths, AnimationConfig config) {
-    if (paths == null || paths.size() == 0)
+    if (paths == null || paths.isEmpty())
       throw new IllegalArgumentException("paths can't be null or empty");
     if (config == null) this.config = new AnimationConfig();
     else this.config = config;
     loadSpritesFromPaths(paths);
+    this.path = paths.getFirst(); // TODO: Test if correct
   }
 
   /**
@@ -158,6 +165,15 @@ public class Animation {
     }
 
     calculateWorldSize(textWidth, textHeight);
+  }
+
+  /**
+   * Returns the path used to create this animation.
+   *
+   * @return The path to the animation's source image or folder.
+   */
+  public IPath path() {
+    return path;
   }
 
   /**

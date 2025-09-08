@@ -61,14 +61,12 @@ public final class DrawSystem extends System {
   private static final float Y_OFFSET = 0.25f;
 
   private final TreeMap<Integer, List<DSData>> sortedEntities = new TreeMap<>();
-  private final Map<IPath, PainterConfig> configs;
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
     super(DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
-    configs = new HashMap<>();
   }
 
   /**

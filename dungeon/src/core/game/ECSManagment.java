@@ -15,6 +15,9 @@ import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import core.utils.Point;
 import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.state.StateMachine;
+import core.utils.components.path.IPath;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -101,14 +104,15 @@ public final class ECSManagment {
                       .fetch(PositionComponent.class)
                       .map(PositionComponent::viewDirection)
                       .orElse(Direction.DOWN),
+                  entity.fetch(DrawComponent.class)
+                      .map(DrawComponent::basePath)
+                      .map(IPath::pathString)
+                        .orElse(""),
                   entity
                       .fetch(DrawComponent.class)
-                      .map(DrawComponent::currentAnimationPath)
+                      .map(DrawComponent::stateMachine)
+                      .map(StateMachine::getCurrentStateName)
                       .orElseThrow(),
-                  entity
-                      .fetch(DrawComponent.class)
-                      .map(DrawComponent::currentAnimationName)
-                      .orElse(CoreAnimations.IDLE.name()),
                   entity.fetch(DrawComponent.class).map(DrawComponent::tintColor).orElse(-1)));
     }
 
