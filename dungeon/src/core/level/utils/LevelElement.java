@@ -20,6 +20,7 @@ public enum LevelElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** This field is a portal-field*/
   PORTAL(false, false);
 <<<<<<< HEAD
@@ -46,6 +47,10 @@ public enum LevelElement {
 >>>>>>> be002c1f (added PortalTile for portal skill)
 =======
 >>>>>>> 2178e611 (added green and blue portal variants)
+=======
+  /** This field is a portal-field*/
+  PORTAL(false, false);
+>>>>>>> 896ecd5c (added PortalTile for portal skill)
 
   private final boolean accessible;
   private final boolean canSeeThrough;

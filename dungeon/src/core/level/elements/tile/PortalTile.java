@@ -5,6 +5,7 @@ package core.level.elements.tile;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -43,12 +44,20 @@ public class PortalTile extends WallTile {
 public class PortalTile extends Tile {
 >>>>>>> be002c1f (added PortalTile for portal skill)
 =======
+=======
+import core.level.Tile;
+>>>>>>> 896ecd5c (added PortalTile for portal skill)
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
+import core.level.utils.LevelElement;
 import core.utils.components.path.IPath;
 
+<<<<<<< HEAD
 public class PortalTile extends WallTile {
 >>>>>>> 75c6fee5 (added dummy portal skill)
+=======
+public class PortalTile extends Tile {
+>>>>>>> 896ecd5c (added PortalTile for portal skill)
   /**
    * Creates a new Tile.
    *
@@ -67,6 +76,7 @@ public class PortalTile extends WallTile {
 =======
   public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> ca4f8ed2 (added dummy portal skill)
@@ -94,5 +104,8 @@ public class PortalTile extends WallTile {
   public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
 >>>>>>> 75c6fee5 (added dummy portal skill)
+=======
+    levelElement = LevelElement.PORTAL;
+>>>>>>> 896ecd5c (added PortalTile for portal skill)
   }
 }
