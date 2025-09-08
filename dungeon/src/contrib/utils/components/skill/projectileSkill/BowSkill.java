@@ -97,20 +97,21 @@ public class BowSkill extends DamageProjectileSkill {
    *
    * @param target A Supplier used to select the point where the projectile should fly to.
    * @param cooldown cooldown between two arrows.
+   * @param range range of the arrow.
    * @see DamageProjectileSkill
    */
-  public BowSkill(final Supplier<Point> target, long cooldown) {
+  public BowSkill(final Supplier<Point> target, long cooldown, float range) {
     super(
-      SKILL_NAME,
-      cooldown,
-      PROJECTILE_TEXTURES,
-      target,
-      DEFAULT_PROJECTILE_SPEED,
-      DEFAULT_PROJECTILE_RANGE,
-      IS_PIRCING,
-      DEFAULT_DAMAGE_AMOUNT,
-      DAMAGE_TYPE,
-      HIT_BOX_SIZE);
+        SKILL_NAME,
+        cooldown,
+        PROJECTILE_TEXTURES,
+        target,
+        DEFAULT_PROJECTILE_SPEED,
+        range,
+        IS_PIRCING,
+        DEFAULT_DAMAGE_AMOUNT,
+        DAMAGE_TYPE,
+        HIT_BOX_SIZE);
   }
 
   @Override

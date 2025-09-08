@@ -104,6 +104,23 @@ public class FireballSkill extends DamageProjectileSkill {
   }
 
   /**
+   * Creates a fireball skill with default values and custom cooldown.
+   *
+   * @param targetSelection Function providing the target point where the fireball should fly.
+   * @param cooldown Cooldown time (in ms) before the skill can be used again.
+   * @param range Maximum travel range.
+   * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
+   */
+  @SafeVarargs
+  public FireballSkill(
+      Supplier<Point> targetSelection,
+      long cooldown,
+      float range,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(targetSelection, cooldown, SPEED, range, DAMAGE, resourceCost);
+  }
+
+  /**
    * Creates a fireball skill with default values.
    *
    * @param targetSelection Function providing the target point where the fireball should fly.
