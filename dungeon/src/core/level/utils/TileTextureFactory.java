@@ -34,6 +34,13 @@ public class TileTextureFactory {
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
+    if (levelPart.element == LevelElement.PORTAL) {
+      path = findTexturePathPortalWall(levelPart);
+      if (path != null) {
+        return new SimpleIPath(prefixPath + path.pathString() + ".png");
+      }
+    }
+
 
     if (levelPart.element == LevelElement.PORTAL) {
       path = findTexturePathPortalWall(levelPart);
@@ -210,6 +217,7 @@ public class TileTextureFactory {
     } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("portal/portal_bottom");
     }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
   private static IPath findTexturePathGreenPortalWall(LevelPart levelPart) {
@@ -228,6 +236,8 @@ public class TileTextureFactory {
 >>>>>>> 40c748e7 (added PortalTile for portal skill)
 =======
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+=======
+>>>>>>> be002c1f (added PortalTile for portal skill)
     return null;
   }
 
@@ -464,6 +474,7 @@ public class TileTextureFactory {
     try {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return (layout[p.y() + 1][p.x()] == LevelElement.WALL
         || layout[p.y() + 1][p.x()] == LevelElement.PORTAL
       );
@@ -475,6 +486,9 @@ public class TileTextureFactory {
         || layout[p.y() + 1][p.x()] == LevelElement.PORTAL
       );
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      return (layout[p.y() + 1][p.x()] == LevelElement.WALL || layout[p.y() + 1][p.x()] == LevelElement.PORTAL);
+>>>>>>> be002c1f (added PortalTile for portal skill)
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -492,6 +506,7 @@ public class TileTextureFactory {
     try {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return (layout[p.y() - 1][p.x()] == LevelElement.WALL
         || layout[p.y() - 1][p.x()] == LevelElement.PORTAL
       );
@@ -503,6 +518,9 @@ public class TileTextureFactory {
         || layout[p.y() - 1][p.x()] == LevelElement.PORTAL
       );
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      return (layout[p.y() - 1][p.x()] == LevelElement.WALL || layout[p.y() - 1][p.x()] == LevelElement.PORTAL);
+>>>>>>> be002c1f (added PortalTile for portal skill)
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
     }
@@ -519,6 +537,7 @@ public class TileTextureFactory {
     try {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return (layout[p.y()][p.x() - 1] == LevelElement.WALL
         || layout[p.y()][p.x() - 1] == LevelElement.PORTAL
       );
@@ -530,6 +549,9 @@ public class TileTextureFactory {
         || layout[p.y()][p.x() - 1] == LevelElement.PORTAL
       );
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      return (layout[p.y()][p.x() - 1] == LevelElement.WALL || layout[p.y()][p.x() - 1] == LevelElement.PORTAL);
+>>>>>>> be002c1f (added PortalTile for portal skill)
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -547,6 +569,7 @@ public class TileTextureFactory {
     try {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       return (layout[p.y()][p.x() + 1] == LevelElement.WALL
         || layout[p.y()][p.x() + 1] == LevelElement.PORTAL
       );
@@ -558,6 +581,9 @@ public class TileTextureFactory {
         || layout[p.y()][p.x() + 1] == LevelElement.PORTAL
       );
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      return (layout[p.y()][p.x() + 1] == LevelElement.WALL || layout[p.y()][p.x() + 1] == LevelElement.PORTAL);
+>>>>>>> be002c1f (added PortalTile for portal skill)
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;

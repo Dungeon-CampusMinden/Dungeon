@@ -260,6 +260,7 @@ public class DungeonLevel implements ILevel, ITickable {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case PORTAL -> portalTiles.add((PortalTile) tile);
 =======
       case PORTAL ->  portalTiles.add((PortalTile) tile);
@@ -270,6 +271,9 @@ public class DungeonLevel implements ILevel, ITickable {
 =======
       case PORTAL -> portalTiles.add((PortalTile) tile);
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+=======
+      case PORTAL ->  portalTiles.add((PortalTile) tile);
+>>>>>>> be002c1f (added PortalTile for portal skill)
     }
     this.addToPathfinding(tile);
     tile.level(this);

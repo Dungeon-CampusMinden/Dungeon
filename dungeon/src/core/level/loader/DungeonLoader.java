@@ -424,6 +424,7 @@ public class DungeonLoader {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           case 'T' -> layout[y][x] = LevelElement.PORTAL;
 =======
           case 'B' -> layout[y][x] = LevelElement.PORTAL;
@@ -435,6 +436,9 @@ public class DungeonLoader {
 =======
           case 'T' -> layout[y][x] = LevelElement.PORTAL;
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+=======
+          case 'B' -> layout[y][x] = LevelElement.PORTAL;
+>>>>>>> be002c1f (added PortalTile for portal skill)
           default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
         }
       }
