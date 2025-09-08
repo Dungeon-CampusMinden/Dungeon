@@ -34,11 +34,12 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
   /**
    * Creates a new {@code SentryFightBehaviour}.
    *
-   * @param pointA the first patrol point
-   * @param pointB the second patrol point
-   * @param attackRange the maximum range within which the sentry can attack the player
-   * @param fightSkill the skill the sentry uses for attacks
-   * @param shootDirection the fixed direction in which the sentry fires its attacks
+   * @param pointA the first patrol point.
+   * @param pointB the second patrol point.
+   * @param attackRange the maximum range within which the sentry can attack the player.
+   * @param fightSkill the skill the sentry uses for attacks.
+   * @param shootDirection the fixed direction in which the sentry fires its attacks.
+   * @param canEnterWalls whether the sentry can move inside walls.
    */
   public SentryFightBehaviour(
       Point pointA,
