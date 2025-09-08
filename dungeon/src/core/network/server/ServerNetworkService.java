@@ -291,8 +291,8 @@ public final class ServerNetworkService {
             e.id(),
             pc.position(),
             pc.viewDirection(),
-            dc.currentAnimationPath(),
-            dc.currentAnimationName(),
+            dc.basePath().pathString(),
+            dc.stateMachine().getCurrentStateName(),
             dc.tintColor());
 
     sendTcpObjectChecked(ctx, spawnEvent);

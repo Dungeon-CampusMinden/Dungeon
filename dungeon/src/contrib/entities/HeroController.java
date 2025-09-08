@@ -3,7 +3,9 @@ package contrib.entities;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.components.InteractionComponent;
 import contrib.components.PathComponent;
-import contrib.utils.components.skill.FireballSkill;
+import contrib.components.SkillComponent;
+import contrib.utils.components.skill.cursorSkill.CursorSkill;
+import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
@@ -25,23 +27,26 @@ public class HeroController {
   /** The ID for the movement force. */
   public static final String MOVEMENT_ID = "Movement";
 
-  private static final Vector2 STEP_SPEED = HeroFactory.defaultHeroSpeed();
-
   private HeroController() {}
 
   public static void moveHero(Entity hero, Direction direction) {
+    // TODO: get correct class
+    CharacterClass heroClass = HeroFactory.DEFAULT_HERO_CLASS;
+
     VelocityComponent vc =
-        hero.fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
+      hero
+        .fetch(VelocityComponent.class)
+        .orElseThrow(
+          () -> MissingComponentException.build(hero, VelocityComponent.class));
 
     Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
-    Vector2 newForce = STEP_SPEED.scale(direction);
+    Vector2 newForce = heroClass.speed().scale(direction);
 
     Vector2 updatedForce =
-        existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
+      existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
 
     if (updatedForce.lengthSquared() > 0) {
-      updatedForce = updatedForce.normalize().scale(STEP_SPEED.length());
+      updatedForce = updatedForce.normalize().scale(heroClass.speed().length());
       vc.applyForce(MOVEMENT_ID, updatedForce);
     }
 
@@ -77,13 +82,21 @@ public class HeroController {
             () -> hero.add(new PathComponent(finalPath)));
   }
 
-  public static void useSkill(Entity hero, int skillId, Point target) {
-    // TODO: Implement logic to use skillId; Use target to determine direction
-    // TODO: Temporarily set the skill callback to override selectionFunc
-    if (HeroFactory.getHeroSkill().canBeUsedAgain()) {
-      HeroFactory.setHeroSkillCallback(new FireballSkill(() -> target));
-      HeroFactory.getHeroSkill().execute(hero);
-    }
+  public static void useSkill(Entity hero, Point target) {
+    hero.fetch(SkillComponent.class)
+      .flatMap(SkillComponent::activeSkill)
+      .ifPresent(
+        skill -> {
+          if (skill instanceof CursorSkill cursorSkill) {
+            cursorSkill.executeOnCursor(hero, target);
+          } else if (skill instanceof ProjectileSkill projSkill) {
+            projSkill.shootProjectile(hero, hero.fetch(PositionComponent.class)
+              .map(PositionComponent::position)
+              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class)),
+              target);
+          }
+          skill.execute(hero);
+        });
   }
 
   public static void interact(Entity hero, Point point) {
@@ -98,5 +111,13 @@ public class HeroController {
                             e.fetch(InteractionComponent.class)
                                 .map(ic -> new AbstractMap.SimpleEntry<>(e, ic))))
         .ifPresent(pair -> pair.getValue().triggerInteraction(pair.getKey(), hero));
+  }
+
+  public static void changeSkill(Entity hero, boolean nextSkill) {
+    hero.fetch(SkillComponent.class)
+        .ifPresent(skillComponent -> {
+          if (nextSkill) skillComponent.nextSkill();
+          else skillComponent.prevSkill();
+        });
   }
 }

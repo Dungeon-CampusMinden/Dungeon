@@ -27,7 +27,7 @@ public class MyFireballSkill extends DamageProjectileSkill {
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final long COOLDOWN = 500;
-  private static final boolean IS_PIRCING = false;
+  private static final boolean IS_PIERCING = false;
 
   /**
    * Erstellt einen Feuerball mit Standardwerten.
@@ -62,7 +62,7 @@ public class MyFireballSkill extends DamageProjectileSkill {
         null,
         speed,
         range,
-        IS_PIRCING,
+      IS_PIERCING,
         damageAmount,
         DAMAGE_TYPE,
         HIT_BOX_SIZE,

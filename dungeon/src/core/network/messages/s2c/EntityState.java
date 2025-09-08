@@ -3,6 +3,8 @@ package core.network.messages.s2c;
 import core.network.messages.NetworkMessage;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.components.draw.state.State;
+
 import java.io.Serial;
 import java.util.Optional;
 
@@ -19,7 +21,6 @@ public final class EntityState implements NetworkMessage {
   private final String viewDirection;
   private final Integer curHealth;
   private final Integer maxHealth;
-  private final String animation;
   private final Integer tintColor;
 
   private EntityState(Builder builder) {
@@ -28,7 +29,6 @@ public final class EntityState implements NetworkMessage {
     this.viewDirection = builder.viewDirection;
     this.curHealth = builder.curHealth;
     this.maxHealth = builder.maxHealth;
-    this.animation = builder.animation;
     this.tintColor = builder.tintColor;
   }
 
@@ -52,10 +52,6 @@ public final class EntityState implements NetworkMessage {
     return Optional.ofNullable(maxHealth);
   }
 
-  public Optional<String> animation() {
-    return Optional.ofNullable(animation);
-  }
-
   public Optional<Integer> tintColor() {
     return Optional.ofNullable(tintColor);
   }
@@ -70,7 +66,7 @@ public final class EntityState implements NetworkMessage {
     private String viewDirection;
     private Integer curHealth;
     private Integer maxHealth;
-    private String animation;
+    private State state;
     private Integer tintColor;
 
     public Builder entityId(int entityId) {
@@ -100,11 +96,6 @@ public final class EntityState implements NetworkMessage {
 
     public Builder maxHealth(Integer maxHealth) {
       this.maxHealth = maxHealth;
-      return this;
-    }
-
-    public Builder animation(String animation) {
-      this.animation = animation;
       return this;
     }
 

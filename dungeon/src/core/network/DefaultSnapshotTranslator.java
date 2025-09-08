@@ -88,7 +88,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
               e.fetch(DrawComponent.class)
                   .ifPresent(
                       dc -> {
-                        builder.animation(dc.currentAnimationName());
                         builder.tintColor(dc.tintColor());
                       });
 
@@ -146,7 +145,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     .fetch(DrawComponent.class)
                     .ifPresent(
                         dc -> {
-                          snap.animation().ifPresent(dc::currentAnimation);
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 

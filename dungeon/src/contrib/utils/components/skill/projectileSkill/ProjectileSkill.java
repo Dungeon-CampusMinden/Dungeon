@@ -35,9 +35,6 @@ public abstract class ProjectileSkill extends Skill {
   public static final TriConsumer<Entity, Entity, Direction> NOOP_TRICONSUMER =
       (entity1, entity2, direction) -> {};
 
-  /** Default hitbox size for projectiles. */
-  public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.ONE;
-
   protected boolean ignoreOtherProjectiles = true;
 
   protected IPath texture;
@@ -86,7 +83,7 @@ public abstract class ProjectileSkill extends Skill {
     shootProjectile(caster, start(caster), end(caster));
   }
 
-  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);
