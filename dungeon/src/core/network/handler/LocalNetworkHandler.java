@@ -83,7 +83,13 @@ public class LocalNetworkHandler implements INetworkHandler {
                   HeroController.moveHeroPath(hero, input.point());
                   break;
                 case CAST_SKILL:
-                  HeroController.useSkill(hero, 0, input.point());
+                  HeroController.useSkill(hero, input.point());
+                  break;
+                case NEXT_SKILL:
+                  HeroController.changeSkill(hero, true);
+                  break;
+                case PREV_SKILL:
+                  HeroController.changeSkill(hero, false);
                   break;
                 case INTERACT:
                   HeroController.interact(hero, input.point());
@@ -239,7 +245,7 @@ public class LocalNetworkHandler implements INetworkHandler {
               // DrawComponent
               entity
                   .fetch(DrawComponent.class)
-                  .ifPresent(dc -> builder.animation(dc.currentAnimationName()));
+                  .ifPresent(dc -> builder.tintColor(dc.tintColor()));
 
               snapshotEntities.add(builder.build());
             });

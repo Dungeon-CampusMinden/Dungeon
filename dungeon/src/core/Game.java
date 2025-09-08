@@ -809,16 +809,6 @@ public final class Game {
     return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
   }
 
-  /**
-   * Checks if the given entity is in {@link core.Game}.
-   *
-   * @param entity Entity to check.
-   * @return True if the entity is in the game, false otherwise.
-   */
-  public static boolean findEntity(final Entity entity) {
-    return ECSManagment.findEntity(entity);
-  }
-
   /** Exits the GDX application and shuts down the network handler. */
   public static void exit() {
     exit("Exit Game");

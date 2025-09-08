@@ -53,15 +53,13 @@ public final class DrawSystem extends System {
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
 
-  private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
-  private final Map<IPath, PainterConfig> configs;
+  private final TreeMap<Integer, List<DSData>> sortedEntities = new TreeMap<>();
 
   /** Create a new DrawSystem. */
   public DrawSystem() {
     super(DrawComponent.class, PositionComponent.class);
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
-    configs = new HashMap<>();
   }
 
   /**
