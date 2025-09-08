@@ -6,7 +6,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -60,27 +59,20 @@ public class Level002 extends BlocklyLevel {
       showText = false;
     }
 
-    try {
-      BlocklyMonster.GUARD()
-          .attackRange(3)
-          .viewDirection(Direction.LEFT)
-          .addToGame()
-          .build(customPoints().getFirst());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    BlocklyMonster.GUARD
+        .builder()
+        .attackRange(3)
+        .viewDirection(Direction.LEFT)
+        .addToGame()
+        .build(customPoints().getFirst());
 
     customPoints().remove(0);
 
-    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG().attackRange(0);
+    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder().attackRange(0);
     customPoints()
         .forEach(
             coordinate -> {
-              try {
-                hedgehogBuilder.addToGame().build(coordinate);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
+              hedgehogBuilder.addToGame().build(coordinate);
             });
   }
 

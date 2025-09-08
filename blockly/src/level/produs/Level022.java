@@ -11,7 +11,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -54,21 +53,19 @@ public class Level022 extends BlocklyLevel {
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
     Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).close());
 
-    try {
-      BlocklyMonster.BLACK_KNIGHT()
-          .attackRange(0)
-          .speed(Client.MOVEMENT_FORCE.x())
-          .addToGame()
-          .viewDirection(Direction.LEFT)
-          .onDeath(
-              // todo we shouldnt just end the game, we need a real end screen
-              entity ->
-                  DialogUtils.showTextPopup(
-                      "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit))
-          .build(customPoints().getFirst());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    BlocklyMonster.BLACK_KNIGHT
+        .builder()
+        .attackRange(0)
+        .speed(Client.MOVEMENT_FORCE.x())
+        .addToGame()
+        .viewDirection(Direction.LEFT)
+        .onDeath(
+            // todo we shouldn't just end the game, we need a real end screen
+            entity ->
+                DialogUtils.showTextPopup(
+                    "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit))
+        .build(customPoints().getFirst());
+
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {

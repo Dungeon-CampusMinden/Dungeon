@@ -26,7 +26,6 @@ import core.utils.components.MissingComponentException;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -596,7 +595,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    * @return constructed Entity
    */
   public Entity build(Point spawnPoint) {
-    Entity monster = new Entity(name);
+    Entity monster = name().isEmpty() ? new Entity() : new Entity(name());
 
     monster.add(new PositionComponent(spawnPoint));
     monster.add(new DrawComponent(texture()));

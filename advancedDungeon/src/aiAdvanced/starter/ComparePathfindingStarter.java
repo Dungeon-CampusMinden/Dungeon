@@ -249,15 +249,11 @@ public class ComparePathfindingStarter {
    * @return The newly created runnerMob
    */
   private static Entity createRunnerMob(Point startPoint) {
-    try {
-      return new MonsterBuilder<>()
-          .name("KI Runner")
-          .texture(new SimpleIPath("character/wizard"))
-          .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as hero
-          .addToGame()
-          .build(startPoint);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create monster entity as RUNNER", e);
-    }
+    return new MonsterBuilder<>()
+        .name("KI Runner")
+        .texture(new SimpleIPath("character/wizard"))
+        .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as hero
+        .addToGame()
+        .build(startPoint);
   }
 }

@@ -72,7 +72,7 @@ public final class EntityFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity randomMonster() throws IOException {
-    return DungeonMonster.RANDOM().build(PositionComponent.ILLEGAL_POSITION);
+    return DungeonMonster.randomMonster().builder().build(PositionComponent.ILLEGAL_POSITION);
   }
 
   /**

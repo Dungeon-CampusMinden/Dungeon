@@ -13,7 +13,6 @@ import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -63,17 +62,13 @@ public class Level008 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.zoomDefault();
 
-    try {
-      BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD().addToGame();
-      guardBuilder.attackRange(5);
-      guardBuilder.viewDirection(Direction.UP);
-      guardBuilder.build(customPoints().get(7).toCenteredPoint());
-      guardBuilder.attackRange(5);
-      guardBuilder.viewDirection(Direction.LEFT);
-      guardBuilder.build(customPoints().get(8).toCenteredPoint());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
+    guardBuilder.attackRange(5);
+    guardBuilder.viewDirection(Direction.UP);
+    guardBuilder.build(customPoints().get(7).toCenteredPoint());
+    guardBuilder.attackRange(5);
+    guardBuilder.viewDirection(Direction.LEFT);
+    guardBuilder.build(customPoints().get(8).toCenteredPoint());
 
     Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());

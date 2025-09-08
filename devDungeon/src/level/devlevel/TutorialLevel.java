@@ -73,7 +73,7 @@ public class TutorialLevel extends DevDungeonLevel {
         "Verwende " + movementKeys + " (oder RMB), um dich zu bewegen.", "Bewegung");
 
     buildBridge();
-    Entity mob = DevDungeonMonster.TUTORIAL().addToGame().build(mobSpawn);
+    Entity mob = DevDungeonMonster.TUTORIAL.builder().addToGame().build(mobSpawn);
     if (mob == null) {
       throw new RuntimeException("Failed to create tutorial monster");
     }

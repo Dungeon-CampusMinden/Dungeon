@@ -4,7 +4,6 @@ import contrib.entities.MonsterBuilder;
 import core.Component;
 import core.level.elements.ILevel;
 import core.utils.Point;
-import java.io.IOException;
 
 /**
  * A component that stores the spawn parameters of a mob spawner entity.

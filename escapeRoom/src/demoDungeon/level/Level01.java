@@ -27,7 +27,6 @@ import core.level.utils.LevelUtils;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import hint.*;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -270,22 +269,20 @@ public class Level01 extends DungeonLevel {
     List<Tile> points =
         LevelUtils.accessibleTilesInRange(customPoints.get(7).toCenteredPoint(), 5f);
     for (int i = 0; i < 5; i++) {
-      try {
-        Entity m =
-            DungeonMonster.RANDOM().build(points.get(RANDOM.nextInt(points.size())).position());
-        m.fetch(HealthComponent.class)
-            .ifPresent(
-                healthComponent ->
-                    healthComponent.onDeath(
-                        entity -> {
-                          monster.remove(entity);
-                          Game.remove(entity);
-                        }));
-        monster.add(m);
-        Game.add(m);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      Entity m =
+          DungeonMonster.randomMonster()
+              .builder()
+              .build(points.get(RANDOM.nextInt(points.size())).position());
+      m.fetch(HealthComponent.class)
+          .ifPresent(
+              healthComponent ->
+                  healthComponent.onDeath(
+                      entity -> {
+                        monster.remove(entity);
+                        Game.remove(entity);
+                      }));
+      monster.add(m);
+      Game.add(m);
     }
   }
 

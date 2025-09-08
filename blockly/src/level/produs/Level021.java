@@ -15,7 +15,6 @@ import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -88,23 +87,20 @@ public class Level021 extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
 
     // BOSS
-    try {
-      Entity boss =
-          BlocklyMonster.BLACK_KNIGHT()
-              .attackRange(0)
-              .addToGame()
-              .viewDirection(Direction.LEFT)
-              .build(
-                  Game.randomTile(LevelElement.EXIT)
-                      .orElseThrow()
-                      .coordinate()
-                      .translate(Direction.LEFT));
-      bossPC =
-          boss.fetch(PositionComponent.class)
-              .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Entity boss =
+        BlocklyMonster.BLACK_KNIGHT
+            .builder()
+            .attackRange(0)
+            .addToGame()
+            .viewDirection(Direction.LEFT)
+            .build(
+                Game.randomTile(LevelElement.EXIT)
+                    .orElseThrow()
+                    .coordinate()
+                    .translate(Direction.LEFT));
+    bossPC =
+        boss.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));
 
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     heroPC =

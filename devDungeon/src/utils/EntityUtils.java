@@ -11,7 +11,6 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import entities.DevDungeonMonster;
 import entities.TorchFactory;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -131,10 +130,10 @@ public class EntityUtils {
    * @return A list of the spawned entities. The last entity in the list is the level boss monster.
    * @throws IllegalArgumentException if mobCount is greater than the length of mobSpawns.
    * @throws RuntimeException if an error occurs while spawning a monster.
-   * @see #spawnBoss(MonsterBuilder, Coordinate)
+   * @see #spawnBoss(DevDungeonMonster, Coordinate)
    */
   public static List<Entity> spawnMobs(
-      int mobCount, MonsterBuilder<?>[] monsterTypes, Coordinate[] mobSpawns) {
+      int mobCount, DevDungeonMonster[] monsterTypes, Coordinate[] mobSpawns) {
     if (mobCount > mobSpawns.length) {
       throw new IllegalArgumentException("mobCount cannot be greater than mobSpawns.length");
     }
@@ -145,8 +144,8 @@ public class EntityUtils {
     // Spawns the monsters at the random spawn points.
     for (Coordinate mobPos : randomSpawns) {
       // Choose a random monster type from the monsterTypes array.
-      MonsterBuilder<?> randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
-      spawnedMobs.add(randomType.addToGame().build(mobPos));
+      DevDungeonMonster randomType = monsterTypes[ILevel.RANDOM.nextInt(monsterTypes.length)];
+      spawnedMobs.add(randomType.builder().addToGame().build(mobPos));
     }
 
     return spawnedMobs;
@@ -163,9 +162,9 @@ public class EntityUtils {
    * @throws RuntimeException if an error occurs while spawning a monster.
    */
   public static Entity spawnBoss(
-      MonsterBuilder<?> bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
+      DevDungeonMonster bossType, Coordinate levelBossSpawn, Consumer<Entity> onBossDeath) {
     try {
-      Entity bossMob = bossType.addToGame().build(levelBossSpawn);
+      Entity bossMob = bossType.builder().addToGame().build(levelBossSpawn);
       if (bossMob == null) {
         throw new RuntimeException("Failed to spawn level boss monster");
       }
@@ -176,8 +175,7 @@ public class EntityUtils {
               hc ->
                   hc.onDeath(
                       (e) -> {
-                        ((ExitTile) Game.endTile().orElseThrow())
-                            .open(); // open exit when chort dies
+                        Game.endTiles().forEach(ExitTile::open); // open exit when chort dies
                         onBossDeath.accept(e);
                         Game.remove(e);
                       }));
@@ -196,7 +194,7 @@ public class EntityUtils {
    * @return The spawned boss monster entity.
    * @throws RuntimeException if an error occurs while spawning a monster.
    */
-  public static Entity spawnBoss(MonsterBuilder<?> bossType, Coordinate levelBossSpawn) {
+  public static Entity spawnBoss(DevDungeonMonster bossType, Coordinate levelBossSpawn) {
     return spawnBoss(bossType, levelBossSpawn, (e) -> {});
   }
 }

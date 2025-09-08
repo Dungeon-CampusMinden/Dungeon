@@ -13,7 +13,6 @@ import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -96,28 +95,22 @@ public class Level011 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(8).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(9).toCenteredPoint()));
 
-    try {
-      BlocklyMonster.GUARD()
-          .attackRange(5)
-          .viewDirection(Direction.LEFT)
-          .addToGame()
-          .build(customPoints().get(10));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    BlocklyMonster.GUARD
+        .builder()
+        .attackRange(5)
+        .viewDirection(Direction.LEFT)
+        .addToGame()
+        .build(customPoints().get(10));
 
-    try {
-      BlocklyMonster.BLACK_KNIGHT()
-          .attackRange(0)
-          .addToGame()
-          .viewDirection(Direction.UP)
-          .onDeath(
-              entity ->
-                  DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!"))
-          .build(customPoints().get(11));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    BlocklyMonster.BLACK_KNIGHT
+        .builder()
+        .attackRange(0)
+        .addToGame()
+        .viewDirection(Direction.UP)
+        .onDeath(
+            entity ->
+                DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!"))
+        .build(customPoints().get(11));
 
     door1 = (DoorTile) Game.tileAt(new Coordinate(4, 9)).orElse(null);
     door2 = (DoorTile) Game.tileAt(new Coordinate(14, 8)).orElse(null);

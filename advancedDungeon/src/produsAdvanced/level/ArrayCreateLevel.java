@@ -158,22 +158,16 @@ public class ArrayCreateLevel extends AdvancedLevel {
   }
 
   private void spawnMonsterByType(int monsterType, Coordinate pos) {
-    try {
-      Entity monster =
-          switch (monsterType) {
-            case 0 -> AdvancedDungeonMonster.ELEMENTAL().build(pos.toCenteredPoint());
-            case 1 -> AdvancedDungeonMonster.STATIC_CHORT().build(pos.toCenteredPoint());
-            case 2 -> AdvancedDungeonMonster.IMP().build(pos.toCenteredPoint());
-            case 3 -> AdvancedDungeonMonster.DOC().build(pos.toCenteredPoint());
-            case 4 -> AdvancedDungeonMonster.GOBLIN().build(pos.toCenteredPoint());
-            default ->
-                throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
-          };
-      Game.add(monster);
-
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to create monster entity at " + pos, e);
-    }
+    Entity monster =
+        switch (monsterType) {
+          case 0 -> AdvancedDungeonMonster.ELEMENTAL.builder().build(pos.toCenteredPoint());
+          case 1 -> AdvancedDungeonMonster.STATIC_CHORT.builder().build(pos.toCenteredPoint());
+          case 2 -> AdvancedDungeonMonster.IMP.builder().build(pos.toCenteredPoint());
+          case 3 -> AdvancedDungeonMonster.DOC.builder().build(pos.toCenteredPoint());
+          case 4 -> AdvancedDungeonMonster.GOBLIN.builder().build(pos.toCenteredPoint());
+          default -> throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
+        };
+    Game.add(monster);
   }
 
   private void spawnSigns() {

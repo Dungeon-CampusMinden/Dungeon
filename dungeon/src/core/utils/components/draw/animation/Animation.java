@@ -30,8 +30,7 @@ import java.util.*;
 public class Animation {
 
   /** Path to the missing texture fallback image. */
-  public static final IPath MISSING_TEXTURE_PATH =
-      new SimpleIPath("animation/missing_texture.png");
+  public static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");
 
   private final AnimationConfig config;
   private float width = 1;

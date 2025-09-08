@@ -7,7 +7,6 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import entities.MiscFactory;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -57,18 +56,14 @@ public class Level010 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(4).toCenteredPoint()));
 
-    try {
-      BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD().attackRange(5).addToGame();
-      guardBuilder.viewDirection(Direction.DOWN);
-      guardBuilder.build(customPoints().get(5).toCenteredPoint());
-      guardBuilder.build(customPoints().get(8).toCenteredPoint());
-      guardBuilder.build(customPoints().get(9).toCenteredPoint());
-      guardBuilder.viewDirection(Direction.RIGHT);
-      guardBuilder.build(customPoints().get(6).toCenteredPoint());
-      guardBuilder.build(customPoints().get(7).toCenteredPoint());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().attackRange(5).addToGame();
+    guardBuilder.viewDirection(Direction.DOWN);
+    guardBuilder.build(customPoints().get(5).toCenteredPoint());
+    guardBuilder.build(customPoints().get(8).toCenteredPoint());
+    guardBuilder.build(customPoints().get(9).toCenteredPoint());
+    guardBuilder.viewDirection(Direction.RIGHT);
+    guardBuilder.build(customPoints().get(6).toCenteredPoint());
+    guardBuilder.build(customPoints().get(7).toCenteredPoint());
   }
 
   @Override

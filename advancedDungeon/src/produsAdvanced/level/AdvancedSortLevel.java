@@ -18,7 +18,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
@@ -152,12 +151,8 @@ public class AdvancedSortLevel extends AdvancedLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              Entity mob = null;
-              try {
-                mob = DungeonMonster.RANDOM().build(coordinate.toCenteredPoint());
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
+              Entity mob =
+                  DungeonMonster.randomMonster().builder().build(coordinate.toCenteredPoint());
               mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);

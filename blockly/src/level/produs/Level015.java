@@ -12,7 +12,6 @@ import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
 import entities.monster.BlocklyMonster;
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -74,17 +73,14 @@ public class Level015 extends BlocklyLevel {
         .orElseThrow()
         .currentAmmunition(4);
     final int[] counter = {0};
-    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG().attackRange(0).addToGame();
+    BlocklyMonster.Builder hedgehogBuilder =
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
 
     customPoints()
         .forEach(
             coordinate -> {
               if (counter[0] == 0 || random.nextBoolean()) {
-                try {
-                  hedgehogBuilder.build(coordinate.toCenteredPoint());
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
+                hedgehogBuilder.build(coordinate.toCenteredPoint());
                 counter[0]++;
               }
             });
