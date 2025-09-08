@@ -51,7 +51,7 @@ public class TorchFactory {
     Entity torch = new Entity("torch");
 
     torch.add(new PositionComponent(pos));
-    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/torch.png"), "off");
+    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/torch/torch.png"), "off");
     if (lit) {
       dc.sendSignal("on");
     }
