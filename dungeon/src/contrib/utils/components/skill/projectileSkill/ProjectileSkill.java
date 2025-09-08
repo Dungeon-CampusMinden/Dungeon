@@ -132,7 +132,7 @@ public abstract class ProjectileSkill extends Skill {
     shootProjectile(caster, start(caster), end(caster));
   }
 
-  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);

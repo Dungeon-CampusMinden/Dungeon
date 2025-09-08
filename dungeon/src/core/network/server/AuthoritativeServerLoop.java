@@ -103,8 +103,6 @@ public final class AuthoritativeServerLoop {
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
-    DrawSystem.ALLOW_RENDER = false; // Only update components, not render
-    ECSManagment.add(new DrawSystem());
     ECSManagment.add(new ProjectileSystem());
     ECSManagment.add(new HealthSystem());
     ECSManagment.add(new PathSystem());
@@ -136,7 +134,7 @@ public final class AuthoritativeServerLoop {
       int clientId = msg.clientId();
       Entity playerEntity = clientEntities.get(clientId);
       if (playerEntity == null) continue;
-      LOGGER.info("" + "Received input message: " + msg);
+      LOGGER.info("Received input message: " + msg);
       switch (msg.action()) {
         case MOVE:
           HeroController.moveHero(playerEntity, Vector2.of(msg.point()).direction());
@@ -145,7 +143,13 @@ public final class AuthoritativeServerLoop {
           HeroController.moveHeroPath(playerEntity, msg.point());
           break;
         case CAST_SKILL:
-          HeroController.useSkill(playerEntity, 0, msg.point());
+          HeroController.useSkill(playerEntity, msg.point());
+          break;
+        case NEXT_SKILL:
+          HeroController.changeSkill(playerEntity, true);
+          break;
+        case PREV_SKILL:
+          HeroController.changeSkill(playerEntity, false);
           break;
         case INTERACT:
           HeroController.interact(playerEntity, msg.point());

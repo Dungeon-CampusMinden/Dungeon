@@ -38,37 +38,6 @@ public final class HeroFactory {
 
   /** The default Hero class, used if no other class is specified. */
   public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
-  /**
-   * The default size of the inventory.
-   *
-   * @see InventoryComponent
-   */
-  public static final int DEFAULT_INVENTORY_SIZE = 6;
-
-  private static final IPath HERO_FILE_PATH = new SimpleIPath("character/wizard");
-  private static final Vector2 STEP_SPEED = Vector2.of(5, 5);
-  private static final int FIREBALL_COOL_DOWN = 500;
-  private static final int HERO_HP = 25;
-  private static final float HERO_MAX_SPEED = STEP_SPEED.x();
-  private static final float HERO_MASS = 1.3f;
-  private static Skill HERO_SKILL =
-      new Skill(new FireballSkill(SkillTools::cursorPositionAsPoint), FIREBALL_COOL_DOWN);
-  private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
-      entity ->
-          entity
-              .fetch(SkillComponent.class)
-              .ifPresent(
-                  skillComponent ->
-                      skillComponent
-                          .activeSkill()
-                          .ifPresent(
-                              new Consumer<Skill>() {
-                                @Override
-                                public void accept(Skill skill) {
-                                    if (isLocal)
-                                  skill.execute(entity);
-                                }
-                              }));
 
   private static Consumer<Entity> DEFAULT_DEATH =
       (hero) ->
@@ -92,7 +61,7 @@ public final class HeroFactory {
                           characterClassComponent
                               .characterClass()
                               .startItems()
-                              .forEach(item -> invComp.add(item));
+                              .forEach(invComp::add);
                           hero.add(invComp);
                         });
 
@@ -123,11 +92,11 @@ public final class HeroFactory {
    * @throws IOException if the animation could not been loaded.
    */
   public static Entity newHero() throws IOException {
-    return newHero(HERO_DEATH, true, PreRunConfiguration.username());
+    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH, true, PreRunConfiguration.username());
   }
 
   public static Entity newHero(boolean isLocal, String playerName) throws IOException {
-    return newHero(HERO_DEATH, isLocal, playerName);
+    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH, isLocal, playerName);
   }
 
   /**
@@ -142,11 +111,12 @@ public final class HeroFactory {
    * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
    * Otherwise, it will be controlled by the server.
    *
+   * @param characterClass Class of the hero.
    * @param deathCallback function that will be executed if the hero dies
    * @param isLocal if the hero is the local player
    * @return A new Entity.
    */
-  public static Entity newHero(Consumer<Entity> deathCallback, boolean isLocal, String playerName) {
+  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback, boolean isLocal, String playerName) {
     Entity hero = new Entity("hero_" + playerName);
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
@@ -249,7 +219,7 @@ public final class HeroFactory {
     hero.add(inputComp);
 
     InventoryComponent invComp = new InventoryComponent(characterClass.inventorySize());
-    characterClass.startItems().forEach(item -> invComp.add(item));
+    characterClass.startItems().forEach(invComp::add);
     hero.add(invComp);
 
     // hero movement
@@ -264,11 +234,11 @@ public final class HeroFactory {
 
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
+        entity -> entity.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSkill),
         false);
     inputComp.registerCallback(
         KeyboardConfig.PREV_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
+        entity -> entity.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSkill),
         false);
 
     if (HeroController.ENABLE_MOUSE_MOVEMENT) {
@@ -503,16 +473,5 @@ public final class HeroFactory {
     Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
     vc1.applyForce("Collision", newVelocity.scale(-1));
     vc2.applyForce("Collision", newVelocity);
-  }
-
-  /**
-   * Create a new Hero based on the given class with the default death callback (restart level).
-   *
-   * @param characterClass The class of the hero.
-   * @return The Hero Entity-
-   * @throws IOException if animations could not be created.
-   */
-  public static Entity newHero(CharacterClass characterClass) throws IOException {
-    return newHero(characterClass, DEFAULT_DEATH);
   }
 }
