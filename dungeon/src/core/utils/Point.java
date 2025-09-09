@@ -88,15 +88,6 @@ public record Point(float x, float y) {
   }
 
   /**
-   * Create new Point centered in the tile.
-   *
-   * @return centered Point
-   */
-  public Point toCenteredPoint() {
-    return new Point((int) x() + 0.5f, (int) y() + 0.5f);
-  }
-
-  /**
    * Create new Point flooring the values.
    *
    * @return floored Point

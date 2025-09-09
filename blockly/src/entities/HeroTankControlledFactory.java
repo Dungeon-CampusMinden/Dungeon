@@ -3,6 +3,7 @@ package entities;
 import client.Client;
 import coderunner.BlocklyCommands;
 import contrib.entities.EntityFactory;
+import contrib.entities.HeroFactory;
 import core.Entity;
 import core.components.InputComponent;
 import core.components.PositionComponent;
@@ -27,6 +28,15 @@ public class HeroTankControlledFactory {
    * @throws IOException if there is an error creating the hero
    */
   public static Entity newTankControlledHero() throws IOException {
+    // TODO: Hotfix for multithreading issues during level reset on hero death.
+    // The server executes the next block immediately after the hero dies.
+    // Calling Client.restart() twice ensures the level is fully reset and avoids race conditions.
+    HeroFactory.heroDeath(
+        entity -> {
+          Client.restart();
+          Client.restart();
+        });
+
     Entity hero = EntityFactory.newHero();
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
@@ -49,6 +59,7 @@ public class HeroTankControlledFactory {
         KeyboardConfig.MOVEMENT_RIGHT.value(),
         (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
         false);
+
     return hero;
   }
 

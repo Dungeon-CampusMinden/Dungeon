@@ -65,15 +65,6 @@ public record Coordinate(int x, int y) {
     return Math.abs(x - other.x) + Math.abs(y - other.y);
   }
 
-  /**
-   * Convert Coordinate to Point centered in the tile.
-   *
-   * @return Coordinate converted to a point;
-   */
-  public Point toCenteredPoint() {
-    return new Point(x + 0.5f, y + 0.5f);
-  }
-
   @Override
   public String toString() {
     return x + "," + y;
