@@ -1,7 +1,7 @@
 package contrib.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
+import core.utils.components.path.IPath;
+import core.utils.components.path.SimpleIPath;
 
 /**
  * An enumeration of the different sounds that a monster can make when it dies.
@@ -20,14 +20,10 @@ public enum MonsterDeathSound {
   /** No sound. */
   NONE("");
 
-  private final Sound sound;
+  private final IPath path;
 
   MonsterDeathSound(String path) {
-    if (path.isEmpty()) {
-      this.sound = null;
-    } else {
-      this.sound = Gdx.audio.newSound(Gdx.files.internal(path));
-    }
+    this.path = new SimpleIPath(path);
   }
 
   /**
@@ -35,7 +31,7 @@ public enum MonsterDeathSound {
    *
    * @return The sound of the monster's death. If the monster has no sound, returns null.
    */
-  public Sound sound() {
-    return sound;
+  public IPath path() {
+    return path;
   }
 }

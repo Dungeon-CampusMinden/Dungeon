@@ -3,8 +3,8 @@ package produsAdvanced.level;
 import contrib.components.AIComponent;
 import contrib.components.HealthComponent;
 import contrib.components.SignComponent;
+import contrib.entities.DungeonMonster;
 import contrib.entities.LeverFactory;
-import contrib.entities.MonsterFactory;
 import contrib.entities.SignFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
@@ -12,14 +12,12 @@ import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import level.AdvancedLevel;
@@ -153,13 +151,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              Entity mob = null;
-              try {
-                mob = MonsterFactory.randomMonster();
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-              mob.fetch(PositionComponent.class).get().position(coordinate.toPoint());
+              Entity mob = DungeonMonster.randomMonster().builder().build(coordinate.toPoint());
               mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);

@@ -1,13 +1,11 @@
 package produsAdvanced.level;
 
-import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.hud.DialogUtils;
 import contrib.utils.DynamicCompiler;
 import contrib.utils.ICommand;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
@@ -21,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import level.AdvancedLevel;
+import produsAdvanced.abstraction.AdvancedDungeonMonster;
 import produsAdvanced.abstraction.ArrayRemover;
 
 /**
@@ -159,83 +158,13 @@ public class ArrayRemoveLevel extends AdvancedLevel {
   private void spawnMonsterByType(int monsterType, Coordinate pos) {
     Entity monster =
         switch (monsterType) {
-          case 0 -> // monster elemental
-              MonsterFactory.buildMonster(
-                  "Monster Elemental",
-                  new SimpleIPath("character/monster/elemental_goo_small"),
-                  4,
-                  5.0f,
-                  0.1f,
-                  MonsterDeathSound.HIGH_PITCH.sound(),
-                  new AIComponent(
-                      entity -> {}, // keine Kampf-KI
-                      entity -> {}, // keine Idle-KI
-                      entity -> false), // keine Übergänge
-                  0, // kein Kollisionsschaden
-                  0, // keine Kollisions-Abklingzeit
-                  MonsterIdleSound.BURP.path());
-          case 1 -> // Chort
-              MonsterFactory.buildMonster(
-                  "Static Chort",
-                  new SimpleIPath("character/monster/chort"),
-                  1,
-                  0.0f,
-                  0.0f,
-                  MonsterDeathSound.LOWER_PITCH.sound(),
-                  new AIComponent(entity -> {}, entity -> {}, entity -> false),
-                  0,
-                  0,
-                  MonsterIdleSound.BURP.path());
-          case 2 -> // Imp
-              MonsterFactory.buildMonster(
-                  "Imp",
-                  new SimpleIPath("character/monster/imp"),
-                  4,
-                  5.0f,
-                  0.1f,
-                  MonsterDeathSound.HIGH_PITCH.sound(),
-                  new AIComponent(
-                      entity -> {}, // keine Kampf-KI
-                      entity -> {}, // keine Idle-KI
-                      entity -> false), // keine Übergänge
-                  0, // kein Kollisionsschaden
-                  0, // keine Kollisions-Abklingzeit
-                  MonsterIdleSound.BURP.path());
-          case 3 -> // Doc
-              MonsterFactory.buildMonster(
-                  "Doc",
-                  new SimpleIPath("character/monster/doc"),
-                  4,
-                  5.0f,
-                  0.1f,
-                  MonsterDeathSound.HIGH_PITCH.sound(),
-                  new AIComponent(
-                      entity -> {}, // keine Kampf-KI
-                      entity -> {}, // keine Idle-KI
-                      entity -> false), // keine Übergänge
-                  0, // kein Kollisionsschaden
-                  0, // keine Kollisions-Abklingzeit
-                  MonsterIdleSound.BURP.path());
-          case 4 -> // Goblin
-              MonsterFactory.buildMonster(
-                  "Goblin",
-                  new SimpleIPath("character/monster/goblin"),
-                  4,
-                  5.0f,
-                  0.1f,
-                  MonsterDeathSound.HIGH_PITCH.sound(),
-                  new AIComponent(
-                      entity -> {}, // keine Kampf-KI
-                      entity -> {}, // keine Idle-KI
-                      entity -> false), // keine Übergänge
-                  0, // kein Kollisionsschaden
-                  0, // keine Kollisions-Abklingzeit
-                  MonsterIdleSound.BURP.path());
+          case 0 -> AdvancedDungeonMonster.ELEMENTAL.builder().build(pos.toPoint());
+          case 1 -> AdvancedDungeonMonster.STATIC_CHORT.builder().build(pos.toPoint());
+          case 2 -> AdvancedDungeonMonster.IMP.builder().build(pos.toPoint());
+          case 3 -> AdvancedDungeonMonster.DOC.builder().build(pos.toPoint());
+          case 4 -> AdvancedDungeonMonster.GOBLIN.builder().build(pos.toPoint());
           default -> throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
         };
-
-    monster.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos.toPoint()));
-
     Game.add(monster);
   }
 

@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.components.HealthComponent;
 import contrib.components.LeverComponent;
 import contrib.entities.LeverFactory;
 import contrib.hud.DialogUtils;
@@ -96,26 +95,23 @@ public class Level011 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(8).toPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(9).toPoint()));
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.addToGame();
-    guardBuilder.range(5);
-    guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(customPoints().get(10).toPoint());
-    guardBuilder.build();
+    BlocklyMonster.GUARD
+        .builder()
+        .attackRange(5)
+        .viewDirection(Direction.LEFT)
+        .addToGame()
+        .build(customPoints().get(10));
 
-    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
-    bossBuilder.range(0);
-    bossBuilder.addToGame();
-    bossBuilder.viewDirection(Direction.UP);
-    bossBuilder.spawnPoint(customPoints().get(11).toPoint());
-    Entity boss = bossBuilder.build();
-    boss.fetch(HealthComponent.class)
-        .orElseThrow()
+    BlocklyMonster.BLACK_KNIGHT
+        .builder()
+        .attackRange(0)
+        .addToGame()
+        .viewDirection(Direction.UP)
         .onDeath(
-            entity -> {
-              DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!");
-              Game.remove(entity);
-            });
+            entity ->
+                DialogUtils.showTextPopup("NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!"))
+        .build(customPoints().get(11));
+
     door1 = (DoorTile) Game.tileAt(new Coordinate(4, 9)).orElse(null);
     door2 = (DoorTile) Game.tileAt(new Coordinate(14, 8)).orElse(null);
     door1.close();

@@ -73,16 +73,14 @@ public class Level015 extends BlocklyLevel {
         .orElseThrow()
         .currentAmmunition(4);
     final int[] counter = {0};
-    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
-    hedgehogBuilder.range(0);
-    hedgehogBuilder.addToGame();
+    BlocklyMonster.Builder hedgehogBuilder =
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
 
     customPoints()
         .forEach(
             coordinate -> {
               if (counter[0] == 0 || random.nextBoolean()) {
-                hedgehogBuilder.spawnPoint(coordinate.toPoint());
-                hedgehogBuilder.build();
+                hedgehogBuilder.build(coordinate.toPoint());
                 counter[0]++;
               }
             });

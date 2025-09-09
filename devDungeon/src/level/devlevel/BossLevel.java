@@ -5,6 +5,7 @@ import contrib.components.AIComponent;
 import contrib.components.InventoryComponent;
 import contrib.entities.AIFactory;
 import contrib.entities.MiscFactory;
+import contrib.entities.MonsterBuilder;
 import contrib.item.HealthPotionType;
 import contrib.item.concreteItem.ItemPotionHealth;
 import contrib.systems.HealthSystem;
@@ -23,21 +24,21 @@ import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
 import core.utils.components.MissingComponentException;
 import entities.BossAttackSkills;
-import entities.MonsterType;
+import entities.DevDungeonMonster;
 import item.concreteItem.ItemResourceBerry;
 import item.concreteItem.ItemReward;
 import java.util.List;
-import java.util.function.Consumer;
 import level.DevDungeonLevel;
 import systems.DevHealthSystem;
 
 /** The Final Boss Level. */
 public class BossLevel extends DevDungeonLevel implements IHealthObserver {
 
-  private static final MonsterType BOSS_TYPE = MonsterType.FINAL_BOSS;
+  private static final DevDungeonMonster BOSS_TYPE = DevDungeonMonster.FINAL_BOSS;
   private static final int MIN_MOB_COUNT = 5;
   private static final int MAX_MOB_COUNT = 7;
-  private static final MonsterType[] MOB_TYPES = new MonsterType[] {MonsterType.IMP};
+  private static final DevDungeonMonster[] MOB_TYPES =
+      new DevDungeonMonster[] {DevDungeonMonster.IMP};
 
   // Spawn Points / Locations
   private final Coordinate levelBossSpawn;
@@ -177,7 +178,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
    *
    * @param boss The boss entity.
    * @see #onFirstTick()
-   * @see utils.EntityUtils#spawnBoss(MonsterType, Coordinate, Consumer)
+   * @see utils.EntityUtils#spawnBoss(MonsterBuilder, Coordinate)
    */
   private void handleBossDeath(Entity boss) {
     InventoryComponent invComp = new InventoryComponent();

@@ -103,10 +103,11 @@ public class DevDungeonRoom {
     Entity[] mobs = new Entity[mobSpawns.length];
     for (int i = 0; i < mobSpawns.length; i++) {
       mobs[i] =
-          EntityUtils.spawnMonster(
-              IllusionRiddleLevel.MONSTER_TYPES[
-                  (int) (Math.random() * IllusionRiddleLevel.MONSTER_TYPES.length)],
-              mobSpawns[i]);
+          IllusionRiddleLevel.MONSTER_TYPES[
+              (int) (Math.random() * IllusionRiddleLevel.MONSTER_TYPES.length)]
+              .builder()
+              .addToGame()
+              .build(mobSpawns[i]);
       if (mobs[i] != null)
         mobs[i]
             .fetch(AIComponent.class)

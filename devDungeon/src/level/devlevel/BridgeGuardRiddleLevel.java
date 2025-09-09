@@ -1,10 +1,12 @@
 package level.devlevel;
 
+import contrib.entities.MonsterBuilder;
 import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
-import entities.MonsterType;
+import entities.DevDungeonMonster;
+import java.util.Arrays;
 import java.util.List;
 import level.DevDungeonLevel;
 import level.devlevel.riddleHandler.BridgeGuardRiddleHandler;
@@ -15,9 +17,9 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   // Difficulty (Mob Count, Mob Types)
   private static final int MOB_COUNT = 15;
-  private static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {MonsterType.ORC_WARRIOR, MonsterType.ORC_SHAMAN};
-  private static final MonsterType BOSS_TYPE = MonsterType.PUMPKIN_BOI;
+  private static final DevDungeonMonster[] MONSTER_TYPES =
+      new DevDungeonMonster[] {DevDungeonMonster.ORC_WARRIOR, DevDungeonMonster.ORC_SHAMAN};
+  private static final DevDungeonMonster BOSS_TYPE = DevDungeonMonster.PUMPKIN_BOI;
   private static final int MOB_COUNT_PER_CAMP = 3;
 
   // Spawn Points / Locations
@@ -72,7 +74,11 @@ public class BridgeGuardRiddleLevel extends DevDungeonLevel {
 
   private void spawnCamps() {
     for (Coordinate campSpawn : campSpawns) {
-      EntityUtils.spawnMobSpawner(campSpawn, MONSTER_TYPES, MOB_COUNT_PER_CAMP);
+      MonsterBuilder<?>[] builders =
+          Arrays.stream(MONSTER_TYPES)
+              .map(DevDungeonMonster::builder)
+              .toArray(MonsterBuilder[]::new);
+      EntityUtils.spawnMobSpawner(campSpawn, builders, MOB_COUNT_PER_CAMP);
     }
   }
 }

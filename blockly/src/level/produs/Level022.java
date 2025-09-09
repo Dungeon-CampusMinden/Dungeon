@@ -1,9 +1,7 @@
 package level.produs;
 
 import client.Client;
-import contrib.components.HealthComponent;
 import contrib.hud.DialogUtils;
-import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
@@ -55,23 +53,19 @@ public class Level022 extends BlocklyLevel {
     Game.randomTile(LevelElement.DOOR).ifPresent(d -> ((DoorTile) d).close());
     Game.randomTile(LevelElement.EXIT).ifPresent(d -> ((ExitTile) d).close());
 
-    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
-    bossBuilder.range(0);
-    bossBuilder.speed(Client.MOVEMENT_FORCE.x());
-    bossBuilder.addToGame();
-    bossBuilder.viewDirection(Direction.LEFT);
-    bossBuilder.spawnPoint(customPoints().get(0).toPoint());
-
-    Entity boss = bossBuilder.build();
-    boss.fetch(HealthComponent.class)
-        .orElseThrow()
+    BlocklyMonster.BLACK_KNIGHT
+        .builder()
+        .attackRange(0)
+        .speed(Client.MOVEMENT_FORCE.x())
+        .addToGame()
+        .viewDirection(Direction.LEFT)
         .onDeath(
-            entity -> {
-              // todo we shouldnt just end the game, we need a real end screen
-              DialogUtils.showTextPopup(
-                  "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit);
-              Game.remove(entity);
-            });
+            // todo we shouldn't just end the game, we need a real end screen
+            entity ->
+                DialogUtils.showTextPopup(
+                    "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit))
+        .build(customPoints().getFirst());
+
     Game.allTiles(LevelElement.PIT)
         .forEach(
             tile -> {

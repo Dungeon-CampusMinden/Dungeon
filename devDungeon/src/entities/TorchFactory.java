@@ -6,10 +6,12 @@ import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
-import core.utils.components.MissingComponentException;
-import core.utils.components.path.IPath;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -19,17 +21,6 @@ import java.util.function.BiConsumer;
 public class TorchFactory {
 
   private static final float DEFAULT_INTERACTION_RADIUS = 2.5f;
-  private static final IPath TORCH_TEXTURE_OFF = new SimpleIPath("objects/torch/off/torch_0.png");
-  private static final List<IPath> TORCH_TEXTURE_ON =
-      List.of(
-          new SimpleIPath("objects/torch/on/torch_1.png"),
-          new SimpleIPath("objects/torch/on/torch_2.png"),
-          new SimpleIPath("objects/torch/on/torch_3.png"),
-          new SimpleIPath("objects/torch/on/torch_4.png"),
-          new SimpleIPath("objects/torch/on/torch_5.png"),
-          new SimpleIPath("objects/torch/on/torch_6.png"),
-          new SimpleIPath("objects/torch/on/torch_7.png"),
-          new SimpleIPath("objects/torch/on/torch_8.png"));
 
   /**
    * Creates a torch entity at a given position, with a specified initial state (lit or not),
@@ -51,9 +42,19 @@ public class TorchFactory {
     Entity torch = new Entity("torch");
 
     torch.add(new PositionComponent(pos));
-    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/torch.png"), "off");
+
+    Map<String, Animation> map =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/torch/torch.png"));
+    State stOff = State.fromMap(map, "off");
+    State stOn = State.fromMap(map, "on");
+    StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
+    sm.addTransition(stOff, "on", stOn);
+    sm.addTransition(stOn, "off", stOff);
+    DrawComponent dc = new DrawComponent(sm);
     if (lit) {
       dc.sendSignal("on");
+    } else {
+      dc.sendSignal("off");
     }
     torch.add(dc);
 
@@ -97,10 +98,7 @@ public class TorchFactory {
       int value) {
     Entity torch = createTorch(pos, lit, isInteractable, onInteract, value);
     torch.name(torch.name().replace("torch", "anti_torch"));
-    torch
-        .fetch(DrawComponent.class)
-        .orElseThrow(() -> MissingComponentException.build(torch, DrawComponent.class))
-        .tintColor(0x00FFFFFF);
+    torch.fetch(DrawComponent.class).ifPresent(dc -> dc.tintColor(0x00FFFFFF));
     return torch;
   }
 }

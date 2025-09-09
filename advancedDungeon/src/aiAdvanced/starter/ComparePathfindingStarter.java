@@ -7,7 +7,6 @@ import aiAdvanced.pathfinding.PathfindingLogic;
 import aiAdvanced.systems.PathfindingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import contrib.components.AIComponent;
 import contrib.entities.*;
 import contrib.systems.EventScheduler;
 import contrib.systems.LevelTickSystem;
@@ -15,9 +14,7 @@ import contrib.systems.PathSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
-import core.components.CameraComponent;
-import core.components.PlayerComponent;
-import core.components.PositionComponent;
+import core.components.*;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
@@ -30,7 +27,6 @@ import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,14 +129,7 @@ public class ComparePathfindingStarter {
     // Position the runners
     Debugger.TELEPORT(orgStart.toPoint());
 
-    RUNNERS[1] = createRunnerMob();
-    PositionComponent pc =
-        RUNNERS[1]
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(RUNNERS[1], PositionComponent.class));
-    pc.position(newStart.toPoint());
-
+    RUNNERS[1] = createRunnerMob(newStart.toPoint());
     setupPathFindingSystem(rows);
   }
 
@@ -260,22 +249,15 @@ public class ComparePathfindingStarter {
    * Creates and adds a new runnerMob entity to the game. This monster looks and moves like the
    * hero.
    *
+   * @param startPoint Spawn Point of the runner,
    * @return The newly created runnerMob
    */
-  public static Entity createRunnerMob() {
-    Entity runnerMob =
-        MonsterFactory.buildMonster(
-            "KI Runner",
-            HeroFactory.DEFAULT_HERO_CLASS.textures(),
-            1,
-            HeroFactory.DEFAULT_HERO_CLASS.speed().x(), // same speed as hero
-            0.0f,
-            MonsterDeathSound.LOWER_PITCH.sound(),
-            new AIComponent(entity -> {}, entity -> {}, entity -> false), // no ai
-            0,
-            0,
-            MonsterIdleSound.BURP.path());
-    Game.add(runnerMob);
-    return runnerMob;
+  private static Entity createRunnerMob(Point startPoint) {
+    return new MonsterBuilder<>()
+        .name("KI Runner")
+        .texture(new SimpleIPath("character/wizard"))
+        .speed(HeroFactory.DEFAULT_HERO_CLASS.speed().x()) // same speed as hero
+        .addToGame()
+        .build(startPoint);
   }
 }

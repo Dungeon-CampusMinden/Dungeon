@@ -15,7 +15,7 @@ public enum MonsterIdleSound {
   /** A burp-like idle sound. */
   BURP("sounds/monster3.wav"),
   /** A low-pitched idle sound. */
-  LOW_PITCH("sounds/monster4.wav"),
+  LOWER_PITCH("sounds/monster4.wav"),
   /** A high-pitched idle sound. */
   HIGH_PITCH("sounds/monster1.wav"),
   /** No sound. */

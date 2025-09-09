@@ -19,7 +19,7 @@ import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.MissingComponentException;
-import entities.MonsterType;
+import entities.DevDungeonMonster;
 import entities.levercommands.OpenPassageCommand;
 import item.concreteItem.ItemPotionSpeed;
 import java.util.*;
@@ -34,16 +34,16 @@ import systems.TeleporterSystem;
 public class IllusionRiddleLevel extends DevDungeonLevel {
 
   /** The types of monsters that can spawn in this level. */
-  public static final MonsterType[] MONSTER_TYPES =
-      new MonsterType[] {
-        MonsterType.DARK_GOO,
-        MonsterType.DARK_GOO, // 2/5 chance
-        MonsterType.SMALL_DARK_GOO,
-        MonsterType.SMALL_DARK_GOO, // 2/5 chance
-        MonsterType.DOC // 1/5 chance
+  public static final DevDungeonMonster[] MONSTER_TYPES =
+      new DevDungeonMonster[] {
+        DevDungeonMonster.DARK_GOO,
+        DevDungeonMonster.DARK_GOO, // 2/5 chance
+        DevDungeonMonster.SMALL_DARK_GOO,
+        DevDungeonMonster.SMALL_DARK_GOO, // 2/5 chance
+        DevDungeonMonster.DOC // 1/5 chance
       };
 
-  private static final MonsterType BOSS_TYPE = MonsterType.ILLUSION_BOSS;
+  private static final DevDungeonMonster BOSS_TYPE = DevDungeonMonster.ILLUSION_BOSS;
 
   // Spawn Points / Locations
   private final List<DevDungeonRoom> rooms;

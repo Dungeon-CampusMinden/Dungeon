@@ -87,15 +87,17 @@ public class Level021 extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toPoint()));
 
     // BOSS
-    Coordinate c =
-        Game.randomTile(LevelElement.EXIT).orElseThrow().coordinate().translate(Direction.LEFT);
-
-    BlocklyMonster.BlocklyMonsterBuilder bossBuilder = BlocklyMonster.BLACK_KNIGHT.builder();
-    bossBuilder.range(0);
-    bossBuilder.addToGame();
-    bossBuilder.viewDirection(Direction.LEFT);
-    bossBuilder.spawnPoint(c.toPoint());
-    boss = bossBuilder.build();
+    Entity boss =
+        BlocklyMonster.BLACK_KNIGHT
+            .builder()
+            .attackRange(0)
+            .addToGame()
+            .viewDirection(Direction.LEFT)
+            .build(
+                Game.randomTile(LevelElement.EXIT)
+                    .orElseThrow()
+                    .coordinate()
+                    .translate(Direction.LEFT));
     bossPC =
         boss.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(boss, PositionComponent.class));

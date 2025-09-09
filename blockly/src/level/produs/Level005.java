@@ -75,24 +75,19 @@ public class Level005 extends BlocklyLevel {
     Game.add(MiscFactory.stone(stone1C.toPoint()));
     Game.add(MiscFactory.stone(stone2C.toPoint()));
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.addToGame();
-    guardBuilder.range(6);
+    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
+    guardBuilder.attackRange(6);
     guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(m1C.toPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
+    guardBuilder.build(m1C.toPoint());
+    guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.spawnPoint(m2C.toPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
+    guardBuilder.build(m2C.toPoint());
+    guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(m3C.toPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
+    guardBuilder.build(m3C.toPoint());
+    guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(m4C.toPoint());
-    guardBuilder.build();
+    guardBuilder.build(m4C.toPoint());
   }
 
   @Override

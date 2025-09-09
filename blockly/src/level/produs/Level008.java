@@ -62,16 +62,13 @@ public class Level008 extends BlocklyLevel {
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.zoomDefault();
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.addToGame();
-    guardBuilder.range(5);
+    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
+    guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(customPoints().get(7).toPoint());
-    guardBuilder.build();
-    guardBuilder.range(5);
+    guardBuilder.build(customPoints().get(7).toPoint());
+    guardBuilder.attackRange(5);
     guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(customPoints().get(8).toPoint());
-    guardBuilder.build();
+    guardBuilder.build(customPoints().get(8).toPoint());
 
     Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(3).toPoint());

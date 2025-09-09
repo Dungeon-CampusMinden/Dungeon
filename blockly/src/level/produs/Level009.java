@@ -60,15 +60,11 @@ public class Level009 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
 
-    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
-    hedgehogBuilder.range(0);
-    hedgehogBuilder.addToGame();
-    hedgehogBuilder.spawnPoint(customPoints().get(2).toPoint());
-    hedgehogBuilder.build();
-    hedgehogBuilder.spawnPoint(customPoints().get(3).toPoint());
-    hedgehogBuilder.build();
-    hedgehogBuilder.spawnPoint(customPoints().get(4).toPoint());
-    hedgehogBuilder.build();
+    BlocklyMonster.Builder hedgehogBuilder =
+        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
+    hedgehogBuilder.build(customPoints().get(2).toPoint());
+    hedgehogBuilder.build(customPoints().get(3).toPoint());
+    hedgehogBuilder.build(customPoints().get(4).toPoint());
   }
 
   @Override

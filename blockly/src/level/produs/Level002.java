@@ -59,22 +59,20 @@ public class Level002 extends BlocklyLevel {
       showText = false;
     }
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.range(3);
-    guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.addToGame();
-    guardBuilder.spawnPoint(customPoints().get(0).toPoint());
-    guardBuilder.build();
+    BlocklyMonster.GUARD
+        .builder()
+        .attackRange(3)
+        .viewDirection(Direction.LEFT)
+        .addToGame()
+        .build(customPoints().getFirst());
+
     customPoints().remove(0);
 
-    BlocklyMonster.BlocklyMonsterBuilder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder();
-    hedgehogBuilder.range(0);
+    BlocklyMonster.Builder hedgehogBuilder = BlocklyMonster.HEDGEHOG.builder().attackRange(0);
     customPoints()
         .forEach(
             coordinate -> {
-              hedgehogBuilder.spawnPoint(coordinate.toPoint());
-              hedgehogBuilder.addToGame();
-              hedgehogBuilder.build();
+              hedgehogBuilder.addToGame().build(coordinate);
             });
   }
 

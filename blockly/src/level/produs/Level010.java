@@ -56,21 +56,14 @@ public class Level010 extends BlocklyLevel {
     Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
     Game.add(MiscFactory.fireballScroll(customPoints().get(4).toPoint()));
 
-    BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
-    guardBuilder.addToGame();
-    guardBuilder.range(5);
+    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().attackRange(5).addToGame();
     guardBuilder.viewDirection(Direction.DOWN);
-    guardBuilder.spawnPoint(customPoints().get(5).toPoint());
-    guardBuilder.build();
-    guardBuilder.spawnPoint(customPoints().get(8).toPoint());
-    guardBuilder.build();
-    guardBuilder.spawnPoint(customPoints().get(9).toPoint());
-    guardBuilder.build();
+    guardBuilder.build(customPoints().get(5).toPoint());
+    guardBuilder.build(customPoints().get(8).toPoint());
+    guardBuilder.build(customPoints().get(9).toPoint());
     guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.spawnPoint(customPoints().get(6).toPoint());
-    guardBuilder.build();
-    guardBuilder.spawnPoint(customPoints().get(7).toPoint());
-    guardBuilder.build();
+    guardBuilder.build(customPoints().get(6).toPoint());
+    guardBuilder.build(customPoints().get(7).toPoint());
   }
 
   @Override
