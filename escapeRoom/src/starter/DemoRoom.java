@@ -98,9 +98,7 @@ public class DemoRoom {
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());
-    if(DEBUG_MODE)
-    Game.add(new DebugDrawSystem());
-
+    if (DEBUG_MODE) Game.add(new DebugDrawSystem());
   }
 
   private static void setupMusic() {
