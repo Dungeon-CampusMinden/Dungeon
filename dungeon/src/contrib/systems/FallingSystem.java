@@ -11,10 +11,12 @@ import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -47,17 +49,33 @@ public class FallingSystem extends System {
   }
 
   private boolean filterFalling(Entity entity) {
-    Point entityPosition =
+    PositionComponent pc =
         entity
             .fetch(PositionComponent.class)
-            .map(PositionComponent::position)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    if (entity.isPresent(FlyComponent.class)) return false;
-    Tile currentTile = Game.tileAt(entityPosition).orElse(null);
+    Point pos = pc.position();
 
-    if (currentTile instanceof PitTile pitTile) {
+    // Entities mit FlyComponent fallen nicht
+    if (entity.isPresent(FlyComponent.class)) return false;
+
+    // Holt die VelocityComponent (für MoveBox)
+    VelocityComponent vc =
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+
+    Vector2 offset = vc.moveboxOffset();
+    Vector2 size = vc.moveboxSize();
+
+    // Mittelpunkt der MoveBox
+    Point center = pos.translate(offset).translate(size.scale(0.5f));
+
+    // Prüfe, ob der Centerpunkt auf einem offenen PitTile liegt
+    Tile tile = Game.tileAt(center).orElse(null);
+    if (tile instanceof PitTile pitTile) {
       return pitTile.isOpen();
     }
+
     return false;
   }
 
