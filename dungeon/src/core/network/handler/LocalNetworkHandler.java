@@ -27,75 +27,42 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This handler processes game logic locally without real network communication, acting as both
  * client and server to keep architecture consistent between modes.
- *
- * <p>It uses a {@link MessageDispatcher} to route incoming messages and a raw message consumer to
- * send game state updates to the game loop.
- *
- * <p><b>Usage:</b>
- *
- * <ol>
- *   <li>Initialize with {@link #initialize(boolean, String, int, String)} .
- *   <li>Start processing with {@link #start()}.
- *   <li>Send client inputs via {@link #sendInput(InputMessage)} via UDP .
- *   <li>Or send raw messages via {@link #send(NetworkMessage)} via TCP.
- *   <li>Trigger state updates with {@link #triggerStateUpdate()}.
- *   <li>Stop the handler with {@link #shutdown()}.
- * </ol>
- *
- * <p><b>Note:</b> Not suitable for multiplayer scenarios.
  */
 public class LocalNetworkHandler implements INetworkHandler {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkHandler.class);
 
-  private final MessageDispatcher dispatcher = new MessageDispatcher(); // Instantiate dispatcher
-  private BiConsumer<ChannelHandlerContext, NetworkMessage>
-      rawMessageConsumer; // Internal consumer for raw messages
+  private final MessageDispatcher dispatcher = new MessageDispatcher();
+  private BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer;
   private boolean isRunning = false;
   private boolean isInitialized = false;
   private final List<ConnectionListener> connectionListeners = new ArrayList<>();
   private volatile SnapshotTranslator translator;
 
-  // No per-field delta tracking; we emit compact snapshots for local mode as well.
-
   @Override
   public void initialize(boolean isServer, String serverAddress, int port, String username)
-      throws NetworkException {
+    throws NetworkException {
     this.isInitialized = true;
   }
 
   @Override
   public void send(NetworkMessage message) {
-    // For local processing, we don't send anything
+    // No-op in local mode
   }
 
   @Override
   public void sendInput(InputMessage input) {
-    // Apply same semantics as the authoritative server to the local hero entity
     Game.hero()
-        .ifPresent(
-            hero -> {
-              switch (input.action()) {
-                case MOVE:
-                  HeroController.moveHero(hero, Vector2.of(input.point()).direction());
-                  break;
-                case MOVE_PATH:
-                  HeroController.moveHeroPath(hero, input.point());
-                  break;
-                case CAST_SKILL:
-                  HeroController.useSkill(hero, input.point());
-                  break;
-                case NEXT_SKILL:
-                  HeroController.changeSkill(hero, true);
-                  break;
-                case PREV_SKILL:
-                  HeroController.changeSkill(hero, false);
-                  break;
-                case INTERACT:
-                  HeroController.interact(hero, input.point());
-                  break;
-              }
-            });
+      .ifPresent(
+        hero -> {
+          switch (input.action()) {
+            case MOVE -> HeroController.moveHero(hero, Vector2.of(input.point()).direction());
+            case MOVE_PATH -> HeroController.moveHeroPath(hero, input.point());
+            case CAST_SKILL -> HeroController.useSkill(hero, input.point());
+            case NEXT_SKILL -> HeroController.changeSkill(hero, true);
+            case PREV_SKILL -> HeroController.changeSkill(hero, false);
+            case INTERACT -> HeroController.interact(hero, input.point());
+          }
+        });
   }
 
   @Override
@@ -124,8 +91,12 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public boolean isServer() {
-    // In single player context managed by this handler, it acts as the authority.
     return true;
+  }
+
+  @Override
+  public int getAssignedClientId() {
+    return 0;
   }
 
   @Override
@@ -135,25 +106,22 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public void _setRawMessageConsumer(
-      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
+    BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
     this.rawMessageConsumer = rawMessageConsumer;
   }
 
-  /**
-   * Returns the configured SnapshotTranslator or throws if not set.
-   *
-   * <p>Explicit injection required: callers must set a translator before use.
-   */
   @Override
   public SnapshotTranslator snapshotTranslator() {
     SnapshotTranslator t = translator;
-    if (t == null)
+    if (t == null) {
       throw new IllegalStateException(
-          "SnapshotTranslator not set on INetworkHandler. Set via setSnapshotTranslator(...) before starting network or provide translator in starter.");
+        "SnapshotTranslator not set on INetworkHandler. Set via "
+          + "setSnapshotTranslator(...) before starting network or provide translator in "
+          + "starter.");
+    }
     return t;
   }
 
-  /** Sets the SnapshotTranslator to be used by this handler. */
   @Override
   public void setSnapshotTranslator(SnapshotTranslator translator) {
     if (translator != null) this.translator = translator;
@@ -204,51 +172,43 @@ public class LocalNetworkHandler implements INetworkHandler {
     }
   }
 
-  /**
-   * Collects the current state of relevant entities and sends it to the state update listener.
-   *
-   * <p>This simulates the server sending periodic state updates. This method should be called by
-   * the game loop.
-   */
   public void triggerStateUpdate() {
     if (!isRunning || !isInitialized || rawMessageConsumer == null) {
       LOGGER.debug(
-          "LocalNetworkHandler not ready to send updates. Running: {}, Init: {}, Consumer: {}",
-          isRunning,
-          isInitialized,
-          (rawMessageConsumer != null));
+        "LocalNetworkHandler not ready to send updates. Running: {}, Init: {}, Consumer: {}",
+        isRunning,
+        isInitialized,
+        (rawMessageConsumer != null));
       return;
     }
 
     List<EntityState> snapshotEntities = new ArrayList<>();
     Game.levelEntities()
-        .forEach(
-            entity -> {
-              EntityState.Builder builder = EntityState.builder();
-              builder.entityId(entity.id());
+      .forEach(
+        entity -> {
+          EntityState.Builder builder =
+            EntityState.builder();
+          builder.entityId(entity.id());
 
-              // PositionComponent
-              Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
-              if (pcOpt.isEmpty()) return; // only include entities with a position
-              builder.position(pcOpt.get().position());
-              builder.viewDirection(pcOpt.get().viewDirection());
+          Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
+          if (pcOpt.isEmpty()) return;
+          builder.position(pcOpt.get().position());
+          builder.viewDirection(pcOpt.get().viewDirection());
 
-              // HealthComponent
-              entity
-                  .fetch(HealthComponent.class)
-                  .ifPresent(
-                      hc -> {
-                        builder.currentHealth(hc.currentHealthpoints());
-                        builder.maxHealth(hc.maximalHealthpoints());
-                      });
+          entity
+            .fetch(HealthComponent.class)
+            .ifPresent(
+              hc -> {
+                builder.currentHealth(hc.currentHealthpoints());
+                builder.maxHealth(hc.maximalHealthpoints());
+              });
 
-              // DrawComponent
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(dc -> builder.tintColor(dc.tintColor()));
+          entity
+            .fetch(DrawComponent.class)
+            .ifPresent(dc -> builder.tintColor(dc.tintColor()));
 
-              snapshotEntities.add(builder.build());
-            });
+          snapshotEntities.add(builder.build());
+        });
 
     rawMessageConsumer.accept(null, new SnapshotMessage(0L, snapshotEntities));
   }

@@ -1,145 +1,275 @@
-# Multiplayer-Architektur: Prinzipien und Alternativen
+# Multiplayer-Architektur: Prinzipien, Entscheidungen und Struktur
 
-## Übersicht
+Dieses Dokument beschreibt die aktuelle Multiplayer-Architektur, die wesentlichen Designentscheidungen und Alternativen inklusive Quellen zu etablierten Verfahren aus Industrie und Forschung. Ziel ist ein robustes, autoritatives Client-Server-Modell, das mit unserer ECS-Architektur harmoniert und Singleplayer vollständig unterstützt.
 
-Dieses Dokument beschreibt die Architektur zur Implementierung der Multiplayer-Funktionalität im Spiel. Unser Hauptziel ist ein robustes, autoritatives Client-Server-Modell, das gleichzeitig voll kompatibel mit dem Singleplayer-Modus bleibt.
+Inhalt
+- 1. ECS und Autorität: Warum das so gut zusammenpasst
+- 2. Netzwerktopologie: Autoritativer Client-Server statt P2P
+- 3. Synchronisationsstrategie: Snapshots mit Interpolation (State Sync)
+- 4. Transport- und Protokollebene (TCP/UDP, Framing, NAT-Registrierung)
+- 5. Nachrichtenformat und „Network API“
+- 6. Serverlaufzeit: Tick, Verarbeitung, Broadcast
+- 7. Clientlaufzeit: Handshake, Eingaben, Empfang, Threading
+- 8. Projektstruktur: Module und Verantwortlichkeiten
+- 9. Sicherheit, Robustheit und Grenzen
+- 10. Roadmap: Was als Nächstes kommt
+- 11. Referenzen
 
-### Synergie: ECS und das Client-Server-Modell
+-------------------------------------------------------------------------------
 
-Die Entscheidung für eine ECS-Architektur zu Beginn der Entwicklung erweist sich für die Implementierung des Multiplayers als großer Vorteil. ECS und das autoritative Client-Server-Modell passen außergewöhnlich gut zusammen, was die Umsetzung vereinfacht und robuster macht.
+## 1. ECS und Autorität: Warum das so gut zusammenpasst
 
-**Warum diese Kombination so gut funktioniert:**
+- Strikte Trennung von Daten und Logik
+  - Components enthalten reine Daten (z. B. Position, HP), Systems verändern diese Daten.
+  - Über das Netzwerk werden nur Daten synchronisiert, keine Logik. Der Server führt die Systems aus, Clients spiegeln Zustände und rendern.
+- Gezielte Synchronisation
+  - Wir versenden nur die Daten, die der Client zum Rendern braucht (Positions-/Animationszustände etc.), nicht komplette Objekte oder gesamte Components.
+- Schnapper für Snapshots
+  - Serverseitig ist es trivial, nach einer Tick-Simulation über Entities zu iterieren, relevante Felder zu extrahieren und als Snapshot zu versenden.
+- Auf dem Client: Übernahme + Interpolation
+  - Clients übernehmen Zustände und „glätten“ die Anzeige (Interpolation/Buffering). Dieses Muster ist in Actionspielen Standard (vgl. Valve/Source, Snapshot-Interpolationsansatz und Interpolationspuffer).
 
-*   **Klare Trennung von Daten und Logik:** Dies ist der entscheidende Punkt. Components sind reine Daten (Position, HP), während Systems die Logik sind, die diese Daten verändert. Über ein Netzwerk werden nur Daten gesendet, keine Logik. Der Server führt die Systems aus, modifiziert die Components und sendet dann nur die reinen, aktualisierten Daten.
-*   **Gezielte Synchronisation:** Wir müssen keine komplexen Objekte serialisieren. Stattdessen können wir gezielt nur die Daten aus den Components extrahieren, die der Client wirklich zum Rendern benötigt. Moderne Frameworks wie Unity's Netcode for Entities basieren auf genau diesem Prinzip der Synchronisation von Component-Daten [[Quelle](https://docs.unity3d.com/Packages/com.unity.netcode@1.0/manual/basics/networkworld.html)].
-*   **Einfacher Snapshot-Prozess:** Auf dem Server ist es trivial, einen `EntityStateUpdate` zu erstellen. Nach dem Durchlauf aller Gameplay-Systems kann ein weiteres System einfach über die Entities iterieren, die relevanten Daten auslesen und in ein Nachrichten-Objekt packen.
-*   **Sauberes Update auf dem Client:** Der Client empfängt den `EntityStateUpdate` und überschreibt die Daten in seinen lokalen Components. Der Client agiert somit als reiner Spiegel des Server-Zustands, was die Logik stark vereinfacht. Dieses Muster der Zustandsanwendung und anschließenden Interpolation ist eine bewährte Methode, die in erfolgreichen Spielen wie *Overwatch* zum Einsatz kommt [[Quelle](https://www.youtube.com/watch?v=W3aieHy3M3w)].
+Belegt durch:
+- Snapshot Interpolation und State Synchronization in Gaffer on Games [1][2][3].
+- Source-Engine-Dokumentation zu Entity-Interpolation, Prediction und Lag Compensation [8][10].
 
-## 1. Netzwerk-Topologie: Autoritative Client-Server
+-------------------------------------------------------------------------------
 
-### 1.1. Unser gewählter Ansatz: Autoritative Client-Server
+## 2. Netzwerktopologie: Autoritativer Client-Server statt P2P
 
-Wir setzen auf ein klassisches Client-Server-Modell. Der Server hat die alleinige Autorität über den Spielzustand (State). Clients senden nur ihre Eingaben (Inputs), der Server simuliert das Ergebnis und sendet den neuen State an alle zurück.
+Gewählte Architektur: Autoritativer Client-Server
+- Clients senden nur Eingaben (Inputs).
+- Server simuliert und hat die alleinige Autorität.
+- Server broadcastet den resultierenden Zustand (Snapshots/Ereignisse).
 
-**Warum dieser Ansatz?**
+Vorteile
+- Sicherheit und Konsistenz: Der Server ist „Source of Truth“, verhindert Cheating und Divergenzen.
+- Skalierbarkeit und späte Beitritte: Kein globaler Determinismus nötig.
 
-*   **Sicherheit & Konsistenz:** Der Hauptgrund ist die Verhinderung von Cheating. Der Server ist die einzige "Source of Truth" und validiert alle Aktionen. Ein Client kann nicht einfach seine Position oder Gesundheit manipulieren, da der Server dies als ungültig erkennen würde. Das ist der Industriestandard für Actionspiele [[Quelle](https://moldstud.com/articles/p-unreal-engine-client-server-model-comprehensive-guide-for-multiplayer-game-development)]. Der Server agiert als vertrauenswürdiger Schiedsrichter [[Quelle](https://medium.com/@lemapp09/beginning-game-development-client-server-architecture-1b7676d80dea)].
-*   **Stabile Grundlage:** Dieser Ansatz wird von Branchenexperten wie Glenn Fiedler [[Quelle](https://gafferongames.com/post/what_every_programmer_needs_to_know_about_game_networking/)] und in Engines wie der Source Engine von Valve [[Quelle](https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking)] verwendet und hat sich in großem Maßstab bewährt.
+Alternativen, die wir bewusst NICHT wählen
+- Peer-to-Peer mit deterministischem Lockstep (RTS-klassisch):
+  - Erfordert starken Determinismus (Bitgleichheit), leidet unter „Warten auf den langsamsten Peer“.
+  - Für unsere (nicht deterministische) Action/ECS-Engine ungeeignet.
+  - Gaffer: Lockstep-Ansatz und Grenzen [4].
 
-### 1.2. Alternative: Peer-to-Peer (P2P) mit Deterministic Lockstep
+Praxisbezug
+- Die Source-Engine (Valve) setzt ebenfalls autoritativen Client-Server mit Prediction, Interpolation und Lag Compensation ein [8].
 
-Hierbei gäbe es keinen zentralen Server. Alle Spieler (Peers) würden sich direkt miteinander verbinden und nur ihre Inputs austauschen.
+-------------------------------------------------------------------------------
 
-**Warum nicht P2P?**
+## 3. Synchronisationsstrategie: Snapshots mit Interpolation (State Sync)
 
-*   **Extremer Implementierungsaufwand:** P2P erfordert **strikten Determinismus**. Das bedeutet, jeder Client muss bei identischen Inputs exakt das gleiche Ergebnis produzieren, Bit für Bit. Das ist extrem schwierig zu erreichen, da Dinge wie Fließkomma-Mathematik, Threading oder sogar die Reihenfolge von Iterationen über Hash-Maps auf verschiedenen Maschinen zu unterschiedlichen Ergebnissen führen können [[Quelle](https://hdms.bsz-bw.de/files/7107/DeterministicLockstepInNetworkedGamesPaper.pdf)]. Unsere aktuelle Codebasis ist nicht deterministisch und müsste grundlegend umgeschrieben werden.
-*   **Anfällig für Latenz:** Das Spiel müsste im "Lockstep" laufen, also immer auf den langsamsten Spieler warten, bevor die nächste Runde (Turn) simuliert werden kann. Das führt zu spürbarem Input-Lag für alle Spieler [[Quelle](https://en.wikipedia.org/wiki/Lockstep_protocol)].
+Gewählter Ansatz: State Synchronization mit Snapshot Interpolation
+- Server versendet in festen Abständen Zustands-Snapshots für die relevanten Objekte.
+- Clients halten einen kleinen Interpolationspuffer und rendern zwischen Snapshots (glatt).
+- Inputs laufen unabhängig; verlorene Snapshot-Pakete werden nicht nachgefordert, sondern durch nachfolgende Snapshots „korrigiert“.
 
-**Fazit:** Die Umstellung auf P2P wäre ein komplettes Rewrite der Engine. Das **autoritative Client-Server-Modell** ist für uns die einzig realistische und sichere Wahl.
+Warum das für uns passt
+- Industriestandard für schnelle Actionspiele (Quake/Source-Familie) [2][3][8].
+- Tolerant gegen Paketverlust: nächster Snapshot korrigiert den Zustand.
+- Entkoppelt Rendering-Rate (Client) von Tick-Rate (Server).
 
-## 2. Synchronisationsstrategie: State Synchronization
+Details und Best Practices
+- Interpolationspuffer vs. Jitter: Snapshots kommen selten genau gleichmäßig an ein Buffer (z. B. ~100 ms wie in Source als Default) glättet die Darstellung [9].
+- Delta/Kompression: Später (Roadmap) Reduktion der Bandbreite durch Deltas und Quantisierung [3].
 
-### 2.1. Unser gewählter Ansatz: State Synchronization
+-------------------------------------------------------------------------------
 
-Der Server sendet in regelmäßigen Abständen "Snapshots" des Spielzustands an die Clients. Die Clients nutzen diese Daten, um die Welt zu rendern, und interpolieren zwischen den Snapshots, um Bewegungen flüssig darzustellen.
+## 4. Transport- und Protokollebene (TCP/UDP, Framing, NAT-Registrierung)
 
-**Warum dieser Ansatz?**
+Transportwahl
+- TCP (zuverlässig, in-Order): Handshake/Steuerkanal und zuverlässige Events, z. B.:
+  - ConnectRequest/ConnectAck, LevelChangeEvent, EntitySpawnEvent.
+- UDP (unzuverlässig, reihenfolgefrei, ohne Head-of-Line-Blocking): Zeitkritisches
+  - Eingaben (InputMessage), kontinuierliche Zustände/Snapshots.
 
-*   **Industriestandard für Actionspiele:** Diese Strategie, oft als **"Snapshot Interpolation"** bezeichnet, ist der De-facto-Standard für Echtzeit-Actionspiele. Sie wurde durch Engines wie *Quake* und die *Source Engine* populär gemacht [[Quelle](https://medium.com/my-games-company/unity-realtime-multiplayer-part-7-architectures-in-different-genres-8185e9a3a3ad)].
-*   **Flexibilität und Robustheit:** Der Ansatz ist tolerant gegenüber Packet Loss, da der nächste Snapshot den Zustand korrigiert. Er entkoppelt die Render-Rate des Clients von der Tick-Rate des Servers, was eine flüssige Darstellung ermöglicht [[Quelle](https://gafferongames.com/post/state_synchronization/)].
-*   **Kein Determinismus nötig:** Da der Server die Wahrheit vorgibt, muss die Client-Simulation nicht perfekt deterministisch sein.
+Begründung
+- Snapshots und Inputs sollen nicht von Retransmits blockiert werden; verlorene Pakete werden toleriert (UDP), s. Gaffer (Snapshots über UDP) [2][3].
+- Steuer-/Handshake-Nachrichten sind selten und wichtig → TCP ist einfacher/robuster.
 
-### 2.2. Alternative: Frame Synchronization (P2P-Ansatz)
+Framing und Limits
+- TCP: 4-Byte Length-Field (Big-Endian) + Payload; Netty LengthFieldBasedFrameDecoder.
+- Schutzlimits:
+  - MAX_TCP_OBJECT_SIZE ~ 1 MiB (Schutz vor zu großen Frames).
+  - SAFE_UDP_MTU ~ konservativ (wir nutzen 12001400 B, um Fragmentierung zu vermeiden).
+- Hinweis: Source sendet Snapshots typischerweise 2030 pps; Interpolation mit ~100 ms Default [8][9].
 
-Hierbei werden nur Inputs gesendet. Dies ist die Methode, die bei P2P-Lockstep zum Einsatz kommt.
+NAT/UDP-Registrierung
+- Client sendet nach TCP-Handshake mehrmals ein kleines UDP-Registrierungspaket (RegisterUdp(clientId)) an den Server.
+- Retransmit (wenige Versuche, kurzer Intervall).
+- Abbruch der Retries, sobald der Client sein erstes UDP-Paket vom Server empfängt („Pfad steht“).
+- Zweck: Sicherstellen, dass der Server die korrekte UDP-Quelladresse/NAT-Bindung „lernt“.
 
-**Warum nicht Frame-Sync?**
+-------------------------------------------------------------------------------
 
-*   Wie in Abschnitt 1.2 erläutert, erfordert dies einen strikten Determinismus, den unsere Engine nicht bietet. Dieser Ansatz eignet sich gut für Strategiespiele wie *StarCraft*, aber nicht für unser Action-Roguelike [[Quelle](https://hdms.bsz-bw.de/files/7107/DeterministicLockstepInNetworkedGamesPaper.pdf)].
+## 5. Nachrichtenformat und „Network API“
 
-**Fazit:** **State Synchronization** ist für unser Projekt die richtige Wahl.
+Designprinzip: Zweckgebundene DTOs statt Roh-Components
+- Protokollobjekte (Serializable Records/POJOs) enthalten nur die Felder, die für Anzeige/Interaktion nötig sind (z. B. EntityState).
+- Interne Server-Representation (Components) bleibt gekapselt; Änderungen an internen Datenstrukturen brechen das Protokoll nicht.
 
-## 3. Nachrichteninhalt: Zweckgebundene State-Objekte
+Beispiele (Auszug)
+- C2S (Client → Server): ConnectRequest, InputMessage, RegisterUdp, RequestEntitySpawn
+- S2C (Server → Client): ConnectAck, LevelChangeEvent, EntitySpawnEvent, SnapshotMessage
 
-### 3.1. Unser gewählter Ansatz: State-Objekte (`EntityStateUpdate`)
+Begründung
+- Stabile „Network API“: Trennschicht wie bei „Send Tables“/Networking Entities in der Source-Engine (Bandbreitenoptimierung/Interessefilterung) [11][12].
+- Effizienz: Wir versenden nur notwendige Felder (Position, Richtung, Animation-State, Health-Auszug …).
 
-Wir definieren explizite Nachrichten-Objekte (Records), die nur die Daten enthalten, die für die Synchronisation wirklich notwendig sind. Anstatt ganze Components zu versenden, extrahiert der Server die relevanten Daten (z.B. Position, Animation-Name) und packt sie in ein `EntityStateUpdate`-Objekt.
+-------------------------------------------------------------------------------
 
-**Warum dieser Ansatz?**
+## 6. Serverlaufzeit: Tick, Verarbeitung, Broadcast
 
-*   **Stabile "Network API":** Dieser Ansatz schafft eine klare Schnittstelle zwischen Client und Server [[Quelle](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design)]. Wir können die interne Implementierung unserer Components ändern, ohne das Netzwerkprotokoll zu brechen, solange wir die Nachrichten-Objekte noch korrekt befüllen können.
-*   **Effizienz und Sicherheit:** Wir senden nur, was gebraucht wird, und vermeiden es, interne Server-Daten preiszugeben. Dieser professionelle Ansatz ist vergleichbar mit dem, wie Engines wie die Source Engine ihre Netzwerkdaten mit "Send Tables" strukturieren [[Quelle](https://developer.valvesoftware.com/wiki/Networking_Entities)].
+AuthoritativeServerLoop
+- Tick-Rate: z. B. 20 Hz (konfigurierbar).
+- Ablauf je Tick
+  1) Neue/wegfallende TCP-Clients mit Entities synchronisieren (pro Client ein Hero-Entity).
+  2) Eingangsqueue (InputMessage) leeren; Eingaben anwenden (HeroController).
+  3) ECS-Frame simulieren (Systems laufen).
+- Snapshot-Sender: getrennte feste Rate (z. B. 20 Hz) → SnapshotMessage an alle registrierten UDP-Endpunkte.
+- Levelwechsel/GameOver: als zuverlässige Events über TCP.
 
-### 3.2. Alternative: Senden von serialisierten Roh-Components
+Belegt durch:
+- „Server simuliert, Clients interpolieren“ (Valve/Source) [8].
+- Interpolationspuffer (Source-Defaults) [9].
 
-Man könnte auch einfach ganze Component-Objekte serialisieren und versenden.
+-------------------------------------------------------------------------------
 
-**Warum nicht dieser "einfache" Weg?**
+## 7. Clientlaufzeit: Handshake, Eingaben, Empfang, Threading
 
-*   **Extrem fragil:** Jede kleine Änderung an einem Component (z.B. ein neues Feld hinzufügen) würde das Netzwerkprotokoll brechen und Client und Server inkompatibel machen.
-*   **Ineffizient:** Es würden viele unnötige Daten gesendet, die der Client gar nicht braucht. Die Komplexität von professionellen Serialisierungs-Systemen zeigt, dass dieser naive Ansatz in der Praxis nicht funktioniert [[Quelle](https://developer.valvesoftware.com/wiki/Data_Descriptions)].
+ClientNetwork
+- TCP-Handshake:
+  - Nach Verbindungsaufbau ConnectRequest(username) → Server antwortet mit ConnectAck(clientId).
+- UDP-Registrierung:
+  - RegisterUdp(clientId) unverzüglich + wenige Retries.
+  - Abbruch der Retries, sobald erstes UDP-Paket vom Server empfangen wurde.
+- Senden:
+  - Reliable (TCP) für Steuer-/Event-Nachrichten.
+  - Unreliable (UDP) für InputMessage (ggf. clientId anreichern) und Snapshots.
+- Empfang/Threading:
+  - IO-Threads (Netty) deserialisieren vollständig und legen in einer Thread-sicheren Queue ab.
+  - Game-Thread ruft pollAndDispatch() auf, um Messages deterministisch zu verarbeiten (Dispatcher oder optionaler Roh-Consumer).
+- Verbindungs-Lifecycle:
+  - ConnectionListener (onConnected/onDisconnected) werden auf dem Game-Thread aufgerufen (via Lifecycle-Queue).
 
-**Fazit:** Die Verwendung von **zweckgebundenen State-Objekten** ist der einzig wartbare und performante Weg.
+-------------------------------------------------------------------------------
 
-## 4. API-Verwendung und Code-Struktur
+## 8. Projektstruktur: Module und Verantwortlichkeiten
 
-Dieses Kapitel beschreibt, wie die Multiplayer-API in der Praxis verwendet wird und wo die relevanten Klassen und Interfaces im Projekt zu finden sind.
+Zentrale Schnittstelle (unverändert nutzbar via Game.network)
+- core.network.handler.INetworkHandler
+  - Einheitliche API für Singleplayer (LocalNetworkHandler) und Remote (NettyNetworkHandler).
+- core.network.handler.LocalNetworkHandler
+  - Singleplayer: Inputs werden lokal angewendet; kann SnapshotMessage simulieren.
+- core.network.handler.NettyNetworkHandler
+  - Fassade für Remote: Implementiert INetworkHandler; delegiert im Client-Modus an ClientNetwork, im Server-Modus an ServerRuntime.
 
-### 4.1. Der zentrale Zugriffspunkt: `Game.network()`
+Transport/Server/Client
+- core.network.client.ClientNetwork
+  - TCP/UDP-Client-Transport (Netty), Handshake, UDP-Registrierung mit Retry+Cancel, Inbound-Queues, Lifecycle.
+- core.network.server.ServerTransport
+  - TCP/UDP-Server (Netty), Client-IDs, UDP-Endpunkte lernen, Input-Queue verwalten, UDP-Senden.
+- core.network.server.AuthoritativeServerLoop
+  - ECS-Tick, Eingaben anwenden, Entities pro Client, Snapshots broadcasten.
+- core.network.server.ServerRuntime
+  - Bootstrap für Transport + Loop, Start/Stopp.
 
-Alle Interaktionen mit der Netzwerkschicht sollen über einen einzigen, zentralen Punkt erfolgen, um die Konsistenz zu wahren und die Kopplung gering zu halten.
+Codec/Config
+- core.network.codec.NetworkCodec
+  - Zentrale Serialisierung/Deserialisierung.
+- core.network.config.NetworkConfig
+  - Konfiguration/Schranken (z. B. MAX_TCP_OBJECT_SIZE, SAFE_UDP_MTU, Retry-Intervalle, Length-Field-Parameter).
 
-*   **Zugriff:** Der `NetworkHandler` wird ausschließlich über die statische Methode `Game.network()` abgerufen.
-*   **Verwendung:** Anstatt direkt auf Komponenten zuzugreifen, um eine Aktion auszulösen, wird ein Befehl an den Handler gesendet.
+Gemeinsam
+- core.network.MessageDispatcher, ConnectionListener, SnapshotTranslator (+ Default), messages.*
 
-**Beispiel:**
+Diese Struktur entfernt Duplikate (z. B. Serialisierung, Konstanten), trennt Transport von Spiel-/Protokoll-Logik sauber und macht beide Modi (lokal/remote) über dieselbe Schnittstelle verwendbar.
 
-```java
-// Falsch (direkte Manipulation):
-hero.fetch(VelocityComponent.class).ifPresent(vc -> vc.setCurrentVelocity(...));
+-------------------------------------------------------------------------------
 
-// Richtig (Senden eines Befehls über die API):
-Game.network().sendHeroMovement(Direction.UP);
-```
+## 9. Sicherheit, Robustheit und Grenzen
 
-### 4.2. Senden von Spieler-Befehlen (Client-Logik)
+Robustheit
+- Größenlimits: TCP-Objektgröße begrenzt; UDP-MTU konservativ, um Fragmentierung zu vermeiden.
+- Entkoppelte Raten: Tick-Rate vs. Snapshot-Rate konfigurierbar.
+- NAT/UDP-Retries: wenige, kurze Versuche; Abbruch bei Erfolg oder Kanal-Schließung.
+- Threading: Jegliche Spiel- und Dispatch-Logik auf dem Game-Thread (Determinismus, Debugbarkeit).
 
-Die Logik zum Senden von Spieler-Inputs befindet sich dort, wo die Eingaben verarbeitet werden, typischerweise in Klassen wie dem `HeroFactory` oder dedizierten Input-Systemen.
+Sicherheit (heute)
+- „Authority“ beim Server: Cheating auf Client-Seite kann Zustand nicht direkt manipulieren.
+- Eingangsvalidierung (z. B. simple Playername-Regeln).
+- Hinweis: Java-Objektserialisierung ist praktisch, aber langfristig zu ersetzen (s. Roadmap).
 
-*   **Ablauf:** Die Input-Logik erstellt keinen direkten Effekt im Spiel, sondern ruft lediglich die entsprechende `send...`-Methode des `NetworkHandler` auf.
-*   **Nachrichten-Objekte:** Die Befehle selbst sind als `record`-Klassen im Paket `core.network.messages` definiert. Wenn neue Befehle benötigt werden, sollten sie dort als Implementierung des `NetworkMessage`-Interfaces angelegt werden.
+Grenzen (bewusst)
+- Noch keine Client-Side Prediction, Reconciliation oder Lag Compensation bewusst als späterer Schritt (vgl. Source/Valve) [8].
+- Keine Delta-/Interessenbasierte Kompression in Snapshots folgt in Roadmap (s. Gaffer) [3].
 
-### 4.3. Empfangen von State-Updates (Client-Logik)
+-------------------------------------------------------------------------------
 
-Der Client wird so konzipiert, dass er seinen Zustand nicht selbst simuliert, sondern auf Basis der vom Server gesendeten `EntityStateUpdate`-Nachrichten aktualisiert wird.
+## 10. Roadmap: Was als Nächstes kommt
 
-*   **Ablauf:** Während der Spielinitialisierung wird ein Listener über `Game.setStateUpdateListener(...)` registriert. Dieser Listener wird immer dann aufgerufen, wenn ein State-Update eintrifft (im Singleplayer-Modus wird dies durch den `LocalNetworkHandler` simuliert).
-*   **Verantwortlichkeit:** Die im Listener enthaltene Logik ist dafür verantwortlich, die empfangenen Daten zu verarbeiten. In unserem Fall wird dies der `RenderStateManager` sein, der die Daten für das `DrawSystem` aufbereitet.
+Kurzfristig
+- Snapshot-Optimierung:
+  - Delta-Kompression (Baseline/Acks), Quantisierung/Bitpacking vgl. Gaffer „Snapshot Compression“ [3].
+  - Interest Management (nur relevante Entities pro Client) vgl. Valve „Networking Entities“ [11].
+- Transport/Codec:
+  - Austausch Java-Serialisierung gegen kompaktes Binärformat (Kryo/FlatBuffers/Protobuf o. ä.).
+  - Versionierung der Nachrichten (Abwärtskompatibilität).
+- Metriken/Telemetrie:
+  - Messung von RTT/Jitter/Packet Loss und verknüpfte Adaptionsstrategien.
 
-### 4.4. Paket- und Klassenübersicht
+Mittelfristig
+- Client-Side Prediction & Server Reconciliation:
+  - Input-Pipelining auf dem Client, Korrektur beim Snapshot (Quake-/Source-Ansatz) [8], Gaffer zu Prediction/Lag [1].
+- Lag Compensation (Hit-Scan/Server-Rewind) vgl. Valve [8].
+- Zirkulare Interpolationspuffer, adaptive Interpolationszeit abhängig von Netzwerkbedingungen [9].
 
-Hier ist eine Übersicht der wichtigsten Pakete und Klassen der Netzwerk-Architektur:
+-------------------------------------------------------------------------------
 
-*   `core.network`
-    *   `NetworkHandler`: Das zentrale Interface, das alle Netzwerk-Aktionen definiert (z.B. `sendHeroMovement`).
-    *   `RenderStateManager`: Empfängt State-Updates und hält den zu rendernden Zustand vor.
-    *   `NetworkException`: Eine spezifische Exception für Netzwerkfehler.
-    *   `LocalNetworkHandler`: Die Implementierung für den Singleplayer-Modus. Führt Befehle direkt lokal aus und simuliert den Netzwerk-Flow. Hier wird später auch der `KryoNetNetworkHandler` für den echten Multiplayer liegen.
+## 11. Referenzen
 
-*   `core.network.messages`
-    *   `NetworkMessage`: Das Marker-Interface für alle Nachrichten.
-    *   `EntityStateUpdate`: Record für die Zustands-Snapshots, die vom Server gesendet werden.
-    *   `NetworkEvent`: Record für einmalige, kritische Ereignisse (z.B. Level-Wechsel).
-    *   `HeroMoveCommand`, `UseSkillCommand`, etc.: Records für die Befehle, die vom Client an den Server gesendet werden.
+[1] Gaffer on Games What Every Programmer Needs To Know About Game Networking (Client/Server, Prediction)
+https://gafferongames.com/post/what_every_programmer_needs_to_know_about_game_networking/
 
-## 5. Nächste Schritte
+[2] Gaffer on Games Snapshot Interpolation (Puffer/Interpolation, UDP, Jitter)
+https://gafferongames.com/post/snapshot_interpolation/
 
-1.  **Echte Netzwerk-Implementierung:** Erstellung eines `KryoNetNetworkHandler`, der das `NetworkHandler`-Interface implementiert und Nachrichten über TCP/UDP sendet.
-2.  **Serverseitiger Game Loop:** Erstellung einer headless (ohne Grafik) Server-Applikation, die den `KryoNetNetworkHandler` im Server-Modus initialisiert, die ECS-Systeme ausführt und State-Updates an die Clients sendet.
-3.  **Clientseitige State-Verarbeitung:** Der Game-Client wird so umgebaut, dass er den State, den er vom Server empfängt, rendert. Lokale Inputs werden nur noch an den Server gesendet und beeinflussen den lokalen State nicht mehr direkt.
+[3] Gaffer on Games State Synchronization & Snapshot Compression (Kompression/Delta/Priorisierung)
+https://gafferongames.com/post/state_synchronization/
+https://gafferongames.com/post/snapshot_compression/
 
-## 6. Aktuelle Einschränkungen
+[4] Gaffer on Games Deterministic Lockstep (Determinismus, Grenzen)
+https://gafferongames.com/post/deterministic_lockstep/
 
-1.  **Nur Singleplayer:** Aktuell ist alles nur eine lokale Simulation. Es findet kein echter Netzwerkverkehr statt.
-2.  **Keine Input Lag Compensation:** Das Design beinhaltet noch keine Client-Side Prediction. Im echten Multiplayer wird es eine spürbare Latenz zwischen Tastendruck und Bewegung geben. Das ist für die erste Version akzeptabel.
-3.  **Grundlegende State Synchronization:** Der `EntityStateUpdate` ist noch nicht für Bandbreite optimiert (z.B. durch Delta Compression).
+[8] Valve Developer Community Source Multiplayer Networking (Client/Server, Snapshots, Prediction, Lag Compensation)
+https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking
+(Archivversion: https://web.archive.org/web/20200910022723/developer.valvesoftware.com/wiki/Source_Multiplayer_Networking)
+
+[9] Valve Developer Community Source Multiplayer Networking (Entity Interpolation, Interpolation Delay ~100 ms)
+Chinesische Lokalisierung mit Interpolationsdetails:
+https://developer.valvesoftware.com/wiki/Source_Multiplayer_Networking:zh-cn
+
+[11] Valve Developer Community Networking Entities (Send Tables, Bandbreitenoptimierung, Transmission Filters)
+https://developer.valvesoftware.com/wiki/Networking_Entities
+
+[12] Valve Developer Community Networking Events & Messages (Abgrenzung Entities vs. Events/User Messages)
+https://developer.valvesoftware.com/wiki/Networking_Events_%26_Messages
+
+Weitere aktuelle Artikel von Glenn Fiedler (Más Bandwidth) zu Modellen und Latenz/Netzqualität:
+https://mas-bandwidth.com/choosing-the-right-network-model-for-your-multiplayer-game/
+https://mas-bandwidth.com/the-case-for-network-acceleration-for-multiplayer-games/
+
+-------------------------------------------------------------------------------
+
+## Anhang: Kurzübersicht der implementierten Klassen/Module
+
+- core.network.handler.INetworkHandler: Einheitliche API (Singleplayer/Remote).
+- core.network.handler.LocalNetworkHandler: Singleplayer-Mock, lokale Anwendung der Inputs, optionaler Snapshot-Emit.
+- core.network.handler.NettyNetworkHandler: Fassade, die ClientNetwork bzw. ServerRuntime startet.
+- core.network.client.ClientNetwork: Netty-TCP/UDP-Client, Handshake, UDP-Registrierung mit Retry+Cancel, Inbound-Queue, Lifecycle, pollAndDispatch.
+- core.network.server.ServerTransport: Netty-TCP/UDP-Server, ClientId-Zuteilung, UDP-Endpunkte lernen, Input-Queue, UDP-Senden.
+- core.network.server.AuthoritativeServerLoop: ECS-Simulation (Tick), Input-Anwendung, Snapshot-Broadcast.
+- core.network.server.ServerRuntime: Orchestriert Transport + Loop, Start/Stopp.
+- core.network.codec.NetworkCodec: Zentrale (De-)Serialisierung.
+- core.network.config.NetworkConfig: Konstanten/Limits (MTU, Retries, Frame-Decoder-Konfig).
+- core.network.messages.*: Schlanke, zweckgebundene DTOs (C2S/S2C).

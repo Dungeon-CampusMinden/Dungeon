@@ -8,7 +8,6 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Central handler for sending game-related messages.
@@ -28,7 +27,7 @@ public interface INetworkHandler {
    * @param username The username for the connection.
    */
   void initialize(boolean isServer, String serverAddress, int port, String username)
-      throws NetworkException;
+    throws NetworkException;
 
   /**
    * Sends a {@link NetworkMessage} to the server (if client) or dispatches locally (if single
@@ -71,6 +70,15 @@ public interface INetworkHandler {
   boolean isServer();
 
   /**
+   * Returns the assigned client id after a successful handshake (clients only).
+   *
+   * <p>Implementations that are not clients may return 0.
+   */
+  default int getAssignedClientId() {
+    return 0;
+  }
+
+  /**
    * Retrieves the dispatcher responsible for handling incoming messages.
    *
    * <p>Game code or server should register their specific message handlers with this dispatcher.
@@ -99,8 +107,8 @@ public interface INetworkHandler {
    * Internal method: Sets the consumer for raw incoming messages.
    *
    * <p>This method is intended for the internal use of the NetworkHandler implementation (e.g.,
-   * KryoNetHandler) to feed raw messages into the MessageDispatcher. Game code should use {@link
-   * #messageDispatcher()} to register specific handlers.
+   * Netty-based handler) to feed raw messages into the MessageDispatcher. Game code should use
+   * {@link #messageDispatcher()} to register specific handlers.
    *
    * @param rawMessageConsumer A consumer that processes raw incoming messages.
    */
@@ -127,8 +135,8 @@ public interface INetworkHandler {
    * Drains any queued inbound network messages and dispatches them on the game loop thread.
    *
    * <p>Default is a no-op; implementations with IO threads should override this and deliver
-   * messages to {@link #messageDispatcher()} or the raw consumer set via {@link
-   * #_setRawMessageConsumer(Consumer)}.
+   * messages to {@link #messageDispatcher()} or the raw consumer set via
+   * {@link #_setRawMessageConsumer(BiConsumer)}.
    */
   default void pollAndDispatch() {}
 }
