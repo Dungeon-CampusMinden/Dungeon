@@ -50,7 +50,7 @@ public class MoveSystem extends System {
    * Updates the position of a single entity based on its velocity and collision rules.
    *
    * <p>The velocity is capped at the entity's maxSpeed to prevent moving too fast diagonally. The
-   * method checks the accessibility of all corners of the entity's move collision box and handles
+   * method checks the accessibility of all corners of the entity's collision box and handles
    * sliding along walls by checking individual axis movement.
    *
    * <p>If the tile is blocked, the entity's {@code onWallHit} callback is invoked.
