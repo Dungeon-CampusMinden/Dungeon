@@ -36,6 +36,15 @@ public record Coordinate(int x, int y) {
   }
 
   /**
+   * Create new Point centered in the tile.
+   *
+   * @return centered Point
+   */
+  public Point toCenteredPoint() {
+    return new Point(x() + 0.5f, y() + 0.5f);
+  }
+
+  /**
    * Moves this coordinate by a vector.
    *
    * @param vector The vector to move the coordinate by.

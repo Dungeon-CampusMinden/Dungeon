@@ -418,8 +418,11 @@ public class BlocklyCommands {
           entity
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+      // Magic Translate for https://github.com/Dungeon-CampusMinden/Dungeon/issues/2448
+      // Move the position slightly further into the tile to avoid rounding errors at edge positions
 
-      Tile targetTile = Game.tileAt(pc.position(), direction).orElse(null);
+      Tile targetTile =
+          Game.tileAt(pc.position().translate(Vector2.of(0.1, 0.1)), direction).orElse(null);
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {

@@ -96,6 +96,15 @@ public record Point(float x, float y) {
     return new Point((int) x(), (int) y());
   }
 
+  /**
+   * Create new Point centered in the tile.
+   *
+   * @return centered Point
+   */
+  public Point toCenteredPoint() {
+    return new Point((int) x() + 0.5f, (int) y() + 0.5f);
+  }
+
   @Override
   public String toString() {
     return x + "," + y;

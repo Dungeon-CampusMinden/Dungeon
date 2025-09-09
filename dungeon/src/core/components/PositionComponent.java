@@ -141,6 +141,15 @@ public final class PositionComponent implements Component {
   }
 
   /**
+   * Set the position to the corner of the current tile.
+   *
+   * <p>This basically rounds down the x and y coordinates.
+   */
+  public void toTileCorner() {
+    position = position.toCoordinate().toPoint();
+  }
+
+  /**
    * Get the position as coordinate.
    *
    * @return The position as coordinate.
