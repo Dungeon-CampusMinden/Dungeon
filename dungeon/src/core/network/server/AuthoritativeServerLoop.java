@@ -12,7 +12,7 @@ import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
-import core.network.messages.*;
+import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.LevelChangeEvent;
@@ -30,55 +30,39 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Minimal authoritative server loop that consumes inputs and broadcasts world snapshots.
- *
- * <p>Prototype: uses a simple in-memory entity map keyed by clientId; positions updated by inputs.
- */
 public final class AuthoritativeServerLoop {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
-  private static final int TICK_HZ = 20;
-  private static final int snapshotHz = 20;
+  private static final Logger LOGGER =
+    LoggerFactory.getLogger(AuthoritativeServerLoop.class);
 
-  private final ServerNetworkService net;
+  private static final int TICK_HZ = 20;
+  private static final int SNAPSHOT_HZ = 20;
+
+  private final ServerTransport net;
+  private final SnapshotTranslator translator;
   private final ScheduledExecutorService executor;
 
-  // Authoritative entities simulated with ECS; map clientId -> entity
-  private final ConcurrentHashMap<Integer, Entity> clientEntities = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Integer, Entity> clientEntities =
+    new ConcurrentHashMap<>();
 
-  // Tick counters
   private volatile long serverTick = 0;
 
-  // translator comes from network handler
-  private final SnapshotTranslator translator;
-
-  /**
-   * Creates an authoritative server loop.
-   *
-   * @param netService server network service
-   * @param translator explicit snapshot translator (required)
-   */
-  public AuthoritativeServerLoop(ServerNetworkService netService, SnapshotTranslator translator) {
+  public AuthoritativeServerLoop(
+    ServerTransport netService, SnapshotTranslator translator) {
     this.net = netService;
     this.translator = java.util.Objects.requireNonNull(translator, "translator");
-    this.executor =
-        Executors.newSingleThreadScheduledExecutor(
-            r -> {
-              Thread t = new Thread(r, "AuthoritativeServerLoop");
-              t.setDaemon(true);
-              return t;
-            });
+    this.executor = Executors.newSingleThreadScheduledExecutor(r -> {
+      Thread t = new Thread(r, "AuthoritativeServerLoop");
+      t.setDaemon(true);
+      return t;
+    });
   }
 
-  /** Starts the simulation and snapshot senders. */
   public void start() {
     try {
       PreRunConfiguration.frameRate(TICK_HZ);
-    } catch (Throwable ignored) {
-    }
+    } catch (Throwable ignored) {}
 
     createSystems();
-    // Load initial level and notify clients once
     try {
       DungeonLoader.afterAllLevels(() -> broadcast(new GameOverEvent()));
       DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
@@ -89,12 +73,21 @@ public final class AuthoritativeServerLoop {
     }
 
     long tickPeriodMs = 1000L / TICK_HZ;
-    long snapshotPeriodMs = 1000L / snapshotHz;
+    long snapshotPeriodMs = 1000L / SNAPSHOT_HZ;
 
-    executor.scheduleAtFixedRate(this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
     executor.scheduleAtFixedRate(
-        this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs, TimeUnit.MILLISECONDS);
-    LOGGER.info("AuthoritativeServerLoop started: tickHz={}, snapshotHz={}", TICK_HZ, snapshotHz);
+      this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
+    executor.scheduleAtFixedRate(
+      this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs,
+      TimeUnit.MILLISECONDS);
+
+    LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", TICK_HZ,
+      SNAPSHOT_HZ);
+  }
+
+  public void stop() {
+    executor.shutdownNow();
+    LOGGER.info("ServerLoop stopped");
   }
 
   private void createSystems() {
@@ -111,12 +104,6 @@ public final class AuthoritativeServerLoop {
     ECSManagment.add(new FallingSystem());
   }
 
-  /** Stops the simulation. */
-  public void stop() {
-    executor.shutdownNow();
-    LOGGER.info("AuthoritativeServerLoop stopped");
-  }
-
   private void tick() {
     try {
       serverTick++;
@@ -128,38 +115,27 @@ public final class AuthoritativeServerLoop {
     }
   }
 
-  private void drainAndApplyInputs(ConcurrentLinkedQueue<InputMessage> queue) {
+  private void drainAndApplyInputs(ConcurrentLinkedQueue<InputMessage> q) {
     InputMessage msg;
-    while ((msg = queue.poll()) != null) {
-      int clientId = msg.clientId();
-      Entity playerEntity = clientEntities.get(clientId);
-      if (playerEntity == null) continue;
-      LOGGER.info("Received input message: " + msg);
+    while ((msg = q.poll()) != null) {
+      int id = msg.clientId();
+      Entity player = clientEntities.get(id);
+      if (player == null) continue;
       switch (msg.action()) {
-        case MOVE:
-          HeroController.moveHero(playerEntity, Vector2.of(msg.point()).direction());
-          break;
-        case MOVE_PATH:
-          HeroController.moveHeroPath(playerEntity, msg.point());
-          break;
-        case CAST_SKILL:
-          HeroController.useSkill(playerEntity, msg.point());
-          break;
-        case NEXT_SKILL:
-          HeroController.changeSkill(playerEntity, true);
-          break;
-        case PREV_SKILL:
-          HeroController.changeSkill(playerEntity, false);
-          break;
-        case INTERACT:
-          HeroController.interact(playerEntity, msg.point());
-          break;
+        case MOVE -> HeroController.moveHero(
+          player, Vector2.of(msg.point()).direction());
+        case MOVE_PATH -> HeroController.moveHeroPath(player, msg.point());
+        case CAST_SKILL -> HeroController.useSkill(player, msg.point());
+        case NEXT_SKILL -> HeroController.changeSkill(player, true);
+        case PREV_SKILL -> HeroController.changeSkill(player, false);
+        case INTERACT -> HeroController.interact(player, msg.point());
       }
     }
   }
 
   private void sendSnapshot() {
-    translator.translateToSnapshot(serverTick, clientEntities).ifPresent(this::broadcast);
+    translator.translateToSnapshot(serverTick, clientEntities)
+      .ifPresent(this::broadcast);
   }
 
   private void broadcastLevelChange() {
@@ -167,32 +143,28 @@ public final class AuthoritativeServerLoop {
     try {
       levelName = DungeonLoader.currentLevel();
     } catch (Throwable t) {
-      LOGGER.warn("Failed to broadcast current level", t);
+      LOGGER.warn("Failed to read current level", t);
       return;
     }
-    LOGGER.info("Broadcasting level change to clients: {}", levelName);
-    // TODO: for now, we use null as the spawn point, so the client spawns at the start tile
     broadcast(new LevelChangeEvent(levelName, null));
   }
 
   public void broadcast(NetworkMessage event) {
-    for (Map.Entry<Integer, InetSocketAddress> entry : net.udpClients().entrySet()) {
-      net.sendUdpObject(entry.getValue(), event);
+    for (Map.Entry<Integer, InetSocketAddress> e : net.udpClients().entrySet()) {
+      net.sendUdpObject(e.getValue(), event);
     }
   }
 
   private void syncClientsToEntities() {
-    // Create entities for new clients
-    for (Integer clientId : net.tcpClientMap().values()) {
-      clientEntities.computeIfAbsent(clientId, this::spawnHeroForClient);
+    for (Integer id : net.tcpClientMap().values()) {
+      clientEntities.computeIfAbsent(id, this::spawnHeroForClient);
     }
-    // Cleanup entities for disconnected clients
-    for (Integer clientId : clientEntities.keySet()) {
-      if (!net.tcpClientMap().containsValue(clientId)) {
-        Entity entity = clientEntities.remove(clientId);
+    for (Integer id : clientEntities.keySet()) {
+      if (!net.tcpClientMap().containsValue(id)) {
+        Entity entity = clientEntities.remove(id);
         if (entity != null) {
           Game.remove(entity);
-          LOGGER.info("Removed entity for disconnected client {}", clientId);
+          LOGGER.info("Removed entity for disconnected client {}", id);
         }
       }
     }
@@ -200,12 +172,11 @@ public final class AuthoritativeServerLoop {
 
   private Entity spawnHeroForClient(Integer clientId) {
     try {
-      String playerName = net.clientName(clientId).orElse("Player_" + clientId);
-      Entity hero =
-          HeroFactory.newHero(true, playerName); // Local because we have authoritative control
-      hero.fetch(PositionComponent.class).ifPresent(pc -> pc.position(Game.startTile().get()));
+      String name = net.clientName(clientId).orElse("Player_" + clientId);
+      Entity hero = HeroFactory.newHero(true, name);
+      hero.fetch(PositionComponent.class)
+        .ifPresent(pc -> pc.position(Game.startTile().get()));
       Game.add(hero);
-      System.out.println("Spawned hero for client " + clientId + ": " + hero.name());
       return hero;
     } catch (IOException e) {
       LOGGER.error("Failed to spawn hero for client {}", clientId, e);
