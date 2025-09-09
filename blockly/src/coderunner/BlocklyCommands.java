@@ -431,7 +431,7 @@ public class BlocklyCommands {
 
     double[] distances =
         entityComponents.stream()
-            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toPoint()))
+            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toCenteredPoint()))
             .toArray();
     double[] lastDistances = new double[entities.length];
 
@@ -444,7 +444,7 @@ public class BlocklyCommands {
         comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
         lastDistances[i] = distances[i];
-        distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
+        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
 
         if (comp.vc().maxSpeed() > 0
             && Game.existInLevel(entities[i])
