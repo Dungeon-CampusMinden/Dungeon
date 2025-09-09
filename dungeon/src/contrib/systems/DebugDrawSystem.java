@@ -7,6 +7,7 @@ import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.Vector2;
@@ -73,6 +74,7 @@ public class DebugDrawSystem extends System {
 
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc);
     if (entity.isPresent(CollideComponent.class)) drawColideHitbox(entity, pc);
+    if (entity.isPresent(VelocityComponent.class)) drawMoveHitbox(entity, pc);
   }
 
   /**
@@ -127,6 +129,34 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(Color.GREEN);
     SHAPE_RENDERER.rect(x, y, width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draws a white rectangle representing the entity's movement hitbox.
+   *
+   * <p>This is useful for debugging collision and movement boundaries.
+   *
+   * @param entity The entity whose movement hitbox should be drawn. Must have a {@link
+   *     VelocityComponent}.
+   * @param pc The {@link PositionComponent} of the entity, used as the reference point for the
+   *     hitbox.
+   */
+  private void drawMoveHitbox(Entity entity, PositionComponent pc) {
+    VelocityComponent vc =
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+
+    // Compute bottom-left corner of the hitbox
+    Point bottomLeft = pc.position().translate(vc.moveboxOffset());
+    Vector2 size = vc.moveboxSize();
+    float width = size.x();
+    float height = size.y();
+
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(Color.WHITE);
+    SHAPE_RENDERER.rect(bottomLeft.x(), bottomLeft.y(), width, height);
     SHAPE_RENDERER.end();
   }
 }
