@@ -166,19 +166,19 @@ public class AnimationConfig {
   @Override
   public String toString() {
     return "AnimationConfig{"
-        + "framesPerSprite="
-        + framesPerSprite
-        + ", scaleX="
-        + scaleX
-        + ", scaleY="
-        + scaleY
-        + ", isLooping="
-        + isLooping
-        + ", centered="
-        + centered
-        + ", config="
-        + config
-        + '}';
+      + "framesPerSprite="
+      + framesPerSprite
+      + ", scaleX="
+      + scaleX
+      + ", scaleY="
+      + scaleY
+      + ", isLooping="
+      + isLooping
+      + ", centered="
+      + centered
+      + ", config="
+      + config
+      + '}';
   }
 
   /**

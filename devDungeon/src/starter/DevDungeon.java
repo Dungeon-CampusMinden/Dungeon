@@ -22,7 +22,9 @@ import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.System;
+import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
+import core.systems.LevelSystem;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
 import item.concreteItem.ItemPotionWater;
@@ -99,13 +101,17 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero();
+    //TODO: Only testing, revert later
+    Entity hero = HeroFactory.newHero(false);
     hero.fetch(SkillComponent.class)
         .ifPresent(
             sc -> {
               sc.removeAll();
               sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint));
             });
+    Game.add(hero);
+    hero = HeroFactory.newHero(true);
+    // hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     Game.add(hero);
   }
 

@@ -1,7 +1,6 @@
 package produsAdvanced;
 
 import contrib.crafting.Crafting;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
 import contrib.systems.*;
@@ -203,7 +202,7 @@ public class AdvancedDungeon {
    */
   private static void createHero() throws IOException {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
-    Entity heroEntity = EntityFactory.newHero();
+    Entity heroEntity = HeroFactory.newHero();
     Game.add(heroEntity);
     hero = new Hero(heroEntity);
 

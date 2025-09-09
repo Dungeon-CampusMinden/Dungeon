@@ -1,5 +1,7 @@
 package core;
 
+import static com.badlogic.gdx.scenes.scene2d.InputEvent.Type.exit;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -13,6 +15,11 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
+import core.network.DefaultSnapshotTranslator;
+import core.network.NetworkException;
+import core.network.handler.INetworkHandler;
+import core.network.handler.LocalNetworkHandler;
+import core.network.handler.NettyNetworkHandler;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -53,10 +60,44 @@ import java.util.stream.Stream;
 public final class Game {
 
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static INetworkHandler networkHandler;
 
-  /** Starts the dungeon and requires a {@link Game}. */
+  /** Starts the dungeon. Initializes the network handler if networking is enabled. */
   public static void run() {
-    GameLoop.run();
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      networkHandler = new NettyNetworkHandler();
+    } else {
+      networkHandler = new LocalNetworkHandler();
+    }
+
+    try {
+      // Always route raw messages into the game dispatcher on the game thread
+      networkHandler._setRawMessageConsumer(networkHandler.messageDispatcher()::dispatch);
+      // Explicitly inject a SnapshotTranslator before initialization
+      networkHandler.setSnapshotTranslator(new DefaultSnapshotTranslator());
+      networkHandler.initialize(
+          PreRunConfiguration.isNetworkServer(),
+          PreRunConfiguration.networkServerAddress(),
+          PreRunConfiguration.networkPort(),
+          PreRunConfiguration.username());
+      networkHandler.start();
+      LOGGER.info("Network handler initialized and started.");
+    } catch (NetworkException e) {
+      LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
+    }
+
+    // Start the main game loop
+    if (!PreRunConfiguration.isNetworkServer()) {
+      GameLoop.run();
+    }
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  LOGGER.info("Stopping server...");
+                  networkHandler.shutdown();
+                }));
   }
 
   /**
@@ -767,8 +808,15 @@ public final class Game {
     else LOGGER.warning("Can not set Level because levelSystem is null.");
   }
 
-  /** Exits the GDX application. */
-  public static void exit() {
+  /** Exits the GDX application and shuts down the network handler. */
+  public static void exit(String reason) {
+    if (networkHandler != null) {
+      try {
+        networkHandler.shutdown(reason);
+      } catch (Exception e) {
+        LOGGER.log(Level.WARNING, "Error shutting down network handler", e);
+      }
+    }
     Gdx.app.exit();
   }
 
@@ -781,5 +829,24 @@ public final class Game {
    */
   public static Stream<Entity> entityAtPoint(Point point) {
     return Game.tileAt(point).map(Game::entityAtTile).orElseGet(Stream::empty);
+  }
+
+  /** Exits the GDX application and shuts down the network handler. */
+  public static void exit() {
+    exit("Exit Game");
+  }
+
+  /**
+   * Gets the network handler instance. This allows other parts of the game (like HeroFactory) to
+   * send messages.
+   *
+   * @return The NetworkHandler instance.
+   * @throws IllegalStateException if the network handler is not initialized.
+   */
+  public static INetworkHandler network() {
+    if (networkHandler == null) {
+      throw new IllegalStateException("Network handler is not initialized. Call Game.run() first.");
+    }
+    return networkHandler;
   }
 }

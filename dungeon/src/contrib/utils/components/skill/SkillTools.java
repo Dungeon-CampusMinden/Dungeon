@@ -10,9 +10,12 @@ import core.components.PositionComponent;
 import core.systems.CameraSystem;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** SkillTools is a collection of helper methods used for skills. */
 public final class SkillTools {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SkillTools.class);
 
   /**
    * A skill has a range in which it is effective. This is a calculation of the last position in
@@ -46,9 +49,18 @@ public final class SkillTools {
   /**
    * Gets the current cursor position as Point. The cursor is used to aim.
    *
+   * <p>Note: This method uses the Gdx.graphics to unproject the cursor position from screen
+   * coordinates to world coordinates. If Gdx.graphics is null, it returns a default Point (0, 0).
+   *
    * @return The mouse cursor position as Point.
    */
   public static Point cursorPositionAsPoint() {
+    if (Gdx.graphics == null) {
+      LOGGER.error("Gdx.graphics is null, returning default Point(0, 0) for cursor position.");
+      //return new Point(0, 0);
+      throw new IllegalStateException("Gdx.graphics is null, cannot get cursor position.");
+    }
+
     Vector3 mousePosition =
         CameraSystem.camera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
     return new Point(mousePosition.x, mousePosition.y);

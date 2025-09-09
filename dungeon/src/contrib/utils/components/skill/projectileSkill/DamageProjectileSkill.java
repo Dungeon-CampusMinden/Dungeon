@@ -31,7 +31,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected boolean pircing;
 
   /** A supplier that provides the target endpoint of the projectile. */
-  private Supplier<Point> endPointSupplier;
+  private final Supplier<Point> endPointSupplier;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
@@ -42,7 +42,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    * @param end A supplier providing the endpoint (target location) of the projectile.
    * @param speed The travel speed of the projectile.
    * @param range The maximum range the projectile can travel.
-   * @param pircing Whether the projectile pierces through targets (true) or is destroyed on impact
+   * @param piercing Whether the projectile pierces through targets (true) or is destroyed on impact
    *     (false).
    * @param damageAmount The base damage dealt by the projectile.
    * @param damageType The type of damage inflicted by the projectile.
@@ -57,7 +57,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       Supplier<Point> end,
       float speed,
       float range,
-      boolean pircing,
+      boolean piercing,
       int damageAmount,
       DamageType damageType,
       Vector2 hitBoxSize,
@@ -65,7 +65,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
     super(name, cooldown, texture, speed, range, hitBoxSize, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
-    this.pircing = pircing;
+    this.pircing = piercing;
     this.endPointSupplier = end;
   }
 

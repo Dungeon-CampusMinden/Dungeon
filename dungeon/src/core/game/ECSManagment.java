@@ -2,11 +2,22 @@ package core.game;
 
 import core.Component;
 import core.Entity;
+import core.Game;
 import core.System;
+import core.components.DrawComponent;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.level.elements.ILevel;
+import core.network.messages.s2c.EntityDespawnEvent;
+import core.network.messages.s2c.EntitySpawnEvent;
+import core.utils.Direction;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
+import core.utils.Point;
+import core.utils.components.draw.CoreAnimations;
+import core.utils.components.draw.state.StateMachine;
+import core.utils.components.path.IPath;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -79,6 +90,32 @@ public final class ECSManagment {
 
     activeEntityStorage.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
+
+    if (Game.network().isServer()) {
+      Game.network()
+          .send(
+              new EntitySpawnEvent(
+                  entity.id(),
+                  entity
+                      .fetch(PositionComponent.class)
+                      .map(PositionComponent::position)
+                      .orElse(new Point(0, 0)),
+                  entity
+                      .fetch(PositionComponent.class)
+                      .map(PositionComponent::viewDirection)
+                      .orElse(Direction.DOWN),
+                  entity.fetch(DrawComponent.class)
+                      .map(DrawComponent::basePath)
+                      .map(IPath::pathString)
+                        .orElse(""),
+                  entity
+                      .fetch(DrawComponent.class)
+                      .map(DrawComponent::stateMachine)
+                      .map(StateMachine::getCurrentStateName)
+                      .orElseThrow(),
+                  entity.fetch(DrawComponent.class).map(DrawComponent::tintColor).orElse(-1)));
+    }
+
     return entity;
   }
 
@@ -94,6 +131,11 @@ public final class ECSManagment {
     activeEntityStorage.forEach(f -> f.remove(entity));
     EntityIdProvider.unregister(entity.id());
     LOGGER.info(entity + " will be removed from the Game.");
+
+    if (Game.network().isServer()) {
+      Game.network().send(new EntityDespawnEvent(entity.id(), "Entity removed from game"));
+    }
+
     return entity;
   }
 
@@ -232,13 +274,21 @@ public final class ECSManagment {
   }
 
   /**
-   * Searches the current level for the player character.
-   *
-   * @return an {@link Optional} containing the player character from the current level, or an empty
-   *     {@code Optional} if none is present
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
    */
   public static Optional<Entity> hero() {
-    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class)).findFirst();
+    return levelEntities()
+        .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false))
+        .findFirst();
+  }
+
+  /**
+   * @return a stream of all hero entities in the game.
+   * @see PlayerComponent
+   */
+  public static Stream<Entity> allHeros() {
+    return levelEntities().filter(e -> e.isPresent(PlayerComponent.class));
   }
 
   /**
