@@ -151,8 +151,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              Entity mob =
-                  DungeonMonster.randomMonster().builder().build(coordinate.toPoint());
+              Entity mob = DungeonMonster.randomMonster().builder().build(coordinate.toPoint());
               mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);
