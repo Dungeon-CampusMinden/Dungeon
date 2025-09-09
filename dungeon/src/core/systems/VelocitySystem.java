@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  */
 public final class VelocitySystem extends System {
 
-  private static final double EPSILON = 1e-6;
+  private static final double EPSILON_ANIMATION = 0.2;
 
   private static final Logger LOGGER = Logger.getLogger(VelocitySystem.class.getName());
 
@@ -88,7 +88,7 @@ public final class VelocitySystem extends System {
     float x = vsd.vc.currentVelocity().x();
     float y = vsd.vc.currentVelocity().y();
 
-    if (Math.abs(x) > EPSILON || Math.abs(y) > EPSILON) {
+    if (Math.abs(x) > EPSILON_ANIMATION || Math.abs(y) > EPSILON_ANIMATION) {
       Direction newDirection = Direction.NONE;
       // Use the velocity axis with the greatest magnitude for animation direction
       if (Math.abs(x) >= Math.abs(y)) {
