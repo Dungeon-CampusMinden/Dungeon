@@ -76,7 +76,7 @@ public class FireShockWaveSkill extends Skill {
           placedPositions.add(tile.coordinate());
 
           Entity entity = new Entity(SKILL_NAME + "_entity");
-          PositionComponent posComp = new PositionComponent(tile.coordinate().toCenteredPoint());
+          PositionComponent posComp = new PositionComponent(tile.coordinate().toPoint());
           posComp.rotation(-90f); // Look like sitting on the ground
           entity.add(posComp);
           entity.add(new CollideComponent());

@@ -71,10 +71,10 @@ public class Level006 extends BlocklyLevel {
     Coordinate stone2C = customPoints().get(1);
     Coordinate switch1C = customPoints().get(2);
     Coordinate switch2C = customPoints().get(3);
-    Entity s1 = LeverFactory.pressurePlate(switch1C.toCenteredPoint());
-    Entity s2 = LeverFactory.pressurePlate(switch2C.toCenteredPoint());
-    Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
-    Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
+    Entity s1 = LeverFactory.pressurePlate(switch1C.toPoint());
+    Entity s2 = LeverFactory.pressurePlate(switch2C.toPoint());
+    Game.add(MiscFactory.stone(stone1C.toPoint()));
+    Game.add(MiscFactory.stone(stone2C.toPoint()));
 
     Game.add(s1);
     Game.add(s2);

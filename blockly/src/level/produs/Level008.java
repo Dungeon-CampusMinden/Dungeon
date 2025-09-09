@@ -66,18 +66,18 @@ public class Level008 extends BlocklyLevel {
     guardBuilder.addToGame();
     guardBuilder.range(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(customPoints().get(7).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(7).toPoint());
     guardBuilder.build();
     guardBuilder.range(5);
     guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(8).toPoint());
     guardBuilder.build();
 
-    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
-    Entity s2 = LeverFactory.createLever(customPoints().get(3).toCenteredPoint());
-    Entity s3 = LeverFactory.createLever(customPoints().get(4).toCenteredPoint());
-    Entity s4 = LeverFactory.createLever(customPoints().get(5).toCenteredPoint());
-    Entity s5 = LeverFactory.createLever(customPoints().get(6).toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toPoint());
+    Entity s2 = LeverFactory.createLever(customPoints().get(3).toPoint());
+    Entity s3 = LeverFactory.createLever(customPoints().get(4).toPoint());
+    Entity s4 = LeverFactory.createLever(customPoints().get(5).toPoint());
+    Entity s5 = LeverFactory.createLever(customPoints().get(6).toPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
@@ -111,8 +111,8 @@ public class Level008 extends BlocklyLevel {
     door5 = (DoorTile) Game.tileAt(new Coordinate(8, 5)).orElse(null);
     door5.close();
 
-    Game.add(MiscFactory.stone(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
+    Game.add(MiscFactory.stone(customPoints().get(0).toPoint()));
+    Game.add(MiscFactory.stone(customPoints().get(1).toPoint()));
   }
 
   @Override

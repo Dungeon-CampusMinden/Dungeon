@@ -81,7 +81,7 @@ public class Level015 extends BlocklyLevel {
         .forEach(
             coordinate -> {
               if (counter[0] == 0 || random.nextBoolean()) {
-                hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+                hedgehogBuilder.spawnPoint(coordinate.toPoint());
                 hedgehogBuilder.build();
                 counter[0]++;
               }

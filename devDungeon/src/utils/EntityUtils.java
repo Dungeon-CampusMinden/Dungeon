@@ -84,7 +84,7 @@ public class EntityUtils {
           newMob
               .fetch(PositionComponent.class)
               .orElseThrow(() -> MissingComponentException.build(newMob, PositionComponent.class));
-      positionComponent.position(tile.coordinate().toCenteredPoint());
+      positionComponent.position(tile.coordinate().toPoint());
       Game.add(newMob);
       return newMob;
     } catch (IOException e) {

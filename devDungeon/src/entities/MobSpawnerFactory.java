@@ -44,7 +44,7 @@ public class MobSpawnerFactory {
       Coordinate pos, MonsterType[] monsterTypes, int maxMobCount) {
     Entity mobSpawner = new Entity("mobSpawner");
 
-    mobSpawner.add(new PositionComponent(pos.toCenteredPoint()));
+    mobSpawner.add(new PositionComponent(pos.toPoint()));
     mobSpawner.add(new DrawComponent(new Animation(SPAWNER_TEXTURE)));
     mobSpawner.add(
         new MobSpawnerComponent(

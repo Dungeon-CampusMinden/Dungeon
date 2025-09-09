@@ -547,8 +547,8 @@ public final class MiscFactory {
     String reqKeyName =
         requiredKeyType.equals(ItemKey.class) ? "silbernen Schlüssel" : "großen goldenen Schlüssel";
     Entity doorBlocker = new Entity("doorBlocker");
-    float x = door.position().toCenteredPoint().x();
-    float y = door.position().toCenteredPoint().y();
+    float x = door.position().x();
+    float y = door.position().y();
     Point blockerPosition = new Point(x, (y - 0.4f));
     doorBlocker.add(new PositionComponent(blockerPosition));
 

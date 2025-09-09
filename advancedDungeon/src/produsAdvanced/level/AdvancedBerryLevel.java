@@ -147,8 +147,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   private void spawnBerry(boolean isToxic) {
     Entity berry =
         WorldItemBuilder.buildWorldItem(
-            new Berry(isToxic),
-            Game.randomTile(LevelElement.FLOOR).get().coordinate().toCenteredPoint());
+            new Berry(isToxic), Game.randomTile(LevelElement.FLOOR).get().coordinate().toPoint());
     berry.name(Berry.NAME);
     HealthComponent health =
         new HealthComponent(
@@ -180,7 +179,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   /** Creates a chest at the second custom point. */
   private void createChest() {
     try {
-      chest = EntityFactory.newChest(Set.of(), customPoints().get(1).toCenteredPoint());
+      chest = EntityFactory.newChest(Set.of(), customPoints().get(1).toPoint());
     } catch (IOException e) {
       throw new RuntimeException("Failed to create chest", e);
     }
@@ -190,7 +189,7 @@ public class AdvancedBerryLevel extends AdvancedLevel {
   /** Creates an NPC that gives the player a berry-fetching quest. */
   private void createNPC() {
     Entity npc = new Entity("NPC");
-    npc.add(new PositionComponent(customPoints().get(0).toCenteredPoint()));
+    npc.add(new PositionComponent(customPoints().get(0).toPoint()));
 
     npc.add(new DrawComponent(new SimpleIPath(NPC_TEXTURE_PATH)));
     npc.add(new CollideComponent());

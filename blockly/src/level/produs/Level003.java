@@ -63,8 +63,8 @@ public class Level003 extends BlocklyLevel {
     LevelManagementUtils.zoomDefault();
     Coordinate stone1C = customPoints().get(0);
     Coordinate stone2C = customPoints().get(1);
-    Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
-    Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
+    Game.add(MiscFactory.stone(stone1C.toPoint()));
+    Game.add(MiscFactory.stone(stone2C.toPoint()));
 
     Game.tileAt(new Coordinate(0, 5))
         .filter(DoorTile.class::isInstance)

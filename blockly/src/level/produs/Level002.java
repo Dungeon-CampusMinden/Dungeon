@@ -63,7 +63,7 @@ public class Level002 extends BlocklyLevel {
     guardBuilder.range(3);
     guardBuilder.viewDirection(Direction.LEFT);
     guardBuilder.addToGame();
-    guardBuilder.spawnPoint(customPoints().get(0).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(0).toPoint());
     guardBuilder.build();
     customPoints().remove(0);
 
@@ -72,7 +72,7 @@ public class Level002 extends BlocklyLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              hedgehogBuilder.spawnPoint(coordinate.toCenteredPoint());
+              hedgehogBuilder.spawnPoint(coordinate.toPoint());
               hedgehogBuilder.addToGame();
               hedgehogBuilder.build();
             });

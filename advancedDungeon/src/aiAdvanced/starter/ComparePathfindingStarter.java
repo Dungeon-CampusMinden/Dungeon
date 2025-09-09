@@ -91,9 +91,9 @@ public class ComparePathfindingStarter {
     Tile[][] layout = Game.currentLevel().orElse(null).layout();
     int levelHeight = layout.length;
 
-    Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
+    Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toPoint();
     Point bottomTile =
-        layout[levelHeight - 1][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
+        layout[levelHeight - 1][0].coordinate().translate(Vector2.of(0, 2)).toPoint();
 
     // Zoom out until the whole level is visible
     int currentTries = 0;
@@ -131,7 +131,7 @@ public class ComparePathfindingStarter {
             Game.currentLevel().map(ILevel::customPoints).orElse(Collections.emptyList())));
 
     // Position the runners
-    Debugger.TELEPORT(orgStart.toCenteredPoint());
+    Debugger.TELEPORT(orgStart.toPoint());
 
     RUNNERS[1] = createRunnerMob();
     PositionComponent pc =
@@ -139,7 +139,7 @@ public class ComparePathfindingStarter {
             .fetch(PositionComponent.class)
             .orElseThrow(
                 () -> MissingComponentException.build(RUNNERS[1], PositionComponent.class));
-    pc.position(newStart.toCenteredPoint());
+    pc.position(newStart.toPoint());
 
     setupPathFindingSystem(rows);
   }
