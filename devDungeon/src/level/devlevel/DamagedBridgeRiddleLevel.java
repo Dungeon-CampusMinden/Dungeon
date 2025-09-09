@@ -114,7 +114,7 @@ public class DamagedBridgeRiddleLevel extends DevDungeonLevel {
         chest
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(secretWay[secretWay.length - 1].coordinate().toCenteredPoint());
+    pc.position(secretWay[secretWay.length - 1].coordinate().toPoint());
     InventoryComponent ic =
         chest
             .fetch(InventoryComponent.class)

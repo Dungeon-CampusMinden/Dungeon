@@ -57,14 +57,14 @@ public class Level009 extends BlocklyLevel {
           "Kapitel 1: Ausbruch");
       showText = false;
     }
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
 
     BlocklyMonster.Builder hedgehogBuilder =
         BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
-    hedgehogBuilder.build(customPoints().get(2).toCenteredPoint());
-    hedgehogBuilder.build(customPoints().get(3).toCenteredPoint());
-    hedgehogBuilder.build(customPoints().get(4).toCenteredPoint());
+    hedgehogBuilder.build(customPoints().get(2).toPoint());
+    hedgehogBuilder.build(customPoints().get(3).toPoint());
+    hedgehogBuilder.build(customPoints().get(4).toPoint());
   }
 
   @Override

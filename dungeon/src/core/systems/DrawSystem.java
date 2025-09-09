@@ -51,15 +51,6 @@ public final class DrawSystem extends System {
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
 
-  /** offset the coordinate by half a tile, it makes every Entity not walk on the sidewalls. */
-  private static final float X_OFFSET = 0.5f;
-
-  /**
-   * offset the coordinate by a quarter tile,it looks a bit more like every Entity is not walking
-   * over walls.
-   */
-  private static final float Y_OFFSET = 0.25f;
-
   private final TreeMap<Integer, List<DSData>> sortedEntities = new TreeMap<>();
   private final Map<IPath, PainterConfig> configs;
 
@@ -238,8 +229,7 @@ public final class DrawSystem extends System {
           IPath texturePath = t.texturePath();
           if (!mapping.containsKey(texturePath)
               || (mapping.get(texturePath).tintColor() != t.tintColor())) {
-            mapping.put(
-                texturePath, new PainterConfig(texturePath, X_OFFSET, Y_OFFSET, t.tintColor()));
+            mapping.put(texturePath, new PainterConfig(texturePath, 0, 0, t.tintColor()));
           }
           PAINTER.draw(t.position(), texturePath, mapping.get(texturePath));
         }

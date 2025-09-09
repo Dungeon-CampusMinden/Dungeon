@@ -50,7 +50,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath MONSTER_SORT_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyMonsterSort.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyMonsterSort.java");
   private static final String MONSTER_SORT_CLASSNAME = "produsAdvanced.riddles.MyMonsterSort";
 
   private static final String msg =
@@ -145,14 +145,14 @@ public class AdvancedSortLevel extends AdvancedLevel {
         };
 
     Entity lever =
-        LeverFactory.createLever(new Point(customPoints().get(0).toCenteredPoint()), leverAction);
+        LeverFactory.createLever(new Point(customPoints().get(0).toPoint()), leverAction);
     customPoints().remove(0);
 
     customPoints()
         .forEach(
             coordinate -> {
               Entity mob =
-                  DungeonMonster.randomMonster().builder().build(coordinate.toCenteredPoint());
+                  DungeonMonster.randomMonster().builder().build(coordinate.toPoint());
               mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);

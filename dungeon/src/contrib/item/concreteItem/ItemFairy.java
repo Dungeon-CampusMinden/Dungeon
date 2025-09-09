@@ -14,6 +14,7 @@ import core.utils.TriConsumer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Optional;
 
 /**
  * A fairy pickup that restores health on collision.
@@ -47,7 +48,7 @@ public class ItemFairy extends Item {
   }
 
   @Override
-  public boolean drop(final Point position) {
+  public Optional<Entity> drop(final Point position) {
     Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof FloorTile) {
       TriConsumer<Entity, Entity, Direction> onCollide =
@@ -67,8 +68,8 @@ public class ItemFairy extends Item {
       Entity pickUpItem = WorldItemBuilder.buildWorldItem(this, position);
       pickUpItem.add(new CollideComponent(onCollide, CollideComponent.DEFAULT_COLLIDER));
       Game.add(pickUpItem);
-      return true;
+      return Optional.of(pickUpItem);
     }
-    return false;
+    return Optional.empty();
   }
 }

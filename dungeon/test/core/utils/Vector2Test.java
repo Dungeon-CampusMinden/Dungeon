@@ -204,7 +204,7 @@ public class Vector2Test {
     assertEquals(Direction.RIGHT, v.direction(), "Vector (1,0) should point RIGHT");
 
     v = Vector2.of(1.0f, 0.5f);
-    assertEquals(Direction.RIGHT, v.direction(), "Vector (1,1) should point RIGHT");
+    assertEquals(Direction.RIGHT, v.direction(), "Vector (1,0.5) should point RIGHT");
   }
 
   /** Tests the direction() method for vectors pointing mostly upward. */
@@ -232,5 +232,15 @@ public class Vector2Test {
 
     v = Vector2.of((float) Math.cos(3 * piQuarter + 0.01), (float) Math.sin(3 * piQuarter + 0.01));
     assertEquals(Direction.LEFT, v.direction(), "Vector near 3π/4 boundary should point LEFT");
+  }
+
+  /** Tests the angleToDeg helper to ensure angle direction semantics. */
+  @Test
+  public void testAngleToDeg() {
+    Vector2 from = Vector2.of(0.0f, 0.0f);
+    Vector2 toRight = Vector2.of(1.0f, 0.0f);
+    Vector2 toUp = Vector2.of(0.0f, 1.0f);
+    assertEquals(0.0, from.angleToDeg(toRight), DELTA);
+    assertEquals(90.0, from.angleToDeg(toUp), DELTA);
   }
 }

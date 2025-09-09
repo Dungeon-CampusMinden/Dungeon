@@ -31,6 +31,10 @@ import systems.TintTilesSystem;
 /**
  * This Class must be run to start the dungeon application. Otherwise, the blockly frontend won't
  * have any effect
+ *
+ * <p>Usage: run with the Gradle task {@code runBlockly}.
+ *
+ * <p>For the Web-Ui you have to start the frontend yourself.
  */
 public class Client {
 
@@ -225,14 +229,12 @@ public class Client {
    * be placed before the level is fully loaded.
    */
   public static void restart() {
-
     // if not the main thread, schedule restart
     if (!Thread.currentThread().getName().equals("main")) {
       scheduleRestart = true;
       Server.waitDelta(); // wait for the next tick to execute the restart
       return;
     }
-
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
     createHero();

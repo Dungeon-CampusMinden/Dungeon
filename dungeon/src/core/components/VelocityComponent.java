@@ -53,6 +53,24 @@ import java.util.stream.Stream;
  * }</pre>
  */
 public final class VelocityComponent implements Component {
+
+  /**
+   * The default offset of the hit box.
+   *
+   * <p>This hitbox is used for level collision checks.
+   */
+  public static final Vector2 MOVEBOX_DEFAULT_OFFSET = Vector2.of(0.25f, 0.25f);
+
+  /**
+   * The default size of the hit box.
+   *
+   * <p>This hitbox is used for level collision checks.
+   */
+  public static final Vector2 MOVEBOX_DEFAULT_SIZE = Vector2.of(0.5f, 0.5f);
+
+  private Vector2 moveboxOffset;
+  private Vector2 moveboxSize;
+
   /** The default mass of an entity, on no other is configurated. */
   public static final float DEFAULT_MASS = 1;
 
@@ -83,6 +101,8 @@ public final class VelocityComponent implements Component {
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
     this.maxSpeed = maxSpeed;
+    moveboxOffset = MOVEBOX_DEFAULT_OFFSET;
+    moveboxSize = MOVEBOX_DEFAULT_SIZE;
   }
 
   /**
@@ -270,5 +290,49 @@ public final class VelocityComponent implements Component {
    */
   public void maxSpeed(float maxSpeed) {
     this.maxSpeed = maxSpeed;
+  }
+
+  /**
+   * Sets the offset of the collision box relative to the entity's position.
+   *
+   * <p>This hitbox is used for level collision checks.
+   *
+   * @param offset the new offset of the collision box
+   */
+  public void moveboxOffset(Vector2 offset) {
+    moveboxOffset = offset;
+  }
+
+  /**
+   * Sets the size of the collision box for the entity.
+   *
+   * <p>This hitbox is used for level collision checks.
+   *
+   * @param size the new size of the collision box
+   */
+  public void moveboxSize(Vector2 size) {
+    moveboxSize = size;
+  }
+
+  /**
+   * Returns the current size of the collision box.
+   *
+   * <p>This hitbox is used for level collision checks.
+   *
+   * @return the size of the collision box
+   */
+  public Vector2 moveboxSize() {
+    return moveboxSize;
+  }
+
+  /**
+   * Returns the current offset of the collision box relative to the entity's position.
+   *
+   * <p>This hitbox is used for level collision checks.
+   *
+   * @return the offset of the collision box
+   */
+  public Vector2 moveboxOffset() {
+    return moveboxOffset;
   }
 }

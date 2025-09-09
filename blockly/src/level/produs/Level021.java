@@ -79,12 +79,12 @@ public class Level021 extends BlocklyLevel {
                 pt.close();
               }
             });
-    Game.add(MiscFactory.breadcrumb(new Coordinate(25, 14).toCenteredPoint()));
-    Game.add(MiscFactory.breadcrumb(new Coordinate(12, 4).toCenteredPoint()));
-    Game.add(MiscFactory.breadcrumb(new Coordinate(11, 11).toCenteredPoint()));
-    Game.add(MiscFactory.breadcrumb(new Coordinate(11, 16).toCenteredPoint()));
-    Game.add(MiscFactory.breadcrumb(new Coordinate(9, 17).toCenteredPoint()));
-    Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toCenteredPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(25, 14).toPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(12, 4).toPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(11, 11).toPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(11, 16).toPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(9, 17).toPoint()));
+    Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toPoint()));
 
     // BOSS
     Entity boss =

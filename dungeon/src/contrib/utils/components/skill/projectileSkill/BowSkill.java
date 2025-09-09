@@ -1,12 +1,17 @@
 package contrib.utils.components.skill.projectileSkill;
 
+import contrib.item.concreteItem.ItemWoodenArrow;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
+import core.Entity;
+import core.Game;
+import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -26,7 +31,7 @@ public class BowSkill extends DamageProjectileSkill {
   /** Name of the Skill. */
   public static final String SKILL_NAME = "BOW_SKILL";
 
-  private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("skills/bow");
+  private static final IPath PROJECTILE_TEXTURES = new SimpleIPath("items/weapon/wooden_arrow.png");
   private static final float DEFAULT_PROJECTILE_SPEED = 13f;
   private static final int DEFAULT_DAMAGE_AMOUNT = 2;
   private static final boolean IS_PIRCING = false;
@@ -35,6 +40,7 @@ public class BowSkill extends DamageProjectileSkill {
   private static final Vector2 HIT_BOX_SIZE = Vector2.ONE;
   private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
+  private double stickInWallProbability = 0.1;
 
   /**
    * Create a new Bow Skill.
@@ -46,6 +52,7 @@ public class BowSkill extends DamageProjectileSkill {
    * @param damageAmount damage of the arrow; will be Physical
    * @param resourceCost resource cost of the arrow
    */
+  @SafeVarargs
   public BowSkill(
       Supplier<Point> target,
       long cooldown,
@@ -79,9 +86,48 @@ public class BowSkill extends DamageProjectileSkill {
     this(
         targetSelection,
         BOW_COOLDOWN,
-        DEFAULT_PROJECTILE_RANGE,
         DEFAULT_PROJECTILE_SPEED,
+        DEFAULT_PROJECTILE_RANGE,
         DEFAULT_DAMAGE_AMOUNT,
         COST);
+  }
+
+  @Override
+  protected Consumer<Entity> onWallHit(Entity caster) {
+    return projectile -> {
+      if (RANDOM.nextDouble() < stickInWallProbability) {
+        projectile
+            .fetch(PositionComponent.class)
+            .ifPresent(
+                projectilePos ->
+                    new ItemWoodenArrow()
+                        .drop(projectilePos.position())
+                        .flatMap(arrow -> arrow.fetch(PositionComponent.class))
+                        .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
+      }
+      Game.remove(projectile);
+    };
+  }
+
+  /**
+   * Returns the probability that a projectile will stick in a wall.
+   *
+   * @return the probability in the range {@code [0.0, 1.0]}
+   */
+  public double stickInWallProbability() {
+    return stickInWallProbability;
+  }
+
+  /**
+   * Sets the probability that a projectile will stick in a wall.
+   *
+   * @param probability the probability in the range {@code [0.0, 1.0]}
+   * @throws IllegalArgumentException if {@code probability} is outside the valid range
+   */
+  public void stickInWallProbability(double probability) {
+    if (probability < 0.0 || probability > 1.0) {
+      throw new IllegalArgumentException("Probability must be between 0.0 and 1.0");
+    }
+    this.stickInWallProbability = probability;
   }
 }

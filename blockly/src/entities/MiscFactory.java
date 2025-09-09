@@ -36,7 +36,7 @@ public class MiscFactory {
   public static Entity stone(Point position) {
     Entity stone = new Entity("stone");
     stone.add(new PushableComponent());
-    stone.add(new PositionComponent(position.toCenteredPoint()));
+    stone.add(new PositionComponent(position));
     stone.add(new BlockComponent());
     stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
     stone.add(new CollideComponent());
@@ -53,7 +53,7 @@ public class MiscFactory {
    * @return lever entity
    */
   public static Entity blocklyLever(final Point position) {
-    Entity lever = LeverFactory.createLever(position.toCenteredPoint());
+    Entity lever = LeverFactory.createLever(position);
     lever.add(new BlockComponent());
     return lever;
   }
@@ -65,7 +65,7 @@ public class MiscFactory {
    * @return lever entity
    */
   public static Entity blocklyTorch(final Point position) {
-    Entity torch = LeverFactory.createTorch(position.toCenteredPoint());
+    Entity torch = LeverFactory.createTorch(position);
     torch.add(new BlockComponent());
     return torch;
   }
@@ -84,7 +84,7 @@ public class MiscFactory {
    */
   public static Entity bookPickup(Point position, String title, String pickupText) {
     Entity pickup = new Entity("Book Pickup");
-    pickup.add(new PositionComponent(position.toCenteredPoint()));
+    pickup.add(new PositionComponent(position));
     pickup.add(new DrawComponent(new Animation(PICKUP_BOCK_PATH)));
     pickup.add(
         new InteractionComponent(
@@ -108,7 +108,7 @@ public class MiscFactory {
    */
   public static Entity breadcrumb(Point position) {
     Entity breadcrumb = new Entity("breadcrumb");
-    breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
+    breadcrumb.add(new PositionComponent(position));
     breadcrumb.add(new DrawComponent(new Animation(BREADCRUMB_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new BreadcrumbComponent());
@@ -133,7 +133,7 @@ public class MiscFactory {
    */
   public static Entity clover(Point position) {
     Entity breadcrumb = new Entity("clover");
-    breadcrumb.add(new PositionComponent(position.toCenteredPoint()));
+    breadcrumb.add(new PositionComponent(position));
     breadcrumb.add(new DrawComponent(new Animation(CLOVER_PATH)));
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new CloverComponent());
@@ -158,7 +158,7 @@ public class MiscFactory {
    */
   public static Entity fireballScroll(Point position) {
     Entity fireballScroll = new Entity("fireballScroll");
-    fireballScroll.add(new PositionComponent(position.toCenteredPoint()));
+    fireballScroll.add(new PositionComponent(position));
     fireballScroll.add(new DrawComponent(new Animation(SCROLL_PATH)));
     fireballScroll.add(new BlocklyItemComponent());
     fireballScroll.add(

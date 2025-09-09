@@ -67,33 +67,33 @@ public class Level011 extends BlocklyLevel {
       showText = false;
     }
 
-    Game.add(MiscFactory.stone(customPoints().get(1).toCenteredPoint()));
+    Game.add(MiscFactory.stone(customPoints().get(1).toPoint()));
 
-    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toCenteredPoint());
+    Entity s1 = LeverFactory.pressurePlate(customPoints().get(2).toPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s1);
 
-    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
-    Entity s2 = LeverFactory.pressurePlate(customPoints().get(4).toCenteredPoint());
+    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
+    Entity s2 = LeverFactory.pressurePlate(customPoints().get(4).toPoint());
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s2);
-    Entity s3 = LeverFactory.createLever(customPoints().get(5).toCenteredPoint());
+    Entity s3 = LeverFactory.createLever(customPoints().get(5).toPoint());
     switch3 =
         s3.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s3);
-    Entity s4 = LeverFactory.createLever(customPoints().get(6).toCenteredPoint());
+    Entity s4 = LeverFactory.createLever(customPoints().get(6).toPoint());
     switch4 =
         s4.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     Game.add(s4);
 
-    Game.add(MiscFactory.fireballScroll(customPoints().get(8).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(9).toCenteredPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(8).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(9).toPoint()));
 
     BlocklyMonster.GUARD
         .builder()

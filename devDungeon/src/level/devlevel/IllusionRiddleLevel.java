@@ -237,13 +237,13 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
 
     // Secret Passages
     EntityUtils.spawnLever(
-        leverSpawns[0].toCenteredPoint(),
+        leverSpawns[0].toPoint(),
         new OpenPassageCommand(secretPassages[0][0], secretPassages[0][1]));
     EntityUtils.spawnLever(
-        leverSpawns[1].toCenteredPoint(),
+        leverSpawns[1].toPoint(),
         new OpenPassageCommand(secretPassages[1][0], secretPassages[1][1]));
     EntityUtils.spawnLever(
-        leverSpawns[2].toCenteredPoint(),
+        leverSpawns[2].toPoint(),
         new OpenPassageCommand(secretPassages[2][0], secretPassages[2][1]));
     spawnChestsAndCauldrons();
     riddleHandler.onFirstTick();
@@ -346,7 +346,7 @@ public class IllusionRiddleLevel extends DevDungeonLevel {
                   () ->
                       MissingComponentException.build(
                           newIllusionRiddleLevelChestEntity, PositionComponent.class));
-      pc.position(chestSpawnTileCoordinate.toCenteredPoint());
+      pc.position(chestSpawnTileCoordinate.toPoint());
       InventoryComponent ic =
           newIllusionRiddleLevelChestEntity
               .fetch(InventoryComponent.class)

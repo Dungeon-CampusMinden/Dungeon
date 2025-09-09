@@ -55,8 +55,8 @@ public class TutorialLevel extends DevDungeonLevel {
         "Willkommen im Tutorial! Hier lernst Du die Grundlagen des Spiels kennen.");
     this.mobSpawn = customPoints.get(0);
 
-    this.chestSpawn = customPoints.get(1).toCenteredPoint();
-    this.cauldronSpawn = customPoints.get(2).toCenteredPoint();
+    this.chestSpawn = customPoints.get(1).toPoint();
+    this.cauldronSpawn = customPoints.get(2).toPoint();
   }
 
   @Override
@@ -220,7 +220,7 @@ public class TutorialLevel extends DevDungeonLevel {
     ic =
         b.fetch(InventoryComponent.class)
             .orElseThrow(() -> MissingComponentException.build(b, InventoryComponent.class));
-    pc.position(customPoints().get(3).toCenteredPoint());
+    pc.position(customPoints().get(3).toPoint());
     ic.add(new ItemPotionHealth(HealthPotionType.NORMAL));
     Game.add(b);
   }

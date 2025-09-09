@@ -34,7 +34,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-/** This class starts a comparator for the pathfinding algorithms. */
+/**
+ * This class starts a comparator for the pathfinding algorithms.
+ *
+ * <p>Usage: run with the Gradle task {@code runPathFindingComparison}.
+ */
 public class ComparePathfindingStarter {
   private static final Entity[] RUNNERS = new Entity[2];
 
@@ -83,9 +87,9 @@ public class ComparePathfindingStarter {
     Tile[][] layout = Game.currentLevel().orElse(null).layout();
     int levelHeight = layout.length;
 
-    Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
+    Point topTile = layout[0][0].coordinate().translate(Vector2.of(0, 2)).toPoint();
     Point bottomTile =
-        layout[levelHeight - 1][0].coordinate().translate(Vector2.of(0, 2)).toCenteredPoint();
+        layout[levelHeight - 1][0].coordinate().translate(Vector2.of(0, 2)).toPoint();
 
     // Zoom out until the whole level is visible
     int currentTries = 0;
@@ -123,9 +127,9 @@ public class ComparePathfindingStarter {
             Game.currentLevel().map(ILevel::customPoints).orElse(Collections.emptyList())));
 
     // Position the runners
-    Debugger.TELEPORT(orgStart.toCenteredPoint());
+    Debugger.TELEPORT(orgStart.toPoint());
 
-    RUNNERS[1] = createRunnerMob(newStart.toCenteredPoint());
+    RUNNERS[1] = createRunnerMob(newStart.toPoint());
     setupPathFindingSystem(rows);
   }
 

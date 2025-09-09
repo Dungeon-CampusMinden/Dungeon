@@ -65,7 +65,7 @@ public class Level018 extends BlocklyLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              hedgehogBuilder.build(coordinate.toCenteredPoint());
+              hedgehogBuilder.build(coordinate.toPoint());
             });
   }
 

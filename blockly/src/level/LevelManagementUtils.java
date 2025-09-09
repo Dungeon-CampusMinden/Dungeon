@@ -59,7 +59,7 @@ public class LevelManagementUtils {
     PositionComponent pc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    pc.position(pc.position().toCenteredPoint());
+    pc.toTileCorner();
   }
 
   /**

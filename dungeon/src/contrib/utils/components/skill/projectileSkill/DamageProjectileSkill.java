@@ -70,15 +70,20 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   }
 
   /**
-   * Defines what happens when the projectile collides with another entity.
+   * Defines the behavior when the projectile collides with another entity.
    *
-   * <p>If the entity has a {@link HealthComponent}, it will take damage. Additionally, the
-   * configured bonus effect will be applied. If {@code pircing} is false, the projectile will be
-   * removed after the collision; otherwise, it will continue traveling and ignore this target in
-   * future collisions.
+   * <p>If the target entity has a {@link HealthComponent}, it receives damage. In addition, any
+   * configured bonus effect ({@link #additionalEffectAfterDamage} is applied. If {@code piercing}
+   * is set to {@code false}, the projectile is removed after the collision; otherwise, it continues
+   * traveling and ignores this target in future collisions.
    *
-   * @param caster The entity that cast the projectile.
-   * @return A {@link TriConsumer} defining the collision behavior.
+   * @param caster the entity that created or cast the projectile
+   * @return a {@link TriConsumer} defining the collision behavior; the parameters are:
+   *     <ul>
+   *       <li>the projectile entity
+   *       <li>the entity the projectile collides with
+   *       <li>the collision direction, relative to the projectile
+   *     </ul>
    */
   @Override
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {

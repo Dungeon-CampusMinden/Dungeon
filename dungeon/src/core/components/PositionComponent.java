@@ -137,7 +137,16 @@ public final class PositionComponent implements Component {
    * @see Tile
    */
   public void position(final Tile tile) {
-    position(tile.position().toCenteredPoint());
+    position(tile.position());
+  }
+
+  /**
+   * Set the position to the corner of the current tile.
+   *
+   * <p>This basically rounds down the x and y coordinates.
+   */
+  public void toTileCorner() {
+    position = position.toCoordinate().toPoint();
   }
 
   /**
@@ -147,15 +156,6 @@ public final class PositionComponent implements Component {
    */
   public Coordinate coordinate() {
     return position.toCoordinate();
-  }
-
-  /**
-   * Set the position.
-   *
-   * <p>Will center the entity on the tile it is currently on.
-   */
-  public void centerPositionOnTile() {
-    position(position.toCenteredPoint());
   }
 
   /**

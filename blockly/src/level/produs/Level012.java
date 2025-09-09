@@ -84,7 +84,7 @@ public class Level012 extends BlocklyLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              Entity torch = LeverFactory.createTorch(coordinate.toCenteredPoint());
+              Entity torch = LeverFactory.createTorch(coordinate.toPoint());
               torch.add(new BlockComponent());
               Game.add(torch);
               LeverComponent lc =

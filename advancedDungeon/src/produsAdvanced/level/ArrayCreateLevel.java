@@ -35,7 +35,7 @@ public class ArrayCreateLevel extends AdvancedLevel {
   private boolean isLeverActivated = false;
 
   private static final SimpleIPath ARRAY_CREATOR_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyArrayCreator.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyArrayCreator.java");
   private static final String ARRAY_CREATOR_CLASSNAME = "produsAdvanced.riddles.MyArrayCreator";
 
   private static String title = "Array-Aufgabe";
@@ -160,11 +160,11 @@ public class ArrayCreateLevel extends AdvancedLevel {
   private void spawnMonsterByType(int monsterType, Coordinate pos) {
     Entity monster =
         switch (monsterType) {
-          case 0 -> AdvancedDungeonMonster.ELEMENTAL.builder().build(pos.toCenteredPoint());
-          case 1 -> AdvancedDungeonMonster.STATIC_CHORT.builder().build(pos.toCenteredPoint());
-          case 2 -> AdvancedDungeonMonster.IMP.builder().build(pos.toCenteredPoint());
-          case 3 -> AdvancedDungeonMonster.DOC.builder().build(pos.toCenteredPoint());
-          case 4 -> AdvancedDungeonMonster.GOBLIN.builder().build(pos.toCenteredPoint());
+          case 0 -> AdvancedDungeonMonster.ELEMENTAL.builder().build(pos.toPoint());
+          case 1 -> AdvancedDungeonMonster.STATIC_CHORT.builder().build(pos.toPoint());
+          case 2 -> AdvancedDungeonMonster.IMP.builder().build(pos.toPoint());
+          case 3 -> AdvancedDungeonMonster.DOC.builder().build(pos.toPoint());
+          case 4 -> AdvancedDungeonMonster.GOBLIN.builder().build(pos.toPoint());
           default -> throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
         };
     Game.add(monster);

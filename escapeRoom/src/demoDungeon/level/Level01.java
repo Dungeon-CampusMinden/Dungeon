@@ -100,7 +100,7 @@ public class Level01 extends DungeonLevel {
   private void setupHints() {
     HintSystem hintSystem = new HintSystem();
     Game.add(hintSystem);
-    Game.add(HintGiverFactory.mailbox(new Point(1, 5).toCenteredPoint()));
+    Game.add(HintGiverFactory.mailbox(new Point(1, 5)));
     PetriNetSystem petriNetSystem = new PetriNetSystem();
     Game.add(petriNetSystem);
     // register hint log
@@ -150,13 +150,13 @@ public class Level01 extends DungeonLevel {
   }
 
   private void npc() {
-    Entity plate = LeverFactory.pressurePlate(customPoints.get(6).toCenteredPoint());
+    Entity plate = LeverFactory.pressurePlate(customPoints.get(6).toPoint());
     preasurePlate = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
     Entity npc = new Entity();
     npc.add(new VelocityComponent(5));
     npc.add(new CollideComponent());
-    npc.add(new PositionComponent(customPoints.get(0).toCenteredPoint()));
+    npc.add(new PositionComponent(customPoints.get(0).toPoint()));
     npc.add(new DrawComponent(new SimpleIPath("character/monster/chort")));
     npc.add(
         new InteractionComponent(
@@ -221,7 +221,7 @@ public class Level01 extends DungeonLevel {
   }
 
   private void moveNpc(Entity npc) {
-    Point goal = customPoints.get(6).toCenteredPoint();
+    Point goal = customPoints.get(6).toPoint();
     npc.add(
         new AIComponent(
             entity -> {},
@@ -242,12 +242,11 @@ public class Level01 extends DungeonLevel {
   }
 
   private void crafting() {
-    Game.add(MiscFactory.newCraftingCauldron(customPoints.get(1).toCenteredPoint()));
+    Game.add(MiscFactory.newCraftingCauldron(customPoints.get(1).toPoint()));
   }
 
   private void books() {
-    List<Tile> points =
-        LevelUtils.accessibleTilesInRange(customPoints.get(2).toCenteredPoint(), 5f);
+    List<Tile> points = LevelUtils.accessibleTilesInRange(customPoints.get(2).toPoint(), 5f);
     Point p1 = points.get(RANDOM.nextInt(points.size())).position();
     Point p2 = points.get(RANDOM.nextInt(points.size())).position();
     while (p1.equals(p2)) p2 = points.get(RANDOM.nextInt(points.size())).position();
@@ -266,8 +265,7 @@ public class Level01 extends DungeonLevel {
 
   private void monster() {
     monster = new HashSet<>();
-    List<Tile> points =
-        LevelUtils.accessibleTilesInRange(customPoints.get(7).toCenteredPoint(), 5f);
+    List<Tile> points = LevelUtils.accessibleTilesInRange(customPoints.get(7).toPoint(), 5f);
     for (int i = 0; i < 5; i++) {
       Entity m =
           DungeonMonster.randomMonster()
@@ -288,19 +286,15 @@ public class Level01 extends DungeonLevel {
 
   private void chest() {
     Game.add(
-        MiscFactory.catapult(
-            customPoints.get(9).toCenteredPoint(), customPoints.get(10).toCenteredPoint(), 10f));
+        MiscFactory.catapult(customPoints.get(9).toPoint(), customPoints.get(10).toPoint(), 10f));
     Game.add(
-        MiscFactory.catapult(
-            customPoints.get(11).toCenteredPoint(), customPoints.get(12).toCenteredPoint(), 10f));
+        MiscFactory.catapult(customPoints.get(11).toPoint(), customPoints.get(12).toPoint(), 10f));
     Game.add(
-        MiscFactory.catapult(
-            customPoints.get(13).toCenteredPoint(), customPoints.get(14).toCenteredPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(10).toCenteredPoint()));
-    Game.add(MiscFactory.marker(customPoints.get(12).toCenteredPoint()));
-    Game.add(MiscFactory.marker(customPoints.get(14).toCenteredPoint()));
-    Game.add(
-        MiscFactory.newChest(Set.of(new ItemPotionWater()), customPoints.get(8).toCenteredPoint()));
+        MiscFactory.catapult(customPoints.get(13).toPoint(), customPoints.get(14).toPoint(), 10f));
+    Game.add(MiscFactory.marker(customPoints.get(10).toPoint()));
+    Game.add(MiscFactory.marker(customPoints.get(12).toPoint()));
+    Game.add(MiscFactory.marker(customPoints.get(14).toPoint()));
+    Game.add(MiscFactory.newChest(Set.of(new ItemPotionWater()), customPoints.get(8).toPoint()));
   }
 
   @Override
@@ -309,7 +303,7 @@ public class Level01 extends DungeonLevel {
     if (spawnMushroom && monster.isEmpty()) {
       spawnMushroom = false;
       ItemResourceMushroomRed mushroom = new ItemResourceMushroomRed();
-      mushroom.drop(customPoints.get(7).toCenteredPoint());
+      mushroom.drop(customPoints.get(7).toPoint());
     }
   }
 }

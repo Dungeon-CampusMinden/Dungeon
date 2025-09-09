@@ -17,12 +17,15 @@ import hint.HintLogComponent;
 import java.io.IOException;
 import java.util.logging.Level;
 
-/** Starter for the Demo Escaperoom Dungeon. */
+/**
+ * Starter for the Demo Escaperoom Dungeon.
+ *
+ * <p>Usage: run with the Gradle task {@code runDemoRoom}.
+ */
 public class DemoRoom {
   private static final boolean DEBUG_MODE = false;
   private static final String BACKGROUND_MUSIC = "sounds/background.wav";
   private static final int START_LEVEL = 0;
-  private static final CharacterClass CHARACTER_CLASS = CharacterClass.HUNTER;
 
   /**
    * Main method to start the game.
@@ -60,7 +63,7 @@ public class DemoRoom {
   }
 
   private static void createHero() throws IOException {
-    Entity hero = HeroFactory.newHero(CHARACTER_CLASS);
+    Entity hero = HeroFactory.newHero(CharacterClass.HUNTER);
     hero.add(new HintLogComponent());
     Game.add(hero);
   }
@@ -95,6 +98,7 @@ public class DemoRoom {
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());
+    if (DEBUG_MODE) Game.add(new DebugDrawSystem());
   }
 
   private static void setupMusic() {

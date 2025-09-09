@@ -56,41 +56,39 @@ public class Level02 extends DungeonLevel {
   private void spawnCatapults() {
     Game.add(
         MiscFactory.catapult(
-            customPoints().get(0).toCenteredPoint(), customPoints().get(1).toCenteredPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(1).toCenteredPoint()));
+            customPoints().get(0).toPoint(), customPoints().get(1).toPoint(), 10f));
+    Game.add(MiscFactory.marker(customPoints.get(1).toPoint()));
     Game.add(
         MiscFactory.catapult(
-            customPoints().get(4).toCenteredPoint(), customPoints().get(5).toCenteredPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(5).toCenteredPoint()));
+            customPoints().get(4).toPoint(), customPoints().get(5).toPoint(), 10f));
+    Game.add(MiscFactory.marker(customPoints.get(5).toPoint()));
 
     Game.add(
         MiscFactory.catapult(
-            customPoints().get(2).toCenteredPoint(), customPoints().get(3).toCenteredPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(3).toCenteredPoint()));
+            customPoints().get(2).toPoint(), customPoints().get(3).toPoint(), 10f));
+    Game.add(MiscFactory.marker(customPoints.get(3).toPoint()));
 
     Game.add(
         MiscFactory.catapult(
-            customPoints().get(8).toCenteredPoint(), customPoints().get(9).toCenteredPoint(), 10f));
-    Game.add(MiscFactory.marker(customPoints.get(9).toCenteredPoint()));
+            customPoints().get(8).toPoint(), customPoints().get(9).toPoint(), 10f));
+    Game.add(MiscFactory.marker(customPoints.get(9).toPoint()));
   }
 
   private void setupCrateRiddle() {
-    Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toCenteredPoint(), CRATE_MASS);
+    Entity plate = LeverFactory.pressurePlate(customPoints.get(7).toPoint(), CRATE_MASS);
     p = plate.fetch(LeverComponent.class).get();
     Game.add(plate);
-    Entity plate2 = LeverFactory.pressurePlate(customPoints.get(14).toCenteredPoint());
+    Entity plate2 = LeverFactory.pressurePlate(customPoints.get(14).toPoint());
     p2 = plate2.fetch(LeverComponent.class).get();
     Game.add(plate2);
-    Entity crate = MiscFactory.crate(customPoints.get(6).toCenteredPoint(), CRATE_MASS);
+    Entity crate = MiscFactory.crate(customPoints.get(6).toPoint(), CRATE_MASS);
     crate.add(new CatapultableComponent(entity -> {}, entity -> {}));
     Game.add(crate);
   }
 
   private void setupExitLevers() {
-    Entity lever1 =
-        LeverFactory.createTimedLever(customPoints.get(10).toCenteredPoint(), DELAY_MILLIS);
-    Entity lever2 =
-        LeverFactory.createTimedLever(customPoints.get(11).toCenteredPoint(), DELAY_MILLIS);
+    Entity lever1 = LeverFactory.createTimedLever(customPoints.get(10).toPoint(), DELAY_MILLIS);
+    Entity lever2 = LeverFactory.createTimedLever(customPoints.get(11).toPoint(), DELAY_MILLIS);
     Game.add(lever1);
     Game.add(lever2);
     l1 = lever1.fetch(LeverComponent.class).get();

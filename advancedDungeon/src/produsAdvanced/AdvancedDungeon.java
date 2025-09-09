@@ -33,6 +33,8 @@ import produsAdvanced.level.*;
  * <p>This class is responsible for initializing and launching the game. It configures the game
  * environment, sets up levels, adds systems, creates the player hero, and integrates dynamic
  * recompilation of user control code for live testing of custom hero controllers.
+ *
+ * <p>Usage: run with the Gradle task {@code runAdvancedDungeon}.
  */
 public class AdvancedDungeon {
   /**
@@ -63,10 +65,10 @@ public class AdvancedDungeon {
 
   /** Path to the Java source file of the custom player controller. */
   private static final SimpleIPath HERO_CONTROLLER_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyPlayerController.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyPlayerController.java");
 
   private static final SimpleIPath FIREBALL_PATH =
-      new SimpleIPath("src/produsAdvanced/riddles/MyFireballSkill.java");
+      new SimpleIPath("advancedDungeon/src/produsAdvanced/riddles/MyFireballSkill.java");
 
   /** Fully qualified class name of the custom player controller. */
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
@@ -185,6 +187,10 @@ public class AdvancedDungeon {
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
     Game.add(new EventScheduler());
+    Game.add(new ManaRestoreSystem());
+    Game.add(new StaminaRestoreSystem());
+    Game.add(new ManaBarSystem());
+    Game.add(new StaminaBarSystem());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 

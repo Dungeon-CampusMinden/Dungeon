@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.AIComponent;
+import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
 import core.Entity;
 import core.Game;
@@ -8,8 +9,11 @@ import core.System;
 import core.components.CameraComponent;
 import core.components.PlayerComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
+import core.utils.Point;
+import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,10 +28,11 @@ public class PitSystem extends System {
   private final Map<PitTile, Long> pitTimes = new HashMap<>();
 
   /**
-   * Constructor for the PitSystem class. This system processes entities with the PositionComponent.
+   * Constructor for the PitSystem class. This system processes entities with the PositionComponent
+   * and VelocityComponent.
    */
   public PitSystem() {
-    super(PositionComponent.class);
+    super(PositionComponent.class, VelocityComponent.class);
   }
 
   @Override
@@ -40,10 +45,11 @@ public class PitSystem extends System {
   private void processEntities() {
     filteredEntityStream()
         .filter(entity -> !entity.isPresent(ProjectileComponent.class))
+        .filter(entity -> !entity.isPresent(FlyComponent.class))
         .forEach(
             entity -> {
               PositionComponent positionComponent = getPositionComponent(entity);
-              Tile currentTile = Game.tileAt(positionComponent.position()).orElse(null);
+              Tile currentTile = tileAtCenter(entity, positionComponent);
 
               if (currentTile instanceof PitTile pitTile) {
                 // camera focus point entity should not trigger pit
@@ -94,5 +100,17 @@ public class PitSystem extends System {
    */
   private boolean hasPitOpenTimeElapsed(long stepOnTime, long timeToOpen) {
     return java.lang.System.currentTimeMillis() - stepOnTime > timeToOpen;
+  }
+
+  private Tile tileAtCenter(Entity entity, PositionComponent pc) {
+    Point pos = pc.position();
+    VelocityComponent vc =
+        entity
+            .fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+    Vector2 offset = vc.moveboxOffset();
+    Vector2 size = vc.moveboxSize();
+    Point center = pos.translate(offset).translate(size.scale(0.5f));
+    return Game.tileAt(center).orElse(null);
   }
 }

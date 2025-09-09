@@ -63,7 +63,7 @@ public class AdvancedControlLevel4 extends AdvancedLevel {
     customPoints()
         .forEach(
             coordinate -> {
-              Entity lever = LeverFactory.createLever(coordinate.toCenteredPoint());
+              Entity lever = LeverFactory.createLever(coordinate.toPoint());
               leverComponentSet.add(lever.fetch(LeverComponent.class).get());
               Game.add(lever);
             });

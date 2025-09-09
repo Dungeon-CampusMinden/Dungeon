@@ -50,20 +50,20 @@ public class Level010 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toCenteredPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toPoint()));
 
     BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().attackRange(5).addToGame();
     guardBuilder.viewDirection(Direction.DOWN);
-    guardBuilder.build(customPoints().get(5).toCenteredPoint());
-    guardBuilder.build(customPoints().get(8).toCenteredPoint());
-    guardBuilder.build(customPoints().get(9).toCenteredPoint());
+    guardBuilder.build(customPoints().get(5).toPoint());
+    guardBuilder.build(customPoints().get(8).toPoint());
+    guardBuilder.build(customPoints().get(9).toPoint());
     guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.build(customPoints().get(6).toCenteredPoint());
-    guardBuilder.build(customPoints().get(7).toCenteredPoint());
+    guardBuilder.build(customPoints().get(6).toPoint());
+    guardBuilder.build(customPoints().get(7).toPoint());
   }
 
   @Override

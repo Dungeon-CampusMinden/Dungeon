@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,9 @@ import java.util.stream.Collectors;
  * <p>This class also provides a static {@link #NONE} instance that represents a no-op skill.
  */
 public abstract class Skill {
+
+  /** Random Instance to use for skills. */
+  public static final Random RANDOM = new Random();
 
   /** Logger for skill-related events. */
   protected static final Logger LOGGER = Logger.getLogger(Skill.class.getSimpleName());

@@ -49,15 +49,6 @@ public record Point(float x, float y) {
   }
 
   /**
-   * Create new Point centered in the tile.
-   *
-   * @return centered Point
-   */
-  public Point toCenteredPoint() {
-    return new Point((int) x() + 0.5f, (int) y() + 0.5f);
-  }
-
-  /**
    * Convert Point to Coordinate by parsing float to int.
    *
    * @return the converted point
@@ -103,6 +94,15 @@ public record Point(float x, float y) {
    */
   public Point floor() {
     return new Point((int) x(), (int) y());
+  }
+
+  /**
+   * Create new Point centered in the tile.
+   *
+   * @return centered Point
+   */
+  public Point toCenteredPoint() {
+    return new Point((int) x() + 0.5f, (int) y() + 0.5f);
   }
 
   @Override

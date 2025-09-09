@@ -80,7 +80,7 @@ public class Level015 extends BlocklyLevel {
         .forEach(
             coordinate -> {
               if (counter[0] == 0 || random.nextBoolean()) {
-                hedgehogBuilder.build(coordinate.toCenteredPoint());
+                hedgehogBuilder.build(coordinate.toPoint());
                 counter[0]++;
               }
             });
