@@ -55,27 +55,18 @@ public class FallingSystem extends System {
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point pos = pc.position();
 
-    // Entities mit FlyComponent fallen nicht
     if (entity.isPresent(FlyComponent.class)) return false;
-
-    // Holt die VelocityComponent (für MoveBox)
     VelocityComponent vc =
         entity
             .fetch(VelocityComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-
     Vector2 offset = vc.moveboxOffset();
     Vector2 size = vc.moveboxSize();
-
-    // Mittelpunkt der MoveBox
     Point center = pos.translate(offset).translate(size.scale(0.5f));
-
-    // Prüfe, ob der Centerpunkt auf einem offenen PitTile liegt
     Tile tile = Game.tileAt(center).orElse(null);
     if (tile instanceof PitTile pitTile) {
       return pitTile.isOpen();
     }
-
     return false;
   }
 
