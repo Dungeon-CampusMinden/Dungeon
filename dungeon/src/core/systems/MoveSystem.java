@@ -10,6 +10,9 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * System responsible for updating the position of entities based on their velocity, while
@@ -47,8 +50,8 @@ public class MoveSystem extends System {
    * Updates the position of a single entity based on its velocity and collision rules.
    *
    * <p>The velocity is capped at the entity's maxSpeed to prevent moving too fast diagonally. The
-   * method checks the accessibility of the target tile and handles sliding along walls by checking
-   * individual axis movement.
+   * method checks the accessibility of all corners of the entity's collision box and handles
+   * sliding along walls by checking individual axis movement.
    *
    * <p>If the tile is blocked, the entity's {@code onWallHit} callback is invoked.
    *
@@ -70,19 +73,40 @@ public class MoveSystem extends System {
 
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
 
-    if (isPathClearByStepping(oldPos, newPos, canEnterOpenPits)) data.pc.position(newPos);
-    else {
+    // Helper to get all corners of the hitbox at a given position
+    Function<Point, List<Point>> hitboxCorners =
+        pos -> {
+          Vector2 offset = data.vc.moveboxOffset();
+          Vector2 size = data.vc.moveboxSize();
+          return List.of(
+              new Point(pos.x() + offset.x(), pos.y() + offset.y()), // top-left
+              new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-right
+              new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // bottom-left
+              new Point(
+                  pos.x() + offset.x() + size.x(), pos.y() + offset.y() + size.y()) // bottom-right
+              );
+        };
+
+    // Check if all corners are accessible
+    Predicate<Point> allCornersAccessible =
+        pos ->
+            hitboxCorners.apply(pos).stream()
+                .allMatch(p -> isAccessible(Game.tileAt(p).orElse(null), canEnterOpenPits));
+
+    if (allCornersAccessible.test(newPos)) {
+      data.pc.position(newPos);
+    } else {
       // Try moving only along x or y axis for wall sliding
       Point xMove = new Point(newPos.x(), oldPos.y());
       Point yMove = new Point(oldPos.x(), newPos.y());
 
-      boolean xAccessible = isAccessible(Game.tileAt(xMove).orElse(null), canEnterOpenPits);
-      boolean yAccessible = isAccessible(Game.tileAt(yMove).orElse(null), canEnterOpenPits);
+      boolean xAccessible = allCornersAccessible.test(xMove);
+      boolean yAccessible = allCornersAccessible.test(yMove);
 
       if (xAccessible) {
-        if (isPathClearByStepping(oldPos, xMove, canEnterOpenPits)) data.pc.position(xMove);
+        data.pc.position(xMove);
       } else if (yAccessible) {
-        if (isPathClearByStepping(oldPos, yMove, canEnterOpenPits)) data.pc.position(yMove);
+        data.pc.position(yMove);
       }
 
       // Notify entity that it hit a wall
