@@ -92,7 +92,9 @@ public class MoveSystem extends System {
     Predicate<Point> allCornersAccessible =
         pos ->
             hitboxCorners.apply(pos).stream()
-                .allMatch(p -> isAccessible(Game.tileAt(p).orElse(null), canEnterOpenPits, canEnterWalls));
+                .allMatch(
+                    p ->
+                        isAccessible(Game.tileAt(p).orElse(null), canEnterOpenPits, canEnterWalls));
 
     if (allCornersAccessible.test(newPos)) {
       data.pc.position(newPos);
