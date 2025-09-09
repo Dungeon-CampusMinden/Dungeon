@@ -75,9 +75,9 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
 
     exit = (ExitTile) Game.endTile().orElseThrow();
     exit.close();
-    Entity lever1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
-    Entity lever2 = LeverFactory.createLever(customPoints().get(1).toCenteredPoint());
-    Entity lever3 = LeverFactory.createLever(customPoints().get(2).toCenteredPoint());
+    Entity lever1 = LeverFactory.createLever(customPoints().get(0).toPoint());
+    Entity lever2 = LeverFactory.createLever(customPoints().get(1).toPoint());
+    Entity lever3 = LeverFactory.createLever(customPoints().get(2).toPoint());
     l1 = lever1.fetch(LeverComponent.class).get();
     l2 = lever2.fetch(LeverComponent.class).get();
     l3 = lever3.fetch(LeverComponent.class).get();
@@ -99,7 +99,7 @@ public class AdvancedControlLevel3 extends AdvancedLevel {
             coordinate -> {
               try {
                 Entity m = EntityFactory.randomMonster();
-                m.fetch(PositionComponent.class).get().position(coordinate.toCenteredPoint());
+                m.fetch(PositionComponent.class).get().position(coordinate.toPoint());
                 Game.add(m);
 
               } catch (IOException e) {

@@ -179,7 +179,7 @@ public class LeverFactory {
    */
   public static Entity pressurePlate(Point position, float massTrigger) {
     Entity pressurePlate = new Entity("pressureplate");
-    pressurePlate.add(new PositionComponent(position.toCenteredPoint()));
+    pressurePlate.add(new PositionComponent(position));
 
     Map<String, Animation> map =
         Animation.loadAnimationSpritesheet(new SimpleIPath("objects/pressureplate"));

@@ -115,7 +115,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
     Coordinate[] positions = torchPositions;
     for (int i = 0; i < positions.length; i++) {
       Coordinate torchPosition = positions[i];
-      Point torchPos = torchPosition.toCenteredPoint();
+      Point torchPos = torchPosition.toPoint();
       Entity torch =
           utils.EntityUtils.spawnTorch(
               torchPos,
@@ -155,7 +155,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
 
-    pc.position(riddleRoomContent[0].toCenteredPoint());
+    pc.position(riddleRoomContent[0].toPoint());
 
     InventoryComponent ic =
         chest
@@ -177,7 +177,7 @@ public class TorchRiddleLevel extends DevDungeonLevel {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(riddleRoomContent[1].toCenteredPoint());
+    pc.position(riddleRoomContent[1].toPoint());
     Game.add(cauldron);
   }
 }

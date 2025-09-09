@@ -147,7 +147,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
         };
 
     Entity lever =
-        LeverFactory.createLever(new Point(customPoints().get(0).toCenteredPoint()), leverAction);
+        LeverFactory.createLever(new Point(customPoints().get(0).toPoint()), leverAction);
     customPoints().remove(0);
 
     customPoints()
@@ -159,7 +159,7 @@ public class AdvancedSortLevel extends AdvancedLevel {
               } catch (IOException e) {
                 throw new RuntimeException(e);
               }
-              mob.fetch(PositionComponent.class).get().position(coordinate.toCenteredPoint());
+              mob.fetch(PositionComponent.class).get().position(coordinate.toPoint());
               mob.remove(AIComponent.class);
               mobs.add(new Monster(mob));
               mob.fetch(HealthComponent.class).orElseThrow().maximalHealthpoints(10);

@@ -418,8 +418,11 @@ public class BlocklyCommands {
           entity
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
+      // Magic Translate for https://github.com/Dungeon-CampusMinden/Dungeon/issues/2448
+      // Move the position slightly further into the tile to avoid rounding errors at edge positions
 
-      Tile targetTile = Game.tileAt(pc.position(), direction).orElse(null);
+      Tile targetTile =
+          Game.tileAt(pc.position().translate(Vector2.of(0.1, 0.1)), direction).orElse(null);
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
@@ -431,7 +434,7 @@ public class BlocklyCommands {
 
     double[] distances =
         entityComponents.stream()
-            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toCenteredPoint()))
+            .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toPoint()))
             .toArray();
     double[] lastDistances = new double[entities.length];
 
@@ -444,7 +447,7 @@ public class BlocklyCommands {
         comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
         lastDistances[i] = distances[i];
-        distances[i] = comp.pc.position().distance(comp.targetPosition.toCenteredPoint());
+        distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
 
         if (comp.vc().maxSpeed() > 0
             && Game.existInLevel(entities[i])

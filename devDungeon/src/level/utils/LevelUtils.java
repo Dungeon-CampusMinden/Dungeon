@@ -27,8 +27,6 @@ public class LevelUtils {
     } catch (ClassCastException e) {
       return null;
     }
-    return Optional.ofNullable(level.randomTPTarget())
-        .map(Coordinate::toCenteredPoint)
-        .orElse(null);
+    return Optional.ofNullable(level.randomTPTarget()).map(Coordinate::toPoint).orElse(null);
   }
 }

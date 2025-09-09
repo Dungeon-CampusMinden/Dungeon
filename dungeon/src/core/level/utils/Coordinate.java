@@ -36,12 +36,12 @@ public record Coordinate(int x, int y) {
   }
 
   /**
-   * Convert Coordinate to Point centered in the tile.
+   * Create new Point centered in the tile.
    *
-   * @return Coordinate converted to a point;
+   * @return centered Point
    */
   public Point toCenteredPoint() {
-    return new Point(x + 0.5f, y + 0.5f);
+    return new Point(x() + 0.5f, y() + 0.5f);
   }
 
   /**

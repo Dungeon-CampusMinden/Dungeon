@@ -50,26 +50,26 @@ public class Level010 extends BlocklyLevel {
     LevelManagementUtils.fog(false);
     LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
     LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toCenteredPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toCenteredPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(2).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(3).toPoint()));
+    Game.add(MiscFactory.fireballScroll(customPoints().get(4).toPoint()));
 
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
     guardBuilder.range(5);
     guardBuilder.viewDirection(Direction.DOWN);
-    guardBuilder.spawnPoint(customPoints().get(5).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(5).toPoint());
     guardBuilder.build();
-    guardBuilder.spawnPoint(customPoints().get(8).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(8).toPoint());
     guardBuilder.build();
-    guardBuilder.spawnPoint(customPoints().get(9).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(9).toPoint());
     guardBuilder.build();
     guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.spawnPoint(customPoints().get(6).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(6).toPoint());
     guardBuilder.build();
-    guardBuilder.spawnPoint(customPoints().get(7).toCenteredPoint());
+    guardBuilder.spawnPoint(customPoints().get(7).toPoint());
     guardBuilder.build();
   }
 

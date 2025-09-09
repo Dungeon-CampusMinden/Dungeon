@@ -117,7 +117,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         .peek(wallTile -> level.changeTileElementType(wallTile, LevelElement.FLOOR))
         .forEach(
             tile -> {
-              utils.EntityUtils.spawnTorch(tile.coordinate().toCenteredPoint(), true, false, 0);
+              utils.EntityUtils.spawnTorch(tile.coordinate().toPoint(), true, false, 0);
             });
 
     LevelUtils.tilesInArea(bridgeBounds[0], bridgeBounds[1]).stream()
@@ -133,13 +133,13 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
 
   private void prepareBridgeEntities() {
     EntityUtils.spawnLever(
-        bridgeLever.toCenteredPoint(), new BridgeControlCommand(bridgeBounds[0], bridgeBounds[1]));
+        bridgeLever.toPoint(), new BridgeControlCommand(bridgeBounds[0], bridgeBounds[1]));
     EntityUtils.spawnSign(
         "Pull the lever to raise and lower the bridge",
         "Bridge Control",
-        bridgeLeverSign.toCenteredPoint());
+        bridgeLeverSign.toPoint());
     this.bridgeGuard =
-        utils.EntityUtils.spawnBridgeGuard(bridgeGuardSpawn.toCenteredPoint(), riddles, lastTask());
+        utils.EntityUtils.spawnBridgeGuard(bridgeGuardSpawn.toPoint(), riddles, lastTask());
     bridgeGuard
         .fetch(HealthComponent.class)
         .ifPresent(
@@ -251,7 +251,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
 
-    pc.position(riddleRoomChest.toCenteredPoint());
+    pc.position(riddleRoomChest.toPoint());
 
     InventoryComponent ic =
         chest
@@ -271,7 +271,7 @@ public class BridgeGuardRiddleHandler implements IHealthObserver {
         cauldron
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldron, PositionComponent.class));
-    pc.position(new Coordinate(riddleRoomChest.x() + 1, riddleRoomChest.y()).toCenteredPoint());
+    pc.position(new Coordinate(riddleRoomChest.x() + 1, riddleRoomChest.y()).toPoint());
     Game.add(cauldron);
   }
 }

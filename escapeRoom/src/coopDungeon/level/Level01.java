@@ -51,18 +51,18 @@ public class Level01 extends DungeonLevel {
   }
 
   private void setupLever() {
-    Entity l = LeverFactory.pressurePlate(customPoints.get(0).toCenteredPoint());
+    Entity l = LeverFactory.pressurePlate(customPoints.get(0).toPoint());
     Game.add(l);
     l1 = l.fetch(LeverComponent.class).get();
 
-    l = LeverFactory.pressurePlate(customPoints.get(1).toCenteredPoint());
+    l = LeverFactory.pressurePlate(customPoints.get(1).toPoint());
     Game.add(l);
     l2 = l.fetch(LeverComponent.class).get();
 
-    l = LeverFactory.createTimedLever(customPoints.get(2).toCenteredPoint(), DELAY_MILLIS);
+    l = LeverFactory.createTimedLever(customPoints.get(2).toPoint(), DELAY_MILLIS);
     l3 = l.fetch(LeverComponent.class).get();
     Game.add(l);
-    l = LeverFactory.createTimedLever(customPoints.get(3).toCenteredPoint(), DELAY_MILLIS);
+    l = LeverFactory.createTimedLever(customPoints.get(3).toPoint(), DELAY_MILLIS);
     Game.add(l);
     l4 = l.fetch(LeverComponent.class).get();
   }

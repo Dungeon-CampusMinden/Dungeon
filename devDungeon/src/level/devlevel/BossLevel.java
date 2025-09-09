@@ -108,7 +108,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         chest
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(chest, PositionComponent.class));
-    pc.position(chestSpawn.toCenteredPoint());
+    pc.position(chestSpawn.toPoint());
     InventoryComponent ic =
         chest
             .fetch(InventoryComponent.class)
@@ -129,7 +129,7 @@ public class BossLevel extends DevDungeonLevel implements IHealthObserver {
         cauldon
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(cauldon, PositionComponent.class));
-    pc.position(cauldronSpawn.toCenteredPoint());
+    pc.position(cauldronSpawn.toPoint());
     Game.add(cauldon);
   }
 

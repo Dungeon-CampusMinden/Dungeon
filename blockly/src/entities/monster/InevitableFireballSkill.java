@@ -26,7 +26,6 @@ public class InevitableFireballSkill extends FireballSkill {
           Game.hero()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
               .map(PositionComponent::position)
-              .map(Point::toCenteredPoint)
               // offset for error with fireball path calculation (#2230)
               .map(point -> point.translate(Vector2.of(0.5f, 0.5f)))
               .orElse(null);
@@ -51,7 +50,7 @@ public class InevitableFireballSkill extends FireballSkill {
     // freeze on the corner of the red zone
     Game.hero()
         .flatMap(hero -> hero.fetch(PositionComponent.class))
-        .ifPresent(PositionComponent::centerPositionOnTile);
+        .ifPresent(pc -> pc.position(pc.position().toCoordinate().toPoint()));
   }
 
   protected void additionalEffectAfterDamage(

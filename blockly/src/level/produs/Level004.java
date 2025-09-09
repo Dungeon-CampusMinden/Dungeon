@@ -75,15 +75,15 @@ public class Level004 extends BlocklyLevel {
     door2 = (DoorTile) Game.tileAt(new Coordinate(16, 3)).orElse(null);
     door1.close();
     door2.close();
-    Entity s1 = LeverFactory.createLever(customPoints().get(0).toCenteredPoint());
-    Entity s2 = LeverFactory.pressurePlate(customPoints().get(1).toCenteredPoint());
+    Entity s1 = LeverFactory.createLever(customPoints().get(0).toPoint());
+    Entity s2 = LeverFactory.pressurePlate(customPoints().get(1).toPoint());
     switch1 =
         s1.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s1, LeverComponent.class));
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
-    Game.add(MiscFactory.stone(customPoints().get(2).toCenteredPoint()));
+    Game.add(MiscFactory.stone(customPoints().get(2).toPoint()));
     Game.add(s1);
     Game.add(s2);
   }

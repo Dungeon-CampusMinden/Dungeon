@@ -72,26 +72,26 @@ public class Level005 extends BlocklyLevel {
     Coordinate m3C = customPoints().get(3);
     Coordinate m4C = customPoints().get(4);
 
-    Game.add(MiscFactory.stone(stone1C.toCenteredPoint()));
-    Game.add(MiscFactory.stone(stone2C.toCenteredPoint()));
+    Game.add(MiscFactory.stone(stone1C.toPoint()));
+    Game.add(MiscFactory.stone(stone2C.toPoint()));
 
     BlocklyMonster.BlocklyMonsterBuilder guardBuilder = BlocklyMonster.GUARD.builder();
     guardBuilder.addToGame();
     guardBuilder.range(6);
     guardBuilder.viewDirection(Direction.LEFT);
-    guardBuilder.spawnPoint(m1C.toCenteredPoint());
+    guardBuilder.spawnPoint(m1C.toPoint());
     guardBuilder.build();
     guardBuilder.range(5);
     guardBuilder.viewDirection(Direction.RIGHT);
-    guardBuilder.spawnPoint(m2C.toCenteredPoint());
+    guardBuilder.spawnPoint(m2C.toPoint());
     guardBuilder.build();
     guardBuilder.range(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(m3C.toCenteredPoint());
+    guardBuilder.spawnPoint(m3C.toPoint());
     guardBuilder.build();
     guardBuilder.range(5);
     guardBuilder.viewDirection(Direction.UP);
-    guardBuilder.spawnPoint(m4C.toCenteredPoint());
+    guardBuilder.spawnPoint(m4C.toPoint());
     guardBuilder.build();
   }
 

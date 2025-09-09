@@ -234,7 +234,7 @@ public class ArrayRemoveLevel extends AdvancedLevel {
           default -> throw new IllegalArgumentException("Unbekannter Monster-Typ: " + monsterType);
         };
 
-    monster.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos.toCenteredPoint()));
+    monster.fetch(PositionComponent.class).ifPresent(pc -> pc.position(pos.toPoint()));
 
     Game.add(monster);
   }

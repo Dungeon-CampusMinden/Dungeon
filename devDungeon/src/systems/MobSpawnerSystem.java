@@ -103,7 +103,7 @@ public class MobSpawnerSystem extends System {
     }
 
     Tile spawnTile = possibleSpawns.get(ILevel.RANDOM.nextInt(possibleSpawns.size()));
-    mobSpawner.spawnRandomMonster(spawnTile.coordinate().toCenteredPoint());
+    mobSpawner.spawnRandomMonster(spawnTile.coordinate().toPoint());
     lastSpawnTimes.put(mobSpawner, java.lang.System.currentTimeMillis());
   }
 

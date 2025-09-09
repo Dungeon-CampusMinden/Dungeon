@@ -188,13 +188,13 @@ public class DamagedBridgeRiddleHandler {
                     If you were faster, you could cross it.
                     Maybe theres a Speed Potion somewhere nearby?""",
         "Riddle: The damaged Bridge",
-        riddleEntranceSign.toCenteredPoint());
+        riddleEntranceSign.toPoint());
     EntityUtils.spawnSign(
         """
                     This looks interesting. Maybe there is
                     something hidden behind those sculptures?""",
         "Riddle: The damaged Bridge",
-        speedPotionChestHint.toCenteredPoint());
+        speedPotionChestHint.toPoint());
   }
 
   private void spawnChest() {
@@ -210,7 +210,7 @@ public class DamagedBridgeRiddleHandler {
             .orElseThrow(
                 () -> MissingComponentException.build(speedPotionChest, PositionComponent.class));
 
-    pc.position(this.speedPotionChest.toCenteredPoint());
+    pc.position(this.speedPotionChest.toPoint());
 
     InventoryComponent ic =
         speedPotionChest
@@ -232,7 +232,7 @@ public class DamagedBridgeRiddleHandler {
             .orElseThrow(
                 () -> MissingComponentException.build(riddleChest, PositionComponent.class));
 
-    pc.position(riddleChestSpawn.toCenteredPoint());
+    pc.position(riddleChestSpawn.toPoint());
 
     ic =
         riddleChest
