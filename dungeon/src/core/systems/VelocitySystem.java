@@ -28,6 +28,8 @@ import java.util.logging.Logger;
  */
 public final class VelocitySystem extends System {
 
+  private static final double EPSILON = 1e-6;
+
   private static final Logger LOGGER = Logger.getLogger(VelocitySystem.class.getName());
 
   // Default time (frames) an animation should be enqueued for
@@ -86,10 +88,8 @@ public final class VelocitySystem extends System {
     float x = vsd.vc.currentVelocity().x();
     float y = vsd.vc.currentVelocity().y();
 
-    // Entity is moving
-    if (x != 0 || y != 0) {
+    if (Math.abs(x) > EPSILON || Math.abs(y) > EPSILON) {
       Direction newDirection = Direction.NONE;
-
       // Use the velocity axis with the greatest magnitude for animation direction
       if (Math.abs(x) >= Math.abs(y)) {
         if (x > 0) {
