@@ -12,8 +12,10 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,12 +127,14 @@ public class MoveSystemTest {
   }
 
   /**
-   * Tests that if the tile at the new position is inaccessible, the entity tries to move only in X
-   * or Y direction if accessible. If only X is accessible, it moves there and calls onWallHit.
+   * Tests that if the tiles at the new hitbox position are inaccessible, the entity tries to move
+   * only in X or Y direction if accessible. If only X is accessible, it moves there and calls
+   * onWallHit.
    */
   @Test
   void doesNotMoveIntoInaccessibleTileAndCallsWallHit() {
     vc.currentVelocity(Vector2.of(1, 1));
+
     Point oldPos = pc.position();
     float frameRate = Game.frameRate();
     Vector2 scaledVelocity = vc.currentVelocity().scale(1f / frameRate);
@@ -138,15 +142,27 @@ public class MoveSystemTest {
     Point xMove = new Point(newPos.x(), oldPos.y());
     Point yMove = new Point(oldPos.x(), newPos.y());
 
+    Vector2 offset = vc.moveboxOffset();
+    Vector2 size = vc.moveboxSize();
+
+    // Helper to get hitbox corners for a given position
+    Function<Point, List<Point>> hitboxCorners =
+        pos ->
+            List.of(
+                new Point(pos.x() + offset.x(), pos.y() + offset.y()), // top-left
+                new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-right
+                new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // bottom-left
+                new Point(
+                    pos.x() + offset.x() + size.x(),
+                    pos.y() + offset.y() + size.y()) // bottom-right
+                );
+
     // Mock Tiles
-    Tile newPosTile = mock(Tile.class);
-    when(newPosTile.isAccessible()).thenReturn(false);
+    Tile accessibleTile = mock(Tile.class);
+    when(accessibleTile.isAccessible()).thenReturn(true);
 
-    Tile xMoveTile = mock(Tile.class);
-    when(xMoveTile.isAccessible()).thenReturn(true);
-
-    Tile yMoveTile = mock(Tile.class);
-    when(yMoveTile.isAccessible()).thenReturn(false);
+    Tile blockedTile = mock(Tile.class);
+    when(blockedTile.isAccessible()).thenReturn(false);
 
     Tile defaultTile = mock(Tile.class);
     when(defaultTile.isAccessible()).thenReturn(true);
@@ -155,13 +171,27 @@ public class MoveSystemTest {
     // Mock Level and inject into Game
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class))).thenReturn(Optional.of(defaultTile));
-    when(level.tileAt(eq(newPos))).thenReturn(Optional.of(newPosTile));
-    when(level.tileAt(eq(xMove))).thenReturn(Optional.of(xMoveTile));
-    when(level.tileAt(eq(yMove))).thenReturn(Optional.of(yMoveTile));
+
+    // Block all corners of newPos
+    for (Point corner : hitboxCorners.apply(newPos)) {
+      when(level.tileAt(eq(corner))).thenReturn(Optional.of(blockedTile));
+    }
+
+    // Make all corners of xMove accessible
+    for (Point corner : hitboxCorners.apply(xMove)) {
+      when(level.tileAt(eq(corner))).thenReturn(Optional.of(accessibleTile));
+    }
+
+    // Make all corners of yMove blocked
+    for (Point corner : hitboxCorners.apply(yMove)) {
+      when(level.tileAt(eq(corner))).thenReturn(Optional.of(blockedTile));
+    }
+
     Game.currentLevel(level);
 
     Consumer<Entity> onWallHit = mock(Consumer.class);
     vc.onWallHit(onWallHit);
+
     system.execute();
 
     assertEquals(xMove, pc.position());
