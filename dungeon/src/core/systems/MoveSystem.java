@@ -79,11 +79,11 @@ public class MoveSystem extends System {
           Vector2 offset = data.vc.moveboxOffset();
           Vector2 size = data.vc.moveboxSize();
           return List.of(
-              new Point(pos.x() + offset.x(), pos.y() + offset.y()), // top-left
-              new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-right
-              new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // bottom-left
+              new Point(pos.x() + offset.x(), pos.y() + offset.y()), // bottom-left
+              new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-left
+              new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // top-left
               new Point(
-                  pos.x() + offset.x() + size.x(), pos.y() + offset.y() + size.y()) // bottom-right
+                  pos.x() + offset.x() + size.x(), pos.y() + offset.y() + size.y()) // top-right
               );
         };
 
