@@ -40,7 +40,7 @@ public class FallingSystem extends System {
 
   /** Constructs a new FallingSystem. */
   public FallingSystem() {
-    super(PositionComponent.class, HealthComponent.class);
+    super(PositionComponent.class, HealthComponent.class, VelocityComponent.class);
   }
 
   @Override
