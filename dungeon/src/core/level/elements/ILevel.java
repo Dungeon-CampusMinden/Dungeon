@@ -146,6 +146,7 @@ public interface ILevel extends IndexedGraph<Tile> {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
 <<<<<<< HEAD
           output.append("T");
@@ -166,6 +167,12 @@ public interface ILevel extends IndexedGraph<Tile> {
         } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
           output.append("B");
 >>>>>>> be002c1f (added PortalTile for portal skill)
+=======
+        } else if (layout()[y][x].levelElement() == LevelElement.BLUE_PORTAL) {
+          output.append("B");
+        } else if (layout()[y][x].levelElement() == LevelElement.GREEN_PORTAL) {
+          output.append("G");
+>>>>>>> 2178e611 (added green and blue portal variants)
         } else {
           throw new RuntimeException(
               "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());

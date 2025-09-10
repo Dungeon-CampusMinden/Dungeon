@@ -35,6 +35,7 @@ public class TileFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
 =======
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
@@ -49,6 +50,10 @@ public class TileFactory {
 =======
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
 >>>>>>> be002c1f (added PortalTile for portal skill)
+=======
+      case GREEN_PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.GREEN_PORTAL);
+      case BLUE_PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.BLUE_PORTAL);
+>>>>>>> 2178e611 (added green and blue portal variants)
     };
   }
 }

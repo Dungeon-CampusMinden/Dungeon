@@ -1,4 +1,4 @@
-package produsAdvanced.abstraction;
+package produsAdvanced.abstraction.portalSkills;
 
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.SkillTools;
@@ -6,20 +6,19 @@ import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
+import core.level.utils.Coordinate;
+import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
-public class PortalSkill extends ProjectileSkill {
+public abstract class PortalSkill extends ProjectileSkill {
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "BLUE_PORTAL";
-
-  private static final IPath TEXTURE = new SimpleIPath("skills/blue_portal");
-  private static final IPath SOUND = new SimpleIPath("sounds/fireball.wav");
   private static final float SPEED = 22f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
@@ -30,8 +29,8 @@ public class PortalSkill extends ProjectileSkill {
    *
    * @param resourceCost Resource costs for casting.
    */
-  public PortalSkill(Tuple<Resource, Integer>... resourceCost) {
-    super(SKILL_NAME, COOLDOWN, TEXTURE, SPEED, RANGE, HIT_BOX_SIZE, resourceCost);
+  public PortalSkill(IPath texture, Tuple<Resource, Integer>... resourceCost) {
+    super(SKILL_NAME, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE, resourceCost);
   }
 
   @Override
@@ -41,12 +40,18 @@ public class PortalSkill extends ProjectileSkill {
 
   @Override
   protected Consumer<Entity> onWallHit(Entity caster) {
-    return e ->  {
-      Optional<Entity> first = Game.allEntities().filter(entity -> entity.name().equals(name() + "_projectile")).findFirst();
-      System.out.println(first.get().fetch(PositionComponent.class).get().coordinate());
-      Game.remove(e);
+    return entity ->  {
+      PositionComponent pc = entity.fetch(PositionComponent.class).get();
+      VelocityComponent vc = entity.fetch(VelocityComponent.class).get();
+      Point point = new Point(Math.round(vc.currentVelocity().normalize().x()),Math.round(vc.currentVelocity().normalize().y()));
+      Coordinate cords = pc.coordinate().translate(Vector2.of(point));
+      createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f));
+      Game.remove(entity);
     };
   }
+
+  protected abstract void createPortal(Point position);
+
 
 
 }
