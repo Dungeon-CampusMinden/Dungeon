@@ -33,6 +33,7 @@ import core.utils.components.MissingComponentException;
 import java.io.IOException;
 import java.util.*;
 
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -247,12 +248,8 @@ public final class GameLoop extends ScreenAdapter {
           }
 
           Entity newEntity = new Entity(event.entityId());
-          PositionComponent pc = new PositionComponent(event.position());
-          pc.viewDirection(event.viewDirection());
-          newEntity.add(pc);
-          DrawComponent dc = new DrawComponent(new SimpleIPath(event.texturePath()), event.initialState());
-          dc.tintColor(event.tintColor());
-          newEntity.add(dc);
+          newEntity.add(event.positionComponent());
+          newEntity.add(event.drawComponent());
           Game.add(newEntity);
         });
 

@@ -47,6 +47,8 @@ public final class ServerTransport {
     new ConcurrentHashMap<>();
   private final ConcurrentHashMap<Integer, String> clientIdToName =
     new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<ChannelId, ChannelHandlerContext> tcpChannels =
+    new ConcurrentHashMap<>();
   private final AtomicInteger nextClientId = new AtomicInteger(1);
 
   private EventLoopGroup bossGroup;
@@ -91,6 +93,10 @@ public final class ServerTransport {
 
   public Map<Integer, InetSocketAddress> udpClients() {
     return Map.copyOf(clientIdToUdp);
+  }
+
+  public Map<ChannelId, ChannelHandlerContext> tcpChannels() {
+    return Map.copyOf(tcpChannels);
   }
 
   public Map<ChannelId, Integer> tcpClientMap() {
@@ -153,6 +159,12 @@ public final class ServerTransport {
 
   private final class TcpServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+      tcpChannels.put(ctx.channel().id(), ctx);
+      super.channelActive(ctx);
+    }
+
+    @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame)
       throws Exception {
       Object obj = deserialize(frame);
@@ -169,6 +181,7 @@ public final class ServerTransport {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
       Integer id = tcpChannelToClientId.remove(ctx.channel().id());
+      tcpChannels.remove(ctx.channel().id());
       if (id != null) {
         clientIdToUdp.remove(id);
         clientIdToName.remove(id);
@@ -253,11 +266,8 @@ public final class ServerTransport {
     }
     EntitySpawnEvent spawn = new EntitySpawnEvent(
       e.id(),
-      pc.position(),
-      pc.viewDirection(),
-      dc.basePath().pathString(),
-      dc.stateMachine().getCurrentStateName(),
-      dc.tintColor());
+      pc,
+      dc);
     sendTcpObject(ctx, spawn);
   }
 

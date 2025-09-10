@@ -33,9 +33,9 @@ public final class ServerRuntime {
     if (transport != null) transport.stop();
   }
 
-  public void broadcastMessage(NetworkMessage message) {
+  public void broadcastMessage(NetworkMessage message, boolean reliable) {
     if (loop != null) {
-      this.loop.broadcast(message);
+      this.loop.broadcast(message, reliable);
     } else {
       LOGGER.warn("Server loop not initialized, cannot broadcast message");
     }

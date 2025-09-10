@@ -6,6 +6,9 @@ import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.Point;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Store the position of the associated entity in the level.
  *
@@ -30,7 +33,9 @@ import core.utils.Point;
  * @see core.systems.PositionSystem
  * @see Point
  */
-public final class PositionComponent implements Component {
+public final class PositionComponent implements Component, Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /** The position of the entity in the level. */
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
