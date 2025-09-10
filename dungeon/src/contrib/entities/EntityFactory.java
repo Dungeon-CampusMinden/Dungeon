@@ -249,16 +249,16 @@ public final class EntityFactory {
    * @param cooldown cooldown between fireballs.
    * @param range Maximum shooting (projectile travel) range.
    * @return a sentry entity that patrols and launches fireball projectiles.
-   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newMovingFireballSentry(
-      Point a, Point b, Direction shootDirection, long cooldown, float range) throws IOException {
+      Point a, Point b, Direction shootDirection, long cooldown, float range) {
     return SentryFactory.projectileLauncherSentry(
         a,
         b,
         shootDirection,
         new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range),
-        range);
+        range,
+        false);
   }
 
   /**
@@ -270,16 +270,16 @@ public final class EntityFactory {
    * @param cooldown cooldown between fireballs.
    * @param range Maximum shooting (projectile travel) range.
    * @return a sentry entity that patrols and launches fireball projectiles.
-   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newMovingArrowSentry(
-      Point a, Point b, Direction shootDirection, long cooldown, float range) throws IOException {
+      Point a, Point b, Direction shootDirection, long cooldown, float range) {
     return SentryFactory.projectileLauncherSentry(
         a,
         b,
         shootDirection,
         new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range),
-        range);
+        range,
+        false);
   }
 
   /**
@@ -293,16 +293,16 @@ public final class EntityFactory {
    * @param cooldown cooldown between fireballs.
    * @param range Maximum shooting (projectile travel) range.
    * @return a sentry entity that patrols and launches fireball projectiles.
-   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newMovingFireballWallSentry(
-      Point a, Point b, Direction shootDirection, long cooldown, float range) throws IOException {
-    return SentryFactory.projectileLauncherWallSentry(
+      Point a, Point b, Direction shootDirection, long cooldown, float range) {
+    return SentryFactory.projectileLauncherSentry(
         a,
         b,
         shootDirection,
         new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range),
-        range);
+        range,
+        true);
   }
 
   /**
@@ -316,16 +316,16 @@ public final class EntityFactory {
    * @param cooldown cooldown between fireballs.
    * @param range Maximum shooting (projectile travel) range.
    * @return a sentry entity that patrols and launches arrow projectiles.
-   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newMovingArrowWallSentry(
-      Point a, Point b, Direction shootDirection, long cooldown, float range) throws IOException {
-    return SentryFactory.projectileLauncherWallSentry(
+      Point a, Point b, Direction shootDirection, long cooldown, float range) {
+    return SentryFactory.projectileLauncherSentry(
         a,
         b,
         shootDirection,
         new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range),
-        range);
+        range,
+        true);
   }
 
   /**
@@ -336,15 +336,15 @@ public final class EntityFactory {
    * @param cooldown cooldown between fireballs.
    * @param range Maximum shooting (projectile travel) range.
    * @return a sentry entity that is standing still on a fixed position.
-   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newStationaryFireballSentry(
-      Point spawnPoint, Direction shootDirection, long cooldown, float range) throws IOException {
-    return SentryFactory.stationaryWallSentry(
+      Point spawnPoint, Direction shootDirection, long cooldown, float range) {
+    return SentryFactory.stationarySentry(
         spawnPoint,
         shootDirection,
         new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range),
-        range);
+        range,
+        false);
   }
 
   /**
@@ -355,14 +355,56 @@ public final class EntityFactory {
    * @param cooldown cooldown between arrows.
    * @param range Maximum shooting (projectile travel) range.
    * @return a sentry entity that is standing still on a fixed position.
-   * @throws IOException if loading textures or animations fails.
    */
   public static Entity newStationaryArrowSentry(
-      Point spawnPoint, Direction shootDirection, long cooldown, float range) throws IOException {
-    return SentryFactory.stationaryWallSentry(
+      Point spawnPoint, Direction shootDirection, long cooldown, float range) {
+    return SentryFactory.stationarySentry(
         spawnPoint,
         shootDirection,
         new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range),
-        range);
+        range,
+        false);
+  }
+
+  /**
+   * Creates a stationary fireball shooting sentry.
+   *
+   * <p>This variant is intended for sentries placed inside a wall.
+   *
+   * @param spawnPoint the spawn position of the entity.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param cooldown cooldown between fireballs.
+   * @param range Maximum shooting (projectile travel) range.
+   * @return a sentry entity that is standing still on a fixed position.
+   */
+  public static Entity newStationaryFireballWallSentry(
+      Point spawnPoint, Direction shootDirection, long cooldown, float range) {
+    return SentryFactory.stationarySentry(
+        spawnPoint,
+        shootDirection,
+        new FireballSkill(SkillTools::heroPositionAsPoint, cooldown, range),
+        range,
+        true);
+  }
+
+  /**
+   * Creates a stationary arrow shooting sentry.
+   *
+   * <p>This variant is intended for sentries placed inside a wall.
+   *
+   * @param spawnPoint the spawn position of the entity.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
+   * @param cooldown cooldown between arrows.
+   * @param range Maximum shooting (projectile travel) range.
+   * @return a sentry entity that is standing still on a fixed position.
+   */
+  public static Entity newStationaryArrowWallSentry(
+      Point spawnPoint, Direction shootDirection, long cooldown, float range) {
+    return SentryFactory.stationarySentry(
+        spawnPoint,
+        shootDirection,
+        new BowSkill(SkillTools::heroPositionAsPoint, cooldown, range),
+        range,
+        true);
   }
 }
