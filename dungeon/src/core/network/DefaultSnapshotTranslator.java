@@ -1,6 +1,7 @@
 package core.network;
 
 import contrib.components.HealthComponent;
+import contrib.components.ManaComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -84,10 +85,19 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                         builder.maxHealth(hc.maximalHealthpoints());
                       });
 
+              // Mana
+              e.fetch(contrib.components.ManaComponent.class)
+                  .ifPresent(
+                      mc -> {
+                        builder.currentMana(mc.currentAmount());
+                        builder.maxMana(mc.maxAmount());
+                      });
+
               // Animation
               e.fetch(DrawComponent.class)
                   .ifPresent(
                       dc -> {
+                        builder.stateName(dc.stateMachine().getCurrentStateName());
                         builder.tintColor(dc.tintColor());
                       });
 
@@ -145,16 +155,27 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     .fetch(DrawComponent.class)
                     .ifPresent(
                         dc -> {
+                          snap.stateName().ifPresent(stateName -> dc.stateMachine().setState(stateName, Direction.valueOf(snap.viewDirection().orElse("DOWN"))));
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 
-                entity
-                    .fetch(HealthComponent.class)
-                    .ifPresent(
-                        hc -> {
-                          snap.currentHealth().ifPresent(hc::currentHealthpoints);
-                          snap.maxHealth().ifPresent(hc::maximalHealthpoints);
-                        });
+                entity.fetch(HealthComponent.class).ifPresentOrElse(
+                    hc -> snap.currentHealth().ifPresent(hc::currentHealthpoints),
+                    () -> snap.maxHealth().ifPresent(maxHealth -> {
+                        HealthComponent hc = new HealthComponent(maxHealth);
+                        entity.add(hc);
+                        snap.currentHealth().ifPresent(hc::currentHealthpoints);
+                    })
+                );
+
+                entity.fetch(ManaComponent.class).ifPresentOrElse(
+                  hc -> snap.currentMana().ifPresent(hc::currentAmount),
+                  () -> snap.maxMana().ifPresent(maxMana -> {
+                    ManaComponent mc = new ManaComponent(maxMana, maxMana, 0);
+                    entity.add(mc);
+                    snap.currentMana().ifPresent(mc::currentAmount);
+                  })
+                );
               } catch (Exception ignored) {
               }
             });

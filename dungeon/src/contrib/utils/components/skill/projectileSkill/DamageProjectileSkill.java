@@ -30,9 +30,6 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   /** Whether the projectile pierces through multiple targets or is removed after hitting one. */
   protected boolean piercing;
 
-  /** A supplier that provides the target endpoint of the projectile. */
-  private final Supplier<Point> endPointSupplier;
-
   /**
    * Create a new {@link DamageProjectileSkill}.
    *
@@ -74,6 +71,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         range,
         hitBoxSize,
         hitBoxOffset,
+        end,
         ignoreFirstWall,
         resourceCost);
     this.damageAmount = damageAmount;
@@ -151,17 +149,6 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         }
       }
     };
-  }
-
-  /**
-   * Provides the endpoint (target position) for the projectile.
-   *
-   * @param caster The entity casting the projectile.
-   * @return The end point of the projectile.
-   */
-  @Override
-  protected Point end(Entity caster) {
-    return endPointSupplier.get();
   }
 
   /**
