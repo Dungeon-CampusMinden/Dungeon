@@ -49,14 +49,17 @@ public class DebugDrawSystem extends System {
     showTileUnderCursor();
   }
 
-  private void showTileUnderCursor(){
+  private void showTileUnderCursor() {
     Point mosPos = SkillTools.cursorPositionAsPoint();
     mosPos = new Point(mosPos.x(), mosPos.y());
-    Point tilePos = new Point((int)mosPos.x(), (int)mosPos.y());
+    Point tilePos = new Point((int) mosPos.x(), (int) mosPos.y());
 
-    LevelSystem.level().flatMap(level -> level.tileAt(tilePos)).ifPresent(tile -> {
-      renderRect(tile.position(), 1, 1, new Color(1, 1, 1, 0.2f));
-    });
+    LevelSystem.level()
+        .flatMap(level -> level.tileAt(tilePos))
+        .ifPresent(
+            tile -> {
+              renderRect(tile.position(), 1, 1, new Color(1, 1, 1, 0.2f));
+            });
   }
 
   private void drawPosition(Entity entity) {
@@ -176,14 +179,16 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.end();
   }
 
-  public static void renderRect(Point point, Point point2){
-    Vector2 diff = point2.vectorTo(point) ;
+  public static void renderRect(Point point, Point point2) {
+    Vector2 diff = point2.vectorTo(point);
     renderRect(point, diff.x(), diff.y(), Color.WHITE);
   }
-  public static void renderRect(Point point, float width, float height){
+
+  public static void renderRect(Point point, float width, float height) {
     renderRect(point, width, height, Color.WHITE);
   }
-  public static void renderRect(Point point, float width, float height, Color color){
+
+  public static void renderRect(Point point, float width, float height, Color color) {
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -192,10 +197,11 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.end();
   }
 
-  public static void renderCircle(Point point, float radius){
+  public static void renderCircle(Point point, float radius) {
     renderCircle(point, radius, Color.WHITE);
   }
-  public static void renderCircle(Point point, float radius, Color color){
+
+  public static void renderCircle(Point point, float radius, Color color) {
     point = point.translate(INV_OFFSET);
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
@@ -205,10 +211,11 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.end();
   }
 
-  public static void renderLine(Point point, Point other){
+  public static void renderLine(Point point, Point other) {
     renderLine(point, other, Color.WHITE);
   }
-  public static void renderLine(Point point, Point other, Color color){
+
+  public static void renderLine(Point point, Point other, Color color) {
     point = point.translate(INV_OFFSET);
     other = other.translate(INV_OFFSET);
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
@@ -219,17 +226,18 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.end();
   }
 
-  public static void renderArrow(Point point, Point other){
+  public static void renderArrow(Point point, Point other) {
     renderArrow(point, other, Color.WHITE);
   }
-  public static void renderArrow(Point point, Point other, Color color){
-    //Arrow base
+
+  public static void renderArrow(Point point, Point other, Color color) {
+    // Arrow base
     renderCircle(point, 0.1f, color);
 
-    //Arrow body
+    // Arrow body
     renderLine(point, other, color);
 
-    //Arrow head
+    // Arrow head
     Vector2 dir = point.vectorTo(other).normalize();
     Vector2 rotated = dir.rotateDeg(90).scale(0.15f);
     dir = dir.scale(-0.3f);
@@ -249,5 +257,4 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.triangle(other.x(), other.y(), left.x(), left.y(), right.x(), right.y());
     SHAPE_RENDERER.end();
   }
-
 }

@@ -10,10 +10,8 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -26,6 +24,8 @@ import java.util.function.Predicate;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
+
+  public static final float FLUSH_OFFSET = 0.001f;
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -88,7 +88,9 @@ public class MoveSystem extends System {
     Predicate<Point> allCornersAccessible =
         pos ->
             hitboxCorners.stream()
-                .allMatch(v -> isAccessible(Game.tileAt(pos.translate(v)).orElse(null), canEnterOpenPits));
+                .allMatch(
+                    v ->
+                        isAccessible(Game.tileAt(pos.translate(v)).orElse(null), canEnterOpenPits));
 
     if (allCornersAccessible.test(newPos)) {
       data.pc.position(newPos);
@@ -100,21 +102,34 @@ public class MoveSystem extends System {
       boolean xAccessible = allCornersAccessible.test(xMove);
       boolean yAccessible = allCornersAccessible.test(yMove);
 
-      // If only one axis movement is possible, we can determine which side the collision happened on and move the entity to be flush with the wall on that side.
+      // If only one axis movement is possible, we can determine which side the collision happened
+      // on and move the entity to be flush with the wall on that side.
       if (xAccessible) {
         Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
-        if (isAccessible(tileAtBottomLeft, canEnterOpenPits)){
-          xMove = new Point(xMove.x(), (float)Math.ceil(xMove.y() + size.y() + offset.y()) - size.y() - offset.y() - 0.001f);
+        if (isAccessible(tileAtBottomLeft, canEnterOpenPits)) {
+          xMove =
+              new Point(
+                  xMove.x(),
+                  (float) Math.ceil(xMove.y() + size.y() + offset.y())
+                      - size.y()
+                      - offset.y()
+                      - FLUSH_OFFSET);
         } else {
-          xMove = new Point(xMove.x(), (float)Math.floor(xMove.y() + offset.y()) - offset.y());
+          xMove = new Point(xMove.x(), (float) Math.floor(xMove.y() + offset.y()) - offset.y());
         }
         data.pc.position(xMove);
       } else if (yAccessible) {
         Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
-        if (isAccessible(tileAtBottomLeft, canEnterOpenPits)){
-          yMove = new Point((float)Math.ceil(yMove.x() + size.x() + offset.x()) - size.x() - offset.x() - 0.001f, yMove.y());
+        if (isAccessible(tileAtBottomLeft, canEnterOpenPits)) {
+          yMove =
+              new Point(
+                  (float) Math.ceil(yMove.x() + size.x() + offset.x())
+                      - size.x()
+                      - offset.x()
+                      - FLUSH_OFFSET,
+                  yMove.y());
         } else {
-          yMove = new Point((float)Math.floor(yMove.x() + offset.x()) - offset.x(), yMove.y());
+          yMove = new Point((float) Math.floor(yMove.x() + offset.x()) - offset.x(), yMove.y());
         }
 
         data.pc.position(yMove);
