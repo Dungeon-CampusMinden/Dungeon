@@ -13,8 +13,14 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A factory class for creating different types of sentry entities.
@@ -24,35 +30,28 @@ import core.utils.components.path.SimpleIPath;
  * fight logic, e.g. a projectile-launching sentry.
  */
 public class SentryFactory {
-  private static final IPath SENTRY_FACING_UP =
-      new SimpleIPath("objects/sentrys/sentrys_up/idle/wagon_cannon_horizontal_up.png");
-  private static final IPath SENTRY_FACING_DOWN =
-      new SimpleIPath("objects/sentrys/sentrys_down/idle/wagon_cannon_horizontal_down.png");
-  private static final IPath SENTRY_FACING_LEFT =
-      new SimpleIPath("objects/sentrys/sentrys_left/idle/wagon_cannon_vertical_left.png");
-  private static final IPath SENTRY_FACING_RIGHT =
-      new SimpleIPath("objects/sentrys/sentrys_right/idle/wagon_cannon_vertical_right.png");
+  private static final IPath SENTRY_SPRITESHEET = new SimpleIPath("objects/sentrys");
 
   /**
    * Creates a generic moving sentry entity with the given attributes and behavior.
    *
    * @param name the name of the entity.
-   * @param texture the texture path for the entity's draw component.
    * @param speed the movement speed of the entity.
    * @param ai the AI component controlling this sentry.
    * @param a the spawn position (and also one patrol point).
    * @param b the second patrol point
    * @param canEnterWalls whether the sentry can move inside walls.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
    * @return a fully constructed sentry entity.
    */
   public static Entity buildMovingSentry(
       String name,
-      IPath texture,
       float speed,
       AIComponent ai,
       Point a,
       Point b,
-      boolean canEnterWalls) {
+      boolean canEnterWalls,
+      Direction shootDirection) {
     Entity sentry = new Entity(name);
 
     // Check whether the points are aligned horizontally or vertically
@@ -72,7 +71,7 @@ public class SentryFactory {
     positionComponent.position(a);
     sentry.add(positionComponent);
     sentry.add(ai);
-    sentry.add(new DrawComponent(texture));
+    sentry.add(new DrawComponent(chooseTextureFromSpriteSheet(shootDirection)));
     sentry.add(new VelocityComponent(speed));
     sentry.add(new CollideComponent());
     if (canEnterWalls) {
@@ -91,27 +90,27 @@ public class SentryFactory {
    * Creates a generic sentry entity with the given attributes and behavior.
    *
    * @param name the name of the entity.
-   * @param texture the texture path for the entity's draw component.
    * @param speed the movement speed of the entity.
    * @param ai the AI component controlling this sentry.
    * @param spawnPoint the spawn position.
    * @param canEnterWalls whether the sentry can move inside walls.
+   * @param shootDirection the fixed direction in which the sentry will shoot.
    * @return a fully constructed sentry entity.
    */
   public static Entity buildStationarySentry(
       String name,
-      IPath texture,
       float speed,
       AIComponent ai,
       Point spawnPoint,
-      boolean canEnterWalls) {
+      boolean canEnterWalls,
+      Direction shootDirection) {
     Entity sentry = new Entity(name);
 
     PositionComponent positionComponent = new PositionComponent();
     positionComponent.position(spawnPoint);
     sentry.add(positionComponent);
     sentry.add(ai);
-    sentry.add(new DrawComponent(texture));
+    sentry.add(new DrawComponent(chooseTextureFromSpriteSheet(shootDirection)));
     sentry.add(new VelocityComponent(speed));
     sentry.add(new CollideComponent());
     if (canEnterWalls) {
@@ -152,11 +151,9 @@ public class SentryFactory {
       DamageProjectileSkill dps,
       float range,
       boolean canEnterWalls) {
-    IPath sentryTexture = chooseTexture(shootDirection);
 
     return buildMovingSentry(
         "sentry",
-        sentryTexture,
         4.0f,
         new AIComponent(
             new SentryFightBehaviour(a, b, range, dps, shootDirection, canEnterWalls),
@@ -164,7 +161,8 @@ public class SentryFactory {
             new RangeTransition(range)),
         a,
         b,
-        canEnterWalls);
+        canEnterWalls,
+        shootDirection);
   }
 
   /**
@@ -191,32 +189,45 @@ public class SentryFactory {
       DamageProjectileSkill dps,
       float range,
       boolean canEnterWalls) {
-    IPath sentryTexture = chooseTexture(shootDirection);
 
     return buildStationarySentry(
         "stationarySentry",
-        sentryTexture,
         4.0f,
         new AIComponent(
             new StationarySentryAttack(spawnPoint, range, dps, shootDirection, canEnterWalls),
             entity -> {},
             new RangeTransition(range)),
         spawnPoint,
-        canEnterWalls);
+        canEnterWalls,
+        shootDirection);
   }
 
-  private static IPath chooseTexture(Direction direction) {
+  private static StateMachine chooseTextureFromSpriteSheet(Direction direction) {
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(SENTRY_SPRITESHEET);
+
+    State stDown = new State("down", animationMap.get("sentrys_down"));
+    State stUp = new State("up", animationMap.get("sentrys_up"));
+    State stLeft = new State("left", animationMap.get("sentrys_left"));
+    State stRight = new State("right", animationMap.get("sentrys_right"));
+
+    StateMachine sm;
+
     switch (direction) {
-      case Direction.UP:
-        return SENTRY_FACING_UP;
-      case Direction.DOWN:
-        return SENTRY_FACING_DOWN;
-      case Direction.LEFT:
-        return SENTRY_FACING_LEFT;
-      case Direction.RIGHT:
-        return SENTRY_FACING_RIGHT;
+      case DOWN:
+        sm = new StateMachine(List.of(stDown));
+        break;
+      case UP:
+        sm = new StateMachine(List.of(stUp));
+        break;
+      case LEFT:
+        sm = new StateMachine(List.of(stLeft));
+        break;
+      case RIGHT:
+        sm = new StateMachine(List.of(stRight));
+        break;
       default:
-        return SENTRY_FACING_UP;
+        sm = new StateMachine(Arrays.asList(stRight, stLeft, stDown, stUp));
     }
+    return sm;
   }
 }
