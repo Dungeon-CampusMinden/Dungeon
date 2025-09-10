@@ -75,6 +75,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                       pc -> {
                         builder.position(pc.position());
                         builder.viewDirection(pc.viewDirection());
+                        builder.rotation(pc.rotation());
                       });
 
               // Health

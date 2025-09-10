@@ -19,6 +19,7 @@ public final class EntityState implements NetworkMessage {
   private final int entityId;
   private final Point position;
   private final String viewDirection;
+  private final Float rotation;
   private final Integer curHealth;
   private final Integer maxHealth;
   private final Float curMana;
@@ -30,6 +31,7 @@ public final class EntityState implements NetworkMessage {
     this.entityId = builder.entityId;
     this.position = builder.position;
     this.viewDirection = builder.viewDirection;
+    this.rotation = builder.rotation;
     this.curHealth = builder.curHealth;
     this.maxHealth = builder.maxHealth;
     this.curMana = builder.curMana;
@@ -48,6 +50,10 @@ public final class EntityState implements NetworkMessage {
 
   public Optional<String> viewDirection() {
     return Optional.ofNullable(viewDirection);
+  }
+
+  public Optional<Float> rotation() {
+    return Optional.ofNullable(rotation);
   }
 
   public Optional<Integer> currentHealth() {
@@ -82,6 +88,7 @@ public final class EntityState implements NetworkMessage {
     private int entityId;
     private Point position;
     private String viewDirection;
+    private Float rotation;
     private Integer curHealth;
     private Integer maxHealth;
     private Float curMana;
@@ -101,6 +108,11 @@ public final class EntityState implements NetworkMessage {
 
     public Builder viewDirection(Direction viewDirection) {
       this.viewDirection = viewDirection == null ? null : viewDirection.name();
+      return this;
+    }
+
+    public Builder rotation(Float rotation) {
+      this.rotation = rotation;
       return this;
     }
 
