@@ -10,6 +10,12 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -129,7 +135,19 @@ public enum BlocklyMonster {
     public Entity build(Point spawnPos) {
       Entity monster = name().isEmpty() ? new Entity() : new Entity(name());
 
-      monster.add(new DrawComponent(texture()));
+      // hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/2413
+      // the boss uses hero textures so we can copy the hero statemachine
+      if (name().equals("Blockly Black Knight")) {
+        Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texture());
+        State stIdle = new DirectionalState("idle", animationMap);
+        State stMove = new DirectionalState("move", animationMap, "run");
+        StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
+        sm.addTransition(stIdle, "move", stMove);
+        sm.addTransition(stMove, "move", stMove);
+        sm.addTransition(stMove, "idle", stIdle);
+        DrawComponent dc = new DrawComponent(sm);
+        monster.add(dc);
+      } else monster.add(new DrawComponent(texture()));
 
       PositionComponent pc = new PositionComponent(spawnPos, viewDirection());
       monster.add(pc);
