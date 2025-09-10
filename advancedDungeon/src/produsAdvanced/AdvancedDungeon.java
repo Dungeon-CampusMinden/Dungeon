@@ -1,7 +1,6 @@
 package produsAdvanced;
 
 import contrib.components.SkillComponent;
-import contrib.crafting.Crafting;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
@@ -13,7 +12,6 @@ import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
-import core.game.WindowEventManager;
 import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.JsonHandler;
@@ -27,7 +25,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
-import produsAdvanced.abstraction.PortalSkill;
+import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
+import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
+import produsAdvanced.abstraction.portalSkills.PortalSkill;
 import produsAdvanced.level.*;
 
 /**
@@ -148,7 +148,8 @@ public class AdvancedDungeon {
             Game.add(HeroFactory.newHero());
             SkillComponent sc = Game.hero().get().fetch(SkillComponent.class).get();
             sc.removeAll();
-            sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
+            sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
+            sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
