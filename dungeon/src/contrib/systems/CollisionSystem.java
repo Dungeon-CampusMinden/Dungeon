@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  */
 public final class CollisionSystem extends System {
 
-  /** Solid entities will be kept at this distance after colliding */
+  /** Solid entities will be kept at this distance after colliding. */
   private static final float COLLIDE_SET_DISTANCE = 0.01f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
