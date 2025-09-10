@@ -116,19 +116,22 @@ public class BowSkill extends DamageProjectileSkill {
 
   @Override
   protected Consumer<Entity> onWallHit(Entity caster) {
-    return projectile -> {
-      if (RANDOM.nextDouble() < stickInWallProbability) {
-        projectile
-            .fetch(PositionComponent.class)
-            .ifPresent(
-                projectilePos ->
-                    new ItemWoodenArrow()
-                        .drop(projectilePos.position())
-                        .flatMap(arrow -> arrow.fetch(PositionComponent.class))
-                        .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
-      }
-      Game.remove(projectile);
-    };
+    return handleDamageProjectileWallHit(caster);
+  }
+
+  @Override
+  protected void handleWallCollisionAfterFirst(Entity projectile) {
+    if (RANDOM.nextDouble() < stickInWallProbability) {
+      projectile
+          .fetch(PositionComponent.class)
+          .ifPresent(
+              projectilePos ->
+                  new ItemWoodenArrow()
+                      .drop(projectilePos.position())
+                      .flatMap(arrow -> arrow.fetch(PositionComponent.class))
+                      .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
+    }
+    Game.remove(projectile);
   }
 
   /**

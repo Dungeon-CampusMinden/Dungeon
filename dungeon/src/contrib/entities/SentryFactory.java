@@ -1,6 +1,7 @@
 package contrib.entities;
 
 import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
 import contrib.utils.components.ai.fight.SentryFightBehaviour;
 import contrib.utils.components.ai.fight.StationarySentryAttack;
 import contrib.utils.components.ai.idle.SentryPatrolWalk;
@@ -33,7 +34,7 @@ public class SentryFactory {
       new SimpleIPath("objects/sentrys/sentrys_right/idle/wagon_cannon_vertical_right.png");
 
   /**
-   * Creates a generic sentry entity with the given attributes and behavior.
+   * Creates a generic moving sentry entity with the given attributes and behavior.
    *
    * @param name the name of the entity.
    * @param texture the texture path for the entity's draw component.
@@ -44,7 +45,7 @@ public class SentryFactory {
    * @param canEnterWalls whether the sentry can move inside walls.
    * @return a fully constructed sentry entity.
    */
-  public static Entity buildSentry(
+  public static Entity buildMovingSentry(
       String name,
       IPath texture,
       float speed,
@@ -60,7 +61,7 @@ public class SentryFactory {
 
     if (!(alignedHorizontally || alignedVertically)) {
       throw new IllegalArgumentException(
-          "Points a ("
+          "Moving Sentry: Points a ("
               + a
               + ") and b ("
               + b
@@ -73,6 +74,7 @@ public class SentryFactory {
     sentry.add(ai);
     sentry.add(new DrawComponent(texture));
     sentry.add(new VelocityComponent(speed));
+    sentry.add(new CollideComponent());
     if (canEnterWalls) {
       sentry
           .fetch(VelocityComponent.class)
@@ -107,12 +109,11 @@ public class SentryFactory {
 
     PositionComponent positionComponent = new PositionComponent();
     positionComponent.position(spawnPoint);
-    positionComponent.centerPositionOnTile();
-    System.out.println("POSITION: " + positionComponent.position());
     sentry.add(positionComponent);
     sentry.add(ai);
     sentry.add(new DrawComponent(texture));
     sentry.add(new VelocityComponent(speed));
+    sentry.add(new CollideComponent());
     if (canEnterWalls) {
       sentry
           .fetch(VelocityComponent.class)
@@ -141,58 +142,29 @@ public class SentryFactory {
    * @param shootDirection the fixed direction in which the sentry will shoot.
    * @param dps the {@link DamageProjectileSkill} used to attack.
    * @param range Maximum shooting (projectile travel) range.
+   * @param canEnterWalls whether the sentry can move inside walls.
    * @return a sentry entity that patrols and launches projectiles.
    */
   public static Entity projectileLauncherSentry(
-      Point a, Point b, Direction shootDirection, DamageProjectileSkill dps, float range) {
+      Point a,
+      Point b,
+      Direction shootDirection,
+      DamageProjectileSkill dps,
+      float range,
+      boolean canEnterWalls) {
     IPath sentryTexture = chooseTexture(shootDirection);
 
-    return buildSentry(
-        "projectileLauncher",
+    return buildMovingSentry(
+        "sentry",
         sentryTexture,
         4.0f,
         new AIComponent(
-            new SentryFightBehaviour(a, b, range, dps, shootDirection, false),
-            new SentryPatrolWalk(a, b, false),
+            new SentryFightBehaviour(a, b, range, dps, shootDirection, canEnterWalls),
+            new SentryPatrolWalk(a, b, canEnterWalls),
             new RangeTransition(range)),
         a,
         b,
-        false);
-  }
-
-  /**
-   * Creates a projectile-launching sentry.
-   *
-   * <p>This sentry:
-   *
-   * <ul>
-   *   <li>Patrols between two points {@code a} and {@code b}.
-   *   <li>Uses {@link SentryFightBehaviour} to fire projectiles in the given {@link Direction}.
-   *   <li>Attacks with a {@link DamageProjectileSkill} when the hero is within range.
-   * </ul>
-   *
-   * @param a the first patrol point and spawn position.
-   * @param b the second patrol point.
-   * @param shootDirection the fixed direction in which the sentry will shoot.
-   * @param dps the {@link DamageProjectileSkill} used to attack.
-   * @param range Maximum shooting (projectile travel) range.
-   * @return a sentry entity that patrols and launches projectiles.
-   */
-  public static Entity projectileLauncherWallSentry(
-      Point a, Point b, Direction shootDirection, DamageProjectileSkill dps, float range) {
-    IPath sentryTexture = chooseTexture(shootDirection);
-
-    return buildSentry(
-        "projectileLauncher",
-        sentryTexture,
-        4.0f,
-        new AIComponent(
-            new SentryFightBehaviour(a, b, range, dps, shootDirection, true),
-            new SentryPatrolWalk(a, b, true),
-            new RangeTransition(range)),
-        a,
-        b,
-        true);
+        canEnterWalls);
   }
 
   /**
@@ -210,22 +182,27 @@ public class SentryFactory {
    * @param shootDirection the fixed direction in which the sentry will shoot.
    * @param dps the {@link DamageProjectileSkill} used to attack.
    * @param range Maximum shooting (projectile travel) range.
+   * @param canEnterWalls whether the sentry can move inside walls.
    * @return a sentry entity standing still and shooting projectiles.
    */
-  public static Entity stationaryWallSentry(
-      Point spawnPoint, Direction shootDirection, DamageProjectileSkill dps, float range) {
+  public static Entity stationarySentry(
+      Point spawnPoint,
+      Direction shootDirection,
+      DamageProjectileSkill dps,
+      float range,
+      boolean canEnterWalls) {
     IPath sentryTexture = chooseTexture(shootDirection);
 
     return buildStationarySentry(
-        "stationaryProjectileLauncher",
+        "stationarySentry",
         sentryTexture,
         4.0f,
         new AIComponent(
-            new StationarySentryAttack(spawnPoint, range, dps, shootDirection, true),
+            new StationarySentryAttack(spawnPoint, range, dps, shootDirection, canEnterWalls),
             entity -> {},
             new RangeTransition(range)),
         spawnPoint,
-        true);
+        canEnterWalls);
   }
 
   private static IPath chooseTexture(Direction direction) {

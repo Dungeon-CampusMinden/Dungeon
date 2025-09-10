@@ -9,6 +9,7 @@ import core.Entity;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -152,5 +153,10 @@ public class FireballSkill extends DamageProjectileSkill {
     long soundId = soundEffect.play();
     soundEffect.setPitch(soundId, randomPitch);
     soundEffect.setVolume(soundId, 0.05f);
+  }
+
+  @Override
+  protected Consumer<Entity> onWallHit(Entity caster) {
+    return handleDamageProjectileWallHit(caster);
   }
 }
