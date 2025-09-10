@@ -98,22 +98,11 @@ public final class ECSManagment {
                   entity.id(),
                   entity
                       .fetch(PositionComponent.class)
-                      .map(PositionComponent::position)
-                      .orElse(new Point(0, 0)),
-                  entity
-                      .fetch(PositionComponent.class)
-                      .map(PositionComponent::viewDirection)
-                      .orElse(Direction.DOWN),
-                  entity.fetch(DrawComponent.class)
-                      .map(DrawComponent::basePath)
-                      .map(IPath::pathString)
-                        .orElse(""),
+                      .orElseThrow(),
                   entity
                       .fetch(DrawComponent.class)
-                      .map(DrawComponent::stateMachine)
-                      .map(StateMachine::getCurrentStateName)
-                      .orElseThrow(),
-                  entity.fetch(DrawComponent.class).map(DrawComponent::tintColor).orElse(-1)));
+                      .orElseThrow()
+              ));
     }
 
     return entity;

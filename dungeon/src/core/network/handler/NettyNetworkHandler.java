@@ -106,7 +106,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public void send(NetworkMessage message) {
-    if (serverMode) server.broadcastMessage(message);
+    if (serverMode) server.broadcastMessage(message, true);
     else client.sendReliable(message);
   }
 

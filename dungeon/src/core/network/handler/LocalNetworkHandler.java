@@ -195,6 +195,7 @@ public class LocalNetworkHandler implements INetworkHandler {
           if (pcOpt.isEmpty()) return;
           builder.position(pcOpt.get().position());
           builder.viewDirection(pcOpt.get().viewDirection());
+          builder.rotation(pcOpt.get().rotation());
 
           entity
             .fetch(HealthComponent.class)
