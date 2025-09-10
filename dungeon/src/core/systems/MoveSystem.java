@@ -10,6 +10,8 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -74,24 +76,19 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
 
     // Helper to get all corners of the hitbox at a given position
-    Function<Point, List<Point>> hitboxCorners =
-        pos -> {
-          Vector2 offset = data.vc.moveboxOffset();
-          Vector2 size = data.vc.moveboxSize();
-          return List.of(
-              new Point(pos.x() + offset.x(), pos.y() + offset.y()), // bottom-left
-              new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-left
-              new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // top-left
-              new Point(
-                  pos.x() + offset.x() + size.x(), pos.y() + offset.y() + size.y()) // top-right
-              );
-        };
+    Vector2 offset = data.vc.moveboxOffset();
+    Vector2 size = data.vc.moveboxSize();
+    List<Vector2> hitboxCorners = new ArrayList<>();
+    hitboxCorners.add(Vector2.of(offset.x(), offset.y())); // bottom-left
+    hitboxCorners.add(Vector2.of(offset.x() + size.x(), offset.y())); // bottom-right
+    hitboxCorners.add(Vector2.of(offset.x() + size.x(), offset.y() + size.y())); // top-right
+    hitboxCorners.add(Vector2.of(offset.x(), offset.y() + size.y())); // top-left
 
-    // Check if all corners are accessible
+    // Check if all corners are accessible from a given Point
     Predicate<Point> allCornersAccessible =
         pos ->
-            hitboxCorners.apply(pos).stream()
-                .allMatch(p -> isAccessible(Game.tileAt(p).orElse(null), canEnterOpenPits));
+            hitboxCorners.stream()
+                .allMatch(v -> isAccessible(Game.tileAt(pos.translate(v)).orElse(null), canEnterOpenPits));
 
     if (allCornersAccessible.test(newPos)) {
       data.pc.position(newPos);
@@ -103,9 +100,23 @@ public class MoveSystem extends System {
       boolean xAccessible = allCornersAccessible.test(xMove);
       boolean yAccessible = allCornersAccessible.test(yMove);
 
+      // If only one axis movement is possible, we can determine which side the collision happened on and move the entity to be flush with the wall on that side.
       if (xAccessible) {
+        Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
+        if (isAccessible(tileAtBottomLeft, canEnterOpenPits)){
+          xMove = new Point(xMove.x(), (float)Math.ceil(xMove.y() + size.y() + offset.y()) - size.y() - offset.y() - 0.001f);
+        } else {
+          xMove = new Point(xMove.x(), (float)Math.floor(xMove.y() + offset.y()) - offset.y());
+        }
         data.pc.position(xMove);
       } else if (yAccessible) {
+        Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
+        if (isAccessible(tileAtBottomLeft, canEnterOpenPits)){
+          yMove = new Point((float)Math.ceil(yMove.x() + size.x() + offset.x()) - size.x() - offset.x() - 0.001f, yMove.y());
+        } else {
+          yMove = new Point((float)Math.floor(yMove.x() + offset.x()) - offset.x(), yMove.y());
+        }
+
         data.pc.position(yMove);
       }
 
