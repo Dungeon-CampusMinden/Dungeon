@@ -451,4 +451,11 @@ public class StateMachine {
     }
     return sb.toString();
   }
+
+  public void setState(String stateName, Object data) {
+    State state = getState(stateName);
+    if (state != null) {
+      changeState(state, data);
+    }
+  }
 }

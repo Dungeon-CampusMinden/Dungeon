@@ -11,6 +11,7 @@ dependencies {
     api supportDependencies.gdx_ai
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
+    api supportDependencies.gdx_backend_headless
 
     // Netty + simple SLF4J backend for server-side networking (pure Java)
     implementation supportDependencies.netty_all

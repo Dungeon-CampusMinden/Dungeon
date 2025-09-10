@@ -21,6 +21,7 @@ import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A base class for projectile-based skills. Handles creation, movement, collision, and lifecycle of
@@ -34,6 +35,9 @@ public abstract class ProjectileSkill extends Skill {
   /** A no-op collision consumer. */
   public static final TriConsumer<Entity, Entity, Direction> NOOP_TRICONSUMER =
       (entity1, entity2, direction) -> {};
+
+  /** A supplier that provides the target endpoint of the projectile. */
+  private Supplier<Point> endPointSupplier;
 
   protected boolean ignoreOtherProjectiles = true;
 
@@ -53,6 +57,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param speed Movement speed of the projectile.
    * @param range Maximum travel distance of the projectile.
    * @param hitBoxSize Hitbox size for collisions.
+   * @param end Supplier for the target endpoint of the projectile.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -63,6 +68,7 @@ public abstract class ProjectileSkill extends Skill {
       float speed,
       float range,
       Vector2 hitBoxSize,
+      Supplier<Point> end,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, resourceCost);
     this.texture = texture;
@@ -70,6 +76,7 @@ public abstract class ProjectileSkill extends Skill {
     this.range = range;
     this.hitBoxSize = hitBoxSize;
     this.ignoreEntities = new ArrayList<>();
+    this.endPointSupplier = end;
   }
 
   /**
@@ -80,7 +87,7 @@ public abstract class ProjectileSkill extends Skill {
    */
   @Override
   protected void executeSkill(Entity caster) {
-    shootProjectile(caster, start(caster), end(caster));
+    shootProjectile(caster, start(caster), endPoint());
   }
 
   public void shootProjectile(Entity caster, Point start, Point aimedOn) {
@@ -213,14 +220,6 @@ public abstract class ProjectileSkill extends Skill {
   }
 
   /**
-   * Calculates the end position (target point) of the projectile.
-   *
-   * @param caster The entity that cast the projectile.
-   * @return The endpoint of the projectile.
-   */
-  protected abstract Point end(Entity caster);
-
-  /**
    * Adds an entity to the list of ignored entities for collision.
    *
    * @param entity The entity to ignore.
@@ -310,5 +309,28 @@ public abstract class ProjectileSkill extends Skill {
    */
   public void texture(IPath texture) {
     this.texture = texture;
+  }
+
+  /**
+   * @return The end point for this projectile skill.
+   */
+  public Point endPoint() {
+    return endPointSupplier.get();
+  }
+
+  /**
+   * @return The supplier that provides the end point for this projectile skill.
+   */
+  public Supplier<Point> endPointSupplier() {
+    return endPointSupplier;
+  }
+
+  /**
+   * Set the supplier that provides the end point for this projectile skill.
+   *
+   * @param endPointSupplier The new supplier for the end point.
+   */
+  public void endPointSupplier(Supplier<Point> endPointSupplier) {
+    this.endPointSupplier = endPointSupplier;
   }
 }

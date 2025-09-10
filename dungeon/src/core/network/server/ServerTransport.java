@@ -171,6 +171,7 @@ public final class ServerTransport {
       Integer id = tcpChannelToClientId.remove(ctx.channel().id());
       if (id != null) {
         clientIdToUdp.remove(id);
+        clientIdToName.remove(id);
         LOGGER.info("Client disconnected id={} {}", id, ctx.channel());
       }
     }
@@ -185,8 +186,7 @@ public final class ServerTransport {
   private final class UdpServerHandler
     extends SimpleChannelInboundHandler<DatagramPacket> {
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt)
-      throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
       ByteBuf content = pkt.content();
       int size = content.readableBytes();
       if (size <= 0) return;
@@ -291,7 +291,7 @@ public final class ServerTransport {
     }
   }
 
-  private void sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+  void sendTcpObject(ChannelHandlerContext ctx, Object obj) {
     try {
       byte[] data = serialize(obj);
       if (data.length > MAX_TCP_OBJECT_SIZE) {

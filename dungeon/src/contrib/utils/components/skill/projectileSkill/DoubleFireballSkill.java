@@ -32,11 +32,11 @@ public class DoubleFireballSkill extends FireballSkill {
 
   @Override
   protected void executeSkill(Entity caster) {
-    Point targetPosition = end(caster);
-    shootProjectile(caster, start(caster), end(caster));
+    Point targetPosition = endPoint();
+    shootProjectile(caster, start(caster), endPoint());
     EventScheduler.scheduleAction(
         () -> {
-          Point newTargetPosition = end(caster);
+          Point newTargetPosition = endPoint();
           Vector2 targetDirection = targetPosition.vectorTo(newTargetPosition).normalize();
           targetDirection =
               targetDirection.scale((float) (start(caster).distance(targetPosition)) * 2);

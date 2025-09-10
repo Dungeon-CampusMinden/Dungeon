@@ -236,11 +236,15 @@ public final class HeroFactory {
 
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSkill),
+        entity -> {
+          Game.network().sendInput(new InputMessage(Action.NEXT_SKILL, null));
+        },
         false);
     inputComp.registerCallback(
         KeyboardConfig.PREV_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(SkillComponent::nextSkill),
+        entity -> {
+          Game.network().sendInput(new InputMessage(Action.PREV_SKILL, null));
+        },
         false);
 
     if (HeroController.ENABLE_MOUSE_MOVEMENT) {

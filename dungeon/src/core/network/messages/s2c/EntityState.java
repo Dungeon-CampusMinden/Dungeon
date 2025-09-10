@@ -21,6 +21,9 @@ public final class EntityState implements NetworkMessage {
   private final String viewDirection;
   private final Integer curHealth;
   private final Integer maxHealth;
+  private final Float curMana;
+  private final Float maxMana;
+  private final String stateName;
   private final Integer tintColor;
 
   private EntityState(Builder builder) {
@@ -29,6 +32,9 @@ public final class EntityState implements NetworkMessage {
     this.viewDirection = builder.viewDirection;
     this.curHealth = builder.curHealth;
     this.maxHealth = builder.maxHealth;
+    this.curMana = builder.curMana;
+    this.maxMana = builder.maxMana;
+    this.stateName = builder.stateName;
     this.tintColor = builder.tintColor;
   }
 
@@ -52,6 +58,18 @@ public final class EntityState implements NetworkMessage {
     return Optional.ofNullable(maxHealth);
   }
 
+  public Optional<Float> currentMana() {
+    return Optional.ofNullable(curMana);
+  }
+
+  public Optional<Float> maxMana() {
+    return Optional.ofNullable(maxMana);
+  }
+
+  public Optional<String> stateName() {
+    return Optional.ofNullable(stateName);
+  }
+
   public Optional<Integer> tintColor() {
     return Optional.ofNullable(tintColor);
   }
@@ -66,7 +84,9 @@ public final class EntityState implements NetworkMessage {
     private String viewDirection;
     private Integer curHealth;
     private Integer maxHealth;
-    private State state;
+    private Float curMana;
+    private Float maxMana;
+    private String stateName;
     private Integer tintColor;
 
     public Builder entityId(int entityId) {
@@ -96,6 +116,21 @@ public final class EntityState implements NetworkMessage {
 
     public Builder maxHealth(Integer maxHealth) {
       this.maxHealth = maxHealth;
+      return this;
+    }
+
+    public Builder currentMana(Float mana) {
+      this.curMana = mana;
+      return this;
+    }
+
+    public Builder maxMana(Float maxMana) {
+      this.maxMana = maxMana;
+      return this;
+    }
+
+    public Builder stateName(String stateName) {
+      this.stateName = stateName;
       return this;
     }
 
