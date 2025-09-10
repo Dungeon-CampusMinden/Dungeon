@@ -149,6 +149,8 @@ public class FireballSkill extends DamageProjectileSkill {
    */
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
+    if (Gdx.audio == null) return; // Audio not available
+
     Sound soundEffect = Gdx.audio.newSound(Gdx.files.internal(SOUND.pathString()));
 
     // Generate a random pitch between minPitch and maxPitch

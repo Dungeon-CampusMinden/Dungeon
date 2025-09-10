@@ -2,6 +2,7 @@ package core.network.server;
 
 import core.game.PreRunConfiguration;
 import core.network.SnapshotTranslator;
+import core.network.messages.NetworkMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,5 +31,21 @@ public final class ServerRuntime {
   public void stop() {
     if (loop != null) loop.stop();
     if (transport != null) transport.stop();
+  }
+
+  public void broadcastMessage(NetworkMessage message) {
+    if (loop != null) {
+      this.loop.broadcast(message);
+    } else {
+      LOGGER.warn("Server loop not initialized, cannot broadcast message");
+    }
+  }
+
+  public void sendMessage(NetworkMessage message, int clientId) {
+    if (loop != null) {
+      this.loop.sendToClient(clientId, message);
+    } else {
+      LOGGER.warn("Server loop not initialized, cannot send message to client {}", clientId);
+    }
   }
 }

@@ -12,6 +12,10 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.systems.DebugDrawSystem;
+import contrib.components.ManaComponent;
+import contrib.systems.HealthBarSystem;
+import contrib.systems.HudSystem;
+import contrib.systems.ManaBarSystem;
 import contrib.utils.CheckPatternPainter;
 import contrib.utils.components.Debugger;
 import core.Entity;
@@ -66,7 +70,7 @@ public final class GameLoop extends ScreenAdapter {
       () -> {
         newLevelWasLoadedInThisLoop = true;
         List<Entity> allHeros = ECSManagment.allHeros().toList();
-        boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel());
+        boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().get());
         allHeros.forEach(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
         // cleanup).
@@ -187,7 +191,10 @@ public final class GameLoop extends ScreenAdapter {
           if (!isMultiplayerClient) return true;
           return (s instanceof DrawSystem)
               || (s instanceof CameraSystem)
-              || (s instanceof InputSystem);
+              || (s instanceof InputSystem)
+            || (s instanceof ManaBarSystem)
+            || (s instanceof HealthBarSystem)
+          || (s instanceof HudSystem);
         });
 
     newLevelWasLoadedInThisLoop = false;
@@ -386,5 +393,8 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
     ECSManagment.add(new DebugDrawSystem());
+    ECSManagment.add(new ManaBarSystem());
+    ECSManagment.add(new HealthBarSystem());
+    ECSManagment.add(new HudSystem());
   }
 }

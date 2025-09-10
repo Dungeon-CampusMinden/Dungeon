@@ -90,12 +90,11 @@ public class HeroController {
           if (skill instanceof CursorSkill cursorSkill) {
             cursorSkill.executeOnCursor(hero, target);
           } else if (skill instanceof ProjectileSkill projSkill) {
-            projSkill.shootProjectile(hero, hero.fetch(PositionComponent.class)
-              .map(PositionComponent::position)
-              .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class)),
-              target);
+            projSkill.endPointSupplier(() -> target);
+            projSkill.execute(hero);
+          } else {
+            skill.execute(hero);
           }
-          skill.execute(hero);
         });
   }
 
