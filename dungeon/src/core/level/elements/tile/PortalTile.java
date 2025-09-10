@@ -32,6 +32,7 @@ public class PortalTile extends Tile {
    * @param designLabel    Design of the Tile
    */
 <<<<<<< HEAD
+<<<<<<< HEAD
   public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel, LevelElement levelElement) {
     super(texturePath, globalPosition, designLabel);
     this.levelElement = levelElement;
@@ -43,5 +44,10 @@ public class PortalTile extends Tile {
 =======
     levelElement = LevelElement.PORTAL;
 >>>>>>> 40c748e7 (added PortalTile for portal skill)
+=======
+  public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel, LevelElement levelElement) {
+    super(texturePath, globalPosition, designLabel);
+    this.levelElement = levelElement;
+>>>>>>> 36adc3c1 (added green and blue portal variants)
   }
 }

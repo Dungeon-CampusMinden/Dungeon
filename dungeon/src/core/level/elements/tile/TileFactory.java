@@ -32,10 +32,15 @@ public class TileFactory {
       case SKIP -> new SkipTile(texturePath, coordinate, designLabel);
       case PIT -> new PitTile(texturePath, coordinate, designLabel);
 <<<<<<< HEAD
+<<<<<<< HEAD
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
 =======
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
 >>>>>>> 40c748e7 (added PortalTile for portal skill)
+=======
+      case GREEN_PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.GREEN_PORTAL);
+      case BLUE_PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.BLUE_PORTAL);
+>>>>>>> 36adc3c1 (added green and blue portal variants)
     };
   }
 }

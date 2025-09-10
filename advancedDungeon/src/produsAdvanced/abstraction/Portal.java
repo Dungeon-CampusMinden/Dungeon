@@ -2,11 +2,15 @@ package produsAdvanced.abstraction;
 
 import contrib.components.CollideComponent;
 import contrib.entities.EntityFactory;
+<<<<<<< HEAD
 import contrib.entities.MiscFactory;
+=======
+>>>>>>> 36adc3c1 (added green and blue portal variants)
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+<<<<<<< HEAD
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
@@ -15,11 +19,21 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+=======
+import core.utils.Direction;
+import core.utils.Point;
+import core.utils.TriConsumer;
+import core.utils.Vector2;
+import core.utils.components.path.SimpleIPath;
+
+import java.io.IOException;
+>>>>>>> 36adc3c1 (added green and blue portal variants)
 
 public class Portal {
 
   private static Entity bluePortal;
   private static Entity greenPortal;
+<<<<<<< HEAD
   private static Entity stone;
 
   private static Point bluePortalDirection;
@@ -27,12 +41,18 @@ public class Portal {
 
   public static void createBluePortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
     clearBluePortal();
+=======
+
+
+  public static void createBluePortal(Point point) {
+>>>>>>> 36adc3c1 (added green and blue portal variants)
     Entity portal;
     portal = new Entity("blue_portal");
     portal.add(new PositionComponent(point));
     CollideComponent cc = new CollideComponent(CollideComponent.DEFAULT_OFFSET, Vector2.of(1.05,1.05), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     portal.add(cc);
 
+<<<<<<< HEAD
     // checking all Neighbours, for each compare the currentVelocity with the impact direction, put them into a liste
     // get the best score of the list(?), if its a wall go to next best one, the resulting neighbour the the direction where
     // the hero gets teleported into so he doesnt get stuck in the wall
@@ -53,18 +73,30 @@ public class Portal {
     Point best = list.getFirst().a();
     System.out.println(new Point(point.x()-best.x(), point.y()-best.y()));
     portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
+=======
+    try {
+      portal.add(new DrawComponent(new SimpleIPath("portals/blue")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+>>>>>>> 36adc3c1 (added green and blue portal variants)
     Game.add(portal);
     bluePortal = portal;
   }
 
+<<<<<<< HEAD
   public static void createGreenPortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
     clearGreenPortal();
+=======
+  public static void createGreenPortal(Point point) {
+>>>>>>> 36adc3c1 (added green and blue portal variants)
     Entity portal;
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
     CollideComponent cc = new CollideComponent(CollideComponent.DEFAULT_OFFSET, Vector2.of(1.05,1.05), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     portal.add(cc);
 
+<<<<<<< HEAD
     portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
     greenPortal = portal;
@@ -76,16 +108,31 @@ public class Portal {
       PositionComponent pc = hero.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position());
     }
+=======
+    try {
+      portal.add(new DrawComponent(new SimpleIPath("portals/green")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    Game.add(portal);
+    bluePortal = portal;
+  }
+
+  public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
+>>>>>>> 36adc3c1 (added green and blue portal variants)
     System.out.println("Green Portal entered");
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
+<<<<<<< HEAD
     Entity hero = Game.hero().get();
     if (other.equals(hero) && greenPortal != null) {
       PositionComponent pc = hero.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position());
     }
 
+=======
+>>>>>>> 36adc3c1 (added green and blue portal variants)
     System.out.println("Blue Portal entered");
   }
 
@@ -96,6 +143,7 @@ public class Portal {
   }
 
   public static void clearBluePortal() {
+<<<<<<< HEAD
     if (bluePortal != null) {
       Game.remove(bluePortal);
       bluePortal = null;
@@ -107,6 +155,13 @@ public class Portal {
       Game.remove(greenPortal);
       greenPortal = null;
     }
+=======
+    bluePortal = null;
+  }
+
+  public static void clearGreenPortal() {
+    greenPortal = null;
+>>>>>>> 36adc3c1 (added green and blue portal variants)
   }
 
 }
