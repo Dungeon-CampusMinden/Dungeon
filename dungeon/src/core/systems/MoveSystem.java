@@ -12,7 +12,6 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -25,6 +24,8 @@ import java.util.function.Predicate;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
+
+  public static final float FLUSH_OFFSET = 0.001f;
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -104,21 +105,34 @@ public class MoveSystem extends System {
           !CollisionUtils.isCollidingWithLevel(
               yMove, offset, size, canEnterOpenPits, canEnterWalls);
 
-      // If only one axis movement is possible, we can determine which side the collision happened on and move the entity to be flush with the wall on that side.
+      // If only one axis movement is possible, we can determine which side the collision happened
+      // on and move the entity to be flush with the wall on that side.
       if (xAccessible) {
         Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
-        if (CollisionUtils.tileIsAccessible(tileAtBottomLeft, canEnterOpenPits, canEnterWalls)){
-          xMove = new Point(xMove.x(), (float)Math.ceil(xMove.y() + size.y() + offset.y()) - size.y() - offset.y() - 0.001f);
+        if (CollisionUtils.tileIsAccessible(tileAtBottomLeft, canEnterOpenPits, canEnterWalls)) {
+          xMove =
+              new Point(
+                  xMove.x(),
+                  (float) Math.ceil(xMove.y() + size.y() + offset.y())
+                      - size.y()
+                      - offset.y()
+                      - FLUSH_OFFSET);
         } else {
-          xMove = new Point(xMove.x(), (float)Math.floor(xMove.y() + offset.y()) - offset.y());
+          xMove = new Point(xMove.x(), (float) Math.floor(xMove.y() + offset.y()) - offset.y());
         }
         data.pc.position(xMove);
       } else if (yAccessible) {
         Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
-        if (CollisionUtils.tileIsAccessible(tileAtBottomLeft, canEnterOpenPits, canEnterWalls)){
-          yMove = new Point((float)Math.ceil(yMove.x() + size.x() + offset.x()) - size.x() - offset.x() - 0.001f, yMove.y());
+        if (CollisionUtils.tileIsAccessible(tileAtBottomLeft, canEnterOpenPits, canEnterWalls)) {
+          yMove =
+              new Point(
+                  (float) Math.ceil(yMove.x() + size.x() + offset.x())
+                      - size.x()
+                      - offset.x()
+                      - FLUSH_OFFSET,
+                  yMove.y());
         } else {
-          yMove = new Point((float)Math.floor(yMove.x() + offset.x()) - offset.x(), yMove.y());
+          yMove = new Point((float) Math.floor(yMove.x() + offset.x()) - offset.x(), yMove.y());
         }
 
         data.pc.position(yMove);

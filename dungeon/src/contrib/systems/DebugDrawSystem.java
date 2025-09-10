@@ -68,14 +68,17 @@ public class DebugDrawSystem extends System {
     showTileUnderCursor();
   }
 
-  private void showTileUnderCursor(){
+  private void showTileUnderCursor() {
     Point mosPos = SkillTools.cursorPositionAsPoint();
     mosPos = new Point(mosPos.x(), mosPos.y());
-    Point tilePos = new Point((int)mosPos.x(), (int)mosPos.y());
+    Point tilePos = new Point((int) mosPos.x(), (int) mosPos.y());
 
-    LevelSystem.level().flatMap(level -> level.tileAt(tilePos)).ifPresent(tile -> {
-      renderRect(tile.position(), 1, 1, new Color(1, 1, 1, 0.2f));
-    });
+    LevelSystem.level()
+        .flatMap(level -> level.tileAt(tilePos))
+        .ifPresent(
+            tile -> {
+              renderRect(tile.position(), 1, 1, new Color(1, 1, 1, 0.2f));
+            });
   }
 
   private void drawPosition(Entity entity) {
@@ -522,10 +525,10 @@ public class DebugDrawSystem extends System {
     //Arrow base
     renderCircle(point, 0.1f, color);
 
-    //Arrow body
+    // Arrow body
     renderLine(point, other, color);
 
-    //Arrow head
+    // Arrow head
     Vector2 dir = point.vectorTo(other).normalize();
     Vector2 rotated = dir.rotateDeg(90).scale(0.15f);
     dir = dir.scale(-0.3f);
