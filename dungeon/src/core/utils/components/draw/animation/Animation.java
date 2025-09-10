@@ -407,9 +407,11 @@ public class Animation implements Cloneable {
     }
 
     // Check if image file exists
-    if (Gdx.files != null && Gdx.gl != null) {
-      // Throws a GdxRuntimeException if the image isn't found.
-      TextureMap.instance().textureAt(new SimpleIPath(pathString));
+    if (Gdx.files != null && Gdx.files.internal(pathString).exists()) {
+      if (Gdx.gl != null)
+        TextureMap.instance().textureAt(new SimpleIPath(pathString));
+    } else {
+      throw new IllegalArgumentException("Image file not found: " + pathString);
     }
 
     // Load configs

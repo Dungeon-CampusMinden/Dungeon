@@ -25,6 +25,7 @@ ext {
         gdx_ai                    : "com.badlogicgames.gdx:gdx-ai:$aiVersion",
         gdx_freetype              : "com.badlogicgames.gdx:gdx-freetype:$gdxVersion",
         gdx_freetype_platform     : "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop",
+        gdx_backend_headless      : "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion",
 
         // JUnit and Mockito for testing
         junit                     : "org.junit.jupiter:junit-jupiter:$junitVersion",

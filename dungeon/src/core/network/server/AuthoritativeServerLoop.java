@@ -1,5 +1,7 @@
 package core.network.server;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import contrib.entities.HeroController;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
@@ -58,9 +60,9 @@ public final class AuthoritativeServerLoop {
   }
 
   public void start() {
-    try {
-      PreRunConfiguration.frameRate(TICK_HZ);
-    } catch (Throwable ignored) {}
+    Gdx.files = new HeadlessFiles();
+
+    PreRunConfiguration.frameRate(TICK_HZ);
 
     createSystems();
     try {
@@ -102,6 +104,7 @@ public final class AuthoritativeServerLoop {
     ECSManagment.add(new AISystem());
     ECSManagment.add(new CollisionSystem());
     ECSManagment.add(new FallingSystem());
+    ECSManagment.add(new ManaRestoreSystem());
   }
 
   private void tick() {
@@ -152,6 +155,13 @@ public final class AuthoritativeServerLoop {
   public void broadcast(NetworkMessage event) {
     for (Map.Entry<Integer, InetSocketAddress> e : net.udpClients().entrySet()) {
       net.sendUdpObject(e.getValue(), event);
+    }
+  }
+
+  public void sendToClient(int clientId, NetworkMessage event) {
+    InetSocketAddress addr = net.udpClients().get(clientId);
+    if (addr != null) {
+      net.sendUdpObject(addr, event);
     }
   }
 
