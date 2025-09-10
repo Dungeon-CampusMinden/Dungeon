@@ -21,6 +21,7 @@ public class Portal {
 
 
   public static void createBluePortal(Point point) {
+    clearBluePortal();
     Entity portal;
     portal = new Entity("blue_portal");
     portal.add(new PositionComponent(point));
@@ -37,6 +38,7 @@ public class Portal {
   }
 
   public static void createGreenPortal(Point point) {
+    clearGreenPortal();
     Entity portal;
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
@@ -49,7 +51,7 @@ public class Portal {
       throw new RuntimeException(e);
     }
     Game.add(portal);
-    bluePortal = portal;
+    greenPortal = portal;
   }
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
@@ -67,11 +69,17 @@ public class Portal {
   }
 
   public static void clearBluePortal() {
-    bluePortal = null;
+    if (bluePortal != null) {
+      Game.remove(bluePortal);
+      bluePortal = null;
+    }
   }
 
   public static void clearGreenPortal() {
-    greenPortal = null;
+    if (greenPortal != null) {
+      Game.remove(greenPortal);
+      greenPortal = null;
+    }
   }
 
 }
