@@ -51,7 +51,7 @@ public class FireballConeSkill extends FireballSkill {
 
   @Override
   protected void executeSkill(Entity caster) {
-    Point targetPos = end(caster);
+    Point targetPos = endPoint();
     if (targetPos == null) {
       return;
     }

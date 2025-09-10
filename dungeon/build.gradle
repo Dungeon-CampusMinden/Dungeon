@@ -11,6 +11,7 @@ dependencies {
     api supportDependencies.gdx_ai
     api supportDependencies.gdx_freetype
     api supportDependencies.gdx_freetype_platform
+    api supportDependencies.gdx_backend_headless
 
     // Netty + simple SLF4J backend for server-side networking (pure Java)
     implementation supportDependencies.netty_all
@@ -22,7 +23,6 @@ dependencies {
     testRuntimeOnly supportDependencies.junitLauncher
     testImplementation supportDependencies.mockito_core
     testImplementation "com.badlogicgames.gdx:gdx-backend-lwjgl:1.12.0"
-    testImplementation("com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion")
     testImplementation("com.badlogicgames.gdx:gdx:$gdxVersion")
 }
 

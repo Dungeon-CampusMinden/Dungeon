@@ -1,6 +1,7 @@
 package core.network.handler;
 
 import contrib.components.HealthComponent;
+import contrib.components.ManaComponent;
 import contrib.entities.HeroController;
 import core.Game;
 import core.components.DrawComponent;
@@ -204,8 +205,19 @@ public class LocalNetworkHandler implements INetworkHandler {
               });
 
           entity
+            .fetch(ManaComponent.class)
+            .ifPresent(
+              mc -> {
+                builder.currentMana(mc.currentAmount());
+                builder.maxMana(mc.maxAmount());
+              });
+
+          entity
             .fetch(DrawComponent.class)
-            .ifPresent(dc -> builder.tintColor(dc.tintColor()));
+            .ifPresent(dc -> {
+              builder.stateName(dc.stateMachine().getCurrentStateName());
+              builder.tintColor(dc.tintColor());
+            });
 
           snapshotEntities.add(builder.build());
         });

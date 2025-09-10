@@ -30,8 +30,8 @@ public interface INetworkHandler {
     throws NetworkException;
 
   /**
-   * Sends a {@link NetworkMessage} to the server (if client) or dispatches locally (if single
-   * player).
+   * Sends a {@link NetworkMessage} to the server (if client), dispatches locally (if single
+   * player) or if server, broadcasts to all clients.
    *
    * @param message The message to send.
    */

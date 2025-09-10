@@ -28,10 +28,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected DamageType damageType;
 
   /** Whether the projectile pierces through multiple targets or is removed after hitting one. */
-  protected boolean pircing;
-
-  /** A supplier that provides the target endpoint of the projectile. */
-  private final Supplier<Point> endPointSupplier;
+  protected boolean piercing;
 
   /**
    * Create a new {@link DamageProjectileSkill}.
@@ -62,11 +59,10 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       DamageType damageType,
       Vector2 hitBoxSize,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, hitBoxSize, resourceCost);
+    super(name, cooldown, texture, speed, range, hitBoxSize, end, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
-    this.pircing = piercing;
-    this.endPointSupplier = end;
+    this.piercing = piercing;
   }
 
   /**
@@ -95,24 +91,13 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
         additionalEffectAfterDamage(caster, projectile, target, direction);
 
-        if (pircing) {
+        if (piercing) {
           ignoreEntities.add(target);
         } else {
           Game.remove(projectile);
         }
       }
     };
-  }
-
-  /**
-   * Provides the endpoint (target position) for the projectile.
-   *
-   * @param caster The entity casting the projectile.
-   * @return The end point of the projectile.
-   */
-  @Override
-  protected Point end(Entity caster) {
-    return endPointSupplier.get();
   }
 
   /**
