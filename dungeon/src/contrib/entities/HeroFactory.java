@@ -141,15 +141,21 @@ public final class HeroFactory {
     State stIdle = new DirectionalState("idle", animationMap);
     State stMove = new DirectionalState("move", animationMap, "run");
 
-    // TODO FIX BUG
-    // HOTFIX FOR: https://github.com/Dungeon-CampusMinden/Dungeon/issues/2402
-    // State stDead = new State("dead", animationMap.get("idle_down"));
-    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove)); // , stDead));
+    State stDead;
+    if(animationMap.containsKey("die_down")){
+      stDead = new DirectionalState("dead", animationMap, "die");
+    } else if (animationMap.containsKey("die")) {
+      stDead = new State("dead", animationMap.get("die"));
+    } else {
+      stDead = new State("dead", animationMap.get("idle_down"));
+    }
+
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
     sm.addTransition(stIdle, "move", stMove);
     sm.addTransition(stMove, "move", stMove);
     sm.addTransition(stMove, "idle", stIdle);
-    // sm.addTransition(stIdle, "died", stDead);
-    // sm.addTransition(stMove, "died", stDead);
+    sm.addTransition(stIdle, "die", stDead);
+    sm.addTransition(stMove, "die", stDead);
     DrawComponent dc = new DrawComponent(sm);
     dc.depth(DepthLayer.Player.depth());
     hero.add(dc);

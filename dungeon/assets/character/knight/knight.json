@@ -8,10 +8,10 @@
       "rows": 1,
       "columns": 5
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 15,
     "scaleX": 1,
     "scaleY": 0,
-    "isLooping": true,
+    "isLooping": false,
     "centered": false
   },
   "die_left": {
@@ -23,10 +23,10 @@
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 15,
     "scaleX": 1,
     "scaleY": 0,
-    "isLooping": true,
+    "isLooping": false,
     "centered": false
   },
   "die_right": {
@@ -38,10 +38,10 @@
       "rows": 1,
       "columns": 4
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 15,
     "scaleX": 1,
     "scaleY": 0,
-    "isLooping": true,
+    "isLooping": false,
     "centered": false
   },
   "die_up": {
@@ -53,10 +53,10 @@
       "rows": 1,
       "columns": 5
     },
-    "framesPerSprite": 10,
+    "framesPerSprite": 15,
     "scaleX": 1,
     "scaleY": 0,
-    "isLooping": true,
+    "isLooping": false,
     "centered": false
   },
   "fight_down": {
