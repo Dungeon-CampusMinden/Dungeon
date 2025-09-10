@@ -1,16 +1,10 @@
 package contrib.systems;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.CollideComponent;
-import contrib.components.KineticComponent;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.systems.CameraSystem;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Tuple;
@@ -144,26 +138,35 @@ public final class CollisionSystem extends System {
     }
   }
 
-  private void checkSolidCollision(CollisionData cdata, Direction d){
+  private void checkSolidCollision(CollisionData cdata, Direction d) {
     if (cdata.a.isStationary() && cdata.b.isStationary()) {
       LOGGER.warning(
-        "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
+          "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
     } else if (cdata.a.isStationary()) {
       solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
     } else if (cdata.b.isStationary()) {
       solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
     } else {
       // Two non-stationary solids collide.
-      cdata.ea.fetch(VelocityComponent.class).ifPresent(v1 -> {
-        cdata.eb.fetch(VelocityComponent.class).ifPresent(v2 -> {
-          // Determine which entity moves based on their weight. The heavier entity moves the lighter one.
-          if(v1.mass() >= v2.mass()){
-            solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
-          } else {
-            solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
-          }
-        });
-      });
+      cdata
+          .ea
+          .fetch(VelocityComponent.class)
+          .ifPresent(
+              v1 -> {
+                cdata
+                    .eb
+                    .fetch(VelocityComponent.class)
+                    .ifPresent(
+                        v2 -> {
+                          // Determine which entity moves based on their weight. The heavier entity
+                          // moves the lighter one.
+                          if (v1.mass() >= v2.mass()) {
+                            solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
+                          } else {
+                            solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
+                          }
+                        });
+              });
     }
   }
 
