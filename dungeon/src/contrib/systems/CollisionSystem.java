@@ -54,15 +54,8 @@ public final class CollisionSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(CollideComponent.class)
-        .map(this::testRender)
         .flatMap(this::createDataPairs)
         .forEach(this::onEnterLeaveCheck);
-  }
-
-  private Entity testRender(Entity e) {
-    CollideComponent cc = e.fetch(CollideComponent.class).orElseThrow();
-    renderRect(cc.bottomLeft(e), cc.size().x(), cc.size().y(), new Color(1, 1, 1, 0.5f));
-    return e;
   }
 
   /**
@@ -160,7 +153,7 @@ public final class CollisionSystem extends System {
     } else if (cdata.b.isStationary()) {
       solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
     } else {
-      // Two non-stationary solids collide. what now?
+      // Two non-stationary solids collide.
       cdata.ea.fetch(VelocityComponent.class).ifPresent(v1 -> {
         cdata.eb.fetch(VelocityComponent.class).ifPresent(v2 -> {
           // Determine which entity moves based on their weight. The heavier entity moves the lighter one.
@@ -264,15 +257,4 @@ public final class CollisionSystem extends System {
   private record CollisionKey(int a, int b) {}
 
   protected record CollisionData(Entity ea, CollideComponent a, Entity eb, CollideComponent b) {}
-
-  private static final ShapeRenderer renderer = new ShapeRenderer();
-
-  private static void renderRect(Point point, float width, float height, Color color) {
-    renderer.setProjectionMatrix(CameraSystem.camera().combined);
-    renderer.begin(ShapeRenderer.ShapeType.Line);
-    Gdx.gl.glEnable(GL20.GL_BLEND);
-    renderer.setColor(color);
-    renderer.rect(point.x(), point.y(), width, height);
-    renderer.end();
-  }
 }
