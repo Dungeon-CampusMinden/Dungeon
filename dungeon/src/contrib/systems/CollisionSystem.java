@@ -7,7 +7,6 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
-import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.*;
@@ -206,24 +205,17 @@ public final class CollisionSystem extends System {
     Point c2Pos = b.bottomLeft(eb);
     Vector2 c2Size = b.size();
 
-    float x1 = c1Pos.x() + c1Size.x() - (c2Pos.x());
-    float x2 = c1Pos.x() - (c2Pos.x() + c2Size.x());
-    float y1 = c1Pos.y() + c1Size.y() - (c2Pos.y());
-    float y2 = c1Pos.y() - (c2Pos.y() + c2Size.y());
+    float dx = (c1Pos.x() + c1Size.x() / 2f) - (c2Pos.x() + c2Size.x() / 2f);
+    float dy = (c1Pos.y() + c1Size.y() / 2f) - (c2Pos.y() + c2Size.y() / 2f);
 
-    List<Tuple<Float, Direction>> directions = new ArrayList<>();
-    // South & North first, so that they take precedence over E/W. This is important for when 2
-    // solids are directly
-    // next to each other horizontally, as with E/W first there would be a seam that you could
-    // continuously walk into.
-    directions.add(new Tuple<>(y1, Direction.DOWN));
-    directions.add(new Tuple<>(y2, Direction.UP));
-    directions.add(new Tuple<>(x1, Direction.RIGHT));
-    directions.add(new Tuple<>(x2, Direction.LEFT));
+    float overlapX = (c1Size.x() / 2f + c2Size.x() / 2f) - Math.abs(dx);
+    float overlapY = (c1Size.y() / 2f + c2Size.y() / 2f) - Math.abs(dy);
 
-    Direction d =
-        directions.stream().min(Comparator.comparingDouble(t -> Math.abs(t.a()))).get().b();
-    return d;
+    if (overlapX < overlapY) {
+      return dx > 0 ? Direction.LEFT : Direction.RIGHT;
+    } else {
+      return dy > 0 ? Direction.DOWN : Direction.UP;
+    }
   }
 
   private void solidCollide(
@@ -235,9 +227,9 @@ public final class CollisionSystem extends System {
 
     Point newColliderPos =
         switch (direction) {
-          case UP -> new Point(c2Pos.x(), c1Pos.y() - c2Size.y() - COLLIDE_SET_DISTANCE);
+          case DOWN -> new Point(c2Pos.x(), c1Pos.y() - c2Size.y() - COLLIDE_SET_DISTANCE);
           case LEFT -> new Point(c1Pos.x() - c2Size.x() - COLLIDE_SET_DISTANCE, c2Pos.y());
-          case DOWN -> new Point(c2Pos.x(), c1Pos.y() + c1Size.y() + COLLIDE_SET_DISTANCE);
+          case UP -> new Point(c2Pos.x(), c1Pos.y() + c1Size.y() + COLLIDE_SET_DISTANCE);
           case RIGHT -> new Point(c1Pos.x() + c1Size.x() + COLLIDE_SET_DISTANCE, c2Pos.y());
           case NONE -> null;
         };
