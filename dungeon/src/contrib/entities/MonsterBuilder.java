@@ -624,7 +624,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    * @return constructed Entity
    */
   public Entity build(Coordinate spawnPoint) {
-    return build(spawnPoint.toCenteredPoint());
+    return build(spawnPoint.toPoint());
   }
 
   /**
@@ -634,7 +634,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
    * @return constructed Entity
    */
   public Entity build(Tile spawnTile) {
-    return build(spawnTile.coordinate().toCenteredPoint());
+    return build(spawnTile.coordinate());
   }
 
   private HealthComponent buildHealthComponent() {
