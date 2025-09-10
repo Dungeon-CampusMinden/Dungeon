@@ -11,10 +11,10 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.draw.state.Transition;
 import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Store all {@link Animation}s for an entity.
@@ -46,11 +46,11 @@ import java.util.logging.Logger;
  * @see Animation
  * @see IPath
  */
-public final class DrawComponent implements Component {
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
+public final class DrawComponent implements Component, Serializable {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final StateMachine stateMachine;
-  private final IPath basePath;
   private int depth = DepthLayer.Normal.depth();
 
   private int tintColor = -1; // -1 means no tinting
@@ -81,7 +81,6 @@ public final class DrawComponent implements Component {
    */
   public DrawComponent(final IPath path, AnimationConfig config, String defaultStateName) {
     stateMachine = new StateMachine(path, config, defaultStateName);
-    this.basePath = path;
   }
 
   /**
@@ -93,7 +92,6 @@ public final class DrawComponent implements Component {
    */
   public DrawComponent(final IPath path, SpritesheetConfig config) {
     stateMachine = new StateMachine(path, config);
-    this.basePath = path;
   }
 
   /**
@@ -128,7 +126,6 @@ public final class DrawComponent implements Component {
    */
   public DrawComponent(final Animation animation) {
     stateMachine = new StateMachine(animation);
-    this.basePath = animation.path();
   }
 
   /**
@@ -138,7 +135,6 @@ public final class DrawComponent implements Component {
    */
   public DrawComponent(StateMachine stateMachine) {
     this.stateMachine = stateMachine;
-    this.basePath = stateMachine.getCurrentState().getAnimation().path(); // TODO verify
   }
 
   /**
@@ -375,14 +371,5 @@ public final class DrawComponent implements Component {
    */
   public void depth(int depth) {
     this.depth = depth;
-  }
-
-  /**
-   * Get the base path used to load the animations for this component.
-   *
-   * @return The base IPath.
-   */
-  public IPath basePath() {
-    return this.basePath;
   }
 }

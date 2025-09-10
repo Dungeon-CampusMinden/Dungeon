@@ -29,6 +29,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +70,7 @@ public final class AuthoritativeServerLoop {
 
     createSystems();
     try {
-      DungeonLoader.afterAllLevels(() -> broadcast(new GameOverEvent()));
+      DungeonLoader.afterAllLevels(() -> broadcast(new GameOverEvent(), true));
       DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
       DungeonLoader.loadLevel(0);
       broadcastLevelChange();
@@ -138,7 +142,7 @@ public final class AuthoritativeServerLoop {
 
   private void sendSnapshot() {
     translator.translateToSnapshot(serverTick, clientEntities)
-      .ifPresent(this::broadcast);
+      .ifPresent(snapshot -> broadcast(snapshot, false));
   }
 
   private void broadcastLevelChange() {
@@ -149,12 +153,18 @@ public final class AuthoritativeServerLoop {
       LOGGER.warn("Failed to read current level", t);
       return;
     }
-    broadcast(new LevelChangeEvent(levelName, null));
+    broadcast(new LevelChangeEvent(levelName, null), true);
   }
 
-  public void broadcast(NetworkMessage event) {
-    for (Map.Entry<Integer, InetSocketAddress> e : net.udpClients().entrySet()) {
-      net.sendUdpObject(e.getValue(), event);
+  public void broadcast(NetworkMessage event, boolean reliable) {
+    if (reliable) {
+      for (Map.Entry<ChannelId, ChannelHandlerContext> e : net.tcpChannels().entrySet()) {
+        net.sendTcpObject(e.getValue(), event);
+      }
+    } else {
+      for (Map.Entry<Integer, InetSocketAddress> e : net.udpClients().entrySet()) {
+        net.sendUdpObject(e.getValue(), event);
+      }
     }
   }
 
