@@ -175,6 +175,7 @@ public class Client {
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
+    if (DEBUG_MODE) Game.add(new DebugDrawSystem());
     Game.add(
         new System() {
           @Override

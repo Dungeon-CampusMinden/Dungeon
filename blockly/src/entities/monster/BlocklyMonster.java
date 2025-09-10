@@ -1,5 +1,6 @@
 package entities.monster;
 
+import coderunner.BlocklyCommands;
 import components.TintDirectionComponent;
 import contrib.components.*;
 import contrib.entities.*;
@@ -168,7 +169,7 @@ public enum BlocklyMonster {
       if (addToGame) {
         Game.add(monster);
       }
-
+      BlocklyCommands.turnEntity(monster, viewDirection());
       return monster;
     }
   }
