@@ -7,11 +7,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -19,6 +22,7 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.systems.CameraSystem;
 import core.systems.DrawSystem;
+import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -47,6 +51,7 @@ import java.util.List;
 public class DebugDrawSystem extends System {
 
   private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
+  private static final Vector2 INV_OFFSET = Vector2.of(-0.5f, -0.25f);
   private static final Color BACKGROUND_COLOR =
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
 
@@ -60,6 +65,17 @@ public class DebugDrawSystem extends System {
 
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
+    showTileUnderCursor();
+  }
+
+  private void showTileUnderCursor(){
+    Point mosPos = SkillTools.cursorPositionAsPoint();
+    mosPos = new Point(mosPos.x(), mosPos.y());
+    Point tilePos = new Point((int)mosPos.x(), (int)mosPos.y());
+
+    LevelSystem.level().flatMap(level -> level.tileAt(tilePos)).ifPresent(tile -> {
+      renderRect(tile.position(), 1, 1, new Color(1, 1, 1, 0.2f));
+    });
   }
 
   private void drawPosition(Entity entity) {
@@ -401,5 +417,132 @@ public class DebugDrawSystem extends System {
   @Override
   public void run() {
     this.run = true;
+  }
+
+  /**
+   * Helper method to render a rectangle given two corner points.
+   * @param point One corner of the rectangle.
+   * @param point2 The opposite corner of the rectangle.
+   */
+  public static void renderRect(Point point, Point point2){
+    Vector2 diff = point2.vectorTo(point) ;
+    renderRect(point, diff.x(), diff.y(), Color.WHITE);
+  }
+
+  /**
+   * Helper method to render a rectangle given a corner point, width, and height.
+   * @param point bottom-left corner of the rectangle.
+   * @param width width of the rectangle.
+   * @param height height of the rectangle.
+   */
+  public static void renderRect(Point point, float width, float height){
+    renderRect(point, width, height, Color.WHITE);
+  }
+
+  /**
+   * Helper method to render a rectangle given a corner point, width, height, and color.
+   * @param point bottom-left corner of the rectangle.
+   * @param width width of the rectangle.
+   * @param height height of the rectangle.
+   * @param color color of the rectangle.
+   */
+  public static void renderRect(Point point, float width, float height, Color color){
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.rect(point.x(), point.y(), width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Helper method to render a circle given a center point and radius.
+   * @param point center of the circle.
+   * @param radius radius of the circle.
+   */
+  public static void renderCircle(Point point, float radius){
+    renderCircle(point, radius, Color.WHITE);
+  }
+  /**
+   * Helper method to render a circle given a center point, radius, and color.
+   * @param point center of the circle.
+   * @param radius radius of the circle.
+   * @param color color of the circle.
+   */
+  public static void renderCircle(Point point, float radius, Color color){
+    point = point.translate(INV_OFFSET);
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.circle(point.x(), point.y(), radius, 30);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Helper method to render a line between two points.
+   * @param point start point of the line.
+   * @param other end point of the line.
+   */
+  public static void renderLine(Point point, Point other){
+    renderLine(point, other, Color.WHITE);
+  }
+  /**
+   * Helper method to render a line between two points with a specific color.
+   * @param point start point of the line.
+   * @param other end point of the line.
+   * @param color color of the line.
+   */
+  public static void renderLine(Point point, Point other, Color color){
+    point = point.translate(INV_OFFSET);
+    other = other.translate(INV_OFFSET);
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.line(point.x(), point.y(), other.x(), other.y());
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Helper method to render an arrow from one point to another.
+   * @param point start point of the arrow.
+   * @param other end point of the arrow.
+   */
+  public static void renderArrow(Point point, Point other){
+    renderArrow(point, other, Color.WHITE);
+  }
+  /**
+   * Helper method to render an arrow from one point to another with a specific color.
+   * @param point start point of the arrow.
+   * @param other end point of the arrow.
+   * @param color color of the arrow.
+   */
+  public static void renderArrow(Point point, Point other, Color color){
+    //Arrow base
+    renderCircle(point, 0.1f, color);
+
+    //Arrow body
+    renderLine(point, other, color);
+
+    //Arrow head
+    Vector2 dir = point.vectorTo(other).normalize();
+    Vector2 rotated = dir.rotateDeg(90).scale(0.15f);
+    dir = dir.scale(-0.3f);
+
+    Point offset = other.translate(dir);
+    Point left = offset.translate(rotated);
+    Point right = offset.translate(rotated.scale(-1));
+
+    other = other.translate(INV_OFFSET);
+    left = left.translate(INV_OFFSET);
+    right = right.translate(INV_OFFSET);
+
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.triangle(other.x(), other.y(), left.x(), left.y(), right.x(), right.y());
+    SHAPE_RENDERER.end();
   }
 }
