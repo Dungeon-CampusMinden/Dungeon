@@ -1,14 +1,18 @@
 package contrib.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.CollideComponent;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.systems.CameraSystem;
+import core.systems.LevelSystem;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -35,12 +39,24 @@ import core.utils.components.draw.animation.Animation;
  */
 public class DebugDrawSystem extends System {
 
-  private final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
+  private static final Vector2 INV_OFFSET = Vector2.of(-0.5f, -0.25f);
+  private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
 
   @Override
   public void execute() {
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
+    showTileUnderCursor();
+  }
+
+  private void showTileUnderCursor(){
+    Point mosPos = SkillTools.cursorPositionAsPoint();
+    mosPos = new Point(mosPos.x(), mosPos.y());
+    Point tilePos = new Point((int)mosPos.x(), (int)mosPos.y());
+
+    LevelSystem.level().flatMap(level -> level.tileAt(tilePos)).ifPresent(tile -> {
+      renderRect(tile.position(), 1, 1, new Color(1, 1, 1, 0.2f));
+    });
   }
 
   private void drawPosition(Entity entity) {
@@ -73,7 +89,7 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.end();
 
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc);
-    if (entity.isPresent(CollideComponent.class)) drawColideHitbox(entity, pc);
+    if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity, pc);
     if (entity.isPresent(VelocityComponent.class)) drawMoveHitbox(entity, pc);
   }
 
@@ -83,7 +99,7 @@ public class DebugDrawSystem extends System {
    * @param entity Entity to draw the rectangle for.
    * @param pc PositionComponent of the entity.
    */
-  private void drawColideHitbox(Entity entity, PositionComponent pc) {
+  private void drawCollideHitbox(Entity entity, PositionComponent pc) {
     CollideComponent cc =
         entity
             .fetch(CollideComponent.class)
@@ -159,4 +175,79 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.rect(bottomLeft.x(), bottomLeft.y(), width, height);
     SHAPE_RENDERER.end();
   }
+
+  public static void renderRect(Point point, Point point2){
+    Vector2 diff = point2.vectorTo(point) ;
+    renderRect(point, diff.x(), diff.y(), Color.WHITE);
+  }
+  public static void renderRect(Point point, float width, float height){
+    renderRect(point, width, height, Color.WHITE);
+  }
+  public static void renderRect(Point point, float width, float height, Color color){
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.rect(point.x(), point.y(), width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  public static void renderCircle(Point point, float radius){
+    renderCircle(point, radius, Color.WHITE);
+  }
+  public static void renderCircle(Point point, float radius, Color color){
+    point = point.translate(INV_OFFSET);
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.circle(point.x(), point.y(), radius, 30);
+    SHAPE_RENDERER.end();
+  }
+
+  public static void renderLine(Point point, Point other){
+    renderLine(point, other, Color.WHITE);
+  }
+  public static void renderLine(Point point, Point other, Color color){
+    point = point.translate(INV_OFFSET);
+    other = other.translate(INV_OFFSET);
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.line(point.x(), point.y(), other.x(), other.y());
+    SHAPE_RENDERER.end();
+  }
+
+  public static void renderArrow(Point point, Point other){
+    renderArrow(point, other, Color.WHITE);
+  }
+  public static void renderArrow(Point point, Point other, Color color){
+    //Arrow base
+    renderCircle(point, 0.1f, color);
+
+    //Arrow body
+    renderLine(point, other, color);
+
+    //Arrow head
+    Vector2 dir = point.vectorTo(other).normalize();
+    Vector2 rotated = dir.rotateDeg(90).scale(0.15f);
+    dir = dir.scale(-0.3f);
+
+    Point offset = other.translate(dir);
+    Point left = offset.translate(rotated);
+    Point right = offset.translate(rotated.scale(-1));
+
+    other = other.translate(INV_OFFSET);
+    left = left.translate(INV_OFFSET);
+    right = right.translate(INV_OFFSET);
+
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    SHAPE_RENDERER.setColor(color);
+    SHAPE_RENDERER.triangle(other.x(), other.y(), left.x(), left.y(), right.x(), right.y());
+    SHAPE_RENDERER.end();
+  }
+
 }
