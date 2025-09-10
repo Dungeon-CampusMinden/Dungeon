@@ -142,7 +142,7 @@ public final class HeroFactory {
     State stMove = new DirectionalState("move", animationMap, "run");
 
     State stDead;
-    if(animationMap.containsKey("die_down")){
+    if (animationMap.containsKey("die_down")) {
       stDead = new DirectionalState("dead", animationMap, "die");
     } else if (animationMap.containsKey("die")) {
       stDead = new State("dead", animationMap.get("die"));
