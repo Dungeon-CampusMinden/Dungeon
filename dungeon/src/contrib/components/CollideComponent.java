@@ -125,12 +125,9 @@ public final class CollideComponent implements Component {
    *
    * @param offset the offset of the hitbox relative to the entity's position; use {@link
    *     #DEFAULT_OFFSET} for the default offset
-   * @param size the size of the hitbox; use {@link #DEFAULT_SIZE} for the default size
-   *     handler
+   * @param size the size of the hitbox; use {@link #DEFAULT_SIZE} for the default size handler
    */
-  public CollideComponent(
-    final Vector2 offset,
-    final Vector2 size) {
+  public CollideComponent(final Vector2 offset, final Vector2 size) {
     this.offset = offset;
     this.size = size;
     this.collideEnter = DEFAULT_COLLIDER;
@@ -388,7 +385,8 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Check if the entity is stationary in collisions. Stationary entities will stay still when collided with. If this entity can move, this value should be set to false.
+   * Check if the entity is stationary in collisions. Stationary entities will stay still when
+   * collided with. If this entity can move, this value should be set to false.
    *
    * @return true if the entity is stationary, false otherwise
    */
@@ -397,7 +395,8 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Set the stationary state of the entity in collisions. Stationary entities will stay still when collided with. If this entity can move, this value should be set to false.
+   * Set the stationary state of the entity in collisions. Stationary entities will stay still when
+   * collided with. If this entity can move, this value should be set to false.
    *
    * @param isStationary true if the entity should be stationary, false otherwise
    * @return this component for chaining

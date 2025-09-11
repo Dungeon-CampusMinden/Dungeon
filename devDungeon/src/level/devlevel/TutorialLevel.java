@@ -1,7 +1,6 @@
 package level.devlevel;
 
 import com.badlogic.gdx.Input;
-import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InventoryComponent;
 import contrib.configuration.KeyboardConfig;
@@ -24,7 +23,6 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DepthLayer;
 import entities.DevDungeonMonster;

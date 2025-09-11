@@ -21,10 +21,10 @@ public class CollisionComponentTest {
   @Test
   public void onEnterNoMethod() {
     Entity e1 = new Entity();
-    CollideComponent hb1 = new CollideComponent(null, null);
+    CollideComponent hb1 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     e1.add(hb1);
     Entity e2 = new Entity();
-    CollideComponent hb2 = new CollideComponent(null, null);
+    CollideComponent hb2 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     e2.add(hb2);
     hb1.onEnter(e1, e2, Direction.UP);
   }
@@ -57,9 +57,9 @@ public class CollisionComponentTest {
   @Test
   public void onLeaveNoMethod() {
     Entity e1 = new Entity();
-    CollideComponent hb1 = new CollideComponent(null, null);
+    CollideComponent hb1 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     Entity e2 = new Entity();
-    CollideComponent hb2 = new CollideComponent(null, null);
+    CollideComponent hb2 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
 
     e1.add(hb1);
     e2.add(hb2);
@@ -96,7 +96,7 @@ public class CollisionComponentTest {
     SimpleCounter counterE1Enter = new SimpleCounter();
     CollideComponent hb1 = new CollideComponent((a, b, c) -> counterE1Enter.inc(), null);
     Entity e2 = new Entity();
-    CollideComponent hb2 = new CollideComponent(null, null);
+    CollideComponent hb2 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     e1.add(hb1);
     e2.add(hb2);
     hb1.collideEnter(null);
@@ -112,7 +112,7 @@ public class CollisionComponentTest {
     SimpleCounter newCounterE1Enter = new SimpleCounter();
     CollideComponent hb1 = new CollideComponent((a, b, c) -> counterE1Enter.inc(), null);
     Entity e2 = new Entity();
-    CollideComponent hb2 = new CollideComponent(null, null);
+    CollideComponent hb2 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     e1.add(hb1);
     e2.add(hb2);
     hb1.collideEnter((a, b, c) -> newCounterE1Enter.inc());
@@ -128,7 +128,7 @@ public class CollisionComponentTest {
     SimpleCounter counterE1Enter = new SimpleCounter();
     CollideComponent hb1 = new CollideComponent(null, (a, b, c) -> counterE1Enter.inc());
     Entity e2 = new Entity();
-    CollideComponent hb2 = new CollideComponent(null, null);
+    CollideComponent hb2 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     e1.add(hb1);
     e2.add(hb2);
     hb1.collideLeave(null);
@@ -144,7 +144,7 @@ public class CollisionComponentTest {
     SimpleCounter newCounterE1Leave = new SimpleCounter();
     CollideComponent hb1 = new CollideComponent(null, (a, b, c) -> counterE1Leave.inc());
     Entity e2 = new Entity();
-    CollideComponent hb2 = new CollideComponent(null, null);
+    CollideComponent hb2 = new CollideComponent(Vector2.ZERO, Vector2.ONE, null, null);
     e1.add(hb1);
     e2.add(hb2);
     hb1.collideLeave((a, b, c) -> newCounterE1Leave.inc());
