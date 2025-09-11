@@ -116,7 +116,7 @@ public final class HeroFactory {
    * @param isLocal if the hero is the local player
    * @return A new Entity.
    */
-  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback, boolean isLocal, String playerName) {
+  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback, final boolean isLocal, String playerName) {
     Entity hero = new Entity("hero_" + playerName);
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
@@ -160,24 +160,24 @@ public final class HeroFactory {
             characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
-    dc.tintColor(isLocal ? -1 : 0x000077); // tint remote heroes blue
+    dc.tintColor(isLocal ? -1 : 0x000077FF); // tint remote heroes blue
     HealthComponent hc =
         new HealthComponent(
             characterClass.hp(),
             entity -> {
-              if (!entity
-                  .fetch(PlayerComponent.class)
-                  .map(PlayerComponent::isLocalHero)
-                  .orElse(false)) return;
+              if (!Game.network().isServer() && !isLocal) return;
 
               // play sound
-              Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
-              long soundId = sound.play();
-              sound.setLooping(soundId, false);
-              sound.setVolume(soundId, 0.3f);
-              sound.setLooping(soundId, false);
-              sound.play();
-              sound.setVolume(soundId, 0.9f);
+              if (Gdx.audio != null) {
+                Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
+                long soundId = sound.play();
+                sound.setLooping(soundId, false);
+                sound.setVolume(soundId, 0.3f);
+                sound.setLooping(soundId, false);
+                sound.play();
+                sound.setVolume(soundId, 0.9f);
+              }
+
 
               // relink components for camera
               Entity cameraDummy = new Entity("heroCamera");
