@@ -6,7 +6,11 @@ import core.network.NetworkException;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.RequestEntitySpawn;
 import io.netty.channel.ChannelHandlerContext;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 
 /**
@@ -30,14 +34,25 @@ public interface INetworkHandler {
     throws NetworkException;
 
   /**
-   * Sends a {@link NetworkMessage} to the server (if client), dispatches locally (if single
-   * player) or if server, broadcasts to all clients.
-   *
+   * Sends a {@link NetworkMessage} to a specific client (if server) or to the server (if client).
+   * @param clientId The ID of the client to send the message to. Ignored if this is a client instance.
    * @param message The message to send.
+   * @param reliable True to send via a reliable channel, false for unreliable.
+   * @return A Future that completes with true if the message was sent successfully acknowledged (for reliable messages), or false otherwise. For unreliable messages, the Future completes immediately with true.
    */
-  void send(NetworkMessage message);
+  CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable);
 
-  /** Convenience overload that defaults to unreliable delivery (UDP-friendly). */
+  /**
+   * Sends a {@link NetworkMessage} to all connected clients (if server).
+   *
+   * <p>For client instances, this method is unsupported and will throw an {@link UnsupportedOperationException}.
+   *
+   * @param message The message to broadcast.
+   * @param reliable True to send via a reliable channel, false for unreliable.
+   */
+  void broadcast(NetworkMessage message, boolean reliable);
+
+  /** Sends an input message to the server (if client) via the unreliable channel. */
   void sendInput(InputMessage input);
 
   /** Starts the handler's processing loop (if applicable). */
@@ -139,4 +154,5 @@ public interface INetworkHandler {
    * {@link #_setRawMessageConsumer(BiConsumer)}.
    */
   default void pollAndDispatch() {}
+
 }

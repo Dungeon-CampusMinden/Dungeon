@@ -22,10 +22,13 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -107,24 +110,26 @@ public final class ServerTransport {
     return Optional.ofNullable(clientIdToName.get(clientId));
   }
 
-  public void sendUdpObject(InetSocketAddress target, Object obj) {
+  CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
     if (udpChannel == null || !udpChannel.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
-      return;
+      return CompletableFuture.completedFuture(false);
     }
     try {
       byte[] data = serialize(obj);
       if (data.length > SAFE_UDP_MTU) {
         LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length,
           target);
-        return;
+        return CompletableFuture.completedFuture(false);
       }
       udpChannel.writeAndFlush(new DatagramPacket(
           udpChannel.alloc().buffer(data.length).writeBytes(data), target))
         .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     } catch (Exception e) {
       LOGGER.warn("Failed to send UDP object to {}", target, e);
+      return CompletableFuture.completedFuture(false);
     }
+    return CompletableFuture.completedFuture(true);
   }
 
   // ---- internals ----
@@ -301,23 +306,32 @@ public final class ServerTransport {
     }
   }
 
-  void sendTcpObject(ChannelHandlerContext ctx, Object obj) {
-    try {
-      byte[] data = serialize(obj);
-      if (data.length > MAX_TCP_OBJECT_SIZE) {
-        LOGGER.warn("{} too large; not sending",
-          obj.getClass().getSimpleName());
-        return;
+  CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+        final CompletableFuture<Boolean> result = new CompletableFuture<>();
+        try {
+          byte[] data = serialize(obj);
+          if (data.length > MAX_TCP_OBJECT_SIZE) {
+            LOGGER.warn("{} too large; not sending", obj.getClass().getSimpleName());
+            result.complete(false);
+            return result;
+          }
+          ByteBuf buf = ctx.alloc().buffer(4 + data.length);
+          buf.writeInt(data.length);
+          buf.writeBytes(data);
+          ChannelFuture future = ctx.writeAndFlush(buf);
+          future.addListener((ChannelFutureListener) f -> {
+            if (!f.isSuccess()) {
+              LOGGER.warn("Failed to send TCP object {} to {}",
+                obj.getClass().getSimpleName(), ctx.channel(), f.cause());
+            }
+            result.complete(f.isSuccess());
+          });
+        } catch (IOException e) {
+          LOGGER.warn("Failed to send TCP object {}", obj.getClass().getSimpleName(), e);
+          result.complete(false);
+        }
+        return result;
       }
-      ByteBuf buf = ctx.alloc().buffer(4 + data.length);
-      buf.writeInt(data.length);
-      buf.writeBytes(data);
-      ctx.writeAndFlush(buf);
-    } catch (Exception e) {
-      LOGGER.warn("Failed to send TCP object {}", obj.getClass().getSimpleName(),
-        e);
-    }
-  }
 
   private boolean isValidPlayerName(String name) {
     return name != null && !name.isBlank() && !name.contains("_")
