@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import contrib.components.ManaComponent;
+import contrib.entities.HeroFactory;
 import contrib.systems.HealthBarSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.ManaBarSystem;
@@ -219,7 +220,9 @@ public final class GameLoop extends ScreenAdapter {
   private void setup() {
     doSetup = false;
     createSystems();
-    setupMessageHandlers();
+    if (PreRunConfiguration.multiplayerEnabled()) {
+      setupMessageHandlers();
+    }
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
     Game.systems().get(LevelSystem.class).execute();
@@ -252,6 +255,19 @@ public final class GameLoop extends ScreenAdapter {
           newEntity.add(event.drawComponent());
           Game.add(newEntity);
         });
+    dispatcher.registerHandler(
+      HeroSpawnEvent.class,
+      (ctx, event) -> {
+        LOGGER.info("Received HeroSpawnEvent event: " + event.entityId());
+
+        Game.hero().ifPresentOrElse(
+          (hero) -> LOGGER.warn("Hero already exists, cannot spawn another!"),
+          () -> {
+            Entity hero = HeroFactory.newHero(event.entityId(), HeroFactory.DEFAULT_HERO_CLASS, true, PreRunConfiguration.username());
+            Game.add(hero);
+          });
+      }
+    );
 
     dispatcher.registerHandler(
         EntityDespawnEvent.class,

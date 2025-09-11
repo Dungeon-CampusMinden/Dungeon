@@ -101,17 +101,13 @@ public class DevDungeon {
   }
 
   private static void createHero() throws IOException {
-    //TODO: Only testing, revert later
-    Entity hero = HeroFactory.newHero(false);
+    Entity hero = HeroFactory.newHero();
     hero.fetch(SkillComponent.class)
         .ifPresent(
             sc -> {
               sc.removeAll();
               sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint));
             });
-    Game.add(hero);
-    hero = HeroFactory.newHero(true);
-    // hero.fetch(InputComponent.class).ifPresent(InputComponent::removeCallbacks);
     Game.add(hero);
   }
 

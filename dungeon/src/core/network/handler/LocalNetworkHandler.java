@@ -19,6 +19,8 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +48,14 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void send(NetworkMessage message) {
-    // No-op in local mode
+  public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
+      // No op
+      return CompletableFuture.completedFuture(true);
+    }
+
+  @Override
+  public void broadcast(NetworkMessage message, boolean reliable) {
+    // No op
   }
 
   @Override

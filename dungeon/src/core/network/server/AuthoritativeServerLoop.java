@@ -12,25 +12,23 @@ import core.game.ECSManagment;
 import core.game.ECSTickRunner;
 import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
+import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.GameOverEvent;
+import core.network.messages.s2c.HeroSpawnEvent;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
+import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import java.io.IOException;
+
 import java.net.InetSocketAddress;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import org.slf4j.Logger;
@@ -156,7 +154,7 @@ public final class AuthoritativeServerLoop {
     broadcast(new LevelChangeEvent(levelName, null), true);
   }
 
-  public void broadcast(NetworkMessage event, boolean reliable) {
+  void broadcast(NetworkMessage event, boolean reliable) {
     if (reliable) {
       for (Map.Entry<ChannelId, ChannelHandlerContext> e : net.tcpChannels().entrySet()) {
         net.sendTcpObject(e.getValue(), event);
@@ -168,11 +166,21 @@ public final class AuthoritativeServerLoop {
     }
   }
 
-  public void sendToClient(int clientId, NetworkMessage event) {
-    InetSocketAddress addr = net.udpClients().get(clientId);
-    if (addr != null) {
-      net.sendUdpObject(addr, event);
+  CompletableFuture<Boolean> sendToClient(int clientId, NetworkMessage event, boolean reliable) {
+    if (reliable) {
+      return net.tcpClientMap().entrySet().stream()
+          .filter(e -> e.getValue() == clientId)
+          .map(e -> net.tcpChannels().get(e.getKey()))
+          .findFirst()
+          .map(ctx -> net.sendTcpObject(ctx, event))
+          .orElse(CompletableFuture.completedFuture(false));
+    } else {
+      InetSocketAddress addr = net.udpClients().get(clientId);
+      if (addr != null) {
+        return net.sendUdpObject(addr, event);
+      }
     }
+    return null;
   }
 
   private void syncClientsToEntities() {
@@ -191,16 +199,18 @@ public final class AuthoritativeServerLoop {
   }
 
   private Entity spawnHeroForClient(Integer clientId) {
-    try {
-      String name = net.clientName(clientId).orElse("Player_" + clientId);
-      Entity hero = HeroFactory.newHero(true, name);
-      hero.fetch(PositionComponent.class)
-        .ifPresent(pc -> pc.position(Game.startTile().get()));
-      Game.add(hero);
-      return hero;
-    } catch (IOException e) {
-      LOGGER.error("Failed to spawn hero for client {}", clientId, e);
-      return null;
-    }
+    String name = net.clientName(clientId).orElse("Player_" + clientId);
+    Entity hero = HeroFactory.newHero(true, name);
+    hero.fetch(PositionComponent.class)
+      .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
+    // Add the hero to the game, after the client knows the id.
+    Game.network().send(clientId, new HeroSpawnEvent(hero.id()), true).thenAccept(success -> {
+      if (success) {
+        Game.add(hero);
+      } else {
+        LOGGER.warn("Failed to send HeroSpawnEvent to client {}, not adding hero to game", clientId);
+      }
+    });
+    return hero;
   }
 }
