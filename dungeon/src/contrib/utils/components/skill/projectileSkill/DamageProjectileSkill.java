@@ -2,17 +2,13 @@ package contrib.utils.components.skill.projectileSkill;
 
 import contrib.components.HealthComponent;
 import contrib.components.ProjectileComponent;
-import contrib.components.WallHitStateComponent;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.utils.*;
 import core.utils.components.path.IPath;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -251,85 +247,9 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   /**
    * Sets a new endpoint to aim for.
    *
-   * @param endPoint point to aim for.
+   * @param endPointSupplier a new supplier that provides the point to aim for.
    */
-  public void setNewEndpoint(Point endPoint) {
-    this.endPointSupplier = () -> endPoint;
-  }
-
-  /**
-   * Checks whether the caster's {@link VelocityComponent} has {@code canEnterWalls} set to {@code
-   * true}. If so, the projectile is allowed to ignore the first wall hit and continue flying
-   * through it.
-   *
-   * <p>When this method is used, the remaining logic that would normally reside in {@code
-   * onWallHit} should instead be implemented in {@code handleWallCollisionAfterFirstHit}.
-   *
-   * @param caster the entity that created or cast the projectile
-   * @return a {@link Consumer} that handles wall collisions; the projectile entity is passed to the
-   *     consumer
-   */
-  protected Consumer<Entity> handleDamageProjectileWallHit(Entity caster) {
-    return projectile -> {
-      projectile
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              vel -> {
-                VelocityComponent casterVC = caster.fetch(VelocityComponent.class).orElse(null);
-
-                if (casterVC != null && casterVC.canEnterWalls()) {
-                  WallHitStateComponent state =
-                      projectile
-                          .fetch(WallHitStateComponent.class)
-                          .orElseGet(
-                              () -> {
-                                WallHitStateComponent newState = new WallHitStateComponent();
-                                projectile.add(newState);
-                                return newState;
-                              });
-
-                  if (!state.firstWallHitIgnored()) {
-                    // ignore the first wall hit
-                    state.markFirstWallHitIgnored();
-
-                    // push the projectile forward
-                    projectile
-                        .fetch(PositionComponent.class)
-                        .ifPresent(
-                            pos -> {
-                              Vector2 velocity = vel.currentVelocity();
-
-                              float length =
-                                  (float)
-                                      Math.sqrt(
-                                          velocity.x() * velocity.x()
-                                              + velocity.y() * velocity.y());
-                              if (length > 0) {
-                                float offset = 0.4f;
-                                Vector2 push =
-                                    Vector2.of(
-                                        (velocity.x() / length) * offset,
-                                        (velocity.y() / length) * offset);
-
-                                pos.position(pos.position().translate(push));
-                              }
-                            });
-
-                    return;
-                  }
-                }
-
-                handleWallCollisionAfterFirst(projectile);
-              });
-    };
-  }
-
-  /**
-   * Handles a projectile after colliding with a wall.
-   *
-   * @param projectile the projectile that hit the wall.
-   */
-  protected void handleWallCollisionAfterFirst(Entity projectile) {
-    Game.remove(projectile);
+  public void setNewEndpoint(Supplier<Point> endPointSupplier) {
+    this.endPointSupplier = endPointSupplier;
   }
 }

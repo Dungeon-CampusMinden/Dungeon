@@ -53,7 +53,7 @@ public final class StationarySentryAttack implements Consumer<Entity>, ISkillUse
     Point targetEndPoint =
         SkillTools.calculateLastPointInDirection(
             this.spawnPoint, this.shootDirection, this.attackRange);
-    this.fightSkill.setNewEndpoint(targetEndPoint.toCenteredPoint());
+    this.fightSkill.setNewEndpoint(() -> targetEndPoint.toCenteredPoint());
   }
 
   @Override

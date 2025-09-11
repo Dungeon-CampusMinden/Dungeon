@@ -82,18 +82,17 @@ public final class LevelUtils {
     Tile toTile = Game.tileAt(to).orElse(null);
 
     if (fromTile == null || toTile == null) {
-      return path; // leer zurückgeben, falls Koordinaten ungültig
+      return path;
     }
 
-    // Start-Koordinate
     Coordinate current = new Coordinate(from);
 
     while (!current.equals(to)) {
       Tile currentTile = Game.tileAt(current).orElse(null);
-      if (currentTile == null) break; // Sicherheitscheck
+      if (currentTile == null) break;
       path.add(currentTile);
 
-      // Schritt in Richtung Ziel
+      // one step towards the end coordinate
       if (current.x() < to.x()) {
         current = new Coordinate(current.x() + 1, current.y());
       } else if (current.x() > to.x()) {
@@ -105,7 +104,6 @@ public final class LevelUtils {
       }
     }
 
-    // Ziel-Tile auch noch hinzufügen
     path.add(toTile);
 
     return path;
