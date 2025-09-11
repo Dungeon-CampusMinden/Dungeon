@@ -6,6 +6,8 @@ import core.network.messages.NetworkMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
+
 public final class ServerRuntime {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerRuntime.class);
 
@@ -41,11 +43,12 @@ public final class ServerRuntime {
     }
   }
 
-  public void sendMessage(NetworkMessage message, int clientId) {
+  public CompletableFuture<Boolean> sendMessage(int clientId, NetworkMessage message, boolean reliable) {
     if (loop != null) {
-      this.loop.sendToClient(clientId, message);
+      return this.loop.sendToClient(clientId, message, reliable);
     } else {
       LOGGER.warn("Server loop not initialized, cannot send message to client {}", clientId);
+      return CompletableFuture.completedFuture(false);
     }
   }
 }

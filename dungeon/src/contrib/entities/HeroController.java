@@ -89,6 +89,7 @@ public class HeroController {
         skill -> {
           if (skill instanceof CursorSkill cursorSkill) {
             cursorSkill.executeOnCursor(hero, target);
+            // TODO: Skips resource and cooldown handling for now
           } else if (skill instanceof ProjectileSkill projSkill) {
             projSkill.endPointSupplier(() -> target);
             projSkill.execute(hero);
