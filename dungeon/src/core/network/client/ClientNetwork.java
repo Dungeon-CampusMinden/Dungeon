@@ -211,26 +211,39 @@ public final class ClientNetwork {
    * it exceeds the configured TCP object size.
    *
    * @param msg message to send
+   * @return CompletableFuture that completes with true if the message was sent, false if
+   *        serialization failed or the message was dropped
    */
-  public void sendReliable(NetworkMessage msg) {
+  public CompletableFuture<Boolean> sendReliable(NetworkMessage msg) {
+    final CompletableFuture<Boolean> result = new CompletableFuture<>();
     if (!running.get() || !isConnected() || tcp == null || !tcp.isActive()) {
       LOGGER.warn("TCP not active; cannot send reliable message");
-      return;
+      result.complete(false);
+      return result;
     }
     try {
       byte[] data = serialize(msg);
       if (data.length > MAX_TCP_OBJECT_SIZE) {
         LOGGER.warn(
           "Dropping TCP message; too large ({} B) > {}", data.length, MAX_TCP_OBJECT_SIZE);
-        return;
+        result.complete(false);
+        return result;
       }
       ByteBuf buf = tcp.alloc().buffer(4 + data.length);
       buf.writeInt(data.length);
       buf.writeBytes(data);
-      tcp.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      ChannelFuture future = tcp.writeAndFlush(buf);
+      future.addListener((ChannelFuture f) -> {
+        if (!f.isSuccess()) {
+          LOGGER.warn("Failed to send TCP message", f.cause());
+        }
+        result.complete(f.isSuccess());
+      });
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize TCP message", e);
+      result.complete(false);
     }
+    return result;
   }
 
   /**

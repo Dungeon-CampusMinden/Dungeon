@@ -9,6 +9,7 @@ import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
+import core.game.WindowEventManager;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
@@ -86,18 +87,16 @@ public final class Game {
       LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
     }
 
+    WindowEventManager.registerCloseRequestListener(() -> {
+      exit("Game closed");
+      return true;
+    });
+
     // Start the main game loop
-    if (!PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() ||
+      !PreRunConfiguration.isNetworkServer()) {
       GameLoop.run();
     }
-
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  LOGGER.info("Stopping server...");
-                  networkHandler.shutdown();
-                }));
   }
 
   /**

@@ -39,17 +39,6 @@ public final class DevClient {
     Game.frameRate(30);
     Game.windowTitle("Dev Client");
 
-    // Spawn a local playable hero on setup
-    Game.userOnSetup(
-        () -> {
-          try {
-            Game.add(HeroFactory.newHero());
-            System.out.println("Hero Name: " + Game.hero().get().name());
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
-
     // Start the game
     Game.run();
   }

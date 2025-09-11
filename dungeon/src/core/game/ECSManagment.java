@@ -91,17 +91,19 @@ public final class ECSManagment {
     LOGGER.info(entity + " will be added to the Game.");
 
     if (Game.network().isServer()) {
-      Game.network()
-          .send(
-              new EntitySpawnEvent(
-                  entity.id(),
-                  entity
-                      .fetch(PositionComponent.class)
-                      .orElseThrow(),
-                  entity
-                      .fetch(DrawComponent.class)
-                      .orElseThrow()
-              ));
+      Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
+      Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
+
+      if (pc.isPresent()
+          && dc.isPresent()) {
+        Game.network()
+          .broadcast(
+            new EntitySpawnEvent(
+              entity.id(),
+              pc.get(),
+              dc.get()
+            ), true);
+      }
     }
 
     return entity;
@@ -121,7 +123,8 @@ public final class ECSManagment {
     LOGGER.info(entity + " will be removed from the Game.");
 
     if (Game.network().isServer()) {
-      Game.network().send(new EntityDespawnEvent(entity.id(), "Entity removed from game"));
+      Game.network().broadcast(new EntityDespawnEvent(entity.id(),
+        "Entity removed from game"), true);
     }
 
     return entity;
