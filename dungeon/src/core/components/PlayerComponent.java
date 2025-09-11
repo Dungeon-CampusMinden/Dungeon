@@ -1,19 +1,21 @@
 package core.components;
 
+import com.badlogic.gdx.Input;
 import core.Component;
+import core.systems.InputSystem;
 
 /**
- * Marker component for the player entity.
+ * Marks an entity as playable by the player.
  *
  * <p>This component keeps track of the number of open dialogs in the game. It provides methods to
  * increment and decrement the dialog counter, as well as a method to check if any dialogs are
  * currently open.
  *
- * <p>This component is used to identify the player entity in the game. It contains information
- * about whether the player is the local hero and manages the count of open dialogs.
+ *  <p>This component is used to identify the player entity in the game. It contains information
+ *  about whether the player is the local hero and manages the count of open dialogs.
  *
  * @see Input.Keys
- * @see core.systems.PlayerSystem
+ * @see InputSystem
  */
 public final class PlayerComponent implements Component {
 
