@@ -339,7 +339,7 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Get the solid state of the hitbox.
+   * Get the solid state of the hitbox. Solid entities will not be able to pass through each other.
    *
    * @return true if the hitbox is solid, false otherwise
    */
@@ -348,7 +348,7 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Set the solid state of the hitbox.
+   * Set the solid state of the hitbox. Solid entities will not be able to pass through each other.
    *
    * @param isSolid true if the hitbox should be solid, false otherwise
    * @return this component for chaining
@@ -359,7 +359,7 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Check if the entity is stationary in collisions.
+   * Check if the entity is stationary in collisions. Stationary entities will stay still when collided with. If this entity can move, this value should be set to false.
    *
    * @return true if the entity is stationary, false otherwise
    */
@@ -368,7 +368,7 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Set the stationary state of the entity in collisions.
+   * Set the stationary state of the entity in collisions. Stationary entities will stay still when collided with. If this entity can move, this value should be set to false.
    *
    * @param isStationary true if the entity should be stationary, false otherwise
    * @return this component for chaining

@@ -205,12 +205,25 @@ public final class CollisionSystem extends System {
     Point c2Pos = b.bottomLeft(eb);
     Vector2 c2Size = b.size();
 
-    float dx = (c1Pos.x() + c1Size.x() / 2f) - (c2Pos.x() + c2Size.x() / 2f);
-    float dy = (c1Pos.y() + c1Size.y() / 2f) - (c2Pos.y() + c2Size.y() / 2f);
+    float c1CenterX = c1Pos.x() + c1Size.x() / 2f;
+    float c1CenterY = c1Pos.y() + c1Size.y() / 2f;
+    float c2CenterX = c2Pos.x() + c2Size.x() / 2f;
+    float c2CenterY = c2Pos.y() + c2Size.y() / 2f;
 
-    float overlapX = (c1Size.x() / 2f + c2Size.x() / 2f) - Math.abs(dx);
-    float overlapY = (c1Size.y() / 2f + c2Size.y() / 2f) - Math.abs(dy);
+    // Take the distance between the center of both hitboxes in both X and Y direction
+    float dx = c1CenterX - c2CenterX;
+    float dy = c1CenterY - c2CenterY;
 
+    // Sum of the half widths and half heights = distance between the entities' centers if they are flush with each other
+    float halfXWidths = c1Size.x() / 2f + c2Size.x() / 2f;
+    float halfYHeights = c1Size.y() / 2f + c2Size.y() / 2f;
+
+    // To get the overlap, we subtract the actual distance between the centers. If the entities are overlapping, this will be a positive number
+    float overlapX = halfXWidths - Math.abs(dx);
+    float overlapY = halfYHeights - Math.abs(dy);
+
+    // Check which overlap is bigger to determine the axis of collision, then determine the
+    // direction by checking which side the first hitbox is on
     if (overlapX < overlapY) {
       return dx > 0 ? Direction.LEFT : Direction.RIGHT;
     } else {
@@ -240,7 +253,6 @@ public final class CollisionSystem extends System {
     }
 
     Point newPos = newColliderPos.translate(b.offset().inverse());
-    //    Point newPos = newColliderPos;
 
     eb.fetch(PositionComponent.class)
         .ifPresent(
