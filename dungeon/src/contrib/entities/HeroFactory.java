@@ -214,10 +214,6 @@ public final class HeroFactory {
                           }
                         }),
             CollideComponent.DEFAULT_COLLIDER);
-    col.onHold(
-        (you, other, direction) -> {
-          if (other.isPresent(KineticComponent.class)) resolveCollisionWithMomentum(hero, other);
-        });
     hero.add(col);
 
     InputComponent inputComp = new InputComponent();
