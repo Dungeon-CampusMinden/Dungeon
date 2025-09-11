@@ -76,7 +76,7 @@ public class HealTarget extends CursorSkill {
    * @param point The cursor position in the game world where the skill is applied.
    */
   @Override
-  public void executeOnCursor(Entity caster, Point point) {
+  protected void executeOnCursor(Entity caster, Point point) {
     Game.entityAtPoint(point).findFirst().ifPresent(this::heal);
   }
 }
