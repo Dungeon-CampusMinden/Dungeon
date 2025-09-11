@@ -9,6 +9,8 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ServerRuntime;
 import io.netty.channel.ChannelHandlerContext;
+
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,24 @@ public final class NettyNetworkHandler implements INetworkHandler {
     if (!serverMode) {
       client.initialize(serverAddress, port, username);
       if (translator != null) client.setSnapshotTranslator(translator);
+    }
+  }
+
+  @Override
+  public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
+    if (serverMode) {
+      return server.sendMessage(clientId, message, reliable);
+    }
+    else return client.sendReliable(message);
+  }
+
+  @Override
+  public void broadcast(NetworkMessage message, boolean reliable) {
+    if (serverMode) {
+      server.broadcastMessage(message, reliable);
+    } else {
+      throw new UnsupportedOperationException(
+        "Broadcast is not supported in client mode.");
     }
   }
 
@@ -104,11 +124,6 @@ public final class NettyNetworkHandler implements INetworkHandler {
     if (!serverMode) client.setSnapshotTranslator(translator);
   }
 
-  @Override
-  public void send(NetworkMessage message) {
-    if (serverMode) server.broadcastMessage(message, true);
-    else client.sendReliable(message);
-  }
 
   @Override
   public void sendInput(InputMessage input) {

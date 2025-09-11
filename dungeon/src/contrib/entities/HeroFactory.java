@@ -19,17 +19,14 @@ import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InputMessage.Action;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-import java.io.IOException;
+
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -39,7 +36,8 @@ public final class HeroFactory {
   /** The default Hero class, used if no other class is specified. */
   public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
 
-  private static Consumer<Entity> DEFAULT_DEATH =
+  /** The death callback, which shows a "You died!" popup and resets the hero. */
+  public static Consumer<Entity> DEATH_CALLBACK =
       (hero) ->
           DialogUtils.showTextPopup(
               "You died!",
@@ -76,7 +74,7 @@ public final class HeroFactory {
    * @param deathCallback Callback that will be executed on the hero's death.
    */
   public static void heroDeath(Consumer<Entity> deathCallback) {
-    DEFAULT_DEATH = deathCallback;
+    DEATH_CALLBACK = deathCallback;
   }
 
   /**
@@ -89,14 +87,66 @@ public final class HeroFactory {
    * CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero() throws IOException {
-    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH, true, PreRunConfiguration.username());
+  public static Entity newHero(){
+    return newHero(DEFAULT_HERO_CLASS);
   }
 
-  public static Entity newHero(boolean isLocal, String playerName) throws IOException {
-    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH, isLocal, playerName);
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}{, {@link PlayerComponent},
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
+   *
+   * @param characterClass Class of the hero
+   * @return A new Entity.
+   */
+  public static Entity newHero(CharacterClass characterClass){
+    return newHero(characterClass, true, PreRunConfiguration.username());
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   *  <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   *   {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   *    CollideComponent} and {@link HealthComponent}.
+   *
+   *    <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   *    Otherwise, it will be controlled by the server.
+   *
+   * @param characterClass Class of the hero
+   * @param isLocal if the hero is the local player
+   * @param playerName name of the player (used for multiplayer)
+   * @return A new Entity.
+   */
+  public static Entity newHero(CharacterClass characterClass, boolean isLocal, String playerName){
+    return newHero(EntityIdProvider.nextId(), characterClass, isLocal, playerName);
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   *  <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   *   {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   *    CollideComponent} and {@link HealthComponent}.
+   *
+   *    <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   *    Otherwise, it will be controlled by the server.
+   *
+   * @param isLocal if the hero is the local player
+   * @param playerName name of the player (used for multiplayer)
+   * @return A new Entity.
+   */
+  public static Entity newHero(boolean isLocal, String playerName){
+    return newHero(EntityIdProvider.nextId(), DEFAULT_HERO_CLASS, isLocal, playerName);
   }
 
   /**
@@ -111,13 +161,14 @@ public final class HeroFactory {
    * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
    * Otherwise, it will be controlled by the server.
    *
+   * @param id The unique ID for the hero entity.
    * @param characterClass Class of the hero.
-   * @param deathCallback function that will be executed if the hero dies
    * @param isLocal if the hero is the local player
+   * @param playerName name of the player (used for multiplayer)
    * @return A new Entity.
    */
-  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback, final boolean isLocal, String playerName) {
-    Entity hero = new Entity("hero_" + playerName);
+  public static Entity newHero(final int id, CharacterClass characterClass, final boolean isLocal, String playerName) {
+    Entity hero = new Entity(id, "hero_" + playerName);
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
@@ -191,7 +242,7 @@ public final class HeroFactory {
               cameraDummy.add(poc);
               Game.add(cameraDummy);
 
-              deathCallback.accept(entity);
+              DEATH_CALLBACK.accept(entity);
             });
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
@@ -407,7 +458,6 @@ public final class HeroFactory {
   }
 
   private static void executeHeroSkill(Entity hero) {
-    // TODO: Implement logic to control skill_ids
     Game.network()
         .sendInput(new InputMessage(Action.CAST_SKILL, SkillTools.cursorPositionAsPoint()));
   }
@@ -480,4 +530,5 @@ public final class HeroFactory {
     vc1.applyForce("Collision", newVelocity.scale(-1));
     vc2.applyForce("Collision", newVelocity);
   }
+
 }
