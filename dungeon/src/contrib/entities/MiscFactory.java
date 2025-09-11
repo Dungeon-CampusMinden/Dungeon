@@ -164,6 +164,8 @@ public final class MiscFactory {
     chest.add(ic);
     item.forEach(ic::add);
 
+    chest.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1,1)));
+
     Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(new SimpleIPath("objects/treasurechest"));
     State stClosed = State.fromMap(animationMap, "closed");
@@ -311,6 +313,8 @@ public final class MiscFactory {
                           component.onClose(craftingGUI::cancel);
                           who.add(component);
                         })));
+    cauldron.add(
+      new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)).isStationary(true));
     return cauldron;
   }
 
@@ -363,7 +367,7 @@ public final class MiscFactory {
     crate.add(new PositionComponent(position));
     crate.add(new VelocityComponent(10, mass, entity -> {}, false));
     crate.add(new DrawComponent(new Animation(texture)));
-    crate.add(new CollideComponent(Vector2.of(0.5f, 0.5f), Vector2.of(1,1), null, null).isStationary(false));
+    crate.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1,1)).isStationary(false));
     return crate;
   }
 
@@ -626,6 +630,8 @@ public final class MiscFactory {
               // Original behavior will be wrapped below
             });
     destroyableObj.add(baseIC);
+
+    destroyableObj.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1,1)));
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
     State stIdle = State.fromMap(animationMap, "idle");
