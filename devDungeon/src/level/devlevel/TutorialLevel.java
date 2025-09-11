@@ -95,8 +95,6 @@ public class TutorialLevel extends DevDungeonLevel {
     setupChest(chest, chest2);
     Entity cauldron = MiscFactory.newCraftingCauldron();
     cauldron.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Player.depth());
-    cauldron.add(
-        new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1), null, null).isStationary(true));
     setupCauldron(cauldron);
   }
 
