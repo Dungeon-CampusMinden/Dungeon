@@ -214,11 +214,13 @@ public final class CollisionSystem extends System {
     float dx = c1CenterX - c2CenterX;
     float dy = c1CenterY - c2CenterY;
 
-    // Sum of the half widths and half heights = distance between the entities' centers if they are flush with each other
+    // Sum of the half widths and half heights = distance between the entities' centers if they are
+    // flush with each other
     float halfXWidths = c1Size.x() / 2f + c2Size.x() / 2f;
     float halfYHeights = c1Size.y() / 2f + c2Size.y() / 2f;
 
-    // To get the overlap, we subtract the actual distance between the centers. If the entities are overlapping, this will be a positive number
+    // To get the overlap, we subtract the actual distance between the centers. If the entities are
+    // overlapping, this will be a positive number
     float overlapX = halfXWidths - Math.abs(dx);
     float overlapY = halfYHeights - Math.abs(dy);
 

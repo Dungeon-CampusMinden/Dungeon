@@ -11,7 +11,6 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
@@ -215,7 +214,8 @@ public class LeverFactory {
               .ifPresent(vc -> pressurePlateComponent.decrease(vc.mass()));
         };
 
-    pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false).isStationary(false));
+    pressurePlate.add(
+        new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false).isStationary(false));
     return pressurePlate;
   }
 
