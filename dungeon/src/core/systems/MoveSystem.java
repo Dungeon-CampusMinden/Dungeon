@@ -136,6 +136,34 @@ public class MoveSystem extends System {
         }
 
         data.pc.position(yMove);
+      } else {
+        // Neither is accessible. Figure out which corner the player is running into, then move them
+        // into that corner
+        boolean movingRight = sv.x() > 0;
+        boolean movingUp = sv.y() > 0;
+
+        float newX, newY;
+        if (movingRight) {
+          newX =
+              (float) Math.ceil(oldPos.x() + offset.x() + size.x())
+                  - size.x()
+                  - offset.x()
+                  - FLUSH_OFFSET;
+        } else {
+          newX = (float) Math.floor(oldPos.x() + offset.x()) - offset.x();
+        }
+
+        if (movingUp) {
+          newY =
+              (float) Math.ceil(oldPos.y() + offset.y() + size.y())
+                  - size.y()
+                  - offset.y()
+                  - FLUSH_OFFSET;
+        } else {
+          newY = (float) Math.floor(oldPos.y() + offset.y()) - offset.y();
+        }
+
+        data.pc.position(new Point(newX, newY));
       }
 
       // Notify entity that it hit a wall
