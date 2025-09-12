@@ -278,9 +278,9 @@ public class BlocklyCommands {
 
     // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    toMove.add(hero);
-    BlocklyCommands.move(moveDirection, toMove.toArray(Entity[]::new));
-    toMove.remove(hero);
+    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 , this
+    // will make the hero move AFTER everyone else.
+    BlocklyCommands.turnEntity(hero, viewDirection);
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, viewDirection);
