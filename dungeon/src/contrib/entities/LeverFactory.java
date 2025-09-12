@@ -189,7 +189,7 @@ public class LeverFactory {
     StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
     sm.addTransition(stOff, "on", stOn);
     sm.addTransition(stOn, "off", stOff);
-    DrawComponent dc = new DrawComponent(sm, DepthLayer.GROUND);
+    DrawComponent dc = new DrawComponent(sm, DepthLayer.Ground);
     pressurePlate.add(dc);
 
     LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);
