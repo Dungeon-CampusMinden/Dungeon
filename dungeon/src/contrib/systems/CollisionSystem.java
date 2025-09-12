@@ -138,34 +138,26 @@ public final class CollisionSystem extends System {
   }
 
   private void checkSolidCollision(CollisionData cdata, Direction d) {
-    if (cdata.a.isStationary() && cdata.b.isStationary()) {
+    VelocityComponent vca = cdata.ea.fetch(VelocityComponent.class).orElse(null);
+    boolean aStationary = vca == null || vca.maxSpeed() == 0f;
+    VelocityComponent vcb = cdata.eb.fetch(VelocityComponent.class).orElse(null);
+    boolean bStationary = vcb == null || vcb.maxSpeed() == 0f;
+
+    if (aStationary && bStationary) {
       LOGGER.warning(
           "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
-    } else if (cdata.a.isStationary()) {
+    } else if (aStationary){
       solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
-    } else if (cdata.b.isStationary()) {
+    } else if (bStationary){
       solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
     } else {
-      // Two non-stationary solids collide.
-      cdata
-          .ea
-          .fetch(VelocityComponent.class)
-          .ifPresent(
-              v1 -> {
-                cdata
-                    .eb
-                    .fetch(VelocityComponent.class)
-                    .ifPresent(
-                        v2 -> {
-                          // Determine which entity moves based on their weight. The heavier entity
-                          // moves the lighter one.
-                          if (v1.mass() >= v2.mass()) {
-                            solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
-                          } else {
-                            solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
-                          }
-                        });
-              });
+      // Determine which entity moves based on their weight. The heavier entity
+      // moves the lighter one.
+      if (vca.mass() >= vcb.mass()) {
+        solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
+      } else {
+        solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
+      }
     }
   }
 
