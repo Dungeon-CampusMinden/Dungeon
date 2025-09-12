@@ -121,7 +121,6 @@ public abstract class ProjectileSkill extends Skill {
             onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
-    cc.isStationary(false);
     projectile.add(cc);
 
     Game.add(projectile);
