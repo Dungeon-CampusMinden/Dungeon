@@ -12,6 +12,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
@@ -188,7 +189,7 @@ public class LeverFactory {
     StateMachine sm = new StateMachine(Arrays.asList(stOff, stOn));
     sm.addTransition(stOff, "on", stOn);
     sm.addTransition(stOn, "off", stOff);
-    DrawComponent dc = new DrawComponent(sm);
+    DrawComponent dc = new DrawComponent(sm, DepthLayer.GROUND);
     pressurePlate.add(dc);
 
     LeverComponent leverComponent = new LeverComponent(false, ICommand.NOOP);

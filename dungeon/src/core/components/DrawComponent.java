@@ -154,6 +154,17 @@ public final class DrawComponent implements Component {
   }
 
   /**
+   * Create a new DrawComponent directly from a {@link StateMachine} with the given depth layer.
+   *
+   * @param stateMachine The state machine to use for this component.
+   * @param depthLayer The depth layer where the textures will be drawn.
+   */
+  public DrawComponent(StateMachine stateMachine, DepthLayer depthLayer) {
+    this(stateMachine);
+    this.depth = depthLayer.depth();
+  }
+
+  /**
    * Send a {@link Signal} with associated data to the {@link StateMachine}.
    *
    * @param signal The signal name.

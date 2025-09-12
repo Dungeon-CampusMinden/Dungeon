@@ -21,6 +21,9 @@ public enum DepthLayer {
   /** Decorative elements drawn behind the main play area. */
   BackgroundDeco(-100),
 
+  /** For entities that other entities can stand on (e.g. pressure plates) */
+  GROUND(-10),
+
   /** Default layer for most objects. */
   Normal(0),
 
