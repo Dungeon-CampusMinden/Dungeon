@@ -28,7 +28,9 @@ import java.util.logging.Logger;
  */
 public final class VelocitySystem extends System {
 
-  private static final double EPSILON_ANIMATION = 0.2;
+  private static final double EPSILON = 1e-6f;
+  ;
+  private static final double THRESHOLD_VELOCITY = 0.2;
 
   private static final Logger LOGGER = Logger.getLogger(VelocitySystem.class.getName());
 
@@ -68,7 +70,7 @@ public final class VelocitySystem extends System {
     Vector2 acceleration = sumForces.scale(1.0 / mass);
 
     Vector2 newVelocity = vsd.vc.currentVelocity().add(acceleration);
-    if (newVelocity.isZero()) newVelocity = Vector2.ZERO;
+    if (newVelocity.length() < THRESHOLD_VELOCITY) newVelocity = Vector2.ZERO;
 
     vsd.vc.currentVelocity(newVelocity);
     vsd.vc.clearForces();
@@ -88,7 +90,7 @@ public final class VelocitySystem extends System {
     float x = vsd.vc.currentVelocity().x();
     float y = vsd.vc.currentVelocity().y();
 
-    if (Math.abs(x) > EPSILON_ANIMATION || Math.abs(y) > EPSILON_ANIMATION) {
+    if (Math.abs(x) > EPSILON || Math.abs(y) > EPSILON) {
       Direction newDirection = Direction.NONE;
       // Use the velocity axis with the greatest magnitude for animation direction
       if (Math.abs(x) >= Math.abs(y)) {
