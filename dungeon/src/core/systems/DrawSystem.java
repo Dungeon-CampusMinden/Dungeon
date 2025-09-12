@@ -1,5 +1,6 @@
 package core.systems;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import contrib.utils.EntityUtils;
@@ -20,6 +21,7 @@ import core.utils.components.draw.PainterConfig;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This system draws the entities on the screen.
@@ -48,7 +50,7 @@ public final class DrawSystem extends System {
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = new SpriteBatch();
+  private static final SpriteBatch BATCH = Gdx.gl == null ? null : new SpriteBatch();
 
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
@@ -131,6 +133,17 @@ public final class DrawSystem extends System {
    */
   @Override
   public void execute() {
+    Stream<DSData> dataStream = sortedEntities.values().stream()
+      .flatMap(
+        list ->
+          list.stream().sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
+      .filter(this::shouldDraw)
+      .peek(data -> data.dc.update());
+
+    if (Gdx.gl == null) {
+      return;
+    }
+
     BATCH.begin();
 
     Game.currentLevel().ifPresent(this::drawLevel);
@@ -189,7 +202,6 @@ public final class DrawSystem extends System {
   }
 
   private void draw(final DSData dsd) {
-    dsd.dc.update();
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
         new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
