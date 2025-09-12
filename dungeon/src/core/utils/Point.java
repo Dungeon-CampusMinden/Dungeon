@@ -68,6 +68,17 @@ public record Point(float x, float y) {
   }
 
   /**
+   * Moves this point by a vector.
+   *
+   * @param x The x component of the vector to move the point by.
+   * @param y The y component of the vector to move the point by.
+   * @return A new point that is the sum of this point and the given vector.
+   */
+  public Point translate(float x, float y) {
+    return new Point(this.x() + x, this.y() + y);
+  }
+
+  /**
    * Calculates the vector from this point to another point.
    *
    * @param other The other point.
