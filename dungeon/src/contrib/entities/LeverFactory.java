@@ -214,7 +214,7 @@ public class LeverFactory {
         };
 
     pressurePlate.add(
-        new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false).isStationary(false));
+        new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false));
     return pressurePlate;
   }
 
