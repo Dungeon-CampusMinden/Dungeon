@@ -107,6 +107,7 @@ public final class AuthoritativeServerLoop {
     ECSManagment.add(new CollisionSystem());
     ECSManagment.add(new FallingSystem());
     ECSManagment.add(new ManaRestoreSystem());
+    ECSManagment.add(new DrawSystem());
   }
 
   private void tick() {
