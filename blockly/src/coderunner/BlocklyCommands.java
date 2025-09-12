@@ -280,7 +280,8 @@ public class BlocklyCommands {
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
     // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 , this
     // will make the hero move AFTER everyone else.
-    BlocklyCommands.turnEntity(hero, viewDirection);
+    BlocklyCommands.move(moveDirection, toMove.toArray(Entity[]::new));
+    BlocklyCommands.move(moveDirection, hero);
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, viewDirection);
