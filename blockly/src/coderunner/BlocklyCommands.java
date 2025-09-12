@@ -6,7 +6,6 @@ import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
-import contrib.components.BlockComponent;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
@@ -23,7 +22,10 @@ import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,6 +35,14 @@ import server.Server;
 public class BlocklyCommands {
 
   private static final String MOVEMENT_FORCE_ID = "Movement";
+
+  /**
+   * Todo Remove HotFix: Magic Translate for <a
+   * href="https://github.com/Dungeon-CampusMinden/Dungeon/issues/2448">...</a>
+   *
+   * <p>Move the position slightly further into the tile to avoid rounding errors at edge positions
+   */
+  private static final Vector2 MAGIC_OFFSET = Vector2.of(0.1, 0.1);
 
   /**
    * If this is et to true, the Guard-Monster will not shoot on the hero.
@@ -77,7 +87,7 @@ public class BlocklyCommands {
     GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
     for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAt(pc.position()).orElse(null);
+      Tile currentTile = Game.tileAt(pc.position().translate(MAGIC_OFFSET)).orElse(null);
       if (currentTile != nextTile) {
         Direction viewDirection = EntityUtils.getViewDirection(hero);
         Direction targetDirection = currentTile.directionTo(nextTile)[0];
@@ -144,10 +154,13 @@ public class BlocklyCommands {
     Tile inDirection;
 
     if (direction == Direction.NONE) {
-      inDirection = Game.tileAt(pc.position()).orElse(null);
+      inDirection = Game.tileAt(pc.position().translate(MAGIC_OFFSET)).orElse(null);
     } else {
       inDirection =
-          Game.tileAt(pc.position(), pc.viewDirection().applyRelative(direction)).orElse(null);
+          Game.tileAt(
+                  pc.position().translate(MAGIC_OFFSET),
+                  pc.viewDirection().applyRelative(direction))
+              .orElse(null);
     }
 
     Game.entityAtTile(inDirection)
@@ -170,12 +183,19 @@ public class BlocklyCommands {
     Game.hero()
         .ifPresent(
             hero ->
-                Game.entityAtTile(Game.tileAt(EntityUtils.getHeroCoordinate()).orElse(null))
-                    .filter(e -> e.isPresent(BlocklyItemComponent.class))
-                    .forEach(
-                        item ->
-                            item.fetch(InteractionComponent.class)
-                                .ifPresent(ic -> ic.triggerInteraction(item, hero))));
+                hero.fetch(PositionComponent.class)
+                    .map(PositionComponent::position)
+                    .map(pos -> pos.translate(MAGIC_OFFSET))
+                    .flatMap(Game::tileAt)
+                    .map(Game::entityAtTile)
+                    .ifPresent(
+                        stream ->
+                            stream
+                                .filter(e -> e.isPresent(BlocklyItemComponent.class))
+                                .forEach(
+                                    item ->
+                                        item.fetch(InteractionComponent.class)
+                                            .ifPresent(ic -> ic.triggerInteraction(item, hero)))));
   }
 
   /**
@@ -186,10 +206,13 @@ public class BlocklyCommands {
    * @param item Name of the item to drop
    */
   public static void dropItem(String item) {
-    Point heroPos = EntityUtils.getHeroPosition();
-    if (heroPos == null) {
-      return; // hero is not on the map
-    }
+    Point heroPos =
+        Game.hero()
+            .flatMap(hero -> hero.fetch(PositionComponent.class))
+            .map(PositionComponent::position)
+            .map(pos -> pos.translate(MAGIC_OFFSET))
+            .orElse(null);
+
     switch (item) {
       case "Brotkrumen" -> Game.add(MiscFactory.breadcrumb(heroPos));
       case "Kleeblatt" -> Game.add(MiscFactory.clover(heroPos));
@@ -258,14 +281,19 @@ public class BlocklyCommands {
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     Direction viewDirection = heroPC.viewDirection();
-    Tile inFront = Game.tileAt(heroPC.position(), viewDirection).orElse(null);
+
+    Tile inFront =
+        Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection).orElse(null);
     Tile checkTile;
     Direction moveDirection;
     if (push) {
-      checkTile = Game.tileAt(inFront.position(), viewDirection).orElse(null);
+      checkTile =
+          Game.tileAt(inFront.position().translate(MAGIC_OFFSET), viewDirection).orElse(null);
       moveDirection = viewDirection;
     } else {
-      checkTile = Game.tileAt(heroPC.position(), viewDirection.opposite()).orElse(null);
+      checkTile =
+          Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection.opposite())
+              .orElse(null);
       moveDirection = viewDirection.opposite();
     }
     if (!checkTile.isAccessible()
@@ -299,7 +327,14 @@ public class BlocklyCommands {
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
     // Check the tile the hero is standing on
     if (direction == Direction.NONE) {
-      Tile checkTile = Game.tileAt(EntityUtils.getHeroCoordinate()).orElse(null);
+      Tile checkTile =
+          Game.hero()
+              .flatMap(hero -> hero.fetch(PositionComponent.class))
+              .map(PositionComponent::position)
+              .map(pos -> pos.translate(MAGIC_OFFSET))
+              .flatMap(Game::tileAt)
+              .orElse(null);
+
       return checkTile.levelElement() == tileElement;
     }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
@@ -317,7 +352,14 @@ public class BlocklyCommands {
       Class<? extends Component> componentClass, final Direction direction) {
     // Check if there is a component on the tile the hero is standing on
     if (direction == Direction.NONE) {
-      Tile checkTile = Game.tileAt(EntityUtils.getHeroCoordinate()).orElse(null);
+      Tile checkTile =
+          Game.hero()
+              .flatMap(hero -> hero.fetch(PositionComponent.class))
+              .map(PositionComponent::position)
+              .map(pos -> pos.translate(MAGIC_OFFSET))
+              .flatMap(Game::tileAt)
+              .orElse(null);
+
       return Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(componentClass));
     }
     return targetTile(direction)
@@ -418,11 +460,7 @@ public class BlocklyCommands {
           entity
               .fetch(VelocityComponent.class)
               .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-      // Magic Translate for https://github.com/Dungeon-CampusMinden/Dungeon/issues/2448
-      // Move the position slightly further into the tile to avoid rounding errors at edge positions
-
-      Tile targetTile =
-          Game.tileAt(pc.position().translate(Vector2.of(0.1, 0.1)), direction).orElse(null);
+      Tile targetTile = Game.tileAt(pc.position().translate(MAGIC_OFFSET), direction).orElse(null);
       if (targetTile == null
           || (!targetTile.isAccessible() && !(targetTile instanceof PitTile))
           || Game.entityAtTile(targetTile).anyMatch(e -> e.isPresent(BlockComponent.class))) {
@@ -465,8 +503,7 @@ public class BlocklyCommands {
       ec.vc.currentVelocity(Vector2.ZERO);
       ec.vc.clearForces();
       // check the position-tile via new request in case a new level was loaded
-      Tile endTile = Game.tileAt(ec.targetPosition()).orElse(null);
-      if (endTile != null) ec.pc.position(endTile); // snap to grid
+      Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
     }
   }
 
