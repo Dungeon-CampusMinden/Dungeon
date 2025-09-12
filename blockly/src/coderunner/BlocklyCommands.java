@@ -11,11 +11,13 @@ import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
+import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -26,9 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.checkerframework.checker.units.qual.C;
 import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
@@ -42,7 +47,7 @@ public class BlocklyCommands {
    *
    * <p>Move the position slightly further into the tile to avoid rounding errors at edge positions
    */
-  private static final Vector2 MAGIC_OFFSET = Vector2.of(0.1, 0.1);
+  private static final Vector2 MAGIC_OFFSET = Vector2.of(0.3, 0.3);
 
   /**
    * If this is et to true, the Guard-Monster will not shoot on the hero.
@@ -288,11 +293,11 @@ public class BlocklyCommands {
     Direction moveDirection;
     if (push) {
       checkTile =
-          Game.tileAt(inFront.position().translate(MAGIC_OFFSET), viewDirection).orElse(null);
+          Game.tileAt(inFront.position(), viewDirection).orElse(null);
       moveDirection = viewDirection;
     } else {
       checkTile =
-          Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection.opposite())
+          Game.tileAt(heroPC.position(), viewDirection.opposite())
               .orElse(null);
       moveDirection = viewDirection.opposite();
     }
@@ -334,7 +339,6 @@ public class BlocklyCommands {
               .map(pos -> pos.translate(MAGIC_OFFSET))
               .flatMap(Game::tileAt)
               .orElse(null);
-
       return checkTile.levelElement() == tileElement;
     }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
@@ -421,11 +425,13 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<Direction, Optional<Tile>> dirToCheck =
-        dir ->
-            Optional.ofNullable(EntityUtils.getHeroCoordinate())
-                .map(coord -> coord.translate(dir))
-                .flatMap(Game::tileAt);
+    Function<Direction, Optional<Tile>> dirToCheck = dir ->
+            Game.hero()
+                    .flatMap(hero -> hero.fetch(PositionComponent.class))
+                    .map(PositionComponent::position).map(pos -> pos.translate(MAGIC_OFFSET))
+                    .map(pos -> pos.translate(dir))
+                    .flatMap(Game::tileAt);
+
 
     // calculate direction to check relative to hero's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
