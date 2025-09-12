@@ -68,7 +68,6 @@ public final class CollideComponent implements Component {
   private final Vector2 offset;
   private final Vector2 size;
   private boolean isSolid = true;
-  private boolean isStationary = true;
 
   /**
    * Handler invoked when the entity first collides with another entity (collision enter).
@@ -381,28 +380,6 @@ public final class CollideComponent implements Component {
    */
   public CollideComponent isSolid(boolean isSolid) {
     this.isSolid = isSolid;
-    return this;
-  }
-
-  /**
-   * Check if the entity is stationary in collisions. Stationary entities will stay still when
-   * collided with. If this entity can move, this value should be set to false.
-   *
-   * @return true if the entity is stationary, false otherwise
-   */
-  public boolean isStationary() {
-    return isStationary;
-  }
-
-  /**
-   * Set the stationary state of the entity in collisions. Stationary entities will stay still when
-   * collided with. If this entity can move, this value should be set to false.
-   *
-   * @param isStationary true if the entity should be stationary, false otherwise
-   * @return this component for chaining
-   */
-  public CollideComponent isStationary(boolean isStationary) {
-    this.isStationary = isStationary;
     return this;
   }
 }
