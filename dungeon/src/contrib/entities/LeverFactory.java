@@ -213,8 +213,7 @@ public class LeverFactory {
               .ifPresent(vc -> pressurePlateComponent.decrease(vc.mass()));
         };
 
-    pressurePlate.add(
-        new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false));
+    pressurePlate.add(new CollideComponent(onCollideEnter, onCollideLeave).isSolid(false));
     return pressurePlate;
   }
 

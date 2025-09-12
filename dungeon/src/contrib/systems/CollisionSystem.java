@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.CollideComponent;
+import contrib.utils.CollisionUtils;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
@@ -146,9 +147,9 @@ public final class CollisionSystem extends System {
     if (aStationary && bStationary) {
       LOGGER.warning(
           "Two stationary solid entities are colliding: " + cdata.ea + " and " + cdata.eb);
-    } else if (aStationary){
+    } else if (aStationary) {
       solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
-    } else if (bStationary){
+    } else if (bStationary) {
       solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
     } else {
       // Determine which entity moves based on their weight. The heavier entity
@@ -226,7 +227,12 @@ public final class CollisionSystem extends System {
   }
 
   private void solidCollide(
-      Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction) {
+    Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction) {
+    solidCollide(ea, a, eb, b, direction, true);
+  }
+
+    private void solidCollide(
+      Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction, boolean firstLevel) {
     Point c1Pos = a.bottomLeft(ea);
     Vector2 c1Size = a.size();
     Point c2Pos = b.bottomLeft(eb);
@@ -248,11 +254,18 @@ public final class CollisionSystem extends System {
 
     Point newPos = newColliderPos.translate(b.offset().inverse());
 
-    eb.fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              pc.position(newPos);
-            });
+    boolean bCanEnterOpenPits = eb.fetch(VelocityComponent.class).orElseThrow().canEnterOpenPits();
+
+    if(CollisionUtils.isCollidingWithLevel(newPos, b.offset(), b.size(), bCanEnterOpenPits)){
+      if(firstLevel){
+        // If the new position collides with the level, block the other entity instead.
+        solidCollide(eb, b, ea, a, direction.opposite(), false);
+      }
+      // If we aren't in the first iteration, the other entity is also blocked, so just don't do anything
+      return;
+    }
+
+    eb.fetch(PositionComponent.class).orElseThrow().position(newPos);
   }
 
   private record CollisionKey(int a, int b) {}
