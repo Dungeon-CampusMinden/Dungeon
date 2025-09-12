@@ -11,13 +11,11 @@ import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.Game;
-import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.PitTile;
-import core.level.elements.tile.WallTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
@@ -28,12 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import org.checkerframework.checker.units.qual.C;
 import server.Server;
 
 /** A utility class that contains all methods for Blockly Blocks. */
@@ -292,13 +287,10 @@ public class BlocklyCommands {
     Tile checkTile;
     Direction moveDirection;
     if (push) {
-      checkTile =
-          Game.tileAt(inFront.position(), viewDirection).orElse(null);
+      checkTile = Game.tileAt(inFront.position(), viewDirection).orElse(null);
       moveDirection = viewDirection;
     } else {
-      checkTile =
-          Game.tileAt(heroPC.position(), viewDirection.opposite())
-              .orElse(null);
+      checkTile = Game.tileAt(heroPC.position(), viewDirection.opposite()).orElse(null);
       moveDirection = viewDirection.opposite();
     }
     if (!checkTile.isAccessible()
@@ -425,13 +417,14 @@ public class BlocklyCommands {
    */
   private static Optional<Tile> targetTile(final Direction direction) {
     // find tile in a direction or empty
-    Function<Direction, Optional<Tile>> dirToCheck = dir ->
+    Function<Direction, Optional<Tile>> dirToCheck =
+        dir ->
             Game.hero()
-                    .flatMap(hero -> hero.fetch(PositionComponent.class))
-                    .map(PositionComponent::position).map(pos -> pos.translate(MAGIC_OFFSET))
-                    .map(pos -> pos.translate(dir))
-                    .flatMap(Game::tileAt);
-
+                .flatMap(hero -> hero.fetch(PositionComponent.class))
+                .map(PositionComponent::position)
+                .map(pos -> pos.translate(MAGIC_OFFSET))
+                .map(pos -> pos.translate(dir))
+                .flatMap(Game::tileAt);
 
     // calculate direction to check relative to hero's view direction
     return Optional.ofNullable(EntityUtils.getHeroViewDirection())
