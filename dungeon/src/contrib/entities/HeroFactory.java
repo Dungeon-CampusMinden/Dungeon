@@ -146,7 +146,7 @@ public final class HeroFactory {
    * @return A new Entity.
    */
   public static Entity newHero(boolean isLocal, String playerName){
-    return newHero(EntityIdProvider.nextId(), DEFAULT_HERO_CLASS, isLocal, playerName);
+    return newHero(-1, DEFAULT_HERO_CLASS, isLocal, playerName);
   }
 
   /**
@@ -161,14 +161,14 @@ public final class HeroFactory {
    * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
    * Otherwise, it will be controlled by the server.
    *
-   * @param id The unique ID for the hero entity.
+   * @param id The unique ID for the hero entity. (-1 to auto-generate)
    * @param characterClass Class of the hero.
    * @param isLocal if the hero is the local player
    * @param playerName name of the player (used for multiplayer)
    * @return A new Entity.
    */
   public static Entity newHero(final int id, CharacterClass characterClass, final boolean isLocal, String playerName) {
-    Entity hero = new Entity(id, "hero_" + playerName);
+    Entity hero = id == -1 ? new Entity("hero_" + playerName) : new Entity(id, "hero_" + playerName);
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
