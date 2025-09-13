@@ -207,4 +207,13 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   public void increaseRange(float amount) {
     this.range += range;
   }
+
+  /**
+   * Sets a new endpoint to aim for.
+   *
+   * @param endPointSupplier a new supplier that provides the point to aim for.
+   */
+  public void setNewEndpoint(Supplier<Point> endPointSupplier) {
+    this.endPointSupplier = endPointSupplier;
+  }
 }

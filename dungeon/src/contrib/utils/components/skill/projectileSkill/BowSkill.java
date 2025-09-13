@@ -92,21 +92,49 @@ public class BowSkill extends DamageProjectileSkill {
         COST);
   }
 
+  /**
+   * Create a {@link DamageProjectileSkill} that looks like an arrow and will cause physical damage.
+   *
+   * <p>This variant does NOT require or consume any resource and is intended for automated entities
+   * such as the projectileLaunchingSentry.
+   *
+   * @param target A Supplier used to select the point where the projectile should fly to.
+   * @param cooldown cooldown between two arrows.
+   * @param range range of the arrow.
+   * @see DamageProjectileSkill
+   */
+  public BowSkill(final Supplier<Point> target, long cooldown, float range) {
+    super(
+        SKILL_NAME,
+        cooldown,
+        PROJECTILE_TEXTURES,
+        target,
+        DEFAULT_PROJECTILE_SPEED,
+        range,
+        IS_PIRCING,
+        DEFAULT_DAMAGE_AMOUNT,
+        DAMAGE_TYPE,
+        HIT_BOX_SIZE);
+  }
+
   @Override
   protected Consumer<Entity> onWallHit(Entity caster) {
-    return projectile -> {
-      if (RANDOM.nextDouble() < stickInWallProbability) {
-        projectile
-            .fetch(PositionComponent.class)
-            .ifPresent(
-                projectilePos ->
-                    new ItemWoodenArrow()
-                        .drop(projectilePos.position())
-                        .flatMap(arrow -> arrow.fetch(PositionComponent.class))
-                        .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
-      }
-      Game.remove(projectile);
-    };
+    return handleDamageProjectileWallHit(caster);
+  }
+
+  @Override
+  protected void handleWallCollisionAfterFirst(Entity projectile) {
+    if (RANDOM.nextDouble() < stickInWallProbability) {
+      projectile
+          .fetch(PositionComponent.class)
+          .ifPresent(
+              projectilePos ->
+                  new ItemWoodenArrow()
+                      .drop(projectilePos.position())
+                      .flatMap(arrow -> arrow.fetch(PositionComponent.class))
+                      .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
+    }
+    Game.remove(projectile);
   }
 
   /**
