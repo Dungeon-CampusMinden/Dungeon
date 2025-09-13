@@ -54,5 +54,5 @@ public abstract class CursorSkill extends Skill {
    * @param caster The entity using the skill.
    * @param point The current cursor position in the game world.
    */
-  public abstract void executeOnCursor(Entity caster, Point point);
+  protected abstract void executeOnCursor(Entity caster, Point point);
 }
