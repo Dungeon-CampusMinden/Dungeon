@@ -198,24 +198,19 @@ public final class HeroFactory {
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
     CollideComponent col =
-        new CollideComponent(
-            (you, other, direction) ->
-                other
-                    .fetch(SpikyComponent.class)
-                    .ifPresent(
-                        spikyComponent -> {
-                          if (spikyComponent.isActive()) {
-                            hc.receiveHit(
-                                new Damage(
-                                    spikyComponent.damageAmount(),
-                                    spikyComponent.damageType(),
-                                    other));
-                            spikyComponent.activateCoolDown();
-                          }
-                        }),
-            CollideComponent.DEFAULT_COLLIDER);
+        new CollideComponent(CollideComponent.DEFAULT_COLLIDER, CollideComponent.DEFAULT_COLLIDER);
     col.onHold(
         (you, other, direction) -> {
+          other
+              .fetch(SpikyComponent.class)
+              .ifPresent(
+                  spiky -> {
+                    if (spiky.isActive()) {
+                      hc.receiveHit(new Damage(spiky.damageAmount(), spiky.damageType(), other));
+                      spiky.activateCoolDown();
+                    }
+                  });
+
           if (other.isPresent(KineticComponent.class)) resolveCollisionWithMomentum(hero, other);
         });
     hero.add(col);
