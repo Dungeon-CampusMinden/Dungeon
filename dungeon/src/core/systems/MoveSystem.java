@@ -1,18 +1,14 @@
 package core.systems;
 
+import contrib.utils.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.Tile;
-import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * System responsible for updating the position of entities based on their velocity, while
@@ -72,36 +68,20 @@ public class MoveSystem extends System {
     Point newPos = oldPos.translate(sv);
 
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
+    Vector2 offset = data.vc.moveboxOffset();
+    Vector2 size = data.vc.moveboxSize();
 
-    // Helper to get all corners of the hitbox at a given position
-    Function<Point, List<Point>> hitboxCorners =
-        pos -> {
-          Vector2 offset = data.vc.moveboxOffset();
-          Vector2 size = data.vc.moveboxSize();
-          return List.of(
-              new Point(pos.x() + offset.x(), pos.y() + offset.y()), // bottom-left
-              new Point(pos.x() + offset.x() + size.x(), pos.y() + offset.y()), // top-left
-              new Point(pos.x() + offset.x(), pos.y() + offset.y() + size.y()), // top-left
-              new Point(
-                  pos.x() + offset.x() + size.x(), pos.y() + offset.y() + size.y()) // top-right
-              );
-        };
-
-    // Check if all corners are accessible
-    Predicate<Point> allCornersAccessible =
-        pos ->
-            hitboxCorners.apply(pos).stream()
-                .allMatch(p -> isAccessible(Game.tileAt(p).orElse(null), canEnterOpenPits));
-
-    if (allCornersAccessible.test(newPos)) {
+    if (!CollisionUtils.isCollidingWithLevel(newPos, offset, size, canEnterOpenPits)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
       Point xMove = new Point(newPos.x(), oldPos.y());
       Point yMove = new Point(oldPos.x(), newPos.y());
 
-      boolean xAccessible = allCornersAccessible.test(xMove);
-      boolean yAccessible = allCornersAccessible.test(yMove);
+      boolean xAccessible =
+          !CollisionUtils.isCollidingWithLevel(xMove, offset, size, canEnterOpenPits);
+      boolean yAccessible =
+          !CollisionUtils.isCollidingWithLevel(yMove, offset, size, canEnterOpenPits);
 
       if (xAccessible) {
         data.pc.position(xMove);
@@ -112,62 +92,6 @@ public class MoveSystem extends System {
       // Notify entity that it hit a wall
       data.vc.onWallHit().accept(data.e);
     }
-  }
-
-  /**
-   * Checks whether the path between two points is completely accessible by stepping along the
-   * vector between them in small increments.
-   *
-   * <p>This method simulates movement from the starting point to the target by walking small steps
-   * along the direction vector. At each step, it checks whether the tile is accessible or can be
-   * entered (e.g., if it's a pit and the entity is allowed to enter pits).
-   *
-   * <p>This ensures that no wall or inaccessible tile is skipped due to large velocity steps,
-   * especially important when moving diagonally or at high speeds.
-   *
-   * @param from the starting point
-   * @param to the target point
-   * @param canEnterPitTiles whether the entity is allowed to walk into pit tiles
-   * @return true if the entire path from start to target is clear; false if a tile in between is
-   *     blocked
-   */
-  boolean isPathClearByStepping(Point from, Point to, boolean canEnterPitTiles) {
-    Vector2 direction = from.vectorTo(to);
-    double distance = direction.length();
-
-    if (distance == 0f) return true;
-
-    // Choose a small step size to ensure all intermediate tiles are checked (including diagonals)
-    Vector2 step = direction.normalize().scale(0.1f);
-    Point current = from;
-
-    // Step from start to end and check each tile along the way
-    for (float traveled = 0; traveled <= distance; traveled += step.length()) {
-      Tile tile = Game.tileAt(current).orElse(null);
-      if (!isAccessible(tile, canEnterPitTiles)) {
-        return false;
-      }
-      current = current.translate(step);
-    }
-
-    // Ensure that the final destination tile is also checked
-    return isAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles);
-  }
-
-  /**
-   * Helper method to determine if a tile can be entered by the entity.
-   *
-   * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter pit
-   * tiles.
-   *
-   * @param tile the tile to check for accessibility
-   * @param canEnterPitTiles whether the entity can enter pit tiles
-   * @return true if tile is accessible or a pit tile that can be entered, false otherwise
-   */
-  private boolean isAccessible(Tile tile, boolean canEnterPitTiles) {
-    return tile != null
-        && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
   }
 
   /**

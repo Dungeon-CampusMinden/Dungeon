@@ -12,6 +12,7 @@ import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
@@ -23,6 +24,7 @@ import core.level.utils.LevelElement;
 import core.utils.MissingHeroException;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
+import core.utils.components.draw.DepthLayer;
 import entities.DevDungeonMonster;
 import item.concreteItem.ItemPotionWater;
 import item.concreteItem.ItemResourceMushroomRed;
@@ -90,6 +92,7 @@ public class TutorialLevel extends DevDungeonLevel {
     Entity chest2 = MiscFactory.newChest(MiscFactory.FILL_CHEST.EMPTY);
     setupChest(chest, chest2);
     Entity cauldron = MiscFactory.newCraftingCauldron();
+    cauldron.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Player.depth());
     setupCauldron(cauldron);
   }
 

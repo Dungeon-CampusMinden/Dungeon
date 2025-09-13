@@ -164,6 +164,8 @@ public final class MiscFactory {
     chest.add(ic);
     item.forEach(ic::add);
 
+    chest.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
+
     Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(new SimpleIPath("objects/treasurechest"));
     State stClosed = State.fromMap(animationMap, "closed");
@@ -311,6 +313,7 @@ public final class MiscFactory {
                           component.onClose(craftingGUI::cancel);
                           who.add(component);
                         })));
+    cauldron.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
     return cauldron;
   }
 
@@ -348,9 +351,9 @@ public final class MiscFactory {
    *
    * <ul>
    *   <li>{@link PositionComponent} – sets the initial position
-   *   <li>{@link KineticComponent} – enables movement and collisions
    *   <li>{@link VelocityComponent} – configured with speed {@code 10} and the given mass
    *   <li>{@link DrawComponent} – renders the crate using the given texture
+   *   <li>{@link CollideComponent} – enables movement and collisions
    * </ul>
    *
    * @param position The starting position of the crate.
@@ -361,10 +364,9 @@ public final class MiscFactory {
   public static Entity crate(Point position, float mass, SimpleIPath texture) {
     Entity crate = new Entity("crate");
     crate.add(new PositionComponent(position));
-    crate.add(new KineticComponent());
     crate.add(new VelocityComponent(10, mass, entity -> {}, false));
     crate.add(new DrawComponent(new Animation(texture)));
-    crate.add(new CollideComponent());
+    crate.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
     return crate;
   }
 
@@ -621,6 +623,8 @@ public final class MiscFactory {
               // Original behavior will be wrapped below
             });
     destroyableObj.add(baseIC);
+
+    destroyableObj.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
     State stIdle = State.fromMap(animationMap, "idle");

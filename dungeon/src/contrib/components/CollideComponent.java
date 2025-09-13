@@ -63,9 +63,11 @@ public final class CollideComponent implements Component {
    */
   public static final TriConsumer<Entity, Entity, Direction> DEFAULT_COLLIDER = (a, b, c) -> {};
 
+  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+
   private final Vector2 offset;
   private final Vector2 size;
-  private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
+  private boolean isSolid = true;
 
   /**
    * Handler invoked when the entity first collides with another entity (collision enter).
@@ -105,6 +107,32 @@ public final class CollideComponent implements Component {
    * </ul>
    */
   private TriConsumer<Entity, Entity, Direction> collideHold;
+
+  /**
+   * Creates a new {@code CollideComponent}.
+   *
+   * <p>This component handles collisions for an entity using a hitbox defined by {@code offset} and
+   * {@code size}, and custom behavior for collision events.
+   *
+   * <p>The collision handlers use a {@link TriConsumer} with three parameters:
+   *
+   * <ul>
+   *   <li>the first entity: the entity that holds this {@code CollideComponent}
+   *   <li>the second entity: the entity it collides with
+   *   <li>the third parameter: the collision direction, relative to the first entity
+   * </ul>
+   *
+   * @param offset the offset of the hitbox relative to the entity's position; use {@link
+   *     #DEFAULT_OFFSET} for the default offset
+   * @param size the size of the hitbox; use {@link #DEFAULT_SIZE} for the default size handler
+   */
+  public CollideComponent(final Vector2 offset, final Vector2 size) {
+    this.offset = offset;
+    this.size = size;
+    this.collideEnter = DEFAULT_COLLIDER;
+    this.collideLeave = DEFAULT_COLLIDER;
+    this.collideHold = DEFAULT_COLLIDER;
+  }
 
   /**
    * Creates a new {@code CollideComponent}.
@@ -324,5 +352,34 @@ public final class CollideComponent implements Component {
    */
   public Vector2 size() {
     return Vector2.of(size);
+  }
+
+  /**
+   * Get the offset of the hitbox.
+   *
+   * @return the offset of the component
+   */
+  public Vector2 offset() {
+    return Vector2.of(offset);
+  }
+
+  /**
+   * Get the solid state of the hitbox. Solid entities will not be able to pass through each other.
+   *
+   * @return true if the hitbox is solid, false otherwise
+   */
+  public boolean isSolid() {
+    return isSolid;
+  }
+
+  /**
+   * Set the solid state of the hitbox. Solid entities will not be able to pass through each other.
+   *
+   * @param isSolid true if the hitbox should be solid, false otherwise
+   * @return this component for chaining
+   */
+  public CollideComponent isSolid(boolean isSolid) {
+    this.isSolid = isSolid;
+    return this;
   }
 }
