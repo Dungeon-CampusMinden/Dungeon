@@ -7,11 +7,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.*;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents an animation consisting of one or more {@link Sprite}s.
@@ -32,19 +31,18 @@ import java.util.*;
  * frame-by-frame with {@link #update()}.
  */
 public class Animation implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Animation.class);
 
   /** Path to the missing texture fallback image. */
-  public static final IPath MISSING_TEXTURE_PATH =
-      new SimpleIPath("animation/missing_texture.png");
+  public static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");
 
   private final AnimationConfig config;
 
   /** Logical world size (computed from sprite pixel size and scale). */
   private float width = 1;
+
   private float height = 1;
 
   /** Sprite pixel-to-world scale used to compute width/height. */
@@ -135,8 +133,7 @@ public class Animation implements Serializable {
     this.framePaths = new ArrayList<>(paths);
 
     // Size from first frame if possible
-    if (canUseTextures()
-      && TextureMap.instance().containsKey(paths.get(0).pathString())) {
+    if (canUseTextures() && TextureMap.instance().containsKey(paths.get(0).pathString())) {
       Texture t = TextureMap.instance().textureAt(paths.get(0));
       calculateWorldSize(t.getWidth(), t.getHeight());
     } else {
@@ -299,23 +296,23 @@ public class Animation implements Serializable {
   @Override
   public String toString() {
     return "Animation{"
-      + "width="
-      + width
-      + ", height="
-      + height
-      + ", frameCount="
-      + frameCount
-      + ", loaded="
-      + loaded
-      + ", sourceType="
-      + sourceType
-      + ", frames="
-      + (sourceType == SourceType.SINGLE_OR_MULTI
-      ? (framePaths == null ? 0 : framePaths.size())
-      : (config.config().map(c -> c.rows() * c.columns()).orElse(0)))
-      + ", config="
-      + config
-      + '}';
+        + "width="
+        + width
+        + ", height="
+        + height
+        + ", frameCount="
+        + frameCount
+        + ", loaded="
+        + loaded
+        + ", sourceType="
+        + sourceType
+        + ", frames="
+        + (sourceType == SourceType.SINGLE_OR_MULTI
+            ? (framePaths == null ? 0 : framePaths.size())
+            : (config.config().map(c -> c.rows() * c.columns()).orElse(0)))
+        + ", config="
+        + config
+        + '}';
   }
 
   /**
@@ -435,12 +432,12 @@ public class Animation implements Serializable {
     }
 
     SpritesheetConfig ssc =
-      config
-        .config()
-        .orElseThrow(
-          () ->
-            new IllegalStateException(
-              "SpritesheetConfig expected but not present in config"));
+        config
+            .config()
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "SpritesheetConfig expected but not present in config"));
     int sWidth = ssc.spriteWidth();
     int sHeight = ssc.spriteHeight();
     int offsetX = ssc.x();
@@ -452,9 +449,9 @@ public class Animation implements Serializable {
         int index = y * ssc.columns() + x;
         if (canUseTextures() && spritesheet != null) {
           sprites[index] =
-            new Sprite(
-              new TextureRegion(
-                spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
+              new Sprite(
+                  new TextureRegion(
+                      spritesheet, offsetX + sWidth * x, offsetY + sHeight * y, sWidth, sHeight));
         } else {
           sprites[index] = new Sprite();
         }

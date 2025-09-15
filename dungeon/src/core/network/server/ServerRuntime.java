@@ -3,10 +3,9 @@ package core.network.server;
 import core.game.PreRunConfiguration;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
+import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
 
 public final class ServerRuntime {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerRuntime.class);
@@ -43,7 +42,8 @@ public final class ServerRuntime {
     }
   }
 
-  public CompletableFuture<Boolean> sendMessage(int clientId, NetworkMessage message, boolean reliable) {
+  public CompletableFuture<Boolean> sendMessage(
+      int clientId, NetworkMessage message, boolean reliable) {
     if (loop != null) {
       return this.loop.sendToClient(clientId, message, reliable);
     } else {

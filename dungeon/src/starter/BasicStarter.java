@@ -35,8 +35,7 @@ public class BasicStarter {
       throw new RuntimeException(e);
     }
     Game.disableAudio(true);
-    Game.userOnSetup(
-        () -> Game.add(HeroFactory.newHero()));
+    Game.userOnSetup(() -> Game.add(HeroFactory.newHero()));
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");
     Game.run();
