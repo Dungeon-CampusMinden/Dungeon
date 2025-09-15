@@ -11,6 +11,7 @@ import contrib.utils.components.skill.projectileSkill.BowSkill;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import contrib.utils.components.skill.selfSkill.DashSkill;
 import contrib.utils.components.skill.selfSkill.SelfHealSkill;
+import contrib.utils.components.skill.placeSkill.BombPlaceSkill;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -33,6 +34,7 @@ public enum CharacterClass {
       Set.of(
           new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 30)),
           new SelfHealSkill(300, 5, new Tuple<>(Resource.MANA, 80))),
+          new BombPlaceSkill(),
       Set.of(new ItemPotionHealth()),
       6,
       100,
