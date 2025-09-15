@@ -14,6 +14,7 @@ public class FireballStormSkill extends FireballSkill {
 
   private static final Supplier<Point> TARGET =
       () -> new Point(0, 0); // Target is not used in this skill
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   private final int delayBetweenFireballs;
   private final int totalFireballs;
@@ -35,7 +36,7 @@ public class FireballStormSkill extends FireballSkill {
       int damageAmount,
       int totalFireBalls,
       int delayBetweenFireballs) {
-    super(SKILL_NAME, TARGET, cooldown, speed, range, damageAmount);
+    super(SKILL_NAME, TARGET, cooldown, speed, range, damageAmount, IGNORE_FIRST_WALL);
     this.delayBetweenFireballs = delayBetweenFireballs;
     this.totalFireballs = totalFireBalls;
   }

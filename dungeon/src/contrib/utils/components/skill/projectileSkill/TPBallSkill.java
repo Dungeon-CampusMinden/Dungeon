@@ -29,6 +29,7 @@ public class TPBallSkill extends DamageProjectileSkill {
   private static final float PROJECTILE_RANGE = 7f;
   private static final long COOLDOWN = 2000;
   private static final boolean IS_PIRCING = false;
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "TPBall";
@@ -54,6 +55,7 @@ public class TPBallSkill extends DamageProjectileSkill {
       float speed,
       float range,
       int damageAmount,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
     super(
         SKILL_NAME,
@@ -66,6 +68,7 @@ public class TPBallSkill extends DamageProjectileSkill {
         damageAmount,
         DAMAGE_TYPE,
         HIT_BOX_SIZE,
+        ignoreFirstWall,
         resourceCost);
     this.tpTarget = tpTarget;
     tintColor(0xFF00FFFF);
@@ -88,6 +91,7 @@ public class TPBallSkill extends DamageProjectileSkill {
         PROJECTILE_RANGE,
         PROJECTILE_SPEED,
         DAMAGE_AMOUNT,
+        IGNORE_FIRST_WALL,
         resourceCost);
   }
 
@@ -112,6 +116,7 @@ public class TPBallSkill extends DamageProjectileSkill {
         PROJECTILE_RANGE,
         PROJECTILE_SPEED,
         DAMAGE_AMOUNT,
+        IGNORE_FIRST_WALL,
         resourceCost);
   }
 
@@ -133,7 +138,7 @@ public class TPBallSkill extends DamageProjectileSkill {
       float range,
       float speed,
       Tuple<Resource, Integer>... resourceCost) {
-    this(target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT, resourceCost);
+    this(target, tpTarget, cooldown, range, speed, DAMAGE_AMOUNT, IGNORE_FIRST_WALL, resourceCost);
   }
 
   @Override
