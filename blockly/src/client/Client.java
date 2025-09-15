@@ -12,6 +12,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
+import core.components.VelocityComponent;
 import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
 import core.systems.InputSystem;
@@ -139,6 +140,13 @@ public class Client {
     Game.userOnLevelLoad(
         (firstLoad) -> {
           BlocklyCodeRunner.instance().stopCode();
+          Game.hero()
+              .flatMap(e -> e.fetch(VelocityComponent.class))
+              .ifPresent(
+                  vc -> {
+                    vc.clearForces();
+                    vc.currentVelocity(Vector2.ZERO);
+                  });
           Game.hero()
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
