@@ -467,7 +467,9 @@ public class BlocklyCommands {
         return; // if any target tile is not accessible, don't move anyone
       }
 
-      entityComponents.add(new EntityComponents(pc, vc, targetTile.coordinate()));
+
+      if(vc.maxSpeed()>0)
+        entityComponents.add(new EntityComponents(pc, vc, targetTile.coordinate()));
     }
 
     double[] distances =
