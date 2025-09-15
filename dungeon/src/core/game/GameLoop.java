@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
-import contrib.components.ManaComponent;
 import contrib.entities.HeroFactory;
 import contrib.systems.HealthBarSystem;
 import contrib.systems.HudSystem;
@@ -31,11 +30,7 @@ import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
-import java.io.IOException;
 import java.util.*;
-
-import core.utils.components.draw.state.StateMachine;
-import core.utils.components.path.SimpleIPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,9 +188,9 @@ public final class GameLoop extends ScreenAdapter {
           return (s instanceof DrawSystem)
               || (s instanceof CameraSystem)
               || (s instanceof InputSystem)
-            || (s instanceof ManaBarSystem)
-            || (s instanceof HealthBarSystem)
-          || (s instanceof HudSystem);
+              || (s instanceof ManaBarSystem)
+              || (s instanceof HealthBarSystem)
+              || (s instanceof HudSystem);
         });
 
     newLevelWasLoadedInThisLoop = false;
@@ -256,18 +251,23 @@ public final class GameLoop extends ScreenAdapter {
           Game.add(newEntity);
         });
     dispatcher.registerHandler(
-      HeroSpawnEvent.class,
-      (ctx, event) -> {
-        LOGGER.info("Received HeroSpawnEvent event: " + event.entityId());
+        HeroSpawnEvent.class,
+        (ctx, event) -> {
+          LOGGER.info("Received HeroSpawnEvent event: " + event.entityId());
 
-        Game.hero().ifPresentOrElse(
-          (hero) -> LOGGER.warn("Hero already exists, cannot spawn another!"),
-          () -> {
-            Entity hero = HeroFactory.newHero(event.entityId(), HeroFactory.DEFAULT_HERO_CLASS, true, PreRunConfiguration.username());
-            Game.add(hero);
-          });
-      }
-    );
+          Game.hero()
+              .ifPresentOrElse(
+                  (hero) -> LOGGER.warn("Hero already exists, cannot spawn another!"),
+                  () -> {
+                    Entity hero =
+                        HeroFactory.newHero(
+                            event.entityId(),
+                            HeroFactory.DEFAULT_HERO_CLASS,
+                            true,
+                            PreRunConfiguration.username());
+                    Game.add(hero);
+                  });
+        });
 
     dispatcher.registerHandler(
         EntityDespawnEvent.class,
@@ -364,8 +364,7 @@ public final class GameLoop extends ScreenAdapter {
             pc -> {
               Game.startTile()
                   .ifPresentOrElse(
-                      pc::position,
-                      () -> LOGGER.warn("No start tile found for the current level"));
+                      pc::position, () -> LOGGER.warn("No start tile found for the current level"));
               pc.viewDirection(Direction.DOWN); // look down by default
             });
 

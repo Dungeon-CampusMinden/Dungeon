@@ -62,7 +62,7 @@ public class MyFireballSkill extends DamageProjectileSkill {
         () -> AdvancedDungeon.hero.getMousePosition(),
         speed,
         range,
-      IS_PIERCING,
+        IS_PIERCING,
         damageAmount,
         DAMAGE_TYPE,
         HIT_BOX_SIZE,

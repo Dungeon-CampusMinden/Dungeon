@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -170,19 +169,19 @@ public class AnimationConfig implements Serializable {
   @Override
   public String toString() {
     return "AnimationConfig{"
-      + "framesPerSprite="
-      + framesPerSprite
-      + ", scaleX="
-      + scaleX
-      + ", scaleY="
-      + scaleY
-      + ", isLooping="
-      + isLooping
-      + ", centered="
-      + centered
-      + ", config="
-      + config
-      + '}';
+        + "framesPerSprite="
+        + framesPerSprite
+        + ", scaleX="
+        + scaleX
+        + ", scaleY="
+        + scaleY
+        + ", isLooping="
+        + isLooping
+        + ", centered="
+        + centered
+        + ", config="
+        + config
+        + '}';
   }
 
   /**

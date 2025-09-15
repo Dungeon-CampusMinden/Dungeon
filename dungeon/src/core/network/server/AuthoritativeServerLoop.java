@@ -24,19 +24,16 @@ import core.systems.*;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.*;
-
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class AuthoritativeServerLoop {
-  private static final Logger LOGGER =
-    LoggerFactory.getLogger(AuthoritativeServerLoop.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
 
   private static final int TICK_HZ = 20;
   private static final int SNAPSHOT_HZ = 20;
@@ -45,20 +42,20 @@ public final class AuthoritativeServerLoop {
   private final SnapshotTranslator translator;
   private final ScheduledExecutorService executor;
 
-  private final ConcurrentHashMap<Integer, Entity> clientEntities =
-    new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Integer, Entity> clientEntities = new ConcurrentHashMap<>();
 
   private volatile long serverTick = 0;
 
-  public AuthoritativeServerLoop(
-    ServerTransport netService, SnapshotTranslator translator) {
+  public AuthoritativeServerLoop(ServerTransport netService, SnapshotTranslator translator) {
     this.net = netService;
     this.translator = java.util.Objects.requireNonNull(translator, "translator");
-    this.executor = Executors.newSingleThreadScheduledExecutor(r -> {
-      Thread t = new Thread(r, "AuthoritativeServerLoop");
-      t.setDaemon(true);
-      return t;
-    });
+    this.executor =
+        Executors.newSingleThreadScheduledExecutor(
+            r -> {
+              Thread t = new Thread(r, "AuthoritativeServerLoop");
+              t.setDaemon(true);
+              return t;
+            });
   }
 
   public void start() {
@@ -79,14 +76,11 @@ public final class AuthoritativeServerLoop {
     long tickPeriodMs = 1000L / TICK_HZ;
     long snapshotPeriodMs = 1000L / SNAPSHOT_HZ;
 
+    executor.scheduleAtFixedRate(this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
     executor.scheduleAtFixedRate(
-      this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
-    executor.scheduleAtFixedRate(
-      this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs,
-      TimeUnit.MILLISECONDS);
+        this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs, TimeUnit.MILLISECONDS);
 
-    LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", TICK_HZ,
-      SNAPSHOT_HZ);
+    LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", TICK_HZ, SNAPSHOT_HZ);
   }
 
   public void stop() {
@@ -128,8 +122,7 @@ public final class AuthoritativeServerLoop {
       Entity player = clientEntities.get(id);
       if (player == null) continue;
       switch (msg.action()) {
-        case MOVE -> HeroController.moveHero(
-          player, Vector2.of(msg.point()).direction());
+        case MOVE -> HeroController.moveHero(player, Vector2.of(msg.point()).direction());
         case MOVE_PATH -> HeroController.moveHeroPath(player, msg.point());
         case CAST_SKILL -> HeroController.useSkill(player, msg.point());
         case NEXT_SKILL -> HeroController.changeSkill(player, true);
@@ -140,8 +133,9 @@ public final class AuthoritativeServerLoop {
   }
 
   private void sendSnapshot() {
-    translator.translateToSnapshot(serverTick, clientEntities)
-      .ifPresent(snapshot -> broadcast(snapshot, false));
+    translator
+        .translateToSnapshot(serverTick, clientEntities)
+        .ifPresent(snapshot -> broadcast(snapshot, false));
   }
 
   private void broadcastLevelChange() {
@@ -203,15 +197,20 @@ public final class AuthoritativeServerLoop {
     String name = net.clientName(clientId).orElse("Player_" + clientId);
     Entity hero = HeroFactory.newHero(true, name);
     hero.fetch(PositionComponent.class)
-      .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
+        .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
     // Add the hero to the game, after the client knows the id.
-    Game.network().send(clientId, new HeroSpawnEvent(hero.id()), true).thenAccept(success -> {
-      if (success) {
-        Game.add(hero);
-      } else {
-        LOGGER.warn("Failed to send HeroSpawnEvent to client {}, not adding hero to game", clientId);
-      }
-    });
+    Game.network()
+        .send(clientId, new HeroSpawnEvent(hero.id()), true)
+        .thenAccept(
+            success -> {
+              if (success) {
+                Game.add(hero);
+              } else {
+                LOGGER.warn(
+                    "Failed to send HeroSpawnEvent to client {}, not adding hero to game",
+                    clientId);
+              }
+            });
     return hero;
   }
 }

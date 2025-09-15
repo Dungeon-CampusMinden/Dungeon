@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +42,15 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public void initialize(boolean isServer, String serverAddress, int port, String username)
-    throws NetworkException {
+      throws NetworkException {
     this.isInitialized = true;
   }
 
   @Override
   public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
-      // No op
-      return CompletableFuture.completedFuture(true);
-    }
+    // No op
+    return CompletableFuture.completedFuture(true);
+  }
 
   @Override
   public void broadcast(NetworkMessage message, boolean reliable) {
@@ -61,17 +60,17 @@ public class LocalNetworkHandler implements INetworkHandler {
   @Override
   public void sendInput(InputMessage input) {
     Game.hero()
-      .ifPresent(
-        hero -> {
-          switch (input.action()) {
-            case MOVE -> HeroController.moveHero(hero, Vector2.of(input.point()).direction());
-            case MOVE_PATH -> HeroController.moveHeroPath(hero, input.point());
-            case CAST_SKILL -> HeroController.useSkill(hero, input.point());
-            case NEXT_SKILL -> HeroController.changeSkill(hero, true);
-            case PREV_SKILL -> HeroController.changeSkill(hero, false);
-            case INTERACT -> HeroController.interact(hero, input.point());
-          }
-        });
+        .ifPresent(
+            hero -> {
+              switch (input.action()) {
+                case MOVE -> HeroController.moveHero(hero, Vector2.of(input.point()).direction());
+                case MOVE_PATH -> HeroController.moveHeroPath(hero, input.point());
+                case CAST_SKILL -> HeroController.useSkill(hero, input.point());
+                case NEXT_SKILL -> HeroController.changeSkill(hero, true);
+                case PREV_SKILL -> HeroController.changeSkill(hero, false);
+                case INTERACT -> HeroController.interact(hero, input.point());
+              }
+            });
   }
 
   @Override
@@ -115,7 +114,7 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public void _setRawMessageConsumer(
-    BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
+      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
     this.rawMessageConsumer = rawMessageConsumer;
   }
 
@@ -124,9 +123,9 @@ public class LocalNetworkHandler implements INetworkHandler {
     SnapshotTranslator t = translator;
     if (t == null) {
       throw new IllegalStateException(
-        "SnapshotTranslator not set on INetworkHandler. Set via "
-          + "setSnapshotTranslator(...) before starting network or provide translator in "
-          + "starter.");
+          "SnapshotTranslator not set on INetworkHandler. Set via "
+              + "setSnapshotTranslator(...) before starting network or provide translator in "
+              + "starter.");
     }
     return t;
   }
@@ -184,52 +183,52 @@ public class LocalNetworkHandler implements INetworkHandler {
   public void triggerStateUpdate() {
     if (!isRunning || !isInitialized || rawMessageConsumer == null) {
       LOGGER.debug(
-        "LocalNetworkHandler not ready to send updates. Running: {}, Init: {}, Consumer: {}",
-        isRunning,
-        isInitialized,
-        (rawMessageConsumer != null));
+          "LocalNetworkHandler not ready to send updates. Running: {}, Init: {}, Consumer: {}",
+          isRunning,
+          isInitialized,
+          (rawMessageConsumer != null));
       return;
     }
 
     List<EntityState> snapshotEntities = new ArrayList<>();
     Game.levelEntities()
-      .forEach(
-        entity -> {
-          EntityState.Builder builder =
-            EntityState.builder();
-          builder.entityId(entity.id());
+        .forEach(
+            entity -> {
+              EntityState.Builder builder = EntityState.builder();
+              builder.entityId(entity.id());
 
-          Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
-          if (pcOpt.isEmpty()) return;
-          builder.position(pcOpt.get().position());
-          builder.viewDirection(pcOpt.get().viewDirection());
-          builder.rotation(pcOpt.get().rotation());
+              Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
+              if (pcOpt.isEmpty()) return;
+              builder.position(pcOpt.get().position());
+              builder.viewDirection(pcOpt.get().viewDirection());
+              builder.rotation(pcOpt.get().rotation());
 
-          entity
-            .fetch(HealthComponent.class)
-            .ifPresent(
-              hc -> {
-                builder.currentHealth(hc.currentHealthpoints());
-                builder.maxHealth(hc.maximalHealthpoints());
-              });
+              entity
+                  .fetch(HealthComponent.class)
+                  .ifPresent(
+                      hc -> {
+                        builder.currentHealth(hc.currentHealthpoints());
+                        builder.maxHealth(hc.maximalHealthpoints());
+                      });
 
-          entity
-            .fetch(ManaComponent.class)
-            .ifPresent(
-              mc -> {
-                builder.currentMana(mc.currentAmount());
-                builder.maxMana(mc.maxAmount());
-              });
+              entity
+                  .fetch(ManaComponent.class)
+                  .ifPresent(
+                      mc -> {
+                        builder.currentMana(mc.currentAmount());
+                        builder.maxMana(mc.maxAmount());
+                      });
 
-          entity
-            .fetch(DrawComponent.class)
-            .ifPresent(dc -> {
-              builder.stateName(dc.stateMachine().getCurrentStateName());
-              builder.tintColor(dc.tintColor());
+              entity
+                  .fetch(DrawComponent.class)
+                  .ifPresent(
+                      dc -> {
+                        builder.stateName(dc.stateMachine().getCurrentStateName());
+                        builder.tintColor(dc.tintColor());
+                      });
+
+              snapshotEntities.add(builder.build());
             });
-
-          snapshotEntities.add(builder.build());
-        });
 
     rawMessageConsumer.accept(null, new SnapshotMessage(0L, snapshotEntities));
   }

@@ -142,12 +142,14 @@ public final class DrawSystem extends System {
    */
   @Override
   public void execute() {
-    Stream<DSData> dataStream = sortedEntities.values().stream()
-      .flatMap(
-        list ->
-          list.stream().sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
-      .filter(this::shouldDraw)
-      .peek(data -> data.dc.update());
+    Stream<DSData> dataStream =
+        sortedEntities.values().stream()
+            .flatMap(
+                list ->
+                    list.stream()
+                        .sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
+            .filter(this::shouldDraw)
+            .peek(data -> data.dc.update());
 
     if (Gdx.gl == null) {
       return;
