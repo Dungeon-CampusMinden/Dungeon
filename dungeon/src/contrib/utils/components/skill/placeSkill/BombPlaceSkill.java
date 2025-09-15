@@ -1,17 +1,22 @@
 package contrib.utils.components.skill.placeSkill;
 
+import contrib.utils.components.skill.Resource;
+import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
-public class BombPlaceSkill {
+public class BombPlaceSkill extends Skill {
 
-  private static final IPath BOMB_TEXTURE = new SimpleIPath("skills/bomb/00.png");
-  private static final IPath EXPLOSION_TEXTURE = new SimpleIPath("");
-  private static final int DAMAGE = 8;
-  private static final long FUSE_MS = 1800L;
-  private static final float RADIUS = 3.0f;
+  public static final String SKILL_NAME = "BOMB_PLACE";
+
+  private static final IPath DEFAULT_BOMB_TEXTURE = new SimpleIPath("skills/bomb/00.png");
+  private static final IPath DEFAULT_EXPLOSION_TEXTURE = new SimpleIPath("");
+  private static final int DEFAULT_DAMAGE = 8;
+  private static final long DEFAULT_FUSE_MS = 1800L;
+  private static final float DEFAULT_RADIUS = 3.0f;
+  private static final long DEFAULT_COOLDOWN = 800L;
 
   private final IPath bombTexture;
   private final IPath explosionTexture;
@@ -20,11 +25,23 @@ public class BombPlaceSkill {
   private final long fuseMs;
 
   public BombPlaceSkill() {
-    this(BOMB_TEXTURE, EXPLOSION_TEXTURE, RADIUS, DAMAGE, FUSE_MS);
+    this(
+        DEFAULT_BOMB_TEXTURE,
+        DEFAULT_EXPLOSION_TEXTURE,
+        DEFAULT_RADIUS,
+        DEFAULT_DAMAGE,
+        DEFAULT_FUSE_MS,
+        DEFAULT_COOLDOWN);
   }
 
   public BombPlaceSkill(
-      IPath bombTexture, IPath explosionTexture, float radius, int damage, long fuseMs) {
+      IPath bombTexture,
+      IPath explosionTexture,
+      float radius,
+      int damage,
+      long fuseMs,
+      long cooldownMs) {
+    super(SKILL_NAME, cooldownMs);
     this.bombTexture = bombTexture;
     this.explosionTexture = explosionTexture;
     this.radius = radius;
@@ -32,9 +49,27 @@ public class BombPlaceSkill {
     this.fuseMs = fuseMs;
   }
 
-  public void cast(Entity caster) {}
+  @SafeVarargs
+  public BombPlaceSkill(
+      IPath bombTexture,
+      IPath explosionTexture,
+      float radius,
+      int damage,
+      long fuseMs,
+      long cooldownMs,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(SKILL_NAME, cooldownMs, resourceCost);
+    this.bombTexture = bombTexture;
+    this.explosionTexture = explosionTexture;
+    this.radius = radius;
+    this.damage = damage;
+    this.fuseMs = fuseMs;
+  }
 
-  private void explode(Entity bomb) {}
+  @Override
+  protected void executeSkill(Entity caster) {}
+
+  private void explode(Entity bomb, Entity source) {}
 
   private void applyAoE(Point center, float radius, int damage, Entity source) {}
 }
