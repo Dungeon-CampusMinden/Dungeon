@@ -67,9 +67,7 @@ public class SentryFactory {
               + ") must be either horizontally or vertically aligned.");
     }
 
-    PositionComponent positionComponent = new PositionComponent();
-    positionComponent.position(a);
-    sentry.add(positionComponent);
+    sentry.add(new PositionComponent(a));
     sentry.add(ai);
     sentry.add(new DrawComponent(chooseTextureFromSpriteSheet(shootDirection)));
     sentry.add(new VelocityComponent(speed));
@@ -106,9 +104,7 @@ public class SentryFactory {
       Direction shootDirection) {
     Entity sentry = new Entity(name);
 
-    PositionComponent positionComponent = new PositionComponent();
-    positionComponent.position(spawnPoint);
-    sentry.add(positionComponent);
+    sentry.add(new PositionComponent(spawnPoint));
     sentry.add(ai);
     sentry.add(new DrawComponent(chooseTextureFromSpriteSheet(shootDirection)));
     sentry.add(new VelocityComponent(speed));
