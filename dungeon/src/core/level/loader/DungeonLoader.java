@@ -306,10 +306,58 @@ public class DungeonLoader {
         reader = new BufferedReader(new FileReader(file));
       }
 
-      return LevelParser.parseLevel(reader, currentLevel());
-
+      return parseReaderToLevel(reader, DungeonLoader.currentLevel());
     } catch (IOException e) {
       throw new RuntimeException("Error reading level file", e);
+    }
+  }
+
+  /**
+   * Loads a DungeonLevel from the string content.
+   *
+   * @param content The string content of the level file.
+   * @param levelName The name of the level.
+   * @return The loaded DungeonLevel.
+   */
+  public static DungeonLevel loadFromString(String content, String levelName) {
+    return parseReaderToLevel(new BufferedReader(new StringReader(content)), levelName);
+  }
+
+  private static DungeonLevel parseReaderToLevel(BufferedReader reader, String levelName) {
+    try {
+      // Parse DesignLabel
+      String designLabelLine = readLine(reader);
+      DesignLabel designLabel = parseDesignLabel(designLabelLine);
+
+      // Parse Hero Position
+      String heroPosLine = readLine(reader);
+      Point heroPos = parseHeroPosition(heroPosLine);
+
+      // Custom Points
+      String customPointsLine = readLine(reader);
+      List<Coordinate> customPoints = parseCustomPoints(customPointsLine);
+
+      // Parse LAYOUT
+      List<String> layoutLines = new ArrayList<>();
+      String line;
+      while (!(line = readLine(reader)).isEmpty()) {
+        layoutLines.add(line);
+      }
+      LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
+
+      DungeonLevel newLevel;
+      newLevel = getLevel(levelName, layout, designLabel, customPoints);
+
+      // Set Hero Position
+      Tile heroTile = newLevel.tileAt(heroPos).orElse(null);
+      if (heroTile == null) {
+        throw new RuntimeException("Invalid Hero Position: " + heroPos);
+      }
+      newLevel.startTile(heroTile);
+
+      return newLevel;
+    } catch (IOException e) {
+      throw new RuntimeException("Error reading level content", e);
     }
   }
 }

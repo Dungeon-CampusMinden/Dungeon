@@ -7,7 +7,6 @@ import static core.network.config.NetworkConfig.*;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.level.loader.DungeonLoader;
 import core.network.MessageDispatcher;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
@@ -174,8 +173,7 @@ public final class ServerTransport {
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       Object obj = deserialize(frame);
       if (obj instanceof NetworkMessage cr) {
-        if (dispatcher != null)
-          dispatcher.dispatch(ctx, cr);
+        if (dispatcher != null) dispatcher.dispatch(ctx, cr);
       } else {
         LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
       }
@@ -217,8 +215,7 @@ public final class ServerTransport {
       if (obj instanceof RegisterUdp reg) {
         onRegisterUdp(pkt.sender(), reg);
       } else if (obj instanceof NetworkMessage networkMessage) {
-        if (dispatcher != null)
-          dispatcher.dispatch(ctx, networkMessage);
+        if (dispatcher != null) dispatcher.dispatch(ctx, networkMessage);
       } else {
         LOGGER.debug("UDP unrecognized type={} from {}", obj.getClass().getName(), pkt.sender());
       }
@@ -237,15 +234,9 @@ public final class ServerTransport {
       throw new IllegalStateException("Game.network().messageDispatcher() is null");
     }
 
-    dispatcher.registerHandler(
-      ConnectRequest.class, this::onConnectRequest
-    );
-    dispatcher.registerHandler(
-      RequestEntitySpawn.class, this::onRequestEntitySpawn
-    );
-    dispatcher.registerHandler(
-      InputMessage.class, (ctx, msg) -> inputQueue.offer(msg)
-    );
+    dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
+    dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
+    dispatcher.registerHandler(InputMessage.class, (ctx, msg) -> inputQueue.offer(msg));
   }
 
   private void onConnectRequest(ChannelHandlerContext ctx, ConnectRequest req) {
@@ -300,15 +291,9 @@ public final class ServerTransport {
 
   private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {
     try {
-      String levelName;
-      try {
-        levelName = DungeonLoader.currentLevel();
-      } catch (Throwable t) {
-        levelName = null;
-      }
-      LevelChangeEvent ev = new LevelChangeEvent(levelName, null);
+      LevelChangeEvent ev = LevelChangeEvent.currentLevel();
       sendTcpObject(ctx, ev);
-      LOGGER.info("Sent initial LEVEL_CHANGE to clientId={} level={}", clientId, levelName);
+      LOGGER.info("Sent initial LEVEL_CHANGE to clientId={}", clientId);
     } catch (Exception e) {
       LOGGER.warn("Failed sending initial LEVEL_CHANGE", e);
     }
