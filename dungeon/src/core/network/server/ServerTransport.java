@@ -8,6 +8,8 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
+import core.network.MessageDispatcher;
+import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
@@ -55,6 +57,7 @@ public final class ServerTransport {
   private EventLoopGroup workerGroup;
   private Channel tcpServer;
   private Channel udpChannel;
+  private MessageDispatcher dispatcher;
 
   public void start(int port) {
     if (bossGroup != null || workerGroup != null) {
@@ -63,6 +66,7 @@ public final class ServerTransport {
     }
     bossGroup = new NioEventLoopGroup(1);
     workerGroup = new NioEventLoopGroup();
+    setupDispatchers();
     startTcp(port);
     startUdp(port);
     LOGGER.info("ServerTransport started on port {} (TCP+UDP)", port);
@@ -169,10 +173,9 @@ public final class ServerTransport {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       Object obj = deserialize(frame);
-      if (obj instanceof ConnectRequest cr) {
-        onConnectRequest(ctx, cr);
-      } else if (obj instanceof RequestEntitySpawn req) {
-        onRequestEntitySpawn(ctx, req);
+      if (obj instanceof NetworkMessage cr) {
+        if (dispatcher != null)
+          dispatcher.dispatch(ctx, cr);
       } else {
         LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
       }
@@ -213,8 +216,9 @@ public final class ServerTransport {
 
       if (obj instanceof RegisterUdp reg) {
         onRegisterUdp(pkt.sender(), reg);
-      } else if (obj instanceof InputMessage input) {
-        inputQueue.offer(input);
+      } else if (obj instanceof NetworkMessage networkMessage) {
+        if (dispatcher != null)
+          dispatcher.dispatch(ctx, networkMessage);
       } else {
         LOGGER.debug("UDP unrecognized type={} from {}", obj.getClass().getName(), pkt.sender());
       }
@@ -224,6 +228,24 @@ public final class ServerTransport {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
       LOGGER.warn("UDP handler error", cause);
     }
+  }
+
+  private void setupDispatchers() {
+    dispatcher = Game.network().messageDispatcher();
+
+    if (dispatcher == null) {
+      throw new IllegalStateException("Game.network().messageDispatcher() is null");
+    }
+
+    dispatcher.registerHandler(
+      ConnectRequest.class, this::onConnectRequest
+    );
+    dispatcher.registerHandler(
+      RequestEntitySpawn.class, this::onRequestEntitySpawn
+    );
+    dispatcher.registerHandler(
+      InputMessage.class, (ctx, msg) -> inputQueue.offer(msg)
+    );
   }
 
   private void onConnectRequest(ChannelHandlerContext ctx, ConnectRequest req) {
