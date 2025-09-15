@@ -5,6 +5,7 @@ import core.Game;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.Portal;
@@ -24,9 +25,9 @@ public class BluePortalSkill extends PortalSkill {
 
 
   @Override
-  protected void createPortal(Point position) {
+  protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.BLUE_PORTAL) {
-      Portal.createBluePortal(position);
+      Portal.createBluePortal(position,currentVelocity,projectilePosition);
     }
   }
 }
