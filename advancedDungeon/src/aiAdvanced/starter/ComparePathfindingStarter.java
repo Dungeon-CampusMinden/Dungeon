@@ -235,12 +235,8 @@ public class ComparePathfindingStarter {
    */
   public static Entity createHero() {
     Entity hero;
-    try {
-      hero = HeroFactory.newHero();
-      hero.remove(CameraComponent.class);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    hero = HeroFactory.newHero();
+    hero.remove(CameraComponent.class);
     Game.add(hero);
     return hero;
   }

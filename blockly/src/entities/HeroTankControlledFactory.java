@@ -2,7 +2,6 @@ package entities;
 
 import client.Client;
 import coderunner.BlocklyCommands;
-import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import core.Entity;
 import core.components.InputComponent;
@@ -37,7 +36,7 @@ public class HeroTankControlledFactory {
           Client.restart();
         });
 
-    Entity hero = EntityFactory.newHero();
+    Entity hero = HeroFactory.newHero();
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls
