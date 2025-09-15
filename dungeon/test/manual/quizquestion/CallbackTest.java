@@ -69,17 +69,13 @@ public class CallbackTest {
     Game.frameRate(30);
     Game.userOnSetup(
         () -> {
-          try {
-            Game.add(new AISystem());
-            Game.add(new CollisionSystem());
-            Game.add(new HealthSystem());
-            Game.add(new ProjectileSystem());
-            Game.add(new HudSystem());
-            Entity hero = HeroFactory.newHero();
-            Game.add(hero);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+          Game.add(new AISystem());
+          Game.add(new CollisionSystem());
+          Game.add(new HealthSystem());
+          Game.add(new ProjectileSystem());
+          Game.add(new HudSystem());
+          Entity hero = HeroFactory.newHero();
+          Game.add(hero);
         });
     Game.userOnFrame(
         () -> {
