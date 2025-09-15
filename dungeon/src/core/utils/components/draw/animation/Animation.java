@@ -38,6 +38,12 @@ public class Animation implements Serializable, Cloneable {
   /** Path to the missing texture fallback image. */
   public static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");
 
+  /** How this animation was sourced (single, multi, spritesheet). */
+  private enum SourceType {
+    SINGLE_OR_MULTI,
+    SPRITESHEET
+  }
+
   private final AnimationConfig config;
 
   /** Logical world size (computed from sprite pixel size and scale). */
@@ -501,6 +507,11 @@ public class Animation implements Serializable, Cloneable {
       return dirName + "/" + baseName + ".png";
     }
     return pathString;
+  }
+
+  @Serial
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
   }
 
   @Serial
