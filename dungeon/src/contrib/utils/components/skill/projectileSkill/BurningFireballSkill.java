@@ -20,6 +20,7 @@ public final class BurningFireballSkill extends FireballSkill {
   private static final BurningEffect BURNING_EFFECT = new BurningEffect(1f, 1);
   private static final float PROJECTILE_SPEED = 13f;
   private static final long COOLDOWN = 500;
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   /**
    * The range of the projectile. If the projectile has traveled this distance, it will be removed
@@ -36,7 +37,13 @@ public final class BurningFireballSkill extends FireballSkill {
    * @param targetSelection A function used to select the point where the projectile should fly to.
    */
   public BurningFireballSkill(final Supplier<Point> targetSelection) {
-    super(targetSelection, COOLDOWN, PROJECTILE_SPEED, PROJECTILE_RANGE, DAMAGE_AMOUNT);
+    super(
+        targetSelection,
+        COOLDOWN,
+        PROJECTILE_SPEED,
+        PROJECTILE_RANGE,
+        DAMAGE_AMOUNT,
+        IGNORE_FIRST_WALL);
     this.name = "Burning Fireball";
   }
 

@@ -27,6 +27,8 @@ public class MyFireballSkill extends DamageProjectileSkill {
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
   private static final long COOLDOWN = 500;
   private static final boolean IS_PIERCING = false;
+  private static final boolean IGNORE_FIRST_WALL = false;
+
 
   /**
    * Erstellt einen Feuerball mit Standardwerten.
@@ -64,6 +66,7 @@ public class MyFireballSkill extends DamageProjectileSkill {
         IS_PIERCING,
         damageAmount,
         DAMAGE_TYPE,
+        IGNORE_FIRST_WALL,
         resourceCost);
   }
 

@@ -2,7 +2,6 @@ package contrib.utils.components.ai.fight;
 
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
 import core.level.utils.LevelUtils;
@@ -50,10 +49,8 @@ public final class StationarySentryAttack implements Consumer<Entity>, ISkillUse
           "Skill for SentryFightBehaviour must be a DamageProjectileSkill!");
     }
 
-    Point targetEndPoint =
-        SkillTools.calculateLastPointInDirection(
-            this.spawnPoint, this.shootDirection, this.attackRange);
-    this.fightSkill.setNewEndpoint(() -> targetEndPoint.toCenteredPoint());
+    Point targetEndPoint = this.spawnPoint.translate(this.shootDirection.scale(this.attackRange));
+    this.fightSkill.targetSelection(() -> targetEndPoint.toCenteredPoint());
   }
 
   @Override

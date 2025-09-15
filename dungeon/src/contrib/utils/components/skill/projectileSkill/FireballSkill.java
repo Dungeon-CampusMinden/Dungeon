@@ -9,7 +9,6 @@ import core.Entity;
 import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -31,6 +30,7 @@ public class FireballSkill extends DamageProjectileSkill {
   private static final float RANGE = 7f;
   private static final long COOLDOWN = 500;
   private static final boolean IS_PIERCING = false;
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   private static final DamageType DAMAGE_TYPE = DamageType.FIRE;
 
@@ -46,6 +46,7 @@ public class FireballSkill extends DamageProjectileSkill {
    * @param speed Travel speed of the projectile.
    * @param range Maximum travel range.
    * @param damageAmount Base damage dealt.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -56,6 +57,7 @@ public class FireballSkill extends DamageProjectileSkill {
       float speed,
       float range,
       int damageAmount,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
     super(
         name,
@@ -67,6 +69,7 @@ public class FireballSkill extends DamageProjectileSkill {
         IS_PIERCING,
         damageAmount,
         DAMAGE_TYPE,
+        ignoreFirstWall,
         resourceCost);
   }
 
@@ -78,6 +81,7 @@ public class FireballSkill extends DamageProjectileSkill {
    * @param speed Travel speed of the projectile.
    * @param range Maximum travel range.
    * @param damageAmount Base damage dealt.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -87,8 +91,9 @@ public class FireballSkill extends DamageProjectileSkill {
       float speed,
       float range,
       int damageAmount,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    this(SKILL_NAME, target, cooldown, speed, range, damageAmount, resourceCost);
+    this(SKILL_NAME, target, cooldown, speed, range, damageAmount, ignoreFirstWall, resourceCost);
   }
 
   /**
@@ -101,7 +106,7 @@ public class FireballSkill extends DamageProjectileSkill {
   @SafeVarargs
   public FireballSkill(
       Supplier<Point> targetSelection, long cooldown, Tuple<Resource, Integer>... resourceCost) {
-    this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, resourceCost);
+    this(targetSelection, cooldown, SPEED, RANGE, DAMAGE, IGNORE_FIRST_WALL, resourceCost);
   }
 
   /**
@@ -110,6 +115,7 @@ public class FireballSkill extends DamageProjectileSkill {
    * @param targetSelection Function providing the target point where the fireball should fly.
    * @param cooldown Cooldown time (in ms) before the skill can be used again.
    * @param range Maximum travel range.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost Resource costs (e.g., mana, energy) required to use the skill.
    */
   @SafeVarargs
@@ -117,8 +123,9 @@ public class FireballSkill extends DamageProjectileSkill {
       Supplier<Point> targetSelection,
       long cooldown,
       float range,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    this(targetSelection, cooldown, SPEED, range, DAMAGE, resourceCost);
+    this(targetSelection, cooldown, SPEED, range, DAMAGE, ignoreFirstWall, resourceCost);
   }
 
   /**
@@ -153,10 +160,5 @@ public class FireballSkill extends DamageProjectileSkill {
     long soundId = soundEffect.play();
     soundEffect.setPitch(soundId, randomPitch);
     soundEffect.setVolume(soundId, 0.05f);
-  }
-
-  @Override
-  protected Consumer<Entity> onWallHit(Entity caster) {
-    return handleDamageProjectileWallHit(caster);
   }
 }

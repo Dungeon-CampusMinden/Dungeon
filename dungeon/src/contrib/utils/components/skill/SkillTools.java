@@ -44,36 +44,6 @@ public final class SkillTools {
   }
 
   /**
-   * Calculates a target point starting from the given {@code startPoint} in the specified {@link
-   * Direction}, offset by the given {@code range}.
-   *
-   * <p>The calculation moves the point along the X or Y axis depending on the direction.
-   *
-   * @param startPoint the point from which the calculation begins
-   * @param direction the direction in which to calculate the target point
-   * @param range the distance to move in the given direction
-   * @return a new {@link Point} representing the last position in the specified direction at the
-   *     given range
-   */
-  public static Point calculateLastPointInDirection(
-      final Point startPoint, Direction direction, float range) {
-    float x = startPoint.x();
-    float y = startPoint.y();
-
-    switch (direction) {
-      case UP -> y += range;
-      case DOWN -> y -= range;
-      case RIGHT -> x += range;
-      case LEFT -> x -= range;
-      case NONE -> {
-        /* keine Änderung */
-      }
-    }
-
-    return new Point(x, y);
-  }
-
-  /**
    * Gets the current cursor position as Point. The cursor is used to aim.
    *
    * @return The mouse cursor position as Point.

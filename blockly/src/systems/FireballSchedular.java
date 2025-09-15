@@ -24,6 +24,7 @@ public class FireballSchedular {
   private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
   private static final float FIREBALL_SPEED = 15f;
   private static final int FIREBALL_DMG = 1;
+  private static final boolean IGNORE_FIRST_WALL = false;
   private static final FireballSkill fireballSkill =
       new FireballSkill(
           () -> {
@@ -36,7 +37,10 @@ public class FireballSchedular {
           1,
           FIREBALL_SPEED,
           FIREBALL_RANGE,
-          FIREBALL_DMG);
+          FIREBALL_DMG,
+          IGNORE_FIRST_WALL);
+
+  private boolean shoot = false;
 
   /**
    * Shoot a fireball in the viewdirection of the hero.

@@ -44,6 +44,8 @@ public abstract class ProjectileSkill extends Skill {
 
   protected boolean ignoreOtherProjectiles = true;
 
+  private static final float pushOffset = 0.4f;
+
   protected IPath texture;
   protected float speed;
   protected float range;
@@ -51,6 +53,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Vector2 hitBoxOffset;
   protected int tintColor = -1;
   protected List<Entity> ignoreEntities;
+  private boolean ignoreFirstWall;
 
   /**
    * Creates a new projectile skill.
@@ -62,6 +65,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param range Maximum travel distance of the projectile.
    * @param hitBoxSize Hitbox size for collisions.
    * @param hitBoxOffset Hitbox offset for collisions.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -73,6 +77,7 @@ public abstract class ProjectileSkill extends Skill {
       float range,
       Vector2 hitBoxSize,
       Vector2 hitBoxOffset,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, resourceCost);
     this.texture = texture;
@@ -81,6 +86,7 @@ public abstract class ProjectileSkill extends Skill {
     this.hitBoxSize = hitBoxSize;
     this.hitBoxOffset = hitBoxOffset;
     this.ignoreEntities = new ArrayList<>();
+    this.ignoreFirstWall = ignoreFirstWall;
   }
 
   /**
@@ -91,6 +97,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param texture Texture for the projectile.
    * @param speed Movement speed of the projectile.
    * @param range Maximum travel distance of the projectile.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -100,6 +107,7 @@ public abstract class ProjectileSkill extends Skill {
       IPath texture,
       float speed,
       float range,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
     this(
         name,
@@ -109,6 +117,7 @@ public abstract class ProjectileSkill extends Skill {
         range,
         DEFAULT_HITBOX_SIZE,
         DEFAULT_HITBOX_OFFSET,
+        ignoreFirstWall,
         resourceCost);
   }
 
@@ -147,7 +156,7 @@ public abstract class ProjectileSkill extends Skill {
     Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
 
     // Add components
-    VelocityComponent vc = new VelocityComponent(speed, onWallHit(caster), true);
+    VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
     vc.moveboxSize(hitBoxSize);
     vc.moveboxOffset(hitBoxOffset);
     projectile.add(vc);
@@ -213,11 +222,12 @@ public abstract class ProjectileSkill extends Skill {
    * Defines the behavior when the projectile collides with a wall.
    *
    * @param caster the entity that created or cast the projectile
+   * @param projectile the projectile entity
    * @return a {@link Consumer} that handles wall collisions; the projectile entity is passed to the
    *     consumer
    */
-  protected Consumer<Entity> onWallHit(Entity caster) {
-    return REMOVE_CONSUMER;
+  protected void onWallHit(Entity caster, Entity projectile) {
+    Game.remove(projectile);
   }
 
   /**
@@ -368,26 +378,34 @@ public abstract class ProjectileSkill extends Skill {
   }
 
   /**
-   * Checks whether the caster's {@link VelocityComponent} has {@code canEnterWalls} set to {@code
-   * true}. If so, the projectile is allowed to ignore the first wall hit and continue flying
-   * through it.
-   *
-   * <p>When this method is used, the remaining logic that would normally reside in {@code
-   * onWallHit} should instead be implemented in {@code handleWallCollisionAfterFirstHit}.
+   * @return if the projectile ignores the first wall hit.
+   */
+  public boolean isIgnoreFirstWall() {
+    return ignoreFirstWall;
+  }
+
+  /**
+   * @param ignoreFirstWall new value for ignoreFirstWall.
+   */
+  public void setIgnoreFirstWall(boolean ignoreFirstWall) {
+    this.ignoreFirstWall = ignoreFirstWall;
+  }
+
+  /**
+   * Checks whether the projectiles's {@code ignoreFirstWall} is set to {@code true}. If so, the
+   * projectile is allowed to ignore the first wall hit and continue flying through it.
    *
    * @param caster the entity that created or cast the projectile
    * @return a {@link Consumer} that handles wall collisions; the projectile entity is passed to the
    *     consumer
    */
-  protected Consumer<Entity> handleDamageProjectileWallHit(Entity caster) {
+  protected Consumer<Entity> handleProjectileWallHit(Entity caster) {
     return projectile -> {
       projectile
           .fetch(VelocityComponent.class)
           .ifPresent(
               vel -> {
-                VelocityComponent casterVC = caster.fetch(VelocityComponent.class).orElse(null);
-
-                if (casterVC != null && casterVC.canEnterWalls()) {
+                if (this.ignoreFirstWall) {
                   WallHitStateComponent state =
                       projectile
                           .fetch(WallHitStateComponent.class)
@@ -403,43 +421,37 @@ public abstract class ProjectileSkill extends Skill {
                     state.markFirstWallHitIgnored();
 
                     // push the projectile forward
-                    projectile
-                        .fetch(PositionComponent.class)
-                        .ifPresent(
-                            pos -> {
-                              Vector2 velocity = vel.currentVelocity();
-
-                              float length =
-                                  (float)
-                                      Math.sqrt(
-                                          velocity.x() * velocity.x()
-                                              + velocity.y() * velocity.y());
-                              if (length > 0) {
-                                float offset = 0.4f;
-                                Vector2 push =
-                                    Vector2.of(
-                                        (velocity.x() / length) * offset,
-                                        (velocity.y() / length) * offset);
-
-                                pos.position(pos.position().translate(push));
-                              }
-                            });
+                    moveThroughWall(projectile, vel);
 
                     return;
                   }
                 }
 
-                handleWallCollisionAfterFirst(projectile);
+                onWallHit(caster, projectile);
               });
     };
   }
 
   /**
-   * Handles a projectile after colliding with a wall.
-   *
-   * @param projectile the projectile that hit the wall.
+   * Pushes the projectile a small distance forward in its movement direction so that it passes
+   * through the first wall.
    */
-  protected void handleWallCollisionAfterFirst(Entity projectile) {
-    Game.remove(projectile);
+  protected void moveThroughWall(Entity projectile, VelocityComponent vel) {
+    projectile
+        .fetch(PositionComponent.class)
+        .ifPresent(
+            pos -> {
+              Vector2 velocity = vel.currentVelocity();
+
+              float length =
+                  (float) Math.sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y());
+              if (length > 0) {
+                Vector2 push =
+                    Vector2.of(
+                        (velocity.x() / length) * pushOffset, (velocity.y() / length) * pushOffset);
+
+                pos.position(pos.position().translate(push));
+              }
+            });
   }
 }

@@ -4,7 +4,6 @@ import com.badlogic.gdx.ai.pfa.GraphPath;
 import contrib.utils.components.ai.AIUtils;
 import contrib.utils.components.ai.ISkillUser;
 import contrib.utils.components.skill.Skill;
-import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.DamageProjectileSkill;
 import core.Entity;
 import core.components.PositionComponent;
@@ -85,10 +84,8 @@ public class SentryFightBehaviour implements Consumer<Entity>, ISkillUser {
     }
 
     // set a new targetEndPoint based on the current Position of the entity and the given direction
-    Point targetEndPoint =
-        SkillTools.calculateLastPointInDirection(
-            entityPosComp.position(), shootDirection, attackRange);
-    fightSkill.setNewEndpoint(() -> targetEndPoint);
+    Point targetEndPoint = entityPosComp.position().translate(shootDirection.scale(attackRange));
+    fightSkill.targetSelection(() -> targetEndPoint);
 
     // attack if hero is in range
     tryAttack(entity);

@@ -48,6 +48,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    * @param damageType The type of damage inflicted by the projectile.
    * @param hitBoxSize The hitbox size of the projectile used for collision detection.
    * @param hitBoxOffset The hitbox offset of the projectile used for collision detection.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
    */
   @SafeVarargs
@@ -63,8 +64,9 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       DamageType damageType,
       Vector2 hitBoxSize,
       Vector2 hitBoxOffset,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, hitBoxSize, hitBoxOffset, resourceCost);
+    super(name, cooldown, texture, speed, range, hitBoxSize, hitBoxOffset, ignoreFirstWall, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
@@ -84,6 +86,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    *     (false).
    * @param damageAmount The base damage dealt by the projectile.
    * @param damageType The type of damage inflicted by the projectile.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
    */
   @SafeVarargs
@@ -97,8 +100,9 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       boolean piercing,
       int damageAmount,
       DamageType damageType,
+      boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, resourceCost);
+    super(name, cooldown, texture, speed, range, ignoreFirstWall, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
@@ -249,7 +253,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    *
    * @param endPointSupplier a new supplier that provides the point to aim for.
    */
-  public void setNewEndpoint(Supplier<Point> endPointSupplier) {
+  public void targetSelection(Supplier<Point> endPointSupplier) {
     this.endPointSupplier = endPointSupplier;
   }
 }
