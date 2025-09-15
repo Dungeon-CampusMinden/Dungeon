@@ -6,11 +6,8 @@ import core.network.NetworkException;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.c2s.RequestEntitySpawn;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 
 /**
@@ -31,21 +28,26 @@ public interface INetworkHandler {
    * @param username The username for the connection.
    */
   void initialize(boolean isServer, String serverAddress, int port, String username)
-    throws NetworkException;
+      throws NetworkException;
 
   /**
    * Sends a {@link NetworkMessage} to a specific client (if server) or to the server (if client).
-   * @param clientId The ID of the client to send the message to. Ignored if this is a client instance.
+   *
+   * @param clientId The ID of the client to send the message to. Ignored if this is a client
+   *     instance.
    * @param message The message to send.
    * @param reliable True to send via a reliable channel, false for unreliable.
-   * @return A Future that completes with true if the message was sent successfully acknowledged (for reliable messages), or false otherwise. For unreliable messages, the Future completes immediately with true.
+   * @return A Future that completes with true if the message was sent successfully acknowledged
+   *     (for reliable messages), or false otherwise. For unreliable messages, the Future completes
+   *     immediately with true.
    */
   CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable);
 
   /**
    * Sends a {@link NetworkMessage} to all connected clients (if server).
    *
-   * <p>For client instances, this method is unsupported and will throw an {@link UnsupportedOperationException}.
+   * <p>For client instances, this method is unsupported and will throw an {@link
+   * UnsupportedOperationException}.
    *
    * @param message The message to broadcast.
    * @param reliable True to send via a reliable channel, false for unreliable.
@@ -150,9 +152,8 @@ public interface INetworkHandler {
    * Drains any queued inbound network messages and dispatches them on the game loop thread.
    *
    * <p>Default is a no-op; implementations with IO threads should override this and deliver
-   * messages to {@link #messageDispatcher()} or the raw consumer set via
-   * {@link #_setRawMessageConsumer(BiConsumer)}.
+   * messages to {@link #messageDispatcher()} or the raw consumer set via {@link
+   * #_setRawMessageConsumer(BiConsumer)}.
    */
   default void pollAndDispatch() {}
-
 }

@@ -5,7 +5,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
@@ -19,8 +18,7 @@ import java.util.function.Supplier;
  * are evaluated each update cycle.
  */
 public class StateMachine implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /**
    * Defines globally whether the frame counter should be reset when the animation state changes.

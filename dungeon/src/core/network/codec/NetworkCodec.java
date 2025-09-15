@@ -19,13 +19,11 @@ public final class NetworkCodec {
     return bos.toByteArray();
   }
 
-  public static Object deserialize(ByteBuf buf)
-    throws IOException, ClassNotFoundException {
+  public static Object deserialize(ByteBuf buf) throws IOException, ClassNotFoundException {
     int len = buf.readableBytes();
     byte[] array = new byte[len];
     buf.getBytes(buf.readerIndex(), array);
-    try (ObjectInputStream ois =
-           new ObjectInputStream(new ByteArrayInputStream(array))) {
+    try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(array))) {
       return ois.readObject();
     }
   }

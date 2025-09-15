@@ -5,7 +5,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
@@ -22,8 +21,7 @@ import java.util.function.Consumer;
  * DirectionalState}.
  */
 public class State implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** The name of this state. */
   public final String name;

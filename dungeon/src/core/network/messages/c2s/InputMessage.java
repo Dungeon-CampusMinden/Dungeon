@@ -26,8 +26,7 @@ public record InputMessage(int clientId, Action action, Point point) implements 
     CAST_SKILL(2),
     INTERACT(3),
     NEXT_SKILL(4),
-    PREV_SKILL(5)
-    ;
+    PREV_SKILL(5);
 
     private final byte value;
 

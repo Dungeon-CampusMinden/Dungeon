@@ -11,8 +11,8 @@ import core.systems.InputSystem;
  * increment and decrement the dialog counter, as well as a method to check if any dialogs are
  * currently open.
  *
- *  <p>This component is used to identify the player entity in the game. It contains information
- *  about whether the player is the local hero and manages the count of open dialogs.
+ * <p>This component is used to identify the player entity in the game. It contains information
+ * about whether the player is the local hero and manages the count of open dialogs.
  *
  * @see Input.Keys
  * @see InputSystem

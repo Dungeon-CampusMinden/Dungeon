@@ -57,7 +57,7 @@ public final class SkillTools {
   public static Point cursorPositionAsPoint() {
     if (Gdx.graphics == null) {
       LOGGER.error("Gdx.graphics is null, returning default Point(0, 0) for cursor position.");
-      //return new Point(0, 0);
+      // return new Point(0, 0);
       throw new IllegalStateException("Gdx.graphics is null, cannot get cursor position.");
     }
 

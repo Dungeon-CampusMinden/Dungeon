@@ -1,6 +1,5 @@
 package starter;
 
-import contrib.entities.HeroFactory;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
