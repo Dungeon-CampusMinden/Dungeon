@@ -139,14 +139,7 @@ public final class AuthoritativeServerLoop {
   }
 
   private void broadcastLevelChange() {
-    String levelName;
-    try {
-      levelName = DungeonLoader.currentLevel();
-    } catch (Throwable t) {
-      LOGGER.warn("Failed to read current level", t);
-      return;
-    }
-    broadcast(new LevelChangeEvent(levelName, null), true);
+    broadcast(LevelChangeEvent.currentLevel(), true);
   }
 
   void broadcast(NetworkMessage event, boolean reliable) {
