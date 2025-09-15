@@ -8,6 +8,7 @@ DEFAULT
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 WWWWWWWTTWWWWWWWWW
 WFFFFFFFFFFFFFFFFW
 WFFFFFFFFFFFFFFFFT
@@ -40,16 +41,24 @@ WWWWWWWWWWWWWWWWWW
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
 WWWWWWWBBWWWWWWWWW
+=======
+WWWWWWWTTWWWWWWWWW
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 WFFFFFFFFFFFFFFFFW
-WFFFFFFFFFFFFFFFFB
-BFFFFFFFFFFFFFFFFB
+WFFFFFFFFFFFFFFFFT
+TFFFFFFFFFFFFFFFFT
 WFFFFFFFFFFFFFFFFW
+<<<<<<< HEAD
 GFFFFFFFFFFFFFFFFW
 GFFFFFFFFFFFFFFFFW
 <<<<<<< HEAD
 >>>>>>> 2178e611 (added green and blue portal variants)
+=======
+TFFFFFFFFFFFFFFFFW
+TFFFFFFFFFFFFFFFFW
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 WFFFFFFFFFFFFFFFFW
-WFFFFFWWBWWFFFFFFW
+WFFFFFWWTWWFFFFFFW
 WFFFFFFFFFFFFFFFFW
 WFFFFFWWBWWFFFFFFW
 WFFFFFFFFFFFFFFFFW
@@ -70,6 +79,7 @@ WFFFFFWWTWWFFFFFFW
 >>>>>>> e27b0a78 (added dummy portal skill)
 WFFFFFFFFFFFFFFFFW
 WFFFFFFFFFFFFFFFFW
+<<<<<<< HEAD
 <<<<<<< HEAD
 WFFFFFFFFFFFFFFFFW
 WFFFFFFFFFFFFFFFFW
@@ -115,3 +125,6 @@ WWWWWWWWWWWWWBBWWW
 =======
 WWWWWWWWWWWWWBBWWW
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+WWWWWWWWWWWWWTTWWW
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)

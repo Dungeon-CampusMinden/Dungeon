@@ -19,7 +19,7 @@ import produsAdvanced.abstraction.Portal;
 
 public class GreenPortalSkill extends PortalSkill {
 
-  private static final IPath TEXTURE = new SimpleIPath("skills/green_portal");
+  private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
 
   /**
    * Creates a new projectile skill.
@@ -34,7 +34,7 @@ public class GreenPortalSkill extends PortalSkill {
 <<<<<<< HEAD
 <<<<<<< HEAD
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
-    if (Game.tileAt(position).get().levelElement() == LevelElement.GREEN_PORTAL) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
 =======
   protected void createPortal(Point position) {

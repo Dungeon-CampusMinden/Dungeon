@@ -149,6 +149,7 @@ public interface ILevel extends IndexedGraph<Tile> {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
 <<<<<<< HEAD
           output.append("T");
@@ -185,6 +186,10 @@ public interface ILevel extends IndexedGraph<Tile> {
         } else if (layout()[y][x].levelElement() == LevelElement.GREEN_PORTAL) {
           output.append("G");
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+        } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
+          output.append("T");
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
         } else {
           throw new RuntimeException(
               "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());

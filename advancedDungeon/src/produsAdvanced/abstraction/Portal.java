@@ -105,6 +105,7 @@ public class Portal {
     Point best = list.getFirst().a();
     System.out.println(new Point(point.x()-best.x(), point.y()-best.y()));
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
 =======
@@ -114,6 +115,9 @@ public class Portal {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+=======
+    portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
     Game.add(portal);
     bluePortal = portal;
   }
@@ -137,11 +141,7 @@ public class Portal {
     CollideComponent cc = new CollideComponent(CollideComponent.DEFAULT_OFFSET, Vector2.of(1.05,1.05), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     portal.add(cc);
 
-    try {
-      portal.add(new DrawComponent(new SimpleIPath("portals/green")));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
 <<<<<<< HEAD
 <<<<<<< HEAD

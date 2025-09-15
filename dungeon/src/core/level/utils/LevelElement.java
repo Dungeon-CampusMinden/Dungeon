@@ -22,6 +22,7 @@ public enum LevelElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** This field is a portal-field*/
   PORTAL(false, false);
 <<<<<<< HEAD
@@ -57,6 +58,11 @@ public enum LevelElement {
 >>>>>>> 896ecd5c (added PortalTile for portal skill)
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+  /** This field is a portal-field*/
+  PORTAL(false, false);
+
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 
   private final boolean accessible;
   private final boolean canSeeThrough;
