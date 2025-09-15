@@ -12,8 +12,7 @@ import java.io.Serializable;
  * the dungeon framework.
  */
 public class SimpleIPath implements IPath, Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final String path;
 

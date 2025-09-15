@@ -10,14 +10,8 @@ import core.components.PositionComponent;
 import core.level.elements.ILevel;
 import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
-import core.utils.Direction;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
-import core.utils.Point;
-import core.utils.components.draw.CoreAnimations;
-import core.utils.components.draw.state.StateMachine;
-import core.utils.components.path.IPath;
-
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -94,15 +88,8 @@ public final class ECSManagment {
       Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
       Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
 
-      if (pc.isPresent()
-          && dc.isPresent()) {
-        Game.network()
-          .broadcast(
-            new EntitySpawnEvent(
-              entity.id(),
-              pc.get(),
-              dc.get()
-            ), true);
+      if (pc.isPresent() && dc.isPresent()) {
+        Game.network().broadcast(new EntitySpawnEvent(entity.id(), pc.get(), dc.get()), true);
       }
     }
 
@@ -123,8 +110,8 @@ public final class ECSManagment {
     LOGGER.info(entity + " will be removed from the Game.");
 
     if (Game.network().isServer()) {
-      Game.network().broadcast(new EntityDespawnEvent(entity.id(),
-        "Entity removed from game"), true);
+      Game.network()
+          .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
     }
 
     return entity;

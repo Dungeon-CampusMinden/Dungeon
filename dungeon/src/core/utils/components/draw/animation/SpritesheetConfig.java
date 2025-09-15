@@ -12,8 +12,7 @@ import java.io.Serializable;
  * individual frames.
  */
 public class SpritesheetConfig implements Serializable, Cloneable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private int spriteWidth = 16;
   private int spriteHeight = 16;

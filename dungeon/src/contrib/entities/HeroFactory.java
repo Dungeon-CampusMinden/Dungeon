@@ -33,7 +33,6 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -95,7 +94,7 @@ public final class HeroFactory {
    *
    * @return A new Entity.
    */
-  public static Entity newHero(){
+  public static Entity newHero() {
     return newHero(DEFAULT_HERO_CLASS);
   }
 
@@ -111,7 +110,7 @@ public final class HeroFactory {
    * @param characterClass Class of the hero
    * @return A new Entity.
    */
-  public static Entity newHero(CharacterClass characterClass){
+  public static Entity newHero(CharacterClass characterClass) {
     return newHero(characterClass, true, PreRunConfiguration.username());
   }
 
@@ -120,19 +119,19 @@ public final class HeroFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
-   *  <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
-   *   {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
-   *    CollideComponent} and {@link HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
    *
-   *    <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
-   *    Otherwise, it will be controlled by the server.
+   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   * Otherwise, it will be controlled by the server.
    *
    * @param characterClass Class of the hero
    * @param isLocal if the hero is the local player
    * @param playerName name of the player (used for multiplayer)
    * @return A new Entity.
    */
-  public static Entity newHero(CharacterClass characterClass, boolean isLocal, String playerName){
+  public static Entity newHero(CharacterClass characterClass, boolean isLocal, String playerName) {
     return newHero(EntityIdProvider.nextId(), characterClass, isLocal, playerName);
   }
 
@@ -141,18 +140,18 @@ public final class HeroFactory {
    *
    * <p>The Entity is not added to the game yet.
    *
-   *  <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
-   *   {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
-   *    CollideComponent} and {@link HealthComponent}.
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
    *
-   *    <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
-   *    Otherwise, it will be controlled by the server.
+   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   * Otherwise, it will be controlled by the server.
    *
    * @param isLocal if the hero is the local player
    * @param playerName name of the player (used for multiplayer)
    * @return A new Entity.
    */
-  public static Entity newHero(boolean isLocal, String playerName){
+  public static Entity newHero(boolean isLocal, String playerName) {
     return newHero(-1, DEFAULT_HERO_CLASS, isLocal, playerName);
   }
 
@@ -174,8 +173,10 @@ public final class HeroFactory {
    * @param playerName name of the player (used for multiplayer)
    * @return A new Entity.
    */
-  public static Entity newHero(final int id, CharacterClass characterClass, final boolean isLocal, String playerName) {
-    Entity hero = id == -1 ? new Entity("hero_" + playerName) : new Entity(id, "hero_" + playerName);
+  public static Entity newHero(
+      final int id, CharacterClass characterClass, final boolean isLocal, String playerName) {
+    Entity hero =
+        id == -1 ? new Entity("hero_" + playerName) : new Entity(id, "hero_" + playerName);
     hero.persistent(true);
     PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
@@ -242,7 +243,6 @@ public final class HeroFactory {
                 sound.play();
                 sound.setVolume(soundId, 0.9f);
               }
-
 
               // relink components for camera
               Entity cameraDummy = new Entity("heroCamera");
@@ -536,5 +536,4 @@ public final class HeroFactory {
     vc1.applyForce("Collision", newVelocity.scale(-1));
     vc2.applyForce("Collision", newVelocity);
   }
-
 }

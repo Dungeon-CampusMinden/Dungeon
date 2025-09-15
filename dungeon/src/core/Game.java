@@ -87,14 +87,14 @@ public final class Game {
       LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
     }
 
-    WindowEventManager.registerCloseRequestListener(() -> {
-      exit("Game closed");
-      return true;
-    });
+    WindowEventManager.registerCloseRequestListener(
+        () -> {
+          exit("Game closed");
+          return true;
+        });
 
     // Start the main game loop
-    if (!PreRunConfiguration.multiplayerEnabled() ||
-      !PreRunConfiguration.isNetworkServer()) {
+    if (!PreRunConfiguration.multiplayerEnabled() || !PreRunConfiguration.isNetworkServer()) {
       GameLoop.run();
     }
   }

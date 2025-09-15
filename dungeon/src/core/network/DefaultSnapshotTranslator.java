@@ -156,27 +156,42 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     .fetch(DrawComponent.class)
                     .ifPresent(
                         dc -> {
-                          snap.stateName().ifPresent(stateName -> dc.stateMachine().setState(stateName, Direction.valueOf(snap.viewDirection().orElse("DOWN"))));
+                          snap.stateName()
+                              .ifPresent(
+                                  stateName ->
+                                      dc.stateMachine()
+                                          .setState(
+                                              stateName,
+                                              Direction.valueOf(
+                                                  snap.viewDirection().orElse("DOWN"))));
                           snap.tintColor().ifPresent(dc::tintColor);
                         });
 
-                entity.fetch(HealthComponent.class).ifPresentOrElse(
-                    hc -> snap.currentHealth().ifPresent(hc::currentHealthpoints),
-                    () -> snap.maxHealth().ifPresent(maxHealth -> {
-                        HealthComponent hc = new HealthComponent(maxHealth);
-                        entity.add(hc);
-                        snap.currentHealth().ifPresent(hc::currentHealthpoints);
-                    })
-                );
+                entity
+                    .fetch(HealthComponent.class)
+                    .ifPresentOrElse(
+                        hc -> snap.currentHealth().ifPresent(hc::currentHealthpoints),
+                        () ->
+                            snap.maxHealth()
+                                .ifPresent(
+                                    maxHealth -> {
+                                      HealthComponent hc = new HealthComponent(maxHealth);
+                                      entity.add(hc);
+                                      snap.currentHealth().ifPresent(hc::currentHealthpoints);
+                                    }));
 
-                entity.fetch(ManaComponent.class).ifPresentOrElse(
-                  hc -> snap.currentMana().ifPresent(hc::currentAmount),
-                  () -> snap.maxMana().ifPresent(maxMana -> {
-                    ManaComponent mc = new ManaComponent(maxMana, maxMana, 0);
-                    entity.add(mc);
-                    snap.currentMana().ifPresent(mc::currentAmount);
-                  })
-                );
+                entity
+                    .fetch(ManaComponent.class)
+                    .ifPresentOrElse(
+                        hc -> snap.currentMana().ifPresent(hc::currentAmount),
+                        () ->
+                            snap.maxMana()
+                                .ifPresent(
+                                    maxMana -> {
+                                      ManaComponent mc = new ManaComponent(maxMana, maxMana, 0);
+                                      entity.add(mc);
+                                      snap.currentMana().ifPresent(mc::currentAmount);
+                                    }));
               } catch (Exception ignored) {
               }
             });

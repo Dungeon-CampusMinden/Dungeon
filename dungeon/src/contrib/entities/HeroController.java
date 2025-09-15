@@ -34,16 +34,14 @@ public class HeroController {
     CharacterClass heroClass = HeroFactory.DEFAULT_HERO_CLASS;
 
     VelocityComponent vc =
-      hero
-        .fetch(VelocityComponent.class)
-        .orElseThrow(
-          () -> MissingComponentException.build(hero, VelocityComponent.class));
+        hero.fetch(VelocityComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, VelocityComponent.class));
 
     Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
     Vector2 newForce = heroClass.speed().scale(direction);
 
     Vector2 updatedForce =
-      existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
+        existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
 
     if (updatedForce.lengthSquared() > 0) {
       updatedForce = updatedForce.normalize().scale(heroClass.speed().length());
@@ -84,19 +82,16 @@ public class HeroController {
 
   public static void useSkill(Entity hero, Point target) {
     hero.fetch(SkillComponent.class)
-      .flatMap(SkillComponent::activeSkill)
-      .ifPresent(
-        skill -> {
-          if (skill instanceof CursorSkill cursorSkill) {
-            cursorSkill.executeOnCursor(hero, target);
-            // TODO: Skips resource and cooldown handling for now
-          } else if (skill instanceof ProjectileSkill projSkill) {
-            projSkill.endPointSupplier(() -> target);
-            projSkill.execute(hero);
-          } else {
-            skill.execute(hero);
-          }
-        });
+        .flatMap(SkillComponent::activeSkill)
+        .ifPresent(
+            skill -> {
+              if (skill instanceof CursorSkill cursorSkill) {
+                cursorSkill.cursorPositionSupplier(() -> target);
+              } else if (skill instanceof ProjectileSkill projSkill) {
+                projSkill.endPointSupplier(() -> target);
+              }
+              skill.execute(hero);
+            });
   }
 
   public static void interact(Entity hero, Point point) {
@@ -115,9 +110,10 @@ public class HeroController {
 
   public static void changeSkill(Entity hero, boolean nextSkill) {
     hero.fetch(SkillComponent.class)
-        .ifPresent(skillComponent -> {
-          if (nextSkill) skillComponent.nextSkill();
-          else skillComponent.prevSkill();
-        });
+        .ifPresent(
+            skillComponent -> {
+              if (nextSkill) skillComponent.nextSkill();
+              else skillComponent.prevSkill();
+            });
   }
 }

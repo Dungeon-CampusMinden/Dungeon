@@ -9,7 +9,6 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ServerRuntime;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
@@ -26,8 +25,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
   private SnapshotTranslator translator;
 
   @Override
-  public void initialize(
-    boolean isServer, String serverAddress, int port, String username) {
+  public void initialize(boolean isServer, String serverAddress, int port, String username) {
     this.serverMode = isServer;
     this.port = port;
     if (!serverMode) {
@@ -40,8 +38,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
   public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
     if (serverMode) {
       return server.sendMessage(clientId, message, reliable);
-    }
-    else return client.sendReliable(message);
+    } else return client.sendReliable(message);
   }
 
   @Override
@@ -49,16 +46,14 @@ public final class NettyNetworkHandler implements INetworkHandler {
     if (serverMode) {
       server.broadcastMessage(message, reliable);
     } else {
-      throw new UnsupportedOperationException(
-        "Broadcast is not supported in client mode.");
+      throw new UnsupportedOperationException("Broadcast is not supported in client mode.");
     }
   }
 
   @Override
   public void start() {
     if (serverMode) {
-      SnapshotTranslator t =
-        translator != null ? translator : new DefaultSnapshotTranslator();
+      SnapshotTranslator t = translator != null ? translator : new DefaultSnapshotTranslator();
       server = new ServerRuntime(port, t);
       server.start();
     } else {
@@ -109,8 +104,8 @@ public final class NettyNetworkHandler implements INetworkHandler {
     if (serverMode) {
       if (translator == null) {
         throw new IllegalStateException(
-          "SnapshotTranslator not set for server mode. Call "
-            + "setSnapshotTranslator(...) before start().");
+            "SnapshotTranslator not set for server mode. Call "
+                + "setSnapshotTranslator(...) before start().");
       }
       return translator;
     }
@@ -123,7 +118,6 @@ public final class NettyNetworkHandler implements INetworkHandler {
     this.translator = translator;
     if (!serverMode) client.setSnapshotTranslator(translator);
   }
-
 
   @Override
   public void sendInput(InputMessage input) {
@@ -143,7 +137,7 @@ public final class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public void _setRawMessageConsumer(
-    BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
+      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
     if (!serverMode) client.setRawMessageConsumer(rawMessageConsumer);
   }
 
