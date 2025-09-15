@@ -223,8 +223,6 @@ public abstract class ProjectileSkill extends Skill {
    *
    * @param caster the entity that created or cast the projectile
    * @param projectile the projectile entity
-   * @return a {@link Consumer} that handles wall collisions; the projectile entity is passed to the
-   *     consumer
    */
   protected void onWallHit(Entity caster, Entity projectile) {
     Game.remove(projectile);
@@ -435,6 +433,9 @@ public abstract class ProjectileSkill extends Skill {
   /**
    * Pushes the projectile a small distance forward in its movement direction so that it passes
    * through the first wall.
+   *
+   * @param projectile the projectile entity to push forward.
+   * @param vel the VelocityComponent of the projectile.
    */
   protected void moveThroughWall(Entity projectile, VelocityComponent vel) {
     projectile

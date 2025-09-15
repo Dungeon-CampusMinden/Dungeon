@@ -44,6 +44,7 @@ public class TPBallSkill extends DamageProjectileSkill {
    * @param speed Projectile travel speed.
    * @param range Maximum projectile range.
    * @param damageAmount Damage dealt on impact.
+   * @param ignoreFirstWall whether the projectile ignores the first wall.
    * @param resourceCost Resources required to cast the skill.
    */
   @SafeVarargs
