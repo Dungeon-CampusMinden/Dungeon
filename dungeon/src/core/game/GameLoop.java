@@ -16,7 +16,6 @@ import contrib.systems.HealthBarSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.ManaBarSystem;
 import contrib.utils.CheckPatternPainter;
-import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -289,23 +288,10 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         LevelChangeEvent.class,
         (ctx, event) -> {
-          LOGGER.info(
-              "Received LevelChangeEvent event: "
-                  + event.levelName()
-                  + ", spawn point: "
-                  + event.spawnPoint());
-          if (event.levelName() == null || event.levelName().isBlank()) {
-            LOGGER.warn(
-                "Received LevelChangeEvent with empty level name. Value was: " + event.levelName());
-            return;
-          }
+          LOGGER.info("Received LevelChangeEvent event: " + event.levelName());
           try {
-            DungeonLoader.loadLevel(event.levelName());
-            if (event.spawnPoint() == null) {
-              Game.hero().ifPresent(this::placeOnLevelStart);
-            } else {
-              Debugger.TELEPORT(event.spawnPoint());
-            }
+            Game.currentLevel(DungeonLoader.loadFromString(event.levelData(), event.levelName()));
+            Game.hero().ifPresent(this::placeOnLevelStart);
           } catch (Exception e) {
             LOGGER.warn("Failed to handle LevelChangeEvent: " + e.getMessage());
           }
