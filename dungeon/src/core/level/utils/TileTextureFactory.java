@@ -35,15 +35,8 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
 
-    if (levelPart.element == LevelElement.BLUE_PORTAL) {
-      path = findTexturePathBluePortalWall(levelPart);
-      if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
-      }
-    }
-
-    if (levelPart.element == LevelElement.GREEN_PORTAL) {
-      path = findTexturePathGreenPortalWall(levelPart);
+    if (levelPart.element == LevelElement.PORTAL) {
+      path = findTexturePathPortalWall(levelPart);
       if (path != null) {
         return new SimpleIPath(prefixPath + path.pathString() + ".png");
       }
@@ -199,31 +192,17 @@ public class TileTextureFactory {
     return null;
   }
 
-  private static IPath findTexturePathBluePortalWall(LevelPart levelPart) {
+  private static IPath findTexturePathPortalWall(LevelPart levelPart) {
     if (isRightWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/blue/portal_right");
+      return new SimpleIPath("portal/portal_right");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/blue/portal_left");
+      return new SimpleIPath("portal/portal_left");
     } else if (isTopWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/blue/portal_top");
+      return new SimpleIPath("portal/portal_top");
     } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/blue/portal_bottom");
-    } else {
-      return new SimpleIPath("portal/blue/blue");
+      return new SimpleIPath("portal/portal_bottom");
     }
-//    return null;
-  }
 
-  private static IPath findTexturePathGreenPortalWall(LevelPart levelPart) {
-    if (isRightWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/green/portal_right");
-    } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/green/portal_left");
-    } else if (isTopWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/green/portal_top");
-    } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("portal/green/portal_bottom");
-    }
     return null;
   }
 
@@ -459,8 +438,7 @@ public class TileTextureFactory {
   private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y() + 1][p.x()] == LevelElement.WALL
-        || layout[p.y() + 1][p.x()] == LevelElement.BLUE_PORTAL
-        || layout[p.y() + 1][p.x()] == LevelElement.GREEN_PORTAL
+        || layout[p.y() + 1][p.x()] == LevelElement.PORTAL
       );
 
     } catch (ArrayIndexOutOfBoundsException e) {
@@ -478,8 +456,7 @@ public class TileTextureFactory {
   private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y() - 1][p.x()] == LevelElement.WALL
-        || layout[p.y() - 1][p.x()] == LevelElement.BLUE_PORTAL
-        || layout[p.y() - 1][p.x()] == LevelElement.GREEN_PORTAL
+        || layout[p.y() - 1][p.x()] == LevelElement.PORTAL
       );
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -496,8 +473,7 @@ public class TileTextureFactory {
   private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y()][p.x() - 1] == LevelElement.WALL
-        || layout[p.y()][p.x() - 1] == LevelElement.BLUE_PORTAL
-        || layout[p.y()][p.x() - 1] == LevelElement.GREEN_PORTAL
+        || layout[p.y()][p.x() - 1] == LevelElement.PORTAL
       );
 
     } catch (ArrayIndexOutOfBoundsException e) {
@@ -515,8 +491,7 @@ public class TileTextureFactory {
   private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y()][p.x() + 1] == LevelElement.WALL
-        || layout[p.y()][p.x() + 1] == LevelElement.BLUE_PORTAL
-        || layout[p.y()][p.x() + 1] == LevelElement.GREEN_PORTAL
+        || layout[p.y()][p.x() + 1] == LevelElement.PORTAL
       );
 
     } catch (ArrayIndexOutOfBoundsException e) {
