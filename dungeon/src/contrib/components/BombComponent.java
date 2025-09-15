@@ -25,5 +25,4 @@ public class BombComponent implements Component {
   public long fuseMs() {
     return fuseMs;
   }
-
 }

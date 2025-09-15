@@ -17,7 +17,6 @@ public final class BombSkillComponent implements Component {
   private BombMode mode = BombMode.PLACE;
   private BombType type = BombType.TIMED;
 
-
   public BombMode mode() {
     return mode;
   }
@@ -33,5 +32,4 @@ public final class BombSkillComponent implements Component {
   public void type(BombType t) {
     this.type = t;
   }
-
 }
