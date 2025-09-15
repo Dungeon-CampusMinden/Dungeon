@@ -243,6 +243,7 @@ public class TileTextureFactory {
       return new SimpleIPath("portal/blue/portal_bottom");
     } else {
       return new SimpleIPath("portal/blue/blue");
+<<<<<<< HEAD
     }
 //    return null;
   }
@@ -291,8 +292,10 @@ public class TileTextureFactory {
       return new SimpleIPath("portal/blue/portal_top");
     } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("portal/blue/portal_bottom");
+=======
+>>>>>>> 878b072b (added direction to portals)
     }
-    return null;
+//    return null;
   }
 
   private static IPath findTexturePathGreenPortalWall(LevelPart levelPart) {

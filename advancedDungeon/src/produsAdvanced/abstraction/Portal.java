@@ -3,13 +3,18 @@ package produsAdvanced.abstraction;
 import contrib.components.CollideComponent;
 import contrib.entities.EntityFactory;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import contrib.entities.MiscFactory;
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+import contrib.entities.MiscFactory;
+>>>>>>> 878b072b (added direction to portals)
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+<<<<<<< HEAD
 <<<<<<< HEAD
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -28,11 +33,22 @@ import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+import core.level.Tile;
+import core.level.utils.LevelElement;
+import core.utils.*;
+import core.utils.components.path.SimpleIPath;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+>>>>>>> 878b072b (added direction to portals)
 
 public class Portal {
 
   private static Entity bluePortal;
   private static Entity greenPortal;
+<<<<<<< HEAD
 <<<<<<< HEAD
   private static Entity stone;
 
@@ -42,12 +58,21 @@ public class Portal {
   public static void createBluePortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
     clearBluePortal();
 =======
+=======
+  private static Entity stone;
+>>>>>>> 878b072b (added direction to portals)
 
+  private static Point bluePortalDirection;
+  private static Point greenPortalDirection;
 
+<<<<<<< HEAD
   public static void createBluePortal(Point point) {
 <<<<<<< HEAD
 >>>>>>> ef71cb29 (added green and blue portal variants)
 =======
+=======
+  public static void createBluePortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
+>>>>>>> 878b072b (added direction to portals)
     clearBluePortal();
 >>>>>>> bd651d9e (implemented singleton pattern behaviour for portals)
     Entity portal;
@@ -57,6 +82,9 @@ public class Portal {
     portal.add(cc);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 878b072b (added direction to portals)
     // checking all Neighbours, for each compare the currentVelocity with the impact direction, put them into a liste
     // get the best score of the list(?), if its a wall go to next best one, the resulting neighbour the the direction where
     // the hero gets teleported into so he doesnt get stuck in the wall
@@ -76,8 +104,11 @@ public class Portal {
     // list first is best one
     Point best = list.getFirst().a();
     System.out.println(new Point(point.x()-best.x(), point.y()-best.y()));
+<<<<<<< HEAD
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+>>>>>>> 878b072b (added direction to portals)
     try {
       portal.add(new DrawComponent(new SimpleIPath("portals/blue")));
     } catch (IOException e) {
@@ -88,6 +119,9 @@ public class Portal {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 878b072b (added direction to portals)
   public static void createGreenPortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
     clearGreenPortal();
 =======
@@ -120,6 +154,7 @@ public class Portal {
       PositionComponent pc = hero.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position());
     }
+<<<<<<< HEAD
 =======
     bluePortal = portal;
 =======
@@ -129,19 +164,27 @@ public class Portal {
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+>>>>>>> 878b072b (added direction to portals)
     System.out.println("Green Portal entered");
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 878b072b (added direction to portals)
     Entity hero = Game.hero().get();
     if (other.equals(hero) && greenPortal != null) {
       PositionComponent pc = hero.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position());
     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+>>>>>>> 878b072b (added direction to portals)
     System.out.println("Blue Portal entered");
   }
 
