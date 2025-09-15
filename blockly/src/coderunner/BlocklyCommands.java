@@ -42,7 +42,7 @@ public class BlocklyCommands {
    *
    * <p>Move the position slightly further into the tile to avoid rounding errors at edge positions
    */
-  private static final Vector2 MAGIC_OFFSET = Vector2.of(0.3, 0.3);
+  public static final Vector2 MAGIC_OFFSET = Vector2.of(0.3, 0.3);
 
   /**
    * If this is et to true, the Guard-Monster will not shoot on the hero.
