@@ -4,6 +4,7 @@ import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
