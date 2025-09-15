@@ -7,7 +7,7 @@ import core.utils.components.path.SimpleIPath;
 
 public class BombPlaceSkill {
 
-  private static final IPath BOMB_TEXTURE = new SimpleIPath("");
+  private static final IPath BOMB_TEXTURE = new SimpleIPath("skills/bomb/00.png");
   private static final IPath EXPLOSION_TEXTURE = new SimpleIPath("");
   private static final int DAMAGE = 8;
   private static final long FUSE_MS = 1800L;
