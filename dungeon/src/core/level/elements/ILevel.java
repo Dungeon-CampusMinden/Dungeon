@@ -143,10 +143,8 @@ public interface ILevel extends IndexedGraph<Tile> {
           output.append("D");
         } else if (layout()[y][x].levelElement() == LevelElement.PIT) {
           output.append("P");
-        } else if (layout()[y][x].levelElement() == LevelElement.BLUE_PORTAL) {
-          output.append("B");
-        } else if (layout()[y][x].levelElement() == LevelElement.GREEN_PORTAL) {
-          output.append("G");
+        } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
+          output.append("T");
         } else {
           throw new RuntimeException(
               "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());
