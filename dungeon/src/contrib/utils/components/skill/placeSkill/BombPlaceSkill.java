@@ -1,5 +1,8 @@
 package contrib.utils.components.skill.placeSkill;
 
+import contrib.entities.ExplosionFactory;
+import contrib.systems.EventScheduler;
+import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import core.Entity;
@@ -20,63 +23,41 @@ public class BombPlaceSkill extends Skill {
 
   public static final String BOMB_TEXTURE_DIR = "skills/bomb/";
 
-  private static final List<IPath> DEFAULT_BOMB_FRAMES = List.of(
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04.png")
-  );
+  private static final List<IPath> DEFAULT_BOMB_FRAMES =
+      List.of(
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04.png"));
 
   private static final AnimationConfig DEFAULT_BOMB_ANIM_CFG = new AnimationConfig();
+
   static {
     DEFAULT_BOMB_ANIM_CFG.framesPerSprite(2);
   }
-  
-  private static final IPath DEFAULT_EXPLOSION_TEXTURE = new SimpleIPath("");
-  private static final int DEFAULT_DAMAGE = 8;
-  private static final long DEFAULT_FUSE_MS = 1800L;
+
+  private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
   private static final float DEFAULT_RADIUS = 3.0f;
+  private static final int DEFAULT_DAMAGE = 8;
+  private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
+
+  private static final long DEFAULT_FUSE_MS = 4000L;
   private static final long DEFAULT_COOLDOWN = 800L;
 
-  private final IPath explosionTexture;
-  private final float radius;
-  private final int damage;
   private final long fuseMs;
 
   public BombPlaceSkill() {
-    this(
-        DEFAULT_EXPLOSION_TEXTURE,
-        DEFAULT_RADIUS,
-        DEFAULT_DAMAGE,
-        DEFAULT_FUSE_MS,
-        DEFAULT_COOLDOWN);
+    this(DEFAULT_FUSE_MS, DEFAULT_COOLDOWN);
   }
 
-  public BombPlaceSkill(
-      IPath explosionTexture,
-      float radius,
-      int damage,
-      long fuseMs,
-      long cooldownMs) {
+  public BombPlaceSkill(long fuseMs, long cooldownMs) {
     super(SKILL_NAME, cooldownMs);
-    this.explosionTexture = explosionTexture;
-    this.radius = radius;
-    this.damage = damage;
     this.fuseMs = fuseMs;
   }
 
   @SafeVarargs
-  public BombPlaceSkill(
-      IPath explosionTexture,
-      float radius,
-      int damage,
-      long fuseMs,
-      long cooldownMs,
-      Tuple<Resource, Integer>... resourceCost) {
+  public BombPlaceSkill(long fuseMs, long cooldownMs, Tuple<Resource, Integer>... resourceCost) {
     super(SKILL_NAME, cooldownMs, resourceCost);
-    this.explosionTexture = explosionTexture;
-    this.radius = radius;
-    this.damage = damage;
     this.fuseMs = fuseMs;
   }
 
@@ -96,13 +77,22 @@ public class BombPlaceSkill extends Skill {
 
     Entity bomb = new Entity("bomb_placed");
     bomb.add(new PositionComponent(dropPos));
-
     bomb.add(new DrawComponent(new Animation(DEFAULT_BOMB_FRAMES, DEFAULT_BOMB_ANIM_CFG)));
-
     Game.add(bomb);
+    explode(bomb);
   }
 
-  private void explode(Entity bomb, Entity source) {}
-
-  private void applyAoE(Point center, float radius, int damage, Entity source) {}
+  private void explode(Entity bomb) {
+    EventScheduler.scheduleAction(
+        () -> {
+          Point pos =
+              bomb.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
+          Game.remove(bomb);
+          if (pos != null) {
+            ExplosionFactory.createExplosion(
+                DEFAULT_EXPLOSION_DIR, pos, DEFAULT_RADIUS, DEFAULT_DMG_TYPE, DEFAULT_DAMAGE);
+          }
+        },
+        fuseMs);
+  }
 }
