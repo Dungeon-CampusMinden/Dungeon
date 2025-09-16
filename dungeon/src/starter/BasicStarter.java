@@ -9,7 +9,6 @@ import contrib.systems.HealthBarSystem;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.IdleSoundSystem;
-import contrib.systems.LevelEditorSystem;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.LeverSystem;
 import contrib.systems.ManaBarSystem;
@@ -85,7 +84,5 @@ public class BasicStarter {
     Game.add(new PathSystem()); // handles pathfinding for AI
     Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
-
   }
-
 }
