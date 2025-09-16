@@ -43,17 +43,16 @@ public class InevitableFireballSkill extends FireballSkill {
     // Set the velocity to zero to freeze the entity (hero only)
     Game.hero()
         .flatMap(hero -> hero.fetch(VelocityComponent.class))
-        .ifPresent(
-            velocityComponent -> velocityComponent.maxSpeed(0));
+        .ifPresent(velocityComponent -> velocityComponent.maxSpeed(0));
     // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
     // freeze on the corner of the red zone
-      Game.hero()
-              .flatMap(hero -> hero.fetch(PositionComponent.class))
-              .ifPresent(
-                      pc -> {
-                          pc.position(pc.position().translate(BlocklyCommands.MAGIC_OFFSET));
-                          pc.toTileCorner();
-                      });
+    Game.hero()
+        .flatMap(hero -> hero.fetch(PositionComponent.class))
+        .ifPresent(
+            pc -> {
+              pc.position(pc.position().translate(BlocklyCommands.MAGIC_OFFSET));
+              pc.toTileCorner();
+            });
   }
 
   protected void additionalEffectAfterDamage(
@@ -62,7 +61,6 @@ public class InevitableFireballSkill extends FireballSkill {
     if (!target.isPresent(PlayerComponent.class)) return;
     target
         .fetch(VelocityComponent.class)
-        .ifPresent(
-            velocityComponent -> velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x()));
+        .ifPresent(velocityComponent -> velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x()));
   }
 }
