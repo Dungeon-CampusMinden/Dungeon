@@ -34,6 +34,7 @@ public class BluePortalSkill extends PortalSkill {
   @Override
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createBluePortal(position,currentVelocity,projectilePosition);
@@ -47,6 +48,11 @@ public class BluePortalSkill extends PortalSkill {
     if (Game.tileAt(position).get().levelElement() == LevelElement.BLUE_PORTAL) {
       Portal.createBluePortal(position,currentVelocity,projectilePosition);
 >>>>>>> 878b072b (added direction to portals)
+=======
+  protected void createPortal(Point position) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
+      Portal.createBluePortal(position);
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
     }
   }
 }

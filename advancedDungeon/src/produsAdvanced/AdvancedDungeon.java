@@ -278,10 +278,14 @@ public class AdvancedDungeon {
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (DEBUG_MODE) Game.add(new Debugger());
 =======
     Game.add(new DebugDrawSystem());
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+    Game.add(new DebugDrawSystem());
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 
