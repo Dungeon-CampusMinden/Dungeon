@@ -296,7 +296,9 @@ public class BlocklyCommands {
       checkTile = Game.tileAt(inFront.position(), viewDirection).orElse(null);
       moveDirection = viewDirection;
     } else {
-      checkTile = Game.tileAt(heroPC.position(), viewDirection.opposite()).orElse(null);
+      checkTile =
+          Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection.opposite())
+              .orElse(null);
       moveDirection = viewDirection.opposite();
     }
     if (!checkTile.isAccessible()
@@ -309,11 +311,12 @@ public class BlocklyCommands {
 
     // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 , this
-    // will make the hero move AFTER everyone else.
+    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 ,
+    // this will make the hero move AFTER everyone else.
     BlocklyCommands.move(moveDirection, toMove.toArray(Entity[]::new));
     BlocklyCommands.move(moveDirection, hero);
     // give BlockComponent back
+
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, viewDirection);
     Server.waitDelta();
