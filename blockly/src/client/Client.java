@@ -6,17 +6,14 @@ import components.AmmunitionComponent;
 import contrib.crafting.Crafting;
 import contrib.entities.HeroFactory;
 import contrib.systems.*;
-import contrib.systems.BlockSystem;
 import contrib.utils.components.Debugger;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
 import core.components.VelocityComponent;
-import core.game.ECSManagment;
 import core.level.loader.DungeonLoader;
 import core.systems.InputSystem;
-import core.systems.LevelSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -52,8 +49,8 @@ public class Client {
    * Setup and run the game. Also start the server that is listening to the requests from blockly
    * frontend.
    *
-   * @param args
-   * @throws IOException
+   * @param args CLI arguments
+   * @throws IOException if textures can not be loaded.
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
@@ -115,10 +112,7 @@ public class Client {
 
           createSystems();
 
-          HeroFactory.heroDeath(
-              entity -> {
-                restart();
-              });
+          HeroFactory.heroDeath(entity -> restart());
 
           createHero();
           Crafting.loadRecipes();
@@ -131,7 +125,6 @@ public class Client {
             Game.remove(InputSystem.class);
           }
 
-          LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
           DungeonLoader.loadLevel(0);
         });
   }
@@ -193,7 +186,10 @@ public class Client {
             }
           }
         });
-    if (DEBUG_MODE) Game.add(new LevelEditorSystem());
+    if (DEBUG_MODE) {
+      Game.add(new DebugDrawSystem());
+      Game.add(new LevelEditorSystem());
+    }
   }
 
   private static void startServer() {
@@ -214,7 +210,7 @@ public class Client {
    * @throws RuntimeException if an {@link IOException} occurs during hero creation
    */
   public static void createHero() {
-    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(e -> Game.remove(e));
+    Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero;
     try {
       hero = HeroTankControlledFactory.newTankControlledHero();

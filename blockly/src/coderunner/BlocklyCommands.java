@@ -42,7 +42,7 @@ public class BlocklyCommands {
    *
    * <p>Move the position slightly further into the tile to avoid rounding errors at edge positions
    */
-  private static final Vector2 MAGIC_OFFSET = Vector2.of(0.3, 0.3);
+  public static final Vector2 MAGIC_OFFSET = Vector2.of(0.3, 0.3);
 
   /**
    * If this is et to true, the Guard-Monster will not shoot on the hero.
@@ -69,7 +69,9 @@ public class BlocklyCommands {
         .findFirst()
         .ifPresent(
             boss ->
-                boss.fetch(PositionComponent.class)
+                boss.fetch(VelocityComponent.class)
+                    .filter(vc -> vc.maxSpeed() > 0)
+                    .flatMap(vc -> boss.fetch(PositionComponent.class))
                     .ifPresent(pc -> BlocklyCommands.move(pc.viewDirection(), boss)));
   }
 
@@ -120,10 +122,14 @@ public class BlocklyCommands {
           case NONE -> viewDirection; // no change
         };
     BlocklyCommands.turnEntity(hero, newDirection);
-    Game.allEntities()
+    Game.levelEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
+        .flatMap(
+            boss ->
+                boss.fetch(VelocityComponent.class).filter(vc -> vc.maxSpeed() > 0).map(vc -> boss))
         .ifPresent(boss -> BlocklyCommands.turnEntity(boss, newDirection.opposite()));
+
     Server.waitDelta();
   }
 
@@ -301,7 +307,7 @@ public class BlocklyCommands {
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
     if (toMove.isEmpty()) return;
 
-    // remove the BlockComponent so the avoid blocking the hero while moving simultaneously
+    // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
     // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 , this
     // will make the hero move AFTER everyone else.
@@ -342,7 +348,7 @@ public class BlocklyCommands {
    *
    * @param componentClass Component-Class to check for.
    * @param direction Direction to check
-   * @return Returns true if the hero is null or a entity with the given component was detected.
+   * @return Returns true if the hero is null or an entity with the given component was detected.
    *     Otherwise, returns false.
    */
   public static boolean isNearComponent(

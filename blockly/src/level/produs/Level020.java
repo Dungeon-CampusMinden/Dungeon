@@ -109,7 +109,7 @@ public class Level020 extends BlocklyLevel {
 
     ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
 
-    Entity boss =
+    boss =
         BlocklyMonster.BLACK_KNIGHT
             .builder()
             .attackRange(0)
@@ -141,7 +141,6 @@ public class Level020 extends BlocklyLevel {
   @Override
   protected void onTick() {
     if (boss == null) return;
-
     // rotate boss after duration
     if (!EventScheduler.isScheduled(scheduledAction))
       scheduledAction = EventScheduler.scheduleAction(turnAction, TURN_TIMER_IN_MS);

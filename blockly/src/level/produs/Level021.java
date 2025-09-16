@@ -87,7 +87,7 @@ public class Level021 extends BlocklyLevel {
     Game.add(MiscFactory.breadcrumb(new Coordinate(20, 12).toPoint()));
 
     // BOSS
-    Entity boss =
+    boss =
         BlocklyMonster.BLACK_KNIGHT
             .builder()
             .attackRange(0)
