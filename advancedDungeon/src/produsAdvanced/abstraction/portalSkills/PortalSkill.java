@@ -13,13 +13,14 @@ import core.utils.*;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
+import java.lang.reflect.GenericArrayType;
 import java.util.function.Consumer;
 
 public abstract class PortalSkill extends ProjectileSkill {
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "BLUE_PORTAL";
-  private static final float SPEED = 22f;
+  private static final float SPEED = 13f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final long COOLDOWN = 500;
@@ -41,16 +42,25 @@ public abstract class PortalSkill extends ProjectileSkill {
   @Override
   protected Consumer<Entity> onWallHit(Entity caster) {
     return entity ->  {
+//      System.out.println("-------------------------------");
       PositionComponent pc = entity.fetch(PositionComponent.class).get();
       VelocityComponent vc = entity.fetch(VelocityComponent.class).get();
-      Point point = new Point(Math.round(vc.currentVelocity().normalize().x()),Math.round(vc.currentVelocity().normalize().y()));
-      Coordinate cords = pc.coordinate().translate(Vector2.of(point));
-      createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f), vc.currentVelocity().normalize(), pc.position());
+//      System.out.println("Base Pos: " + pc.position());
+      Vector2 velocity = vc.currentVelocity().normalize();
+//      System.out.println("Velocity: " + velocity);
+      Point movedPos = pc.position().translate(velocity);
+//      System.out.println("Edited Pos: " + movedPos);
+      Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
+//      System.out.println("Final Pos: " + finalPos);
+
+      if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
+        createPortal(finalPos.toCoordinate().toPoint());
+      }
       Game.remove(entity);
     };
   }
 
-  protected abstract void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition);
+  protected abstract void createPortal(Point position);
 
 
 

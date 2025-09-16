@@ -25,9 +25,9 @@ public class BluePortalSkill extends PortalSkill {
 
 
   @Override
-  protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
+  protected void createPortal(Point position) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
-      Portal.createBluePortal(position,currentVelocity,projectilePosition);
+      Portal.createBluePortal(position);
     }
   }
 }
