@@ -1,9 +1,9 @@
 package contrib.entities;
 
+import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.components.HealthComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
