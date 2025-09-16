@@ -79,9 +79,6 @@ public class Portal {
     portal = new Entity("blue_portal");
 //    System.out.println("Portal spawned at: " + point);
     portal.add(new PositionComponent(point));
-    // TODO: depending on the direction the offset, first parameter, has to be adjusted
-    CollideComponent cc = new CollideComponent(CollideComponent.DEFAULT_OFFSET, Vector2.of(1.25,1.25), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
-    portal.add(cc);
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -108,6 +105,7 @@ public class Portal {
 
     list.sort(Comparator.comparingDouble(Tuple::b));
 
+    CollideComponent cc;
     // list first is best one
     Point best = list.getFirst().a();
 <<<<<<< HEAD
@@ -127,16 +125,21 @@ public class Portal {
 =======
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
-        bluePortalDirection = Direction.DOWN;
-    } else if (pointDirection.equals(new Point(0,-1))) {
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
       bluePortalDirection = Direction.UP;
+    } else if (pointDirection.equals(new Point(0,-1))) {
+      bluePortalDirection = Direction.DOWN;
+      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else if (pointDirection.equals(new Point(1,0))) {
       bluePortalDirection = Direction.RIGHT;
-    } else if (pointDirection.equals(new Point(-1,0))) {
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+    } else {
       bluePortalDirection = Direction.LEFT;
+      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
 //    System.out.println("Best Point is " + pointDirection + " Direction is : " + bluePortalDirection);
 
+    portal.add(cc);
 
 >>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
     portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
@@ -165,8 +168,7 @@ public class Portal {
     Entity portal;
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
-    CollideComponent cc = new CollideComponent(CollideComponent.DEFAULT_OFFSET, Vector2.of(1.05,1.05), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
-    portal.add(cc);
+
 
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
@@ -176,19 +178,25 @@ public class Portal {
 
     list.sort(Comparator.comparingDouble(Tuple::b));
 
+    CollideComponent cc;
     // list first is best one
     Point best = list.getFirst().a();
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
-      greenPortalDirection = Direction.DOWN;
-    } else if (pointDirection.equals(new Point(0,-1))) {
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
       greenPortalDirection = Direction.UP;
+    } else if (pointDirection.equals(new Point(0,-1))) {
+      greenPortalDirection = Direction.DOWN;
+      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else if (pointDirection.equals(new Point(1,0))) {
       greenPortalDirection = Direction.RIGHT;
-    } else if (pointDirection.equals(new Point(-1,0))) {
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+    } else {
       greenPortalDirection = Direction.LEFT;
+      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
 
+    portal.add(cc);
     portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
 <<<<<<< HEAD
@@ -203,6 +211,7 @@ public class Portal {
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     bluePortal = portal;
 =======
@@ -215,6 +224,9 @@ public class Portal {
 =======
 >>>>>>> 878b072b (added direction to portals)
     System.out.println("Green Portal entered");
+=======
+//    System.out.println("Green Portal entered");
+>>>>>>> 18a2e62d (added direction hitboxes for the portals)
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
@@ -229,11 +241,15 @@ public class Portal {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> ef71cb29 (added green and blue portal variants)
 =======
 >>>>>>> 878b072b (added direction to portals)
     System.out.println("Blue Portal entered");
+=======
+//    System.out.println("Blue Portal entered");
+>>>>>>> 18a2e62d (added direction hitboxes for the portals)
   }
 
 
