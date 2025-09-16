@@ -49,7 +49,7 @@ public class AdvancedDungeon {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
 
@@ -204,6 +204,7 @@ public class AdvancedDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
+    Game.add(new DebugDrawSystem());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 
