@@ -282,6 +282,11 @@ public class BlocklyCommands {
    */
   private static void movePushable(boolean push) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    // do not push or pull if the hero is frozen
+    if (hero.fetch(VelocityComponent.class)
+        .map(VelocityComponent::maxSpeed)
+        .filter(s -> s == 0)
+        .isPresent()) return;
     DISABLE_SHOOT_ON_HERO = true;
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
