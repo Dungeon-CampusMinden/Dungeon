@@ -328,7 +328,6 @@ public class BlocklyCommands {
     BlocklyCommands.move(moveDirection, toMove.toArray(Entity[]::new));
     BlocklyCommands.move(moveDirection, hero);
     // give BlockComponent back
-
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     BlocklyCommands.turnEntity(hero, viewDirection);
     Server.waitDelta();
