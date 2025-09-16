@@ -65,7 +65,7 @@ public class AdvancedDungeon {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
 
@@ -216,7 +216,11 @@ public class AdvancedDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
+<<<<<<< HEAD
     if (DEBUG_MODE) Game.add(new Debugger());
+=======
+    Game.add(new DebugDrawSystem());
+>>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 

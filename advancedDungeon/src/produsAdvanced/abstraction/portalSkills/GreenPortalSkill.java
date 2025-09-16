@@ -41,6 +41,7 @@ public class GreenPortalSkill extends PortalSkill {
   @Override
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
@@ -55,5 +56,9 @@ public class GreenPortalSkill extends PortalSkill {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
 >>>>>>> d483f6ff (added direction to portals)
     }
+=======
+  protected void createPortal(Point position) {
+    Portal.createGreenPortal(position);
+>>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
   }
 }
