@@ -1,7 +1,9 @@
 package contrib.entities;
 
 import contrib.systems.EventScheduler;
+import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+import contrib.components.HealthComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -37,6 +39,8 @@ public final class ExplosionFactory {
     fx.add(new DrawComponent(anim));
     Game.add(fx);
 
+    applyAoeDamage(position, radius, dmgType, dmgAmount, fx);
+
     int fps = Game.frameRate();
     if (fps < 1) fps = 1;
     int totalFramesShown = FRAME_COUNT * FRAMES_PER_SPRITE;
@@ -44,6 +48,23 @@ public final class ExplosionFactory {
 
     EventScheduler.scheduleAction(() -> Game.remove(fx), lifetimeMs);
     return fx;
+  }
+
+  private static void applyAoeDamage(
+      Point center, float radius, DamageType type, int amount, Entity source) {
+
+    Game.levelEntities()
+        .forEach(
+            e -> {
+              var posOpt = e.fetch(PositionComponent.class);
+              var hpOpt = e.fetch(HealthComponent.class);
+              if (posOpt.isEmpty() || hpOpt.isEmpty()) return;
+
+              Point ep = posOpt.get().position();
+              if (Point.calculateDistance(center, ep) <= radius) {
+                hpOpt.get().receiveHit(new Damage(amount, type, source));
+              }
+            });
   }
 
   private static List<IPath> buildFrames(IPath textureDir) {
