@@ -1,6 +1,7 @@
 package entities.monster;
 
 import client.Client;
+import coderunner.BlocklyCommands;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
@@ -43,14 +44,16 @@ public class InevitableFireballSkill extends FireballSkill {
     Game.hero()
         .flatMap(hero -> hero.fetch(VelocityComponent.class))
         .ifPresent(
-            velocityComponent -> {
-              velocityComponent.maxSpeed(0);
-            });
+            velocityComponent -> velocityComponent.maxSpeed(0));
     // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
     // freeze on the corner of the red zone
-    Game.hero()
-        .flatMap(hero -> hero.fetch(PositionComponent.class))
-        .ifPresent(pc -> pc.position(pc.position().toCoordinate().toPoint()));
+      Game.hero()
+              .flatMap(hero -> hero.fetch(PositionComponent.class))
+              .ifPresent(
+                      pc -> {
+                          pc.position(pc.position().translate(BlocklyCommands.MAGIC_OFFSET));
+                          pc.toTileCorner();
+                      });
   }
 
   protected void additionalEffectAfterDamage(
@@ -60,8 +63,6 @@ public class InevitableFireballSkill extends FireballSkill {
     target
         .fetch(VelocityComponent.class)
         .ifPresent(
-            velocityComponent -> {
-              velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x());
-            });
+            velocityComponent -> velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x()));
   }
 }
