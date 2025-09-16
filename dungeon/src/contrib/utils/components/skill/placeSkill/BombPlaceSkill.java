@@ -21,10 +21,10 @@ public class BombPlaceSkill extends Skill {
   public static final String BOMB_TEXTURE_DIR = "skills/bomb/";
 
   private static final List<IPath> DEFAULT_BOMB_FRAMES = List.of(
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_00.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_10.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_20.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_30.png")
+      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01.png"),
+      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02.png"),
+      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03.png"),
+      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04.png")
   );
 
   private static final AnimationConfig DEFAULT_BOMB_ANIM_CFG = new AnimationConfig();
