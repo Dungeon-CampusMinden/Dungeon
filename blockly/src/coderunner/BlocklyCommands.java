@@ -288,25 +288,39 @@ public class BlocklyCommands {
         .filter(s -> s == 0)
         .isPresent()) return;
     DISABLE_SHOOT_ON_HERO = true;
+
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     Direction viewDirection = heroPC.viewDirection();
 
-    Tile inFront =
-        Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection).orElse(null);
-    Tile checkTile;
+    Optional<Tile> inFrontOpt =
+        Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection);
+    if (inFrontOpt.isEmpty()) {
+      DISABLE_SHOOT_ON_HERO = false;
+      return;
+    }
+    Tile inFront = inFrontOpt.get();
+
     Direction moveDirection;
+    Optional<Tile> checkTileOpt;
+
     if (push) {
-      checkTile = Game.tileAt(inFront.position(), viewDirection).orElse(null);
+      checkTileOpt = Game.tileAt(inFront.position(), viewDirection);
       moveDirection = viewDirection;
     } else {
-      checkTile = Game.tileAt(heroPC.position(), viewDirection.opposite()).orElse(null);
+      checkTileOpt =
+          Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection.opposite());
       moveDirection = viewDirection.opposite();
     }
-    if (!checkTile.isAccessible()
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(AIComponent.class))) return;
+
+    if (checkTileOpt.isEmpty()
+        || !checkTileOpt.get().isAccessible()
+        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
+        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
+      DISABLE_SHOOT_ON_HERO = false;
+      return;
+    }
     ArrayList<Entity> toMove =
         new ArrayList<>(
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
@@ -314,8 +328,8 @@ public class BlocklyCommands {
 
     // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 , this
-    // will make the hero move AFTER everyone else.
+    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 ,
+    // this will make the hero move AFTER everyone else.
     BlocklyCommands.move(moveDirection, toMove.toArray(Entity[]::new));
     BlocklyCommands.move(moveDirection, hero);
     // give BlockComponent back
