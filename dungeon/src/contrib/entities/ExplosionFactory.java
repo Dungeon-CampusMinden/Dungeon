@@ -1,5 +1,7 @@
 package contrib.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import contrib.components.ExplosableComponent;
 import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;
@@ -16,8 +18,6 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.List;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 
 public final class ExplosionFactory {
 
@@ -35,8 +35,10 @@ public final class ExplosionFactory {
 
     if (position == null) return null;
 
-    AnimationConfig cfg = new AnimationConfig();
-    cfg.framesPerSprite(FRAMES_PER_SPRITE);
+    float diameter = radius * 2f;
+
+    AnimationConfig cfg =
+        new AnimationConfig().framesPerSprite(FRAMES_PER_SPRITE).scaleX(diameter).centered(true);
 
     Animation anim = new Animation(buildFrames(textureDir), cfg);
 
@@ -44,7 +46,7 @@ public final class ExplosionFactory {
     fx.add(new PositionComponent(position));
     fx.add(new DrawComponent(anim));
     Game.add(fx);
-
+    
     playExplosionSfx();
 
     applyAoeDamage(position, radius, dmgType, dmgAmount, fx);
@@ -106,5 +108,4 @@ public final class ExplosionFactory {
     }
     explosionSound.play(1f);
   }
-
 }
