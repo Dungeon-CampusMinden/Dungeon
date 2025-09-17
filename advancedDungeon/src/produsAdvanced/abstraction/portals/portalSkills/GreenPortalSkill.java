@@ -4,11 +4,16 @@ import contrib.utils.components.skill.Resource;
 import core.utils.Point;
 import core.utils.Tuple;
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
+=======
+<<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
 <<<<<<< HEAD
 <<<<<<< HEAD
 import core.utils.Vector2;
 =======
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
 import core.utils.Vector2;
@@ -18,12 +23,21 @@ import core.utils.Vector2;
 =======
 import core.utils.Vector2;
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+import core.utils.Vector2;
+>>>>>>> 878b072b (added direction to portals)
+========
+>>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class GreenPortalSkill extends PortalSkill {
 
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -37,6 +51,10 @@ public class GreenPortalSkill extends PortalSkill {
 =======
   private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+=======
+  public static final String SKILL_NAME = "GREEN_PORTAL";
+  private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
   /**
    * Creates a new projectile skill.
@@ -52,6 +70,9 @@ public class GreenPortalSkill extends PortalSkill {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
@@ -59,6 +80,7 @@ public class GreenPortalSkill extends PortalSkill {
   protected void createPortal(Point position) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.GREEN_PORTAL) {
       Portal.createGreenPortal(position);
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
@@ -78,5 +100,22 @@ public class GreenPortalSkill extends PortalSkill {
   protected void createPortal(Point position, Vector2 currentVelocity) {
     PortalFactory.createGreenPortal(position, currentVelocity);
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+  protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.GREEN_PORTAL) {
+      Portal.createGreenPortal(position, currentVelocity, projectilePosition);
+>>>>>>> 878b072b (added direction to portals)
+    }
+=======
+  protected void createPortal(Point position) {
+<<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
+    Portal.createGreenPortal(position);
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+========
+    PortalFactory.createGreenPortal(position);
+>>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
   }
 }

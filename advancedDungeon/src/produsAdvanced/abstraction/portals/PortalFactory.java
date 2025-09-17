@@ -2,12 +2,17 @@ package produsAdvanced.abstraction.portals;
 
 import contrib.components.CollideComponent;
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
+=======
+<<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
 import contrib.entities.EntityFactory;
 <<<<<<< HEAD
 <<<<<<< HEAD
 import contrib.entities.MiscFactory;
 =======
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
 import contrib.entities.MiscFactory;
@@ -18,6 +23,14 @@ import contrib.entities.MiscFactory;
 import contrib.components.ProjectileComponent;
 import core.Component;
 >>>>>>> a9350c91 (added projectile handling)
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+import contrib.entities.MiscFactory;
+>>>>>>> 878b072b (added direction to portals)
+========
+>>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -25,16 +38,22 @@ import core.components.PositionComponent;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import core.components.VelocityComponent;
 >>>>>>> a9350c91 (added projectile handling)
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
+<<<<<<< HEAD
 import produsAdvanced.abstraction.portals.portalSkills.PortalComponent;
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,7 +65,11 @@ import core.utils.Vector2;
 import core.utils.components.path.SimpleIPath;
 
 import java.io.IOException;
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+>>>>>>> ac8cf0c7 (restructed portal related files)
 =======
 import core.level.Tile;
 import core.level.utils.LevelElement;
@@ -56,7 +79,11 @@ import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+<<<<<<< HEAD
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 878b072b (added direction to portals)
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
 public class PortalFactory {
 
@@ -65,26 +92,38 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   private static Entity stone;
 =======
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  private static Entity stone;
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
   private static Direction bluePortalDirection;
   private static Direction greenPortalDirection;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
   public static void createBluePortal(Point point) {
     clearBluePortal();
 =======
 =======
   private static Entity stone;
+<<<<<<< HEAD
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 878b072b (added direction to portals)
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
   private static Point bluePortalDirection;
   private static Point greenPortalDirection;
 
 <<<<<<< HEAD
   public static void createBluePortal(Point point) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
@@ -104,18 +143,38 @@ public class PortalFactory {
     portal = new Entity("blue_portal");
     portal.add(new PositionComponent(point));
     portal.add(new PortalComponent());
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+=======
+  public static void createBluePortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
+>>>>>>> 878b072b (added direction to portals)
+    clearBluePortal();
+>>>>>>> bd651d9e (implemented singleton pattern behaviour for portals)
+    Entity portal;
+    portal = new Entity("blue_portal");
+    portal.add(new PositionComponent(point));
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 878b072b (added direction to portals)
+>>>>>>> ac8cf0c7 (restructed portal related files)
     // checking all Neighbours, for each compare the currentVelocity with the impact direction, put them into a liste
     // get the best score of the list(?), if its a wall go to next best one, the resulting neighbour the the direction where
 =======
     // checking all Neighbours, for each compare the currentVelocity with the impact direction, put them into a list
     // get the best score of the list(?), if its a wall go to next best one, the resulting neighbour is the  direction where
+<<<<<<< HEAD
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+>>>>>>> ac8cf0c7 (restructed portal related files)
     // the hero gets teleported into so he doesnt get stuck in the wall
 
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
@@ -135,6 +194,19 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+>>>>>>> 878b072b (added direction to portals)
+    try {
+      portal.add(new DrawComponent(new SimpleIPath("portals/blue")));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+=======
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
       cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
@@ -152,6 +224,7 @@ public class PortalFactory {
 
     portal.add(cc);
 
+<<<<<<< HEAD
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
     portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
 =======
@@ -166,10 +239,16 @@ public class PortalFactory {
 =======
     portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+=======
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+    portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
+>>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+>>>>>>> ac8cf0c7 (restructed portal related files)
     Game.add(portal);
     bluePortal = portal;
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -180,9 +259,18 @@ public class PortalFactory {
 =======
   public static void createGreenPortal(Point point) {
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+=======
+>>>>>>> 878b072b (added direction to portals)
+  public static void createGreenPortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
+=======
+  public static void createGreenPortal(Point point) {
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+>>>>>>> ac8cf0c7 (restructed portal related files)
     clearGreenPortal();
 =======
   public static void createGreenPortal(Point point) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
@@ -213,6 +301,16 @@ public class PortalFactory {
 =======
     portal.add(new PortalComponent());
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+    clearGreenPortal();
+>>>>>>> bd651d9e (implemented singleton pattern behaviour for portals)
+    Entity portal;
+    portal = new Entity("green_portal");
+    portal.add(new PositionComponent(point));
+
+>>>>>>> ac8cf0c7 (restructed portal related files)
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
@@ -240,17 +338,26 @@ public class PortalFactory {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
 =======
     portal.add(cc);
 >>>>>>> dfc687cf (added direction hitboxes for the portals)
     portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
+=======
+    portal.add(cc);
+    portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
+    Game.add(portal);
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> ac8cf0c7 (restructed portal related files)
     greenPortal = portal;
   }
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (bluePortal != null && !isEntityPortal(other)) {
+<<<<<<< HEAD
 //      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
@@ -282,13 +389,40 @@ public class PortalFactory {
 =======
 //    System.out.println("Green Portal entered");
 >>>>>>> dfc687cf (added direction hitboxes for the portals)
+=======
+      PositionComponent pc = other.fetch(PositionComponent.class).get();
+      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
+    }
+<<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    bluePortal = portal;
+=======
+    greenPortal = portal;
+>>>>>>> bd651d9e (implemented singleton pattern behaviour for portals)
+  }
+
+  public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+>>>>>>> 878b072b (added direction to portals)
+    System.out.println("Green Portal entered");
+=======
+//    System.out.println("Green Portal entered");
+>>>>>>> 18a2e62d (added direction hitboxes for the portals)
+>>>>>>> ac8cf0c7 (restructed portal related files)
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 878b072b (added direction to portals)
+>>>>>>> ac8cf0c7 (restructed portal related files)
     Entity hero = Game.hero().get();
     if (other.equals(hero) && greenPortal != null) {
       PositionComponent pc = hero.fetch(PositionComponent.class).get();
@@ -298,6 +432,7 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
 >>>>>>> d483f6ff (added direction to portals)
@@ -306,10 +441,21 @@ public class PortalFactory {
 //    System.out.println("Blue Portal entered");
 >>>>>>> dfc687cf (added direction hitboxes for the portals)
 =======
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+>>>>>>> 878b072b (added direction to portals)
+    System.out.println("Blue Portal entered");
+=======
+//    System.out.println("Blue Portal entered");
+>>>>>>> 18a2e62d (added direction hitboxes for the portals)
+========
+>>>>>>> ac8cf0c7 (restructed portal related files)
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (greenPortal != null && !isEntityPortal(other)) {
+<<<<<<< HEAD
 //      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
@@ -331,6 +477,14 @@ public class PortalFactory {
     Game.add(entity);
     System.out.println("Projectile ID: " + entity.id());
   }
+=======
+      PositionComponent pc = other.fetch(PositionComponent.class).get();
+      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+    }
+>>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
+  }
+
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
   public static void clearAllPortals() {
     clearBluePortal();
@@ -341,9 +495,14 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
     if (bluePortal != null) {
       System.out.println("Blue Portal removed");
+=======
+>>>>>>> bd651d9e (implemented singleton pattern behaviour for portals)
+    if (bluePortal != null) {
+>>>>>>> ac8cf0c7 (restructed portal related files)
       Game.remove(bluePortal);
       bluePortal = null;
     }
@@ -352,7 +511,10 @@ public class PortalFactory {
 
   public static void clearGreenPortal() {
     if (greenPortal != null) {
+<<<<<<< HEAD
       System.out.println("Green Portal removed");
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
       Game.remove(greenPortal);
       greenPortal = null;
     }
@@ -362,7 +524,11 @@ public class PortalFactory {
 
   public static void clearGreenPortal() {
     greenPortal = null;
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+>>>>>>> ac8cf0c7 (restructed portal related files)
 =======
   }
 
@@ -371,11 +537,24 @@ public class PortalFactory {
       Game.remove(greenPortal);
       greenPortal = null;
     }
+<<<<<<< HEAD
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
   }
 
   private static boolean isEntityPortal(Entity entity) {
     return entity.isPresent(PortalComponent.class);
+=======
+>>>>>>> bd651d9e (implemented singleton pattern behaviour for portals)
+  }
+
+  private static boolean isEntityPortal(Entity entity) {
+    if (Objects.equals(entity.name(), BluePortalSkill.SKILL_NAME + "_projectile") || Objects.equals(entity.name(), GreenPortalSkill.SKILL_NAME + "_projectile")) {
+      System.out.println("NOT ALLOWED");
+      Game.remove(entity);
+      return true;
+    }
+    return false;
+>>>>>>> ac8cf0c7 (restructed portal related files)
   }
 
 }

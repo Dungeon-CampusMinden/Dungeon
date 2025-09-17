@@ -1,14 +1,20 @@
 package produsAdvanced.abstraction.portals.portalSkills;
 
+<<<<<<< HEAD
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
+<<<<<<< HEAD
 import core.components.DrawComponent;
+=======
+>>>>>>> ac8cf0c7 (restructed portal related files)
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.Coordinate;
@@ -23,9 +29,16 @@ import java.util.function.Consumer;
 public abstract class PortalSkill extends ProjectileSkill {
 
   /** Name of the Skill. */
+<<<<<<< HEAD
   private static final float SPEED = 13f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
+=======
+  public static final String SKILL_NAME = "BLUE_PORTAL";
+  private static final float SPEED = 13f;
+  private static final float RANGE = 10f;
+  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
+>>>>>>> ac8cf0c7 (restructed portal related files)
   private static final long COOLDOWN = 500;
 
   /**
@@ -47,7 +60,11 @@ public abstract class PortalSkill extends ProjectileSkill {
     return entity ->  {
       PositionComponent pc = entity.fetch(PositionComponent.class).get();
       VelocityComponent vc = entity.fetch(VelocityComponent.class).get();
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/PortalSkill.java
+=======
+<<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/PortalSkill.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
 <<<<<<< HEAD
       Point point = new Point(Math.round(vc.currentVelocity().normalize().x()),Math.round(vc.currentVelocity().normalize().y()));
       Coordinate cords = pc.coordinate().translate(Vector2.of(point));
@@ -56,6 +73,7 @@ public abstract class PortalSkill extends ProjectileSkill {
       createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f), vc.currentVelocity().normalize(), pc.position());
 =======
       createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f));
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
       createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f), vc.currentVelocity().normalize(), pc.position());
@@ -64,18 +82,35 @@ public abstract class PortalSkill extends ProjectileSkill {
 //      System.out.println("Base Pos: " + pc.position());
 =======
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/PortalSkill.java
+=======
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+      createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f), vc.currentVelocity().normalize(), pc.position());
+>>>>>>> 878b072b (added direction to portals)
+=======
+//      System.out.println("Base Pos: " + pc.position());
+========
+>>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/PortalSkill.java
+>>>>>>> ac8cf0c7 (restructed portal related files)
       Vector2 velocity = vc.currentVelocity().normalize();
       Point movedPos = pc.position().translate(velocity);
       Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
       if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
+<<<<<<< HEAD
         createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
       }
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+        createPortal(finalPos.toCoordinate().toPoint());
+      }
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+>>>>>>> ac8cf0c7 (restructed portal related files)
       Game.remove(entity);
     };
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -135,6 +170,18 @@ public abstract class PortalSkill extends ProjectileSkill {
 
   protected abstract void createPortal(Point position, Vector2 currentVelocity);
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  protected abstract void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition);
+=======
+  protected abstract void createPortal(Point position);
+>>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+  protected abstract void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition);
+>>>>>>> 878b072b (added direction to portals)
+=======
+  protected abstract void createPortal(Point position);
+>>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+>>>>>>> ac8cf0c7 (restructed portal related files)
 
 
 
