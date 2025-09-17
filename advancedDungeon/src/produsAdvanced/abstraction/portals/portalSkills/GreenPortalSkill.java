@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals.portalSkills;
 import contrib.utils.components.skill.Resource;
 import core.utils.Point;
 import core.utils.Tuple;
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,6 +15,9 @@ import core.utils.Vector2;
 >>>>>>> d483f6ff (added direction to portals)
 =======
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
+=======
+import core.utils.Vector2;
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.PortalFactory;
@@ -47,6 +51,7 @@ public class GreenPortalSkill extends PortalSkill {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
@@ -69,5 +74,9 @@ public class GreenPortalSkill extends PortalSkill {
 =======
     PortalFactory.createGreenPortal(position);
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
+=======
+  protected void createPortal(Point position, Vector2 currentVelocity) {
+    PortalFactory.createGreenPortal(position, currentVelocity);
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
   }
 }

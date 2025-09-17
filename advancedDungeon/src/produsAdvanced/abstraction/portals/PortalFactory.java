@@ -25,6 +25,7 @@ import core.utils.*;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.PortalComponent;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,11 +55,15 @@ public class PortalFactory {
   private static Entity greenPortal;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   private static Entity stone;
+=======
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
 
   private static Direction bluePortalDirection;
   private static Direction greenPortalDirection;
 
+<<<<<<< HEAD
   public static void createBluePortal(Point point) {
     clearBluePortal();
 =======
@@ -79,9 +84,17 @@ public class PortalFactory {
 >>>>>>> d483f6ff (added direction to portals)
     clearBluePortal();
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
+=======
+  public static void createBluePortal(Point point, Vector2 currentVelocity) {
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
     Entity portal;
+    clearBluePortal();
+    if (greenPortal != null && greenPortal.fetch(PositionComponent.class).get().position().equals(point)) {
+      clearGreenPortal();
+    }
     portal = new Entity("blue_portal");
     portal.add(new PositionComponent(point));
+    portal.add(new PortalComponent());
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -151,6 +164,7 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> d483f6ff (added direction to portals)
   public static void createGreenPortal(Point point, Vector2 currentVelocity, Point projectilePosition) {
@@ -165,9 +179,17 @@ public class PortalFactory {
 =======
     clearGreenPortal();
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
+=======
+  public static void createGreenPortal(Point point, Vector2 currentVelocity) {
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
     Entity portal;
+    clearGreenPortal();
+    if (bluePortal != null &&  bluePortal.fetch(PositionComponent.class).get().position().equals(point)) {
+      clearBluePortal();
+    }
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
+<<<<<<< HEAD
 
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 
@@ -179,6 +201,9 @@ public class PortalFactory {
 =======
 =======
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
+=======
+    portal.add(new PortalComponent());
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
@@ -217,8 +242,9 @@ public class PortalFactory {
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (bluePortal != null && !isEntityPortal(other)) {
+      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
+      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
     }
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 <<<<<<< HEAD
@@ -274,8 +300,9 @@ public class PortalFactory {
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (greenPortal != null && !isEntityPortal(other)) {
+      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
     }
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
   }
@@ -292,6 +319,7 @@ public class PortalFactory {
 =======
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
     if (bluePortal != null) {
+      System.out.println("Blue Portal removed");
       Game.remove(bluePortal);
       bluePortal = null;
     }
@@ -300,6 +328,7 @@ public class PortalFactory {
 
   public static void clearGreenPortal() {
     if (greenPortal != null) {
+      System.out.println("Green Portal removed");
       Game.remove(greenPortal);
       greenPortal = null;
     }
@@ -322,12 +351,7 @@ public class PortalFactory {
   }
 
   private static boolean isEntityPortal(Entity entity) {
-    if (Objects.equals(entity.name(), BluePortalSkill.SKILL_NAME + "_projectile") || Objects.equals(entity.name(), GreenPortalSkill.SKILL_NAME + "_projectile")) {
-      System.out.println("NOT ALLOWED");
-      Game.remove(entity);
-      return true;
-    }
-    return false;
+    return entity.isPresent(PortalComponent.class);
   }
 
 }

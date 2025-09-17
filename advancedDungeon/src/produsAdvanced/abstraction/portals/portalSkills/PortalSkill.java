@@ -1,10 +1,14 @@
 package produsAdvanced.abstraction.portals.portalSkills;
 
+import contrib.components.CollideComponent;
+import contrib.components.FlyComponent;
+import contrib.components.ProjectileComponent;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.Coordinate;
@@ -19,10 +23,9 @@ import java.util.function.Consumer;
 public abstract class PortalSkill extends ProjectileSkill {
 
   /** Name of the Skill. */
-  public static final String SKILL_NAME = "BLUE_PORTAL";
   private static final float SPEED = 13f;
   private static final float RANGE = 10f;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
+  private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
   private static final long COOLDOWN = 500;
 
   /**
@@ -66,13 +69,14 @@ public abstract class PortalSkill extends ProjectileSkill {
       Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
       if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
-        createPortal(finalPos.toCoordinate().toPoint());
+        createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
       }
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
       Game.remove(entity);
     };
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -86,6 +90,51 @@ public abstract class PortalSkill extends ProjectileSkill {
 =======
   protected abstract void createPortal(Point position);
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+  @Override
+  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
+    Entity projectile = new Entity(name() + "_projectile");
+    ignoreEntities.add(caster);
+    ignoreEntities.add(projectile);
+
+    projectile.add(new FlyComponent());
+    DrawComponent dc = new DrawComponent(texture);
+    projectile.add(new PortalComponent());
+    dc.tintColor(tintColor);
+    projectile.add(dc);
+
+    // Target point calculation
+    Point targetPoint = SkillTools.calculateLastPositionInRange(start, aimedOn, range);
+
+    Point position = start.translate(hitBoxSize.scale(-0.5)); // +offset
+    PositionComponent pc = new PositionComponent(position);
+    projectile.add(pc);
+    // calculate rotation
+    double angleDeg = Vector2.of(position).angleToDeg(Vector2.of(targetPoint));
+    pc.rotation((float) angleDeg);
+    // Calculate velocity
+    Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
+
+    // Add components
+    projectile.add(new VelocityComponent(speed,Vector2.of(0.25,0.25),Vector2.of(0.5,0.5), onWallHit(caster), true));
+    projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
+
+    CollideComponent cc =
+      new CollideComponent(
+        Vector2.of(0,0),
+        Vector2.of(0,0),
+        onCollideEnter(caster),
+        onCollideLeave(caster));
+    cc.onHold(onCollideHold(caster));
+    projectile.add(cc);
+
+
+    Game.add(projectile);
+    onSpawn(caster, projectile);
+  }
+
+  protected abstract void createPortal(Point position, Vector2 currentVelocity);
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
 
 
 

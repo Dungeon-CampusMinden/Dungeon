@@ -16,6 +16,8 @@ import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -160,6 +162,7 @@ public class AdvancedDungeon {
 <<<<<<< HEAD
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
+<<<<<<< HEAD
 =======
             sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
 >>>>>>> ca4f8ed2 (added dummy portal skill)
@@ -167,6 +170,9 @@ public class AdvancedDungeon {
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+            sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
+>>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
