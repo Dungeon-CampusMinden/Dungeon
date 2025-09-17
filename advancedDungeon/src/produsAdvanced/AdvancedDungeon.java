@@ -204,6 +204,7 @@ public class AdvancedDungeon {
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
             sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
 >>>>>>> ca4f8ed2 (added dummy portal skill)
@@ -228,6 +229,9 @@ public class AdvancedDungeon {
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
 >>>>>>> ef71cb29 (added green and blue portal variants)
+=======
+            sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
           } catch (IOException e) {
             throw new RuntimeException(e);
           }

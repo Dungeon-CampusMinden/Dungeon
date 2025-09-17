@@ -1,20 +1,30 @@
 package produsAdvanced.abstraction.portals.portalSkills;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
 =======
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+import contrib.components.CollideComponent;
+import contrib.components.FlyComponent;
+import contrib.components.ProjectileComponent;
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
 import core.Game;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import core.components.DrawComponent;
 =======
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+import core.components.DrawComponent;
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.utils.Coordinate;
@@ -30,6 +40,7 @@ public abstract class PortalSkill extends ProjectileSkill {
 
   /** Name of the Skill. */
 <<<<<<< HEAD
+<<<<<<< HEAD
   private static final float SPEED = 13f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
@@ -39,6 +50,11 @@ public abstract class PortalSkill extends ProjectileSkill {
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+  private static final float SPEED = 13f;
+  private static final float RANGE = 10f;
+  private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
   private static final long COOLDOWN = 500;
 
   /**
@@ -98,11 +114,15 @@ public abstract class PortalSkill extends ProjectileSkill {
 
       if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
       }
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
 =======
         createPortal(finalPos.toCoordinate().toPoint());
+=======
+        createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
       }
 >>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
 >>>>>>> ac8cf0c7 (restructed portal related files)
@@ -110,6 +130,7 @@ public abstract class PortalSkill extends ProjectileSkill {
     };
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -126,6 +147,8 @@ public abstract class PortalSkill extends ProjectileSkill {
   protected abstract void createPortal(Point position);
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
 =======
+=======
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
   @Override
   protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
@@ -169,6 +192,7 @@ public abstract class PortalSkill extends ProjectileSkill {
   }
 
   protected abstract void createPortal(Point position, Vector2 currentVelocity);
+<<<<<<< HEAD
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
 =======
   protected abstract void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition);
@@ -182,6 +206,8 @@ public abstract class PortalSkill extends ProjectileSkill {
   protected abstract void createPortal(Point position);
 >>>>>>> 355d8064 (fixed portal creating bug and added directions to the portals to smoothen the transition)
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 
 
 

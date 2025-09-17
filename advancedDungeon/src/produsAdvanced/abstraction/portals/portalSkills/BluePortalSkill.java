@@ -7,6 +7,7 @@ import core.utils.Point;
 import core.utils.Tuple;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/BluePortalSkill.java
 =======
 <<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/BluePortalSkill.java
@@ -33,6 +34,9 @@ import core.utils.Vector2;
 ========
 >>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/BluePortalSkill.java
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+import core.utils.Vector2;
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.PortalFactory;
@@ -69,6 +73,7 @@ public class BluePortalSkill extends PortalSkill {
 
 
   @Override
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -121,6 +126,11 @@ public class BluePortalSkill extends PortalSkill {
       PortalFactory.createBluePortal(position);
 >>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/BluePortalSkill.java
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+  protected void createPortal(Point position, Vector2 currentVelocity) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
+      PortalFactory.createBluePortal(position, currentVelocity);
+>>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
     }
   }
 }
