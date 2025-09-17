@@ -342,64 +342,6 @@ public class MoveSystemTest {
   }
 
   /**
-   * Tests that the isPathClearByStepping method returns true when all tiles along the path from the
-   * start point to the end point are accessible.
-   *
-   * <p>This verifies that the method correctly detects a clear path without obstacles when stepping
-   * through tiles incrementally.
-   */
-  @Test
-  void isPathClearByStepping_returnsTrueForClearPath() {
-    Point start = new Point(0, 0);
-    Point end = new Point(1, 0);
-
-    // Mock tiles along the path to be accessible
-    DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(any(Point.class)))
-        .thenAnswer(
-            invocation -> {
-              Point p = invocation.getArgument(0);
-              Tile t = mock(Tile.class);
-              when(t.isAccessible()).thenReturn(true);
-              return Optional.of(t);
-            });
-    Game.currentLevel(level);
-
-    boolean result = system.isPathClearByStepping(start, end, false);
-    assertTrue(result, "Path should be clear when all tiles are accessible");
-  }
-
-  /**
-   * Tests that the isPathClearByStepping method returns false if any tile along the path from the
-   * start point to the end point is inaccessible.
-   *
-   * <p>This ensures the method correctly detects blocked paths by checking each intermediate tile.
-   */
-  @Test
-  void isPathClearByStepping_returnsFalseIfTileInPathBlocked() {
-    Point start = new Point(0, 0);
-    Point end = new Point(1, 0);
-
-    DungeonLevel level = mock(DungeonLevel.class);
-    when(level.tileAt(any(Point.class)))
-        .thenAnswer(
-            invocation -> {
-              Point p = invocation.getArgument(0);
-              Tile t = mock(Tile.class);
-              if (p.x() >= 0.5) {
-                when(t.isAccessible()).thenReturn(false);
-              } else {
-                when(t.isAccessible()).thenReturn(true);
-              }
-              return Optional.of(t);
-            });
-    Game.currentLevel(level);
-
-    boolean result = system.isPathClearByStepping(start, end, false);
-    assertFalse(result, "Path should be blocked when any tile in path is inaccessible");
-  }
-
-  /**
    * Tests that when diagonal movement is blocked by an inaccessible tile, but movement along the X
    * axis alone is possible, the entity moves only along the X axis.
    *

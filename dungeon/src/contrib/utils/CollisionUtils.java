@@ -8,10 +8,26 @@ import core.utils.Vector2;
 import java.util.Arrays;
 import java.util.List;
 
+/** Utility class for handling various collision detection things. */
 public class CollisionUtils {
 
+  /**
+   * A small offset to prevent floating-point precision issues when checking collisions at the
+   * corner of an entity.
+   */
   public static final float TOP_OFFSET = 0.0001f;
 
+  /**
+   * Checks if an entity at a given position with a specified size and offset is colliding with any
+   * level tiles that are not accessible.
+   *
+   * @param pos the bottom-left position of the entity
+   * @param offset the offset of the hitbox
+   * @param size the size of the entity
+   * @param canEnterPits whether the entity can enter pit tiles
+   * @return true if any corner of the hitbox is colliding with a non-accessible tile, false
+   *     otherwise
+   */
   public static boolean isCollidingWithLevel(
       Point pos, Vector2 offset, Vector2 size, boolean canEnterPits) {
     List<Point> corners =
@@ -58,7 +74,7 @@ public class CollisionUtils {
    * @return true if the entire path from start to target is clear; false if a tile in between is
    *     blocked
    */
-  boolean isPathClearByStepping(Point from, Point to, boolean canEnterPitTiles) {
+  public static boolean isPathClearByStepping(Point from, Point to, boolean canEnterPitTiles) {
     Vector2 direction = from.vectorTo(to);
     double distance = direction.length();
 

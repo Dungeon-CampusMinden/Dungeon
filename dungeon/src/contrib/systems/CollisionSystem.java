@@ -227,12 +227,17 @@ public final class CollisionSystem extends System {
   }
 
   private void solidCollide(
-    Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction) {
+      Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction) {
     solidCollide(ea, a, eb, b, direction, true);
   }
 
-    private void solidCollide(
-      Entity ea, CollideComponent a, Entity eb, CollideComponent b, Direction direction, boolean firstLevel) {
+  private void solidCollide(
+      Entity ea,
+      CollideComponent a,
+      Entity eb,
+      CollideComponent b,
+      Direction direction,
+      boolean firstLevel) {
     Point c1Pos = a.bottomLeft(ea);
     Vector2 c1Size = a.size();
     Point c2Pos = b.bottomLeft(eb);
@@ -256,12 +261,13 @@ public final class CollisionSystem extends System {
 
     boolean bCanEnterOpenPits = eb.fetch(VelocityComponent.class).orElseThrow().canEnterOpenPits();
 
-    if(CollisionUtils.isCollidingWithLevel(newPos, b.offset(), b.size(), bCanEnterOpenPits)){
-      if(firstLevel){
+    if (CollisionUtils.isCollidingWithLevel(newPos, b.offset(), b.size(), bCanEnterOpenPits)) {
+      if (firstLevel) {
         // If the new position collides with the level, block the other entity instead.
         solidCollide(eb, b, ea, a, direction.opposite(), false);
       }
-      // If we aren't in the first iteration, the other entity is also blocked, so just don't do anything
+      // If we aren't in the first iteration, the other entity is also blocked, so just don't do
+      // anything
       return;
     }
 
