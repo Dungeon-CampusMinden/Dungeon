@@ -2,12 +2,10 @@ package coderunner;
 
 import client.Client;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -30,6 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import server.Server;
+import systems.ScheduleShootFireballSystem;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
@@ -50,10 +49,6 @@ public class BlocklyCommands {
    * <p>Workaround for #1952
    */
   public static boolean DISABLE_SHOOT_ON_HERO = false;
-
-  private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
-  private static final float FIREBALL_SPEED = 15f;
-  private static final int FIREBALL_DMG = 1;
 
   /**
    * Moves the hero in it's viewing direction.
@@ -139,11 +134,12 @@ public class BlocklyCommands {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public static void shootFireball() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-
-    hero.fetch(AmmunitionComponent.class)
-        .filter(AmmunitionComponent::checkAmmunition)
-        .ifPresent(ac -> aimAndShoot(ac, hero));
+    Game.system(
+        ScheduleShootFireballSystem.class,
+        scheduleShootFireballSystem -> scheduleShootFireballSystem.scheduleShoot());
+    Server.waitDelta();
+    Server.waitDelta();
+    Server.waitDelta();
   }
 
   /**
@@ -235,37 +231,6 @@ public class BlocklyCommands {
   /** Attempts to pull entities in front of the hero. */
   public static void pull() {
     movePushable(false);
-  }
-
-  /**
-   * Shoots a fireball in direction the hero is facing.
-   *
-   * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
-   * @param hero Entity to be used as hero for positioning
-   */
-  private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
-    newFireballSkill(hero).execute(hero);
-    ac.spendAmmo();
-    Server.waitDelta();
-  }
-
-  /**
-   * Create a new fireball for the given entity.
-   *
-   * @param hero Entity to be used as hero for positioning
-   * @return Nice new fireball, ready to be launched.
-   */
-  private static FireballSkill newFireballSkill(Entity hero) {
-    return new FireballSkill(
-        () ->
-            hero.fetch(CollideComponent.class)
-                .map(cc -> cc.center(hero))
-                .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
-                .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class)),
-        1,
-        FIREBALL_SPEED,
-        FIREBALL_RANGE,
-        FIREBALL_DMG);
   }
 
   /**

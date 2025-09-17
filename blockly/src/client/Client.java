@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
+import systems.ScheduleShootFireballSystem;
 import systems.TintTilesSystem;
 
 /**
@@ -109,12 +110,9 @@ public class Client {
           DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
           DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
           DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
-
-          createSystems();
-
           HeroFactory.heroDeath(entity -> restart());
-
           createHero();
+          createSystems();
           Crafting.loadRecipes();
 
           startServer();
@@ -176,6 +174,8 @@ public class Client {
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
+    Game.add(new ScheduleShootFireballSystem());
+
     Game.add(
         new System() {
           @Override
