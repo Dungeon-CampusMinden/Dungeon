@@ -11,6 +11,7 @@ import core.utils.*;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.PortalComponent;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,16 +20,19 @@ public class PortalFactory {
 
   private static Entity bluePortal;
   private static Entity greenPortal;
-  private static Entity stone;
 
   private static Direction bluePortalDirection;
   private static Direction greenPortalDirection;
 
-  public static void createBluePortal(Point point) {
-    clearBluePortal();
+  public static void createBluePortal(Point point, Vector2 currentVelocity) {
     Entity portal;
+    clearBluePortal();
+    if (greenPortal != null && greenPortal.fetch(PositionComponent.class).get().position().equals(point)) {
+      clearGreenPortal();
+    }
     portal = new Entity("blue_portal");
     portal.add(new PositionComponent(point));
+    portal.add(new PortalComponent());
 
     // checking all Neighbours, for each compare the currentVelocity with the impact direction, put them into a list
     // get the best score of the list(?), if its a wall go to next best one, the resulting neighbour is the  direction where
@@ -68,12 +72,15 @@ public class PortalFactory {
     bluePortal = portal;
   }
 
-  public static void createGreenPortal(Point point) {
-    clearGreenPortal();
+  public static void createGreenPortal(Point point, Vector2 currentVelocity) {
     Entity portal;
+    clearGreenPortal();
+    if (bluePortal != null &&  bluePortal.fetch(PositionComponent.class).get().position().equals(point)) {
+      clearBluePortal();
+    }
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
-
+    portal.add(new PortalComponent());
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
@@ -108,15 +115,17 @@ public class PortalFactory {
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (bluePortal != null && !isEntityPortal(other)) {
+      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
+      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
     }
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (greenPortal != null && !isEntityPortal(other)) {
+      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
     }
   }
 
@@ -128,6 +137,7 @@ public class PortalFactory {
 
   public static void clearBluePortal() {
     if (bluePortal != null) {
+      System.out.println("Blue Portal removed");
       Game.remove(bluePortal);
       bluePortal = null;
     }
@@ -135,18 +145,14 @@ public class PortalFactory {
 
   public static void clearGreenPortal() {
     if (greenPortal != null) {
+      System.out.println("Green Portal removed");
       Game.remove(greenPortal);
       greenPortal = null;
     }
   }
 
   private static boolean isEntityPortal(Entity entity) {
-    if (Objects.equals(entity.name(), BluePortalSkill.SKILL_NAME + "_projectile") || Objects.equals(entity.name(), GreenPortalSkill.SKILL_NAME + "_projectile")) {
-      System.out.println("NOT ALLOWED");
-      Game.remove(entity);
-      return true;
-    }
-    return false;
+    return entity.isPresent(PortalComponent.class);
   }
 
 }
