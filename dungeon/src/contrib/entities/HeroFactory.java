@@ -125,7 +125,7 @@ public final class HeroFactory {
    * @return A new Entity.
    */
   public static Entity newHero(CharacterClass characterClass, boolean isLocal, String playerName) {
-    return newHero(EntityIdProvider.nextId(), characterClass, isLocal, playerName);
+    return newHero(-1, characterClass, isLocal, playerName);
   }
 
   /**
