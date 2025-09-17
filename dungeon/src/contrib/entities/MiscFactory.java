@@ -476,7 +476,13 @@ public final class MiscFactory {
     other.add(
         new ProjectileComponent(
             start, goal, forceToApply, entity -> resetCatapultedEntity(entity, entityVc)));
-    other.add(new PositionComponent(start));
+    other
+        .fetch(PositionComponent.class)
+        .ifPresentOrElse(
+            pc -> pc.position(start),
+            () -> {
+              other.add(new PositionComponent(start));
+            });
     other.add(new FlyComponent());
   }
 
