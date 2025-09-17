@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import server.Server;
 import systems.ScheduleShootFireballSystem;
 
@@ -557,15 +556,5 @@ public class BlocklyCommands {
   /** Let the hero do nothing for a short moment. */
   public static void rest() {
     Server.waitDelta();
-  }
-
-  /**
-   * Executes a given function a specified number of times.
-   *
-   * @param counter the number of times to execute the function; must be non-negative
-   * @param function the function to be executed repeatedly
-   */
-  public static void times(int counter, IVoidFunction function) {
-    IntStream.range(0, counter).forEach(value -> function.execute());
   }
 }
