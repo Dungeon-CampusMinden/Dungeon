@@ -5,6 +5,8 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,7 +17,8 @@ import java.util.function.Supplier;
  * <p>Supports named states, regular transitions triggered by signals, and epsilon transitions that
  * are evaluated each update cycle.
  */
-public class StateMachine {
+public class StateMachine implements Serializable {
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Default name for the idle state. */
   public static final String IDLE_STATE = "idle";
@@ -103,7 +106,7 @@ public class StateMachine {
    * @throws IllegalArgumentException if the list of states is empty
    */
   public StateMachine(List<State> states) {
-    if (states.size() == 0) throw new IllegalArgumentException("State list can't be empty");
+    if (states.isEmpty()) throw new IllegalArgumentException("State list can't be empty");
     this.states = states;
     setInitialState();
   }
@@ -450,5 +453,14 @@ public class StateMachine {
       }
     }
     return sb.toString();
+  }
+
+  public void setState(String stateName, Object data) {
+    State state = getState(stateName);
+    if (state != null) {
+      changeState(state, data);
+    } else {
+      throw new IllegalArgumentException("State '" + stateName + "' doesn't exist");
+    }
   }
 }

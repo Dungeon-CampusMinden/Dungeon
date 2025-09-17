@@ -1,7 +1,6 @@
 package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
@@ -15,9 +14,11 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.*;
+import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.level.utils.LevelUtils;
+import core.network.messages.c2s.InputMessage;
+import core.network.messages.c2s.InputMessage.Action;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.*;
@@ -25,37 +26,17 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
 /** A utility class for building the hero entity in the game world. */
 public final class HeroFactory {
 
-  /** If true, the hero can be moved with the mouse. */
-  public static final boolean ENABLE_MOUSE_MOVEMENT = true;
-
   /** The default Hero class, used if no other class is specified. */
   public static final CharacterClass DEFAULT_HERO_CLASS = CharacterClass.WIZARD;
 
-  private static final String MOVEMENT_ID = "Movement";
-  private static final Consumer<Entity> EXECUTE_ACTIVE_HERO_SKILL =
-      entity ->
-          entity
-              .fetch(SkillComponent.class)
-              .ifPresent(
-                  skillComponent ->
-                      skillComponent
-                          .activeSkill()
-                          .ifPresent(
-                              new Consumer<Skill>() {
-                                @Override
-                                public void accept(Skill skill) {
-                                  skill.execute(entity);
-                                }
-                              }));
-
-  private static Consumer<Entity> DEFAULT_DEATH =
+  /** The death callback, which shows a "You died!" popup and resets the hero. */
+  public static Consumer<Entity> DEATH_CALLBACK =
       (hero) ->
           DialogUtils.showTextPopup(
               "You died!",
@@ -77,7 +58,7 @@ public final class HeroFactory {
                           characterClassComponent
                               .characterClass()
                               .startItems()
-                              .forEach(item -> invComp.add(item));
+                              .forEach(invComp::add);
                           hero.add(invComp);
                         });
 
@@ -92,7 +73,7 @@ public final class HeroFactory {
    * @param deathCallback Callback that will be executed on the hero's death.
    */
   public static void heroDeath(Consumer<Entity> deathCallback) {
-    DEFAULT_DEATH = deathCallback;
+    DEATH_CALLBACK = deathCallback;
   }
 
   /**
@@ -105,10 +86,25 @@ public final class HeroFactory {
    * CollideComponent} and {@link HealthComponent}.
    *
    * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero() throws IOException {
-    return newHero(DEFAULT_HERO_CLASS, DEFAULT_DEATH);
+  public static Entity newHero() {
+    return newHero(DEFAULT_HERO_CLASS);
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}{, {@link PlayerComponent},
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
+   *
+   * @param characterClass Class of the hero
+   * @return A new Entity.
+   */
+  public static Entity newHero(CharacterClass characterClass) {
+    return newHero(characterClass, true, PreRunConfiguration.username());
   }
 
   /**
@@ -120,19 +116,67 @@ public final class HeroFactory {
    * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
    * CollideComponent} and {@link HealthComponent}.
    *
-   * @param characterClass Class of the hero.
-   * @param deathCallback function that will be executed if the hero dies
+   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   * Otherwise, it will be controlled by the server.
+   *
+   * @param characterClass Class of the hero
+   * @param isLocal if the hero is the local player
+   * @param playerName name of the player (used for multiplayer)
    * @return A new Entity.
-   * @throws IOException if the animation could not been loaded.
    */
-  public static Entity newHero(CharacterClass characterClass, Consumer<Entity> deathCallback)
-      throws IOException {
-    Entity hero = new Entity("hero");
+  public static Entity newHero(CharacterClass characterClass, boolean isLocal, String playerName) {
+    return newHero(EntityIdProvider.nextId(), characterClass, isLocal, playerName);
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
+   *
+   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   * Otherwise, it will be controlled by the server.
+   *
+   * @param isLocal if the hero is the local player
+   * @param playerName name of the player (used for multiplayer)
+   * @return A new Entity.
+   */
+  public static Entity newHero(boolean isLocal, String playerName) {
+    return newHero(-1, DEFAULT_HERO_CLASS, isLocal, playerName);
+  }
+
+  /**
+   * Get an Entity that can be used as a playable character.
+   *
+   * <p>The Entity is not added to the game yet.
+   *
+   * <p>It will have a {@link CameraComponent}, {@link PlayerComponent}, {@link InputComponent}
+   * {@link PositionComponent}, {@link VelocityComponent}, {@link DrawComponent}, {@link
+   * CollideComponent} and {@link HealthComponent}.
+   *
+   * <p>If the hero, should be controlled by the local player, set {@code isLocal} to true.
+   * Otherwise, it will be controlled by the server.
+   *
+   * @param id The unique ID for the hero entity. (-1 to auto-generate)
+   * @param characterClass Class of the hero.
+   * @param isLocal if the hero is the local player
+   * @param playerName name of the player (used for multiplayer)
+   * @return A new Entity.
+   */
+  public static Entity newHero(
+      final int id, CharacterClass characterClass, final boolean isLocal, String playerName) {
+    Entity hero =
+        id == -1 ? new Entity("hero_" + playerName) : new Entity(id, "hero_" + playerName);
     hero.persistent(true);
-    PlayerComponent pc = new PlayerComponent();
+    PlayerComponent pc = new PlayerComponent(isLocal, playerName);
     hero.add(pc);
     CameraComponent cc = new CameraComponent();
-    hero.add(cc);
+    if (isLocal) {
+      hero.add(cc);
+    }
     PositionComponent poc = new PositionComponent();
     hero.add(poc);
 
@@ -174,18 +218,23 @@ public final class HeroFactory {
             characterClass.stamina(), characterClass.stamina(), characterClass.staminaRestore()));
     hero.add(new SkillComponent(characterClass.startSkills().toArray(new Skill[0])));
 
+    dc.tintColor(isLocal ? -1 : 0x000077FF); // tint remote heroes blue
     HealthComponent hc =
         new HealthComponent(
             characterClass.hp(),
             entity -> {
+              if (!Game.network().isServer() && !isLocal) return;
+
               // play sound
-              Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
-              long soundId = sound.play();
-              sound.setLooping(soundId, false);
-              sound.setVolume(soundId, 0.3f);
-              sound.setLooping(soundId, false);
-              sound.play();
-              sound.setVolume(soundId, 0.9f);
+              if (Gdx.audio != null) {
+                Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/death.wav"));
+                long soundId = sound.play();
+                sound.setLooping(soundId, false);
+                sound.setVolume(soundId, 0.3f);
+                sound.setLooping(soundId, false);
+                sound.play();
+                sound.setVolume(soundId, 0.9f);
+              }
 
               // relink components for camera
               Entity cameraDummy = new Entity("heroCamera");
@@ -193,7 +242,7 @@ public final class HeroFactory {
               cameraDummy.add(poc);
               Game.add(cameraDummy);
 
-              deathCallback.accept(entity);
+              DEATH_CALLBACK.accept(entity);
             });
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
@@ -223,41 +272,33 @@ public final class HeroFactory {
     hero.add(inputComp);
 
     InventoryComponent invComp = new InventoryComponent(characterClass.inventorySize());
-    characterClass.startItems().forEach(item -> invComp.add(item));
+    characterClass.startItems().forEach(invComp::add);
     hero.add(invComp);
 
     // hero movement
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_UP.value(),
-        characterClass.speed(),
-        Direction.UP);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_UP.value(), Direction.UP);
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(),
-        characterClass.speed(),
-        Direction.DOWN);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_DOWN.value(), Direction.DOWN);
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(),
-        characterClass.speed(),
-        Direction.RIGHT);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_RIGHT.value(), Direction.RIGHT);
     registerMovement(
-        inputComp,
-        core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(),
-        characterClass.speed(),
-        Direction.LEFT);
+        inputComp, core.configuration.KeyboardConfig.MOVEMENT_LEFT.value(), Direction.LEFT);
 
     inputComp.registerCallback(
         KeyboardConfig.NEXT_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
+        entity -> {
+          Game.network().sendInput(new InputMessage(Action.NEXT_SKILL, null));
+        },
         false);
     inputComp.registerCallback(
         KeyboardConfig.PREV_SKILL.value(),
-        entity -> entity.fetch(SkillComponent.class).ifPresent(sk -> sk.nextSkill()),
+        entity -> {
+          Game.network().sendInput(new InputMessage(Action.PREV_SKILL, null));
+        },
         false);
 
-    if (ENABLE_MOUSE_MOVEMENT) {
+    if (HeroController.ENABLE_MOUSE_MOVEMENT) {
       // Mouse Left Click
       registerMouseLeftClick(inputComp);
 
@@ -268,35 +309,7 @@ public final class HeroFactory {
             // Small adjustment to get the correct tile
             Point mousePos =
                 SkillTools.cursorPositionAsPoint().translate(Vector2.of(-0.5f, -0.25f));
-
-            Point heroPos =
-                innerHero
-                    .fetch(PositionComponent.class)
-                    .map(PositionComponent::position)
-                    .orElse(null);
-            if (heroPos == null) return;
-
-            GraphPath<Tile> path = LevelUtils.calculatePath(heroPos, mousePos);
-            // If the path is null or empty, try to find a nearby tile that is accessible and
-            // calculate a path to it
-            if (path == null || path.getCount() == 0) {
-              Tile nearTile =
-                  LevelUtils.tilesInRange(mousePos, 1f).stream()
-                      .filter(tile -> LevelUtils.calculatePath(heroPos, tile.position()) != null)
-                      .findFirst()
-                      .orElse(null);
-              // If no accessible tile is found, abort
-              if (nearTile == null) return;
-              path = LevelUtils.calculatePath(heroPos, nearTile.position());
-            }
-
-            // Stores the path in Hero's PathComponent
-            GraphPath<Tile> finalPath = path;
-            innerHero
-                .fetch(PathComponent.class)
-                .ifPresentOrElse(
-                    pathComponent -> pathComponent.path(finalPath),
-                    () -> innerHero.add(new PathComponent(finalPath)));
+            Game.network().sendInput(new InputMessage(Action.MOVE_PATH, mousePos));
           },
           false);
     }
@@ -304,14 +317,18 @@ public final class HeroFactory {
     // UI controls
     inputComp.registerCallback(
         KeyboardConfig.INVENTORY_OPEN.value(),
-        (entity) -> toggleInventory(entity, pc, invComp),
+        (entity) -> {
+          toggleInventory(entity, inputComp, invComp, pc);
+        },
         false,
         true);
 
-    if (ENABLE_MOUSE_MOVEMENT) {
+    if (HeroController.ENABLE_MOUSE_MOVEMENT) {
       inputComp.registerCallback(
           KeyboardConfig.MOUSE_INVENTORY_TOGGLE.value(),
-          (entity) -> toggleInventory(entity, pc, invComp),
+          (entity) -> {
+            toggleInventory(entity, inputComp, invComp, pc);
+          },
           false,
           true);
     }
@@ -334,7 +351,7 @@ public final class HeroFactory {
         false);
 
     // skills
-    inputComp.registerCallback(KeyboardConfig.FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL);
+    inputComp.registerCallback(KeyboardConfig.FIRST_SKILL.value(), HeroFactory::executeHeroSkill);
 
     return hero;
   }
@@ -344,7 +361,7 @@ public final class HeroFactory {
    *
    * <p>This will close the topmost UI dialog that has the close key configured to close it.
    *
-   * @param ic The {@link InputComponent} of the hero.
+   * @param ic The PlayerComponent of the hero.
    */
   public static void registerCloseUI(InputComponent ic) {
     ic.registerCallback(
@@ -384,7 +401,8 @@ public final class HeroFactory {
         true);
   }
 
-  private static void toggleInventory(Entity entity, PlayerComponent pc, InventoryComponent ic) {
+  private static void toggleInventory(
+      Entity entity, InputComponent ic, InventoryComponent invComp, PlayerComponent pc) {
     if (pc.openDialogs()) {
       return;
     }
@@ -397,35 +415,16 @@ public final class HeroFactory {
       }
     } else {
       InventoryGUI.inHeroInventory = true;
-      entity.add(new UIComponent(new GUICombination(new InventoryGUI(ic)), true));
+      entity.add(new UIComponent(new GUICombination(new InventoryGUI(invComp)), true));
     }
   }
 
-  private static void registerMovement(
-      InputComponent ic, int key, Vector2 speed, Vector2 direction) {
+  private static void registerMovement(InputComponent ic, int key, Direction direction) {
     ic.registerCallback(
         key,
         entity -> {
-          VelocityComponent vc =
-              entity
-                  .fetch(VelocityComponent.class)
-                  .orElseThrow(
-                      () -> MissingComponentException.build(entity, VelocityComponent.class));
-
-          Optional<Vector2> existingForceOpt = vc.force(MOVEMENT_ID);
-          Vector2 newForce = speed.scale(direction);
-
-          Vector2 updatedForce =
-              existingForceOpt.map(existing -> existing.add(newForce)).orElse(newForce);
-
-          if (updatedForce.lengthSquared() > 0) {
-            updatedForce = updatedForce.normalize().scale(speed.length());
-            vc.applyForce(MOVEMENT_ID, updatedForce);
-          }
-
-          if (ENABLE_MOUSE_MOVEMENT) {
-            entity.fetch(PathComponent.class).ifPresent(PathComponent::clear);
-          }
+          Game.network()
+              .sendInput(new InputMessage(Action.MOVE, new Point(0, 0).translate(direction)));
         });
   }
 
@@ -433,7 +432,7 @@ public final class HeroFactory {
     if (!Objects.equals(
         KeyboardConfig.MOUSE_FIRST_SKILL.value(), KeyboardConfig.MOUSE_INTERACT_WORLD.value())) {
       ic.registerCallback(
-          KeyboardConfig.MOUSE_FIRST_SKILL.value(), EXECUTE_ACTIVE_HERO_SKILL, true, false);
+          KeyboardConfig.MOUSE_FIRST_SKILL.value(), HeroFactory::executeHeroSkill, true, false);
       ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           HeroFactory::handleInteractWithClosestInteractable,
@@ -448,7 +447,7 @@ public final class HeroFactory {
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
-              EXECUTE_ACTIVE_HERO_SKILL.accept(hero);
+              executeHeroSkill(hero);
             } else {
               handleInteractWithClosestInteractable(hero);
             }
@@ -456,6 +455,11 @@ public final class HeroFactory {
           false,
           false);
     }
+  }
+
+  private static void executeHeroSkill(Entity hero) {
+    Game.network()
+        .sendInput(new InputMessage(Action.CAST_SKILL, SkillTools.cursorPositionAsPoint()));
   }
 
   private static void handleInteractWithClosestInteractable(Entity hero) {
@@ -481,8 +485,9 @@ public final class HeroFactory {
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius())
-      ic.triggerInteraction(interactable, hero);
+    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius()) {
+      Game.network().sendInput(new InputMessage(Action.INTERACT, pc.position()));
+    }
   }
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
@@ -524,16 +529,5 @@ public final class HeroFactory {
     Vector2 newVelocity = d.scale(length); // Neue Geschwindigkeit in Richtung des Vektors
     vc1.applyForce("Collision", newVelocity.scale(-1));
     vc2.applyForce("Collision", newVelocity);
-  }
-
-  /**
-   * Create a new Hero based on the given class with the default death callback (restart level).
-   *
-   * @param characterClass The class of the hero.
-   * @return The Hero Entity-
-   * @throws IOException if animations could not be created.
-   */
-  public static Entity newHero(CharacterClass characterClass) throws IOException {
-    return newHero(characterClass, DEFAULT_DEATH);
   }
 }
