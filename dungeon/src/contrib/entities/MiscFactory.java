@@ -19,6 +19,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
+import core.systems.DrawSystem;
 import core.utils.*;
 import core.utils.Direction;
 import core.utils.Point;
@@ -476,7 +477,9 @@ public final class MiscFactory {
     other.add(
         new ProjectileComponent(
             start, goal, forceToApply, entity -> resetCatapultedEntity(entity, entityVc)));
-    other.add(new PositionComponent(start));
+    other.fetch(PositionComponent.class).ifPresentOrElse(pc -> pc.position(start), () -> {
+      other.add(new PositionComponent(start));
+    });
     other.add(new FlyComponent());
   }
 
