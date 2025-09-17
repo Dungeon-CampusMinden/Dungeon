@@ -38,6 +38,11 @@ public class FireballSchedular {
           FIREBALL_RANGE,
           FIREBALL_DMG);
 
+  /**
+   * Shoot a fireball in the viewdirection of the hero.
+   *
+   * <p>This uses the {@link EventScheduler}
+   */
   public static void shoot() {
     EventScheduler.scheduleAction(
         () -> {
