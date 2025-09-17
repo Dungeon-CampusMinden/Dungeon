@@ -357,7 +357,7 @@ public class BlocklyCommands {
               .map(pos -> pos.translate(MAGIC_OFFSET))
               .flatMap(Game::tileAt)
               .orElse(null);
-      return checkTile.levelElement() == tileElement;
+      return checkTile != null && checkTile.levelElement() == tileElement;
     }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
   }
