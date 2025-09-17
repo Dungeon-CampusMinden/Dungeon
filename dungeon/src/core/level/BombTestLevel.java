@@ -25,7 +25,7 @@ public class BombTestLevel extends DungeonLevel {
   public BombTestLevel(
       LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "BombTestLevel");
-    this.explodableWallCoordinates = customPoints.subList(0, Math.min(1, customPoints.size()));
+    this.explodableWallCoordinates = customPoints.subList(0, 4);
   }
 
   /**

@@ -16,6 +16,8 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
+import core.components.VelocityComponent;
+import core.utils.Vector2;
 
 public class BombPlaceSkill extends Skill {
 
@@ -41,7 +43,7 @@ public class BombPlaceSkill extends Skill {
   }
 
   private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
-  private static final float DEFAULT_RADIUS = 2.0f;
+  private static final float DEFAULT_RADIUS = 2.2f;
   private static final int DEFAULT_DAMAGE = 8;
   private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
 
@@ -71,21 +73,33 @@ public class BombPlaceSkill extends Skill {
   }
 
   private void dropBomb(Entity caster) {
-    Point dropPos =
-        caster
-            .fetch(PositionComponent.class)
-            .map(PositionComponent::position)
-            .orElse(null);
-    if (dropPos == null) return;
+    Point heroPos =
+        caster.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
+    if (heroPos == null) return;
+
+    Point spawnPos = heroPos;
+    var dcOpt = caster.fetch(DrawComponent.class);
+    if (dcOpt.isPresent()) {
+      var anim = dcOpt.get().currentAnimation();
+      boolean heroCentered = anim.getConfig().centered();
+      float heroW = anim.getWidth();
+      float heroH = anim.getHeight();
+      if (!heroCentered) {
+        spawnPos = new Point(heroPos.x() + heroW / 2f, heroPos.y() + heroH / 2f);
+      } else {
+        spawnPos = heroPos; 
+      }
+    }
 
     AnimationConfig cfg = new AnimationConfig();
     cfg.framesPerSprite(6);
-    cfg.centered(true);
+    cfg.centered(true); 
 
     Entity bomb = new Entity("bomb_placed");
-    bomb.add(new PositionComponent(dropPos));
+    bomb.add(new PositionComponent(spawnPos));
     bomb.add(new DrawComponent(new Animation(BOMB_FRAMES_BLINK, cfg)));
     Game.add(bomb);
+
     scheduleBlinkRamp(cfg);
     explode(bomb);
   }

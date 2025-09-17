@@ -46,7 +46,7 @@ public final class ExplosionFactory {
     fx.add(new PositionComponent(position));
     fx.add(new DrawComponent(anim));
     Game.add(fx);
-    
+
     playExplosionSfx();
 
     applyAoeDamage(position, radius, dmgType, dmgAmount, fx);
