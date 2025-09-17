@@ -75,7 +75,6 @@ public class BombPlaceSkill extends Skill {
         caster
             .fetch(PositionComponent.class)
             .map(PositionComponent::position)
-            .map(p -> Game.tileAt(p).map(t -> t.coordinate().toCenteredPoint()).orElse(p))
             .orElse(null);
     if (dropPos == null) return;
 
