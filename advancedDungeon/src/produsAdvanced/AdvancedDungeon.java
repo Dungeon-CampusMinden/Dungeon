@@ -25,9 +25,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
-import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
-import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
-import produsAdvanced.abstraction.portalSkills.PortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 import produsAdvanced.level.*;
 
 /**
