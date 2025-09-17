@@ -1,8 +1,6 @@
-package produsAdvanced.abstraction;
+package produsAdvanced.abstraction.portals;
 
 import contrib.components.CollideComponent;
-import contrib.entities.EntityFactory;
-import contrib.entities.MiscFactory;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -11,12 +9,13 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Portal {
+public class PortalFactory {
 
   private static Entity bluePortal;
   private static Entity greenPortal;
@@ -29,7 +28,6 @@ public class Portal {
     clearBluePortal();
     Entity portal;
     portal = new Entity("blue_portal");
-//    System.out.println("Portal spawned at: " + point);
     portal.add(new PositionComponent(point));
 
     // checking all Neighbours, for each compare the currentVelocity with the impact direction, put them into a list
@@ -40,11 +38,8 @@ public class Portal {
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
       double distance = point.distance(tile.position().toCenteredPoint());
-//      System.out.println("---");
-//      System.out.println("Coords " + tile.position().toCenteredPoint().toString() + " Distanz : " + distance);
       list.add(new Tuple<>(tile.position(),distance));
     }
-//    System.out.println(" Position: " + point.toString());
 
     list.sort(Comparator.comparingDouble(Tuple::b));
 
@@ -53,19 +48,18 @@ public class Portal {
     Point best = list.getFirst().a();
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
       bluePortalDirection = Direction.UP;
     } else if (pointDirection.equals(new Point(0,-1))) {
       bluePortalDirection = Direction.DOWN;
-      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else if (pointDirection.equals(new Point(1,0))) {
       bluePortalDirection = Direction.RIGHT;
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else {
       bluePortalDirection = Direction.LEFT;
-      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
-//    System.out.println("Best Point is " + pointDirection + " Direction is : " + bluePortalDirection);
 
     portal.add(cc);
 
@@ -80,7 +74,6 @@ public class Portal {
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
 
-
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
@@ -94,17 +87,17 @@ public class Portal {
     Point best = list.getFirst().a();
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
       greenPortalDirection = Direction.UP;
     } else if (pointDirection.equals(new Point(0,-1))) {
       greenPortalDirection = Direction.DOWN;
-      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else if (pointDirection.equals(new Point(1,0))) {
       greenPortalDirection = Direction.RIGHT;
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else {
       greenPortalDirection = Direction.LEFT;
-      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
 
     portal.add(cc);
@@ -114,22 +107,17 @@ public class Portal {
   }
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
-    Entity hero = Game.hero().get();
-    if (other.equals(hero) && bluePortal != null) {
-      PositionComponent pc = hero.fetch(PositionComponent.class).get();
+    if (bluePortal != null && !isEntityPortal(other)) {
+      PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
     }
-//    System.out.println("Green Portal entered");
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
-    Entity hero = Game.hero().get();
-    if (other.equals(hero) && greenPortal != null) {
-      PositionComponent pc = hero.fetch(PositionComponent.class).get();
+    if (greenPortal != null && !isEntityPortal(other)) {
+      PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
     }
-
-//    System.out.println("Blue Portal entered");
   }
 
 
@@ -150,6 +138,15 @@ public class Portal {
       Game.remove(greenPortal);
       greenPortal = null;
     }
+  }
+
+  private static boolean isEntityPortal(Entity entity) {
+    if (Objects.equals(entity.name(), BluePortalSkill.SKILL_NAME + "_projectile") || Objects.equals(entity.name(), GreenPortalSkill.SKILL_NAME + "_projectile")) {
+      System.out.println("NOT ALLOWED");
+      Game.remove(entity);
+      return true;
+    }
+    return false;
   }
 
 }
