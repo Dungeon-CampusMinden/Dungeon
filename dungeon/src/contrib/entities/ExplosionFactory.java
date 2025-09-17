@@ -16,12 +16,17 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.List;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 
 public final class ExplosionFactory {
 
   private static final String FRAME_PREFIX = "explosion_";
   private static final int FRAME_COUNT = 16;
   private static final int FRAMES_PER_SPRITE = 1;
+
+  private static final SimpleIPath EXPLOSION_SFX = new SimpleIPath("sounds/bomb_explosion.wav");
+  private static Sound explosionSound;
 
   private ExplosionFactory() {}
 
@@ -39,6 +44,8 @@ public final class ExplosionFactory {
     fx.add(new PositionComponent(position));
     fx.add(new DrawComponent(anim));
     Game.add(fx);
+
+    playExplosionSfx();
 
     applyAoeDamage(position, radius, dmgType, dmgAmount, fx);
 
@@ -92,4 +99,12 @@ public final class ExplosionFactory {
     }
     return frames;
   }
+
+  private static void playExplosionSfx() {
+    if (explosionSound == null) {
+      explosionSound = Gdx.audio.newSound(Gdx.files.internal(EXPLOSION_SFX.pathString()));
+    }
+    explosionSound.play(1f);
+  }
+
 }

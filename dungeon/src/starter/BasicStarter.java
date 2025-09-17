@@ -51,7 +51,7 @@ public class BasicStarter {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    Game.disableAudio(true);
+    Game.disableAudio(false);
     Game.userOnSetup(
         () -> {
           try {
