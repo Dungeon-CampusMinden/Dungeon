@@ -33,6 +33,7 @@ import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
 import produsAdvanced.abstraction.portalSkills.PortalSkill;
@@ -44,6 +45,10 @@ import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
 import produsAdvanced.abstraction.portalSkills.PortalSkill;
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
+>>>>>>> 20f3a7f9 (restructed portal related files)
 import produsAdvanced.level.*;
 
 /**

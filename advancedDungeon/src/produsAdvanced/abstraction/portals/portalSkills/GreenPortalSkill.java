@@ -1,10 +1,9 @@
-package produsAdvanced.abstraction.portalSkills;
+package produsAdvanced.abstraction.portals.portalSkills;
 
 import contrib.utils.components.skill.Resource;
-import core.Game;
-import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
 import core.utils.Vector2;
@@ -13,14 +12,20 @@ import core.utils.Vector2;
 =======
 import core.utils.Vector2;
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import produsAdvanced.abstraction.Portal;
+import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class GreenPortalSkill extends PortalSkill {
 
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+  public static final String SKILL_NAME = "GREEN_PORTAL";
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
   private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
 =======
   private static final IPath TEXTURE = new SimpleIPath("skills/green_portal");
@@ -35,7 +40,7 @@ public class GreenPortalSkill extends PortalSkill {
    * @param resourceCost Resource costs for casting.
    */
   public GreenPortalSkill(Tuple<Resource, Integer>... resourceCost) {
-    super(TEXTURE, resourceCost);
+    super(SKILL_NAME,TEXTURE, resourceCost);
   }
 
   @Override
@@ -58,7 +63,11 @@ public class GreenPortalSkill extends PortalSkill {
     }
 =======
   protected void createPortal(Point position) {
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
     Portal.createGreenPortal(position);
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+    PortalFactory.createGreenPortal(position);
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/GreenPortalSkill.java
   }
 }

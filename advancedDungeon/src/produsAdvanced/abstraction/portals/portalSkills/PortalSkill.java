@@ -1,4 +1,4 @@
-package produsAdvanced.abstraction.portalSkills;
+package produsAdvanced.abstraction.portals.portalSkills;
 
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.SkillTools;
@@ -30,8 +30,8 @@ public abstract class PortalSkill extends ProjectileSkill {
    *
    * @param resourceCost Resource costs for casting.
    */
-  public PortalSkill(IPath texture, Tuple<Resource, Integer>... resourceCost) {
-    super(SKILL_NAME, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE, resourceCost);
+  public PortalSkill(String skillName, IPath texture, Tuple<Resource, Integer>... resourceCost) {
+    super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE, resourceCost);
   }
 
   @Override
@@ -42,9 +42,9 @@ public abstract class PortalSkill extends ProjectileSkill {
   @Override
   protected Consumer<Entity> onWallHit(Entity caster) {
     return entity ->  {
-//      System.out.println("-------------------------------");
       PositionComponent pc = entity.fetch(PositionComponent.class).get();
       VelocityComponent vc = entity.fetch(VelocityComponent.class).get();
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/PortalSkill.java
 <<<<<<< HEAD
       Point point = new Point(Math.round(vc.currentVelocity().normalize().x()),Math.round(vc.currentVelocity().normalize().y()));
       Coordinate cords = pc.coordinate().translate(Vector2.of(point));
@@ -59,12 +59,11 @@ public abstract class PortalSkill extends ProjectileSkill {
 >>>>>>> d483f6ff (added direction to portals)
 =======
 //      System.out.println("Base Pos: " + pc.position());
+=======
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/PortalSkill.java
       Vector2 velocity = vc.currentVelocity().normalize();
-//      System.out.println("Velocity: " + velocity);
       Point movedPos = pc.position().translate(velocity);
-//      System.out.println("Edited Pos: " + movedPos);
       Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
-//      System.out.println("Final Pos: " + finalPos);
 
       if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
         createPortal(finalPos.toCoordinate().toPoint());

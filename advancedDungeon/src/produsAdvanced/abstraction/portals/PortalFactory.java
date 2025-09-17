@@ -1,6 +1,7 @@
-package produsAdvanced.abstraction;
+package produsAdvanced.abstraction.portals;
 
 import contrib.components.CollideComponent;
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 import contrib.entities.EntityFactory;
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -10,6 +11,8 @@ import contrib.entities.MiscFactory;
 =======
 import contrib.entities.MiscFactory;
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -20,8 +23,9 @@ import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 =======
@@ -44,7 +48,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 >>>>>>> d483f6ff (added direction to portals)
 
-public class Portal {
+public class PortalFactory {
 
   private static Entity bluePortal;
   private static Entity greenPortal;
@@ -77,7 +81,6 @@ public class Portal {
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
     Entity portal;
     portal = new Entity("blue_portal");
-//    System.out.println("Portal spawned at: " + point);
     portal.add(new PositionComponent(point));
 
 <<<<<<< HEAD
@@ -97,11 +100,8 @@ public class Portal {
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
       double distance = point.distance(tile.position().toCenteredPoint());
-//      System.out.println("---");
-//      System.out.println("Coords " + tile.position().toCenteredPoint().toString() + " Distanz : " + distance);
       list.add(new Tuple<>(tile.position(),distance));
     }
-//    System.out.println(" Position: " + point.toString());
 
     list.sort(Comparator.comparingDouble(Tuple::b));
 
@@ -115,19 +115,18 @@ public class Portal {
 =======
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
       bluePortalDirection = Direction.UP;
     } else if (pointDirection.equals(new Point(0,-1))) {
       bluePortalDirection = Direction.DOWN;
-      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else if (pointDirection.equals(new Point(1,0))) {
       bluePortalDirection = Direction.RIGHT;
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else {
       bluePortalDirection = Direction.LEFT;
-      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), Portal::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
-//    System.out.println("Best Point is " + pointDirection + " Direction is : " + bluePortalDirection);
 
     portal.add(cc);
 
@@ -170,6 +169,7 @@ public class Portal {
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
 
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -177,6 +177,8 @@ public class Portal {
 =======
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 =======
+=======
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
     Set<Tile> neighbours = Game.neighbours(Game.tileAt(point).get()).stream().filter(tile -> tile.levelElement() == LevelElement.FLOOR).collect(Collectors.toSet());
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
@@ -190,17 +192,17 @@ public class Portal {
     Point best = list.getFirst().a();
     Point pointDirection = new Point(point.x()-best.x(), point.y()-best.y());
     if (pointDirection.equals(new Point(0,1))) {
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(1.2,0.5), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
       greenPortalDirection = Direction.UP;
     } else if (pointDirection.equals(new Point(0,-1))) {
       greenPortalDirection = Direction.DOWN;
-      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,0.6), Vector2.of(1.2,0.5), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else if (pointDirection.equals(new Point(1,0))) {
       greenPortalDirection = Direction.RIGHT;
-      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(-0.1,-0.1), Vector2.of(0.5,1.2), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     } else {
       greenPortalDirection = Direction.LEFT;
-      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), Portal::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
+      cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
 
 <<<<<<< HEAD
@@ -214,11 +216,11 @@ public class Portal {
   }
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
-    Entity hero = Game.hero().get();
-    if (other.equals(hero) && bluePortal != null) {
-      PositionComponent pc = hero.fetch(PositionComponent.class).get();
+    if (bluePortal != null && !isEntityPortal(other)) {
+      PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
     }
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 <<<<<<< HEAD
 =======
     try {
@@ -267,6 +269,15 @@ public class Portal {
 =======
 //    System.out.println("Blue Portal entered");
 >>>>>>> dfc687cf (added direction hitboxes for the portals)
+=======
+  }
+
+  public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
+    if (greenPortal != null && !isEntityPortal(other)) {
+      PositionComponent pc = other.fetch(PositionComponent.class).get();
+      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+    }
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
   }
 
 
@@ -308,6 +319,15 @@ public class Portal {
       greenPortal = null;
     }
 >>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
+  }
+
+  private static boolean isEntityPortal(Entity entity) {
+    if (Objects.equals(entity.name(), BluePortalSkill.SKILL_NAME + "_projectile") || Objects.equals(entity.name(), GreenPortalSkill.SKILL_NAME + "_projectile")) {
+      System.out.println("NOT ALLOWED");
+      Game.remove(entity);
+      return true;
+    }
+    return false;
   }
 
 }

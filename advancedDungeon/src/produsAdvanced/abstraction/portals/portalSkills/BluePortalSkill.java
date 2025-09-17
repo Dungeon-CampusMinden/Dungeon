@@ -1,10 +1,11 @@
-package produsAdvanced.abstraction.portalSkills;
+package produsAdvanced.abstraction.portals.portalSkills;
 
 import contrib.utils.components.skill.Resource;
 import core.Game;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/BluePortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
 import core.utils.Vector2;
@@ -13,14 +14,20 @@ import core.utils.Vector2;
 =======
 import core.utils.Vector2;
 >>>>>>> d483f6ff (added direction to portals)
+=======
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/BluePortalSkill.java
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import produsAdvanced.abstraction.Portal;
+import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class BluePortalSkill extends PortalSkill {
 
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/BluePortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+  public static final String SKILL_NAME = "BLUE_PORTAL";
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/BluePortalSkill.java
   private static final IPath TEXTURE = new SimpleIPath("skills/blue_projectile");
 =======
   private static final IPath TEXTURE = new SimpleIPath("skills/blue_portal");
@@ -35,7 +42,7 @@ public class BluePortalSkill extends PortalSkill {
    * @param resourceCost Resource costs for casting.
    */
   public BluePortalSkill(Tuple<Resource, Integer>... resourceCost) {
-    super(TEXTURE, resourceCost);
+    super(SKILL_NAME,TEXTURE, resourceCost);
   }
 
 
@@ -59,8 +66,12 @@ public class BluePortalSkill extends PortalSkill {
 =======
   protected void createPortal(Point position) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
+<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/BluePortalSkill.java
       Portal.createBluePortal(position);
 >>>>>>> 5d963fb8 (fixed portal creating bug and added directions to the portals to smoothen the transition)
+=======
+      PortalFactory.createBluePortal(position);
+>>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/portalSkills/BluePortalSkill.java
     }
   }
 }
