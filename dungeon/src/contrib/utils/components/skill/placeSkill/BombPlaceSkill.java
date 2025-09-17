@@ -81,6 +81,7 @@ public class BombPlaceSkill extends Skill {
 
     AnimationConfig cfg = new AnimationConfig();
     cfg.framesPerSprite(6);
+    cfg.centered(true);
 
     Entity bomb = new Entity("bomb_placed");
     bomb.add(new PositionComponent(dropPos));
