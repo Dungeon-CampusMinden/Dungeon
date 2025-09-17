@@ -9,8 +9,6 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.item.Item;
 import contrib.item.concreteItem.*;
-import contrib.item.concreteItem.ItemBigKey;
-import contrib.item.concreteItem.ItemKey;
 import contrib.utils.components.item.ItemGenerator;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -19,11 +17,9 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
+import core.level.utils.Coordinate;
+import core.level.utils.LevelElement;
 import core.utils.*;
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.TriConsumer;
-import core.utils.Vector2;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
@@ -31,10 +27,6 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -809,5 +801,24 @@ public final class MiscFactory {
       return new FillState(
           name, animationMap.get(name + "_full"), animationMap.get(name + "_empty"));
     }
+  }
+
+  public static Entity explodableWall(IPath texture, Coordinate c) {
+    Entity wall = new Entity("explodable_wall");
+    Point pos = c.toCenteredPoint();
+    wall.add(new PositionComponent(pos));
+    // wall.add(new DrawComponent(new Animation(texture)));
+
+    Game.tileAt(pos).ifPresent(tile -> tile.level().changeTileElementType(tile, LevelElement.WALL));
+
+    wall.add(
+        new ExplosableComponent(
+            (self, center, radius, dmgType, dmgAmount, source) -> {
+              Game.tileAt(pos)
+                  .ifPresent(tile -> tile.level().changeTileElementType(tile, LevelElement.FLOOR));
+              Game.remove(self);
+            }));
+
+    return wall;
   }
 }

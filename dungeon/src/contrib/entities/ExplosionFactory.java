@@ -1,5 +1,6 @@
 package contrib.entities;
 
+import contrib.components.ExplosableComponent;
 import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.Damage;
@@ -57,12 +58,17 @@ public final class ExplosionFactory {
         .forEach(
             e -> {
               var posOpt = e.fetch(PositionComponent.class);
-              var hpOpt = e.fetch(HealthComponent.class);
-              if (posOpt.isEmpty() || hpOpt.isEmpty()) return;
+              if (posOpt.isEmpty()) return;
 
               Point ep = posOpt.get().position();
               if (Point.calculateDistance(center, ep) <= radius) {
-                hpOpt.get().receiveHit(new Damage(amount, type, source));
+                e.fetch(HealthComponent.class)
+                    .ifPresent(hp -> hp.receiveHit(new Damage(amount, type, source)));
+                e.fetch(ExplosableComponent.class)
+                    .ifPresent(
+                        expl ->
+                            expl.onExplosionHit()
+                                .onExplosionHit(e, center, radius, type, amount, source));
               }
             });
   }

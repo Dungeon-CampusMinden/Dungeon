@@ -20,7 +20,7 @@ import contrib.systems.ProjectileSystem;
 import contrib.systems.SpikeSystem;
 import core.Game;
 import core.configuration.KeyboardConfig;
-import core.level.DungeonLevel;
+import core.level.BombTestLevel;
 import core.level.loader.DungeonLoader;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -45,7 +45,7 @@ public class BasicStarter {
    */
   public static void main(String[] args) {
     Game.initBaseLogger(Level.WARNING);
-    DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
+    DungeonLoader.addLevel(Tuple.of("maze", BombTestLevel.class));
     try {
       Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     } catch (IOException e) {

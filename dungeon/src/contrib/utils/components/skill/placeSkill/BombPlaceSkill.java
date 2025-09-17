@@ -23,16 +23,16 @@ public class BombPlaceSkill extends Skill {
 
   public static final String BOMB_TEXTURE_DIR = "skills/bomb/";
 
-  private static final List<IPath> BOMB_FRAMES_BLINK = List.of(
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01_red.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02_red.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03_red.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04.png"),
-      new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04_red.png")
-  );
+  private static final List<IPath> BOMB_FRAMES_BLINK =
+      List.of(
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01_red.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02_red.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03_red.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04.png"),
+          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04_red.png"));
 
   private static final AnimationConfig DEFAULT_BOMB_ANIM_CFG = new AnimationConfig();
 
@@ -80,7 +80,7 @@ public class BombPlaceSkill extends Skill {
     if (dropPos == null) return;
 
     AnimationConfig cfg = new AnimationConfig();
-    cfg.framesPerSprite(6); 
+    cfg.framesPerSprite(6);
 
     Entity bomb = new Entity("bomb_placed");
     bomb.add(new PositionComponent(dropPos));
@@ -105,16 +105,16 @@ public class BombPlaceSkill extends Skill {
   }
 
   private void scheduleBlinkRamp(AnimationConfig cfg) {
-    long t1 = Math.round(fuseMs * 0.10); 
-    long t2 = Math.round(fuseMs * 0.30); 
-    long t3 = Math.round(fuseMs * 0.50); 
-    long t4 = Math.round(fuseMs * 0.70); 
-    long t5 = Math.round(fuseMs * 0.90); 
+    long t1 = Math.round(fuseMs * 0.10);
+    long t2 = Math.round(fuseMs * 0.30);
+    long t3 = Math.round(fuseMs * 0.50);
+    long t4 = Math.round(fuseMs * 0.70);
+    long t5 = Math.round(fuseMs * 0.90);
 
     EventScheduler.scheduleAction(() -> cfg.framesPerSprite(5), t1);
     EventScheduler.scheduleAction(() -> cfg.framesPerSprite(4), t2);
-    EventScheduler.scheduleAction(() -> cfg.framesPerSprite(3), t3);   
-    EventScheduler.scheduleAction(() -> cfg.framesPerSprite(2), t4); 
-    EventScheduler.scheduleAction(() -> cfg.framesPerSprite(1), t5); 
+    EventScheduler.scheduleAction(() -> cfg.framesPerSprite(3), t3);
+    EventScheduler.scheduleAction(() -> cfg.framesPerSprite(2), t4);
+    EventScheduler.scheduleAction(() -> cfg.framesPerSprite(1), t5);
   }
 }
