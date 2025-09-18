@@ -91,10 +91,10 @@ public final class DrawSystem extends System {
         entitiesAtDepth.add(changed);
         sortedEntities.put(depth, entitiesAtDepth);
       }
-    } else if (!entitiesAtDepth.contains(data) && added) {
+    } else if (!entitiesAtDepth.contains(changed) && added) {
       entitiesAtDepth.add(changed);
     } else if (!added) {
-      entitiesAtDepth.remove(data);
+      entitiesAtDepth.remove(changed);
       if (entitiesAtDepth.isEmpty()) {
         sortedEntities.remove(depth);
       }
