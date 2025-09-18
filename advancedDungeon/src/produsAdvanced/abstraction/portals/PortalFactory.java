@@ -1,10 +1,13 @@
 package produsAdvanced.abstraction.portals;
 
 import contrib.components.CollideComponent;
+import contrib.components.ProjectileComponent;
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
@@ -115,20 +118,35 @@ public class PortalFactory {
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (bluePortal != null && !isEntityPortal(other)) {
-      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
+//      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
+      handleProjectiles(other);
     }
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (greenPortal != null && !isEntityPortal(other)) {
-      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+//      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
+      handleProjectiles(other);
     }
   }
 
+  public static void handleProjectiles(Entity projectile) {
+    System.out.println("Projectile ID: " + projectile.id());
+    if (!projectile.isPresent(ProjectileComponent.class)) {
+      return;
+    }
+    Entity entity = new Entity();
+    for (Component component : projectile.componentStream().toList()) {
+      entity.add(component);
+    }
+    Game.remove(projectile);
+    Game.add(entity);
+    System.out.println("Projectile ID: " + entity.id());
+  }
 
   public static void clearAllPortals() {
     clearBluePortal();
