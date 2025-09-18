@@ -27,13 +27,11 @@ import core.components.DrawComponent;
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.PortalComponent;
 
-import java.lang.reflect.GenericArrayType;
 import java.util.function.Consumer;
 
 public abstract class PortalSkill extends ProjectileSkill {

@@ -45,6 +45,7 @@ import core.components.PositionComponent;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import core.components.VelocityComponent;
 >>>>>>> a9350c91 (added projectile handling)
@@ -53,10 +54,13 @@ import core.components.VelocityComponent;
 =======
 import core.components.VelocityComponent;
 >>>>>>> 25d26bca (added projectile handling)
+=======
+>>>>>>> 3c53d7e1 (moved PÃortalComponent out of portalSkills)
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.SimpleIPath;
+<<<<<<< HEAD
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 <<<<<<< HEAD
@@ -67,6 +71,8 @@ import produsAdvanced.abstraction.portals.portalSkills.PortalComponent;
 =======
 import produsAdvanced.abstraction.portals.portalSkills.PortalComponent;
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+>>>>>>> 3c53d7e1 (moved PÃortalComponent out of portalSkills)
 
 import java.util.*;
 import java.util.stream.Collectors;
