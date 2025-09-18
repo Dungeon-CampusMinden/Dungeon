@@ -32,11 +32,11 @@ import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
+import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
+
 public final class AuthoritativeServerLoop {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
-
-  private static final int TICK_HZ = 20;
-  private static final int SNAPSHOT_HZ = 20;
 
   private final ServerTransport net;
   private final SnapshotTranslator translator;
@@ -61,7 +61,7 @@ public final class AuthoritativeServerLoop {
   public void start() {
     Gdx.files = new HeadlessFiles();
 
-    PreRunConfiguration.frameRate(TICK_HZ);
+    PreRunConfiguration.frameRate(SERVER_TICK_HZ);
 
     createSystems();
     try {
@@ -73,14 +73,14 @@ public final class AuthoritativeServerLoop {
       LOGGER.warn("Failed to load initial level on server", e);
     }
 
-    long tickPeriodMs = 1000L / TICK_HZ;
-    long snapshotPeriodMs = 1000L / SNAPSHOT_HZ;
+    long tickPeriodMs = 1000L / SERVER_TICK_HZ;
+    long snapshotPeriodMs = 1000L / SERVER_SNAPSHOT_HZ;
 
     executor.scheduleAtFixedRate(this::tick, 0, tickPeriodMs, TimeUnit.MILLISECONDS);
     executor.scheduleAtFixedRate(
         this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs, TimeUnit.MILLISECONDS);
 
-    LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", TICK_HZ, SNAPSHOT_HZ);
+    LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", SERVER_TICK_HZ, SERVER_SNAPSHOT_HZ);
   }
 
   public void stop() {
@@ -106,6 +106,7 @@ public final class AuthoritativeServerLoop {
 
   private void tick() {
     try {
+      //noinspection NonAtomicOperationOnVolatileField Because this is the only place where serverTick is modified
       serverTick++;
       syncClientsToEntities();
       drainAndApplyInputs(net.inputQueue());
@@ -135,7 +136,7 @@ public final class AuthoritativeServerLoop {
   private void sendSnapshot() {
     translator
         .translateToSnapshot(serverTick, clientEntities)
-        .ifPresent(snapshot -> broadcast(snapshot, false));
+        .ifPresent(snapshot -> broadcast(snapshot, true));
   }
 
   private void broadcastLevelChange() {
@@ -168,7 +169,8 @@ public final class AuthoritativeServerLoop {
         return net.sendUdpObject(addr, event);
       }
     }
-    return null;
+    LOGGER.warn("Cannot send message to unknown client {}", clientId);
+    return CompletableFuture.completedFuture(false);
   }
 
   private void syncClientsToEntities() {
