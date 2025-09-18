@@ -24,6 +24,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
@@ -164,7 +165,7 @@ public final class MiscFactory {
     chest.add(ic);
     item.forEach(ic::add);
 
-    chest.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
+    chest.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
 
     Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(new SimpleIPath("objects/treasurechest"));
@@ -297,7 +298,9 @@ public final class MiscFactory {
   public static Entity newCraftingCauldron(Point position) {
     Entity cauldron = new Entity("cauldron");
     cauldron.add(new PositionComponent(position));
-    cauldron.add(new DrawComponent(new SimpleIPath("objects/cauldron")));
+    DrawComponent dc = new DrawComponent(new SimpleIPath("objects/cauldron"));
+    dc.depth(DepthLayer.Player.depth());
+    cauldron.add(dc);
     cauldron.add(
         new InteractionComponent(
             1f,
@@ -313,7 +316,7 @@ public final class MiscFactory {
                           component.onClose(craftingGUI::cancel);
                           who.add(component);
                         })));
-    cauldron.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
+    cauldron.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cauldron;
   }
 
@@ -366,7 +369,7 @@ public final class MiscFactory {
     crate.add(new PositionComponent(position));
     crate.add(new VelocityComponent(10, mass, entity -> {}, false));
     crate.add(new DrawComponent(new Animation(texture)));
-    crate.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
+    crate.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return crate;
   }
 
@@ -630,7 +633,7 @@ public final class MiscFactory {
             });
     destroyableObj.add(baseIC);
 
-    destroyableObj.add(new CollideComponent(Vector2.of(0, 0), Vector2.of(1, 1)));
+    destroyableObj.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
     State stIdle = State.fromMap(animationMap, "idle");

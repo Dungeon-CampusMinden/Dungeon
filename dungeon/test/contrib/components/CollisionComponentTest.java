@@ -158,7 +158,7 @@ public class CollisionComponentTest {
   public void getCenterMissingPositionComponent() {
     Entity e = new Entity();
     CollideComponent hb =
-        new CollideComponent(Vector2.of(0, 0), Vector2.of(0, 0), (a, b, c) -> {}, (a, b, c) -> {});
+        new CollideComponent(Vector2.ZERO, Vector2.ZERO, (a, b, c) -> {}, (a, b, c) -> {});
     e.add(hb);
     MissingComponentException missingComponentException =
         assertThrows(MissingComponentException.class, () -> hb.center(e));
