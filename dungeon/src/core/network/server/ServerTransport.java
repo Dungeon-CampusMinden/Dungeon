@@ -287,6 +287,7 @@ public final class ServerTransport {
     if (!Objects.equals(previous, sender)) {
       LOGGER.info("Registered/updated UDP for clientId={} addr={}", id, sender);
     }
+    // TODO: Send message ACK or NACK here
   }
 
   private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {

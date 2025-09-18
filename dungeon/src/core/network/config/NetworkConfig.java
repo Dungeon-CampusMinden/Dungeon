@@ -18,4 +18,8 @@ public final class NetworkConfig {
   public static final int TCP_LENGTH_FIELD_LENGTH = 4;
   public static final int TCP_LENGTH_ADJUSTMENT = 0;
   public static final int TCP_INITIAL_BYTES_TO_STRIP = 4;
+
+  // Server tick rates
+  public static final int SERVER_TICK_HZ = 30;
+  public static final int SERVER_SNAPSHOT_HZ = 30;
 }
