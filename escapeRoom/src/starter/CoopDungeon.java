@@ -42,10 +42,6 @@ public class CoopDungeon {
     configGame();
     onSetup();
 
-    if (DEBUG_MODE) {
-      Debugger debugger = new Debugger();
-      Game.userOnFrame(() -> debugger.execute());
-    }
     Game.windowTitle("Coop-Dungeon");
     Game.run();
   }
@@ -102,6 +98,7 @@ public class CoopDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
+    if (DEBUG_MODE) Game.add(new Debugger());
   }
 
   private static void setupMusic() {

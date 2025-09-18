@@ -38,10 +38,6 @@ public class DemoRoom {
     configGame();
     onSetup();
 
-    if (DEBUG_MODE) {
-      Debugger debugger = new Debugger();
-      Game.userOnFrame(() -> debugger.execute());
-    }
     Game.windowTitle("Demo-Room");
     Game.run();
   }
@@ -98,7 +94,7 @@ public class DemoRoom {
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());
-    if (DEBUG_MODE) Game.add(new DebugDrawSystem());
+    if (DEBUG_MODE) Game.add(new Debugger());
   }
 
   private static void setupMusic() {
