@@ -9,9 +9,14 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A factory for creating tractor beam entities between two points.
@@ -23,14 +28,14 @@ import java.util.List;
  */
 public class TractorBeamFactory {
 
-  private static final SimpleIPath TRACTOR_BEAM =
-      new SimpleIPath("portal/portalTractorBeam_horizontal.png");
+  private static final SimpleIPath TRACTOR_BEAM = new SimpleIPath("portal/tractor_beam");
 
   private final Point from;
   private final Point to;
   private final int totalPoints;
   private int currentIndex = 0;
-  private final Direction direction;
+  private Direction beamDirection;
+  private boolean reversed = false;
 
   /**
    * Creates a new {@code TractorBeamFactory} for generating tractor beam entities between the
@@ -43,7 +48,7 @@ public class TractorBeamFactory {
     this.from = from;
     this.to = to;
     this.totalPoints = calculateNumberOfPoints(from, to);
-    this.direction = calculateDirection(from, to);
+    this.beamDirection = calculateDirection(from, to);
   }
 
   /**
@@ -104,9 +109,41 @@ public class TractorBeamFactory {
 
     Entity tractorBeam = new Entity("tractorBeam");
     tractorBeam.add(new PositionComponent(new Point(x, y)));
-    tractorBeam.add(new DrawComponent(TRACTOR_BEAM));
+    // tractorBeam.add(new DrawComponent(TRACTOR_BEAM));
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(TRACTOR_BEAM);
 
-    Direction beamDirection = calculateDirection(from, to);
+    DrawComponent dc = null;
+
+    if (beamDirection.equals(Direction.RIGHT) || beamDirection.equals(Direction.LEFT)) {
+      State stNormalHorizontal = State.fromMap(animationMap, "blue_horizontal");
+      State stReversedHorizontal = State.fromMap(animationMap, "red_horizontal");
+      StateMachine sm = new StateMachine(Arrays.asList(stNormalHorizontal, stReversedHorizontal));
+      sm.addTransition(stNormalHorizontal, "reverse_horizontal", stReversedHorizontal);
+      sm.addTransition(stReversedHorizontal, "normal_horizontal", stNormalHorizontal);
+      dc = new DrawComponent(sm);
+    } else if (beamDirection.equals(Direction.UP) || beamDirection.equals(Direction.DOWN)) {
+      State stNormalVertical = State.fromMap(animationMap, "blue_vertical");
+      State stReversedVertical = State.fromMap(animationMap, "red_vertical");
+      StateMachine sm = new StateMachine(Arrays.asList(stNormalVertical, stReversedVertical));
+      sm.addTransition(stNormalVertical, "reverse_vertical", stReversedVertical);
+      sm.addTransition(stReversedVertical, "normal_vertical", stNormalVertical);
+      dc = new DrawComponent(sm);
+    }
+    if (dc == null) {
+      throw new IllegalArgumentException("Tractor Beam has no draw components");
+    }
+    tractorBeam.add(dc);
+
+    switch (beamDirection) {
+      case Direction.LEFT:
+        dc.sendSignal("reverse_horizontal");
+        this.reversed = true;
+        break;
+      case Direction.UP:
+        dc.sendSignal("reverse_vertical");
+        this.reversed = true;
+        break;
+    }
 
     TriConsumer<Entity, Entity, Direction> action =
         (you, other, collisionDir) -> {
@@ -150,5 +187,63 @@ public class TractorBeamFactory {
     }
 
     return tractorBeamEntities;
+  }
+
+  /**
+   * Reverses a tractor beam. Changes the force direction and color.
+   *
+   * @param tractorBeamEntities The list of all entities building the tractor beam
+   */
+  public static void reverseTractorBeam(List<Entity> tractorBeamEntities) {
+    for (Entity tractorBeamEntity : tractorBeamEntities) {
+      final Direction[] dirkHolder = {Direction.NONE};
+
+      tractorBeamEntity
+          .fetch(DrawComponent.class)
+          .ifPresent(
+              dc -> {
+                String currentState = dc.currentStateName();
+
+                if (currentState.contains("horizontal")) {
+                  if (currentState.startsWith("blue")) {
+                    dc.sendSignal("reverse_horizontal");
+                    dirkHolder[0] = Direction.RIGHT;
+                  } else {
+                    dc.sendSignal("normal_horizontal");
+                    dirkHolder[0] = Direction.LEFT;
+                  }
+                }
+
+                if (currentState.contains("vertical")) {
+                  if (currentState.startsWith("blue")) {
+                    dc.sendSignal("reverse_vertical");
+                    dirkHolder[0] = Direction.UP;
+                  } else {
+                    dc.sendSignal("normal_vertical");
+                    dirkHolder[0] = Direction.DOWN;
+                  }
+                }
+              });
+
+      tractorBeamEntity
+          .fetch(CollideComponent.class)
+          .ifPresent(
+              cc -> {
+                cc.onHold(
+                    (you, other, collisionDir) -> {
+                      other
+                          .fetch(VelocityComponent.class)
+                          .ifPresent(
+                              vc -> {
+                                float forceMagnitude = 20f;
+                                Direction dirk = dirkHolder[0];
+                                Vector2 forceVector =
+                                    Vector2.of(
+                                        -dirk.x() * forceMagnitude, -dirk.y() * forceMagnitude);
+                                vc.applyForce("tractorBeam", forceVector);
+                              });
+                    });
+              });
+    }
   }
 }
