@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals;
 import contrib.components.CollideComponent;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 =======
 <<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
@@ -31,10 +32,15 @@ import contrib.entities.MiscFactory;
 ========
 >>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+import contrib.components.ProjectileComponent;
+import core.Component;
+>>>>>>> 25d26bca (added projectile handling)
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -44,6 +50,9 @@ import core.components.VelocityComponent;
 >>>>>>> a9350c91 (added projectile handling)
 =======
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+import core.components.VelocityComponent;
+>>>>>>> 25d26bca (added projectile handling)
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
@@ -390,6 +399,7 @@ public class PortalFactory {
     if (bluePortal != null && !isEntityPortal(other)) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 //      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
@@ -425,8 +435,12 @@ public class PortalFactory {
 =======
       System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+//      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
+>>>>>>> 25d26bca (added projectile handling)
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
+      handleProjectiles(other);
     }
 <<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 <<<<<<< HEAD
@@ -492,6 +506,7 @@ public class PortalFactory {
     if (greenPortal != null && !isEntityPortal(other)) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 //      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
@@ -517,13 +532,33 @@ public class PortalFactory {
 =======
       System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+//      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+>>>>>>> 25d26bca (added projectile handling)
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
+      handleProjectiles(other);
     }
 >>>>>>>> ac8cf0c7 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
   }
 
+<<<<<<< HEAD
 >>>>>>> ac8cf0c7 (restructed portal related files)
+=======
+  public static void handleProjectiles(Entity projectile) {
+    System.out.println("Projectile ID: " + projectile.id());
+    if (!projectile.isPresent(ProjectileComponent.class)) {
+      return;
+    }
+    Entity entity = new Entity();
+    for (Component component : projectile.componentStream().toList()) {
+      entity.add(component);
+    }
+    Game.remove(projectile);
+    Game.add(entity);
+    System.out.println("Projectile ID: " + entity.id());
+  }
+>>>>>>> 25d26bca (added projectile handling)
 
   public static void clearAllPortals() {
     clearBluePortal();
