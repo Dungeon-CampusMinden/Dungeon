@@ -16,8 +16,6 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.List;
-import core.components.VelocityComponent;
-import core.utils.Vector2;
 
 public class BombPlaceSkill extends Skill {
 
@@ -87,13 +85,13 @@ public class BombPlaceSkill extends Skill {
       if (!heroCentered) {
         spawnPos = new Point(heroPos.x() + heroW / 2f, heroPos.y() + heroH / 2f);
       } else {
-        spawnPos = heroPos; 
+        spawnPos = heroPos;
       }
     }
 
     AnimationConfig cfg = new AnimationConfig();
     cfg.framesPerSprite(6);
-    cfg.centered(true); 
+    cfg.centered(true);
 
     Entity bomb = new Entity("bomb_placed");
     bomb.add(new PositionComponent(spawnPos));
