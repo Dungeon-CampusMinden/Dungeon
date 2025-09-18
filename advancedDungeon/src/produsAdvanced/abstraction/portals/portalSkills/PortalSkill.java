@@ -11,13 +11,11 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
-import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.IPath;
-import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.PortalComponent;
 
-import java.lang.reflect.GenericArrayType;
 import java.util.function.Consumer;
 
 public abstract class PortalSkill extends ProjectileSkill {

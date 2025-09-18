@@ -7,14 +7,10 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.SimpleIPath;
-import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
-import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
-import produsAdvanced.abstraction.portals.portalSkills.PortalComponent;
 
 import java.util.*;
 import java.util.stream.Collectors;
