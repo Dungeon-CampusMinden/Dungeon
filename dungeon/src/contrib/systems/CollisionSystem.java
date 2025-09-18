@@ -237,7 +237,7 @@ public final class CollisionSystem extends System {
       Entity eb,
       CollideComponent b,
       Direction direction,
-      boolean firstLevel) {
+      boolean firstCollision) {
     Point c1Pos = a.bottomLeft(ea);
     Vector2 c1Size = a.size();
     Point c2Pos = b.bottomLeft(eb);
@@ -262,7 +262,7 @@ public final class CollisionSystem extends System {
     boolean bCanEnterOpenPits = eb.fetch(VelocityComponent.class).orElseThrow().canEnterOpenPits();
 
     if (CollisionUtils.isCollidingWithLevel(newPos, b.offset(), b.size(), bCanEnterOpenPits)) {
-      if (firstLevel) {
+      if (firstCollision) {
         // If the new position collides with the level, block the other entity instead.
         solidCollide(eb, b, ea, a, direction.opposite(), false);
       }
