@@ -15,6 +15,7 @@ import contrib.hud.UIUtils;
 import core.Entity;
 import core.Game;
 
+/** UI element that displays an image with optional text, used through the ShowImageSystem. */
 public class ShowImageUI extends Group {
 
   private static final float SCALE = 1f;
@@ -28,6 +29,11 @@ public class ShowImageUI extends Group {
   private String currentImagePath = null;
   private float animation;
 
+  /**
+   * Creates a new ShowImageUI for the given entity.
+   *
+   * @param keypad the entity containing the ShowImageComponent
+   */
   public ShowImageUI(Entity keypad) {
     this.sprite = keypad;
     createActors();
@@ -41,17 +47,17 @@ public class ShowImageUI extends Group {
 
     ShowImageComponent sic = sprite.fetch(ShowImageComponent.class).orElseThrow();
 
-    currentImagePath = sic.imagePath;
+    currentImagePath = sic.imagePath();
     background = new Image(new Texture(Gdx.files.internal(currentImagePath)));
     background.setOrigin(Align.center);
     this.addActor(background);
 
-    if (sic.textConfig != null) {
+    if (sic.textConfig() != null) {
       Table table = new Table();
       table.setFillParent(true);
-      Label label = new Label(sic.textConfig.text, UIUtils.defaultSkin());
-      label.setFontScale(sic.textConfig.scale);
-      label.setColor(sic.textConfig.color);
+      Label label = new Label(sic.textConfig().text(), UIUtils.defaultSkin());
+      label.setFontScale(sic.textConfig().scale());
+      label.setColor(sic.textConfig().color());
       table.add(label);
       this.addActor(table);
     }
@@ -64,15 +70,15 @@ public class ShowImageUI extends Group {
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
     ShowImageComponent sic = sprite.fetch(ShowImageComponent.class).orElseThrow();
-    if (!currentImagePath.equals(sic.imagePath)) {
-      currentImagePath = sic.imagePath;
+    if (!currentImagePath.equals(sic.imagePath())) {
+      currentImagePath = sic.imagePath();
       background.setDrawable(
           new TextureRegionDrawable(new Texture(Gdx.files.internal(currentImagePath))));
     }
     float imageWidth = background.getImageWidth();
     float imageHeight = background.getImageHeight();
-    float maxWidth = Game.windowWidth() * sic.maxSize;
-    float maxHeight = Game.windowHeight() * sic.maxSize;
+    float maxWidth = Game.windowWidth() * sic.maxSize();
+    float maxHeight = Game.windowHeight() * sic.maxSize();
 
     float scaleX = maxWidth / imageWidth;
     float scaleY = maxHeight / imageHeight;
