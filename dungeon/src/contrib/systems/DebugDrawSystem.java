@@ -195,9 +195,6 @@ public class DebugDrawSystem extends System {
     // In headless mode (e.g., tests) Gdx.gl may be null
     if (Gdx.gl == null) return;
 
-    Gdx.gl.glEnable(GL20.GL_BLEND);
-    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
     // Compute layout and render a semi-transparent background + white text near the entity
     drawInfoOverlay(buildInfoText(entity, pc), pc.position());
   }
@@ -294,7 +291,7 @@ public class DebugDrawSystem extends System {
           .append(componentNames.size())
           .append(" component")
           .append(componentNames.size() == 1 ? "" : "s")
-          .append("\n");
+          .append(")\n");
     }
 
     // remove last newline for a cleaner box bottom
@@ -345,6 +342,8 @@ public class DebugDrawSystem extends System {
     float bgH = layout.height + 2f * padding;
 
     // semi-transparent black box
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
