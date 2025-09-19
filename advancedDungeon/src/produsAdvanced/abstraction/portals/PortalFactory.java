@@ -7,6 +7,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
@@ -114,24 +115,21 @@ public class PortalFactory {
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (bluePortal != null && !isEntityPortal(other)) {
-//      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
-      handleProjectiles(other);
+      handleProjectiles(other, bluePortalDirection.opposite());
     }
   }
 
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (greenPortal != null && !isEntityPortal(other)) {
-//      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
-      handleProjectiles(other);
+      handleProjectiles(other, greenPortalDirection.opposite());
     }
   }
 
-  public static void handleProjectiles(Entity projectile) {
-    System.out.println("Projectile ID: " + projectile.id());
+  public static void handleProjectiles(Entity projectile, Direction direction) {
     if (!projectile.isPresent(ProjectileComponent.class)) {
       return;
     }
@@ -140,9 +138,37 @@ public class PortalFactory {
       entity.add(component);
     }
     Game.remove(projectile);
+
+    VelocityComponent vc = projectile.fetch(VelocityComponent.class).get();
+    if (direction == bluePortalDirection.opposite()) {
+      System.out.println("blue");
+      vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), bluePortalDirection, greenPortalDirection));
+    } else {
+      System.out.println("green");
+      vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), greenPortalDirection, bluePortalDirection));
+    }
+    PositionComponent pc = projectile.fetch(PositionComponent.class).get();
+    pc.rotation((float) direction.angleDeg());
     Game.add(entity);
-    System.out.println("Projectile ID: " + entity.id());
   }
+
+  public static Vector2 rotateVelocityThroughPortals(Vector2 velocity, Direction portalA, Direction portalB) {
+    // angles of portal orientations
+    double angleA = Math.atan2(portalA.y(), portalA.x());
+    double angleB = Math.atan2(portalB.y(), portalB.x());
+
+    // relative rotation, flip included (+π)
+    double delta = angleB - angleA + Math.PI;
+
+    double cos = Math.cos(delta);
+    double sin = Math.sin(delta);
+
+    double newX = velocity.x() * cos - velocity.y() * sin;
+    double newY = velocity.x() * sin + velocity.y() * cos;
+
+    return Vector2.of(newX, newY);
+  }
+
 
   public static void clearAllPortals() {
     clearBluePortal();
