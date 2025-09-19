@@ -1,5 +1,6 @@
 package contrib.utils.components.skill.projectileSkill;
 
+import contrib.components.CollideComponent;
 import contrib.entities.ExplosionFactory;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
@@ -7,7 +8,9 @@ import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
+import core.utils.Direction;
 import core.utils.Point;
+import core.utils.TriConsumer;
 import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
@@ -92,5 +95,20 @@ public class BombThrowingSkill extends ProjectileSkill {
     Point center = new Point(pos.x() + hitBoxSize().x() / 2f, pos.y() + hitBoxSize().y() / 2f);
     ExplosionFactory.createExplosion(
         explosionTextureDir, center, explosionRadius, damageType, damageAmount);
+  }
+
+  @Override
+  protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
+    return (projectile, other, dir) -> {
+      if (ignoreEntities.contains(other)) return;
+
+      boolean isSolid =
+          other.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
+
+      if (isSolid) {
+        explodeAtProjectileCenter(projectile);
+        Game.remove(projectile);
+      }
+    };
   }
 }
