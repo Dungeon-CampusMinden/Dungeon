@@ -3,6 +3,7 @@ package contrib.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -44,7 +45,9 @@ import java.util.List;
  */
 public class DebugDrawSystem extends System {
 
-  private final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
+  private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
+  private static final Color BACKGROUND_COLOR =
+      new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
   private final BitmapFont FONT = new BitmapFont();
   private boolean render = false;
 
@@ -189,8 +192,11 @@ public class DebugDrawSystem extends System {
    * @param pc The PositionComponent of the entity.
    */
   private void drawEntityInfo(Entity entity, PositionComponent pc) {
-    // In headless mode (e.g., tests) Gdx.graphics may be null
-    if (Gdx.graphics == null) return;
+    // In headless mode (e.g., tests) Gdx.gl may be null
+    if (Gdx.gl == null) return;
+
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
     // Compute layout and render a semi-transparent background + white text near the entity
     drawInfoOverlay(buildInfoText(entity, pc), pc.position());
@@ -253,7 +259,12 @@ public class DebugDrawSystem extends System {
     entity
         .fetch(DrawComponent.class)
         .ifPresent(
-            dc -> info.append("Animation State: ").append(dc.currentStateName()).append("\n"));
+            dc ->
+                info.append("Animation State: ")
+                    .append(dc.currentStateName())
+                    .append(" (")
+                    .append(dc.currentState().getData())
+                    .append(")\n"));
 
     // We should try to render the path for the current ai; this probably needs a PathAI to check
     // the instance here
@@ -335,7 +346,7 @@ public class DebugDrawSystem extends System {
 
     // semi-transparent black box
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
-    SHAPE_RENDERER.setColor(new Color(0f, 0f, 0f, 0.6f));
+    SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
     SHAPE_RENDERER.end();
 
@@ -357,5 +368,15 @@ public class DebugDrawSystem extends System {
   /** Whether this debug system is currently active and drawing the overlays. */
   public void toggleHUD() {
     this.render = !this.render;
+  }
+
+  @Override
+  public void stop() {
+    this.run = true; // This system can not be stopped.
+  }
+
+  @Override
+  public void run() {
+    this.run = true;
   }
 }
