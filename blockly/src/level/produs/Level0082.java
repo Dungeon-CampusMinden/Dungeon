@@ -5,13 +5,13 @@ import contrib.entities.LeverFactory;
 import core.Entity;
 import core.Game;
 import core.level.elements.tile.DoorTile;
-import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
+import entities.monster.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
@@ -20,11 +20,10 @@ import level.LevelManagementUtils;
  * In this level, both levers and stones must be used. The wiring diagram shows the Boolean logic
  * connections between doors and levers.
  */
-public class Level008 extends BlocklyLevel {
+public class Level0082 extends BlocklyLevel {
 
-  private LeverComponent switch1, switch2;
-  private DoorTile door1, door2, door3;
-  private ExitTile exit;
+  private LeverComponent switch1, switch2, switch3;
+  private DoorTile door1, door2;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -34,8 +33,9 @@ public class Level008 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level008(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 8");
+  public Level0082(
+      LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 8.2");
     this.blockBlocklyElement(
         // MOVEMENT
         "goToExit",
@@ -57,13 +57,22 @@ public class Level008 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.cameraFocusOn(new Coordinate(8, 6));
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    LevelManagementUtils.cameraFocusOn(new Coordinate(12, 4));
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
 
-    Entity s1 = LeverFactory.pressurePlate(customPoints().get(1).toPoint());
+    BlocklyMonster.Builder guardBuilder = BlocklyMonster.GUARD.builder().addToGame();
+    guardBuilder.attackRange(5);
+    guardBuilder.viewDirection(Direction.UP);
+    guardBuilder.build(customPoints().get(4).toPoint());
+    guardBuilder.attackRange(5);
+    guardBuilder.viewDirection(Direction.LEFT);
+    guardBuilder.build(customPoints().get(5).toPoint());
+
+    Entity s1 = LeverFactory.createLever(customPoints().get(1).toPoint());
     Entity s2 = LeverFactory.createLever(customPoints().get(2).toPoint());
+    Entity s3 = LeverFactory.createLever(customPoints().get(3).toPoint());
 
     switch1 =
         s1.fetch(LeverComponent.class)
@@ -71,32 +80,25 @@ public class Level008 extends BlocklyLevel {
     switch2 =
         s2.fetch(LeverComponent.class)
             .orElseThrow(() -> MissingComponentException.build(s2, LeverComponent.class));
+    switch3 =
+        s3.fetch(LeverComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(s3, LeverComponent.class));
 
     Game.add(s1);
     Game.add(s2);
+    Game.add(s3);
 
-    door1 = (DoorTile) Game.tileAt(new Coordinate(7, 6)).orElse(null);
+    door1 = (DoorTile) Game.tileAt(new Coordinate(10, 8)).orElse(null);
     door1.close();
-
-    door2 = (DoorTile) Game.tileAt(new Coordinate(12, 8)).orElse(null);
+    door2 = (DoorTile) Game.tileAt(new Coordinate(8, 5)).orElse(null);
     door2.close();
-    door3 = (DoorTile) Game.tileAt(new Coordinate(12, 3)).orElse(null);
-    door3.close();
-    exit = (ExitTile) Game.endTile().orElseThrow();
-    exit.close();
 
     Game.add(MiscFactory.stone(customPoints().get(0).toPoint()));
   }
 
   @Override
   protected void onTick() {
-    if (switch1.isOn()) door1.open();
-    else door1.close();
-    if (!switch1.isOn()) door2.open();
+    if ((switch1.isOn() ^ switch2.isOn() && switch3.isOn())) door2.open();
     else door2.close();
-    if (!switch2.isOn()) door3.open();
-    else door3.close();
-    if (switch2.isOn() && switch1.isOn()) exit.open();
-    else exit.close();
   }
 }

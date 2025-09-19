@@ -86,6 +86,7 @@ public class Client {
           DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
           DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
           DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+          DungeonLoader.addLevel(Tuple.of("level0082", Level0082.class));
           DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
           DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
           DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
