@@ -51,7 +51,7 @@ public final class DrawSystem extends System {
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
 
-  private final TreeMap<Integer, List<DSData>> sortedEntities = new TreeMap<>();
+  private final TreeMap<Integer, List<Entity>> sortedEntities = new TreeMap<>();
   private final Map<IPath, PainterConfig> configs;
 
   /** Create a new DrawSystem. */
@@ -83,18 +83,18 @@ public final class DrawSystem extends System {
   private void onEntityChanged(Entity changed, boolean added) {
     DSData data = buildDataObject(changed);
     int depth = data.dc.depth();
-    List<DSData> entitiesAtDepth = sortedEntities.get(depth);
+    List<Entity> entitiesAtDepth = sortedEntities.get(depth);
 
     if (entitiesAtDepth == null) {
       if (added) {
         entitiesAtDepth = new ArrayList<>();
-        entitiesAtDepth.add(data);
+        entitiesAtDepth.add(changed);
         sortedEntities.put(depth, entitiesAtDepth);
       }
-    } else if (!entitiesAtDepth.contains(data) && added) {
-      entitiesAtDepth.add(data);
+    } else if (!entitiesAtDepth.contains(changed) && added) {
+      entitiesAtDepth.add(changed);
     } else if (!added) {
-      entitiesAtDepth.remove(data);
+      entitiesAtDepth.remove(changed);
       if (entitiesAtDepth.isEmpty()) {
         sortedEntities.remove(depth);
       }
@@ -112,24 +112,24 @@ public final class DrawSystem extends System {
     int newDepth = data.dc.depth();
 
     // Find entry in our map
-    for (Map.Entry<Integer, List<DSData>> entry : sortedEntities.entrySet()) {
-      if (entry.getValue().contains(data)) {
+    for (Map.Entry<Integer, List<Entity>> entry : sortedEntities.entrySet()) {
+      if (entry.getValue().contains(entity)) {
         oldDepth = entry.getKey();
       }
     }
 
     // Remove old entry
     if (oldDepth != Integer.MIN_VALUE) {
-      sortedEntities.get(oldDepth).remove(data);
+      sortedEntities.get(oldDepth).remove(entity);
     }
 
     // Add at new depth
-    List<DSData> entitiesAtDepth = sortedEntities.get(newDepth);
+    List<Entity> entitiesAtDepth = sortedEntities.get(newDepth);
     if (entitiesAtDepth == null) {
       entitiesAtDepth = new ArrayList<>();
       sortedEntities.put(newDepth, entitiesAtDepth);
     } else {
-      entitiesAtDepth.add(data);
+      entitiesAtDepth.add(entity);
     }
   }
 
@@ -147,9 +147,9 @@ public final class DrawSystem extends System {
     Game.currentLevel().ifPresent(this::drawLevel);
 
     sortedEntities.values().stream()
-        .flatMap(
-            list ->
-                list.stream().sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
+        .flatMap(List::stream)
+        .map(this::buildDataObject)
+        .sorted(Comparator.comparingDouble((DSData data) -> -data.pc.position().y()))
         .filter(this::shouldDraw)
         .forEach(this::draw);
 

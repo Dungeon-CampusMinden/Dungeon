@@ -2,12 +2,10 @@ package coderunner;
 
 import client.Client;
 import com.badlogic.gdx.ai.pfa.GraphPath;
-import components.AmmunitionComponent;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.*;
 import contrib.utils.EntityUtils;
-import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -28,8 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import server.Server;
+import systems.ScheduleShootFireballSystem;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
@@ -50,10 +48,6 @@ public class BlocklyCommands {
    * <p>Workaround for #1952
    */
   public static boolean DISABLE_SHOOT_ON_HERO = false;
-
-  private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
-  private static final float FIREBALL_SPEED = 15f;
-  private static final int FIREBALL_DMG = 1;
 
   /**
    * Moves the hero in it's viewing direction.
@@ -139,11 +133,12 @@ public class BlocklyCommands {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public static void shootFireball() {
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-
-    hero.fetch(AmmunitionComponent.class)
-        .filter(AmmunitionComponent::checkAmmunition)
-        .ifPresent(ac -> aimAndShoot(ac, hero));
+    Game.system(
+        ScheduleShootFireballSystem.class,
+        scheduleShootFireballSystem -> scheduleShootFireballSystem.scheduleShoot());
+    Server.waitDelta();
+    Server.waitDelta();
+    Server.waitDelta();
   }
 
   /**
@@ -238,37 +233,6 @@ public class BlocklyCommands {
   }
 
   /**
-   * Shoots a fireball in direction the hero is facing.
-   *
-   * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
-   * @param hero Entity to be used as hero for positioning
-   */
-  private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
-    newFireballSkill(hero).execute(hero);
-    ac.spendAmmo();
-    Server.waitDelta();
-  }
-
-  /**
-   * Create a new fireball for the given entity.
-   *
-   * @param hero Entity to be used as hero for positioning
-   * @return Nice new fireball, ready to be launched.
-   */
-  private static FireballSkill newFireballSkill(Entity hero) {
-    return new FireballSkill(
-        () ->
-            hero.fetch(CollideComponent.class)
-                .map(cc -> cc.center(hero))
-                .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
-                .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class)),
-        1,
-        FIREBALL_SPEED,
-        FIREBALL_RANGE,
-        FIREBALL_DMG);
-  }
-
-  /**
    * Attempts to pull or push entities in front of the hero.
    *
    * <p>If there is a pushable entity in the tile in front of the hero, it checks if the tile behind
@@ -282,26 +246,45 @@ public class BlocklyCommands {
    */
   private static void movePushable(boolean push) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+    // do not push or pull if the hero is frozen
+    if (hero.fetch(VelocityComponent.class)
+        .map(VelocityComponent::maxSpeed)
+        .filter(s -> s == 0)
+        .isPresent()) return;
     DISABLE_SHOOT_ON_HERO = true;
+
     PositionComponent heroPC =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
     Direction viewDirection = heroPC.viewDirection();
 
-    Tile inFront =
-        Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection).orElse(null);
-    Tile checkTile;
+    Optional<Tile> inFrontOpt =
+        Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection);
+    if (inFrontOpt.isEmpty()) {
+      DISABLE_SHOOT_ON_HERO = false;
+      return;
+    }
+    Tile inFront = inFrontOpt.get();
+
     Direction moveDirection;
+    Optional<Tile> checkTileOpt;
+
     if (push) {
-      checkTile = Game.tileAt(inFront.position(), viewDirection).orElse(null);
+      checkTileOpt = Game.tileAt(inFront.position(), viewDirection);
       moveDirection = viewDirection;
     } else {
-      checkTile = Game.tileAt(heroPC.position(), viewDirection.opposite()).orElse(null);
+      checkTileOpt =
+          Game.tileAt(heroPC.position().translate(MAGIC_OFFSET), viewDirection.opposite());
       moveDirection = viewDirection.opposite();
     }
-    if (!checkTile.isAccessible()
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(BlockComponent.class))
-        || Game.entityAtTile(checkTile).anyMatch(e -> e.isPresent(AIComponent.class))) return;
+
+    if (checkTileOpt.isEmpty()
+        || !checkTileOpt.get().isAccessible()
+        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(BlockComponent.class))
+        || Game.entityAtTile(checkTileOpt.get()).anyMatch(e -> e.isPresent(AIComponent.class))) {
+      DISABLE_SHOOT_ON_HERO = false;
+      return;
+    }
     ArrayList<Entity> toMove =
         new ArrayList<>(
             Game.entityAtTile(inFront).filter(e -> e.isPresent(PushableComponent.class)).toList());
@@ -309,8 +292,8 @@ public class BlocklyCommands {
 
     // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 , this
-    // will make the hero move AFTER everyone else.
+    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 ,
+    // this will make the hero move AFTER everyone else.
     BlocklyCommands.move(moveDirection, toMove.toArray(Entity[]::new));
     BlocklyCommands.move(moveDirection, hero);
     // give BlockComponent back
@@ -338,7 +321,7 @@ public class BlocklyCommands {
               .map(pos -> pos.translate(MAGIC_OFFSET))
               .flatMap(Game::tileAt)
               .orElse(null);
-      return checkTile.levelElement() == tileElement;
+      return checkTile != null && checkTile.levelElement() == tileElement;
     }
     return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
   }
@@ -573,15 +556,5 @@ public class BlocklyCommands {
   /** Let the hero do nothing for a short moment. */
   public static void rest() {
     Server.waitDelta();
-  }
-
-  /**
-   * Executes a given function a specified number of times.
-   *
-   * @param counter the number of times to execute the function; must be non-negative
-   * @param function the function to be executed repeatedly
-   */
-  public static void times(int counter, IVoidFunction function) {
-    IntStream.range(0, counter).forEach(value -> function.execute());
   }
 }
