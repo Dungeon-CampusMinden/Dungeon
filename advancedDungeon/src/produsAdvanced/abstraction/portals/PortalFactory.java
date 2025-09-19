@@ -46,6 +46,7 @@ import core.components.PositionComponent;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import core.components.VelocityComponent;
 >>>>>>> a9350c91 (added projectile handling)
@@ -90,6 +91,9 @@ import java.io.IOException;
 >>>>>>> ef71cb29 (added green and blue portal variants)
 >>>>>>> ac8cf0c7 (restructed portal related files)
 =======
+=======
+import core.components.VelocityComponent;
+>>>>>>> 24b937b6 (implemented a basic projectile teleportation)
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.*;
@@ -406,10 +410,13 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 //      System.out.println("Used Green Portal - Teleported " + other.name() + " to " + bluePortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection));
+=======
+>>>>>>> 24b937b6 (implemented a basic projectile teleportation)
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
-      handleProjectiles(other);
+      handleProjectiles(other, bluePortalDirection.opposite());
     }
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 <<<<<<< HEAD
@@ -513,16 +520,18 @@ public class PortalFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 //      System.out.println("Used Blue Portal - Teleported " + other.name() + " to " + greenPortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection));
+=======
+>>>>>>> 24b937b6 (implemented a basic projectile teleportation)
       PositionComponent pc = other.fetch(PositionComponent.class).get();
       pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
-      handleProjectiles(other);
+      handleProjectiles(other, greenPortalDirection.opposite());
     }
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
   }
 
-  public static void handleProjectiles(Entity projectile) {
-    System.out.println("Projectile ID: " + projectile.id());
+  public static void handleProjectiles(Entity projectile, Direction direction) {
     if (!projectile.isPresent(ProjectileComponent.class)) {
       return;
     }
@@ -531,8 +540,18 @@ public class PortalFactory {
       entity.add(component);
     }
     Game.remove(projectile);
+
+    VelocityComponent vc = projectile.fetch(VelocityComponent.class).get();
+    if (direction == bluePortalDirection.opposite()) {
+      System.out.println("blue");
+      vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), bluePortalDirection, greenPortalDirection));
+    } else {
+      System.out.println("green");
+      vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), greenPortalDirection, bluePortalDirection));
+    }
+    PositionComponent pc = projectile.fetch(PositionComponent.class).get();
+    pc.rotation((float) direction.angleDeg());
     Game.add(entity);
-    System.out.println("Projectile ID: " + entity.id());
   }
 =======
 =======
@@ -565,6 +584,24 @@ public class PortalFactory {
     System.out.println("Projectile ID: " + entity.id());
   }
 >>>>>>> 25d26bca (added projectile handling)
+
+  public static Vector2 rotateVelocityThroughPortals(Vector2 velocity, Direction portalA, Direction portalB) {
+    // angles of portal orientations
+    double angleA = Math.atan2(portalA.y(), portalA.x());
+    double angleB = Math.atan2(portalB.y(), portalB.x());
+
+    // relative rotation, flip included (+π)
+    double delta = angleB - angleA + Math.PI;
+
+    double cos = Math.cos(delta);
+    double sin = Math.sin(delta);
+
+    double newX = velocity.x() * cos - velocity.y() * sin;
+    double newY = velocity.x() * sin + velocity.y() * cos;
+
+    return Vector2.of(newX, newY);
+  }
+
 
   public static void clearAllPortals() {
     clearBluePortal();
