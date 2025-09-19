@@ -18,16 +18,8 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
-import core.level.utils.LevelElement;
 import core.utils.*;
-<<<<<<< HEAD
-=======
-import core.utils.Direction;
-import core.utils.Point;
-import core.utils.TriConsumer;
-import core.utils.Vector2;
 import core.utils.components.draw.DepthLayer;
->>>>>>> master
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.draw.state.State;
@@ -825,17 +817,20 @@ public final class MiscFactory {
 
   public static Entity explodableWall(IPath texture, Coordinate c) {
     Entity wall = new Entity("explodable_wall");
-    Point pos = c.toCenteredPoint();
-    wall.add(new PositionComponent(pos));
-    // wall.add(new DrawComponent(new Animation(texture)));
 
-    Game.tileAt(pos).ifPresent(tile -> tile.level().changeTileElementType(tile, LevelElement.WALL));
+    Point bl = c.toPoint();
+    wall.add(new PositionComponent(bl));
+
+    AnimationConfig cfg = new AnimationConfig();
+    wall.add(new DrawComponent(new Animation(texture, cfg)));
+
+    CollideComponent collider =
+        new CollideComponent(core.utils.Vector2.ZERO, core.utils.Vector2.ONE).isSolid(true);
+    wall.add(collider);
 
     wall.add(
         new ExplosableComponent(
             (self, center, radius, dmgType, dmgAmount, source) -> {
-              Game.tileAt(pos)
-                  .ifPresent(tile -> tile.level().changeTileElementType(tile, LevelElement.FLOOR));
               Game.remove(self);
             }));
 
