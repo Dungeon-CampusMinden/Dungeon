@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
+import contrib.systems.DebugDrawSystem;
 import contrib.utils.CheckPatternPainter;
 import core.Entity;
 import core.Game;
@@ -272,5 +273,6 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
     ECSManagment.add(new InputSystem());
+    ECSManagment.add(new DebugDrawSystem());
   }
 }

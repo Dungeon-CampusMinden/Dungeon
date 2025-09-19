@@ -148,4 +148,11 @@ public class KeyboardConfig {
   /** Keybinding to open all doors, if the {@link contrib.utils.components.Debugger} is active. */
   public static final ConfigKey<Integer> DEBUG_OPEN_DOORS =
       new ConfigKey<>(new String[] {"open", "open_doors"}, new ConfigIntValue(Input.Keys.C));
+
+  /**
+   * Keybinding to toggle the {@link contrib.systems.DebugDrawSystem Debug-HUD}, if the {@link
+   * contrib.utils.components.Debugger} and {@link contrib.systems.DebugDrawSystem} are active.
+   */
+  public static final ConfigKey<Integer> DEBUG_TOGGLE_HUD =
+      new ConfigKey<>(new String[] {"debug", "toggle_hud"}, new ConfigIntValue(Input.Keys.F3));
 }

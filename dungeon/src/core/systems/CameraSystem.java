@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import contrib.components.CollideComponent;
+import contrib.utils.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -79,6 +81,45 @@ public final class CameraSystem extends System {
    */
   public static OrthographicCamera camera() {
     return CAMERA;
+  }
+
+  /**
+   * Checks if the given entity is hovered by the mouse cursor.
+   *
+   * <p>It uses the Hitbox inside the {@link CollideComponent} if available, otherwise it uses a
+   * default radius of 0.5f around the entity's position.
+   *
+   * <p>Returns false if the entity does not have a {@link PositionComponent PositionComponent} or
+   * if if the input or graphics context is not available (e.g., in headless mode).
+   *
+   * @param entity The entity to check.
+   * @return True if the entity is hovered, false otherwise.
+   */
+  public static boolean isEntityHovered(Entity entity) {
+    final float HOVER_RADIUS = 0.5f;
+
+    if (Gdx.input == null || Gdx.gl == null) {
+      return false;
+    }
+
+    Vector3 mousePos = CAMERA.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+    Point mousePoint = new Point(mousePos.x, mousePos.y);
+
+    return entity
+        .fetch(PositionComponent.class)
+        .map(
+            positionComponent ->
+                entity
+                    .fetch(CollideComponent.class)
+                    .map(
+                        cc ->
+                            CollisionUtils.isCollidingWithPoint(
+                                positionComponent.position(), cc.offset(), cc.size(), mousePoint))
+                    // Fallback: if no CollideComponent, use a default radius of 0.5f around the
+                    // position
+                    .orElseGet(
+                        () -> positionComponent.position().distance(mousePoint) < HOVER_RADIUS))
+        .orElse(false);
   }
 
   @Override

@@ -42,6 +42,30 @@ public class CollisionUtils {
   }
 
   /**
+   * Checks if an entity at a given position with a specified size and offset is colliding with the
+   * given {@link Point}.
+   *
+   * @param pos the bottom-left position of the entity
+   * @param offset the offset of the hitbox
+   * @param size the size of the entity
+   * @param point the point to check for collision
+   * @return true if any corner of the hitbox is colliding with the point, false otherwise
+   */
+  public static boolean isCollidingWithPoint(Point pos, Vector2 offset, Vector2 size, Point point) {
+    float minX = pos.x() + offset.x();
+    float minY = pos.y() + offset.y();
+    float maxX = minX + size.x();
+    float maxY = minY + size.y();
+
+    // Use half-open interval \[min, max) with a small TOP_OFFSET to avoid floating-point/corner
+    // issues
+    return point.x() >= minX
+        && point.x() < maxX - TOP_OFFSET
+        && point.y() >= minY
+        && point.y() < maxY - TOP_OFFSET;
+  }
+
+  /**
    * Helper method to determine if a tile can be entered by the entity.
    *
    * <p>Considers both whether the tile is accessible and whether the entity is allowed to enter pit

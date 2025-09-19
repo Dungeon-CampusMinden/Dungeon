@@ -61,8 +61,6 @@ public class Client {
     // Set up components and level
     onSetup();
 
-    if (DEBUG_MODE) onFrame(debugger);
-
     onLevelLoad();
 
     // build and start game
@@ -74,10 +72,6 @@ public class Client {
         httpServer.stop(0);
       }
     }
-  }
-
-  private static void onFrame(Debugger debugger) {
-    Game.userOnFrame(debugger::execute);
   }
 
   private static void onSetup() {
@@ -175,6 +169,7 @@ public class Client {
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new ScheduleShootFireballSystem());
+    if (DEBUG_MODE) Game.add(new Debugger());
 
     Game.add(
         new System() {

@@ -13,7 +13,6 @@ import core.Game;
 import core.components.PlayerComponent;
 import core.game.WindowEventManager;
 import core.level.loader.DungeonLoader;
-import core.utils.IVoidFunction;
 import core.utils.JsonHandler;
 import core.utils.Tuple;
 import core.utils.components.path.SimpleIPath;
@@ -52,8 +51,6 @@ public class AdvancedDungeon {
 
   private static final String SAVE_FILE = "currentAdvancedLevel.json";
 
-  private static final Debugger DEBUGGER = new Debugger();
-
   /** Global reference to the {@link Hero} instance used in the game. */
   public static Hero hero;
 
@@ -74,16 +71,6 @@ public class AdvancedDungeon {
   private static final String CONTROLLER_CLASSNAME = "produsAdvanced.riddles.MyPlayerController";
 
   private static final String FIREBALL_CLASSNAME = "produsAdvanced.riddles.MyFireballSkill";
-
-  /**
-   * Function called every frame to check for manual recompilation trigger.
-   *
-   * <p>Pressing the 'M' key triggers recompilation of the user-defined player controller class.
-   */
-  private static final IVoidFunction onFrame =
-      () -> {
-        if (DEBUG_MODE) DEBUGGER.execute();
-      };
 
   /**
    * Attempts to dynamically recompile and load the custom player controller class.
@@ -117,7 +104,6 @@ public class AdvancedDungeon {
     Game.initBaseLogger(Level.WARNING);
     configGame();
     onSetup();
-    Game.userOnFrame(onFrame);
     Game.run();
   }
 
@@ -191,6 +177,7 @@ public class AdvancedDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
+    if (DEBUG_MODE) Game.add(new Debugger());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 
