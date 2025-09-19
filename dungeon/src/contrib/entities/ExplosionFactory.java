@@ -25,7 +25,11 @@ public final class ExplosionFactory {
   private static final int FRAME_COUNT = 16;
   private static final int FRAMES_PER_SPRITE = 1;
 
+  private static final long SFX_IDLE_DISPOSE_MS = 30_000L;
+  private static long lastPlayAtMs = 0L;
+
   private static final SimpleIPath EXPLOSION_SFX = new SimpleIPath("sounds/bomb_explosion.wav");
+
   private static Sound explosionSound;
 
   private ExplosionFactory() {}
@@ -107,5 +111,16 @@ public final class ExplosionFactory {
       explosionSound = Gdx.audio.newSound(Gdx.files.internal(EXPLOSION_SFX.pathString()));
     }
     explosionSound.play(0.2f);
+    lastPlayAtMs = System.currentTimeMillis();
+    long stamp = lastPlayAtMs;
+    EventScheduler.scheduleAction(() -> disposeIfIdle(stamp), SFX_IDLE_DISPOSE_MS);
+  }
+
+  private static void disposeIfIdle(long stamp) {
+    if (explosionSound == null) return;
+    if (lastPlayAtMs == stamp) {
+      explosionSound.dispose();
+      explosionSound = null;
+    }
   }
 }
