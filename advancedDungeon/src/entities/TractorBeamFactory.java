@@ -2,9 +2,12 @@ package entities;
 
 import contrib.components.CollideComponent;
 import core.Entity;
+import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -25,10 +28,21 @@ import java.util.Map;
  * ({@code to}), creating a sequence of entities that visually represent a continuous tractor beam.
  * Each entity can apply a pulling force to other entities it collides with, based on the beam's
  * direction.
+ *
+ * <p>The following transport directions use the following beam colors:
+ *
+ * <p>horizontal to the right --> blue
+ *
+ * <p>horizontal to the left --> red
+ *
+ * <p>vertical down --> blue
+ *
+ * <p>vertical up --> red
  */
 public class TractorBeamFactory {
 
   private static final SimpleIPath TRACTOR_BEAM = new SimpleIPath("portal/tractor_beam");
+  private static final SimpleIPath BEAM_EMITTER = new SimpleIPath("portal/beam_emitter");
 
   private final Point from;
   private final Point to;
@@ -49,6 +63,20 @@ public class TractorBeamFactory {
     this.to = to;
     this.totalPoints = calculateNumberOfPoints(from, to);
     this.beamDirection = calculateDirection(from, to);
+  }
+
+  /**
+   * Creates a new {@code TractorBeamFactory} for generating tractor beam entities from one specific
+   * point into a direction until a wall is in the way.
+   *
+   * @param from the starting point of the tractor beam
+   * @param beamDirection the direction the beam is emitted to
+   */
+  public TractorBeamFactory(Point from, Direction beamDirection) {
+    this.from = from;
+    this.to = calculateEndPoint(from, beamDirection);
+    this.totalPoints = calculateNumberOfPoints(from, to);
+    this.beamDirection = beamDirection;
   }
 
   /**
@@ -82,6 +110,26 @@ public class TractorBeamFactory {
     } else {
       return Direction.NONE;
     }
+  }
+
+  /**
+   * Determines the last available point for a tractor beam. The beam is stopped by a wallTile, so
+   * the EndPoint has to be last point in front of a wall tile.
+   *
+   * @param from the starting point
+   * @param beamDirection the emitted direction of the tractor beam
+   * @return the last available point
+   */
+  private Point calculateEndPoint(Point from, Direction beamDirection) {
+    Point lastPoint = from;
+    Point currentPoint = from;
+    Tile currentTile = Game.tileAt(from).orElse(null);
+    while (currentTile != null && !currentTile.getClass().equals(WallTile.class)) {
+      lastPoint = currentPoint;
+      currentPoint = currentPoint.translate(beamDirection);
+      currentTile = Game.tileAt(currentPoint).orElse(null);
+    }
+    return lastPoint;
   }
 
   /**
@@ -190,6 +238,66 @@ public class TractorBeamFactory {
   }
 
   /**
+   * Creates a tractor beam. It only needs a spawn point and an emitted direction. The beam is
+   * stopped by the next wall.
+   *
+   * @param from the starting point of the beam
+   * @param direction the emitted direction of the tractor beam
+   * @return a list of all tractor beam entities
+   */
+  public static List<Entity> createTractorBeam(Point from, Direction direction) {
+    TractorBeamFactory factory = new TractorBeamFactory(from, direction);
+    List<Entity> tractorBeamEntities = new ArrayList<>();
+
+    while (factory.hasNext()) {
+      tractorBeamEntities.add(factory.createNextEntity());
+    }
+
+    tractorBeamEntities.add(createBeamEmitter(from, direction));
+
+    return tractorBeamEntities;
+  }
+
+  /**
+   * Creates the entity representing the beam emitter. The emitters only function is to represent
+   * the start point of the beam.
+   *
+   * @param spawnPoint the spawn point of the entity
+   * @param direction the direction the beam is emitted to
+   * @return the beam emitter entity
+   */
+  public static Entity createBeamEmitter(Point spawnPoint, Direction direction) {
+    Entity beamEmitter = new Entity("beamEmitter");
+    beamEmitter.add(new PositionComponent(spawnPoint));
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(BEAM_EMITTER);
+    StateMachine sm;
+
+    switch (direction) {
+      case Direction.LEFT:
+        State right = State.fromMap(animationMap, "right");
+        sm = new StateMachine(List.of(right));
+        beamEmitter.add(new DrawComponent(sm));
+        break;
+      case Direction.UP:
+        State bottom = State.fromMap(animationMap, "bottom");
+        sm = new StateMachine(List.of(bottom));
+        beamEmitter.add(new DrawComponent(sm));
+        break;
+      case Direction.RIGHT:
+        State left = State.fromMap(animationMap, "left");
+        sm = new StateMachine(List.of(left));
+        beamEmitter.add(new DrawComponent(sm));
+        break;
+      case Direction.DOWN:
+        State top = State.fromMap(animationMap, "top");
+        sm = new StateMachine(List.of(top));
+        beamEmitter.add(new DrawComponent(sm));
+        break;
+    }
+    return beamEmitter;
+  }
+
+  /**
    * Reverses a tractor beam. Changes the force direction and color.
    *
    * @param tractorBeamEntities The list of all entities building the tractor beam
@@ -217,10 +325,10 @@ public class TractorBeamFactory {
                 if (currentState.contains("vertical")) {
                   if (currentState.startsWith("blue")) {
                     dc.sendSignal("reverse_vertical");
-                    dirkHolder[0] = Direction.UP;
+                    dirkHolder[0] = Direction.DOWN;
                   } else {
                     dc.sendSignal("normal_vertical");
-                    dirkHolder[0] = Direction.DOWN;
+                    dirkHolder[0] = Direction.UP;
                   }
                 }
               });
