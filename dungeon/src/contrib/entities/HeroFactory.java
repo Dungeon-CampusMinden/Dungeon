@@ -197,23 +197,20 @@ public final class HeroFactory {
             });
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
-    CollideComponent col =
-        new CollideComponent(
-            (you, other, direction) ->
-                other
-                    .fetch(SpikyComponent.class)
-                    .ifPresent(
-                        spikyComponent -> {
-                          if (spikyComponent.isActive()) {
-                            hc.receiveHit(
-                                new Damage(
-                                    spikyComponent.damageAmount(),
-                                    spikyComponent.damageType(),
-                                    other));
-                            spikyComponent.activateCoolDown();
-                          }
-                        }),
-            CollideComponent.DEFAULT_COLLIDER);
+    CollideComponent col = new CollideComponent();
+    col.onHold(
+        (you, other, direction) ->
+            other
+                .fetch(SpikyComponent.class)
+                .ifPresent(
+                    spikyComponent -> {
+                      if (spikyComponent.isActive()) {
+                        hc.receiveHit(
+                            new Damage(
+                                spikyComponent.damageAmount(), spikyComponent.damageType(), other));
+                        spikyComponent.activateCoolDown();
+                      }
+                    }));
     hero.add(col);
 
     InputComponent inputComp = new InputComponent();
