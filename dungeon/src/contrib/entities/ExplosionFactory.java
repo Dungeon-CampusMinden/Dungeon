@@ -106,6 +106,6 @@ public final class ExplosionFactory {
     if (explosionSound == null) {
       explosionSound = Gdx.audio.newSound(Gdx.files.internal(EXPLOSION_SFX.pathString()));
     }
-    explosionSound.play(1f);
+    explosionSound.play(0.2f);
   }
 }
