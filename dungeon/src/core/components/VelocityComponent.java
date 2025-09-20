@@ -1,5 +1,6 @@
 package core.components;
 
+import contrib.components.CollideComponent;
 import core.Component;
 import core.Entity;
 import core.utils.Vector2;
@@ -59,14 +60,14 @@ public final class VelocityComponent implements Component {
    *
    * <p>This hitbox is used for level collision checks.
    */
-  public static final Vector2 MOVEBOX_DEFAULT_OFFSET = Vector2.of(0.25f, 0.25f);
+  public static final Vector2 MOVEBOX_DEFAULT_OFFSET = CollideComponent.DEFAULT_OFFSET;
 
   /**
    * The default size of the hit box.
    *
    * <p>This hitbox is used for level collision checks.
    */
-  public static final Vector2 MOVEBOX_DEFAULT_SIZE = Vector2.of(0.5f, 0.5f);
+  public static final Vector2 MOVEBOX_DEFAULT_SIZE = CollideComponent.DEFAULT_SIZE;
 
   private Vector2 moveboxOffset;
   private Vector2 moveboxSize;

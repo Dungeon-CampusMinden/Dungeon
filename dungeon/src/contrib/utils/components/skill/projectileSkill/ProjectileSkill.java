@@ -36,7 +36,10 @@ public abstract class ProjectileSkill extends Skill {
       (entity1, entity2, direction) -> {};
 
   /** Default hitbox size for projectiles. */
-  public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.ONE;
+  public static final Vector2 DEFAULT_HITBOX_SIZE = Vector2.of(0.7f, 0.7f);
+
+  /** Default hitbox offset for projectiles. */
+  public static final Vector2 DEFAULT_HITBOX_OFFSET = Vector2.of(0.15f, 0.15f);
 
   protected boolean ignoreOtherProjectiles = true;
 
@@ -44,6 +47,7 @@ public abstract class ProjectileSkill extends Skill {
   protected float speed;
   protected float range;
   protected Vector2 hitBoxSize;
+  protected Vector2 hitBoxOffset;
   protected int tintColor = -1;
   protected List<Entity> ignoreEntities;
 
@@ -66,13 +70,44 @@ public abstract class ProjectileSkill extends Skill {
       float speed,
       float range,
       Vector2 hitBoxSize,
+      Vector2 hitBoxOffset,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, resourceCost);
     this.texture = texture;
     this.speed = speed;
     this.range = range;
     this.hitBoxSize = hitBoxSize;
+    this.hitBoxOffset = hitBoxOffset;
     this.ignoreEntities = new ArrayList<>();
+  }
+
+  /**
+   * Creates a new projectile skill.
+   *
+   * @param name Skill name.
+   * @param cooldown Cooldown in ms.
+   * @param texture Texture for the projectile.
+   * @param speed Movement speed of the projectile.
+   * @param range Maximum travel distance of the projectile.
+   * @param resourceCost Resource costs for casting.
+   */
+  @SafeVarargs
+  public ProjectileSkill(
+      String name,
+      long cooldown,
+      IPath texture,
+      float speed,
+      float range,
+      Tuple<Resource, Integer>... resourceCost) {
+    this(
+        name,
+        cooldown,
+        texture,
+        speed,
+        range,
+        DEFAULT_HITBOX_SIZE,
+        DEFAULT_HITBOX_OFFSET,
+        resourceCost);
   }
 
   /**
@@ -110,15 +145,15 @@ public abstract class ProjectileSkill extends Skill {
     Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
 
     // Add components
-    projectile.add(new VelocityComponent(speed, onWallHit(caster), true));
+    VelocityComponent vc = new VelocityComponent(speed, onWallHit(caster), true);
+    vc.moveboxSize(hitBoxSize);
+    vc.moveboxOffset(hitBoxOffset);
+    projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
     CollideComponent cc =
         new CollideComponent(
-            CollideComponent.DEFAULT_OFFSET,
-            hitBoxSize,
-            onCollideEnter(caster),
-            onCollideLeave(caster));
+            hitBoxOffset, hitBoxSize, onCollideEnter(caster), onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
     projectile.add(cc);
@@ -300,6 +335,20 @@ public abstract class ProjectileSkill extends Skill {
    */
   public void hitBoxSize(Vector2 hitBoxSize) {
     this.hitBoxSize = hitBoxSize;
+  }
+
+  /**
+   * @return Current hitbox offset of the projectile.
+   */
+  public Vector2 hitBoxOffset() {
+    return hitBoxOffset;
+  }
+
+  /**
+   * @param hitBoxOffset New hitbox offset of the projectile.
+   */
+  public void hitBoxOffset(Vector2 hitBoxOffset) {
+    this.hitBoxOffset = hitBoxOffset;
   }
 
   /**

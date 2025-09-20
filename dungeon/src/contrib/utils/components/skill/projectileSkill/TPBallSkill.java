@@ -25,10 +25,9 @@ public class TPBallSkill extends DamageProjectileSkill {
   private static final float PROJECTILE_SPEED = 6.0f;
   private static final int DAMAGE_AMOUNT = 1;
   private static final DamageType DAMAGE_TYPE = DamageType.MAGIC;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.of(1, 1);
   private static final float PROJECTILE_RANGE = 7f;
   private static final long COOLDOWN = 2000;
-  private static final boolean IS_PIRCING = false;
+  private static final boolean IS_PIERCING = false;
 
   /** Name of the Skill. */
   public static final String SKILL_NAME = "TPBall";
@@ -62,10 +61,9 @@ public class TPBallSkill extends DamageProjectileSkill {
         target,
         speed,
         range,
-        IS_PIRCING,
+        IS_PIERCING,
         damageAmount,
         DAMAGE_TYPE,
-        HIT_BOX_SIZE,
         resourceCost);
     this.tpTarget = tpTarget;
     tintColor(0xFF00FFFF);
