@@ -60,6 +60,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param speed Movement speed of the projectile.
    * @param range Maximum travel distance of the projectile.
    * @param hitBoxSize Hitbox size for collisions.
+   * @param hitBoxOffset Hitbox offset for collisions.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
