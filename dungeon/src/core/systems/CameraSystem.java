@@ -4,12 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
-import contrib.components.CollideComponent;
-import contrib.utils.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
 import core.components.CameraComponent;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
@@ -86,11 +85,11 @@ public final class CameraSystem extends System {
   /**
    * Checks if the given entity is hovered by the mouse cursor.
    *
-   * <p>It uses the Hitbox inside the {@link CollideComponent} if available, otherwise it uses a
+   * <p>It uses the Texture inside the {@link DrawComponent} if available, otherwise it uses a
    * default radius of 0.5f around the entity's position.
    *
    * <p>Returns false if the entity does not have a {@link PositionComponent PositionComponent} or
-   * if if the input or graphics context is not available (e.g., in headless mode).
+   * if the input or graphics context is not available (e.g., in headless mode).
    *
    * @param entity The entity to check.
    * @return True if the entity is hovered, false otherwise.
@@ -110,12 +109,19 @@ public final class CameraSystem extends System {
         .map(
             positionComponent ->
                 entity
-                    .fetch(CollideComponent.class)
+                    .fetch(DrawComponent.class)
                     .map(
-                        cc ->
-                            CollisionUtils.isCollidingWithPoint(
-                                positionComponent.position(), cc.offset(), cc.size(), mousePoint))
-                    // Fallback: if no CollideComponent, use a default radius of 0.5f around the
+                        dc -> {
+                          float width = dc.getWidth();
+                          float height = dc.getHeight();
+                          Point bottomLeft = positionComponent.position();
+
+                          return bottomLeft.x() <= mousePoint.x()
+                              && mousePoint.x() <= bottomLeft.x() + width
+                              && bottomLeft.y() <= mousePoint.y()
+                              && mousePoint.y() <= bottomLeft.y() + height;
+                        })
+                    // Fallback: if no DrawComponent, use a default radius of 0.5f around the
                     // position
                     .orElseGet(
                         () -> positionComponent.position().distance(mousePoint) < HOVER_RADIUS))
