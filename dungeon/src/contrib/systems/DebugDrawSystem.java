@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -91,6 +92,7 @@ public class DebugDrawSystem extends System {
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc);
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity);
     if (entity.isPresent(VelocityComponent.class)) drawMoveHitbox(entity, pc);
+    if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity, pc);
     if (CameraSystem.isEntityHovered(entity)) drawEntityInfo(entity, pc);
   }
 
@@ -114,6 +116,26 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(Color.RED);
     SHAPE_RENDERER.rect(bottomLeft.x(), bottomLeft.y(), width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draw a blue circle around the interaction range of the entity.
+   *
+   * @param entity Entity to draw the interaction range for.
+   * @param pc PositionComponent of the entity.
+   */
+  private void drawInteractionRange(Entity entity, PositionComponent pc) {
+    InteractionComponent ic =
+        entity
+            .fetch(InteractionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
+
+    float radius = ic.radius();
+
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(Color.CYAN);
+    SHAPE_RENDERER.circle(pc.position().x(), pc.position().y(), radius, 60);
     SHAPE_RENDERER.end();
   }
 
