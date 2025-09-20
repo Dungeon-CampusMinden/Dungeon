@@ -42,10 +42,10 @@ import java.util.logging.Logger;
  */
 public final class CollideComponent implements Component {
   /** The default offset of the hit box. */
-  public static final Vector2 DEFAULT_OFFSET = Vector2.of(0.25f, 0.25f);
+  public static final Vector2 DEFAULT_OFFSET = Vector2.of(0.1f, 0.1f);
 
   /** The default size of the hit box. */
-  public static final Vector2 DEFAULT_SIZE = Vector2.of(0.5f, 0.5f);
+  public static final Vector2 DEFAULT_SIZE = Vector2.of(0.8f, 0.8f);
 
   /**
    * The default collision behavior for projectiles.

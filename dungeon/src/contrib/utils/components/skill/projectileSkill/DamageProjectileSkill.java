@@ -28,7 +28,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected DamageType damageType;
 
   /** Whether the projectile pierces through multiple targets or is removed after hitting one. */
-  protected boolean pircing;
+  protected boolean piercing;
 
   /** A supplier that provides the target endpoint of the projectile. */
   private Supplier<Point> endPointSupplier;
@@ -42,11 +42,12 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    * @param end A supplier providing the endpoint (target location) of the projectile.
    * @param speed The travel speed of the projectile.
    * @param range The maximum range the projectile can travel.
-   * @param pircing Whether the projectile pierces through targets (true) or is destroyed on impact
+   * @param piercing Whether the projectile pierces through targets (true) or is destroyed on impact
    *     (false).
    * @param damageAmount The base damage dealt by the projectile.
    * @param damageType The type of damage inflicted by the projectile.
    * @param hitBoxSize The hitbox size of the projectile used for collision detection.
+   * @param hitBoxOffset The hitbox offset of the projectile used for collision detection.
    * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
    */
   @SafeVarargs
@@ -57,15 +58,50 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       Supplier<Point> end,
       float speed,
       float range,
-      boolean pircing,
+      boolean piercing,
       int damageAmount,
       DamageType damageType,
       Vector2 hitBoxSize,
+      Vector2 hitBoxOffset,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, hitBoxSize, resourceCost);
+    super(name, cooldown, texture, speed, range, hitBoxSize, hitBoxOffset, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
-    this.pircing = pircing;
+    this.piercing = piercing;
+    this.endPointSupplier = end;
+  }
+
+  /**
+   * Create a new {@link DamageProjectileSkill}.
+   *
+   * @param name The name of the skill.
+   * @param cooldown The cooldown time (in ms) before the skill can be used again.
+   * @param texture The visual texture used for the projectile.
+   * @param end A supplier providing the endpoint (target location) of the projectile.
+   * @param speed The travel speed of the projectile.
+   * @param range The maximum range the projectile can travel.
+   * @param piercing Whether the projectile pierces through targets (true) or is destroyed on impact
+   *     (false).
+   * @param damageAmount The base damage dealt by the projectile.
+   * @param damageType The type of damage inflicted by the projectile.
+   * @param resourceCost The resource cost (e.g., mana, energy, arrows) required to use this skill.
+   */
+  @SafeVarargs
+  public DamageProjectileSkill(
+      String name,
+      long cooldown,
+      IPath texture,
+      Supplier<Point> end,
+      float speed,
+      float range,
+      boolean piercing,
+      int damageAmount,
+      DamageType damageType,
+      Tuple<Resource, Integer>... resourceCost) {
+    super(name, cooldown, texture, speed, range, resourceCost);
+    this.damageAmount = damageAmount;
+    this.damageType = damageType;
+    this.piercing = piercing;
     this.endPointSupplier = end;
   }
 
@@ -95,7 +131,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
         additionalEffectAfterDamage(caster, projectile, target, direction);
 
-        if (pircing) {
+        if (piercing) {
           ignoreEntities.add(target);
         } else {
           Game.remove(projectile);
