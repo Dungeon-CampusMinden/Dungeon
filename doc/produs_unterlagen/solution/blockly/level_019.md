@@ -4,7 +4,7 @@ title: "Blockly Lösung: Level 19"
 
 ## Blöcke
 
-tbd 
+tbd
 
 ## Code
 
@@ -12,3 +12,7 @@ tbd
 tbd
 ```
 
+## Blockly String
+```
+tbd
+```
