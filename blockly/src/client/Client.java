@@ -78,32 +78,31 @@ public class Client {
         () -> {
           // chapter 1
           DungeonLoader.addLevel(Tuple.of("level001", Level001.class));
-          DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
+          // DungeonLoader.addLevel(Tuple.of("level002", Level002.class));
           DungeonLoader.addLevel(Tuple.of("level003", Level003.class));
-          DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
-          DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
-          DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
+          // DungeonLoader.addLevel(Tuple.of("level004", Level004.class));
+          // DungeonLoader.addLevel(Tuple.of("level005", Level005.class));
+          // DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
           DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
-          DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
-          DungeonLoader.addLevel(Tuple.of("level0082", Level0082.class));
+          // DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+          // DungeonLoader.addLevel(Tuple.of("level0082", Level0082.class));
           DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
-          DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
-          DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
+          // DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
+          // DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
 
           // chapter 2
-          DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
+          // DungeonLoader.addLevel(Tuple.of("level012", Level012.class));
           DungeonLoader.addLevel(Tuple.of("level013", Level013.class));
           DungeonLoader.addLevel(Tuple.of("level014", Level014.class));
-          DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
-          DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
+          // DungeonLoader.addLevel(Tuple.of("level015", Level015.class));
 
-          // chapter 3
+          // DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          // DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
+          // DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
+          DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
+          DungeonLoader.addLevel(Tuple.of("level016", Level016.class));
           DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
           DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-          DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
-          DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
-          DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
-          DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
           HeroFactory.heroDeath(entity -> restart());
           createHero();
           createSystems();
