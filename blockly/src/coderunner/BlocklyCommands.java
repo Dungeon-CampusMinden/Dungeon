@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import server.Server;
-import systems.ScheduleShootFireballSystem;
+import systems.FireballSchedular;
 
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
@@ -133,9 +133,8 @@ public class BlocklyCommands {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   public static void shootFireball() {
-    Game.system(
-        ScheduleShootFireballSystem.class,
-        scheduleShootFireballSystem -> scheduleShootFireballSystem.scheduleShoot());
+    FireballSchedular.shoot();
+    // Multiple waits allow to shoot a fireball for the next tile (hero stands infront of monster)
     Server.waitDelta();
     Server.waitDelta();
     Server.waitDelta();
