@@ -5,6 +5,7 @@ import components.TintDirectionComponent;
 import contrib.components.*;
 import contrib.entities.*;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.interaction.DropItemsInteraction;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -17,6 +18,7 @@ import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -162,7 +164,7 @@ public enum BlocklyMonster {
         straightRangeAI.range(attackRange());
         monster.add(new TintDirectionComponent(pc.coordinate(), attackRange()));
       }
-      monster.add(new HealthComponent(health()));
+      monster.add(buildHealthComponent());
       monster.add(new VelocityComponent(speed()));
       monster.add(new CollideComponent());
       if (collideDamage() > 0)
@@ -173,6 +175,27 @@ public enum BlocklyMonster {
       }
       BlocklyCommands.turnEntity(monster, viewDirection());
       return monster;
+    }
+
+    // This fixex the bug where the boss death in level 022 was not detected
+    private HealthComponent buildHealthComponent() {
+      Consumer<Entity> constructedOnDeath =
+          entity -> {
+            onDeath().accept(entity);
+            deathSound()
+                .ifPresent(
+                    deathSound ->
+                        playDeathSoundIfNearby(
+                            deathSound.path(), DEATH_SOUND_DISPOSE_DELAY, entity));
+
+            entity
+                .fetch(InventoryComponent.class)
+                .ifPresent(inventoryComponent -> new DropItemsInteraction().accept(entity, null));
+
+            if (removeOnDeath()) Game.remove(entity);
+          };
+
+      return new HealthComponent(health(), constructedOnDeath);
     }
   }
 }
