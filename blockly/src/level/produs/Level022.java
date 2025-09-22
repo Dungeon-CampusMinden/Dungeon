@@ -3,9 +3,11 @@ package level.produs;
 import client.Client;
 import contrib.hud.DialogUtils;
 import core.Game;
+import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
+import core.level.loader.DungeonLoader;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -63,7 +65,7 @@ public class Level022 extends BlocklyLevel {
             // todo we shouldn't just end the game, we need a real end screen
             entity ->
                 DialogUtils.showTextPopup(
-                    "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", Game::exit))
+                    "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", ()-> DungeonLoader.loadNextLevel()))
         .build(customPoints().getFirst());
 
     Game.allTiles(LevelElement.PIT)
