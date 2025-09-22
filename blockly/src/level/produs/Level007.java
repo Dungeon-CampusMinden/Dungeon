@@ -46,6 +46,8 @@ public class Level007 extends BlocklyLevel {
         "pickup",
         "drop_item",
         "Items",
+        "push",
+        "pull",
         // Kategorien
         "Abfragen",
         "Bedingung",
