@@ -31,35 +31,35 @@ public class Level018 extends BlocklyLevel {
   public Level018(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 18");
     this.blockBlocklyElement(
-            // MOVEMENT
-            "goToExit",
-            // Richtungen
-            // Inventar und Charakter
-            // Inventar und Charakter
-            "wait",
-            "drop_item",
-            "push",
-            "pull",
-            "Items",
-            // Kategorien
-            "Abfragen",
-            // Bedingung
-            "logic_monster_direction",
-            "logic_breadcrumbs_direction",
-            "logic_clover_direction",
-            "logic_bossView_direction",
-            "logic_lever_direction",
-            "active_direciton",
-            "logic_monster_direction",
-            "logic_breadcrumbs_direction",
-            "logic_clover_direction",
-            "logic_bossView_direction",
-            // Wahrheitsausdruecke
-            "logic_operator",
-            "usual_condition",
-            // Kategorien
-            "Variablen",
-            "Sonstige");
+        // MOVEMENT
+        "goToExit",
+        // Richtungen
+        // Inventar und Charakter
+        // Inventar und Charakter
+        "wait",
+        "drop_item",
+        "push",
+        "pull",
+        "Items",
+        // Kategorien
+        "Abfragen",
+        // Bedingung
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
+        "logic_bossView_direction",
+        "logic_lever_direction",
+        "active_direciton",
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
+        "logic_bossView_direction",
+        // Wahrheitsausdruecke
+        "logic_operator",
+        "usual_condition",
+        // Kategorien
+        "Variablen",
+        "Sonstige");
   }
 
   @Override

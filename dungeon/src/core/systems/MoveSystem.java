@@ -70,9 +70,10 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     Vector2 offset = data.vc.moveboxOffset();
     Vector2 size = data.vc.moveboxSize();
-  //THIS is not a fix this allows fireballs to shoot through walls so the buggy blockly collision will not destroy the fireball in small floors
-    //if (!CollisionUtils.isCollidingWithLevel(newPos, offset, size, canEnterOpenPits)) {
-    if(true)  {
+    // THIS is not a fix this allows fireballs to shoot through walls so the buggy blockly collision
+    // will not destroy the fireball in small floors
+    // if (!CollisionUtils.isCollidingWithLevel(newPos, offset, size, canEnterOpenPits)) {
+    if (true) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding

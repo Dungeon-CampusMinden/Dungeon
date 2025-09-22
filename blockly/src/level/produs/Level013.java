@@ -31,13 +31,13 @@ public class Level013 extends BlocklyLevel {
         "goToExit",
         // Richtungen
         // Inventar und Charakter
-            "wait",
-            "drop_item",
-            "push",
-            "pull",
-            "Items",
-            // Kategorien
-            "Abfragen",
+        "wait",
+        "drop_item",
+        "push",
+        "pull",
+        "Items",
+        // Kategorien
+        "Abfragen",
         // Bedingung
         "logic_monster_direction",
         "logic_breadcrumbs_direction",

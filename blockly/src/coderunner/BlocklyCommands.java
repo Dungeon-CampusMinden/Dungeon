@@ -135,7 +135,7 @@ public class BlocklyCommands {
   public static void shootFireball() {
     FireballSchedular.shoot();
     Server.waitDelta();
-    //Multiple waits allow to shoot a fireball for the next tile (hero stands infront of monster)
+    // Multiple waits allow to shoot a fireball for the next tile (hero stands infront of monster)
     Server.waitDelta();
     Server.waitDelta();
     Server.waitDelta();

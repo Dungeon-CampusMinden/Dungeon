@@ -3,7 +3,6 @@ package level.produs;
 import client.Client;
 import contrib.hud.DialogUtils;
 import core.Game;
-import core.level.DungeonLevel;
 import core.level.elements.tile.DoorTile;
 import core.level.elements.tile.ExitTile;
 import core.level.elements.tile.PitTile;
@@ -35,36 +34,36 @@ public class Level022 extends BlocklyLevel {
   public Level022(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 22");
     this.blockBlocklyElement(
-            // MOVEMENT
-            "goToExit",
-            // Richtungen
-            // Inventar und Charakter
-            // Inventar und Charakter
-            "wait",
-            "drop_item",
-            "push",
-            "pull",
-            "Items",
-            // Kategorien
-            // Bedingung
-            "logic_switch_direction",
-            "logic_active_direction",
-            "logic_monster_direction",
-            "logic_breadcrumbs_direction",
-            "logic_clover_direction",
-            "logic_bossView_direction",
-            "logic_switch_direction",
-            "logic_active_direction",
-            "logic_monster_direction",
-            "logic_breadcrumbs_direction",
-            "logic_clover_direction",
-            "logic_bossView_direction",
-            // Wahrheitsausdruecke
-            "logic_operator",
-            "usual_condition",
-            // Kategorien
-            "Variablen",
-            "Sonstige");
+        // MOVEMENT
+        "goToExit",
+        // Richtungen
+        // Inventar und Charakter
+        // Inventar und Charakter
+        "wait",
+        "drop_item",
+        "push",
+        "pull",
+        "Items",
+        // Kategorien
+        // Bedingung
+        "logic_switch_direction",
+        "logic_active_direction",
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
+        "logic_bossView_direction",
+        "logic_switch_direction",
+        "logic_active_direction",
+        "logic_monster_direction",
+        "logic_breadcrumbs_direction",
+        "logic_clover_direction",
+        "logic_bossView_direction",
+        // Wahrheitsausdruecke
+        "logic_operator",
+        "usual_condition",
+        // Kategorien
+        "Variablen",
+        "Sonstige");
   }
 
   @Override
@@ -87,7 +86,9 @@ public class Level022 extends BlocklyLevel {
             // todo we shouldn't just end the game, we need a real end screen
             entity ->
                 DialogUtils.showTextPopup(
-                    "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!", "SIEG!", ()-> DungeonLoader.loadNextLevel()))
+                    "NEEEEEEEEEEEEEEEEIN! ICH WERDE MICH RÄCHEN!",
+                    "SIEG!",
+                    () -> DungeonLoader.loadNextLevel()))
         .build(customPoints().getFirst());
 
     Game.allTiles(LevelElement.PIT)
