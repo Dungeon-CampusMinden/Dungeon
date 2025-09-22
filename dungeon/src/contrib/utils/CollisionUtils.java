@@ -25,11 +25,12 @@ public class CollisionUtils {
    * @param offset the offset of the hitbox
    * @param size the size of the entity
    * @param canEnterPits whether the entity can enter pit tiles
+   * @param canEnterWalls whether the entity can enter wall tiles
    * @return true if any corner of the hitbox is colliding with a non-accessible tile, false
    *     otherwise
    */
   public static boolean isCollidingWithLevel(
-      Point pos, Vector2 offset, Vector2 size, boolean canEnterPits) {
+      Point pos, Vector2 offset, Vector2 size, boolean canEnterPits, boolean canEnterWalls) {
     List<Point> corners =
         Arrays.asList(
             pos.translate(offset), // bottom-left
@@ -38,7 +39,7 @@ public class CollisionUtils {
             pos.translate(offset.x() + size.x() - TOP_OFFSET, offset.y() + size.y()) // top-right
             );
     return corners.stream()
-        .anyMatch(p -> !tileIsAccessible(Game.tileAt(p).orElse(null), canEnterPits));
+        .anyMatch(p -> !tileIsAccessible(Game.tileAt(p).orElse(null), canEnterPits, canEnterWalls));
   }
 
   /**
@@ -73,12 +74,15 @@ public class CollisionUtils {
    *
    * @param tile the tile to check for accessibility
    * @param canEnterPitTiles whether the entity can enter pit tiles
+   * @param canEnterWalls whether the entity can enter wall tiles
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
-  public static boolean tileIsAccessible(Tile tile, boolean canEnterPitTiles) {
+  public static boolean tileIsAccessible(
+      Tile tile, boolean canEnterPitTiles, boolean canEnterWalls) {
     return tile != null
         && (tile.isAccessible()
-            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT)));
+            || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
+            || (canEnterWalls && tile.levelElement().equals(LevelElement.WALL)));
   }
 
   /**
@@ -95,10 +99,12 @@ public class CollisionUtils {
    * @param from the starting point
    * @param to the target point
    * @param canEnterPitTiles whether the entity is allowed to walk into pit tiles
+   * @param canEnterWalls whether the entity is allowed to walk into wall tiles
    * @return true if the entire path from start to target is clear; false if a tile in between is
    *     blocked
    */
-  public static boolean isPathClearByStepping(Point from, Point to, boolean canEnterPitTiles) {
+  public static boolean isPathClearByStepping(
+      Point from, Point to, boolean canEnterPitTiles, boolean canEnterWalls) {
     Vector2 direction = from.vectorTo(to);
     double distance = direction.length();
 
@@ -111,13 +117,13 @@ public class CollisionUtils {
     // Step from start to end and check each tile along the way
     for (float traveled = 0; traveled <= distance; traveled += step.length()) {
       Tile tile = Game.tileAt(current).orElse(null);
-      if (!tileIsAccessible(tile, canEnterPitTiles)) {
+      if (!tileIsAccessible(tile, canEnterPitTiles, canEnterWalls)) {
         return false;
       }
       current = current.translate(step);
     }
 
     // Ensure that the final destination tile is also checked
-    return tileIsAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles);
+    return tileIsAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles, canEnterWalls);
   }
 }

@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 public class FireballConeSkill extends FireballSkill {
 
   private static final String SKILL_NAME = "FIRECONE";
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   private final int delayMillis;
   private final int degree;
@@ -44,7 +45,7 @@ public class FireballConeSkill extends FireballSkill {
       int damageAmount,
       int degree,
       int delayMillis) {
-    super(SKILL_NAME, target, cooldown, speed, range, damageAmount);
+    super(SKILL_NAME, target, cooldown, speed, range, damageAmount, IGNORE_FIRST_WALL);
     this.degree = degree;
     this.delayMillis = delayMillis;
   }
