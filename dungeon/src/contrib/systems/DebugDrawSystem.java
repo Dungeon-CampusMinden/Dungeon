@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
+import contrib.components.InteractionComponent;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -48,6 +49,8 @@ public class DebugDrawSystem extends System {
   private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
   private static final Color BACKGROUND_COLOR =
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
+
+  private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
   private final BitmapFont FONT = new BitmapFont();
   private boolean render = false;
 
@@ -70,7 +73,7 @@ public class DebugDrawSystem extends System {
     // --- filled dot for position ---
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(Color.ORANGE);
-    SHAPE_RENDERER.circle(position.x(), position.y(), 0.3f);
+    SHAPE_RENDERER.circle(position.x(), position.y(), 0.2f, CIRCLE_SEGMENTS);
     SHAPE_RENDERER.end();
 
     // --- arrow for view direction ---
@@ -91,6 +94,7 @@ public class DebugDrawSystem extends System {
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc);
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity);
     if (entity.isPresent(VelocityComponent.class)) drawMoveHitbox(entity, pc);
+    if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity, pc);
     if (CameraSystem.isEntityHovered(entity)) drawEntityInfo(entity, pc);
   }
 
@@ -114,6 +118,26 @@ public class DebugDrawSystem extends System {
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(Color.RED);
     SHAPE_RENDERER.rect(bottomLeft.x(), bottomLeft.y(), width, height);
+    SHAPE_RENDERER.end();
+  }
+
+  /**
+   * Draw a blue circle around the interaction range of the entity.
+   *
+   * @param entity Entity to draw the interaction range for.
+   * @param pc PositionComponent of the entity.
+   */
+  private void drawInteractionRange(Entity entity, PositionComponent pc) {
+    InteractionComponent ic =
+        entity
+            .fetch(InteractionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
+
+    float radius = ic.radius();
+
+    SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
+    SHAPE_RENDERER.setColor(Color.CYAN);
+    SHAPE_RENDERER.circle(pc.position().x(), pc.position().y(), radius, CIRCLE_SEGMENTS);
     SHAPE_RENDERER.end();
   }
 
