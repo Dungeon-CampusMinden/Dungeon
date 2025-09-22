@@ -177,7 +177,6 @@ public enum BlocklyMonster {
       return monster;
     }
 
-    // This fixex the bug where the boss death in level 022 was not detected
     private HealthComponent buildHealthComponent() {
       Consumer<Entity> constructedOnDeath =
           entity -> {
