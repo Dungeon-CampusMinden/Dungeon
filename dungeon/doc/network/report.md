@@ -4,7 +4,7 @@
 
 Ziel: Echtzeit-Multiplayer für bis zu 6 Spieler pro Sitzung mit server-autoritativer Architektur. Der Server läuft mit 30 Hz. Implementierung in Java 21 / LibGDX mit Netty, TCP-first und optionalem UDP-Fast-Path. Sitzungen sind ephemer und der Server ist initial headless, die Architektur ist modular für spätere Erweiterungen.
 
-Unmittelbare Konsequenzen: strikte Trennung von Client- und Serverlogik, ein ECS-basiertes Replikationsschema, eine Transport-Abstraktion (reliable vs. unreliable) über Netty und eine Embedded-Server-Option für einfacheres Debugging/Singleplayer-Kompatibilität.
+Unmittelbare Konsequenzen: strikte Trennung von Client- und Serverlogik, ein ECS-basiertes Replikationsschema, eine Transport-Abstraktion (reliable vs. unreliable) über Netty und eine Lokale-Server-Option für einfacheres Debugging/Singleplayer-Kompatibilität.
 
 Testing-Kurzfokus: Netzwerkemulation (Latenz/Jitter/Loss) in lokalem Testing und CI, deterministische fixed-timestep Server-Ticks, State-Capture/Replay sowie spezifische Multiplayer-Tests, da bestimmte Pfade nur im Multiplayer verfügbar sind.
 
@@ -48,7 +48,7 @@ Begründung:
 - Evolutionspfad: Die API trennt "reliable" vs. "unreliable", sodass spätere Auslagerungen (z. B. Snapshot-Deltas via UDP) möglich bleiben. Dieses Modell deckt sich mit gängigen Empfehlungen aus Praxisartikeln [1;2;3].
 
 ### 2.4 Zentrale "Network API" über `Game.network()`
-Eine gemeinsame Schnittstelle (`INetworkHandler`, nutzbar via `Game.network()`) stellt konsistente Aufrufe für Singleplayer (lokal/embedded) und Multiplayer (remote) bereit und vermeidet Code-Duplikate.
+Eine gemeinsame Schnittstelle (`INetworkHandler`, nutzbar via `Game.network()`) stellt konsistente Aufrufe für Singleplayer (lokal) und Multiplayer (remote) bereit und vermeidet Code-Duplikate.
 - Semantik ist explizit: `send(..., reliable)` wählt zuverlässig vs. unzuverlässig. `sendInput(...)` standardisiert den Eingabekanal. `pollAndDispatch()` entkoppelt IO-Threads vom Game-Loop für deterministische Verarbeitung.
 - Austauschbarkeit: Implementierungen (lokal, TCP-first, TCP+UDP) lassen sich per Factory/DI wechseln, ohne Spielcode zu verändern. Das reduziert Testsaufwand und fördert Modularität (Ports-und-Adapter-Prinzip).
 
@@ -105,6 +105,8 @@ Optional
     - Plausibilitätsgrenzen (z. B. Rate Limits) als Anti-Cheat-Grundschutz [5].
 - Voice Chat
     - Z. B. über WebRTC/externen Dienst; nicht Teil der Spielprotokolle.
+- LocalNetworkHandler
+    - Embedded/Local Server-Modus über dieselbe `Game.network()`-API für Singleplayer/Debugging.
 
 ### 3.2 Nicht-funktionale Anforderungen
 
@@ -959,6 +961,8 @@ P1 Hoch
 - Netzwerk-Simulationstest leicht
     - Ein Profil 60 Millisekunden RTT und 1 Prozent Loss und 30 Millisekunden Jitter
     - Akzeptanz p95 Input-zu-Snapshot kleiner 100 Millisekunden
+- Embedded Server Process
+  - Server Loop auch für Singleplayer nutzen
 
 Definition of Done MVP
 - Stabile Verbindung zum Server
@@ -1010,6 +1014,10 @@ Abhängigkeiten kurz
 - Aktuelle Render Synchronität
     - Aktuell muss wegen der State-Machine, das ganze Komponent serialisiert werden.
     - Der Client muss die State-Machine selber bauen, der Server sagt nur dann welche State er will.
+- LocalNetworkHandler
+    - Um lokale Netzwerkaufrufe zu vermeiden, sollte der Server am Besten im selben Prozess laufen.
+    - Aktuell ist das nicht möglich, da ECS statics verwendet werden.
+    - Mitigation: Refactoring von ECS weg von statics.
 
 ### 12.2 Offene Entscheidungen
 
@@ -1021,6 +1029,9 @@ Abhängigkeiten kurz
     - Minimaler Satz an Plausibilitätsprüfungen jetzt oder erst mit Protobuf-Migration
 - Interest Management
     - Ab wann und nach welchem Kriterium pro Client filtern
+- Embedded Server Process
+    - Aktuell kann der Server nicht im selben Prozess wie der Client laufen, da ECS statics verwendet.
+    - Aber wie wichtig ist das für uns?
 - Voice Chat
     - Ob und wie integrieren
 
