@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
-import systems.ScheduleShootFireballSystem;
 import systems.TintTilesSystem;
 
 /**
@@ -169,9 +168,7 @@ public class Client {
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
-    Game.add(new ScheduleShootFireballSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
-
     Game.add(
         new System() {
           @Override
