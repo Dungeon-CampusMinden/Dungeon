@@ -16,14 +16,16 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 public final class ExplosionFactory {
 
-  private static final String FRAME_PREFIX = "explosion_";
   private static final int FRAME_COUNT = 16;
   private static final int FRAMES_PER_SPRITE = 1;
+
+  private static final String JSON_NAME = "explosion.json";
+
+  private static final float EXPLOSION_SCALE = 0.75f;
 
   private static final long SFX_IDLE_DISPOSE_MS = 30_000L;
   private static long lastPlayAtMs = 0L;
@@ -41,10 +43,31 @@ public final class ExplosionFactory {
 
     float diameter = radius * 2f;
 
-    AnimationConfig cfg =
-        new AnimationConfig().framesPerSprite(FRAMES_PER_SPRITE).scaleX(diameter).centered(true);
+    String base = textureDir.pathString();
+    if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
 
-    Animation anim = new Animation(buildFrames(textureDir), cfg);
+    String jsonPath = base + "/" + JSON_NAME;
+    Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);
+    AnimationConfig cfg;
+    if (configs != null && configs.containsKey("explode")) {
+      cfg = configs.get("explode");
+    } else {
+      cfg = new AnimationConfig();
+    }
+
+    int fps = Game.frameRate();
+    if (fps < 1) fps = 1;
+
+    int fpsPerSprite = cfg.framesPerSprite();
+    if (fpsPerSprite < 1) fpsPerSprite = 1;
+
+    cfg.framesPerSprite(fpsPerSprite);
+    cfg.scaleX(diameter * EXPLOSION_SCALE);
+    cfg.scaleY(0);
+    cfg.centered(true);
+
+    IPath sheetPath = new SimpleIPath(base);
+    Animation anim = new Animation(sheetPath, cfg);
 
     Entity fx = new Entity("explosion");
     fx.add(new PositionComponent(position));
@@ -52,15 +75,12 @@ public final class ExplosionFactory {
     Game.add(fx);
 
     playExplosionSfx();
-
     applyAoeDamage(position, radius, dmgType, dmgAmount, fx);
 
-    int fps = Game.frameRate();
-    if (fps < 1) fps = 1;
-    int totalFramesShown = FRAME_COUNT * FRAMES_PER_SPRITE;
+    int totalFramesShown = FRAME_COUNT * fpsPerSprite;
     long lifetimeMs = Math.round(totalFramesShown * (1000.0 / fps));
-
     EventScheduler.scheduleAction(() -> Game.remove(fx), lifetimeMs);
+
     return fx;
   }
 
@@ -84,26 +104,6 @@ public final class ExplosionFactory {
                                 .onExplosionHit(e, center, radius, type, amount, source));
               }
             });
-  }
-
-  private static List<IPath> buildFrames(IPath textureDir) {
-    String dir = textureDir.pathString();
-    if (dir.endsWith("/")) dir = dir.substring(0, dir.length() - 1);
-
-    List<IPath> frames = new ArrayList<>(FRAME_COUNT);
-
-    for (int i = 1; i <= FRAME_COUNT; i++) {
-      String num;
-      if (i < 10) {
-        num = "0" + i;
-      } else {
-        num = String.valueOf(i);
-      }
-
-      String filename = dir + "/" + FRAME_PREFIX + num + ".png";
-      frames.add(new SimpleIPath(filename));
-    }
-    return frames;
   }
 
   private static void playExplosionSfx() {

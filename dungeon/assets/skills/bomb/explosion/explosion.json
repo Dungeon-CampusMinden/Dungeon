@@ -1,0 +1,18 @@
+{
+  "explode": {
+    "config": {
+      "spriteWidth": 32,
+      "spriteHeight": 32,
+      "x": 0,
+      "y": 0,
+      "rows": 4,
+      "columns": 4
+    },
+    "framesPerSprite": 1,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": false,
+    "centered": true
+  }
+}
+

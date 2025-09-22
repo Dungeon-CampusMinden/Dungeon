@@ -53,7 +53,14 @@ public class BombThrowingSkill extends ProjectileSkill {
 
   @SafeVarargs
   public BombThrowingSkill(float range, long cooldownMs, Tuple<Resource, Integer>... resourceCost) {
-    super(SKILL_NAME, cooldownMs, DEFAULT_BOMB_TEXTURE, DEFAULT_SPEED, range, DEFAULT_HITBOX, resourceCost);
+    super(
+        SKILL_NAME,
+        cooldownMs,
+        DEFAULT_BOMB_TEXTURE,
+        DEFAULT_SPEED,
+        range,
+        DEFAULT_HITBOX,
+        resourceCost);
     this.explosionTextureDir = DEFAULT_EXPLOSION_DIR;
     this.explosionRadius = DEFAULT_RADIUS;
     this.damageType = DEFAULT_DMG_TYPE;
@@ -85,17 +92,20 @@ public class BombThrowingSkill extends ProjectileSkill {
   }
 
   private void explodeAtProjectileCenter(Entity projectile) {
-    Point pos = projectile.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
+    Point pos =
+        projectile.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
     if (pos == null) return;
     Point center = new Point(pos.x() + hitBoxSize().x() / 2f, pos.y() + hitBoxSize().y() / 2f);
-    ExplosionFactory.createExplosion(explosionTextureDir, center, explosionRadius, damageType, damageAmount);
+    ExplosionFactory.createExplosion(
+        explosionTextureDir, center, explosionRadius, damageType, damageAmount);
   }
 
   @Override
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
     return (projectile, other, dir) -> {
       if (ignoreEntities.contains(other)) return;
-      boolean isSolid = other.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
+      boolean isSolid =
+          other.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
       if (isSolid) {
         explodeAtProjectileCenter(projectile);
         Game.remove(projectile);
@@ -105,18 +115,18 @@ public class BombThrowingSkill extends ProjectileSkill {
 
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
-    projectile.fetch(DrawComponent.class).ifPresent(old -> {
-      int depth = old.depth();
-      int tint = old.tintColor();
-      boolean vis = old.isVisible();
-      DrawComponent dc = new DrawComponent(DEFAULT_BOMB_TEXTURE, STATE_NAME);
-      dc.depth(depth);
-      dc.tintColor(tint);
-      dc.setVisible(vis);
-      projectile.add(dc);
-    });
+    projectile
+        .fetch(DrawComponent.class)
+        .ifPresent(
+            old -> {
+              int depth = old.depth();
+              int tint = old.tintColor();
+              boolean vis = old.isVisible();
+              DrawComponent dc = new DrawComponent(DEFAULT_BOMB_TEXTURE, STATE_NAME);
+              dc.depth(depth);
+              dc.tintColor(tint);
+              dc.setVisible(vis);
+              projectile.add(dc);
+            });
   }
 }
-
-
-
