@@ -8,7 +8,6 @@ import core.Game;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
@@ -37,7 +36,6 @@ public class BowSkill extends DamageProjectileSkill {
   private static final boolean IS_PIRCING = false;
   private static final float DEFAULT_PROJECTILE_RANGE = 7f;
   private static final DamageType DAMAGE_TYPE = DamageType.PHYSICAL;
-  private static final Vector2 HIT_BOX_SIZE = Vector2.ONE;
   private static final Tuple<Resource, Integer> COST = new Tuple<>(Resource.ARROW, 1);
   private static final long BOW_COOLDOWN = 500;
   private double stickInWallProbability = 0.1;
@@ -70,7 +68,6 @@ public class BowSkill extends DamageProjectileSkill {
         IS_PIRCING,
         damageAmount,
         DAMAGE_TYPE,
-        HIT_BOX_SIZE,
         resourceCost);
   }
 
