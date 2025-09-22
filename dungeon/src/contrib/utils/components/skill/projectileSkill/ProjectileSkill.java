@@ -44,7 +44,7 @@ public abstract class ProjectileSkill extends Skill {
 
   protected boolean ignoreOtherProjectiles = true;
 
-  private static final float pushOffset = 0.4f;
+  private static final float pushOffset = 1f;
 
   protected IPath texture;
   protected float speed;

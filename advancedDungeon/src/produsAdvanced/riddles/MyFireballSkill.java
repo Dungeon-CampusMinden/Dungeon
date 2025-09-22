@@ -29,7 +29,6 @@ public class MyFireballSkill extends DamageProjectileSkill {
   private static final boolean IS_PIERCING = false;
   private static final boolean IGNORE_FIRST_WALL = false;
 
-
   /**
    * Erstellt einen Feuerball mit Standardwerten.
    *

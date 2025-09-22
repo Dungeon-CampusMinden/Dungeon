@@ -77,7 +77,8 @@ public class CollisionUtils {
    * @param canEnterWalls whether the entity can enter wall tiles
    * @return true if tile is accessible or a pit tile that can be entered, false otherwise
    */
-  public static boolean tileIsAccessible(Tile tile, boolean canEnterPitTiles, boolean canEnterWalls) {
+  public static boolean tileIsAccessible(
+      Tile tile, boolean canEnterPitTiles, boolean canEnterWalls) {
     return tile != null
         && (tile.isAccessible()
             || (canEnterPitTiles && tile.levelElement().equals(LevelElement.PIT))
@@ -102,7 +103,8 @@ public class CollisionUtils {
    * @return true if the entire path from start to target is clear; false if a tile in between is
    *     blocked
    */
-  public static boolean isPathClearByStepping(Point from, Point to, boolean canEnterPitTiles, boolean canEnterWalls) {
+  public static boolean isPathClearByStepping(
+      Point from, Point to, boolean canEnterPitTiles, boolean canEnterWalls) {
     Vector2 direction = from.vectorTo(to);
     double distance = direction.length();
 

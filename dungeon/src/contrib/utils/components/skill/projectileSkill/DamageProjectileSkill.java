@@ -66,7 +66,16 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       Vector2 hitBoxOffset,
       boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, hitBoxSize, hitBoxOffset, ignoreFirstWall, resourceCost);
+    super(
+        name,
+        cooldown,
+        texture,
+        speed,
+        range,
+        hitBoxSize,
+        hitBoxOffset,
+        ignoreFirstWall,
+        resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
