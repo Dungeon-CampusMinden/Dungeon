@@ -11,35 +11,17 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.List;
 
 public class BombPlaceSkill extends Skill {
 
   public static final String SKILL_NAME = "BOMB_PLACE";
 
-  public static final String BOMB_TEXTURE_DIR = "skills/bomb/";
+  public static final String STATE_NAME = "blink";
 
-  private static final List<IPath> BOMB_FRAMES_BLINK =
-      List.of(
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_01_red.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_02_red.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_03_red.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04.png"),
-          new SimpleIPath(BOMB_TEXTURE_DIR + "bomb_04_red.png"));
-
-  private static final AnimationConfig DEFAULT_BOMB_ANIM_CFG = new AnimationConfig();
-
-  static {
-    DEFAULT_BOMB_ANIM_CFG.framesPerSprite(6);
-  }
-
+  private static final IPath BOMB_SPRITESHEET = new SimpleIPath("skills/bomb");
   private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
   private static final float DEFAULT_RADIUS = 2.2f;
   private static final int DEFAULT_DAMAGE = 8;
@@ -89,15 +71,13 @@ public class BombPlaceSkill extends Skill {
       }
     }
 
-    AnimationConfig cfg = new AnimationConfig();
-    cfg.framesPerSprite(6);
-    cfg.centered(true);
-
     Entity bomb = new Entity("bomb_placed");
     bomb.add(new PositionComponent(spawnPos));
-    bomb.add(new DrawComponent(new Animation(BOMB_FRAMES_BLINK, cfg)));
+    DrawComponent bombDC = new DrawComponent(BOMB_SPRITESHEET, STATE_NAME);
+    bomb.add(bombDC);
     Game.add(bomb);
 
+    AnimationConfig cfg = bombDC.currentAnimation().getConfig();
     scheduleBlinkRamp(cfg);
     explode(bomb);
   }

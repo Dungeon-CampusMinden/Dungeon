@@ -1,0 +1,33 @@
+{
+  "blink": {
+    "config": {
+      "spriteWidth": 20,
+      "spriteHeight": 26,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 8
+    },
+    "framesPerSprite": 6,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": true,
+    "centered": false
+  },
+  "static_first": {
+    "config": {
+      "spriteWidth": 20,
+      "spriteHeight": 26,
+      "x": 0,
+      "y": 0,
+      "rows": 1,
+      "columns": 1
+    },
+    "framesPerSprite": 1,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": false,
+    "centered": false
+  }
+}
+
