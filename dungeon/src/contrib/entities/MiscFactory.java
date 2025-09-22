@@ -60,6 +60,12 @@ public final class MiscFactory {
       new SimpleIPath("items/book/spell_book.png");
   private static final SimpleIPath STONE_TEXTURES = new SimpleIPath("objects/stone");
   private static final SimpleIPath VASE_TEXTURES = new SimpleIPath("objects/vase");
+  private static final SimpleIPath COOKING_POT_ONE_TEXTURE = new SimpleIPath("objects/magic_kettle/magic_kettle_1.png");
+  private static final SimpleIPath COOKING_POT_TWO_TEXTURE = new SimpleIPath("objects/magic_kettle/magic_kettle_2.png");
+  private static final SimpleIPath COOKING_POT_THREE_TEXTURE = new SimpleIPath("objects/magic_kettle/magic_kettle_3.png");
+  private static final SimpleIPath COOKING_POT_FOUR_TEXTURE = new SimpleIPath("objects/magic_kettle/magic_kettle_4.png");
+  private static final SimpleIPath COOKING_POT_FIVE_TEXTURE = new SimpleIPath("objects/magic_kettle/magic_kettle_5.png");
+  private static final SimpleIPath COOKING_POT_SIX_TEXTURE = new SimpleIPath("objects/magic_kettle/magic_kettle_6.png");
 
   /**
    * The {@link ItemGenerator} used to generate random items for chests.
@@ -398,6 +404,78 @@ public final class MiscFactory {
    */
   public static Entity crate(Point position) {
     return crate(position, VelocityComponent.DEFAULT_MASS, CRATE_TEXTURE);
+  }
+
+  /**
+   * Creates a cooking pot entity at the given position with the specified mass and texture.
+   *
+   * <p>The cooking pot can be pushed around by other entities. It has a default movement speed of
+   * {@code 10} . The cooking pot includes:
+   *
+   * <ul>
+   *   <li>{@link PositionComponent} – sets the initial position
+   *   <li>{@link VelocityComponent} – configured with speed {@code 10} and the given mass
+   *   <li>{@link DrawComponent} – renders the cooking pot using the given texture
+   *   <li>{@link CollideComponent} – enables movement and collisions
+   * </ul>
+   *
+   * @param position The starting position of the cooking pot.
+   * @param mass The mass of the cooking pot.
+   * @param texture The texture to render for the cooking pot.
+   * @return The created cooking pot entity.
+   */
+  public static Entity cookingPot(Point position, float mass, SimpleIPath texture) {
+    Entity cookingPot = new Entity("cookingPot");
+    cookingPot.add(new PositionComponent(position));
+    cookingPot.add(new VelocityComponent(10, mass, entity -> {}, false));
+    cookingPot.add(new DrawComponent(new Animation(texture)));
+    cookingPot.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
+    return cookingPot;
+  }
+
+  /**
+   * Creates a cooking pot entity at the given position with the specified mass and a random
+   * texture.
+   *
+   * <p>The cooking pot can be pushed around and has a default movement speed of {@code 10} units.
+   *
+   * @param position The starting position of the cooking pot.
+   * @param mass The mass of the cooking pot.
+   * @return The created cooking pot entity.
+   */
+  public static Entity cookingPot(Point position, float mass) {
+    return cookingPot(position, mass, cookingPathTexture());
+  }
+
+  /**
+   * Creates a cooking pot entity at the given position with the default mass and a random texture.
+   *
+   * <p>The cooking pot can be pushed around and has a default movement speed of {@code 10} units.
+   *
+   * @param position The starting position of the cooking pot.
+   * @return The created cooking pot entity.
+   */
+  public static Entity cookingPot(Point position) {
+    return cookingPot(position, VelocityComponent.DEFAULT_MASS, cookingPathTexture());
+  }
+
+  /**
+   * Returns a random texture for a cooking pot.
+   *
+   * <p>This method randomly selects one of six available cooking pot textures to provide visual variety.
+   *
+   * @return A {@link SimpleIPath} representing the selected cooking pot texture.
+   */
+  private static SimpleIPath cookingPathTexture() {
+    int randomInt = RANDOM.nextInt(1, 7);
+    return switch (randomInt) {
+      case 2 -> COOKING_POT_TWO_TEXTURE;
+      case 3 -> COOKING_POT_THREE_TEXTURE;
+      case 4 -> COOKING_POT_FOUR_TEXTURE;
+      case 5 -> COOKING_POT_FIVE_TEXTURE;
+      case 6 -> COOKING_POT_SIX_TEXTURE;
+      default -> COOKING_POT_ONE_TEXTURE;
+    };
   }
 
   /**
