@@ -78,6 +78,7 @@ public class BombPlaceSkill extends Skill {
     Game.add(bomb);
 
     AnimationConfig cfg = bombDC.currentAnimation().getConfig();
+    cfg.centered(true);
     scheduleBlinkRamp(cfg);
     explode(bomb);
   }
