@@ -26,7 +26,7 @@ public class BombThrowingSkill extends ProjectileSkill {
   private static final float DEFAULT_SPEED = 8f;
   private static final float DEFAULT_RANGE = 6f;
   private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
-  private static final float DEFAULT_RADIUS = 2.2f;
+  private static final float DEFAULT_RADIUS = 2.0f;
   private static final int DEFAULT_DAMAGE = 8;
   private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
   private static final boolean IGNORE_FIRST_WALL = false;

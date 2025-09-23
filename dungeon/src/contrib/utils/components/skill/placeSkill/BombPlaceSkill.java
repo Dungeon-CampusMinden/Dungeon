@@ -23,7 +23,7 @@ public class BombPlaceSkill extends Skill {
 
   private static final IPath BOMB_SPRITESHEET = new SimpleIPath("skills/bomb");
   private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
-  private static final float DEFAULT_RADIUS = 2.2f;
+  private static final float DEFAULT_RADIUS = 2.0f;
   private static final int DEFAULT_DAMAGE = 8;
   private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
 
