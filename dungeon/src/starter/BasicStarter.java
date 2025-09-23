@@ -9,6 +9,7 @@ import contrib.systems.HealthBarSystem;
 import contrib.systems.HealthSystem;
 import contrib.systems.HudSystem;
 import contrib.systems.IdleSoundSystem;
+import contrib.systems.LevelEditorSystem;
 import contrib.systems.LevelTickSystem;
 import contrib.systems.LeverSystem;
 import contrib.systems.ManaBarSystem;
@@ -18,6 +19,7 @@ import contrib.systems.PitSystem;
 import contrib.systems.PressurePlateSystem;
 import contrib.systems.ProjectileSystem;
 import contrib.systems.SpikeSystem;
+import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.level.BombTestLevel;
@@ -37,6 +39,9 @@ import java.util.logging.Level;
  * <p>Usage: run with the Gradle task {@code runBasicStarter}.
  */
 public class BasicStarter {
+
+  private static final boolean DEBUG_MODE = true;
+  private static final Debugger DEBUGGER = new Debugger();
 
   /**
    * Main entry point to launch the basic dungeon game.
@@ -59,6 +64,10 @@ public class BasicStarter {
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
+        });
+    Game.userOnFrame(
+        () -> {
+          if (DEBUG_MODE) DEBUGGER.execute();
         });
     setupSystems();
     Game.frameRate(30);
@@ -84,5 +93,6 @@ public class BasicStarter {
     Game.add(new PathSystem()); // handles pathfinding for AI
     Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
+    if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 }
