@@ -2,33 +2,30 @@ package systems;
 
 import components.AmmunitionComponent;
 import contrib.components.CollideComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
-import core.System;
 import core.utils.MissingHeroException;
 import core.utils.components.MissingComponentException;
-import server.Server;
 
 /**
- * System that allows the hero in Blockly to shoot a fireball.
+ * Utilty class that allows the hero in Blockly to shoot a fireball.
  *
  * <p>Since Blockly code is executed in a separate thread, the libGDX context does not exist in that
  * thread, and no textures can be loaded there.
  *
- * <p>This system makes it possible to schedule the shooting of a fireball, which will then be
+ * <p>This Class makes it possible to schedule the shooting of a fireball, which will then be
  * executed inside the ECS thread. This ensures that the textures for the fireball can be loaded.
- *
- * <p>Only one shot can be scheduled at a time. Make sure to call {@link server.Server#waitDelta()}
- * accordingly.
  */
-public class ScheduleShootFireballSystem extends System {
+public class FireballSchedular {
 
   private static final float FIREBALL_RANGE = Integer.MAX_VALUE;
   private static final float FIREBALL_SPEED = 15f;
   private static final int FIREBALL_DMG = 1;
-  private final FireballSkill fireballSkill =
+  private static final boolean IGNORE_FIRST_WALL = false;
+  private static final FireballSkill fireballSkill =
       new FireballSkill(
           () -> {
             Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
@@ -40,23 +37,25 @@ public class ScheduleShootFireballSystem extends System {
           1,
           FIREBALL_SPEED,
           FIREBALL_RANGE,
-          FIREBALL_DMG);
+          FIREBALL_DMG,
+          IGNORE_FIRST_WALL);
+
   private boolean shoot = false;
 
-  @Override
-  public void execute() {
-    if (shoot) {
-      Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-      hero.fetch(AmmunitionComponent.class)
-          .filter(AmmunitionComponent::checkAmmunition)
-          .ifPresent(ac -> aimAndShoot(ac, hero));
-      shoot = false;
-    }
-  }
-
-  /** Schedule to shoot a fireball. */
-  public void scheduleShoot() {
-    shoot = true;
+  /**
+   * Shoot a fireball in the viewdirection of the hero.
+   *
+   * <p>This uses the {@link EventScheduler}
+   */
+  public static void shoot() {
+    EventScheduler.scheduleAction(
+        () -> {
+          Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
+          hero.fetch(AmmunitionComponent.class)
+              .filter(AmmunitionComponent::checkAmmunition)
+              .ifPresent(ac -> aimAndShoot(ac, hero));
+        },
+        0);
   }
 
   /**
@@ -65,9 +64,8 @@ public class ScheduleShootFireballSystem extends System {
    * @param ac AmmunitionComponent of the hero, ammunition amount will be reduced by 1
    * @param hero Entity to be used as hero for positioning
    */
-  private void aimAndShoot(AmmunitionComponent ac, Entity hero) {
+  private static void aimAndShoot(AmmunitionComponent ac, Entity hero) {
     fireballSkill.execute(hero);
     ac.spendAmmo();
-    Server.waitDelta();
   }
 }

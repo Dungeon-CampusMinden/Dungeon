@@ -233,4 +233,13 @@ public final class HealthComponent implements Component {
   public void godMode(boolean status) {
     this.godMode = status;
   }
+
+  /**
+   * Check if god mode is activated.
+   *
+   * @return true if god mode is activated, false otherwise.
+   */
+  public boolean godMode() {
+    return this.godMode;
+  }
 }

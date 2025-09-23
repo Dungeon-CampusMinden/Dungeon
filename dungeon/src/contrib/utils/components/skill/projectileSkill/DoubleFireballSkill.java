@@ -15,6 +15,7 @@ public class DoubleFireballSkill extends FireballSkill {
   private static final String SKILL_NAME = "DOUBLE_FIREBALL";
 
   private static final int DELAY_BETWEEN_FIREBALLS = 50;
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   /**
    * Create a new customized {@link DamageProjectileSkill}.
@@ -27,7 +28,7 @@ public class DoubleFireballSkill extends FireballSkill {
    */
   public DoubleFireballSkill(
       Supplier<Point> target, long cooldown, float speed, float range, int damageAmount) {
-    super(SKILL_NAME, target, cooldown, speed, range, damageAmount);
+    super(SKILL_NAME, target, cooldown, speed, range, damageAmount, IGNORE_FIRST_WALL);
   }
 
   @Override

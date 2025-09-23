@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
-import systems.ScheduleShootFireballSystem;
 import systems.TintTilesSystem;
 
 /**
@@ -61,8 +60,6 @@ public class Client {
     // Set up components and level
     onSetup();
 
-    if (DEBUG_MODE) onFrame(debugger);
-
     onLevelLoad();
 
     // build and start game
@@ -74,10 +71,6 @@ public class Client {
         httpServer.stop(0);
       }
     }
-  }
-
-  private static void onFrame(Debugger debugger) {
-    Game.userOnFrame(debugger::execute);
   }
 
   private static void onSetup() {
@@ -92,6 +85,7 @@ public class Client {
           DungeonLoader.addLevel(Tuple.of("level006", Level006.class));
           DungeonLoader.addLevel(Tuple.of("level007", Level007.class));
           DungeonLoader.addLevel(Tuple.of("level008", Level008.class));
+          DungeonLoader.addLevel(Tuple.of("level0082", Level0082.class));
           DungeonLoader.addLevel(Tuple.of("level009", Level009.class));
           DungeonLoader.addLevel(Tuple.of("level010", Level010.class));
           DungeonLoader.addLevel(Tuple.of("level011", Level011.class));
@@ -174,8 +168,7 @@ public class Client {
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
-    Game.add(new ScheduleShootFireballSystem());
-
+    if (DEBUG_MODE) Game.add(new Debugger());
     Game.add(
         new System() {
           @Override

@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 public class FireballWallSkill extends FireballSkill {
 
   private static final String SKILL_NAME = "FIREWALL";
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   private final int wallWidth;
 
@@ -29,7 +30,7 @@ public class FireballWallSkill extends FireballSkill {
       float range,
       int damageAmount,
       int wallWidth) {
-    super(SKILL_NAME, target, cooldown, speed, range, damageAmount);
+    super(SKILL_NAME, target, cooldown, speed, range, damageAmount, IGNORE_FIRST_WALL);
     this.wallWidth = wallWidth;
   }
 

@@ -7,17 +7,20 @@ import contrib.components.HealthComponent;
 import contrib.components.UIComponent;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.dialogs.TextDialog;
+import contrib.systems.DebugDrawSystem;
 import contrib.utils.components.ai.fight.AIChaseBehaviour;
 import contrib.utils.components.ai.idle.RadiusWalk;
 import contrib.utils.components.ai.transition.SelfDefendTransition;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
+import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.DoorTile;
+import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.systems.CameraSystem;
@@ -40,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @see KeyboardConfig
  */
-public class Debugger {
+public class Debugger extends System {
 
   private static final Logger LOGGER = Logger.getLogger(Debugger.class.getSimpleName());
   private static Entity pauseMenu;
@@ -66,7 +69,8 @@ public class Debugger {
   public static void TELEPORT_TO_END() {
     LOGGER.info("TELEPORT TO END");
 
-    Game.endTile()
+    Game.endTiles().stream()
+        .findFirst()
         .ifPresent(
             end -> {
               Coordinate endTile = end.coordinate();
@@ -77,11 +81,7 @@ public class Debugger {
                 endTile.translate(Direction.RIGHT),
               };
               for (Coordinate neighborTile : neighborTiles) {
-                Tile neighbor = Game.tileAt(neighborTile).orElse(null);
-                if (neighbor.isAccessible()) {
-                  TELEPORT(neighbor);
-                  return;
-                }
+                Game.tileAt(neighborTile).ifPresent(Debugger::TELEPORT);
               }
             });
   }
@@ -89,7 +89,7 @@ public class Debugger {
   /** Will teleport the Hero on the EndTile so the next level gets loaded. */
   public static void LOAD_NEXT_LEVEL() {
     LOGGER.info("TELEPORT ON END");
-    Game.endTile().ifPresent(Debugger::TELEPORT);
+    Game.endTiles().stream().findFirst().ifPresent(Debugger::TELEPORT);
   }
 
   /** Teleports the hero to the start of the level. */
@@ -113,26 +113,25 @@ public class Debugger {
    * @param targetLocation the location to teleport to
    */
   public static void TELEPORT(Point targetLocation) {
-    if (Game.hero().isPresent()) {
-      PositionComponent pc =
-          Game.hero()
-              .get()
-              .fetch(PositionComponent.class)
-              .orElseThrow(
-                  () ->
-                      MissingComponentException.build(Game.hero().get(), PositionComponent.class));
+    Game.hero()
+        .ifPresent(
+            hero -> {
+              PositionComponent pc =
+                  hero.fetch(PositionComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(hero, PositionComponent.class));
 
-      // Attempt to teleport to targetLocation
-      LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
-      Tile t = Game.tileAt(targetLocation).orElse(null);
-      if (t == null || !t.isAccessible()) {
-        LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
-        return;
-      }
+              // Attempt to teleport to targetLocation
+              LOGGER.log(CustomLogLevel.DEBUG, "Trying to teleport to " + targetLocation);
+              Tile t = Game.tileAt(targetLocation).orElse(null);
+              if (t == null || !t.isAccessible()) {
+                LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
+                return;
+              }
 
-      pc.position(targetLocation);
-      LOGGER.info("Teleport successful");
-    }
+              pc.position(targetLocation);
+              LOGGER.info("Teleport successful");
+            });
   }
 
   /** Spawns a monster at the cursor's position. */
@@ -192,7 +191,7 @@ public class Debugger {
   }
 
   private static void OPEN_DOORS() {
-    Game.endTiles().forEach(t -> t.open());
+    Game.endTiles().forEach(ExitTile::open);
     Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
   }
 
@@ -218,5 +217,7 @@ public class Debugger {
     if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_OPEN_DOORS.value())) Debugger.OPEN_DOORS();
     if (Gdx.input.isKeyJustPressed(core.configuration.KeyboardConfig.PAUSE.value()))
       Debugger.PAUSE_GAME();
+    if (Gdx.input.isKeyJustPressed(KeyboardConfig.DEBUG_TOGGLE_HUD.value()))
+      Game.system(DebugDrawSystem.class, DebugDrawSystem::toggleHUD);
   }
 }
