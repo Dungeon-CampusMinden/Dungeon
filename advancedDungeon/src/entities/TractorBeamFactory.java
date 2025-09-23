@@ -1,6 +1,7 @@
 package entities;
 
 import contrib.components.CollideComponent;
+import contrib.components.FlyComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -26,8 +27,11 @@ import java.util.Map;
  *
  * <p>The factory interpolates positions between a start point ({@code from}) and an end point
  * ({@code to}), creating a sequence of entities that visually represent a continuous tractor beam.
- * Each entity can apply a pulling force to other entities it collides with, based on the beam's
- * direction.
+ * The Beam is only one entity with a huge hitbox and can apply a pulling force to other entities it
+ * collides with, based on the beam's direction.
+ *
+ * <p>Alternatively, a tractor beam can also be created by specifying only a start point and a
+ * direction. In this case, the beam will extend from the start point until it hits the next wall.
  *
  * <p>The following transport directions use the following beam colors:
  *
@@ -43,13 +47,13 @@ public class TractorBeamFactory {
 
   private static final SimpleIPath TRACTOR_BEAM = new SimpleIPath("portal/tractor_beam");
   private static final SimpleIPath BEAM_EMITTER = new SimpleIPath("portal/beam_emitter");
+  private static final float forceMagnitude = 20f;
 
   private final Point from;
   private final Point to;
   private final int totalPoints;
   private int currentIndex = 0;
-  private Direction beamDirection;
-  private boolean reversed = false;
+  private final Direction beamDirection;
 
   /**
    * Creates a new {@code TractorBeamFactory} for generating tractor beam entities between the
@@ -137,16 +141,18 @@ public class TractorBeamFactory {
    *
    * @return {@code true} if additional entities are available, {@code false} otherwise
    */
-  public boolean hasNext() {
+  private boolean hasNext() {
     return currentIndex < totalPoints;
   }
 
   /**
    * Creates the next entity of the tractor beam.
    *
+   * <p>This entity is one part of the visual representation for the whole beam.
+   *
    * @return a new tractor beam entity, or {@code null} if no more entities can be created
    */
-  public Entity createNextEntity() {
+  private Entity createNextEntity() {
     if (!hasNext()) {
       return null;
     }
@@ -157,7 +163,6 @@ public class TractorBeamFactory {
 
     Entity tractorBeam = new Entity("tractorBeam");
     tractorBeam.add(new PositionComponent(new Point(x, y)));
-    // tractorBeam.add(new DrawComponent(TRACTOR_BEAM));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(TRACTOR_BEAM);
 
     DrawComponent dc = null;
@@ -185,35 +190,11 @@ public class TractorBeamFactory {
     switch (beamDirection) {
       case Direction.LEFT:
         dc.sendSignal("reverse_horizontal");
-        this.reversed = true;
         break;
       case Direction.UP:
         dc.sendSignal("reverse_vertical");
-        this.reversed = true;
         break;
     }
-
-    TriConsumer<Entity, Entity, Direction> action =
-        (you, other, collisionDir) -> {
-          other
-              .fetch(VelocityComponent.class)
-              .ifPresent(
-                  vc -> {
-                    float forceMagnitude = 20f;
-                    Vector2 forceVector =
-                        Vector2.of(
-                            beamDirection.x() * forceMagnitude, beamDirection.y() * forceMagnitude);
-                    vc.applyForce("tractorBeam", forceVector);
-                  });
-        };
-
-    tractorBeam.add(new CollideComponent());
-    tractorBeam
-        .fetch(CollideComponent.class)
-        .ifPresent(
-            cc -> {
-              cc.onHold(action);
-            });
 
     currentIndex++;
     return tractorBeam;
@@ -226,13 +207,16 @@ public class TractorBeamFactory {
    * @param to the end point of the beam
    * @return a list of all tractor beam entities
    */
-  public static List<Entity> createFullTractorBeam(Point from, Point to) {
+  public static List<Entity> createTractorBeam(Point from, Point to) {
     TractorBeamFactory factory = new TractorBeamFactory(from, to);
     List<Entity> tractorBeamEntities = new ArrayList<>();
 
     while (factory.hasNext()) {
       tractorBeamEntities.add(factory.createNextEntity());
     }
+
+    Direction direction = factory.calculateDirection(from, to);
+    tractorBeamEntities.add(factory.createBeamEmitter(from, direction));
 
     return tractorBeamEntities;
   }
@@ -253,47 +237,95 @@ public class TractorBeamFactory {
       tractorBeamEntities.add(factory.createNextEntity());
     }
 
-    tractorBeamEntities.add(createBeamEmitter(from, direction));
+    tractorBeamEntities.add(factory.createBeamEmitter(from, direction));
 
     return tractorBeamEntities;
   }
 
   /**
-   * Creates the entity representing the beam emitter. The emitters only function is to represent
-   * the start point of the beam.
+   * Creates the entity representing the beam emitter. The emitters function is to represent the
+   * start point and hitbox of the beam.
+   *
+   * <p>The hitbox and offset of the beam are dependent on the number ob tractor beam entities and
+   * the direction.
    *
    * @param spawnPoint the spawn point of the entity
    * @param direction the direction the beam is emitted to
    * @return the beam emitter entity
    */
-  public static Entity createBeamEmitter(Point spawnPoint, Direction direction) {
+  public Entity createBeamEmitter(Point spawnPoint, Direction direction) {
     Entity beamEmitter = new Entity("beamEmitter");
     beamEmitter.add(new PositionComponent(spawnPoint));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(BEAM_EMITTER);
     StateMachine sm;
+    float hitboxX = 1f;
+    float hitboxY = 1f;
+    float offsetX = 0f;
+    float offsetY = 0f;
 
     switch (direction) {
       case Direction.LEFT:
         State right = State.fromMap(animationMap, "right");
         sm = new StateMachine(List.of(right));
         beamEmitter.add(new DrawComponent(sm));
+        hitboxX = currentIndex;
+        offsetX = (-currentIndex) + 1;
         break;
       case Direction.UP:
         State bottom = State.fromMap(animationMap, "bottom");
         sm = new StateMachine(List.of(bottom));
         beamEmitter.add(new DrawComponent(sm));
+        hitboxY = currentIndex;
         break;
       case Direction.RIGHT:
         State left = State.fromMap(animationMap, "left");
         sm = new StateMachine(List.of(left));
         beamEmitter.add(new DrawComponent(sm));
+        hitboxX = currentIndex;
         break;
       case Direction.DOWN:
         State top = State.fromMap(animationMap, "top");
         sm = new StateMachine(List.of(top));
         beamEmitter.add(new DrawComponent(sm));
+        hitboxY = currentIndex;
+        offsetY = (-currentIndex) + 1;
         break;
     }
+
+    TriConsumer<Entity, Entity, Direction> action =
+        (you, other, collisionDir) -> {
+          other
+              .fetch(VelocityComponent.class)
+              .ifPresent(
+                  vc -> {
+                    if (!other.isPresent(FlyComponent.class)) {
+                      other.add(new FlyComponent());
+                    }
+                    Vector2 forceVector =
+                        Vector2.of(
+                            beamDirection.x() * forceMagnitude, beamDirection.y() * forceMagnitude);
+                    vc.applyForce("beamEmitter", forceVector);
+                  });
+        };
+
+    TriConsumer<Entity, Entity, Direction> actionLeave =
+        (you, other, collisionDir) -> {
+          other.remove(FlyComponent.class);
+        };
+
+    beamEmitter.add(
+        new CollideComponent(
+            Vector2.of(offsetX, offsetY),
+            Vector2.of(hitboxX, hitboxY),
+            CollideComponent.DEFAULT_COLLIDER,
+            actionLeave));
+    beamEmitter
+        .fetch(CollideComponent.class)
+        .ifPresent(
+            cc -> {
+              cc.onHold(action);
+            });
+
     return beamEmitter;
   }
 
@@ -303,55 +335,58 @@ public class TractorBeamFactory {
    * @param tractorBeamEntities The list of all entities building the tractor beam
    */
   public static void reverseTractorBeam(List<Entity> tractorBeamEntities) {
+    final Direction[] directionHolder = {Direction.NONE};
     for (Entity tractorBeamEntity : tractorBeamEntities) {
-      final Direction[] dirkHolder = {Direction.NONE};
+      if (tractorBeamEntity.name().equals("tractorBeam")) {
+        tractorBeamEntity
+            .fetch(DrawComponent.class)
+            .ifPresent(
+                dc -> {
+                  String currentState = dc.currentStateName();
 
-      tractorBeamEntity
-          .fetch(DrawComponent.class)
-          .ifPresent(
-              dc -> {
-                String currentState = dc.currentStateName();
-
-                if (currentState.contains("horizontal")) {
-                  if (currentState.startsWith("blue")) {
-                    dc.sendSignal("reverse_horizontal");
-                    dirkHolder[0] = Direction.RIGHT;
-                  } else {
-                    dc.sendSignal("normal_horizontal");
-                    dirkHolder[0] = Direction.LEFT;
+                  if (currentState.contains("horizontal")) {
+                    if (currentState.startsWith("blue")) {
+                      dc.sendSignal("reverse_horizontal");
+                      directionHolder[0] = Direction.RIGHT;
+                    } else {
+                      dc.sendSignal("normal_horizontal");
+                      directionHolder[0] = Direction.LEFT;
+                    }
                   }
-                }
 
-                if (currentState.contains("vertical")) {
-                  if (currentState.startsWith("blue")) {
-                    dc.sendSignal("reverse_vertical");
-                    dirkHolder[0] = Direction.DOWN;
-                  } else {
-                    dc.sendSignal("normal_vertical");
-                    dirkHolder[0] = Direction.UP;
+                  if (currentState.contains("vertical")) {
+                    if (currentState.startsWith("blue")) {
+                      dc.sendSignal("reverse_vertical");
+                      directionHolder[0] = Direction.DOWN;
+                    } else {
+                      dc.sendSignal("normal_vertical");
+                      directionHolder[0] = Direction.UP;
+                    }
                   }
-                }
-              });
-
-      tractorBeamEntity
-          .fetch(CollideComponent.class)
-          .ifPresent(
-              cc -> {
-                cc.onHold(
-                    (you, other, collisionDir) -> {
-                      other
-                          .fetch(VelocityComponent.class)
-                          .ifPresent(
-                              vc -> {
-                                float forceMagnitude = 20f;
-                                Direction dirk = dirkHolder[0];
-                                Vector2 forceVector =
-                                    Vector2.of(
-                                        -dirk.x() * forceMagnitude, -dirk.y() * forceMagnitude);
-                                vc.applyForce("tractorBeam", forceVector);
-                              });
-                    });
-              });
+                });
+      } else if (tractorBeamEntity.name().equals("beamEmitter")) {
+        tractorBeamEntity
+            .fetch(CollideComponent.class)
+            .ifPresent(
+                cc -> {
+                  cc.onHold(
+                      (you, other, collisionDir) -> {
+                        other
+                            .fetch(VelocityComponent.class)
+                            .ifPresent(
+                                vc -> {
+                                  if (!other.isPresent(FlyComponent.class)) {
+                                    other.add(new FlyComponent());
+                                  }
+                                  Direction dir = directionHolder[0];
+                                  Vector2 forceVector =
+                                      Vector2.of(
+                                          -dir.x() * forceMagnitude, -dir.y() * forceMagnitude);
+                                  vc.applyForce("beamEmitter", forceVector);
+                                });
+                      });
+                });
+      }
     }
   }
 }
