@@ -13,7 +13,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Tuple;
-import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Consumer;
@@ -22,17 +21,15 @@ public class BombThrowingSkill extends ProjectileSkill {
 
   public static final String SKILL_NAME = "BOMB_THROW";
 
-  public static final String STATE_NAME = "static_first";
-
   private static final long DEFAULT_COOLDOWN = 800L;
   private static final IPath DEFAULT_BOMB_TEXTURE = new SimpleIPath("skills/bomb");
   private static final float DEFAULT_SPEED = 8f;
   private static final float DEFAULT_RANGE = 6f;
-  private static final Vector2 DEFAULT_HITBOX = Vector2.ONE;
   private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
   private static final float DEFAULT_RADIUS = 2.2f;
   private static final int DEFAULT_DAMAGE = 8;
   private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
+  private static final boolean IGNORE_FIRST_WALL = false;
 
   private final IPath explosionTextureDir;
   private final float explosionRadius;
@@ -44,7 +41,15 @@ public class BombThrowingSkill extends ProjectileSkill {
   }
 
   public BombThrowingSkill(float range, long cooldownMs) {
-    super(SKILL_NAME, cooldownMs, DEFAULT_BOMB_TEXTURE, DEFAULT_SPEED, range, DEFAULT_HITBOX);
+    super(
+        SKILL_NAME,
+        cooldownMs,
+        DEFAULT_BOMB_TEXTURE,
+        DEFAULT_SPEED,
+        range,
+        DEFAULT_HITBOX_SIZE,
+        DEFAULT_HITBOX_OFFSET,
+        IGNORE_FIRST_WALL);
     this.explosionTextureDir = DEFAULT_EXPLOSION_DIR;
     this.explosionRadius = DEFAULT_RADIUS;
     this.damageType = DEFAULT_DMG_TYPE;
@@ -59,7 +64,9 @@ public class BombThrowingSkill extends ProjectileSkill {
         DEFAULT_BOMB_TEXTURE,
         DEFAULT_SPEED,
         range,
-        DEFAULT_HITBOX,
+        DEFAULT_HITBOX_SIZE,
+        DEFAULT_HITBOX_OFFSET,
+        IGNORE_FIRST_WALL,
         resourceCost);
     this.explosionTextureDir = DEFAULT_EXPLOSION_DIR;
     this.explosionRadius = DEFAULT_RADIUS;
@@ -76,11 +83,9 @@ public class BombThrowingSkill extends ProjectileSkill {
   }
 
   @Override
-  protected Consumer<Entity> onWallHit(Entity caster) {
-    return p -> {
-      explodeAtProjectileCenter(p);
-      Game.remove(p);
-    };
+  protected void onWallHit(Entity caster, Entity projectile) {
+    explodeAtProjectileCenter(projectile);
+    Game.remove(projectile);
   }
 
   @Override
@@ -122,7 +127,7 @@ public class BombThrowingSkill extends ProjectileSkill {
               int depth = old.depth();
               int tint = old.tintColor();
               boolean vis = old.isVisible();
-              DrawComponent dc = new DrawComponent(DEFAULT_BOMB_TEXTURE, STATE_NAME);
+              DrawComponent dc = new DrawComponent(DEFAULT_BOMB_TEXTURE, "static_first");
               dc.depth(depth);
               dc.tintColor(tint);
               dc.setVisible(vis);
