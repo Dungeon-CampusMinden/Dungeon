@@ -1,5 +1,7 @@
 package contrib.utils.components.skill.placeSkill;
 
+import contrib.components.BombElementComponent;
+import contrib.components.BombElementComponent.BombElement;
 import contrib.entities.ExplosionFactory;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.DamageType;
@@ -18,16 +20,14 @@ import core.utils.components.path.SimpleIPath;
 public class BombPlaceSkill extends Skill {
 
   public static final String SKILL_NAME = "BOMB_PLACE";
-
   public static final String STATE_NAME = "blink";
 
   private static final IPath BOMB_SPRITESHEET = new SimpleIPath("skills/bomb");
-  private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
+  private static final IPath EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
   private static final float DEFAULT_RADIUS = 2.0f;
   private static final int DEFAULT_DAMAGE = 8;
-  private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
 
-  private static final long DEFAULT_FUSE_MS = 10000L;
+  private static final long DEFAULT_FUSE_MS = 10_000L;
   private static final long DEFAULT_COOLDOWN = 800L;
 
   private final long fuseMs;
@@ -75,23 +75,32 @@ public class BombPlaceSkill extends Skill {
     bomb.add(new PositionComponent(spawnPos));
     DrawComponent bombDC = new DrawComponent(BOMB_SPRITESHEET, STATE_NAME);
     bomb.add(bombDC);
+
+    BombElement element = BombElementComponent.getOrDefault(caster);
+    bomb.add(new BombElementComponent(element));
+
     Game.add(bomb);
 
     AnimationConfig cfg = bombDC.currentAnimation().getConfig();
     cfg.centered(true);
     scheduleBlinkRamp(cfg);
-    explode(bomb);
+    scheduleExplosion(bomb);
   }
 
-  private void explode(Entity bomb) {
+  private void scheduleExplosion(Entity bomb) {
     EventScheduler.scheduleAction(
         () -> {
           Point pos =
               bomb.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
+
+          BombElement element = BombElementComponent.getOrDefault(bomb);
           Game.remove(bomb);
+
           if (pos != null) {
+            DamageType dmgType = element.toDamageType();
+            System.out.println("BombPlaceSkill -> Explosion DamageType=" + dmgType);
             ExplosionFactory.createExplosion(
-                DEFAULT_EXPLOSION_DIR, pos, DEFAULT_RADIUS, DEFAULT_DMG_TYPE, DEFAULT_DAMAGE);
+                EXPLOSION_DIR, pos, DEFAULT_RADIUS, dmgType, DEFAULT_DAMAGE);
           }
         },
         fuseMs);

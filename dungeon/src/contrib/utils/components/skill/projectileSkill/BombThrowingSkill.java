@@ -1,5 +1,7 @@
 package contrib.utils.components.skill.projectileSkill;
 
+import contrib.components.BombElementComponent;
+import contrib.components.BombElementComponent.BombElement;
 import contrib.components.CollideComponent;
 import contrib.entities.ExplosionFactory;
 import contrib.utils.components.health.DamageType;
@@ -28,12 +30,10 @@ public class BombThrowingSkill extends ProjectileSkill {
   private static final IPath DEFAULT_EXPLOSION_DIR = new SimpleIPath("skills/bomb/explosion");
   private static final float DEFAULT_RADIUS = 2.0f;
   private static final int DEFAULT_DAMAGE = 8;
-  private static final DamageType DEFAULT_DMG_TYPE = DamageType.FIRE;
   private static final boolean IGNORE_FIRST_WALL = false;
 
   private final IPath explosionTextureDir;
   private final float explosionRadius;
-  private final DamageType damageType;
   private final int damageAmount;
 
   public BombThrowingSkill() {
@@ -52,7 +52,6 @@ public class BombThrowingSkill extends ProjectileSkill {
         IGNORE_FIRST_WALL);
     this.explosionTextureDir = DEFAULT_EXPLOSION_DIR;
     this.explosionRadius = DEFAULT_RADIUS;
-    this.damageType = DEFAULT_DMG_TYPE;
     this.damageAmount = DEFAULT_DAMAGE;
   }
 
@@ -70,7 +69,6 @@ public class BombThrowingSkill extends ProjectileSkill {
         resourceCost);
     this.explosionTextureDir = DEFAULT_EXPLOSION_DIR;
     this.explosionRadius = DEFAULT_RADIUS;
-    this.damageType = DEFAULT_DMG_TYPE;
     this.damageAmount = DEFAULT_DAMAGE;
   }
 
@@ -101,8 +99,13 @@ public class BombThrowingSkill extends ProjectileSkill {
         projectile.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
     if (pos == null) return;
     Point center = new Point(pos.x() + hitBoxSize().x() / 2f, pos.y() + hitBoxSize().y() / 2f);
+
+    BombElement element = BombElementComponent.getOrDefault(projectile);
+
+    DamageType dmgType = element.toDamageType();
+    System.out.println("BombPlaceSkill -> Explosion DamageType=" + dmgType);
     ExplosionFactory.createExplosion(
-        explosionTextureDir, center, explosionRadius, damageType, damageAmount);
+        explosionTextureDir, center, explosionRadius, dmgType, damageAmount);
   }
 
   @Override
@@ -133,5 +136,8 @@ public class BombThrowingSkill extends ProjectileSkill {
               dc.setVisible(vis);
               projectile.add(dc);
             });
+
+    BombElement element = BombElementComponent.getOrDefault(caster);
+    projectile.add(new BombElementComponent(element));
   }
 }

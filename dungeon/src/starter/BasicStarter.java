@@ -2,6 +2,7 @@ package starter;
 
 import contrib.entities.HeroFactory;
 import contrib.systems.AISystem;
+import contrib.systems.BombElementSwitchSystem;
 import contrib.systems.CollisionSystem;
 import contrib.systems.EventScheduler;
 import contrib.systems.FallingSystem;
@@ -93,6 +94,7 @@ public class BasicStarter {
     Game.add(new PathSystem()); // handles pathfinding for AI
     Game.add(new ManaBarSystem());
     Game.add(new ManaRestoreSystem());
+    Game.add(new BombElementSwitchSystem());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
 }
