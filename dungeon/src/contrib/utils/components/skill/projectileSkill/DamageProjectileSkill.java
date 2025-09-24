@@ -71,13 +71,12 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         range,
         hitBoxSize,
         hitBoxOffset,
-        end,
         ignoreFirstWall,
+        end,
         resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
-    this.endPointSupplier = end;
   }
 
   /**
@@ -109,11 +108,10 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
       DamageType damageType,
       boolean ignoreFirstWall,
       Tuple<Resource, Integer>... resourceCost) {
-    super(name, cooldown, texture, speed, range, ignoreFirstWall, resourceCost);
+    super(name, cooldown, texture, speed, range, ignoreFirstWall, end, resourceCost);
     this.damageAmount = damageAmount;
     this.damageType = damageType;
     this.piercing = piercing;
-    this.endPointSupplier = end;
   }
 
   /**
@@ -242,14 +240,5 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
    */
   public void increaseRange(float amount) {
     this.range += range;
-  }
-
-  /**
-   * Sets a new endpoint to aim for.
-   *
-   * @param endPointSupplier a new supplier that provides the point to aim for.
-   */
-  public void targetSelection(Supplier<Point> endPointSupplier) {
-    this.endPointSupplier = endPointSupplier;
   }
 }

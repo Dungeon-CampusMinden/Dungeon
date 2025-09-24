@@ -1,5 +1,8 @@
 package core.network.server;
 
+import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
+import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.headless.HeadlessFiles;
 import contrib.entities.HeroController;
@@ -31,9 +34,6 @@ import java.util.Map;
 import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static core.network.config.NetworkConfig.SERVER_SNAPSHOT_HZ;
-import static core.network.config.NetworkConfig.SERVER_TICK_HZ;
 
 public final class AuthoritativeServerLoop {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
@@ -106,7 +106,8 @@ public final class AuthoritativeServerLoop {
 
   private void tick() {
     try {
-      //noinspection NonAtomicOperationOnVolatileField Because this is the only place where serverTick is modified
+      //noinspection NonAtomicOperationOnVolatileField Because this is the only place where
+      // serverTick is modified
       serverTick++;
       syncClientsToEntities();
       drainAndApplyInputs(net.inputQueue());

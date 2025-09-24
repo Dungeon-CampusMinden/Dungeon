@@ -13,6 +13,7 @@ import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.s2c.ConnectAck;
+import core.network.messages.s2c.RegisterAck;
 import core.utils.Tuple;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -399,11 +400,12 @@ public final class ClientNetwork {
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
                 try {
                   Object obj = deserialize(pkt.content());
-                  if (obj instanceof NetworkMessage nm) {
-                    // First successful UDP inbound proves server sees our UDP source
-                    // cancel any pending RegisterUdp retries for our clientId.
+                  if (obj instanceof RegisterAck) {
+                    // Server acknowledges our UDP source address; cancel any pending retries
                     Integer id = clientId;
                     if (id != null && id > 0) cancelUdpRegistration(id);
+                  }
+                  else if (obj instanceof NetworkMessage nm) {
                     inboundQueue.offer(Tuple.of(ctx, nm));
                   }
                 } catch (Exception e) {

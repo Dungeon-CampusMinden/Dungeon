@@ -13,10 +13,7 @@ import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
-import core.network.messages.s2c.ConnectAck;
-import core.network.messages.s2c.ConnectReject;
-import core.network.messages.s2c.EntitySpawnEvent;
-import core.network.messages.s2c.LevelChangeEvent;
+import core.network.messages.s2c.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -287,7 +284,7 @@ public final class ServerTransport {
     if (!Objects.equals(previous, sender)) {
       LOGGER.info("Registered/updated UDP for clientId={} addr={}", id, sender);
     }
-    // TODO: Send message ACK or NACK here
+    sendUdpObject(sender, new RegisterAck(true));
   }
 
   private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {
