@@ -15,5 +15,7 @@ public enum DamageType {
   /** Damage caused by a Skill (eg. if the skill needed hp to be cast). */
   LIFE_RESOURCE,
   /** Damage caused by falling from a height. */
-  FALL
+  FALL,
+  /** Damage caused by ice. */
+  ICE
 }
