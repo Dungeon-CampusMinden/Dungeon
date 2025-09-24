@@ -7,9 +7,17 @@ import core.Entity;
 public class BombElementComponent implements Component {
 
   public enum BombElement {
-    FIRE,
-    POISON,
-    ICE;
+    FIRE("explosion_red", DamageType.FIRE),
+    POISON("explosion_green", DamageType.POISON),
+    ICE("explosion_blue", DamageType.ICE);
+
+    private final String spriteName;
+    private final DamageType dmgType;
+
+    BombElement(String spriteName, DamageType dmgType) {
+      this.spriteName = spriteName;
+      this.dmgType = dmgType;
+    }
 
     public BombElement next() {
       return switch (this) {
@@ -20,11 +28,18 @@ public class BombElementComponent implements Component {
     }
 
     public DamageType toDamageType() {
-      return switch (this) {
-        case FIRE -> DamageType.FIRE;
-        case POISON -> DamageType.POISON;
-        case ICE -> DamageType.ICE;
-      };
+      return dmgType;
+    }
+
+    public String spriteName() {
+      return spriteName;
+    }
+
+    public static BombElement fromDamageType(DamageType dmgType) {
+      for (BombElement e : values()) {
+        if (e.dmgType == dmgType) return e;
+      }
+      return defaultValue();
     }
 
     public static BombElement defaultValue() {

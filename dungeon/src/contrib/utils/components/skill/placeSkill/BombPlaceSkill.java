@@ -98,7 +98,6 @@ public class BombPlaceSkill extends Skill {
 
           if (pos != null) {
             DamageType dmgType = element.toDamageType();
-            System.out.println("BombPlaceSkill -> Explosion DamageType=" + dmgType);
             ExplosionFactory.createExplosion(
                 EXPLOSION_DIR, pos, DEFAULT_RADIUS, dmgType, DEFAULT_DAMAGE);
           }

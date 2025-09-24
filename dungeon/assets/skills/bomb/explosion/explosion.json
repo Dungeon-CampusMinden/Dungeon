@@ -1,5 +1,5 @@
 {
-  "explode": {
+  "explosion_red": {
     "config": {
       "spriteWidth": 32,
       "spriteHeight": 32,
@@ -10,9 +10,40 @@
     },
     "framesPerSprite": 1,
     "scaleX": 1,
-    "scaleY": 0,
+    "scaleY": 1,
+    "isLooping": false,
+    "centered": true
+  },
+  "explosion_green": {
+    "config": {
+      "spriteWidth": 32,
+      "spriteHeight": 32,
+      "x": 0,
+      "y": 0,
+      "rows": 4,
+      "columns": 4
+    },
+    "framesPerSprite": 1,
+    "scaleX": 1,
+    "scaleY": 1,
+    "isLooping": false,
+    "centered": true
+  },
+  "explosion_blue": {
+    "config": {
+      "spriteWidth": 32,
+      "spriteHeight": 32,
+      "x": 0,
+      "y": 0,
+      "rows": 4,
+      "columns": 4
+    },
+    "framesPerSprite": 1,
+    "scaleX": 1,
+    "scaleY": 1,
     "isLooping": false,
     "centered": true
   }
 }
+
 

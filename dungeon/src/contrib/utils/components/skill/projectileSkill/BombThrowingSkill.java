@@ -103,7 +103,6 @@ public class BombThrowingSkill extends ProjectileSkill {
     BombElement element = BombElementComponent.getOrDefault(projectile);
 
     DamageType dmgType = element.toDamageType();
-    System.out.println("BombPlaceSkill -> Explosion DamageType=" + dmgType);
     ExplosionFactory.createExplosion(
         explosionTextureDir, center, explosionRadius, dmgType, damageAmount);
   }
