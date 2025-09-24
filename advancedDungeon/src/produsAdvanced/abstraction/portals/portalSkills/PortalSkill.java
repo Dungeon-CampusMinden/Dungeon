@@ -42,6 +42,7 @@ public abstract class PortalSkill extends ProjectileSkill {
   private static final float SPEED = 13f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
+<<<<<<< HEAD
 =======
   public static final String SKILL_NAME = "BLUE_PORTAL";
   private static final float SPEED = 13f;
@@ -53,6 +54,9 @@ public abstract class PortalSkill extends ProjectileSkill {
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  private static final Vector2 HIT_BOX_OFFSET = Vector2.of(0.2, 0.2);
+>>>>>>> fe1cebb8 (updated onWallHit method)
   private static final long COOLDOWN = 500;
 
   /**
@@ -61,7 +65,7 @@ public abstract class PortalSkill extends ProjectileSkill {
    * @param resourceCost Resource costs for casting.
    */
   public PortalSkill(String skillName, IPath texture, Tuple<Resource, Integer>... resourceCost) {
-    super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE, resourceCost);
+    super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE,HIT_BOX_OFFSET, false, resourceCost);
   }
 
   @Override
@@ -70,6 +74,7 @@ public abstract class PortalSkill extends ProjectileSkill {
   }
 
   @Override
+<<<<<<< HEAD
   protected Consumer<Entity> onWallHit(Entity caster) {
     return entity ->  {
       PositionComponent pc = entity.fetch(PositionComponent.class).get();
@@ -126,6 +131,19 @@ public abstract class PortalSkill extends ProjectileSkill {
 >>>>>>> ac8cf0c7 (restructed portal related files)
       Game.remove(entity);
     };
+=======
+  protected void onWallHit(Entity caster, Entity projectile) {
+    PositionComponent pc = projectile.fetch(PositionComponent.class).get();
+    VelocityComponent vc = projectile.fetch(VelocityComponent.class).get();
+    Vector2 velocity = vc.currentVelocity().normalize();
+    Point movedPos = pc.position().translate(velocity);
+    Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
+
+    if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
+      createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
+    }
+    Game.remove(projectile);
+>>>>>>> fe1cebb8 (updated onWallHit method)
   }
 
 <<<<<<< HEAD
