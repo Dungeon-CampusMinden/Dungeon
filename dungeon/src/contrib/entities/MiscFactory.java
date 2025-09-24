@@ -439,10 +439,10 @@ public final class MiscFactory {
    */
   private static Animation cookingPotAnimation() {
     Map<String, Animation> map =
-      Animation.loadAnimationSpritesheet(new SimpleIPath("objects/magic_kettle"));
+        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/magic_kettle"));
     if (map == null || map.isEmpty()) {
       throw new IllegalStateException(
-        "Missing magic_kettle spritesheet or no animations found at objects/magic_kettle/magic_kettle.{png,json}");
+          "Missing magic_kettle spritesheet or no animations found at objects/magic_kettle/magic_kettle.{png,json}");
     }
     return map.values().iterator().next();
   }
