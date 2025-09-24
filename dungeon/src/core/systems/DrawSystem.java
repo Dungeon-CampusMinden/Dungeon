@@ -85,18 +85,18 @@ public final class DrawSystem extends System {
   private void onEntityChanged(Entity changed, boolean added) {
     DSData data = buildDataObject(changed);
     int depth = data.dc.depth();
-    List<Entity> entitiesAtDepth = sortedEntities.get(depth);
+    List<DSData> entitiesAtDepth = sortedEntities.get(depth);
 
     if (entitiesAtDepth == null) {
       if (added) {
         entitiesAtDepth = new ArrayList<>();
-        entitiesAtDepth.add(changed);
+        entitiesAtDepth.add(data);
         sortedEntities.put(depth, entitiesAtDepth);
       }
-    } else if (!entitiesAtDepth.contains(changed) && added) {
-      entitiesAtDepth.add(changed);
+    } else if (!entitiesAtDepth.contains(data) && added) {
+      entitiesAtDepth.add(data);
     } else if (!added) {
-      entitiesAtDepth.remove(changed);
+      entitiesAtDepth.remove(data);
       if (entitiesAtDepth.isEmpty()) {
         sortedEntities.remove(depth);
       }
@@ -138,7 +138,7 @@ public final class DrawSystem extends System {
             .flatMap(
                 list ->
                     list.stream()
-                        .sorted(Comparator.comparingDouble(data -> -data.pc.position().y())))
+                        .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
             .filter(this::shouldDraw)
             .peek(data -> data.dc.update());
 
@@ -150,13 +150,7 @@ public final class DrawSystem extends System {
 
     Game.currentLevel().ifPresent(this::drawLevel);
 
-    for (List<Entity> group : sortedEntities.values()) {
-      group.stream()
-          .map(this::buildDataObject)
-          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
-          .filter(this::shouldDraw)
-          .forEach(this::draw);
-    }
+    dataStream.forEach(this::draw);
 
     BATCH.end();
   }

@@ -115,6 +115,7 @@ public abstract class ProjectileSkill extends Skill {
       float speed,
       float range,
       boolean ignoreFirstWall,
+      Supplier<Point> end,
       Tuple<Resource, Integer>... resourceCost) {
     this(
         name,
@@ -125,6 +126,7 @@ public abstract class ProjectileSkill extends Skill {
         DEFAULT_HITBOX_SIZE,
         DEFAULT_HITBOX_OFFSET,
         ignoreFirstWall,
+        end,
         resourceCost);
   }
 

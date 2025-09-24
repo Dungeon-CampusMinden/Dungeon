@@ -50,7 +50,7 @@ public final class StationarySentryAttack implements Consumer<Entity>, ISkillUse
     }
 
     Point targetEndPoint = this.spawnPoint.translate(this.shootDirection.scale(this.attackRange));
-    this.fightSkill.targetSelection(() -> targetEndPoint.toCenteredPoint());
+    this.fightSkill.endPointSupplier(targetEndPoint::toCenteredPoint);
   }
 
   @Override
