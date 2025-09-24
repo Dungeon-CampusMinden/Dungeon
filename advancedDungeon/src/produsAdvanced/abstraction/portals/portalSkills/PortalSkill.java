@@ -24,6 +24,7 @@ public abstract class PortalSkill extends ProjectileSkill {
   private static final float SPEED = 13f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
+  private static final Vector2 HIT_BOX_OFFSET = Vector2.of(0.2, 0.2);
   private static final long COOLDOWN = 500;
 
   /**
@@ -32,7 +33,7 @@ public abstract class PortalSkill extends ProjectileSkill {
    * @param resourceCost Resource costs for casting.
    */
   public PortalSkill(String skillName, IPath texture, Tuple<Resource, Integer>... resourceCost) {
-    super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE, resourceCost);
+    super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE,HIT_BOX_OFFSET, false, resourceCost);
   }
 
   @Override
@@ -41,19 +42,17 @@ public abstract class PortalSkill extends ProjectileSkill {
   }
 
   @Override
-  protected Consumer<Entity> onWallHit(Entity caster) {
-    return entity ->  {
-      PositionComponent pc = entity.fetch(PositionComponent.class).get();
-      VelocityComponent vc = entity.fetch(VelocityComponent.class).get();
-      Vector2 velocity = vc.currentVelocity().normalize();
-      Point movedPos = pc.position().translate(velocity);
-      Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
+  protected void onWallHit(Entity caster, Entity projectile) {
+    PositionComponent pc = projectile.fetch(PositionComponent.class).get();
+    VelocityComponent vc = projectile.fetch(VelocityComponent.class).get();
+    Vector2 velocity = vc.currentVelocity().normalize();
+    Point movedPos = pc.position().translate(velocity);
+    Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
-      if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
-        createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
-      }
-      Game.remove(entity);
-    };
+    if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
+      createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
+    }
+    Game.remove(projectile);
   }
 
   @Override
