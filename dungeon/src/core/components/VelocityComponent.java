@@ -112,6 +112,21 @@ public final class VelocityComponent implements Component {
    * Create a new VelocityComponent with the given configuration and a default mass.
    *
    * @param maxSpeed The speed with which the entity can maximally move.
+   * @param moveboxOffset The offset of the hitbox for entity collisions.
+   * @param moveboxSize The size of the hitbox for entity collisions.
+   * @param onWallHit Callback that will be executed if the entity runs against a wall.
+   * @param canEnterOpenPits Whether the entity can enter open pit tiles.
+   */
+  public VelocityComponent(float maxSpeed,Vector2 moveboxOffset, Vector2 moveboxSize, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
+    this(maxSpeed, DEFAULT_MASS, onWallHit, canEnterOpenPits);
+    this.moveboxOffset = moveboxOffset;
+    this.moveboxSize = moveboxSize;
+  }
+
+  /**
+   * Create a new VelocityComponent with the given configuration and a default mass.
+   *
+   * @param maxSpeed The speed with which the entity can maximally move.
    * @param onWallHit Callback that will be executed if the entity runs against a wall.
    * @param canEnterOpenPits Whether the entity can enter open pit tiles.
    */

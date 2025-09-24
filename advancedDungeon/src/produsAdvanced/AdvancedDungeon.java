@@ -9,6 +9,8 @@ import contrib.utils.DynamicCompiler;
 import contrib.utils.components.Debugger;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.SkillTools;
+import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
@@ -24,9 +26,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
-import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
-import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
-import produsAdvanced.abstraction.portalSkills.PortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
+import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 import produsAdvanced.level.*;
 
 /**
@@ -48,7 +49,7 @@ public class AdvancedDungeon {
    *
    * <p>Also disables recompilation for player control.
    */
-  public static final boolean DEBUG_MODE = false;
+  public static final boolean DEBUG_MODE = true;
 
   private static final String SAVE_LEVEL_KEY = "LEVEL";
 
@@ -136,6 +137,7 @@ public class AdvancedDungeon {
             sc.removeAll();
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
+            sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
