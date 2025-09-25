@@ -259,6 +259,7 @@ public class PortalFactory {
       bluePortalDirection = Direction.LEFT;
       cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), PortalFactory::onBlueCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
+    cc.isSolid(false);
 
     portal.add(cc);
 
@@ -386,6 +387,7 @@ public class PortalFactory {
       greenPortalDirection = Direction.LEFT;
       cc = new CollideComponent(Vector2.of(0.6,-0.1), Vector2.of(0.5,1.2), PortalFactory::onGreenCollideEnter, CollideComponent.DEFAULT_COLLIDER);
     }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -396,6 +398,9 @@ public class PortalFactory {
     portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
 =======
+=======
+    cc.isSolid(false);
+>>>>>>> deaec5ba (fixed random teleport bug + adjusted for new collidesystem)
     portal.add(cc);
     portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
@@ -415,8 +420,8 @@ public class PortalFactory {
 =======
 >>>>>>> 24b937b6 (implemented a basic projectile teleportation)
       PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite()));
-      handleProjectiles(other, bluePortalDirection.opposite());
+      pc.position(bluePortal.fetch(PositionComponent.class).get().position().translate(bluePortalDirection.opposite().scale(1.01)));
+      handleProjectiles(other, greenPortalDirection.opposite(), bluePortalDirection.opposite());
     }
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/Portal.java
 <<<<<<< HEAD
@@ -525,13 +530,13 @@ public class PortalFactory {
 =======
 >>>>>>> 24b937b6 (implemented a basic projectile teleportation)
       PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite()));
-      handleProjectiles(other, greenPortalDirection.opposite());
+      pc.position(greenPortal.fetch(PositionComponent.class).get().position().translate(greenPortalDirection.opposite().scale(1.01)));
+      handleProjectiles(other, bluePortalDirection.opposite(), greenPortalDirection.opposite());
     }
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
   }
 
-  public static void handleProjectiles(Entity projectile, Direction direction) {
+  public static void handleProjectiles(Entity projectile, Direction entry, Direction exit) {
     if (!projectile.isPresent(ProjectileComponent.class)) {
       return;
     }
@@ -542,15 +547,10 @@ public class PortalFactory {
     Game.remove(projectile);
 
     VelocityComponent vc = projectile.fetch(VelocityComponent.class).get();
-    if (direction == bluePortalDirection.opposite()) {
-      System.out.println("blue");
-      vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), bluePortalDirection, greenPortalDirection));
-    } else {
-      System.out.println("green");
-      vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), greenPortalDirection, bluePortalDirection));
-    }
+    vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), entry, exit));
     PositionComponent pc = projectile.fetch(PositionComponent.class).get();
-    pc.rotation((float) direction.angleDeg());
+    pc.rotation((float) exit.angleDeg());
+    pc.position(pc.position().translate(exit));
     Game.add(entity);
   }
 =======
@@ -681,5 +681,4 @@ public class PortalFactory {
     return entity.isPresent(PortalComponent.class);
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
   }
-
 }
