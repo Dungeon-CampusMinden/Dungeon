@@ -21,6 +21,17 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Map;
 
+/**
+ * Factory for creating explosion effects with visuals, collision damage and sound playback.
+ *
+ * <p>The created entity is immediately added to the game and automatically removed once the
+ * animation has finished.
+ *
+ * @see BombElement
+ * @see DamageType
+ * @see ExplosableComponent
+ * @see HealthComponent
+ */
 public final class ExplosionFactory {
 
   private static final int FRAME_COUNT = 16;
@@ -29,6 +40,18 @@ public final class ExplosionFactory {
 
   private ExplosionFactory() {}
 
+  /**
+   * Creates and spawns an explosion entity at the given position with the specified radius and
+   * damage parameters.
+   *
+   * @param textureDir Base directory containing explosion textures and the {@code explosion.json}
+   *     config.
+   * @param position World position of the explosion center.
+   * @param radius Explosion radius in world units; also used to scale the sprite.
+   * @param dmgType Damage type for art/SFX selection).
+   * @param dmgAmount Amount of damage dealt to hit entities.
+   * @return The created explosion entity.
+   */
   public static Entity createExplosion(
       IPath textureDir, Point position, float radius, DamageType dmgType, int dmgAmount) {
 
@@ -67,6 +90,13 @@ public final class ExplosionFactory {
     return fx;
   }
 
+  /**
+   * Loads an {@link AnimationConfig} for a specific explosion state from {@code explosion.json}.
+   *
+   * @param textureDir Directory containing the JSON file.
+   * @param state The animation state key.
+   * @return The matching {@link AnimationConfig}, a fallback config, or a default config.
+   */
   private static AnimationConfig loadAnimationConfig(IPath textureDir, String state) {
     String base = textureDir.pathString();
     if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
@@ -81,6 +111,16 @@ public final class ExplosionFactory {
     return new AnimationConfig();
   }
 
+  /**
+   * Builds a non-solid collider that deals damage and notifies {@link ExplosableComponent}s.
+   *
+   * @param fx The explosion entity.
+   * @param pos The explosion center.
+   * @param radius The explosion radius.
+   * @param dmgType The damage type to apply.
+   * @param dmgAmount The amount of damage dealt.
+   * @return The configured {@link CollideComponent}.
+   */
   private static CollideComponent buildCollider(
       Entity fx, Point pos, float radius, DamageType dmgType, int dmgAmount) {
     float diameter = radius * 2f;
@@ -105,18 +145,34 @@ public final class ExplosionFactory {
     return cc;
   }
 
+  /**
+   * Calculates the explosion lifetime in milliseconds based on frame rate and animation pacing.
+   *
+   * @param cfg The animation configuration of the explosion.
+   * @return Lifetime in milliseconds after which the entity is removed.
+   */
   private static long calculateLifetime(AnimationConfig cfg) {
     int fps = Math.max(1, Game.frameRate());
     int totalFramesShown = FRAME_COUNT * cfg.framesPerSprite();
     return Math.round(totalFramesShown * (1000.0 / fps));
   }
 
+  /**
+   * Creates and plays the element-specific explosion sound and schedules its disposal.
+   *
+   * @param element The element determining which SFX to play.
+   */
   private static void playExplosionSfx(BombElement element) {
     Sound sfx = Gdx.audio.newSound(Gdx.files.internal(element.sfxPath()));
     sfx.play(0.2f);
     EventScheduler.scheduleAction(() -> disposeIfIdle(sfx), SFX_IDLE_DISPOSE_MS);
   }
 
+  /**
+   * Disposes a sound instance if present.
+   *
+   * @param s The sound instance to dispose.
+   */
   private static void disposeIfIdle(Sound s) {
     if (s != null) s.dispose();
   }
