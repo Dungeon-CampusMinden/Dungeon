@@ -154,7 +154,7 @@ public class BombThrowingSkill extends ProjectileSkill {
     if (pos == null) return;
     Point center = new Point(pos.x() + hitBoxSize().x() / 2f, pos.y() + hitBoxSize().y() / 2f);
 
-    BombElement element = BombElementComponent.getOrDefault(projectile);
+    BombElement element = BombElementComponent.getElementOrDefault(projectile);
 
     DamageType dmgType = element.toDamageType();
     ExplosionFactory.createExplosion(
@@ -208,7 +208,7 @@ public class BombThrowingSkill extends ProjectileSkill {
               projectile.add(dc);
             });
 
-    BombElement element = BombElementComponent.getOrDefault(caster);
+    BombElement element = BombElementComponent.getElementOrDefault(caster);
     projectile.add(new BombElementComponent(element));
   }
 }

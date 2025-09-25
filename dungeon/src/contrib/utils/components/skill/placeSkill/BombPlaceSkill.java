@@ -120,7 +120,7 @@ public class BombPlaceSkill extends Skill {
     DrawComponent bombDC = new DrawComponent(BOMB_SPRITESHEET, STATE_NAME);
     bomb.add(bombDC);
 
-    BombElement element = BombElementComponent.getOrDefault(caster);
+    BombElement element = BombElementComponent.getElementOrDefault(caster);
     bomb.add(new BombElementComponent(element));
 
     Game.add(bomb);
@@ -145,7 +145,7 @@ public class BombPlaceSkill extends Skill {
           Point pos =
               bomb.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
 
-          BombElement element = BombElementComponent.getOrDefault(bomb);
+          BombElement element = BombElementComponent.getElementOrDefault(bomb);
           Game.remove(bomb);
 
           if (pos != null) {
