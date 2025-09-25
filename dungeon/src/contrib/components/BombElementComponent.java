@@ -7,16 +7,18 @@ import core.Entity;
 public class BombElementComponent implements Component {
 
   public enum BombElement {
-    FIRE("explosion_red", DamageType.FIRE),
-    POISON("explosion_green", DamageType.POISON),
-    ICE("explosion_blue", DamageType.ICE);
+    FIRE("explosion_red", DamageType.FIRE, "sounds/bomb_explosion_fire.wav"),
+    POISON("explosion_green", DamageType.POISON, "sounds/bomb_explosion_poison.wav"),
+    ICE("explosion_blue", DamageType.ICE, "sounds/bomb_explosion_ice.wav");
 
     private final String spriteName;
     private final DamageType dmgType;
+    private final String sfxPath;
 
-    BombElement(String spriteName, DamageType dmgType) {
+    BombElement(String spriteName, DamageType dmgType, String sfxPath) {
       this.spriteName = spriteName;
       this.dmgType = dmgType;
+      this.sfxPath = sfxPath;
     }
 
     public BombElement next() {
@@ -33,6 +35,10 @@ public class BombElementComponent implements Component {
 
     public String spriteName() {
       return spriteName;
+    }
+
+    public String sfxPath() {
+      return sfxPath;
     }
 
     public static BombElement fromDamageType(DamageType dmgType) {
@@ -71,3 +77,4 @@ public class BombElementComponent implements Component {
         .orElse(BombElement.defaultValue());
   }
 }
+

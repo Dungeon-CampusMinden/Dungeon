@@ -25,12 +25,7 @@ public final class ExplosionFactory {
 
   private static final int FRAME_COUNT = 16;
   private static final String JSON_NAME = "explosion.json";
-  private static final long SFX_IDLE_DISPOSE_MS = 30_000L;
-
-  private static final SimpleIPath EXPLOSION_SFX = new SimpleIPath("sounds/bomb_explosion.wav");
-
-  private static Sound explosionSound;
-  private static long lastPlayAtMs = 0L;
+  private static final long SFX_IDLE_DISPOSE_MS = 5000L;
 
   private ExplosionFactory() {}
 
@@ -64,7 +59,7 @@ public final class ExplosionFactory {
     fx.add(buildCollider(fx, position, radius, dmgType, dmgAmount));
 
     Game.add(fx);
-    playExplosionSfx();
+    playExplosionSfx(element);
 
     long lifetimeMs = calculateLifetime(cfg);
     EventScheduler.scheduleAction(() -> Game.remove(fx), lifetimeMs);
@@ -75,14 +70,11 @@ public final class ExplosionFactory {
   private static AnimationConfig loadAnimationConfig(IPath textureDir, String state) {
     String base = textureDir.pathString();
     if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
-
     String jsonPath = base + "/" + JSON_NAME;
     Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);
-
     if (configs != null) {
       AnimationConfig cfg = configs.get(state);
       if (cfg != null) return cfg;
-
       cfg = configs.get("explosion");
       if (cfg != null) return cfg;
     }
@@ -92,7 +84,6 @@ public final class ExplosionFactory {
   private static CollideComponent buildCollider(
       Entity fx, Point pos, float radius, DamageType dmgType, int dmgAmount) {
     float diameter = radius * 2f;
-
     CollideComponent cc =
         new CollideComponent(
             Vector2.of(-radius, -radius),
@@ -109,7 +100,6 @@ public final class ExplosionFactory {
                               .onExplosionHit(other, pos, radius, dmgType, dmgAmount, fx));
             },
             CollideComponent.DEFAULT_COLLIDER);
-
     cc.onHold(CollideComponent.DEFAULT_COLLIDER);
     cc.isSolid(false);
     return cc;
@@ -121,21 +111,15 @@ public final class ExplosionFactory {
     return Math.round(totalFramesShown * (1000.0 / fps));
   }
 
-  private static void playExplosionSfx() {
-    if (explosionSound == null) {
-      explosionSound = Gdx.audio.newSound(Gdx.files.internal(EXPLOSION_SFX.pathString()));
-    }
-    explosionSound.play(0.2f);
-    lastPlayAtMs = System.currentTimeMillis();
-    long stamp = lastPlayAtMs;
-    EventScheduler.scheduleAction(() -> disposeIfIdle(stamp), SFX_IDLE_DISPOSE_MS);
+  private static void playExplosionSfx(BombElement element) {
+    Sound sfx = Gdx.audio.newSound(Gdx.files.internal(element.sfxPath()));
+    sfx.play(0.2f);
+    EventScheduler.scheduleAction(() -> disposeIfIdle(sfx), SFX_IDLE_DISPOSE_MS);
   }
 
-  private static void disposeIfIdle(long stamp) {
-    if (explosionSound == null) return;
-    if (lastPlayAtMs == stamp) {
-      explosionSound.dispose();
-      explosionSound = null;
-    }
+  private static void disposeIfIdle(Sound s) {
+    if (s != null) s.dispose();
   }
 }
+
+
