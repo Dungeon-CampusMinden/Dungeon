@@ -7,6 +7,7 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
@@ -22,13 +23,33 @@ import java.util.Map;
 public class AdvancedFactory {
 
   private static final SimpleIPath LASER_GRID = new SimpleIPath("portal/laser_grid");
+  private static final int LASER_GRID_DMG = 9999;
+  private static final int LASER_GRID_CD = 10;
 
+  /**
+   * Creates a laser grid entity at the given position.
+   *
+   * <p>Objects can pass through it but the hero dies upon collision.
+   *
+   * @param spawnPoint The position the laser grid will be spawned.
+   * @param horizontal whether the laser grid texture ist aligned horizontal or not (will be aligned
+   *     vertical if false).
+   * @return a new laser grid entity.
+   */
   public static Entity laserGrid(Point spawnPoint, boolean horizontal) {
     Entity grid = new Entity("laserGrid");
     grid.add(new PositionComponent(spawnPoint));
     grid.add(new LasergridComponent(true));
-    grid.add(new CollideComponent());
-    grid.add(new SpikyComponent(9999, DamageType.PHYSICAL, 10));
+
+    // the laser grid has to have low mass and cant be solid to let objects pass
+    VelocityComponent velComp = new VelocityComponent();
+    velComp.mass(1f);
+    grid.add(velComp);
+    CollideComponent colComp = new CollideComponent();
+    colComp.isSolid(false);
+    grid.add(colComp);
+
+    grid.add(new SpikyComponent(LASER_GRID_DMG, DamageType.PHYSICAL, LASER_GRID_CD));
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(LASER_GRID);
 
     DrawComponent dc;
