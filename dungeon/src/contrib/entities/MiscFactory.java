@@ -815,6 +815,17 @@ public final class MiscFactory {
     }
   }
 
+  /**
+   * Creates a wall entity that can be destroyed by explosions.
+   *
+   * <p>The wall is placed at the given tile coordinate, rendered with the provided texture, and
+   * marked solid for collisions. When hit by an explosion (via {@link ExplosableComponent}), the
+   * wall removes itself from the game world.
+   *
+   * @param texture Texture (or spritesheet path) used to draw the wall.
+   * @param c The tile coordinate where the wall is spawned.
+   * @return A new {@link Entity} representing a destructible, explodable wall.
+   */
   public static Entity explodableWall(IPath texture, Coordinate c) {
     Entity wall = new Entity("explodable_wall");
 
