@@ -80,7 +80,10 @@ public abstract class PortalSkill extends ProjectileSkill {
     Vector2 forceToApply = SkillTools.calculateDirection(start, targetPoint).scale(speed);
 
     // Add components
-    projectile.add(new VelocityComponent(speed,Vector2.of(0.25,0.25),Vector2.of(0.5,0.5), onWallHit(caster), true));
+    VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
+    vc.moveboxSize(Vector2.of(0.5,0.5));
+    vc.moveboxOffset(Vector2.of(0.25,0.25));
+    projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
     CollideComponent cc =
@@ -97,7 +100,7 @@ public abstract class PortalSkill extends ProjectileSkill {
     onSpawn(caster, projectile);
   }
 
-  protected abstract void createPortal(Point position, Vector2 currentVelocity);
+  protected abstract void   createPortal(Point position, Vector2 currentVelocity);
 
 
 
