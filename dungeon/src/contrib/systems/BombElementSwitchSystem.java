@@ -7,12 +7,19 @@ import core.Entity;
 import core.Game;
 import core.System;
 
+/**
+ * System that rotates the hero's bomb element when the player presses the B key.
+ *
+ * @see BombElementComponent
+ */
 public final class BombElementSwitchSystem extends System {
 
+  /** Constructs the bomb element switch system. */
   public BombElementSwitchSystem() {
     super();
   }
 
+  /** Polls for the B key and advances the hero's bomb element to the next value if pressed. */
   @Override
   public void execute() {
     if (!Gdx.input.isKeyJustPressed(Input.Keys.B)) return;
@@ -25,6 +32,12 @@ public final class BombElementSwitchSystem extends System {
             });
   }
 
+  /**
+   * Retrieves the hero's {@link BombElementComponent}, or creates and attaches one if missing.
+   *
+   * @param hero The hero entity.
+   * @return A {@link BombElementComponent} attached to the hero.
+   */
   private BombElementComponent getOrCreateBombElementComponent(Entity hero) {
     return hero.fetch(BombElementComponent.class)
         .orElseGet(
