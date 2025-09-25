@@ -17,6 +17,20 @@ import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
+/**
+ * A skill that places a bomb at the caster's position which explodes after a fuse time.
+ *
+ * <p>The placed bomb blinks faster towards the end of the fuse to provide visual feedback. On
+ * explosion, an {@link contrib.entities.ExplosionFactory}-based effect is spawned using the element
+ * configured on the caster (via {@link BombElementComponent}) to determine damage type and
+ * visuals/audio.
+ *
+ * <p>The bomb entity itself is added to the game world immediately, and removed when it explodes.
+ *
+ * @see Skill
+ * @see ExplosionFactory
+ * @see BombElementComponent
+ */
 public class BombPlaceSkill extends Skill {
 
   public static final String SKILL_NAME = "BOMB_PLACE";
@@ -32,26 +46,56 @@ public class BombPlaceSkill extends Skill {
 
   private final long fuseMs;
 
+  /** Creates a bomb placing skill with default fuse and cooldown. */
   public BombPlaceSkill() {
     this(DEFAULT_FUSE_MS, DEFAULT_COOLDOWN);
   }
 
+  /**
+   * Creates a bomb placing skill with a custom fuse and cooldown.
+   *
+   * @param fuseMs Fuse duration in milliseconds before the bomb explodes.
+   * @param cooldownMs Cooldown in milliseconds between consecutive uses.
+   */
   public BombPlaceSkill(long fuseMs, long cooldownMs) {
     super(SKILL_NAME, cooldownMs);
     this.fuseMs = fuseMs;
   }
 
+  /**
+   * Creates a bomb placing skill with custom fuse, cooldown and resource costs.
+   *
+   * @param fuseMs Fuse duration in milliseconds before the bomb explodes.
+   * @param cooldownMs Cooldown in milliseconds between consecutive uses.
+   * @param resourceCost Optional resource cost tuples required to cast this skill.
+   */
   @SafeVarargs
   public BombPlaceSkill(long fuseMs, long cooldownMs, Tuple<Resource, Integer>... resourceCost) {
     super(SKILL_NAME, cooldownMs, resourceCost);
     this.fuseMs = fuseMs;
   }
 
+  /**
+   * Executes the skill for the given caster by placing a bomb entity at the caster's position.
+   *
+   * @param caster The entity invoking the skill.
+   */
   @Override
   protected void executeSkill(Entity caster) {
     dropBomb(caster);
   }
 
+  /**
+   * Spawns a bomb entity at the caster's position, starts its blinking animation, and schedules its
+   * explosion.
+   *
+   * <p>The placed bomb inherits the {@link BombElement} from the caster (or defaults), which later
+   * determines the explosion visuals and damage type.
+   *
+   * @param caster The entity placing the bomb.
+   * @see #scheduleBlinkRamp(AnimationConfig)
+   * @see #scheduleExplosion(Entity)
+   */
   private void dropBomb(Entity caster) {
     Point heroPos =
         caster.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
@@ -87,6 +131,14 @@ public class BombPlaceSkill extends Skill {
     scheduleExplosion(bomb);
   }
 
+  /**
+   * Schedules the bomb's explosion after the configured fuse time.
+   *
+   * <p>On detonation, the bomb entity is removed and an explosion is created at the last known bomb
+   * position. The {@link BombElement} on the bomb decides which {@link DamageType} is applied.
+   *
+   * @param bomb The bomb entity to explode.
+   */
   private void scheduleExplosion(Entity bomb) {
     EventScheduler.scheduleAction(
         () -> {
@@ -105,6 +157,15 @@ public class BombPlaceSkill extends Skill {
         fuseMs);
   }
 
+  /**
+   * Ramps the blink animation by decreasing frames-per-sprite over time, creating an increasing
+   * blink rate as the fuse approaches zero.
+   *
+   * <p>Five milestones at 10%, 30%, 50%, 70% and 90% of the fuse adjust {@code framesPerSprite}
+   * down from 5 to 1.
+   *
+   * @param cfg The animation configuration of the bomb sprite to modify.
+   */
   private void scheduleBlinkRamp(AnimationConfig cfg) {
     long t1 = Math.round(fuseMs * 0.10);
     long t2 = Math.round(fuseMs * 0.30);

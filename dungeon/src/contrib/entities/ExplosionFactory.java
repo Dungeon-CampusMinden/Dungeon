@@ -121,5 +121,3 @@ public final class ExplosionFactory {
     if (s != null) s.dispose();
   }
 }
-
-

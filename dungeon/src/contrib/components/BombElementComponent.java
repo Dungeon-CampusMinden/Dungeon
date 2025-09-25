@@ -77,4 +77,3 @@ public class BombElementComponent implements Component {
         .orElse(BombElement.defaultValue());
   }
 }
-
