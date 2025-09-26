@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import contrib.components.BombElementComponent.BombElement;
 import contrib.components.CollideComponent;
-import contrib.components.ExplosableComponent;
+import contrib.components.ExplodableComponent;
 import contrib.components.HealthComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.Damage;
@@ -29,7 +29,7 @@ import java.util.Map;
  *
  * @see BombElement
  * @see DamageType
- * @see ExplosableComponent
+ * @see ExplodableComponent
  * @see HealthComponent
  */
 public final class ExplosionFactory {
@@ -112,7 +112,7 @@ public final class ExplosionFactory {
   }
 
   /**
-   * Builds a non-solid collider that deals damage and notifies {@link ExplosableComponent}s.
+   * Builds a non-solid collider that deals damage and notifies {@link ExplodableComponent}s.
    *
    * @param fx The explosion entity.
    * @param pos The explosion center.
@@ -133,7 +133,7 @@ public final class ExplosionFactory {
                   .fetch(HealthComponent.class)
                   .ifPresent(hp -> hp.receiveHit(new Damage(dmgAmount, dmgType, fx)));
               other
-                  .fetch(ExplosableComponent.class)
+                  .fetch(ExplodableComponent.class)
                   .ifPresent(
                       expl ->
                           expl.onExplosionHit()
