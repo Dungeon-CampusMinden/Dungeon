@@ -169,6 +169,7 @@ public class AnimationConfig implements Cloneable {
   /**
    * Sets whether sprites should be drawn horizontally mirrored.
    *
+   * @param mirrored true if mirrored
    * @return this config for chaining
    */
   public AnimationConfig mirrored(boolean mirrored) {

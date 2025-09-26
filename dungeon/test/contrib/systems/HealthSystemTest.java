@@ -8,6 +8,7 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.systems.VelocitySystem;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
@@ -39,21 +40,21 @@ public class HealthSystemTest {
   @BeforeEach
   public void setup() {
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(ANIMATION_PATH);
-    State stIdle = new DirectionalState("idle", animationMap);
-    State stMove = new DirectionalState("move", animationMap, "run");
-    State stHit = State.fromMap(animationMap, "hit");
-    State stDead = new State("dead", animationMap.get("die"));
+    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
+    State stHit = State.fromMap(animationMap, HealthSystem.DAMAGE_STATE);
+    State stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
     StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stHit, stDead));
-    sm.addTransition(stIdle, "move", stMove);
-    sm.addTransition(stIdle, "hit", stHit);
-    sm.addTransition(stIdle, "die", stDead);
+    sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stIdle, HealthSystem.DAMAGE_SIGNAL, stHit);
+    sm.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
 
-    sm.addTransition(stMove, "idle", stIdle);
-    sm.addTransition(stMove, "move", stMove);
-    sm.addTransition(stMove, "hit", stHit);
-    sm.addTransition(stMove, "die", stDead);
+    sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
+    sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, HealthSystem.DAMAGE_SIGNAL, stHit);
+    sm.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
 
-    sm.addTransition(stHit, "die", stDead);
+    sm.addTransition(stHit, HealthSystem.DEATH_SIGNAL, stDead);
     animationComponent = new DrawComponent(sm);
   }
 
@@ -72,7 +73,7 @@ public class HealthSystemTest {
     component.currentHealthpoints(0);
 
     system.execute();
-    assertEquals("dead", animationComponent.currentState().name);
+    assertEquals(HealthSystem.DEATH_STATE, animationComponent.currentState().name);
     assertFalse(Game.levelEntities().anyMatch(e -> e == entity));
   }
 
@@ -91,7 +92,7 @@ public class HealthSystemTest {
     Game.add(system);
     component.currentHealthpoints(0);
     system.execute();
-    assertNotEquals("dead", animationComponent.currentState().name);
+    assertNotEquals(HealthSystem.DEATH_STATE, animationComponent.currentState().name);
     assertTrue(Game.levelEntities().anyMatch(e -> e == entity));
   }
 
@@ -112,7 +113,7 @@ public class HealthSystemTest {
 
     system.execute();
     assertEquals(3, component.currentHealthpoints());
-    assertEquals("hit", animationComponent.currentState().name);
+    assertEquals(HealthSystem.DAMAGE_STATE, animationComponent.currentState().name);
   }
 
   /** WTF? . */
@@ -131,7 +132,7 @@ public class HealthSystemTest {
     Game.add(system);
     system.execute();
     assertEquals(6, component.currentHealthpoints());
-    assertNotEquals("hit", animationComponent.currentState().name);
+    assertNotEquals(HealthSystem.DAMAGE_STATE, animationComponent.currentState().name);
   }
 
   /** WTF? . */
@@ -149,7 +150,7 @@ public class HealthSystemTest {
     Game.add(system);
     system.execute();
     assertEquals(10, component.currentHealthpoints());
-    assertNotEquals("hit", animationComponent.currentState().name);
+    assertNotEquals(HealthSystem.DAMAGE_STATE, animationComponent.currentState().name);
   }
 
   /** WTF? . */

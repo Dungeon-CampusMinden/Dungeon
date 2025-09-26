@@ -24,7 +24,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.MissingComponentException;
 import core.utils.components.draw.animation.Animation;
-import core.utils.components.draw.state.CharacterStateGenerator;
+import core.utils.components.draw.state.CharacterStateFactory;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.HashSet;
@@ -599,7 +599,7 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
     Entity monster = name().isEmpty() ? new Entity() : new Entity(name());
 
     monster.add(new PositionComponent(spawnPoint));
-    monster.add(new DrawComponent(CharacterStateGenerator.createStateMachine(texture())));
+    monster.add(new DrawComponent(CharacterStateFactory.createStateMachine(texture())));
     monster.add(new VelocityComponent(speed(), mass(), onWallHit(), canEnterOpenPits()));
     monster.add(new CollideComponent());
     if (collideDamage() > 0)
