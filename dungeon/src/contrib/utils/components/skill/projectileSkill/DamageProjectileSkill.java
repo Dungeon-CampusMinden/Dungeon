@@ -147,6 +147,7 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
         if (piercing) {
           ignoreEntities.add(target);
         } else {
+          System.out.println(getClass().getName() + " onCollideEnter");
           Game.remove(projectile);
         }
       }

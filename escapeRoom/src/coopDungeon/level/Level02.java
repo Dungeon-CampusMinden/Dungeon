@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class Level02 extends DungeonLevel {
   private static final int DELAY_MILLIS = 1000;
-  private static final float CRATE_MASS = 3f;
+  private static final float CRATE_MASS = 1f;
   private LeverComponent p, p2, l1, l2;
   private ExitTile exit;
   private DoorTile door1, door2;
