@@ -37,6 +37,7 @@ public class ShowImageUI extends Group {
     this.component = sic;
     createActors();
     animation = 0;
+    if (sic.transitionSpeed() == TransitionSpeed.DISABLED) animation = 1;
   }
 
   private void createActors() {
@@ -85,7 +86,9 @@ public class ShowImageUI extends Group {
 
     this.setPosition(animationOffsetX(), animationOffsetY());
     this.setColor(1, 1, 1, animation);
-    animation = Math.min(1, animation + SHOW_TRANSITION_PROGRESS);
+    if (animation < 1) {
+      animation = Math.min(1, animation + (1f / component.transitionSpeed().framesToComplete));
+    }
 
     super.draw(batch, parentAlpha);
   }

@@ -1,6 +1,7 @@
 package contrib.components;
 
 import contrib.utils.components.showImage.ShowImageText;
+import contrib.utils.components.showImage.TransitionSpeed;
 import core.Component;
 import core.Entity;
 import java.util.function.BiConsumer;
@@ -11,6 +12,7 @@ public class ShowImageComponent implements Component {
   private String imagePath;
   private ShowImageText textConfig;
   private boolean isUIOpen = false;
+  private TransitionSpeed transitionSpeed = TransitionSpeed.MEDIUM;
   private BiConsumer<Entity, Entity> onOpenAction;
   private BiConsumer<Entity, Entity> onCloseAction;
   private Entity overlay;
@@ -172,6 +174,26 @@ public class ShowImageComponent implements Component {
    */
   public ShowImageComponent maxSize(float maxSize) {
     this.maxSize = maxSize;
+    return this;
+  }
+
+  /**
+   * Gets the speed of the transition animation when showing the image.
+   *
+   * @return the transition speed
+   */
+  public TransitionSpeed transitionSpeed() {
+    return transitionSpeed;
+  }
+
+  /**
+   * Sets the speed of the transition animation when showing the image.
+   *
+   * @param transitionSpeed the transition speed
+   * @return this component for chaining
+   */
+  public ShowImageComponent transitionSpeed(TransitionSpeed transitionSpeed) {
+    this.transitionSpeed = transitionSpeed;
     return this;
   }
 }
