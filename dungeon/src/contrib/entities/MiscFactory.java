@@ -401,6 +401,53 @@ public final class MiscFactory {
   }
 
   /**
+   * Creates a cooking pot entity at the given position with the specified mass and an animated
+   * spritesheet (magic_kettle.json/png).
+   *
+   * @param position The starting position of the cooking pot.
+   * @param mass The mass of the cooking pot.
+   * @return The created cooking pot entity with animation.
+   */
+  public static Entity cookingPot(Point position, float mass) {
+    Entity cookingPot = new Entity("cookingPot");
+    cookingPot.add(new PositionComponent(position));
+    cookingPot.add(new VelocityComponent(10, mass, entity -> {}, false));
+    cookingPot.add(new DrawComponent(cookingPotAnimation()));
+    cookingPot.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
+    return cookingPot;
+  }
+
+  /**
+   * Creates a cooking pot entity at the given position with the default mass and an animated
+   * spritesheet (magic_kettle.json/png).
+   *
+   * @param position The starting position of the cooking pot.
+   * @return The created cooking pot entity with animation.
+   */
+  public static Entity cookingPot(Point position) {
+    return cookingPot(position, VelocityComponent.DEFAULT_MASS);
+  }
+
+  /**
+   * Loads the cooking pot animation from the spritesheet.
+   *
+   * <p>The spritesheet must be located at {@code objects/magic_kettle/magic_kettle.png} with a
+   * corresponding JSON file {@code objects/magic_kettle/magic_kettle.json} defining the animations.
+   *
+   * @return The cooking pot animation.
+   * @throws IllegalStateException if the spritesheet or animations are missing.
+   */
+  private static Animation cookingPotAnimation() {
+    Map<String, Animation> map =
+        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/magic_kettle"));
+    if (map == null || map.isEmpty()) {
+      throw new IllegalStateException(
+          "Missing magic_kettle spritesheet or no animations found at objects/magic_kettle/magic_kettle.{png,json}");
+    }
+    return map.values().iterator().next();
+  }
+
+  /**
    * Creates a catapult entity at the specified spawn point that can launch other entities to a
    * given target location.
    *
