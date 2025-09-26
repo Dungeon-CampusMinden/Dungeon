@@ -28,8 +28,6 @@ import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
-import produsAdvanced.abstraction.portals.systems.PortalCollideSystem;
-import produsAdvanced.abstraction.portals.systems.TestingSystem;
 import produsAdvanced.level.*;
 
 /**
@@ -194,8 +192,6 @@ public class AdvancedDungeon {
     Game.add(new StaminaRestoreSystem());
     Game.add(new ManaBarSystem());
     Game.add(new StaminaBarSystem());
-    Game.add(new PortalCollideSystem());
-//    Game.add(new TestingSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
   }
