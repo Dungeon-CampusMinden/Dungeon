@@ -14,9 +14,7 @@ import core.components.VelocityComponent;
 import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.IPath;
-import produsAdvanced.abstraction.portals.PortalComponent;
-
-import java.util.function.Consumer;
+import produsAdvanced.abstraction.portals.components.PortalComponent;
 
 public abstract class PortalSkill extends ProjectileSkill {
 
