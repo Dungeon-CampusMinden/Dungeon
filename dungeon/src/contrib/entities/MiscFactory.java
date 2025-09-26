@@ -840,7 +840,7 @@ public final class MiscFactory {
     wall.add(collider);
 
     wall.add(
-        new ExplosableComponent(
+        new ExplodableComponent(
             (self, center, radius, dmgType, dmgAmount, source) -> {
               Game.remove(self);
             }));

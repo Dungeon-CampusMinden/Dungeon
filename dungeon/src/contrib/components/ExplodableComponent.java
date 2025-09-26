@@ -12,12 +12,12 @@ import core.utils.Point;
  * its area of effect. The provided {@link Handler} is invoked by explosion logic with information
  * such as the explosion center, radius and damage parameters.
  */
-public record ExplosableComponent(Handler onExplosionHit) implements Component {
+public record ExplodableComponent(Handler onExplosionHit) implements Component {
 
   /**
    * Functional callback executed when an entity is affected by an explosion.
    *
-   * @param self The entity that owns the {@link ExplosableComponent}.
+   * @param self The entity that owns the {@link ExplodableComponent}.
    * @param center The world position of the explosion center.
    * @param radius The explosion radius in world units.
    * @param dmgType The type of damage dealt by the explosion.
