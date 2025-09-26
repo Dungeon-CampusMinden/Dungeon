@@ -1,7 +1,11 @@
 package contrib.hud;
 
+import contrib.components.ShowImageComponent;
+import contrib.components.UIComponent;
 import contrib.hud.dialogs.OkDialog;
+import contrib.utils.components.showImage.ShowImageUI;
 import core.Entity;
+import core.Game;
 import core.utils.IVoidFunction;
 import java.util.Iterator;
 import java.util.function.Function;
@@ -91,5 +95,18 @@ public class DialogUtils {
                         }
                       });
                 }));
+  }
+
+  /**
+   * Displays an image in a popup.
+   *
+   * @param imagePath The path to the image to display.
+   * @see ShowImageUI
+   */
+  public static void showImagePopUp(String imagePath) {
+    Entity e = new Entity();
+    ShowImageComponent sic = new ShowImageComponent(imagePath);
+    e.add(new UIComponent(new ShowImageUI(sic), true, true));
+    Game.add(e);
   }
 }

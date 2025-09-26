@@ -41,7 +41,7 @@ public class ShowImageSystem extends System {
     if (overlay == null && d.sic.isUIOpen()) {
       // Dialog is closed but should be open
       Entity newOverlay = new Entity("show-image-overlay");
-      UIComponent uic = new UIComponent(new ShowImageUI(d.e), true, true);
+      UIComponent uic = new UIComponent(new ShowImageUI(d.sic), true, true);
       uic.onClose(
           () -> {
             d.sic.isUIOpen(false);

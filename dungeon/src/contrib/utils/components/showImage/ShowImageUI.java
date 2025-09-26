@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import contrib.components.ShowImageComponent;
 import contrib.hud.UIUtils;
-import core.Entity;
 import core.Game;
 
 /** UI element that displays an image with optional text, used through the ShowImageSystem. */
@@ -23,7 +22,7 @@ public class ShowImageUI extends Group {
   private static final int ANIMATION_OFFSET_Y = -50;
   private static final float SHOW_TRANSITION_PROGRESS = 1 / 30f;
 
-  private final Entity sprite;
+  private final ShowImageComponent component;
 
   private Image background;
   private String currentImagePath = null;
@@ -32,10 +31,10 @@ public class ShowImageUI extends Group {
   /**
    * Creates a new ShowImageUI for the given entity.
    *
-   * @param keypad the entity containing the ShowImageComponent
+   * @param sic the ShowImageComponent containing the image and text configuration
    */
-  public ShowImageUI(Entity keypad) {
-    this.sprite = keypad;
+  public ShowImageUI(ShowImageComponent sic) {
+    this.component = sic;
     createActors();
     animation = 0;
   }
@@ -45,19 +44,17 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    ShowImageComponent sic = sprite.fetch(ShowImageComponent.class).orElseThrow();
-
-    currentImagePath = sic.imagePath();
+    currentImagePath = component.imagePath();
     background = new Image(new Texture(Gdx.files.internal(currentImagePath)));
     background.setOrigin(Align.center);
     this.addActor(background);
 
-    if (sic.textConfig() != null) {
+    if (component.textConfig() != null) {
       Table table = new Table();
       table.setFillParent(true);
-      Label label = new Label(sic.textConfig().text(), UIUtils.defaultSkin());
-      label.setFontScale(sic.textConfig().scale());
-      label.setColor(sic.textConfig().color());
+      Label label = new Label(component.textConfig().text(), UIUtils.defaultSkin());
+      label.setFontScale(component.textConfig().scale());
+      label.setColor(component.textConfig().color());
       table.add(label);
       this.addActor(table);
     }
@@ -69,16 +66,15 @@ public class ShowImageUI extends Group {
     this.setOrigin(Align.center);
     this.setBounds(0, 0, Game.windowWidth(), Game.windowHeight());
 
-    ShowImageComponent sic = sprite.fetch(ShowImageComponent.class).orElseThrow();
-    if (!currentImagePath.equals(sic.imagePath())) {
-      currentImagePath = sic.imagePath();
+    if (!currentImagePath.equals(component.imagePath())) {
+      currentImagePath = component.imagePath();
       background.setDrawable(
           new TextureRegionDrawable(new Texture(Gdx.files.internal(currentImagePath))));
     }
     float imageWidth = background.getImageWidth();
     float imageHeight = background.getImageHeight();
-    float maxWidth = Game.windowWidth() * sic.maxSize();
-    float maxHeight = Game.windowHeight() * sic.maxSize();
+    float maxWidth = Game.windowWidth() * component.maxSize();
+    float maxHeight = Game.windowHeight() * component.maxSize();
 
     float scaleX = maxWidth / imageWidth;
     float scaleY = maxHeight / imageHeight;
