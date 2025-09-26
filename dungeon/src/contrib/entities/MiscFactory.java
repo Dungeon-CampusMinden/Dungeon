@@ -448,7 +448,7 @@ public final class MiscFactory {
                   });
           catapultFlyEntity(other, spawnPoint, location, speed);
         };
-    catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER));
+    catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER).isSolid(false));
     return catapult;
   }
 
