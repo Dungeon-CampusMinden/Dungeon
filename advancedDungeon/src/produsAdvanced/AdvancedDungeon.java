@@ -68,6 +68,7 @@ import produsAdvanced.abstraction.portalSkills.PortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 20f3a7f9 (restructed portal related files)
 =======
 import produsAdvanced.abstraction.PortalSkill;
@@ -93,6 +94,8 @@ import produsAdvanced.abstraction.portals.portalSkills.GreenPortalSkill;
 import produsAdvanced.abstraction.portals.systems.PortalCollideSystem;
 import produsAdvanced.abstraction.portals.systems.TestingSystem;
 >>>>>>> 8dba5349 (commit for help)
+=======
+>>>>>>> f8ecc099 (fixed pÃrojectiles and rotation)
 import produsAdvanced.level.*;
 
 /**
@@ -294,10 +297,13 @@ public class AdvancedDungeon {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     Game.add(new PortalCollideSystem());
 //    Game.add(new TestingSystem());
 >>>>>>> 8dba5349 (commit for help)
+=======
+>>>>>>> f8ecc099 (fixed pÃrojectiles and rotation)
     if (DEBUG_MODE) Game.add(new Debugger());
 =======
     Game.add(new DebugDrawSystem());

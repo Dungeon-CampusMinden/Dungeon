@@ -22,6 +22,9 @@ import contrib.entities.MiscFactory;
 >>>>>>> 20f3a7f9 (restructed portal related files):advancedDungeon/src/produsAdvanced/abstraction/portals/PortalFactory.java
 =======
 import contrib.components.ProjectileComponent;
+import contrib.components.SkillComponent;
+import contrib.utils.components.skill.Skill;
+import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Component;
 >>>>>>> a9350c91 (added projectile handling)
 =======
@@ -111,6 +114,7 @@ import java.util.stream.Collectors;
 
 public class PortalFactory {
 
+<<<<<<< HEAD
   private static Entity bluePortal;
   private static Entity greenPortal;
 <<<<<<< HEAD
@@ -126,6 +130,10 @@ public class PortalFactory {
 >>>>>>> ac8cf0c7 (restructed portal related files)
 =======
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  private static Entity bluePortal = null;
+  private static Entity greenPortal = null;
+>>>>>>> f8ecc099 (fixed pÃrojectiles and rotation)
 
   private static Direction bluePortalDirection;
   private static Direction greenPortalDirection;
@@ -285,6 +293,16 @@ public class PortalFactory {
 >>>>>>> ac8cf0c7 (restructed portal related files)
     Game.add(portal);
     bluePortal = portal;
+    Game.allEntities().filter(entity -> entity.isPresent(SkillComponent.class))
+      .forEach(entity -> {
+        SkillComponent skillComponent = entity.fetch(SkillComponent.class).get();
+        for (Skill skill : skillComponent.getSkills()) {
+          if (skill instanceof ProjectileSkill) {
+            ProjectileSkill projectileSkill = (ProjectileSkill) skill;
+            projectileSkill.ignoreEntity(portal);
+          }
+        }
+      });
   }
 
 <<<<<<< HEAD
@@ -415,6 +433,16 @@ public class PortalFactory {
 <<<<<<< HEAD
 >>>>>>> ac8cf0c7 (restructed portal related files)
     greenPortal = portal;
+    Game.allEntities().filter(entity -> entity.isPresent(SkillComponent.class))
+      .forEach(entity -> {
+        SkillComponent skillComponent = entity.fetch(SkillComponent.class).get();
+        for (Skill skill : skillComponent.getSkills()) {
+          if (skill instanceof ProjectileSkill) {
+            ProjectileSkill projectileSkill = (ProjectileSkill) skill;
+            projectileSkill.ignoreEntity(portal);
+          }
+        }
+      });
   }
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
@@ -549,13 +577,15 @@ public class PortalFactory {
     }
     VelocityComponent vc = projectile.fetch(VelocityComponent.class).get();
     PositionComponent pc = projectile.fetch(PositionComponent.class).get();
+    ProjectileComponent prc = projectile.fetch(ProjectileComponent.class).get();
+    projectile.remove(ProjectileComponent.class);
 
-    System.out.println(projectile.name() + " "+ pc.position() + " " + vc.currentVelocity() + " " + pc.rotation());
-
-    vc.currentVelocity(rotateVelocityThroughPortals(vc.currentVelocity(), entry, exit));
-//    pc.rotation((float) exit.angleDeg());
+    Vector2 velocity = rotateVelocityThroughPortals(vc.currentVelocity(), entry, exit);
+    Vector2 goal = prc.goalLocation().vectorTo(pc.position()).rotateDeg(velocity.angleDeg());
+    projectile.add(new ProjectileComponent(pc.position(), new Point(goal.x(),goal.y()), prc.forceToApply(), prc.onEndReached()));
+    vc.currentVelocity(velocity);
+    pc.rotation((float) velocity.angleDeg());
     pc.position(pc.position().translate(exit));
-    System.out.println(projectile.name() + " "+ pc.position() + " " + vc.currentVelocity() + " " + pc.rotation());
   }
 =======
 =======
@@ -608,10 +638,10 @@ public class PortalFactory {
 
 
   private static CollideComponent setCollideComponent(Direction dir, TriConsumer<Entity, Entity, Direction> onCollideEnter) {
-    double offsetMinus01 = -0.1;
-    double offset06 = 0.6;
-    double offset12 = 1.2;
-    double offset05 = 0.5;
+    double offsetMinus01 = -0.2;
+    double offset06 = 0.5;
+    double offset12 = 1.4;
+    double offset05 = 0.6;
     switch (dir){
       case UP -> {
         return new CollideComponent(Vector2.of(offsetMinus01,offsetMinus01), Vector2.of(offset12,offset05), onCollideEnter, CollideComponent.DEFAULT_COLLIDER);
@@ -709,4 +739,13 @@ public class PortalFactory {
     return entity.isPresent(PortalComponent.class);
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
   }
+
+  public static Optional<Entity> getBluePortal() {
+    return Optional.ofNullable(bluePortal);
+  }
+
+  public static Optional<Entity> getGreenPortal() {
+    return Optional.ofNullable(greenPortal);
+  }
+
 }
