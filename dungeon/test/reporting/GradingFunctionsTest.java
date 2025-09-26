@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import contrib.entities.HeroFactory;
 import core.Game;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,11 +25,7 @@ public class GradingFunctionsTest {
   /** WTF? . */
   @BeforeEach
   public void setup() {
-    try {
-      Game.add(HeroFactory.newHero());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    Game.add(HeroFactory.newHero());
   }
 
   /** WTF? . */

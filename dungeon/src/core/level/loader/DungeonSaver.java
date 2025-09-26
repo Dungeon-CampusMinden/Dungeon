@@ -1,8 +1,9 @@
 package core.level.loader;
 
 import core.Game;
-import core.components.PositionComponent;
 import core.level.DungeonLevel;
+import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.utils.Point;
@@ -22,20 +23,31 @@ public class DungeonSaver {
   /**
    * The saveCurrentDungeon method is responsible for saving the current state of the dungeon. It
    * does this by first getting the design label of the current level. Then it gets the position of
-   * the hero in the game. After that, it compresses the layout of the current level by removing all
-   * lines that only contain Empty Tiles. Finally, it concatenates all this information into a
-   * single string and prints it.
+   * the start tile of the current level. After that, it compresses the layout of the current level
+   * by removing all lines that only contain Empty Tiles. Finally, it concatenates all this
+   * information into a single string and prints it.
+   *
+   * @return The string representation of the current dungeon state.
    */
-  public static void saveCurrentDungeon() {
+  public static String saveCurrentDungeon() {
     String designLabel =
         Game.currentLevel()
-            .flatMap(level -> level.designLabel())
+            .flatMap(ILevel::designLabel)
             .map(DesignLabel::name)
             .orElse(DesignLabel.DEFAULT.name());
 
-    Point heroPos =
-        Game.hero()
-            .flatMap(hero -> hero.fetch(PositionComponent.class).map(PositionComponent::position))
+    // Spawn Position of the Hero:
+    // - startTile position if present
+    // - randomTile position if startTile is not present
+    // - (0,0) if no tiles are present
+    Point spawnPos =
+        Game.currentLevel()
+            .flatMap(
+                level ->
+                    level
+                        .startTile()
+                        .map(Tile::position)
+                        .or(() -> level.randomTile().map(Tile::position)))
             .orElse(new Point(0, 0));
 
     List<Coordinate> customPoints = new ArrayList<>();
@@ -50,18 +62,15 @@ public class DungeonSaver {
     // Compress the layout of the current level by removing all lines that only contain 'S'
     String dunLayout = compressDungeonLayout(Game.currentLevel().orElse(null).printLevel());
 
-    String result =
-        designLabel
-            + "\n"
-            + heroPos.x()
-            + ","
-            + heroPos.y()
-            + "\n"
-            + customPointsString
-            + "\n"
-            + dunLayout;
-
-    System.out.println(result);
+    return designLabel
+        + "\n"
+        + spawnPos.x()
+        + ","
+        + spawnPos.y()
+        + "\n"
+        + customPointsString
+        + "\n"
+        + dunLayout;
   }
 
   /**

@@ -22,6 +22,7 @@ import core.utils.components.path.IPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A base class for projectile-based skills. Handles creation, movement, collision, and lifecycle of
@@ -41,6 +42,9 @@ public abstract class ProjectileSkill extends Skill {
 
   /** Default hitbox offset for projectiles. */
   public static final Vector2 DEFAULT_HITBOX_OFFSET = Vector2.of(0.15f, 0.15f);
+
+  /** A supplier that provides the target endpoint of the projectile. */
+  private Supplier<Point> endPointSupplier;
 
   protected boolean ignoreOtherProjectiles = true;
 
@@ -66,6 +70,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param hitBoxSize Hitbox size for collisions.
    * @param hitBoxOffset Hitbox offset for collisions.
    * @param ignoreFirstWall whether the projectile ignores the first wall.
+   * @param end Supplier for the target endpoint of the projectile.
    * @param resourceCost Resource costs for casting.
    */
   @SafeVarargs
@@ -78,6 +83,7 @@ public abstract class ProjectileSkill extends Skill {
       Vector2 hitBoxSize,
       Vector2 hitBoxOffset,
       boolean ignoreFirstWall,
+      Supplier<Point> end,
       Tuple<Resource, Integer>... resourceCost) {
     super(name, cooldown, resourceCost);
     this.texture = texture;
@@ -87,6 +93,7 @@ public abstract class ProjectileSkill extends Skill {
     this.hitBoxOffset = hitBoxOffset;
     this.ignoreEntities = new ArrayList<>();
     this.ignoreFirstWall = ignoreFirstWall;
+    this.endPointSupplier = end;
   }
 
   /**
@@ -108,6 +115,7 @@ public abstract class ProjectileSkill extends Skill {
       float speed,
       float range,
       boolean ignoreFirstWall,
+      Supplier<Point> end,
       Tuple<Resource, Integer>... resourceCost) {
     this(
         name,
@@ -118,6 +126,7 @@ public abstract class ProjectileSkill extends Skill {
         DEFAULT_HITBOX_SIZE,
         DEFAULT_HITBOX_OFFSET,
         ignoreFirstWall,
+        end,
         resourceCost);
   }
 
@@ -129,10 +138,10 @@ public abstract class ProjectileSkill extends Skill {
    */
   @Override
   protected void executeSkill(Entity caster) {
-    shootProjectile(caster, start(caster), end(caster));
+    shootProjectile(caster, start(caster), endPoint());
   }
 
-  protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
+  public void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
     ignoreEntities.add(caster);
     ignoreEntities.add(projectile);
@@ -260,14 +269,6 @@ public abstract class ProjectileSkill extends Skill {
         .or(() -> caster.fetch(PositionComponent.class).map(PositionComponent::position))
         .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class));
   }
-
-  /**
-   * Calculates the end position (target point) of the projectile.
-   *
-   * @param caster The entity that cast the projectile.
-   * @return The endpoint of the projectile.
-   */
-  protected abstract Point end(Entity caster);
 
   /**
    * Adds an entity to the list of ignored entities for collision.
@@ -454,5 +455,28 @@ public abstract class ProjectileSkill extends Skill {
                 pos.position(pos.position().translate(push));
               }
             });
+  }
+
+  /**
+   * @return The end point for this projectile skill.
+   */
+  public Point endPoint() {
+    return endPointSupplier.get();
+  }
+
+  /**
+   * @return The supplier that provides the end point for this projectile skill.
+   */
+  public Supplier<Point> endPointSupplier() {
+    return endPointSupplier;
+  }
+
+  /**
+   * Set the supplier that provides the end point for this projectile skill.
+   *
+   * @param endPointSupplier The new supplier for the end point.
+   */
+  public void endPointSupplier(Supplier<Point> endPointSupplier) {
+    this.endPointSupplier = endPointSupplier;
   }
 }
