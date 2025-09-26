@@ -164,7 +164,7 @@ public abstract class ProjectileSkill extends Skill {
 
     CollideComponent cc =
         new CollideComponent(
-            hitBoxOffset, hitBoxSize, onCollideEnter(caster), onCollideLeave(caster));
+            Vector2.of(0,0), Vector2.of(1,1), onCollideEnter(caster), onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
     projectile.add(cc);
@@ -225,6 +225,7 @@ public abstract class ProjectileSkill extends Skill {
    * @param projectile the projectile entity
    */
   protected void onWallHit(Entity caster, Entity projectile) {
+    System.out.println(getClass().getName() + " onWallHit");
     Game.remove(projectile);
   }
 

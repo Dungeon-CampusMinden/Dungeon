@@ -1,4 +1,4 @@
-package produsAdvanced.abstraction.portals;
+package produsAdvanced.abstraction.portals.components;
 
 import core.Component;
 
