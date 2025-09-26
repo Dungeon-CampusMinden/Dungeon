@@ -1,7 +1,5 @@
 package components;
 
-import core.Component;
-
 /**
  * A component that represents the state of a laser grid (active or inactive).
  *
@@ -12,9 +10,7 @@ import core.Component;
  *
  * @see systems.LasergridSystem
  */
-public class LasergridComponent implements Component {
-
-  private boolean active;
+public class LasergridComponent extends ToggleableComponent {
 
   /**
    * Creates a new {@code LasergridComponent} with the given initial state.
@@ -22,38 +18,6 @@ public class LasergridComponent implements Component {
    * @param active {@code true} if the laser grid should start active, {@code false} otherwise
    */
   public LasergridComponent(boolean active) {
-    this.active = active;
-  }
-
-  /**
-   * Checks whether the laser grid is currently active.
-   *
-   * @return {@code true} if the laser grid is active, {@code false} otherwise
-   */
-  public boolean isActive() {
-    return active;
-  }
-
-  /** Activates the laser grid by setting its state to active. */
-  public void activate() {
-    this.active = true;
-  }
-
-  /** Deactivates the laser grid by setting its state to inactive. */
-  public void deactivate() {
-    this.active = false;
-  }
-
-  /**
-   * Toggles the state of the laser grid.
-   *
-   * <p>If the grid is active, it becomes inactive. If it is inactive, it becomes active.
-   */
-  public void toggle() {
-    if (this.active) {
-      this.deactivate();
-    } else {
-      this.activate();
-    }
+    super(active);
   }
 }

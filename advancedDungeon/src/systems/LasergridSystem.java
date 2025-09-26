@@ -78,12 +78,11 @@ public class LasergridSystem extends System {
    * @param data the LaserSystemData containing the entity and its components
    */
   private void applyLaserLogic(LaserSystemData data) {
+    String currentState = data.draw().currentStateName();
     if (data.lasergrid().isActive()) {
       // activate laser grid
-      if (data.draw() != null) {
+      if (currentState.equals("horizontal_off") || currentState.equals("vertical_off")) {
         data.draw().sendSignal("activate_laser_grid");
-      }
-      if (data.spiky() == null) {
         CollideComponent colComp = new CollideComponent();
         colComp.isSolid(false);
         data.entity().add(colComp);
@@ -91,10 +90,8 @@ public class LasergridSystem extends System {
       }
     } else {
       // deactivate laser grid
-      if (data.draw() != null) {
+      if (currentState.equals("horizontal_on") || currentState.equals("vertical_on")) {
         data.draw().sendSignal("deactivate_laser_grid");
-      }
-      if (data.spiky() != null) {
         data.entity().remove(SpikyComponent.class);
         data.entity().remove(CollideComponent.class);
       }
