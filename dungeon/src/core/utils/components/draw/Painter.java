@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.path.IPath;
+import java.util.List;
 
 /**
  * Handles drawing of sprites to a {@link SpriteBatch} with configurable options.
@@ -46,24 +47,30 @@ public class Painter {
    * @param position the world position where the sprite should be drawn
    * @param sprite the {@link Sprite} to draw
    * @param config the {@link PainterConfig} controlling scaling, tint, and offset
-   * @param rotation rotation in degrees (clockwise)
    */
-  public void draw(
-      final Point position, final Sprite sprite, final PainterConfig config, float rotation) {
+  public void draw(final Point position, final Sprite sprite, final PainterConfig config) {
 
     // Apply offset from configuration
     Point realPos = position.translate(config.offset());
+    List<Point> corners =
+        List.of(
+            realPos.translate(0, 0),
+            realPos.translate(config.scaling().x(), 0),
+            realPos.translate(0, config.scaling().y()),
+            realPos.translate(config.scaling().x(), config.scaling().y()));
 
     // Only draw if visible in the camera frustum
-    if (CameraSystem.isPointInFrustum(realPos)) {
-
+    if (corners.stream().allMatch(CameraSystem::isPointInFrustum)) {
       // Set sprite size and position
       sprite.setSize(config.scaling().x(), config.scaling().y());
       sprite.setPosition(realPos.x(), realPos.y());
 
+      // Flip in x direction if mirrored
+      sprite.setFlip(config.mirrored(), false);
+
       // Set rotation around the sprite's center
       sprite.setOriginCenter();
-      sprite.setRotation(rotation);
+      sprite.setRotation(config.rotation());
 
       // Apply tint color if specified
       if (config.tintColor() != -1) {
@@ -77,19 +84,6 @@ public class Painter {
       // Draw the sprite
       sprite.draw(batch);
     }
-  }
-
-  /**
-   * Draws a sprite at a given position with the specified configuration.
-   *
-   * <p>This is a convenience overload that draws without rotation (rotation defaults to 0°).
-   *
-   * @param position the world position where the sprite should be drawn
-   * @param sprite the {@link Sprite} to draw
-   * @param config the {@link PainterConfig} controlling scaling, tint, and offset
-   */
-  public void draw(final Point position, final Sprite sprite, final PainterConfig config) {
-    draw(position, sprite, config, 0);
   }
 
   /**

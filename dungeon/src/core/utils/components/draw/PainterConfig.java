@@ -17,6 +17,8 @@ public final class PainterConfig {
   private final Vector2 offset;
   private final Vector2 scaling;
   private int tintColor = -1; // -1 means no tint color
+  private boolean mirrored = false;
+  private float rotation = 0f;
 
   /**
    * Create a new PainterConfig with the given offset.
@@ -108,5 +110,41 @@ public final class PainterConfig {
    */
   public void tintColor(int tintcolor) {
     this.tintColor = tintcolor;
+  }
+
+  /**
+   * Get whether the texture should be mirrored.
+   *
+   * @return true if the texture should be mirrored, false otherwise.
+   */
+  public boolean mirrored() {
+    return mirrored;
+  }
+
+  /**
+   * Set whether the texture should be mirrored.
+   *
+   * @param mirrored true if the texture should be mirrored, false otherwise.
+   */
+  public void mirrored(boolean mirrored) {
+    this.mirrored = mirrored;
+  }
+
+  /**
+   * Get the rotation of the texture in degrees.
+   *
+   * @return rotation in degrees.
+   */
+  public float rotation() {
+    return rotation;
+  }
+
+  /**
+   * Set the rotation of the texture in degrees.
+   *
+   * @param rotation rotation in degrees.
+   */
+  public void rotation(float rotation) {
+    this.rotation = rotation;
   }
 }
