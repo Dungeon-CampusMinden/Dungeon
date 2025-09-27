@@ -1,7 +1,12 @@
 package contrib.hud;
 
+import contrib.components.ShowImageComponent;
+import contrib.components.UIComponent;
 import contrib.hud.dialogs.OkDialog;
+import contrib.utils.components.showImage.ShowImageUI;
+import contrib.utils.components.showImage.TransitionSpeed;
 import core.Entity;
+import core.Game;
 import core.utils.IVoidFunction;
 import java.util.Iterator;
 import java.util.function.Function;
@@ -91,5 +96,30 @@ public class DialogUtils {
                         }
                       });
                 }));
+  }
+
+  /**
+   * Displays an image in a popup.
+   *
+   * @param imagePath The path to the image to display.
+   * @param speed The speed of the transition.
+   * @see ShowImageUI
+   */
+  public static void showImagePopUp(String imagePath, TransitionSpeed speed) {
+    Entity e = new Entity();
+    ShowImageComponent sic = new ShowImageComponent(imagePath);
+    sic.transitionSpeed(speed);
+    e.add(new UIComponent(new ShowImageUI(sic), true, true));
+    Game.add(e);
+  }
+
+  /**
+   * Displays an image in a popup.
+   *
+   * @param imagePath The path to the image to display.
+   * @see ShowImageUI
+   */
+  public static void showImagePopUp(String imagePath) {
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM);
   }
 }
