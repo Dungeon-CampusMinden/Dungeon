@@ -48,7 +48,7 @@ public abstract class PortalSkill extends ProjectileSkill {
     Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
     if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
-      createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
+      createPortal(finalPos.toCoordinate().toPoint());
     }
     Game.remove(projectile);
   }
@@ -98,7 +98,7 @@ public abstract class PortalSkill extends ProjectileSkill {
     onSpawn(caster, projectile);
   }
 
-  protected abstract void   createPortal(Point position, Vector2 currentVelocity);
+  protected abstract void   createPortal(Point position);
 
 
 

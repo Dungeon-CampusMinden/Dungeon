@@ -8,6 +8,7 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class BluePortalSkill extends PortalSkill {
@@ -26,9 +27,9 @@ public class BluePortalSkill extends PortalSkill {
 
 
   @Override
-  protected void createPortal(Point position, Vector2 currentVelocity) {
+  protected void createPortal(Point position) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
-      PortalFactory.createBluePortal(position, currentVelocity);
+      PortalFactory.createPortal(position, PortalColor.BLUE);
     }
   }
 }

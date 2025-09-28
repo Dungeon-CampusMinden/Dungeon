@@ -3,9 +3,9 @@ package produsAdvanced.abstraction.portals.portalSkills;
 import contrib.utils.components.skill.Resource;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class GreenPortalSkill extends PortalSkill {
@@ -23,7 +23,7 @@ public class GreenPortalSkill extends PortalSkill {
   }
 
   @Override
-  protected void createPortal(Point position, Vector2 currentVelocity) {
-    PortalFactory.createGreenPortal(position, currentVelocity);
+  protected void createPortal(Point position) {
+    PortalFactory.createPortal(position, PortalColor.GREEN);
   }
 }
