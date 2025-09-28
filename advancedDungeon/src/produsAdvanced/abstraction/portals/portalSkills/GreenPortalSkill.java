@@ -6,6 +6,7 @@ import core.utils.Tuple;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
 =======
 <<<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/GreenPortalSkill.java
@@ -35,8 +36,11 @@ import core.utils.Vector2;
 =======
 import core.utils.Vector2;
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+>>>>>>> c71f73d8 (decluttered portal create method)
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class GreenPortalSkill extends PortalSkill {
@@ -70,6 +74,7 @@ public class GreenPortalSkill extends PortalSkill {
   }
 
   @Override
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -126,5 +131,9 @@ public class GreenPortalSkill extends PortalSkill {
   protected void createPortal(Point position, Vector2 currentVelocity) {
     PortalFactory.createGreenPortal(position, currentVelocity);
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  protected void createPortal(Point position) {
+    PortalFactory.createPortal(position, PortalColor.GREEN);
+>>>>>>> c71f73d8 (decluttered portal create method)
   }
 }

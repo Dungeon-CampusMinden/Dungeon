@@ -39,6 +39,7 @@ import core.utils.Vector2;
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
 public class BluePortalSkill extends PortalSkill {
@@ -73,6 +74,7 @@ public class BluePortalSkill extends PortalSkill {
 
 
   @Override
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -131,6 +133,11 @@ public class BluePortalSkill extends PortalSkill {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       PortalFactory.createBluePortal(position, currentVelocity);
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  protected void createPortal(Point position) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
+      PortalFactory.createPortal(position, PortalColor.BLUE);
+>>>>>>> c71f73d8 (decluttered portal create method)
     }
   }
 }

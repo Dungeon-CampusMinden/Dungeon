@@ -138,7 +138,7 @@ public abstract class PortalSkill extends ProjectileSkill {
     Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
     if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
-      createPortal(finalPos.toCoordinate().toPoint(), vc.currentVelocity());
+      createPortal(finalPos.toCoordinate().toPoint());
     }
     Game.remove(projectile);
 >>>>>>> fe1cebb8 (updated onWallHit method)
@@ -209,6 +209,7 @@ public abstract class PortalSkill extends ProjectileSkill {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   protected abstract void createPortal(Point position, Vector2 currentVelocity);
 <<<<<<< HEAD
 >>>>>>> cefa46bc (added PortalComponent to avoid unwanted portal on portal interactions)
@@ -229,6 +230,9 @@ public abstract class PortalSkill extends ProjectileSkill {
 =======
   protected abstract void   createPortal(Point position, Vector2 currentVelocity);
 >>>>>>> deaec5ba (fixed random teleport bug + adjusted for new collidesystem)
+=======
+  protected abstract void   createPortal(Point position);
+>>>>>>> c71f73d8 (decluttered portal create method)
 
 
 
