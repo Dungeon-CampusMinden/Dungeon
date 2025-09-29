@@ -145,6 +145,7 @@ public enum BlocklyMonster {
         State stMove = new DirectionalState("move", animationMap, "run");
         StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
         sm.addTransition(stIdle, "move", stMove);
+        sm.addTransition(stIdle, "idle", stIdle);
         sm.addTransition(stMove, "move", stMove);
         sm.addTransition(stMove, "idle", stIdle);
         DrawComponent dc = new DrawComponent(sm);
