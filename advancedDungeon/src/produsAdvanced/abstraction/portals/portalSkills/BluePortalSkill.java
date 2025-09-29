@@ -1,18 +1,16 @@
 package produsAdvanced.abstraction.portals.portalSkills;
 
 import contrib.utils.components.skill.Resource;
-import core.Game;
-import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.Vector2;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
+
 /**
- * Wrapper class for blue portals that defines the skill name, texture and behaviour
- * when creating a portal.
+ * Wrapper class for blue portals that defines the skill name, texture and behaviour when creating a
+ * portal.
  */
 public class BluePortalSkill extends PortalSkill {
 
@@ -25,7 +23,7 @@ public class BluePortalSkill extends PortalSkill {
    * @param resourceCost Resource costs for casting.
    */
   public BluePortalSkill(Tuple<Resource, Integer>... resourceCost) {
-    super(SKILL_NAME,TEXTURE, resourceCost);
+    super(SKILL_NAME, TEXTURE, resourceCost);
   }
 
   /**

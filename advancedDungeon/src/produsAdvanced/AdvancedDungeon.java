@@ -137,7 +137,9 @@ public class AdvancedDungeon {
             sc.removeAll();
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
-            sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
+            sc.addSkill(
+                new FireballSkill(
+                    SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
@@ -154,7 +156,7 @@ public class AdvancedDungeon {
           */
           createSystems();
 
-         /*WindowEventManager.registerFocusChangeListener(
+          /*WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus) recompileHeroControl();
               });
@@ -162,8 +164,8 @@ public class AdvancedDungeon {
           HeroFactory.heroDeath(entity -> restart());
 
           */
-        //Crafting.loadRecipes();
-        //DungeonLoader.loadLevel(loadLevelIndex());
+          // Crafting.loadRecipes();
+          // DungeonLoader.loadLevel(loadLevelIndex());
         });
   }
 
@@ -259,7 +261,7 @@ public class AdvancedDungeon {
       File file = new File(AdvancedDungeon.SAVE_FILE);
       // Ensure parent directory exists
       try (OutputStreamWriter osw =
-             new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
         osw.write(content);
       }
     } catch (Exception ignored) {

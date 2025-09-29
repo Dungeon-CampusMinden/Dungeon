@@ -10,9 +10,9 @@ public class PortalTile extends Tile {
   /**
    * Creates a new Tile.
    *
-   * @param texturePath    Path to the texture of the tile.
+   * @param texturePath Path to the texture of the tile.
    * @param globalPosition Position of the tile in the global system.
-   * @param designLabel    Design of the Tile
+   * @param designLabel Design of the Tile
    */
   public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);

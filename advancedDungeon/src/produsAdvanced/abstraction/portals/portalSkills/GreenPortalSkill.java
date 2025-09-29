@@ -9,8 +9,8 @@ import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
 /**
- * Wrapper class for green portals that defines the skill name, texture and behaviour
- * when creating a portal.
+ * Wrapper class for green portals that defines the skill name, texture and behaviour when creating
+ * a portal.
  */
 public class GreenPortalSkill extends PortalSkill {
 
@@ -23,7 +23,7 @@ public class GreenPortalSkill extends PortalSkill {
    * @param resourceCost Resource costs for casting.
    */
   public GreenPortalSkill(Tuple<Resource, Integer>... resourceCost) {
-    super(SKILL_NAME,TEXTURE, resourceCost);
+    super(SKILL_NAME, TEXTURE, resourceCost);
   }
 
   /**

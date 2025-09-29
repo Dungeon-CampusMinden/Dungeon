@@ -42,7 +42,6 @@ public class TileTextureFactory {
       }
     }
 
-
     path = findTexturePathWall(levelPart);
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
@@ -438,8 +437,7 @@ public class TileTextureFactory {
   private static boolean aboveIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y() + 1][p.x()] == LevelElement.WALL
-        || layout[p.y() + 1][p.x()] == LevelElement.PORTAL
-      );
+          || layout[p.y() + 1][p.x()] == LevelElement.PORTAL);
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -456,8 +454,7 @@ public class TileTextureFactory {
   private static boolean belowIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y() - 1][p.x()] == LevelElement.WALL
-        || layout[p.y() - 1][p.x()] == LevelElement.PORTAL
-      );
+          || layout[p.y() - 1][p.x()] == LevelElement.PORTAL);
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
     }
@@ -473,8 +470,7 @@ public class TileTextureFactory {
   private static boolean leftIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y()][p.x() - 1] == LevelElement.WALL
-        || layout[p.y()][p.x() - 1] == LevelElement.PORTAL
-      );
+          || layout[p.y()][p.x() - 1] == LevelElement.PORTAL);
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
@@ -491,8 +487,7 @@ public class TileTextureFactory {
   private static boolean rightIsWall(Coordinate p, LevelElement[][] layout) {
     try {
       return (layout[p.y()][p.x() + 1] == LevelElement.WALL
-        || layout[p.y()][p.x() + 1] == LevelElement.PORTAL
-      );
+          || layout[p.y()][p.x() + 1] == LevelElement.PORTAL);
 
     } catch (ArrayIndexOutOfBoundsException e) {
       return false;
