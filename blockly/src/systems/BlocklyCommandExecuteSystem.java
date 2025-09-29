@@ -292,12 +292,11 @@ public class BlocklyCommandExecuteSystem extends System {
       }
 
       if (allEntitiesArrived) break;
-      //TODO ANIMATION IS NOT THERE FIX THIS
-        Game.system(VelocitySystem.class,s->s.execute());
-        Game.system(FrictionSystem.class, s->s.execute());
-        Game.system(MoveSystem.class, s->s.execute());
-        Game.system(DrawSystem.class,s->s.execute());
-
+      // TODO ANIMATION IS NOT THERE FIX THIS
+      Game.system(VelocitySystem.class, s -> s.execute());
+      Game.system(FrictionSystem.class, s -> s.execute());
+      Game.system(MoveSystem.class, s -> s.execute());
+      Game.system(DrawSystem.class, s -> s.execute());
     }
 
     for (EntityComponents ec : entityComponents) {
@@ -360,7 +359,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
    */
   private void shootFireball() {
-    FireballSchedular.shoot();
+    FireballScheduler.shoot();
   }
 
   /**

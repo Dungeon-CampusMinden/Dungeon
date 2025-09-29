@@ -14,7 +14,6 @@ import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import org.checkerframework.checker.units.qual.C;
 
 /** Factory class for creating miscellaneous game entities. */
 public class MiscFactory {

@@ -1,7 +1,6 @@
 package entities.monster;
 
 import client.Client;
-import coderunner.BlocklyCommands;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
@@ -11,6 +10,7 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
+import entities.BlocklyFireball;
 import java.util.function.Supplier;
 
 /**
@@ -20,7 +20,7 @@ import java.util.function.Supplier;
  * target will get frozen in place and the projectile will fly towards the target. The target will
  * not be able to move or dodge the projectile.
  */
-public class InevitableFireballSkill extends FireballSkill {
+public class InevitableFireballSkill extends BlocklyFireball {
 
   private static Supplier<Point> TARGET_HERO =
       () ->
@@ -44,15 +44,6 @@ public class InevitableFireballSkill extends FireballSkill {
     Game.hero()
         .flatMap(hero -> hero.fetch(VelocityComponent.class))
         .ifPresent(velocityComponent -> velocityComponent.maxSpeed(0));
-    // Centers the hero on the tile, so the Blockly step looks completed, and the hero doesn't
-    // freeze on the corner of the red zone
-    Game.hero()
-        .flatMap(hero -> hero.fetch(PositionComponent.class))
-        .ifPresent(
-            pc -> {
-              pc.position(pc.position().translate(BlocklyCommands.MAGIC_OFFSET));
-              pc.toTileCorner();
-            });
   }
 
   protected void additionalEffectAfterDamage(
