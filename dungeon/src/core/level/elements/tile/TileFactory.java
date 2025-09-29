@@ -39,6 +39,7 @@ public class TileFactory {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
 =======
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
@@ -67,6 +68,9 @@ public class TileFactory {
 =======
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
 >>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
+=======
+      case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
+>>>>>>> fdb15be0 (added comments and refactored the code to make it more readable)
     };
   }
 }

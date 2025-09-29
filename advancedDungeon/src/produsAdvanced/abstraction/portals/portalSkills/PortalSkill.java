@@ -32,11 +32,19 @@ import core.utils.*;
 import core.utils.components.path.IPath;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
 
+/**
+ * Base class for portal skills, defines the projectile characteristics like speed, range, hitbox and cooldown.
+ * Also defines the behaviour when hitting a wall and when the projectile is getting created.
+ */
 public abstract class PortalSkill extends ProjectileSkill {
 
+<<<<<<< HEAD
   /** Name of the Skill. */
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+  /* Projectile characteristics */
+>>>>>>> fdb15be0 (added comments and refactored the code to make it more readable)
   private static final float SPEED = 13f;
   private static final float RANGE = 10f;
   private static final Vector2 HIT_BOX_SIZE = Vector2.of(0.2, 0.2);
@@ -58,7 +66,7 @@ public abstract class PortalSkill extends ProjectileSkill {
   private static final long COOLDOWN = 500;
 
   /**
-   * Creates a new projectile skill.
+   * Creates a new portal skill.
    *
    * @param resourceCost Resource costs for casting.
    */
@@ -66,11 +74,24 @@ public abstract class PortalSkill extends ProjectileSkill {
     super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE,HIT_BOX_OFFSET, false, resourceCost);
   }
 
+  /**
+   * Calculates the end position (target point) of the projectile.
+   *
+   * @param caster The entity that cast the projectile.
+   * @return The endpoint of the projectile.
+   */
   @Override
   protected Point end(Entity caster) {
     return SkillTools.cursorPositionAsPoint();
   }
 
+
+  /**
+   *  When a portal wall is hit, creates a portal on the wall position.
+   *
+   * @param caster Entity that cast the portal
+   * @param projectile The portal entity
+   */
   @Override
 <<<<<<< HEAD
   protected Consumer<Entity> onWallHit(Entity caster) {
@@ -137,13 +158,14 @@ public abstract class PortalSkill extends ProjectileSkill {
     Point movedPos = pc.position().translate(velocity);
     Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
-    if (Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
+    if (Game.tileAt(finalPos.toCoordinate()).isPresent() &&  Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
       createPortal(finalPos.toCoordinate().toPoint());
     }
     Game.remove(projectile);
 >>>>>>> fe1cebb8 (updated onWallHit method)
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -163,6 +185,15 @@ public abstract class PortalSkill extends ProjectileSkill {
 =======
 =======
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+  /**
+   * Creates the projectile with all relevant Components.
+   *
+   * @param caster Entity that shoots the portal
+   * @param start Position from where the portal shoots
+   * @param aimedOn Position where the portal is aimed on
+   */
+>>>>>>> fdb15be0 (added comments and refactored the code to make it more readable)
   @Override
   protected void shootProjectile(Entity caster, Point start, Point aimedOn) {
     Entity projectile = new Entity(name() + "_projectile");
@@ -201,13 +232,14 @@ public abstract class PortalSkill extends ProjectileSkill {
         onCollideEnter(caster),
         onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
+    cc.isSolid(false);
     projectile.add(cc);
-
 
     Game.add(projectile);
     onSpawn(caster, projectile);
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   protected abstract void createPortal(Point position, Vector2 currentVelocity);
@@ -235,6 +267,14 @@ public abstract class PortalSkill extends ProjectileSkill {
 >>>>>>> c71f73d8 (decluttered portal create method)
 
 
+=======
+  /**
+   * Method that has to be implemented in the actual skill where the corresponding portal is created
+   *
+   * @param position Position where the portal will be created
+   */
+  protected abstract void createPortal(Point position);
+>>>>>>> fdb15be0 (added comments and refactored the code to make it more readable)
 
 }
 

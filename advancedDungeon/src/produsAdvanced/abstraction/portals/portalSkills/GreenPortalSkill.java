@@ -43,6 +43,10 @@ import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
 
+/**
+ * Wrapper class for green portals that defines the skill name, texture and behaviour
+ * when creating a portal.
+ */
 public class GreenPortalSkill extends PortalSkill {
 
 <<<<<<< HEAD
@@ -65,7 +69,7 @@ public class GreenPortalSkill extends PortalSkill {
 >>>>>>> ac8cf0c7 (restructed portal related files)
 
   /**
-   * Creates a new projectile skill.
+   * Creates a new green projectile skill.
    *
    * @param resourceCost Resource costs for casting.
    */
@@ -73,6 +77,11 @@ public class GreenPortalSkill extends PortalSkill {
     super(SKILL_NAME,TEXTURE, resourceCost);
   }
 
+  /**
+   * Method that creates the green portal via the PortalFactory class.
+   *
+   * @param position Position where the portal will be created
+   */
   @Override
 <<<<<<< HEAD
 <<<<<<< HEAD

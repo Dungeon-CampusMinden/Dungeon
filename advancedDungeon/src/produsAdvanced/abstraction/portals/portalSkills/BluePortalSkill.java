@@ -41,7 +41,10 @@ import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.portals.PortalColor;
 import produsAdvanced.abstraction.portals.PortalFactory;
-
+/**
+ * Wrapper class for blue portals that defines the skill name, texture and behaviour
+ * when creating a portal.
+ */
 public class BluePortalSkill extends PortalSkill {
 
 <<<<<<< HEAD
@@ -64,7 +67,7 @@ public class BluePortalSkill extends PortalSkill {
 >>>>>>> ac8cf0c7 (restructed portal related files)
 
   /**
-   * Creates a new projectile skill.
+   * Creates a new blue projectile skill.
    *
    * @param resourceCost Resource costs for casting.
    */
@@ -72,7 +75,11 @@ public class BluePortalSkill extends PortalSkill {
     super(SKILL_NAME,TEXTURE, resourceCost);
   }
 
-
+  /**
+   * Method that creates the blue portal via the PortalFactory class.
+   *
+   * @param position Position where the portal will be created
+   */
   @Override
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -135,9 +142,13 @@ public class BluePortalSkill extends PortalSkill {
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
 =======
   protected void createPortal(Point position) {
+<<<<<<< HEAD
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       PortalFactory.createPortal(position, PortalColor.BLUE);
 >>>>>>> c71f73d8 (decluttered portal create method)
     }
+=======
+    PortalFactory.createPortal(position, PortalColor.BLUE);
+>>>>>>> fdb15be0 (added comments and refactored the code to make it more readable)
   }
 }
