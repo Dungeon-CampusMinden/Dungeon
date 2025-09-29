@@ -27,11 +27,10 @@ import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import server.Server;
 
@@ -44,16 +43,12 @@ public class BlocklyCommandExecuteSystem extends System {
   private final Queue<BlocklyCommands.Commands> queue = new ConcurrentLinkedQueue<>();
 
   private boolean rest = false;
-  private Supplier<Boolean> makeStep = null;
+  private List<Supplier<Boolean>> makeStep = new LinkedList<>();
 
   @Override
   public void execute() {
-    if (makeStep != null) {
-      if (makeStep.get()) makeStep = null;
-
-    } else {
+    if (makeStep.isEmpty()) {
       if (rest || queue.isEmpty()) return;
-
       switch (queue.poll()) {
         case HERO_MOVE -> move();
         case HERO_TURN_LEFT -> rotate(Direction.LEFT);
@@ -73,6 +68,13 @@ public class BlocklyCommandExecuteSystem extends System {
         case REST -> rest();
       }
     }
+    else {
+      List<Supplier> toRemove = new ArrayList<>();
+      makeStep.forEach(supp -> {
+        if (supp.get()) toRemove.add(supp);
+      });
+      makeStep.removeAll(toRemove);
+    }
   }
 
   public void add(BlocklyCommands.Commands command) {
@@ -80,7 +82,7 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   public void clear() {
-    makeStep = null;
+    makeStep.clear();
     queue.clear();
   }
 
@@ -121,6 +123,7 @@ public class BlocklyCommandExecuteSystem extends System {
   private void move() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
+    //TODO this needs to be done in one supplier
     move(viewDirection, ()->{},hero);
     Game.levelEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
@@ -275,8 +278,8 @@ public class BlocklyCommandExecuteSystem extends System {
             .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toPoint()))
             .toArray();
     double[] lastDistances = new double[entities.length];
-    this.makeStep =
-        () -> {
+    this.makeStep.add(
+    () -> {
           boolean allEntitiesArrived1 = true;
           for (int i = 0; i < entities.length; i++) {
             EntityComponents comp = entityComponents.get(i);
@@ -305,7 +308,7 @@ public class BlocklyCommandExecuteSystem extends System {
           }
 
           return allEntitiesArrived1;
-        };
+        });
   }
 
   /**
