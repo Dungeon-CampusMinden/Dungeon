@@ -251,8 +251,10 @@ public class Client {
       Server.waitDelta(); // wait for the next tick to execute the restart
       return;
     }
+    BlocklyCodeRunner.instance().stopCode();
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
+    Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);

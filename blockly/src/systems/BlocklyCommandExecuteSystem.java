@@ -79,6 +79,10 @@ public class BlocklyCommandExecuteSystem extends System {
     if (run) queue.add(command);
   }
 
+  public boolean isEmpty() {
+    return queue.isEmpty() && makeStep.isEmpty();
+  }
+
   public void clear() {
     makeStep.clear();
     queue.clear();
@@ -238,10 +242,6 @@ public class BlocklyCommandExecuteSystem extends System {
         toMove.toArray(Entity[]::new));
   }
 
-  public boolean isEmpty() {
-    return queue.isEmpty() && makeStep.isEmpty();
-  }
-
   private record EntityComponents(
       PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 
@@ -306,9 +306,8 @@ public class BlocklyCommandExecuteSystem extends System {
               ec.vc.clearForces();
               // check the position-tile via new request in case a new level was loaded
               Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
-
-              onFinish.execute();
             }
+            onFinish.execute();
           }
 
           return allEntitiesArrived1;

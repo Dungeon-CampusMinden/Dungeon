@@ -205,9 +205,8 @@ public class BlocklyCodeRunner {
   }
 
   /**
-   * Checks if the code is currently running.
-   *
-   * @return true if the code is running, false otherwise.
+   * * Checks if the code is currently running. * * @return true if the code is running, false
+   * otherwise.
    */
   public boolean isCodeRunning() {
     return codeRunning.get() && currentExecution != null && !currentExecution.isDone();
