@@ -27,10 +27,8 @@ import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
-
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import server.Server;
 
@@ -67,12 +65,12 @@ public class BlocklyCommandExecuteSystem extends System {
         case HERO_USE_UP -> interact(Direction.UP);
         case REST -> rest();
       }
-    }
-    else {
+    } else {
       List<Supplier> toRemove = new ArrayList<>();
-      makeStep.forEach(supp -> {
-        if (supp.get()) toRemove.add(supp);
-      });
+      makeStep.forEach(
+          supp -> {
+            if (supp.get()) toRemove.add(supp);
+          });
       makeStep.removeAll(toRemove);
     }
   }
@@ -123,8 +121,8 @@ public class BlocklyCommandExecuteSystem extends System {
   private void move() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
-    //TODO this needs to be done in one supplier
-    move(viewDirection, ()->{},hero);
+    // TODO this needs to be done in one supplier
+    move(viewDirection, () -> {}, hero);
     Game.levelEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
@@ -133,7 +131,7 @@ public class BlocklyCommandExecuteSystem extends System {
                 boss.fetch(VelocityComponent.class)
                     .filter(vc -> vc.maxSpeed() > 0)
                     .flatMap(vc -> boss.fetch(PositionComponent.class))
-                    .ifPresent(pc -> move(pc.viewDirection(), ()->{},boss)));
+                    .ifPresent(pc -> move(pc.viewDirection(), () -> {}, boss)));
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */
@@ -225,17 +223,23 @@ public class BlocklyCommandExecuteSystem extends System {
     // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
     toMove.add(hero);
-    move(moveDirection, new IVoidFunction() {
-      @Override
-      public void execute() {
-        toMove.remove(hero);
-        // give BlockComponent back
-        toMove.forEach(entity -> entity.add(new BlockComponent()));
-        turnEntity(hero, viewDirection);
-        DISABLE_SHOOT_ON_HERO = false;
-      }
-    }, toMove.toArray(Entity[]::new));
+    move(
+        moveDirection,
+        new IVoidFunction() {
+          @Override
+          public void execute() {
+            toMove.remove(hero);
+            // give BlockComponent back
+            toMove.forEach(entity -> entity.add(new BlockComponent()));
+            turnEntity(hero, viewDirection);
+            DISABLE_SHOOT_ON_HERO = false;
+          }
+        },
+        toMove.toArray(Entity[]::new));
+  }
 
+  public boolean isEmpty() {
+    return queue.isEmpty() && makeStep.isEmpty();
   }
 
   private record EntityComponents(
@@ -279,7 +283,7 @@ public class BlocklyCommandExecuteSystem extends System {
             .toArray();
     double[] lastDistances = new double[entities.length];
     this.makeStep.add(
-    () -> {
+        () -> {
           boolean allEntitiesArrived1 = true;
           for (int i = 0; i < entities.length; i++) {
             EntityComponents comp = entityComponents.get(i);
@@ -319,7 +323,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param entity Entity to move in its viewing direction.
    */
   private void move(final Entity entity) {
-    move(EntityUtils.getViewDirection(entity), ()->{},entity);
+    move(EntityUtils.getViewDirection(entity), () -> {}, entity);
   }
 
   /**
