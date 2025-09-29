@@ -48,32 +48,31 @@ public class BlocklyCommandExecuteSystem extends System {
 
   @Override
   public void execute() {
-    if (makeStep != null){
+    if (makeStep != null) {
       if (makeStep.get()) makeStep = null;
 
-    }
-      else {
-        if (rest || queue.isEmpty()) return;
+    } else {
+      if (rest || queue.isEmpty()) return;
 
-        switch (queue.poll()) {
-          case HERO_MOVE -> move();
-          case HERO_TURN_LEFT -> rotate(Direction.LEFT);
-          case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
-          case HERO_MOVE_TO_EXIT -> moveToExit();
-          case HERO_PULL -> movePushable(false);
-          case HERO_PUSH -> movePushable(true);
-          case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
-          case HERO_DROP_CLOVER -> dropItem(CLOVER);
-          case HERO_FIREBALL -> shootFireball();
-          case HERO_PICKUP -> pickup();
-          case HERO_USE_DONW -> interact(Direction.DOWN);
-          case HERO_USE_HERE -> interact(Direction.NONE);
-          case HERO_USE_LEFT -> interact(Direction.LEFT);
-          case HERO_USE_RIGHT -> interact(Direction.RIGHT);
-          case HERO_USE_UP -> interact(Direction.UP);
-          case REST -> rest();
-        }
+      switch (queue.poll()) {
+        case HERO_MOVE -> move();
+        case HERO_TURN_LEFT -> rotate(Direction.LEFT);
+        case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
+        case HERO_MOVE_TO_EXIT -> moveToExit();
+        case HERO_PULL -> movePushable(false);
+        case HERO_PUSH -> movePushable(true);
+        case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
+        case HERO_DROP_CLOVER -> dropItem(CLOVER);
+        case HERO_FIREBALL -> shootFireball();
+        case HERO_PICKUP -> pickup();
+        case HERO_USE_DONW -> interact(Direction.DOWN);
+        case HERO_USE_HERE -> interact(Direction.NONE);
+        case HERO_USE_LEFT -> interact(Direction.LEFT);
+        case HERO_USE_RIGHT -> interact(Direction.RIGHT);
+        case HERO_USE_UP -> interact(Direction.UP);
+        case REST -> rest();
       }
+    }
   }
 
   public void add(BlocklyCommands.Commands command) {
@@ -81,7 +80,7 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   public void clear() {
-    makeStep=null;
+    makeStep = null;
     queue.clear();
   }
 
@@ -122,7 +121,7 @@ public class BlocklyCommandExecuteSystem extends System {
   private void move() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
-    move(viewDirection, hero);
+    move(viewDirection, ()->{},hero);
     Game.levelEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
@@ -131,7 +130,7 @@ public class BlocklyCommandExecuteSystem extends System {
                 boss.fetch(VelocityComponent.class)
                     .filter(vc -> vc.maxSpeed() > 0)
                     .flatMap(vc -> boss.fetch(PositionComponent.class))
-                    .ifPresent(pc -> move(pc.viewDirection(), boss)));
+                    .ifPresent(pc -> move(pc.viewDirection(), ()->{},boss)));
   }
 
   /** Moves the Hero to the Exit Block of the current Level. */
@@ -223,12 +222,17 @@ public class BlocklyCommandExecuteSystem extends System {
     // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
     toMove.add(hero);
-    move(moveDirection, toMove.toArray(Entity[]::new));
-    toMove.remove(hero);
-    // give BlockComponent back
-    toMove.forEach(entity -> entity.add(new BlockComponent()));
-    turnEntity(hero, viewDirection);
-    DISABLE_SHOOT_ON_HERO = false;
+    move(moveDirection, new IVoidFunction() {
+      @Override
+      public void execute() {
+        toMove.remove(hero);
+        // give BlockComponent back
+        toMove.forEach(entity -> entity.add(new BlockComponent()));
+        turnEntity(hero, viewDirection);
+        DISABLE_SHOOT_ON_HERO = false;
+      }
+    }, toMove.toArray(Entity[]::new));
+
   }
 
   private record EntityComponents(
@@ -242,8 +246,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param direction Direction in which the entities will be moved.
    * @param entities Entities to move simultaneously.
    */
-  private void move(final Direction direction, final Entity... entities) {
-    java.lang.System.out.println("MIVE");
+  private void move(final Direction direction, IVoidFunction onFinish, final Entity... entities) {
     double distanceThreshold = 0.1;
 
     List<EntityComponents> entityComponents = new ArrayList<>();
@@ -296,8 +299,11 @@ public class BlocklyCommandExecuteSystem extends System {
               ec.vc.clearForces();
               // check the position-tile via new request in case a new level was loaded
               Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
+
+              onFinish.execute();
             }
           }
+
           return allEntitiesArrived1;
         };
   }
@@ -310,7 +316,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param entity Entity to move in its viewing direction.
    */
   private void move(final Entity entity) {
-    move(EntityUtils.getViewDirection(entity), entity);
+    move(EntityUtils.getViewDirection(entity), ()->{},entity);
   }
 
   /**

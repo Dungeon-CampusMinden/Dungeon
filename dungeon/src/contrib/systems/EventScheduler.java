@@ -114,10 +114,9 @@ public class EventScheduler extends System {
     }
   }
 
-
   @Override
   public void stop() {
-    if(pausable) run=false;
+    if (pausable) run = false;
     else run = true;
   }
 }

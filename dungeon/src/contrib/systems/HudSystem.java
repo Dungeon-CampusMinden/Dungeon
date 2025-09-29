@@ -89,6 +89,9 @@ public final class HudSystem extends System {
     }
   }
 
+  // TODO EXTRACT IN SEPERATED PR
+  private boolean ipaused = false;
+
   @Override
   public void execute() {
     if (filteredEntityStream(UIComponent.class).anyMatch(this::pausesGame)) pauseGame();
@@ -103,11 +106,13 @@ public final class HudSystem extends System {
   }
 
   private void pauseGame() {
+    ipaused = true;
     Game.systems().values().forEach(System::stop);
   }
 
   private void unpauseGame() {
-    Game.systems().values().forEach(System::run);
+    if (ipaused) Game.systems().values().forEach(System::run);
+    ipaused = false;
   }
 
   /** HudSystem can´t be paused. */

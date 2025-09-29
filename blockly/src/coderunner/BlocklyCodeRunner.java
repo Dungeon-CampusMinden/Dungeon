@@ -63,7 +63,7 @@ public class BlocklyCodeRunner {
    */
   public static String TEMP_FOLDER_NAME = "blockly";
 
-  private static final int DEFAULT_SLEEP_AFTER_EACH_LINE = 1000; // milliseconds
+  private static final int DEFAULT_SLEEP_AFTER_EACH_LINE = 0; // milliseconds
 
   private static final String CodeWrapper =
       """

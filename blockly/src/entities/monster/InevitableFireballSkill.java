@@ -32,7 +32,7 @@ public class InevitableFireballSkill extends BlocklyFireball {
   /** Create a Fireball that will freez and kill the player. */
   public InevitableFireballSkill() {
     super(TARGET_HERO, 500);
-    this.damageAmount = 0;
+    this.damageAmount = 9999;
     this.range = 9999;
   }
 

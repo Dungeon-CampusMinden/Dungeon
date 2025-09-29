@@ -253,7 +253,6 @@ public class Client {
     }
     Game.removeAllEntities();
     Game.system(PositionSystem.class, System::stop);
-    Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
     createHero();
     DungeonLoader.reloadCurrentLevel();
     Game.system(PositionSystem.class, System::run);
