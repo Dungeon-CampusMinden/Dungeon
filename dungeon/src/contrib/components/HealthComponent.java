@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
+import contrib.utils.components.skill.SkillTools;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -41,6 +42,7 @@ public final class HealthComponent implements Component {
   private int currentHealthpoints;
   private @Null Entity lastCause = null;
   private boolean godMode = false;
+  private Optional<Entity> ownerCache = Optional.empty();
 
   /**
    * Create a new HealthComponent.
@@ -53,6 +55,7 @@ public final class HealthComponent implements Component {
     this.maximalHealthpoints = maximalHitPoints;
     this.currentHealthpoints = maximalHitPoints;
     this.onDeath = onDeath;
+    this.onHit = this::defaultOnHit;
     damageToGet = new ArrayList<>();
   }
 
@@ -241,5 +244,20 @@ public final class HealthComponent implements Component {
    */
   public boolean godMode() {
     return this.godMode;
+  }
+
+  private Optional<Entity> owner() {
+    if (ownerCache.isPresent()) return ownerCache;
+    ownerCache =
+        Game.levelEntities()
+            .filter(e -> e.fetch(HealthComponent.class).map(hc -> hc == this).orElse(false))
+            .findFirst();
+    return ownerCache;
+  }
+
+  private void defaultOnHit(Entity cause, Damage damage) {
+    owner()
+        .filter(e -> e.isPresent(core.components.DrawComponent.class))
+        .ifPresent(e -> SkillTools.blink(e, 0xFF0000FF, 300L, 1));
   }
 }
