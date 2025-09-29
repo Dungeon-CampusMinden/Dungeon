@@ -17,6 +17,8 @@ import java.util.function.Supplier;
  */
 public class StateMachine {
 
+  public static boolean reset_frame=true;
+
   /** Default name for the idle state. */
   public static final String IDLE_STATE = "idle";
 
@@ -357,7 +359,8 @@ public class StateMachine {
   private void changeState(State newState, Object data) {
     newState.setData(data);
     if (newState != currentState) {
-      newState.frameCount(0);
+      if(reset_frame)
+        newState.frameCount(0);
       currentState = newState;
     }
   }

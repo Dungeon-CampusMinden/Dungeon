@@ -18,6 +18,7 @@ import core.systems.InputSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.Vector2;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class Client {
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
+      StateMachine.reset_frame=false;
     Debugger debugger = new Debugger();
     // start the game
     configGame();
