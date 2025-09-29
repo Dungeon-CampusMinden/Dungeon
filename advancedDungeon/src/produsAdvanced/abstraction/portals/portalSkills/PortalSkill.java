@@ -276,7 +276,8 @@ public abstract class PortalSkill extends ProjectileSkill {
 
 =======
   /**
-   * Method that has to be implemented in the actual skill where the corresponding portal is created
+   * Method that has to be implemented in the actual skill where the corresponding portal is
+   * created.
    *
    * @param position Position where the portal will be created
    */
