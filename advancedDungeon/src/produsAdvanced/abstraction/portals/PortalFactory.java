@@ -836,10 +836,24 @@ public class PortalFactory {
    * @return the rotated velocity vector after teleportation
    */
   public static Vector2 rotateVelocityThroughPortals(Vector2 velocity, Direction portalA, Direction portalB) {
-    // relative rotation, flip included
-    double delta = toRadians(portalB.angleDeg()) - toRadians(portalA.angleDeg()) + Math.PI;
+    // Build forward/normal vectors from Directions and normalize (safety)
+    Vector2 nA = Vector2.of(portalA.x(), portalA.y()).normalize(); // entry normal
+    Vector2 nB = Vector2.of(portalB.x(), portalB.y()).normalize(); // exit normal
 
-    return velocity.rotateRad(delta);
+    // Tangent vectors: rotate normal 90° CCW (math convention).
+    // If your game uses Y-down screen coords or a different convention, see notes below.
+    Vector2 tA = Vector2.of(-nA.y(), nA.x()); // entry tangent
+    Vector2 tB = Vector2.of(-nB.y(), nB.x()); // exit tangent
+
+    // Decompose incoming velocity into entry basis components
+    double compNormal = velocity.dot(nA); // projection on normal
+    double compTangent = velocity.dot(tA); // projection on tangent
+
+    // Reconstruct in exit basis.
+    // We negate the normal component so "into portal" becomes "out of portal".
+    Vector2 out = nB.scale(-compNormal).add(tB.scale(compTangent));
+
+    return out;
   }
 
 
