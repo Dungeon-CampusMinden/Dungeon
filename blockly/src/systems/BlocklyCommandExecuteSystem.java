@@ -77,14 +77,11 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   public void add(BlocklyCommands.Commands command) {
-
-    java.lang.System.out.println("add "+command);
+    if(run)
     queue.add(command);
   }
 
   public void clear() {
-
-    java.lang.System.out.println("clear queue");
     queue.clear();
   }
 

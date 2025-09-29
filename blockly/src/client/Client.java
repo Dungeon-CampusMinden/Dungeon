@@ -11,7 +11,10 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PlayerComponent;
+import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
 import core.systems.InputSystem;
 import core.systems.PositionSystem;
@@ -21,6 +24,7 @@ import core.utils.components.path.SimpleIPath;
 import entities.HeroTankControlledFactory;
 import java.io.IOException;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
@@ -127,7 +131,11 @@ public class Client {
         (firstLoad) -> {
             java.lang.System.out.println("LOAD LEVEL");
           BlocklyCodeRunner.instance().stopCode();
-          Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
+          Game.system(BlocklyCommandExecuteSystem.class, s -> {
+              //stopping the system will also avoid adding new commands to the queue. The System will be reactivated in BlocklyLevel#onTick
+              s.stop();
+              s.clear();
+          });
           Game.hero()
               .flatMap(e -> e.fetch(VelocityComponent.class))
               .ifPresent(
@@ -139,6 +147,8 @@ public class Client {
               .flatMap(e -> e.fetch(AmmunitionComponent.class))
               .map(AmmunitionComponent::resetCurrentAmmunition);
         });
+    //this makes sure a outsynced command will not replace the hero and the hero will always be on the starttile of the level
+    Game.hero().flatMap(e->e.fetch(PositionComponent.class)).ifPresent(positionComponent -> Game.startTile().ifPresent(tile -> positionComponent.position(tile.position())));
   }
 
   private static void configGame() throws IOException {

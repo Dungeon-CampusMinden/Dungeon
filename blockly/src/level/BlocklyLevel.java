@@ -1,9 +1,12 @@
 package level;
 
+import core.Game;
 import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
+import systems.BlocklyCommandExecuteSystem;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +44,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       onFirstTick();
+      Game.system(BlocklyCommandExecuteSystem.class, s->s.run());
     } else {
       onTick();
     }
