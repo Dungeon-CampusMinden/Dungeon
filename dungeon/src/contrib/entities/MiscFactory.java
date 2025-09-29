@@ -412,7 +412,7 @@ public final class MiscFactory {
     Entity cookingPot = new Entity("cookingPot");
     cookingPot.add(new PositionComponent(position));
     cookingPot.add(new VelocityComponent(10, mass, entity -> {}, false));
-    cookingPot.add(new DrawComponent(cookingPotAnimation()));
+    cookingPot.add(new DrawComponent(new SimpleIPath("objects/magic_kettle")));
     cookingPot.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
     return cookingPot;
   }
@@ -426,25 +426,6 @@ public final class MiscFactory {
    */
   public static Entity cookingPot(Point position) {
     return cookingPot(position, VelocityComponent.DEFAULT_MASS);
-  }
-
-  /**
-   * Loads the cooking pot animation from the spritesheet.
-   *
-   * <p>The spritesheet must be located at {@code objects/magic_kettle/magic_kettle.png} with a
-   * corresponding JSON file {@code objects/magic_kettle/magic_kettle.json} defining the animations.
-   *
-   * @return The cooking pot animation.
-   * @throws IllegalStateException if the spritesheet or animations are missing.
-   */
-  private static Animation cookingPotAnimation() {
-    Map<String, Animation> map =
-        Animation.loadAnimationSpritesheet(new SimpleIPath("objects/magic_kettle"));
-    if (map == null || map.isEmpty()) {
-      throw new IllegalStateException(
-          "Missing magic_kettle spritesheet or no animations found at objects/magic_kettle/magic_kettle.{png,json}");
-    }
-    return map.values().iterator().next();
   }
 
   /**
