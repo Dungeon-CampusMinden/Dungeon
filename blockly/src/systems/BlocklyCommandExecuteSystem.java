@@ -55,7 +55,7 @@ public class BlocklyCommandExecuteSystem extends System {
   @Override
   public void execute() {
     if (rest || queue.isEmpty()) return;
-
+    java.lang.System.out.println("QUEUE NOT EMPTY");
     switch (queue.poll()) {
       case HERO_MOVE -> move();
       case HERO_TURN_LEFT -> rotate(Direction.LEFT);
@@ -77,10 +77,14 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   public void add(BlocklyCommands.Commands command) {
+
+    java.lang.System.out.println("add "+command);
     queue.add(command);
   }
 
   public void clear() {
+
+    java.lang.System.out.println("clear queue");
     queue.clear();
   }
 
@@ -360,6 +364,7 @@ public class BlocklyCommandExecuteSystem extends System {
    */
   private void shootFireball() {
     FireballScheduler.shoot();
+    rest(10);
   }
 
   /**
@@ -447,6 +452,13 @@ public class BlocklyCommandExecuteSystem extends System {
   private void rest() {
     rest = true;
     EventScheduler.scheduleAction(
-        (IAction) () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
+            () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
+  }
+
+  /** Let the hero do nothing for a short moment. */
+  private void rest(int mul) {
+    rest = true;
+    EventScheduler.scheduleAction(
+            () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000*mul));
   }
 }

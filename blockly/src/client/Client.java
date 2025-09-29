@@ -125,6 +125,7 @@ public class Client {
   private static void onLevelLoad() {
     Game.userOnLevelLoad(
         (firstLoad) -> {
+            java.lang.System.out.println("LOAD LEVEL");
           BlocklyCodeRunner.instance().stopCode();
           Game.system(BlocklyCommandExecuteSystem.class, s -> s.clear());
           Game.hero()
@@ -167,6 +168,7 @@ public class Client {
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
+    EventScheduler.pausable=false;
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());

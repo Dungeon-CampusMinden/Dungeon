@@ -16,6 +16,7 @@ import java.util.PriorityQueue;
 public class EventScheduler extends System {
 
   private static final PriorityQueue<ScheduledAction> scheduledActions = new PriorityQueue<>();
+  public static boolean pausable = true;
 
   /**
    * Schedules a new action to be executed after a specified delay.
@@ -111,5 +112,12 @@ public class EventScheduler extends System {
       // Sort by execution time (earliest first)
       return Long.compare(this.executeAt, other.executeAt);
     }
+  }
+
+
+  @Override
+  public void stop() {
+    if(pausable) run=false;
+    else run = true;
   }
 }
