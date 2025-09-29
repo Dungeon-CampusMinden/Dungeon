@@ -33,6 +33,10 @@ import java.util.logging.Logger;
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 public final class HealthComponent implements Component {
+
+  private static final int HIT_BLINK_COLOR_ARGB = 0xFF0000FF;
+  private static final long HIT_BLINK_DURATION_MS = 300L;
+  private static final int HIT_BLINK_ITERATIONS = 1;
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
@@ -246,6 +250,16 @@ public final class HealthComponent implements Component {
     return this.godMode;
   }
 
+  /**
+   * Resolve and cache the {@link Entity} that owns this {@link HealthComponent}.
+   *
+   * <p>This method scans the current level entities to find the one that contains this component.
+   * On first successful lookup, the result is cached to avoid repeated full scans on subsequent
+   * calls.
+   *
+   * @return An {@link Optional} containing the owning {@link Entity} if present; otherwise {@link
+   *     Optional#empty()}.
+   */
   private Optional<Entity> owner() {
     if (ownerCache.isPresent()) return ownerCache;
     ownerCache =
@@ -255,9 +269,21 @@ public final class HealthComponent implements Component {
     return ownerCache;
   }
 
+  /**
+   * Default handler that is invoked when the associated entity receives damage.
+   *
+   * <p>Applies a short visual feedback (a blink effect) to the owning entity if it has a {@link
+   * core.components.DrawComponent}.
+   *
+   * @param cause The entity that caused the damage; may be {@code null}.
+   * @param damage The {@link Damage} instance describing the received hit.
+   */
   private void defaultOnHit(Entity cause, Damage damage) {
     owner()
         .filter(e -> e.isPresent(core.components.DrawComponent.class))
-        .ifPresent(e -> SkillTools.blink(e, 0xFF0000FF, 300L, 1));
+        .ifPresent(
+            e ->
+                SkillTools.blink(
+                    e, HIT_BLINK_COLOR_ARGB, HIT_BLINK_DURATION_MS, HIT_BLINK_ITERATIONS));
   }
 }
