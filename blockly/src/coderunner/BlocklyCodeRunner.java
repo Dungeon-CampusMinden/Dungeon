@@ -91,12 +91,12 @@ public class BlocklyCodeRunner {
           }
 
           private static void loadNextLevel() {
-            core.level.loader.DungeonLoader.loadNextLevel();
+            contrib.systems.EventScheduler.scheduleAction(() -> DungeonLoader..loadNextLevel(),0);
             sleep(1000);
           }
 
           private static void loadLevel(int index) {
-            core.level.loader.DungeonLoader.loadLevel(index);
+            contrib.systems.EventScheduler.scheduleAction(() -> DungeonLoader.loadLevel(index),0);
             sleep(1000);
           }
       }

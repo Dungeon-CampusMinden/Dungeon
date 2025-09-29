@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
 import core.Game;
 import core.level.elements.ILevel;
@@ -174,7 +175,9 @@ public class Server {
 
     if (levelName != null && !levelName.equals(DungeonLoader.currentLevel())) {
       // if given and the level is not the current one, load it
-      DungeonLoader.loadLevel(levelName);
+      // use the eventschedular to load the level in the game thread
+      EventScheduler.scheduleAction(() -> DungeonLoader.loadLevel(levelName), 0);
+
       waitDelta(); // waiting for all systems to update once
     }
 
