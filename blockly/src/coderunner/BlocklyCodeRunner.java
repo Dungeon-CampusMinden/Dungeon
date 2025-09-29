@@ -1,5 +1,8 @@
 package coderunner;
 
+import core.Game;
+import systems.BlocklyCommandExecuteSystem;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -209,7 +212,8 @@ public class BlocklyCodeRunner {
    * otherwise.
    */
   public boolean isCodeRunning() {
-    return codeRunning.get() && currentExecution != null && !currentExecution.isDone();
+    BlocklyCommandExecuteSystem bce = (BlocklyCommandExecuteSystem) Game.systems().get(BlocklyCommandExecuteSystem.class);
+    return (codeRunning.get() && currentExecution != null && !currentExecution.isDone()) || !bce.isEmpty();
   }
 
   /**
