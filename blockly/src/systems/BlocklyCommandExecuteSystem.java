@@ -25,6 +25,10 @@ import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
+import core.systems.DrawSystem;
+import core.systems.FrictionSystem;
+import core.systems.MoveSystem;
+import core.systems.VelocitySystem;
 import core.utils.Direction;
 import core.utils.MissingHeroException;
 import core.utils.Point;
@@ -217,10 +221,9 @@ public class BlocklyCommandExecuteSystem extends System {
 
     // remove the BlockComponent to avoid blocking the hero while moving simultaneously
     toMove.forEach(entity -> entity.remove(BlockComponent.class));
-    // TODO This is a hotfix for https://github.com/Dungeon-CampusMinden/Dungeon/issues/1952 ,
-    // this will make the hero move AFTER everyone else.
+    toMove.add(hero);
     move(moveDirection, toMove.toArray(Entity[]::new));
-    move(moveDirection, hero);
+    toMove.remove(hero);
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     turnEntity(hero, viewDirection);
@@ -289,8 +292,12 @@ public class BlocklyCommandExecuteSystem extends System {
       }
 
       if (allEntitiesArrived) break;
+      //TODO ANIMATION IS NOT THERE FIX THIS
+        Game.system(VelocitySystem.class,s->s.execute());
+        Game.system(FrictionSystem.class, s->s.execute());
+        Game.system(MoveSystem.class, s->s.execute());
+        Game.system(DrawSystem.class,s->s.execute());
 
-      Server.waitDelta();
     }
 
     for (EntityComponents ec : entityComponents) {

@@ -14,6 +14,7 @@ import core.utils.Point;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import org.checkerframework.checker.units.qual.C;
 
 /** Factory class for creating miscellaneous game entities. */
 public class MiscFactory {
@@ -39,7 +40,9 @@ public class MiscFactory {
     stone.add(new PositionComponent(position));
     stone.add(new BlockComponent());
     stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
-    stone.add(new CollideComponent());
+    CollideComponent cc = new CollideComponent();
+    cc.isSolid(false);
+    stone.add(cc);
     stone.add(new BlockViewComponent());
     DrawComponent dc = new DrawComponent(new Animation(STONE));
     stone.add(dc);
