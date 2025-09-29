@@ -15,7 +15,6 @@ import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
 import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
-import contrib.utils.IAction;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -25,14 +24,7 @@ import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelUtils;
-import core.systems.DrawSystem;
-import core.systems.FrictionSystem;
-import core.systems.MoveSystem;
-import core.systems.VelocitySystem;
-import core.utils.Direction;
-import core.utils.MissingHeroException;
-import core.utils.Point;
-import core.utils.Vector2;
+import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
 import java.util.ArrayList;
@@ -40,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 import server.Server;
 
 public class BlocklyCommandExecuteSystem extends System {
@@ -51,37 +44,44 @@ public class BlocklyCommandExecuteSystem extends System {
   private final Queue<BlocklyCommands.Commands> queue = new ConcurrentLinkedQueue<>();
 
   private boolean rest = false;
+  private Supplier<Boolean> makeStep = null;
 
   @Override
   public void execute() {
-    if (rest || queue.isEmpty()) return;
-    java.lang.System.out.println("QUEUE NOT EMPTY");
-    switch (queue.poll()) {
-      case HERO_MOVE -> move();
-      case HERO_TURN_LEFT -> rotate(Direction.LEFT);
-      case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
-      case HERO_MOVE_TO_EXIT -> moveToExit();
-      case HERO_PULL -> movePushable(false);
-      case HERO_PUSH -> movePushable(true);
-      case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
-      case HERO_DROP_CLOVER -> dropItem(CLOVER);
-      case HERO_FIREBALL -> shootFireball();
-      case HERO_PICKUP -> pickup();
-      case HERO_USE_DONW -> interact(Direction.DOWN);
-      case HERO_USE_HERE -> interact(Direction.NONE);
-      case HERO_USE_LEFT -> interact(Direction.LEFT);
-      case HERO_USE_RIGHT -> interact(Direction.RIGHT);
-      case HERO_USE_UP -> interact(Direction.UP);
-      case REST -> rest();
+    if (makeStep != null){
+      if (makeStep.get()) makeStep = null;
+
     }
+      else {
+        if (rest || queue.isEmpty()) return;
+
+        switch (queue.poll()) {
+          case HERO_MOVE -> move();
+          case HERO_TURN_LEFT -> rotate(Direction.LEFT);
+          case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
+          case HERO_MOVE_TO_EXIT -> moveToExit();
+          case HERO_PULL -> movePushable(false);
+          case HERO_PUSH -> movePushable(true);
+          case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
+          case HERO_DROP_CLOVER -> dropItem(CLOVER);
+          case HERO_FIREBALL -> shootFireball();
+          case HERO_PICKUP -> pickup();
+          case HERO_USE_DONW -> interact(Direction.DOWN);
+          case HERO_USE_HERE -> interact(Direction.NONE);
+          case HERO_USE_LEFT -> interact(Direction.LEFT);
+          case HERO_USE_RIGHT -> interact(Direction.RIGHT);
+          case HERO_USE_UP -> interact(Direction.UP);
+          case REST -> rest();
+        }
+      }
   }
 
   public void add(BlocklyCommands.Commands command) {
-    if(run)
-    queue.add(command);
+    if (run) queue.add(command);
   }
 
   public void clear() {
+    makeStep=null;
     queue.clear();
   }
 
@@ -231,6 +231,9 @@ public class BlocklyCommandExecuteSystem extends System {
     DISABLE_SHOOT_ON_HERO = false;
   }
 
+  private record EntityComponents(
+      PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
+
   /**
    * Moves the given entities simultaneously in a specific direction.
    *
@@ -239,14 +242,11 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param direction Direction in which the entities will be moved.
    * @param entities Entities to move simultaneously.
    */
-  public static void move(final Direction direction, final Entity... entities) {
+  private void move(final Direction direction, final Entity... entities) {
+    java.lang.System.out.println("MIVE");
     double distanceThreshold = 0.1;
 
-    record EntityComponents(
-        PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
-
     List<EntityComponents> entityComponents = new ArrayList<>();
-
     for (Entity entity : entities) {
       PositionComponent pc =
           entity
@@ -272,40 +272,34 @@ public class BlocklyCommandExecuteSystem extends System {
             .mapToDouble(e -> e.pc.position().distance(e.targetPosition.toPoint()))
             .toArray();
     double[] lastDistances = new double[entities.length];
+    this.makeStep =
+        () -> {
+          boolean allEntitiesArrived1 = true;
+          for (int i = 0; i < entities.length; i++) {
+            EntityComponents comp = entityComponents.get(i);
+            comp.vc.clearForces();
+            comp.vc.currentVelocity(Vector2.ZERO);
+            comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
 
-    // TODO BREAK LOOP
-    while (true) {
-      boolean allEntitiesArrived = true;
-      for (int i = 0; i < entities.length; i++) {
-        EntityComponents comp = entityComponents.get(i);
-        comp.vc.clearForces();
-        comp.vc.currentVelocity(Vector2.ZERO);
-        comp.vc.applyForce(MOVEMENT_FORCE_ID, direction.scale((Client.MOVEMENT_FORCE.x())));
+            lastDistances[i] = distances[i];
+            distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
 
-        lastDistances[i] = distances[i];
-        distances[i] = comp.pc.position().distance(comp.targetPosition.toPoint());
-
-        if (comp.vc().maxSpeed() > 0
-            && Game.existInLevel(entities[i])
-            && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
-          allEntitiesArrived = false;
-        }
-      }
-
-      if (allEntitiesArrived) break;
-      // TODO ANIMATION IS NOT THERE FIX THIS
-      Game.system(VelocitySystem.class, s -> s.execute());
-      Game.system(FrictionSystem.class, s -> s.execute());
-      Game.system(MoveSystem.class, s -> s.execute());
-      Game.system(DrawSystem.class, s -> s.execute());
-    }
-
-    for (EntityComponents ec : entityComponents) {
-      ec.vc.currentVelocity(Vector2.ZERO);
-      ec.vc.clearForces();
-      // check the position-tile via new request in case a new level was loaded
-      Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
-    }
+            if (comp.vc().maxSpeed() > 0
+                && Game.existInLevel(entities[i])
+                && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
+              allEntitiesArrived1 = false;
+            }
+          }
+          if (allEntitiesArrived1) {
+            for (EntityComponents ec : entityComponents) {
+              ec.vc.currentVelocity(Vector2.ZERO);
+              ec.vc.clearForces();
+              // check the position-tile via new request in case a new level was loaded
+              Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
+            }
+          }
+          return allEntitiesArrived1;
+        };
   }
 
   /**
@@ -448,14 +442,13 @@ public class BlocklyCommandExecuteSystem extends System {
   /** Let the hero do nothing for a short moment. */
   private void rest() {
     rest = true;
-    EventScheduler.scheduleAction(
-            () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
+    EventScheduler.scheduleAction(() -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
   }
 
   /** Let the hero do nothing for a short moment. */
   private void rest(int mul) {
     rest = true;
     EventScheduler.scheduleAction(
-            () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000*mul));
+        () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000 * mul));
   }
 }

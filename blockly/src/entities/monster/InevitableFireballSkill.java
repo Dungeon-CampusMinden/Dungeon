@@ -1,17 +1,15 @@
 package entities.monster;
 
-import client.Client;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
 import core.Entity;
 import core.Game;
-import core.components.PlayerComponent;
+import core.System;
 import core.components.PositionComponent;
-import core.components.VelocityComponent;
-import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import entities.BlocklyFireball;
 import java.util.function.Supplier;
+import systems.BlocklyCommandExecuteSystem;
 
 /**
  * Subclass of {@link FireballSkill}.
@@ -34,24 +32,12 @@ public class InevitableFireballSkill extends BlocklyFireball {
   /** Create a Fireball that will freez and kill the player. */
   public InevitableFireballSkill() {
     super(TARGET_HERO, 500);
-    this.damageAmount = 9999;
+    this.damageAmount = 0;
     this.range = 9999;
   }
 
   @Override
   protected void onSpawn(Entity caster, Entity projectile) {
-    // Set the velocity to zero to freeze the entity (hero only)
-    Game.hero()
-        .flatMap(hero -> hero.fetch(VelocityComponent.class))
-        .ifPresent(velocityComponent -> velocityComponent.maxSpeed(0));
-  }
-
-  protected void additionalEffectAfterDamage(
-      Entity caster, Entity projectile, Entity target, Direction direction) {
-    // Set the velocity back to the original value (hero only)
-    if (!target.isPresent(PlayerComponent.class)) return;
-    target
-        .fetch(VelocityComponent.class)
-        .ifPresent(velocityComponent -> velocityComponent.maxSpeed(Client.MOVEMENT_FORCE.x()));
+    Game.system(BlocklyCommandExecuteSystem.class, System::stop);
   }
 }
