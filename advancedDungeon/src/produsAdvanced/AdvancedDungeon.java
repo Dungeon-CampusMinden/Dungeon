@@ -213,6 +213,7 @@ public class AdvancedDungeon {
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
             sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
 >>>>>>> ca4f8ed2 (added dummy portal skill)
@@ -240,6 +241,11 @@ public class AdvancedDungeon {
 =======
             sc.addSkill(new FireballSkill(SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
 >>>>>>> efe893f0 (added PortalComponent to avoid unwanted portal on portal interactions)
+=======
+            sc.addSkill(
+                new FireballSkill(
+                    SkillTools::cursorPositionAsPoint, new Tuple<>(Resource.MANA, 0)));
+>>>>>>> 36f09545 (apply spotless)
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
@@ -256,7 +262,7 @@ public class AdvancedDungeon {
           */
           createSystems();
 
-         /*WindowEventManager.registerFocusChangeListener(
+          /*WindowEventManager.registerFocusChangeListener(
               isInFocus -> {
                 if (isInFocus) recompileHeroControl();
               });
@@ -264,8 +270,8 @@ public class AdvancedDungeon {
           HeroFactory.heroDeath(entity -> restart());
 
           */
-        //Crafting.loadRecipes();
-        //DungeonLoader.loadLevel(loadLevelIndex());
+          // Crafting.loadRecipes();
+          // DungeonLoader.loadLevel(loadLevelIndex());
         });
   }
 
@@ -377,7 +383,7 @@ public class AdvancedDungeon {
       File file = new File(AdvancedDungeon.SAVE_FILE);
       // Ensure parent directory exists
       try (OutputStreamWriter osw =
-             new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
+          new OutputStreamWriter(new FileOutputStream(file, false), StandardCharsets.UTF_8)) {
         osw.write(content);
       }
     } catch (Exception ignored) {

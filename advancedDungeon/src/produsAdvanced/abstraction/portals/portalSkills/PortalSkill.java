@@ -33,8 +33,9 @@ import core.utils.components.path.IPath;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
 
 /**
- * Base class for portal skills, defines the projectile characteristics like speed, range, hitbox and cooldown.
- * Also defines the behaviour when hitting a wall and when the projectile is getting created.
+ * Base class for portal skills, defines the projectile characteristics like speed, range, hitbox
+ * and cooldown. Also defines the behaviour when hitting a wall and when the projectile is getting
+ * created.
  */
 public abstract class PortalSkill extends ProjectileSkill {
 
@@ -71,7 +72,16 @@ public abstract class PortalSkill extends ProjectileSkill {
    * @param resourceCost Resource costs for casting.
    */
   public PortalSkill(String skillName, IPath texture, Tuple<Resource, Integer>... resourceCost) {
-    super(skillName, COOLDOWN, texture, SPEED, RANGE, HIT_BOX_SIZE,HIT_BOX_OFFSET, false, resourceCost);
+    super(
+        skillName,
+        COOLDOWN,
+        texture,
+        SPEED,
+        RANGE,
+        HIT_BOX_SIZE,
+        HIT_BOX_OFFSET,
+        false,
+        resourceCost);
   }
 
   /**
@@ -85,9 +95,8 @@ public abstract class PortalSkill extends ProjectileSkill {
     return SkillTools.cursorPositionAsPoint();
   }
 
-
   /**
-   *  When a portal wall is hit, creates a portal on the wall position.
+   * When a portal wall is hit, creates a portal on the wall position.
    *
    * @param caster Entity that cast the portal
    * @param projectile The portal entity
@@ -158,7 +167,8 @@ public abstract class PortalSkill extends ProjectileSkill {
     Point movedPos = pc.position().translate(velocity);
     Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
 
-    if (Game.tileAt(finalPos.toCoordinate()).isPresent() &&  Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
+    if (Game.tileAt(finalPos.toCoordinate()).isPresent()
+        && Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
       createPortal(finalPos.toCoordinate().toPoint());
     }
     Game.remove(projectile);
@@ -220,17 +230,14 @@ public abstract class PortalSkill extends ProjectileSkill {
 
     // Add components
     VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
-    vc.moveboxSize(Vector2.of(0.5,0.5));
-    vc.moveboxOffset(Vector2.of(0.25,0.25));
+    vc.moveboxSize(Vector2.of(0.5, 0.5));
+    vc.moveboxOffset(Vector2.of(0.25, 0.25));
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 
     CollideComponent cc =
-      new CollideComponent(
-        Vector2.of(0,0),
-        Vector2.of(0,0),
-        onCollideEnter(caster),
-        onCollideLeave(caster));
+        new CollideComponent(
+            Vector2.of(0, 0), Vector2.of(0, 0), onCollideEnter(caster), onCollideLeave(caster));
     cc.onHold(onCollideHold(caster));
     cc.isSolid(false);
     projectile.add(cc);
@@ -274,7 +281,9 @@ public abstract class PortalSkill extends ProjectileSkill {
    * @param position Position where the portal will be created
    */
   protected abstract void createPortal(Point position);
+<<<<<<< HEAD
 >>>>>>> fdb15be0 (added comments and refactored the code to make it more readable)
 
+=======
+>>>>>>> 36f09545 (apply spotless)
 }
-

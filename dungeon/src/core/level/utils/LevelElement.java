@@ -23,6 +23,7 @@ public enum LevelElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** This field is a portal-field*/
   PORTAL(false, false);
 <<<<<<< HEAD
@@ -64,6 +65,11 @@ public enum LevelElement {
 
 >>>>>>> ec4153d0 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 
+=======
+  /** This field is a portal-field */
+  PORTAL(false, false);
+
+>>>>>>> 36f09545 (apply spotless)
   private final boolean accessible;
   private final boolean canSeeThrough;
 

@@ -117,7 +117,12 @@ public final class VelocityComponent implements Component {
    * @param onWallHit Callback that will be executed if the entity runs against a wall.
    * @param canEnterOpenPits Whether the entity can enter open pit tiles.
    */
-  public VelocityComponent(float maxSpeed,Vector2 moveboxOffset, Vector2 moveboxSize, Consumer<Entity> onWallHit, boolean canEnterOpenPits) {
+  public VelocityComponent(
+      float maxSpeed,
+      Vector2 moveboxOffset,
+      Vector2 moveboxSize,
+      Consumer<Entity> onWallHit,
+      boolean canEnterOpenPits) {
     this(maxSpeed, DEFAULT_MASS, onWallHit, canEnterOpenPits);
     this.moveboxOffset = moveboxOffset;
     this.moveboxSize = moveboxSize;
