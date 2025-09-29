@@ -5,6 +5,7 @@ import static coderunner.BlocklyCommands.MAGIC_OFFSET;
 
 import client.Client;
 import coderunner.BlocklyCommands;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
@@ -12,7 +13,9 @@ import contrib.components.AIComponent;
 import contrib.components.BlockComponent;
 import contrib.components.InteractionComponent;
 import contrib.components.ItemComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.EntityUtils;
+import contrib.utils.IAction;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -43,9 +46,12 @@ public class BlocklyCommandExecuteSystem extends System {
   // lock-free and non-blocking queue
   private final Queue<BlocklyCommands.Commands> queue = new ConcurrentLinkedQueue<>();
 
+  private boolean rest = false;
+
   @Override
   public void execute() {
-    if (queue.isEmpty()) return;
+    if (rest || queue.isEmpty()) return;
+
     switch (queue.poll()) {
       case HERO_MOVE -> move();
       case HERO_TURN_LEFT -> rotate(Direction.LEFT);
@@ -101,8 +107,6 @@ public class BlocklyCommandExecuteSystem extends System {
             boss ->
                 boss.fetch(VelocityComponent.class).filter(vc -> vc.maxSpeed() > 0).map(vc -> boss))
         .ifPresent(boss -> turnEntity(boss, newDirection.opposite()));
-    // TODO HOW
-    Server.waitDelta();
   }
 
   /**
@@ -138,6 +142,7 @@ public class BlocklyCommandExecuteSystem extends System {
 
     GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
+    // TODO BREAK LOOP
     for (Tile nextTile : pathToExit) {
       Tile currentTile = Game.tileAt(pc.position().translate(MAGIC_OFFSET)).orElse(null);
       if (currentTile != nextTile) {
@@ -219,7 +224,6 @@ public class BlocklyCommandExecuteSystem extends System {
     // give BlockComponent back
     toMove.forEach(entity -> entity.add(new BlockComponent()));
     turnEntity(hero, viewDirection);
-    Server.waitDelta();
     DISABLE_SHOOT_ON_HERO = false;
   }
 
@@ -265,6 +269,7 @@ public class BlocklyCommandExecuteSystem extends System {
             .toArray();
     double[] lastDistances = new double[entities.length];
 
+    // TODO BREAK LOOP
     while (true) {
       boolean allEntitiesArrived = true;
       for (int i = 0; i < entities.length; i++) {
@@ -349,10 +354,6 @@ public class BlocklyCommandExecuteSystem extends System {
    */
   private void shootFireball() {
     FireballSchedular.shoot();
-    // Multiple waits allow to shoot a fireball for the next tile (hero stands infront of monster)
-    Server.waitDelta();
-    Server.waitDelta();
-    Server.waitDelta();
   }
 
   /**
@@ -437,7 +438,9 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /** Let the hero do nothing for a short moment. */
-  public static void rest() {
-    Server.waitDelta();
+  private void rest() {
+    rest = true;
+    EventScheduler.scheduleAction(
+        (IAction) () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
   }
 }
