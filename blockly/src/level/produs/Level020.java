@@ -29,7 +29,7 @@ import level.LevelManagementUtils;
  */
 public class Level020 extends BlocklyLevel {
   /** Time in milliseconds it takes for a pit to fully open after being triggered. */
-  private static final int PIT_TIME_TO_OPEN_IN_MS = 120;
+  private static final int PIT_TIME_TO_OPEN_IN_MS = 12000;
 
   /** Duration in milliseconds for each turn or decision cycle in the game logic. */
   private static final int TURN_TIMER_IN_MS = 1500;

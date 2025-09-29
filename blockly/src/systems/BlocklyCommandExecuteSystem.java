@@ -42,6 +42,12 @@ public class BlocklyCommandExecuteSystem extends System {
 
   private boolean rest = false;
   private List<Supplier<Boolean>> makeStep = new LinkedList<>();
+  private Set<BlocklyCommands.Commands> excluded = EnumSet.of(
+          BlocklyCommands.Commands.HERO_MOVE,
+          BlocklyCommands.Commands.HERO_MOVE_TO_EXIT,
+          BlocklyCommands.Commands.HERO_PULL,
+          BlocklyCommands.Commands.HERO_PUSH
+  );
 
   @Override
   public void execute() {
@@ -301,11 +307,18 @@ public class BlocklyCommandExecuteSystem extends System {
             }
           }
           if (allEntitiesArrived1) {
+            BlocklyCommands.Commands peek=queue.peek();
+
             for (EntityComponents ec : entityComponents) {
-              ec.vc.currentVelocity(Vector2.ZERO);
-              ec.vc.clearForces();
+             //TODO FIND A WAY TO MAKE THE HERO MOVE FASTER
+              // if (peek != null && !excluded.contains(peek)){
+                ec.vc.currentVelocity(Vector2.ZERO);
+                ec.vc.clearForces();
+              //}
+
               // check the position-tile via new request in case a new level was loaded
               Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
+
             }
             onFinish.execute();
           }
