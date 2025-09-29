@@ -14,8 +14,8 @@ public class PortalTile extends Tile {
    * @param globalPosition Position of the tile in the global system.
    * @param designLabel    Design of the Tile
    */
-  public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel, LevelElement levelElement) {
+  public PortalTile(IPath texturePath, Coordinate globalPosition, DesignLabel designLabel) {
     super(texturePath, globalPosition, designLabel);
-    this.levelElement = levelElement;
+    this.levelElement = LevelElement.PORTAL;
   }
 }

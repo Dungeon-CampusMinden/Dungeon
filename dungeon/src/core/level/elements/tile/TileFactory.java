@@ -31,7 +31,7 @@ public class TileFactory {
       case EXIT -> new ExitTile(texturePath, coordinate, designLabel);
       case SKIP -> new SkipTile(texturePath, coordinate, designLabel);
       case PIT -> new PitTile(texturePath, coordinate, designLabel);
-      case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
+      case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
     };
   }
 }
