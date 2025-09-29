@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import server.Server;
 import systems.BlocklyCommandExecuteSystem;
 
 /** A utility class that contains all methods for Blockly Blocks. */
@@ -170,6 +171,7 @@ public class BlocklyCommands {
    *     returns false.
    */
   public static boolean isNearTile(LevelElement tileElement, final Direction direction) {
+    waitForEmptyQueue();
     // Check the tile the hero is standing on
     if (direction == Direction.NONE) {
       Tile checkTile =
@@ -179,9 +181,23 @@ public class BlocklyCommands {
               .map(pos -> pos.translate(MAGIC_OFFSET))
               .flatMap(Game::tileAt)
               .orElse(null);
-      return checkTile != null && checkTile.levelElement() == tileElement;
+      return checkTile != null && matchesTile(tileElement, checkTile.levelElement());
     }
-    return targetTile(direction).map(tile -> tile.levelElement() == tileElement).orElse(false);
+    return targetTile(direction)
+        .map(tile -> matchesTile(tileElement, tile.levelElement()))
+        .orElse(false);
+  }
+
+  private static boolean matchesTile(LevelElement target, LevelElement actual) {
+    if (target == actual) {
+      return true;
+    }
+    // Special case: treat DOOR or EXIT as FLOOR
+    if ((target == LevelElement.DOOR || target == LevelElement.EXIT)
+        && actual == LevelElement.FLOOR) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -195,6 +211,7 @@ public class BlocklyCommands {
   public static boolean isNearComponent(
       Class<? extends Component> componentClass, final Direction direction) {
     // Check if there is a component on the tile the hero is standing on
+    waitForEmptyQueue();
     if (direction == Direction.NONE) {
       Tile checkTile =
           Game.hero()
@@ -226,6 +243,7 @@ public class BlocklyCommands {
    * @return {@code true} if the tile in the given direction is active, {@code false} otherwise.
    */
   public static boolean active(final Direction direction) {
+    waitForEmptyQueue();
     return targetTile(direction).map(BlocklyCommands::checkTileForDoorOrLevers).orElse(false);
   }
 
@@ -244,6 +262,7 @@ public class BlocklyCommands {
    * @return {@code true} if the tile is active, {@code false} otherwise.
    */
   private static Boolean checkTileForDoorOrLevers(Tile tile) {
+    waitForEmptyQueue();
     // is this a door? is it open?
     if (tile instanceof DoorTile doorTile) return doorTile.isOpen();
 
@@ -264,6 +283,7 @@ public class BlocklyCommands {
    * @return The target tile, or empty if hero is not found or target tile doesn't exist
    */
   private static Optional<Tile> targetTile(final Direction direction) {
+    waitForEmptyQueue();
     // find tile in a direction or empty
     Function<Direction, Optional<Tile>> dirToCheck =
         dir ->
@@ -290,6 +310,7 @@ public class BlocklyCommands {
    *     the direction does not match, or if the boss or its PositionComponent is missing
    */
   public static boolean checkBossViewDirection(Direction direction) {
+    waitForEmptyQueue();
     return Game.allEntities()
         .filter(entity -> entity.name().equals("Blockly Black Knight"))
         .findFirst()
@@ -297,5 +318,15 @@ public class BlocklyCommands {
         .map(PositionComponent::viewDirection)
         .map(bossDir -> bossDir.equals(direction))
         .orElse(false);
+  }
+
+  private static void waitForEmptyQueue() {
+    Game.system(
+        BlocklyCommandExecuteSystem.class,
+        system -> {
+          while (!system.isEmpty()) {}
+
+          Server.waitDelta();
+        });
   }
 }
