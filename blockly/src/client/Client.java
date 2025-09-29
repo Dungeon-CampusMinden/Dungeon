@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import level.produs.*;
 import server.Server;
+import systems.BlocklyCommandExecuteSystem;
 import systems.TintTilesSystem;
 
 /**
@@ -39,7 +40,7 @@ public class Client {
   /** Force to apply for movement of all entities. */
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
-  private static final boolean DEBUG_MODE = false;
+  private static final boolean DEBUG_MODE = true;
   private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
 
@@ -168,6 +169,7 @@ public class Client {
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());
+    Game.add(new BlocklyCommandExecuteSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
     Game.add(
         new System() {

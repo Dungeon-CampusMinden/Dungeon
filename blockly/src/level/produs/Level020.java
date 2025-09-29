@@ -1,7 +1,6 @@
 package level.produs;
 
 import client.Client;
-import coderunner.BlocklyCommands;
 import contrib.hud.DialogUtils;
 import contrib.systems.EventScheduler;
 import contrib.utils.IAction;
@@ -63,10 +62,10 @@ public class Level020 extends BlocklyLevel {
   private IAction turnAction =
       () -> {
         if (bosspc.viewDirection() == Direction.LEFT) {
-          BlocklyCommands.turnEntity(boss, Direction.RIGHT);
+          boss.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(Direction.RIGHT));
           executeCheck = false;
         } else {
-          BlocklyCommands.turnEntity(boss, Direction.LEFT);
+          boss.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(Direction.LEFT));
           EventScheduler.scheduleAction(() -> executeCheck = true, COYOTE_TIME_IN_MS);
         }
       };
