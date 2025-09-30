@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 public final class ClientNetwork {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientNetwork.class);
 
+  private static final short CLIENT_PROTOCOL_VERSION = 1;
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private volatile BiConsumer<ChannelHandlerContext, NetworkMessage> rawConsumer;
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
@@ -129,7 +130,6 @@ public final class ClientNetwork {
       LOGGER.warn("Error shutting down event loop", e);
     }
     connected.set(false);
-    enqueueLifecycle(() -> notifyDisconnected(new RuntimeException(reason)));
     LOGGER.info("ClientNetwork shutdown. Reason: {}", reason);
   }
 
@@ -249,36 +249,30 @@ public final class ClientNetwork {
   /**
    * Send an unreliable {@link InputMessage} over UDP to the server.
    *
-   * <p>If the input lacks a client id and the client has been assigned one, a new {@link
-   * InputMessage} with the assigned id is created. Large payloads exceeding the safe UDP MTU are
-   * dropped.
+   * <p>Performs Java serialization and sends a datagram. If the payload exceeds the safe UDP MTU,
+   * it uses TCP instead.
    *
    * @param input input message to send
    */
   public void sendUnreliableInput(InputMessage input) {
-    int knownId = clientId();
-    if (input.clientId() <= 0) {
-      if (knownId <= 0) {
-        LOGGER.debug("Drop InputMessage: no assigned clientId yet");
-        return;
-      }
-      input = new InputMessage(knownId, input.action(), input.point());
-    }
-    if (!running.get() || !isConnected() || udp == null || !udp.isActive()) {
-      LOGGER.warn("UDP not active; cannot send input");
+    if (!running.get() || udp == null || !udp.isActive()) {
+      LOGGER.warn("UDP not active; cannot send input message");
       return;
     }
     try {
       byte[] data = serialize(input);
-      if (data.length > SAFE_UDP_MTU) {
-        LOGGER.warn("Dropping UDP input; too large ({} B) > {}", data.length, SAFE_UDP_MTU);
-        return;
+      if (data.length <= SAFE_UDP_MTU) {
+        udp.writeAndFlush(
+                new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), udpRemote))
+            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        LOGGER.debug("UDP outbound InputMessage size={}B", data.length);
+      } else {
+        LOGGER.warn(
+            "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
+        sendReliable(input);
       }
-      udp.writeAndFlush(
-              new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), udpRemote))
-          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     } catch (IOException e) {
-      LOGGER.warn("Failed to serialize UDP input", e);
+      LOGGER.warn("Failed to serialize InputMessage", e);
     }
   }
 
@@ -360,7 +354,8 @@ public final class ClientNetwork {
                         connected.set(true);
                         enqueueLifecycle(ClientNetwork.this::notifyConnected);
                         try {
-                          byte[] data = serialize(new ConnectRequest(username));
+                          byte[] data =
+                              serialize(new ConnectRequest(CLIENT_PROTOCOL_VERSION, username));
                           if (data.length <= MAX_TCP_OBJECT_SIZE) {
                             ByteBuf buf = ctx.alloc().buffer(4 + data.length);
                             buf.writeInt(data.length);
@@ -404,8 +399,7 @@ public final class ClientNetwork {
                     // Server acknowledges our UDP source address; cancel any pending retries
                     Integer id = clientId;
                     if (id != null && id > 0) cancelUdpRegistration(id);
-                  }
-                  else if (obj instanceof NetworkMessage nm) {
+                  } else if (obj instanceof NetworkMessage nm) {
                     inboundQueue.offer(Tuple.of(ctx, nm));
                   }
                 } catch (Exception e) {
@@ -566,7 +560,7 @@ public final class ClientNetwork {
     }
   }
 
-  private void notifyDisconnected(Throwable cause) {
+  private void notifyDisconnected(String cause) {
     for (ConnectionListener l : connectionListeners) {
       try {
         l.onDisconnected(cause);

@@ -18,7 +18,6 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
-import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.GameOverEvent;
 import core.network.messages.s2c.HeroSpawnEvent;
@@ -27,10 +26,8 @@ import core.systems.*;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelId;
-import java.net.InetSocketAddress;
-import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +38,7 @@ public final class AuthoritativeServerLoop {
   private final ServerTransport net;
   private final SnapshotTranslator translator;
   private final ScheduledExecutorService executor;
-
-  private final ConcurrentHashMap<Integer, Entity> clientEntities = new ConcurrentHashMap<>();
-
-  private volatile long serverTick = 0;
+  private volatile int serverTick = 0;
 
   public AuthoritativeServerLoop(ServerTransport netService, SnapshotTranslator translator) {
     this.net = netService;
@@ -65,10 +59,9 @@ public final class AuthoritativeServerLoop {
 
     createSystems();
     try {
-      DungeonLoader.afterAllLevels(() -> broadcast(new GameOverEvent(), true));
+      DungeonLoader.afterAllLevels(() -> net.broadcast(new GameOverEvent(), true));
       DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
       DungeonLoader.loadLevel(0);
-      broadcastLevelChange();
     } catch (Exception e) {
       LOGGER.warn("Failed to load initial level on server", e);
     }
@@ -90,7 +83,7 @@ public final class AuthoritativeServerLoop {
 
   private void createSystems() {
     ECSManagment.add(new PositionSystem());
-    ECSManagment.add(new LevelSystem(() -> {}));
+    ECSManagment.add(new LevelSystem(this::broadcastLevelChange));
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
@@ -106,105 +99,143 @@ public final class AuthoritativeServerLoop {
 
   private void tick() {
     try {
-      //noinspection NonAtomicOperationOnVolatileField Because this is the only place where
-      // serverTick is modified
+      //noinspection NonAtomicOperationOnVolatileField only place where serverTick is modified
       serverTick++;
       syncClientsToEntities();
-      drainAndApplyInputs(net.inputQueue());
+      drainAndApplyInputs(net.inputQueue(), serverTick);
       ECSTickRunner.runOneFrame(s -> true);
     } catch (Exception e) {
-      LOGGER.warn("Tick error", e);
+      LOGGER.error("Tick error", e);
     }
   }
 
-  private void drainAndApplyInputs(ConcurrentLinkedQueue<InputMessage> q) {
+  /**
+   * Drains the input queue and applies valid inputs to the corresponding hero entities. Processes
+   * messages in arrival order (FIFO), but discards stale/duplicate inputs based on sequence
+   * numbers. Intended to be called per server tick in the AuthoritativeServerLoop for batched,
+   * deterministic application.
+   *
+   * @param queue The concurrent input queue (global or per-client).
+   * @param currentTick The current server tick number for correlation.
+   */
+  private void drainAndApplyInputs(Queue<InputMessage> queue, int currentTick) {
     InputMessage msg;
-    while ((msg = q.poll()) != null) {
+    while ((msg = queue.poll()) != null) {
       int id = msg.clientId();
-      Entity player = clientEntities.get(id);
-      if (player == null) continue;
-      switch (msg.action()) {
-        case MOVE -> HeroController.moveHero(player, Vector2.of(msg.point()).direction());
-        case MOVE_PATH -> HeroController.moveHeroPath(player, msg.point());
-        case CAST_SKILL -> HeroController.useSkill(player, msg.point());
-        case NEXT_SKILL -> HeroController.changeSkill(player, true);
-        case PREV_SKILL -> HeroController.changeSkill(player, false);
-        case INTERACT -> HeroController.interact(player, msg.point());
+      Optional<ClientState> optionalState =
+          Optional.ofNullable(net.clientIdToSessionMap().get(id)).flatMap(Session::clientState);
+      ClientState state = optionalState.orElse(null);
+      if (state == null) {
+        LOGGER.warn("No client state for input from unknown client {}", id);
+        continue;
+      }
+
+      // Check sequence plausibility (discard stale/duplicates)
+      int msgSeq = msg.sequence();
+      if (!state.isSeqPlausible(msgSeq)) {
+        LOGGER.debug(
+            "Discarded implausible seq {} for client {} (lastProcessed: {})",
+            msgSeq,
+            id,
+            state.lastProcessedSeq());
+        state.updateLastActivity(); // Still count as activity for timeout
+        continue;
+      }
+
+      // Handle sequence gap if present (e.g., interpolate neutrals for missing seqs)
+      if (msgSeq > state.expectedSeq()) {
+        int gap = state.handleSeqGap(msgSeq);
+        if (gap > 0) {
+          LOGGER.debug("Handling seq gap of {} for client {} at tick {}", gap, id, currentTick);
+        }
+      }
+
+      // Update RTT estimate if clientTick is provided
+      long msgClientTick = msg.clientTick();
+      if (msgClientTick > 0) {
+        state.updateRttEstimate(msgClientTick, 0.1f); // Alpha=0.1 for smoothing
+      }
+
+      // Get hero entity
+      Entity entity = state.heroEntity().orElse(null);
+      if (entity == null) {
+        LOGGER.warn("No hero entity for client {} (seq: {})", id, msgSeq);
+        continue;
+      }
+      // Apply input based on action
+      try {
+        switch (msg.action()) {
+          case MOVE -> HeroController.moveHero(entity, Vector2.of(msg.point()).direction());
+          case MOVE_PATH -> HeroController.moveHeroPath(entity, msg.point());
+          case CAST_SKILL -> HeroController.useSkill(entity, msg.point());
+          case NEXT_SKILL -> HeroController.changeSkill(entity, true);
+          case PREV_SKILL -> HeroController.changeSkill(entity, false);
+          case INTERACT -> HeroController.interact(entity, msg.point());
+          default ->
+              LOGGER.warn("Unknown action {} for client {} (seq: {})", msg.action(), id, msgSeq);
+        }
+        // On success: Update processed seq and activity
+        state.updateProcessedSeq(msgSeq);
+        state.updateLastActivity();
+        LOGGER.trace("Applied input seq {} for client {} (action: {})", msgSeq, id, msg.action());
+      } catch (Exception e) {
+        LOGGER.error("Failed to apply input seq {} for client {}: {}", msgSeq, id, e.getMessage());
+        // Do not update seq on failure (retry possible)
       }
     }
   }
 
   private void sendSnapshot() {
-    translator
-        .translateToSnapshot(serverTick, clientEntities)
-        .ifPresent(snapshot -> broadcast(snapshot, true));
+    translator.translateToSnapshot(serverTick).ifPresent(snapshot -> net.broadcast(snapshot, true));
   }
 
   private void broadcastLevelChange() {
-    broadcast(LevelChangeEvent.currentLevel(), true);
-  }
-
-  void broadcast(NetworkMessage event, boolean reliable) {
-    if (reliable) {
-      for (Map.Entry<ChannelId, ChannelHandlerContext> e : net.tcpChannels().entrySet()) {
-        net.sendTcpObject(e.getValue(), event);
-      }
-    } else {
-      for (Map.Entry<Integer, InetSocketAddress> e : net.udpClients().entrySet()) {
-        net.sendUdpObject(e.getValue(), event);
-      }
-    }
-  }
-
-  CompletableFuture<Boolean> sendToClient(int clientId, NetworkMessage event, boolean reliable) {
-    if (reliable) {
-      return net.tcpClientMap().entrySet().stream()
-          .filter(e -> e.getValue() == clientId)
-          .map(e -> net.tcpChannels().get(e.getKey()))
-          .findFirst()
-          .map(ctx -> net.sendTcpObject(ctx, event))
-          .orElse(CompletableFuture.completedFuture(false));
-    } else {
-      InetSocketAddress addr = net.udpClients().get(clientId);
-      if (addr != null) {
-        return net.sendUdpObject(addr, event);
-      }
-    }
-    LOGGER.warn("Cannot send message to unknown client {}", clientId);
-    return CompletableFuture.completedFuture(false);
+    net.broadcast(LevelChangeEvent.currentLevel(), true);
   }
 
   private void syncClientsToEntities() {
-    for (Integer id : net.tcpClientMap().values()) {
-      clientEntities.computeIfAbsent(id, this::spawnHeroForClient);
+    // Spawn Hero if TCP client exists but no entity is associated
+    for (ClientState state : net.connectedClients()) {
+      if (state.heroEntity().isEmpty()) {
+        state.heroEntity(spawnHeroForClient(state));
+      }
     }
-    for (Integer id : clientEntities.keySet()) {
-      if (!net.tcpClientMap().containsValue(id)) {
-        Entity entity = clientEntities.remove(id);
-        if (entity != null) {
-          Game.remove(entity);
-          LOGGER.info("Removed entity for disconnected client {}", id);
-        }
+
+    // TODO: Will not working, because the sessions will get removed
+    // For every session that is no longer active, remove its entity from the game
+    for (Session session : net.sessions().values()) {
+      if (session.isClosed()) {
+        session
+            .clientState()
+            .ifPresent(
+                state ->
+                    state
+                        .heroEntity()
+                        .ifPresent(
+                            hero -> {
+                              Game.remove(hero);
+                              state.heroEntity(null);
+                              LOGGER.info(
+                                  "Removed entity for disconnected client {}", state.clientId());
+                            }));
       }
     }
   }
 
-  private Entity spawnHeroForClient(Integer clientId) {
-    String name = net.clientName(clientId).orElse("Player_" + clientId);
-    Entity hero = HeroFactory.newHero(true, name);
+  private Entity spawnHeroForClient(ClientState state) {
+    Entity hero = HeroFactory.newHero(true, state.username());
     hero.fetch(PositionComponent.class)
         .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
     // Add the hero to the game, after the client knows the id.
     Game.network()
-        .send(clientId, new HeroSpawnEvent(hero.id()), true)
+        .send(state.clientId(), new HeroSpawnEvent(hero.id()), true)
         .thenAccept(
             success -> {
               if (success) {
                 Game.add(hero);
               } else {
                 LOGGER.warn(
-                    "Failed to send HeroSpawnEvent to client {}, not adding hero to game",
-                    clientId);
+                    "Failed to send HeroSpawnEvent to client {}, not adding hero to game", state);
               }
             });
     return hero;

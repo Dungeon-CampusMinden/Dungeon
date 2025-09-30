@@ -36,18 +36,23 @@ public final class ServerRuntime {
 
   public void broadcastMessage(NetworkMessage message, boolean reliable) {
     if (loop != null) {
-      this.loop.broadcast(message, reliable);
+      this.transport.broadcast(message, reliable);
     } else {
-      LOGGER.warn("Server loop not initialized, cannot broadcast message");
+      LOGGER.warn("Server not initialized, cannot broadcast message");
     }
   }
 
   public CompletableFuture<Boolean> sendMessage(
       int clientId, NetworkMessage message, boolean reliable) {
     if (loop != null) {
-      return this.loop.sendToClient(clientId, message, reliable);
+      Session session = transport.clientIdToSessionMap().get(clientId);
+      if (session == null) {
+        LOGGER.warn("No session found for clientId {}, cannot send message", clientId);
+        return CompletableFuture.completedFuture(false);
+      }
+      return session.sendMessage(message, reliable);
     } else {
-      LOGGER.warn("Server loop not initialized, cannot send message to client {}", clientId);
+      LOGGER.warn("Server not initialized, cannot send message to client {}", clientId);
       return CompletableFuture.completedFuture(false);
     }
   }

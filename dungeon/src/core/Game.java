@@ -826,4 +826,26 @@ public final class Game {
     }
     return networkHandler;
   }
+
+  /**
+   * Get the current game tick.
+   *
+   * <p>The game tick is incremented every frame in the game loop.
+   *
+   * @return The current game tick.
+   */
+  public static int currentTick() {
+    return GameLoop.currentTick();
+  }
+
+  /**
+   * Finds an entity by its unique ID.
+   *
+   * @param entityId The unique ID of the entity to find.
+   * @return An {@link Optional} containing the found entity, or an empty {@code Optional} if no
+   *     entity with the given ID exists.
+   */
+  public static Optional<Entity> findEntityById(int entityId) {
+    return Game.allEntities().filter(e -> e.id() == entityId).findFirst();
+  }
 }

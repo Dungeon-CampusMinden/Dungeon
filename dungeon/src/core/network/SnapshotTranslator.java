@@ -1,8 +1,6 @@
 package core.network;
 
-import core.Entity;
 import core.network.messages.s2c.SnapshotMessage;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -16,10 +14,8 @@ public interface SnapshotTranslator {
    * Server-side translation: build a snapshot for the given tick from authoritative entities.
    *
    * @param serverTick the current server tick
-   * @param clientEntities mapping of clientId to authoritative entity (at minimum includes players)
    */
-  Optional<SnapshotMessage> translateToSnapshot(
-      long serverTick, Map<Integer, Entity> clientEntities);
+  Optional<SnapshotMessage> translateToSnapshot(int serverTick);
 
   /**
    * Client-side application: convert the snapshot into granular updates and dispatch them.

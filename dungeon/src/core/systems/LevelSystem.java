@@ -59,7 +59,7 @@ public final class LevelSystem extends System {
   public LevelSystem(IVoidFunction onLevelLoad) {
     super(PlayerComponent.class, PositionComponent.class);
     this.onLevelLoad = onLevelLoad;
-    this.onEndTile = () -> DungeonLoader.loadNextLevel();
+    this.onEndTile = DungeonLoader::loadNextLevel;
   }
 
   /**
