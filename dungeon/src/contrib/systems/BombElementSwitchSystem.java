@@ -14,6 +14,8 @@ import core.System;
  */
 public final class BombElementSwitchSystem extends System {
 
+  private static final int SWITCH_ELEMENT_KEY = Input.Keys.B;
+
   /** Constructs the bomb element switch system. */
   public BombElementSwitchSystem() {
     super();
@@ -22,7 +24,7 @@ public final class BombElementSwitchSystem extends System {
   /** Polls for the B key and advances the hero's bomb element to the next value if pressed. */
   @Override
   public void execute() {
-    if (!Gdx.input.isKeyJustPressed(Input.Keys.B)) return;
+    if (!Gdx.input.isKeyJustPressed(SWITCH_ELEMENT_KEY)) return;
 
     Game.hero()
         .ifPresent(
