@@ -97,9 +97,9 @@ public class BombPlaceSkill extends Skill {
    * @see #scheduleExplosion(Entity)
    */
   private void dropBomb(Entity caster) {
-    Point heroPos =
-        caster.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
-    if (heroPos == null) return;
+    var heroPosOpt = caster.fetch(PositionComponent.class).map(PositionComponent::position);
+    if (heroPosOpt.isEmpty()) return;
+    Point heroPos = heroPosOpt.get();
 
     Point spawnPos = heroPos;
     var dcOpt = caster.fetch(DrawComponent.class);
@@ -142,17 +142,15 @@ public class BombPlaceSkill extends Skill {
   private void scheduleExplosion(Entity bomb) {
     EventScheduler.scheduleAction(
         () -> {
-          Point pos =
-              bomb.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
-
+          var posOpt = bomb.fetch(PositionComponent.class).map(PositionComponent::position);
           BombElement element = BombElementComponent.getElementOrDefault(bomb);
           Game.remove(bomb);
-
-          if (pos != null) {
-            DamageType dmgType = element.toDamageType();
-            ExplosionFactory.createExplosion(
-                EXPLOSION_DIR, pos, DEFAULT_RADIUS, dmgType, DEFAULT_DAMAGE);
-          }
+          posOpt.ifPresent(
+              pos -> {
+                DamageType dmgType = element.toDamageType();
+                ExplosionFactory.createExplosion(
+                    EXPLOSION_DIR, pos, DEFAULT_RADIUS, dmgType, DEFAULT_DAMAGE);
+              });
         },
         fuseMs);
   }
