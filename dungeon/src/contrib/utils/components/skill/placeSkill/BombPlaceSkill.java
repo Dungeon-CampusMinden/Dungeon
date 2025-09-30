@@ -145,12 +145,11 @@ public class BombPlaceSkill extends Skill {
           var posOpt = bomb.fetch(PositionComponent.class).map(PositionComponent::position);
           BombElement element = BombElementComponent.getElementOrDefault(bomb);
           Game.remove(bomb);
-          posOpt.ifPresent(
-              pos -> {
-                DamageType dmgType = element.toDamageType();
-                ExplosionFactory.createExplosion(
-                    EXPLOSION_DIR, pos, DEFAULT_RADIUS, dmgType, DEFAULT_DAMAGE);
-              });
+          if (posOpt.isEmpty()) return;
+          Point pos = posOpt.get();
+          DamageType dmgType = element.toDamageType();
+          ExplosionFactory.createExplosion(
+              EXPLOSION_DIR, pos, DEFAULT_RADIUS, dmgType, DEFAULT_DAMAGE);
         },
         fuseMs);
   }
