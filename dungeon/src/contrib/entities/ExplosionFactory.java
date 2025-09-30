@@ -19,7 +19,7 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.animation.AnimationConfig;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
-import java.util.Map;
+import java.util.Optional;
 
 /**
  * Factory for creating explosion effects with visuals, collision damage and sound playback.
@@ -46,16 +46,21 @@ public final class ExplosionFactory {
    *
    * @param textureDir Base directory containing explosion textures and the {@code explosion.json}
    *     config.
-   * @param position World position of the explosion center.
+   * @param positionOpt World position of the explosion center.
    * @param radius Explosion radius in world units; also used to scale the sprite.
    * @param dmgType Damage type for art/SFX selection).
    * @param dmgAmount Amount of damage dealt to hit entities.
-   * @return The created explosion entity.
+   * @return The created explosion entity, or {@link Optional#empty()} if position is missing.
    */
-  public static Entity createExplosion(
-      IPath textureDir, Point position, float radius, DamageType dmgType, int dmgAmount) {
+  public static Optional<Entity> createExplosion(
+      IPath textureDir,
+      Optional<Point> positionOpt,
+      float radius,
+      DamageType dmgType,
+      int dmgAmount) {
 
-    if (position == null) return null;
+    if (positionOpt.isEmpty()) return Optional.empty();
+    Point position = positionOpt.get();
 
     float diameter = radius * 2f;
 
@@ -87,7 +92,7 @@ public final class ExplosionFactory {
     long lifetimeMs = calculateLifetime(cfg);
     EventScheduler.scheduleAction(() -> Game.remove(fx), lifetimeMs);
 
-    return fx;
+    return Optional.of(fx);
   }
 
   /**
@@ -101,14 +106,18 @@ public final class ExplosionFactory {
     String base = textureDir.pathString();
     if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
     String jsonPath = base + "/" + JSON_NAME;
-    Map<String, AnimationConfig> configs = AnimationConfig.loadAnimationConfigMap(jsonPath);
-    if (configs != null) {
-      AnimationConfig cfg = configs.get(state);
-      if (cfg != null) return cfg;
-      cfg = configs.get("explosion");
-      if (cfg != null) return cfg;
+
+    var cfgsOpt = Optional.ofNullable(AnimationConfig.loadAnimationConfigMap(jsonPath));
+    if (cfgsOpt.isEmpty()) return new AnimationConfig();
+
+    var cfgs = cfgsOpt.get();
+    var primaryOpt = Optional.ofNullable(cfgs.get(state));
+    if (primaryOpt.isEmpty()) {
+      var fallbackOpt = Optional.ofNullable(cfgs.get("explosion"));
+      if (fallbackOpt.isEmpty()) return new AnimationConfig();
+      return fallbackOpt.get();
     }
-    return new AnimationConfig();
+    return primaryOpt.get();
   }
 
   /**
@@ -165,15 +174,6 @@ public final class ExplosionFactory {
   private static void playExplosionSfx(BombElement element) {
     Sound sfx = Gdx.audio.newSound(Gdx.files.internal(element.sfxPath()));
     sfx.play(0.2f);
-    EventScheduler.scheduleAction(() -> disposeIfIdle(sfx), SFX_IDLE_DISPOSE_MS);
-  }
-
-  /**
-   * Disposes a sound instance if present.
-   *
-   * @param s The sound instance to dispose.
-   */
-  private static void disposeIfIdle(Sound s) {
-    if (s != null) s.dispose();
+    EventScheduler.scheduleAction(sfx::dispose, SFX_IDLE_DISPOSE_MS);
   }
 }

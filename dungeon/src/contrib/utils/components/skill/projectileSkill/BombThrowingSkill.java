@@ -17,6 +17,7 @@ import core.utils.TriConsumer;
 import core.utils.Tuple;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -156,7 +157,7 @@ public class BombThrowingSkill extends ProjectileSkill {
     BombElement element = BombElementComponent.getElementOrDefault(projectile);
     DamageType dmgType = element.toDamageType();
     ExplosionFactory.createExplosion(
-        explosionTextureDir, center, explosionRadius, dmgType, damageAmount);
+        explosionTextureDir, Optional.of(center), explosionRadius, dmgType, damageAmount);
   }
 
   /**
