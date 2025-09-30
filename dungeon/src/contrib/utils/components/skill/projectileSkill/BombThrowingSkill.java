@@ -108,7 +108,7 @@ public class BombThrowingSkill extends ProjectileSkill {
   protected Point end(Entity caster) {
     Point cursor = SkillTools.cursorPositionAsPoint();
     Point s = start(caster);
-    if (cursor == null || cursor.equals(s)) return new Point(s.x() + 1, s.y());
+    if (cursor.equals(s)) return new Point(s.x() + 1, s.y());
     return cursor;
   }
 
@@ -149,13 +149,11 @@ public class BombThrowingSkill extends ProjectileSkill {
    * @param projectile The projectile entity to explode.
    */
   private void explodeAtProjectileCenter(Entity projectile) {
-    Point pos =
-        projectile.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
-    if (pos == null) return;
+    var posOpt = projectile.fetch(PositionComponent.class).map(PositionComponent::position);
+    if (posOpt.isEmpty()) return;
+    Point pos = posOpt.get();
     Point center = new Point(pos.x() + hitBoxSize().x() / 2f, pos.y() + hitBoxSize().y() / 2f);
-
     BombElement element = BombElementComponent.getElementOrDefault(projectile);
-
     DamageType dmgType = element.toDamageType();
     ExplosionFactory.createExplosion(
         explosionTextureDir, center, explosionRadius, dmgType, damageAmount);
