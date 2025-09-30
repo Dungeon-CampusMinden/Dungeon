@@ -2,6 +2,7 @@ package entities;
 
 import components.AntiMaterialBarrierComponent;
 import components.LasergridComponent;
+import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
 import contrib.utils.components.health.DamageType;
@@ -9,6 +10,7 @@ import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
@@ -32,6 +34,10 @@ public class AdvancedFactory {
   private static final SimpleIPath ANTI_MATERIAL_BARRIER =
       new SimpleIPath("portal/anti_material_barrier");
 
+  private static final SimpleIPath PORTAL_CUBE = new SimpleIPath("portal/portal_cube.png");
+  private static final float cube_mass = 3f;
+  private static final float cube_maxSpeed = 10f;
+
   /**
    * Creates a laser grid entity at the given position.
    *
@@ -47,7 +53,7 @@ public class AdvancedFactory {
     grid.add(new PositionComponent(spawnPoint));
     grid.add(new LasergridComponent(true));
 
-    // the laser grid cant be solid to let objects pass
+    // the laser grid can't be solid to let objects pass
     CollideComponent colComp = new CollideComponent();
     colComp.isSolid(false);
     grid.add(colComp);
@@ -100,7 +106,7 @@ public class AdvancedFactory {
           }
         };
 
-    // the barrier cant be solid to let the Hero pass
+    // the barrier can't be solid to let the Hero pass
     CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
     colComp.isSolid(false);
     barrier.add(colComp);
@@ -128,5 +134,36 @@ public class AdvancedFactory {
     barrier.add(dc);
 
     return barrier;
+  }
+
+  /**
+   * Creates a portal cube entity at the given position.
+   *
+   * @param position The initial position of the portal cube.
+   * @return A new portal cube entity.
+   */
+  public static Entity portalCube(Point position) {
+    Entity portalCube = new Entity("portalCube");
+
+    portalCube.add(new PositionComponent(position));
+    portalCube.add(new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
+    portalCube.add(new DrawComponent(new Animation(PORTAL_CUBE)));
+    portalCube.add(new CollideComponent());
+    portalCube.add(
+        new InteractionComponent(
+            2.0f,
+            true,
+            (interacted, interactor) ->
+                interacted
+                    .fetch(VelocityComponent.class)
+                    .ifPresent(
+                        interactedVC ->
+                            interactor
+                                .fetch(VelocityComponent.class)
+                                .ifPresent(
+                                    interactorVC ->
+                                        interactedVC.currentVelocity(
+                                            interactorVC.currentVelocity())))));
+    return portalCube;
   }
 }
