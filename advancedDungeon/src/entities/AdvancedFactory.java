@@ -142,28 +142,39 @@ public class AdvancedFactory {
    * @param position The initial position of the portal cube.
    * @return A new portal cube entity.
    */
-  public static Entity portalCube(Point position) {
-    Entity portalCube = new Entity("portalCube");
+  public static Entity attachablePortalCube(Point position) {
+    Entity portalCube = new Entity("attachablePortalCube");
 
     portalCube.add(new PositionComponent(position));
     portalCube.add(new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
     portalCube.add(new DrawComponent(new Animation(PORTAL_CUBE)));
     portalCube.add(new CollideComponent());
+
+    final boolean[] attached = {false};
+
     portalCube.add(
         new InteractionComponent(
             2.0f,
             true,
-            (interacted, interactor) ->
-                interacted
+            (interacted, interactor) -> {
+              if (!attached[0]) {
+
+                interactor
                     .fetch(VelocityComponent.class)
                     .ifPresent(
-                        interactedVC ->
-                            interactor
-                                .fetch(VelocityComponent.class)
-                                .ifPresent(
-                                    interactorVC ->
-                                        interactedVC.currentVelocity(
-                                            interactorVC.currentVelocity())))));
+                        vc -> {
+                          interacted.remove(VelocityComponent.class);
+                          interacted.add(vc);
+                          attached[0] = true;
+                        });
+              } else {
+                interacted.remove(VelocityComponent.class);
+                interacted.add(
+                    new VelocityComponent(cube_maxSpeed, cube_mass, entity -> {}, false));
+                attached[0] = false;
+              }
+            }));
+
     return portalCube;
   }
 }
