@@ -8,12 +8,13 @@ import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,17 +65,39 @@ public class HealthSystem extends System {
   }
 
   public static void enqueueDamage(HealthComponent hc, Damage damage) {
+    INCOMING_DAMAGE.putIfAbsent(hc, new ArrayDeque<>());
+    INCOMING_DAMAGE.get(hc).add(damage);
   }
 
   public static int calculateDamageOf(HealthComponent hc, DamageType dt) {
-    return 0;
+    if (!INCOMING_DAMAGE.containsKey(hc)) return 0;
+
+    Queue<Damage> q = INCOMING_DAMAGE.get(hc);
+    if (q.isEmpty()) return 0;
+
+    int sum = 0;
+    for (Damage d : q) {
+      if (d.damageType() == dt) {
+        sum += d.damageAmount();
+      }
+    }
+    return sum;
   }
 
-  public static void clearDamageQueue(HealthComponent hc) {
+  public static void removePendingDamage(HealthComponent hc) {
+    INCOMING_DAMAGE.remove(hc);
   }
 
   public static Optional<Entity> lastDamageCauseOf(HealthComponent hc) {
-    return Optional.empty();
+    if (!INCOMING_DAMAGE.containsKey(hc)) return Optional.empty();
+    Queue<Damage> q = INCOMING_DAMAGE.get(hc);
+    if (q.isEmpty()) return Optional.empty();
+
+    Optional<Damage> last = Optional.empty();
+    for (Damage d : q) {
+      last = Optional.of(d);
+    }
+    return last.map(Damage::cause);
   }
 
   protected HSData applyDamage(final HSData hsd) {
