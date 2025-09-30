@@ -50,6 +50,7 @@ import produsAdvanced.abstraction.portals.PortalFactory;
 public class BluePortalSkill extends PortalSkill {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 <<<<<<< HEAD:advancedDungeon/src/produsAdvanced/abstraction/portalSkills/BluePortalSkill.java
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -64,7 +65,11 @@ public class BluePortalSkill extends PortalSkill {
   private static final IPath TEXTURE = new SimpleIPath("skills/blue_projectile");
 >>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 =======
+=======
+  /** Name of the Skill. */
+>>>>>>> 4eca951b (fixed javadocs)
   public static final String SKILL_NAME = "BLUE_PORTAL";
+
   private static final IPath TEXTURE = new SimpleIPath("skills/blue_projectile");
 >>>>>>> ac8cf0c7 (restructed portal related files)
 

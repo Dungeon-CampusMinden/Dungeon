@@ -69,6 +69,8 @@ public abstract class PortalSkill extends ProjectileSkill {
   /**
    * Creates a new portal skill.
    *
+   * @param skillName Name of the skill.
+   * @param texture Path of the texture for the skill.
    * @param resourceCost Resource costs for casting.
    */
   public PortalSkill(String skillName, IPath texture, Tuple<Resource, Integer>... resourceCost) {

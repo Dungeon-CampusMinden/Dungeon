@@ -24,6 +24,7 @@ public enum LevelElement {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** This field is a portal-field*/
   PORTAL(false, false);
 <<<<<<< HEAD
@@ -67,6 +68,9 @@ public enum LevelElement {
 
 =======
   /** This field is a portal-field */
+=======
+  /** This field is a portal-field. */
+>>>>>>> 4eca951b (fixed javadocs)
   PORTAL(false, false);
 
 >>>>>>> 36f09545 (apply spotless)
