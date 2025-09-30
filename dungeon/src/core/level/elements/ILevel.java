@@ -144,7 +144,11 @@ public interface ILevel extends IndexedGraph<Tile> {
         } else if (layout()[y][x].levelElement() == LevelElement.PIT) {
           output.append("P");
         } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
+<<<<<<< HEAD
           output.append("T");
+=======
+          output.append("B");
+>>>>>>> 40c748e7 (added PortalTile for portal skill)
         } else {
           throw new RuntimeException(
               "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());

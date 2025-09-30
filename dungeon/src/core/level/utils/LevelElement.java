@@ -18,7 +18,10 @@ public enum LevelElement {
   DOOR(true, true),
   /** This field is a portal-field*/
   PORTAL(false, false);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 40c748e7 (added PortalTile for portal skill)
 
   private final boolean accessible;
   private final boolean canSeeThrough;

@@ -257,7 +257,11 @@ public class DungeonLevel implements ILevel, ITickable {
       case EXIT -> exitTiles.add((ExitTile) tile);
       case DOOR -> doorTiles.add((DoorTile) tile);
       case PIT -> pitTiles.add((PitTile) tile);
+<<<<<<< HEAD
       case PORTAL -> portalTiles.add((PortalTile) tile);
+=======
+      case PORTAL ->  portalTiles.add((PortalTile) tile);
+>>>>>>> 40c748e7 (added PortalTile for portal skill)
     }
     this.addToPathfinding(tile);
     tile.level(this);

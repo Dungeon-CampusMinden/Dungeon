@@ -421,7 +421,11 @@ public class DungeonLoader {
           case 'P' -> layout[y][x] = LevelElement.PIT;
           case 'H' -> layout[y][x] = LevelElement.HOLE;
           case 'D' -> layout[y][x] = LevelElement.DOOR;
+<<<<<<< HEAD
           case 'T' -> layout[y][x] = LevelElement.PORTAL;
+=======
+          case 'B' -> layout[y][x] = LevelElement.PORTAL;
+>>>>>>> 40c748e7 (added PortalTile for portal skill)
           default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
         }
       }
