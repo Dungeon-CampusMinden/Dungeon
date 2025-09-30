@@ -88,7 +88,7 @@ public class LocalNetworkHandler implements INetworkHandler {
   public void shutdown(String reason) {
     this.isRunning = false;
     this.isInitialized = false;
-    notifyDisconnected(new NetworkException(reason));
+    notifyDisconnected(reason);
     LOGGER.info("LocalNetworkHandler shutdown complete. Reason: {}", reason);
   }
 
@@ -166,7 +166,7 @@ public class LocalNetworkHandler implements INetworkHandler {
     }
   }
 
-  private void notifyDisconnected(Throwable reason) {
+  private void notifyDisconnected(String reason) {
     List<ConnectionListener> snapshot;
     synchronized (this) {
       snapshot = new ArrayList<>(connectionListeners);
@@ -230,6 +230,6 @@ public class LocalNetworkHandler implements INetworkHandler {
               snapshotEntities.add(builder.build());
             });
 
-    rawMessageConsumer.accept(null, new SnapshotMessage(0L, snapshotEntities));
+    rawMessageConsumer.accept(null, new SnapshotMessage(Game.currentTick(), snapshotEntities));
   }
 }

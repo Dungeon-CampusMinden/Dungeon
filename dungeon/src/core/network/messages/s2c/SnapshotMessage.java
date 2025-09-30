@@ -11,5 +11,5 @@ import java.util.List;
  *
  * @param serverTick optional monotonic tick
  */
-public record SnapshotMessage(long serverTick, List<EntityState> entities)
+public record SnapshotMessage(int serverTick, List<EntityState> entities)
     implements NetworkMessage {}
