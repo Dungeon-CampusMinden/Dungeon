@@ -1,6 +1,10 @@
 package produsAdvanced;
 
 import contrib.components.SkillComponent;
+<<<<<<< HEAD
+=======
+import contrib.crafting.Crafting;
+>>>>>>> ca4f8ed2 (added dummy portal skill)
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import contrib.hud.DialogUtils;
@@ -24,9 +28,13 @@ import java.util.Set;
 import java.util.logging.Level;
 import produsAdvanced.abstraction.Hero;
 import produsAdvanced.abstraction.PlayerController;
+<<<<<<< HEAD
 import produsAdvanced.abstraction.portalSkills.BluePortalSkill;
 import produsAdvanced.abstraction.portalSkills.GreenPortalSkill;
 import produsAdvanced.abstraction.portalSkills.PortalSkill;
+=======
+import produsAdvanced.abstraction.PortalSkill;
+>>>>>>> ca4f8ed2 (added dummy portal skill)
 import produsAdvanced.level.*;
 
 /**
@@ -134,8 +142,12 @@ public class AdvancedDungeon {
             Game.add(HeroFactory.newHero());
             SkillComponent sc = Game.hero().get().fetch(SkillComponent.class).get();
             sc.removeAll();
+<<<<<<< HEAD
             sc.addSkill(new BluePortalSkill(new Tuple<>(Resource.MANA, 0)));
             sc.addSkill(new GreenPortalSkill(new Tuple<>(Resource.MANA, 0)));
+=======
+            sc.addSkill(new PortalSkill(new Tuple<>(Resource.MANA, 10)));
+>>>>>>> ca4f8ed2 (added dummy portal skill)
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
