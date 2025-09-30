@@ -20,10 +20,14 @@ import produsAdvanced.abstraction.Portal;
 public class GreenPortalSkill extends PortalSkill {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
 =======
   private static final IPath TEXTURE = new SimpleIPath("skills/green_portal");
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+  private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 
   /**
    * Creates a new projectile skill.
@@ -47,7 +51,7 @@ public class GreenPortalSkill extends PortalSkill {
 >>>>>>> 36adc3c1 (added green and blue portal variants)
 =======
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
-    if (Game.tileAt(position).get().levelElement() == LevelElement.GREEN_PORTAL) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
 >>>>>>> d483f6ff (added direction to portals)
     }

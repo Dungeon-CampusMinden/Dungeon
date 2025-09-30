@@ -105,6 +105,7 @@ public class Portal {
     Point best = list.getFirst().a();
     System.out.println(new Point(point.x()-best.x(), point.y()-best.y()));
 <<<<<<< HEAD
+<<<<<<< HEAD
     portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
 =======
 =======
@@ -115,6 +116,9 @@ public class Portal {
       throw new RuntimeException(e);
     }
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+    portal.add(new DrawComponent(new SimpleIPath("portals/blue_portal")));
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
     Game.add(portal);
     bluePortal = portal;
   }
@@ -139,6 +143,9 @@ public class Portal {
     portal.add(cc);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
     portal.add(new DrawComponent(new SimpleIPath("portals/green_portal")));
     Game.add(portal);
     greenPortal = portal;

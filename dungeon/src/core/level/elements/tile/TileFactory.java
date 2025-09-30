@@ -33,6 +33,7 @@ public class TileFactory {
       case PIT -> new PitTile(texturePath, coordinate, designLabel);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
 =======
       case PORTAL -> new PortalTile(texturePath, coordinate, designLabel);
@@ -41,6 +42,9 @@ public class TileFactory {
       case GREEN_PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.GREEN_PORTAL);
       case BLUE_PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.BLUE_PORTAL);
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      case PORTAL -> new PortalTile(texturePath, coordinate, designLabel,LevelElement.PORTAL);
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
     };
   }
 }

@@ -423,6 +423,7 @@ public class DungeonLoader {
           case 'D' -> layout[y][x] = LevelElement.DOOR;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           case 'T' -> layout[y][x] = LevelElement.PORTAL;
 =======
           case 'B' -> layout[y][x] = LevelElement.PORTAL;
@@ -431,6 +432,9 @@ public class DungeonLoader {
           case 'B' -> layout[y][x] = LevelElement.BLUE_PORTAL;
           case 'G' -> layout[y][x] = LevelElement.GREEN_PORTAL;
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+          case 'T' -> layout[y][x] = LevelElement.PORTAL;
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
           default -> throw new IllegalArgumentException("Invalid character in level layout: " + c);
         }
       }

@@ -199,7 +199,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case DOOR -> doorTiles.remove((DoorTile) tile);
       case EXIT -> exitTiles.remove((ExitTile) tile);
       case PIT -> pitTiles.remove((PitTile) tile);
-      case BLUE_PORTAL, GREEN_PORTAL -> portalTiles.remove((PortalTile) tile);
+      case PORTAL -> portalTiles.remove((PortalTile) tile);
     }
     this.removeFromPathfinding(tile);
   }
@@ -259,6 +259,7 @@ public class DungeonLevel implements ILevel, ITickable {
       case PIT -> pitTiles.add((PitTile) tile);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case PORTAL -> portalTiles.add((PortalTile) tile);
 =======
       case PORTAL ->  portalTiles.add((PortalTile) tile);
@@ -266,6 +267,9 @@ public class DungeonLevel implements ILevel, ITickable {
 =======
       case BLUE_PORTAL, GREEN_PORTAL ->  portalTiles.add((PortalTile) tile);
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      case PORTAL -> portalTiles.add((PortalTile) tile);
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
     }
     this.addToPathfinding(tile);
     tile.level(this);

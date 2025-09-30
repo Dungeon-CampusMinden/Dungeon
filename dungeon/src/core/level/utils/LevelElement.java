@@ -17,6 +17,7 @@ public enum LevelElement {
   /** This field is a door-field. */
   DOOR(true, true),
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** This field is a portal-field*/
   PORTAL(false, false);
 <<<<<<< HEAD
@@ -29,6 +30,11 @@ public enum LevelElement {
   /** This field is a blue-portal-field*/
   BLUE_PORTAL(false, false);
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+  /** This field is a portal-field*/
+  PORTAL(false, false);
+
+>>>>>>> 077375b3 (updated all portal related assets to .json formats and moved them into advancedDungeon)
 
   private final boolean accessible;
   private final boolean canSeeThrough;
