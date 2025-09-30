@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
+import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
@@ -9,7 +10,10 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +28,8 @@ import java.util.stream.Stream;
  */
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
+
+  private static final Map<HealthComponent, Queue<Damage>> INCOMING_DAMAGE = new HashMap<>();
 
   private static final String DEATH_STATE = "dead";
   private static final String DEATH_SIGNAL = "die";
@@ -55,6 +61,20 @@ public class HealthSystem extends System {
         .map(this::activateDeathAnimation)
         .filter(this::isDeathAnimationFinished)
         .forEach(this::triggerOnDeath);
+  }
+
+  public static void enqueueDamage(HealthComponent hc, Damage damage) {
+  }
+
+  public static int calculateDamageOf(HealthComponent hc, DamageType dt) {
+    return 0;
+  }
+
+  public static void clearDamageQueue(HealthComponent hc) {
+  }
+
+  public static Optional<Entity> lastDamageCauseOf(HealthComponent hc) {
+    return Optional.empty();
   }
 
   protected HSData applyDamage(final HSData hsd) {
