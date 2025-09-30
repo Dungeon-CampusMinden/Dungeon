@@ -45,7 +45,11 @@ public class Portal {
 
 
   public static void createBluePortal(Point point) {
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+    clearBluePortal();
+>>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
     Entity portal;
     portal = new Entity("blue_portal");
     portal.add(new PositionComponent(point));
@@ -89,7 +93,11 @@ public class Portal {
     clearGreenPortal();
 =======
   public static void createGreenPortal(Point point) {
+<<<<<<< HEAD
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+    clearGreenPortal();
+>>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
     Entity portal;
     portal = new Entity("green_portal");
     portal.add(new PositionComponent(point));
@@ -115,7 +123,7 @@ public class Portal {
       throw new RuntimeException(e);
     }
     Game.add(portal);
-    bluePortal = portal;
+    greenPortal = portal;
   }
 
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
@@ -144,10 +152,14 @@ public class Portal {
 
   public static void clearBluePortal() {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
     if (bluePortal != null) {
       Game.remove(bluePortal);
       bluePortal = null;
     }
+<<<<<<< HEAD
   }
 
   public static void clearGreenPortal() {
@@ -162,6 +174,15 @@ public class Portal {
   public static void clearGreenPortal() {
     greenPortal = null;
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+  }
+
+  public static void clearGreenPortal() {
+    if (greenPortal != null) {
+      Game.remove(greenPortal);
+      greenPortal = null;
+    }
+>>>>>>> d4f46e36 (implemented singleton pattern behaviour for portals)
   }
 
 }
