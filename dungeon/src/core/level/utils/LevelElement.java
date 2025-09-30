@@ -16,7 +16,7 @@ public enum LevelElement {
   PIT(false, true),
   /** This field is a door-field. */
   DOOR(true, true),
-  /** This field is a portal-field */
+  /** This field is a portal-field. */
   PORTAL(false, false);
 
   private final boolean accessible;

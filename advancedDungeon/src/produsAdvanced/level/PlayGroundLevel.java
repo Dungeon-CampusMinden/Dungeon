@@ -6,7 +6,7 @@ import core.level.utils.LevelElement;
 import java.util.List;
 import level.AdvancedLevel;
 
-/** Playground level to test things out */
+/** Playground level to test things out. */
 public class PlayGroundLevel extends AdvancedLevel {
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the

@@ -134,7 +134,7 @@ public class PortalFactory {
   }
 
   /**
-   * Assigns the corresponding portal reference
+   * Assigns the corresponding portal reference.
    *
    * @param color the portal color
    * @param portal the portal entity

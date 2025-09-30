@@ -14,7 +14,9 @@ import produsAdvanced.abstraction.portals.PortalFactory;
  */
 public class GreenPortalSkill extends PortalSkill {
 
+  /** Name of the Skill. */
   public static final String SKILL_NAME = "GREEN_PORTAL";
+
   private static final IPath TEXTURE = new SimpleIPath("skills/green_projectile");
 
   /**

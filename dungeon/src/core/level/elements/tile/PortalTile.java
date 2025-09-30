@@ -6,6 +6,7 @@ import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.components.path.IPath;
 
+/** Represents a Portal in the game. */
 public class PortalTile extends Tile {
   /**
    * Creates a new Tile.

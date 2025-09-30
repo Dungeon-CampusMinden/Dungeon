@@ -225,7 +225,6 @@ public abstract class ProjectileSkill extends Skill {
    * @param projectile the projectile entity
    */
   protected void onWallHit(Entity caster, Entity projectile) {
-    System.out.println("wallhit");
     Game.remove(projectile);
   }
 
