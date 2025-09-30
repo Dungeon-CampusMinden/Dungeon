@@ -26,6 +26,9 @@ public final class OkDialog {
    *
    * <p>Entity will already be added to the game.
    *
+   * <p>If no UI is available (e.g. in headless mode), the onOk function will be executed
+   * immediately and a dummy entity will be returned (will not be added to the game).
+   *
    * @param text text to show in the dialog
    * @param title title of the dialog window
    * @param onOk function to execute if "ok" is pressed
@@ -33,9 +36,15 @@ public final class OkDialog {
    */
   public static Entity showOkDialog(
       final String text, final String title, final IVoidFunction onOk) {
-
-    Entity entity = showOkDialog(defaultSkin(), text, title, onOk);
-    Game.add(entity);
+    Entity entity;
+    try {
+      entity = showOkDialog(defaultSkin(), text, title, onOk);
+      Game.add(entity);
+    } catch (IllegalStateException e) {
+      // in headless just run onOkn
+      onOk.execute();
+      entity = new Entity("okDialog_noUI");
+    }
     return entity;
   }
 

@@ -2,6 +2,7 @@ package core.network;
 
 import contrib.components.HealthComponent;
 import contrib.components.ManaComponent;
+import contrib.components.UIComponent;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -24,20 +25,20 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
    * Checks if the server tick is valid. A server tick is valid if it is non-negative and greater
    * than the latest server tick received.
    *
-   * <p>To allow overflowing server ticks, we check if near Long.MAX_VALUE, which is the maximum
-   * value for a long in Java. If the server tick is close to this value, we allow lower ticks to be
+   * <p>To allow overflowing server ticks, we check if near Integer.MAX_VALUE, which is the maximum
+   * value for a int in Java. If the server tick is close to this value, we allow lower ticks to be
    * considered valid, effectively resetting the latest server tick.
    *
    * @param serverTick the server tick to validate
    * @return true if the server tick is valid, false otherwise
    */
-  private boolean isServerTickValid(long serverTick) {
+  private boolean isServerTickValid(int serverTick) {
     final int MAX_TICK_THRESHOLD = 1000; // Threshold to reset latestServerTick
     if (serverTick < 0) {
       return false; // Server tick must be non-negative
     }
 
-    if (serverTick > Long.MAX_VALUE - MAX_TICK_THRESHOLD) {
+    if (serverTick > Integer.MAX_VALUE - MAX_TICK_THRESHOLD) {
       // If server tick is near Long.MAX_VALUE, reset latestServerTick
       latestServerTick = -1;
       return true; // Allow lower ticks to be valid
@@ -53,17 +54,17 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
   // Server-side
   @Override
-  public Optional<SnapshotMessage> translateToSnapshot(
-      long serverTick, Map<Integer, Entity> clientEntities) {
+  public Optional<SnapshotMessage> translateToSnapshot(int serverTick) {
     if (!isServerTickValid(serverTick)) {
-      LOGGER.warn("No new server tick, skipping snapshot for server tick: {}", serverTick);
+      LOGGER.trace("No new server tick, skipping snapshot for server tick: {}", serverTick);
       return Optional.empty(); // Skip snapshot if server tick is invalid
     }
     latestServerTick = serverTick;
 
-    List<EntityState> list = new ArrayList<>(clientEntities.size());
+    List<EntityState> list = new ArrayList<>();
 
     Game.levelEntities()
+        .filter(this::isClientRelevant)
         .forEach(
             e -> {
               EntityState.Builder builder = EntityState.builder();
@@ -107,6 +108,20 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
     return Optional.of(new SnapshotMessage(serverTick, list));
   }
 
+  private boolean isClientRelevant(Entity entity) {
+    if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
+      // Normal Entity
+      return true;
+    }
+    if (entity.isPresent(UIComponent.class)) {
+      // UI Entity
+      return true;
+    }
+    // ... TODO: Sound Entities...
+
+    return false;
+  }
+
   // Client-side
   @Override
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
@@ -126,12 +141,12 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
             snap -> {
               try {
                 final int entityId = snap.entityId();
-                Optional<Entity> targetEntity = resolveEntityById(entityId);
+                Optional<Entity> targetEntity = Game.findEntityById(entityId);
 
                 if (targetEntity.isEmpty()) {
                   LOGGER.warn(
                       "No entity found for snapshot with id: " + entityId + ". Requesting spawn.");
-                  Game.network().broadcast(new RequestEntitySpawn(entityId), true);
+                  Game.network().send(0, new RequestEntitySpawn(entityId), true);
                   return;
                 }
 
@@ -195,9 +210,5 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
               } catch (Exception ignored) {
               }
             });
-  }
-
-  private static Optional<Entity> resolveEntityById(int entityId) {
-    return Game.allEntities().filter(e -> e.id() == entityId).findFirst();
   }
 }

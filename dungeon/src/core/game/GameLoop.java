@@ -23,8 +23,10 @@ import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
+import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.handler.LocalNetworkHandler;
+import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.*;
 import core.systems.*;
 import core.utils.Direction;
@@ -50,6 +52,7 @@ public final class GameLoop extends ScreenAdapter {
   private static Stage stage;
   private boolean doSetup = true;
   private boolean newLevelWasLoadedInThisLoop = false;
+  private static int tickCounter = 0;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -152,6 +155,17 @@ public final class GameLoop extends ScreenAdapter {
   }
 
   /**
+   * Get the current tick of the game.
+   *
+   * <p>The tick is incremented every frame, starting from 0 at the beginning of the game.
+   *
+   * @return the current tick
+   */
+  public static int currentTick() {
+    return tickCounter;
+  }
+
+  /**
    * Main game loop.
    *
    * <p>Triggers the execution of the systems and the event callbacks.
@@ -217,6 +231,17 @@ public final class GameLoop extends ScreenAdapter {
     createSystems();
     if (PreRunConfiguration.multiplayerEnabled()) {
       setupMessageHandlers();
+      Game.network()
+          .addConnectionListener(
+              new ConnectionListener() {
+                @Override
+                public void onConnected() {}
+
+                @Override
+                public void onDisconnected(String reason) {
+                  InputMessage.resetSequence();
+                }
+              });
     }
     setupStage();
     PreRunConfiguration.userOnSetup().execute();
@@ -289,7 +314,7 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         LevelChangeEvent.class,
         (ctx, event) -> {
-          LOGGER.info("Received LevelChangeEvent event: " + event.levelName());
+          LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
           try {
             Game.currentLevel(DungeonLoader.loadFromString(event.levelData(), event.levelName()));
             Game.hero().ifPresent(this::placeOnLevelStart);

@@ -8,6 +8,7 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.network.MessageDispatcher;
+import core.network.config.NetworkConfig;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
@@ -26,29 +27,41 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ServerTransport {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerTransport.class);
+  private static final short SERVER_PROTOCOL_VERSION = 1;
+  private static final Random RANDOM = new Random();
 
   private final ConcurrentLinkedQueue<InputMessage> inputQueue = new ConcurrentLinkedQueue<>();
+
+  // Transport/session mappings
+  private final ConcurrentHashMap<ChannelId, Session> sessions = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Integer, Session> clientIdToSession = new ConcurrentHashMap<>();
+
+  // UDP/TCP address and channel lookups
   private final ConcurrentHashMap<Integer, InetSocketAddress> clientIdToUdp =
+      new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<InetSocketAddress, Integer> udpToClientId =
       new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ChannelId, Integer> tcpChannelToClientId =
       new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<Integer, String> clientIdToName = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<ChannelId, ChannelHandlerContext> tcpChannels =
       new ConcurrentHashMap<>();
-  private final AtomicInteger nextClientId = new AtomicInteger(1);
+  private final ConcurrentHashMap<Integer, String> clientIdToName = new ConcurrentHashMap<>();
 
+  private final AtomicInteger nextClientId = new AtomicInteger(1);
+  private final int SESSION_ID = RANDOM.nextInt();
+
+  // Netty resources and dispatcher
   private EventLoopGroup bossGroup;
   private EventLoopGroup workerGroup;
   private Channel tcpServer;
@@ -91,23 +104,43 @@ public final class ServerTransport {
     return inputQueue;
   }
 
-  public Map<Integer, InetSocketAddress> udpClients() {
-    return Map.copyOf(clientIdToUdp);
+  public Map<ChannelId, Session> sessions() {
+    return Map.copyOf(sessions);
   }
 
-  public Map<ChannelId, ChannelHandlerContext> tcpChannels() {
-    return Map.copyOf(tcpChannels);
+  public Set<ClientState> connectedClients() {
+    Set<ClientState> clients = new HashSet<>();
+    for (Session s : sessions.values()) {
+      s.clientState().ifPresent(clients::add);
+    }
+    return clients;
   }
 
-  public Map<ChannelId, Integer> tcpClientMap() {
-    return Map.copyOf(tcpChannelToClientId);
+  public Map<Integer, Session> clientIdToSessionMap() {
+    return Map.copyOf(clientIdToSession);
   }
 
-  public Optional<String> clientName(int clientId) {
-    return Optional.ofNullable(clientIdToName.get(clientId));
+  public int nextClientIdValue() {
+    return nextClientId.get();
   }
 
-  CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+  public int serverSessionId() {
+    return SESSION_ID;
+  }
+
+  public MessageDispatcher dispatcher() {
+    return dispatcher;
+  }
+
+  public Channel tcpServerChannel() {
+    return tcpServer;
+  }
+
+  public Channel udpChannel() {
+    return udpChannel;
+  }
+
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
     if (udpChannel == null || !udpChannel.isActive()) {
       LOGGER.warn("UDP channel not active; cannot send to {}", target);
       return CompletableFuture.completedFuture(false);
@@ -122,11 +155,70 @@ public final class ServerTransport {
           .writeAndFlush(
               new DatagramPacket(udpChannel.alloc().buffer(data.length).writeBytes(data), target))
           .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      return CompletableFuture.completedFuture(true);
     } catch (Exception e) {
       LOGGER.warn("Failed to send UDP object to {}", target, e);
       return CompletableFuture.completedFuture(false);
     }
-    return CompletableFuture.completedFuture(true);
+  }
+
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+    if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
+      return CompletableFuture.completedFuture(false);
+    }
+    try {
+      byte[] data = serialize(obj);
+      if (data.length > MAX_TCP_OBJECT_SIZE) {
+        LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
+        return CompletableFuture.completedFuture(false);
+      }
+      ByteBuf buf = ctx.alloc().buffer(TCP_LENGTH_FIELD_LENGTH + data.length);
+      buf.writeInt(data.length);
+      buf.writeBytes(data);
+      ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      return CompletableFuture.completedFuture(true);
+    } catch (IOException e) {
+      LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
+      return CompletableFuture.completedFuture(false);
+    }
+  }
+
+  public CompletableFuture<Boolean> broadcast(Object obj, boolean reliable) {
+    List<CompletableFuture<Boolean>> futures = new ArrayList<>();
+    LOGGER.debug(
+        "Broadcasting {} to {} clients via {}",
+        obj.getClass().getSimpleName(),
+        reliable ? sessions.size() : clientIdToUdp.size(),
+        reliable ? "TCP" : "UDP");
+
+    if (reliable) {
+      for (Session s : List.copyOf(sessions.values())) {
+        ChannelHandlerContext ctx = s.tcpCtx();
+        if (ctx != null && ctx.channel() != null && ctx.channel().isActive()) {
+          futures.add(sendTcpObject(ctx, obj));
+        } else {
+          futures.add(CompletableFuture.completedFuture(false));
+          LOGGER.warn(
+              "Skipping TCP broadcast to inactive/missing channel for clientId={}", s.clientId());
+        }
+      }
+    } else {
+      for (Session s : List.copyOf(clientIdToSession.values())) {
+        InetSocketAddress addr = clientIdToUdp.get(s.clientId());
+        if (addr != null) {
+          futures.add(sendUdpObject(addr, obj));
+        } else {
+          futures.add(CompletableFuture.completedFuture(false));
+          LOGGER.warn(
+              "Skipping UDP broadcast to clientId={} with no registered UDP address", s.clientId());
+        }
+      }
+    }
+
+    if (futures.isEmpty()) return CompletableFuture.completedFuture(true);
+    CompletableFuture<Void> all =
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    return all.thenApply(v -> futures.stream().allMatch(CompletableFuture::join));
   }
 
   // ---- internals ----
@@ -162,6 +254,10 @@ public final class ServerTransport {
   private final class TcpServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+      Function<Object, CompletableFuture<Boolean>> tcpSenderForSession =
+          obj -> sendTcpObject(ctx, obj);
+      Session session = new Session(ctx, ServerTransport.this::sendUdpObject, tcpSenderForSession);
+      sessions.put(ctx.channel().id(), session);
       tcpChannels.put(ctx.channel().id(), ctx);
       super.channelActive(ctx);
     }
@@ -169,8 +265,8 @@ public final class ServerTransport {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
       Object obj = deserialize(frame);
-      if (obj instanceof NetworkMessage cr) {
-        if (dispatcher != null) dispatcher.dispatch(ctx, cr);
+      if (obj instanceof NetworkMessage msg) {
+        if (dispatcher != null) dispatcher.dispatch(ctx, msg);
       } else {
         LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
       }
@@ -180,8 +276,26 @@ public final class ServerTransport {
     public void channelInactive(ChannelHandlerContext ctx) {
       Integer id = tcpChannelToClientId.remove(ctx.channel().id());
       tcpChannels.remove(ctx.channel().id());
-      if (id != null) {
-        clientIdToUdp.remove(id);
+
+      Session sess = sessions.remove(ctx.channel().id());
+      if (sess != null) {
+        try {
+          sess.close();
+        } catch (Exception ignored) {
+        }
+        int sid = sess.clientId();
+        if (sid != 0) {
+          clientIdToSession.remove(sid);
+          InetSocketAddress prev = clientIdToUdp.remove(sid);
+          if (prev != null) udpToClientId.remove(prev);
+          clientIdToName.remove(sid);
+          LOGGER.info("Client disconnected id={} {}", sid, ctx.channel());
+        } else {
+          LOGGER.info("TCP channel closed (no assigned clientId) {}", ctx.channel());
+        }
+      } else if (id != null) {
+        InetSocketAddress prev = clientIdToUdp.remove(id);
+        if (prev != null) udpToClientId.remove(prev);
         clientIdToName.remove(id);
         LOGGER.info("Client disconnected id={} {}", id, ctx.channel());
       }
@@ -209,12 +323,12 @@ public final class ServerTransport {
         return;
       }
 
-      if (obj instanceof RegisterUdp reg) {
-        onRegisterUdp(pkt.sender(), reg);
-      } else if (obj instanceof NetworkMessage networkMessage) {
-        if (dispatcher != null) dispatcher.dispatch(ctx, networkMessage);
-      } else {
-        LOGGER.debug("UDP unrecognized type={} from {}", obj.getClass().getName(), pkt.sender());
+      switch (obj) {
+        case RegisterUdp reg -> onRegisterUdp(pkt.sender(), reg);
+        case InputMessage input -> onInputMessage(pkt.sender(), input);
+        default ->
+            LOGGER.debug(
+                "UDP unrecognized type={} from {}", obj.getClass().getName(), pkt.sender());
       }
     }
 
@@ -226,29 +340,59 @@ public final class ServerTransport {
 
   private void setupDispatchers() {
     dispatcher = Game.network().messageDispatcher();
-
-    if (dispatcher == null) {
+    if (dispatcher == null)
       throw new IllegalStateException("Game.network().messageDispatcher() is null");
-    }
 
     dispatcher.registerHandler(ConnectRequest.class, this::onConnectRequest);
     dispatcher.registerHandler(RequestEntitySpawn.class, this::onRequestEntitySpawn);
-    dispatcher.registerHandler(InputMessage.class, (ctx, msg) -> inputQueue.offer(msg));
+    dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
   }
 
   private void onConnectRequest(ChannelHandlerContext ctx, ConnectRequest req) {
+    if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
+      sendTcpObject(
+          ctx,
+          new ConnectReject(
+              "Protocol version mismatch. Server="
+                  + SERVER_PROTOCOL_VERSION
+                  + ", yours="
+                  + req.protocolVersion()));
+      ctx.close();
+      return;
+    }
+
     String playerName = req.playerName();
     if (!isValidPlayerName(playerName)) {
       sendTcpObject(
           ctx,
           new ConnectReject(
-              "Invalid player name. Must be non-empty, without underscores, and" + " unique."));
+              "Invalid player name. Must be non-empty, without underscores, and unique."));
       ctx.close();
       return;
     }
+
+    if (req.sessionId() != 0 || (req.sessionToken() != null && req.sessionToken().length > 0)) {
+      // TODO: implement session reconnection
+      LOGGER.info(
+          "Session reconnection not implemented yet, ignoring session data. Got: id={} tokenLength={}",
+          req.sessionId(),
+          req.sessionToken() != null ? req.sessionToken().length : 0);
+    }
+
     int id = nextClientId.getAndIncrement();
     clientIdToName.put(id, playerName);
     tcpChannelToClientId.put(ctx.channel().id(), id);
+
+    Session session = sessions.get(ctx.channel().id());
+    long clientSessionId = RANDOM.nextLong();
+    byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
+
+    if (session != null) {
+      session.attachClientState(new ClientState(id, playerName, clientSessionId, sessionToken));
+      clientIdToSession.put(id, session);
+    } else {
+      LOGGER.warn("Accepted client id={} but no Session found for channel {}", id, ctx.channel());
+    }
 
     sendTcpObject(ctx, new ConnectAck(id));
     sendInitialLevel(ctx, id);
@@ -266,11 +410,48 @@ public final class ServerTransport {
     PositionComponent pc = e.fetch(PositionComponent.class).orElse(null);
     DrawComponent dc = e.fetch(DrawComponent.class).orElse(null);
     if (pc == null || dc == null) {
-      LOGGER.warn("Entity id='{}' missing components for spawn", entityId);
+      LOGGER.warn(
+          "Entity id='{}' missing components for spawn (entity was: '{}')", entityId, e.name());
       return;
     }
     EntitySpawnEvent spawn = new EntitySpawnEvent(e.id(), pc, dc);
     sendTcpObject(ctx, spawn);
+    java.lang.System.out.println(
+        "Sent EntitySpawnEvent for entityId=" + entityId + " to " + ctx.channel());
+  }
+
+  private void onInputMessage(ChannelHandlerContext ctx, InputMessage msg) {
+    Integer clientId = tcpChannelToClientId.get(ctx.channel().id());
+    if (clientId == null) {
+      Session s = sessions.get(ctx.channel().id());
+      if (s != null) clientId = s.clientId();
+    }
+    if (clientId == null) {
+      LOGGER.warn("Received TCP InputMessage from unknown channel {}", ctx.channel());
+      return;
+    }
+    inputQueue.offer(
+        new InputMessage(msg.clientTick(), msg.sequence(), msg.action(), msg.point(), clientId));
+  }
+
+  private void onInputMessage(InetSocketAddress sender, InputMessage msg) {
+    Integer clientId = udpToClientId.get(sender);
+    if (clientId == null) {
+      // Fallback: search in clientIdToUdp map
+      for (Map.Entry<Integer, InetSocketAddress> e : clientIdToUdp.entrySet()) {
+        if (Objects.equals(e.getValue(), sender)) {
+          clientId = e.getKey();
+          udpToClientId.put(sender, clientId);
+          break;
+        }
+      }
+    }
+    if (clientId == null) {
+      LOGGER.warn("Received UDP InputMessage from unknown address {}", sender);
+      return;
+    }
+    inputQueue.offer(
+        new InputMessage(msg.clientTick(), msg.sequence(), msg.action(), msg.point(), clientId));
   }
 
   private void onRegisterUdp(InetSocketAddress sender, RegisterUdp reg) {
@@ -282,7 +463,11 @@ public final class ServerTransport {
     }
     InetSocketAddress previous = clientIdToUdp.put(id, sender);
     if (!Objects.equals(previous, sender)) {
+      if (previous != null) udpToClientId.remove(previous);
+      udpToClientId.put(sender, id);
       LOGGER.info("Registered/updated UDP for clientId={} addr={}", id, sender);
+      Session s = clientIdToSession.get(id);
+      if (s != null) s.udpAddress(sender);
     }
     sendUdpObject(sender, new RegisterAck(true));
   }
@@ -297,38 +482,21 @@ public final class ServerTransport {
     }
   }
 
-  CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
-    final CompletableFuture<Boolean> result = new CompletableFuture<>();
-    try {
-      byte[] data = serialize(obj);
-      if (data.length > MAX_TCP_OBJECT_SIZE) {
-        LOGGER.warn("{} too large; not sending", obj.getClass().getSimpleName());
-        result.complete(false);
-        return result;
-      }
-      ByteBuf buf = ctx.alloc().buffer(4 + data.length);
-      buf.writeInt(data.length);
-      buf.writeBytes(data);
-      ChannelFuture future = ctx.writeAndFlush(buf);
-      future.addListener(
-          (ChannelFutureListener)
-              f -> {
-                if (!f.isSuccess()) {
-                  LOGGER.warn(
-                      "Failed to send TCP object {} to {}",
-                      obj.getClass().getSimpleName(),
-                      ctx.channel(),
-                      f.cause());
-                }
-                result.complete(f.isSuccess());
-              });
-    } catch (IOException e) {
-      LOGGER.warn("Failed to send TCP object {}", obj.getClass().getSimpleName(), e);
-      result.complete(false);
-    }
-    return result;
-  }
-
+  /**
+   * Validates a proposed player name.
+   *
+   * <p>Rules:
+   *
+   * <ul>
+   *   <li>Not null
+   *   <li>Not blank
+   *   <li>No underscores
+   *   <li>Unique among connected players
+   * </ul>
+   *
+   * @param name The player name to validate.
+   * @return True if valid, false otherwise.
+   */
   private boolean isValidPlayerName(String name) {
     return name != null
         && !name.isBlank()

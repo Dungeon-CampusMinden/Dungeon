@@ -11,5 +11,5 @@ public interface ConnectionListener {
   void onConnected();
 
   /** Called when the handler disconnects. If orderly, {@code reason} is null. */
-  void onDisconnected(Throwable reason);
+  void onDisconnected(String reason);
 }

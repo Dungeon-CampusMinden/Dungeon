@@ -20,6 +20,10 @@ public final class NetworkConfig {
   public static final int TCP_INITIAL_BYTES_TO_STRIP = 4;
 
   // Server tick rates
-  public static final int SERVER_TICK_HZ = 30;
-  public static final int SERVER_SNAPSHOT_HZ = 30;
+  public static final int SERVER_TICK_HZ = 60;
+  public static final int SERVER_SNAPSHOT_HZ = 60;
+
+  public static final int MAX_SEQUENCE_GAP = 32;
+
+  public static final int SESSION_TOKEN_LENGTH_BYTES = 24; // 192 bits
 }

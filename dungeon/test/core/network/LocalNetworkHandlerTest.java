@@ -14,7 +14,7 @@ public class LocalNetworkHandlerTest {
     LocalNetworkHandler handler = new LocalNetworkHandler();
     AtomicInteger connected = new AtomicInteger();
     AtomicInteger disconnected = new AtomicInteger();
-    final Throwable[] lastReason = new Throwable[1];
+    final String[] lastReason = new String[1];
 
     handler.addConnectionListener(
         new ConnectionListener() {
@@ -24,7 +24,7 @@ public class LocalNetworkHandlerTest {
           }
 
           @Override
-          public void onDisconnected(Throwable reason) {
+          public void onDisconnected(String reason) {
             lastReason[0] = reason;
             disconnected.incrementAndGet();
           }
