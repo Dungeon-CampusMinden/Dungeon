@@ -46,19 +46,27 @@ public abstract class PortalSkill extends ProjectileSkill {
       Point point = new Point(Math.round(vc.currentVelocity().normalize().x()),Math.round(vc.currentVelocity().normalize().y()));
       Coordinate cords = pc.coordinate().translate(Vector2.of(point));
 <<<<<<< HEAD
+<<<<<<< HEAD
       createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f), vc.currentVelocity().normalize(), pc.position());
 =======
       createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f));
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+      createPortal(new Point(cords.toCenteredPoint().x(), cords.toCenteredPoint().y()-0.25f), vc.currentVelocity().normalize(), pc.position());
+>>>>>>> d483f6ff (added direction to portals)
       Game.remove(entity);
     };
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   protected abstract void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition);
 =======
   protected abstract void createPortal(Point position);
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+  protected abstract void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition);
+>>>>>>> d483f6ff (added direction to portals)
 
 
 

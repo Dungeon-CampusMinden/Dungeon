@@ -6,9 +6,13 @@ import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Tuple;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import core.utils.Vector2;
 =======
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+import core.utils.Vector2;
+>>>>>>> d483f6ff (added direction to portals)
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import produsAdvanced.abstraction.Portal;
@@ -32,6 +36,7 @@ public class GreenPortalSkill extends PortalSkill {
 
   @Override
 <<<<<<< HEAD
+<<<<<<< HEAD
   protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
     if (Game.tileAt(position).get().levelElement() == LevelElement.PORTAL) {
       Portal.createGreenPortal(position, currentVelocity, projectilePosition);
@@ -40,6 +45,11 @@ public class GreenPortalSkill extends PortalSkill {
     if (Game.tileAt(position).get().levelElement() == LevelElement.GREEN_PORTAL) {
       Portal.createGreenPortal(position);
 >>>>>>> 36adc3c1 (added green and blue portal variants)
+=======
+  protected void createPortal(Point position, Vector2 currentVelocity, Point projectilePosition) {
+    if (Game.tileAt(position).get().levelElement() == LevelElement.GREEN_PORTAL) {
+      Portal.createGreenPortal(position, currentVelocity, projectilePosition);
+>>>>>>> d483f6ff (added direction to portals)
     }
   }
 }
