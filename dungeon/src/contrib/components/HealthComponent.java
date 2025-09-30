@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
-import contrib.utils.components.skill.SkillTools;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -34,9 +33,6 @@ import java.util.logging.Logger;
  */
 public final class HealthComponent implements Component {
 
-  private static final int HIT_BLINK_COLOR_ARGB = 0xFF0000FF;
-  private static final long HIT_BLINK_DURATION_MS = 300L;
-  private static final int HIT_BLINK_ITERATIONS = 1;
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
@@ -46,7 +42,6 @@ public final class HealthComponent implements Component {
   private int currentHealthpoints;
   private @Null Entity lastCause = null;
   private boolean godMode = false;
-  private Optional<Entity> ownerCache = Optional.empty();
 
   /**
    * Create a new HealthComponent.
@@ -59,7 +54,6 @@ public final class HealthComponent implements Component {
     this.maximalHealthpoints = maximalHitPoints;
     this.currentHealthpoints = maximalHitPoints;
     this.onDeath = onDeath;
-    this.onHit = this::defaultOnHit;
     damageToGet = new ArrayList<>();
   }
 
@@ -93,7 +87,6 @@ public final class HealthComponent implements Component {
    * @param damage Damage that should be inflicted
    */
   public void receiveHit(Damage damage) {
-    this.onHit.accept(damage.cause(), damage);
     damageToGet.add(damage);
     this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
   }
@@ -248,42 +241,5 @@ public final class HealthComponent implements Component {
    */
   public boolean godMode() {
     return this.godMode;
-  }
-
-  /**
-   * Resolve and cache the {@link Entity} that owns this {@link HealthComponent}.
-   *
-   * <p>This method scans the current level entities to find the one that contains this component.
-   * On first successful lookup, the result is cached to avoid repeated full scans on subsequent
-   * calls.
-   *
-   * @return An {@link Optional} containing the owning {@link Entity} if present; otherwise {@link
-   *     Optional#empty()}.
-   */
-  private Optional<Entity> owner() {
-    if (ownerCache.isPresent()) return ownerCache;
-    ownerCache =
-        Game.levelEntities()
-            .filter(e -> e.fetch(HealthComponent.class).map(hc -> hc == this).orElse(false))
-            .findFirst();
-    return ownerCache;
-  }
-
-  /**
-   * Default handler that is invoked when the associated entity receives damage.
-   *
-   * <p>Applies a short visual feedback (a blink effect) to the owning entity if it has a {@link
-   * core.components.DrawComponent}.
-   *
-   * @param cause The entity that caused the damage; may be {@code null}.
-   * @param damage The {@link Damage} instance describing the received hit.
-   */
-  private void defaultOnHit(Entity cause, Damage damage) {
-    owner()
-        .filter(e -> e.isPresent(core.components.DrawComponent.class))
-        .ifPresent(
-            e ->
-                SkillTools.blink(
-                    e, HIT_BLINK_COLOR_ARGB, HIT_BLINK_DURATION_MS, HIT_BLINK_ITERATIONS));
   }
 }
