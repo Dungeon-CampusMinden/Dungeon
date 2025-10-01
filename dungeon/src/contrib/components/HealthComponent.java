@@ -15,15 +15,14 @@ import java.util.logging.Logger;
  * Allow an associated entity to take damage and to die.
  *
  * <p>The component also tracks the received damage via the {@link #receiveHit(Damage) receiveHit}
- * method. The damage is not applied immediately but is temporarily stored in an internal list until
- * it is applied, and can be retrieved via the {@link #calculateDamageOf(DamageType)
- * calculateDamageOf} method.
+ * method. The damage is not applied immediately, instead it is enqueued in the {@link HealthSystem}
+ * and processed there at the end of the tick.
  *
  * <p>To calculate the damage received, the {@link HealthSystem} calls the {@link
  * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
  * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
- * calls {@link #clearDamage()} to clear the internal list afterward. When the health points drop to
- * 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
+ * calls {@link #clearDamage()} to discard all pendig damage for this component. When the health
+ * points drop to 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
@@ -74,6 +73,8 @@ public final class HealthComponent implements Component {
    * Add damage, which is accounted for by the {@link HealthSystem}.
    *
    * <p>The {@link HealthSystem} will reduce the current health points based on the received damage.
+   * The damage will not be applied immediately. Instead, it is enqueued in the system and processed
+   * during the next execution cycle.
    *
    * @param damage Damage that should be inflicted
    */
@@ -104,6 +105,9 @@ public final class HealthComponent implements Component {
   /**
    * Calculate the amount of damage to a certain type.
    *
+   * <p>Delegates to the {@link HealthSystem}, which aggregates all queued {@link Damage} for this
+   * component.
+   *
    * @param dt Type of damage object that still need to be accounted for
    * @return Sum of all damage objects of type dt (default: 0)
    */
@@ -115,9 +119,9 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Clear the damage list.
+   * Clear all pending damage for this component.
    *
-   * <p>The damage list is used to determine the damage the entity should receive on next tick.
+   * <p>This delegates to the {@link HealthSystem} and removes the queue entry for this component.
    */
   public void clearDamage() {
     HealthSystem.removePendingDamage(this);
@@ -181,9 +185,12 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Get last entity that caused damage to the associated entity.
+   * Get the last entity that caused damage to the associated entity.
    *
-   * @return The last entity that caused damage to the associated entity.
+   * <p>The value is derived from the last {@link Damage} queued for this component in the {@link
+   * HealthSystem}.
+   *
+   * @return {@link Optional} containing the last damage cause, or {@link Optional#empty()} if none
    */
   public Optional<Entity> lastDamageCause() {
     return HealthSystem.lastDamageCauseOf(this);

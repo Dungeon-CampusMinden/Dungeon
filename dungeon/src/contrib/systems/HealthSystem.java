@@ -79,8 +79,8 @@ public class HealthSystem extends System {
   }
 
   /**
-   * Calculates the sum of all pending damage entries of the given {@link DamageType}
-   * for the provided {@link HealthComponent}.
+   * Calculates the sum of all pending damage entries of the given {@link DamageType} for the
+   * provided {@link HealthComponent}.
    *
    * <p>Reads from the system-managed deque of pending damage.
    *
@@ -106,8 +106,8 @@ public class HealthSystem extends System {
   /**
    * Removes all pending damage for the given {@link HealthComponent}.
    *
-   * <p>This deletes the entire deque entry from the internal map (key and value),
-   * discarding all queued damage for that component.
+   * <p>This deletes the entire deque entry from the internal map (key and value), discarding all
+   * queued damage for that component.
    *
    * @param hc the health component whose pending damage should be discarded
    */
@@ -116,14 +116,14 @@ public class HealthSystem extends System {
   }
 
   /**
-   * Returns the last known damage cause for the given {@link HealthComponent},
-   * derived from the most recently enqueued {@link Damage} in the system-managed deque.
+   * Returns the last known damage cause for the given {@link HealthComponent}, derived from the
+   * most recently enqueued {@link Damage} in the system-managed deque.
    *
    * <p>If there is no pending damage for the component, the result is empty.
    *
    * @param hc the health component to inspect
-   * @return an {@link Optional} containing the last damage-causing {@link Entity},
-   *         or {@link Optional#empty()} if none is available
+   * @return an {@link Optional} containing the last damage-causing {@link Entity}, or {@link
+   *     Optional#empty()} if none is available
    */
   public static Optional<Entity> lastDamageCauseOf(HealthComponent hc) {
     if (!INCOMING_DAMAGE.containsKey(hc)) return Optional.empty();
