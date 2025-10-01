@@ -69,6 +69,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
             e -> {
               EntityState.Builder builder = EntityState.builder();
               builder.entityId(e.id());
+              builder.entityName(e.name());
 
               // Position
               e.fetch(PositionComponent.class)
@@ -151,6 +152,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 }
 
                 Entity entity = targetEntity.get();
+                snap.entityName().ifPresent(entity::name);
 
                 entity
                     .fetch(PositionComponent.class)
