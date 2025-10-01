@@ -414,7 +414,7 @@ public final class ServerTransport {
           "Entity id='{}' missing components for spawn (entity was: '{}')", entityId, e.name());
       return;
     }
-    EntitySpawnEvent spawn = new EntitySpawnEvent(e.id(), pc, dc);
+    EntitySpawnEvent spawn = new EntitySpawnEvent(e.id(), pc, dc, e.isPersistent());
     sendTcpObject(ctx, spawn);
     java.lang.System.out.println(
         "Sent EntitySpawnEvent for entityId=" + entityId + " to " + ctx.channel());
