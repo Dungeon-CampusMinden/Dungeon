@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.badlogic.gdx.graphics.Texture;
+import contrib.systems.HealthSystem;
+import core.systems.VelocitySystem;
 import core.utils.Direction;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.draw.animation.Animation;
@@ -43,15 +45,15 @@ public class DrawComponentTest {
     instance.put(simplePath.pathString(), dummyTexture);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(animationPath);
-    State stIdle = new DirectionalState("idle", animationMap);
-    State stMove = new DirectionalState("move", animationMap, "run");
-    State stDead = new State("dead", animationMap.get("die"));
+    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
+    State stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
     StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
-    sm.addTransition(stIdle, "move", stMove);
-    sm.addTransition(stMove, "move", stMove);
-    sm.addTransition(stMove, "idle", stIdle);
-    sm.addTransition(stIdle, "died", stDead);
-    sm.addTransition(stMove, "died", stDead);
+    sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
+    sm.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
+    sm.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
     animationComponent = new DrawComponent(sm);
   }
 
@@ -64,17 +66,17 @@ public class DrawComponentTest {
   @Test
   public void complexAnimationTransition() {
     // Ensure that the current animation is initially set to the expected value
-    assertEquals("idle", animationComponent.currentState().name);
+    assertEquals(StateMachine.IDLE_STATE, animationComponent.currentState().name);
     assertNull(animationComponent.currentState().getData());
 
     // Set a new animation and ensure that it is correctly set
-    animationComponent.sendSignal("move", Direction.RIGHT);
-    assertEquals("move", animationComponent.currentState().name);
+    animationComponent.sendSignal(VelocitySystem.MOVE_SIGNAL, Direction.RIGHT);
+    assertEquals(VelocitySystem.STATE_NAME, animationComponent.currentState().name);
     assertEquals(Direction.RIGHT, animationComponent.currentState().getData());
 
     // Test self transition
-    animationComponent.sendSignal("move", Direction.UP);
-    assertEquals("move", animationComponent.currentState().name);
+    animationComponent.sendSignal(VelocitySystem.MOVE_SIGNAL, Direction.UP);
+    assertEquals(VelocitySystem.STATE_NAME, animationComponent.currentState().name);
     assertEquals(Direction.UP, animationComponent.currentState().getData());
   }
 
@@ -85,7 +87,7 @@ public class DrawComponentTest {
   @Test
   public void simpleAnimation() {
     DrawComponent simpleAnimation = new DrawComponent(simplePath);
-    assertEquals("idle", simpleAnimation.currentState().name);
+    assertEquals(StateMachine.IDLE_STATE, simpleAnimation.currentState().name);
   }
 
   /**
@@ -96,9 +98,9 @@ public class DrawComponentTest {
    */
   @Test
   public void complexAnimationLoad() {
-    assertNotEquals(null, animationComponent.stateMachine().getState("idle"));
-    assertNotEquals(null, animationComponent.stateMachine().getState("move"));
-    assertNotEquals(null, animationComponent.stateMachine().getState("dead"));
+    assertNotEquals(null, animationComponent.stateMachine().getState(StateMachine.IDLE_STATE));
+    assertNotEquals(null, animationComponent.stateMachine().getState(VelocitySystem.STATE_NAME));
+    assertNotEquals(null, animationComponent.stateMachine().getState(HealthSystem.DEATH_STATE));
     assertEquals(4, animationComponent.currentAnimation().getConfig().config().get().columns());
   }
 }
