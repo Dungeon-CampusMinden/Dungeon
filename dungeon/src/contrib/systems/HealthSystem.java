@@ -10,6 +10,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
 
-  private static final Map<HealthComponent, Queue<Damage>> INCOMING_DAMAGE = new HashMap<>();
+  private static final Map<HealthComponent, Deque<Damage>> INCOMING_DAMAGE = new HashMap<>();
 
   private static final String DEATH_STATE = "dead";
   private static final String DEATH_SIGNAL = "die";
@@ -72,7 +73,7 @@ public class HealthSystem extends System {
   public static int calculateDamageOf(HealthComponent hc, DamageType dt) {
     if (!INCOMING_DAMAGE.containsKey(hc)) return 0;
 
-    Queue<Damage> q = INCOMING_DAMAGE.get(hc);
+    Deque<Damage> q = INCOMING_DAMAGE.get(hc);
     if (q.isEmpty()) return 0;
 
     int sum = 0;
@@ -90,14 +91,11 @@ public class HealthSystem extends System {
 
   public static Optional<Entity> lastDamageCauseOf(HealthComponent hc) {
     if (!INCOMING_DAMAGE.containsKey(hc)) return Optional.empty();
-    Queue<Damage> q = INCOMING_DAMAGE.get(hc);
+    Deque<Damage> q = INCOMING_DAMAGE.get(hc);
     if (q.isEmpty()) return Optional.empty();
 
-    Optional<Damage> last = Optional.empty();
-    for (Damage d : q) {
-      last = Optional.of(d);
-    }
-    return last.map(Damage::cause);
+    Damage last = q.peekLast();
+    return Optional.ofNullable(last).map(Damage::cause);
   }
 
   protected HSData applyDamage(final HSData hsd) {
