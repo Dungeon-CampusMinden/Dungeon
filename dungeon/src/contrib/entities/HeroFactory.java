@@ -471,17 +471,36 @@ public final class HeroFactory {
             .fetch(InteractionComponent.class)
             .orElseThrow(
                 () -> MissingComponentException.build(interactable, InteractionComponent.class));
-    PositionComponent pc =
-        interactable
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, PositionComponent.class));
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius())
+
+    Point heroCenter = getEntityCenter(hero);
+    Point targetCenter = getEntityCenter(interactable);
+    if (Point.calculateDistance(targetCenter, heroCenter) < ic.radius()) {
       ic.triggerInteraction(interactable, hero);
+    }
   }
+
+  private static Point getEntityCenter(Entity e) {
+    var optPc = e.fetch(PositionComponent.class);
+    if (optPc.isEmpty()) {
+      return new Point(0.5f, 0.5f);
+    }
+
+    var pc = optPc.get();
+    float cx = pc.position().x();
+    float cy = pc.position().y();
+
+    var optDc = e.fetch(DrawComponent.class);
+    if (optDc.isEmpty()) {
+      return new Point(cx + 0.5f, cy + 0.5f);
+    }
+
+    var dc = optDc.get();
+    cx += dc.getWidth() / 2f;
+    cy += dc.getHeight() / 2f;
+
+    return new Point(cx, cy);
+  }
+
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
       throws MissingComponentException {
