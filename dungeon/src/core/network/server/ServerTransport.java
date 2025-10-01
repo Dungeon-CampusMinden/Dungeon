@@ -416,8 +416,6 @@ public final class ServerTransport {
     }
     EntitySpawnEvent spawn = new EntitySpawnEvent(e.id(), pc, dc, e.isPersistent());
     sendTcpObject(ctx, spawn);
-    java.lang.System.out.println(
-        "Sent EntitySpawnEvent for entityId=" + entityId + " to " + ctx.channel());
   }
 
   private void onInputMessage(ChannelHandlerContext ctx, InputMessage msg) {

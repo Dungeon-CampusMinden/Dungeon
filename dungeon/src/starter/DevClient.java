@@ -1,5 +1,7 @@
 package starter;
 
+import contrib.systems.DebugDrawSystem;
+import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
@@ -28,7 +30,7 @@ public final class DevClient {
     PreRunConfiguration.isNetworkServer(false);
     PreRunConfiguration.networkServerAddress("127.0.0.1");
     PreRunConfiguration.networkPort(7777);
-    PreRunConfiguration.username("Player1");
+    PreRunConfiguration.username("Player2");
 
     // Game Settings
     Game.initBaseLogger(Level.ALL);
@@ -37,6 +39,10 @@ public final class DevClient {
     Game.disableAudio(false);
     Game.frameRate(30);
     Game.windowTitle("Dev Client");
+    Game.userOnSetup(() -> {
+      Game.add(new Debugger());
+      System.out.println("DevClient started");
+    });
 
     // Start the game
     Game.run();
