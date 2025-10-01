@@ -102,35 +102,24 @@ public final class DrawSystem extends System {
   }
 
   /**
-   * Notifies this system of an entity changing its depth, to update the cached depths.
+   * Updates an entities depth. This needs to be called in order to update the internal sorting of
+   * the DrawSystem.
    *
    * @param entity The entity that changed its depth
+   * @param depth The new depth of the entity
    */
-  public void onEntityChangedDepth(Entity entity) {
+  public void changeEntityDepth(Entity entity, int depth) {
     DSData data = buildDataObject(entity);
-    int oldDepth = Integer.MIN_VALUE;
-    int newDepth = data.dc.depth();
 
-    // Find entry in our map
-    for (Map.Entry<Integer, List<Entity>> entry : sortedEntities.entrySet()) {
-      if (entry.getValue().contains(entity)) {
-        oldDepth = entry.getKey();
-      }
-    }
+    int oldDepth = data.dc.depth();
+    data.dc.depth(depth);
 
     // Remove old entry
-    if (oldDepth != Integer.MIN_VALUE) {
-      sortedEntities.get(oldDepth).remove(entity);
-    }
+    sortedEntities.get(oldDepth).remove(entity);
 
     // Add at new depth
-    List<Entity> entitiesAtDepth = sortedEntities.get(newDepth);
-    if (entitiesAtDepth == null) {
-      entitiesAtDepth = new ArrayList<>();
-      sortedEntities.put(newDepth, entitiesAtDepth);
-    } else {
-      entitiesAtDepth.add(entity);
-    }
+    List<Entity> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
+    entitiesAtDepth.add(entity);
   }
 
   /**
@@ -146,12 +135,13 @@ public final class DrawSystem extends System {
 
     Game.currentLevel().ifPresent(this::drawLevel);
 
-    sortedEntities.values().stream()
-        .flatMap(List::stream)
-        .map(this::buildDataObject)
-        .sorted(Comparator.comparingDouble((DSData data) -> -data.pc.position().y()))
-        .filter(this::shouldDraw)
-        .forEach(this::draw);
+    for (List<Entity> group : sortedEntities.values()) {
+      group.stream()
+          .map(this::buildDataObject)
+          .sorted(Comparator.comparingDouble((DSData d) -> -d.pc.position().y()))
+          .filter(this::shouldDraw)
+          .forEach(this::draw);
+    }
 
     BATCH.end();
   }

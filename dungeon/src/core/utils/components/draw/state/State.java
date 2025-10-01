@@ -7,6 +7,7 @@ import core.utils.components.draw.animation.SpritesheetConfig;
 import core.utils.components.path.IPath;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Represents a visual state in the game, associated with an animation.
@@ -27,6 +28,12 @@ public class State {
 
   /** Optional user-defined data associated with this state. */
   protected Object data;
+
+  /** Optional callback executed when entering this state. */
+  private Consumer<State> onEnter;
+
+  /** Optional callback executed when exiting this state. */
+  private Consumer<State> onExit;
 
   /**
    * Constructs a state with a name and an animation.
@@ -171,6 +178,34 @@ public class State {
    */
   public void setData(Object data) {
     this.data = data;
+  }
+
+  /**
+   * Sets a callback to be executed when entering this state.
+   *
+   * @param onEnter the callback function
+   */
+  public void setOnEnter(Consumer<State> onEnter) {
+    this.onEnter = onEnter;
+  }
+
+  /** Executes the onEnter callback if it is set. */
+  public void onEnter() {
+    if (onEnter != null) onEnter.accept(this);
+  }
+
+  /**
+   * Sets a callback to be executed when exiting this state.
+   *
+   * @param onExit the callback function
+   */
+  public void setOnExit(Consumer<State> onExit) {
+    this.onExit = onExit;
+  }
+
+  /** Executes the onExit callback if it is set. */
+  public void onExit() {
+    if (onExit != null) onExit.accept(this);
   }
 
   /**
