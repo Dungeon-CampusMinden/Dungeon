@@ -273,6 +273,7 @@ public final class GameLoop extends ScreenAdapter {
           Entity newEntity = new Entity(event.entityId());
           newEntity.add(event.positionComponent());
           newEntity.add(event.drawComponent());
+          newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
         });
     dispatcher.registerHandler(

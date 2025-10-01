@@ -5,5 +5,8 @@ import core.components.PositionComponent;
 import core.network.messages.NetworkMessage;
 
 public record EntitySpawnEvent(
-    int entityId, PositionComponent positionComponent, DrawComponent drawComponent)
+    int entityId,
+    PositionComponent positionComponent,
+    DrawComponent drawComponent,
+    boolean isPersistent)
     implements NetworkMessage {}

@@ -89,7 +89,9 @@ public final class ECSManagment {
       Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
 
       if (pc.isPresent() && dc.isPresent()) {
-        Game.network().broadcast(new EntitySpawnEvent(entity.id(), pc.get(), dc.get()), true);
+        Game.network()
+            .broadcast(
+                new EntitySpawnEvent(entity.id(), pc.get(), dc.get(), entity.isPersistent()), true);
       }
     }
 
