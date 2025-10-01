@@ -15,6 +15,7 @@ public final class EntityState implements NetworkMessage {
   @Serial private static final long serialVersionUID = 1L;
 
   private final int entityId;
+  private final String entityName;
   private final Point position;
   private final String viewDirection;
   private final Float rotation;
@@ -27,6 +28,7 @@ public final class EntityState implements NetworkMessage {
 
   private EntityState(Builder builder) {
     this.entityId = builder.entityId;
+    this.entityName = builder.entityName;
     this.position = builder.position;
     this.viewDirection = builder.viewDirection;
     this.rotation = builder.rotation;
@@ -44,6 +46,10 @@ public final class EntityState implements NetworkMessage {
 
   public Point position() {
     return position;
+  }
+
+  public Optional<String> entityName() {
+    return Optional.ofNullable(entityName);
   }
 
   public Optional<String> viewDirection() {
@@ -84,6 +90,7 @@ public final class EntityState implements NetworkMessage {
 
   public static class Builder {
     private int entityId;
+    private String entityName;
     private Point position;
     private String viewDirection;
     private Float rotation;
@@ -102,6 +109,10 @@ public final class EntityState implements NetworkMessage {
     public Builder position(Point position) {
       this.position = position;
       return this;
+    }
+
+    public void entityName(String name) {
+      this.entityName = name;
     }
 
     public Builder viewDirection(Direction viewDirection) {
