@@ -86,7 +86,7 @@ public class BlocklyCommandExecuteSystem extends System {
         case HERO_DROP_CLOVER -> dropItem(CLOVER);
         case HERO_FIREBALL -> shootFireball();
         case HERO_PICKUP -> pickup();
-        case HERO_USE_DONW -> interact(Direction.DOWN);
+        case HERO_USE_DOWN -> interact(Direction.DOWN);
         case HERO_USE_HERE -> interact(Direction.NONE);
         case HERO_USE_LEFT -> interact(Direction.LEFT);
         case HERO_USE_RIGHT -> interact(Direction.RIGHT);

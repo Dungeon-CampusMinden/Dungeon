@@ -53,11 +53,16 @@ public class BlocklyCommands {
      */
     HERO_USE_RIGHT,
 
-    /** Use the object located above the hero (relative to the hero's current viewing direction). */
+    /**
+     * Use the object located infront of the hero (relative to the hero's current viewing
+     * direction).
+     */
     HERO_USE_UP,
 
-    /** Use the object located below the hero (relative to the hero's current viewing direction). */
-    HERO_USE_DONW,
+    /**
+     * Use the object located behind the hero (relative to the hero's current viewing direction).
+     */
+    HERO_USE_DOWN,
 
     /**
      * If there is a stone in front of the hero, push it forward and move the hero one tile ahead.
@@ -82,7 +87,7 @@ public class BlocklyCommands {
     HERO_FIREBALL,
 
     /** Do nothing for a short amount of time (hero rests). */
-    REST;
+    REST
   }
 
   /**
@@ -149,7 +154,7 @@ public class BlocklyCommands {
               BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_USE_UP));
       case DOWN ->
           Game.system(
-              BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_USE_DONW));
+              BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_USE_DOWN));
       case LEFT ->
           Game.system(
               BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_USE_LEFT));
@@ -240,9 +245,7 @@ public class BlocklyCommands {
     }
     // Special case: treat DOOR or EXIT as FLOOR
     return target == LevelElement.FLOOR
-        && (actual == LevelElement.FLOOR
-            || actual == LevelElement.DOOR
-            || actual == LevelElement.EXIT);
+        && (actual == LevelElement.DOOR || actual == LevelElement.EXIT);
   }
 
   /**
@@ -365,13 +368,23 @@ public class BlocklyCommands {
         .orElse(false);
   }
 
+  /**
+   * Waits until the {@link BlocklyCommandExecuteSystem} queue is empty.
+   *
+   * <p>This ensures that all queued commands affecting entity movement or state have been processed
+   * before continuing. Without this wait, checks that depend on the current position of entities
+   * (e.g. verifying whether the hero is near a wall) may use false positions and produce incorrect
+   * results.
+   *
+   * <p>Call this method before performing spatial checks that rely on up-to-date entity positions.
+   */
   private static void waitForEmptyQueue() {
     Game.system(
         BlocklyCommandExecuteSystem.class,
         system -> {
-          while (!system.isEmpty()) {}
-
-          Server.waitDelta();
+          while (!system.isEmpty()) {
+            Server.waitDelta();
+          }
         });
   }
 }

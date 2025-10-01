@@ -20,7 +20,7 @@ import systems.BlocklyCommandExecuteSystem;
  */
 public class InevitableFireballSkill extends BlocklyFireball {
 
-  private static Supplier<Point> TARGET_HERO =
+  private static final Supplier<Point> TARGET_HERO =
       () ->
           Game.hero()
               .flatMap(hero -> hero.fetch(PositionComponent.class))
