@@ -16,7 +16,14 @@ import java.util.PriorityQueue;
 public class EventScheduler extends System {
 
   private static final PriorityQueue<ScheduledAction> scheduledActions = new PriorityQueue<>();
-  public static boolean pausable = true;
+
+  /**
+   * Defines whether the {@code EventScheduler} is pausable.
+   *
+   * <p>If set to {@code true}, no events will be triggered while the game is in a paused state. If
+   * set to {@code false}, scheduled events continue to run even during pause.
+   */
+  private static boolean pausable = true;
 
   /**
    * Schedules a new action to be executed after a specified delay.
@@ -112,6 +119,16 @@ public class EventScheduler extends System {
       // Sort by execution time (earliest first)
       return Long.compare(this.executeAt, other.executeAt);
     }
+  }
+
+  /**
+   * Sets whether the {@code EventScheduler} is pausable.
+   *
+   * @param value {@code true} if no events should be triggered while the game is paused, {@code
+   *     false} if events should continue running even during pause
+   */
+  public static void setPausable(boolean value) {
+    pausable = value;
   }
 
   @Override

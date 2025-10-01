@@ -30,25 +30,47 @@ import entities.MiscFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
-import server.Server;
 
+/**
+ * A system that executes queued {@link BlocklyCommands.Commands} in the game thread.
+ *
+ * <p>This system is part of the game loop and processes commands submitted by the Blockly-based
+ * programming interface. It maintains an internal queue of commands and executes them in order,
+ * translating high-level commands (e.g., "move hero" or "drop item") into game actions such as
+ * moving entities, rotating the hero, interacting with objects, or shooting fireballs.
+ *
+ * <p>The execution is step-based: each update either consumes a command from the queue or advances
+ * an ongoing movement until completion. Some commands (e.g., {@code HERO_MOVE}) may span multiple
+ * frames due to smooth movement handling.
+ *
+ * <p>This system is lock-free and uses a {@link ConcurrentLinkedQueue} to enqueue commands from
+ * external threads without blocking the game loop.
+ */
 public class BlocklyCommandExecuteSystem extends System {
   private static final String MOVEMENT_FORCE_ID = "Movement";
+
+  /** String identifier for the breadcrumb item. */
   public static final String BREADCRUMB = "Brotkrumen";
+
+  /** String identifier for the clover item. */
   public static final String CLOVER = "Kleeblatt";
+
+  /** String identifier for the boss entity. */
+  public static final String BLOCKLY_BLACK_KNIGHT = "Blockly Black Knight";
 
   // lock-free and non-blocking queue
   private final Queue<BlocklyCommands.Commands> queue = new ConcurrentLinkedQueue<>();
 
   private boolean rest = false;
-  private List<Supplier<Boolean>> makeStep = new LinkedList<>();
-  private Set<BlocklyCommands.Commands> excluded = EnumSet.of(
-          BlocklyCommands.Commands.HERO_MOVE,
-          BlocklyCommands.Commands.HERO_MOVE_TO_EXIT,
-          BlocklyCommands.Commands.HERO_PULL,
-          BlocklyCommands.Commands.HERO_PUSH
-  );
+  private final List<Supplier<Boolean>> makeStep = new LinkedList<>();
 
+  /**
+   * Main execution method of the system.
+   *
+   * <p>If no movement is in progress, it polls the next {@link BlocklyCommands.Commands} from the
+   * queue and executes it. If a movement is still ongoing, this method advances the movement until
+   * completion.
+   */
   @Override
   public void execute() {
     if (makeStep.isEmpty()) {
@@ -81,23 +103,35 @@ public class BlocklyCommandExecuteSystem extends System {
     }
   }
 
+  /**
+   * Adds a command to the queue if the system is running.
+   *
+   * @param command The command to add.
+   */
   public void add(BlocklyCommands.Commands command) {
     if (run) queue.add(command);
   }
 
+  /**
+   * Checks whether there are no more commands left in the queue and no movements currently in
+   * progress.
+   *
+   * @return true if there are no queued or pending actions, false otherwise.
+   */
   public boolean isEmpty() {
     return queue.isEmpty() && makeStep.isEmpty();
   }
 
+  /** Clears the command queue and cancels all currently scheduled steps. */
   public void clear() {
     makeStep.clear();
     queue.clear();
   }
 
   /**
-   * Rotate the hero in a specific direction.
+   * Rotates the hero into a given direction.
    *
-   * @param direction Direction in which the hero will be rotated.
+   * @param direction The rotation direction (left or right). Vertical directions are ignored.
    */
   private void rotate(final Direction direction) {
     if (direction == Direction.UP || direction == Direction.DOWN) {
@@ -115,7 +149,7 @@ public class BlocklyCommandExecuteSystem extends System {
         };
     turnEntity(hero, newDirection);
     Game.levelEntities()
-        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .filter(entity -> entity.name().equals(BLOCKLY_BLACK_KNIGHT))
         .findFirst()
         .flatMap(
             boss ->
@@ -124,17 +158,16 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /**
-   * Moves the hero in it's viewing direction.
+   * Moves the hero one tile forward in its current viewing direction.
    *
-   * <p>One move equals one tile.
+   * <p>Also moves the "Blockly Black Knight" entity if present.
    */
   private void move() {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
-    // TODO this needs to be done in one supplier
     move(viewDirection, () -> {}, hero);
     Game.levelEntities()
-        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .filter(entity -> entity.name().equals(BLOCKLY_BLACK_KNIGHT))
         .findFirst()
         .ifPresent(
             boss ->
@@ -144,7 +177,11 @@ public class BlocklyCommandExecuteSystem extends System {
                     .ifPresent(pc -> move(pc.viewDirection(), () -> {}, boss)));
   }
 
-  /** Moves the Hero to the Exit Block of the current Level. */
+  /**
+   * Moves the hero step by step to the exit tile of the current level.
+   *
+   * <p>A path is computed and the hero rotates as needed before each move.
+   */
   private void moveToExit() {
     if (Game.endTiles().isEmpty()) return;
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
@@ -157,7 +194,6 @@ public class BlocklyCommandExecuteSystem extends System {
 
     GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
 
-    // TODO BREAK LOOP
     for (Tile nextTile : pathToExit) {
       Tile currentTile = Game.tileAt(pc.position().translate(MAGIC_OFFSET)).orElse(null);
       if (currentTile != nextTile) {
@@ -235,29 +271,24 @@ public class BlocklyCommandExecuteSystem extends System {
     toMove.add(hero);
     move(
         moveDirection,
-        new IVoidFunction() {
-          @Override
-          public void execute() {
-            toMove.remove(hero);
-            // give BlockComponent back
-            toMove.forEach(entity -> entity.add(new BlockComponent()));
-            turnEntity(hero, viewDirection);
-            DISABLE_SHOOT_ON_HERO = false;
-          }
+        () -> {
+          toMove.remove(hero);
+          // give BlockComponent back
+          toMove.forEach(entity -> entity.add(new BlockComponent()));
+          turnEntity(hero, viewDirection);
+          DISABLE_SHOOT_ON_HERO = false;
         },
         toMove.toArray(Entity[]::new));
   }
-
-  private record EntityComponents(
-      PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 
   /**
    * Moves the given entities simultaneously in a specific direction.
    *
    * <p>One move equals one tile.
    *
-   * @param direction Direction in which the entities will be moved.
-   * @param entities Entities to move simultaneously.
+   * @param direction Direction in which the entities will move.
+   * @param onFinish Callback to execute after the movement finishes.
+   * @param entities Entities to move.
    */
   private void move(final Direction direction, IVoidFunction onFinish, final Entity... entities) {
     double distanceThreshold = 0.1;
@@ -307,18 +338,13 @@ public class BlocklyCommandExecuteSystem extends System {
             }
           }
           if (allEntitiesArrived1) {
-            BlocklyCommands.Commands peek=queue.peek();
 
             for (EntityComponents ec : entityComponents) {
-             //TODO FIND A WAY TO MAKE THE HERO MOVE FASTER
-              // if (peek != null && !excluded.contains(peek)){
-                ec.vc.currentVelocity(Vector2.ZERO);
-                ec.vc.clearForces();
-              //}
-
+              // TODO FIND A WAY TO MAKE THE HERO MOVE FASTER
+              ec.vc.currentVelocity(Vector2.ZERO);
+              ec.vc.clearForces();
               // check the position-tile via new request in case a new level was loaded
               Game.tileAt(ec.targetPosition().translate(MAGIC_OFFSET)).ifPresent(ec.pc::position);
-
             }
             onFinish.execute();
           }
@@ -339,14 +365,10 @@ public class BlocklyCommandExecuteSystem extends System {
   }
 
   /**
-   * Turns the given entity in a specific direction.
+   * Turns an entity into a specific direction and updates its animation.
    *
-   * <p>This will also update the animation.
-   *
-   * <p>This does not call {@link Server#waitDelta()}.
-   *
-   * @param entity Entity to turn.
-   * @param direction direction to turn to.
+   * @param entity The entity to turn.
+   * @param direction The new direction.
    */
   private void turnEntity(Entity entity, Direction direction) {
     PositionComponent pc =
@@ -363,20 +385,10 @@ public class BlocklyCommandExecuteSystem extends System {
     pc.position(oldP);
   }
 
-  /** Attempts to push entities in front of the hero. */
-  private void push() {
-    movePushable(true);
-  }
-
-  /** Attempts to pull entities in front of the hero. */
-  private void pull() {
-    movePushable(false);
-  }
-
   /**
-   * Shoots a fireball in direction the hero is facing.
+   * Shoots a fireball in the hero's viewing direction.
    *
-   * <p>The hero needs at least one unit of ammunition to successfully shoot a fireball.
+   * <p>Requires the hero to have ammunition. After shooting, the hero briefly rests.
    */
   private void shootFireball() {
     FireballScheduler.shoot();
@@ -470,10 +482,28 @@ public class BlocklyCommandExecuteSystem extends System {
     EventScheduler.scheduleAction(() -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000));
   }
 
-  /** Let the hero do nothing for a short moment. */
+  /**
+   * Lets the hero do nothing for a period of time scaled by a multiplier.
+   *
+   * @param mul Time multiplier applied to the rest duration.
+   */
   private void rest(int mul) {
     rest = true;
     EventScheduler.scheduleAction(
         () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000 * mul));
   }
+
+  /**
+   * Helper record bundling the core components of an entity during movement.
+   *
+   * <p>This record is used internally when moving multiple entities simultaneously. It groups the
+   * {@link PositionComponent}, {@link VelocityComponent}, and the target {@link Coordinate} for the
+   * current move.
+   *
+   * @param pc The position component of the entity.
+   * @param vc The velocity component of the entity.
+   * @param targetPosition The coordinate the entity should move to.
+   */
+  private record EntityComponents(
+      PositionComponent pc, VelocityComponent vc, Coordinate targetPosition) {}
 }

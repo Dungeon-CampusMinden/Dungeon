@@ -57,7 +57,7 @@ public class Client {
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
-      StateMachine.reset_frame=false;
+    StateMachine.setResetFrame(false);
     Debugger debugger = new Debugger();
     // start the game
     configGame();
@@ -104,7 +104,7 @@ public class Client {
           // chapter 3
           DungeonLoader.addLevel(Tuple.of("level017", Level017.class));
           DungeonLoader.addLevel(Tuple.of("level018", Level018.class));
-         // DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
+          // DungeonLoader.addLevel(Tuple.of("level019", Level019.class));
           DungeonLoader.addLevel(Tuple.of("level020", Level020.class));
           DungeonLoader.addLevel(Tuple.of("level021", Level021.class));
           DungeonLoader.addLevel(Tuple.of("level022", Level022.class));
@@ -184,7 +184,7 @@ public class Client {
     Game.add(new FallingSystem());
     Game.add(new PitSystem());
     Game.add(new TintTilesSystem());
-    EventScheduler.pausable = false;
+    EventScheduler.setPausable(false);
     Game.add(new EventScheduler());
     Game.add(new FogSystem());
     Game.add(new PressurePlateSystem());

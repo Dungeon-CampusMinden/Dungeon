@@ -20,22 +20,68 @@ import systems.BlocklyCommandExecuteSystem;
 /** A utility class that contains all methods for Blockly Blocks. */
 public class BlocklyCommands {
 
+  /**
+   * Commands that can be queued in the {@link BlocklyCommandExecuteSystem} and will be executed in
+   * the Game-Thread.
+   */
   public enum Commands {
+
+    /** Move the hero one tile in the current viewing direction. */
     HERO_MOVE,
+
+    /** Move the hero directly to the exit tile. */
     HERO_MOVE_TO_EXIT,
+
+    /** Turn the hero 90 degrees to the right (clockwise). */
     HERO_TURN_RIGHT,
+
+    /** Turn the hero 90 degrees to the left (counterclockwise). */
     HERO_TURN_LEFT,
+
+    /** Use the object located on the hero's current position. */
     HERO_USE_HERE,
+
+    /**
+     * Use the object located to the left of the hero (relative to the hero's current viewing
+     * direction).
+     */
     HERO_USE_LEFT,
+
+    /**
+     * Use the object located to the right of the hero (relative to the hero's current viewing
+     * direction).
+     */
     HERO_USE_RIGHT,
+
+    /** Use the object located above the hero (relative to the hero's current viewing direction). */
     HERO_USE_UP,
+
+    /** Use the object located below the hero (relative to the hero's current viewing direction). */
     HERO_USE_DONW,
+
+    /**
+     * If there is a stone in front of the hero, push it forward and move the hero one tile ahead.
+     */
     HERO_PUSH,
+
+    /**
+     * If there is a stone in front of the hero, pull it backward and move the hero one tile back.
+     */
     HERO_PULL,
+
+    /** Drop a clover on the hero's current position. */
     HERO_DROP_CLOVER,
+
+    /** Drop breadcrumbs on the hero's current position. */
     HERO_DROP_BREADCRUMBS,
+
+    /** Pick up an item from the hero's current position. */
     HERO_PICKUP,
+
+    /** Shoot a fireball in the hero's current viewing direction. */
     HERO_FIREBALL,
+
+    /** Do nothing for a short amount of time (hero rests). */
     REST;
   }
 
