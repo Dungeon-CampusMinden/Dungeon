@@ -21,10 +21,12 @@ public class CharacterStateFactory {
    * <p>Generates:
    *
    * <ul>
-   *   <li>Only 1 animation: idle + a sped-up version for run. Animation will be taken for RIGHT and mirrored for LEFT.
+   *   <li>Only 1 animation: idle + a sped-up version for run. Animation will be taken for RIGHT and
+   *       mirrored for LEFT.
    *   <li>2 animations: idle + run. Animation will be taken for RIGHT and mirrored.
    *   <li>4 animations: idle_down, idle_left, idle_up, idle_right + a sped-up version for run.
-   *   <li>8 animations: idle_down, idle_left, idle_up, idle_right + run_down, run_left, run_up, run_right.
+   *   <li>8 animations: idle_down, idle_left, idle_up, idle_right + run_down, run_left, run_up,
+   *       run_right.
    * </ul>
    *
    * @param path The path to the spritesheet containing the animations.
@@ -42,10 +44,12 @@ public class CharacterStateFactory {
    * <p>Generates:
    *
    * <ul>
-   *   <li>Only 1 animation: idle + a sped-up version for run. Animation will be taken for RIGHT and mirrored for LEFT.
+   *   <li>Only 1 animation: idle + a sped-up version for run. Animation will be taken for RIGHT and
+   *       mirrored for LEFT.
    *   <li>2 animations: idle + run. Animation will be taken for RIGHT and mirrored.
    *   <li>4 animations: idle_down, idle_left, idle_up, idle_right + a sped-up version for run.
-   *   <li>8 animations: idle_down, idle_left, idle_up, idle_right + run_down, run_left, run_up, run_right.
+   *   <li>8 animations: idle_down, idle_left, idle_up, idle_right + run_down, run_left, run_up,
+   *       run_right.
    * </ul>
    *
    * @param path The path to the spritesheet containing the animations.
