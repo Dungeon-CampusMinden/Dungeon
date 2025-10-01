@@ -32,7 +32,6 @@ import java.util.logging.Logger;
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 public final class HealthComponent implements Component {
-
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
   private final List<Damage> damageToGet;
   private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
