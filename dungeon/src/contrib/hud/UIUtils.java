@@ -9,6 +9,7 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.utils.IVoidFunction;
+import core.utils.MissingHeroException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
@@ -27,11 +28,19 @@ public final class UIUtils {
    * <p>Load the skin on demand (singleton with lazy initialisation). This allows to write JUnit
    * tests for this class w/o mocking libGDX.
    *
+   * <p>Throws a {@link IllegalStateException} if the skin cannot be loaded, e.g. when running in a
+   * headless environment.
+   *
    * @return the default skin.
    */
   public static Skin defaultSkin() {
     if (DEFAULT_SKIN == null) {
-      DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+      try {
+        DEFAULT_SKIN = new Skin(Gdx.files.internal(SKIN_FOR_DIALOG.pathString()));
+      } catch (UnsatisfiedLinkError e) {
+        throw new IllegalStateException(
+            "Could not load default skin. Are you running in a headless environment?", e);
+      }
     }
     return DEFAULT_SKIN;
   }
@@ -61,7 +70,11 @@ public final class UIUtils {
   public static void show(final Supplier<Dialog> provider, final Entity entity) {
     // displays this dialog, caches the dialog callback, and increments and decrements the dialog
     // counter so that the inventory is not opened while the dialog is displayed
-    PlayerComponent heroPC = Game.hero().orElseThrow().fetch(PlayerComponent.class).orElseThrow();
+    PlayerComponent heroPC =
+        Game.hero()
+            .orElseThrow(MissingHeroException::new)
+            .fetch(PlayerComponent.class)
+            .orElseThrow();
     heroPC.incrementOpenDialogs();
 
     UIComponent uiComponent = new UIComponent(provider.get(), true);
