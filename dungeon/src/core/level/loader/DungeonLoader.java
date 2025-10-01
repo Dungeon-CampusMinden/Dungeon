@@ -149,16 +149,16 @@ public class DungeonLoader {
    * Returns the level handler for the given level name.
    *
    * @param levelName The name of the level.
-   * @return The level handler for the given level name. (null if not found)
+   * @return The level handler for the given level name.
    * @see DungeonLevel
    */
-  public static Class<? extends DungeonLevel> levelHandler(String levelName) {
+  public static Optional<Class<? extends DungeonLevel>> levelHandler(String levelName) {
     for (Tuple<String, Class<? extends DungeonLevel>> level : levelOrder) {
       if (level.a().equalsIgnoreCase(levelName)) {
-        return level.b();
+        return Optional.of(level.b());
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   private static ILevel getRandomVariant(String levelName) {
@@ -351,7 +351,11 @@ public class DungeonLoader {
       LevelElement[][] layout = loadLevelLayoutFromString(layoutLines);
 
       DungeonLevel newLevel;
-      newLevel = getLevel(levelName, layout, designLabel, customPoints);
+      try {
+        newLevel = createLevelHandler(levelName, layout, designLabel, customPoints);
+      } catch (RuntimeException e) {
+        newLevel = new DungeonLevel(layout, designLabel, customPoints, levelName);
+      }
 
       // Set Hero Position
       Tile heroTile = newLevel.tileAt(heroPos).orElse(null);
@@ -448,21 +452,40 @@ public class DungeonLoader {
     return layout;
   }
 
-  private static DungeonLevel getLevel(
+  private static DungeonLevel createLevelHandler(
       String levelName,
       LevelElement[][] layout,
       DesignLabel designLabel,
       List<Coordinate> customPoints) {
-    Class<? extends DungeonLevel> levelHandler = DungeonLoader.levelHandler(levelName);
-    if (levelHandler != null) {
-      try {
-        return levelHandler
-            .getConstructor(LevelElement[][].class, DesignLabel.class, List.class)
-            .newInstance(layout, designLabel, customPoints);
-      } catch (Exception e) {
-        throw new RuntimeException("Error creating level handler", e);
-      }
+    Class<? extends DungeonLevel> levelHandler =
+        DungeonLoader.levelHandler(levelName).orElse(DungeonLevel.class);
+
+    try {
+      return levelHandler
+          .getConstructor(LevelElement[][].class, DesignLabel.class, List.class)
+          .newInstance(layout, designLabel, customPoints);
+    } catch (NoSuchMethodException e) {
+      return createLevelHandlerFallback(levelHandler, layout, designLabel, customPoints, levelName);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Error creating level handler", e);
     }
-    throw new RuntimeException("No level handler found for level: " + levelName);
+  }
+
+  // Fallback method to create level handler with levelName parameter
+  // this should happen if multiplayer sends a level (client should not have a specific level
+  // handler)
+  private static DungeonLevel createLevelHandlerFallback(
+      Class<? extends DungeonLevel> levelHandler,
+      LevelElement[][] layout,
+      DesignLabel designLabel,
+      List<Coordinate> customPoints,
+      String levelName) {
+    try {
+      return levelHandler
+          .getConstructor(LevelElement[][].class, DesignLabel.class, List.class, String.class)
+          .newInstance(layout, designLabel, customPoints, levelName);
+    } catch (ReflectiveOperationException e) {
+      throw new RuntimeException("Error creating level handler", e);
+    }
   }
 }
