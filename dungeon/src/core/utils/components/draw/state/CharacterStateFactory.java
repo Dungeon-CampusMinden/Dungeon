@@ -14,11 +14,22 @@ public class CharacterStateFactory {
 
   /**
    * Creates a StateMachine for a character with idle and run states based on the available
-   * animations in the specified spritesheet. Uses a default run speedup factor of 2.0 if only idle
-   * animations are available.
+   * animations in the specified spritesheet.
+   *
+   * <p>Uses a default run speedup factor of 2.0 if only idle animations are available.
+   *
+   * <p>Generates:
+   *
+   * <ul>
+   *   <li>Only 1 animation: idle + a sped-up version for run. Animation will be taken for RIGHT and mirrored for LEFT.
+   *   <li>2 animations: idle + run. Animation will be taken for RIGHT and mirrored.
+   *   <li>4 animations: idle_down, idle_left, idle_up, idle_right + a sped-up version for run.
+   *   <li>8 animations: idle_down, idle_left, idle_up, idle_right + run_down, run_left, run_up, run_right.
+   * </ul>
    *
    * @param path The path to the spritesheet containing the animations.
    * @return A StateMachine configured with idle and run states.
+   * @throws IllegalArgumentException if no suitable animations are found in the spritesheet.
    */
   public static StateMachine createStateMachine(IPath path) {
     return createStateMachine(path, 2.0f);
@@ -28,10 +39,20 @@ public class CharacterStateFactory {
    * Creates a StateMachine for a character with idle and run states based on the available
    * animations in the specified spritesheet.
    *
+   * <p>Generates:
+   *
+   * <ul>
+   *   <li>Only 1 animation: idle + a sped-up version for run. Animation will be taken for RIGHT and mirrored for LEFT.
+   *   <li>2 animations: idle + run. Animation will be taken for RIGHT and mirrored.
+   *   <li>4 animations: idle_down, idle_left, idle_up, idle_right + a sped-up version for run.
+   *   <li>8 animations: idle_down, idle_left, idle_up, idle_right + run_down, run_left, run_up, run_right.
+   * </ul>
+   *
    * @param path The path to the spritesheet containing the animations.
    * @param runSpeedupFactor The factor by which to speed up the run animation if only idle
    *     animations are available.
    * @return A StateMachine configured with idle and run states.
+   * @throws IllegalArgumentException if no suitable animations are found in the spritesheet.
    */
   public static StateMachine createStateMachine(IPath path, float runSpeedupFactor) {
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(path);
