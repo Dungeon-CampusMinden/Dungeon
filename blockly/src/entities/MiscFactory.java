@@ -40,9 +40,7 @@ public class MiscFactory {
     stone.add(new PositionComponent(position));
     stone.add(new BlockComponent());
     stone.add(new VelocityComponent(Client.MOVEMENT_FORCE.x()));
-    CollideComponent cc = new CollideComponent();
-    cc.isSolid(false);
-    stone.add(cc);
+    stone.add(new CollideComponent().isSolid(false));
     stone.add(new BlockViewComponent());
     DrawComponent dc = new DrawComponent(new Animation(STONE));
     stone.add(dc);
