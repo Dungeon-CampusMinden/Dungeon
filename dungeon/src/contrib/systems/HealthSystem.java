@@ -3,6 +3,7 @@ package contrib.systems;
 import contrib.components.HealthComponent;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -24,6 +25,10 @@ import java.util.stream.Stream;
  */
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
+
+  private static final int HIT_BLINK_COLOR_RGBA = 0xFF0000FF;
+  private static final long HIT_BLINK_DURATION_MS = 300L;
+  private static final int HIT_BLINK_ITERATIONS = 1;
 
   private static final String DEATH_STATE = "dead";
   private static final String DEATH_SIGNAL = "die";
@@ -60,8 +65,11 @@ public class HealthSystem extends System {
   protected HSData applyDamage(final HSData hsd) {
     int dmgAmount = calculateDamage(hsd);
 
-    // if we have some damage, let's show a little dance
-    if (dmgAmount > 0) hsd.dc.sendSignal(DAMAGE_SIGNAL);
+    // if we have some damage, let's show a little dance, and let the entity blink
+    if (dmgAmount > 0) {
+      SkillTools.blink(hsd.e, HIT_BLINK_COLOR_RGBA, HIT_BLINK_DURATION_MS, HIT_BLINK_ITERATIONS);
+      hsd.dc.sendSignal(DAMAGE_SIGNAL);
+    }
 
     // reset all damage objects in health component and apply damage
     hsd.hc.clearDamage();
