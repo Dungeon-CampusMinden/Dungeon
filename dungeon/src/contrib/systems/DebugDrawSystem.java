@@ -95,7 +95,7 @@ public class DebugDrawSystem extends System {
     if (entity.isPresent(DrawComponent.class)) drawTextureSize(entity, pc);
     if (entity.isPresent(CollideComponent.class)) drawCollideHitbox(entity);
     if (entity.isPresent(VelocityComponent.class)) drawMoveHitbox(entity, pc);
-    if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity, pc);
+    if (entity.isPresent(InteractionComponent.class)) drawInteractionRange(entity);
     if (CameraSystem.isEntityHovered(entity)) drawEntityInfo(entity, pc);
   }
 
@@ -126,9 +126,8 @@ public class DebugDrawSystem extends System {
    * Draw a blue circle around the interaction range of the entity.
    *
    * @param entity Entity to draw the interaction range for.
-   * @param pc PositionComponent of the entity.
    */
-  private void drawInteractionRange(Entity entity, PositionComponent pc) {
+  private void drawInteractionRange(Entity entity) {
     InteractionComponent ic =
         entity
             .fetch(InteractionComponent.class)
