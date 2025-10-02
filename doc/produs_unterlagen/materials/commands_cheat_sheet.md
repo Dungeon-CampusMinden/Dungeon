@@ -23,12 +23,14 @@
 
 ## Mögliche Richtungen (direction)
 
+Alle Positionen werden realtiv aus der Blickrichtung des Helden betrachtet. 
+
 ```java
-Direction.DOWN
-Direction.HERE
-Direction.LEFT
-Direction.RIGHT
-Direction.UP
+Direction.DOWN //Position hinter den Helden
+Direction.NONE //Position des Heldens
+Direction.LEFT //Position links des Helden
+Direction.RIGHT //Position rechts des Helden
+Direction.UP  //Position vor dem Helden
 ```
 
 ## Mögliche Level-Elemente (LevelElement)
