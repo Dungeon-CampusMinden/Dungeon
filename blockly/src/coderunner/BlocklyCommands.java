@@ -374,6 +374,8 @@ public class BlocklyCommands {
           while ((!system.isEmpty()) || system.isRest()) {
             Server.waitDelta();
           }
+          // wait one more time to make sure the last command of the queue has finished executing
+          Server.waitDelta();
         });
   }
 }
