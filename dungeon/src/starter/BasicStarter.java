@@ -58,17 +58,17 @@ public class BasicStarter {
     }
     Game.disableAudio(false);
     Game.userOnSetup(
-      () -> {
-        try {
-          Game.add(HeroFactory.newHero());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      });
+        () -> {
+          try {
+            Game.add(HeroFactory.newHero());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
     Game.userOnFrame(
-      () -> {
-        if (DEBUG_MODE) DEBUGGER.execute();
-      });
+        () -> {
+          if (DEBUG_MODE) DEBUGGER.execute();
+        });
     setupSystems();
     Game.frameRate(30);
     Game.windowTitle("Basic Dungeon");

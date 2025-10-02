@@ -4,6 +4,7 @@ import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.utils.Direction;
@@ -170,5 +171,27 @@ public class EntityUtils {
         .fetch(PositionComponent.class)
         .map(PositionComponent::viewDirection)
         .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  public static Point getEntityCenter(Entity e) {
+    var optPc = e.fetch(PositionComponent.class);
+    if (optPc.isEmpty()) {
+      return new Point(0.5f, 0.5f);
+    }
+
+    var pc = optPc.get();
+    float cx = pc.position().x();
+    float cy = pc.position().y();
+
+    var optDc = e.fetch(DrawComponent.class);
+    if (optDc.isEmpty()) {
+      return new Point(cx + 0.5f, cy + 0.5f);
+    }
+
+    var dc = optDc.get();
+    cx += dc.getWidth() / 2f;
+    cy += dc.getHeight() / 2f;
+
+    return new Point(cx, cy);
   }
 }
