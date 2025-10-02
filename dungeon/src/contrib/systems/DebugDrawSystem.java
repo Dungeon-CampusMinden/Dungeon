@@ -12,6 +12,7 @@ import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
@@ -133,11 +134,12 @@ public class DebugDrawSystem extends System {
             .fetch(InteractionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
 
+    Point center = EntityUtils.getEntityCenter(entity);
     float radius = ic.radius();
 
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Line);
     SHAPE_RENDERER.setColor(Color.CYAN);
-    SHAPE_RENDERER.circle(pc.position().x(), pc.position().y(), radius, CIRCLE_SEGMENTS);
+    SHAPE_RENDERER.circle(center.x(), center.y(), radius, CIRCLE_SEGMENTS);
     SHAPE_RENDERER.end();
   }
 
