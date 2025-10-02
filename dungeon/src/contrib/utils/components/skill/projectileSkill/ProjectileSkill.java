@@ -157,8 +157,6 @@ public abstract class ProjectileSkill extends Skill {
 
     // Add components
     VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
-    vc.moveboxSize(hitBoxSize);
-    vc.moveboxOffset(hitBoxOffset);
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 

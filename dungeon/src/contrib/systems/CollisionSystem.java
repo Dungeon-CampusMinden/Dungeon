@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public final class CollisionSystem extends System {
 
   /** Solid entities will be kept at this distance after colliding. */
-  private static final float COLLIDE_SET_DISTANCE = 0.01f;
+  public static final float COLLIDE_SET_DISTANCE = 0.01f;
 
   private final Map<CollisionKey, CollisionData> collisions = new HashMap<>();
 
@@ -154,7 +154,7 @@ public final class CollisionSystem extends System {
     } else {
       // Determine which entity moves based on their weight. The heavier entity
       // moves the lighter one.
-      if (vca.mass() >= vcb.mass()) {
+      if (vca.mass() > vcb.mass()) {
         solidCollide(cdata.ea, cdata.a, cdata.eb, cdata.b, d);
       } else {
         solidCollide(cdata.eb, cdata.b, cdata.ea, cdata.a, d.opposite());
@@ -193,15 +193,16 @@ public final class CollisionSystem extends System {
    */
   Direction checkDirectionOfCollision(
       Entity ea, CollideComponent a, Entity eb, CollideComponent b) {
-    Point c1Pos = a.bottomLeft(ea);
-    Vector2 c1Size = a.size();
-    Point c2Pos = b.bottomLeft(eb);
-    Vector2 c2Size = b.size();
+    Vector2 c1Size = a.size(ea);
+    Vector2 c2Size = b.size(ea);
 
-    float c1CenterX = c1Pos.x() + c1Size.x() / 2f;
-    float c1CenterY = c1Pos.y() + c1Size.y() / 2f;
-    float c2CenterX = c2Pos.x() + c2Size.x() / 2f;
-    float c2CenterY = c2Pos.y() + c2Size.y() / 2f;
+    Point c1Center = a.center(ea);
+    Point c2Center = b.center(eb);
+
+    float c1CenterX = c1Center.x();
+    float c1CenterY = c1Center.y();
+    float c2CenterX = c2Center.x();
+    float c2CenterY = c2Center.y();
 
     // Take the distance between the center of both hitboxes in both X and Y direction
     float dx = c1CenterX - c2CenterX;
@@ -239,9 +240,9 @@ public final class CollisionSystem extends System {
       Direction direction,
       boolean firstCollision) {
     Point c1Pos = a.bottomLeft(ea);
-    Vector2 c1Size = a.size();
+    Vector2 c1Size = a.size(ea);
     Point c2Pos = b.bottomLeft(eb);
-    Vector2 c2Size = b.size();
+    Vector2 c2Size = b.size(eb);
 
     Point newColliderPos =
         switch (direction) {
@@ -257,13 +258,14 @@ public final class CollisionSystem extends System {
       return;
     }
 
-    Point newPos = newColliderPos.translate(b.offset().inverse());
+    Point newPos = newColliderPos.translate(b.scaledOffset(eb).inverse());
 
-    boolean bCanEnterOpenPits = eb.fetch(VelocityComponent.class).orElseThrow().canEnterOpenPits();
-    boolean bCanEnterWalls = eb.fetch(VelocityComponent.class).orElseThrow().canEnterWalls();
+    boolean bCanEnterOpenPits =
+        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterOpenPits).orElse(false);
+    boolean bCanEnterWalls =
+        eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterWalls).orElse(false);
 
-    if (CollisionUtils.isCollidingWithLevel(
-        newPos, b.offset(), b.size(), bCanEnterOpenPits, bCanEnterWalls)) {
+    if (CollisionUtils.isCollidingWithLevel(eb, bCanEnterOpenPits, bCanEnterWalls)) {
       if (firstCollision) {
         // If the new position collides with the level, block the other entity instead.
         solidCollide(eb, b, ea, a, direction.opposite(), false);

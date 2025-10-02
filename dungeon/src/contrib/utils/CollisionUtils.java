@@ -1,10 +1,13 @@
 package contrib.utils;
 
+import contrib.components.CollideComponent;
+import core.Entity;
 import core.Game;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
+import core.utils.components.MissingComponentException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,25 +24,67 @@ public class CollisionUtils {
    * Checks if an entity at a given position with a specified size and offset is colliding with any
    * level tiles that are not accessible.
    *
-   * @param pos the bottom-left position of the entity
-   * @param offset the offset of the hitbox
-   * @param size the size of the entity
+   * @param bottomLeft the bottom-left position of the entity's hitbox
+   * @param topRight the top-right position of the entity's hitbox
    * @param canEnterPits whether the entity can enter pit tiles
    * @param canEnterWalls whether the entity can enter wall tiles
    * @return true if any corner of the hitbox is colliding with a non-accessible tile, false
    *     otherwise
    */
   public static boolean isCollidingWithLevel(
-      Point pos, Vector2 offset, Vector2 size, boolean canEnterPits, boolean canEnterWalls) {
+      Point bottomLeft, Point topRight, boolean canEnterPits, boolean canEnterWalls) {
     List<Point> corners =
         Arrays.asList(
-            pos.translate(offset), // bottom-left
-            pos.translate(offset.x() + size.x() - TOP_OFFSET, offset.y()), // bottom-right
-            pos.translate(offset.x(), offset.y() + size.y() - TOP_OFFSET), // top-left
-            pos.translate(offset.x() + size.x() - TOP_OFFSET, offset.y() + size.y()) // top-right
+            new Point(bottomLeft.x(), bottomLeft.y()), // bottom-left
+            new Point(topRight.x() - TOP_OFFSET, bottomLeft.y()), // bottom-right
+            new Point(bottomLeft.x(), topRight.y() - TOP_OFFSET), // top-left
+            new Point(topRight.x() - TOP_OFFSET, topRight.y() - TOP_OFFSET) // top-right
             );
     return corners.stream()
         .anyMatch(p -> !tileIsAccessible(Game.tileAt(p).orElse(null), canEnterPits, canEnterWalls));
+  }
+
+  /**
+   * Checks if an entity is colliding with any level tiles that are not accessible.
+   *
+   * @param e the entity to check for collision
+   * @param canEnterPits whether the entity can enter pit tiles
+   * @param canEnterWalls whether the entity can enter wall tiles
+   * @return true if any corner of the entity's hitbox is colliding with a non-accessible tile,
+   *     false otherwise
+   */
+  public static boolean isCollidingWithLevel(
+      Entity e, boolean canEnterPits, boolean canEnterWalls) {
+    CollideComponent cc =
+        e.fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, CollideComponent.class));
+    return isCollidingWithLevel(cc.bottomLeft(e), cc.topRight(e), canEnterPits, canEnterWalls);
+  }
+
+  /**
+   * Checks if an entity at a given position with a specified scale and hitbox is colliding with any
+   * level tiles that are not accessible.
+   *
+   * @param pos the position of the entity
+   * @param scale the scale of the entity
+   * @param hitbox the hitbox component of the entity (can be null)
+   * @param canEnterPits whether the entity can enter pit tiles
+   * @param canEnterWalls whether the entity can enter wall tiles
+   * @return true if any corner of the hitbox (or position if hitbox is null) is colliding with a
+   *     non-accessible tile, false otherwise
+   */
+  public static boolean isCollidingWithLevel(
+      Point pos,
+      Vector2 scale,
+      CollideComponent hitbox,
+      boolean canEnterPits,
+      boolean canEnterWalls) {
+    if (hitbox == null) {
+      // Only check for the actual position
+      return !tileIsAccessible(Game.tileAt(pos).orElse(null), canEnterPits, canEnterWalls);
+    }
+    return isCollidingWithLevel(
+        hitbox.bottomLeft(pos, scale), hitbox.topRight(pos, scale), canEnterPits, canEnterWalls);
   }
 
   /**
