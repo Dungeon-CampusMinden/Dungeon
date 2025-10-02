@@ -39,8 +39,6 @@ public class Level004 extends BlocklyLevel {
   public Level004(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 4");
     this.blockBlocklyElement(
-        // MOVEMENT
-        "goToExit",
         // Richtungen
         // Schleifen
         "while_loop",

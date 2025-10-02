@@ -6,7 +6,6 @@ import static coderunner.BlocklyCommands.MAGIC_OFFSET;
 import client.Client;
 import coderunner.BlocklyCommands;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.ai.pfa.GraphPath;
 import components.BlocklyItemComponent;
 import components.PushableComponent;
 import contrib.components.AIComponent;
@@ -23,7 +22,6 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.level.utils.Coordinate;
-import core.level.utils.LevelUtils;
 import core.utils.*;
 import core.utils.components.MissingComponentException;
 import entities.MiscFactory;
@@ -79,7 +77,6 @@ public class BlocklyCommandExecuteSystem extends System {
         case HERO_MOVE -> move();
         case HERO_TURN_LEFT -> rotate(Direction.LEFT);
         case HERO_TURN_RIGHT -> rotate(Direction.RIGHT);
-        case HERO_MOVE_TO_EXIT -> moveToExit();
         case HERO_PULL -> movePushable(false);
         case HERO_PUSH -> movePushable(true);
         case HERO_DROP_BREADCRUMBS -> dropItem(BREADCRUMB);
@@ -120,6 +117,15 @@ public class BlocklyCommandExecuteSystem extends System {
    */
   public boolean isEmpty() {
     return queue.isEmpty() && makeStep.isEmpty();
+  }
+
+  /**
+   * Returns whether the rest state is active.
+   *
+   * @return {@code true} if rest is enabled, {@code false} otherwise
+   */
+  public boolean isRest() {
+    return rest;
   }
 
   /** Clears the command queue and cancels all currently scheduled steps. */
@@ -175,37 +181,6 @@ public class BlocklyCommandExecuteSystem extends System {
                     .filter(vc -> vc.maxSpeed() > 0)
                     .flatMap(vc -> boss.fetch(PositionComponent.class))
                     .ifPresent(pc -> move(pc.viewDirection(), () -> {}, boss)));
-  }
-
-  /**
-   * Moves the hero step by step to the exit tile of the current level.
-   *
-   * <p>A path is computed and the hero rotates as needed before each move.
-   */
-  private void moveToExit() {
-    if (Game.endTiles().isEmpty()) return;
-    Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    Tile exitTile = Game.endTiles().stream().findFirst().orElse(null);
-    if (exitTile == null) return;
-
-    PositionComponent pc =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-
-    GraphPath<Tile> pathToExit = LevelUtils.calculatePath(pc.coordinate(), exitTile.coordinate());
-
-    for (Tile nextTile : pathToExit) {
-      Tile currentTile = Game.tileAt(pc.position().translate(MAGIC_OFFSET)).orElse(null);
-      if (currentTile != nextTile) {
-        Direction viewDirection = EntityUtils.getViewDirection(hero);
-        Direction targetDirection = currentTile.directionTo(nextTile)[0];
-        while (viewDirection != targetDirection) {
-          rotate(Direction.RIGHT);
-          viewDirection = EntityUtils.getViewDirection(hero);
-        }
-        move();
-      }
-    }
   }
 
   /**

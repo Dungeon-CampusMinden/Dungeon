@@ -24,14 +24,6 @@ export const blocks = Blockly.common.createBlockDefinitionsFromJsonArray([
     tooltip: "Bewegt den Spieler in die Richtung in die er schaut",
   },
   {
-    type: "goToExit",
-    message0: "Gehe Zum Ausgang",
-    previousStatement: null,
-    nextStatement: null,
-    colour: 180,
-    tooltip: "Bewege dich zum Ausgang des Levels.",
-  },
-  {
     type: "rotate",
     message0: "Drehe %1",
     args0: [

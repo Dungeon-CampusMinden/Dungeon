@@ -29,9 +29,6 @@ public class BlocklyCommands {
     /** Move the hero one tile in the current viewing direction. */
     HERO_MOVE,
 
-    /** Move the hero directly to the exit tile. */
-    HERO_MOVE_TO_EXIT,
-
     /** Turn the hero 90 degrees to the right (clockwise). */
     HERO_TURN_RIGHT,
 
@@ -112,12 +109,6 @@ public class BlocklyCommands {
    */
   public static void move() {
     Game.system(BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_MOVE));
-  }
-
-  /** Moves the Hero to the Exit Block of the current Level. */
-  public static void moveToExit() {
-    Game.system(
-        BlocklyCommandExecuteSystem.class, system -> system.add(Commands.HERO_MOVE_TO_EXIT));
   }
 
   /**
@@ -310,7 +301,6 @@ public class BlocklyCommands {
    * @return {@code true} if the tile is active, {@code false} otherwise.
    */
   private static Boolean checkTileForDoorOrLevers(Tile tile) {
-    waitForEmptyQueue();
     // is this a door? is it open?
     if (tile instanceof DoorTile doorTile) return doorTile.isOpen();
 
@@ -331,7 +321,6 @@ public class BlocklyCommands {
    * @return The target tile, or empty if hero is not found or target tile doesn't exist
    */
   private static Optional<Tile> targetTile(final Direction direction) {
-    waitForEmptyQueue();
     // find tile in a direction or empty
     Function<Direction, Optional<Tile>> dirToCheck =
         dir ->
@@ -360,7 +349,7 @@ public class BlocklyCommands {
   public static boolean checkBossViewDirection(Direction direction) {
     waitForEmptyQueue();
     return Game.allEntities()
-        .filter(entity -> entity.name().equals("Blockly Black Knight"))
+        .filter(entity -> entity.name().equals(BlocklyCommandExecuteSystem.BLOCKLY_BLACK_KNIGHT))
         .findFirst()
         .flatMap(boss -> boss.fetch(PositionComponent.class))
         .map(PositionComponent::viewDirection)
@@ -382,7 +371,7 @@ public class BlocklyCommands {
     Game.system(
         BlocklyCommandExecuteSystem.class,
         system -> {
-          while (!system.isEmpty()) {
+          while ((!system.isEmpty()) || system.isRest()) {
             Server.waitDelta();
           }
         });
