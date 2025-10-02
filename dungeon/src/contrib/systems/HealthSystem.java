@@ -1,15 +1,20 @@
 package contrib.systems;
 
 import contrib.components.HealthComponent;
+import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
 import contrib.utils.components.health.IHealthObserver;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,6 +29,8 @@ import java.util.stream.Stream;
  */
 public class HealthSystem extends System {
   protected final List<IHealthObserver> observers = new ArrayList<>();
+
+  private static final Map<HealthComponent, Deque<Damage>> INCOMING_DAMAGE = new HashMap<>();
 
   private static final String DEATH_STATE = "dead";
   private static final String DEATH_SIGNAL = "die";
@@ -55,6 +62,76 @@ public class HealthSystem extends System {
         .map(this::activateDeathAnimation)
         .filter(this::isDeathAnimationFinished)
         .forEach(this::triggerOnDeath);
+  }
+
+  /**
+   * Enqueue an incoming {@link Damage} instance for the given {@link HealthComponent}.
+   *
+   * <p>The damage is not applied immediately. Instead, it is appended to the component's
+   * pending-damage deque managed by this system.
+   *
+   * @param hc the health component that received the damage
+   * @param damage the concrete damage to enqueue
+   */
+  public static void enqueueDamage(HealthComponent hc, Damage damage) {
+    INCOMING_DAMAGE.putIfAbsent(hc, new ArrayDeque<>());
+    INCOMING_DAMAGE.get(hc).add(damage);
+  }
+
+  /**
+   * Calculates the sum of all pending damage entries of the given {@link DamageType} for the
+   * provided {@link HealthComponent}.
+   *
+   * <p>Reads from the system-managed deque of pending damage.
+   *
+   * @param hc the health component whose pending damage should be summed
+   * @param dt the damage type to aggregate
+   * @return the total damage amount of the specified type; {@code 0} if none pending
+   */
+  public static int calculateDamageOf(HealthComponent hc, DamageType dt) {
+    if (!INCOMING_DAMAGE.containsKey(hc)) return 0;
+
+    Deque<Damage> q = INCOMING_DAMAGE.get(hc);
+    if (q.isEmpty()) return 0;
+
+    int sum = 0;
+    for (Damage d : q) {
+      if (d.damageType() == dt) {
+        sum += d.damageAmount();
+      }
+    }
+    return sum;
+  }
+
+  /**
+   * Removes all pending damage for the given {@link HealthComponent}.
+   *
+   * <p>This deletes the entire deque entry from the internal map (key and value), discarding all
+   * queued damage for that component.
+   *
+   * @param hc the health component whose pending damage should be discarded
+   */
+  public static void removePendingDamage(HealthComponent hc) {
+    INCOMING_DAMAGE.remove(hc);
+  }
+
+  /**
+   * Returns the last known damage cause for the given {@link HealthComponent}, derived from the
+   * most recently enqueued {@link Damage} in the system-managed deque.
+   *
+   * <p>If there is no pending damage for the component, the result is empty.
+   *
+   * @param hc the health component to inspect
+   * @return an {@link Optional} containing the last damage-causing {@link Entity}, or {@link
+   *     Optional#empty()} if none is available
+   */
+  public static Optional<Entity> lastDamageCauseOf(HealthComponent hc) {
+    if (!INCOMING_DAMAGE.containsKey(hc)) return Optional.empty();
+    Deque<Damage> q = INCOMING_DAMAGE.get(hc);
+    if (q.isEmpty()) return Optional.empty();
+
+    Damage last = q.peekLast();
+    return Optional.ofNullable(last).map(Damage::cause);
   }
 
   protected HSData applyDamage(final HSData hsd) {
