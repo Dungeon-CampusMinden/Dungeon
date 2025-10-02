@@ -339,18 +339,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param direction The new direction.
    */
   private void turnEntity(Entity entity, Direction direction) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    VelocityComponent vc =
-        entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Point oldP = pc.position();
-    vc.applyForce(MOVEMENT_FORCE_ID, direction);
-    // so the player can not glitch inside the next tile
-    pc.position(oldP);
+    entity.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(direction));
   }
 
   /**
