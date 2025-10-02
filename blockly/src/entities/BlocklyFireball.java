@@ -1,19 +1,9 @@
 package entities;
 
-import contrib.components.CollideComponent;
-import contrib.components.FlyComponent;
-import contrib.components.ProjectileComponent;
 import contrib.utils.components.skill.Resource;
-import contrib.utils.components.skill.SkillTools;
 import contrib.utils.components.skill.projectileSkill.FireballSkill;
-import core.Entity;
-import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
-import core.components.VelocityComponent;
 import core.utils.Point;
 import core.utils.Tuple;
-import core.utils.Vector2;
 import java.util.function.Supplier;
 
 /**
@@ -60,5 +50,4 @@ public class BlocklyFireball extends FireballSkill {
     super(target, cooldown);
     this.hitBoxSize = this.hitBoxSize.scale(0.1f);
   }
-
 }

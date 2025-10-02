@@ -370,20 +370,25 @@ public class BlocklyCommandExecuteSystem extends System {
    */
   private void interact(Direction direction) {
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
-    
+
     hero.fetch(PositionComponent.class)
-            // get the tile in the given direction
-            .flatMap(pc ->
+        // get the tile in the given direction
+        .flatMap(
+            pc ->
                 Game.tileAt(
                     pc.position().translate(MAGIC_OFFSET),
                     pc.viewDirection().applyRelative(direction)))
-            // for each entity at that tile interact
-            .ifPresent(tile ->
+        // for each entity at that tile interact
+        .ifPresent(
+            tile ->
                 Game.entityAtTile(tile)
-                    .forEach(entity ->
-                        entity.fetch(InteractionComponent.class)
-                            .ifPresent(interactionComponent ->
-                                interactionComponent.triggerInteraction(entity, hero))));
+                    .forEach(
+                        entity ->
+                            entity
+                                .fetch(InteractionComponent.class)
+                                .ifPresent(
+                                    interactionComponent ->
+                                        interactionComponent.triggerInteraction(entity, hero))));
   }
 
   /**
