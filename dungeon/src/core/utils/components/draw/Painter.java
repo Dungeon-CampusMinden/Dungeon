@@ -3,6 +3,7 @@ package core.utils.components.draw;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Affine2;
 import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.path.IPath;
@@ -57,25 +58,26 @@ public class Painter {
     // Only draw if visible in the camera frustum
     if (CameraSystem.isPointInFrustum(realPos)) {
 
-      // Set sprite size and position
-      sprite.setSize(config.scaling().x(), config.scaling().y());
-      sprite.setPosition(realPos.x(), realPos.y());
+      // Calculate transformations
+      Affine2 transform = new Affine2();
 
-      // Set rotation around the sprite's center
-      sprite.setOriginCenter();
-      sprite.setRotation(rotation);
+      transform.setToTranslation(sprite.getX(), sprite.getY());
+
+      // Scale first while origin is in the bottom-left
+      transform.scale(sprite.getScaleX(), sprite.getScaleY());
+
+      // Then rotate around the middle
+      transform.translate(sprite.getWidth() / 2f, sprite.getHeight() / 2f);
+      transform.rotate(rotation);
+      transform.translate(-sprite.getWidth() / 2f, -sprite.getHeight() / 2f);
 
       // Apply tint color if specified
       if (config.tintColor() != -1) {
-        Color color = Color.CLEAR;
-        Color.rgba8888ToColor(color, config.tintColor());
-        sprite.setColor(color);
+        batch.setColor(new Color(config.tintColor()));
       } else {
-        sprite.setColor(Color.WHITE);
+        batch.setColor(Color.WHITE);
       }
-
-      // Draw the sprite
-      sprite.draw(batch);
+      batch.draw(sprite, config.size().x(), config.size().y(), transform);
     }
   }
 
