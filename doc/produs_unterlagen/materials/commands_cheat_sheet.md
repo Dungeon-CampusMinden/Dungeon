@@ -18,7 +18,6 @@
 | `hero.dropItem("Kleeblatt");`                      | Lässt ein Item („Kleeblatt“) fallen.                                                                               |
 | `hero.rest();`                                     | Macht einen kurzen moment nichts.                                                                                  |
 | `hero.checkBossViewDirection(direction)`           | **Nur für Level 20:** Prüfe in welche Richtung der Boss guckt.                                                     |
-| `hero.moveToExit();`                               | **Nur als Cheat-Block:** Bewegt den Helden direkt zum Ausgang. Nicht für Lösungen verwenden.                       |
 
 <div style="page-break-after: always;"></div>
 
