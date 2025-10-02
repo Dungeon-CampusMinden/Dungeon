@@ -377,16 +377,12 @@ public class PortalFactory {
 
   /** Removes the blue portal from the game, if present. */
   public static void clearBluePortal() {
-    if (getBluePortal().isPresent()) {
-      Game.remove(getBluePortal().get());
-    }
+    getBluePortal().ifPresent(Game::remove);
   }
 
   /** Removes the green portal from the game, if present. */
   public static void clearGreenPortal() {
-    if (getGreenPortal().isPresent()) {
-      Game.remove(getGreenPortal().get());
-    }
+    getGreenPortal().ifPresent(Game::remove);
   }
 
   /**
