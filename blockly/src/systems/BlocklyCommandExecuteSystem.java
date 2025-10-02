@@ -145,14 +145,7 @@ public class BlocklyCommandExecuteSystem extends System {
     }
     Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
     Direction viewDirection = EntityUtils.getViewDirection(hero);
-    Direction newDirection =
-        switch (viewDirection) {
-          case UP -> direction == Direction.LEFT ? Direction.LEFT : Direction.RIGHT;
-          case DOWN -> direction == Direction.LEFT ? Direction.RIGHT : Direction.LEFT;
-          case LEFT -> direction == Direction.LEFT ? Direction.DOWN : Direction.UP;
-          case RIGHT -> direction == Direction.LEFT ? Direction.UP : Direction.DOWN;
-          case NONE -> viewDirection; // no change
-        };
+    Direction newDirection = viewDirection.applyRelative(direction);
     turnEntity(hero, newDirection);
     Game.levelEntities()
         .filter(entity -> entity.name().equals(BLOCKLY_BLACK_KNIGHT))
