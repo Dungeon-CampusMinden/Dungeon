@@ -289,7 +289,7 @@ public class BlocklyCommandExecuteSystem extends System {
     double[] lastDistances = new double[entities.length];
     this.makeStep.add(
         () -> {
-          boolean allEntitiesArrived1 = true;
+          boolean allEntitiesArrived = true;
           for (int i = 0; i < entities.length; i++) {
             EntityComponents comp = entityComponents.get(i);
             comp.vc.clearForces();
@@ -302,10 +302,10 @@ public class BlocklyCommandExecuteSystem extends System {
             if (comp.vc().maxSpeed() > 0
                 && Game.existInLevel(entities[i])
                 && !(distances[i] <= distanceThreshold || distances[i] > lastDistances[i])) {
-              allEntitiesArrived1 = false;
+              allEntitiesArrived = false;
             }
           }
-          if (allEntitiesArrived1) {
+          if (allEntitiesArrived) {
 
             for (EntityComponents ec : entityComponents) {
               // TODO FIND A WAY TO MAKE THE HERO MOVE FASTER
@@ -317,7 +317,7 @@ public class BlocklyCommandExecuteSystem extends System {
             onFinish.execute();
           }
 
-          return allEntitiesArrived1;
+          return allEntitiesArrived;
         });
   }
 
