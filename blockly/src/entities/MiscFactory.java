@@ -11,6 +11,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Point;
+import core.utils.components.draw.DepthLayer;
 import core.utils.components.draw.animation.Animation;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
@@ -111,7 +112,9 @@ public class MiscFactory {
   public static Entity breadcrumb(Point position) {
     Entity breadcrumb = new Entity("breadcrumb");
     breadcrumb.add(new PositionComponent(position));
-    breadcrumb.add(new DrawComponent(new Animation(BREADCRUMB_PATH)));
+    DrawComponent dc = new DrawComponent(new Animation(BREADCRUMB_PATH));
+    dc.depth(DepthLayer.Ground.depth());
+    breadcrumb.add(dc);
     breadcrumb.add(new BlocklyItemComponent());
     breadcrumb.add(new BreadcrumbComponent());
     breadcrumb.add(
@@ -134,19 +137,21 @@ public class MiscFactory {
    * @return A new clover entity.
    */
   public static Entity clover(Point position) {
-    Entity breadcrumb = new Entity("clover");
-    breadcrumb.add(new PositionComponent(position));
-    breadcrumb.add(new DrawComponent(new Animation(CLOVER_PATH)));
-    breadcrumb.add(new BlocklyItemComponent());
-    breadcrumb.add(new CloverComponent());
-    breadcrumb.add(
+    Entity clover = new Entity("clover");
+    clover.add(new PositionComponent(position));
+    DrawComponent dc = new DrawComponent(new Animation(CLOVER_PATH));
+    dc.depth(DepthLayer.Ground.depth());
+    clover.add(dc);
+    clover.add(new BlocklyItemComponent());
+    clover.add(new CloverComponent());
+    clover.add(
         new InteractionComponent(
             0,
             false,
             (entity, entity2) -> {
-              Game.remove(breadcrumb);
+              Game.remove(clover);
             }));
-    return breadcrumb;
+    return clover;
   }
 
   /**
