@@ -1,6 +1,7 @@
 package contrib.systems;
 
 import contrib.components.AIComponent;
+import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
 import contrib.components.ProjectileComponent;
 import core.Entity;
@@ -13,7 +14,6 @@ import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.elements.tile.PitTile;
 import core.utils.Point;
-import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -104,13 +104,11 @@ public class PitSystem extends System {
 
   private Tile tileAtCenter(Entity entity, PositionComponent pc) {
     Point pos = pc.position();
-    VelocityComponent vc =
+    CollideComponent cc =
         entity
-            .fetch(VelocityComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, VelocityComponent.class));
-    Vector2 offset = vc.moveboxOffset();
-    Vector2 size = vc.moveboxSize();
-    Point center = pos.translate(offset).translate(size.scale(0.5f));
+            .fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
+    Point center = cc.center(entity);
     return Game.tileAt(center).orElse(null);
   }
 }

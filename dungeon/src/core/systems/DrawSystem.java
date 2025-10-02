@@ -181,6 +181,8 @@ public final class DrawSystem extends System {
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
         new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
+    conf.scale(dsd.pc.scale());
+
     if (dsd.dc.currentAnimation().getConfig().centered()) {
       conf =
           new PainterConfig(

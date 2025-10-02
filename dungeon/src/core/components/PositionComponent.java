@@ -5,6 +5,7 @@ import core.level.Tile;
 import core.level.utils.Coordinate;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Vector2;
 
 /**
  * Store the position of the associated entity in the level.
@@ -38,6 +39,7 @@ public final class PositionComponent implements Component {
   private Point position;
   private Direction viewDirection;
   private float rotation;
+  private Vector2 scale = Vector2.ONE;
 
   /**
    * Create a new PositionComponent with given position.
@@ -192,5 +194,50 @@ public final class PositionComponent implements Component {
    */
   public void rotation(final float rotation) {
     this.rotation = rotation;
+  }
+
+  /**
+   * Get the scale.
+   *
+   * @return The scale.
+   */
+  public Vector2 scale() {
+    return Vector2.of(scale);
+  }
+
+  /**
+   * Set the scale.
+   *
+   * @param scale new scale
+   */
+  public void scale(final Vector2 scale) {
+    this.scale = scale;
+  }
+
+  /**
+   * Set the scale.
+   *
+   * @param scale new scale
+   */
+  public void scale(final float scale) {
+    this.scale = Vector2.of(scale, scale);
+  }
+
+  /**
+   * Set x scale.
+   *
+   * @param x new x scale
+   */
+  public void scaleX(final float x) {
+    this.scale = Vector2.of(x, scale.y());
+  }
+
+  /**
+   * Set y scale.
+   *
+   * @param y new y scale
+   */
+  public void scaleY(final float y) {
+    this.scale = Vector2.of(scale.x(), y);
   }
 }
