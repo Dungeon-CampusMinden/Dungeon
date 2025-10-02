@@ -27,9 +27,6 @@ public class Level013 extends BlocklyLevel {
   public Level013(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 13");
     this.blockBlocklyElement(
-        // MOVEMENT
-        "goToExit",
-        // Richtungen
         // Inventar und Charakter
         "drop_item",
         "Items",

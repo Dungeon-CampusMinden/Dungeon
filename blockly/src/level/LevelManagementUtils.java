@@ -1,6 +1,5 @@
 package level;
 
-import coderunner.BlocklyCommands;
 import contrib.systems.FogSystem;
 import core.Entity;
 import core.Game;
@@ -70,7 +69,7 @@ public class LevelManagementUtils {
    */
   public static void heroViewDirection(Direction viewDirection) {
     Entity hero = Game.hero().orElseThrow(() -> new MissingHeroException());
-    BlocklyCommands.turnEntity(hero, viewDirection);
+    hero.fetch(PositionComponent.class).ifPresent(pc -> pc.viewDirection(viewDirection));
   }
 
   /** Zooms the camera in by decreasing the zoom factor. */

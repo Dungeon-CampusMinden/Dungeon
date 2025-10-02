@@ -25,9 +25,6 @@ public class Level016 extends BlocklyLevel {
   public Level016(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 16");
     this.blockBlocklyElement(
-        // MOVEMENT
-        "goToExit",
-        // Inventar und Charakter
         // Variable
         "get_number",
         // Bedingung

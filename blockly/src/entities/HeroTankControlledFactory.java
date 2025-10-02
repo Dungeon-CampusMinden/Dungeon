@@ -28,12 +28,8 @@ public class HeroTankControlledFactory {
    * @throws IOException if there is an error creating the hero
    */
   public static Entity newTankControlledHero() throws IOException {
-    // TODO: Hotfix for multithreading issues during level reset on hero death.
-    // The server executes the next block immediately after the hero dies.
-    // Calling Client.restart() twice ensures the level is fully reset and avoids race conditions.
     HeroFactory.heroDeath(
         entity -> {
-          Client.restart();
           Client.restart();
         });
 

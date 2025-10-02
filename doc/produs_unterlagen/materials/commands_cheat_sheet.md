@@ -18,18 +18,19 @@
 | `hero.dropItem("Kleeblatt");`                      | Lässt ein Item („Kleeblatt“) fallen.                                                                               |
 | `hero.rest();`                                     | Macht einen kurzen moment nichts.                                                                                  |
 | `hero.checkBossViewDirection(direction)`           | **Nur für Level 20:** Prüfe in welche Richtung der Boss guckt.                                                     |
-| `hero.moveToExit();`                               | **Nur als Cheat-Block:** Bewegt den Helden direkt zum Ausgang. Nicht für Lösungen verwenden.                       |
 
 <div style="page-break-after: always;"></div>
 
 ## Mögliche Richtungen (direction)
 
+Alle Positionen werden realtiv aus der Blickrichtung des Helden betrachtet. 
+
 ```java
-Direction.DOWN
-Direction.HERE
-Direction.LEFT
-Direction.RIGHT
-Direction.UP
+Direction.DOWN //Position hinter den Helden
+Direction.NONE //Position des Heldens
+Direction.LEFT //Position links des Helden
+Direction.RIGHT //Position rechts des Helden
+Direction.UP  //Position vor dem Helden
 ```
 
 ## Mögliche Level-Elemente (LevelElement)

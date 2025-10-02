@@ -1,5 +1,7 @@
 package level;
 
+import core.Game;
+import core.System;
 import core.level.DungeonLevel;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
@@ -8,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import systems.BlocklyCommandExecuteSystem;
 
 /**
  * This class is used to store the values from a parsed level file. It contains the layout (the
@@ -41,6 +44,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       onFirstTick();
+      Game.system(BlocklyCommandExecuteSystem.class, System::run);
     } else {
       onTick();
     }
