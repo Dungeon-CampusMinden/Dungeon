@@ -371,7 +371,7 @@ public class BlocklyCommands {
     Game.system(
         BlocklyCommandExecuteSystem.class,
         system -> {
-          while ((!system.isEmpty()) || system.isRest()) {
+          while (!system.isEmpty() || system.isRest()) {
             Server.waitDelta();
           }
           // wait one more time to make sure the last command of the queue has finished executing
