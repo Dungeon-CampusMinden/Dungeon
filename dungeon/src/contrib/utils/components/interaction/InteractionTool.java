@@ -4,7 +4,6 @@ import contrib.components.InteractionComponent;
 import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -44,8 +43,7 @@ public final class InteractionTool {
     data.ifPresent(x -> x.ic().triggerInteraction(x.e(), who));
   }
 
-  private static InteractionData convertToData(
-      final Entity entity, final Entity who) {
+  private static InteractionData convertToData(final Entity entity, final Entity who) {
 
     InteractionComponent ic =
         entity
@@ -53,15 +51,14 @@ public final class InteractionTool {
             .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
 
     Point targetCenter = EntityUtils.getEntityCenter(entity);
-    Point heroCenter   = EntityUtils.getEntityCenter(who);
+    Point heroCenter = EntityUtils.getEntityCenter(who);
 
     return new InteractionData(
-      entity,
-      ic,
-      Point.calculateDistance(heroCenter, targetCenter),
-      targetCenter.vectorTo(heroCenter).normalize());
+        entity,
+        ic,
+        Point.calculateDistance(heroCenter, targetCenter),
+        targetCenter.vectorTo(heroCenter).normalize());
   }
 
-  private record InteractionData(
-      Entity e, InteractionComponent ic, float dist, Vector2 unitDir) {}
+  private record InteractionData(Entity e, InteractionComponent ic, float dist, Vector2 unitDir) {}
 }
