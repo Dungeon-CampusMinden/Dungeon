@@ -173,6 +173,16 @@ public class EntityUtils {
         .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
   }
 
+  /**
+   * Calculates the center point of a given entity.
+   *
+   * <p>If the entity has only a {@link PositionComponent}, the position is shifted by (0.5, 0.5) to
+   * approximate the center. If a {@link DrawComponent} is present, the method uses the entity's
+   * texture width and height to determine the exact center.
+   *
+   * @param e The entity to calculate the center for.
+   * @return The center point of the entity.
+   */
   public static Point getEntityCenter(Entity e) {
     var optPc = e.fetch(PositionComponent.class);
     if (optPc.isEmpty()) {
