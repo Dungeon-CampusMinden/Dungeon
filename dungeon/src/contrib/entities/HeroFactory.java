@@ -2,7 +2,6 @@ package contrib.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Color;
 import contrib.components.*;
 import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
@@ -228,7 +227,7 @@ public final class HeroFactory {
         new HealthComponent(
             characterClass.hp(),
             entity -> {
-              if (!Game.network().isServer() && !isLocal) return;
+              if (!Game.network().isServer()) return;
 
               // play sound
               if (Gdx.audio != null) {

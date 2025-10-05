@@ -20,6 +20,7 @@ public record InputMessage(
     int sequence,
     Action action,
     Point point, // Optional, depending on action
+    long clientTimeMs, // Optional, only needed for latency calculation
     // Server fields:
     int clientId // Set by server upon receipt
     ) implements NetworkMessage {
@@ -41,7 +42,13 @@ public record InputMessage(
    * @param point the point (e.g., move path, cast skill, interact
    */
   public InputMessage(Action action, Point point) {
-    this(Game.currentTick(), incrementAndGetSequence(), action, point, 0);
+    this(
+        Game.currentTick(),
+        incrementAndGetSequence(),
+        action,
+        point,
+        System.currentTimeMillis(),
+        0);
   }
 
   /**

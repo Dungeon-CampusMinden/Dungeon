@@ -14,7 +14,7 @@ import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NettyNetworkHandler implements INetworkHandler {
+public class NettyNetworkHandler implements INetworkHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(NettyNetworkHandler.class);
 
   private boolean serverMode;

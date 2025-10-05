@@ -52,8 +52,6 @@ public final class GameLoop extends ScreenAdapter {
   private static final Logger LOGGER = LoggerFactory.getLogger(GameLoop.class);
   private static Stage stage;
   private boolean doSetup = true;
-  private boolean newLevelWasLoadedInThisLoop = false;
-  private static int tickCounter = 0;
 
   /**
    * Sets {@link Game#currentLevel} to the new level and changes the currently active entity
@@ -66,9 +64,9 @@ public final class GameLoop extends ScreenAdapter {
    *
    * <p>Will re-add the hero if they exist.
    */
-  private final IVoidFunction onLevelLoad =
+  public static final IVoidFunction onLevelLoad =
       () -> {
-        newLevelWasLoadedInThisLoop = true;
+        ECSManagment.newLevelLoadedThisTick = true;
         List<Entity> allHeros = ECSManagment.allHeros().toList();
         boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().get());
         allHeros.forEach(ECSManagment::remove);
@@ -84,7 +82,7 @@ public final class GameLoop extends ScreenAdapter {
         s.values().forEach(ECSManagment::add);
 
         try {
-          allHeros.forEach(this::placeOnLevelStart);
+          allHeros.forEach(GameLoop::placeOnLevelStart);
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
@@ -163,7 +161,7 @@ public final class GameLoop extends ScreenAdapter {
    * @return the current tick
    */
   public static int currentTick() {
-    return tickCounter;
+    return ECSManagment.currentTick();
   }
 
   /**
@@ -183,7 +181,7 @@ public final class GameLoop extends ScreenAdapter {
     if (doSetup) setup();
     ECSManagment.system(
         DrawSystem.class,
-        drawSystem -> drawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
+        drawSystem -> DrawSystem.batch().setProjectionMatrix(CameraSystem.camera().combined));
     // Drain any inbound network messages on the game thread before running systems
     try {
       Game.network().pollAndDispatch();
@@ -196,21 +194,19 @@ public final class GameLoop extends ScreenAdapter {
     // Execute ECS tick using shared runner. In MP client mode, run render/input/camera only.
     final boolean isMultiplayerClient =
         PreRunConfiguration.multiplayerEnabled() && !PreRunConfiguration.isNetworkServer();
-    ECSTickRunner.runOneFrame(
+    ECSManagment.runOneFrame(
         s -> {
-          if (newLevelWasLoadedInThisLoop) return false;
           if (!isMultiplayerClient) return true;
           return (s instanceof DrawSystem)
               || (s instanceof CameraSystem)
               || (s instanceof InputSystem)
               || (s instanceof ManaBarSystem)
               || (s instanceof HealthBarSystem)
-              || (s instanceof HudSystem
-            || (s instanceof Debugger)
-          || (s instanceof DebugDrawSystem));
+              || (s instanceof HudSystem)
+              || (s instanceof Debugger)
+              || (s instanceof DebugDrawSystem);
         });
 
-    newLevelWasLoadedInThisLoop = false;
     if (Game.network() instanceof LocalNetworkHandler localHandler) {
       // If we are in single player, we can trigger the state update directly.
       localHandler.triggerStateUpdate();
@@ -321,7 +317,7 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
           try {
             Game.currentLevel(DungeonLoader.loadFromString(event.levelData(), event.levelName()));
-            Game.hero().ifPresent(this::placeOnLevelStart);
+            Game.hero().ifPresent(GameLoop::placeOnLevelStart);
           } catch (Exception e) {
             LOGGER.warn("Failed to handle LevelChangeEvent: " + e.getMessage());
           }
@@ -372,7 +368,7 @@ public final class GameLoop extends ScreenAdapter {
    *
    * @param entity entity to set on the start of the level, normally this is the hero.
    */
-  private void placeOnLevelStart(final Entity entity) {
+  private static void placeOnLevelStart(final Entity entity) {
     ECSManagment.add(entity);
     entity
         .fetch(PositionComponent.class)
