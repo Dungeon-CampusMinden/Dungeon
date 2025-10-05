@@ -1,7 +1,5 @@
 package core;
 
-import static com.badlogic.gdx.scenes.scene2d.InputEvent.Type.exit;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,6 +19,7 @@ import core.network.NetworkException;
 import core.network.handler.INetworkHandler;
 import core.network.handler.LocalNetworkHandler;
 import core.network.handler.NettyNetworkHandler;
+import core.network.handler.SlowNettyNetworkHandler;
 import core.systems.LevelSystem;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
@@ -63,10 +62,12 @@ public final class Game {
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
   private static INetworkHandler networkHandler;
 
+  private static final boolean SLOW_NETWORK = true;
+
   /** Starts the dungeon. Initializes the network handler if networking is enabled. */
   public static void run() {
     if (PreRunConfiguration.multiplayerEnabled()) {
-      networkHandler = new NettyNetworkHandler();
+      networkHandler = SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler();
     } else {
       networkHandler = new LocalNetworkHandler();
     }

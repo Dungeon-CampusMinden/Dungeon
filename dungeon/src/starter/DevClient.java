@@ -1,6 +1,5 @@
 package starter;
 
-import contrib.systems.DebugDrawSystem;
 import contrib.utils.components.Debugger;
 import core.Game;
 import core.configuration.KeyboardConfig;
@@ -39,10 +38,11 @@ public final class DevClient {
     Game.disableAudio(false);
     Game.frameRate(30);
     Game.windowTitle("Dev Client");
-    Game.userOnSetup(() -> {
-      Game.add(new Debugger());
-      System.out.println("DevClient started");
-    });
+    Game.userOnSetup(
+        () -> {
+          Game.add(new Debugger());
+          System.out.println("DevClient started");
+        });
 
     // Start the game
     Game.run();

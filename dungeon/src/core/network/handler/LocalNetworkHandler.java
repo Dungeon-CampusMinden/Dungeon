@@ -103,11 +103,6 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public int getAssignedClientId() {
-    return 0;
-  }
-
-  @Override
   public MessageDispatcher messageDispatcher() {
     return dispatcher;
   }

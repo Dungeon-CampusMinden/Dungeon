@@ -14,6 +14,8 @@ import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -36,6 +38,9 @@ public final class ECSManagment {
   private static final Map<Class<? extends System>, System> SYSTEMS = new LinkedHashMap<>();
   private static final Map<ILevel, Set<EntitySystemMapper>> LEVEL_STORAGE_MAP = new HashMap<>();
   private static Set<EntitySystemMapper> activeEntityStorage = new HashSet<>();
+
+  private static int currentTick = 0;
+  public static boolean newLevelLoadedThisTick = false;
 
   static {
     LEVEL_STORAGE_MAP.put(null, activeEntityStorage);
@@ -366,5 +371,46 @@ public final class ECSManagment {
    */
   public static boolean existInLevel(Entity entity) {
     return levelEntities().anyMatch(entity1 -> entity1.equals(entity));
+  }
+
+  /**
+   * Runs one logical ECS frame.
+   *
+   * <p>It breaks the execution if a new level was loaded during this tick.
+   *
+   * @param shouldRun a predicate to include/exclude systems (return true to consider a system).
+   */
+  public static void runOneFrame(Predicate<System> shouldRun) {
+    for (System system : ECSManagment.systems().values()) {
+      if (newLevelLoadedThisTick) break;
+      if (shouldRun != null && !shouldRun.test(system)) continue;
+      system.lastExecuteInFrames(system.lastExecuteInFrames() + 1);
+      if (system.isRunning() && system.lastExecuteInFrames() >= system.executeEveryXFrames()) {
+        system.execute();
+        system.lastExecuteInFrames(0);
+      }
+    }
+    currentTick++;
+    newLevelLoadedThisTick = false;
+  }
+
+  /**
+   * Runs one logical ECS frame.
+   *
+   * <p>Runs every system that is currently registered.
+   *
+   * <p>It breaks the execution if a new level was loaded during this tick.
+   */
+  public static void runOneFrame() {
+    runOneFrame(null);
+  }
+
+  /**
+   * Returns the current tick number, incremented each time {@link #runOneFrame()} is called.
+   *
+   * @return the current tick number
+   */
+  public static int currentTick() {
+    return currentTick;
   }
 }
