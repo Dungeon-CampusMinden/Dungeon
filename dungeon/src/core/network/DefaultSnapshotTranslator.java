@@ -127,11 +127,10 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   @Override
   public void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher) {
     if (!isServerTickValid(snapshot.serverTick())) {
-      LOGGER.warn(
-          "Not the latest server tick, skipping snapshot: "
-              + snapshot.serverTick()
-              + ", latest: "
-              + latestServerTick);
+      LOGGER.debug(
+          "Not the latest server tick, skipping snapshot: {}, latest: {}",
+          snapshot.serverTick(),
+          latestServerTick);
       return;
     }
     latestServerTick = snapshot.serverTick();
@@ -146,7 +145,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
                 if (targetEntity.isEmpty()) {
                   LOGGER.warn(
-                      "No entity found for snapshot with id: " + entityId + ". Requesting spawn.");
+                      "No entity found for snapshot with id: {}. Requesting spawn.", entityId);
                   Game.network().send(0, new RequestEntitySpawn(entityId), true);
                   return;
                 }

@@ -12,7 +12,7 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
-import core.game.ECSTickRunner;
+import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.DungeonLevel;
 import core.level.Tile;
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public final class AuthoritativeServerLoop {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
+  private static final boolean DEBUG_MODE = false;
 
   private final ServerTransport net;
   private final SnapshotTranslator translator;
@@ -59,7 +60,7 @@ public final class AuthoritativeServerLoop {
 
     createSystems();
     try {
-      DungeonLoader.afterAllLevels(() -> net.broadcast(new GameOverEvent(), true));
+      DungeonLoader.afterAllLevels(() -> Game.network().broadcast(new GameOverEvent(), true));
       DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
       DungeonLoader.loadLevel(0);
     } catch (Exception e) {
@@ -73,6 +74,22 @@ public final class AuthoritativeServerLoop {
     executor.scheduleAtFixedRate(
         this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs, TimeUnit.MILLISECONDS);
 
+    if (DEBUG_MODE) {
+      executor.scheduleAtFixedRate(
+          () -> {
+            for (ClientState state : net.connectedClients()) {
+              LOGGER.debug(
+                  "Client {}: RTT={}ms, lastActivity={}ms ago",
+                  state.clientId(),
+                  String.format("%.1f", state.rttEstimateMs()),
+                  System.currentTimeMillis() - state.lastActivityTimeMs());
+            }
+          },
+          1000,
+          1000,
+          TimeUnit.MILLISECONDS);
+    }
+
     LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", SERVER_TICK_HZ, SERVER_SNAPSHOT_HZ);
   }
 
@@ -83,7 +100,12 @@ public final class AuthoritativeServerLoop {
 
   private void createSystems() {
     ECSManagment.add(new PositionSystem());
-    ECSManagment.add(new LevelSystem(this::broadcastLevelChange));
+    ECSManagment.add(
+        new LevelSystem(
+            () -> {
+              GameLoop.onLevelLoad.execute();
+              this.broadcastLevelChange();
+            }));
     ECSManagment.add(new VelocitySystem());
     ECSManagment.add(new FrictionSystem());
     ECSManagment.add(new MoveSystem());
@@ -103,9 +125,12 @@ public final class AuthoritativeServerLoop {
       serverTick++;
       syncClientsToEntities();
       drainAndApplyInputs(net.inputQueue(), serverTick);
-      ECSTickRunner.runOneFrame(s -> true);
+      ECSManagment.runOneFrame();
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
+    } catch (Throwable t) {
+      LOGGER.error("Unexpected error in server loop", t);
+      stop();
     }
   }
 
@@ -150,8 +175,8 @@ public final class AuthoritativeServerLoop {
         }
       }
 
-      // Update RTT estimate if clientTick is provided
-      long msgClientTick = msg.clientTick();
+      // Update RTT estimate if clientTimeMs is provided
+      long msgClientTick = msg.clientTimeMs();
       if (msgClientTick > 0) {
         state.updateRttEstimate(msgClientTick, 0.1f); // Alpha=0.1 for smoothing
       }
@@ -186,11 +211,16 @@ public final class AuthoritativeServerLoop {
   }
 
   private void sendSnapshot() {
-    translator.translateToSnapshot(serverTick).ifPresent(snapshot -> net.broadcast(snapshot, true));
+    translator
+        .translateToSnapshot(serverTick)
+        .ifPresent(
+            snapshot -> {
+              Game.network().broadcast(snapshot, true);
+            });
   }
 
   private void broadcastLevelChange() {
-    net.broadcast(LevelChangeEvent.currentLevel(), true);
+    Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
   }
 
   private void syncClientsToEntities() {

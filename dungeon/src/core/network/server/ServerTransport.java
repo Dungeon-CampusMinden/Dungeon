@@ -429,7 +429,13 @@ public final class ServerTransport {
       return;
     }
     inputQueue.offer(
-        new InputMessage(msg.clientTick(), msg.sequence(), msg.action(), msg.point(), clientId));
+        new InputMessage(
+            msg.clientTick(),
+            msg.sequence(),
+            msg.action(),
+            msg.point(),
+            msg.clientTimeMs(),
+            clientId));
   }
 
   private void onInputMessage(InetSocketAddress sender, InputMessage msg) {
@@ -449,7 +455,13 @@ public final class ServerTransport {
       return;
     }
     inputQueue.offer(
-        new InputMessage(msg.clientTick(), msg.sequence(), msg.action(), msg.point(), clientId));
+        new InputMessage(
+            msg.clientTick(),
+            msg.sequence(),
+            msg.action(),
+            msg.point(),
+            msg.clientTimeMs(),
+            clientId));
   }
 
   private void onRegisterUdp(InetSocketAddress sender, RegisterUdp reg) {
