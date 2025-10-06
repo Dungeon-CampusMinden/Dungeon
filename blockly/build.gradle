@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.27.0'
+  implementation project(':dungeon'), 'com.github.javaparser:javaparser-symbol-solver-core:3.27.1'
 
   // ANTLR version 4 for DSL Grammar
   antlr supportDependencies.antlr
