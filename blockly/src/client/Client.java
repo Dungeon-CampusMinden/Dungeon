@@ -45,7 +45,7 @@ public class Client {
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
   private static final boolean DEBUG_MODE = false;
-  private static final boolean ACTIAVE_TANKE_CONTROLLS = DEBUG_MODE;
+  private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
@@ -225,7 +225,7 @@ public class Client {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero;
     try {
-      hero = HeroTankControlledFactory.blocklyHero(ACTIAVE_TANKE_CONTROLLS);
+      hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
       hero.add(new AmmunitionComponent());
     } catch (IOException e) {
       throw new RuntimeException(e);
