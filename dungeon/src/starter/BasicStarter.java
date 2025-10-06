@@ -63,6 +63,7 @@ public class BasicStarter {
   private static void skillTestSetup(Entity hero) {
     SkillComponent skillComponent = hero.fetch(SkillComponent.class).get();
     skillComponent.removeAll();
-    skillComponent.addSkill(new MeleeAttackSkill(1, DamageType.PHYSICAL,500,Vector2.ZERO, Vector2.ONE));
+    skillComponent.addSkill(
+        new MeleeAttackSkill(1, DamageType.PHYSICAL, 500, Vector2.ZERO, Vector2.ONE));
   }
 }
