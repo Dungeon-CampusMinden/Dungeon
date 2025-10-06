@@ -111,7 +111,6 @@ public class DialogUtils {
     Entity e = new Entity();
     ShowImageComponent sic = new ShowImageComponent(imagePath);
     sic.transitionSpeed(speed);
-    e.add(sic);
     UIComponent ui = new UIComponent(new ShowImageUI(sic), true, true);
     ui.onClose(onClose);
     e.add(ui);
