@@ -99,18 +99,32 @@ public class DialogUtils {
   }
 
   /**
-   * Displays an image in a popup.
+   * Displays an image in a popup with a specified transition speed and an optional close callback.
    *
-   * @param imagePath The path to the image to display.
-   * @param speed The speed of the transition.
+   * @param imagePath the path to the image to display
+   * @param speed the transition speed for showing and hiding the image
+   * @param onClose the callback function to execute when the popup is closed
    * @see ShowImageUI
    */
-  public static void showImagePopUp(String imagePath, TransitionSpeed speed) {
+  public static void showImagePopUp(
+      String imagePath, TransitionSpeed speed, IVoidFunction onClose) {
     Entity e = new Entity();
     ShowImageComponent sic = new ShowImageComponent(imagePath);
     sic.transitionSpeed(speed);
+    sic.onCloseAction((entity, entity2) -> onClose.execute());
     e.add(new UIComponent(new ShowImageUI(sic), true, true));
     Game.add(e);
+  }
+
+  /**
+   * Displays an image in a popup.
+   *
+   * @param imagePath The path to the image to display. * @param onClose the callback function to
+   *     execute when the popup is closed
+   * @see ShowImageUI
+   */
+  public static void showImagePopUp(String imagePath, IVoidFunction onClose) {
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, onClose);
   }
 
   /**
@@ -120,6 +134,6 @@ public class DialogUtils {
    * @see ShowImageUI
    */
   public static void showImagePopUp(String imagePath) {
-    showImagePopUp(imagePath, TransitionSpeed.MEDIUM);
+    showImagePopUp(imagePath, TransitionSpeed.MEDIUM, () -> {});
   }
 }
