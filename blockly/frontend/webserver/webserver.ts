@@ -35,7 +35,8 @@ const openJar = () => {
     const _blocklyClientProcess = new Deno.Command("java", {
         args: [
             "-jar",
-             jarPath
+             jarPath,
+             "web=true"
         ],
     });
     _blocklyClientProcess.output().then(({ code }) => {
