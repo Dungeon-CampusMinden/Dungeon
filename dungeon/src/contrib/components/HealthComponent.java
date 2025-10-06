@@ -1,6 +1,5 @@
 package contrib.components;
 
-import com.badlogic.gdx.utils.Null;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -8,10 +7,7 @@ import core.Component;
 import core.Entity;
 import core.Game;
 import core.utils.logging.CustomLogLevel;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -19,27 +15,23 @@ import java.util.logging.Logger;
  * Allow an associated entity to take damage and to die.
  *
  * <p>The component also tracks the received damage via the {@link #receiveHit(Damage) receiveHit}
- * method. The damage is not applied immediately but is temporarily stored in an internal list until
- * it is applied, and can be retrieved via the {@link #calculateDamageOf(DamageType)
- * calculateDamageOf} method.
+ * method. The damage is not applied immediately, instead it is enqueued in the {@link HealthSystem}
+ * and processed there at the end of the tick.
  *
  * <p>To calculate the damage received, the {@link HealthSystem} calls the {@link
  * #calculateDamageOf(DamageType)} method for each {@link DamageType} and calculates the sum of the
  * damage. Next, the {@link HealthSystem} reduces the {@link #currentHealthpoints} by this value and
- * calls {@link #clearDamage()} to clear the internal list afterward. When the health points drop to
- * 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
+ * calls {@link #clearDamage()} to discard all pendig damage for this component. When the health
+ * points drop to 0 or less, the system calls {@link #triggerOnDeath(Entity)}.
  *
  * <p>To determine the last cause of damage, the {@link #lastDamageCause()} method can be used.
  */
 public final class HealthComponent implements Component {
   private static final Consumer<Entity> REMOVE_DEAD_ENTITY = Game::remove;
-  private final List<Damage> damageToGet;
-  private BiConsumer<Entity, Damage> onHit = (entity, damage) -> {};
   private Consumer<Entity> onDeath;
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
   private int maximalHealthpoints;
   private int currentHealthpoints;
-  private @Null Entity lastCause = null;
   private boolean godMode = false;
 
   /**
@@ -53,7 +45,6 @@ public final class HealthComponent implements Component {
     this.maximalHealthpoints = maximalHitPoints;
     this.currentHealthpoints = maximalHitPoints;
     this.onDeath = onDeath;
-    damageToGet = new ArrayList<>();
   }
 
   /**
@@ -82,13 +73,13 @@ public final class HealthComponent implements Component {
    * Add damage, which is accounted for by the {@link HealthSystem}.
    *
    * <p>The {@link HealthSystem} will reduce the current health points based on the received damage.
+   * The damage will not be applied immediately. Instead, it is enqueued in the system and processed
+   * during the next execution cycle.
    *
    * @param damage Damage that should be inflicted
    */
   public void receiveHit(Damage damage) {
-    this.onHit.accept(damage.cause(), damage);
-    damageToGet.add(damage);
-    this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
+    HealthSystem.enqueueDamage(this, damage);
   }
 
   /**
@@ -112,40 +103,28 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Set the onHit function.
-   *
-   * <p>This function will be called when the associated entity receives damage.
-   *
-   * @param onHit A BiConsumer function that takes an Entity that caused the damage (can be null)
-   *     and the Damage object.
-   */
-  public void onHit(BiConsumer<Entity, Damage> onHit) {
-    this.onHit = onHit;
-  }
-
-  /**
    * Calculate the amount of damage to a certain type.
+   *
+   * <p>Delegates to the {@link HealthSystem}, which aggregates all queued {@link Damage} for this
+   * component.
    *
    * @param dt Type of damage object that still need to be accounted for
    * @return Sum of all damage objects of type dt (default: 0)
    */
   public int calculateDamageOf(final DamageType dt) {
-    int damageSum =
-        damageToGet.stream().filter(d -> d.damageType() == dt).mapToInt(Damage::damageAmount).sum();
-
+    int damageSum = HealthSystem.calculateDamageOf(this, dt);
     LOGGER.log(
         CustomLogLevel.DEBUG, this.getClass().getSimpleName() + " processed damage: '" + damageSum);
-
     return damageSum;
   }
 
   /**
-   * Clear the damage list.
+   * Clear all pending damage for this component.
    *
-   * <p>The damage list is used to determine the damage the entity should receive on next tick.
+   * <p>This delegates to the {@link HealthSystem} and removes the queue entry for this component.
    */
   public void clearDamage() {
-    damageToGet.clear();
+    HealthSystem.removePendingDamage(this);
   }
 
   /**
@@ -206,12 +185,15 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Get last entity that caused damage to the associated entity.
+   * Get the last entity that caused damage to the associated entity.
    *
-   * @return The last entity that caused damage to the associated entity.
+   * <p>The value is derived from the last {@link Damage} queued for this component in the {@link
+   * HealthSystem}.
+   *
+   * @return {@link Optional} containing the last damage cause, or {@link Optional#empty()} if none
    */
   public Optional<Entity> lastDamageCause() {
-    return Optional.ofNullable(this.lastCause);
+    return HealthSystem.lastDamageCauseOf(this);
   }
 
   /**
