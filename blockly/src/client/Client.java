@@ -51,6 +51,12 @@ public class Client {
   private static HttpServer httpServer;
 
   /**
+   * If true, the Web interface Blockly is used for interaction with the Dunogen. Otherwise, the
+   * Code API is used.
+   */
+  public static boolean runInWeb = false;
+
+  /**
    * Setup and run the game. Also start the server that is listening to the requests from blockly
    * frontend.
    *
@@ -59,6 +65,13 @@ public class Client {
    */
   public static void main(String[] args) throws IOException {
     Game.initBaseLogger(Level.WARNING);
+
+    for (String arg : args) {
+      if (arg.equalsIgnoreCase("web=true")) {
+        runInWeb = true;
+      }
+    }
+
     StateMachine.setResetFrame(false);
     Debugger debugger = new Debugger();
     // start the game
