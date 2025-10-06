@@ -1,0 +1,17 @@
+{
+  "idle": {
+    "config": {
+      "spriteWidth": 64,
+      "spriteHeight": 47,
+      "x": 0,
+      "y": 0,
+      "rows": 3,
+      "columns": 3
+    },
+    "framesPerSprite": 1,
+    "scaleX": 1,
+    "scaleY": 0,
+    "isLooping": false,
+    "centered": false
+  }
+}
