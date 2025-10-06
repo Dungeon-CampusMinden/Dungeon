@@ -14,7 +14,6 @@ import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.loader.DungeonLoader;
-import core.systems.InputSystem;
 import core.systems.PositionSystem;
 import core.utils.Tuple;
 import core.utils.Vector2;
@@ -39,11 +38,14 @@ import systems.TintTilesSystem;
  */
 public class Client {
 
+  /** The name of the blockly hero. */
+  public static final String WIZARD_NAME = "Algorim";
+
   /** Force to apply for movement of all entities. */
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
   private static final boolean DEBUG_MODE = false;
-  private static final boolean KEYBOARD_DEACTIVATION = !DEBUG_MODE;
+  private static final boolean ACTIVATE_TANKE_CONTROLLS = DEBUG_MODE;
   private static volatile boolean scheduleRestart = false;
 
   private static HttpServer httpServer;
@@ -116,10 +118,6 @@ public class Client {
           startServer();
 
           Crafting.loadRecipes();
-
-          if (KEYBOARD_DEACTIVATION) {
-            Game.remove(InputSystem.class);
-          }
 
           DungeonLoader.loadLevel(0);
         });
@@ -227,7 +225,7 @@ public class Client {
     Game.levelEntities(Set.of(PlayerComponent.class)).forEach(Game::remove);
     Entity hero;
     try {
-      hero = HeroTankControlledFactory.newTankControlledHero();
+      hero = HeroTankControlledFactory.blocklyHero(ACTIVATE_TANKE_CONTROLLS);
       hero.add(new AmmunitionComponent());
     } catch (IOException e) {
       throw new RuntimeException(e);
