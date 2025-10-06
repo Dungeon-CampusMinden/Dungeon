@@ -1,8 +1,10 @@
 package contrib.components;
 
+import contrib.utils.EntityUtils;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
+import core.utils.Point;
 import java.util.function.BiConsumer;
 
 /**
@@ -79,5 +81,28 @@ public final class InteractionComponent implements Component {
    */
   public float radius() {
     return radius;
+  }
+
+  /**
+   * Determines whether a given entity is within the interaction range of this component.
+   *
+   * <p>This method uses the Euclidean distance to calculate the distance between the center point
+   * of the entity that owns this {@link InteractionComponent} and the center point of another
+   * entity attempting to interact with it. Both center points are obtained via {@link
+   * contrib.utils.EntityUtils#getEntityCenter(Entity)}.
+   *
+   * @param self The entity that owns this {@link InteractionComponent}.
+   * @param who The entity attempting to interact.
+   * @return {@code true} if the other entity is within the interaction radius; {@code false}
+   *     otherwise.
+   */
+  public boolean isEntityInRange(Entity self, Entity who) {
+    Point cSelf = EntityUtils.getEntityCenter(self);
+    Point cWho = EntityUtils.getEntityCenter(who);
+    float dx = cWho.x() - cSelf.x();
+    float dy = cWho.y() - cSelf.y();
+    float squaredDistance = dx * dx + dy * dy;
+    float squaredRadius = radius * radius;
+    return squaredDistance <= squaredRadius;
   }
 }

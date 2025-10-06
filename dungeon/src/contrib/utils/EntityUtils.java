@@ -4,6 +4,7 @@ import contrib.entities.LeverFactory;
 import contrib.entities.SignFactory;
 import core.Entity;
 import core.Game;
+import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.utils.Coordinate;
 import core.utils.Direction;
@@ -170,5 +171,37 @@ public class EntityUtils {
         .fetch(PositionComponent.class)
         .map(PositionComponent::viewDirection)
         .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+  }
+
+  /**
+   * Calculates the center point of a given entity.
+   *
+   * <p>If the entity has only a {@link PositionComponent}, the position is shifted by (0.5, 0.5) to
+   * approximate the center. If a {@link DrawComponent} is present, the method uses the entity's
+   * texture width and height to determine the exact center.
+   *
+   * @param e The entity to calculate the center for.
+   * @return The center point of the entity.
+   */
+  public static Point getEntityCenter(Entity e) {
+    var optPc = e.fetch(PositionComponent.class);
+    if (optPc.isEmpty()) {
+      return new Point(0.5f, 0.5f);
+    }
+
+    var pc = optPc.get();
+    float cx = pc.position().x();
+    float cy = pc.position().y();
+
+    var optDc = e.fetch(DrawComponent.class);
+    if (optDc.isEmpty()) {
+      return new Point(cx + 0.5f, cy + 0.5f);
+    }
+
+    var dc = optDc.get();
+    cx += dc.getWidth() / 2f;
+    cy += dc.getHeight() / 2f;
+
+    return new Point(cx, cy);
   }
 }

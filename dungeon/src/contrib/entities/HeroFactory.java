@@ -8,6 +8,7 @@ import contrib.configuration.KeyboardConfig;
 import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
+import contrib.utils.EntityUtils;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.Skill;
@@ -472,16 +473,12 @@ public final class HeroFactory {
             .fetch(InteractionComponent.class)
             .orElseThrow(
                 () -> MissingComponentException.build(interactable, InteractionComponent.class));
-    PositionComponent pc =
-        interactable
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, PositionComponent.class));
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius())
+
+    Point heroCenter = EntityUtils.getEntityCenter(hero);
+    Point targetCenter = EntityUtils.getEntityCenter(interactable);
+    if (Point.calculateDistance(targetCenter, heroCenter) < ic.radius()) {
       ic.triggerInteraction(interactable, hero);
+    }
   }
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)

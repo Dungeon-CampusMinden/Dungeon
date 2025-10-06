@@ -1,9 +1,9 @@
 package contrib.utils.components.interaction;
 
 import contrib.components.InteractionComponent;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -13,16 +13,13 @@ import java.util.function.Function;
 /** This class provides utility methods for interacting with interactable entities in the game. */
 public final class InteractionTool {
 
-  private static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
-      (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
-
   /**
    * Interacts with the closest interactable entity.
    *
    * @param entity Entity The entity that is interacting.
    */
   public static void interactWithClosestInteractable(final Entity entity) {
-    interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
+    interactWithClosestInteractable(entity, data -> data.ic().isEntityInRange(data.e(), entity));
   }
 
   /**
@@ -33,37 +30,32 @@ public final class InteractionTool {
    */
   public static void interactWithClosestInteractable(
       final Entity who, final Function<InteractionData, Boolean> iReachable) {
-    PositionComponent heroPosition =
-        who.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(who, PositionComponent.class));
+
     Optional<InteractionData> data =
         Game.levelEntities()
             .filter(x -> x.isPresent(InteractionComponent.class))
-            .map(x -> convertToData(x, heroPosition))
+            .map(x -> convertToData(x, who))
             .filter(iReachable::apply)
             .min((x, y) -> Float.compare(x.dist(), y.dist()));
     data.ifPresent(x -> x.ic().triggerInteraction(x.e(), who));
   }
 
-  private static InteractionData convertToData(
-      final Entity entity, final PositionComponent heroPosition) {
+  private static InteractionData convertToData(final Entity entity, final Entity who) {
 
     InteractionComponent ic =
         entity
             .fetch(InteractionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, InteractionComponent.class));
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+
+    Point targetCenter = EntityUtils.getEntityCenter(entity);
+    Point heroCenter = EntityUtils.getEntityCenter(who);
+
     return new InteractionData(
         entity,
-        pc,
         ic,
-        Point.calculateDistance(heroPosition.position(), pc.position()),
-        pc.position().vectorTo(heroPosition.position()).normalize());
+        Point.calculateDistance(heroCenter, targetCenter),
+        targetCenter.vectorTo(heroCenter).normalize());
   }
 
-  private record InteractionData(
-      Entity e, PositionComponent pc, InteractionComponent ic, float dist, Vector2 unitDir) {}
+  private record InteractionData(Entity e, InteractionComponent ic, float dist, Vector2 unitDir) {}
 }
