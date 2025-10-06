@@ -1,10 +1,12 @@
 package entities;
 
 import client.Client;
+import coderunner.BlocklyCodeRunner;
 import coderunner.BlocklyCommands;
 import contrib.entities.EntityFactory;
 import contrib.entities.HeroFactory;
 import core.Entity;
+import core.Game;
 import core.components.InputComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
@@ -13,6 +15,8 @@ import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import java.io.IOException;
+import java.util.function.Consumer;
+import level.BlocklyLevel;
 
 /**
  * This class is used to create a hero entity with tank controls. The hero can only move in the
@@ -59,6 +63,17 @@ public class HeroTankControlledFactory {
           (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
           false);
     }
+
+    ic.registerCallback(
+        KeyboardConfig.PAUSE.value(),
+        new Consumer<Entity>() {
+          @Override
+          public void accept(Entity entity) {
+            if (!BlocklyCodeRunner.instance().isCodeRunning())
+              Game.currentLevel().ifPresent(level -> ((BlocklyLevel) level).showPopups());
+          }
+        },
+        false);
 
     return hero;
   }

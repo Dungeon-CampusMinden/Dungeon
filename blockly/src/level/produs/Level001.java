@@ -1,6 +1,8 @@
 package level.produs;
 
 import client.Client;
+import com.badlogic.gdx.Input;
+import core.configuration.KeyboardConfig;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -44,7 +46,10 @@ public class Level001 extends BlocklyLevel {
 
     popups.add(
         new TextPopUp(
-            "Willkommen im Blockly Dungeon! Heute wirst du mir helfen, aus den Fängen des Bösen zu entkommen.",
+            "Willkommen im Blockly Dungeon! Heute wirst du mir helfen, aus den Fängen des Bösen zu entkommen."
+                + " Drücke "
+                + Input.Keys.toString(KeyboardConfig.PAUSE.value())
+                + " wenn ich mich wiederholen soll.",
             "Blockly Dungeon"));
 
     popups.add(
@@ -66,25 +71,25 @@ public class Level001 extends BlocklyLevel {
             "In der Seitenleiste findest du verschiedene Kategorien. Je weiter wir kommen, desto mehr magische Fähigkeiten werden freigeschaltet! Behalte diese Liste also gut im Auge. "
                 + "Klicke mit der linken Maustaste, um dir die Zauber einer Kategorie anzusehen.",
             "Blockly Dungeon"));
-    popups.add(new ImagePopUp("/popups/level001/sidebar.png"));
+    popups.add(new ImagePopUp("popups/level001/sidebar.png"));
 
     popups.add(
         new TextPopUp(
             "Hier siehst du meine Zauber – oder wie du sie nennen würdest: Code-Blöcke. Mit ihnen sagst du mir, was ich tun soll. "
                 + "Ziehe einfach einen Block mit gedrückter linker Maustaste unter den Start-Block, um deinen ersten Zauber zu wirken!",
             "Blockly Dungeon"));
-    popups.add(new ImagePopUp("/popups/level001/first_move.png"));
+    popups.add(new ImagePopUp("popups/level001/first_move.png"));
     popups.add(
         new TextPopUp(
             "Einige Zauber wirken nur in Kombination mit anderen. Das erkennst du an den kleinen Puzzle-Ausschnitten an der Seite.",
             "Blockly Dungeon"));
-    popups.add(new ImagePopUp("/popups/level001/turn.png"));
+    popups.add(new ImagePopUp("popups/level001/turn.png"));
 
     popups.add(
         new TextPopUp(
             "Kombiniere meine Zauber geschickt, um mich bis zum Ausgang zu führen. Gemeinsam können wir das Böse besiegen!",
             "Blockly Dungeon"));
-    popups.add(new ImagePopUp("/popups/level001/turn_example.png"));
+    popups.add(new ImagePopUp("popups/level001/turn_example.png"));
 
     popups.add(
         new TextPopUp(
@@ -92,8 +97,8 @@ public class Level001 extends BlocklyLevel {
                 + "Wenn etwas schiefgeht, starten wir das Level einfach noch einmal. "
                 + "Und noch ein letzter Tipp: Mit der Taste 'P' kannst du dir das Tutorial jederzeit wieder anschauen.",
             "Blockly Dungeon"));
-    popups.add(new ImagePopUp("/popups/level001/start.png"));
-    popups.add(new ImagePopUp("/popups/level001/reset.png"));
+    popups.add(new ImagePopUp("popups/level001/start.png"));
+    popups.add(new ImagePopUp("popups/level001/reset.png"));
   }
 
   @Override

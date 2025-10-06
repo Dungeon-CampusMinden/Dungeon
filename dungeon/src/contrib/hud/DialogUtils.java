@@ -111,16 +111,18 @@ public class DialogUtils {
     Entity e = new Entity();
     ShowImageComponent sic = new ShowImageComponent(imagePath);
     sic.transitionSpeed(speed);
-    sic.onCloseAction((entity, entity2) -> onClose.execute());
-    e.add(new UIComponent(new ShowImageUI(sic), true, true));
+    e.add(sic);
+    UIComponent ui = new UIComponent(new ShowImageUI(sic), true, true);
+    ui.onClose(onClose);
+    e.add(ui);
     Game.add(e);
   }
 
   /**
    * Displays an image in a popup.
    *
-   * @param imagePath The path to the image to display. * @param onClose the callback function to
-   *     execute when the popup is closed
+   * @param imagePath The path to the image to display. *
+   * @param onClose the callback function to execute when the popup is closed
    * @see ShowImageUI
    */
   public static void showImagePopUp(String imagePath, IVoidFunction onClose) {

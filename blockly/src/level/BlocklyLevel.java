@@ -21,7 +21,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
   private final Set<String> blockedBlocklyElements = new HashSet<>();
   private final DesignLabel designLabel;
 
-  /** List of Popups to display with {@link #showPopups()} */
+  /** List of Popups to display with {@link #showPopups()}. */
   protected List<PopUp> popups = new ArrayList<>();
 
   /**
@@ -58,7 +58,7 @@ public abstract class BlocklyLevel extends DungeonLevel {
    *
    * <p>When a popup is closed, the next one in the list will open automatically.
    */
-  protected void showPopups() {
+  public void showPopups() {
     if (popups.isEmpty()) return;
     showNextPopup(0);
   }
