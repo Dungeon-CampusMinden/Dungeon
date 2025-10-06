@@ -143,13 +143,13 @@ public class TileTextureFactory {
 
   private static IPath findTexturePathWall(LevelPart levelPart) {
     if (isRightWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_right");
+      return new SimpleIPath("wall/right");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_left");
+      return new SimpleIPath("wall/left");
     } else if (isTopWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_top");
     } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_bottom");
+      return new SimpleIPath("wall/bottom");
     }
     return null;
   }
@@ -173,13 +173,13 @@ public class TileTextureFactory {
 
   private static IPath findTexturePathOuterCorner(LevelPart levelPart) {
     if (isBottomLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_bottom_left");
+      return new SimpleIPath("wall/corner_bottom_left");
     } else if (isBottomRightOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_bottom_right");
+      return new SimpleIPath("wall/corner_bottom_right");
     } else if (isUpperRightOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_upper_right");
+      return new SimpleIPath("wall/corner_upper_right");
     } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_upper_left");
+      return new SimpleIPath("wall/corner_upper_left");
     }
     return null;
   }
