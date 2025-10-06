@@ -30,11 +30,11 @@ import produsAdvanced.abstraction.portals.components.PortalComponent;
  */
 public class PortalFactory {
 
-  private static Entity bluePortal = null;
-  private static Entity greenPortal = null;
+  /** Name of the blue portal. */
+  private static String BLUE_PORTAL_NAME = "BLUE_PORTAL";
 
-  private static Direction bluePortalDirection;
-  private static Direction greenPortalDirection;
+  /** Name of the green portal. */
+  private static String GREEN_PORTAL_NAME = "GREEN_PORTAL";
 
   /**
    * Creates a portal of the given color at the specified position.
@@ -62,8 +62,6 @@ public class PortalFactory {
     portal.add(pc);
     portal.add(cc);
 
-    assignPortalReference(color, portal);
-
     Game.add(portal);
     ignorePortalInProjectiles(portal);
   }
@@ -83,13 +81,13 @@ public class PortalFactory {
     switch (color) {
       case BLUE -> {
         clearBluePortal();
-        removeIfOverlap(greenPortal, point, PortalFactory::clearGreenPortal);
-        return new Entity("blue_portal");
+        removeIfOverlap(getGreenPortal(), point, PortalFactory::clearGreenPortal);
+        return new Entity(BLUE_PORTAL_NAME);
       }
       case GREEN -> {
         clearGreenPortal();
-        removeIfOverlap(bluePortal, point, PortalFactory::clearBluePortal);
-        return new Entity("green_portal");
+        removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
+        return new Entity(GREEN_PORTAL_NAME);
       }
       default -> throw new IllegalArgumentException("Unknown portal color: " + color);
     }
@@ -102,8 +100,9 @@ public class PortalFactory {
    * @param point the position to check against
    * @param clearAction the action to execute if overlap is detected
    */
-  private static void removeIfOverlap(Entity portal, Point point, Runnable clearAction) {
-    if (portal != null && portal.fetch(PositionComponent.class).get().position().equals(point)) {
+  private static void removeIfOverlap(Optional<Entity> portal, Point point, Runnable clearAction) {
+    if (portal.isPresent()
+        && portal.get().fetch(PositionComponent.class).get().position().equals(point)) {
       clearAction.run();
     }
   }
@@ -131,20 +130,6 @@ public class PortalFactory {
     return (color == PortalColor.BLUE)
         ? PortalFactory::onBlueCollideEnter
         : PortalFactory::onGreenCollideEnter;
-  }
-
-  /**
-   * Assigns the corresponding portal reference.
-   *
-   * @param color the portal color
-   * @param portal the portal entity
-   */
-  private static void assignPortalReference(PortalColor color, Entity portal) {
-    if (color == PortalColor.BLUE) {
-      bluePortal = portal;
-    } else {
-      greenPortal = portal;
-    }
   }
 
   /**
@@ -195,12 +180,6 @@ public class PortalFactory {
     Point pointDirection = new Point(point.x() - nearestTile.x(), point.y() - nearestTile.y());
     Direction direction = toDirection(pointDirection).opposite();
 
-    if (color == PortalColor.GREEN) {
-      greenPortalDirection = direction;
-    } else {
-      bluePortalDirection = direction;
-    }
-
     return direction;
   }
 
@@ -225,10 +204,14 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
-    if (bluePortal != null && !isEntityPortal(other)) {
-      PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(
-          bluePortal
+    if (getBluePortal().isPresent() && !isEntityPortal(other)) {
+      PositionComponent projectilePositionComponent = other.fetch(PositionComponent.class).get();
+      Direction greenPortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
+      Direction bluePortalDirection =
+          getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
+      projectilePositionComponent.position(
+          getBluePortal()
+              .get()
               .fetch(PositionComponent.class)
               .get()
               .position()
@@ -245,10 +228,14 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
-    if (greenPortal != null && !isEntityPortal(other)) {
-      PositionComponent pc = other.fetch(PositionComponent.class).get();
-      pc.position(
-          greenPortal
+    if (getGreenPortal().isPresent() && !isEntityPortal(other)) {
+      PositionComponent projectilePositionComponent = other.fetch(PositionComponent.class).get();
+      Direction bluePortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
+      Direction greenPortalDirection =
+          getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+      projectilePositionComponent.position(
+          getGreenPortal()
+              .get()
               .fetch(PositionComponent.class)
               .get()
               .position()
@@ -390,18 +377,12 @@ public class PortalFactory {
 
   /** Removes the blue portal from the game, if present. */
   public static void clearBluePortal() {
-    if (bluePortal != null) {
-      Game.remove(bluePortal);
-      bluePortal = null;
-    }
+    getBluePortal().ifPresent(Game::remove);
   }
 
   /** Removes the green portal from the game, if present. */
   public static void clearGreenPortal() {
-    if (greenPortal != null) {
-      Game.remove(greenPortal);
-      greenPortal = null;
-    }
+    getGreenPortal().ifPresent(Game::remove);
   }
 
   /**
@@ -420,7 +401,7 @@ public class PortalFactory {
    * @return an {@link Optional} containing the blue portal entity, or empty if none exists
    */
   public static Optional<Entity> getBluePortal() {
-    return Optional.ofNullable(bluePortal);
+    return Game.allEntities().filter(entity -> entity.name().equals(BLUE_PORTAL_NAME)).findFirst();
   }
 
   /**
@@ -429,6 +410,6 @@ public class PortalFactory {
    * @return an {@link Optional} containing the green portal entity, or empty if none exists
    */
   public static Optional<Entity> getGreenPortal() {
-    return Optional.ofNullable(greenPortal);
+    return Game.allEntities().filter(entity -> entity.name().equals(GREEN_PORTAL_NAME)).findFirst();
   }
 }
