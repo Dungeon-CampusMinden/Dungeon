@@ -21,40 +21,44 @@ import java.io.IOException;
  */
 public class HeroTankControlledFactory {
 
-  /**
-   * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
-   *
-   * @return the hero entity
-   * @throws IOException if there is an error creating the hero
-   */
-  public static Entity newTankControlledHero() throws IOException {
+  static {
     HeroFactory.heroDeath(
         entity -> {
           Client.restart();
         });
+  }
 
+  /**
+   * Creates a new hero with tank controls. The hero can only move in the direction it is facing.
+   *
+   * @param tankControlls True if the Tanke Controlls should be maped to the default movement keys
+   * @return the hero entity
+   * @throws IOException if there is an error creating the hero
+   */
+  public static Entity blocklyHero(boolean tankControlls) throws IOException {
     Entity hero = EntityFactory.newHero();
     InputComponent ic = hero.fetch(InputComponent.class).orElse(new InputComponent());
 
     // Remove any original movement controls
-    ic.removeCallback(KeyboardConfig.MOVEMENT_UP.value());
-    ic.removeCallback(KeyboardConfig.MOVEMENT_DOWN.value());
-    ic.removeCallback(KeyboardConfig.MOVEMENT_LEFT.value());
-    ic.removeCallback(KeyboardConfig.MOVEMENT_RIGHT.value());
+    ic.removeCallbacks();
+    HeroFactory.registerCloseUI(ic);
 
-    // Add tank controls
-    ic.registerCallback(
-        KeyboardConfig.MOVEMENT_UP.value(), HeroTankControlledFactory::moveEntityInFacingDirection);
+    if (tankControlls) {
+      // Add tank controls
+      ic.registerCallback(
+          KeyboardConfig.MOVEMENT_UP.value(),
+          HeroTankControlledFactory::moveEntityInFacingDirection);
 
-    // Add rotation controls
-    ic.registerCallback(
-        KeyboardConfig.MOVEMENT_LEFT.value(),
-        (entity) -> BlocklyCommands.rotate(Direction.LEFT),
-        false);
-    ic.registerCallback(
-        KeyboardConfig.MOVEMENT_RIGHT.value(),
-        (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
-        false);
+      // Add rotation controls
+      ic.registerCallback(
+          KeyboardConfig.MOVEMENT_LEFT.value(),
+          (entity) -> BlocklyCommands.rotate(Direction.LEFT),
+          false);
+      ic.registerCallback(
+          KeyboardConfig.MOVEMENT_RIGHT.value(),
+          (entity) -> BlocklyCommands.rotate(Direction.RIGHT),
+          false);
+    }
 
     return hero;
   }
