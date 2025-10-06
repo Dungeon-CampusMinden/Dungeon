@@ -13,16 +13,13 @@ import java.util.function.Function;
 /** This class provides utility methods for interacting with interactable entities in the game. */
 public final class InteractionTool {
 
-  private static final Function<InteractionData, Boolean> SIMPLE_REACHABLE =
-      (interactionData -> (interactionData.ic().radius() - interactionData.dist()) > 0);
-
   /**
    * Interacts with the closest interactable entity.
    *
    * @param entity Entity The entity that is interacting.
    */
   public static void interactWithClosestInteractable(final Entity entity) {
-    interactWithClosestInteractable(entity, SIMPLE_REACHABLE);
+    interactWithClosestInteractable(entity, data -> data.ic().isEntityInRange(data.e(), entity));
   }
 
   /**
