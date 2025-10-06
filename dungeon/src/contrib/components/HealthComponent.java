@@ -86,7 +86,6 @@ public final class HealthComponent implements Component {
    * @param damage Damage that should be inflicted
    */
   public void receiveHit(Damage damage) {
-    this.onHit.accept(damage.cause(), damage);
     damageToGet.add(damage);
     this.lastCause = damage.cause() != null ? damage.cause() : this.lastCause;
   }
