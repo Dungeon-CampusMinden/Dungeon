@@ -1,8 +1,10 @@
 package contrib.components;
 
+import contrib.utils.EntityUtils;
 import core.Component;
 import core.Entity;
 import core.systems.InputSystem;
+import core.utils.Point;
 import java.util.function.BiConsumer;
 
 /**
@@ -79,5 +81,15 @@ public final class InteractionComponent implements Component {
    */
   public float radius() {
     return radius;
+  }
+
+  public boolean isEntityInRange(Entity self, Entity who) {
+    Point cSelf = EntityUtils.getEntityCenter(self);
+    Point cWho  = EntityUtils.getEntityCenter(who);
+    float dx = cWho.x() - cSelf.x();
+    float dy = cWho.y() - cSelf.y();
+    float squaredDistance = dx * dx + dy * dy;
+    float squaredRadius = radius * radius;
+    return squaredDistance <= squaredRadius;
   }
 }
