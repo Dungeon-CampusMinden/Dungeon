@@ -38,6 +38,9 @@ import systems.TintTilesSystem;
  */
 public class Client {
 
+  /** The name of the blockly hero. */
+  public static final String WIZARD_NAME = "Algorim";
+
   /** Force to apply for movement of all entities. */
   public static final Vector2 MOVEMENT_FORCE = Vector2.of(7.5, 7.5);
 
