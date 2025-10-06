@@ -81,21 +81,21 @@ public class MeleeAttackSkill extends Skill {
               PositionComponent attackPositionComponent = new PositionComponent(attackPosition);
               System.out.println(casterPositionComponent.rotation());
               attackPositionComponent.rotation(casterPositionComponent.rotation());
-              //        switch(casterPositionComponent.viewDirection()) {
-              //          case UP -> {
-              //            attackPositionComponent.rotation(90);
-              //          }
-              //          case RIGHT -> {
-              //            attackPositionComponent.rotation(0);
-              //          }
-              //          case DOWN -> {
-              //            attackPositionComponent.rotation(270);
-              //          }
-              //          case LEFT -> {
-              //            attackPositionComponent.rotation(180);
-              //          }
-              //          default -> {}
-              //        }
+                      switch(casterPositionComponent.viewDirection()) {
+                        case UP -> {
+                          attackPositionComponent.rotation(90);
+                        }
+                        case RIGHT -> {
+                          attackPositionComponent.rotation(0);
+                        }
+                        case DOWN -> {
+                          attackPositionComponent.rotation(270);
+                        }
+                        case LEFT -> {
+                          attackPositionComponent.rotation(180);
+                        }
+                        default -> {}
+                      }
 
               attack.add(attackPositionComponent);
 
@@ -117,7 +117,6 @@ public class MeleeAttackSkill extends Skill {
               attack.add(collideComponent);
 
               VelocityComponent velocityComponent = caster.fetch(VelocityComponent.class).get();
-              velocityComponent.canEnterWalls(true);
               attack.add(velocityComponent);
 
               Game.add(attack);
@@ -126,15 +125,6 @@ public class MeleeAttackSkill extends Skill {
                     Game.remove(attack);
                   },
                   250);
-            });
-  }
-
-  private void onCollideEnter(Entity attack, Entity other, Direction direction) {
-    other
-        .fetch(HealthComponent.class)
-        .ifPresent(
-            healthComponent -> {
-              healthComponent.receiveHit(new Damage(damage, damageType, attack));
             });
   }
 }
