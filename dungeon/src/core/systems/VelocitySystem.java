@@ -8,6 +8,7 @@ import core.components.VelocityComponent;
 import core.utils.Direction;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
@@ -37,9 +38,20 @@ public final class VelocitySystem extends System {
   // Default time (frames) an animation should be enqueued for
   private static final int DEFAULT_FRAME_TIME = 1;
 
+  private static HashMap<VelocityComponent, VelocityComponent> copyMap = new HashMap<>();
+
   /** Constructs a new VelocitySystem. */
   public VelocitySystem() {
     super(VelocityComponent.class, PositionComponent.class, DrawComponent.class);
+    onEntityRemove =
+        entity -> {
+          entity
+              .fetch(VelocityComponent.class)
+              .ifPresent(
+                  velocityComponent -> {
+                    copyMap.remove(velocityComponent);
+                  });
+        };
   }
 
   /**
@@ -52,6 +64,7 @@ public final class VelocitySystem extends System {
   public void execute() {
     filteredEntityStream(VelocityComponent.class, PositionComponent.class, DrawComponent.class)
         .map(this::buildDataObject)
+        .filter(vsData -> !copyMap.containsValue(vsData.vc))
         .map(this::calculateVelocity)
         .forEach(this::movementAnimation);
   }
@@ -74,6 +87,10 @@ public final class VelocitySystem extends System {
 
     vsd.vc.currentVelocity(newVelocity);
     vsd.vc.clearForces();
+
+    if (copyMap.containsKey(vsd.vc)) {
+      copyMap.get(vsd.vc).currentVelocity(vsd.vc.currentVelocity());
+    }
 
     return vsd;
   }
@@ -136,6 +153,27 @@ public final class VelocitySystem extends System {
             .orElseThrow(() -> MissingComponentException.build(e, DrawComponent.class));
 
     return new VSData(e, vc, pc, dc);
+  }
+
+  /**
+   * Registers an origin and copy component, where each frame the copy gets the currentVelocity of
+   * the origin until they are removed. Prevents updating the copy components velocity.
+   *
+   * @param origin The component that provides the velocity for the copy.
+   * @param copy The component that copies the velocity of the origin component.
+   */
+  public static void registerCopy(VelocityComponent origin, VelocityComponent copy) {
+    copyMap.put(origin, copy);
+  }
+
+  /**
+   * Removes the origin component from the hashmap therefore both, copy and origin, aren't linked
+   * anymore. The copy velocity can now update itself again.
+   *
+   * @param origin The component that provides the velocity for the copy.
+   */
+  public static void unregisterCopy(VelocityComponent origin) {
+    copyMap.remove(origin);
   }
 
   /**
