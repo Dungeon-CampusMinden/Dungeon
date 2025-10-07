@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.graphics.Texture;
+import contrib.systems.HealthSystem;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -71,15 +72,15 @@ public class VelocitySystemTest {
     pc = new PositionComponent();
     Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(new SimpleIPath("test_assets/textures/test_hero"));
-    State stIdle = new DirectionalState("idle", animationMap);
-    State stMove = new DirectionalState("move", animationMap, "run");
-    State stDead = new State("dead", animationMap.get("die"));
+    State stIdle = new DirectionalState(StateMachine.IDLE_STATE, animationMap);
+    State stMove = new DirectionalState(VelocitySystem.STATE_NAME, animationMap, "run");
+    State stDead = new State(HealthSystem.DEATH_STATE, animationMap.get("die"));
     StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove, stDead));
-    sm.addTransition(stIdle, "move", stMove);
-    sm.addTransition(stMove, "move", stMove);
-    sm.addTransition(stMove, "idle", stIdle);
-    sm.addTransition(stIdle, "died", stDead);
-    sm.addTransition(stMove, "died", stDead);
+    sm.addTransition(stIdle, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, VelocitySystem.MOVE_SIGNAL, stMove);
+    sm.addTransition(stMove, VelocitySystem.IDLE_SIGNAL, stIdle);
+    sm.addTransition(stIdle, HealthSystem.DEATH_SIGNAL, stDead);
+    sm.addTransition(stMove, HealthSystem.DEATH_SIGNAL, stDead);
     dc = new DrawComponent(sm);
     entity.add(vc);
     entity.add(pc);
@@ -178,25 +179,25 @@ public class VelocitySystemTest {
     // Test right movement
     vc.currentVelocity(Vector2.of(1, 1));
     system.execute();
-    assertEquals("move", dc.currentState().name);
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentState().name);
     assertEquals(Direction.RIGHT, dc.currentState().getData());
 
     // Test idle right
     vc.currentVelocity(Vector2.ZERO);
     system.execute();
-    assertEquals("idle", dc.currentState().name);
+    assertEquals(StateMachine.IDLE_STATE, dc.currentState().name);
     assertEquals(Direction.RIGHT, dc.currentState().getData());
 
     // Test left movement
     vc.currentVelocity(Vector2.of(-1, 0));
     system.execute();
-    assertEquals("move", dc.currentState().name);
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentState().name);
     assertEquals(Direction.LEFT, dc.currentState().getData());
 
     // Test idle left
     vc.currentVelocity(Vector2.ZERO);
     system.execute();
-    assertEquals("idle", dc.currentState().name);
+    assertEquals(StateMachine.IDLE_STATE, dc.currentState().name);
     assertEquals(Direction.LEFT, dc.currentState().getData());
   }
 
@@ -212,7 +213,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.RIGHT, dc.currentStateData());
     assertEquals(Direction.RIGHT, pc.viewDirection());
 
@@ -222,7 +223,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.LEFT, dc.currentStateData());
     assertEquals(Direction.LEFT, pc.viewDirection());
 
@@ -232,7 +233,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.UP, dc.currentStateData());
     assertEquals(Direction.UP, pc.viewDirection());
 
@@ -242,7 +243,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.DOWN, dc.currentStateData());
     assertEquals(Direction.DOWN, pc.viewDirection());
   }
@@ -258,7 +259,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.UP, dc.currentStateData());
     assertEquals(Direction.UP, pc.viewDirection());
 
@@ -267,7 +268,7 @@ public class VelocitySystemTest {
     pc.viewDirection(Direction.NONE);
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.DOWN, dc.currentStateData());
     assertEquals(Direction.DOWN, pc.viewDirection());
   }
@@ -284,7 +285,7 @@ public class VelocitySystemTest {
 
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.RIGHT, dc.currentStateData());
     assertEquals(Direction.RIGHT, pc.viewDirection());
 
@@ -293,7 +294,7 @@ public class VelocitySystemTest {
     pc.viewDirection(Direction.NONE);
     system.execute();
 
-    assertEquals("move", dc.currentStateName());
+    assertEquals(VelocitySystem.STATE_NAME, dc.currentStateName());
     assertEquals(Direction.LEFT, dc.currentStateData());
     assertEquals(Direction.LEFT, pc.viewDirection());
   }

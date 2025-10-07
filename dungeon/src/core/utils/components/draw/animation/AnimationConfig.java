@@ -15,7 +15,7 @@ import java.util.Optional;
  * <p>Instances of this class are usually loaded from a JSON file alongside a spritesheet via {@link
  * #loadAnimationConfigMap(String)}.
  */
-public class AnimationConfig {
+public class AnimationConfig implements Cloneable {
 
   /** Optional spritesheet configuration (width, height, offsets, etc.). */
   private SpritesheetConfig config;
@@ -37,6 +37,9 @@ public class AnimationConfig {
 
   /** Whether the animation sprites should be drawn centered. Default: false. */
   private boolean centered = false;
+
+  /** Whether the animation sprites should be drawn horizontally mirrored. Default: false. */
+  private boolean mirrored = false;
 
   /**
    * Creates a new {@link AnimationConfig} with a specified {@link SpritesheetConfig}.
@@ -163,6 +166,24 @@ public class AnimationConfig {
     return centered;
   }
 
+  /**
+   * Sets whether sprites should be drawn horizontally mirrored.
+   *
+   * @param mirrored true if mirrored
+   * @return this config for chaining
+   */
+  public AnimationConfig mirrored(boolean mirrored) {
+    this.mirrored = mirrored;
+    return this;
+  }
+
+  /**
+   * @return whether sprites should be drawn horizontally mirrored
+   */
+  public boolean mirrored() {
+    return mirrored;
+  }
+
   @Override
   public String toString() {
     return "AnimationConfig{"
@@ -176,6 +197,8 @@ public class AnimationConfig {
         + isLooping
         + ", centered="
         + centered
+        + ", mirrored="
+        + mirrored
         + ", config="
         + config
         + '}';
@@ -217,10 +240,23 @@ public class AnimationConfig {
       animConfig.scaleY(entry.getFloat("scaleY", 0f));
       animConfig.isLooping(entry.getBoolean("isLooping", true));
       animConfig.centered(entry.getBoolean("centered", false));
+      animConfig.mirrored(entry.getBoolean("mirrored", false));
 
       animationMap.put(animationName, animConfig);
     }
 
     return animationMap;
+  }
+
+  @Override
+  public AnimationConfig clone() throws CloneNotSupportedException {
+    AnimationConfig cloned = (AnimationConfig) super.clone();
+
+    // Deep copy spritesheet config if present
+    if (this.config != null) {
+      cloned.config = this.config.clone();
+    }
+
+    return cloned;
   }
 }

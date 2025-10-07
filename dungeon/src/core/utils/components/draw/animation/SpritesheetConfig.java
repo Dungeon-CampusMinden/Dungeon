@@ -8,7 +8,7 @@ package core.utils.components.draw.animation;
  * information is used by {@link AnimationConfig} and related classes to cut a spritesheet into
  * individual frames.
  */
-public class SpritesheetConfig {
+public class SpritesheetConfig implements Cloneable {
 
   private int spriteWidth = 16;
   private int spriteHeight = 16;
@@ -186,5 +186,10 @@ public class SpritesheetConfig {
         + ", columns="
         + columns
         + '}';
+  }
+
+  @Override
+  public SpritesheetConfig clone() throws CloneNotSupportedException {
+    return (SpritesheetConfig) super.clone();
   }
 }

@@ -181,6 +181,9 @@ public final class DrawSystem extends System {
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
         new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
+    conf.rotation(dsd.pc.rotation());
+    conf.mirrored(dsd.dc.currentAnimation().mirrored());
+
     if (dsd.dc.currentAnimation().getConfig().centered()) {
       conf =
           new PainterConfig(
@@ -190,7 +193,7 @@ public final class DrawSystem extends System {
               dsd.dc.getHeight(),
               dsd.dc.tintColor());
     }
-    PAINTER.draw(dsd.pc.position(), sprite, conf, dsd.pc.rotation());
+    PAINTER.draw(dsd.pc.position(), sprite, conf);
   }
 
   /** DrawSystem can't be paused. */
