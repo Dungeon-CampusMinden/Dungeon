@@ -158,12 +158,13 @@ def process_multi_mode(parent_folder):
         except Exception as e:
             print(f"Failed to delete {img_path}: {e}")
 
-def unpack_spritesheet(base_path):
-    image_path = base_path + ".png"
-    json_path = base_path + ".json"
+def unpack_spritesheet(folder_path):
+    folder_basename = os.path.basename(os.path.abspath(folder_path))
+    image_path = os.path.join(folder_path, f"{folder_basename}.png")
+    json_path = os.path.join(folder_path, f"{folder_basename}.json")
 
     if not os.path.exists(image_path) or not os.path.exists(json_path):
-        print(f"Error: Missing .png or .json for base path: {base_path}")
+        print(f"Error: Missing .png or .json in folder: {folder_path}")
         return
 
     with open(json_path, "r") as f:
@@ -180,7 +181,7 @@ def unpack_spritesheet(base_path):
         rows = cfg["rows"]
         cols = cfg["columns"]
 
-        output_dir = os.path.join(os.path.dirname(base_path), anim_name)
+        output_dir = os.path.join(folder_path, anim_name)
         os.makedirs(output_dir, exist_ok=True)
 
         frame_index = 0
@@ -199,7 +200,7 @@ def unpack_spritesheet(base_path):
 # CLI
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate or unpack a sprite sheet and config from a folder of images.")
-    parser.add_argument("folder", help="Path to the folder (or base path if --unpack)")
+    parser.add_argument("folder", help="Path to the folder (or target folder for --unpack)")
     parser.add_argument("--stack", action="store_true", help="Stack images vertically (allows varying sizes)")
     parser.add_argument("--single", action="store_true", help="Only process a single folder of images (no subfolders)")
     parser.add_argument("--unpack", action="store_true", help="Unpack a sprite sheet (.png + .json) into individual frames")
