@@ -38,7 +38,10 @@ public final class InteractionComponent implements Component {
   private final Function<Entity, Point> centerFunction;
 
   /**
-   * Create a new {@link InteractionComponent}.
+   * Creates a new {@link InteractionComponent} using the visual center of the entity as the
+   * reference point for range calculations.
+   *
+   * <p>The center is provided by {@link EntityUtils#getEntityCenter(Entity)}.
    *
    * @param radius The radius in which an interaction can happen.
    * @param repeatable True if the interaction is repeatable, otherwise false.
@@ -52,6 +55,17 @@ public final class InteractionComponent implements Component {
     this.centerFunction = EntityUtils::getEntityCenter;
   }
 
+  /**
+   * Creates a new {@link InteractionComponent} with a custom function to determine the reference
+   * point used for interaction range calculations.
+   *
+   * <p>This allows defining custom anchor points.
+   *
+   * @param radius The radius in which an interaction can happen.
+   * @param repeatable True if the interaction is repeatable, otherwise false.
+   * @param onInteraction The behavior that should happen on an interaction.
+   * @param centerFunction A function that returns the custom reference point of the entity.
+   */
   public InteractionComponent(
       float radius,
       boolean repeatable,
@@ -102,8 +116,8 @@ public final class InteractionComponent implements Component {
    *
    * <p>This method uses the Euclidean distance to calculate the distance between the center point
    * of the entity that owns this {@link InteractionComponent} and the center point of another
-   * entity attempting to interact with it. Both center points are obtained via {@link
-   * contrib.utils.EntityUtils#getEntityCenter(Entity)}.
+   * entity attempting to interact with it. These points are provided by the configured {@code
+   * centerFunction}, which defines how the anchor position of each entity is determined.
    *
    * @param self The entity that owns this {@link InteractionComponent}.
    * @param who The entity attempting to interact.
