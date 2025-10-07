@@ -237,7 +237,8 @@ public class TileTextureFactory {
   private static boolean isBottomLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
     return (aboveIsWall(p, layout)
         && rightIsWall(p, layout)
-        && (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout)));
+        && (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout))
+        && !belowIsWall(p, layout));
   }
 
   /**
@@ -251,7 +252,8 @@ public class TileTextureFactory {
   private static boolean isBottomRightOuterCorner(Coordinate p, LevelElement[][] layout) {
     return (aboveIsWall(p, layout)
         && leftIsWall(p, layout)
-        && (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout)));
+        && (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout))
+        && !belowIsWall(p, layout));
   }
 
   /**
@@ -265,7 +267,8 @@ public class TileTextureFactory {
   private static boolean isUpperRightOuterCorner(Coordinate p, LevelElement[][] layout) {
     return (belowIsWall(p, layout)
         && leftIsWall(p, layout)
-        && (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout)));
+        && (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout))
+        && !aboveIsWall(p, layout));
   }
 
   /**
@@ -359,9 +362,10 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   public static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
-        && leftIsInside(p, layout);
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+            || (belowIsWall(p, layout) || belowIsDoor(p, layout)))
+        && !rightIsInside(p, layout)
+        && (leftIsInside(p, layout) || leftIsWall(p, layout) || leftIsDoor(p, layout));
   }
 
   /**
@@ -373,9 +377,10 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   public static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
-        && rightIsInside(p, layout);
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+            || (belowIsWall(p, layout) || belowIsDoor(p, layout)))
+        && !leftIsInside(p, layout)
+        && (rightIsInside(p, layout) || rightIsWall(p, layout) || rightIsDoor(p, layout));
   }
 
   /**
