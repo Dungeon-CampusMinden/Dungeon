@@ -111,7 +111,8 @@ public class StateMachine {
    * @throws IllegalArgumentException if the list of states is empty
    */
   public StateMachine(List<State> states) {
-    if (states.size() == 0) throw new IllegalArgumentException("State list can't be empty");
+    if (states == null || states.isEmpty())
+      throw new IllegalArgumentException("State list can't be empty");
     this.states = states;
     setInitialState();
   }
@@ -366,7 +367,11 @@ public class StateMachine {
     newState.setData(data);
     if (newState != currentState) {
       if (resetFrame) newState.frameCount(0);
+      if (currentState != null) {
+        currentState.onExit();
+      }
       currentState = newState;
+      currentState.onEnter();
     }
   }
 

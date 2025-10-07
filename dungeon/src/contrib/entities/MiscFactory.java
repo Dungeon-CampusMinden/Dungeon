@@ -19,6 +19,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.elements.tile.DoorTile;
+import core.systems.DrawSystem;
 import core.utils.*;
 import core.utils.Direction;
 import core.utils.Point;
@@ -682,7 +683,8 @@ public final class MiscFactory {
             });
     destroyableObj.add(baseIC);
 
-    destroyableObj.add(new CollideComponent(Vector2.ZERO, Vector2.ONE));
+    CollideComponent cc = new CollideComponent(Vector2.ZERO, Vector2.ONE);
+    destroyableObj.add(cc);
 
     Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(texturePath);
     State stIdle = State.fromMap(animationMap, "idle");
@@ -692,7 +694,18 @@ public final class MiscFactory {
     sm.addTransition(stIdle, "break", stBreaking);
     sm.addEpsilonTransition(stBreaking, State::isAnimationFinished, stBroken);
     DrawComponent dc = new DrawComponent(sm);
+    dc.depth(DepthLayer.Player.depth());
     destroyableObj.add(dc);
+
+    stBreaking.setOnEnter(
+        (s) -> {
+          cc.isSolid(false);
+          Game.system(
+              DrawSystem.class,
+              ds -> {
+                ds.changeEntityDepth(destroyableObj, DepthLayer.BackgroundDeco.depth());
+              });
+        });
 
     // Wrapper-InteractionComponent
     destroyableObj
