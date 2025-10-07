@@ -6,6 +6,7 @@ import core.Entity;
 import core.systems.InputSystem;
 import core.utils.Point;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Allows interaction with the associated entity.
@@ -34,6 +35,7 @@ public final class InteractionComponent implements Component {
   private final float radius;
   private final boolean repeatable;
   private final BiConsumer<Entity, Entity> onInteraction;
+  private final Function<Entity, Point> centerFunction;
 
   /**
    * Create a new {@link InteractionComponent}.
@@ -47,6 +49,18 @@ public final class InteractionComponent implements Component {
     this.radius = radius;
     this.repeatable = repeatable;
     this.onInteraction = onInteraction;
+    this.centerFunction = EntityUtils::getEntityCenter;
+  }
+
+  public InteractionComponent(
+      float radius,
+      boolean repeatable,
+      final BiConsumer<Entity, Entity> onInteraction,
+      final Function<Entity, Point> centerFunction) {
+    this.radius = radius;
+    this.repeatable = repeatable;
+    this.onInteraction = onInteraction;
+    this.centerFunction = centerFunction;
   }
 
   /**
@@ -97,8 +111,8 @@ public final class InteractionComponent implements Component {
    *     otherwise.
    */
   public boolean isEntityInRange(Entity self, Entity who) {
-    Point cSelf = EntityUtils.getEntityCenter(self);
-    Point cWho = EntityUtils.getEntityCenter(who);
+    Point cSelf = centerFunction.apply(self);
+    Point cWho = centerFunction.apply(who);
     float dx = cWho.x() - cSelf.x();
     float dy = cWho.y() - cSelf.y();
     float squaredDistance = dx * dx + dy * dy;
