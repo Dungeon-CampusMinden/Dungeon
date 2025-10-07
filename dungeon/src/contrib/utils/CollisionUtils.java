@@ -3,6 +3,7 @@ package contrib.utils;
 import contrib.components.CollideComponent;
 import core.Entity;
 import core.Game;
+import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
@@ -21,7 +22,7 @@ public class CollisionUtils {
   public static final float TOP_OFFSET = 0.0001f;
 
   /**
-   * Checks if an entity at a given position with a specified size and offset is colliding with any
+   * Checks if the hitbox specified by the bottom-left and top-right points is colliding with any
    * level tiles that are not accessible.
    *
    * @param bottomLeft the bottom-left position of the entity's hitbox
@@ -45,6 +46,29 @@ public class CollisionUtils {
   }
 
   /**
+   * Checks if an entity, when set on a specific position, is colliding with any level tiles that
+   * are not accessible.
+   *
+   * @param e the entity to check for collision
+   * @param pos the position to check for collision
+   * @param canEnterPits whether the entity can enter pit tiles
+   * @param canEnterWalls whether the entity can enter wall tiles
+   * @return true if any corner of the entity's hitbox is colliding with a non-accessible tile,
+   *     false otherwise
+   */
+  public static boolean isCollidingWithLevel(
+      Entity e, Point pos, boolean canEnterPits, boolean canEnterWalls) {
+    PositionComponent pc =
+        e.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
+    CollideComponent cc =
+        e.fetch(CollideComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(e, CollideComponent.class));
+    return isCollidingWithLevel(
+        cc.bottomLeft(pos, pc.scale()), cc.topRight(pos, pc.scale()), canEnterPits, canEnterWalls);
+  }
+
+  /**
    * Checks if an entity is colliding with any level tiles that are not accessible.
    *
    * @param e the entity to check for collision
@@ -62,8 +86,8 @@ public class CollisionUtils {
   }
 
   /**
-   * Checks if an entity at a given position with a specified scale and hitbox is colliding with any
-   * level tiles that are not accessible.
+   * Checks if a hitbox at a given position and scale is colliding with any level tiles that are not
+   * accessible.
    *
    * @param pos the position of the entity
    * @param scale the scale of the entity

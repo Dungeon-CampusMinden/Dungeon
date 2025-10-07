@@ -265,7 +265,7 @@ public final class CollisionSystem extends System {
     boolean bCanEnterWalls =
         eb.fetch(VelocityComponent.class).map(VelocityComponent::canEnterWalls).orElse(false);
 
-    if (CollisionUtils.isCollidingWithLevel(eb, bCanEnterOpenPits, bCanEnterWalls)) {
+    if (CollisionUtils.isCollidingWithLevel(eb, newPos, bCanEnterOpenPits, bCanEnterWalls)) {
       if (firstCollision) {
         // If the new position collides with the level, block the other entity instead.
         solidCollide(eb, b, ea, a, direction.opposite(), false);
