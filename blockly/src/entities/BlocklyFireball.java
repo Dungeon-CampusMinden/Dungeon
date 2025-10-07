@@ -87,8 +87,8 @@ public class BlocklyFireball extends FireballSkill {
     VelocityComponent vc = new VelocityComponent(speed, handleProjectileWallHit(caster), true);
 
     // this is the only difference to a normal fireball
-    vc.moveboxSize(hitBoxSize.scale(0.1));
-    vc.moveboxOffset(hitBoxOffset);
+    //vc.moveboxSize(hitBoxSize.scale(0.1));
+    //vc.moveboxOffset(hitBoxOffset);
     projectile.add(vc);
     projectile.add(new ProjectileComponent(start, targetPoint, forceToApply, onEndReached(caster)));
 

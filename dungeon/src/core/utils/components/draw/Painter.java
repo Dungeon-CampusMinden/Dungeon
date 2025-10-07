@@ -67,15 +67,15 @@ public class Painter {
       // Calculate transformations
       Affine2 transform = new Affine2();
 
-      transform.setToTranslation(sprite.getX(), sprite.getY());
+      transform.setToTranslation(position.x(), position.y());
 
       // Scale first while origin is in the bottom-left
-      transform.scale(sprite.getScaleX(), sprite.getScaleY());
+      transform.scale(config.scale().x(), config.scale().y());
 
       // Then rotate around the middle
-      transform.translate(sprite.getWidth() / 2f, sprite.getHeight() / 2f);
+      transform.translate(config.size().x() / 2f, config.size().y() / 2f);
       transform.rotate(config.rotation());
-      transform.translate(-sprite.getWidth() / 2f, -sprite.getHeight() / 2f);
+      transform.translate(-config.size().x() / 2f, -config.size().y() / 2f);
 
       // Apply tint color if specified
       if (config.tintColor() != -1) {
