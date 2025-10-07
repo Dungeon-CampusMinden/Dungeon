@@ -172,19 +172,6 @@ public final class HealthComponent implements Component {
   }
 
   /**
-   * Restores a given amount of health points to the entity.
-   *
-   * <p>The health will not exceed the maximal health points defined for the entity. If the amount
-   * is zero or negative, no restoration will be applied.
-   *
-   * @param amount the number of health points to restore; must be positive to have an effect.
-   */
-  public void restoreHealthpoints(int amount) {
-    if (amount <= 0) return;
-    this.currentHealthpoints = Math.min(currentHealthpoints + amount, maximalHealthpoints);
-  }
-
-  /**
    * Get the last entity that caused damage to the associated entity.
    *
    * <p>The value is derived from the last {@link Damage} queued for this component in the {@link

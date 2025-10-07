@@ -1,6 +1,8 @@
 package contrib.utils.components.skill.selfSkill;
 
 import contrib.components.HealthComponent;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
@@ -52,7 +54,7 @@ public class SelfHealSkill extends Skill {
         .fetch(HealthComponent.class)
         .ifPresent(
             hc -> {
-              hc.restoreHealthpoints(healAmount());
+              hc.receiveHit(new Damage(-healAmount(), DamageType.HEAL, caster));
               SkillTools.blink(caster, 0x00FF00FF, 120, 4);
             });
   }

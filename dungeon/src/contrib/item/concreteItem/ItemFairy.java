@@ -4,6 +4,8 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -60,7 +62,10 @@ public class ItemFairy extends Item {
                         other
                             .fetch(HealthComponent.class)
                             .ifPresent(
-                                health -> health.restoreHealthpoints(health.maximalHealthpoints()));
+                                health ->
+                                    health.receiveHit(
+                                        new Damage(
+                                            -health.maximalHealthpoints(), DamageType.HEAL, self)));
                         Game.remove(self);
                       }
                     });

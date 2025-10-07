@@ -1,6 +1,8 @@
 package contrib.utils.components.skill.cursorSkill;
 
 import contrib.components.HealthComponent;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import contrib.utils.components.skill.Resource;
 import core.Entity;
 import core.Game;
@@ -46,7 +48,9 @@ public class HealTarget extends CursorSkill {
    * @param entity The entity to heal.
    */
   private void heal(Entity entity) {
-    entity.fetch(HealthComponent.class).ifPresent(hc -> hc.restoreHealthpoints(healAmount));
+    entity
+        .fetch(HealthComponent.class)
+        .ifPresent(hc -> hc.receiveHit(new Damage(-healAmount, DamageType.HEAL, null)));
   }
 
   /**

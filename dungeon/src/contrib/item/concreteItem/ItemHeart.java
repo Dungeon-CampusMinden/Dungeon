@@ -4,6 +4,8 @@ import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.entities.WorldItemBuilder;
 import contrib.item.Item;
+import contrib.utils.components.health.Damage;
+import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.level.Tile;
@@ -63,7 +65,10 @@ public class ItemHeart extends Item {
                       if (other.equals(hero)) {
                         other
                             .fetch(HealthComponent.class)
-                            .ifPresent(health -> health.restoreHealthpoints(healAmount));
+                            .ifPresent(
+                                health ->
+                                    health.receiveHit(
+                                        new Damage(-healAmount, DamageType.HEAL, self)));
                         Game.remove(self);
                       }
                     });
