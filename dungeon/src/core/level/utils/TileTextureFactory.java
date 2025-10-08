@@ -148,6 +148,8 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/wall_top");
     } else if (isInnerVerticalWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_right");
+    } else if (isTopTJunction(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/t_cross_top");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/left");
     } else if (isRightWall(levelPart.position(), levelPart.layout())) {
@@ -155,6 +157,7 @@ public class TileTextureFactory {
     }
     return null;
   }
+
 
   private static IPath findTexturePathInnerCorner(LevelPart levelPart) {
     if (isCrossUpperLeftBottomRight(levelPart.position(), levelPart.layout())) {
@@ -370,6 +373,16 @@ public class TileTextureFactory {
       && leftIsInside(p, layout)
       && rightIsInside(p, layout);
   }
+
+  private static boolean isTopTJunction(Coordinate p, LevelElement[][] layout) {
+    boolean sides = (leftIsWall(p, layout) || leftIsDoor(p, layout))
+      && (rightIsWall(p, layout) || rightIsDoor(p, layout));
+    boolean stem = (belowIsWall(p, layout) || belowIsDoor(p, layout));
+    boolean openTop = !aboveIsWall(p, layout) && !aboveIsDoor(p, layout);
+    boolean insideSides = bottomLeftIsInside(p, layout) && bottomRightIsInside(p, layout);
+    return sides && stem && openTop && insideSides;
+  }
+
 
   /**
    * Checks if tile with coordinate p should be a right wall. Tile has to have walls above and below
