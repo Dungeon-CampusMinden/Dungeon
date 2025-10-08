@@ -282,7 +282,8 @@ public class TileTextureFactory {
   private static boolean isUpperLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
     return (belowIsWall(p, layout)
         && rightIsWall(p, layout)
-        && (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout)));
+        && (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout))
+        && !aboveIsWall(p, layout));
   }
 
   /**
