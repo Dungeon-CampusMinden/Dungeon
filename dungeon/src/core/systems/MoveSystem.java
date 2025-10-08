@@ -1,7 +1,7 @@
 package core.systems;
 
 import contrib.components.CollideComponent;
-import contrib.utils.CollisionUtils;
+import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;

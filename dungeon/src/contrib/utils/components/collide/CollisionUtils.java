@@ -1,4 +1,4 @@
-package contrib.utils;
+package contrib.utils.components.collide;
 
 import contrib.components.CollideComponent;
 import core.Entity;
@@ -194,5 +194,220 @@ public class CollisionUtils {
 
     // Ensure that the final destination tile is also checked
     return tileIsAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles, canEnterWalls);
+  }
+
+
+  // ========== Collisions ==========
+  public static boolean rectCollidePoint(float rX, float rY, float rW, float rH, Point point)
+  {
+    return (double) point.x() >= (double) rX && (double) point.y() >= (double) rY && (double) point.x() < (double) rX + (double) rW && (double) point.y() < (double) rY + (double) rH;
+  }
+
+  public static boolean circleCollidePoint(Point position, float radius, Point point)
+  {
+    return Math.pow(position.distance(point), 2) < (double) radius * (double) radius;
+  }
+
+  public static boolean circleCollideLine(
+    Point position,
+    float radius,
+    Point lineFrom,
+    Point lineTo)
+  {
+    Point closestPoint = closestPointOnLine(lineFrom, lineTo, position);
+    return circleCollidePoint(position, radius, closestPoint);
+  }
+
+  public static Point closestPointOnLine(Point lineA, Point lineB, Point closestTo)
+  {
+    Vector2 closeToA = lineA.vectorTo(closestTo);
+    Vector2 line = lineA.vectorTo(lineB);
+    float t = (float) Math.clamp(closeToA.dot(line) / line.dot(line), 0.0f, 1f);
+    return lineA.translate(line.scale(t));
+  }
+
+
+
+
+  public static boolean rectCollideCircle(
+    float rX,
+    float rY,
+    float rW,
+    float rH,
+    Point cPosition,
+    float cRadius)
+  {
+    if (rectCollidePoint(rX, rY, rW, rH, cPosition))
+      return true;
+    PointSectors sector = getSector(rX, rY, rW, rH, cPosition);
+    Point lineFrom;
+    Point lineTo;
+    if ((sector.and(PointSectors.TOP)) != PointSectors.CENTER)
+    {
+      lineFrom = new Point(rX, rY);
+      lineTo = new Point(rX + rW, rY);
+      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
+        return true;
+    }
+    if ((sector.and(PointSectors.BOTTOM)) != PointSectors.CENTER)
+    {
+      lineFrom = new Point(rX, rY + rH);
+      lineTo = new Point(rX + rW, rY + rH);
+      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
+        return true;
+    }
+    if ((sector.and(PointSectors.LEFT)) != PointSectors.CENTER)
+    {
+      lineFrom = new Point(rX, rY);
+      lineTo = new Point(rX, rY + rH);
+      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
+        return true;
+    }
+    if ((sector.and(PointSectors.RIGHT)) != PointSectors.CENTER)
+    {
+      lineFrom = new Point(rX + rW, rY);
+      lineTo = new Point(rX + rW, rY + rH);
+      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
+        return true;
+    }
+    return false;
+  }
+
+  public static boolean rectCollideLine(
+    float rX,
+    float rY,
+    float rW,
+    float rH,
+    Point lineFrom,
+    Point lineTo)
+  {
+    PointSectors sector1 = getSector(rX, rY, rW, rH, lineFrom);
+    PointSectors sector2 = getSector(rX, rY, rW, rH, lineTo);
+    if (sector1 == PointSectors.CENTER || sector2 == PointSectors.CENTER)
+      return true;
+    if ((sector1.and(sector2)) != PointSectors.CENTER)
+      return false;
+    PointSectors pointSectors = sector1.or(sector2);
+    Point vector2;
+    if ((pointSectors.and(PointSectors.TOP)) != PointSectors.CENTER)
+    {
+      Point a1 = new Point(rX, rY);
+      vector2 = new Point(rX + rW, rY);
+      Point a2 = vector2;
+      Point b1 = lineFrom;
+      Point b2 = lineTo;
+      if (lineCheck(a1, a2, b1, b2))
+        return true;
+    }
+    if ((pointSectors.and(PointSectors.BOTTOM)) != PointSectors.CENTER)
+    {
+      Point a1 = new Point(rX, rY + rH);
+      vector2 = new Point(rX + rW, rY + rH);
+      Point a2 = vector2;
+      Point b1 = lineFrom;
+      Point b2 = lineTo;
+      if (lineCheck(a1, a2, b1, b2))
+        return true;
+    }
+    if ((pointSectors.and(PointSectors.LEFT)) != PointSectors.CENTER)
+    {
+      Point a1 = new Point(rX, rY);
+      vector2 = new Point(rX, rY + rH);
+      Point a2 = vector2;
+      Point b1 = lineFrom;
+      Point b2 = lineTo;
+      if (lineCheck(a1, a2, b1, b2))
+        return true;
+    }
+    if ((pointSectors.and(PointSectors.RIGHT)) != PointSectors.CENTER)
+    {
+      Point a1 = new Point(rX + rW, rY);
+      vector2 = new Point(rX + rW, rY + rH);
+      Point a2 = vector2;
+      Point b1 = lineFrom;
+      Point b2 = lineTo;
+      if (lineCheck(a1, a2, b1, b2))
+        return true;
+    }
+    return false;
+  }
+
+
+  public static boolean lineCheck(Point a1, Point a2, Point b1, Point b2) {
+    Vector2 line1 = a1.vectorTo(a2);
+    Vector2 line2 = b1.vectorTo(b2);
+
+    float determinant = line1.x() * line2.y() - line1.y() * line2.x();
+    if (determinant == 0.0f)
+      return false; // Lines are parallel (no intersection)
+
+    Vector2 aToB = a1.vectorTo(b1);
+
+    // Parametric position along line1 (0..1 means intersection within the segment)
+    float t = (aToB.x() * line2.y() - aToB.y() * line2.x()) / determinant;
+    if (t < 0.0f || t > 1.0f)
+      return false;
+
+    // Parametric position along line2 (0..1 means intersection within the segment)
+    float u = (aToB.x() * line1.y() - aToB.y() * line1.x()) / determinant;
+    return u >= 0.0f && u <= 1.0f;
+  }
+
+
+  // ===== PointSectors =====
+  private static PointSectors getSector(float rX, float rY, float rW, float rH, Point point) {
+    int sectorValue = PointSectors.CENTER.value();
+
+    if (point.x() < rX)
+      sectorValue |= PointSectors.LEFT.value();
+    else if (point.x() >= rX + rW)
+      sectorValue |= PointSectors.RIGHT.value();
+
+    if (point.y() < rY)
+      sectorValue |= PointSectors.TOP.value();
+    else if (point.y() >= rY + rH)
+      sectorValue |= PointSectors.BOTTOM.value();
+
+    return PointSectors.fromValue(sectorValue);
+  }
+
+  private enum PointSectors {
+    CENTER(0),
+    TOP(1),
+    BOTTOM(2),
+    LEFT(8),
+    RIGHT(4),
+    TOP_LEFT(9),      // LEFT | TOP
+    TOP_RIGHT(5),     // RIGHT | TOP
+    BOTTOM_LEFT(10),  // LEFT | BOTTOM
+    BOTTOM_RIGHT(6);  // RIGHT | BOTTOM
+
+    private final int value;
+
+    PointSectors(int value) {
+      this.value = value;
+    }
+
+    public int value() {
+      return value;
+    }
+
+    public PointSectors and(PointSectors other) {
+      return fromValue(this.value & other.value);
+    }
+
+    public PointSectors or(PointSectors other) {
+      return fromValue(this.value | other.value);
+    }
+
+    public static PointSectors fromValue(int value) {
+      for (PointSectors ps : values()) {
+        if (ps.value == value) {
+          return ps;
+        }
+      }
+      // If combination isn't predefined, just return CENTER (or create a new instance if desired)
+      return CENTER;
+    }
   }
 }
