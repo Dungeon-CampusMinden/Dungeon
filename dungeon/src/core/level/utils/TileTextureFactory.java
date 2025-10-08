@@ -146,6 +146,8 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/bottom");
     } else if (isTopWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_top");
+    } else if (isInnerVerticalWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/wall_right");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/left");
     } else if (isRightWall(levelPart.position(), levelPart.layout())) {
@@ -360,6 +362,13 @@ public class TileTextureFactory {
         && (leftIsInside(p, layout) && upperRightIsInside(p, layout)
             || aboveIsInside(p, layout) && bottomLeftIsInside(p, layout)
             || aboveIsInside(p, layout) && leftIsInside(p, layout)));
+  }
+
+  private static boolean isInnerVerticalWall(Coordinate p, LevelElement[][] layout) {
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+      && (belowIsWall(p, layout) || belowIsDoor(p, layout)))
+      && leftIsInside(p, layout)
+      && rightIsInside(p, layout);
   }
 
   /**
