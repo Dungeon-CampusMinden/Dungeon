@@ -25,6 +25,9 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
 
+    path = findTexturePathTJunction(levelPart);
+    if (path != null) return new SimpleIPath(prefixPath + path.pathString() + ".png");
+
     path = findTexturePathInnerCorner(levelPart);
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
@@ -148,8 +151,6 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/wall_top");
     } else if (isInnerVerticalWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_right");
-    } else if (isTopTJunction(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/t_cross_top");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/left");
     } else if (isRightWall(levelPart.position(), levelPart.layout())) {
@@ -185,6 +186,22 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/corner_upper_right");
     } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/corner_upper_left");
+    }
+    return null;
+  }
+
+
+  private static IPath findTexturePathTJunction(LevelPart lp) {
+    if (isInnerTJunctionTop(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_top");
+    } else if (isInnerTJunctionBottom(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_bottom");
+    } else if (isInnerTJunctionLeft(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_left");
+    } else if (isInnerTJunctionRight(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_right");
+    } else if (isTopTJunction(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_cross_top");
     }
     return null;
   }
@@ -382,6 +399,35 @@ public class TileTextureFactory {
     boolean insideSides = bottomLeftIsInside(p, layout) && bottomRightIsInside(p, layout);
     return sides && stem && openTop && insideSides;
   }
+
+  private static boolean isInnerTJunctionTop(Coordinate p, LevelElement[][] L) {
+    return (aboveIsWall(p, L) || aboveIsDoor(p, L))
+      && (leftIsWall(p, L) || leftIsDoor(p, L))
+      && (rightIsWall(p, L) || rightIsDoor(p, L))
+      && belowIsInside(p, L);
+  }
+
+  private static boolean isInnerTJunctionBottom(Coordinate p, LevelElement[][] L) {
+    return (belowIsWall(p, L) || belowIsDoor(p, L))
+      && (leftIsWall(p, L) || leftIsDoor(p, L))
+      && (rightIsWall(p, L) || rightIsDoor(p, L))
+      && aboveIsInside(p, L);
+  }
+
+  private static boolean isInnerTJunctionLeft(Coordinate p, LevelElement[][] L) {
+    return (leftIsWall(p, L) || leftIsDoor(p, L))
+      && (aboveIsWall(p, L) || aboveIsDoor(p, L))
+      && (belowIsWall(p, L) || belowIsDoor(p, L))
+      && rightIsInside(p, L);
+  }
+
+  private static boolean isInnerTJunctionRight(Coordinate p, LevelElement[][] L) {
+    return (rightIsWall(p, L) || rightIsDoor(p, L))
+      && (aboveIsWall(p, L) || aboveIsDoor(p, L))
+      && (belowIsWall(p, L) || belowIsDoor(p, L))
+      && leftIsInside(p, L);
+  }
+
 
 
   /**
