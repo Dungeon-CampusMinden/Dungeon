@@ -1,5 +1,6 @@
 package contrib.components;
 
+import com.badlogic.gdx.utils.OrderedSet;
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -272,6 +273,17 @@ public final class CollideComponent implements Component {
   /**
    * Get the bottom-left point of the hitbox.
    *
+   * @param pos position of the entity
+   * @param scale scale of the entity
+   * @return Bottom-left point of the entity's hitbox
+   */
+  public Point bottomLeft(final Point pos, final Vector2 scale) {
+    return pos.translate(offset.scale(scale));
+  }
+
+  /**
+   * Get the bottom-left point of the hitbox.
+   *
    * @param entity associated entity of this component.
    * @return Bottom-left point of the entity's hitbox
    */
@@ -280,7 +292,18 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset);
+    return bottomLeft(pc.position(), pc.scale());
+  }
+
+  /**
+   * Get the top-right point of the hitbox.
+   *
+   * @param pos position of the entity
+   * @param scale scale of the entity
+   * @return Top-right point of the entity's hitbox
+   */
+  public Point topRight(final Point pos, final Vector2 scale) {
+    return pos.translate(offset.scale(scale)).translate(size.scale(scale));
   }
 
   /**
@@ -294,7 +317,23 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset).translate(size);
+    return topRight(pc.position(), pc.scale());
+  }
+
+  /**
+   * Get all four corners of the hitbox.
+   *
+   * @param pos position of the entity
+   * @param scale scale of the entity
+   * @return List of all four corners of the hitbox in the order: bottom-left, bottom-right,
+   *     top-left, top-right
+   */
+  public OrderedSet<Point> corners(final Point pos, final Vector2 scale) {
+    Point bottomLeft = bottomLeft(pos, scale);
+    Point topRight = topRight(pos, scale);
+    Point bottomRight = new Point(topRight.x(), bottomLeft.y());
+    Point topLeft = new Point(bottomLeft.x(), topRight.y());
+    return OrderedSet.with(bottomLeft, bottomRight, topLeft, topRight);
   }
 
   /**
@@ -308,7 +347,7 @@ public final class CollideComponent implements Component {
         entity
             .fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset).translate(size.scale(0.5f));
+    return pc.position().translate(offset.scale(pc.scale())).translate(size(entity).scale(0.5f));
   }
 
   /**
@@ -348,10 +387,15 @@ public final class CollideComponent implements Component {
   /**
    * Get the size of the hitbox.
    *
+   * @param entity associated entity of this component.
    * @return the size of the component
    */
-  public Vector2 size() {
-    return Vector2.of(size);
+  public Vector2 size(final Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return size.scale(pc.scale());
   }
 
   /**
@@ -361,6 +405,20 @@ public final class CollideComponent implements Component {
    */
   public Vector2 offset() {
     return Vector2.of(offset);
+  }
+
+  /**
+   * Get the offset of the hitbox.
+   *
+   * @param entity associated entity of this component.
+   * @return the offset of the component
+   */
+  public Vector2 scaledOffset(Entity entity) {
+    PositionComponent pc =
+        entity
+            .fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+    return Vector2.of(offset.scale(pc.scale()));
   }
 
   /**

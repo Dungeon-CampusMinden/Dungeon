@@ -1,5 +1,6 @@
 package core.systems;
 
+import contrib.components.CollideComponent;
 import contrib.utils.CollisionUtils;
 import core.Entity;
 import core.Game;
@@ -70,11 +71,8 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
 
-    Vector2 offset = data.vc.moveboxOffset();
-    Vector2 size = data.vc.moveboxSize();
-
     if (!CollisionUtils.isCollidingWithLevel(
-        newPos, offset, size, canEnterOpenPits, canEnterWalls)) {
+        newPos, data.pc.scale(), data.cc, canEnterOpenPits, canEnterWalls)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
@@ -83,10 +81,10 @@ public class MoveSystem extends System {
 
       boolean xAccessible =
           !CollisionUtils.isCollidingWithLevel(
-              xMove, offset, size, canEnterOpenPits, canEnterWalls);
+              xMove, data.pc.scale(), data.cc, canEnterOpenPits, canEnterWalls);
       boolean yAccessible =
           !CollisionUtils.isCollidingWithLevel(
-              yMove, offset, size, canEnterOpenPits, canEnterWalls);
+              yMove, data.pc.scale(), data.cc, canEnterOpenPits, canEnterWalls);
 
       if (xAccessible) {
         data.pc.position(xMove);
@@ -116,7 +114,9 @@ public class MoveSystem extends System {
         e.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
 
-    return new MSData(e, vc, pc);
+    CollideComponent cc = e.fetch(CollideComponent.class).orElse(null);
+
+    return new MSData(e, vc, pc, cc);
   }
 
   /**
@@ -125,6 +125,8 @@ public class MoveSystem extends System {
    * @param e the entity
    * @param vc the velocity component
    * @param pc the position component
+   * @param cc the collide component (nullable)
    */
-  private record MSData(Entity e, VelocityComponent vc, PositionComponent pc) {}
+  private record MSData(
+      Entity e, VelocityComponent vc, PositionComponent pc, CollideComponent cc) {}
 }

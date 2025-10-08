@@ -171,6 +171,8 @@ public final class DrawSystem extends System {
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
         new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
+
+    conf.scale(dsd.pc.scale());
     conf.rotation(dsd.pc.rotation());
     conf.mirrored(dsd.dc.currentAnimation().mirrored());
 

@@ -7,7 +7,6 @@ import core.System;
 import core.components.PositionComponent;
 import core.utils.Point;
 import core.utils.Vector2;
-import entities.BlocklyFireball;
 import java.util.function.Supplier;
 import systems.BlocklyCommandExecuteSystem;
 
@@ -18,7 +17,7 @@ import systems.BlocklyCommandExecuteSystem;
  * target will get frozen in place and the projectile will fly towards the target. The target will
  * not be able to move or dodge the projectile.
  */
-public class InevitableFireballSkill extends BlocklyFireball {
+public class InevitableFireballSkill extends FireballSkill {
 
   private static final Supplier<Point> TARGET_HERO =
       () ->
