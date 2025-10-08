@@ -6,7 +6,7 @@ ext {
     gdxVersion = '1.12.1'
     aiVersion = '1.8.2'
     junitVersion = '6.0.0'
-    junitLauncherVersion = '1.13.4'
+    junitLauncherVersion = '6.0.0'
     mockitoVersion = '5.20.0'
     antlrVersion = '4.13.2'
 
