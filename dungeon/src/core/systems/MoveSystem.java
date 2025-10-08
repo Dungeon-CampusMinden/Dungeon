@@ -6,9 +6,13 @@ import core.Game;
 import core.System;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
+import core.level.Tile;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * System responsible for updating the position of entities based on their velocity, while
@@ -20,6 +24,8 @@ import core.utils.components.MissingComponentException;
  * allowed to enter them.
  */
 public class MoveSystem extends System {
+
+  public static final float FLUSH_OFFSET = 0.001f;
 
   /**
    * Constructs a MoveSystem that requires entities to have {@link VelocityComponent} and {@link
@@ -70,11 +76,22 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
 
+    // Helper to get all corners of the hitbox at a given position
     Vector2 offset = data.vc.moveboxOffset();
     Vector2 size = data.vc.moveboxSize();
+    List<Vector2> hitboxCorners = new ArrayList<>();
+    hitboxCorners.add(Vector2.of(offset.x(), offset.y())); // bottom-left
+    hitboxCorners.add(Vector2.of(offset.x() + size.x(), offset.y())); // bottom-right
+    hitboxCorners.add(Vector2.of(offset.x() + size.x(), offset.y() + size.y())); // top-right
+    hitboxCorners.add(Vector2.of(offset.x(), offset.y() + size.y())); // top-left
 
-    if (!CollisionUtils.isCollidingWithLevel(
-        newPos, offset, size, canEnterOpenPits, canEnterWalls)) {
+    // Check if all corners are accessible from a given Point
+    Predicate<Point> allCornersAccessible =
+        pos ->
+            hitboxCorners.stream()
+                .allMatch(v -> CollisionUtils.tileIsAccessible(Game.tileAt(pos.translate(v)).orElse(null), canEnterOpenPits, canEnterWalls));
+
+    if (allCornersAccessible.test(newPos)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
@@ -88,10 +105,65 @@ public class MoveSystem extends System {
           !CollisionUtils.isCollidingWithLevel(
               yMove, offset, size, canEnterOpenPits, canEnterWalls);
 
+      // If only one axis movement is possible, we can determine which side the collision happened
+      // on and move the entity to be flush with the wall on that side.
       if (xAccessible) {
+        Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
+        if (CollisionUtils.tileIsAccessible(tileAtBottomLeft, canEnterOpenPits, canEnterWalls)) {
+          xMove =
+              new Point(
+                  xMove.x(),
+                  (float) Math.ceil(xMove.y() + size.y() + offset.y())
+                      - size.y()
+                      - offset.y()
+                      - FLUSH_OFFSET);
+        } else {
+          xMove = new Point(xMove.x(), (float) Math.floor(xMove.y() + offset.y()) - offset.y());
+        }
         data.pc.position(xMove);
       } else if (yAccessible) {
+        Tile tileAtBottomLeft = Game.tileAt(newPos.translate(hitboxCorners.get(0))).orElse(null);
+        if (CollisionUtils.tileIsAccessible(tileAtBottomLeft, canEnterOpenPits, canEnterWalls)) {
+          yMove =
+              new Point(
+                  (float) Math.ceil(yMove.x() + size.x() + offset.x())
+                      - size.x()
+                      - offset.x()
+                      - FLUSH_OFFSET,
+                  yMove.y());
+        } else {
+          yMove = new Point((float) Math.floor(yMove.x() + offset.x()) - offset.x(), yMove.y());
+        }
+
         data.pc.position(yMove);
+      } else {
+        // Neither is accessible. Figure out which corner the player is running into, then move them
+        // into that corner
+        boolean movingRight = sv.x() > 0;
+        boolean movingUp = sv.y() > 0;
+
+        float newX, newY;
+        if (movingRight) {
+          newX =
+              (float) Math.ceil(oldPos.x() + offset.x() + size.x())
+                  - size.x()
+                  - offset.x()
+                  - FLUSH_OFFSET;
+        } else {
+          newX = (float) Math.floor(oldPos.x() + offset.x()) - offset.x();
+        }
+
+        if (movingUp) {
+          newY =
+              (float) Math.ceil(oldPos.y() + offset.y() + size.y())
+                  - size.y()
+                  - offset.y()
+                  - FLUSH_OFFSET;
+        } else {
+          newY = (float) Math.floor(oldPos.y() + offset.y()) - offset.y();
+        }
+
+        data.pc.position(new Point(newX, newY));
       }
 
       // Notify entity that it hit a wall
