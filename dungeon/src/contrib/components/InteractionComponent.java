@@ -6,7 +6,6 @@ import core.Entity;
 import core.systems.InputSystem;
 import core.utils.Point;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * Allows interaction with the associated entity.
@@ -35,13 +34,9 @@ public final class InteractionComponent implements Component {
   private final float radius;
   private final boolean repeatable;
   private final BiConsumer<Entity, Entity> onInteraction;
-  private final Function<Entity, Point> centerFunction;
 
   /**
-   * Creates a new {@link InteractionComponent} using the visual center of the entity as the
-   * reference point for range calculations.
-   *
-   * <p>The center is provided by {@link EntityUtils#getEntityCenter(Entity)}.
+   * Create a new {@link InteractionComponent}.
    *
    * @param radius The radius in which an interaction can happen.
    * @param repeatable True if the interaction is repeatable, otherwise false.
@@ -52,29 +47,6 @@ public final class InteractionComponent implements Component {
     this.radius = radius;
     this.repeatable = repeatable;
     this.onInteraction = onInteraction;
-    this.centerFunction = EntityUtils::getEntityCenter;
-  }
-
-  /**
-   * Creates a new {@link InteractionComponent} with a custom function to determine the reference
-   * point used for interaction range calculations.
-   *
-   * <p>This allows defining custom anchor points.
-   *
-   * @param radius The radius in which an interaction can happen.
-   * @param repeatable True if the interaction is repeatable, otherwise false.
-   * @param onInteraction The behavior that should happen on an interaction.
-   * @param centerFunction A function that returns the custom reference point of the entity.
-   */
-  public InteractionComponent(
-      float radius,
-      boolean repeatable,
-      final BiConsumer<Entity, Entity> onInteraction,
-      final Function<Entity, Point> centerFunction) {
-    this.radius = radius;
-    this.repeatable = repeatable;
-    this.onInteraction = onInteraction;
-    this.centerFunction = centerFunction;
   }
 
   /**
@@ -116,8 +88,8 @@ public final class InteractionComponent implements Component {
    *
    * <p>This method uses the Euclidean distance to calculate the distance between the center point
    * of the entity that owns this {@link InteractionComponent} and the center point of another
-   * entity attempting to interact with it. These points are provided by the configured {@code
-   * centerFunction}, which defines how the anchor position of each entity is determined.
+   * entity attempting to interact with it. Both center points are obtained via {@link
+   * contrib.utils.EntityUtils#getEntityCenter(Entity)}.
    *
    * @param self The entity that owns this {@link InteractionComponent}.
    * @param who The entity attempting to interact.
@@ -125,8 +97,8 @@ public final class InteractionComponent implements Component {
    *     otherwise.
    */
   public boolean isEntityInRange(Entity self, Entity who) {
-    Point cSelf = centerFunction.apply(self);
-    Point cWho = centerFunction.apply(who);
+    Point cSelf = EntityUtils.getEntityCenter(self);
+    Point cWho = EntityUtils.getEntityCenter(who);
     float dx = cWho.x() - cSelf.x();
     float dy = cWho.y() - cSelf.y();
     float squaredDistance = dx * dx + dy * dy;
