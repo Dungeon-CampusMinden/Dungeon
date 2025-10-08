@@ -1,5 +1,6 @@
 package contrib.components;
 
+import com.badlogic.gdx.utils.OrderedSet;
 import core.Component;
 import core.Entity;
 import core.components.PositionComponent;
@@ -10,6 +11,7 @@ import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -328,12 +330,12 @@ public final class CollideComponent implements Component {
    * @return List of all four corners of the hitbox in the order: bottom-left, bottom-right,
    *     top-left, top-right
    */
-  public List<Point> corners(final Point pos, final Vector2 scale) {
+  public OrderedSet<Point> corners(final Point pos, final Vector2 scale) {
     Point bottomLeft = bottomLeft(pos, scale);
     Point topRight = topRight(pos, scale);
     Point bottomRight = new Point(topRight.x(), bottomLeft.y());
     Point topLeft = new Point(bottomLeft.x(), topRight.y());
-    return List.of(bottomLeft, bottomRight, topLeft, topRight);
+    return OrderedSet.with(bottomLeft, bottomRight, topLeft, topRight);
   }
 
   /**
