@@ -79,7 +79,7 @@ public class Level001 extends BlocklyLevel {
             "In der Seitenleiste findest du verschiedene Kategorien. Je weiter wir kommen, desto mehr magische Fähigkeiten werden freigeschaltet! Behalte diese Liste also gut im Auge. "
                 + "Klicke mit der linken Maustaste, um dir die Zauber einer Kategorie anzusehen.",
             "Blockly Dungeon"));
-    addWebPopup(new ImagePopup("popups/level001/sidebar.png"));
+    addWebPopup(new ImagePopup("popups/level001/skills.png"));
 
     addWebPopup(
         new TextPopup(
