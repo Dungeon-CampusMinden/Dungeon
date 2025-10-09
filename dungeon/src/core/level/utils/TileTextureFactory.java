@@ -152,7 +152,7 @@ public class TileTextureFactory {
     } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/bottom");
     } else if (isTopWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_top");
+      return new SimpleIPath("wall/wall_outer_top");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/left");
     } else if (isRightWall(levelPart.position(), levelPart.layout())) {
