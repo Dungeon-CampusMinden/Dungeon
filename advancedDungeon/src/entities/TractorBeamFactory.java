@@ -2,6 +2,7 @@ package entities;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -17,6 +18,9 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -229,17 +233,20 @@ public class TractorBeamFactory {
    * @param direction the emitted direction of the tractor beam
    * @return a list of all tractor beam entities
    */
-  public static List<Entity> createTractorBeam(Point from, Direction direction) {
+  public static Entity createTractorBeam(Point from, Direction direction) {
     TractorBeamFactory factory = new TractorBeamFactory(from, direction);
     List<Entity> tractorBeamEntities = new ArrayList<>();
 
     while (factory.hasNext()) {
       tractorBeamEntities.add(factory.createNextEntity());
     }
+    Entity entity = factory.createBeamEmitter(from, direction);
 
-    tractorBeamEntities.add(factory.createBeamEmitter(from, direction));
+    tractorBeamEntities.add(entity);
+    entity.add(new TractorBeamComponent(direction, from, tractorBeamEntities));
+    entity.add(new PortalExtendComponent());
 
-    return tractorBeamEntities;
+    return entity;
   }
 
   /**
@@ -403,7 +410,7 @@ public class TractorBeamFactory {
    * @param tractorBeamEntities the list of existing tractor beam entities to append to
    */
   public static void extendTractorBeam(
-      Direction direction, Point from, List<Entity> tractorBeamEntities) {
+    Direction direction, Point from, List<Entity> tractorBeamEntities, Component extendComp) {
     TractorBeamFactory factory = new TractorBeamFactory(from, direction);
 
     while (factory.hasNext()) {
@@ -413,6 +420,7 @@ public class TractorBeamFactory {
     }
 
     Entity emitter = factory.createBeamEmitter(from, direction);
+    emitter.add(extendComp);
     emitter.remove(DrawComponent.class);
     tractorBeamEntities.add(emitter);
     Game.add(emitter);
