@@ -64,6 +64,10 @@ levelSelector.addEventListener("levelChanged", (event) => {
   // Configure blocks and categories based on level restrictions
   blockElementsFromToolbox(toolbox, levelChangedEvent.blockedElements, "Not available in Level");
 
+  // clear the old workspace, so that if the new level has never been played all blocks from the level before are deleted
+  // this has to be done after saving the old game and loading the new game
+  workspace.clear()
+
   // Load new level and initialize workspace
   load(workspace, levelChangedEvent.newLevelName);
   updateCodeDiv();
