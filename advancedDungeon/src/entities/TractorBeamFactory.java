@@ -2,7 +2,6 @@ package entities;
 
 import contrib.components.CollideComponent;
 import contrib.components.FlyComponent;
-import core.Component;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -18,13 +17,12 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
-import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
 /**
  * A factory for creating tractor beam entities between two points.
@@ -410,7 +408,11 @@ public class TractorBeamFactory {
    * @param tractorBeamEntities the list of existing tractor beam entities to append to
    */
   public static void extendTractorBeam(
-    Direction direction, Point from, List<Entity> tractorBeamEntities, Component extendComp) {
+      Direction direction,
+      Point from,
+      List<Entity> tractorBeamEntities,
+      PortalExtendComponent extendComp,
+      TractorBeamComponent tbc) {
     TractorBeamFactory factory = new TractorBeamFactory(from, direction);
 
     while (factory.hasNext()) {
@@ -420,6 +422,7 @@ public class TractorBeamFactory {
     }
 
     Entity emitter = factory.createBeamEmitter(from, direction);
+    emitter.add(tbc);
     emitter.add(extendComp);
     emitter.remove(DrawComponent.class);
     tractorBeamEntities.add(emitter);

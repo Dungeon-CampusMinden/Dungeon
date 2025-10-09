@@ -5,12 +5,13 @@ import core.Component;
 public class PortalExtendComponent implements Component {
   public boolean throughBlue;
   public boolean throughGreen;
+  public boolean needsRefresh;
 
-  public boolean checkGreen(){
+  public boolean checkGreen() {
     return throughGreen;
   }
 
-  public boolean checkBlue(){
+  public boolean checkBlue() {
     return throughBlue;
   }
 }
