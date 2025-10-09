@@ -403,32 +403,31 @@ public class TileTextureFactory {
 
   private static boolean isInnerTJunctionTop(Coordinate p, LevelElement[][] layout) {
     return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-      && (leftIsWall(p, layout) || leftIsDoor(p, layout))
-      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-      && belowIsInside(p, layout);
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && belowIsInside(p, layout);
   }
 
   private static boolean isInnerTJunctionBottom(Coordinate p, LevelElement[][] layout) {
     return (belowIsWall(p, layout) || belowIsDoor(p, layout))
-      && (leftIsWall(p, layout) || leftIsDoor(p, layout))
-      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-      && aboveIsInside(p, layout);
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && aboveIsInside(p, layout);
   }
 
   private static boolean isInnerTJunctionLeft(Coordinate p, LevelElement[][] layout) {
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
-      && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-      && (belowIsWall(p, layout) || belowIsDoor(p, layout))
-      && rightIsInside(p, layout);
+        && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && rightIsInside(p, layout);
   }
 
   private static boolean isInnerTJunctionRight(Coordinate p, LevelElement[][] layout) {
     return (rightIsWall(p, layout) || rightIsDoor(p, layout))
-      && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-      && (belowIsWall(p, layout) || belowIsDoor(p, layout))
-      && leftIsInside(p, layout);
+        && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && leftIsInside(p, layout);
   }
-
 
   /**
    * Checks if tile with coordinate p should be a right wall. Tile has to have walls above and below
@@ -470,11 +469,11 @@ public class TileTextureFactory {
    */
   public static boolean isOuterTopWall(Coordinate p, LevelElement[][] layout) {
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
-      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-      && !aboveIsInside(p, layout)
-      && (belowIsInside(p, layout)
-      || (belowIsWall(p, layout)
-      && (bottomLeftIsInside(p, layout) || bottomRightIsInside(p, layout))));
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && !aboveIsInside(p, layout)
+        && (belowIsInside(p, layout)
+            || (belowIsWall(p, layout)
+                && (bottomLeftIsInside(p, layout) || bottomRightIsInside(p, layout))));
   }
 
   private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
