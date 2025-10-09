@@ -130,18 +130,19 @@ public class TileTextureFactory {
   }
 
   private static IPath findTexturePathDoor(LevelPart levelPart) {
-    if (levelPart.element() == LevelElement.DOOR) {
-      if (belowIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/top");
-      } else if (leftIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/right");
-      } else if (rightIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/left");
-      } else if (aboveIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/bottom");
-      }
+    if (levelPart.element() != LevelElement.DOOR) return null;
+
+    if (belowIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/top");
+    } else if (leftIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/right");
+    } else if (rightIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/left");
+    } else if (aboveIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/bottom");
     }
-    return null;
+
+    return new SimpleIPath("door/top");
   }
 
   private static IPath findTexturePathWall(LevelPart levelPart) {
