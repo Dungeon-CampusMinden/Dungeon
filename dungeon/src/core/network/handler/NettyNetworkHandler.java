@@ -8,7 +8,7 @@ import core.network.client.ClientNetwork;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ServerRuntime;
-import io.netty.channel.ChannelHandlerContext;
+import core.network.server.Session;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
+  public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {
     if (serverMode) {
       return server.sendMessage(clientId, message, reliable);
     } else return client.sendReliable(message);
@@ -136,8 +136,14 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void _setRawMessageConsumer(
-      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
+  public Session session() {
+    if (serverMode)
+      throw new UnsupportedOperationException("Session not available in server mode.");
+    return client.session();
+  }
+
+  @Override
+  public void setMessageConsumer(BiConsumer<Session, NetworkMessage> rawMessageConsumer) {
     if (!serverMode) client.setRawMessageConsumer(rawMessageConsumer);
   }
 

@@ -62,7 +62,7 @@ public final class Game {
   private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
   private static INetworkHandler networkHandler;
 
-  private static final boolean SLOW_NETWORK = true;
+  private static final boolean SLOW_NETWORK = false;
 
   /** Starts the dungeon. Initializes the network handler if networking is enabled. */
   public static void run() {
@@ -74,7 +74,7 @@ public final class Game {
 
     try {
       // Always route raw messages into the game dispatcher on the game thread
-      networkHandler._setRawMessageConsumer(networkHandler.messageDispatcher()::dispatch);
+      networkHandler.setMessageConsumer(networkHandler.messageDispatcher()::dispatch);
       // Explicitly inject a SnapshotTranslator before initialization
       networkHandler.setSnapshotTranslator(new DefaultSnapshotTranslator());
       networkHandler.initialize(

@@ -15,6 +15,7 @@ import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.*;
+import core.utils.Tuple;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -32,34 +33,26 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ServerTransport {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerTransport.class);
   private static final short SERVER_PROTOCOL_VERSION = 1;
-  private static final Random RANDOM = new Random();
 
-  private final ConcurrentLinkedQueue<InputMessage> inputQueue = new ConcurrentLinkedQueue<>();
+  private final ConcurrentLinkedQueue<Tuple<ClientState, InputMessage>> inputQueue =
+      new ConcurrentLinkedQueue<>();
 
   // Transport/session mappings
   private final ConcurrentHashMap<ChannelId, Session> sessions = new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<Integer, Session> clientIdToSession = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Short, Session> clientIdToSession = new ConcurrentHashMap<>();
 
   // UDP/TCP address and channel lookups
-  private final ConcurrentHashMap<Integer, InetSocketAddress> clientIdToUdp =
+  private final ConcurrentHashMap<InetSocketAddress, Short> udpToClientId =
       new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<InetSocketAddress, Integer> udpToClientId =
-      new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<ChannelId, Integer> tcpChannelToClientId =
-      new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<ChannelId, ChannelHandlerContext> tcpChannels =
-      new ConcurrentHashMap<>();
-  private final ConcurrentHashMap<Integer, String> clientIdToName = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Short, String> clientIdToName = new ConcurrentHashMap<>();
 
   private final AtomicInteger nextClientId = new AtomicInteger(1);
-  private final int SESSION_ID = RANDOM.nextInt();
 
   // Netty resources and dispatcher
   private EventLoopGroup bossGroup;
@@ -100,7 +93,7 @@ public final class ServerTransport {
     }
   }
 
-  public ConcurrentLinkedQueue<InputMessage> inputQueue() {
+  public ConcurrentLinkedQueue<Tuple<ClientState, InputMessage>> inputQueue() {
     return inputQueue;
   }
 
@@ -111,21 +104,18 @@ public final class ServerTransport {
   public Set<ClientState> connectedClients() {
     Set<ClientState> clients = new HashSet<>();
     for (Session s : sessions.values()) {
+      if (s.isClosed()) continue;
       s.clientState().ifPresent(clients::add);
     }
     return clients;
   }
 
-  public Map<Integer, Session> clientIdToSessionMap() {
+  public Map<Short, Session> clientIdToSessionMap() {
     return Map.copyOf(clientIdToSession);
   }
 
   public int nextClientIdValue() {
     return nextClientId.get();
-  }
-
-  public int serverSessionId() {
-    return SESSION_ID;
   }
 
   public MessageDispatcher dispatcher() {
@@ -183,39 +173,22 @@ public final class ServerTransport {
     }
   }
 
-  public CompletableFuture<Boolean> broadcast(Object obj, boolean reliable) {
+  public CompletableFuture<Boolean> broadcast(NetworkMessage msg, boolean reliable) {
+    if (sessions.isEmpty()) {
+      return CompletableFuture.completedFuture(true);
+    }
+
     List<CompletableFuture<Boolean>> futures = new ArrayList<>();
     LOGGER.debug(
         "Broadcasting {} to {} clients via {}",
-        obj.getClass().getSimpleName(),
-        reliable ? sessions.size() : clientIdToUdp.size(),
+        msg.getClass().getSimpleName(),
+        sessions.size(),
         reliable ? "TCP" : "UDP");
 
-    if (reliable) {
-      for (Session s : List.copyOf(sessions.values())) {
-        ChannelHandlerContext ctx = s.tcpCtx();
-        if (ctx != null && ctx.channel() != null && ctx.channel().isActive()) {
-          futures.add(sendTcpObject(ctx, obj));
-        } else {
-          futures.add(CompletableFuture.completedFuture(false));
-          LOGGER.warn(
-              "Skipping TCP broadcast to inactive/missing channel for clientId={}", s.clientId());
-        }
-      }
-    } else {
-      for (Session s : List.copyOf(clientIdToSession.values())) {
-        InetSocketAddress addr = clientIdToUdp.get(s.clientId());
-        if (addr != null) {
-          futures.add(sendUdpObject(addr, obj));
-        } else {
-          futures.add(CompletableFuture.completedFuture(false));
-          LOGGER.warn(
-              "Skipping UDP broadcast to clientId={} with no registered UDP address", s.clientId());
-        }
-      }
+    for (Session s : List.copyOf(sessions.values())) {
+      futures.add(s.sendMessage(msg, reliable));
     }
 
-    if (futures.isEmpty()) return CompletableFuture.completedFuture(true);
     CompletableFuture<Void> all =
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     return all.thenApply(v -> futures.stream().allMatch(CompletableFuture::join));
@@ -254,19 +227,25 @@ public final class ServerTransport {
   private final class TcpServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-      Function<Object, CompletableFuture<Boolean>> tcpSenderForSession =
-          obj -> sendTcpObject(ctx, obj);
-      Session session = new Session(ctx, ServerTransport.this::sendUdpObject, tcpSenderForSession);
+      LOGGER.trace("New TCP channel active: {}", ctx.channel());
+      Session session =
+          new Session(
+              ctx, ServerTransport.this::sendUdpObject, ServerTransport.this::sendTcpObject);
       sessions.put(ctx.channel().id(), session);
-      tcpChannels.put(ctx.channel().id(), ctx);
       super.channelActive(ctx);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf frame) throws Exception {
+      LOGGER.trace("TCP received {} bytes from {}", frame.readableBytes(), ctx.channel());
       Object obj = deserialize(frame);
+      Session session = sessions.get(ctx.channel().id());
+      if (session == null) {
+        LOGGER.warn("Received TCP message for unknown session on channel {}", ctx.channel());
+        return;
+      }
       if (obj instanceof NetworkMessage msg) {
-        if (dispatcher != null) dispatcher.dispatch(ctx, msg);
+        if (dispatcher != null) dispatcher.dispatch(session, msg);
       } else {
         LOGGER.debug("TCP received unexpected object: {}", obj.getClass().getName());
       }
@@ -274,30 +253,21 @@ public final class ServerTransport {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-      Integer id = tcpChannelToClientId.remove(ctx.channel().id());
-      tcpChannels.remove(ctx.channel().id());
+      LOGGER.trace("TCP channel inactive: {}", ctx.channel());
+      Session session = sessions.get(ctx.channel().id());
 
-      Session sess = sessions.remove(ctx.channel().id());
-      if (sess != null) {
+      if (session != null) {
         try {
-          sess.close();
+          session.close();
         } catch (Exception ignored) {
         }
-        int sid = sess.clientId();
-        if (sid != 0) {
-          clientIdToSession.remove(sid);
-          InetSocketAddress prev = clientIdToUdp.remove(sid);
-          if (prev != null) udpToClientId.remove(prev);
-          clientIdToName.remove(sid);
-          LOGGER.info("Client disconnected id={} {}", sid, ctx.channel());
+        if (session.clientId() != 0) {
+          clientIdToSession.remove(session.clientId());
+          clientIdToName.remove(session.clientId());
+          LOGGER.info("Client disconnected id={} {}", session.clientId(), ctx.channel());
         } else {
           LOGGER.info("TCP channel closed (no assigned clientId) {}", ctx.channel());
         }
-      } else if (id != null) {
-        InetSocketAddress prev = clientIdToUdp.remove(id);
-        if (prev != null) udpToClientId.remove(prev);
-        clientIdToName.remove(id);
-        LOGGER.info("Client disconnected id={} {}", id, ctx.channel());
       }
     }
 
@@ -311,11 +281,15 @@ public final class ServerTransport {
   private final class UdpServerHandler extends SimpleChannelInboundHandler<DatagramPacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
+      LOGGER.trace("UDP received {} bytes from {}", pkt.content().readableBytes(), pkt.sender());
       ByteBuf content = pkt.content();
       int size = content.readableBytes();
-      if (size <= 0) return;
+      if (size <= 0 || size > NetworkConfig.MAX_UDP_OBJECT_SIZE) {
+        LOGGER.warn("Ignoring UDP packet with invalid size={} from {}", size, pkt.sender());
+        return;
+      }
 
-      final Object obj;
+      Object obj;
       try {
         obj = deserialize(content);
       } catch (Exception e) {
@@ -323,12 +297,41 @@ public final class ServerTransport {
         return;
       }
 
-      switch (obj) {
-        case RegisterUdp reg -> onRegisterUdp(pkt.sender(), reg);
-        case InputMessage input -> onInputMessage(pkt.sender(), input);
-        default ->
-            LOGGER.debug(
-                "UDP unrecognized type={} from {}", obj.getClass().getName(), pkt.sender());
+      InetSocketAddress sender = pkt.sender();
+      Short mappedClientId = udpToClientId.get(sender);
+
+      if (obj instanceof RegisterUdp(short clientId)) {
+        Session sess = clientIdToSession.get(clientId);
+        if (sess == null) {
+          LOGGER.warn("RegisterUdp for unknown clientId={} from {}", clientId, sender);
+          sendUdpObject(sender, new RegisterAck(false));
+          return;
+        }
+
+        sess.udpAddress(sender);
+        udpToClientId.put(sender, clientId);
+        LOGGER.info("Associated UDP {} -> clientId={}", sender, clientId);
+        sendUdpObject(sender, new RegisterAck(true));
+        return;
+      }
+
+      if (mappedClientId == null) {
+        LOGGER.warn("UDP from unregistered addr {} (no registration)", sender);
+        return;
+      }
+
+      Session session = clientIdToSession.get(mappedClientId);
+      if (session == null) {
+        udpToClientId.remove(sender);
+        LOGGER.warn("Stale UDP mapping for {} removed", sender);
+        return;
+      }
+
+      if (obj instanceof NetworkMessage msg) {
+        // Enqueue dispatch to Game-Thread instead of handling heavy logic here
+        dispatcher.dispatch(session, msg);
+      } else {
+        LOGGER.debug("Unexpected UDP object {} from {}", obj.getClass().getName(), sender);
       }
     }
 
@@ -348,148 +351,50 @@ public final class ServerTransport {
     dispatcher.registerHandler(InputMessage.class, this::onInputMessage);
   }
 
-  private void onConnectRequest(ChannelHandlerContext ctx, ConnectRequest req) {
+  private void onConnectRequest(Session session, ConnectRequest req) {
     if (req.protocolVersion() != SERVER_PROTOCOL_VERSION) {
-      sendTcpObject(
-          ctx,
+      session.sendMessage(
           new ConnectReject(
               "Protocol version mismatch. Server="
                   + SERVER_PROTOCOL_VERSION
                   + ", yours="
-                  + req.protocolVersion()));
-      ctx.close();
+                  + req.protocolVersion()),
+          true);
+      session.close();
       return;
     }
 
     String playerName = req.playerName();
     if (!isValidPlayerName(playerName)) {
-      sendTcpObject(
-          ctx,
+      session.sendMessage(
           new ConnectReject(
-              "Invalid player name. Must be non-empty, without underscores, and unique."));
-      ctx.close();
+              "Invalid player name. Must be non-empty, without underscores, and unique."),
+          true);
+      session.close();
       return;
     }
 
-    if (req.sessionId() != 0 || (req.sessionToken() != null && req.sessionToken().length > 0)) {
+    if (req.sessionToken() != null && req.sessionToken().length > 0) {
       // TODO: implement session reconnection
       LOGGER.info(
           "Session reconnection not implemented yet, ignoring session data. Got: id={} tokenLength={}",
           req.sessionId(),
-          req.sessionToken() != null ? req.sessionToken().length : 0);
+          req.sessionToken().length);
     }
 
-    int id = nextClientId.getAndIncrement();
-    clientIdToName.put(id, playerName);
-    tcpChannelToClientId.put(ctx.channel().id(), id);
+    short newClientId = (short) nextClientId.getAndIncrement();
+    clientIdToName.put(newClientId, playerName);
 
-    Session session = sessions.get(ctx.channel().id());
-    long clientSessionId = RANDOM.nextLong();
     byte[] sessionToken = SessionTokenUtil.generate(NetworkConfig.SESSION_TOKEN_LENGTH_BYTES);
 
-    if (session != null) {
-      session.attachClientState(new ClientState(id, playerName, clientSessionId, sessionToken));
-      clientIdToSession.put(id, session);
-    } else {
-      LOGGER.warn("Accepted client id={} but no Session found for channel {}", id, ctx.channel());
-    }
+    session.attachClientState(
+        new ClientState(newClientId, playerName, ServerRuntime.SESSION_ID, sessionToken));
+    clientIdToSession.put(newClientId, session);
 
-    sendTcpObject(ctx, new ConnectAck(id));
-    sendInitialLevel(ctx, id);
-    LOGGER.info("Accepted client id={} name='{}' {}", id, playerName, ctx.channel());
-  }
+    session.sendMessage(new ConnectAck(newClientId, ServerRuntime.SESSION_ID, sessionToken), true);
 
-  private void onRequestEntitySpawn(ChannelHandlerContext ctx, RequestEntitySpawn req) {
-    int entityId = req.entityId();
-    var entity = Game.levelEntities().filter(e -> e.id() == entityId).findFirst();
-    if (entity.isEmpty()) {
-      LOGGER.warn("Entity id='{}' not found for spawn", entityId);
-      return;
-    }
-    core.Entity e = entity.get();
-    PositionComponent pc = e.fetch(PositionComponent.class).orElse(null);
-    DrawComponent dc = e.fetch(DrawComponent.class).orElse(null);
-    if (pc == null || dc == null) {
-      LOGGER.warn(
-          "Entity id='{}' missing components for spawn (entity was: '{}')", entityId, e.name());
-      return;
-    }
-    EntitySpawnEvent spawn = new EntitySpawnEvent(e.id(), pc, dc, e.isPersistent());
-    sendTcpObject(ctx, spawn);
-  }
-
-  private void onInputMessage(ChannelHandlerContext ctx, InputMessage msg) {
-    Integer clientId = tcpChannelToClientId.get(ctx.channel().id());
-    if (clientId == null) {
-      Session s = sessions.get(ctx.channel().id());
-      if (s != null) clientId = s.clientId();
-    }
-    if (clientId == null) {
-      LOGGER.warn("Received TCP InputMessage from unknown channel {}", ctx.channel());
-      return;
-    }
-    inputQueue.offer(
-        new InputMessage(
-            msg.clientTick(),
-            msg.sequence(),
-            msg.action(),
-            msg.point(),
-            msg.clientTimeMs(),
-            clientId));
-  }
-
-  private void onInputMessage(InetSocketAddress sender, InputMessage msg) {
-    Integer clientId = udpToClientId.get(sender);
-    if (clientId == null) {
-      // Fallback: search in clientIdToUdp map
-      for (Map.Entry<Integer, InetSocketAddress> e : clientIdToUdp.entrySet()) {
-        if (Objects.equals(e.getValue(), sender)) {
-          clientId = e.getKey();
-          udpToClientId.put(sender, clientId);
-          break;
-        }
-      }
-    }
-    if (clientId == null) {
-      LOGGER.warn("Received UDP InputMessage from unknown address {}", sender);
-      return;
-    }
-    inputQueue.offer(
-        new InputMessage(
-            msg.clientTick(),
-            msg.sequence(),
-            msg.action(),
-            msg.point(),
-            msg.clientTimeMs(),
-            clientId));
-  }
-
-  private void onRegisterUdp(InetSocketAddress sender, RegisterUdp reg) {
-    int id = reg.clientId();
-    boolean known = tcpChannelToClientId.containsValue(id);
-    if (!known) {
-      LOGGER.warn("Ignoring RegisterUdp for unknown id={} from {}", id, sender);
-      return;
-    }
-    InetSocketAddress previous = clientIdToUdp.put(id, sender);
-    if (!Objects.equals(previous, sender)) {
-      if (previous != null) udpToClientId.remove(previous);
-      udpToClientId.put(sender, id);
-      LOGGER.info("Registered/updated UDP for clientId={} addr={}", id, sender);
-      Session s = clientIdToSession.get(id);
-      if (s != null) s.udpAddress(sender);
-    }
-    sendUdpObject(sender, new RegisterAck(true));
-  }
-
-  private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {
-    try {
-      LevelChangeEvent ev = LevelChangeEvent.currentLevel();
-      sendTcpObject(ctx, ev);
-      LOGGER.info("Sent initial LEVEL_CHANGE to clientId={}", clientId);
-    } catch (Exception e) {
-      LOGGER.warn("Failed sending initial LEVEL_CHANGE", e);
-    }
+    sendInitialLevel(session.tcpCtx(), newClientId);
+    LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
   }
 
   /**
@@ -512,5 +417,85 @@ public final class ServerTransport {
         && !name.isBlank()
         && !name.contains("_")
         && !clientIdToName.containsValue(name);
+  }
+
+  private void onRequestEntitySpawn(Session session, RequestEntitySpawn req) {
+    int entityId = req.entityId();
+    var entity = Game.levelEntities().filter(e -> e.id() == entityId).findFirst();
+    if (entity.isEmpty()) {
+      LOGGER.warn("Entity id='{}' not found for spawn", entityId);
+      return;
+    }
+    core.Entity e = entity.get();
+    PositionComponent pc = e.fetch(PositionComponent.class).orElse(null);
+    DrawComponent dc = e.fetch(DrawComponent.class).orElse(null);
+    if (pc == null || dc == null) {
+      LOGGER.warn(
+          "Entity id='{}' missing components for spawn (entity was: '{}')", entityId, e.name());
+      return;
+    }
+    session.sendMessage(new EntitySpawnEvent(e.id(), pc, dc, e.isPersistent()), true);
+  }
+
+  private void onInputMessage(Session session, InputMessage msg) {
+    // 1. Validate session
+    if (!isSessionValid(session)) {
+      LOGGER.warn("Ignoring InputMessage from invalid session: {}", session);
+      return;
+    }
+
+    // 2. Validate sequence
+    ClientState state = session.clientState().orElseThrow();
+    if (!state.isSeqPlausible(msg.sequence())) {
+      LOGGER.debug(
+          "Ignoring InputMessage with implausible sequence={} from clientId={}",
+          msg.sequence(),
+          state.clientId());
+      state.updateLastActivity(); // Still update activity timestamp
+      return;
+    }
+
+    // 3. Validate Session ID
+    if (msg.sessionId() != ServerRuntime.SESSION_ID) {
+      LOGGER.debug(
+          "Ignoring InputMessage with invalid sessionId={} from clientId={}",
+          msg.sessionId(),
+          state.clientId());
+      return;
+    }
+
+    // 4. Enqueue
+    inputQueue.offer(Tuple.of(state, msg));
+  }
+
+  private void sendInitialLevel(ChannelHandlerContext ctx, int clientId) {
+    try {
+      LevelChangeEvent ev = LevelChangeEvent.currentLevel();
+      sendTcpObject(ctx, ev);
+      LOGGER.info("Sent initial LEVEL_CHANGE to clientId={}", clientId);
+    } catch (Exception e) {
+      LOGGER.warn("Failed sending initial LEVEL_CHANGE", e);
+    }
+  }
+
+  private boolean isSessionValid(Session session) {
+    if (session == null) {
+      LOGGER.trace("Session is null");
+      return false;
+    }
+    short clientId = session.clientId();
+    if (clientId == 0) {
+      LOGGER.trace("Session has no assigned clientId: {}", session);
+      return false;
+    }
+    if (!sessions.containsKey(session.tcpCtx().channel().id())) {
+      LOGGER.trace("Session not found in sessions map: {}", session);
+      return false;
+    }
+    if (session.clientState().isEmpty()) {
+      LOGGER.trace("Session has no attached ClientState: {}", session);
+      return false;
+    }
+    return true;
   }
 }

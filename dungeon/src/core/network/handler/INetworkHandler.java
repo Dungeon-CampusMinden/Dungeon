@@ -6,7 +6,7 @@ import core.network.NetworkException;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
-import io.netty.channel.ChannelHandlerContext;
+import core.network.server.Session;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -41,7 +41,7 @@ public interface INetworkHandler {
    *     (for reliable messages), or false otherwise. For unreliable messages, the Future completes
    *     immediately with true.
    */
-  CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable);
+  CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable);
 
   /**
    * Sends a {@link NetworkMessage} to all connected clients (if server).
@@ -129,7 +129,7 @@ public interface INetworkHandler {
    *
    * @param rawMessageConsumer A consumer that processes raw incoming messages.
    */
-  void _setRawMessageConsumer(BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer);
+  void setMessageConsumer(BiConsumer<Session, NetworkMessage> rawMessageConsumer);
 
   /**
    * Registers a listener for connection lifecycle events.
@@ -149,11 +149,21 @@ public interface INetworkHandler {
   void removeConnectionListener(ConnectionListener listener);
 
   /**
+   * Returns the current {@link Session} if connected (clients only).
+   *
+   * <p>For server implementations, this may return null or throw an {@link
+   * UnsupportedOperationException}.
+   *
+   * @return the current Session, or null if not connected or not a client
+   */
+  Session session();
+
+  /**
    * Drains any queued inbound network messages and dispatches them on the game loop thread.
    *
    * <p>Default is a no-op; implementations with IO threads should override this and deliver
    * messages to {@link #messageDispatcher()} or the raw consumer set via {@link
-   * #_setRawMessageConsumer(BiConsumer)}.
+   * #setMessageConsumer(BiConsumer)}.
    */
   default void pollAndDispatch() {}
 }

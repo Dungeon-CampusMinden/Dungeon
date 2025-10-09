@@ -14,6 +14,8 @@ import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.s2c.ConnectAck;
 import core.network.messages.s2c.RegisterAck;
+import core.network.server.ClientState;
+import core.network.server.Session;
 import core.utils.Tuple;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -36,32 +38,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Netty-backed client transport.
+ * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
  *
  * <p>Responsibilities: - Establish a TCP connection to the server for reliable messages and
  * handshake. - Bind an ephemeral UDP socket for sending/receiving unreliable messages (inputs,
  * snapshots). - Maintain an inbound queue of deserialized {@link NetworkMessage}s and lifecycle
  * events to be consumed on the game thread via {@link #pollAndDispatch()}. - Manage UDP
  * "registration" (RegisterUdp) retransmits until the server observes the client's UDP source
- * address; retries are cancellable when a UDP response is seen.
+ * address; retries are cancellable when a UDP response is seen. - Expose a {@link Session} instance
+ * backed by client-side senders so message handlers can reply via {@code session.sendMessage(...)}
+ * just like on the server.
  *
- * <p>This class is thread-safe for typical usage: Netty IO threads enqueue messages and lifecycle
- * events, while the game thread calls {@link #pollAndDispatch()} and lifecycle listeners are
- * invoked on the game thread via enqueued runnables.
+ * <p>Threading model: Netty IO threads enqueue messages and lifecycle events; the game thread calls
+ * {@link #pollAndDispatch()} and lifecycle listeners are invoked on the game thread via enqueued
+ * runnables.
  */
 public final class ClientNetwork {
   private static final Logger LOGGER = LoggerFactory.getLogger(ClientNetwork.class);
 
   private static final short CLIENT_PROTOCOL_VERSION = 1;
   private final MessageDispatcher dispatcher = new MessageDispatcher();
-  private volatile BiConsumer<ChannelHandlerContext, NetworkMessage> rawConsumer;
+  private volatile BiConsumer<Session, NetworkMessage> rawConsumer;
   private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<>();
-  private final Queue<Tuple<ChannelHandlerContext, NetworkMessage>> inboundQueue =
-      new ConcurrentLinkedQueue<>();
+  private final Queue<Tuple<Session, NetworkMessage>> inboundQueue = new ConcurrentLinkedQueue<>();
   private final Queue<Runnable> lifecycleEvents = new ConcurrentLinkedQueue<>();
 
   private final AtomicBoolean running = new AtomicBoolean(false);
   private final AtomicBoolean connected = new AtomicBoolean(false);
+
+  private volatile Session session = new Session(null);
 
   private String remoteHost;
   private int port;
@@ -73,11 +78,11 @@ public final class ClientNetwork {
   private InetSocketAddress udpRemote;
 
   // assigned after ConnectAck
-  private volatile Integer clientId;
+  private volatile Short clientId;
   private volatile SnapshotTranslator translator;
 
   // Track scheduled UDP registration retries per clientId to allow cancellation/cleanup
-  private final ConcurrentHashMap<Integer, ScheduledFuture<?>> udpRegisterTasks =
+  private final ConcurrentHashMap<Short, ScheduledFuture<?>> udpRegisterTasks =
       new ConcurrentHashMap<>();
 
   /**
@@ -154,15 +159,27 @@ public final class ClientNetwork {
   }
 
   /**
+   * Returns the current {@link Session} instance if not yet established.
+   *
+   * <p>The session becomes available after the TCP connection is established and the ConnectAck is
+   * received.
+   *
+   * @return current Session (or empty if not yet established)
+   */
+  public Session session() {
+    return session;
+  }
+
+  /**
    * Set an optional raw message consumer used by higher-level code to directly receive inbound
    * {@link NetworkMessage} objects.
    *
    * <p>If a raw consumer is set, inbound messages are forwarded to it instead of the dispatcher.
    *
-   * @param consumer BiConsumer receiving the Netty {@link ChannelHandlerContext} and the
-   *     deserialized {@link NetworkMessage}.
+   * @param consumer BiConsumer receiving the {@link Session} and the deserialized {@link
+   *     NetworkMessage}.
    */
-  public void setRawMessageConsumer(BiConsumer<ChannelHandlerContext, NetworkMessage> consumer) {
+  public void setRawMessageConsumer(BiConsumer<Session, NetworkMessage> consumer) {
     this.rawConsumer = consumer;
   }
 
@@ -198,8 +215,8 @@ public final class ClientNetwork {
    *
    * <p>The id becomes available after receiving a {@link ConnectAck}.
    */
-  public int clientId() {
-    Integer id = clientId;
+  public Short clientId() {
+    Short id = clientId;
     return id != null ? id : 0;
   }
 
@@ -220,30 +237,20 @@ public final class ClientNetwork {
       result.complete(false);
       return result;
     }
+
     try {
-      byte[] data = serialize(msg);
-      if (data.length > MAX_TCP_OBJECT_SIZE) {
-        LOGGER.warn(
-            "Dropping TCP message; too large ({} B) > {}", data.length, MAX_TCP_OBJECT_SIZE);
-        result.complete(false);
-        return result;
-      }
-      ByteBuf buf = tcp.alloc().buffer(4 + data.length);
-      buf.writeInt(data.length);
-      buf.writeBytes(data);
-      ChannelFuture future = tcp.writeAndFlush(buf);
-      future.addListener(
-          (ChannelFuture f) -> {
-            if (!f.isSuccess()) {
-              LOGGER.warn("Failed to send TCP message", f.cause());
-            }
-            result.complete(f.isSuccess());
-          });
-    } catch (IOException e) {
-      LOGGER.warn("Failed to serialize TCP message", e);
+      return session
+          .sendMessage(msg, true)
+          .thenApply(
+              success -> {
+                LOGGER.debug("Sending reliable message: {}", msg.getClass().getSimpleName());
+                return success;
+              });
+    } catch (Exception e) {
+      LOGGER.warn("Failed to send reliable message via Session", e);
       result.complete(false);
+      return result;
     }
-    return result;
   }
 
   /**
@@ -262,10 +269,12 @@ public final class ClientNetwork {
     try {
       byte[] data = serialize(input);
       if (data.length <= SAFE_UDP_MTU) {
-        udp.writeAndFlush(
-                new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), udpRemote))
-            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-        LOGGER.debug("UDP outbound InputMessage size={}B", data.length);
+        session
+            .sendMessage(input, false)
+            .thenAccept(
+                success -> {
+                  LOGGER.debug("UDP outbound InputMessage size={}B", data.length);
+                });
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
@@ -290,10 +299,10 @@ public final class ClientNetwork {
         LOGGER.warn("Lifecycle runnable error", e);
       }
     }
-    Tuple<ChannelHandlerContext, NetworkMessage> msg;
+    Tuple<Session, NetworkMessage> msg;
     while ((msg = inboundQueue.poll()) != null) {
       try {
-        BiConsumer<ChannelHandlerContext, NetworkMessage> consumer = rawConsumer;
+        BiConsumer<Session, NetworkMessage> consumer = rawConsumer;
         if (consumer != null) consumer.accept(msg.a(), msg.b());
         else dispatcher.dispatch(msg.a(), msg.b());
       } catch (Exception e) {
@@ -340,10 +349,18 @@ public final class ClientNetwork {
                           throws Exception {
                         int size = frame.readableBytes();
                         Object obj = deserialize(frame);
-                        if (obj instanceof ConnectAck(int id)) {
-                          onConnectAck(id);
+                        if (obj
+                            instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
+                          onConnectAck(id, sessionId, sessionToken);
                         } else if (obj instanceof NetworkMessage nm) {
-                          inboundQueue.offer(Tuple.of(ctx, nm));
+                          if (session != null) {
+                            inboundQueue.offer(Tuple.of(session, nm));
+                          } else {
+                            LOGGER.debug(
+                                "Dropping TCP inbound before session init: {} size={}B",
+                                obj.getClass().getSimpleName(),
+                                size);
+                          }
                           LOGGER.debug(
                               "TCP inbound {} size={}B", obj.getClass().getSimpleName(), size);
                         }
@@ -352,6 +369,16 @@ public final class ClientNetwork {
                       @Override
                       public void channelActive(ChannelHandlerContext ctx) {
                         connected.set(true);
+                        // Create a client-side Session bound to this TCP ctx and using client
+                        // senders
+                        session =
+                            new Session(
+                                ctx,
+                                ClientNetwork.this::sendUdpObject,
+                                ClientNetwork.this::sendTcpObject);
+                        // Point the session UDP to the server address as our logical peer
+                        if (udpRemote != null) session.udpAddress(udpRemote);
+
                         enqueueLifecycle(ClientNetwork.this::notifyConnected);
                         try {
                           byte[] data =
@@ -397,10 +424,16 @@ public final class ClientNetwork {
                   Object obj = deserialize(pkt.content());
                   if (obj instanceof RegisterAck) {
                     // Server acknowledges our UDP source address; cancel any pending retries
-                    Integer id = clientId;
+                    Short id = clientId;
                     if (id != null && id > 0) cancelUdpRegistration(id);
                   } else if (obj instanceof NetworkMessage nm) {
-                    inboundQueue.offer(Tuple.of(ctx, nm));
+                    if (session != null) {
+                      inboundQueue.offer(Tuple.of(session, nm));
+                    } else {
+                      LOGGER.debug(
+                          "Dropping UDP inbound before session init: {}",
+                          nm.getClass().getSimpleName());
+                    }
                   }
                 } catch (Exception e) {
                   LOGGER.warn("UDP client decode error", e);
@@ -419,15 +452,17 @@ public final class ClientNetwork {
             future -> {
               cancelAllUdpRegistrations();
             });
-    // Optional logical connect to server to filter inbound datagrams
     udp.connect(udpRemote).syncUninterruptibly();
+    // If TCP session already exists, update its udpAddress to our peer
+    if (session != null) session.udpAddress(udpRemote);
     LOGGER.info("Client connected to {}:{} (TCP+UDP)", remoteHost, port);
   }
 
-  private void onConnectAck(int id) {
-    this.clientId = id;
-    LOGGER.info("Received ConnectAck clientId={}", id);
-    scheduleUdpRegistration(id);
+  private void onConnectAck(short newClientId, int sessionId, byte[] sessionToken) {
+    this.clientId = newClientId;
+    LOGGER.info("Received ConnectAck clientId={}, sessionId={}", newClientId, sessionId);
+    session.attachClientState(new ClientState(newClientId, username, sessionId, sessionToken));
+    scheduleUdpRegistration(newClientId);
   }
 
   /**
@@ -439,30 +474,31 @@ public final class ClientNetwork {
    * ScheduledFuture} in a map keyed by clientId so retries can be cancelled. - Retries are
    * automatically cancelled when attempts are exhausted or when the UDP channel becomes inactive.
    *
-   * <p>Note: call {@link #cancelUdpRegistration(int)} when you detect a working UDP path (for
+   * <p>Note: call {@link #cancelUdpRegistration(short)} when you detect a working UDP path (for
    * example, upon receiving the first UDP message from the server) to stop retries early.
    *
-   * @param id assigned client id to include in RegisterUdp
+   * @param clientId assigned client id to include in RegisterUdp
    */
-  private void scheduleUdpRegistration(int id) {
+  private void scheduleUdpRegistration(short clientId) {
     if (udp == null || !udp.isActive()) return;
 
     // Avoid duplicate scheduling for same clientId
-    if (udpRegisterTasks.containsKey(id)) {
-      LOGGER.debug("UDP registration already scheduled for clientId={}", id);
+    if (udpRegisterTasks.containsKey(clientId)) {
+      LOGGER.debug("UDP registration already scheduled for clientId={}", clientId);
       return;
     }
 
     final byte[] payload;
     try {
-      payload = serialize(new RegisterUdp(id));
+      payload = serialize(new RegisterUdp(clientId));
     } catch (IOException e) {
-      LOGGER.warn("Failed to serialize RegisterUdp for clientId={}", id, e);
+      LOGGER.warn("Failed to serialize RegisterUdp for clientId={}", clientId, e);
       return;
     }
 
     if (payload.length > SAFE_UDP_MTU) {
-      LOGGER.warn("RegisterUdp too large ({} bytes); skipping clientId={}", payload.length, id);
+      LOGGER.warn(
+          "RegisterUdp too large ({} bytes); skipping clientId={}", payload.length, clientId);
       return;
     }
 
@@ -475,7 +511,7 @@ public final class ClientNetwork {
                         udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
                 .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
           } catch (Throwable t) {
-            LOGGER.warn("Error while sending RegisterUdp clientId={}", id, t);
+            LOGGER.warn("Error while sending RegisterUdp clientId={}", clientId, t);
           }
         };
 
@@ -488,21 +524,24 @@ public final class ClientNetwork {
         () -> {
           int a = attempts.incrementAndGet();
           if (a > UDP_REGISTER_ATTEMPTS) {
-            ScheduledFuture<?> sf = udpRegisterTasks.remove(id);
+            ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
             if (sf != null) sf.cancel(false);
-            LOGGER.warn("UDP registration failed for clientId={} after {} attempts", id, a - 1);
+            LOGGER.warn(
+                "UDP registration failed for clientId={} after {} attempts", clientId, a - 1);
             return;
           }
 
           if (udp == null || !udp.isActive()) {
-            ScheduledFuture<?> sf = udpRegisterTasks.remove(id);
+            ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
             if (sf != null) sf.cancel(false);
-            LOGGER.debug("UDP channel inactive; stopping registration retries for clientId={}", id);
+            LOGGER.debug(
+                "UDP channel inactive; stopping registration retries for clientId={}", clientId);
             return;
           }
 
           sendOnce.run();
-          LOGGER.debug("Retransmitted RegisterUdp attempt={} clientId={} to {}", a, id, udpRemote);
+          LOGGER.debug(
+              "Retransmitted RegisterUdp attempt={} clientId={} to {}", a, clientId, udpRemote);
         };
 
     ScheduledFuture<?> sf =
@@ -513,7 +552,7 @@ public final class ClientNetwork {
                 UDP_REGISTER_INTERVAL_MS,
                 TimeUnit.MILLISECONDS);
 
-    udpRegisterTasks.put(id, sf);
+    udpRegisterTasks.put(clientId, sf);
   }
 
   /**
@@ -522,13 +561,13 @@ public final class ClientNetwork {
    * <p>Safe to call from any thread. Used when a working UDP path is detected (e.g. on first UDP
    * response from server).
    *
-   * @param id client id whose retries should be cancelled
+   * @param clientId client id whose retries should be cancelled
    */
-  private void cancelUdpRegistration(int id) {
-    ScheduledFuture<?> sf = udpRegisterTasks.remove(id);
+  private void cancelUdpRegistration(short clientId) {
+    ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
     if (sf != null) {
       sf.cancel(false);
-      LOGGER.debug("Cancelled UDP registration retries for clientId={}", id);
+      LOGGER.debug("Cancelled UDP registration retries for clientId={}", clientId);
     }
   }
 
@@ -537,11 +576,11 @@ public final class ClientNetwork {
    * closes.
    */
   private void cancelAllUdpRegistrations() {
-    for (Integer id : udpRegisterTasks.keySet()) {
-      ScheduledFuture<?> sf = udpRegisterTasks.remove(id);
+    for (Short clientId : udpRegisterTasks.keySet()) {
+      ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
       if (sf != null) {
         sf.cancel(false);
-        LOGGER.debug("Cancelled UDP registration retries for clientId={}", id);
+        LOGGER.debug("Cancelled UDP registration retries for clientId={}", clientId);
       }
     }
   }
@@ -567,6 +606,52 @@ public final class ClientNetwork {
       } catch (Exception e) {
         LOGGER.warn("onDisconnected error", e);
       }
+    }
+  }
+
+  // ---- client-side Session senders ----
+
+  /** Client-side UDP sender for {@link Session}. Mirrors server-side send path and size checks. */
+  private CompletableFuture<Boolean> sendUdpObject(InetSocketAddress target, Object obj) {
+    if (udp == null || !udp.isActive()) {
+      LOGGER.warn("UDP channel not active; cannot send to {}", target);
+      return CompletableFuture.completedFuture(false);
+    }
+    try {
+      byte[] data = serialize(obj);
+      if (data.length > SAFE_UDP_MTU) {
+        LOGGER.warn("Skip UDP send; payload too large ({} B) to {}", data.length, target);
+        return CompletableFuture.completedFuture(false);
+      }
+      udp.writeAndFlush(
+              new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), target))
+          .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      return CompletableFuture.completedFuture(true);
+    } catch (Exception e) {
+      LOGGER.warn("Failed to send UDP object to {}", target, e);
+      return CompletableFuture.completedFuture(false);
+    }
+  }
+
+  /** Client-side TCP sender for {@link Session}. Mirrors server-side send path and size checks. */
+  private CompletableFuture<Boolean> sendTcpObject(ChannelHandlerContext ctx, Object obj) {
+    if (ctx == null || ctx.channel() == null || !ctx.channel().isActive()) {
+      return CompletableFuture.completedFuture(false);
+    }
+    try {
+      byte[] data = serialize(obj);
+      if (data.length > MAX_TCP_OBJECT_SIZE) {
+        LOGGER.warn("Skip TCP send; payload too large ({} B) to {}", data.length, ctx.channel());
+        return CompletableFuture.completedFuture(false);
+      }
+      ByteBuf buf = ctx.alloc().buffer(TCP_LENGTH_FIELD_LENGTH + data.length);
+      buf.writeInt(data.length);
+      buf.writeBytes(data);
+      ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+      return CompletableFuture.completedFuture(true);
+    } catch (IOException e) {
+      LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
+      return CompletableFuture.completedFuture(false);
     }
   }
 }
