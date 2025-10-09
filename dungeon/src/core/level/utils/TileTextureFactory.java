@@ -401,33 +401,34 @@ public class TileTextureFactory {
     return sides && stem && openTop && insideSides;
   }
 
-  private static boolean isInnerTJunctionTop(Coordinate p, LevelElement[][] L) {
-    return (aboveIsWall(p, L) || aboveIsDoor(p, L))
-        && (leftIsWall(p, L) || leftIsDoor(p, L))
-        && (rightIsWall(p, L) || rightIsDoor(p, L))
-        && belowIsInside(p, L);
+  private static boolean isInnerTJunctionTop(Coordinate p, LevelElement[][] layout) {
+    return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+      && (leftIsWall(p, layout) || leftIsDoor(p, layout))
+      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+      && belowIsInside(p, layout);
   }
 
-  private static boolean isInnerTJunctionBottom(Coordinate p, LevelElement[][] L) {
-    return (belowIsWall(p, L) || belowIsDoor(p, L))
-        && (leftIsWall(p, L) || leftIsDoor(p, L))
-        && (rightIsWall(p, L) || rightIsDoor(p, L))
-        && aboveIsInside(p, L);
+  private static boolean isInnerTJunctionBottom(Coordinate p, LevelElement[][] layout) {
+    return (belowIsWall(p, layout) || belowIsDoor(p, layout))
+      && (leftIsWall(p, layout) || leftIsDoor(p, layout))
+      && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+      && aboveIsInside(p, layout);
   }
 
-  private static boolean isInnerTJunctionLeft(Coordinate p, LevelElement[][] L) {
-    return (leftIsWall(p, L) || leftIsDoor(p, L))
-        && (aboveIsWall(p, L) || aboveIsDoor(p, L))
-        && (belowIsWall(p, L) || belowIsDoor(p, L))
-        && rightIsInside(p, L);
+  private static boolean isInnerTJunctionLeft(Coordinate p, LevelElement[][] layout) {
+    return (leftIsWall(p, layout) || leftIsDoor(p, layout))
+      && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+      && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+      && rightIsInside(p, layout);
   }
 
-  private static boolean isInnerTJunctionRight(Coordinate p, LevelElement[][] L) {
-    return (rightIsWall(p, L) || rightIsDoor(p, L))
-        && (aboveIsWall(p, L) || aboveIsDoor(p, L))
-        && (belowIsWall(p, L) || belowIsDoor(p, L))
-        && leftIsInside(p, L);
+  private static boolean isInnerTJunctionRight(Coordinate p, LevelElement[][] layout) {
+    return (rightIsWall(p, layout) || rightIsDoor(p, layout))
+      && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+      && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+      && leftIsInside(p, layout);
   }
+
 
   /**
    * Checks if tile with coordinate p should be a right wall. Tile has to have walls above and below
