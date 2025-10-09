@@ -324,8 +324,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isBottomLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout)
-        && rightIsWall(p, layout)
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
         && (leftIsInside(p, layout) && bottomRightIsInside(p, layout)
             || belowIsInside(p, layout) && upperLeftIsInside(p, layout)
             || belowIsInside(p, layout) && leftIsInside(p, layout)));
@@ -341,8 +341,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isBottomRightInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout)
-        && leftIsWall(p, layout)
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsInside(p, layout) && bottomLeftIsInside(p, layout)
             || belowIsInside(p, layout) && upperRightIsInside(p, layout)
             || belowIsInside(p, layout) && rightIsInside(p, layout)));
@@ -358,8 +358,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isUpperRightInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (belowIsWall(p, layout)
-        && leftIsWall(p, layout)
+    return ((belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsInside(p, layout) && upperLeftIsInside(p, layout)
             || aboveIsInside(p, layout) && bottomRightIsInside(p, layout)
             || aboveIsInside(p, layout) && rightIsInside(p, layout)));
@@ -375,8 +375,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isUpperLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (belowIsWall(p, layout)
-        && rightIsWall(p, layout)
+    return ((belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
         && (leftIsInside(p, layout) && upperRightIsInside(p, layout)
             || aboveIsInside(p, layout) && bottomLeftIsInside(p, layout)
             || aboveIsInside(p, layout) && leftIsInside(p, layout)));
