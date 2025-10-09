@@ -30,7 +30,7 @@ public class FireballScheduler {
           () -> {
             Entity hero = Game.hero().orElseThrow(MissingHeroException::new);
             return hero.fetch(CollideComponent.class)
-                .map(cc -> cc.center(hero))
+                .map(cc -> cc.collider().absoluteCenter())
                 .map(p -> p.translate(EntityUtils.getViewDirection(hero)))
                 .orElseThrow(() -> MissingComponentException.build(hero, CollideComponent.class));
           },

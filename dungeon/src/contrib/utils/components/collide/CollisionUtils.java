@@ -1,15 +1,10 @@
 package contrib.utils.components.collide;
 
-import contrib.components.CollideComponent;
-import core.Entity;
 import core.Game;
-import core.components.PositionComponent;
 import core.level.Tile;
 import core.level.utils.LevelElement;
 import core.utils.Point;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
-import java.util.Arrays;
 import java.util.List;
 
 /** Utility class for handling various collision detection things. */
@@ -22,93 +17,37 @@ public class CollisionUtils {
   public static final float TOP_OFFSET = 0.0001f;
 
   /**
-   * Checks if the hitbox specified by the bottom-left and top-right points is colliding with any
-   * level tiles that are not accessible.
+   * Checks if the specified point is colliding with any level tile that is not accessible.
    *
-   * @param bottomLeft the bottom-left position of the entity's hitbox
-   * @param topRight the top-right position of the entity's hitbox
-   * @param canEnterPits whether the entity can enter pit tiles
-   * @param canEnterWalls whether the entity can enter wall tiles
-   * @return true if any corner of the hitbox is colliding with a non-accessible tile, false
+   * @param position the position to test
+   * @param canEnterPits whether pit tiles are accessible
+   * @param canEnterWalls whether wall tiles are accessible
+   * @return true if the position is colliding with a non-accessible tile, false otherwise
+   */
+  public static boolean isCollidingWithLevel(
+      Point position, boolean canEnterPits, boolean canEnterWalls) {
+    return !tileIsAccessible(Game.tileAt(position).orElse(null), canEnterPits, canEnterWalls);
+  }
+
+  /**
+   * Checks if a collider, when set on a specific position, is colliding with any level tiles that
+   * are not accessible.
+   *
+   * @param collider the collider
+   * @param pos the position to check for collision
+   * @param canEnterPits whether the collider can enter pit tiles
+   * @param canEnterWalls whether the collider can enter wall tiles
+   * @return true if any corner of the collider is colliding with a non-accessible tile, false
    *     otherwise
    */
   public static boolean isCollidingWithLevel(
-      Point bottomLeft, Point topRight, boolean canEnterPits, boolean canEnterWalls) {
-    List<Point> corners =
-        Arrays.asList(
-            new Point(bottomLeft.x(), bottomLeft.y()), // bottom-left
-            new Point(topRight.x() - TOP_OFFSET, bottomLeft.y()), // bottom-right
-            new Point(bottomLeft.x(), topRight.y() - TOP_OFFSET), // top-left
-            new Point(topRight.x() - TOP_OFFSET, topRight.y() - TOP_OFFSET) // top-right
-            );
+      Collider collider, Point pos, boolean canEnterPits, boolean canEnterWalls) {
+    List<Vector2> corners = collider.corners();
     return corners.stream()
-        .anyMatch(p -> !tileIsAccessible(Game.tileAt(p).orElse(null), canEnterPits, canEnterWalls));
-  }
-
-  /**
-   * Checks if an entity, when set on a specific position, is colliding with any level tiles that
-   * are not accessible.
-   *
-   * @param e the entity to check for collision
-   * @param pos the position to check for collision
-   * @param canEnterPits whether the entity can enter pit tiles
-   * @param canEnterWalls whether the entity can enter wall tiles
-   * @return true if any corner of the entity's hitbox is colliding with a non-accessible tile,
-   *     false otherwise
-   */
-  public static boolean isCollidingWithLevel(
-      Entity e, Point pos, boolean canEnterPits, boolean canEnterWalls) {
-    PositionComponent pc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
-    CollideComponent cc =
-        e.fetch(CollideComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, CollideComponent.class));
-    return isCollidingWithLevel(
-        cc.bottomLeft(pos, pc.scale()), cc.topRight(pos, pc.scale()), canEnterPits, canEnterWalls);
-  }
-
-  /**
-   * Checks if an entity is colliding with any level tiles that are not accessible.
-   *
-   * @param e the entity to check for collision
-   * @param canEnterPits whether the entity can enter pit tiles
-   * @param canEnterWalls whether the entity can enter wall tiles
-   * @return true if any corner of the entity's hitbox is colliding with a non-accessible tile,
-   *     false otherwise
-   */
-  public static boolean isCollidingWithLevel(
-      Entity e, boolean canEnterPits, boolean canEnterWalls) {
-    CollideComponent cc =
-        e.fetch(CollideComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, CollideComponent.class));
-    return isCollidingWithLevel(cc.bottomLeft(e), cc.topRight(e), canEnterPits, canEnterWalls);
-  }
-
-  /**
-   * Checks if a hitbox at a given position and scale is colliding with any level tiles that are not
-   * accessible.
-   *
-   * @param pos the position of the entity
-   * @param scale the scale of the entity
-   * @param hitbox the hitbox component of the entity (can be null)
-   * @param canEnterPits whether the entity can enter pit tiles
-   * @param canEnterWalls whether the entity can enter wall tiles
-   * @return true if any corner of the hitbox (or position if hitbox is null) is colliding with a
-   *     non-accessible tile, false otherwise
-   */
-  public static boolean isCollidingWithLevel(
-      Point pos,
-      Vector2 scale,
-      CollideComponent hitbox,
-      boolean canEnterPits,
-      boolean canEnterWalls) {
-    if (hitbox == null) {
-      // Only check for the actual position
-      return !tileIsAccessible(Game.tileAt(pos).orElse(null), canEnterPits, canEnterWalls);
-    }
-    return isCollidingWithLevel(
-        hitbox.bottomLeft(pos, scale), hitbox.topRight(pos, scale), canEnterPits, canEnterWalls);
+        .anyMatch(
+            v ->
+                !tileIsAccessible(
+                    Game.tileAt(pos.translate(v)).orElse(null), canEnterPits, canEnterWalls));
   }
 
   /**
@@ -196,195 +135,306 @@ public class CollisionUtils {
     return tileIsAccessible(Game.tileAt(to).orElse(null), canEnterPitTiles, canEnterWalls);
   }
 
+  // ========== Collision Math ==========
 
-  // ========== Collisions ==========
-  public static boolean rectCollidePoint(float rX, float rY, float rW, float rH, Point point)
-  {
-    return (double) point.x() >= (double) rX && (double) point.y() >= (double) rY && (double) point.x() < (double) rX + (double) rW && (double) point.y() < (double) rY + (double) rH;
+  /**
+   * Checks whether a point lies within a rectangle.
+   *
+   * @param rectX the X coordinate of the rectangle’s bottom-left corner
+   * @param rectY the Y coordinate of the rectangle’s bottom-left corner
+   * @param rectWidth the width of the rectangle
+   * @param rectHeight the height of the rectangle
+   * @param point the point to test
+   * @return {@code true} if the point lies within the rectangle; {@code false} otherwise
+   */
+  public static boolean rectCollidesPoint(
+      float rectX, float rectY, float rectWidth, float rectHeight, Point point) {
+    return point.x() >= rectX
+        && point.x() < rectX + rectWidth
+        && point.y() >= rectY
+        && point.y() < rectY + rectHeight;
   }
 
-  public static boolean circleCollidePoint(Point position, float radius, Point point)
-  {
+  /**
+   * Checks whether a circle contains a given point.
+   *
+   * @param position the center position of the circle
+   * @param radius the radius of the circle
+   * @param point the point to test
+   * @return {@code true} if the point lies inside the circle; {@code false} otherwise
+   */
+  public static boolean circleCollidesPoint(Point position, float radius, Point point) {
     return Math.pow(position.distance(point), 2) < (double) radius * (double) radius;
   }
 
-  public static boolean circleCollideLine(
-    Point position,
-    float radius,
-    Point lineFrom,
-    Point lineTo)
-  {
+  /**
+   * Checks whether a circle intersects with a line segment.
+   *
+   * <p>A collision occurs if any point on the line segment lies within the circle.
+   *
+   * @param position the center position of the circle
+   * @param radius the radius of the circle
+   * @param lineFrom the starting point of the line segment
+   * @param lineTo the ending point of the line segment
+   * @return {@code true} if the circle intersects the line segment; {@code false} otherwise
+   */
+  public static boolean circleCollidesLine(
+      Point position, float radius, Point lineFrom, Point lineTo) {
     Point closestPoint = closestPointOnLine(lineFrom, lineTo, position);
-    return circleCollidePoint(position, radius, closestPoint);
+    return circleCollidesPoint(position, radius, closestPoint);
   }
 
-  public static Point closestPointOnLine(Point lineA, Point lineB, Point closestTo)
-  {
+  /**
+   * Finds the closest point on a line segment to a given reference point.
+   *
+   * <p>If the perpendicular projection of the reference point onto the line falls outside the
+   * segment, the nearest endpoint is returned instead.
+   *
+   * @param lineA the starting point of the line segment
+   * @param lineB the ending point of the line segment
+   * @param closestTo the point for which to find the nearest location on the line
+   * @return the closest point on the line segment to {@code closestTo}
+   */
+  public static Point closestPointOnLine(Point lineA, Point lineB, Point closestTo) {
     Vector2 closeToA = lineA.vectorTo(closestTo);
     Vector2 line = lineA.vectorTo(lineB);
     float t = (float) Math.clamp(closeToA.dot(line) / line.dot(line), 0.0f, 1f);
     return lineA.translate(line.scale(t));
   }
 
+  /**
+   * Determines whether a circle intersects or overlaps with a rectangle.
+   *
+   * <p>A collision is reported if the circle’s center lies inside the rectangle or if any part of
+   * the circle’s boundary touches or crosses any edge of the rectangle. Circles that are entirely
+   * outside the rectangle without touching it do not count as collisions.
+   *
+   * @param rectX the X coordinate of the rectangle’s bottom-left corner
+   * @param rectY the Y coordinate of the rectangle’s bottom-left corner
+   * @param rectWidth the width of the rectangle
+   * @param rectHeight the height of the rectangle
+   * @param circlePos the center position of the circle
+   * @param circleRadius the radius of the circle
+   * @return {@code true} if the circle intersects or overlaps the rectangle; {@code false}
+   *     otherwise
+   */
+  public static boolean rectCollidesCircle(
+      float rectX,
+      float rectY,
+      float rectWidth,
+      float rectHeight,
+      Point circlePos,
+      float circleRadius) {
+    // If circle center is inside the rectangle, collision occurs
+    if (rectCollidesPoint(rectX, rectY, rectWidth, rectHeight, circlePos)) return true;
 
+    PointSector sector = getSector(rectX, rectY, rectWidth, rectHeight, circlePos);
 
+    // --- TOP edge (y = rectY + rectHeight) ---
+    if (sector.and(PointSector.TOP) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX, rectY + rectHeight);
+      Point edgeEnd = new Point(rectX + rectWidth, rectY + rectHeight);
+      if (circleCollidesLine(circlePos, circleRadius, edgeStart, edgeEnd)) return true;
+    }
 
-  public static boolean rectCollideCircle(
-    float rX,
-    float rY,
-    float rW,
-    float rH,
-    Point cPosition,
-    float cRadius)
-  {
-    if (rectCollidePoint(rX, rY, rW, rH, cPosition))
-      return true;
-    PointSectors sector = getSector(rX, rY, rW, rH, cPosition);
-    Point lineFrom;
-    Point lineTo;
-    if ((sector.and(PointSectors.TOP)) != PointSectors.CENTER)
-    {
-      lineFrom = new Point(rX, rY);
-      lineTo = new Point(rX + rW, rY);
-      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
-        return true;
+    // --- BOTTOM edge (y = rectY) ---
+    if (sector.and(PointSector.BOTTOM) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX, rectY);
+      Point edgeEnd = new Point(rectX + rectWidth, rectY);
+      if (circleCollidesLine(circlePos, circleRadius, edgeStart, edgeEnd)) return true;
     }
-    if ((sector.and(PointSectors.BOTTOM)) != PointSectors.CENTER)
-    {
-      lineFrom = new Point(rX, rY + rH);
-      lineTo = new Point(rX + rW, rY + rH);
-      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
-        return true;
+
+    // --- LEFT edge (x = rectX) ---
+    if (sector.and(PointSector.LEFT) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX, rectY);
+      Point edgeEnd = new Point(rectX, rectY + rectHeight);
+      if (circleCollidesLine(circlePos, circleRadius, edgeStart, edgeEnd)) return true;
     }
-    if ((sector.and(PointSectors.LEFT)) != PointSectors.CENTER)
-    {
-      lineFrom = new Point(rX, rY);
-      lineTo = new Point(rX, rY + rH);
-      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
-        return true;
+
+    // --- RIGHT edge (x = rectX + rectWidth) ---
+    if (sector.and(PointSector.RIGHT) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX + rectWidth, rectY);
+      Point edgeEnd = new Point(rectX + rectWidth, rectY + rectHeight);
+      if (circleCollidesLine(circlePos, circleRadius, edgeStart, edgeEnd)) return true;
     }
-    if ((sector.and(PointSectors.RIGHT)) != PointSectors.CENTER)
-    {
-      lineFrom = new Point(rX + rW, rY);
-      lineTo = new Point(rX + rW, rY + rH);
-      if (circleCollideLine(cPosition, cRadius, lineFrom, lineTo))
-        return true;
-    }
+
     return false;
   }
 
-  public static boolean rectCollideLine(
-    float rX,
-    float rY,
-    float rW,
-    float rH,
-    Point lineFrom,
-    Point lineTo)
-  {
-    PointSectors sector1 = getSector(rX, rY, rW, rH, lineFrom);
-    PointSectors sector2 = getSector(rX, rY, rW, rH, lineTo);
-    if (sector1 == PointSectors.CENTER || sector2 == PointSectors.CENTER)
-      return true;
-    if ((sector1.and(sector2)) != PointSectors.CENTER)
-      return false;
-    PointSectors pointSectors = sector1.or(sector2);
-    Point vector2;
-    if ((pointSectors.and(PointSectors.TOP)) != PointSectors.CENTER)
-    {
-      Point a1 = new Point(rX, rY);
-      vector2 = new Point(rX + rW, rY);
-      Point a2 = vector2;
-      Point b1 = lineFrom;
-      Point b2 = lineTo;
-      if (lineCheck(a1, a2, b1, b2))
-        return true;
+  /**
+   * Determines whether a line segment intersects or passes through a rectangle.
+   *
+   * <p>A collision is reported if any part of the line lies inside the rectangle or if the line
+   * crosses any of its edges. Lines that are completely outside and on the same side of the
+   * rectangle do not count as collisions.
+   *
+   * @param rectX the X coordinate of the rectangle’s bottom-left corner
+   * @param rectY the Y coordinate of the rectangle’s bottom-left corner
+   * @param rectWidth the width of the rectangle
+   * @param rectHeight the height of the rectangle
+   * @param lineStart the starting point of the line segment
+   * @param lineEnd the ending point of the line segment
+   * @return {@code true} if the line intersects or passes through the rectangle; {@code false}
+   *     otherwise
+   */
+  public static boolean rectCollidesLine(
+      float rectX, float rectY, float rectWidth, float rectHeight, Point lineStart, Point lineEnd) {
+    PointSector startSector = getSector(rectX, rectY, rectWidth, rectHeight, lineStart);
+    PointSector endSector = getSector(rectX, rectY, rectWidth, rectHeight, lineEnd);
+
+    // If either endpoint is inside the rectangle, we have a collision
+    if (startSector == PointSector.CENTER || endSector == PointSector.CENTER) return true;
+
+    // If both points are outside on the same side, no collision
+    if (startSector.and(endSector) != PointSector.CENTER) return false;
+
+    PointSector combinedSectors = startSector.or(endSector);
+
+    // --- TOP edge (y = rectY + rectHeight) ---
+    if (combinedSectors.and(PointSector.TOP) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX, rectY + rectHeight);
+      Point edgeEnd = new Point(rectX + rectWidth, rectY + rectHeight);
+      if (lineCheck(edgeStart, edgeEnd, lineStart, lineEnd)) return true;
     }
-    if ((pointSectors.and(PointSectors.BOTTOM)) != PointSectors.CENTER)
-    {
-      Point a1 = new Point(rX, rY + rH);
-      vector2 = new Point(rX + rW, rY + rH);
-      Point a2 = vector2;
-      Point b1 = lineFrom;
-      Point b2 = lineTo;
-      if (lineCheck(a1, a2, b1, b2))
-        return true;
+
+    // --- BOTTOM edge (y = rectY) ---
+    if (combinedSectors.and(PointSector.BOTTOM) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX, rectY);
+      Point edgeEnd = new Point(rectX + rectWidth, rectY);
+      if (lineCheck(edgeStart, edgeEnd, lineStart, lineEnd)) return true;
     }
-    if ((pointSectors.and(PointSectors.LEFT)) != PointSectors.CENTER)
-    {
-      Point a1 = new Point(rX, rY);
-      vector2 = new Point(rX, rY + rH);
-      Point a2 = vector2;
-      Point b1 = lineFrom;
-      Point b2 = lineTo;
-      if (lineCheck(a1, a2, b1, b2))
-        return true;
+
+    // --- LEFT edge (x = rectX) ---
+    if (combinedSectors.and(PointSector.LEFT) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX, rectY);
+      Point edgeEnd = new Point(rectX, rectY + rectHeight);
+      if (lineCheck(edgeStart, edgeEnd, lineStart, lineEnd)) return true;
     }
-    if ((pointSectors.and(PointSectors.RIGHT)) != PointSectors.CENTER)
-    {
-      Point a1 = new Point(rX + rW, rY);
-      vector2 = new Point(rX + rW, rY + rH);
-      Point a2 = vector2;
-      Point b1 = lineFrom;
-      Point b2 = lineTo;
-      if (lineCheck(a1, a2, b1, b2))
-        return true;
+
+    // --- RIGHT edge (x = rectX + rectWidth) ---
+    if (combinedSectors.and(PointSector.RIGHT) != PointSector.CENTER) {
+      Point edgeStart = new Point(rectX + rectWidth, rectY);
+      Point edgeEnd = new Point(rectX + rectWidth, rectY + rectHeight);
+      if (lineCheck(edgeStart, edgeEnd, lineStart, lineEnd)) return true;
     }
+
     return false;
   }
 
-
-  public static boolean lineCheck(Point a1, Point a2, Point b1, Point b2) {
+  /**
+   * Determines whether two line segments intersect.
+   *
+   * <p>The method treats each line as a finite segment defined by its start and end points: {@code
+   * a1 → a2} and {@code b1 → b2}. It checks if these two segments cross at any point.
+   *
+   * @param a1 the starting point of the first line segment
+   * @param a2 the ending point of the first line segment
+   * @param b1 the starting point of the second line segment
+   * @param b2 the ending point of the second line segment
+   * @return {@code true} if the line segments intersect at any point within their finite bounds;
+   *     {@code false} otherwise (parallel, disjoint, or only meeting outside segment ranges)
+   */
+  private static boolean lineCheck(Point a1, Point a2, Point b1, Point b2) {
     Vector2 line1 = a1.vectorTo(a2);
     Vector2 line2 = b1.vectorTo(b2);
 
     float determinant = line1.x() * line2.y() - line1.y() * line2.x();
-    if (determinant == 0.0f)
-      return false; // Lines are parallel (no intersection)
+    if (determinant == 0.0f) return false; // Lines are parallel (no intersection)
 
     Vector2 aToB = a1.vectorTo(b1);
 
     // Parametric position along line1 (0..1 means intersection within the segment)
     float t = (aToB.x() * line2.y() - aToB.y() * line2.x()) / determinant;
-    if (t < 0.0f || t > 1.0f)
-      return false;
+    if (t < 0.0f || t > 1.0f) return false;
 
     // Parametric position along line2 (0..1 means intersection within the segment)
     float u = (aToB.x() * line1.y() - aToB.y() * line1.x()) / determinant;
     return u >= 0.0f && u <= 1.0f;
   }
 
+  // ===== PointSector =====
+  /**
+   * Determines which region (sector) a point lies in relative to a rectangle.
+   *
+   * <p>The method returns a {@link PointSector} that describes whether the point lies inside the
+   * rectangle ( {@link PointSector#CENTER} ), strictly to one of the four cardinal sides ({@link
+   * PointSector#LEFT}, {@link PointSector#RIGHT}, {@link PointSector#TOP}, {@link
+   * PointSector#BOTTOM}), or in one of the four diagonal corner regions (e.g. {@link
+   * PointSector#TOP_LEFT}).
+   *
+   * <p>Important boundary semantics:
+   *
+   * <ul>
+   *   <li>The rectangle is treated as a half-open region along both axes: {@code [rectX, rectX +
+   *       rectWidth) × [rectY, rectY + rectHeight)}.
+   *   <li>Points with {@code x == rectX} or {@code y == rectY} are considered inside
+   *       horizontally/vertically (i.e. not LEFT/BOTTOM).
+   *   <li>Points with {@code x == rectX + rectWidth} or {@code y == rectY + rectHeight} are
+   *       considered outside on the RIGHT/TOP side respectively (those flags are set).
+   * </ul>
+   *
+   * <p>Implementation note: the method composes a small bitmask from horizontal and vertical
+   * comparisons and converts that mask to a {@link PointSector} constant.
+   *
+   * @param rectX X coordinate of the rectangle's bottom-left corner
+   * @param rectY Y coordinate of the rectangle's bottom-left corner
+   * @param rectWidth rectangle width (non-negative)
+   * @param rectHeight rectangle height (non-negative)
+   * @param point the point to classify
+   * @return the {@link PointSector} describing the point's region relative to the rectangle
+   */
+  private static PointSector getSector(
+      float rectX, float rectY, float rectWidth, float rectHeight, Point point) {
+    int sectorValue = PointSector.CENTER.value();
 
-  // ===== PointSectors =====
-  private static PointSectors getSector(float rX, float rY, float rW, float rH, Point point) {
-    int sectorValue = PointSectors.CENTER.value();
+    // Horizontal check
+    if (point.x() < rectX) sectorValue |= PointSector.LEFT.value();
+    else if (point.x() >= rectX + rectWidth) sectorValue |= PointSector.RIGHT.value();
 
-    if (point.x() < rX)
-      sectorValue |= PointSectors.LEFT.value();
-    else if (point.x() >= rX + rW)
-      sectorValue |= PointSectors.RIGHT.value();
+    // Vertical check
+    if (point.y() < rectY) sectorValue |= PointSector.BOTTOM.value();
+    else if (point.y() >= rectY + rectHeight) sectorValue |= PointSector.TOP.value();
 
-    if (point.y() < rY)
-      sectorValue |= PointSectors.TOP.value();
-    else if (point.y() >= rY + rH)
-      sectorValue |= PointSectors.BOTTOM.value();
-
-    return PointSectors.fromValue(sectorValue);
+    return PointSector.fromValue(sectorValue);
   }
 
-  private enum PointSectors {
+  /**
+   * Represents the relative sector of a point in relation to a rectangle.
+   *
+   * <p>Each constant corresponds to a position either inside, along an edge, or diagonally outside
+   * a rectangle. The enum uses bitmask values so that combinations can be represented and resolved
+   * programmatically.
+   *
+   * <p>The bit values are combined as follows:
+   *
+   * <ul>
+   *   <li>{@code TOP = 1}
+   *   <li>{@code BOTTOM = 2}
+   *   <li>{@code RIGHT = 4}
+   *   <li>{@code LEFT = 8}
+   * </ul>
+   *
+   * <p>These can be ORed together to produce compound sectors, for example:
+   *
+   * <ul>
+   *   <li>{@code TOP_LEFT = TOP | LEFT}
+   *   <li>{@code BOTTOM_RIGHT = BOTTOM | RIGHT}
+   * </ul>
+   */
+  private enum PointSector {
     CENTER(0),
     TOP(1),
     BOTTOM(2),
     LEFT(8),
     RIGHT(4),
-    TOP_LEFT(9),      // LEFT | TOP
-    TOP_RIGHT(5),     // RIGHT | TOP
-    BOTTOM_LEFT(10),  // LEFT | BOTTOM
-    BOTTOM_RIGHT(6);  // RIGHT | BOTTOM
+    TOP_LEFT(9), // LEFT | TOP
+    TOP_RIGHT(5), // RIGHT | TOP
+    BOTTOM_LEFT(10), // LEFT | BOTTOM
+    BOTTOM_RIGHT(6); // RIGHT | BOTTOM
 
     private final int value;
 
-    PointSectors(int value) {
+    PointSector(int value) {
       this.value = value;
     }
 
@@ -392,16 +442,16 @@ public class CollisionUtils {
       return value;
     }
 
-    public PointSectors and(PointSectors other) {
+    public PointSector and(PointSector other) {
       return fromValue(this.value & other.value);
     }
 
-    public PointSectors or(PointSectors other) {
+    public PointSector or(PointSector other) {
       return fromValue(this.value | other.value);
     }
 
-    public static PointSectors fromValue(int value) {
-      for (PointSectors ps : values()) {
+    public static PointSector fromValue(int value) {
+      for (PointSector ps : values()) {
         if (ps.value == value) {
           return ps;
         }
