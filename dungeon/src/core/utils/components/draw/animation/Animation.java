@@ -302,6 +302,10 @@ public class Animation implements Cloneable {
     return getSprite();
   }
 
+  public long getSpriteLength() {
+    return sprites.length;
+  }
+
   /**
    * Get the current frame counter.
    *
