@@ -149,7 +149,7 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/wall_right");
     } else if (isInnerTopWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_inner_top");
-    } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
+    } else if (isOuterBottomWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/bottom");
     } else if (isOuterTopWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_outer_top");
@@ -491,7 +491,7 @@ public class TileTextureFactory {
    * @param layout The level
    * @return true if all conditions are met
    */
-  public static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
+  public static boolean isOuterBottomWall(Coordinate p, LevelElement[][] layout) {
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsWall(p, layout) || rightIsDoor(p, layout))
         && !belowIsInside(p, layout)
