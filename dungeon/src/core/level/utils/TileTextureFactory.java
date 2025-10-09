@@ -145,12 +145,14 @@ public class TileTextureFactory {
   }
 
   private static IPath findTexturePathWall(LevelPart levelPart) {
-    if (isBottomWall(levelPart.position(), levelPart.layout())) {
+    if (isInnerVerticalWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/wall_right");
+    } else if (isInnerTopWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/wall_inner_top");
+    } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/bottom");
     } else if (isTopWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_top");
-    } else if (isInnerVerticalWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_right");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/left");
     } else if (isRightWall(levelPart.position(), levelPart.layout())) {
@@ -468,6 +470,14 @@ public class TileTextureFactory {
   public static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && !aboveIsInside(p, layout)
+        && belowIsInside(p, layout);
+  }
+
+  private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
+    return (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && aboveIsInside(p, layout)
         && belowIsInside(p, layout);
   }
 
