@@ -64,7 +64,6 @@ public final class LightBridgeFactory {
     public boolean isActive() { return active; }
     public void activate() { if (!active) { doActivate(); } }
     public void deactivate() { if (active) { doDeactivate(); } }
-    public void toggle() { if (active) deactivate(); else activate(); }
     private void doActivate() {
       if (ACTIVE_SEGMENTS.containsKey(owner)) return; // legacy guard
       owner.fetch(PositionComponent.class).ifPresent(pc -> {
@@ -96,6 +95,23 @@ public final class LightBridgeFactory {
       dc.depth(DepthLayer.Level.depth());
       owner.add(dc);
       owner.name(on ? "lightBridgeEmitter" : "lightBridgeEmitterInactive");
+
+      // Preserve the rotation from the PositionComponent
+      owner.fetch(PositionComponent.class).ifPresent(pc -> {
+        Direction dir = pc.viewDirection();
+        float rotation;
+
+        // Handle rotation differently based on direction
+        // For LEFT/RIGHT, we need to add 180 degrees to flip the direction
+        // For UP/DOWN, we need to use the original rotation values
+        if (dir == Direction.LEFT || dir == Direction.RIGHT) {
+          rotation = rotationFor(dir) + 180f;
+        } else {
+          rotation = rotationFor(dir);
+        }
+
+        pc.rotation(rotation);
+      });
     }
   }
 
@@ -160,7 +176,8 @@ public final class LightBridgeFactory {
       boolean isPit = (el == LevelElement.HOLE || el == LevelElement.PIT);
       boolean passable = el.value() || isPit;
       if (!passable) break;
-      Entity seg = buildSegment(current);
+      // Die Richtung 'dir' wird nun an buildSegment übergeben
+      Entity seg = buildSegment(current, dir);
       segments.add(seg);
       if (isPit && tile instanceof PitTile pit) closePitIfNeeded(pit);
       current = current.translate(dir);
@@ -168,32 +185,80 @@ public final class LightBridgeFactory {
     return segments;
   }
 
-  private static final int BRIDGE_SEGMENT_TINT = 0xFFFFFF88; // halbtransparentes Weiß
-
-  private static Entity buildSegment(Point p) {
+  private static Entity buildSegment(Point p, Direction dir) {
     Entity e = new Entity("lightBridgeSegment");
-    // Position unverändert (kein künstlicher Y-Offset mehr)
-    e.add(new PositionComponent(p));
-    DrawComponent dc = buildSegmentDrawComponent();
-    dc.depth(DepthLayer.Ground.depth() - 1);
-    dc.tintColor(BRIDGE_SEGMENT_TINT);
+    PositionComponent pc = new PositionComponent(p);
+    pc.rotation(rotationFor(dir));
+    e.add(pc);
+    // Die Richtung 'dir' wird an buildSegmentDrawComponent übergeben
+    DrawComponent dc = buildSegmentDrawComponent(dir);
+    dc.depth(DepthLayer.Ground.depth());
     e.add(dc);
     e.add(new BridgeSurfaceComponent());
     return e;
   }
 
-  private static DrawComponent buildSegmentDrawComponent() {
+  private static DrawComponent buildSegmentDrawComponent(Direction dir) {
+    // Die Logik wird nur einmal ausgeführt, um die Animationen zu laden.
     if (SEGMENT_STATES == null) {
       Map<String, core.utils.components.draw.animation.Animation> map =
-          core.utils.components.draw.animation.Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
+        core.utils.components.draw.animation.Animation.loadAnimationSpritesheet(
+          SEGMENT_SPRITESHEET_PATH);
       SEGMENT_STATES = new ArrayList<>();
       for (var entry : map.entrySet()) {
-        SEGMENT_STATES.add(new core.utils.components.draw.state.State(entry.getKey(), entry.getValue()));
+        SEGMENT_STATES.add(
+          new core.utils.components.draw.state.State(entry.getKey(), entry.getValue()));
       }
-      if (SEGMENT_STATES.isEmpty()) throw new IllegalStateException("Spritesheet light_bridge_sprite leer.");
+      if (SEGMENT_STATES.isEmpty())
+        throw new IllegalStateException("Spritesheet light_bridge_sprite leer.");
       DEFAULT_SEGMENT_STATE = SEGMENT_STATES.get(0);
     }
-    var sm = new core.utils.components.draw.state.StateMachine(SEGMENT_STATES, DEFAULT_SEGMENT_STATE);
+
+    // Create a new list of states with new Animation instances to avoid shared animation state
+    List<core.utils.components.draw.state.State> newStates = new ArrayList<>();
+    for (core.utils.components.draw.state.State originalState : SEGMENT_STATES) {
+      // Create a new Animation with a modified configuration for faster animation
+      core.utils.components.draw.animation.Animation originalAnim = originalState.getAnimation();
+      // Get the original config and create a new one with reduced framesPerSprite
+      core.utils.components.draw.animation.AnimationConfig originalConfig = originalAnim.getConfig();
+      core.utils.components.draw.animation.AnimationConfig newConfig = new core.utils.components.draw.animation.AnimationConfig();
+      // Copy all settings but reduce framesPerSprite to make animation faster
+      if (originalConfig.config().isPresent()) {
+        newConfig.config(originalConfig.config().get());
+      }
+      newConfig.scaleX(originalConfig.scaleX())
+               .scaleY(originalConfig.scaleY())
+               .isLooping(originalConfig.isLooping())
+               .centered(originalConfig.centered())
+               // Reduce framesPerSprite to make animation faster (divide by 2)
+               .framesPerSprite(4);
+
+      core.utils.components.draw.animation.Animation newAnim =
+        new core.utils.components.draw.animation.Animation(
+          SEGMENT_SPRITESHEET_PATH,
+          newConfig);
+
+      // Create a new State with the new Animation
+      newStates.add(new core.utils.components.draw.state.State(originalState.name, newAnim));
+    }
+
+    // Find the appropriate state for this direction
+    core.utils.components.draw.state.State activeState = null;
+    String stateName = (dir == Direction.LEFT || dir == Direction.RIGHT) ? "horizontal" : "vertical";
+
+    for (core.utils.components.draw.state.State s : newStates) {
+      if (s.name.toLowerCase().contains(stateName)) {
+        activeState = s;
+        break;
+      }
+    }
+
+    // If no matching state was found, use the first state
+    if (activeState == null && !newStates.isEmpty()) {
+      activeState = newStates.get(0);
+    }
+
+    var sm = new core.utils.components.draw.state.StateMachine(newStates, activeState);
     return new DrawComponent(sm);
   }
 
