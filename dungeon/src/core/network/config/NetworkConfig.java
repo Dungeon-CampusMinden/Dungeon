@@ -1,10 +1,12 @@
 package core.network.config;
 
 public final class NetworkConfig {
+
   private NetworkConfig() {}
 
-  // Max size of serialized payload for TCP (1 MiB)
-  public static final int MAX_TCP_OBJECT_SIZE = 1 << 20;
+  // Max size of serialized payload
+  public static final int MAX_TCP_OBJECT_SIZE = 1 << 20; // 1 MiB
+  public static final int MAX_UDP_OBJECT_SIZE = 1 << 15; // 32 KiB
 
   // Conservative UDP MTU to avoid fragmentation
   public static final int SAFE_UDP_MTU = 1400;

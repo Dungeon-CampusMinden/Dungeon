@@ -3,12 +3,17 @@ package core.network.server;
 import core.game.PreRunConfiguration;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class ServerRuntime {
   private static final Logger LOGGER = LoggerFactory.getLogger(ServerRuntime.class);
+  private static final Random RANDOM = new Random();
+
+  /** The unique session ID for this server instance, randomly generated on startup. */
+  public static final int SESSION_ID = RANDOM.nextInt();
 
   private final int port;
   private final SnapshotTranslator translator;
@@ -43,7 +48,7 @@ public final class ServerRuntime {
   }
 
   public CompletableFuture<Boolean> sendMessage(
-      int clientId, NetworkMessage message, boolean reliable) {
+      short clientId, NetworkMessage message, boolean reliable) {
     if (loop != null) {
       Session session = transport.clientIdToSessionMap().get(clientId);
       if (session == null) {

@@ -9,25 +9,25 @@ import org.slf4j.LoggerFactory;
 /**
  * Client→server: Player input (e.g., movement, skill use, interaction).
  *
+ * @param sessionId the session ID of the client sending the input
  * @param clientTick the client tick when the input was generated
  * @param sequence the sequence number of this input message (monotonically increasing per client)
  * @param action the action (e.g., move, move path, cast skill, interact)
  * @param point the point (e.g., move path, cast skill, interact) Can be null depending on action
- * @param clientId the client ID (set by server upon receipt)
  */
 public record InputMessage(
+    // HEADER
+    int sessionId,
     int clientTick,
-    int sequence,
+    short sequence,
+    // PAYLOAD
     Action action,
-    Point point, // Optional, depending on action
-    long clientTimeMs, // Optional, only needed for latency calculation
-    // Server fields:
-    int clientId // Set by server upon receipt
+    Point point // Optional, depending on action
     ) implements NetworkMessage {
   @Serial private static final long serialVersionUID = 1L;
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InputMessage.class);
 
-  private static int currentSequence = 0;
+  private static short currentSequence = 0;
 
   /**
    * Create a new InputMessage with an auto-generated client tick and sequence number.
@@ -43,21 +43,20 @@ public record InputMessage(
    */
   public InputMessage(Action action, Point point) {
     this(
+        Game.network().session().sessionId(),
         Game.currentTick(),
         incrementAndGetSequence(),
         action,
-        point,
-        System.currentTimeMillis(),
-        0);
+        point);
   }
 
   /**
-   * Increment and return the current sequence number. Wraps around at Integer.MAX_VALUE.
+   * Increment and return the current sequence number. Wraps around at Short.MAX_VALUE.
    *
    * @return the incremented sequence number
    */
-  private static int incrementAndGetSequence() {
-    currentSequence = (currentSequence + 1) % Integer.MAX_VALUE;
+  private static short incrementAndGetSequence() {
+    currentSequence = (short) ((currentSequence + 1) % Short.MAX_VALUE);
     return currentSequence;
   }
 

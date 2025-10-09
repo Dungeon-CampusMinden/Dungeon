@@ -10,4 +10,4 @@ import core.network.messages.NetworkMessage;
  *
  * @param clientId the client id assigned by server in ConnectAck
  */
-public record RegisterUdp(int clientId) implements NetworkMessage {}
+public record RegisterUdp(short clientId) implements NetworkMessage {}

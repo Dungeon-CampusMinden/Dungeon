@@ -26,7 +26,7 @@ public class SlowNettyNetworkHandler extends NettyNetworkHandler {
           });
 
   @Override
-  public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
+  public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {
     CompletableFuture<Boolean> future = new CompletableFuture<>();
     scheduler.schedule(
         () -> {
