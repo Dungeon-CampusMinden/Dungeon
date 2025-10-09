@@ -26,7 +26,6 @@ import core.systems.*;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.*;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public final class AuthoritativeServerLoop {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
-  private static final boolean DEBUG_MODE = false;
+  private static final boolean PRINT_RTT = false; // to debug latency issues
 
   private final ServerTransport net;
   private final SnapshotTranslator translator;
@@ -74,7 +73,7 @@ public final class AuthoritativeServerLoop {
     executor.scheduleAtFixedRate(
         this::sendSnapshot, snapshotPeriodMs, snapshotPeriodMs, TimeUnit.MILLISECONDS);
 
-    if (DEBUG_MODE) {
+    if (PRINT_RTT) {
       executor.scheduleAtFixedRate(
           () -> {
             for (ClientState state : net.connectedClients()) {
@@ -124,7 +123,7 @@ public final class AuthoritativeServerLoop {
       //noinspection NonAtomicOperationOnVolatileField only place where serverTick is modified
       serverTick++;
       syncClientsToEntities();
-      drainAndApplyInputs(net.inputQueue(), serverTick);
+      drainAndApplyInputs(net.inputQueue());
       ECSManagment.runOneFrame();
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
@@ -141,53 +140,23 @@ public final class AuthoritativeServerLoop {
    * deterministic application.
    *
    * @param queue The concurrent input queue (global or per-client).
-   * @param currentTick The current server tick number for correlation.
    */
-  private void drainAndApplyInputs(Queue<InputMessage> queue, int currentTick) {
-    InputMessage msg;
-    while ((msg = queue.poll()) != null) {
-      int id = msg.clientId();
-      Optional<ClientState> optionalState =
-          Optional.ofNullable(net.clientIdToSessionMap().get(id)).flatMap(Session::clientState);
-      ClientState state = optionalState.orElse(null);
-      if (state == null) {
-        LOGGER.warn("No client state for input from unknown client {}", id);
-        continue;
-      }
+  private void drainAndApplyInputs(Queue<Tuple<ClientState, InputMessage>> queue) {
+    Tuple<ClientState, InputMessage> tuple;
+    while ((tuple = queue.poll()) != null) {
+      ClientState clientState = tuple.a();
+      InputMessage msg = tuple.b();
 
-      // Check sequence plausibility (discard stale/duplicates)
-      int msgSeq = msg.sequence();
-      if (!state.isSeqPlausible(msgSeq)) {
-        LOGGER.debug(
-            "Discarded implausible seq {} for client {} (lastProcessed: {})",
-            msgSeq,
-            id,
-            state.lastProcessedSeq());
-        state.updateLastActivity(); // Still count as activity for timeout
-        continue;
-      }
-
-      // Handle sequence gap if present (e.g., interpolate neutrals for missing seqs)
-      if (msgSeq > state.expectedSeq()) {
-        int gap = state.handleSeqGap(msgSeq);
-        if (gap > 0) {
-          LOGGER.debug("Handling seq gap of {} for client {} at tick {}", gap, id, currentTick);
-        }
-      }
-
-      // Update RTT estimate if clientTimeMs is provided
-      long msgClientTick = msg.clientTimeMs();
-      if (msgClientTick > 0) {
-        state.updateRttEstimate(msgClientTick, 0.1f); // Alpha=0.1 for smoothing
-      }
+      // TODO: Reconcile inputs based on clientTick vs serverTick and RTT
 
       // Get hero entity
-      Entity entity = state.heroEntity().orElse(null);
+      Entity entity = clientState.heroEntity().orElse(null);
       if (entity == null) {
-        LOGGER.warn("No hero entity for client {} (seq: {})", id, msgSeq);
+        LOGGER.warn("No hero entity for client {}", clientState);
         continue;
       }
-      // Apply input based on action
+
+      // Apply input
       try {
         switch (msg.action()) {
           case MOVE -> HeroController.moveHero(entity, Vector2.of(msg.point()).direction());
@@ -196,16 +165,14 @@ public final class AuthoritativeServerLoop {
           case NEXT_SKILL -> HeroController.changeSkill(entity, true);
           case PREV_SKILL -> HeroController.changeSkill(entity, false);
           case INTERACT -> HeroController.interact(entity, msg.point());
-          default ->
-              LOGGER.warn("Unknown action {} for client {} (seq: {})", msg.action(), id, msgSeq);
+          default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
         }
         // On success: Update processed seq and activity
-        state.updateProcessedSeq(msgSeq);
-        state.updateLastActivity();
-        LOGGER.trace("Applied input seq {} for client {} (action: {})", msgSeq, id, msg.action());
+        clientState.updateProcessedSeq(msg.sequence());
+        clientState.updateLastActivity();
+        LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
       } catch (Exception e) {
-        LOGGER.error("Failed to apply input seq {} for client {}: {}", msgSeq, id, e.getMessage());
-        // Do not update seq on failure (retry possible)
+        LOGGER.error("Failed to apply input for client {}: {}", clientState, e.getMessage());
       }
     }
   }

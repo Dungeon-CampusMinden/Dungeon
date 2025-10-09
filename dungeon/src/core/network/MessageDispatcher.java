@@ -1,7 +1,7 @@
 package core.network;
 
 import core.network.messages.NetworkMessage;
-import io.netty.channel.ChannelHandlerContext;
+import core.network.server.Session;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -17,8 +17,8 @@ public final class MessageDispatcher {
   private static final Logger LOGGER = Logger.getLogger(MessageDispatcher.class.getName());
 
   // A thread-safe map to store handlers for each message type.
-  private final Map<Class<? extends NetworkMessage>, BiConsumer<ChannelHandlerContext, ?>>
-      typedHandlers = new ConcurrentHashMap<>();
+  private final Map<Class<? extends NetworkMessage>, BiConsumer<Session, ?>> typedHandlers =
+      new ConcurrentHashMap<>();
 
   /**
    * Registers a handler for a specific message type. If a handler is already registered for the
@@ -29,7 +29,7 @@ public final class MessageDispatcher {
    * @param handler The handler to process messages of the given type.
    */
   public <T extends NetworkMessage> void registerHandler(
-      Class<T> messageType, BiConsumer<ChannelHandlerContext, ? super T> handler) {
+      Class<T> messageType, BiConsumer<Session, ? super T> handler) {
     if (messageType == null || handler == null) {
       LOGGER.warning("Attempted to register a null messageType or handler.");
       return;
@@ -48,9 +48,9 @@ public final class MessageDispatcher {
    * @return true if the handler was successfully unregistered, false otherwise.
    */
   public <T extends NetworkMessage> boolean unregisterHandler(
-      Class<T> messageType, BiConsumer<ChannelHandlerContext, ? super T> handler) {
+      Class<T> messageType, BiConsumer<Session, ? super T> handler) {
     if (messageType == null || handler == null) return false;
-    BiConsumer<ChannelHandlerContext, ?> existing = typedHandlers.get(messageType);
+    BiConsumer<Session, ?> existing = typedHandlers.get(messageType);
     if (existing != null && existing.equals(handler)) {
       typedHandlers.remove(messageType);
       LOGGER.fine("Unregistered handler for message type: " + messageType.getSimpleName());
@@ -63,21 +63,21 @@ public final class MessageDispatcher {
    * Dispatches a message to the appropriate handler based on its type. If no handler is registered
    * for the message type, a log entry is created.
    *
+   * @param session The session from which the message was received.
    * @param message The message to be dispatched.
    */
-  public void dispatch(ChannelHandlerContext ctx, NetworkMessage message) {
+  public void dispatch(Session session, NetworkMessage message) {
     if (message == null) {
       LOGGER.warning("Attempted to dispatch a null message.");
       return;
     }
 
-    BiConsumer<ChannelHandlerContext, ?> handler = typedHandlers.get(message.getClass());
+    BiConsumer<Session, ?> handler = typedHandlers.get(message.getClass());
     if (handler != null) {
       try {
         @SuppressWarnings("unchecked")
-        BiConsumer<ChannelHandlerContext, Object> c =
-            (BiConsumer<ChannelHandlerContext, Object>) handler;
-        c.accept(ctx, message);
+        BiConsumer<Session, Object> c = (BiConsumer<Session, Object>) handler;
+        c.accept(session, message);
       } catch (Exception e) {
         LOGGER.log(
             Level.SEVERE,

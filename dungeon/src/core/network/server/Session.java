@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ public final class Session {
   private volatile ClientState clientState;
 
   private final BiFunction<InetSocketAddress, Object, CompletableFuture<Boolean>> udpSender;
-  private final Function<Object, CompletableFuture<Boolean>> tcpSender;
+  private final BiFunction<ChannelHandlerContext, Object, CompletableFuture<Boolean>> tcpSender;
 
   public Session(ChannelHandlerContext tcpCtx) {
     this(tcpCtx, null, null);
@@ -35,18 +34,18 @@ public final class Session {
   public Session(
       ChannelHandlerContext tcpCtx,
       BiFunction<InetSocketAddress, Object, CompletableFuture<Boolean>> udpSender,
-      Function<Object, CompletableFuture<Boolean>> tcpSender) {
-    this.tcpCtx = Objects.requireNonNull(tcpCtx);
+      BiFunction<ChannelHandlerContext, Object, CompletableFuture<Boolean>> tcpSender) {
+    this.tcpCtx = tcpCtx;
     this.udpSender = udpSender;
     this.tcpSender = tcpSender;
   }
 
-  public int clientId() {
-    return clientState().map(ClientState::clientId).orElse(0);
+  public short clientId() {
+    return clientState().map(ClientState::clientId).orElse((short) 0);
   }
 
-  public long sessionId() {
-    return clientState().map(ClientState::sessionId).orElse(0L);
+  public int sessionId() {
+    return clientState().map(ClientState::sessionId).orElse(0);
   }
 
   public byte[] sessionToken() {
@@ -99,8 +98,8 @@ public final class Session {
   }
 
   private CompletableFuture<Boolean> sendTcpObject(NetworkMessage msg) {
-    if (tcpSender == null) return CompletableFuture.completedFuture(false);
-    return tcpSender.apply(msg);
+    if (tcpCtx == null || tcpSender == null) return CompletableFuture.completedFuture(false);
+    return tcpSender.apply(tcpCtx, msg);
   }
 
   private CompletableFuture<Boolean> sendUdpObject(NetworkMessage msg) {

@@ -14,8 +14,8 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
+import core.network.server.Session;
 import core.utils.Vector2;
-import io.netty.channel.ChannelHandlerContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,8 @@ public class LocalNetworkHandler implements INetworkHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkHandler.class);
 
   private final MessageDispatcher dispatcher = new MessageDispatcher();
-  private BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer;
+  private final Session dummySession = new Session(null);
+  private BiConsumer<Session, NetworkMessage> rawMessageConsumer;
   private boolean isRunning = false;
   private boolean isInitialized = false;
   private final List<ConnectionListener> connectionListeners = new ArrayList<>();
@@ -47,7 +48,7 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public CompletableFuture<Boolean> send(int clientId, NetworkMessage message, boolean reliable) {
+  public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {
     // No op
     return CompletableFuture.completedFuture(true);
   }
@@ -108,8 +109,7 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void _setRawMessageConsumer(
-      BiConsumer<ChannelHandlerContext, NetworkMessage> rawMessageConsumer) {
+  public void setMessageConsumer(BiConsumer<Session, NetworkMessage> rawMessageConsumer) {
     this.rawMessageConsumer = rawMessageConsumer;
   }
 
@@ -145,6 +145,11 @@ public class LocalNetworkHandler implements INetworkHandler {
   public synchronized void removeConnectionListener(ConnectionListener listener) {
     if (listener == null) return;
     connectionListeners.remove(listener);
+  }
+
+  @Override
+  public Session session() {
+    return dummySession;
   }
 
   private void notifyConnected() {

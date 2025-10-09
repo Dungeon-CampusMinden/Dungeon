@@ -1,6 +1,7 @@
 package core.network.server;
 
 import core.Entity;
+import core.Game;
 import core.network.config.NetworkConfig;
 import core.network.messages.c2s.InputMessage;
 import java.util.Arrays;
@@ -18,13 +19,13 @@ import java.util.Optional;
 public class ClientState {
 
   /** Unique client identifier assigned during handshake. */
-  private final int clientId;
+  private final short clientId;
 
   /** Unique client username assigned during handshake. */
   private final String username;
 
   /** Session identifier for the current connection (changes on reconnect with new session). */
-  private long sessionId;
+  private int sessionId;
 
   /**
    * Session token for validation during reconnect (random bytes). Used to confirm identity in
@@ -79,7 +80,7 @@ public class ClientState {
    * @param sessionToken A random token for reconnect validation.
    * @throws IllegalArgumentException If clientId < 0 or username is invalid.
    */
-  public ClientState(int clientId, String username, long sessionId, byte[] sessionToken) {
+  public ClientState(short clientId, String username, int sessionId, byte[] sessionToken) {
     if (clientId < 0) {
       throw new IllegalArgumentException("clientId must be non-negative");
     }
@@ -90,7 +91,7 @@ public class ClientState {
     this.clientId = clientId;
     this.username = username;
     this.sessionId = sessionId;
-    this.sessionToken = sessionToken.clone(); // Defensive copy
+    this.sessionToken = sessionToken.clone();
     this.lastActivityTimeMs = System.currentTimeMillis();
   }
 
@@ -103,7 +104,7 @@ public class ClientState {
    * @param preserveHero If true, keeps the existing heroEntityId.
    */
   public synchronized void resetForReconnect(
-      long newSessionId, byte[] newSessionToken, boolean preserveHero) {
+      int newSessionId, byte[] newSessionToken, boolean preserveHero) {
     if (newSessionId == 0L) {
       throw new IllegalArgumentException("newSessionId must be non-zero");
     }
@@ -117,6 +118,7 @@ public class ClientState {
     this.expectedSeq = 0;
     this.lastClientTick = 0;
     if (!preserveHero) {
+      Game.remove(this.heroEntity);
       this.heroEntity = null;
     }
     this.lastActivityTimeMs = System.currentTimeMillis();
@@ -200,7 +202,7 @@ public class ClientState {
    *
    * @return The client ID (never negative).
    */
-  public int clientId() {
+  public short clientId() {
     return clientId;
   }
 
@@ -218,7 +220,7 @@ public class ClientState {
    *
    * @return The session ID (never 0).
    */
-  public long sessionId() {
+  public int sessionId() {
     return sessionId;
   }
 
