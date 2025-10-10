@@ -48,8 +48,7 @@ public class PitSystem extends System {
         .filter(entity -> !entity.isPresent(FlyComponent.class))
         .forEach(
             entity -> {
-              PositionComponent positionComponent = getPositionComponent(entity);
-              Tile currentTile = tileAtCenter(entity, positionComponent);
+              Tile currentTile = tileAtCenter(entity);
 
               if (currentTile instanceof PitTile pitTile) {
                 // camera focus point entity should not trigger pit
@@ -102,13 +101,12 @@ public class PitSystem extends System {
     return java.lang.System.currentTimeMillis() - stepOnTime > timeToOpen;
   }
 
-  private Tile tileAtCenter(Entity entity, PositionComponent pc) {
-    Point pos = pc.position();
+  private Tile tileAtCenter(Entity entity) {
     CollideComponent cc =
         entity
             .fetch(CollideComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
-    Point center = cc.center(entity);
+    Point center = cc.collider().absoluteCenter();
     return Game.tileAt(center).orElse(null);
   }
 }

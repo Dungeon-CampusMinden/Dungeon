@@ -108,8 +108,8 @@ public class DebugDrawSystem extends System {
             .fetch(CollideComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
 
-    Point bottomLeft = cc.bottomLeft(entity);
-    Point topRight = cc.topRight(entity);
+    Point bottomLeft = cc.collider().absoluteBottomLeft();
+    Point topRight = cc.collider().absoluteTopRight();
 
     float width = topRight.x() - bottomLeft.x();
     float height = topRight.y() - bottomLeft.y();

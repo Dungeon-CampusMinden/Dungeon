@@ -27,6 +27,7 @@ public class CollisionSystemTest {
       "PositionComponent did get removed Test no longer valid";
 
   private CollisionSystem cs;
+  private PositionSyncSystem pss;
 
   /**
    * Helper to clean up used Class Attributes to avoid interfering with other tests.
@@ -46,6 +47,8 @@ public class CollisionSystemTest {
   public void prepareEnvironment() {
     cs = new CollisionSystem();
     Game.add(cs);
+    pss = new PositionSyncSystem();
+    Game.add(pss);
   }
 
   /**
@@ -89,8 +92,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -120,8 +126,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.RIGHT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -148,8 +157,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -179,8 +191,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.LEFT, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -206,8 +221,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -234,8 +252,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.UP, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.UP, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -261,8 +282,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertTrue(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -289,8 +313,11 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertFalse(cs.checkForCollision(e1, hb1, e2, hb2));
-    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(e1, hb1, e2, hb2));
+
+    cs.execute();
+
+    assertFalse(cs.checkForCollision(hb1, hb2));
+    assertEquals(Direction.DOWN, cs.checkDirectionOfCollision(hb1.collider(), hb2.collider()));
     cleanUpEnvironment();
   }
 
@@ -315,7 +342,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(hb1, hb2));
     cleanUpEnvironment();
   }
 
@@ -340,7 +367,7 @@ public class CollisionSystemTest {
     e2.add(hb2);
     Game.add(e1);
     Game.add(e2);
-    assertTrue(cs.checkForCollision(e1, hb1, e2, hb2));
+    assertTrue(cs.checkForCollision(hb1, hb2));
     cleanUpEnvironment();
   }
 

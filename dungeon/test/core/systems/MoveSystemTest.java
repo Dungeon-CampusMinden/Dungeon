@@ -159,19 +159,23 @@ public class MoveSystemTest {
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.tileAt(any(Point.class))).thenReturn(Optional.of(defaultTile));
 
+    // make local lambda function to get the corner positions. collider().corners() returns Vector2
+    // onto which the pos
+    // needs to be added
+
     // Block all corners of newPos
-    for (Point corner : cc.corners(newPos, pc.scale())) {
-      when(level.tileAt(eq(corner))).thenReturn(Optional.of(blockedTile));
+    for (Vector2 corner : cc.collider().cornersScaled()) {
+      when(level.tileAt(eq(newPos.translate(corner)))).thenReturn(Optional.of(blockedTile));
     }
 
     // Make all corners of xMove accessible
-    for (Point corner : cc.corners(xMove, pc.scale())) {
-      when(level.tileAt(eq(corner))).thenReturn(Optional.of(accessibleTile));
+    for (Vector2 corner : cc.collider().cornersScaled()) {
+      when(level.tileAt(eq(xMove.translate(corner)))).thenReturn(Optional.of(accessibleTile));
     }
 
     // Make all corners of yMove blocked
-    for (Point corner : cc.corners(yMove, pc.scale())) {
-      when(level.tileAt(eq(corner))).thenReturn(Optional.of(blockedTile));
+    for (Vector2 corner : cc.collider().cornersScaled()) {
+      when(level.tileAt(eq(yMove.translate(corner)))).thenReturn(Optional.of(blockedTile));
     }
 
     Game.currentLevel(level);

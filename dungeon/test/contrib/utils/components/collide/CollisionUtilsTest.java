@@ -1,4 +1,4 @@
-package contrib.utils;
+package contrib.utils.components.collide;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

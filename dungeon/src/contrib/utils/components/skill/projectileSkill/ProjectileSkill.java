@@ -254,7 +254,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Point start(Entity caster) {
     return caster
         .fetch(CollideComponent.class)
-        .map(collideComponent -> collideComponent.center(caster))
+        .map(collideComponent -> collideComponent.collider().absoluteCenter())
         .or(() -> caster.fetch(PositionComponent.class).map(PositionComponent::position))
         .orElseThrow(() -> MissingComponentException.build(caster, PositionComponent.class));
   }

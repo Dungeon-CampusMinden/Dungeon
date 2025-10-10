@@ -137,6 +137,7 @@ public class DevDungeon {
 
   private static void createSystems() {
     Game.add(new CollisionSystem());
+    Game.add(new PositionSyncSystem());
     Game.add(new AISystem());
     Game.add(new ReviveSystem());
     Game.add(new DevHealthSystem());
