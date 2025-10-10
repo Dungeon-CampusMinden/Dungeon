@@ -164,17 +164,17 @@ public class MoveSystemTest {
     // needs to be added
 
     // Block all corners of newPos
-    for (Vector2 corner : cc.collider().corners()) {
+    for (Vector2 corner : cc.collider().cornersScaled()) {
       when(level.tileAt(eq(newPos.translate(corner)))).thenReturn(Optional.of(blockedTile));
     }
 
     // Make all corners of xMove accessible
-    for (Vector2 corner : cc.collider().corners()) {
+    for (Vector2 corner : cc.collider().cornersScaled()) {
       when(level.tileAt(eq(xMove.translate(corner)))).thenReturn(Optional.of(accessibleTile));
     }
 
     // Make all corners of yMove blocked
-    for (Vector2 corner : cc.collider().corners()) {
+    for (Vector2 corner : cc.collider().cornersScaled()) {
       when(level.tileAt(eq(yMove.translate(corner)))).thenReturn(Optional.of(blockedTile));
     }
 

@@ -47,6 +47,7 @@ public class PositionSyncSystem extends System {
         .ifPresent(
             cc -> {
               cc.collider().position(pc.position());
+              cc.collider().scale(pc.scale());
             });
   }
 

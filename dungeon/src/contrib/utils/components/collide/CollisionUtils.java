@@ -42,7 +42,7 @@ public class CollisionUtils {
    */
   public static boolean isCollidingWithLevel(
       Collider collider, Point pos, boolean canEnterPits, boolean canEnterWalls) {
-    List<Vector2> corners = collider.corners();
+    List<Vector2> corners = collider.cornersScaled();
     return corners.stream()
         .anyMatch(
             v ->
