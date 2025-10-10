@@ -25,6 +25,9 @@ public class TileTextureFactory {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
     }
 
+    path = findTexturePathTJunction(levelPart);
+    if (path != null) return new SimpleIPath(prefixPath + path.pathString() + ".png");
+
     path = findTexturePathInnerCorner(levelPart);
     if (path != null) {
       return new SimpleIPath(prefixPath + path.pathString() + ".png");
@@ -127,29 +130,34 @@ public class TileTextureFactory {
   }
 
   private static IPath findTexturePathDoor(LevelPart levelPart) {
-    if (levelPart.element() == LevelElement.DOOR) {
-      if (belowIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/top");
-      } else if (leftIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/right");
-      } else if (rightIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/left");
-      } else if (aboveIsAccessible(levelPart.position, levelPart.layout)) {
-        return new SimpleIPath("door/bottom");
-      }
+    if (levelPart.element() != LevelElement.DOOR) return null;
+
+    if (belowIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/top");
+    } else if (leftIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/right");
+    } else if (rightIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/left");
+    } else if (aboveIsAccessible(levelPart.position, levelPart.layout)) {
+      return new SimpleIPath("door/bottom");
     }
-    return null;
+
+    return new SimpleIPath("door/top");
   }
 
   private static IPath findTexturePathWall(LevelPart levelPart) {
-    if (isRightWall(levelPart.position(), levelPart.layout())) {
+    if (isInnerVerticalWall(levelPart.position(), levelPart.layout())) {
       return new SimpleIPath("wall/wall_right");
+    } else if (isInnerTopWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/wall_inner_top");
+    } else if (isOuterBottomWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/bottom");
+    } else if (isOuterTopWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/wall_outer_top");
     } else if (isLeftWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_left");
-    } else if (isTopWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_top");
-    } else if (isBottomWall(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_bottom");
+      return new SimpleIPath("wall/left");
+    } else if (isRightWall(levelPart.position(), levelPart.layout())) {
+      return new SimpleIPath("wall/right");
     }
     return null;
   }
@@ -173,13 +181,28 @@ public class TileTextureFactory {
 
   private static IPath findTexturePathOuterCorner(LevelPart levelPart) {
     if (isBottomLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_bottom_left");
+      return new SimpleIPath("wall/corner_bottom_left");
     } else if (isBottomRightOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_bottom_right");
+      return new SimpleIPath("wall/corner_bottom_right");
     } else if (isUpperRightOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_upper_right");
+      return new SimpleIPath("wall/corner_upper_right");
     } else if (isUpperLeftOuterCorner(levelPart.position(), levelPart.layout())) {
-      return new SimpleIPath("wall/wall_outer_corner_upper_left");
+      return new SimpleIPath("wall/corner_upper_left");
+    }
+    return null;
+  }
+
+  private static IPath findTexturePathTJunction(LevelPart lp) {
+    if (isInnerTJunctionTop(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_top");
+    } else if (isInnerTJunctionBottom(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_bottom");
+    } else if (isInnerTJunctionLeft(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_left");
+    } else if (isInnerTJunctionRight(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_inner_right");
+    } else if (isTopTJunction(lp.position(), lp.layout())) {
+      return new SimpleIPath("wall/t_cross_top");
     }
     return null;
   }
@@ -235,9 +258,12 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isBottomLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout)
+    return aboveIsWall(p, layout)
         && rightIsWall(p, layout)
-        && (upperRightIsAccessible(p, layout) || upperRightIsHole(p, layout)));
+        && !leftIsWall(p, layout)
+        && !leftIsDoor(p, layout)
+        && upperRightIsInside(p, layout)
+        && !belowIsWall(p, layout);
   }
 
   /**
@@ -249,9 +275,12 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isBottomRightOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout)
+    return aboveIsWall(p, layout)
         && leftIsWall(p, layout)
-        && (upperLeftIsAccessible(p, layout) || upperLeftIsHole(p, layout)));
+        && !rightIsWall(p, layout)
+        && !rightIsDoor(p, layout)
+        && upperLeftIsInside(p, layout)
+        && !belowIsWall(p, layout);
   }
 
   /**
@@ -263,9 +292,12 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isUpperRightOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return (belowIsWall(p, layout)
+    return belowIsWall(p, layout)
         && leftIsWall(p, layout)
-        && (bottomLeftIsAccessible(p, layout) || bottomLeftIsHole(p, layout)));
+        && !rightIsWall(p, layout)
+        && !rightIsDoor(p, layout)
+        && bottomLeftIsInside(p, layout)
+        && !aboveIsWall(p, layout);
   }
 
   /**
@@ -277,9 +309,12 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isUpperLeftOuterCorner(Coordinate p, LevelElement[][] layout) {
-    return (belowIsWall(p, layout)
+    return belowIsWall(p, layout)
         && rightIsWall(p, layout)
-        && (bottomRightIsAccessible(p, layout) || bottomRightIsHole(p, layout)));
+        && !leftIsWall(p, layout)
+        && !leftIsDoor(p, layout)
+        && bottomRightIsInside(p, layout)
+        && !aboveIsWall(p, layout);
   }
 
   /**
@@ -292,8 +327,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isBottomLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout)
-        && rightIsWall(p, layout)
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
         && (leftIsInside(p, layout) && bottomRightIsInside(p, layout)
             || belowIsInside(p, layout) && upperLeftIsInside(p, layout)
             || belowIsInside(p, layout) && leftIsInside(p, layout)));
@@ -309,8 +344,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isBottomRightInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout)
-        && leftIsWall(p, layout)
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsInside(p, layout) && bottomLeftIsInside(p, layout)
             || belowIsInside(p, layout) && upperRightIsInside(p, layout)
             || belowIsInside(p, layout) && rightIsInside(p, layout)));
@@ -326,8 +361,8 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isUpperRightInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (belowIsWall(p, layout)
-        && leftIsWall(p, layout)
+    return ((belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsInside(p, layout) && upperLeftIsInside(p, layout)
             || aboveIsInside(p, layout) && bottomRightIsInside(p, layout)
             || aboveIsInside(p, layout) && rightIsInside(p, layout)));
@@ -343,11 +378,56 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   private static boolean isUpperLeftInnerCorner(Coordinate p, LevelElement[][] layout) {
-    return (belowIsWall(p, layout)
-        && rightIsWall(p, layout)
+    return ((belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
         && (leftIsInside(p, layout) && upperRightIsInside(p, layout)
             || aboveIsInside(p, layout) && bottomLeftIsInside(p, layout)
             || aboveIsInside(p, layout) && leftIsInside(p, layout)));
+  }
+
+  private static boolean isInnerVerticalWall(Coordinate p, LevelElement[][] layout) {
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+            && (belowIsWall(p, layout) || belowIsDoor(p, layout)))
+        && leftIsInside(p, layout)
+        && rightIsInside(p, layout);
+  }
+
+  private static boolean isTopTJunction(Coordinate p, LevelElement[][] layout) {
+    boolean sides =
+        (leftIsWall(p, layout) || leftIsDoor(p, layout))
+            && (rightIsWall(p, layout) || rightIsDoor(p, layout));
+    boolean stem = (belowIsWall(p, layout) || belowIsDoor(p, layout));
+    boolean openTop = !aboveIsWall(p, layout) && !aboveIsDoor(p, layout);
+    boolean insideSides = bottomLeftIsInside(p, layout) && bottomRightIsInside(p, layout);
+    return sides && stem && openTop && insideSides;
+  }
+
+  private static boolean isInnerTJunctionTop(Coordinate p, LevelElement[][] layout) {
+    return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && belowIsInside(p, layout);
+  }
+
+  private static boolean isInnerTJunctionBottom(Coordinate p, LevelElement[][] layout) {
+    return (belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && aboveIsInside(p, layout);
+  }
+
+  private static boolean isInnerTJunctionLeft(Coordinate p, LevelElement[][] layout) {
+    return (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && rightIsInside(p, layout);
+  }
+
+  private static boolean isInnerTJunctionRight(Coordinate p, LevelElement[][] layout) {
+    return (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
+        && leftIsInside(p, layout);
   }
 
   /**
@@ -359,9 +439,10 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   public static boolean isRightWall(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
-        && leftIsInside(p, layout);
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+            || (belowIsWall(p, layout) || belowIsDoor(p, layout)))
+        && !rightIsInside(p, layout)
+        && (leftIsInside(p, layout) || leftIsWall(p, layout) || leftIsDoor(p, layout));
   }
 
   /**
@@ -373,9 +454,10 @@ public class TileTextureFactory {
    * @return true if all conditions are met
    */
   public static boolean isLeftWall(Coordinate p, LevelElement[][] layout) {
-    return (aboveIsWall(p, layout) || aboveIsDoor(p, layout))
-        && (belowIsWall(p, layout) || belowIsDoor(p, layout))
-        && rightIsInside(p, layout);
+    return ((aboveIsWall(p, layout) || aboveIsDoor(p, layout))
+            || (belowIsWall(p, layout) || belowIsDoor(p, layout)))
+        && !leftIsInside(p, layout)
+        && (rightIsInside(p, layout) || rightIsWall(p, layout) || rightIsDoor(p, layout));
   }
 
   /**
@@ -386,9 +468,19 @@ public class TileTextureFactory {
    * @param layout The level
    * @return true if all conditions are met
    */
-  public static boolean isTopWall(Coordinate p, LevelElement[][] layout) {
+  public static boolean isOuterTopWall(Coordinate p, LevelElement[][] layout) {
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && !aboveIsInside(p, layout)
+        && (belowIsInside(p, layout)
+            || (belowIsWall(p, layout)
+                && (bottomLeftIsInside(p, layout) || bottomRightIsInside(p, layout))));
+  }
+
+  private static boolean isInnerTopWall(Coordinate p, LevelElement[][] layout) {
+    return (leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout))
+        && aboveIsInside(p, layout)
         && belowIsInside(p, layout);
   }
 
@@ -400,10 +492,13 @@ public class TileTextureFactory {
    * @param layout The level
    * @return true if all conditions are met
    */
-  public static boolean isBottomWall(Coordinate p, LevelElement[][] layout) {
+  public static boolean isOuterBottomWall(Coordinate p, LevelElement[][] layout) {
     return (leftIsWall(p, layout) || leftIsDoor(p, layout))
         && (rightIsWall(p, layout) || rightIsDoor(p, layout))
-        && aboveIsInside(p, layout);
+        && !belowIsInside(p, layout)
+        && (aboveIsInside(p, layout)
+            || (aboveIsWall(p, layout)
+                && (upperLeftIsInside(p, layout) || upperRightIsInside(p, layout))));
   }
 
   /**
