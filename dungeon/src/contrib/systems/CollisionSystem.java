@@ -38,6 +38,11 @@ public final class CollisionSystem extends System {
   /** Create a new CollisionSystem. */
   public CollisionSystem() {
     super(CollideComponent.class);
+    onEntityAdd = this::onAddEntity;
+  }
+
+  private void onAddEntity(Entity e){
+    PositionSyncSystem.syncPosition(e);
   }
 
   /**
