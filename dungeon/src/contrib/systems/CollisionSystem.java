@@ -41,7 +41,7 @@ public final class CollisionSystem extends System {
     onEntityAdd = this::onAddEntity;
   }
 
-  private void onAddEntity(Entity e){
+  private void onAddEntity(Entity e) {
     PositionSyncSystem.syncPosition(e);
   }
 

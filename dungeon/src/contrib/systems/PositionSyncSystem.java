@@ -5,7 +5,6 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.PositionComponent;
-import core.utils.components.MissingComponentException;
 
 /**
  * This system syncs the position of entities with other components that rely on mid-frame position
@@ -38,16 +37,16 @@ public class PositionSyncSystem extends System {
    * @param e The entity to sync the position for.
    */
   public static void syncPosition(Entity e) {
-    PositionComponent pc =
-        e.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class));
-
-    // CollideComponent
-    e.fetch(CollideComponent.class)
+    e.fetch(PositionComponent.class)
         .ifPresent(
-            cc -> {
-              cc.collider().position(pc.position());
-              cc.collider().scale(pc.scale());
+            pc -> {
+              // CollideComponent
+              e.fetch(CollideComponent.class)
+                  .ifPresent(
+                      cc -> {
+                        cc.collider().position(pc.position());
+                        cc.collider().scale(pc.scale());
+                      });
             });
   }
 

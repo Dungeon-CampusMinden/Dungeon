@@ -15,8 +15,8 @@ import java.util.List;
  */
 public abstract class Collider {
 
-    /** The position of this collider in world space. Only respected by absolute calls. */
-    protected Point position = new Point(0, 0);
+  /** The position of this collider in world space. Only respected by absolute calls. */
+  protected Point position = new Point(0, 0);
 
   /** The scale of this collider in world space. Only respected by absolute calls. */
   protected Vector2 scale = Vector2.ONE;
@@ -420,7 +420,9 @@ public abstract class Collider {
    * @return the absolute X position
    */
   public float absoluteX() {
-    return this.position != null ? this.position.x() + this.offset.x() * this.scale().x() : this.offset.x() * this.scale().x();
+    return this.position != null
+        ? this.position.x() + this.offset.x() * this.scale().x()
+        : this.offset.x() * this.scale().x();
   }
 
   /**
@@ -429,7 +431,9 @@ public abstract class Collider {
    * @return the absolute Y position
    */
   public float absoluteY() {
-    return this.position != null ? this.position.y() + this.offset.y() * this.scale().y() : this.offset.y() * this.scale().y();
+    return this.position != null
+        ? this.position.y() + this.offset.y() * this.scale().y()
+        : this.offset.y() * this.scale().y();
   }
 
   /**
@@ -438,7 +442,9 @@ public abstract class Collider {
    * @return the absolute top position
    */
   public float absoluteTop() {
-    return this.position != null ? this.position.y() + this.top() * this.scale().y() : this.top() * this.scale().y();
+    return this.position != null
+        ? this.position.y() + this.top() * this.scale().y()
+        : this.top() * this.scale().y();
   }
 
   /**
@@ -447,7 +453,9 @@ public abstract class Collider {
    * @return the absolute bottom position
    */
   public float absoluteBottom() {
-    return this.position != null ? this.position.y() + this.bottom() * this.scale().y() : this.bottom() * this.scale().y();
+    return this.position != null
+        ? this.position.y() + this.bottom() * this.scale().y()
+        : this.bottom() * this.scale().y();
   }
 
   /**
@@ -456,7 +464,9 @@ public abstract class Collider {
    * @return the absolute left position
    */
   public float absoluteLeft() {
-    return this.position != null ? this.position.x() + this.left() * this.scale().x() : this.left() * this.scale().x();
+    return this.position != null
+        ? this.position.x() + this.left() * this.scale().x()
+        : this.left() * this.scale().x();
   }
 
   /**
@@ -465,7 +475,9 @@ public abstract class Collider {
    * @return the absolute right position
    */
   public float absoluteRight() {
-    return this.position != null ? this.position.x() + this.right() * this.scale().x() : this.right() * this.scale().x();
+    return this.position != null
+        ? this.position.x() + this.right() * this.scale().x()
+        : this.right() * this.scale().x();
   }
 
   /**
@@ -510,7 +522,9 @@ public abstract class Collider {
    * @return the center point in absolute coordinates
    */
   public Point absoluteCenter() {
-    return new Point(this.absoluteX() + (this.width() * this.scale().x()) / 2f, this.absoluteY() + (this.height() * this.scale().y()) / 2f);
+    return new Point(
+        this.absoluteX() + (this.width() * this.scale().x()) / 2f,
+        this.absoluteY() + (this.height() * this.scale().y()) / 2f);
   }
 
   /**
@@ -564,7 +578,11 @@ public abstract class Collider {
    * @return list of all four corners in order: bottom-left, bottom-right, top-left, top-right
    */
   public List<Vector2> cornersScaled() {
-    return List.of(bottomLeft().scale(this.scale), bottomRight().scale(this.scale), topLeft().scale(this.scale), topRight().scale(this.scale));
+    return List.of(
+        bottomLeft().scale(this.scale),
+        bottomRight().scale(this.scale),
+        topLeft().scale(this.scale),
+        topRight().scale(this.scale));
   }
 
   /**
