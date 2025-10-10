@@ -1,7 +1,9 @@
 package contrib.utils.components.skill.selfSkill;
 
+import contrib.components.AttachmentComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
+import contrib.systems.AttachmentSystem;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.health.DamageType;
@@ -13,6 +15,7 @@ import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.*;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 
@@ -71,6 +74,7 @@ public class MeleeAttackSkill extends Skill {
             casterPositionComponent -> {
               Entity attack = new Entity();
 
+
               DrawComponent drawComponent = new DrawComponent(TEXTURE);
               attack.add(drawComponent);
 
@@ -79,25 +83,28 @@ public class MeleeAttackSkill extends Skill {
                       .position()
                       .translate(casterPositionComponent.viewDirection());
               PositionComponent attackPositionComponent = new PositionComponent(attackPosition);
-              System.out.println(casterPositionComponent.rotation());
               attackPositionComponent.rotation(casterPositionComponent.rotation());
-                      switch(casterPositionComponent.viewDirection()) {
-                        case UP -> {
-                          attackPositionComponent.rotation(90);
-                        }
-                        case RIGHT -> {
-                          attackPositionComponent.rotation(0);
-                        }
-                        case DOWN -> {
-                          attackPositionComponent.rotation(270);
-                        }
-                        case LEFT -> {
-                          attackPositionComponent.rotation(180);
-                        }
-                        default -> {}
-                      }
+
+              switch(casterPositionComponent.viewDirection()) {
+                case UP -> {
+                  attackPositionComponent.rotation(90);
+                }
+                case RIGHT -> {
+                  attackPositionComponent.rotation(0);
+                }
+                case DOWN -> {
+                  attackPositionComponent.rotation(270);
+                }
+                case LEFT -> {
+                  attackPositionComponent.rotation(180);
+                }
+                default -> {}
+              }
 
               attack.add(attackPositionComponent);
+              AttachmentComponent ac = new AttachmentComponent(Vector2.of(1,1), attackPositionComponent, casterPositionComponent);
+              ac.setRotatingWithOrigin(false);
+              attack.add(ac);
 
               CollideComponent collideComponent =
                   new CollideComponent(
@@ -116,15 +123,12 @@ public class MeleeAttackSkill extends Skill {
               collideComponent.isSolid(false);
               attack.add(collideComponent);
 
-              VelocityComponent velocityComponent = caster.fetch(VelocityComponent.class).get();
-              attack.add(velocityComponent);
-
               Game.add(attack);
               EventScheduler.scheduleAction(
                   () -> {
                     Game.remove(attack);
                   },
-                  250);
+                  2500);
             });
   }
 }

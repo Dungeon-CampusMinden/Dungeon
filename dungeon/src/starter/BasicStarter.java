@@ -49,6 +49,7 @@ public class BasicStarter {
             Game.add(new Debugger());
             Game.add(new HealthSystem());
             Game.add(new CollisionSystem());
+            Game.add(new AttachmentSystem());
             Game.add(HeroFactory.newHero());
             skillTestSetup(Game.hero().get());
           } catch (IOException e) {
