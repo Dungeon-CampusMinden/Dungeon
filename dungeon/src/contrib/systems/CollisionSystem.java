@@ -49,26 +49,11 @@ public final class CollisionSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream(CollideComponent.class)
-        .peek(this::syncPosition)
         .flatMap(this::createDataPairs)
         .forEach(this::onEnterLeaveCheck);
-  }
 
-  /**
-   * Sync the position of the collider with the position component, if present.
-   *
-   * @param e The entity to sync the position for.
-   */
-  private void syncPosition(Entity e) {
-    CollideComponent cc =
-        e.fetch(CollideComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(e, CollideComponent.class));
-
-    e.fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              cc.collider().position(pc.position());
-            });
+    // Sync position changes
+    PositionSyncSystem.doSync();
   }
 
   /**

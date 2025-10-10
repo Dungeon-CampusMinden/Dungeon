@@ -159,6 +159,7 @@ public class AdvancedDungeon {
    */
   private static void createSystems() {
     Game.add(new CollisionSystem());
+    Game.add(new PositionSyncSystem());
     Game.add(new AISystem());
     Game.add(new HealthSystem());
     Game.add(new ProjectileSystem());
