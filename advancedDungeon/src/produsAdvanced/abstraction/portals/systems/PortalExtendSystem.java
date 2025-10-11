@@ -2,6 +2,7 @@ package produsAdvanced.abstraction.portals.systems;
 
 import core.Entity;
 import core.System;
+import core.components.PositionComponent;
 import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import produsAdvanced.abstraction.portals.PortalFactory;
@@ -16,7 +17,9 @@ public class PortalExtendSystem extends System {
 
   @Override
   public void execute() {
-    filteredEntityStream().map(this::buildDataObject).forEach(this::applyPortalExtendLogic);
+    filteredEntityStream()
+            .map(this::buildDataObject)
+            .forEach(this::applyPortalExtendLogic);
   }
 
   private PortalExtendSystemData buildDataObject(Entity entity) {
@@ -35,26 +38,26 @@ public class PortalExtendSystem extends System {
   }
 
   private void applyPortalExtendLogic(PortalExtendSystemData data) {
-    boolean refresh = data.pec.needsRefresh;
-    if (refresh) {
-      // portal wurde gelöscht -> beam löschen
-      data.tbc.trim();
+    if (data.pec.isExtended()) {
 
-      java.lang.System.out.println("TRIMMED THE BEAM");
-      // portal wurde neu erstellt -> beam neu erstellen
+    } else {
       if (data.pec.throughBlue) {
-        data.pec.throughBlue = false;
-        // TODO: Wenn wir das eintritts Portal versetzen, dann darf es nicht als kollisions Portal
-        // gelten
-        // (wenn es nicht mehr an einer Stelle platziert ist wo der strahl das portal trifft)
-        PortalFactory.onBlueCollideEnter(
-            PortalFactory.getBluePortal().get(), data.entity, Direction.NONE);
+        // man ist durch das blaue portal gegangen
+        PortalFactory.getGreenPortal().ifPresent(portal -> {
+          java.lang.System.out.println("Extended blue");
+          PositionComponent greenPortalPosition = portal.fetch(PositionComponent.class).get();
+          data.pec.onExtend.accept(greenPortalPosition.viewDirection(), greenPortalPosition.position(), data.pec);
+          data.pec.isExtended = true;
+        });
       } else if (data.pec.throughGreen) {
-        data.pec.throughGreen = false;
-        PortalFactory.onGreenCollideEnter(
-            PortalFactory.getGreenPortal().get(), data.entity, Direction.NONE);
+        // man ist durch das grüne portal gegangen
+        PortalFactory.getBluePortal().ifPresent(portal -> {
+          java.lang.System.out.println("Extended green");
+          PositionComponent bluePortalPosition = portal.fetch(PositionComponent.class).get();
+          data.pec.onExtend.accept(bluePortalPosition.viewDirection(), bluePortalPosition.position(), data.pec);
+          data.pec.isExtended = true;
+        });
       }
-      data.pec.needsRefresh = false;
     }
   }
 

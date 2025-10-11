@@ -241,8 +241,16 @@ public class TractorBeamFactory {
     Entity entity = factory.createBeamEmitter(from, direction);
 
     tractorBeamEntities.add(entity);
-    entity.add(new TractorBeamComponent(direction, from, tractorBeamEntities));
-    entity.add(new PortalExtendComponent());
+    TractorBeamComponent tbc =  new TractorBeamComponent(direction, from, tractorBeamEntities);
+    entity.add(tbc);
+    PortalExtendComponent pec = new PortalExtendComponent();
+    pec.onExtend = (d,e,portalExtendComponent) -> {
+      tbc.extend(d,e,portalExtendComponent);
+    };
+    pec.onTrim = (e) -> {
+      tbc.trim();
+    };
+    entity.add(pec);
 
     return entity;
   }

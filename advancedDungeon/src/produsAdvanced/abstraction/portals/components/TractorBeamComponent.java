@@ -1,5 +1,6 @@
 package produsAdvanced.abstraction.portals.components;
 
+import core.Component;
 import core.Entity;
 import core.Game;
 import core.utils.Direction;
@@ -7,7 +8,7 @@ import core.utils.Point;
 import entities.TractorBeamFactory;
 import java.util.List;
 
-public class TractorBeamComponent extends BeamComponent {
+public class TractorBeamComponent implements Component {
   private Direction direction;
   private Point from;
   public List<Entity> tractorBeamEntities;
@@ -21,13 +22,10 @@ public class TractorBeamComponent extends BeamComponent {
     }
   }
 
-  @Override
-  public void extend(
-      Direction direction, Point from, PortalExtendComponent pec, TractorBeamComponent tbc) {
-    TractorBeamFactory.extendTractorBeam(direction, from, this.tractorBeamEntities, pec, tbc);
+  public void extend(Direction direction, Point from, PortalExtendComponent pec) {
+    TractorBeamFactory.extendTractorBeam(direction, from, this.tractorBeamEntities, pec, this);
   }
 
-  @Override
   public void trim() {
     TractorBeamFactory.trimAfterFirstBeamEmitter(this.tractorBeamEntities);
   }
