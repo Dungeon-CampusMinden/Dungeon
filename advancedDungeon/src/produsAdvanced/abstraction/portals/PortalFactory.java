@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals;
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
 import contrib.components.SkillComponent;
+import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
 import core.Entity;
@@ -17,6 +18,8 @@ import core.utils.components.path.SimpleIPath;
 import java.util.*;
 import java.util.stream.Collectors;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
 /**
  * A factory class for creating and managing portals in the game.
@@ -46,6 +49,39 @@ public class PortalFactory {
    * @param color the portal color, see {@link PortalColor}
    */
   public static void createPortal(Point point, PortalColor color) {
+    if (color == PortalColor.GREEN) {
+      if (getGreenPortal().isPresent()) {
+        removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
+        getGreenPortal().ifPresent(greenPortal -> {
+          greenPortal.fetch(PositionComponent.class).get().position(point);
+          Direction dir = setPortalDirection(point, color);
+          greenPortal.fetch(PositionComponent.class).get().viewDirection(dir);
+
+          CollideComponent cc = setCollideComponent(dir, getCollideHandler(color));
+          cc.isSolid(false);
+          greenPortal.remove(CollideComponent.class);
+          greenPortal.add(cc);
+        });
+        return;
+      }
+    }
+    if (color == PortalColor.BLUE) {
+      if (getBluePortal().isPresent()) {
+        removeIfOverlap(getGreenPortal(), point, PortalFactory::clearGreenPortal);
+        getBluePortal().ifPresent(bluePortal -> {
+          bluePortal.fetch(PositionComponent.class).get().position(point);
+          Direction dir = setPortalDirection(point, color);
+          bluePortal.fetch(PositionComponent.class).get().viewDirection(dir);
+
+          CollideComponent cc = setCollideComponent(dir, getCollideHandler(color));
+          cc.isSolid(false);
+          bluePortal.remove(CollideComponent.class);
+          bluePortal.add(cc);
+        });
+        return;
+      }
+    }
+
     Entity portal = preparePortal(point, color);
 
     portal.add(new DrawComponent(new SimpleIPath(getPortalPath(color))));
@@ -204,20 +240,32 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
-    if (getBluePortal().isPresent() && !isEntityPortal(other)) {
-      PositionComponent projectilePositionComponent = other.fetch(PositionComponent.class).get();
-      Direction greenPortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
-      Direction bluePortalDirection =
-          getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
-      projectilePositionComponent.position(
-          getBluePortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(bluePortalDirection.scale(1.2)));
-      handleProjectiles(other, greenPortalDirection, bluePortalDirection);
+    if (other.fetch(PortalExtendComponent.class).isPresent()) {
+      PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
+      System.out.println("TEST onGreenCollideEnter");
+      if (pec.checkBlue()) {
+        return;
+      }
+      pec.throughGreen = true;
+      java.lang.System.out.println("throughGreen is true now");
     }
+
+    if (getBluePortal().isPresent() && !isEntityPortal(other)) {
+      PositionComponent projectilePositionComponent =
+              other.fetch(PositionComponent.class).get();
+      Direction greenPortalDirection =
+              portal.fetch(PositionComponent.class).get().viewDirection();
+      Direction bluePortalDirection =
+              getBluePortal().get().fetch(PositionComponent.class).get().viewDirection();
+      projectilePositionComponent.position(
+              getBluePortal()
+                      .get()
+                      .fetch(PositionComponent.class)
+                      .get()
+                      .position()
+                      .translate(bluePortalDirection.scale(1.2)));
+      handleProjectiles(other, greenPortalDirection, bluePortalDirection);
+    };
   }
 
   /**
@@ -228,18 +276,30 @@ public class PortalFactory {
    * @param dir the direction of collision
    */
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
+    if (other.fetch(PortalExtendComponent.class).isPresent()) {
+      PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
+      if (pec.checkGreen()) {
+        return;
+      }
+      pec.throughBlue = true;
+      java.lang.System.out.println("throughBlue is true now");
+      return;
+    }
+
     if (getGreenPortal().isPresent() && !isEntityPortal(other)) {
-      PositionComponent projectilePositionComponent = other.fetch(PositionComponent.class).get();
-      Direction bluePortalDirection = portal.fetch(PositionComponent.class).get().viewDirection();
+      PositionComponent projectilePositionComponent =
+              other.fetch(PositionComponent.class).get();
+      Direction bluePortalDirection =
+              portal.fetch(PositionComponent.class).get().viewDirection();
       Direction greenPortalDirection =
-          getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
+              getGreenPortal().get().fetch(PositionComponent.class).get().viewDirection();
       projectilePositionComponent.position(
-          getGreenPortal()
-              .get()
-              .fetch(PositionComponent.class)
-              .get()
-              .position()
-              .translate(greenPortalDirection.scale(1.2)));
+              getGreenPortal()
+                      .get()
+                      .fetch(PositionComponent.class)
+                      .get()
+                      .position()
+                      .translate(greenPortalDirection.scale(1.2)));
       handleProjectiles(other, bluePortalDirection, greenPortalDirection);
     }
   }
@@ -340,33 +400,56 @@ public class PortalFactory {
             Vector2.of(offsetX, offsetX),
             Vector2.of(hitboxX, hitboxY),
             onCollideEnter,
-            CollideComponent.DEFAULT_COLLIDER);
+            PortalFactory::onCollideLeave);
       }
       case UP -> {
         return new CollideComponent(
             Vector2.of(offsetX, offsetY),
             Vector2.of(hitboxX, hitboxY),
             onCollideEnter,
-            CollideComponent.DEFAULT_COLLIDER);
+            PortalFactory::onCollideLeave);
       }
       case LEFT -> {
         return new CollideComponent(
             Vector2.of(offsetX, offsetX),
             Vector2.of(hitboxY, hitboxX),
             onCollideEnter,
-            CollideComponent.DEFAULT_COLLIDER);
+            PortalFactory::onCollideLeave);
       }
       case RIGHT -> {
         return new CollideComponent(
             Vector2.of(offsetY, offsetX),
             Vector2.of(hitboxY, hitboxX),
             onCollideEnter,
-            CollideComponent.DEFAULT_COLLIDER);
+            PortalFactory::onCollideLeave);
       }
       default -> {
         return new CollideComponent();
       }
     }
+  }
+
+  public static void onCollideLeave(Entity portal, Entity other, Direction direction) {
+    System.out.println("onCollideLeave CALLED BY " + portal.name());
+    other.fetch(PortalExtendComponent.class).ifPresent(pec -> {
+      if (pec.isExtended()) {
+        System.out.println("TRIMMED " + other.name() + " with " + portal.name());
+        pec.onTrim.accept(other);
+        getGreenPortal().ifPresent(greenPortal -> {
+          if (greenPortal == portal) {
+            pec.throughGreen = false;
+            pec.isExtended = false;
+          }
+        });
+        getBluePortal().ifPresent(bluePortal -> {
+          if (bluePortal == portal) {
+            pec.throughBlue = false;
+            pec.isExtended = false;
+          }
+        });
+
+      }
+    });
   }
 
   /** Removes both the blue and green portals from the game, if present. */
@@ -411,5 +494,9 @@ public class PortalFactory {
    */
   public static Optional<Entity> getGreenPortal() {
     return Game.allEntities().filter(entity -> entity.name().equals(GREEN_PORTAL_NAME)).findFirst();
+  }
+
+  private static void extendCollision() {
+
   }
 }
