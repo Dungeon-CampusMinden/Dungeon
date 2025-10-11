@@ -51,6 +51,7 @@ public class PortalFactory {
   public static void createPortal(Point point, PortalColor color) {
     if (color == PortalColor.GREEN) {
       if (getGreenPortal().isPresent()) {
+        System.out.println("HIER: if (getGreenPortal().isPresent()) {");
         removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
         getGreenPortal().ifPresent(greenPortal -> {
           greenPortal.fetch(PositionComponent.class).get().position(point);
@@ -67,6 +68,7 @@ public class PortalFactory {
     }
     if (color == PortalColor.BLUE) {
       if (getBluePortal().isPresent()) {
+        System.out.println("HIER: if (getBluePortal().isPresent()) {");
         removeIfOverlap(getGreenPortal(), point, PortalFactory::clearGreenPortal);
         getBluePortal().ifPresent(bluePortal -> {
           bluePortal.fetch(PositionComponent.class).get().position(point);
@@ -248,6 +250,7 @@ public class PortalFactory {
       }
       pec.throughGreen = true;
       java.lang.System.out.println("throughGreen is true now");
+      return;
     }
 
     if (getBluePortal().isPresent() && !isEntityPortal(other)) {
@@ -278,6 +281,7 @@ public class PortalFactory {
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
+      System.out.println("TEST onBlueCollideEnter");
       if (pec.checkGreen()) {
         return;
       }
