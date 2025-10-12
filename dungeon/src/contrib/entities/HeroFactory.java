@@ -17,7 +17,9 @@ import core.Game;
 import core.components.*;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
+import core.level.elements.ILevel;
 import core.level.loader.DungeonLoader;
+import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InputMessage.Action;
 import core.utils.Direction;
@@ -74,7 +76,13 @@ public final class HeroFactory {
 
                 // reset the animation queue
                 hero.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
-                DungeonLoader.reloadCurrentLevel();
+
+                // Just respawn at Start Tile instead of reloading the level
+                hero.fetch(PositionComponent.class)
+                      .ifPresent(pc -> {
+                        pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
+                        pc.viewDirection(Direction.DOWN);
+                      });
               });
 
   /**
