@@ -7,169 +7,203 @@ import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.level.Tile;
-import core.level.utils.LevelElement;
+import core.level.elements.tile.PitTile;
+import core.level.elements.tile.WallTile;
 import core.utils.Direction;
 import core.utils.Point;
 import core.utils.components.draw.DepthLayer;
+import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.State;
+import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * LightWallFactory – ähnlich LightBridgeFactory, aber Segmente sind solide (Blockade für Spieler & Projektile).
- * Funktionalität:
- *  - Inaktiver Emitter (andere Textur)
- *  - Aktivieren: erzeugt solide Lasersegnente bis zum ersten nicht passierbaren Tile
- *  - Deaktivieren: entfernt Segmente
- */
-public final class LightWallFactory {
-  //private static final SimpleIPath SEGMENT_SPRITESHEET_PATH = new SimpleIPath("portal/light_wall_sprite");
-  //private static final SimpleIPath EMITTER_TEXTURE_ACTIVE = new SimpleIPath("portal/light_wall_emitter/light_wall_emitter.png");
-  //private static final SimpleIPath EMITTER_TEXTURE_INACTIVE = new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
+public class LightWallFactory {
 
   private static final SimpleIPath SEGMENT_SPRITESHEET_PATH = new SimpleIPath("portal/light_wall");
   private static final SimpleIPath EMITTER_TEXTURE_ACTIVE = new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_active.png");
   private static final SimpleIPath EMITTER_TEXTURE_INACTIVE = new SimpleIPath("portal/light_wall_emitter/light_wall_emitter_inactive.png");
 
-  private static List<core.utils.components.draw.state.State> SEGMENT_STATES;
-  private static core.utils.components.draw.state.State DEFAULT_SEGMENT_STATE;
-
-  private static final int MAX_RANGE = 512;
-
-  // Entferne zentrale ACTIVE_SEGMENTS Map zugunsten komponenteninternem State (Legacy-Kompatibilität optional)
-  private static final Map<Entity, List<Entity>> ACTIVE_SEGMENTS = new ConcurrentHashMap<>(); // legacy tracking
-
-  public static class WallSurfaceComponent implements Component {}
-  public static class LightWallEmitterComponent implements Component {
+  /**
+   * Komponente, die den Zustand und die Segmente einer einzelnen Lichtbrücke verwaltet.
+   */
+  public static class LightWallComponent implements Component {
     private final Entity owner;
+    private final Direction direction;
     private boolean active = false;
     private final List<Entity> segments = new ArrayList<>();
-    public LightWallEmitterComponent(Entity owner){ this(owner,false); }
-    public LightWallEmitterComponent(Entity owner, boolean initialActive){
+    private final Map<PitTile, Object[]> coveredPits = new ConcurrentHashMap<>();
+
+    public LightWallComponent(Entity owner, Direction direction) {
       this.owner = owner;
-      if (initialActive) doActivate(); else updateVisual(false);
+      this.direction = direction;
     }
-    public boolean isActive(){ return active; }
-    public void activate(){ if (!active) doActivate(); }
-    public void deactivate(){ if (active) doDeactivate(); }
-    public void toggle(){ if (active) deactivate(); else activate(); }
-    private void doActivate(){
-      if (ACTIVE_SEGMENTS.containsKey(owner)) return; // legacy guard
+
+    /**
+     * Erstellt eine neue Emitter-Entität mit einer LightBridgeComponent.
+     */
+    public static Entity createEmitterForWall(Point from, Direction direction) {
+      Entity emitter = new Entity("lightWallEmitter");
+      PositionComponent pc = new PositionComponent(from);
+      pc.rotation(rotationFor(direction));
+      emitter.add(pc);
+
+      emitter.add(new CollideComponent());
+      DrawComponent dc = new DrawComponent(EMITTER_TEXTURE_INACTIVE);
+      dc.depth(DepthLayer.Normal.depth());
+      emitter.add(dc);
+
+      return emitter;
+    }
+
+    public List<Entity> getSegments() {
+      return Collections.unmodifiableList(segments);
+    }
+
+    private void activate() {
+      if (active) return;
+      this.active = true;
+
       owner.fetch(PositionComponent.class).ifPresent(pc -> {
-        List<Entity> built = buildSegments(pc.position(), pc.viewDirection());
-        built.forEach(Game::add);
-        segments.addAll(built);
-        ACTIVE_SEGMENTS.put(owner, built);
+        Point start = pc.position();
+        Point end = calculateEndPoint(start, this.direction);
+        int totalPoints = calculateNumberOfPoints(start, end);
+
+        for (int i = 0; i < totalPoints; i++) {
+          Entity segment = createNextSegment(start, end, totalPoints, i);
+          this.segments.add(segment);
+          Game.add(segment);
+        }
       });
-      active = true;
-      updateVisual(true);
+      updateEmitterVisual(true);
     }
-    private void doDeactivate(){
-      List<Entity> list = new ArrayList<>(segments);
-      for (Entity seg : list) Game.remove(seg);
+
+    private void deactivate() {
+      if (!active) return;
+      this.active = false;
+
+      segments.forEach(segment -> {
+        Game.remove(segment);
+      });
       segments.clear();
-      ACTIVE_SEGMENTS.remove(owner);
-      active = false;
-      updateVisual(false);
+      updateEmitterVisual(false);
     }
-    private void updateVisual(boolean on){
+
+
+    private void updateEmitterVisual(boolean on) {
       DrawComponent dc = new DrawComponent(on ? EMITTER_TEXTURE_ACTIVE : EMITTER_TEXTURE_INACTIVE);
-      dc.depth(DepthLayer.Level.depth());
+      dc.depth(DepthLayer.Normal.depth());
       owner.add(dc);
       owner.name(on ? "lightWallEmitter" : "lightWallEmitterInactive");
+
+
+      owner.fetch(PositionComponent.class).ifPresent(pc -> {
+        pc.rotation(rotationFor(direction));
+      });
+    }
+
+    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex) {
+      float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
+      float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
+      Point currentPoint = new Point(x, y);
+      PositionComponent pc = new PositionComponent(currentPoint);
+
+      Entity segment = new Entity("lightWallSegment");
+      segment.add(pc);
+
+      segment.add(new CollideComponent()); // Fügt die Kollisionskomponente hinzu
+
+      pc.rotation(rotationFor(direction));
+
+      Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
+      State idle = State.fromMap(animationMap, "idle");
+      StateMachine sm = new StateMachine(List.of(idle));
+
+      DrawComponent dc = new DrawComponent(sm);
+      dc.depth(DepthLayer.Ground.depth());
+
+      segment.add(dc);
+      return segment;
+    }
+
+    private static float rotationFor(Direction d) {
+      return switch (d) {
+        case UP -> 0f;
+        case DOWN -> 180f;
+        case LEFT -> 90f;
+        case RIGHT -> -90f;
+        default -> 0f;
+      };
     }
   }
 
-  /* ===================== Öffentliche API ===================== */
+  /**
+   * Erstellt eine steuerbare Lichtbrücke und gibt die Emitter-Entität zurück.
+   */
+  public static Entity createLightWall(Point from, Direction direction, boolean active) {
 
-  public static Entity createInactiveEmitter(Point p, Direction dir) {
-    return createEmitter(p, dir, false);
-  }
+    Entity emitter = LightWallComponent.createEmitterForWall(from, direction);
 
-  /** Erzeugt einen Wall-Emitter mit gewünschtem Aktiv-Status. */
-  public static Entity createEmitter(Point p, Direction dir, boolean active) {
-    PositionComponent pc = new PositionComponent(p, dir);
-    pc.rotation(rotationFor(dir));
-    Entity e = new Entity(active ? "lightWallEmitter" : "lightWallEmitterInactive");
-    e.add(pc);
-    e.add(new CollideComponent());
-    e.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(true));
-    e.add(new LightWallEmitterComponent(e, active));
-    return e;
-  }
+    LightWallComponent wallComponent = new LightWallComponent(emitter, direction);
+    emitter.add(wallComponent);
 
-  public static Entity createWallEmitter(Point p, Direction dir, boolean active) {
-    return createEmitter(p, dir, active);
-  }
-
-  public static void activateEmitter(Entity emitter) {
-    if (emitter == null) return;
-    emitter.fetch(LightWallEmitterComponent.class).ifPresent(LightWallEmitterComponent::activate);
-  }
-
-  public static void deactivateEmitter(Entity emitter) {
-    if (emitter == null) return;
-    emitter.fetch(LightWallEmitterComponent.class).ifPresent(LightWallEmitterComponent::deactivate);
-  }
-
-  public static boolean isEmitterActive(Entity emitter) {
-    return emitter != null && emitter.fetch(LightWallEmitterComponent.class).map(LightWallEmitterComponent::isActive).orElse(false);
-  }
-
-  /* ===================== Intern ===================== */
-
-  private static List<Entity> buildSegments(Point from, Direction dir) {
-    List<Entity> segments = new ArrayList<>();
-    Point current = from.translate(dir);
-
-    for (int i = 0; i < MAX_RANGE; i++) {
-      Tile tile = Game.tileAt(current).orElse(null);
-      if (tile == null) break; // außerhalb Level
-      LevelElement el = tile.levelElement();
-      boolean isPit = (el == LevelElement.HOLE || el == LevelElement.PIT);
-      boolean passable = el.value() || isPit; // Pits & Holes jetzt durchlässig für Wand-Ausbreitung
-      if (!passable) break;
-      Entity seg = buildSegment(current);
-      segments.add(seg);
-      current = current.translate(dir);
+    if (active) {
+      emitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::activate);
     }
-    return segments;
+
+    Game.add(emitter);
+    return emitter;
   }
 
-  private static Entity buildSegment(Point p) {
-    Entity e = new Entity("lightWallSegment");
-    e.add(new PositionComponent(p));
-    DrawComponent dc = buildSegmentDrawComponent();
-    dc.depth(DepthLayer.Level.depth()); // über dem Boden
-    e.add(dc);
-    e.add(new CollideComponent());
-    e.fetch(CollideComponent.class).ifPresent(c -> c.isSolid(true));
-    e.add(new WallSurfaceComponent());
-    return e;
+  public static void extendWall(Point from, Direction direction, Entity owner) {
+    LightWallComponent bridgeComponent = new LightWallComponent(owner, direction);
+    owner.add(bridgeComponent);
   }
 
-  private static DrawComponent buildSegmentDrawComponent() {
-    if (SEGMENT_STATES == null) {
-      Map<String, core.utils.components.draw.animation.Animation> map =
-          core.utils.components.draw.animation.Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
-      SEGMENT_STATES = new ArrayList<>();
-      for (var entry : map.entrySet()) {
-        SEGMENT_STATES.add(new core.utils.components.draw.state.State(entry.getKey(), entry.getValue()));
-      }
-      if (SEGMENT_STATES.isEmpty()) throw new IllegalStateException("Spritesheet light_wall_sprite leer.");
-      DEFAULT_SEGMENT_STATE = SEGMENT_STATES.get(0);
+  /**
+   * Aktiviert eine gegebene Lichtbrücke.
+   */
+  public static void activateWall(Entity wallEmitter) {
+    wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::activate);
+  }
+
+  /**
+   * Deaktiviert eine gegebene Lichtbrücke.
+   */
+  public static void deactivateWall(Entity wallEmitter) {
+    wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::deactivate);
+  }
+
+  /**
+   * Gibt eine schreibgeschützte Liste der Segment-Entitäten für eine gegebene Brücke zurück.
+   */
+  public static List<Entity> getWallSegments(Entity wallEmitter) {
+    return wallEmitter.fetch(LightWallComponent.class)
+      .map(LightWallComponent::getSegments)
+      .orElse(Collections.emptyList());
+  }
+
+  // Statische Hilfsmethoden
+  private static int calculateNumberOfPoints(Point from, Point to) {
+    float dx = Math.abs(to.x() - from.x());
+    float dy = Math.abs(to.y() - from.y());
+    return (int) Math.max(dx, dy) + 1;
+  }
+
+  private static Point calculateEndPoint(Point from, Direction beamDirection) {
+    Point lastPoint = from;
+    Point currentPoint = from;
+    Tile currentTile = Game.tileAt(from).orElse(null);
+    while (currentTile != null && !(currentTile instanceof WallTile)) {
+      lastPoint = currentPoint;
+      currentPoint = currentPoint.translate(beamDirection);
+      currentTile = Game.tileAt(currentPoint).orElse(null);
     }
-    var sm = new core.utils.components.draw.state.StateMachine(SEGMENT_STATES, DEFAULT_SEGMENT_STATE);
-    return new DrawComponent(sm);
-  }
-
-  private static float rotationFor(Direction d) {
-    return switch (d) {
-      case UP -> 0f;
-      case DOWN -> 180f;
-      case LEFT -> -90f;
-      case RIGHT -> 90f;
-      default -> 0f;
-    };
+    return lastPoint;
   }
 }
