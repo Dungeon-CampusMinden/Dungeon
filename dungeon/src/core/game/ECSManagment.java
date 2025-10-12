@@ -257,9 +257,11 @@ public final class ECSManagment {
   /**
    * @return the local player character, can be empty if no local player is present.
    * @see PlayerComponent
+   * @deprecated use {@link #heros()} and filter for the local hero
    */
+  @Deprecated
   public static Optional<Entity> hero() {
-    return levelEntities()
+    return heros()
         .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false))
         .findFirst();
   }
@@ -268,7 +270,7 @@ public final class ECSManagment {
    * @return a stream of all hero entities in the game.
    * @see PlayerComponent
    */
-  public static Stream<Entity> allHeros() {
+  public static Stream<Entity> heros() {
     return levelEntities().filter(e -> e.isPresent(PlayerComponent.class));
   }
 

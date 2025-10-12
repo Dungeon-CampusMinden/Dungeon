@@ -393,9 +393,20 @@ public final class Game {
    *
    * @return an {@link Optional} containing the player character from the current level, or an empty
    *     {@code Optional} if none is present
+   * @deprecated use {@link #heros()} and filter for the local hero
    */
+  @Deprecated
   public static Optional<Entity> hero() {
     return ECSManagment.hero();
+  }
+
+  /**
+   * Searches the current level for all player characters.
+   *
+   * @return a stream of all entities in the current level that are marked as player characters
+   */
+  public static Stream<Entity> heros() {
+    return ECSManagment.heros();
   }
 
   /**

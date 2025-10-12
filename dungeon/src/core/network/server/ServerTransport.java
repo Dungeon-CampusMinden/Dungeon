@@ -169,7 +169,8 @@ public final class ServerTransport {
       ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
       return CompletableFuture.completedFuture(true);
     } catch (IOException e) {
-      LOGGER.warn("Failed to send TCP object to {}: {} ({})", ctx.channel(), e.getClass(), e.getMessage());
+      LOGGER.warn(
+          "Failed to send TCP object to {}: {} ({})", ctx.channel(), e.getClass(), e.getMessage());
       return CompletableFuture.completedFuture(false);
     }
   }

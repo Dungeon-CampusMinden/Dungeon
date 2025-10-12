@@ -68,7 +68,7 @@ public final class GameLoop extends ScreenAdapter {
   public static final IVoidFunction onLevelLoad =
       () -> {
         ECSManagment.newLevelLoadedThisTick = true;
-        List<Entity> allHeros = ECSManagment.allHeros().toList();
+        List<Entity> allHeros = ECSManagment.heros().toList();
         boolean firstLoad = !ECSManagment.levelStorageMap().containsKey(Game.currentLevel().get());
         allHeros.forEach(ECSManagment::remove);
         // Remove the systems so that each triggerOnRemove(entity) will be called (basically
