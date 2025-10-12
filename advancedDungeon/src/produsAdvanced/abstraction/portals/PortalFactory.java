@@ -3,6 +3,7 @@ package produsAdvanced.abstraction.portals;
 import contrib.components.CollideComponent;
 import contrib.components.ProjectileComponent;
 import contrib.components.SkillComponent;
+import contrib.systems.CollisionSystem;
 import contrib.systems.EventScheduler;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.projectileSkill.ProjectileSkill;
@@ -51,7 +52,6 @@ public class PortalFactory {
   public static void createPortal(Point point, PortalColor color) {
     if (color == PortalColor.GREEN) {
       if (getGreenPortal().isPresent()) {
-        System.out.println("HIER: if (getGreenPortal().isPresent()) {");
         removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
         getGreenPortal().ifPresent(greenPortal -> {
           greenPortal.fetch(PositionComponent.class).get().position(point);
@@ -68,7 +68,6 @@ public class PortalFactory {
     }
     if (color == PortalColor.BLUE) {
       if (getBluePortal().isPresent()) {
-        System.out.println("HIER: if (getBluePortal().isPresent()) {");
         removeIfOverlap(getGreenPortal(), point, PortalFactory::clearGreenPortal);
         getBluePortal().ifPresent(bluePortal -> {
           bluePortal.fetch(PositionComponent.class).get().position(point);
@@ -244,12 +243,10 @@ public class PortalFactory {
   public static void onGreenCollideEnter(Entity portal, Entity other, Direction dir) {
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
-      System.out.println("TEST onGreenCollideEnter");
       if (pec.checkBlue()) {
         return;
       }
       pec.throughGreen = true;
-      java.lang.System.out.println("throughGreen is true now");
       return;
     }
 
@@ -281,12 +278,10 @@ public class PortalFactory {
   public static void onBlueCollideEnter(Entity portal, Entity other, Direction dir) {
     if (other.fetch(PortalExtendComponent.class).isPresent()) {
       PortalExtendComponent pec = other.fetch(PortalExtendComponent.class).get();
-      System.out.println("TEST onBlueCollideEnter");
       if (pec.checkGreen()) {
         return;
       }
       pec.throughBlue = true;
-      java.lang.System.out.println("throughBlue is true now");
       return;
     }
 
@@ -433,11 +428,16 @@ public class PortalFactory {
     }
   }
 
+  /**
+   * Handles the removal of extended entities through a portal.
+   *
+   * @param portal The portal which the extended entity goes through.
+   * @param other The entity that is extended.
+   * @param direction Direction where it extends to.
+   */
   public static void onCollideLeave(Entity portal, Entity other, Direction direction) {
-    System.out.println("onCollideLeave CALLED BY " + portal.name());
     other.fetch(PortalExtendComponent.class).ifPresent(pec -> {
       if (pec.isExtended()) {
-        System.out.println("TRIMMED " + other.name() + " with " + portal.name());
         pec.onTrim.accept(other);
         getGreenPortal().ifPresent(greenPortal -> {
           if (greenPortal == portal) {
@@ -451,7 +451,6 @@ public class PortalFactory {
             pec.isExtended = false;
           }
         });
-
       }
     });
   }
@@ -500,7 +499,4 @@ public class PortalFactory {
     return Game.allEntities().filter(entity -> entity.name().equals(GREEN_PORTAL_NAME)).findFirst();
   }
 
-  private static void extendCollision() {
-
-  }
 }

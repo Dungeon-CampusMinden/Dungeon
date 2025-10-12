@@ -37,14 +37,16 @@ public class PortalExtendSystem extends System {
     return new PortalExtendSystemData(entity, pec, tbc);
   }
 
+  /**
+   * Calls the onExtend method which should be overwritten in the specific classes
+   *
+   * @param data Data which holds the {@link PortalExtendComponent} from which the extend will be called.
+   */
   private void applyPortalExtendLogic(PortalExtendSystemData data) {
-    if (data.pec.isExtended()) {
-
-    } else {
+    if (!data.pec.isExtended()) {
       if (data.pec.throughBlue) {
         // man ist durch das blaue portal gegangen
         PortalFactory.getGreenPortal().ifPresent(portal -> {
-          java.lang.System.out.println("Extended blue");
           PositionComponent greenPortalPosition = portal.fetch(PositionComponent.class).get();
           data.pec.onExtend.accept(greenPortalPosition.viewDirection(), greenPortalPosition.position(), data.pec);
           data.pec.isExtended = true;
@@ -52,7 +54,6 @@ public class PortalExtendSystem extends System {
       } else if (data.pec.throughGreen) {
         // man ist durch das grüne portal gegangen
         PortalFactory.getBluePortal().ifPresent(portal -> {
-          java.lang.System.out.println("Extended green");
           PositionComponent bluePortalPosition = portal.fetch(PositionComponent.class).get();
           data.pec.onExtend.accept(bluePortalPosition.viewDirection(), bluePortalPosition.position(), data.pec);
           data.pec.isExtended = true;
