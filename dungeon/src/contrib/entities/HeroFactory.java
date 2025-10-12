@@ -274,6 +274,9 @@ public final class HeroFactory {
                     }));
     hero.add(col);
 
+    // No input for non-local heroes
+    if (!isLocal) return hero;
+
     InputComponent inputComp = new InputComponent();
     hero.add(
         new CatapultableComponent(

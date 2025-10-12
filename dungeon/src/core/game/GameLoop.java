@@ -22,6 +22,7 @@ import core.Entity;
 import core.Game;
 import core.System;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.level.loader.DungeonLoader;
 import core.network.ConnectionListener;
@@ -269,29 +270,22 @@ public final class GameLoop extends ScreenAdapter {
             return;
           }
 
+          if (event.playerComponent() != null) {
+            PlayerComponent pc = event.playerComponent();
+            Game.add(
+                HeroFactory.newHero(
+                    event.entityId(),
+                    HeroFactory.DEFAULT_HERO_CLASS,
+                    Objects.equals(pc.playerName(), PreRunConfiguration.username()),
+                    PreRunConfiguration.username()));
+            return;
+          }
+
           Entity newEntity = new Entity(event.entityId());
           newEntity.add(event.positionComponent());
           newEntity.add(event.drawComponent());
           newEntity.persistent(event.isPersistent());
           Game.add(newEntity);
-        });
-    dispatcher.registerHandler(
-        HeroSpawnEvent.class,
-        (ctx, event) -> {
-          LOGGER.info("Received HeroSpawnEvent event: " + event.entityId());
-
-          Game.hero()
-              .ifPresentOrElse(
-                  (hero) -> LOGGER.warn("Hero already exists, cannot spawn another!"),
-                  () -> {
-                    Entity hero =
-                        HeroFactory.newHero(
-                            event.entityId(),
-                            HeroFactory.DEFAULT_HERO_CLASS,
-                            true,
-                            PreRunConfiguration.username());
-                    Game.add(hero);
-                  });
         });
 
     dispatcher.registerHandler(
