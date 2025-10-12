@@ -147,19 +147,22 @@ public final class LevelSystem extends System {
             "Can´t load level 0, because no level is added to the DungeonLoader.");
       }
     } else {
-      if (filteredEntityStream(PlayerComponent.class, PositionComponent.class)
-          .anyMatch(this::isOnOpenEndTile)) onEndTile.execute();
-      else
-        filteredEntityStream()
-            .forEach(
-                e -> {
-                  isOnDoor(e)
-                      .ifPresent(
-                          iLevel -> {
-                            loadLevel(iLevel);
-                            playSound();
-                          });
-                });
+      if (Game.heros().findAny().isEmpty()) return;
+
+      // Load next level if all heroes are on the end tile
+      if (Game.heros().allMatch(this::isOnOpenEndTile)) {
+        onEndTile.execute();
+        return;
+      }
+
+      // Check if all heroes are on the same open door and load that level
+      List<ILevel> doorLevels =
+          Game.heros().map(this::isOnDoor).flatMap(Optional::stream).distinct().toList();
+
+      if (doorLevels.size() == 1) {
+        loadLevel(doorLevels.get(0));
+        playSound();
+      }
     }
   }
 
