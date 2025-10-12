@@ -90,13 +90,9 @@ public final class ECSManagment {
     LOGGER.info(entity + " will be added to the Game.");
 
     if (Game.network().isServer()) {
-      Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
-      Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
 
-      if (pc.isPresent() && dc.isPresent()) {
-        Game.network()
-            .broadcast(
-                new EntitySpawnEvent(entity.id(), pc.get(), dc.get(), entity.isPersistent()), true);
+      if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
+        Game.network().broadcast(new EntitySpawnEvent(entity), true);
       }
     }
 

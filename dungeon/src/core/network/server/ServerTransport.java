@@ -4,6 +4,7 @@ import static core.network.codec.NetworkCodec.deserialize;
 import static core.network.codec.NetworkCodec.serialize;
 import static core.network.config.NetworkConfig.*;
 
+import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
@@ -168,7 +169,7 @@ public final class ServerTransport {
       ctx.writeAndFlush(buf).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
       return CompletableFuture.completedFuture(true);
     } catch (IOException e) {
-      LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
+      LOGGER.warn("Failed to send TCP object to {}: {} ({})", ctx.channel(), e.getClass(), e.getMessage());
       return CompletableFuture.completedFuture(false);
     }
   }
@@ -421,20 +422,22 @@ public final class ServerTransport {
 
   private void onRequestEntitySpawn(Session session, RequestEntitySpawn req) {
     int entityId = req.entityId();
-    var entity = Game.levelEntities().filter(e -> e.id() == entityId).findFirst();
-    if (entity.isEmpty()) {
+    Optional<Entity> optEntity = Game.levelEntities().filter(e -> e.id() == entityId).findFirst();
+    if (optEntity.isEmpty()) {
       LOGGER.warn("Entity id='{}' not found for spawn", entityId);
       return;
     }
-    core.Entity e = entity.get();
-    PositionComponent pc = e.fetch(PositionComponent.class).orElse(null);
-    DrawComponent dc = e.fetch(DrawComponent.class).orElse(null);
+    Entity entity = optEntity.get();
+    PositionComponent pc = entity.fetch(PositionComponent.class).orElse(null);
+    DrawComponent dc = entity.fetch(DrawComponent.class).orElse(null);
     if (pc == null || dc == null) {
       LOGGER.warn(
-          "Entity id='{}' missing components for spawn (entity was: '{}')", entityId, e.name());
+          "Entity id='{}' missing components for spawn (entity was: '{}')",
+          entityId,
+          entity.name());
       return;
     }
-    session.sendMessage(new EntitySpawnEvent(e.id(), pc, dc, e.isPersistent()), true);
+    session.sendMessage(new EntitySpawnEvent(entity), true);
   }
 
   private void onInputMessage(Session session, InputMessage msg) {

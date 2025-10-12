@@ -19,8 +19,8 @@ import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
 import core.network.messages.c2s.InputMessage;
+import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
-import core.network.messages.s2c.HeroSpawnEvent;
 import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
 import core.utils.Point;
@@ -225,14 +225,15 @@ public final class AuthoritativeServerLoop {
         .ifPresent(pc -> pc.position(Game.startTile().map(Tile::position).orElse(new Point(0, 0))));
     // Add the hero to the game, after the client knows the id.
     Game.network()
-        .send(state.clientId(), new HeroSpawnEvent(hero.id()), true)
+        .send(state.clientId(), new EntitySpawnEvent(hero), true)
         .thenAccept(
             success -> {
               if (success) {
                 Game.add(hero);
               } else {
                 LOGGER.warn(
-                    "Failed to send HeroSpawnEvent to client {}, not adding hero to game", state);
+                    "Failed to send Hero's EntitySpawnEvent to client {}, not adding hero to game",
+                    state);
               }
             });
     return hero;
