@@ -12,13 +12,13 @@ title: "Blockly Lösung: Level 15"
 int anzahl_Monster = 0;
 int anzahl_Wand_Vorne = 0;
 while(anzahl_Wand_Vorne < 7){
-    if(hero.isNearComponent(AIComponent.class, Direction.UP)){
+    if(hero.isNearComponent(AIComponent.class, Direction.INFRONT)){
         anzahl_Monster++;
-        while(hero.isNearComponent(AIComponent.class, Direction.UP)){
+        while(hero.isNearComponent(AIComponent.class, Direction.INFRONT)){
             hero.shootFireball();
         }
     }
-    if(hero.isNearTile(LevelElement.WALL, Direction.UP)){
+    if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT)){
         if(hero.isNearTile(LevelElement.WALL, Direction.UP) && hero.isNearTile(LevelElement.WALL, Direction.LEFT)){
             hero.rotate(Direction.RIGHT);
             anzahl_Wand_Vorne++;

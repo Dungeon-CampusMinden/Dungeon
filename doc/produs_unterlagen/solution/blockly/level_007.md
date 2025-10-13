@@ -13,7 +13,7 @@ hero.move();
 hero.rotate(Direction.RIGHT);
 hero.move();
 hero.move();
-hero.interact(Direction.NONE);
+hero.interact(Direction.HERE);
 hero.rotate(Direction.RIGHT);
 for(int i = 1; i <= 7; i++){
     hero.move();

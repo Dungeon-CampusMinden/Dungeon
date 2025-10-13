@@ -69,7 +69,7 @@ hero.rotate(Direction.RIGHT);
 for(int i = 1; i <= 6; i++){
     hero.move();
 }
-hero.interact(Direction.UP);
+hero.interact(Direction.INFRONT);
 for(int i = 1; i <= 2; i++){
     hero.rotate(Direction.RIGHT);
 }
@@ -110,7 +110,7 @@ for(int i = 1; i <= 8; i++){
 hero.rotate(Direction.RIGHT);
 for(int i = 1; i <= 4; i++){
     hero.move();
-    hero.interact(Direction.UP);
+    hero.interact(Direction.INFRONT);
 }
 for(int i = 1; i <= 2; i++){
     hero.rotate(Direction.RIGHT);

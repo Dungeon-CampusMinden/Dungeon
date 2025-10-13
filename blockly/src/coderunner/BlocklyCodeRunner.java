@@ -70,7 +70,7 @@ public class BlocklyCodeRunner {
   private static final String CodeWrapper =
       """
       import coderunner.BlocklyCommands;
-      import core.utils.Direction;
+      import coderunner.Direction;
       import core.level.utils.LevelElement;
       import contrib.components.*;
       import components.*;
