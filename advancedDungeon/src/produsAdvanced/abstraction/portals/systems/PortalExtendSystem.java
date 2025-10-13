@@ -47,6 +47,7 @@ public class PortalExtendSystem extends System {
       if (data.pec.throughBlue) {
         // man ist durch das blaue portal gegangen
         PortalFactory.getGreenPortal().ifPresent(portal -> {
+          java.lang.System.out.println("GREEN EXTENDED");
           PositionComponent greenPortalPosition = portal.fetch(PositionComponent.class).get();
           data.pec.onExtend.accept(greenPortalPosition.viewDirection(), greenPortalPosition.position(), data.pec);
           data.pec.isExtended = true;
@@ -54,6 +55,7 @@ public class PortalExtendSystem extends System {
       } else if (data.pec.throughGreen) {
         // man ist durch das grüne portal gegangen
         PortalFactory.getBluePortal().ifPresent(portal -> {
+          java.lang.System.out.println("BLUE EXTENDED");
           PositionComponent bluePortalPosition = portal.fetch(PositionComponent.class).get();
           data.pec.onExtend.accept(bluePortalPosition.viewDirection(), bluePortalPosition.position(), data.pec);
           data.pec.isExtended = true;

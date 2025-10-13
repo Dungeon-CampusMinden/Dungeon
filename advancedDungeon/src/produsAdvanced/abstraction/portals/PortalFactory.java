@@ -247,6 +247,10 @@ public class PortalFactory {
         return;
       }
       pec.throughGreen = true;
+      portal.fetch(PortalComponent.class).get().extendedEntityThrough = other;
+      getBluePortal().ifPresent(bluePortal -> {
+        bluePortal.fetch(PortalComponent.class).get().extendedEntityThrough = other;
+      });
       return;
     }
 
@@ -282,6 +286,10 @@ public class PortalFactory {
         return;
       }
       pec.throughBlue = true;
+      portal.fetch(PortalComponent.class).get().extendedEntityThrough = other;
+      getGreenPortal().ifPresent(greenPortal -> {
+        greenPortal.fetch(PortalComponent.class).get().extendedEntityThrough = other;
+      });
       return;
     }
 
@@ -436,19 +444,41 @@ public class PortalFactory {
    * @param direction Direction where it extends to.
    */
   public static void onCollideLeave(Entity portal, Entity other, Direction direction) {
+   clearExtendedEntity(portal, other);
+  }
+
+  public static void clearExtendedEntity(Entity portal, Entity other) {
+    System.out.println("clearExtendedEntity CALLED BY " + other.name() + " WITH " + portal.name());
     other.fetch(PortalExtendComponent.class).ifPresent(pec -> {
+      System.out.println("DAS ISEXTENDED IS " + pec.isExtended());
       if (pec.isExtended()) {
         pec.onTrim.accept(other);
         getGreenPortal().ifPresent(greenPortal -> {
           if (greenPortal == portal) {
+            System.out.println("GREENPORTAL ALL SET TO FALSE");
             pec.throughGreen = false;
             pec.isExtended = false;
           }
         });
         getBluePortal().ifPresent(bluePortal -> {
           if (bluePortal == portal) {
+            System.out.println("BLUEPORTAL ALL SET TO FALSE");
             pec.throughBlue = false;
             pec.isExtended = false;
+          }
+        });
+      } else {
+        getGreenPortal().ifPresent(greenPortal -> {
+          if (greenPortal == portal) {
+            System.out.println("ELSE GREEN ");
+            pec.throughGreen = false;
+          }
+        });
+        getBluePortal().ifPresent(bluePortal -> {
+          if (bluePortal == portal) {
+            System.out.println("ELSE BLUE");
+
+            pec.throughBlue = false;
           }
         });
       }
@@ -463,12 +493,28 @@ public class PortalFactory {
 
   /** Removes the blue portal from the game, if present. */
   public static void clearBluePortal() {
-    getBluePortal().ifPresent(Game::remove);
+    getBluePortal().ifPresent(portal -> {
+      Entity other = portal.fetch(PortalComponent.class).get().extendedEntityThrough;
+      System.out.println("was");
+      if (other != null) {
+        System.out.println("called there");
+        clearExtendedEntity(portal, other);
+      }
+      Game.remove(portal);
+    });
   }
 
   /** Removes the green portal from the game, if present. */
   public static void clearGreenPortal() {
-    getGreenPortal().ifPresent(Game::remove);
+    getGreenPortal().ifPresent(portal -> {
+      System.out.println("das");
+      Entity other = portal.fetch(PortalComponent.class).get().extendedEntityThrough;
+      if (other != null) {
+        System.out.println("called here");
+        clearExtendedEntity(portal, other);
+      }
+      Game.remove(portal);
+    });
   }
 
   /**
