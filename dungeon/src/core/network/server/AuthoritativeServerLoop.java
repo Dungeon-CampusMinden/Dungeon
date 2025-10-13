@@ -57,10 +57,11 @@ public final class AuthoritativeServerLoop {
 
     PreRunConfiguration.frameRate(SERVER_TICK_HZ);
 
+    PreRunConfiguration.userOnSetup().execute();
+
     createSystems();
     try {
       DungeonLoader.afterAllLevels(() -> Game.network().broadcast(new GameOverEvent(), true));
-      DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
       DungeonLoader.loadLevel(0);
     } catch (Exception e) {
       LOGGER.warn("Failed to load initial level on server", e);
@@ -116,6 +117,9 @@ public final class AuthoritativeServerLoop {
     ECSManagment.add(new FallingSystem());
     ECSManagment.add(new ManaRestoreSystem());
     ECSManagment.add(new DrawSystem());
+    ECSManagment.add(new LeverSystem());
+    ECSManagment.add(new PressurePlateSystem());
+    ECSManagment.add(new EventScheduler());
   }
 
   private void tick() {
