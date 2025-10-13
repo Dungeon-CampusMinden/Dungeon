@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Eine Factory-Klasse zum Erstellen von "Lichtwand"-Entitäten.
@@ -52,6 +53,7 @@ public class LightWallFactory {
     private final Direction direction;
     private boolean active = false;
     private final List<Entity> segments = new ArrayList<>();
+    private final List<Entity> extendedSegments = new ArrayList<>();
     private final Map<PitTile, Object[]> coveredPits = new ConcurrentHashMap<>();
 
     /**
@@ -97,25 +99,82 @@ public class LightWallFactory {
       return Collections.unmodifiableList(segments);
     }
 
+    /**
+     * Erstellt einen einzelnen Erweiterungsstrahl. Ein bereits vorhandener wird zuvor entfernt.
+     *
+     * @param from Startpunkt der Erweiterung.
+     * @param direction Richtung der Erweiterung.
+     */
+    public void extend(Point from, Direction direction) {
+      trim(); // Bestehende Erweiterung entfernen
+      System.out.println(
+          "DEBUG: extend() called. Defining new extended beam from "
+              + from
+              + " in direction "
+              + direction);
+
+      Point end = calculateEndPoint(from, direction);
+      int totalPoints = calculateNumberOfPoints(from, end);
+      for (int i = 0; i < totalPoints; i++) {
+        Entity segment = createNextSegment(from, end, totalPoints, i, direction);
+        this.extendedSegments.add(segment);
+      }
+      System.out.println(
+          "DEBUG: Defined " + extendedSegments.size() + " segments for the extended beam.");
+
+      if (active) {
+        System.out.println("DEBUG: Wall is active, adding extended segments to game now.");
+        extendedSegments.forEach(Game::add);
+        segments.addAll(extendedSegments);
+      }
+    }
+
+    /** Entfernt den Erweiterungsstrahl. */
+    public void trim() {
+      if (extendedSegments.isEmpty()) return;
+      System.out.println("DEBUG: trim() called. Removing extended beam.");
+      if (active) {
+        System.out.println("DEBUG: Wall is active, removing extended segments from game.");
+        extendedSegments.forEach(Game::remove);
+        segments.removeAll(extendedSegments);
+      }
+      extendedSegments.clear();
+      System.out.println("DEBUG: Extended beam definition cleared.");
+    }
+
     /** Aktiviert die Lichtwand, wodurch alle ihre Segmente erstellt und dem Spiel hinzugefügt werden. */
     private void activate() {
       if (active) return;
       this.active = true;
+      System.out.println("DEBUG: activate() called. Building wall.");
 
+      // Basisstrahl aufbauen
       owner
         .fetch(PositionComponent.class)
         .ifPresent(
           pc -> {
             Point start = pc.position();
+            System.out.println("DEBUG: Building base beam from " + start);
             Point end = calculateEndPoint(start, this.direction);
             int totalPoints = calculateNumberOfPoints(start, end);
 
             for (int i = 0; i < totalPoints; i++) {
-              Entity segment = createNextSegment(start, end, totalPoints, i);
+              Entity segment = createNextSegment(start, end, totalPoints, i, this.direction);
               this.segments.add(segment);
-              Game.add(segment);
             }
+            System.out.println("DEBUG: Base beam has " + this.segments.size() + " segments.");
           });
+
+      // Erweiterung zur Hauptliste hinzufügen
+      if (!extendedSegments.isEmpty()) {
+        System.out.println(
+            "DEBUG: Adding " + extendedSegments.size() + " extended segments to main list.");
+        segments.addAll(extendedSegments);
+      }
+      // Alle Segmente (Basis + Erweitert) zum Spiel hinzufügen
+      System.out.println("DEBUG: Adding all " + segments.size() + " segments to the game.");
+      segments.forEach(Game::add);
+
       updateEmitterVisual(true);
     }
 
@@ -123,9 +182,16 @@ public class LightWallFactory {
     private void deactivate() {
       if (!active) return;
       this.active = false;
+      System.out.println(
+          "DEBUG: deactivate() called. Removing all " + segments.size() + " segments from game.");
 
       segments.forEach(Game::remove);
       segments.clear();
+      System.out.println(
+          "DEBUG: Main segment list cleared. Extended segment definition remains ("
+              + extendedSegments.size()
+              + " segments).");
+      // extendedSegments bleiben als Definition für die nächste Aktivierung erhalten
       updateEmitterVisual(false);
     }
 
@@ -153,10 +219,18 @@ public class LightWallFactory {
      * @param currentIndex Der Index des zu erstellenden Segments.
      * @return Die erstellte Segment-Entität.
      */
-    private Entity createNextSegment(Point from, Point to, int totalPoints, int currentIndex) {
+    private Entity createNextSegment(
+      Point from, Point to, int totalPoints, int currentIndex, Direction segmentDirection) {
       float x = from.x() + currentIndex * (to.x() - from.x()) / (totalPoints - 1);
       float y = from.y() + currentIndex * (to.y() - from.y()) / (totalPoints - 1);
       Point currentPoint = new Point(x, y);
+      System.out.println(
+          "DEBUG: Creating segment "
+              + (currentIndex + 1)
+              + "/"
+              + totalPoints
+              + " at "
+              + currentPoint);
       PositionComponent pc = new PositionComponent(currentPoint);
 
       Entity segment = new Entity("lightWallSegment");
@@ -164,7 +238,7 @@ public class LightWallFactory {
 
       segment.add(new CollideComponent()); // Fügt die Kollisionskomponente hinzu
 
-      pc.rotation(rotationFor(direction));
+      pc.rotation(rotationFor(segmentDirection));
 
       Map<String, Animation> animationMap =
         Animation.loadAnimationSpritesheet(SEGMENT_SPRITESHEET_PATH);
@@ -234,6 +308,26 @@ public class LightWallFactory {
    */
   public static void deactivateWall(Entity wallEmitter) {
     wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::deactivate);
+  }
+
+  /**
+   * Erweitert eine bestehende Lichtwand um einen zusätzlichen Strahl.
+   *
+   * @param wallEmitter Die Emitter-Entität der zu erweiternden Wand.
+   * @param from Der Startpunkt des neuen Strahls.
+   * @param direction Die Richtung des neuen Strahls.
+   */
+  public static void extendWall(Entity wallEmitter, Point from, Direction direction) {
+    wallEmitter.fetch(LightWallComponent.class).ifPresent(c -> c.extend(from, direction));
+  }
+
+  /**
+   * Entfernt den zusätzlichen Strahl von einer Lichtwand.
+   *
+   * @param wallEmitter Die Emitter-Entität der Wand.
+   */
+  public static void trimWall(Entity wallEmitter) {
+    wallEmitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::trim);
   }
 
   /**

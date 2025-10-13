@@ -41,6 +41,7 @@ public class LightBridgeTestLevel extends AdvancedLevel {
   private Entity bridgeEmitter;
   private Entity bridgeLever2;
   private Entity bridgeEmitter2;
+  private Entity extendLever;
 
   // Shooter / Fireball-Logik
   private final List<Entity> shooters = new ArrayList<>();
@@ -92,12 +93,21 @@ public class LightBridgeTestLevel extends AdvancedLevel {
     wallEmitter = LightWallFactory.createLightWall(wallEmitterPos, WALL_DIRECTION, false);
     Game.add(wallEmitter);
 
-    Point wallLeverPos = new Point(7, 7);
+    Point wallLeverPos = new Point(9, 7);
     wallLever = LeverFactory.createLever(wallLeverPos, new ICommand() {
       @Override public void execute() { LightWallFactory.activateWall(wallEmitter); }
       @Override public void undo() { LightWallFactory.deactivateWall(wallEmitter); }
     });
     Game.add(wallLever);
+
+    Point extendLeverPos = new Point(10, 7);
+    extendLever = LeverFactory.createLever(extendLeverPos, new ICommand() {
+      @Override public void execute() {  LightWallFactory.extendWall(wallEmitter,new Point(1, 4), Direction.RIGHT); }
+      @Override public void undo() { LightWallFactory.trimWall(wallEmitter); }
+    });
+    Game.add(extendLever);
+
+
 
     //tractorBeamEntities.forEach(Game::add);
     spawnChortFireballShooter(15,5);
