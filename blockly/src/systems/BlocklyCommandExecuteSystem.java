@@ -61,6 +61,7 @@ public class BlocklyCommandExecuteSystem extends System {
 
   private boolean rest = false;
   private final List<Supplier<Boolean>> makeStep = new LinkedList<>();
+  private boolean disableQueue;
 
   /**
    * Main execution method of the system.
@@ -106,7 +107,7 @@ public class BlocklyCommandExecuteSystem extends System {
    * @param command The command to add.
    */
   public void add(BlocklyCommands.Commands command) {
-    if (run) queue.add(command);
+    if (!disableQueue) queue.add(command);
   }
 
   /**
@@ -130,8 +131,10 @@ public class BlocklyCommandExecuteSystem extends System {
 
   /** Clears the command queue and cancels all currently scheduled steps. */
   public void clear() {
+    fullStop();
     makeStep.clear();
     queue.clear();
+    run();
   }
 
   /**
@@ -448,6 +451,19 @@ public class BlocklyCommandExecuteSystem extends System {
     rest = true;
     EventScheduler.scheduleAction(
         () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000 * mul));
+  }
+
+  /** Will stop the system and will block the queue, so no new commands can be added. */
+  public void fullStop() {
+    super.stop();
+    this.disableQueue = true;
+  }
+
+  /** Will reactiave the System and will unblock the queue. */
+  @Override
+  public void run() {
+    super.run();
+    this.disableQueue = false;
   }
 
   /**

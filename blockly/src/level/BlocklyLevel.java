@@ -56,7 +56,6 @@ public abstract class BlocklyLevel extends DungeonLevel {
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) {
       onFirstTick();
-
       Game.system(BlocklyCommandExecuteSystem.class, System::run);
     } else {
       onTick();
