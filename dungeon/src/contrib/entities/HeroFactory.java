@@ -9,7 +9,6 @@ import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.HealthSystem;
 import contrib.utils.components.health.Damage;
-import contrib.utils.components.interaction.InteractionTool;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
 import core.Entity;
@@ -18,8 +17,6 @@ import core.components.*;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.elements.ILevel;
-import core.level.loader.DungeonLoader;
-import core.level.utils.LevelUtils;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.c2s.InputMessage.Action;
 import core.utils.Direction;
@@ -79,10 +76,11 @@ public final class HeroFactory {
 
                 // Just respawn at Start Tile instead of reloading the level
                 hero.fetch(PositionComponent.class)
-                      .ifPresent(pc -> {
-                        pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
-                        pc.viewDirection(Direction.DOWN);
-                      });
+                    .ifPresent(
+                        pc -> {
+                          pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
+                          pc.viewDirection(Direction.DOWN);
+                        });
               });
 
   /**
@@ -366,7 +364,7 @@ public final class HeroFactory {
             // if chest or cauldron
             entity.remove(UIComponent.class);
           } else {
-            InteractionTool.interactWithClosestInteractable(entity);
+            handleInteractWithClosestInteractable(hero);
           }
         },
         false);
@@ -465,6 +463,7 @@ public final class HeroFactory {
       ic.registerCallback(
           KeyboardConfig.MOUSE_INTERACT_WORLD.value(),
           (hero) -> {
+            // TODO: Will not work, because client does not know about all interactables
             Point mousePosition = SkillTools.cursorPositionAsPoint();
             Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
             if (interactable == null || !interactable.isPresent(InteractionComponent.class)) {
@@ -490,25 +489,7 @@ public final class HeroFactory {
       hero.remove(UIComponent.class);
       return;
     }
-    Point mousePosition = SkillTools.cursorPositionAsPoint();
-    Entity interactable = checkIfClickOnInteractable(mousePosition).orElse(null);
-    if (interactable == null) return;
-    InteractionComponent ic =
-        interactable
-            .fetch(InteractionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, InteractionComponent.class));
-    PositionComponent pc =
-        interactable
-            .fetch(PositionComponent.class)
-            .orElseThrow(
-                () -> MissingComponentException.build(interactable, PositionComponent.class));
-    PositionComponent heroPC =
-        hero.fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
-    if (Point.calculateDistance(pc.position(), heroPC.position()) < ic.radius()) {
-      Game.network().sendInput(new InputMessage(Action.INTERACT, pc.position()));
-    }
+    Game.network().sendInput(new InputMessage(Action.INTERACT, SkillTools.cursorPositionAsPoint()));
   }
 
   private static Optional<Entity> checkIfClickOnInteractable(Point pos)
