@@ -3,67 +3,77 @@ package produsAdvanced.abstraction.portals.systems;
 import core.Entity;
 import core.System;
 import core.components.PositionComponent;
-import core.utils.Direction;
 import core.utils.components.MissingComponentException;
 import produsAdvanced.abstraction.portals.PortalFactory;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
-import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
+/**
+ * The PortalExtendSystem manages the interaction with portals for entities that need to be extended
+ * instead of being teleported.
+ *
+ * <p>It calls the {@link PortalExtendComponent} onExtend for all the entities that have the
+ * component and where its not extended yet.
+ */
 public class PortalExtendSystem extends System {
 
+  /** Constructs a new PortalExtendSystem. */
   public PortalExtendSystem() {
     super(PortalExtendComponent.class);
   }
 
+  /**
+   * Executes the applyPortalExtendLogic method for all the entities that have a portal extend
+   * component and which aren't extended yet.
+   */
   @Override
   public void execute() {
     filteredEntityStream()
-            .map(this::buildDataObject)
-            .forEach(this::applyPortalExtendLogic);
+        .map(this::buildDataObject)
+        .filter(pec -> !pec.isExtended())
+        .forEach(this::applyPortalExtendLogic);
   }
 
-  private PortalExtendSystemData buildDataObject(Entity entity) {
+  /**
+   * Extracts the portal component out of the given entity and builds the data with it.
+   *
+   * @param entity Entity to extract the portal extend component.
+   * @return the
+   */
+  private PortalExtendComponent buildDataObject(Entity entity) {
     PortalExtendComponent pec =
         entity
             .fetch(PortalExtendComponent.class)
             .orElseThrow(
                 () -> MissingComponentException.build(entity, PortalExtendComponent.class));
 
-    TractorBeamComponent tbc =
-        entity
-            .fetch(TractorBeamComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, TractorBeamComponent.class));
-
-    return new PortalExtendSystemData(entity, pec, tbc);
+    return pec;
   }
 
   /**
-   * Calls the onExtend method which should be overwritten in the specific classes
+   * Calls the onExtend method which should be overwritten in the specific classes.
    *
-   * @param data Data which holds the {@link PortalExtendComponent} from which the extend will be called.
+   * @param pec Data which holds the {@link PortalExtendComponent} from which the extend will be
+   *     called.
    */
-  private void applyPortalExtendLogic(PortalExtendSystemData data) {
-    if (!data.pec.isExtended()) {
-      if (data.pec.throughBlue) {
-        // man ist durch das blaue portal gegangen
-        PortalFactory.getGreenPortal().ifPresent(portal -> {
-          java.lang.System.out.println("GREEN EXTENDED");
-          PositionComponent greenPortalPosition = portal.fetch(PositionComponent.class).get();
-          data.pec.onExtend.accept(greenPortalPosition.viewDirection(), greenPortalPosition.position(), data.pec);
-          data.pec.isExtended = true;
-        });
-      } else if (data.pec.throughGreen) {
-        // man ist durch das grüne portal gegangen
-        PortalFactory.getBluePortal().ifPresent(portal -> {
-          java.lang.System.out.println("BLUE EXTENDED");
-          PositionComponent bluePortalPosition = portal.fetch(PositionComponent.class).get();
-          data.pec.onExtend.accept(bluePortalPosition.viewDirection(), bluePortalPosition.position(), data.pec);
-          data.pec.isExtended = true;
-        });
-      }
+  private void applyPortalExtendLogic(PortalExtendComponent pec) {
+    if (pec.isThroughBlue()) {
+      PortalFactory.getGreenPortal()
+          .ifPresent(
+              portal -> {
+                PositionComponent greenPortalPosition = portal.fetch(PositionComponent.class).get();
+                pec.onExtend.accept(
+                    greenPortalPosition.viewDirection(), greenPortalPosition.position(), pec);
+                pec.setExtended(true);
+              });
+    } else if (pec.isThroughGreen()) {
+      PortalFactory.getBluePortal()
+          .ifPresent(
+              portal -> {
+                PositionComponent bluePortalPosition = portal.fetch(PositionComponent.class).get();
+                pec.onExtend.accept(
+                    bluePortalPosition.viewDirection(), bluePortalPosition.position(), pec);
+                pec.setExtended(true);
+              });
     }
   }
-
-  private record PortalExtendSystemData(
-      Entity entity, PortalExtendComponent pec, TractorBeamComponent tbc) {}
 }

@@ -241,15 +241,17 @@ public class TractorBeamFactory {
     Entity entity = factory.createBeamEmitter(from, direction);
 
     tractorBeamEntities.add(entity);
-    TractorBeamComponent tbc =  new TractorBeamComponent(direction, from, tractorBeamEntities);
+    TractorBeamComponent tbc = new TractorBeamComponent(direction, from, tractorBeamEntities);
     entity.add(tbc);
     PortalExtendComponent pec = new PortalExtendComponent();
-    pec.onExtend = (d,e,portalExtendComponent) -> {
-      tbc.extend(d,e,portalExtendComponent);
-    };
-    pec.onTrim = (e) -> {
-      tbc.trim();
-    };
+    pec.onExtend =
+        (d, e, portalExtendComponent) -> {
+          tbc.extend(d, e, portalExtendComponent);
+        };
+    pec.onTrim =
+        (e) -> {
+          tbc.trim();
+        };
     entity.add(pec);
 
     return entity;
@@ -414,6 +416,8 @@ public class TractorBeamFactory {
    * @param direction the direction in which to extend the beam
    * @param from the starting point of the extended beam segment
    * @param tractorBeamEntities the list of existing tractor beam entities to append to
+   * @param extendComp the component so the new entity has the same components as its original
+   * @param tbc the component so the new entity has the same components as its original
    */
   public static void extendTractorBeam(
       Direction direction,
