@@ -16,8 +16,8 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
-import java.util.AbstractMap;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class HeroController {
 
@@ -94,18 +94,71 @@ public class HeroController {
             });
   }
 
+  /**
+   * Handles interaction between the hero and an interactable entity. First attempts to find an
+   * interactable entity at the specified point (e.g., mouse cursor position). If no interactable
+   * entity is found or the entity is out of range, it searches within a 1-tile radius around the
+   * hero. If an interactable entity is found and within its interaction radius, the interaction is
+   * triggered.
+   *
+   * @param hero the hero entity attempting the interaction
+   * @param point the target point where the interaction is attempted (e.g., cursor position)
+   */
   public static void interact(Entity hero, Point point) {
-    Game.tileAt(point)
-        .flatMap(
-            tile ->
-                Game.entityAtTile(tile)
-                    .filter(e -> e.fetch(InteractionComponent.class).isPresent())
-                    .findFirst()
-                    .flatMap(
-                        e ->
-                            e.fetch(InteractionComponent.class)
-                                .map(ic -> new AbstractMap.SimpleEntry<>(e, ic))))
-        .ifPresent(pair -> pair.getValue().triggerInteraction(pair.getKey(), hero));
+    PositionComponent heroPc =
+        hero.fetch(PositionComponent.class)
+            .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
+
+    // Try finding interactable at the exact point first
+    Optional<Entity> target =
+        Game.tileAt(point)
+            .map(Game::entityAtTile)
+            .orElse(Stream.empty())
+            .filter(e -> e.fetch(InteractionComponent.class).isPresent())
+            .findFirst();
+
+    // Check if target at point is in range
+    boolean targetInRange = target.map(entity -> canInteract(entity, heroPc)).orElse(false);
+
+    // If nothing found at point OR found but out of range, search in 1-tile radius around hero
+    if (target.isEmpty() || !targetInRange) {
+      target =
+          LevelUtils.tilesInRange(heroPc.position(), 1f).stream()
+              .flatMap(Game::entityAtTile)
+              .filter(e -> e.fetch(InteractionComponent.class).isPresent())
+              .findFirst();
+    }
+
+    // Trigger interaction if entity found and within interaction radius
+    target.ifPresent(
+        entity -> {
+          InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
+          PositionComponent targetPc =
+              entity
+                  .fetch(PositionComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(entity, PositionComponent.class));
+
+          if (heroPc.position().distance(targetPc.position()) <= ic.radius()) {
+            ic.triggerInteraction(entity, hero);
+          }
+        });
+  }
+
+  /**
+   * Checks if the hero can interact with the given entity. Returns true if the entity has both
+   * position and interaction components, and the hero is within the interaction radius.
+   *
+   * @param entity the entity to check
+   * @param heroPc the hero's position component
+   * @return true if interaction is possible, false otherwise
+   */
+  private static boolean canInteract(Entity entity, PositionComponent heroPc) {
+    PositionComponent targetPc = entity.fetch(PositionComponent.class).orElse(null);
+    InteractionComponent ic = entity.fetch(InteractionComponent.class).orElse(null);
+    return targetPc != null
+        && ic != null
+        && heroPc.position().distance(targetPc.position()) <= ic.radius();
   }
 
   public static void changeSkill(Entity hero, boolean nextSkill) {

@@ -14,7 +14,6 @@ import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
 import core.game.PreRunConfiguration;
-import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
 import core.network.SnapshotTranslator;
