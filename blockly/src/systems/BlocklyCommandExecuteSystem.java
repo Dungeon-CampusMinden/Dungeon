@@ -453,13 +453,13 @@ public class BlocklyCommandExecuteSystem extends System {
         () -> rest = false, (long) (Gdx.graphics.getDeltaTime() * 1000 * mul));
   }
 
-  /** Will stop the system and will block the queue, so no new commands can be added. */
+  /** Stop the system and lock the queue, so no new commands can be added. */
   public void fullStop() {
     super.stop();
     this.disableQueue = true;
   }
 
-  /** Will reactiave the System and will unblock the queue. */
+  /** Reactivate the system and unlock the queue. */
   @Override
   public void run() {
     super.run();
