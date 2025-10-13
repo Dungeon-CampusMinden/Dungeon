@@ -33,7 +33,6 @@ public final class DevClient {
 
     // Game Settings
     Game.initBaseLogger(Level.ALL);
-    DungeonLoader.addLevel(Tuple.of("maze", DungeonLevel.class));
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(30);
