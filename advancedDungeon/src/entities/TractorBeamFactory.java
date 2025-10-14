@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
 /**
  * A factory for creating tractor beam entities between two points.
@@ -229,17 +231,30 @@ public class TractorBeamFactory {
    * @param direction the emitted direction of the tractor beam
    * @return a list of all tractor beam entities
    */
-  public static List<Entity> createTractorBeam(Point from, Direction direction) {
+  public static Entity createTractorBeam(Point from, Direction direction) {
     TractorBeamFactory factory = new TractorBeamFactory(from, direction);
     List<Entity> tractorBeamEntities = new ArrayList<>();
 
     while (factory.hasNext()) {
       tractorBeamEntities.add(factory.createNextEntity());
     }
+    Entity entity = factory.createBeamEmitter(from, direction);
 
-    tractorBeamEntities.add(factory.createBeamEmitter(from, direction));
+    tractorBeamEntities.add(entity);
+    TractorBeamComponent tbc = new TractorBeamComponent(direction, from, tractorBeamEntities);
+    entity.add(tbc);
+    PortalExtendComponent pec = new PortalExtendComponent();
+    pec.onExtend =
+        (d, e, portalExtendComponent) -> {
+          tbc.extend(d, e, portalExtendComponent);
+        };
+    pec.onTrim =
+        (e) -> {
+          tbc.trim();
+        };
+    entity.add(pec);
 
-    return tractorBeamEntities;
+    return entity;
   }
 
   /**
@@ -324,6 +339,7 @@ public class TractorBeamFactory {
         .ifPresent(
             cc -> {
               cc.onHold(action);
+              cc.isSolid(false);
             });
 
     return beamEmitter;
@@ -365,6 +381,7 @@ public class TractorBeamFactory {
                   }
                 });
       } else if (tractorBeamEntity.name().equals("beamEmitter")) {
+        final Direction dir = directionHolder[0];
         tractorBeamEntity
             .fetch(CollideComponent.class)
             .ifPresent(
@@ -378,7 +395,6 @@ public class TractorBeamFactory {
                                   if (!other.isPresent(FlyComponent.class)) {
                                     other.add(new FlyComponent());
                                   }
-                                  Direction dir = directionHolder[0];
                                   Vector2 forceVector =
                                       Vector2.of(
                                           -dir.x() * forceMagnitude, -dir.y() * forceMagnitude);
@@ -387,6 +403,69 @@ public class TractorBeamFactory {
                       });
                 });
       }
+    }
+  }
+
+  /**
+   * Extends an existing tractor beam by creating additional beam entities in the given direction
+   * starting from the specified point.
+   *
+   * <p>New tractor beam entities are added to both the provided list and the game world. The newly
+   * created beam emitter has its DrawComponent removed to avoid duplicate rendering.
+   *
+   * @param direction the direction in which to extend the beam
+   * @param from the starting point of the extended beam segment
+   * @param tractorBeamEntities the list of existing tractor beam entities to append to
+   * @param extendComp the component so the new entity has the same components as its original
+   * @param tbc the component so the new entity has the same components as its original
+   */
+  public static void extendTractorBeam(
+      Direction direction,
+      Point from,
+      List<Entity> tractorBeamEntities,
+      PortalExtendComponent extendComp,
+      TractorBeamComponent tbc) {
+    TractorBeamFactory factory = new TractorBeamFactory(from, direction);
+
+    while (factory.hasNext()) {
+      Entity beamEntity = factory.createNextEntity();
+      tractorBeamEntities.add(beamEntity);
+      Game.add(beamEntity);
+    }
+
+    Entity emitter = factory.createBeamEmitter(from, direction);
+    emitter.add(tbc);
+    emitter.add(extendComp);
+    emitter.remove(DrawComponent.class);
+    tractorBeamEntities.add(emitter);
+    Game.add(emitter);
+  }
+
+  /**
+   * Removes all entities from the given list that come after the first `beamEmitter` entity.
+   *
+   * <p>The first `beamEmitter` and all entities before it remain in the list.
+   *
+   * @param entities the list of entities to trim.
+   */
+  public static void trimAfterFirstBeamEmitter(List<Entity> entities) {
+    int firstEmitterIndex = -1;
+
+    for (int i = 0; i < entities.size(); i++) {
+      if ("beamEmitter".equals(entities.get(i).name())) {
+        firstEmitterIndex = i;
+        break;
+      }
+    }
+
+    // remove all entities after first emitter
+    if (firstEmitterIndex != -1 && firstEmitterIndex + 1 < entities.size()) {
+      List<Entity> toRemove =
+          new ArrayList<>(entities.subList(firstEmitterIndex + 1, entities.size()));
+      for (Entity entity : toRemove) {
+        Game.remove(entity);
+      }
+      entities.subList(firstEmitterIndex + 1, entities.size()).clear();
     }
   }
 }
