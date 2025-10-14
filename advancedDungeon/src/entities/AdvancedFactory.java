@@ -26,6 +26,7 @@ import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,6 +51,9 @@ public class AdvancedFactory {
   private static final float sphere_maxSpeed = 10f;
   private static final SimpleIPath CUBE_PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
   private static final SimpleIPath SPHERE_PRESSURE_PLATE = new SimpleIPath("objects/pressureplate");
+
+  private static final SimpleIPath PELLET_LAUNCHER = new SimpleIPath("portal/pellet_launcher");
+  private static final SimpleIPath PELLET_CATCHER = new SimpleIPath("portal/pellet_catcher");
 
   /**
    * Creates a laser grid entity at the given position.
@@ -212,22 +216,23 @@ public class AdvancedFactory {
 
     sphere.add(new DrawComponent(sm));
     sphere.add(new PositionComponent(position));
-    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {}, false));
+    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {
+    }, false));
     sphere.add(
-        new CollideComponent(
-            CollideComponent.DEFAULT_OFFSET,
-            CollideComponent.DEFAULT_SIZE,
-            ((self, other, direction) -> {
-              other
-                  .fetch(PlayerComponent.class)
-                  .ifPresent(
-                      player -> {
-                        VelocityComponent vc = self.fetch(VelocityComponent.class).get();
-                        VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
-                        vc.currentVelocity(otherVc.currentVelocity());
-                      });
-            }),
-            CollideComponent.DEFAULT_COLLIDER));
+      new CollideComponent(
+        CollideComponent.DEFAULT_OFFSET,
+        CollideComponent.DEFAULT_SIZE,
+        ((self, other, direction) -> {
+          other
+            .fetch(PlayerComponent.class)
+            .ifPresent(
+              player -> {
+                VelocityComponent vc = self.fetch(VelocityComponent.class).get();
+                VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
+                vc.currentVelocity(otherVc.currentVelocity());
+              });
+        }),
+        CollideComponent.DEFAULT_COLLIDER));
 
     return sphere;
   }
@@ -341,10 +346,81 @@ public class AdvancedFactory {
    */
   public static Entity spherePressurePlate(Point position, float massTrigger) {
     return createPressurePlate(
-        "sphere-pressureplate",
-        SPHERE_PRESSURE_PLATE,
-        massTrigger,
-        PortalSphereComponent.class,
-        position);
+      "sphere-pressureplate",
+      SPHERE_PRESSURE_PLATE,
+      massTrigger,
+      PortalSphereComponent.class,
+      position);
+  }
+
+  /**
+   * Creates a new entity that can shoot energy pellets.
+   *
+   * @param position the position of the pellet launcher
+   * @param direction the direction the pellet launcher is facing.
+   * @return a new energyPelletLauncher entity.
+   */
+  public static Entity energyPelletLauncher(Point position, Direction direction) {
+    Entity launcher = new Entity("energyPelletLauncher");
+    launcher.add(new PositionComponent(position));
+    DrawComponent dc = chooseTexture(direction, PELLET_LAUNCHER);
+    launcher.add(dc);
+    launcher.add(new CollideComponent());
+    launcher.add(new AIComponent(entity -> {}, entity -> {}, entity -> true));
+    // TODO: the AiComponent needs an idle behaviour (launching energy pellets in the facing
+    // direction).
+
+    return launcher;
+  }
+
+  /**
+   * Creates a new entity that can catch energy pellets.
+   *
+   * @param position the position of the pellet catcher.
+   * @param direction the direction the pellet catcher is facing.
+   * @return a new energyPelletCatcher entity.
+   */
+  public static Entity energyPelletCatcher(Point position, Direction direction) {
+    Entity catcher = new Entity("energyPelletCatcher");
+    catcher.add(new PositionComponent(position));
+    DrawComponent dc = chooseTexture(direction, PELLET_CATCHER);
+    catcher.add(dc);
+    catcher.add(new CollideComponent());
+    // TODO: the CollideComponent need specific behaviour for collisions with energy pellets and the
+    // catcher needs the logik to behave like like a lever.
+
+    return catcher;
+  }
+
+  /**
+   * This method help to choose the correct single texture from an animationMap.
+   *
+   * @param direction the direction the entity is facing.
+   * @param path the path of the texture.
+   * @return a new DrawComponent including the correct StateMachine for the texture.
+   */
+  private static DrawComponent chooseTexture(Direction direction, SimpleIPath path) {
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(path);
+    StateMachine sm;
+
+    switch (direction) {
+      case Direction.DOWN:
+        State top = State.fromMap(animationMap, "top");
+        sm = new StateMachine(List.of(top));
+        break;
+      case Direction.LEFT:
+        State right = State.fromMap(animationMap, "right");
+        sm = new StateMachine(List.of(right));
+        break;
+      case Direction.RIGHT:
+        State left = State.fromMap(animationMap, "left");
+        sm = new StateMachine(List.of(left));
+        break;
+      default: // Direction.Up
+        State bottom = State.fromMap(animationMap, "bottom");
+        sm = new StateMachine(List.of(bottom));
+        break;
+    }
+    return new DrawComponent(sm);
   }
 }
