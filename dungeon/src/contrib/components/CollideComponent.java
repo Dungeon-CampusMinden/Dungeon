@@ -1,14 +1,12 @@
 package contrib.components;
 
-import com.badlogic.gdx.utils.OrderedSet;
+import contrib.utils.components.collide.Collider;
+import contrib.utils.components.collide.Hitbox;
 import core.Component;
 import core.Entity;
-import core.components.PositionComponent;
 import core.utils.Direction;
-import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.Vector2;
-import core.utils.components.MissingComponentException;
 import core.utils.logging.CustomLogLevel;
 import java.util.logging.Logger;
 
@@ -66,8 +64,7 @@ public final class CollideComponent implements Component {
 
   private final Logger LOGGER = Logger.getLogger(this.getClass().getName());
 
-  private final Vector2 offset;
-  private final Vector2 size;
+  private Collider collider;
   private boolean isSolid = true;
 
   /**
@@ -128,8 +125,7 @@ public final class CollideComponent implements Component {
    * @param size the size of the hitbox; use {@link #DEFAULT_SIZE} for the default size handler
    */
   public CollideComponent(final Vector2 offset, final Vector2 size) {
-    this.offset = offset;
-    this.size = size;
+    this.collider = new Hitbox(size, offset);
     this.collideEnter = DEFAULT_COLLIDER;
     this.collideLeave = DEFAULT_COLLIDER;
     this.collideHold = DEFAULT_COLLIDER;
@@ -162,8 +158,7 @@ public final class CollideComponent implements Component {
       final Vector2 size,
       final TriConsumer<Entity, Entity, Direction> collideEnter,
       final TriConsumer<Entity, Entity, Direction> collideLeave) {
-    this.offset = offset;
-    this.size = size;
+    this.collider = new Hitbox(size, offset);
     this.collideEnter = collideEnter;
     this.collideLeave = collideLeave;
     this.collideHold = DEFAULT_COLLIDER;
@@ -271,86 +266,6 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Get the bottom-left point of the hitbox.
-   *
-   * @param pos position of the entity
-   * @param scale scale of the entity
-   * @return Bottom-left point of the entity's hitbox
-   */
-  public Point bottomLeft(final Point pos, final Vector2 scale) {
-    return pos.translate(offset.scale(scale));
-  }
-
-  /**
-   * Get the bottom-left point of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return Bottom-left point of the entity's hitbox
-   */
-  public Point bottomLeft(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return bottomLeft(pc.position(), pc.scale());
-  }
-
-  /**
-   * Get the top-right point of the hitbox.
-   *
-   * @param pos position of the entity
-   * @param scale scale of the entity
-   * @return Top-right point of the entity's hitbox
-   */
-  public Point topRight(final Point pos, final Vector2 scale) {
-    return pos.translate(offset.scale(scale)).translate(size.scale(scale));
-  }
-
-  /**
-   * Get the top-right point of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return Top-right point of the entity's hitbox
-   */
-  public Point topRight(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return topRight(pc.position(), pc.scale());
-  }
-
-  /**
-   * Get all four corners of the hitbox.
-   *
-   * @param pos position of the entity
-   * @param scale scale of the entity
-   * @return List of all four corners of the hitbox in the order: bottom-left, bottom-right,
-   *     top-left, top-right
-   */
-  public OrderedSet<Point> corners(final Point pos, final Vector2 scale) {
-    Point bottomLeft = bottomLeft(pos, scale);
-    Point topRight = topRight(pos, scale);
-    Point bottomRight = new Point(topRight.x(), bottomLeft.y());
-    Point topLeft = new Point(bottomLeft.x(), topRight.y());
-    return OrderedSet.with(bottomLeft, bottomRight, topLeft, topRight);
-  }
-
-  /**
-   * Get the center point of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return Center point of the entity's hitbox
-   */
-  public Point center(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return pc.position().translate(offset.scale(pc.scale())).translate(size(entity).scale(0.5f));
-  }
-
-  /**
    * Sets the callback function to execute at the start of a collision (collision enter).
    *
    * <p>The collision handler uses a {@link TriConsumer} with three parameters:
@@ -385,43 +300,6 @@ public final class CollideComponent implements Component {
   }
 
   /**
-   * Get the size of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return the size of the component
-   */
-  public Vector2 size(final Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return size.scale(pc.scale());
-  }
-
-  /**
-   * Get the offset of the hitbox.
-   *
-   * @return the offset of the component
-   */
-  public Vector2 offset() {
-    return Vector2.of(offset);
-  }
-
-  /**
-   * Get the offset of the hitbox.
-   *
-   * @param entity associated entity of this component.
-   * @return the offset of the component
-   */
-  public Vector2 scaledOffset(Entity entity) {
-    PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
-    return Vector2.of(offset.scale(pc.scale()));
-  }
-
-  /**
    * Get the solid state of the hitbox. Solid entities will not be able to pass through each other.
    *
    * @return true if the hitbox is solid, false otherwise
@@ -439,5 +317,23 @@ public final class CollideComponent implements Component {
   public CollideComponent isSolid(boolean isSolid) {
     this.isSolid = isSolid;
     return this;
+  }
+
+  /**
+   * Get the collider used for collision detection.
+   *
+   * @return the collider
+   */
+  public Collider collider() {
+    return collider;
+  }
+
+  /**
+   * Sets the collider used for collision detection.
+   *
+   * @param collider the new collider
+   */
+  public void collider(Collider collider) {
+    this.collider = collider;
   }
 }

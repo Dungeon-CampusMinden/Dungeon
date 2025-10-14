@@ -54,7 +54,7 @@ public class FallingSystem extends System {
         entity
             .fetch(CollideComponent.class)
             .orElseThrow(() -> MissingComponentException.build(entity, CollideComponent.class));
-    Point center = cc.center(entity);
+    Point center = cc.collider().absoluteCenter();
     Tile tile = Game.tileAt(center).orElse(null);
     if (tile instanceof PitTile pitTile) {
       return pitTile.isOpen();

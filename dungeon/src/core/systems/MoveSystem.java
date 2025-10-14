@@ -1,7 +1,8 @@
 package core.systems;
 
 import contrib.components.CollideComponent;
-import contrib.utils.CollisionUtils;
+import contrib.systems.PositionSync;
+import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -40,7 +41,11 @@ public class MoveSystem extends System {
    */
   @Override
   public void execute() {
-    filteredEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
+    filteredEntityStream()
+        .map(this::buildDataObject)
+        .peek(this::updatePosition)
+        .map(MSData::e)
+        .forEach(PositionSync::syncPosition);
   }
 
   /**
@@ -71,20 +76,15 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
 
-    if (!CollisionUtils.isCollidingWithLevel(
-        newPos, data.pc.scale(), data.cc, canEnterOpenPits, canEnterWalls)) {
+    if (!isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
       Point xMove = new Point(newPos.x(), oldPos.y());
       Point yMove = new Point(oldPos.x(), newPos.y());
 
-      boolean xAccessible =
-          !CollisionUtils.isCollidingWithLevel(
-              xMove, data.pc.scale(), data.cc, canEnterOpenPits, canEnterWalls);
-      boolean yAccessible =
-          !CollisionUtils.isCollidingWithLevel(
-              yMove, data.pc.scale(), data.cc, canEnterOpenPits, canEnterWalls);
+      boolean xAccessible = !isCollidingWithLevel(data.cc, xMove, canEnterOpenPits, canEnterWalls);
+      boolean yAccessible = !isCollidingWithLevel(data.cc, yMove, canEnterOpenPits, canEnterWalls);
 
       if (xAccessible) {
         data.pc.position(xMove);
@@ -95,6 +95,15 @@ public class MoveSystem extends System {
       // Notify entity that it hit a wall
       data.vc.onWallHit().accept(data.e);
     }
+  }
+
+  private boolean isCollidingWithLevel(
+      CollideComponent cc, Point position, boolean canEnterOpenPits, boolean canEnterWalls) {
+    if (cc == null) {
+      return CollisionUtils.isCollidingWithLevel(position, canEnterOpenPits, canEnterWalls);
+    }
+    return CollisionUtils.isCollidingWithLevel(
+        cc.collider(), position, canEnterOpenPits, canEnterWalls);
   }
 
   /**
