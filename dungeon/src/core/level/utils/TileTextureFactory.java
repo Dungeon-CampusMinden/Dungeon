@@ -455,45 +455,48 @@ public class TileTextureFactory {
   }
 
   private static boolean isVerticalStem(Coordinate p, LevelElement[][] layout) {
-    int x = p.x(), y = p.y();
-    int height = layout.length;
-    int width = layout[0].length;
-
-    if (y < 0 || y >= height || x < 0 || x >= width) return false;
+    int x = p.x();
+    int y = p.y();
+    if (!isInsideLayout(x, y, layout)) return false;
     if (layout[y][x] != LevelElement.WALL) return false;
-
-    boolean above =
-        (y + 1 < height)
-            && (layout[y + 1][x] == LevelElement.WALL || layout[y + 1][x] == LevelElement.DOOR);
-    boolean below =
-        (y - 1 >= 0)
-            && (layout[y - 1][x] == LevelElement.WALL || layout[y - 1][x] == LevelElement.DOOR);
-
+    boolean above = hasWallOrDoorAbove(x, y, layout);
+    boolean below = hasWallOrDoorBelow(x, y, layout);
     return above && below;
   }
 
-  private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int dx) {
-    int x = p.x(), y = p.y();
-    int height = layout.length;
-    int width = layout[0].length;
-
+  private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int horizontalStep) {
+    int x = p.x();
+    int y = p.y();
     while (true) {
-      x += dx;
-      if (y < 0 || y >= height || x < 0 || x >= width) return false;
+      x += horizontalStep;
+      if (!isInsideLayout(x, y, layout)) return false;
 
-      boolean stemAbove =
-          (y + 1 < height)
-              && (layout[y + 1][x] == LevelElement.WALL || layout[y + 1][x] == LevelElement.DOOR);
-      boolean stemBelow =
-          (y - 1 >= 0)
-              && (layout[y - 1][x] == LevelElement.WALL || layout[y - 1][x] == LevelElement.DOOR);
-      boolean stemHere = (layout[y][x] == LevelElement.WALL) && stemAbove && stemBelow;
+      boolean stemAbove = hasWallOrDoorAbove(x, y, layout);
+      boolean stemBelow = hasWallOrDoorBelow(x, y, layout);
+      boolean stemHere  = (layout[y][x] == LevelElement.WALL) && stemAbove && stemBelow;
 
       if (!stemHere) {
         LevelElement e = layout[y][x];
         return e.value() || e == LevelElement.PIT || e == LevelElement.HOLE;
       }
     }
+  }
+
+  private static boolean isInsideLayout(int x, int y, LevelElement[][] layout) {
+    int height = layout.length;
+    int width  = layout[0].length;
+    return y >= 0 && y < height && x >= 0 && x < width;
+  }
+
+  private static boolean hasWallOrDoorAbove(int x, int y, LevelElement[][] layout) {
+    return isInsideLayout(x, y + 1, layout)
+      && (layout[y + 1][x] == LevelElement.WALL || layout[y + 1][x] == LevelElement.DOOR);
+  }
+
+
+  private static boolean hasWallOrDoorBelow(int x, int y, LevelElement[][] layout) {
+    return isInsideLayout(x, y - 1, layout)
+      && (layout[y - 1][x] == LevelElement.WALL || layout[y - 1][x] == LevelElement.DOOR);
   }
 
   /**
