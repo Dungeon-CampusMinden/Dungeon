@@ -188,17 +188,29 @@ public class TileTextureFactory {
   }
 
   private static IPath findTexturePathInnerCorner(LevelPart levelPart) {
-    if (isCrossUpperLeftBottomRight(levelPart.position(), levelPart.layout())) {
+    Coordinate p = levelPart.position();
+    LevelElement[][] layout = levelPart.layout();
+
+    if (isCrossUpperLeftBottomRight(p, layout)) {
       return new SimpleIPath("wall/wall_cross_upper_left_bottom_right");
-    } else if (isCrossUpperRightBottomLeft(levelPart.position(), levelPart.layout())) {
+    } else if (isCrossUpperRightBottomLeft(p, layout)) {
       return new SimpleIPath("wall/wall_cross_upper_right_bottom_left");
-    } else if (isBottomLeftInnerCorner(levelPart.position(), levelPart.layout())) {
+    }
+
+    if (isUpperInnerCornerDoubleLeft(p, layout)) {
+      return new SimpleIPath("wall/wall_inner_corner_upper_left_double");
+    }
+    if (isUpperInnerCornerDoubleRight(p, layout)) {
+      return new SimpleIPath("wall/wall_inner_corner_upper_right_double");
+    }
+
+    if (isBottomLeftInnerCorner(p, layout)) {
       return new SimpleIPath("wall/wall_inner_corner_bottom_left");
-    } else if (isBottomRightInnerCorner(levelPart.position(), levelPart.layout())) {
+    } else if (isBottomRightInnerCorner(p, layout)) {
       return new SimpleIPath("wall/wall_inner_corner_bottom_right");
-    } else if (isUpperRightInnerCorner(levelPart.position(), levelPart.layout())) {
+    } else if (isUpperRightInnerCorner(p, layout)) {
       return new SimpleIPath("wall/wall_inner_corner_upper_right");
-    } else if (isUpperLeftInnerCorner(levelPart.position(), levelPart.layout())) {
+    } else if (isUpperLeftInnerCorner(p, layout)) {
       return new SimpleIPath("wall/wall_inner_corner_upper_left");
     }
     return null;
@@ -218,15 +230,21 @@ public class TileTextureFactory {
   }
 
   private static IPath findTexturePathTJunction(LevelPart lp) {
-    if (isInnerTJunctionTop(lp.position(), lp.layout())) {
+    Coordinate p = lp.position();
+    LevelElement[][] layout = lp.layout();
+
+    if (isInnerTJunctionTop(p, layout)) {
       return new SimpleIPath("wall/t_inner_top");
-    } else if (isInnerTJunctionBottom(lp.position(), lp.layout())) {
+    } else if (isInnerTJunctionBottom(p, layout)) {
+      if (isBottomTBetweenUpperInnerCorners(p, layout)) {
+        return new SimpleIPath("wall/t_inner_bottom_empty");
+      }
       return new SimpleIPath("wall/t_inner_bottom");
-    } else if (isInnerTJunctionLeft(lp.position(), lp.layout())) {
+    } else if (isInnerTJunctionLeft(p, layout)) {
       return new SimpleIPath("wall/t_inner_left");
-    } else if (isInnerTJunctionRight(lp.position(), lp.layout())) {
+    } else if (isInnerTJunctionRight(p, layout)) {
       return new SimpleIPath("wall/t_inner_right");
-    } else if (isTopTJunction(lp.position(), lp.layout())) {
+    } else if (isTopTJunction(p, layout)) {
       return new SimpleIPath("wall/t_cross_top");
     }
     return null;
@@ -473,7 +491,7 @@ public class TileTextureFactory {
 
       boolean stemAbove = hasWallOrDoorAbove(x, y, layout);
       boolean stemBelow = hasWallOrDoorBelow(x, y, layout);
-      boolean stemHere  = (layout[y][x] == LevelElement.WALL) && stemAbove && stemBelow;
+      boolean stemHere = (layout[y][x] == LevelElement.WALL) && stemAbove && stemBelow;
 
       if (!stemHere) {
         LevelElement e = layout[y][x];
@@ -484,19 +502,58 @@ public class TileTextureFactory {
 
   private static boolean isInsideLayout(int x, int y, LevelElement[][] layout) {
     int height = layout.length;
-    int width  = layout[0].length;
+    int width = layout[0].length;
     return y >= 0 && y < height && x >= 0 && x < width;
   }
 
   private static boolean hasWallOrDoorAbove(int x, int y, LevelElement[][] layout) {
     return isInsideLayout(x, y + 1, layout)
-      && (layout[y + 1][x] == LevelElement.WALL || layout[y + 1][x] == LevelElement.DOOR);
+        && (layout[y + 1][x] == LevelElement.WALL || layout[y + 1][x] == LevelElement.DOOR);
   }
-
 
   private static boolean hasWallOrDoorBelow(int x, int y, LevelElement[][] layout) {
     return isInsideLayout(x, y - 1, layout)
-      && (layout[y - 1][x] == LevelElement.WALL || layout[y - 1][x] == LevelElement.DOOR);
+        && (layout[y - 1][x] == LevelElement.WALL || layout[y - 1][x] == LevelElement.DOOR);
+  }
+
+  private static boolean isUpperInnerCornerDoubleLeft(Coordinate p, LevelElement[][] layout) {
+    if (!isUpperLeftInnerCorner(p, layout)) return false;
+    return hasUpperInnerCornerSkippingBottomT(p, layout, +1, true);
+  }
+
+  private static boolean isUpperInnerCornerDoubleRight(Coordinate p, LevelElement[][] layout) {
+    if (!isUpperRightInnerCorner(p, layout)) return false;
+    return hasUpperInnerCornerSkippingBottomT(p, layout, -1, false);
+  }
+
+  private static boolean isBottomTBetweenUpperInnerCorners(Coordinate p, LevelElement[][] layout) {
+    boolean leftUL = hasUpperInnerCornerSkippingBottomT(p, layout, -1, false);
+    boolean leftUR = hasUpperInnerCornerSkippingBottomT(p, layout, -1, true);
+    boolean rightUL = hasUpperInnerCornerSkippingBottomT(p, layout, +1, false);
+    boolean rightUR = hasUpperInnerCornerSkippingBottomT(p, layout, +1, true);
+    return (leftUL && rightUR) || (leftUR && rightUL);
+  }
+
+  private static boolean hasUpperInnerCornerSkippingBottomT(
+      Coordinate p, LevelElement[][] layout, int horizontalStep, boolean targetRightCorner) {
+    int x = p.x();
+    int y = p.y();
+
+    while (true) {
+      x += horizontalStep;
+      if (!isInsideLayout(x, y, layout)) return false;
+      Coordinate q = new Coordinate(x, y);
+
+      if (isInnerTJunctionBottom(q, layout)) {
+
+      } else if (targetRightCorner && isUpperRightInnerCorner(q, layout)) {
+        return true;
+      } else if (!targetRightCorner && isUpperLeftInnerCorner(q, layout)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 
   /**
