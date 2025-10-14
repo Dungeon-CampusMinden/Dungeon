@@ -197,24 +197,27 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/wall_cross_upper_right_bottom_left");
     }
 
-    if (isUpperInnerCornerDoubleLeft(p, layout)) {
-      return new SimpleIPath("wall/wall_inner_corner_upper_left_double");
-    }
-    if (isUpperInnerCornerDoubleRight(p, layout)) {
-      return new SimpleIPath("wall/wall_inner_corner_upper_right_double");
-    }
-
     if (isBottomLeftInnerCorner(p, layout)) {
       return new SimpleIPath("wall/wall_inner_corner_bottom_left");
     } else if (isBottomRightInnerCorner(p, layout)) {
       return new SimpleIPath("wall/wall_inner_corner_bottom_right");
     } else if (isUpperRightInnerCorner(p, layout)) {
+      Coordinate b = new Coordinate(p.x(), p.y() - 1);
+      if (rendersLeftDoubleAt(b, layout) || rendersRightDoubleAt(b, layout)) {
+        return new SimpleIPath("wall/wall_inner_corner_upper_right_double");
+      }
       return new SimpleIPath("wall/wall_inner_corner_upper_right");
     } else if (isUpperLeftInnerCorner(p, layout)) {
+      Coordinate b = new Coordinate(p.x(), p.y() - 1);
+      if (rendersLeftDoubleAt(b, layout) || rendersRightDoubleAt(b, layout)) {
+        return new SimpleIPath("wall/wall_inner_corner_upper_left_double");
+      }
       return new SimpleIPath("wall/wall_inner_corner_upper_left");
     }
     return null;
   }
+
+
 
   private static IPath findTexturePathOuterCorner(LevelPart levelPart) {
     if (isBottomLeftOuterCorner(levelPart.position(), levelPart.layout())) {
@@ -229,6 +232,28 @@ public class TileTextureFactory {
     return null;
   }
 
+  private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInnerVerticalGroup(p, layout)) return false;
+    boolean leftStem  = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
+    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
+    return leftStem && rightStem;
+  }
+
+  private static boolean rendersLeftDoubleAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInnerVerticalGroup(p, layout)) return false;
+    boolean leftStem  = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
+    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
+    return !leftStem && rightStem;
+  }
+
+  private static boolean rendersRightDoubleAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInnerVerticalGroup(p, layout)) return false;
+    boolean leftStem  = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
+    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
+    return leftStem && !rightStem;
+  }
+
+
   private static IPath findTexturePathTJunction(LevelPart lp) {
     Coordinate p = lp.position();
     LevelElement[][] layout = lp.layout();
@@ -236,7 +261,8 @@ public class TileTextureFactory {
     if (isInnerTJunctionTop(p, layout)) {
       return new SimpleIPath("wall/t_inner_top");
     } else if (isInnerTJunctionBottom(p, layout)) {
-      if (isBottomTBetweenUpperInnerCorners(p, layout)) {
+      Coordinate b = new Coordinate(p.x(), p.y() - 1);
+      if (rendersEmptyAt(b, layout)) {
         return new SimpleIPath("wall/t_inner_bottom_empty");
       }
       return new SimpleIPath("wall/t_inner_bottom");
@@ -249,6 +275,7 @@ public class TileTextureFactory {
     }
     return null;
   }
+
 
   /**
    * Checks if tile with coordinate p is surrounded by walls.
@@ -516,45 +543,7 @@ public class TileTextureFactory {
         && (layout[y - 1][x] == LevelElement.WALL || layout[y - 1][x] == LevelElement.DOOR);
   }
 
-  private static boolean isUpperInnerCornerDoubleLeft(Coordinate p, LevelElement[][] layout) {
-    if (!isUpperLeftInnerCorner(p, layout)) return false;
-    return hasUpperInnerCornerSkippingBottomT(p, layout, +1, true);
-  }
 
-  private static boolean isUpperInnerCornerDoubleRight(Coordinate p, LevelElement[][] layout) {
-    if (!isUpperRightInnerCorner(p, layout)) return false;
-    return hasUpperInnerCornerSkippingBottomT(p, layout, -1, false);
-  }
-
-  private static boolean isBottomTBetweenUpperInnerCorners(Coordinate p, LevelElement[][] layout) {
-    boolean leftUL = hasUpperInnerCornerSkippingBottomT(p, layout, -1, false);
-    boolean leftUR = hasUpperInnerCornerSkippingBottomT(p, layout, -1, true);
-    boolean rightUL = hasUpperInnerCornerSkippingBottomT(p, layout, +1, false);
-    boolean rightUR = hasUpperInnerCornerSkippingBottomT(p, layout, +1, true);
-    return (leftUL && rightUR) || (leftUR && rightUL);
-  }
-
-  private static boolean hasUpperInnerCornerSkippingBottomT(
-      Coordinate p, LevelElement[][] layout, int horizontalStep, boolean targetRightCorner) {
-    int x = p.x();
-    int y = p.y();
-
-    while (true) {
-      x += horizontalStep;
-      if (!isInsideLayout(x, y, layout)) return false;
-      Coordinate q = new Coordinate(x, y);
-
-      if (isInnerTJunctionBottom(q, layout)) {
-
-      } else if (targetRightCorner && isUpperRightInnerCorner(q, layout)) {
-        return true;
-      } else if (!targetRightCorner && isUpperLeftInnerCorner(q, layout)) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  }
 
   /**
    * Checks if tile with coordinate p should be a right wall. Tile has to have walls above and below
