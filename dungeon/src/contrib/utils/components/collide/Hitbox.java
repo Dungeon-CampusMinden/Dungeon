@@ -189,16 +189,6 @@ public class Hitbox extends Collider {
   }
 
   /**
-   * Creates a copy of this hitbox with the same size and offset.
-   *
-   * @return A cloned {@code Hitbox} instance.
-   */
-  @Override
-  public Collider clone() {
-    return new Hitbox(this.width, this.height, this.offset.x(), this.offset.y());
-  }
-
-  /**
    * Checks if this hitbox collides with a given point.
    *
    * @param point The point to check for collision.

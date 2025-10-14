@@ -58,18 +58,6 @@ public class HitcircleTest {
   }
 
   @Test
-  void testCloneCreatesIndependentCopy() {
-    Hitcircle clone = (Hitcircle) circle.clone();
-    assertNotSame(circle, clone);
-    assertEquals(circle.radius(), clone.radius());
-    assertEquals(circle.offset, clone.offset);
-
-    // modifying clone doesn’t affect original
-    clone.radius = 20f;
-    assertNotEquals(circle.radius(), clone.radius);
-  }
-
-  @Test
   void testCollideWithPoint_inside() {
     Point point = new Point(12f, 12f); // within radius distance 5
     assertTrue(circle.collide(point));

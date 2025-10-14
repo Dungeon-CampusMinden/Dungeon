@@ -160,16 +160,6 @@ public class Hitcircle extends Collider {
   }
 
   /**
-   * Creates a copy of this hitcircle with the same radius and offset.
-   *
-   * @return A cloned {@code Hitcircle} instance.
-   */
-  @Override
-  public Collider clone() {
-    return new Hitcircle(this.radius, this.offset.x(), this.offset.y());
-  }
-
-  /**
    * Checks if this hitcircle collides with a given point.
    *
    * @param point The point to check for collision.

@@ -176,8 +176,7 @@ public abstract class Collider {
 
   /** Centers the collider’s origin to its middle point. */
   public void centerOrigin() {
-    this.offset =
-        Vector2.of((float) (-(double) this.width() / 2.0), (float) (-(double) this.height() / 2.0));
+    this.offset = Vector2.of((float) (-this.width() / 2.0), (float) (-this.height() / 2.0));
   }
 
   /**

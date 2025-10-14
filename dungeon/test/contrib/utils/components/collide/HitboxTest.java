@@ -68,17 +68,6 @@ public class HitboxTest {
   }
 
   @Test
-  void testCloneCreatesCopy() {
-    Hitbox original = new Hitbox(8, 4, 2, 1);
-    Hitbox clone = (Hitbox) original.clone();
-
-    assertNotSame(original, clone);
-    assertEquals(original.width(), clone.width());
-    assertEquals(original.height(), clone.height());
-    assertEquals(original.offset(), clone.offset());
-  }
-
-  @Test
   void testCenterOriginAndCenterAccessors() {
     Hitbox hb = new Hitbox(8, 4, 0, 0);
     hb.centerOrigin();
