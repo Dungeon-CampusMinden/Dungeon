@@ -80,7 +80,6 @@ public class CoopDungeon {
   private static void createSystems() {
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
     Game.add(new CollisionSystem());
-    Game.add(new PositionSyncSystem());
     Game.add(new AISystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthBarSystem());

@@ -2,8 +2,6 @@ package contrib.systems;
 
 import contrib.components.CollideComponent;
 import core.Entity;
-import core.Game;
-import core.System;
 import core.components.PositionComponent;
 
 /**
@@ -16,20 +14,10 @@ import core.components.PositionComponent;
  *   <li>{@link CollideComponent} - Syncs the collider's position with the entity's position.
  * </ul>
  */
-public class PositionSyncSystem extends System {
+public class PositionSync {
 
   /** Creates a new PositionSyncSystem. */
-  public PositionSyncSystem() {
-    super(PositionComponent.class);
-  }
-
-  /**
-   * Act on all entities with a PositionComponent to sync their positions with relevant components.
-   */
-  @Override
-  public void execute() {
-    filteredEntityStream(PositionComponent.class).forEach(PositionSyncSystem::syncPosition);
-  }
+  public PositionSync() {}
 
   /**
    * Sync the position of the given entity with its relevant components.
@@ -48,17 +36,5 @@ public class PositionSyncSystem extends System {
                         cc.collider().scale(pc.scale());
                       });
             });
-  }
-
-  /**
-   * Static helper method to execute the position sync system, ensuring all position changes are
-   * synchronized.
-   */
-  public static void doSync() {
-    // Sync position changes
-    PositionSyncSystem pss = (PositionSyncSystem) Game.systems().get(PositionSyncSystem.class);
-    if (pss != null) {
-      pss.execute();
-    }
   }
 }

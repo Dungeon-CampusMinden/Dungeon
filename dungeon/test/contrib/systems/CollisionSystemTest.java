@@ -27,7 +27,6 @@ public class CollisionSystemTest {
       "PositionComponent did get removed Test no longer valid";
 
   private CollisionSystem cs;
-  private PositionSyncSystem pss;
 
   /**
    * Helper to clean up used Class Attributes to avoid interfering with other tests.
@@ -47,8 +46,6 @@ public class CollisionSystemTest {
   public void prepareEnvironment() {
     cs = new CollisionSystem();
     Game.add(cs);
-    pss = new PositionSyncSystem();
-    Game.add(pss);
   }
 
   /**

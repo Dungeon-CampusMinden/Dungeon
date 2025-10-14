@@ -1,7 +1,7 @@
 package core.systems;
 
 import contrib.components.CollideComponent;
-import contrib.systems.PositionSyncSystem;
+import contrib.systems.PositionSync;
 import contrib.utils.components.collide.CollisionUtils;
 import core.Entity;
 import core.Game;
@@ -41,10 +41,11 @@ public class MoveSystem extends System {
    */
   @Override
   public void execute() {
-    filteredEntityStream().map(this::buildDataObject).forEach(this::updatePosition);
-
-    // Sync position changes
-    PositionSyncSystem.doSync();
+    filteredEntityStream()
+        .map(this::buildDataObject)
+        .peek(this::updatePosition)
+        .map(MSData::e)
+        .forEach(PositionSync::syncPosition);
   }
 
   /**

@@ -42,7 +42,7 @@ public final class CollisionSystem extends System {
   }
 
   private void onAddEntity(Entity e) {
-    PositionSyncSystem.syncPosition(e);
+    PositionSync.syncPosition(e);
   }
 
   /**
@@ -56,9 +56,6 @@ public final class CollisionSystem extends System {
     filteredEntityStream(CollideComponent.class)
         .flatMap(this::createDataPairs)
         .forEach(this::onEnterLeaveCheck);
-
-    // Sync position changes
-    PositionSyncSystem.doSync();
   }
 
   /**
@@ -240,7 +237,7 @@ public final class CollisionSystem extends System {
         };
 
     if (newColliderPos == null) {
-      LOGGER.warning("Direction was NONE in solid collision, this should never happen!");
+      LOGGER.severe("Direction was NONE in solid collision, this should never happen!");
       return;
     }
 
@@ -262,6 +259,7 @@ public final class CollisionSystem extends System {
     }
 
     eb.fetch(PositionComponent.class).orElseThrow().position(newPos);
+    PositionSync.syncPosition(eb);
   }
 
   private record CollisionKey(int a, int b) {}
