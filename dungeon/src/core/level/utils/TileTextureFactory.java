@@ -220,6 +220,16 @@ public class TileTextureFactory {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
 
+    if (isUpperLeftEmptyCross(p, layout)) {
+      return new SimpleIPath("wall/corner_upper_left_empty_cross");
+    } else if (isUpperRightEmptyCross(p, layout)) {
+      return new SimpleIPath("wall/corner_upper_right_empty_cross");
+    } else if (isBottomRightEmptyCross(p, layout)) {
+      return new SimpleIPath("wall/corner_bottom_left_empty_cross");
+    } else if (isBottomLeftEmptyCross(p, layout)) {
+      return new SimpleIPath("wall/corner_bottom_right_empty_cross");
+    }
+
     if (isCrossUpperLeftBottomRight(p, layout)) {
       return new SimpleIPath("wall/wall_cross_upper_left_bottom_right");
     } else if (isCrossUpperRightBottomLeft(p, layout)) {
@@ -265,27 +275,6 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/corner_upper_left");
     }
     return null;
-  }
-
-  private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout) {
-    if (!isInnerVerticalGroup(p, layout)) return false;
-    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
-    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
-    return leftStem && rightStem;
-  }
-
-  private static boolean rendersLeftDoubleAt(Coordinate p, LevelElement[][] layout) {
-    if (!isInnerVerticalGroup(p, layout)) return false;
-    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
-    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
-    return !leftStem && rightStem;
-  }
-
-  private static boolean rendersRightDoubleAt(Coordinate p, LevelElement[][] layout) {
-    if (!isInnerVerticalGroup(p, layout)) return false;
-    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
-    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
-    return leftStem && !rightStem;
   }
 
   private static IPath findTexturePathTJunction(LevelPart lp) {
@@ -633,11 +622,63 @@ public class TileTextureFactory {
     return wallOrDoorAt(layout, x, y, 0, 1) && wallOrDoorAt(layout, x, y, 0, -1);
   }
 
+  private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInnerVerticalGroup(p, layout)) return false;
+    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
+    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
+    return leftStem && rightStem;
+  }
+
+  private static boolean rendersLeftDoubleAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInnerVerticalGroup(p, layout)) return false;
+    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
+    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
+    return !leftStem && rightStem;
+  }
+
+  private static boolean rendersRightDoubleAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInnerVerticalGroup(p, layout)) return false;
+    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
+    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
+    return leftStem && !rightStem;
+  }
+
   private static boolean isVerticalStem(Coordinate p, LevelElement[][] layout) {
     int x = p.x();
     int y = p.y();
     LevelElement self = get(layout, x, y);
     return self == LevelElement.WALL && hasBarrierUD(layout, x, y);
+  }
+
+  private static boolean isHorizontalStem(Coordinate p, LevelElement[][] layout) {
+    int x = p.x();
+    int y = p.y();
+    LevelElement self = get(layout, x, y);
+    return self == LevelElement.WALL && hasBarrierLR(layout, x, y);
+  }
+
+  private static boolean isEmptyCross(
+      Coordinate p, LevelElement[][] layout, int vdx, int vdy, int hdx, int hdy, int ddx, int ddy) {
+    Coordinate v = new Coordinate(p.x() + vdx, p.y() + vdy);
+    Coordinate h = new Coordinate(p.x() + hdx, p.y() + hdy);
+    Coordinate d = new Coordinate(p.x() + ddx, p.y() + ddy);
+    return isVerticalStem(v, layout) && isHorizontalStem(h, layout) && rendersEmptyAt(d, layout);
+  }
+
+  private static boolean isUpperLeftEmptyCross(Coordinate p, LevelElement[][] layout) {
+    return isEmptyCross(p, layout, 0, 1, 1, 0, -1, -1);
+  }
+
+  private static boolean isUpperRightEmptyCross(Coordinate p, LevelElement[][] layout) {
+    return isEmptyCross(p, layout, 0, 1, -1, 0, 1, -1);
+  }
+
+  private static boolean isBottomRightEmptyCross(Coordinate p, LevelElement[][] layout) {
+    return isEmptyCross(p, layout, 0, -1, -1, 0, 1, 1);
+  }
+
+  private static boolean isBottomLeftEmptyCross(Coordinate p, LevelElement[][] layout) {
+    return isEmptyCross(p, layout, 0, -1, 1, 0, -1, 1);
   }
 
   private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int horizontalStep) {
