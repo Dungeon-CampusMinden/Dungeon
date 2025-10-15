@@ -1,6 +1,5 @@
 package level.produs;
 
-import contrib.hud.DialogUtils;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -11,8 +10,6 @@ import level.LevelManagementUtils;
 
 /** In this level, simple backtracking techniques are used to find the correct path. */
 public class Level016 extends BlocklyLevel {
-
-  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -37,11 +34,6 @@ public class Level016 extends BlocklyLevel {
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Nutz deinen Beutel mit Krumen, um deinen Weg hier raus zu finden.", "Kapitel 2: Flucht");
-      showText = false;
-    }
     LevelManagementUtils.centerHero();
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.heroViewDirection(Direction.DOWN);

@@ -8,8 +8,8 @@ title: "Blockly Lösung: Level 14"
 ## Code
 
 ```java
-while(hero.isNearTile(LevelElement.FLOOR, Direction.NONE)){
-    if(hero.isNearTile(LevelElement.WALL, Direction.UP)){
+while(hero.isNearTile(LevelElement.FLOOR, Direction.HERE)){
+    if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT)){
         if(hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
             hero.rotate(Direction.LEFT);
         }

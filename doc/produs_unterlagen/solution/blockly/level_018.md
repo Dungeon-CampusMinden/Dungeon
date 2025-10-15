@@ -9,7 +9,7 @@ title: "Blockly Lösung: Level 18"
 
 ```java
 while(true){
-    if(hero.isNearComponent(AIComponent.class, Direction.UP)){
+    if(hero.isNearComponent(AIComponent.class, Direction.INFRONT)){
         if(hero.isNearTile(LevelElement.WALL, Direction.RIGHT) && hero.isNearTile(LevelElement.WALL, Direction.LEFT)){
             hero.shootFireball();
         }else{
@@ -22,7 +22,7 @@ while(true){
             }
         }
     }
-    if(hero.isNearTile(LevelElement.WALL, Direction.UP)){
+    if(hero.isNearTile(LevelElement.WALL, Direction.INFRONT)){
         if(hero.isNearTile(LevelElement.WALL, Direction.RIGHT)){
             hero.rotate(Direction.LEFT);
             hero.move();
