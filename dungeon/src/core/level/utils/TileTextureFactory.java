@@ -213,8 +213,16 @@ public class TileTextureFactory {
     }
 
     if (isBottomLeftInnerCorner(p, layout)) {
+      Coordinate t = new Coordinate(p.x(), p.y() + 1);
+      if (rendersLeftDoubleAt(t, layout) || rendersRightDoubleAt(t, layout)) {
+        return new SimpleIPath("wall/wall_inner_corner_bottom_left_double");
+      }
       return new SimpleIPath("wall/wall_inner_corner_bottom_left");
     } else if (isBottomRightInnerCorner(p, layout)) {
+      Coordinate t = new Coordinate(p.x(), p.y() + 1);
+      if (rendersLeftDoubleAt(t, layout) || rendersRightDoubleAt(t, layout)) {
+        return new SimpleIPath("wall/wall_inner_corner_bottom_right_double");
+      }
       return new SimpleIPath("wall/wall_inner_corner_bottom_right");
     } else if (isUpperRightInnerCorner(p, layout)) {
       Coordinate b = new Coordinate(p.x(), p.y() - 1);
@@ -290,10 +298,9 @@ public class TileTextureFactory {
 
   private static String selectTopTJunctionTexture(Coordinate p, LevelElement[][] layout) {
     Coordinate up = new Coordinate(p.x(), p.y() + 1);
-    Coordinate down = new Coordinate(p.x(), p.y() - 1);
 
-    if (isVerticalStem(up, layout) && rendersEmptyAt(down, layout)) {
-      return "wall/t_inner_top_empty_left_right";
+    if (rendersEmptyAt(up, layout)) {
+      return "wall/t_inner_top_empty";
     }
     return "wall/t_inner_top";
   }
