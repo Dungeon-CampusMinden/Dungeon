@@ -598,7 +598,8 @@ public class TileTextureFactory {
   }
 
   private static boolean isInsideLayout(int x, int y, LevelElement[][] layout) {
-    int h = layout.length, w = layout[0].length;
+    int h = layout.length;
+    int w = layout[0].length;
     return y >= 0 && y < h && x >= 0 && x < w;
   }
 
@@ -633,13 +634,15 @@ public class TileTextureFactory {
   }
 
   private static boolean isVerticalStem(Coordinate p, LevelElement[][] layout) {
-    int x = p.x(), y = p.y();
+    int x = p.x();
+    int y = p.y();
     LevelElement self = get(layout, x, y);
     return self == LevelElement.WALL && hasBarrierUD(layout, x, y);
   }
 
   private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int horizontalStep) {
-    int x = p.x(), y = p.y();
+    int x = p.x();
+    int y = p.y();
     while (true) {
       x += horizontalStep;
       if (!isInsideLayout(x, y, layout)) return false;
@@ -655,13 +658,16 @@ public class TileTextureFactory {
   }
 
   private static boolean isInnerTJunction(Coordinate p, LevelElement[][] layout, int ix, int iy) {
-    int x = p.x(), y = p.y();
+    int x = p.x();
+    int y = p.y();
     if (!insideAt(layout, x, y, ix, iy)) return false;
-    if (ix != 0 || iy != 1) if (!wallOrDoorAt(layout, x, y, 0, 1)) return false;
-    if (ix != 1 || iy != 0) if (!wallOrDoorAt(layout, x, y, 1, 0)) return false;
-    if (ix != 0 || iy != -1) if (!wallOrDoorAt(layout, x, y, 0, -1)) return false;
-    if (ix != -1 || iy != 0) if (!wallOrDoorAt(layout, x, y, -1, 0)) return false;
-    return true;
+    boolean openIsWall = wallOrDoorAt(layout, x, y, ix, iy);
+    int walls = 0;
+    if (wallOrDoorAt(layout, x, y, 0, 1)) walls++;
+    if (wallOrDoorAt(layout, x, y, 1, 0)) walls++;
+    if (wallOrDoorAt(layout, x, y, 0, -1)) walls++;
+    if (wallOrDoorAt(layout, x, y, -1, 0)) walls++;
+    return !openIsWall && walls == 3;
   }
 
   private static boolean isInnerTJunctionTop(Coordinate p, LevelElement[][] layout) {
@@ -682,7 +688,8 @@ public class TileTextureFactory {
 
   private static boolean isOuterTJunctionOpenVert(
       Coordinate p, LevelElement[][] layout, int openSign) {
-    int x = p.x(), y = p.y();
+    int x = p.x();
+    int y = p.y();
     boolean sides = hasBarrierLR(layout, x, y);
     boolean stem = wallOrDoorAt(layout, x, y, 0, -openSign);
     boolean open = !wallOrDoorAt(layout, x, y, 0, openSign);
@@ -696,7 +703,8 @@ public class TileTextureFactory {
   }
 
   private static boolean isEmptyBothAt(Coordinate p, LevelElement[][] layout, int sign) {
-    int x = p.x(), y = p.y();
+    int x = p.x();
+    int y = p.y();
     if (!hasBarrierLR(layout, x, y)) return false;
     if (isInnerVerticalGroup(p, layout)) return false;
     boolean wallInSignDir = (sign > 0) ? aboveIsWall(p, layout) : belowIsWall(p, layout);
