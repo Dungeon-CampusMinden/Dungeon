@@ -151,6 +151,21 @@ public class TileTextureFactory {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
 
+    Coordinate up = new Coordinate(p.x(), p.y() + 1);
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+
+    boolean sidesAreWallsOrDoors =
+        (leftIsWall(p, layout) || leftIsDoor(p, layout))
+            && (rightIsWall(p, layout) || rightIsDoor(p, layout));
+
+    if (sidesAreWallsOrDoors
+        && aboveIsWall(p, layout)
+        && isVerticalStem(up, layout)
+        && rendersEmptyAt(down, layout)
+        && !isInnerVerticalGroup(p, layout)) {
+      return new SimpleIPath("wall/t_inner_top_empty_left_right");
+    }
+
     IPath inner = findInnerVerticalWallTexture(p, layout);
     if (inner != null) return inner;
 
@@ -256,21 +271,31 @@ public class TileTextureFactory {
     LevelElement[][] layout = lp.layout();
 
     if (isInnerTJunctionTop(p, layout)) {
-      return new SimpleIPath("wall/t_inner_top");
+      return new SimpleIPath(selectTopTJunctionTexture(p, layout));
     }
     if (isInnerTJunctionBottom(p, layout)) {
       return new SimpleIPath(selectBottomTJunctionTexture(p, layout));
     }
     if (isInnerTJunctionLeft(p, layout)) {
-      return new SimpleIPath("wall/t_inner_left");
+      return new SimpleIPath(selectLeftTJunctionTexture(p, layout));
     }
     if (isInnerTJunctionRight(p, layout)) {
-      return new SimpleIPath("wall/t_inner_right");
+      return new SimpleIPath(selectRightTJunctionTexture(p, layout));
     }
     if (isTopTJunction(p, layout)) {
       return new SimpleIPath("wall/t_cross_top");
     }
     return null;
+  }
+
+  private static String selectTopTJunctionTexture(Coordinate p, LevelElement[][] layout) {
+    Coordinate up = new Coordinate(p.x(), p.y() + 1);
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+
+    if (isVerticalStem(up, layout) && rendersEmptyAt(down, layout)) {
+      return "wall/t_inner_top_empty_left_right";
+    }
+    return "wall/t_inner_top";
   }
 
   private static String selectBottomTJunctionTexture(Coordinate p, LevelElement[][] layout) {
@@ -279,9 +304,13 @@ public class TileTextureFactory {
     Coordinate down = new Coordinate(p.x(), p.y() - 1);
 
     boolean leftTriggers =
-        isTBottomEmptyAt(left, layout) || isUpperLeftCornerDoubleAt(left, layout);
+        isTBottomEmptyAt(left, layout)
+            || isUpperLeftCornerDoubleAt(left, layout)
+            || isTopEmptyBothAt(left, layout);
     boolean rightTriggers =
-        isTBottomEmptyAt(right, layout) || isUpperRightCornerDoubleAt(right, layout);
+        isTBottomEmptyAt(right, layout)
+            || isUpperRightCornerDoubleAt(right, layout)
+            || isTopEmptyBothAt(right, layout);
 
     if (leftTriggers && rendersRightDoubleAt(down, layout)) {
       return "wall/t_inner_bottom_empty_left";
@@ -293,6 +322,38 @@ public class TileTextureFactory {
       return "wall/t_inner_bottom_empty";
     }
     return "wall/t_inner_bottom";
+  }
+
+  private static String selectLeftTJunctionTexture(Coordinate p, LevelElement[][] layout) {
+    Coordinate left = new Coordinate(p.x() - 1, p.y());
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+
+    boolean belowRightDouble = rendersRightDoubleAt(down, layout);
+    boolean leftMatches =
+        isUpperLeftCornerDoubleAt(left, layout)
+            || isTBottomEmptyRightAt(left, layout)
+            || isTBottomEmptyAt(left, layout);
+
+    if (belowRightDouble && leftMatches) {
+      return "wall/t_inner_left_empty";
+    }
+    return "wall/t_inner_left";
+  }
+
+  private static String selectRightTJunctionTexture(Coordinate p, LevelElement[][] layout) {
+    Coordinate right = new Coordinate(p.x() + 1, p.y());
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+
+    boolean belowLeftDouble = rendersLeftDoubleAt(down, layout);
+    boolean rightMatches =
+        isUpperRightCornerDoubleAt(right, layout)
+            || isTBottomEmptyLeftAt(right, layout)
+            || isTBottomEmptyAt(right, layout);
+
+    if (belowLeftDouble && rightMatches) {
+      return "wall/t_inner_right_empty";
+    }
+    return "wall/t_inner_right";
   }
 
   /**
@@ -584,6 +645,47 @@ public class TileTextureFactory {
     if (!isUpperRightInnerCorner(p, layout)) return false;
     Coordinate b = new Coordinate(p.x(), p.y() - 1);
     return rendersAnyDoubleAt(b, layout);
+  }
+
+  private static boolean isTopEmptyBothAt(Coordinate p, LevelElement[][] layout) {
+    if (!((leftIsWall(p, layout) || leftIsDoor(p, layout))
+        && (rightIsWall(p, layout) || rightIsDoor(p, layout)))) {
+      return false;
+    }
+    if (isInnerVerticalGroup(p, layout)) return false;
+    Coordinate up = new Coordinate(p.x(), p.y() + 1);
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+    return aboveIsWall(p, layout) && isVerticalStem(up, layout) && rendersEmptyAt(down, layout);
+  }
+
+  private static boolean isTBottomEmptyRightAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInsideLayout(p.x(), p.y(), layout)) return false;
+    if (!isInnerTJunctionBottom(p, layout)) return false;
+
+    Coordinate right = new Coordinate(p.x() + 1, p.y());
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+
+    boolean rightTriggers =
+        isTBottomEmptyAt(right, layout)
+            || isUpperRightCornerDoubleAt(right, layout)
+            || isTopEmptyBothAt(right, layout);
+
+    return rightTriggers && rendersLeftDoubleAt(down, layout);
+  }
+
+  private static boolean isTBottomEmptyLeftAt(Coordinate p, LevelElement[][] layout) {
+    if (!isInsideLayout(p.x(), p.y(), layout)) return false;
+    if (!isInnerTJunctionBottom(p, layout)) return false;
+
+    Coordinate left = new Coordinate(p.x() - 1, p.y());
+    Coordinate down = new Coordinate(p.x(), p.y() - 1);
+
+    boolean leftTriggers =
+        isTBottomEmptyAt(left, layout)
+            || isUpperLeftCornerDoubleAt(left, layout)
+            || isTopEmptyBothAt(left, layout);
+
+    return leftTriggers && rendersRightDoubleAt(down, layout);
   }
 
   /**
