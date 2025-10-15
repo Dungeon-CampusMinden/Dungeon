@@ -9,6 +9,7 @@ import contrib.utils.components.health.DamageType;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.utils.Direction;
@@ -205,9 +206,11 @@ public class AdvancedFactory {
       CollideComponent.DEFAULT_OFFSET,
       CollideComponent.DEFAULT_SIZE,
       ((self, other, direction) -> {
-        VelocityComponent vc = self.fetch(VelocityComponent.class).get();
-        VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
-        vc.currentVelocity(otherVc.currentVelocity());
+        other.fetch(PlayerComponent.class).ifPresent(player -> {
+          VelocityComponent vc = self.fetch(VelocityComponent.class).get();
+          VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
+          vc.currentVelocity(otherVc.currentVelocity());
+        });
       }),
       CollideComponent.DEFAULT_COLLIDER
     ));
