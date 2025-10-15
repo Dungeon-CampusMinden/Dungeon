@@ -15,6 +15,7 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.draw.animation.Animation;
+import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
@@ -37,6 +38,10 @@ public class AdvancedFactory {
   private static final SimpleIPath PORTAL_CUBE = new SimpleIPath("portal/portal_cube.png");
   private static final float cube_mass = 3f;
   private static final float cube_maxSpeed = 10f;
+
+  private static final SimpleIPath PORTAL_KUBUS = new SimpleIPath("portal/kubus");
+  private static final float kubus_mass = 3f;
+  private static final float kubus_maxSpeed = 10f;
 
   /**
    * Creates a laser grid entity at the given position.
@@ -176,5 +181,38 @@ public class AdvancedFactory {
             }));
 
     return portalCube;
+  }
+
+  public static Entity kubus(Point position) {
+    Entity kubus = new Entity("kubus");
+
+    Map<String, Animation> animationMap =
+      Animation.loadAnimationSpritesheet(PORTAL_KUBUS);
+
+    State stIdle = new State("idle", animationMap.get("idle"));
+    State stMove = new State("move", animationMap.get("move"));
+    StateMachine sm = new StateMachine(Arrays.asList(stIdle, stMove));
+
+    sm.addTransition(stIdle, "move", stMove);
+    sm.addTransition(stMove, "move", stMove);
+    sm.addTransition(stMove, "idle", stIdle);
+
+
+    kubus.add(new DrawComponent(sm));
+    kubus.add(new PositionComponent(position));
+    kubus.add(new VelocityComponent(kubus_maxSpeed, kubus_mass, entity -> {}, false));
+    kubus.add(new CollideComponent(
+      CollideComponent.DEFAULT_OFFSET,
+      CollideComponent.DEFAULT_SIZE,
+      ((self, other, direction) -> {
+        VelocityComponent vc = self.fetch(VelocityComponent.class).get();
+        VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
+        vc.currentVelocity(otherVc.currentVelocity());
+      }),
+      CollideComponent.DEFAULT_COLLIDER
+    ));
+
+
+    return kubus;
   }
 }
