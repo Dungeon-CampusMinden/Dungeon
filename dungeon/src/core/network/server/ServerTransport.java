@@ -302,18 +302,13 @@ public final class ServerTransport {
       InetSocketAddress sender = pkt.sender();
       Short mappedClientId = udpToClientId.get(sender);
 
-      if (obj instanceof RegisterUdp(short clientId)) {
-        Session sess = clientIdToSession.get(clientId);
-        if (sess == null) {
-          LOGGER.warn("RegisterUdp for unknown clientId={} from {}", clientId, sender);
-          sendUdpObject(sender, new RegisterAck(false));
+      if (obj instanceof RegisterUdp reg) {
+        Session tcpSender = clientIdToSession.get(reg.clientId());
+        if (tcpSender == null) {
+          LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
           return;
         }
-
-        sess.udpAddress(sender);
-        udpToClientId.put(sender, clientId);
-        LOGGER.info("Associated UDP {} -> clientId={}", sender, clientId);
-        sendUdpObject(sender, new RegisterAck(true));
+        onUdpRegister(sender, tcpSender, reg);
         return;
       }
 
@@ -330,7 +325,7 @@ public final class ServerTransport {
       }
 
       if (obj instanceof NetworkMessage msg) {
-        // Enqueue dispatch to Game-Thread instead of handling heavy logic here
+        // Enqueue dispatch to Game-Thread instead
         dispatcher.dispatch(session, msg);
       } else {
         LOGGER.debug("Unexpected UDP object {} from {}", obj.getClass().getName(), sender);
@@ -397,6 +392,65 @@ public final class ServerTransport {
 
     sendInitialLevel(session.tcpCtx(), newClientId);
     LOGGER.info("Accepted client id={} name='{}' {}", newClientId, playerName, session);
+  }
+
+  private void onUdpRegister(InetSocketAddress sender, Session tcpSession, RegisterUdp reg) {
+    // 1. Validate session ID
+    if (reg.sessionId() != ServerRuntime.SESSION_ID) {
+      LOGGER.warn("RegisterUdp with invalid sessionId={} from {}", reg.sessionId(), sender);
+      tcpSession.sendMessage(new RegisterAck(false), true);
+      return;
+    }
+
+    // 2. Validate client ID
+    if (reg.clientId() <= 0) {
+      LOGGER.warn("RegisterUdp with invalid clientId={} from {}", reg.clientId(), sender);
+      tcpSession.sendMessage(new RegisterAck(false), true);
+      return;
+    }
+
+    // 3. Lookup session
+    Session sess = clientIdToSession.get(reg.clientId());
+    if (sess == null) {
+      LOGGER.warn("RegisterUdp for unknown clientId={} from {}", reg.clientId(), sender);
+      tcpSession.sendMessage(new RegisterAck(false), true);
+      return;
+    }
+
+    ClientState state = sess.clientState().orElse(null);
+    if (state == null) {
+      LOGGER.error(
+          "Session for clientId={} is missing ClientState. This should not happen.",
+          reg.clientId());
+      tcpSession.sendMessage(new RegisterAck(false), true);
+      return;
+    }
+
+    // 4. Validate Session Token
+    if (!Arrays.equals(state.sessionToken(), reg.sessionToken())) {
+      LOGGER.warn(
+          "RegisterUdp with invalid session token for clientId={} from {}", reg.clientId(), sender);
+      tcpSession.sendMessage(new RegisterAck(false), true);
+      return;
+    }
+
+    // 5. Handle registration/re-registration
+    InetSocketAddress currentUdpAddress = sess.udpAddress();
+    if (currentUdpAddress != null && !currentUdpAddress.equals(sender)) {
+      // Address has changed, update the mappings
+      LOGGER.info(
+          "Updating UDP address for clientId={}: {} -> {}",
+          reg.clientId(),
+          currentUdpAddress,
+          sender);
+      udpToClientId.remove(currentUdpAddress);
+    } else if (currentUdpAddress == null) {
+      LOGGER.info("Associated UDP {} -> clientId={}", sender, reg.clientId());
+    }
+
+    sess.udpAddress(sender);
+    udpToClientId.put(sender, reg.clientId());
+    tcpSession.sendMessage(new RegisterAck(true), true);
   }
 
   /**

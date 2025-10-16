@@ -1,14 +1,12 @@
 package core.network.handler;
 
-import core.network.ConnectionListener;
-import core.network.DefaultSnapshotTranslator;
-import core.network.MessageDispatcher;
-import core.network.SnapshotTranslator;
+import core.network.*;
 import core.network.client.ClientNetwork;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ServerRuntime;
 import core.network.server.Session;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 import org.slf4j.Logger;
@@ -25,12 +23,12 @@ public class NettyNetworkHandler implements INetworkHandler {
   private SnapshotTranslator translator;
 
   @Override
-  public void initialize(boolean isServer, String serverAddress, int port, String username) {
+  public void initialize(boolean isServer, String serverAddress, int port, String username)
+      throws NetworkException {
     this.serverMode = isServer;
     this.port = port;
     if (!serverMode) {
       client.initialize(serverAddress, port, username);
-      if (translator != null) client.setSnapshotTranslator(translator);
     }
   }
 
@@ -53,8 +51,7 @@ public class NettyNetworkHandler implements INetworkHandler {
   @Override
   public void start() {
     if (serverMode) {
-      SnapshotTranslator t = translator != null ? translator : new DefaultSnapshotTranslator();
-      server = new ServerRuntime(port, t);
+      server = new ServerRuntime(port);
       server.start();
     } else {
       client.start();
@@ -101,22 +98,12 @@ public class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public SnapshotTranslator snapshotTranslator() {
-    if (serverMode) {
-      if (translator == null) {
-        throw new IllegalStateException(
-            "SnapshotTranslator not set for server mode. Call "
-                + "setSnapshotTranslator(...) before start().");
-      }
-      return translator;
-    }
-    return client.snapshotTranslator();
+    return translator;
   }
 
   @Override
-  public void setSnapshotTranslator(SnapshotTranslator translator) {
-    if (translator == null) return;
-    this.translator = translator;
-    if (!serverMode) client.setSnapshotTranslator(translator);
+  public void snapshotTranslator(SnapshotTranslator translator) {
+    this.translator = Objects.requireNonNull(translator, "translator cannot be null");
   }
 
   @Override
