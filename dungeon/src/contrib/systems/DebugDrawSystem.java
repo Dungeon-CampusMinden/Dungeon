@@ -4,21 +4,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector3;
 import contrib.components.AIComponent;
 import contrib.components.CollideComponent;
 import contrib.components.HealthComponent;
 import contrib.components.InteractionComponent;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.System;
 import core.components.DrawComponent;
 import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.systems.CameraSystem;
-import core.systems.DrawSystem;
+import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
@@ -46,18 +50,21 @@ import java.util.List;
  */
 public class DebugDrawSystem extends System {
 
+  private static final Batch UI_BATCH = new SpriteBatch();
+  private static final OrthographicCamera UI_CAM = new OrthographicCamera();
   private static final ShapeRenderer SHAPE_RENDERER = new ShapeRenderer();
   private static final Color BACKGROUND_COLOR =
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
 
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
-  private final BitmapFont FONT = new BitmapFont();
+  private static final BitmapFont FONT = FontHelper.getFont("fonts/Roboto-Bold.ttf", 16);
   private boolean render = false;
 
   @Override
   public void execute() {
     if (!render) return;
 
+    UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
   }
@@ -69,12 +76,21 @@ public class DebugDrawSystem extends System {
             .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     Point position = pc.position();
     Vector2 view = pc.viewDirection(); // normalized
+    Point centerPos = EntityUtils.getPosition(entity);
 
     // --- filled dot for position ---
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(Color.ORANGE);
     SHAPE_RENDERER.circle(position.x(), position.y(), 0.2f, CIRCLE_SEGMENTS);
     SHAPE_RENDERER.end();
+
+    if (centerPos != position) {
+      // --- filled dot for center position ---
+      SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+      SHAPE_RENDERER.setColor(Color.BLUE);
+      SHAPE_RENDERER.circle(centerPos.x(), centerPos.y(), 0.05f, CIRCLE_SEGMENTS);
+      SHAPE_RENDERER.end();
+    }
 
     // --- arrow for view direction ---
     float arrowLength = 0.5f; // tune this to your tile size
@@ -305,32 +321,17 @@ public class DebugDrawSystem extends System {
    * @param worldPos The world position near which to render the text.
    */
   private void drawInfoOverlay(String text, Point worldPos) {
-    // Ensure crisp text at sub-pixel world positions
-    FONT.setUseIntegerPositions(false);
-
-    // Compute pixels-per-world-unit to counteract camera scaling so the font renders at
-    // consistent pixel size regardless of zoom.
-    float zoom = CameraSystem.camera().zoom;
-    float vpw = CameraSystem.camera().viewportWidth;
-    float vph = CameraSystem.camera().viewportHeight;
-    float pxPerWU_X = Gdx.graphics.getWidth() / (vpw * zoom);
-    float pxPerWU_Y = Gdx.graphics.getHeight() / (vph * zoom);
-
-    // Scale the font to cancel out world->screen scaling applied by the batch/camera.
-    float scaleX = 1f / pxPerWU_X;
-    float scaleY = 1f / pxPerWU_Y;
-    FONT.getData().setScale(scaleX, scaleY);
+    Vector3 screenPos = CameraSystem.camera().project(new Vector3(worldPos.x(), worldPos.y(), 0));
 
     GlyphLayout layout = new GlyphLayout(FONT, text);
 
-    // Layout dimensions are now in world units due to font scaling above.
-    // Convert desired pixel paddings/offsets into world units using the scale.
-    float padding = 4f * scaleX; // ~4px padding (using X as baseline for a uniform box)
-    float offsetX = 8f * scaleX; // ~8px to the right of the entity
-    float offsetY = 12f * scaleY; // ~12px above the entity
+    // Positioning and padding
+    float padding = 4f; // ~4px padding (using X as baseline for a uniform box)
+    float offsetX = 8f; // ~8px to the right of the entity
+    float offsetY = -12f; // ~12px above the entity
 
-    float textX = worldPos.x() + offsetX;
-    float textY = worldPos.y() + offsetY; // y is baseline for BitmapFont
+    float textX = screenPos.x + offsetX;
+    float textY = screenPos.y + offsetY;
     float bgX = textX - padding;
     float bgY = textY - layout.height - padding; // background below baseline
     float bgW = layout.width + 2f * padding;
@@ -339,24 +340,14 @@ public class DebugDrawSystem extends System {
     // semi-transparent black box
     Gdx.gl.glEnable(GL20.GL_BLEND);
     Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    SHAPE_RENDERER.setProjectionMatrix(UI_CAM.combined);
     SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
     SHAPE_RENDERER.setColor(BACKGROUND_COLOR);
     SHAPE_RENDERER.rect(bgX, bgY, bgW, bgH);
     SHAPE_RENDERER.end();
+    SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
 
-    // Draw text on top using the shared batch
-    Batch batch = DrawSystem.batch();
-    boolean started = false;
-    if (!batch.isDrawing()) {
-      batch.setProjectionMatrix(CameraSystem.camera().combined);
-      batch.begin();
-      started = true;
-    }
-    FONT.setColor(Color.WHITE);
-    FONT.draw(batch, layout, textX, textY);
-    if (started) {
-      batch.end();
-    }
+    drawText(text, new Point(textX, textY));
   }
 
   /** Whether this debug system is currently active and drawing the overlays. */
@@ -372,5 +363,38 @@ public class DebugDrawSystem extends System {
   @Override
   public void run() {
     this.run = true;
+  }
+
+  public static void drawText(BitmapFont font, String text, Point screen, Color color) {
+    UI_BATCH.setProjectionMatrix(UI_CAM.combined);
+    UI_BATCH.begin();
+    font.setColor(color);
+    font.draw(UI_BATCH, text, screen.x(), screen.y());
+    UI_BATCH.end();
+  }
+
+  public static void drawText(BitmapFont font, String text, Point screen) {
+    drawText(font, text, screen, Color.WHITE);
+  }
+
+  public static void drawText(String text, Point screen, Color color) {
+    drawText(FONT, text, screen, color);
+  }
+
+  public static void drawText(String text, Point screen) {
+    drawText(FONT, text, screen, Color.WHITE);
+  }
+
+  public static void drawTextInWorldCoords(BitmapFont font, String text, Point world, Color color) {
+    Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
+    drawText(font, text, new Point(screen.x, screen.y), color);
+  }
+
+  public static void drawTextInWorldCoords(String text, Point world, Color color) {
+    drawTextInWorldCoords(FONT, text, world, color);
+  }
+
+  public static void drawTextInWorldCoords(String text, Point world) {
+    drawTextInWorldCoords(FONT, text, world, Color.WHITE);
   }
 }
