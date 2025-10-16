@@ -50,7 +50,7 @@ public final class DrawSystem extends System {
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = new SpriteBatch();
+  private static final SpriteBatch BATCH = Gdx.gl == null ? null : new SpriteBatch();
 
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
