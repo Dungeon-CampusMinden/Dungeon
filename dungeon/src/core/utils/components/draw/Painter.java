@@ -4,10 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Affine2;
-import core.systems.CameraSystem;
 import core.utils.Point;
 import core.utils.components.path.IPath;
-import java.util.List;
 
 /**
  * Handles drawing of sprites to a {@link SpriteBatch} with configurable options.
@@ -50,41 +48,29 @@ public class Painter {
    * @param config the {@link PainterConfig} controlling scaling, tint, and offset
    */
   public void draw(final Point position, final Sprite sprite, final PainterConfig config) {
-
-    // Apply offset from configuration
-    Point realPos = position.translate(config.offset());
-    List<Point> corners =
-        List.of(
-            realPos.translate(0, 0),
-            realPos.translate(config.scale().x(), 0),
-            realPos.translate(0, config.scale().y()),
-            realPos.translate(config.scale().x(), config.scale().y()));
-
     // Only draw if visible in the camera frustum
-    if (corners.stream().allMatch(CameraSystem::isPointInFrustum)) {
-      sprite.setFlip(config.mirrored(), false);
+    sprite.setFlip(config.mirrored(), false);
 
-      // Calculate transformations
-      Affine2 transform = new Affine2();
+    // Calculate transformations
+    Affine2 transform = new Affine2();
 
-      transform.setToTranslation(position.x(), position.y());
+    transform.setToTranslation(position.x(), position.y());
 
-      // Scale first while origin is in the bottom-left
-      transform.scale(config.scale().x(), config.scale().y());
+    // Scale first while origin is in the bottom-left
+    transform.scale(config.scale().x(), config.scale().y());
 
-      // Then rotate around the middle
-      transform.translate(config.size().x() / 2f, config.size().y() / 2f);
-      transform.rotate(config.rotation());
-      transform.translate(-config.size().x() / 2f, -config.size().y() / 2f);
+    // Then rotate around the middle
+    transform.translate(config.size().x() / 2f, config.size().y() / 2f);
+    transform.rotate(config.rotation());
+    transform.translate(-config.size().x() / 2f, -config.size().y() / 2f);
 
-      // Apply tint color if specified
-      if (config.tintColor() != -1) {
-        batch.setColor(new Color(config.tintColor()));
-      } else {
-        batch.setColor(Color.WHITE);
-      }
-      batch.draw(sprite, config.size().x(), config.size().y(), transform);
+    // Apply tint color if specified
+    if (config.tintColor() != -1) {
+      batch.setColor(new Color(config.tintColor()));
+    } else {
+      batch.setColor(Color.WHITE);
     }
+    batch.draw(sprite, config.size().x(), config.size().y(), transform);
   }
 
   /**
