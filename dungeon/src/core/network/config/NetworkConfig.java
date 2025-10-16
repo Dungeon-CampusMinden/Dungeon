@@ -1,8 +1,14 @@
 package core.network.config;
 
+import core.network.DefaultSnapshotTranslator;
+import core.network.SnapshotTranslator;
+
 public final class NetworkConfig {
 
   private NetworkConfig() {}
+
+  // Used by client and server to translate game state snapshots to/from byte arrays
+  public static final SnapshotTranslator SNAPSHOT_TRANSLATOR = new DefaultSnapshotTranslator();
 
   // Max size of serialized payload
   public static final int MAX_TCP_OBJECT_SIZE = 1 << 20; // 1 MiB

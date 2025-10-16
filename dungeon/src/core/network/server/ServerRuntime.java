@@ -1,7 +1,6 @@
 package core.network.server;
 
 import core.game.PreRunConfiguration;
-import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -16,21 +15,19 @@ public final class ServerRuntime {
   public static final int SESSION_ID = RANDOM.nextInt();
 
   private final int port;
-  private final SnapshotTranslator translator;
 
   private ServerTransport transport;
   private AuthoritativeServerLoop loop;
 
-  public ServerRuntime(int port, SnapshotTranslator translator) {
+  public ServerRuntime(int port) {
     this.port = port;
-    this.translator = translator;
   }
 
   public void start() {
     LOGGER.info("Starting server on port {}", PreRunConfiguration.networkPort());
     this.transport = new ServerTransport();
     this.transport.start(port);
-    this.loop = new AuthoritativeServerLoop(transport, translator);
+    this.loop = new AuthoritativeServerLoop(transport);
     this.loop.start();
   }
 

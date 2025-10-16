@@ -119,14 +119,14 @@ public class LocalNetworkHandler implements INetworkHandler {
     if (t == null) {
       throw new IllegalStateException(
           "SnapshotTranslator not set on INetworkHandler. Set via "
-              + "setSnapshotTranslator(...) before starting network or provide translator in "
+              + "snapshotTranslator(...) before starting network or provide translator in "
               + "starter.");
     }
     return t;
   }
 
   @Override
-  public void setSnapshotTranslator(SnapshotTranslator translator) {
+  public void snapshotTranslator(SnapshotTranslator translator) {
     if (translator != null) this.translator = translator;
   }
 

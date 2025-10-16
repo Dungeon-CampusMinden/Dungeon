@@ -107,7 +107,7 @@ public interface INetworkHandler {
   /**
    * Returns the {@link SnapshotTranslator} used to build/apply snapshots.
    *
-   * <p>Callers must set a translator via {@link #setSnapshotTranslator(SnapshotTranslator)} before
+   * <p>Callers must set a translator via {@link #snapshotTranslator(SnapshotTranslator)} before
    * first use. Implementations must not lazily create a default; if unset, they should throw an
    * {@link IllegalStateException} with a clear, actionable message.
    */
@@ -118,7 +118,7 @@ public interface INetworkHandler {
    *
    * @param translator instance to use; implementations may ignore null (keeping the current one)
    */
-  void setSnapshotTranslator(SnapshotTranslator translator);
+  void snapshotTranslator(SnapshotTranslator translator);
 
   /**
    * Internal method: Sets the consumer for raw incoming messages.

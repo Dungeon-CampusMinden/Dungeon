@@ -16,7 +16,6 @@ import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.network.SnapshotTranslator;
 import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
@@ -35,13 +34,11 @@ public final class AuthoritativeServerLoop {
   private static final boolean PRINT_RTT = false; // to debug latency issues
 
   private final ServerTransport net;
-  private final SnapshotTranslator translator;
   private final ScheduledExecutorService executor;
   private volatile int serverTick = 0;
 
-  public AuthoritativeServerLoop(ServerTransport netService, SnapshotTranslator translator) {
+  public AuthoritativeServerLoop(ServerTransport netService) {
     this.net = netService;
-    this.translator = java.util.Objects.requireNonNull(translator, "translator");
     this.executor =
         Executors.newSingleThreadScheduledExecutor(
             r -> {
@@ -181,7 +178,8 @@ public final class AuthoritativeServerLoop {
   }
 
   private void sendSnapshot() {
-    translator
+    Game.network()
+        .snapshotTranslator()
         .translateToSnapshot(serverTick)
         .ifPresent(
             snapshot -> {

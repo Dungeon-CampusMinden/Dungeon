@@ -7,7 +7,6 @@ import static core.network.config.NetworkConfig.*;
 import core.Game;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
-import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.ConnectRequest;
 import core.network.messages.c2s.InputMessage;
@@ -79,10 +78,9 @@ public final class ClientNetwork {
 
   // assigned after ConnectAck
   private volatile Short clientId;
-  private volatile SnapshotTranslator translator;
 
   // Track scheduled UDP registration retries per clientId to allow cancellation/cleanup
-  private final ConcurrentHashMap<Short, ScheduledFuture<?>> udpRegisterTasks =
+  private final ConcurrentHashMap<Short, UdpRegistrationTask> udpRegisterTasks =
       new ConcurrentHashMap<>();
 
   /**
@@ -184,33 +182,6 @@ public final class ClientNetwork {
   }
 
   /**
-   * Provide a SnapshotTranslator used by client-side snapshot handling.
-   *
-   * <p>This setter is typically called before start so the client knows how to interpret snapshot
-   * messages.
-   */
-  public void setSnapshotTranslator(SnapshotTranslator translator) {
-    this.translator = translator;
-  }
-
-  /**
-   * Returns the configured SnapshotTranslator or throws if none was set.
-   *
-   * <p>Callers are expected to set a translator via {@link
-   * #setSnapshotTranslator(SnapshotTranslator)} before use.
-   *
-   * @throws IllegalStateException if no SnapshotTranslator has been set.
-   */
-  public SnapshotTranslator snapshotTranslator() {
-    SnapshotTranslator t = translator;
-    if (t == null) {
-      throw new IllegalStateException(
-          "SnapshotTranslator not set. Call setSnapshotTranslator(...)");
-    }
-    return t;
-  }
-
-  /**
    * Returns the client id assigned by the server, or 0 if not yet assigned.
    *
    * <p>The id becomes available after receiving a {@link ConnectAck}.
@@ -271,10 +242,7 @@ public final class ClientNetwork {
       if (data.length <= SAFE_UDP_MTU) {
         session
             .sendMessage(input, false)
-            .thenAccept(
-                success -> {
-                  LOGGER.debug("UDP outbound InputMessage size={}B", data.length);
-                });
+            .thenAccept(success -> LOGGER.debug("UDP outbound InputMessage size={}B", data.length));
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
@@ -352,6 +320,8 @@ public final class ClientNetwork {
                         if (obj
                             instanceof ConnectAck(short id, int sessionId, byte[] sessionToken)) {
                           onConnectAck(id, sessionId, sessionToken);
+                        } else if (obj instanceof RegisterAck(boolean ok)) {
+                          onRegisterAck(ok);
                         } else if (obj instanceof NetworkMessage nm) {
                           if (session != null) {
                             inboundQueue.offer(Tuple.of(session, nm));
@@ -403,6 +373,7 @@ public final class ClientNetwork {
                       @Override
                       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
                         LOGGER.warn("TCP client error", cause);
+                        enqueueLifecycle(() -> notifyDisconnected(cause.getMessage()));
                         Game.exit("TCP error: " + cause.getMessage());
                       }
                     });
@@ -422,11 +393,7 @@ public final class ClientNetwork {
               protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket pkt) {
                 try {
                   Object obj = deserialize(pkt.content());
-                  if (obj instanceof RegisterAck) {
-                    // Server acknowledges our UDP source address; cancel any pending retries
-                    Short id = clientId;
-                    if (id != null && id > 0) cancelUdpRegistration(id);
-                  } else if (obj instanceof NetworkMessage nm) {
+                  if (obj instanceof NetworkMessage nm) {
                     if (session != null) {
                       inboundQueue.offer(Tuple.of(session, nm));
                     } else {
@@ -447,11 +414,7 @@ public final class ClientNetwork {
             });
     udp = ub.bind(0).syncUninterruptibly().channel();
     // Cancel all pending registrations when the channel closes
-    udp.closeFuture()
-        .addListener(
-            future -> {
-              cancelAllUdpRegistrations();
-            });
+    udp.closeFuture().addListener(future -> cancelAllUdpRegistrations());
     udp.connect(udpRemote).syncUninterruptibly();
     // If TCP session already exists, update its udpAddress to our peer
     if (session != null) session.udpAddress(udpRemote);
@@ -465,24 +428,27 @@ public final class ClientNetwork {
     scheduleUdpRegistration(newClientId);
   }
 
-  /**
-   * Schedule retransmits of a {@link RegisterUdp} datagram until the server has (likely) observed
-   * the client's UDP source address.
-   *
-   * <p>Behavior: - Sends an immediate registration datagram. - Schedules periodic retransmits on
-   * the UDP channel's event loop (interval and attempts from config). - Stores the {@link
-   * ScheduledFuture} in a map keyed by clientId so retries can be cancelled. - Retries are
-   * automatically cancelled when attempts are exhausted or when the UDP channel becomes inactive.
-   *
-   * <p>Note: call {@link #cancelUdpRegistration(short)} when you detect a working UDP path (for
-   * example, upon receiving the first UDP message from the server) to stop retries early.
-   *
-   * @param clientId assigned client id to include in RegisterUdp
-   */
-  private void scheduleUdpRegistration(short clientId) {
-    if (udp == null || !udp.isActive()) return;
+  private void onRegisterAck(boolean ok) {
+    // TCP ACK confirms UDP registration
+    if (ok) {
+      LOGGER.info("UDP registration acknowledged by server for clientId={}", clientId);
+      Short id = clientId;
+      if (id != null && id > 0) {
+        cancelUdpRegistration(id);
+      } else {
+        throw new IllegalStateException("Received RegisterAck before ConnectAck");
+      }
+    } else {
+      LOGGER.warn("UDP registration rejected by server for clientId={}", clientId);
+    }
+  }
 
-    // Avoid duplicate scheduling for same clientId
+  private void scheduleUdpRegistration(short clientId) {
+    if (udp == null || !udp.isActive()) {
+      return;
+    }
+
+    // Avoid duplicate scheduling
     if (udpRegisterTasks.containsKey(clientId)) {
       LOGGER.debug("UDP registration already scheduled for clientId={}", clientId);
       return;
@@ -490,7 +456,7 @@ public final class ClientNetwork {
 
     final byte[] payload;
     try {
-      payload = serialize(new RegisterUdp(clientId));
+      payload = serialize(new RegisterUdp(session.sessionId(), session().sessionToken(), clientId));
     } catch (IOException e) {
       LOGGER.warn("Failed to serialize RegisterUdp for clientId={}", clientId, e);
       return;
@@ -502,87 +468,25 @@ public final class ClientNetwork {
       return;
     }
 
-    final Runnable sendOnce =
-        () -> {
-          if (udp == null || !udp.isActive()) return;
-          try {
-            udp.writeAndFlush(
-                    new DatagramPacket(
-                        udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
-                .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
-          } catch (Throwable t) {
-            LOGGER.warn("Error while sending RegisterUdp clientId={}", clientId, t);
-          }
-        };
-
-    // immediate first send
-    sendOnce.run();
-
-    final AtomicInteger attempts = new AtomicInteger(1);
-
-    Runnable retryTask =
-        () -> {
-          int a = attempts.incrementAndGet();
-          if (a > UDP_REGISTER_ATTEMPTS) {
-            ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
-            if (sf != null) sf.cancel(false);
-            LOGGER.warn(
-                "UDP registration failed for clientId={} after {} attempts", clientId, a - 1);
-            return;
-          }
-
-          if (udp == null || !udp.isActive()) {
-            ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
-            if (sf != null) sf.cancel(false);
-            LOGGER.debug(
-                "UDP channel inactive; stopping registration retries for clientId={}", clientId);
-            return;
-          }
-
-          sendOnce.run();
-          LOGGER.debug(
-              "Retransmitted RegisterUdp attempt={} clientId={} to {}", a, clientId, udpRemote);
-        };
-
-    ScheduledFuture<?> sf =
-        udp.eventLoop()
-            .scheduleAtFixedRate(
-                retryTask,
-                UDP_REGISTER_INTERVAL_MS,
-                UDP_REGISTER_INTERVAL_MS,
-                TimeUnit.MILLISECONDS);
-
-    udpRegisterTasks.put(clientId, sf);
+    UdpRegistrationTask task = new UdpRegistrationTask(clientId, payload);
+    if (udpRegisterTasks.putIfAbsent(clientId, task) == null) {
+      task.start();
+    }
   }
 
-  /**
-   * Cancel pending registration retries for the given client id.
-   *
-   * <p>Safe to call from any thread. Used when a working UDP path is detected (e.g. on first UDP
-   * response from server).
-   *
-   * @param clientId client id whose retries should be cancelled
-   */
   private void cancelUdpRegistration(short clientId) {
-    ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
-    if (sf != null) {
-      sf.cancel(false);
-      LOGGER.debug("Cancelled UDP registration retries for clientId={}", clientId);
+    UdpRegistrationTask task = udpRegisterTasks.remove(clientId);
+    if (task != null) {
+      task.cancel();
     }
   }
 
-  /**
-   * Cancel all outstanding registration retry tasks. Used on shutdown or when the UDP channel
-   * closes.
-   */
   private void cancelAllUdpRegistrations() {
-    for (Short clientId : udpRegisterTasks.keySet()) {
-      ScheduledFuture<?> sf = udpRegisterTasks.remove(clientId);
-      if (sf != null) {
-        sf.cancel(false);
-        LOGGER.debug("Cancelled UDP registration retries for clientId={}", clientId);
-      }
+    // Iterate over a copy of the values to avoid ConcurrentModificationException
+    for (UdpRegistrationTask task : List.copyOf(udpRegisterTasks.values())) {
+      task.cancel();
     }
+    udpRegisterTasks.clear();
   }
 
   private void enqueueLifecycle(Runnable r) {
@@ -652,6 +556,70 @@ public final class ClientNetwork {
     } catch (IOException e) {
       LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());
       return CompletableFuture.completedFuture(false);
+    }
+  }
+
+  private final class UdpRegistrationTask implements Runnable {
+    private final short clientId;
+    private final byte[] payload;
+    private final AtomicInteger attempts = new AtomicInteger(0);
+    private volatile ScheduledFuture<?> future;
+
+    UdpRegistrationTask(short clientId, byte[] payload) {
+      this.clientId = clientId;
+      this.payload = payload;
+    }
+
+    void start() {
+      if (udp == null || !udp.isActive()) {
+        LOGGER.warn("UDP channel not active, cannot start registration for clientId={}", clientId);
+        return;
+      }
+      // Schedule the first run immediately on the event loop
+      this.future = udp.eventLoop().schedule(this, 0, TimeUnit.MILLISECONDS);
+    }
+
+    void cancel() {
+      if (future != null) {
+        future.cancel(false);
+      }
+      // Remove from the main map
+      udpRegisterTasks.remove(this.clientId);
+      LOGGER.debug("Cancelled UDP registration retries for clientId={}", clientId);
+    }
+
+    @Override
+    public void run() {
+      if (udp == null || !udp.isActive()) {
+        LOGGER.debug(
+            "UDP channel inactive; stopping registration retries for clientId={}", clientId);
+        udpRegisterTasks.remove(this.clientId);
+        return;
+      }
+
+      int attempt = attempts.incrementAndGet();
+      if (attempt > UDP_REGISTER_ATTEMPTS) {
+        LOGGER.warn(
+            "UDP registration failed for clientId={} after {} attempts", clientId, attempt - 1);
+        udpRegisterTasks.remove(this.clientId);
+        return;
+      }
+
+      // Send the datagram
+      try {
+        udp.writeAndFlush(
+                new DatagramPacket(
+                    udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
+            .addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+        LOGGER.debug("Sent RegisterUdp attempt={} clientId={} to {}", attempt, clientId, udpRemote);
+      } catch (Throwable t) {
+        LOGGER.warn("Error while sending RegisterUdp for clientId={}", clientId, t);
+      }
+
+      // Schedule the next retry if not cancelled
+      if (!future.isCancelled()) {
+        future = udp.eventLoop().schedule(this, UDP_REGISTER_INTERVAL_MS, TimeUnit.MILLISECONDS);
+      }
     }
   }
 }

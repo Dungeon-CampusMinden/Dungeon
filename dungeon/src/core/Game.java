@@ -14,8 +14,8 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.level.utils.LevelElement;
 import core.level.utils.LevelUtils;
-import core.network.DefaultSnapshotTranslator;
 import core.network.NetworkException;
+import core.network.config.NetworkConfig;
 import core.network.handler.INetworkHandler;
 import core.network.handler.LocalNetworkHandler;
 import core.network.handler.NettyNetworkHandler;
@@ -76,7 +76,7 @@ public final class Game {
       // Always route raw messages into the game dispatcher on the game thread
       networkHandler.setMessageConsumer(networkHandler.messageDispatcher()::dispatch);
       // Explicitly inject a SnapshotTranslator before initialization
-      networkHandler.setSnapshotTranslator(new DefaultSnapshotTranslator());
+      networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
       networkHandler.initialize(
           PreRunConfiguration.isNetworkServer(),
           PreRunConfiguration.networkServerAddress(),
