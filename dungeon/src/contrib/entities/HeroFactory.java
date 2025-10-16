@@ -8,6 +8,7 @@ import contrib.hud.DialogUtils;
 import contrib.hud.elements.GUICombination;
 import contrib.hud.inventory.InventoryGUI;
 import contrib.systems.HealthSystem;
+import contrib.systems.PositionSync;
 import contrib.utils.components.health.Damage;
 import contrib.utils.components.skill.Skill;
 import contrib.utils.components.skill.SkillTools;
@@ -50,8 +51,29 @@ public final class HeroFactory {
               "You died!",
               "Game Over",
               () -> {
+                // Just respawn at Start Tile instead of reloading the level
+                hero.fetch(PositionComponent.class)
+                    .ifPresent(
+                        pc -> {
+                          pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
+                          pc.viewDirection(Direction.DOWN);
+                          PositionSync.syncPosition(hero);
+                        });
+
+                hero.fetch(VelocityComponent.class)
+                    .ifPresent(
+                        vc -> {
+                          vc.clearForces();
+                          vc.currentVelocity(Vector2.ZERO);
+                        });
+
                 hero.fetch(HealthComponent.class)
-                    .ifPresent(hc -> hc.currentHealthpoints(hc.maximalHealthpoints()));
+                    .ifPresent(
+                        hc -> {
+                          hc.currentHealthpoints(hc.maximalHealthpoints());
+                          hc.clearDamage();
+                        });
+
                 hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
                 hero.fetch(StaminaComponent.class)
                     .ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
@@ -72,14 +94,6 @@ public final class HeroFactory {
 
                 // reset the animation queue
                 hero.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
-
-                // Just respawn at Start Tile instead of reloading the level
-                hero.fetch(PositionComponent.class)
-                    .ifPresent(
-                        pc -> {
-                          pc.position(Game.currentLevel().flatMap(ILevel::startTile).orElseThrow());
-                          pc.viewDirection(Direction.DOWN);
-                        });
               });
 
   /**
