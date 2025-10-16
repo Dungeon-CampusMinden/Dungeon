@@ -2,6 +2,7 @@ package core.systems;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import contrib.utils.EntityUtils;
 import core.Entity;
 import core.Game;
 import core.System;
@@ -139,7 +140,7 @@ public final class DrawSystem extends System {
     for (List<Entity> group : sortedEntities.values()) {
       group.stream()
           .map(this::buildDataObject)
-          .sorted(Comparator.comparingDouble((DSData d) -> -d.pc.position().y()))
+          .sorted(Comparator.comparingDouble((DSData d) -> -EntityUtils.getPosition(d.e).y()))
           .filter(this::shouldDraw)
           .forEach(this::draw);
     }
