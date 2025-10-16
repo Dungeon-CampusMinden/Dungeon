@@ -9,7 +9,6 @@ import core.Entity;
 import core.Game;
 import core.components.PlayerComponent;
 import core.utils.IVoidFunction;
-import core.utils.MissingHeroException;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
 import java.util.function.Supplier;
