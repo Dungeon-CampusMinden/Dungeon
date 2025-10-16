@@ -43,7 +43,6 @@ public final class ProjectileSystem extends System {
   }
 
   private PSData buildDataObject(final Entity entity) {
-
     ProjectileComponent prc =
         entity
             .fetch(ProjectileComponent.class)

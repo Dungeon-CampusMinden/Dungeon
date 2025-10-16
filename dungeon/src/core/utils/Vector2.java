@@ -1,7 +1,6 @@
 package core.utils;
 
 import core.level.utils.Coordinate;
-
 import java.io.Serial;
 import java.io.Serializable;
 

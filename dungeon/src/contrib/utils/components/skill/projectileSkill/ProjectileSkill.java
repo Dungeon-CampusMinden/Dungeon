@@ -19,8 +19,8 @@ import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
 import core.utils.components.path.IPath;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -29,6 +29,12 @@ import java.util.function.Supplier;
  * projectile entities. Subclasses define the projectile's target endpoint.
  */
 public abstract class ProjectileSkill extends Skill {
+
+  /**
+   * If set to true, players can hit other players with projectiles. If false, players cannot hit
+   * other players with projectiles.
+   */
+  public static final boolean ALLOW_PLAYER_VS_PLAYER = false;
 
   /** Default action to remove a projectile from the game world. */
   public static final Consumer<Entity> REMOVE_CONSUMER = Game::remove;
@@ -56,7 +62,7 @@ public abstract class ProjectileSkill extends Skill {
   protected Vector2 hitBoxSize;
   protected Vector2 hitBoxOffset;
   protected int tintColor = -1;
-  protected List<Entity> ignoreEntities;
+  private final Set<Entity> ignoreEntities;
   private boolean ignoreFirstWall;
 
   /**
@@ -91,7 +97,7 @@ public abstract class ProjectileSkill extends Skill {
     this.range = range;
     this.hitBoxSize = hitBoxSize;
     this.hitBoxOffset = hitBoxOffset;
-    this.ignoreEntities = new ArrayList<>();
+    this.ignoreEntities = new HashSet<>();
     this.ignoreFirstWall = ignoreFirstWall;
     this.endPointSupplier = end;
   }
@@ -178,6 +184,21 @@ public abstract class ProjectileSkill extends Skill {
 
     Game.add(projectile);
     onSpawn(caster, projectile);
+  }
+
+  /**
+   * Returns a set of entities that the projectile should ignore for collision detection.
+   *
+   * <p>This includes the caster and, if player-vs-player is disabled, all player characters.
+   *
+   * @return A set of entities to ignore for collision.
+   */
+  protected Set<Entity> ignoreEntities() {
+    Set<Entity> copy = new HashSet<>(this.ignoreEntities);
+    if (!ALLOW_PLAYER_VS_PLAYER) {
+      Game.heros().forEach(copy::add);
+    }
+    return copy;
   }
 
   /**
