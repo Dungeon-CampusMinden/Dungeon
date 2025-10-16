@@ -336,17 +336,40 @@ public class TileTextureFactory {
     } else if (isUpperRightInnerCorner(p, layout)) {
       Coordinate b = new Coordinate(p.x(), p.y() - 1);
       Coordinate l = new Coordinate(p.x() - 1, p.y());
-      if (rendersLeftDoubleAt(b, layout)
+
+      boolean doubleDueToVertical =
+          isVerticalStem(b, layout)
+              && (endsWithInside(b, layout, 1) ^ endsWithInside(b, layout, -1));
+
+      boolean doubleDueToHorizontal =
+          isHorizontalStem(l, layout)
+              && (endsWithInsideUD(l, layout, 1) ^ endsWithInsideUD(l, layout, -1));
+
+      if (doubleDueToVertical
+          || doubleDueToHorizontal
+          || rendersLeftDoubleAt(b, layout)
           || rendersRightDoubleAt(b, layout)
           || rendersTopDoubleAt(l, layout)
           || rendersBottomDoubleAt(l, layout)) {
         return new SimpleIPath("wall/wall_inner_corner_upper_right_double");
       }
       return new SimpleIPath("wall/wall_inner_corner_upper_right");
+
     } else if (isUpperLeftInnerCorner(p, layout)) {
       Coordinate b = new Coordinate(p.x(), p.y() - 1);
       Coordinate r = new Coordinate(p.x() + 1, p.y());
-      if (rendersLeftDoubleAt(b, layout)
+
+      boolean doubleDueToVertical =
+          isVerticalStem(b, layout)
+              && (endsWithInside(b, layout, 1) ^ endsWithInside(b, layout, -1));
+
+      boolean doubleDueToHorizontal =
+          isHorizontalStem(r, layout)
+              && (endsWithInsideUD(r, layout, 1) ^ endsWithInsideUD(r, layout, -1));
+
+      if (doubleDueToVertical
+          || doubleDueToHorizontal
+          || rendersLeftDoubleAt(b, layout)
           || rendersRightDoubleAt(b, layout)
           || rendersTopDoubleAt(r, layout)
           || rendersBottomDoubleAt(r, layout)) {
@@ -354,6 +377,7 @@ public class TileTextureFactory {
       }
       return new SimpleIPath("wall/wall_inner_corner_upper_left");
     }
+
     return null;
   }
 
@@ -424,24 +448,31 @@ public class TileTextureFactory {
     Coordinate right = new Coordinate(p.x() + 1, p.y());
     Coordinate down = new Coordinate(p.x(), p.y() - 1);
 
-    boolean leftTriggers =
-        isTBottomEmptyAt(left, layout)
-            || isUpperLeftCornerDoubleAt(left, layout)
-            || isTopEmptyBothAt(left, layout);
-    boolean rightTriggers =
-        isTBottomEmptyAt(right, layout)
-            || isUpperRightCornerDoubleAt(right, layout)
-            || isTopEmptyBothAt(right, layout);
+    if (hasAdjacentInnerBottomTJunction(p, layout)) return "wall/t_inner_bottom_empty";
 
-    if (leftTriggers && rendersRightDoubleAt(down, layout)) {
-      return "wall/t_inner_bottom_empty_left";
-    }
-    if (rightTriggers && rendersLeftDoubleAt(down, layout)) {
-      return "wall/t_inner_bottom_empty_right";
-    }
-    if (isEmptyForTJunctionOpen(down, layout)) {
+    if (isFloorAbove(p, layout)
+        && (isUpperLeftCornerDoubleExactAt(left, layout)
+            || isUpperRightCornerDoubleExactAt(right, layout))) {
       return "wall/t_inner_bottom_empty";
     }
+
+    boolean leftTriggers =
+        isAnyTBottomEmptyAt(left, layout)
+            || isUpperLeftCornerDoubleExactAt(left, layout)
+            || isTopEmptyBothAt(left, layout);
+
+    boolean rightTriggers =
+        isAnyTBottomEmptyAt(right, layout)
+            || isUpperRightCornerDoubleExactAt(right, layout)
+            || isTopEmptyBothAt(right, layout);
+
+    boolean belowLeftDouble = rendersLeftDoubleAt(down, layout);
+    boolean belowRightDouble = rendersRightDoubleAt(down, layout);
+    boolean openDownEmpty = isEmptyForTJunctionOpen(down, layout);
+
+    if (leftTriggers && belowRightDouble) return "wall/t_inner_bottom_empty_left";
+    if (rightTriggers && belowLeftDouble) return "wall/t_inner_bottom_empty_right";
+    if (openDownEmpty) return "wall/t_inner_bottom_empty";
     return "wall/t_inner_bottom";
   }
 
@@ -1002,6 +1033,59 @@ public class TileTextureFactory {
 
   private static boolean isTBottomEmptyLeftAt(Coordinate p, LevelElement[][] layout) {
     return isTBottomEmptySideAt(p, layout, -1);
+  }
+
+  private static boolean isFloorAbove(Coordinate p, LevelElement[][] layout) {
+    LevelElement a = get(layout, p.x(), p.y() + 1);
+    return a == LevelElement.FLOOR;
+  }
+
+  private static boolean isAnyTBottomEmptyAt(Coordinate c, LevelElement[][] layout) {
+    return isTBottomEmptyAt(c, layout)
+        || isTBottomEmptyLeftAt(c, layout)
+        || isTBottomEmptyRightAt(c, layout);
+  }
+
+  private static boolean xorEndsVertical(Coordinate stem, LevelElement[][] layout) {
+    return isVerticalStem(stem, layout)
+        && (endsWithInside(stem, layout, 1) ^ endsWithInside(stem, layout, -1));
+  }
+
+  private static boolean xorEndsHorizontal(Coordinate stem, LevelElement[][] layout) {
+    return isHorizontalStem(stem, layout)
+        && (endsWithInsideUD(stem, layout, 1) ^ endsWithInsideUD(stem, layout, -1));
+  }
+
+  private static boolean isUpperLeftCornerDoubleExactAt(Coordinate c, LevelElement[][] layout) {
+    Coordinate b = new Coordinate(c.x(), c.y() - 1);
+    Coordinate r = new Coordinate(c.x() + 1, c.y());
+    boolean v = xorEndsVertical(b, layout);
+    boolean h = xorEndsHorizontal(r, layout);
+    boolean rendersDouble =
+        rendersLeftDoubleAt(b, layout)
+            || rendersRightDoubleAt(b, layout)
+            || rendersTopDoubleAt(r, layout)
+            || rendersBottomDoubleAt(r, layout);
+    return isUpperLeftInnerCorner(c, layout) && (v || h || rendersDouble);
+  }
+
+  private static boolean isUpperRightCornerDoubleExactAt(Coordinate c, LevelElement[][] layout) {
+    Coordinate b = new Coordinate(c.x(), c.y() - 1);
+    Coordinate l = new Coordinate(c.x() - 1, c.y());
+    boolean v = xorEndsVertical(b, layout);
+    boolean h = xorEndsHorizontal(l, layout);
+    boolean rendersDouble =
+        rendersLeftDoubleAt(b, layout)
+            || rendersRightDoubleAt(b, layout)
+            || rendersTopDoubleAt(l, layout)
+            || rendersBottomDoubleAt(l, layout);
+    return isUpperRightInnerCorner(c, layout) && (v || h || rendersDouble);
+  }
+
+  private static boolean hasAdjacentInnerBottomTJunction(Coordinate p, LevelElement[][] layout) {
+    Coordinate left = new Coordinate(p.x() - 1, p.y());
+    Coordinate right = new Coordinate(p.x() + 1, p.y());
+    return isInnerTJunctionBottom(left, layout) || isInnerTJunctionBottom(right, layout);
   }
 
   /**
