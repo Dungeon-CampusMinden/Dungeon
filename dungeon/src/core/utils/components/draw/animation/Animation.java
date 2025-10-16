@@ -44,7 +44,7 @@ public class Animation implements Serializable, Cloneable {
     SPRITESHEET
   }
 
-  private final AnimationConfig config;
+  private AnimationConfig config;
 
   /** Logical world size (computed from sprite pixel size and scale). */
   private float width = 1;

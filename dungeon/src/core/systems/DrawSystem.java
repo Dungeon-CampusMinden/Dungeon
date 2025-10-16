@@ -50,7 +50,7 @@ public final class DrawSystem extends System {
    * The batch is necessary to draw ALL the stuff. Every object that uses draw need to know the
    * batch.
    */
-  private static final SpriteBatch BATCH = Gdx.gl == null ? null : new SpriteBatch();
+  private static final SpriteBatch BATCH = new SpriteBatch();
 
   /** Draws objects. */
   private static final Painter PAINTER = new Painter(BATCH);
@@ -117,11 +117,11 @@ public final class DrawSystem extends System {
     data.dc.depth(depth);
 
     // Remove old entry
-    sortedEntities.get(oldDepth).remove(entity);
+    sortedEntities.get(oldDepth).remove(data);
 
     // Add at new depth
-    List<Entity> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
-    entitiesAtDepth.add(entity);
+    List<DSData> entitiesAtDepth = sortedEntities.computeIfAbsent(depth, k -> new ArrayList<>());
+    entitiesAtDepth.add(data);
   }
 
   /**
@@ -200,7 +200,7 @@ public final class DrawSystem extends System {
   private void draw(final DSData dsd) {
     Sprite sprite = dsd.dc.getSprite();
     PainterConfig conf =
-        new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
+      new PainterConfig(0, 0, dsd.dc.getWidth(), dsd.dc.getHeight(), dsd.dc.tintColor());
 
     conf.scale(dsd.pc.scale());
     conf.rotation(dsd.pc.rotation());
@@ -208,12 +208,12 @@ public final class DrawSystem extends System {
 
     if (dsd.dc.currentAnimation().getConfig().centered()) {
       conf =
-          new PainterConfig(
-              -dsd.dc.getWidth() / 2,
-              -dsd.dc.getHeight() / 2,
-              dsd.dc.getWidth(),
-              dsd.dc.getHeight(),
-              dsd.dc.tintColor());
+        new PainterConfig(
+          -dsd.dc.getWidth() / 2,
+          -dsd.dc.getHeight() / 2,
+          dsd.dc.getWidth(),
+          dsd.dc.getHeight(),
+          dsd.dc.tintColor());
     }
     PAINTER.draw(dsd.pc.position(), sprite, conf);
   }
@@ -232,13 +232,13 @@ public final class DrawSystem extends System {
    */
   private DSData buildDataObject(final Entity entity) {
     DrawComponent dc =
-        entity
-            .fetch(DrawComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+      entity
+        .fetch(DrawComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
     PositionComponent pc =
-        entity
-            .fetch(PositionComponent.class)
-            .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
+      entity
+        .fetch(PositionComponent.class)
+        .orElseThrow(() -> MissingComponentException.build(entity, PositionComponent.class));
     return new DSData(entity, dc, pc);
   }
 
@@ -253,7 +253,7 @@ public final class DrawSystem extends System {
         if (t.levelElement() != LevelElement.SKIP && !isTilePitAndOpen(t) && t.visible()) {
           IPath texturePath = t.texturePath();
           if (!mapping.containsKey(texturePath)
-              || (mapping.get(texturePath).tintColor() != t.tintColor())) {
+            || (mapping.get(texturePath).tintColor() != t.tintColor())) {
             mapping.put(texturePath, new PainterConfig(texturePath, 0, 0, t.tintColor()));
           }
           PAINTER.draw(t.position(), texturePath, mapping.get(texturePath));
