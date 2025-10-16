@@ -1,0 +1,4 @@
+- Source: https://elvgames.itch.io/free-retro-game-world-sprites
+- Author: ElvGames
+- License: https://elvgames.itch.io/terms
+- Note: Author has explicitly allowed redistribution of free assets in open-source projects
