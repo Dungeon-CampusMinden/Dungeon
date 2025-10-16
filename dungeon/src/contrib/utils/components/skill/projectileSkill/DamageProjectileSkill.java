@@ -134,14 +134,14 @@ public abstract class DamageProjectileSkill extends ProjectileSkill {
   protected TriConsumer<Entity, Entity, Direction> onCollideEnter(Entity caster) {
     return (projectile, target, direction) -> {
       if (ignoreOtherProjectiles && target.isPresent(ProjectileComponent.class)) return;
-      if (!ignoreEntities.contains(target)) {
+      if (!ignoreEntities().contains(target)) {
         target
             .fetch(HealthComponent.class)
             .ifPresent(hc -> hc.receiveHit(calculateDamage(caster, target, direction)));
         additionalEffectAfterDamage(caster, projectile, target, direction);
 
         if (piercing) {
-          ignoreEntities.add(target);
+          ignoreEntity(target);
         } else {
           Game.remove(projectile);
         }
