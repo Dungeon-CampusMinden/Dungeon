@@ -23,6 +23,11 @@ public final class ServerRuntime {
   }
 
   public void start() {
+    if (loop != null && loop.isRunning()) {
+      LOGGER.warn("Server already running on port {}, cannot start again", port);
+      return;
+    }
+
     LOGGER.info("Starting server on port {}", PreRunConfiguration.networkPort());
     this.transport = new ServerTransport();
     this.transport.start(port);
@@ -35,11 +40,12 @@ public final class ServerRuntime {
     if (transport != null) transport.stop();
   }
 
-  public void broadcastMessage(NetworkMessage message, boolean reliable) {
+  public CompletableFuture<Boolean> broadcastMessage(NetworkMessage message, boolean reliable) {
     if (loop != null) {
-      this.transport.broadcast(message, reliable);
+      return this.transport.broadcast(message, reliable);
     } else {
       LOGGER.warn("Server not initialized, cannot broadcast message");
+      return CompletableFuture.completedFuture(false);
     }
   }
 

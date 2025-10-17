@@ -95,6 +95,10 @@ public final class AuthoritativeServerLoop {
     LOGGER.info("ServerLoop stopped");
   }
 
+  public boolean isRunning() {
+    return !executor.isShutdown();
+  }
+
   private void createSystems() {
     ECSManagment.add(new PositionSystem());
     ECSManagment.add(

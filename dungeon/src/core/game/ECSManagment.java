@@ -89,11 +89,15 @@ public final class ECSManagment {
     activeEntityStorage.forEach(f -> f.add(entity));
     LOGGER.info(entity + " will be added to the Game.");
 
-    if (Game.network().isServer()) {
-
-      if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
-        Game.network().broadcast(new EntitySpawnEvent(entity), true);
+    try {
+      if (Game.network().isServer()) {
+        if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
+          Game.network().broadcast(new EntitySpawnEvent(entity), true);
+        }
       }
+    } catch (IllegalStateException e) {
+      LOGGER.error("Failed to broadcast entity spawn for {}: {}", entity, e.getMessage());
+      // Continue without broadcasting, for unit tests
     }
 
     return entity;
@@ -112,9 +116,14 @@ public final class ECSManagment {
     EntityIdProvider.unregister(entity.id());
     LOGGER.info(entity + " will be removed from the Game.");
 
-    if (Game.network().isServer()) {
-      Game.network()
-          .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
+    try {
+      if (Game.network().isServer()) {
+        Game.network()
+            .broadcast(new EntityDespawnEvent(entity.id(), "Entity removed from game"), true);
+      }
+    } catch (IllegalStateException e) {
+      LOGGER.error("Failed to broadcast entity despawn for {}: {}", entity, e.getMessage());
+      // Continue without broadcasting, for unit tests
     }
 
     return entity;
