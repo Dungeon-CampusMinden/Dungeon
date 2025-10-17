@@ -151,6 +151,19 @@ public class TileTextureFactory {
     Coordinate p = levelPart.position();
     LevelElement[][] layout = levelPart.layout();
 
+    if (isBottomRightInnerEmptyCorner(p, layout)) {
+      return new SimpleIPath("wall/corner_bottom_right_inner_empty");
+    }
+    if (isBottomLeftInnerEmptyCorner(p, layout)) {
+      return new SimpleIPath("wall/corner_bottom_left_inner_empty");
+    }
+    if (isUpperLeftInnerEmptyCorner(p, layout)) {
+      return new SimpleIPath("wall/corner_upper_left_inner_empty");
+    }
+    if (isUpperRightInnerEmptyCorner(p, layout)) {
+      return new SimpleIPath("wall/corner_upper_right_inner_empty");
+    }
+
     IPath inner = selectInnerVerticalWallTexture(p, layout);
     if (inner != null) return inner;
 
@@ -314,71 +327,53 @@ public class TileTextureFactory {
     }
 
     if (isBottomLeftInnerCorner(p, layout)) {
-      Coordinate t = new Coordinate(p.x(), p.y() + 1);
-      Coordinate r = new Coordinate(p.x() + 1, p.y());
-      if (rendersLeftDoubleAt(t, layout)
-          || rendersRightDoubleAt(t, layout)
-          || rendersTopDoubleAt(r, layout)
-          || rendersBottomDoubleAt(r, layout)) {
-        return new SimpleIPath("wall/wall_inner_corner_bottom_left_double");
-      }
-      return new SimpleIPath("wall/wall_inner_corner_bottom_left");
+      return selectInnerCornerTexture(p, layout, 1, 1, "bottom_left");
     } else if (isBottomRightInnerCorner(p, layout)) {
-      Coordinate t = new Coordinate(p.x(), p.y() + 1);
-      Coordinate l = new Coordinate(p.x() - 1, p.y());
-      if (rendersLeftDoubleAt(t, layout)
-          || rendersRightDoubleAt(t, layout)
-          || rendersTopDoubleAt(l, layout)
-          || rendersBottomDoubleAt(l, layout)) {
-        return new SimpleIPath("wall/wall_inner_corner_bottom_right_double");
-      }
-      return new SimpleIPath("wall/wall_inner_corner_bottom_right");
+      return selectInnerCornerTexture(p, layout, -1, 1, "bottom_right");
     } else if (isUpperRightInnerCorner(p, layout)) {
-      Coordinate b = new Coordinate(p.x(), p.y() - 1);
-      Coordinate l = new Coordinate(p.x() - 1, p.y());
-
-      boolean doubleDueToVertical =
-          isVerticalStem(b, layout)
-              && (endsWithInside(b, layout, 1) ^ endsWithInside(b, layout, -1));
-
-      boolean doubleDueToHorizontal =
-          isHorizontalStem(l, layout)
-              && (endsWithInsideUD(l, layout, 1) ^ endsWithInsideUD(l, layout, -1));
-
-      if (doubleDueToVertical
-          || doubleDueToHorizontal
-          || rendersLeftDoubleAt(b, layout)
-          || rendersRightDoubleAt(b, layout)
-          || rendersTopDoubleAt(l, layout)
-          || rendersBottomDoubleAt(l, layout)) {
-        return new SimpleIPath("wall/wall_inner_corner_upper_right_double");
-      }
-      return new SimpleIPath("wall/wall_inner_corner_upper_right");
-
+      return selectInnerCornerTexture(p, layout, -1, -1, "upper_right");
     } else if (isUpperLeftInnerCorner(p, layout)) {
-      Coordinate b = new Coordinate(p.x(), p.y() - 1);
-      Coordinate r = new Coordinate(p.x() + 1, p.y());
-
-      boolean doubleDueToVertical =
-          isVerticalStem(b, layout)
-              && (endsWithInside(b, layout, 1) ^ endsWithInside(b, layout, -1));
-
-      boolean doubleDueToHorizontal =
-          isHorizontalStem(r, layout)
-              && (endsWithInsideUD(r, layout, 1) ^ endsWithInsideUD(r, layout, -1));
-
-      if (doubleDueToVertical
-          || doubleDueToHorizontal
-          || rendersLeftDoubleAt(b, layout)
-          || rendersRightDoubleAt(b, layout)
-          || rendersTopDoubleAt(r, layout)
-          || rendersBottomDoubleAt(r, layout)) {
-        return new SimpleIPath("wall/wall_inner_corner_upper_left_double");
-      }
-      return new SimpleIPath("wall/wall_inner_corner_upper_left");
+      return selectInnerCornerTexture(p, layout, 1, -1, "upper_left");
     }
 
     return null;
+  }
+
+  private static IPath selectInnerCornerTexture(
+      Coordinate p, LevelElement[][] layout, int sx, int sy, String name) {
+    Coordinate v = new Coordinate(p.x(), p.y() + sy);
+    Coordinate h = new Coordinate(p.x() + sx, p.y());
+
+    boolean doubleDueToVertical;
+    if (sy == 1) {
+      doubleDueToVertical =
+          isVerticalStem(v, layout)
+              && endsWithInside(v, layout, -sx)
+              && !endsWithInside(v, layout, sx);
+    } else {
+      doubleDueToVertical = xorEndsVertical(v, layout);
+    }
+
+    boolean doubleDueToHorizontal;
+    if (sy == 1) {
+      doubleDueToHorizontal =
+          isHorizontalStem(h, layout)
+              && endsWithInsideUD(h, layout, -sy)
+              && !endsWithInsideUD(h, layout, sy);
+    } else {
+      doubleDueToHorizontal = xorEndsHorizontal(h, layout);
+    }
+
+    boolean rendersDoubleAround =
+        rendersLeftDoubleAt(v, layout)
+            || rendersRightDoubleAt(v, layout)
+            || rendersTopDoubleAt(h, layout)
+            || rendersBottomDoubleAt(h, layout);
+
+    if (doubleDueToVertical || doubleDueToHorizontal || rendersDoubleAround) {
+      return new SimpleIPath("wall/wall_inner_corner_" + name + "_double");
+    }
+    return new SimpleIPath("wall/wall_inner_corner_" + name);
   }
 
   private static IPath findTexturePathOuterCorner(LevelPart levelPart) {
@@ -421,6 +416,10 @@ public class TileTextureFactory {
     Coordinate right = new Coordinate(p.x() + 1, p.y());
     Coordinate up = new Coordinate(p.x(), p.y() + 1);
 
+    if (hasAdjacentInnerTopTJunction(p, layout)) {
+      return "wall/t_inner_top_empty";
+    }
+
     boolean leftTriggersTop =
         isTTopEmptyAt(left, layout)
             || isBottomLeftCornerDoubleAt(left, layout)
@@ -437,7 +436,10 @@ public class TileTextureFactory {
     if (rightTriggersTop && rendersLeftDoubleAt(up, layout)) {
       return "wall/t_inner_top_empty_right";
     }
-    if (isEmptyForTJunctionOpen(up, layout)) {
+
+    boolean upDoubleDueToVertical = xorEndsVertical(up, layout);
+
+    if (isEmptyForTJunctionOpen(up, layout) || upDoubleDueToVertical) {
       return "wall/t_inner_top_empty";
     }
     return "wall/t_inner_top";
@@ -734,6 +736,10 @@ public class TileTextureFactory {
             || aboveIsInside(p, layout) && leftIsInside(p, layout)));
   }
 
+  private static Coordinate add(Coordinate p, int dx, int dy) {
+    return new Coordinate(p.x() + dx, p.y() + dy);
+  }
+
   private static boolean isInsideLayout(int x, int y, LevelElement[][] layout) {
     int h = layout.length;
     int w = layout[0].length;
@@ -770,18 +776,96 @@ public class TileTextureFactory {
     return wallOrDoorAt(layout, x, y, 0, 1) && wallOrDoorAt(layout, x, y, 0, -1);
   }
 
+  private static boolean isStem(Coordinate p, LevelElement[][] layout, boolean vertical) {
+    LevelElement self = get(layout, p.x(), p.y());
+    if (self != LevelElement.WALL) return false;
+    int x = p.x();
+    int y = p.y();
+    return vertical ? hasBarrierUD(layout, x, y) : hasBarrierLR(layout, x, y);
+  }
+
+  private static boolean isVerticalStem(Coordinate p, LevelElement[][] layout) {
+    return isStem(p, layout, true);
+  }
+
+  private static boolean isHorizontalStem(Coordinate p, LevelElement[][] layout) {
+    return isStem(p, layout, false);
+  }
+
+  private static boolean isInnerGroup(Coordinate p, LevelElement[][] layout, boolean vertical) {
+    if (!isStem(p, layout, vertical)) return false;
+    if (vertical) {
+      return endsWithInsideDir(p, layout, -1, 0, true) && endsWithInsideDir(p, layout, 1, 0, true);
+    } else {
+      return endsWithInsideDir(p, layout, 0, -1, false)
+          && endsWithInsideDir(p, layout, 0, 1, false);
+    }
+  }
+
+  private static boolean isInnerVerticalGroup(Coordinate p, LevelElement[][] layout) {
+    return isInnerGroup(p, layout, true);
+  }
+
+  private static boolean isInnerHorizontalGroup(Coordinate p, LevelElement[][] layout) {
+    return isInnerGroup(p, layout, false);
+  }
+
+  private static boolean endsWithInsideDir(
+      Coordinate p, LevelElement[][] layout, int stepX, int stepY, boolean vertical) {
+    int x = p.x();
+    int y = p.y();
+    while (true) {
+      x += stepX;
+      y += stepY;
+      if (!isInsideLayout(x, y, layout)) return false;
+      boolean stemHere =
+          get(layout, x, y) == LevelElement.WALL
+              && (vertical ? hasBarrierUD(layout, x, y) : hasBarrierLR(layout, x, y));
+      if (!stemHere) return isInside(get(layout, x, y));
+    }
+  }
+
+  private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int horizontalStep) {
+    return endsWithInsideDir(p, layout, horizontalStep, 0, true);
+  }
+
+  private static boolean endsWithInsideUD(Coordinate p, LevelElement[][] layout, int verticalStep) {
+    return endsWithInsideDir(p, layout, 0, verticalStep, false);
+  }
+
+  private static boolean xorEnds(Coordinate stem, LevelElement[][] layout, boolean vertical) {
+    return isStem(stem, layout, vertical)
+        && (endsWithInsideDir(stem, layout, vertical ? 1 : 0, vertical ? 0 : 1, vertical)
+            ^ endsWithInsideDir(stem, layout, vertical ? -1 : 0, vertical ? 0 : -1, vertical));
+  }
+
+  private static boolean xorEndsVertical(Coordinate stem, LevelElement[][] layout) {
+    return xorEnds(stem, layout, true);
+  }
+
+  private static boolean xorEndsHorizontal(Coordinate stem, LevelElement[][] layout) {
+    return xorEnds(stem, layout, false);
+  }
+
+  private static boolean rendersEmptyAxis(Coordinate p, LevelElement[][] layout, boolean vertical) {
+    if (!isInnerGroup(p, layout, vertical)) return false;
+    if (vertical) {
+      boolean leftStem = isStem(add(p, -1, 0), layout, true);
+      boolean rightStem = isStem(add(p, 1, 0), layout, true);
+      return leftStem && rightStem;
+    } else {
+      boolean upStem = isStem(add(p, 0, 1), layout, false);
+      boolean downStem = isStem(add(p, 0, -1), layout, false);
+      return upStem && downStem;
+    }
+  }
+
   private static boolean rendersEmptyAt(Coordinate p, LevelElement[][] layout) {
-    if (!isInnerVerticalGroup(p, layout)) return false;
-    boolean leftStem = isVerticalStem(new Coordinate(p.x() - 1, p.y()), layout);
-    boolean rightStem = isVerticalStem(new Coordinate(p.x() + 1, p.y()), layout);
-    return leftStem && rightStem;
+    return rendersEmptyAxis(p, layout, true);
   }
 
   private static boolean rendersEmptyUDAt(Coordinate p, LevelElement[][] layout) {
-    if (!isInnerHorizontalGroup(p, layout)) return false;
-    boolean upStem = isHorizontalStem(new Coordinate(p.x(), p.y() + 1), layout);
-    boolean downStem = isHorizontalStem(new Coordinate(p.x(), p.y() - 1), layout);
-    return upStem && downStem;
+    return rendersEmptyAxis(p, layout, false);
   }
 
   private static boolean rendersDoubleAt(Coordinate p, LevelElement[][] layout, int ox, int oy) {
@@ -812,20 +896,6 @@ public class TileTextureFactory {
 
   private static boolean rendersBottomDoubleAt(Coordinate p, LevelElement[][] layout) {
     return rendersDoubleAt(p, layout, 0, -1);
-  }
-
-  private static boolean isVerticalStem(Coordinate p, LevelElement[][] layout) {
-    int x = p.x();
-    int y = p.y();
-    LevelElement self = get(layout, x, y);
-    return self == LevelElement.WALL && hasBarrierUD(layout, x, y);
-  }
-
-  private static boolean isHorizontalStem(Coordinate p, LevelElement[][] layout) {
-    int x = p.x();
-    int y = p.y();
-    LevelElement self = get(layout, x, y);
-    return self == LevelElement.WALL && hasBarrierLR(layout, x, y);
   }
 
   private static boolean isEmptyCross(
@@ -865,40 +935,6 @@ public class TileTextureFactory {
 
   private static boolean isEmptyForTJunctionOpen(Coordinate p, LevelElement[][] layout) {
     return rendersEmptyAt(p, layout) || rendersEmptyUDAt(p, layout) || isStemCrossCenter(p, layout);
-  }
-
-  private static boolean endsWithInside(Coordinate p, LevelElement[][] layout, int horizontalStep) {
-    int x = p.x();
-    int y = p.y();
-    while (true) {
-      x += horizontalStep;
-      if (!isInsideLayout(x, y, layout)) return false;
-      boolean stemHere = get(layout, x, y) == LevelElement.WALL && hasBarrierUD(layout, x, y);
-      if (!stemHere) return isInside(get(layout, x, y));
-    }
-  }
-
-  private static boolean endsWithInsideUD(Coordinate p, LevelElement[][] layout, int verticalStep) {
-    int x = p.x();
-    int y = p.y();
-    while (true) {
-      y += verticalStep;
-      if (!isInsideLayout(x, y, layout)) return false;
-      boolean stemHere = get(layout, x, y) == LevelElement.WALL && hasBarrierLR(layout, x, y);
-      if (!stemHere) return isInside(get(layout, x, y));
-    }
-  }
-
-  private static boolean isInnerVerticalGroup(Coordinate p, LevelElement[][] layout) {
-    return isVerticalStem(p, layout)
-        && endsWithInside(p, layout, -1)
-        && endsWithInside(p, layout, 1);
-  }
-
-  private static boolean isInnerHorizontalGroup(Coordinate p, LevelElement[][] layout) {
-    return isHorizontalStem(p, layout)
-        && endsWithInsideUD(p, layout, -1)
-        && endsWithInsideUD(p, layout, 1);
   }
 
   private static boolean isInnerTJunction(Coordinate p, LevelElement[][] layout, int ix, int iy) {
@@ -959,10 +995,6 @@ public class TileTextureFactory {
 
   private static boolean isTopEmptyBothAt(Coordinate p, LevelElement[][] layout) {
     return isEmptyBothAt(p, layout, 1);
-  }
-
-  private static boolean isBottomEmptyBothAt(Coordinate p, LevelElement[][] layout) {
-    return isEmptyBothAt(p, layout, -1);
   }
 
   private static boolean isTEmptyAt(Coordinate p, LevelElement[][] layout, int sign) {
@@ -1046,16 +1078,6 @@ public class TileTextureFactory {
         || isTBottomEmptyRightAt(c, layout);
   }
 
-  private static boolean xorEndsVertical(Coordinate stem, LevelElement[][] layout) {
-    return isVerticalStem(stem, layout)
-        && (endsWithInside(stem, layout, 1) ^ endsWithInside(stem, layout, -1));
-  }
-
-  private static boolean xorEndsHorizontal(Coordinate stem, LevelElement[][] layout) {
-    return isHorizontalStem(stem, layout)
-        && (endsWithInsideUD(stem, layout, 1) ^ endsWithInsideUD(stem, layout, -1));
-  }
-
   private static boolean isUpperLeftCornerDoubleExactAt(Coordinate c, LevelElement[][] layout) {
     Coordinate b = new Coordinate(c.x(), c.y() - 1);
     Coordinate r = new Coordinate(c.x() + 1, c.y());
@@ -1086,6 +1108,53 @@ public class TileTextureFactory {
     Coordinate left = new Coordinate(p.x() - 1, p.y());
     Coordinate right = new Coordinate(p.x() + 1, p.y());
     return isInnerTJunctionBottom(left, layout) || isInnerTJunctionBottom(right, layout);
+  }
+
+  private static boolean hasAdjacentInnerTopTJunction(Coordinate p, LevelElement[][] layout) {
+    Coordinate left = new Coordinate(p.x() - 1, p.y());
+    Coordinate right = new Coordinate(p.x() + 1, p.y());
+    return isInnerTJunctionTop(left, layout) || isInnerTJunctionTop(right, layout);
+  }
+
+  private static boolean isInnerEmptyCorner(Coordinate p, LevelElement[][] layout, int sx, int sy) {
+    if (get(layout, p.x(), p.y()) != LevelElement.WALL) return false;
+
+    Coordinate diag = new Coordinate(p.x() + sx, p.y() + sy);
+    Coordinate diagA = new Coordinate(p.x() - sx, p.y() + sy);
+    Coordinate diagB = new Coordinate(p.x() + sx, p.y() - sy);
+    Coordinate diagC = new Coordinate(p.x() - sx, p.y() - sy);
+    Coordinate orthoX = new Coordinate(p.x() + sx, p.y());
+    Coordinate orthoY = new Coordinate(p.x(), p.y() + sy);
+
+    boolean diagIsFloor = get(layout, diag.x(), diag.y()) == LevelElement.FLOOR;
+    boolean orthoXNotFloor = get(layout, orthoX.x(), orthoX.y()) != LevelElement.FLOOR;
+    boolean orthoYNotFloor = get(layout, orthoY.x(), orthoY.y()) != LevelElement.FLOOR;
+    boolean diagANotFloor = get(layout, diagA.x(), diagA.y()) != LevelElement.FLOOR;
+    boolean diagBNotFloor = get(layout, diagB.x(), diagB.y()) != LevelElement.FLOOR;
+    boolean diagCNotFloor = get(layout, diagC.x(), diagC.y()) != LevelElement.FLOOR;
+
+    return diagIsFloor
+        && orthoXNotFloor
+        && orthoYNotFloor
+        && diagANotFloor
+        && diagBNotFloor
+        && diagCNotFloor;
+  }
+
+  private static boolean isBottomRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    return isInnerEmptyCorner(p, layout, 1, -1);
+  }
+
+  private static boolean isBottomLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    return isInnerEmptyCorner(p, layout, -1, -1);
+  }
+
+  private static boolean isUpperLeftInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    return isInnerEmptyCorner(p, layout, -1, 1);
+  }
+
+  private static boolean isUpperRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
+    return isInnerEmptyCorner(p, layout, 1, 1);
   }
 
   /**
