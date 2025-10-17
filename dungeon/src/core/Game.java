@@ -27,6 +27,7 @@ import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.IPath;
 import core.utils.logging.DungeonLogger;
+import core.utils.logging.DungeonLoggerConfig;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -64,8 +65,26 @@ public final class Game {
 
   private static final boolean SLOW_NETWORK = false;
 
-  /** Starts the dungeon. Initializes the network handler if networking is enabled. */
+  /**
+   * Starts the dungeon.
+   *
+   * <ul>
+   *   <li>Initializes the default logger configuration if not already initialized.
+   *   <li>Sets up the appropriate network handler based on multiplayer settings.
+   *   <li>Initializes and starts the network handler.
+   *   <li>Registers a listener for window close requests to exit the game gracefully.
+   *   <li>Starts the main game loop if not in multiplayer server mode.
+   * </ul>
+   *
+   * @see PreRunConfiguration
+   * @see INetworkHandler
+   * @see GameLoop
+   */
   public static void run() {
+    if (!DungeonLoggerConfig.isInitialized()) {
+      DungeonLoggerConfig.initDefault();
+    }
+
     if (PreRunConfiguration.multiplayerEnabled()) {
       networkHandler = SLOW_NETWORK ? new SlowNettyNetworkHandler() : new NettyNetworkHandler();
     } else {
@@ -804,7 +823,15 @@ public final class Game {
     else LOGGER.warn("Can not set Level because levelSystem is null.");
   }
 
-  /** Exits the GDX application and shuts down the network handler. */
+  /**
+   * Exits the GDX application and shuts down the network handler.
+   *
+   * <p>If the network handler is not initialized, it will simply exit the application.
+   *
+   * <p>If no GDX application is present, it will call {@link java.lang.System#exit(int)}.
+   *
+   * @param reason The reason for exiting the game.
+   */
   public static void exit(String reason) {
     if (networkHandler != null) {
       try {
@@ -813,7 +840,11 @@ public final class Game {
         LOGGER.warn("Error shutting down network handler", e);
       }
     }
-    if (Gdx.app != null) Gdx.app.exit();
+    if (Gdx.app != null) {
+      Gdx.app.exit();
+    } else {
+      java.lang.System.exit(0);
+    }
   }
 
   /**
@@ -829,7 +860,7 @@ public final class Game {
 
   /** Exits the GDX application and shuts down the network handler. */
   public static void exit() {
-    exit("Exit Game");
+    exit("No reason specified");
   }
 
   /**

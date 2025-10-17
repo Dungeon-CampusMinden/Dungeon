@@ -12,18 +12,21 @@ import java.util.logging.*;
  * Builder-based configuration for the Dungeon logging system.
  *
  * <p>Provides a flexible way to configure logging with support for console output, file output, log
- * levels, and custom formatting.
+ * levels, and custom formatting. The logger uses a builder pattern for configuration and ensures
+ * single initialization.
  *
  * <p>Usage:
  *
  * <pre>
  * DungeonLoggerConfig.builder()
- *     .level(DungeonLogLevel.DEBUG)
- *     .enableConsole(true)
- *     .enableFile(true)
- *     .logDirectory("logs/")
+ *     .consoleLevel(DungeonLogLevel.INFO)
+ *     .fileLevel(DungeonLogLevel.DEBUG)
  *     .build();
+ *
+ * DungeonLoggerConfig.shutdown();
  * </pre>
+ *
+ * <p>Default configuration: WARNING level for both console and file, both handlers enabled.
  */
 public final class DungeonLoggerConfig {
   private static boolean initialized = false;
@@ -36,14 +39,14 @@ public final class DungeonLoggerConfig {
   /**
    * Create a new builder for configuring the logging system.
    *
-   * @return A new builder instance.
+   * @return A new builder instance with default configuration.
    */
   public static Builder builder() {
     return new Builder();
   }
 
   /**
-   * Initialize the logger with default settings (INFO level, console only).
+   * Initialize the logger with default settings (WARNING level for both console and file).
    *
    * <p>Convenience method equivalent to calling {@code builder().build()}.
    */
@@ -52,64 +55,104 @@ public final class DungeonLoggerConfig {
   }
 
   /**
-   * Initialize the logger with a specific level (console only).
+   * Initialize the logger with a specific level for both console and file output.
    *
-   * <p>Convenience method for quick setup.
+   * <p>Convenience method for quick setup with a single log level.
    *
-   * @param level The log level to use.
+   * @param level The log level to use for both console and file handlers.
    */
   public static void initWithLevel(DungeonLogLevel level) {
-    builder().level(level).enableConsole(true).build();
+    builder().consoleLevel(level).fileLevel(level).build();
   }
 
   /**
-   * Initialize the logger using java.util.logging.Level (for backward compatibility).
+   * Shutdown the logging system and close all handlers.
    *
-   * @param level The java.util.logging.Level.
+   * <p>Should be called when the application exits to ensure proper resource cleanup.
    */
-  public static void initBaseLogger(Level level) {
-    builder().julLevel(level).enableConsole(false).enableFile(true).build();
+  public static void shutdown() {
+    if (fileHandler != null) {
+      fileHandler.close();
+    }
+    if (consoleHandler != null) {
+      consoleHandler.close();
+    }
   }
 
-  /** Builder for DungeonLoggerConfig. */
+  /**
+   * Returns whether the logging system has been initialized.
+   *
+   * @return True if initialized, false otherwise.
+   */
+  public static boolean isInitialized() {
+    return initialized;
+  }
+
+  /**
+   * Builder for DungeonLoggerConfig.
+   *
+   * <p>Provides a fluent API for configuring the logging system with support for independent
+   * console and file log levels.
+   */
   public static class Builder {
-    private DungeonLogLevel level = DungeonLogLevel.INFO;
-    private Level julLevel = null;
+    private Level consoleLevel = Level.WARNING;
+    private Level fileLevel = Level.WARNING;
     private boolean enableConsole = true;
-    private boolean enableFile = false;
+    private boolean enableFile = true;
     private String logDirectory = "logs/";
     private String logSubDirectory = "systemlogs/";
     private boolean useTimestampInFilename = true;
     private String dateFormat = "dd-MM-yyyy'T'HH-mm-ss";
 
     /**
-     * Set the log level using DungeonLogLevel.
+     * Set the log level for console output using DungeonLogLevel.
      *
-     * @param level The log level.
-     * @return This builder.
+     * @param level The log level for console output.
+     * @return This builder instance for method chaining.
      */
-    public Builder level(DungeonLogLevel level) {
-      this.level = level;
-      this.julLevel = null;
+    public Builder consoleLevel(DungeonLogLevel level) {
+      this.consoleLevel = toJulLevel(level);
       return this;
     }
 
     /**
-     * Set the log level using java.util.logging.Level.
+     * Set the log level for console output using java.util.logging.Level.
      *
-     * @param level The java.util.logging.Level.
-     * @return This builder.
+     * @param level The java.util.logging.Level for console output.
+     * @return This builder instance for method chaining.
      */
-    public Builder julLevel(Level level) {
-      this.julLevel = level;
+    public Builder consoleLevel(Level level) {
+      this.consoleLevel = level;
+      return this;
+    }
+
+    /**
+     * Set the log level for file output using DungeonLogLevel.
+     *
+     * @param level The log level for file output.
+     * @return This builder instance for method chaining.
+     */
+    public Builder fileLevel(DungeonLogLevel level) {
+      this.fileLevel = toJulLevel(level);
+      return this;
+    }
+
+    /**
+     * Set the log level for file output using java.util.logging.Level.
+     *
+     * @param level The java.util.logging.Level for file output.
+     * @return This builder instance for method chaining.
+     */
+    public Builder fileLevel(Level level) {
+      this.fileLevel = level;
       return this;
     }
 
     /**
      * Enable or disable console output.
      *
-     * @param enable True to enable console output.
-     * @return This builder.
+     * @param enable True to enable console output, false to disable.
+     * @return This builder instance for method chaining.
      */
     public Builder enableConsole(boolean enable) {
       this.enableConsole = enable;
@@ -119,8 +162,8 @@ public final class DungeonLoggerConfig {
     /**
      * Enable or disable file output.
      *
-     * @param enable True to enable file output.
-     * @return This builder.
+     * @param enable True to enable file output, false to disable.
+     * @return This builder instance for method chaining.
      */
     public Builder enableFile(boolean enable) {
       this.enableFile = enable;
@@ -130,8 +173,10 @@ public final class DungeonLoggerConfig {
     /**
      * Set the base log directory.
      *
-     * @param directory The directory path.
-     * @return This builder.
+     * <p>The full log path will be: {@code logDirectory + logSubDirectory + filename}
+     *
+     * @param directory The base directory path. Defaults to "logs/".
+     * @return This builder instance for method chaining.
      */
     public Builder logDirectory(String directory) {
       this.logDirectory = directory;
@@ -139,10 +184,12 @@ public final class DungeonLoggerConfig {
     }
 
     /**
-     * Set the log subdirectory (within the base directory).
+     * Set the log subdirectory within the base directory.
      *
-     * @param subDirectory The subdirectory path.
-     * @return This builder.
+     * <p>The full log path will be: {@code logDirectory + logSubDirectory + filename}
+     *
+     * @param subDirectory The subdirectory path. Defaults to "systemlogs/".
+     * @return This builder instance for method chaining.
      */
     public Builder logSubDirectory(String subDirectory) {
       this.logSubDirectory = subDirectory;
@@ -152,8 +199,11 @@ public final class DungeonLoggerConfig {
     /**
      * Enable or disable timestamp in log filename.
      *
-     * @param use True to include timestamp.
-     * @return This builder.
+     * <p>If enabled, the filename will be formatted as: {@code [timestamp].log}. If disabled, the
+     * filename will be "dungeon.log".
+     *
+     * @param use True to include timestamp in filename, false to use static name.
+     * @return This builder instance for method chaining.
      */
     public Builder useTimestampInFilename(boolean use) {
       this.useTimestampInFilename = use;
@@ -163,8 +213,11 @@ public final class DungeonLoggerConfig {
     /**
      * Set the date format for log file names.
      *
-     * @param dateFormat The SimpleDateFormat pattern.
-     * @return This builder.
+     * <p>Only used if {@code useTimestampInFilename} is true. Must be a valid SimpleDateFormat
+     * pattern.
+     *
+     * @param dateFormat The SimpleDateFormat pattern. Defaults to "dd-MM-yyyy'T'HH-mm-ss".
+     * @return This builder instance for method chaining.
      */
     public Builder dateFormat(String dateFormat) {
       this.dateFormat = dateFormat;
@@ -172,9 +225,12 @@ public final class DungeonLoggerConfig {
     }
 
     /**
-     * Build and apply the configuration.
+     * Build and apply the logging configuration.
      *
-     * <p>This will configure the root logger and all handlers.
+     * <p>Configures the root logger with the specified handlers and levels. The root logger level
+     * is set to the minimum of the console and file levels to ensure all messages are processed.
+     *
+     * <p>This method can only be called once. Subsequent calls are ignored with a warning message.
      */
     public void build() {
       if (initialized) {
@@ -183,23 +239,20 @@ public final class DungeonLoggerConfig {
       }
 
       rootLogger = Logger.getLogger("");
-      Level effectiveLevel = julLevel != null ? julLevel : toJulLevel(level);
-      rootLogger.setLevel(effectiveLevel);
+      Level minLevel = getMinLevel(consoleLevel, fileLevel);
+      rootLogger.setLevel(minLevel);
 
-      // Remove existing handlers
       for (Handler handler : rootLogger.getHandlers()) {
         rootLogger.removeHandler(handler);
       }
 
-      // Add console handler if enabled
       if (enableConsole) {
         consoleHandler = new ConsoleHandler();
-        consoleHandler.setLevel(effectiveLevel);
+        consoleHandler.setLevel(consoleLevel);
         consoleHandler.setFormatter(new SimpleFormatter());
         rootLogger.addHandler(consoleHandler);
       }
 
-      // Add file handler if enabled
       if (enableFile) {
         createFileHandler();
         if (fileHandler != null) {
@@ -211,14 +264,10 @@ public final class DungeonLoggerConfig {
     }
 
     private void createFileHandler() {
-      String filename;
-      if (useTimestampInFilename) {
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-        String timestamp = sdf.format(new Date());
-        filename = timestamp + ".log";
-      } else {
-        filename = "dungeon.log";
-      }
+      String filename =
+          useTimestampInFilename
+              ? new SimpleDateFormat(dateFormat).format(new Date()) + ".log"
+              : "dungeon.log";
 
       String directoryPath = System.getProperty("BASELOGDIR", logDirectory) + logSubDirectory;
       String filepath = directoryPath + filename;
@@ -233,8 +282,8 @@ public final class DungeonLoggerConfig {
           System.out.println("Created log file: " + filepath);
         }
 
-        fileHandler = new FileHandler(filepath, true); // append mode
-        fileHandler.setLevel(julLevel != null ? julLevel : toJulLevel(level));
+        fileHandler = new FileHandler(filepath, true);
+        fileHandler.setLevel(fileLevel);
         fileHandler.setFormatter(new SimpleFormatter());
 
       } catch (IOException e) {
@@ -253,19 +302,9 @@ public final class DungeonLoggerConfig {
         case FATAL -> CustomLogLevel.FATAL;
       };
     }
-  }
 
-  /**
-   * Shutdown the logging system and close all handlers.
-   *
-   * <p>Should be called when the application exits.
-   */
-  public static void shutdown() {
-    if (fileHandler != null) {
-      fileHandler.close();
-    }
-    if (consoleHandler != null) {
-      consoleHandler.close();
+    private Level getMinLevel(Level level1, Level level2) {
+      return level1.intValue() < level2.intValue() ? level1 : level2;
     }
   }
 }
