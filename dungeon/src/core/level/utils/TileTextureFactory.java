@@ -341,6 +341,20 @@ public class TileTextureFactory {
 
   private static IPath selectInnerCornerTexture(
       Coordinate p, LevelElement[][] layout, int sx, int sy, String name) {
+
+    boolean forceDouble = false;
+    if (sx == 1 && sy == -1) {
+      forceDouble = forceDoubleUpperLeft(p, layout);
+    } else if (sx == -1 && sy == -1) {
+      forceDouble = forceDoubleUpperRight(p, layout);
+    } else if (sx == 1 && sy == 1) {
+      forceDouble = forceDoubleBottomLeft(p, layout);
+    } else if (sx == -1 && sy == 1) {
+      forceDouble = forceDoubleBottomRight(p, layout);
+    }
+
+    if (forceDouble) return new SimpleIPath("wall/wall_inner_corner_" + name + "_double");
+
     Coordinate v = new Coordinate(p.x(), p.y() + sy);
     Coordinate h = new Coordinate(p.x() + sx, p.y());
 
@@ -1155,6 +1169,42 @@ public class TileTextureFactory {
 
   private static boolean isUpperRightInnerEmptyCorner(Coordinate p, LevelElement[][] layout) {
     return isInnerEmptyCorner(p, layout, 1, 1);
+  }
+
+  private static boolean forceDoubleCorner(
+      Coordinate p,
+      LevelElement[][] layout,
+      int ox1,
+      int oy1,
+      int ox2,
+      int oy2,
+      int ix1,
+      int iy1,
+      int ix2,
+      int iy2) {
+    boolean outerFloors =
+        get(layout, p.x() + ox1, p.y() + oy1) == LevelElement.FLOOR
+            && get(layout, p.x() + ox2, p.y() + oy2) == LevelElement.FLOOR;
+    boolean innerAny =
+        isInSpaceWall(new Coordinate(p.x() + ix1, p.y() + iy1), layout)
+            || isInSpaceWall(new Coordinate(p.x() + ix2, p.y() + iy2), layout);
+    return outerFloors && innerAny;
+  }
+
+  private static boolean forceDoubleUpperLeft(Coordinate p, LevelElement[][] layout) {
+    return forceDoubleCorner(p, layout, 0, 1, -1, 0, 0, -1, 1, 0);
+  }
+
+  private static boolean forceDoubleUpperRight(Coordinate p, LevelElement[][] layout) {
+    return forceDoubleCorner(p, layout, 0, 1, 1, 0, 0, -1, -1, 0);
+  }
+
+  private static boolean forceDoubleBottomLeft(Coordinate p, LevelElement[][] layout) {
+    return forceDoubleCorner(p, layout, 0, -1, -1, 0, 0, 1, 1, 0);
+  }
+
+  private static boolean forceDoubleBottomRight(Coordinate p, LevelElement[][] layout) {
+    return forceDoubleCorner(p, layout, 0, -1, 1, 0, 0, 1, -1, 0);
   }
 
   /**
