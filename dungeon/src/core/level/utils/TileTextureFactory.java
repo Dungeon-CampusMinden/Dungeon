@@ -17,24 +17,7 @@ public class TileTextureFactory {
     String prefixPath = "dungeon/" + levelPart.design().name().toLowerCase() + "/";
 
     if (levelPart.element == LevelElement.GITTER) {
-      IPath path = findGitterElement(levelPart);
-      if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
-      }
-    }
-
-    if (levelPart.element == LevelElement.GLASSWALL) {
-      IPath path = findGlasswallElement(levelPart);
-      if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
-      }
-    }
-
-    if (levelPart.element == LevelElement.PORTAL) {
-      IPath path = findPortalElement(levelPart);
-      if (path != null) {
-        return new SimpleIPath(prefixPath + path.pathString() + ".png");
-      }
+      return new SimpleIPath(prefixPath + "portal/gitter.png");
     }
 
     IPath path = findTexturePathFloor(levelPart);
