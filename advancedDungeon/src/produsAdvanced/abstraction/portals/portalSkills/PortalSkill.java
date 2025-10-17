@@ -74,10 +74,9 @@ public abstract class PortalSkill extends ProjectileSkill {
     Vector2 velocity = vc.currentVelocity().normalize();
     Point movedPos = pc.position().translate(velocity);
     Point finalPos = new Point(Math.round(movedPos.x()), Math.round(movedPos.y()));
-
     if (Game.tileAt(finalPos.toCoordinate()).isPresent()
         && Game.tileAt(finalPos.toCoordinate()).get().levelElement() == LevelElement.PORTAL) {
-      createPortal(finalPos.toCoordinate().toPoint());
+      createPortal(finalPos.toCoordinate().toPoint(), pc.position());
     }
     Game.remove(projectile);
   }
@@ -135,7 +134,8 @@ public abstract class PortalSkill extends ProjectileSkill {
    * Method that has to be implemented in the actual skill where the corresponding portal is
    * created.
    *
-   * @param position Position where the portal will be created
+   * @param portalPosition Position where the portal will be created
+   * @param originalProjectilePosition original position of the projectile, needed for direction
    */
-  protected abstract void createPortal(Point position);
+  protected abstract void createPortal(Point portalPosition, Point originalProjectilePosition);
 }
