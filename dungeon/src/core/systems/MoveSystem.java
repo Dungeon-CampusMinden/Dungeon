@@ -75,16 +75,19 @@ public class MoveSystem extends System {
 
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
+    boolean canEnterGitter = data.vc.canEnterGitter();
 
-    if (!isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls)) {
+    if (!isCollidingWithLevel(data.cc, newPos, canEnterOpenPits, canEnterWalls, canEnterGitter)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
       Point xMove = new Point(newPos.x(), oldPos.y());
       Point yMove = new Point(oldPos.x(), newPos.y());
 
-      boolean xAccessible = !isCollidingWithLevel(data.cc, xMove, canEnterOpenPits, canEnterWalls);
-      boolean yAccessible = !isCollidingWithLevel(data.cc, yMove, canEnterOpenPits, canEnterWalls);
+      boolean xAccessible =
+          !isCollidingWithLevel(data.cc, xMove, canEnterOpenPits, canEnterWalls, canEnterGitter);
+      boolean yAccessible =
+          !isCollidingWithLevel(data.cc, yMove, canEnterOpenPits, canEnterWalls, canEnterGitter);
 
       if (xAccessible) {
         data.pc.position(xMove);
@@ -98,12 +101,17 @@ public class MoveSystem extends System {
   }
 
   private boolean isCollidingWithLevel(
-      CollideComponent cc, Point position, boolean canEnterOpenPits, boolean canEnterWalls) {
+      CollideComponent cc,
+      Point position,
+      boolean canEnterOpenPits,
+      boolean canEnterWalls,
+      boolean canEnterGitter) {
     if (cc == null) {
-      return CollisionUtils.isCollidingWithLevel(position, canEnterOpenPits, canEnterWalls);
+      return CollisionUtils.isCollidingWithLevel(
+          cc.collider(), position, canEnterOpenPits, canEnterWalls, canEnterGitter);
     }
     return CollisionUtils.isCollidingWithLevel(
-        cc.collider(), position, canEnterOpenPits, canEnterWalls);
+        cc.collider(), position, canEnterOpenPits, canEnterWalls, canEnterGitter);
   }
 
   /**
