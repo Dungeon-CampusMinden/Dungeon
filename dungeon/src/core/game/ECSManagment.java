@@ -12,10 +12,10 @@ import core.network.messages.s2c.EntityDespawnEvent;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.utils.EntityIdProvider;
 import core.utils.EntitySystemMapper;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**

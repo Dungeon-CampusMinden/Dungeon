@@ -13,9 +13,8 @@ dependencies {
     api supportDependencies.gdx_freetype_platform
     api supportDependencies.gdx_backend_headless
 
-    // Netty + simple SLF4J backend for server-side networking (pure Java)
+    // Netty for server-client communication
     implementation supportDependencies.netty_all
-    implementation supportDependencies.slf4j_simple
 
     // JUnit and Mockito for testing
     testImplementation supportDependencies.junit
@@ -52,23 +51,10 @@ tasks.register('runServerStarter', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('runClientTest', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.ClientTest'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 tasks.register('runDevClient', JavaExec) {
     group 'starter'
     mainClass = 'starter.DevClient'
     classpath = sourceSets.main.runtimeClasspath
-}
-
-tasks.register('debugServerStarter', JavaExec) {
-    group 'starter'
-    mainClass = 'starter.Server'
-    classpath = sourceSets.main.runtimeClasspath
-    debug = true
 }
 
 tasks.named('test', Test) {

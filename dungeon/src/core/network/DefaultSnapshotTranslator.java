@@ -11,13 +11,12 @@ import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.utils.Direction;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class DefaultSnapshotTranslator implements SnapshotTranslator {
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(DefaultSnapshotTranslator.class.getName());
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(DefaultSnapshotTranslator.class);
 
   private long latestServerTick = -1;
 

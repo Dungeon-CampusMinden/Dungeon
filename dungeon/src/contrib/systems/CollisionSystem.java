@@ -32,6 +32,8 @@ import java.util.stream.Stream;
  */
 public final class CollisionSystem extends System {
 
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(CollisionSystem.class);
+
   /**
    * If true, players will collide with each other. If false, players will pass through each other.
    */

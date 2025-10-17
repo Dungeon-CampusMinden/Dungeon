@@ -16,13 +16,12 @@ import core.network.messages.s2c.EntityState;
 import core.network.messages.s2c.SnapshotMessage;
 import core.network.server.Session;
 import core.utils.Vector2;
+import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A mock network handler for single-player games.
@@ -31,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * client and server to keep architecture consistent between modes.
  */
 public class LocalNetworkHandler implements INetworkHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(LocalNetworkHandler.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LocalNetworkHandler.class);
 
   private final MessageDispatcher dispatcher = new MessageDispatcher();
   private final Session dummySession = new Session(null);

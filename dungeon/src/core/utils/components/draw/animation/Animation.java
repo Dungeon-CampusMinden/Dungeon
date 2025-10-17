@@ -7,10 +7,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import core.utils.components.draw.TextureMap;
 import core.utils.components.path.IPath;
 import core.utils.components.path.SimpleIPath;
+import core.utils.logging.DungeonLogger;
 import java.io.*;
 import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents an animation consisting of one or more {@link Sprite}s.
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class Animation implements Serializable, Cloneable {
   @Serial private static final long serialVersionUID = 1L;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(Animation.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Animation.class);
 
   /** Path to the missing texture fallback image. */
   public static final IPath MISSING_TEXTURE_PATH = new SimpleIPath("animation/missing_texture.png");

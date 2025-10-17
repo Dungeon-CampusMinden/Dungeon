@@ -6,9 +6,6 @@ import core.configuration.KeyboardConfig;
 import core.game.PreRunConfiguration;
 import core.utils.components.path.SimpleIPath;
 import java.io.IOException;
-import java.util.logging.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Dev client starter that connects to a local Netty server and runs the game.
@@ -18,8 +15,6 @@ import org.slf4j.LoggerFactory;
  * messages to the game dispatcher, spawns a local hero, and starts the game loop.
  */
 public final class DevClient {
-  private static final Logger LOG = LoggerFactory.getLogger(DevClient.class);
-
   public static void main(String[] args) throws IOException {
     // PreRun configuration for multiplayer client
     PreRunConfiguration.multiplayerEnabled(true);
@@ -29,7 +24,6 @@ public final class DevClient {
     PreRunConfiguration.username("Player2");
 
     // Game Settings
-    Game.initBaseLogger(Level.ALL);
     Game.loadConfig(new SimpleIPath("dungeon_config.json"), KeyboardConfig.class);
     Game.disableAudio(false);
     Game.frameRate(30);

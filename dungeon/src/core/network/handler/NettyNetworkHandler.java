@@ -6,14 +6,13 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.ServerRuntime;
 import core.network.server.Session;
+import core.utils.logging.DungeonLogger;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NettyNetworkHandler implements INetworkHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(NettyNetworkHandler.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(NettyNetworkHandler.class);
 
   private boolean serverMode;
   private int port;

@@ -60,7 +60,7 @@ import java.util.stream.Stream;
  */
 public final class Game {
 
-  private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
   private static INetworkHandler networkHandler;
 
   private static final boolean SLOW_NETWORK = false;
@@ -86,7 +86,7 @@ public final class Game {
       networkHandler.start();
       LOGGER.info("Network handler initialized and started.");
     } catch (NetworkException e) {
-      LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
+      LOGGER.error("Failed to initialize network handler.", e);
     }
 
     WindowEventManager.registerCloseRequestListener(
@@ -811,7 +811,7 @@ public final class Game {
       try {
         networkHandler.shutdown(reason);
       } catch (Exception e) {
-        LOGGER.log(Level.WARNING, "Error shutting down network handler", e);
+        LOGGER.warn("Error shutting down network handler", e);
       }
     }
     Gdx.app.exit();

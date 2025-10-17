@@ -1,6 +1,7 @@
 package core.network.server;
 
 import core.network.messages.NetworkMessage;
+import core.utils.logging.DungeonLogger;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -8,8 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Transport-level session bound to a TCP channel and optional UDP address. Delegates actual sending
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * an attached ClientState.
  */
 public final class Session {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Session.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Session.class);
 
   private final ChannelHandlerContext tcpCtx;
   private volatile InetSocketAddress udpAddress;

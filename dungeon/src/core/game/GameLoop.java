@@ -34,9 +34,8 @@ import core.systems.*;
 import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The Dungeon-GameLoop.
@@ -50,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * <p>All API methods can also be accessed via the {@link core.Game} class.
  */
 public final class GameLoop extends ScreenAdapter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GameLoop.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoop.class);
   private static Stage stage;
   private boolean doSetup = true;
 
