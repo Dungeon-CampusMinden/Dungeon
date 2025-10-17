@@ -57,7 +57,8 @@ public final class AuthoritativeServerLoop {
 
     createSystems();
     try {
-      DungeonLoader.afterAllLevels(() -> Game.network().broadcast(new GameOverEvent(), true));
+      DungeonLoader.afterAllLevels(
+          () -> Game.network().broadcast(new GameOverEvent("All levels completed"), true));
       DungeonLoader.loadLevel(0);
     } catch (Exception e) {
       LOGGER.warn("Failed to load initial level on server", e);

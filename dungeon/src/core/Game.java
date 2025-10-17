@@ -3,6 +3,7 @@ package core;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.pfa.GraphPath;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import core.components.PlayerComponent;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
 import core.game.GameLoop;
@@ -411,21 +412,28 @@ public final class Game {
   }
 
   /**
-   * Searches the current level for the player character.
+   * Returns the local player character, if one exists.
    *
-   * @return an {@link Optional} containing the player character from the current level, or an empty
-   *     {@code Optional} if none is present
-   * @deprecated use {@link #heros()} and filter for the local hero
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent} with {@link
+   * PlayerComponent#isLocalHero()} returning true.
+   *
+   * @return the local player character, can be empty if no local player is present.
+   * @see PlayerComponent
+   * @see #heros()
    */
-  @Deprecated
   public static Optional<Entity> hero() {
     return ECSManagment.hero();
   }
 
   /**
-   * Searches the current level for all player characters.
+   * Returns a stream of all hero entities in the game.
    *
-   * @return a stream of all entities in the current level that are marked as player characters
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent}.
+   *
+   * <p>This includes both local and remote player characters.
+   *
+   * @return a stream of all hero entities in the game
+   * @see PlayerComponent
    */
   public static Stream<Entity> heros() {
     return ECSManagment.heros();

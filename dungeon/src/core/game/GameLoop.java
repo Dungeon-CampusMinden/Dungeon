@@ -319,8 +319,8 @@ public final class GameLoop extends ScreenAdapter {
     dispatcher.registerHandler(
         GameOverEvent.class,
         (ctx, event) -> {
-          LOGGER.info("Received GameOverEvent event");
-          Game.exit("Game Over");
+          LOGGER.info("Received GameOverEvent event (reason: {})", event.reason());
+          Game.exit(event.reason());
         });
 
     dispatcher.registerHandler(

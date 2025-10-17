@@ -255,11 +255,15 @@ public final class ECSManagment {
   }
 
   /**
+   * Returns the local player character, if one exists.
+   *
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent} with {@link
+   * PlayerComponent#isLocalHero()} returning true.
+   *
    * @return the local player character, can be empty if no local player is present.
    * @see PlayerComponent
-   * @deprecated use {@link #heros()} and filter for the local hero
+   * @see #heros()
    */
-  @Deprecated
   public static Optional<Entity> hero() {
     return heros()
         .filter(e -> e.fetch(PlayerComponent.class).map(PlayerComponent::isLocalHero).orElse(false))
@@ -267,7 +271,13 @@ public final class ECSManagment {
   }
 
   /**
-   * @return a stream of all hero entities in the game.
+   * Returns a stream of all hero entities in the game.
+   *
+   * <p>A hero entity is defined as an entity that has a {@link PlayerComponent}.
+   *
+   * <p>This includes both local and remote player characters.
+   *
+   * @return a stream of all hero entities in the game
    * @see PlayerComponent
    */
   public static Stream<Entity> heros() {
