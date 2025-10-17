@@ -27,6 +27,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Queue;
@@ -378,8 +379,19 @@ public final class ClientNetwork {
                     });
               }
             });
-    ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
-    tcp = f.channel();
+    try {
+      ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, port)).syncUninterruptibly();
+      tcp = f.channel();
+    } catch (Exception e) {
+      if (e.getCause() instanceof ConnectException) {
+        LOGGER.error(
+            "Failed to connect TCP to server at {}:{} - {}", remoteHost, port, e.getMessage());
+        enqueueLifecycle(() -> notifyDisconnected("Connection refused"));
+        Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+      } else {
+        throw e;
+      }
+    }
   }
 
   private void startUdp() {
@@ -414,7 +426,18 @@ public final class ClientNetwork {
     udp = ub.bind(0).syncUninterruptibly().channel();
     // Cancel all pending registrations when the channel closes
     udp.closeFuture().addListener(future -> cancelAllUdpRegistrations());
-    udp.connect(udpRemote).syncUninterruptibly();
+    try {
+      udp.connect(udpRemote).syncUninterruptibly();
+    } catch (Exception e) {
+      if (e.getCause() instanceof ConnectException) {
+        LOGGER.error(
+            "Failed to connect UDP to server at {}:{} - {}", remoteHost, port, e.getMessage());
+        enqueueLifecycle(() -> notifyDisconnected("Connection refused"));
+        Game.exit("Unable to connect to server at " + remoteHost + ":" + port);
+      } else {
+        throw e;
+      }
+    }
     // If TCP session already exists, update its udpAddress to our peer
     if (session != null) session.udpAddress(udpRemote);
     LOGGER.info("Client connected to {}:{} (TCP+UDP)", remoteHost, port);
