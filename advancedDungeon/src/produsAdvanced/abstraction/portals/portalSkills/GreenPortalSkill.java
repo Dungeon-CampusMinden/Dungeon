@@ -31,10 +31,11 @@ public class GreenPortalSkill extends PortalSkill {
   /**
    * Method that creates the green portal via the PortalFactory class.
    *
-   * @param position Position where the portal will be created
+   * @param portalPosition Position where the portal will be created
+   * @param originalProjectilePosition original position of the projectile, needed for direction
    */
   @Override
-  protected void createPortal(Point position) {
-    PortalFactory.createPortal(position, PortalColor.GREEN);
+  protected void createPortal(Point portalPosition, Point originalProjectilePosition) {
+    PortalFactory.createPortal(portalPosition, originalProjectilePosition, PortalColor.GREEN);
   }
 }

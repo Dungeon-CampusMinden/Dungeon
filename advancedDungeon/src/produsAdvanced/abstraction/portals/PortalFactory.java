@@ -15,7 +15,6 @@ import core.level.utils.LevelElement;
 import core.utils.*;
 import core.utils.components.path.SimpleIPath;
 import java.util.*;
-import java.util.stream.Collectors;
 import produsAdvanced.abstraction.portals.components.PortalComponent;
 import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
 
@@ -44,16 +43,17 @@ public class PortalFactory {
    * overlaps with the other portal, the other portal will be removed.
    *
    * @param point the position where the portal should be placed
+   * @param originalPosition original position of the projectile, needed for direction
    * @param color the portal color, see {@link PortalColor}
    */
-  public static void createPortal(Point point, PortalColor color) {
+  public static void createPortal(Point point, Point originalPosition, PortalColor color) {
     if (color == PortalColor.GREEN) {
       if (getGreenPortal().isPresent()) {
         removeIfOverlap(getBluePortal(), point, PortalFactory::clearBluePortal);
         getGreenPortal()
             .ifPresent(
                 greenPortal -> {
-                  moveExistingPortal(greenPortal, point, color);
+                  moveExistingPortal(greenPortal, originalPosition, point, color);
                 });
         return;
       }
@@ -64,7 +64,7 @@ public class PortalFactory {
         getBluePortal()
             .ifPresent(
                 bluePortal -> {
-                  moveExistingPortal(bluePortal, point, color);
+                  moveExistingPortal(bluePortal, originalPosition, point, color);
                 });
         return;
       }
@@ -77,7 +77,7 @@ public class PortalFactory {
     PositionComponent pc = new PositionComponent(point);
     portal.add(new PortalComponent());
 
-    Direction dir = setPortalDirection(point, color);
+    Direction dir = setPortalDirection(point, originalPosition, color);
     pc.viewDirection(dir);
 
     CollideComponent cc = setCollideComponent(dir, getCollideHandler(color));
@@ -95,12 +95,14 @@ public class PortalFactory {
    * removes the old portal from the game.
    *
    * @param portal The portal that gets moved and updated.
+   * @param originalPosition Original position of the projectile, needed for direction.
    * @param point The position of the new portal.
    * @param color The color of the portal.
    */
-  public static void moveExistingPortal(Entity portal, Point point, PortalColor color) {
+  public static void moveExistingPortal(
+      Entity portal, Point originalPosition, Point point, PortalColor color) {
     portal.fetch(PositionComponent.class).get().position(point);
-    Direction dir = setPortalDirection(point, color);
+    Direction dir = setPortalDirection(point, originalPosition, color);
     portal.fetch(PositionComponent.class).get().viewDirection(dir);
 
     CollideComponent cc = setCollideComponent(dir, getCollideHandler(color));
@@ -201,26 +203,30 @@ public class PortalFactory {
    * <p>The closest floor tile to the portal is used to decide its orientation. The calculated
    * direction is also stored for teleportation logic.
    *
-   * @param point the position of the portal
+   * @param wallPos the position of the portal
+   * @param projectilePos original position of the projectile, needed for direction
    * @param color the portal color
    * @return the direction the portal should face
    */
-  private static Direction setPortalDirection(Point point, PortalColor color) {
-    Set<Tile> neighbours =
-        Game.neighbours(Game.tileAt(point).get()).stream()
-            .filter(tile -> tile.levelElement() == LevelElement.FLOOR)
-            .collect(Collectors.toSet());
+  private static Direction setPortalDirection(
+      Point wallPos, Point projectilePos, PortalColor color) {
+    HashSet<Tile> neighbours = new HashSet<>(Game.neighbours(Game.tileAt(wallPos).get()));
     ArrayList<Tuple<Point, Double>> list = new ArrayList<>();
     for (Tile tile : neighbours) {
-      double distance = point.distance(tile.position().toCenteredPoint());
+      double distance = projectilePos.distance(tile.position());
       list.add(new Tuple<>(tile.position(), distance));
     }
 
     /* Sorts the list so the nearestTile is at the first slot */
     list.sort(Comparator.comparingDouble(Tuple::b));
 
-    Point nearestTile = list.getFirst().a();
-    Point pointDirection = new Point(point.x() - nearestTile.x(), point.y() - nearestTile.y());
+    Point nearestTile = list.removeFirst().a();
+    /* If nearest is a wall, happens if the angle of the impact at the wall is too steep, take the next best option which is the desired direction. */
+    if (Game.tileAt(nearestTile).get().levelElement() == LevelElement.WALL
+        || Game.tileAt(nearestTile).get().levelElement() == LevelElement.PORTAL) {
+      nearestTile = list.removeFirst().a();
+    }
+    Point pointDirection = new Point(wallPos.x() - nearestTile.x(), wallPos.y() - nearestTile.y());
     Direction direction = toDirection(pointDirection).opposite();
 
     return direction;
