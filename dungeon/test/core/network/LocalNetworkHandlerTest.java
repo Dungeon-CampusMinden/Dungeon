@@ -1,14 +1,23 @@
 package core.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import core.network.handler.LocalNetworkHandler;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Unit test for the LocalNetworkHandler class. This test verifies that the connection listener is
+ * correctly called during the start and shutdown lifecycle of the LocalNetworkHandler.
+ */
 public class LocalNetworkHandlerTest {
 
+  /**
+   * Tests that the connection listener's `onConnected` method is called when the handler starts,
+   * and the `onDisconnected` method is called when the handler shuts down.
+   *
+   * @throws Exception if any unexpected error occurs during the test execution.
+   */
   @Test
   public void connectionListener_isCalled_onStartAndShutdown() throws Exception {
     LocalNetworkHandler handler = new LocalNetworkHandler();
@@ -34,8 +43,9 @@ public class LocalNetworkHandlerTest {
     handler.start();
     assertEquals(1, connected.get());
 
-    handler.shutdown();
+    String disconnectReason = "Test disconnect";
+    handler.shutdown(disconnectReason);
     assertEquals(1, disconnected.get());
-    assertNull(lastReason[0]);
+    assertEquals(disconnectReason, lastReason[0]);
   }
 }

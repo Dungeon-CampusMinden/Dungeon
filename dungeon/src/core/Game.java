@@ -813,7 +813,7 @@ public final class Game {
         LOGGER.warn("Error shutting down network handler", e);
       }
     }
-    Gdx.app.exit();
+    if (Gdx.app != null) Gdx.app.exit();
   }
 
   /**

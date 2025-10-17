@@ -11,6 +11,30 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
+/**
+ * Unified network handler implementing dual-mode (server/client) networking capabilities via
+ * Netty-based communication.
+ *
+ * <p>Operates in either server or client mode, determined at initialization. Server mode manages
+ * multiple client connections through {@link ServerRuntime}; client mode manages a single
+ * connection to a remote server through {@link ClientNetwork}. A common interface abstracts
+ * mode-specific behavior, with unsupported operations throwing {@link
+ * UnsupportedOperationException}.
+ *
+ * <p>Responsibilities:
+ *
+ * <ul>
+ *   <li>Lifecycle management: initialization, start, shutdown
+ *   <li>Message routing: send, broadcast, input dispatch
+ *   <li>Connection state: connectivity checks, client ID assignment
+ *   <li>Message processing: dispatch coordination and snapshot translation
+ *   <li>Event handling: connection listeners and raw message consumers
+ * </ul>
+ *
+ * @see INetworkHandler
+ * @see ClientNetwork
+ * @see ServerRuntime
+ */
 public class NettyNetworkHandler implements INetworkHandler {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(NettyNetworkHandler.class);
 

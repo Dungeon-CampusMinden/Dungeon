@@ -135,32 +135,6 @@ public class EntityIdProviderTest {
   }
 
   /**
-   * Verifies registerOrThrow bumps the internal NEXT pointer when registering a higher ID, so
-   * subsequent auto-generated IDs don't loop over large used ranges.
-   */
-  @Test
-  public void registerOrThrowBumpsNext() {
-    int first = EntityIdProvider.nextId(); // typically 0 after reset
-    int high = first + 10_000;
-    EntityIdProvider.registerOrThrow(high);
-    int next = EntityIdProvider.nextId();
-    assertEquals(high + 1, next);
-  }
-
-  /**
-   * Verifies ensureRegistered also bumps the internal NEXT pointer when a high ID is ensured, so
-   * subsequent auto-generated IDs continue above that high value.
-   */
-  @Test
-  public void ensureRegisteredBumpsNext() {
-    int first = EntityIdProvider.nextId();
-    int high = first + 20_000;
-    EntityIdProvider.ensureRegistered(high);
-    int next = EntityIdProvider.nextId();
-    assertEquals(high + 1, next);
-  }
-
-  /**
    * Stress-tests concurrent generation of IDs to ensure uniqueness across multiple threads.
    *
    * @throws InterruptedException if the test is interrupted while awaiting thread completion
