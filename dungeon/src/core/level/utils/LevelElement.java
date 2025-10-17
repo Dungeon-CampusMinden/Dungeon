@@ -17,7 +17,9 @@ public enum LevelElement {
   /** This field is a door-field. */
   DOOR(true, true),
   /** This field is a portal-field. */
-  PORTAL(false, false);
+  PORTAL(false, false),
+  /** This field is a gitter-field. */
+  GITTER(false, true);
 
   private final boolean accessible;
   private final boolean canSeeThrough;
