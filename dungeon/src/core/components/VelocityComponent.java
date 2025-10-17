@@ -88,6 +88,7 @@ public final class VelocityComponent implements Component {
 
   private boolean canEnterOpenPits;
   private boolean canEnterWalls;
+  private boolean canEnterGitter;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -103,6 +104,7 @@ public final class VelocityComponent implements Component {
     this.onWallHit = onWallHit;
     this.canEnterOpenPits = canEnterOpenPits;
     this.canEnterWalls = false;
+    this.canEnterGitter = false;
     this.maxSpeed = maxSpeed;
     moveboxOffset = MOVEBOX_DEFAULT_OFFSET;
     moveboxSize = MOVEBOX_DEFAULT_SIZE;
@@ -215,6 +217,24 @@ public final class VelocityComponent implements Component {
    */
   public boolean canEnterWalls() {
     return canEnterWalls;
+  }
+
+  /**
+   * Set whether the entity can enter gitter tiles.
+   *
+   * @param canEnterGitter true if entity can enter gitters, false otherwise.
+   */
+  public void canEnterGitter(boolean canEnterGitter) {
+    this.canEnterGitter = canEnterGitter;
+  }
+
+  /**
+   * Check if the entity can enter open gitter tiles.
+   *
+   * @return true if it can enter gitter tiles, false otherwise.
+   */
+  public boolean canEnterGitter() {
+    return canEnterGitter;
   }
 
   /**

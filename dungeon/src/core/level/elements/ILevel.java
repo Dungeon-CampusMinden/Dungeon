@@ -145,6 +145,8 @@ public interface ILevel extends IndexedGraph<Tile> {
           output.append("P");
         } else if (layout()[y][x].levelElement() == LevelElement.PORTAL) {
           output.append("T");
+        } else if (layout()[y][x].levelElement() == LevelElement.GITTER) {
+          output.append("G");
         } else {
           throw new RuntimeException(
               "Invalid LevelElement in level layout: " + layout()[y][x].levelElement());
