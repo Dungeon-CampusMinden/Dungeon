@@ -24,13 +24,13 @@ import core.systems.*;
 import core.utils.Point;
 import core.utils.Tuple;
 import core.utils.Vector2;
+import core.utils.logging.DungeonLogger;
 import java.util.Queue;
 import java.util.concurrent.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class AuthoritativeServerLoop {
-  private static final Logger LOGGER = LoggerFactory.getLogger(AuthoritativeServerLoop.class);
+  private static final DungeonLogger LOGGER =
+      DungeonLogger.getLogger(AuthoritativeServerLoop.class);
   private static final boolean PRINT_RTT = false; // to debug latency issues
 
   private final ServerTransport net;
@@ -200,7 +200,6 @@ public final class AuthoritativeServerLoop {
       }
     }
 
-    // TODO: Will not working, because the sessions will get removed
     // For every session that is no longer active, remove its entity from the game
     for (Session session : net.sessions().values()) {
       if (session.isClosed()) {

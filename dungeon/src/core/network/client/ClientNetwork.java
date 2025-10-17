@@ -16,6 +16,7 @@ import core.network.messages.s2c.RegisterAck;
 import core.network.server.ClientState;
 import core.network.server.Session;
 import core.utils.Tuple;
+import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -33,8 +34,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Netty-backed client transport using a single {@link Session} to mirror server-side semantics.
@@ -53,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * runnables.
  */
 public final class ClientNetwork {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ClientNetwork.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ClientNetwork.class);
 
   private static final short CLIENT_PROTOCOL_VERSION = 1;
   private final MessageDispatcher dispatcher = new MessageDispatcher();

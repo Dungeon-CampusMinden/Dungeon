@@ -1,10 +1,10 @@
 package core;
 
 import core.utils.EntitySystemMapper;
+import core.utils.logging.DungeonLogger;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -37,7 +37,7 @@ public abstract class System {
    */
   public static final int DEFAULT_EVERY_FRAME_EXECUTE = 1;
 
-  protected static final Logger LOGGER = Logger.getLogger(System.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(System.class);
   private final Set<Class<? extends Component>> filterRules;
   private final int executeEveryXFrames;
   protected boolean run;

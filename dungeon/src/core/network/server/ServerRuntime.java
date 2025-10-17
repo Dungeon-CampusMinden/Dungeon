@@ -2,13 +2,12 @@ package core.network.server;
 
 import core.game.PreRunConfiguration;
 import core.network.messages.NetworkMessage;
+import core.utils.logging.DungeonLogger;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class ServerRuntime {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ServerRuntime.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerRuntime.class);
   private static final Random RANDOM = new Random();
 
   /** The unique session ID for this server instance, randomly generated on startup. */

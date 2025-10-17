@@ -2,11 +2,10 @@ package core.network;
 
 import core.network.messages.NetworkMessage;
 import core.network.server.Session;
+import core.utils.logging.DungeonLogger;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Manages the dispatching of incoming {@link NetworkMessage}s to their respective handlers. Each
@@ -14,7 +13,7 @@ import java.util.logging.Logger;
  * any existing handler.
  */
 public final class MessageDispatcher {
-  private static final Logger LOGGER = Logger.getLogger(MessageDispatcher.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MessageDispatcher.class);
 
   // A thread-safe map to store handlers for each message type.
   private final Map<Class<? extends NetworkMessage>, BiConsumer<Session, ?>> typedHandlers =
@@ -31,11 +30,11 @@ public final class MessageDispatcher {
   public <T extends NetworkMessage> void registerHandler(
       Class<T> messageType, BiConsumer<Session, ? super T> handler) {
     if (messageType == null || handler == null) {
-      LOGGER.warning("Attempted to register a null messageType or handler.");
+      LOGGER.warn("Attempted to register a null messageType or handler.");
       return;
     }
     typedHandlers.put(messageType, handler);
-    LOGGER.fine("Registered handler for message type: " + messageType.getSimpleName());
+    LOGGER.debug("Registered handler for message type: {}", messageType.getSimpleName());
   }
 
   /**
@@ -53,7 +52,7 @@ public final class MessageDispatcher {
     BiConsumer<Session, ?> existing = typedHandlers.get(messageType);
     if (existing != null && existing.equals(handler)) {
       typedHandlers.remove(messageType);
-      LOGGER.fine("Unregistered handler for message type: " + messageType.getSimpleName());
+      LOGGER.debug("Unregistered handler for message type: {}", messageType.getSimpleName());
       return true;
     }
     return false;
@@ -68,7 +67,7 @@ public final class MessageDispatcher {
    */
   public void dispatch(Session session, NetworkMessage message) {
     if (message == null) {
-      LOGGER.warning("Attempted to dispatch a null message.");
+      LOGGER.warn("Attempted to dispatch a null message.");
       return;
     }
 
@@ -79,13 +78,10 @@ public final class MessageDispatcher {
         BiConsumer<Session, Object> c = (BiConsumer<Session, Object>) handler;
         c.accept(session, message);
       } catch (Exception e) {
-        LOGGER.log(
-            Level.SEVERE,
-            "Error in message handler for message "
-                + message.getClass().getSimpleName()
-                + ": "
-                + e.getMessage(),
-            e);
+        LOGGER.error(
+            "Error in message handler for message {}: {}",
+            message.getClass().getSimpleName(),
+            e.getMessage());
       }
     } else {
       LOGGER.info(

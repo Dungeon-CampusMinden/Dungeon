@@ -9,13 +9,13 @@ import core.level.elements.tile.ExitTile;
 import core.level.utils.Coordinate;
 import core.utils.IVoidFunction;
 import core.utils.Point;
+import core.utils.logging.DungeonLogger;
 import entities.DevDungeonMonster;
 import entities.TorchFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import level.devlevel.TorchRiddleLevel;
 import task.tasktype.Quiz;
 
@@ -27,7 +27,7 @@ import task.tasktype.Quiz;
  */
 public class EntityUtils {
 
-  private static final Logger LOGGER = Logger.getLogger(EntityUtils.class.getName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(EntityUtils.class);
 
   /**
    * Spawns a bridge guard at the given position and adds it to the game. The bridge guard neutral

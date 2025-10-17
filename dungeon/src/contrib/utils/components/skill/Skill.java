@@ -2,13 +2,13 @@ package contrib.utils.components.skill;
 
 import core.Entity;
 import core.utils.Tuple;
+import core.utils.logging.DungeonLogger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +26,7 @@ public abstract class Skill {
   public static final Random RANDOM = new Random();
 
   /** Logger for skill-related events. */
-  protected static final Logger LOGGER = Logger.getLogger(Skill.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Skill.class);
 
   /** A placeholder skill that does nothing when executed. */
   public static final Skill NONE =

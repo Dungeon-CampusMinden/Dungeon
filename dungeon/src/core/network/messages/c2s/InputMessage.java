@@ -3,8 +3,8 @@ package core.network.messages.c2s;
 import core.Game;
 import core.network.messages.NetworkMessage;
 import core.utils.Point;
+import core.utils.logging.DungeonLogger;
 import java.io.Serial;
-import org.slf4j.LoggerFactory;
 
 /**
  * Client→server: Player input (e.g., movement, skill use, interaction).
@@ -25,7 +25,7 @@ public record InputMessage(
     Point point // Optional, depending on action
     ) implements NetworkMessage {
   @Serial private static final long serialVersionUID = 1L;
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(InputMessage.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InputMessage.class);
 
   private static short currentSequence = 0;
 

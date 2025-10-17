@@ -17,6 +17,7 @@ import core.network.messages.c2s.RegisterUdp;
 import core.network.messages.c2s.RequestEntitySpawn;
 import core.network.messages.s2c.*;
 import core.utils.Tuple;
+import core.utils.logging.DungeonLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
@@ -34,11 +35,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class ServerTransport {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ServerTransport.class);
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(ServerTransport.class);
   private static final short SERVER_PROTOCOL_VERSION = 1;
 
   private final ConcurrentLinkedQueue<Tuple<ClientState, InputMessage>> inputQueue =

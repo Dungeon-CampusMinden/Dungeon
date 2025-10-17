@@ -26,12 +26,11 @@ import core.utils.Direction;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.path.IPath;
+import core.utils.logging.DungeonLogger;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +59,7 @@ import java.util.stream.Stream;
  */
 public final class Game {
 
-  private static final Logger LOGGER = Logger.getLogger(Game.class.getSimpleName());
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Game.class);
   private static INetworkHandler networkHandler;
 
   private static final boolean SLOW_NETWORK = false;
@@ -86,7 +85,7 @@ public final class Game {
       networkHandler.start();
       LOGGER.info("Network handler initialized and started.");
     } catch (NetworkException e) {
-      LOGGER.log(Level.SEVERE, "Failed to initialize network handler.", e);
+      LOGGER.error("Failed to initialize network handler.", e);
     }
 
     WindowEventManager.registerCloseRequestListener(
@@ -262,28 +261,6 @@ public final class Game {
    */
   public static void userOnLevelLoad(final Consumer<Boolean> userOnLevelLoad) {
     PreRunConfiguration.userOnLevelLoad(userOnLevelLoad);
-  }
-
-  /**
-   * Initialize the base logger.
-   *
-   * <p>Set a logging level, and remove the console handler, and write all log messages into the log
-   * files.
-   *
-   * @param level Set logging level to {@code level}
-   */
-  public static void initBaseLogger(Level level) {
-    PreRunConfiguration.initBaseLogger(level);
-  }
-
-  /**
-   * Initialize the base logger.
-   *
-   * <p>Set the logging level to {@code Level.ALL}, and remove the console handler, and write all
-   * log messages into the log files. This is a convenience method.
-   */
-  public static void initBaseLogger() {
-    Game.initBaseLogger(Level.ALL);
   }
 
   /**
@@ -824,7 +801,7 @@ public final class Game {
   public static void currentLevel(final ILevel level) {
     LevelSystem levelSystem = (LevelSystem) ECSManagment.systems().get(LevelSystem.class);
     if (levelSystem != null) levelSystem.loadLevel(level);
-    else LOGGER.warning("Can not set Level because levelSystem is null.");
+    else LOGGER.warn("Can not set Level because levelSystem is null.");
   }
 
   /** Exits the GDX application and shuts down the network handler. */
@@ -833,7 +810,7 @@ public final class Game {
       try {
         networkHandler.shutdown(reason);
       } catch (Exception e) {
-        LOGGER.log(Level.WARNING, "Error shutting down network handler", e);
+        LOGGER.warn("Error shutting down network handler", e);
       }
     }
     Gdx.app.exit();
