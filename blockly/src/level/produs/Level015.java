@@ -41,12 +41,16 @@ public class Level015 extends BlocklyLevel {
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Bedingung
         "logic_breadcrumbs_direction",
         "logic_clover_direction",
         "logic_bossView_direction",
         // Variable
         "get_number",
+        "switch_case",
+        "case_block",
+        "default_block",
         // Kategorien
         "Sonstige");
   }

@@ -30,8 +30,15 @@ public class Level019 extends BlocklyLevel {
   public Level019(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
     super(layout, designLabel, customPoints, "Level 19");
     this.blockBlocklyElement(
+        // Inventar und Charakter
+        "drop_item",
+        "Items",
+        "wait",
         // Variable
         "get_number",
+        "switch_case",
+        "case_block",
+        "default_block",
         // Bedingung
         "logic_bossView_direction",
         // Kategorien

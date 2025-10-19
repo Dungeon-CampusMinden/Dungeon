@@ -33,6 +33,7 @@ public class Level010 extends BlocklyLevel {
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Kategorien
         "Abfragen",
         "Bedingung",

@@ -28,6 +28,7 @@ public class Level014 extends BlocklyLevel {
         // Inventar und Charakter
         "drop_item",
         "Items",
+        "wait",
         // Bedingung
         "logic_monster_direction",
         "logic_breadcrumbs_direction",
