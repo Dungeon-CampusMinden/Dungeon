@@ -24,11 +24,11 @@ public class EnergyPelletSkill extends DamageProjectileSkill {
   /** Name of the Skill. */
   public static final String SKILL_NAME = "ENERGY_PELLET";
 
-  private static final IPath TEXTURE = new SimpleIPath("skills/energy_pellet");
+  private static final IPath TEXTURE = new SimpleIPath("skills/energy_pellet/energy_pellet.png");
   private static final float SPEED = 13f;
   private static final int DAMAGE = 2;
   private static final float RANGE = 7f;
-  private static final long COOLDOWN = 500;
+  public static final long COOLDOWN = 500;
   private static final boolean IS_PIERCING = false;
   private static final boolean IGNORE_FIRST_WALL = false;
 
