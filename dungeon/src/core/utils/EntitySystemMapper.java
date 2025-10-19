@@ -80,7 +80,8 @@ public final class EntitySystemMapper {
     writeLock.lock();
     try {
       if (systems.add(system)) {
-        entities.forEach(system::triggerOnAdd);
+        Set<Entity> copy = new HashSet<>(entities);
+        copy.forEach(system::triggerOnAdd);
         return true;
       }
       return false;
@@ -105,7 +106,8 @@ public final class EntitySystemMapper {
     writeLock.lock();
     try {
       if (systems.remove(system)) {
-        entities.forEach(system::triggerOnRemove);
+        Set<Entity> copy = new HashSet<>(entities);
+        copy.forEach(system::triggerOnRemove);
         return true;
       }
       return false;
