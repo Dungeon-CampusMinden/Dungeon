@@ -1,19 +1,23 @@
 package level.produs;
 
+import components.AmmunitionComponent;
 import contrib.hud.DialogUtils;
 import core.Game;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import entities.MiscFactory;
+import core.utils.MissingHeroException;
 import entities.monster.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/** In this level, the fireball scrolls must be collected to defeat two of the three monsters. */
-public class Level010 extends BlocklyLevel {
+/**
+ * This level extends simple backtracking by adding monsters to the maze. The player must navigate
+ * carefully while avoiding or dealing with monsters.
+ */
+public class Level019 extends BlocklyLevel {
   private static boolean showText = true;
 
   /**
@@ -24,45 +28,49 @@ public class Level010 extends BlocklyLevel {
    * @param designLabel The design label for the level.
    * @param customPoints The custom points of the level.
    */
-  public Level010(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 10");
+  public Level019(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
+    super(layout, designLabel, customPoints, "Level 19");
     this.blockBlocklyElement(
-        // Schleifen
-        "while_loop",
         // Inventar und Charakter
         "drop_item",
         "Items",
         "wait",
+        // Variable
+        "get_number",
+        "switch_case",
+        "case_block",
+        "default_block",
+        // Bedingung
+        "logic_bossView_direction",
         // Kategorien
-        "Abfragen",
-        "Bedingung",
-        "Wahrheitsausdruecke",
-        "Variablen",
-        "Bedingungen",
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
     LevelManagementUtils.fog(false);
-    LevelManagementUtils.centerHero();
-    LevelManagementUtils.cameraFocusHero();
-    LevelManagementUtils.heroViewDirection(Direction.LEFT);
-    LevelManagementUtils.zoomDefault();
     if (showText) {
       DialogUtils.showTextPopup(
-          "Mit diesen Spruchrollen kannst du einen mächtigen Feuerball beschwören.",
-          "Kapitel 1: Ausbruch");
+          "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");
       showText = false;
     }
-    Game.add(MiscFactory.fireballScroll(customPoints().get(0).toPoint()));
-    Game.add(MiscFactory.fireballScroll(customPoints().get(1).toPoint()));
-
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.centerHero();
+    LevelManagementUtils.zoomDefault();
+    LevelManagementUtils.heroViewDirection(Direction.LEFT);
     BlocklyMonster.Builder hedgehogBuilder =
         BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
-    hedgehogBuilder.build(customPoints().get(2).toPoint());
-    hedgehogBuilder.build(customPoints().get(3).toPoint());
-    hedgehogBuilder.build(customPoints().get(4).toPoint());
+    Game.hero()
+        .orElseThrow(MissingHeroException::new)
+        .fetch(AmmunitionComponent.class)
+        .orElseThrow()
+        .currentAmmunition(20);
+
+    customPoints()
+        .forEach(
+            coordinate -> {
+              hedgehogBuilder.build(coordinate.toPoint());
+            });
   }
 
   @Override

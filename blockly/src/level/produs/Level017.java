@@ -1,7 +1,5 @@
 package level.produs;
 
-import core.Game;
-import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
@@ -36,17 +34,17 @@ public class Level017 extends BlocklyLevel {
         // Bedingung
         "logic_bossView_direction",
         // Kategorien
+        // Kategorien
         "Sonstige");
   }
 
   @Override
   protected void onFirstTick() {
-    LevelManagementUtils.fog(true);
-    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.fog(false);
     LevelManagementUtils.centerHero();
+    LevelManagementUtils.cameraFocusHero();
+    LevelManagementUtils.heroViewDirection(Direction.DOWN);
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
-    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
   }
 
   @Override

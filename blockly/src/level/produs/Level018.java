@@ -1,24 +1,17 @@
 package level.produs;
 
-import components.AmmunitionComponent;
-import contrib.hud.DialogUtils;
 import core.Game;
+import core.level.elements.tile.DoorTile;
 import core.level.utils.Coordinate;
 import core.level.utils.DesignLabel;
 import core.level.utils.LevelElement;
 import core.utils.Direction;
-import core.utils.MissingHeroException;
-import entities.monster.BlocklyMonster;
 import java.util.List;
 import level.BlocklyLevel;
 import level.LevelManagementUtils;
 
-/**
- * This level extends simple backtracking by adding monsters to the maze. The player must navigate
- * carefully while avoiding or dealing with monsters.
- */
+/** In this level, simple backtracking techniques are used to find the correct path. */
 public class Level018 extends BlocklyLevel {
-  private static boolean showText = true;
 
   /**
    * Call the parent constructor of a tile level with the given layout and design label. Set the
@@ -48,29 +41,12 @@ public class Level018 extends BlocklyLevel {
 
   @Override
   protected void onFirstTick() {
-    LevelManagementUtils.fog(false);
-    if (showText) {
-      DialogUtils.showTextPopup(
-          "Ich geb dir ein paar Feuerballspruchrollen. Viel Erfolg!", "Kapitel 3: Rache");
-      showText = false;
-    }
+    LevelManagementUtils.fog(true);
     LevelManagementUtils.cameraFocusHero();
     LevelManagementUtils.centerHero();
     LevelManagementUtils.zoomDefault();
-    LevelManagementUtils.heroViewDirection(Direction.LEFT);
-    BlocklyMonster.Builder hedgehogBuilder =
-        BlocklyMonster.HEDGEHOG.builder().attackRange(0).addToGame();
-    Game.hero()
-        .orElseThrow(MissingHeroException::new)
-        .fetch(AmmunitionComponent.class)
-        .orElseThrow()
-        .currentAmmunition(20);
-
-    customPoints()
-        .forEach(
-            coordinate -> {
-              hedgehogBuilder.build(coordinate.toPoint());
-            });
+    LevelManagementUtils.heroViewDirection(Direction.RIGHT);
+    ((DoorTile) Game.randomTile(LevelElement.DOOR).orElseThrow()).close();
   }
 
   @Override
