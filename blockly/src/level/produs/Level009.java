@@ -34,7 +34,7 @@ public class Level009 extends BlocklyLevel {
    * @param customPoints The custom points of the level.
    */
   public Level009(LevelElement[][] layout, DesignLabel designLabel, List<Coordinate> customPoints) {
-    super(layout, designLabel, customPoints, "Level 8");
+    super(layout, designLabel, customPoints, "Level 9");
     this.blockBlocklyElement(
         // Schleifen
         "while_loop",
