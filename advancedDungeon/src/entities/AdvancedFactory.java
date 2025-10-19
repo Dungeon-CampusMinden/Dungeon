@@ -4,12 +4,15 @@ import components.AntiMaterialBarrierComponent;
 import components.LasergridComponent;
 import components.PortalCubeComponent;
 import components.PortalSphereComponent;
+import components.ToggleableComponent;
+import components.ai.PelletLauncherBehaviour;
 import contrib.components.*;
 import contrib.components.CollideComponent;
 import contrib.components.SpikyComponent;
 import contrib.utils.ICommand;
 import contrib.utils.components.health.DamageType;
 import core.Component;
+import contrib.utils.components.skill.SkillTools;
 import core.Entity;
 import core.Game;
 import core.components.DrawComponent;
@@ -28,6 +31,7 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import skills.EnergyPelletSkill;
 
 /**
  * A utility class for building different miscellaneous entities in the game world of the advanced
@@ -360,15 +364,24 @@ public class AdvancedFactory {
    * @param direction the direction the pellet launcher is facing.
    * @return a new energyPelletLauncher entity.
    */
-  public static Entity energyPelletLauncher(Point position, Direction direction) {
+  public static Entity energyPelletLauncher(
+      Point position, Direction direction, float attackRange) {
     Entity launcher = new Entity("energyPelletLauncher");
     launcher.add(new PositionComponent(position));
     DrawComponent dc = chooseTexture(direction, PELLET_LAUNCHER);
     launcher.add(dc);
     launcher.add(new CollideComponent());
-    launcher.add(new AIComponent(entity -> {}, entity -> {}, entity -> true));
-    // TODO: the AiComponent needs an idle behaviour (launching energy pellets in the facing
-    // direction).
+    launcher.add(
+        new AIComponent(
+            entity -> {},
+            new PelletLauncherBehaviour(
+                position,
+                attackRange,
+                direction,
+                new EnergyPelletSkill(
+                    SkillTools::heroPositionAsPoint, EnergyPelletSkill.COOLDOWN, attackRange)),
+            entity -> false));
+    // TODO: PelletLauncherBehaviour soll nur ein Projektil gleichzeitig schießen können
 
     return launcher;
   }
@@ -377,17 +390,26 @@ public class AdvancedFactory {
    * Creates a new entity that can catch energy pellets.
    *
    * @param position the position of the pellet catcher.
-   * @param direction the direction the pellet catcher is facing.
+   * @param catchDirection the direction the pellet catcher is facing.
    * @return a new energyPelletCatcher entity.
    */
-  public static Entity energyPelletCatcher(Point position, Direction direction) {
+  public static Entity energyPelletCatcher(Point position, Direction catchDirection) {
     Entity catcher = new Entity("energyPelletCatcher");
     catcher.add(new PositionComponent(position));
-    DrawComponent dc = chooseTexture(direction, PELLET_CATCHER);
+    DrawComponent dc = chooseTexture(catchDirection, PELLET_CATCHER);
     catcher.add(dc);
-    catcher.add(new CollideComponent());
-    // TODO: the CollideComponent need specific behaviour for collisions with energy pellets and the
-    // catcher needs the logik to behave like like a lever.
+    catcher.add(new ToggleableComponent(false));
+
+    TriConsumer<Entity, Entity, Direction> action =
+        (self, other, direction) -> {
+          if (other.name().equals("ENERGY_PELLET_projectile")) {
+            self.fetch(ToggleableComponent.class).ifPresent(ToggleableComponent::toggle);
+            Game.remove(other);
+          }
+        };
+
+    CollideComponent colComp = new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER);
+    catcher.add(colComp);
 
     return catcher;
   }
