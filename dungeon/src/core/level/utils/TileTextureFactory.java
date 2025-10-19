@@ -498,10 +498,16 @@ public class TileTextureFactory {
     boolean sidesNotFloor =
         n.getLeftE() != LevelElement.FLOOR && n.getRightE() != LevelElement.FLOOR;
 
+    boolean upLeftFloor = n.getUpLeftE() == LevelElement.FLOOR;
+    boolean upRightFloor = n.getUpRightE() == LevelElement.FLOOR;
+
+    boolean bothDiagFloors =
+        floorBelow && upNotFloor && sidesNotFloor && upLeftFloor && upRightFloor;
+
     boolean leftDiagonalCase =
-        floorBelow && n.getUpRightE() == LevelElement.FLOOR && upNotFloor && sidesNotFloor;
+        floorBelow && upNotFloor && sidesNotFloor && upRightFloor && !upLeftFloor;
     boolean rightDiagonalCase =
-        floorBelow && n.getUpLeftE() == LevelElement.FLOOR && upNotFloor && sidesNotFloor;
+        floorBelow && upNotFloor && sidesNotFloor && upLeftFloor && !upRightFloor;
 
     boolean leftCornerDoubleCase =
         floorBelow && sidesNotFloor && isUpperRightCornerDoubleAt(n.getUp(), layout);
@@ -520,17 +526,28 @@ public class TileTextureFactory {
     boolean leftTriggerCase = leftTriggersTop && rendersRightDoubleAt(n.getUp(), layout);
     boolean rightTriggerCase = rightTriggersTop && rendersLeftDoubleAt(n.getUp(), layout);
 
+    boolean newStrictEmpty =
+        floorBelow && upNotFloor && sidesNotFloor && !upLeftFloor && !upRightFloor;
+
     boolean adjEmptyTop = hasAdjacentInnerTopTJunction(p, layout);
     boolean openUpEmpty = isEmptyForTJunctionOpen(n.getUp(), layout);
     boolean upDoubleDueToVertical = xorEndsVertical(n.getUp(), layout);
 
-    if (leftDiagonalCase || leftCornerDoubleCase) return "wall/t_inner_top_empty_left";
-    if (rightDiagonalCase || rightCornerDoubleCase) return "wall/t_inner_top_empty_right";
-    if (adjEmptyTop) return "wall/t_inner_top_empty";
-    if (leftTriggerCase) return "wall/t_inner_top_empty_left";
-    if (rightTriggerCase) return "wall/t_inner_top_empty_right";
-    if (openUpEmpty || upDoubleDueToVertical) return "wall/t_inner_top_empty";
-    return "wall/t_inner_top";
+    boolean anyEmptyTop = newStrictEmpty || adjEmptyTop || openUpEmpty || upDoubleDueToVertical;
+
+    String result = "wall/t_inner_top";
+
+    if (bothDiagFloors) {
+      result = "wall/t_inner_top";
+    } else if (leftDiagonalCase || leftCornerDoubleCase || leftTriggerCase) {
+      result = "wall/t_inner_top_empty_left";
+    } else if (rightDiagonalCase || rightCornerDoubleCase || rightTriggerCase) {
+      result = "wall/t_inner_top_empty_right";
+    } else if (anyEmptyTop) {
+      result = "wall/t_inner_top_empty";
+    }
+
+    return result;
   }
 
   private static String selectBottomTJunctionTexture(Coordinate p, LevelElement[][] layout) {
