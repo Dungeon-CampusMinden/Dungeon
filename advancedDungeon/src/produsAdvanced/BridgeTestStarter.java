@@ -14,6 +14,7 @@ import java.util.logging.Level;
 
 import core.utils.Vector2;
 import produsAdvanced.abstraction.Hero;
+import produsAdvanced.abstraction.portals.systems.PortalExtendSystem;
 import produsAdvanced.level.LightBridgeTestLevel;
 
 /**
@@ -72,6 +73,10 @@ public class BridgeTestStarter {
     Game.add(new StaminaBarSystem());
     Game.add(new Debugger());
     Game.add(new LevelEditorSystem());
+    DebugDrawSystem debugDrawSystem = new DebugDrawSystem();
+    Game.add(debugDrawSystem);
+    debugDrawSystem.toggleHUD();
+    Game.add(new PortalExtendSystem());
   }
 
   /** Erstellt die Spieler-Held-Entität und fügt sie dem Spiel hinzu. */

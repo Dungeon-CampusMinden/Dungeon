@@ -15,6 +15,9 @@ import core.utils.Point;
 import core.utils.components.path.SimpleIPath;
 import entities.LightBridgeFactory;
 import entities.LightWallFactory;
+import entities.TractorBeamFactory;
+import produsAdvanced.abstraction.portals.PortalColor;
+import produsAdvanced.abstraction.portals.PortalFactory;
 
 import java.util.*;
 import level.AdvancedLevel;
@@ -100,16 +103,20 @@ public class LightBridgeTestLevel extends AdvancedLevel {
     });
     Game.add(wallLever);
 
-    Point extendLeverPos = new Point(10, 7);
-    extendLever = LeverFactory.createLever(extendLeverPos, new ICommand() {
-      @Override public void execute() {  LightWallFactory.extendWall(wallEmitter,new Point(1, 4), Direction.RIGHT); }
-      @Override public void undo() { LightWallFactory.trimWall(wallEmitter); }
+    extendLever = LeverFactory.createLever(new Point(11, 7), new ICommand() {
+      @Override public void execute() {
+        PortalFactory.createPortal(new Point(8, 0), PortalColor.BLUE);
+        PortalFactory.createPortal(new Point(1, 0), PortalColor.GREEN);
+      }
+      @Override public void undo() {
+        PortalFactory.clearAllPortals();
+      }
     });
     Game.add(extendLever);
 
+    //PortalFactory.createPortal(new Point(8, 0), PortalColor.BLUE);
+    //PortalFactory.createPortal(new Point(1, 0), PortalColor.GREEN);
 
-
-    //tractorBeamEntities.forEach(Game::add);
     spawnChortFireballShooter(15,5);
     spawnChortFireballShooter(15,4);
     spawnChortFireballShooter(15,3);
