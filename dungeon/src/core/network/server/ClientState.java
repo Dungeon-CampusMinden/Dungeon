@@ -224,7 +224,11 @@ public class ClientState {
     return sessionId;
   }
 
-  /** Returns the last processed seq (initially -1). */
+  /**
+   * Returns the last processed seq (initially -1).
+   *
+   * @return The last processed seq.
+   */
   public int lastProcessedSeq() {
     return lastProcessedSeq;
   }

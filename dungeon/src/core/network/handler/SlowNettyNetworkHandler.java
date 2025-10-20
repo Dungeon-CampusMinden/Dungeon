@@ -8,11 +8,20 @@ import java.util.concurrent.*;
 /**
  * A network handler that simulates slow network conditions by introducing artificial latency and
  * packet loss. Extends the {@link NettyNetworkHandler} to override the send method.
+ *
+ * <p>Packets can be dropped based on predefined drop rates for client and server. Latency is added
+ * to each packet sent.
+ *
+ * @see NettyNetworkHandler
  */
 public class SlowNettyNetworkHandler extends NettyNetworkHandler {
-  public static final float CLIENT_PACKAGE_DROP_RATE = 0.0f; // drop rate (0.0 - 1.0)
-  public static final float SERVER_PACKAGE_DROP_RATE = 0.0f; // drop rate (0.0 - 1.0)
+  /** Drop rate for client packets (0.0 - 1.0). */
+  public static final float CLIENT_PACKAGE_DROP_RATE = 0.1f; // drop rate (0.0 - 1.0)
 
+  /** Drop rate for server packets (0.0 - 1.0). */
+  public static final float SERVER_PACKAGE_DROP_RATE = 0.1f; // drop rate (0.0 - 1.0)
+
+  /** Network latency in milliseconds to be added to each packet. */
   public static final long NETWORK_LATENCY_MS = 100; // ms of latency added to each packet
 
   private static final Random RANDOM = new Random();

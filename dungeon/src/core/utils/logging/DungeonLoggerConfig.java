@@ -279,7 +279,6 @@ public final class DungeonLoggerConfig {
           System.out.println("Using existing log file: " + filepath);
         } else {
           logFile.createNewFile();
-          System.out.println("Created log file: " + filepath);
         }
 
         fileHandler = new FileHandler(filepath, true);

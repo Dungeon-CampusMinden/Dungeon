@@ -92,8 +92,6 @@ public final class Game {
     }
 
     try {
-      // Always route raw messages into the game dispatcher on the game thread
-      networkHandler.setMessageConsumer(networkHandler.messageDispatcher()::dispatch);
       // Explicitly inject a SnapshotTranslator before initialization
       networkHandler.snapshotTranslator(NetworkConfig.SNAPSHOT_TRANSLATOR);
       networkHandler.initialize(

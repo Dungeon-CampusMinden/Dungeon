@@ -8,7 +8,6 @@ import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
 import core.network.server.Session;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 /**
  * Central handler for sending game-related messages.
@@ -121,17 +120,6 @@ public interface INetworkHandler {
   void snapshotTranslator(SnapshotTranslator translator);
 
   /**
-   * Internal method: Sets the consumer for raw incoming messages.
-   *
-   * <p>This method is intended for the internal use of the NetworkHandler implementation (e.g.,
-   * Netty-based handler) to feed raw messages into the MessageDispatcher. Game code should use
-   * {@link #messageDispatcher()} to register specific handlers.
-   *
-   * @param rawMessageConsumer A consumer that processes raw incoming messages.
-   */
-  void setMessageConsumer(BiConsumer<Session, NetworkMessage> rawMessageConsumer);
-
-  /**
    * Registers a listener for connection lifecycle events.
    *
    * <p>Implementations must ensure that listener callbacks are invoked on the game loop thread, not
@@ -162,8 +150,7 @@ public interface INetworkHandler {
    * Drains any queued inbound network messages and dispatches them on the game loop thread.
    *
    * <p>Default is a no-op; implementations with IO threads should override this and deliver
-   * messages to {@link #messageDispatcher()} or the raw consumer set via {@link
-   * #setMessageConsumer(BiConsumer)}.
+   * messages to {@link #messageDispatcher()}.
    */
   default void pollAndDispatch() {}
 }

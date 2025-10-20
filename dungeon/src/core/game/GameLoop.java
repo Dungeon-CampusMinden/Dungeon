@@ -207,9 +207,14 @@ public final class GameLoop extends ScreenAdapter {
               || (s instanceof DebugDrawSystem);
         });
 
-    if (Game.network() instanceof LocalNetworkHandler localHandler) {
-      // If we are in single player, we can trigger the state update directly.
-      localHandler.triggerStateUpdate();
+    if (Game.network() instanceof LocalNetworkHandler) {
+      // If we are in single player, we can send snapshots to ourselves directly.
+      Game.network()
+          .snapshotTranslator()
+          .translateToSnapshot(Game.currentTick())
+          .ifPresent(
+              snapshot ->
+                  Game.network().messageDispatcher().dispatch(Game.network().session(), snapshot));
     }
     CameraSystem.camera().update();
     // stage logic
