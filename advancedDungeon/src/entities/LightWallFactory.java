@@ -1,6 +1,9 @@
 package entities;
 
 import contrib.components.CollideComponent;
+import core.utils.Vector2;
+import produsAdvanced.abstraction.portals.components.PortalExtendComponent;
+import produsAdvanced.abstraction.portals.components.PortalComponent;
 import core.Component;
 import core.Entity;
 import core.Game;
@@ -16,13 +19,13 @@ import core.utils.components.draw.animation.Animation;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
+import produsAdvanced.abstraction.portals.components.TractorBeamComponent;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.LinkedHashMap;
 
 /**
  * Eine Factory-Klasse zum Erstellen von "Lichtwand"-Entitäten.
@@ -82,7 +85,8 @@ public class LightWallFactory {
       pc.rotation(rotationFor(direction));
       emitter.add(pc);
 
-      emitter.add(new CollideComponent());
+
+
       DrawComponent dc = new DrawComponent(EMITTER_TEXTURE_INACTIVE);
       dc.depth(DepthLayer.Normal.depth());
       emitter.add(dc);
@@ -105,27 +109,36 @@ public class LightWallFactory {
      * @param from Startpunkt der Erweiterung.
      * @param direction Richtung der Erweiterung.
      */
-    public void extend(Point from, Direction direction) {
-      trim(); // Bestehende Erweiterung entfernen
-      System.out.println(
-          "DEBUG: extend() called. Defining new extended beam from "
-              + from
-              + " in direction "
-              + direction);
+    public void extend(Direction direction, Point from, PortalExtendComponent portalExtendComponent) {
+      trim();
+      System.out.println("DEBUG [LWC.extend]: Called with direction=" + direction + ", from=" + from);
+      System.out.println("DEBUG [LWC.extend]: Current active state: " + active);
+      System.out.println("DEBUG [LWC.extend]: Current segments.size(): " + segments.size());
 
       Point end = calculateEndPoint(from, direction);
+      System.out.println("DEBUG [LWC.extend]: Calculated end point: " + end);
+
       int totalPoints = calculateNumberOfPoints(from, end);
+      System.out.println("DEBUG [LWC.extend]: Total points to create: " + totalPoints);
+
       for (int i = 0; i < totalPoints; i++) {
         Entity segment = createNextSegment(from, end, totalPoints, i, direction);
         this.extendedSegments.add(segment);
+        System.out.println("DEBUG [LWC.extend]: Created segment " + (i+1) + "/" + totalPoints + " at " + segment.fetch(PositionComponent.class).map(pc -> pc.position()).orElse(null));
       }
-      System.out.println(
-          "DEBUG: Defined " + extendedSegments.size() + " segments for the extended beam.");
+
+      System.out.println("DEBUG [LWC.extend]: Extended segments created: " + extendedSegments.size());
 
       if (active) {
-        System.out.println("DEBUG: Wall is active, adding extended segments to game now.");
-        extendedSegments.forEach(Game::add);
+        System.out.println("DEBUG [LWC.extend]: Wall is ACTIVE, adding segments to game immediately.");
+        extendedSegments.forEach(e -> {
+          System.out.println("DEBUG [LWC.extend]: Adding entity " + e.name() + " to game");
+          Game.add(e);
+        });
         segments.addAll(extendedSegments);
+        System.out.println("DEBUG [LWC.extend]: Total segments after extend: " + segments.size());
+      } else {
+        System.out.println("DEBUG [LWC.extend]: Wall is INACTIVE, segments will be added on next activation.");
       }
     }
 
@@ -163,6 +176,21 @@ public class LightWallFactory {
               this.segments.add(segment);
             }
             System.out.println("DEBUG: Base beam has " + this.segments.size() + " segments.");
+
+            Point wallEmitterPos = new Point(8, 7);
+            Point endPoint = calculateEndPoint(wallEmitterPos, direction);
+            float width = 1;
+            float height = Math.abs(endPoint.y() - wallEmitterPos.y());
+            Point offset = new Point(0f, -height + 0f);
+
+            CollideComponent cc = new CollideComponent(
+              Vector2.of(offset.x(), offset.y()),
+              Vector2.of(width, height),
+              CollideComponent.DEFAULT_COLLIDER,
+              (a, b, c) -> {});
+            //cc.isSolid(false);
+            owner.add(cc);
+
           });
 
       // Erweiterung zur Hauptliste hinzufügen
@@ -176,6 +204,8 @@ public class LightWallFactory {
       segments.forEach(Game::add);
 
       updateEmitterVisual(true);
+
+
     }
 
     /** Deaktiviert die Lichtwand, entfernt alle ihre Segmente aus dem Spiel. */
@@ -193,6 +223,10 @@ public class LightWallFactory {
               + " segments).");
       // extendedSegments bleiben als Definition für die nächste Aktivierung erhalten
       updateEmitterVisual(false);
+
+      // Angenommen, 'emitter' ist Ihre Entitäts-Variable
+      owner.remove(CollideComponent.class);
+
     }
 
     /**
@@ -236,7 +270,7 @@ public class LightWallFactory {
       Entity segment = new Entity("lightWallSegment");
       segment.add(pc);
 
-      segment.add(new CollideComponent()); // Fügt die Kollisionskomponente hinzu
+      //segment.add(new CollideComponent());
 
       pc.rotation(rotationFor(segmentDirection));
 
@@ -284,11 +318,28 @@ public class LightWallFactory {
     LightWallComponent wallComponent = new LightWallComponent(emitter, direction);
     emitter.add(wallComponent);
 
+    PortalExtendComponent pec = new PortalExtendComponent();
+    pec.onExtend = (d,e,portalExtendComponent) -> {
+      //System.out.println("DEBUG: PortalExtendComponent Direction: " + d + ", From: " + e);
+      Point testPoint = new Point(e.x(), e.y() + 1);
+      extendWall(emitter, testPoint, d, portalExtendComponent);
+    };
+    pec.onTrim = (emitterEntity) -> {
+      System.out.println("DEBUG [onTrim]: Called for entity " + emitterEntity.name());
+      trimWall(emitter);
+    };
+    emitter.add(pec);
+
+    // Workaround für PortalExtendSystem
+    //emitter.add(new TractorBeamComponent(direction, from, new ArrayList<>()));
+
     if (active) {
       emitter.fetch(LightWallComponent.class).ifPresent(LightWallComponent::activate);
     }
 
     Game.add(emitter);
+
+
     return emitter;
   }
 
@@ -317,8 +368,22 @@ public class LightWallFactory {
    * @param from Der Startpunkt des neuen Strahls.
    * @param direction Die Richtung des neuen Strahls.
    */
-  public static void extendWall(Entity wallEmitter, Point from, Direction direction) {
-    wallEmitter.fetch(LightWallComponent.class).ifPresent(c -> c.extend(from, direction));
+  public static void extendWall(Entity wallEmitter, Point from, Direction direction, PortalExtendComponent pec) {
+    System.out.println("DEBUG [extendWall]: Called with wallEmitter=" + wallEmitter.name());
+    System.out.println("DEBUG [extendWall]: Has LightWallComponent? " + wallEmitter.isPresent(LightWallComponent.class));
+
+    wallEmitter
+      .fetch(LightWallComponent.class)
+      .ifPresentOrElse(
+        c -> {
+          System.out.println("DEBUG [extendWall]: LightWallComponent found, calling extend...");
+          c.extend(direction, from, pec);
+          System.out.println("DEBUG [extendWall]: extend() returned");
+        },
+        () -> System.out.println("DEBUG [extendWall]: LightWallComponent NOT FOUND!")
+      );
+
+    System.out.println("Extend called from factory");
   }
 
   /**
@@ -369,11 +434,25 @@ public class LightWallFactory {
   private static Point calculateEndPoint(Point from, Direction beamDirection) {
     Point lastPoint = from;
     Point currentPoint = from;
-    Tile currentTile = Game.tileAt(from).orElse(null);
-    while (currentTile != null && !(currentTile instanceof WallTile)) {
+
+    while (true) {
+      Tile currentTile = Game.tileAt(currentPoint).orElse(null);
+
+      // Strahl stoppt, wenn er außerhalb des Levels ist
+      if (currentTile == null) {
+        break;
+      }
+
+      // Prüfen, ob sich auf dem aktuellen Tile eine Wand befindet
+      boolean isWall = currentTile instanceof WallTile;
+
+      // Strahl stoppt an einer Wand
+      if (isWall) {
+        break;
+      }
+
       lastPoint = currentPoint;
       currentPoint = currentPoint.translate(beamDirection);
-      currentTile = Game.tileAt(currentPoint).orElse(null);
     }
     return lastPoint;
   }
