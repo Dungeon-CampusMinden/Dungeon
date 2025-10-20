@@ -127,6 +127,17 @@ public class DungeonLoader {
   }
 
   /**
+   * Clears all levels from the level order and resets the current level index.
+   *
+   * @see #addLevel(Tuple[])
+   */
+  public static void clearLevels() {
+    levelOrder.clear();
+    currentLevel = -1;
+    currentVariant = 0;
+  }
+
+  /**
    * Returns the current level order.
    *
    * @return The current level order.

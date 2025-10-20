@@ -842,8 +842,6 @@ public final class Game {
     }
     if (Gdx.app != null) {
       Gdx.app.exit();
-    } else {
-      java.lang.System.exit(0);
     }
   }
 
