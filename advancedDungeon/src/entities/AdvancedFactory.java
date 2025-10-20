@@ -16,7 +16,6 @@ import core.utils.Direction;
 import core.utils.Point;
 import core.utils.TriConsumer;
 import core.utils.components.draw.animation.Animation;
-import core.utils.components.draw.state.DirectionalState;
 import core.utils.components.draw.state.State;
 import core.utils.components.draw.state.StateMachine;
 import core.utils.components.path.SimpleIPath;
@@ -40,9 +39,9 @@ public class AdvancedFactory {
   private static final float cube_mass = 3f;
   private static final float cube_maxSpeed = 10f;
 
-  private static final SimpleIPath PORTAL_KUBUS = new SimpleIPath("portal/kubus");
-  private static final float kubus_mass = 3f;
-  private static final float kubus_maxSpeed = 10f;
+  private static final SimpleIPath PORTAL_SPHERE = new SimpleIPath("portal/kubus");
+  private static final float sphere_mass = 3f;
+  private static final float sphere_maxSpeed = 10f;
 
   /**
    * Creates a laser grid entity at the given position.
@@ -184,11 +183,16 @@ public class AdvancedFactory {
     return portalCube;
   }
 
-  public static Entity kubus(Point position) {
-    Entity kubus = new Entity("kubus");
+  /**
+   * Creats a sphere which can be moved by walking into it.
+   *
+   * @param position the position where the sphere will spawn.
+   * @return the sphere entity
+   */
+  public static Entity moveableSphere(Point position) {
+    Entity sphere = new Entity("moveableSphere");
 
-    Map<String, Animation> animationMap =
-      Animation.loadAnimationSpritesheet(PORTAL_KUBUS);
+    Map<String, Animation> animationMap = Animation.loadAnimationSpritesheet(PORTAL_SPHERE);
 
     State stIdle = new State("idle", animationMap.get("idle"));
     State stMove = new State("move", animationMap.get("move"));
@@ -198,24 +202,25 @@ public class AdvancedFactory {
     sm.addTransition(stMove, "move", stMove);
     sm.addTransition(stMove, "idle", stIdle);
 
+    sphere.add(new DrawComponent(sm));
+    sphere.add(new PositionComponent(position));
+    sphere.add(new VelocityComponent(sphere_maxSpeed, sphere_mass, entity -> {}, false));
+    sphere.add(
+        new CollideComponent(
+            CollideComponent.DEFAULT_OFFSET,
+            CollideComponent.DEFAULT_SIZE,
+            ((self, other, direction) -> {
+              other
+                  .fetch(PlayerComponent.class)
+                  .ifPresent(
+                      player -> {
+                        VelocityComponent vc = self.fetch(VelocityComponent.class).get();
+                        VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
+                        vc.currentVelocity(otherVc.currentVelocity());
+                      });
+            }),
+            CollideComponent.DEFAULT_COLLIDER));
 
-    kubus.add(new DrawComponent(sm));
-    kubus.add(new PositionComponent(position));
-    kubus.add(new VelocityComponent(kubus_maxSpeed, kubus_mass, entity -> {}, false));
-    kubus.add(new CollideComponent(
-      CollideComponent.DEFAULT_OFFSET,
-      CollideComponent.DEFAULT_SIZE,
-      ((self, other, direction) -> {
-        other.fetch(PlayerComponent.class).ifPresent(player -> {
-          VelocityComponent vc = self.fetch(VelocityComponent.class).get();
-          VelocityComponent otherVc = other.fetch(VelocityComponent.class).get();
-          vc.currentVelocity(otherVc.currentVelocity());
-        });
-      }),
-      CollideComponent.DEFAULT_COLLIDER
-    ));
-
-
-    return kubus;
+    return sphere;
   }
 }
