@@ -70,12 +70,19 @@ public class MoveSystem extends System {
     boolean canEnterOpenPits = data.vc.canEnterOpenPits();
     boolean canEnterWalls = data.vc.canEnterWalls();
     boolean canEnterGitter = data.vc.canEnterGitter();
+    boolean canEnterGlasswalls = data.vc.canEnterGlasswalls();
 
     Vector2 offset = data.vc.moveboxOffset();
     Vector2 size = data.vc.moveboxSize();
 
     if (!CollisionUtils.isCollidingWithLevel(
-        newPos, offset, size, canEnterOpenPits, canEnterWalls, canEnterGitter)) {
+        newPos,
+        offset,
+        size,
+        canEnterOpenPits,
+        canEnterWalls,
+        canEnterGitter,
+        canEnterGlasswalls)) {
       data.pc.position(newPos);
     } else {
       // Try moving only along x or y axis for wall sliding
@@ -84,10 +91,22 @@ public class MoveSystem extends System {
 
       boolean xAccessible =
           !CollisionUtils.isCollidingWithLevel(
-              xMove, offset, size, canEnterOpenPits, canEnterWalls, canEnterGitter);
+              xMove,
+              offset,
+              size,
+              canEnterOpenPits,
+              canEnterWalls,
+              canEnterGitter,
+              canEnterGlasswalls);
       boolean yAccessible =
           !CollisionUtils.isCollidingWithLevel(
-              yMove, offset, size, canEnterOpenPits, canEnterWalls, canEnterGitter);
+              yMove,
+              offset,
+              size,
+              canEnterOpenPits,
+              canEnterWalls,
+              canEnterGitter,
+              canEnterGlasswalls);
 
       if (xAccessible) {
         data.pc.position(xMove);
