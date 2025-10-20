@@ -15,6 +15,10 @@ import core.utils.FontHelper;
 import core.utils.Point;
 import core.utils.Vector2;
 
+/**
+ * A system to quickly test decorations, adjust colliders and save the resulting collider as
+ * Rectangle definition to the clipboard.
+ */
 public class DecoTestSystem extends System {
 
   private static final int CHANGE_MODE = Input.Keys.UP;
@@ -30,10 +34,12 @@ public class DecoTestSystem extends System {
   private Mode currentMode = Mode.ChangeDeco;
   private final BitmapFont font;
 
+  /** Constructor for DecoTestSystem. */
   public DecoTestSystem() {
     font = FontHelper.getFont("fonts/Roboto-Bold.ttf", 16);
   }
 
+  /** Executes the system. */
   @Override
   public void execute() {
     drawStatus();
@@ -67,28 +73,30 @@ public class DecoTestSystem extends System {
     }
   }
 
-  private void drawStatus(){
+  private void drawStatus() {
     String modeText = "Mode: " + currentMode.name();
     modeText += "\nControls: Change Mode (UP), Modify (+RIGHT/-LEFT), Move Deco (DOWN)";
 
-    if(testEntity != null){
+    if (testEntity != null) {
       modeText += String.format("\nCurrent Deco: %s", currentDeco.name());
 
-      if(testEntity.fetch(CollideComponent.class).isPresent()){
+      if (testEntity.fetch(CollideComponent.class).isPresent()) {
         CollideComponent cc = testEntity.fetch(CollideComponent.class).get();
-        modeText += String.format(
-          "\nCollider: Rectangle(%.2ff, %.2ff, %.2ff, %.2ff)",
-          cc.collider().width(),
-          cc.collider().height(),
-          cc.collider().offset().x(),
-          cc.collider().offset().y());
+        modeText +=
+            String.format(
+                "\nCollider: Rectangle(%.2ff, %.2ff, %.2ff, %.2ff)",
+                cc.collider().width(),
+                cc.collider().height(),
+                cc.collider().offset().x(),
+                cc.collider().offset().y());
       }
     } else {
       modeText += "\nNo Deco selected. Change Deco to create one.";
     }
 
     float offset = 10;
-    DebugDrawSystem.drawText(font, modeText, new Point(offset, Gdx.graphics.getHeight() - offset));
+    DebugDrawSystem.drawText(
+        font, modeText, new Point(offset, Gdx.graphics.getHeight() - offset - 200));
   }
 
   /**
@@ -194,6 +202,11 @@ public class DecoTestSystem extends System {
     ModifySizeWidth,
     ModifySizeHeight;
 
+    /**
+     * Get the next mode.
+     *
+     * @return The next mode
+     */
     public Mode next() {
       return values()[(this.ordinal() + 1) % values().length];
     }

@@ -6,8 +6,16 @@ import core.utils.components.draw.animation.SpritesheetConfig;
 import java.util.ArrayList;
 import java.util.List;
 
+/** A factory class for creating composite decorative entities. */
 public class CompositeDecoFactory {
 
+  /**
+   * Creates a chain of big trees with the specified length.
+   *
+   * @param pos the position where to spawn the chain
+   * @param length the length of the tree chain. At least 3
+   * @return the list of tree segment entities
+   */
   public static List<Entity> createTreeChain(Point pos, int length) {
     if (length <= 2) throw new IllegalArgumentException("Length must be greater than 2");
 
@@ -15,8 +23,6 @@ public class CompositeDecoFactory {
     SpritesheetConfig treeL = Deco.TreeBigChainL.config().config().get();
     SpritesheetConfig treeM = Deco.TreeBigChainM.config().config().get();
     float lTreeOffset = treeL.spriteWidth() / 16f;
-    //    float lTreeOffset = (treeL.spriteWidth() / 16f) -
-    // Deco.BigTreeChainL.defaultColliderOffset().x();
 
     entities.add(DecoFactory.createDeco(pos, Deco.TreeBigChainL));
     for (int i = 1; i < length - 1; i++) {
@@ -32,12 +38,4 @@ public class CompositeDecoFactory {
 
     return entities;
   }
-
-  //  public static List<Entity> createArch(Point pos){
-  //    List<Entity> entities = new ArrayList<>();
-  //    entities.add(DecoFactory.createDeco(pos, Deco.ArchL));
-  //    entities.add(DecoFactory.createDeco(pos.translate(1, 1), Deco.ArchC));
-  //    entities.add(DecoFactory.createDeco(pos.translate(2, 0), Deco.ArchR));
-  //    return entities;
-  //  }
 }

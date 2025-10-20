@@ -17,8 +17,23 @@ import core.utils.components.path.SimpleIPath;
 import java.util.Arrays;
 import java.util.Map;
 
+/**
+ * A factory class for creating Non-Player Character (NPC) entities.
+ *
+ * <p>This factory provides a method to create NPCs with predefined components such as position,
+ * drawing, collision, and velocity. The NPCs are initialized with a state machine to handle idle
+ * and movement animations based on their velocity.
+ */
 public class NPCFactory {
 
+  /**
+   * Creates a Non-Player Character (NPC) entity at the specified position with animations loaded
+   * from the given path.
+   *
+   * @param pos the position where the NPC should be created
+   * @param path the path to the spritesheet for the NPC's animations
+   * @return the created NPC entity
+   */
   public static Entity createNPC(Point pos, String path) {
     Entity npc = new Entity("NPC");
     npc.add(new PositionComponent(pos));

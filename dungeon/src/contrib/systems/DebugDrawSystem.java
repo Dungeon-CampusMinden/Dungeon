@@ -57,7 +57,7 @@ public class DebugDrawSystem extends System {
       new Color(0f, 0f, 0f, 0.75f); // semi-transparent black
 
   private static final int CIRCLE_SEGMENTS = 60; // resolution of circles (higher = smoother)
-  private static final BitmapFont FONT = FontHelper.getFont("fonts/Roboto-Bold.ttf", 16);
+  private static final BitmapFont FONT = FontHelper.DEFAULT_FONT;
   private boolean render = false;
 
   @Override
@@ -365,6 +365,14 @@ public class DebugDrawSystem extends System {
     this.run = true;
   }
 
+  /**
+   * Draws text on the screen at the specified screen coordinates with the given font and color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   * @param color the color of the text
+   */
   public static void drawText(BitmapFont font, String text, Point screen, Color color) {
     UI_BATCH.setProjectionMatrix(UI_CAM.combined);
     UI_BATCH.begin();
@@ -373,27 +381,71 @@ public class DebugDrawSystem extends System {
     UI_BATCH.end();
   }
 
+  /**
+   * Draws text on the screen at the specified screen coordinates with the given font in white
+   * color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   */
   public static void drawText(BitmapFont font, String text, Point screen) {
     drawText(font, text, screen, Color.WHITE);
   }
 
+  /**
+   * Draws text on the screen at the specified screen coordinates with the default font and given
+   * color.
+   *
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   * @param color the color of the text
+   */
   public static void drawText(String text, Point screen, Color color) {
     drawText(FONT, text, screen, color);
   }
 
+  /**
+   * Draws text on the screen at the specified screen coordinates with the default font in white
+   * color.
+   *
+   * @param text the text string to draw
+   * @param screen the screen coordinates where the text should be drawn
+   */
   public static void drawText(String text, Point screen) {
     drawText(FONT, text, screen, Color.WHITE);
   }
 
+  /**
+   * Draws text in world coordinates using the specified font and color.
+   *
+   * @param font the {@link BitmapFont} to use for rendering the text
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   * @param color the color of the text
+   */
   public static void drawTextInWorldCoords(BitmapFont font, String text, Point world, Color color) {
     Vector3 screen = CameraSystem.camera().project(new Vector3(world.x(), world.y(), 0));
     drawText(font, text, new Point(screen.x, screen.y), color);
   }
 
+  /**
+   * Draws text in world coordinates using the specified font in white color.
+   *
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   * @param color the color of the text
+   */
   public static void drawTextInWorldCoords(String text, Point world, Color color) {
     drawTextInWorldCoords(FONT, text, world, color);
   }
 
+  /**
+   * Draws text in world coordinates using the default font in white color.
+   *
+   * @param text the text string to draw
+   * @param world the world coordinates where the text should be drawn
+   */
   public static void drawTextInWorldCoords(String text, Point world) {
     drawTextInWorldCoords(FONT, text, world, Color.WHITE);
   }

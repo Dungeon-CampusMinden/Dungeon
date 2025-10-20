@@ -1,7 +1,5 @@
 package starter;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
 import contrib.crafting.Crafting;
 import contrib.entities.CharacterClass;
 import contrib.entities.HeroFactory;
@@ -44,7 +42,6 @@ public class SpriteTestRoom {
   private static void onSetup() {
     Game.userOnSetup(
         () -> {
-          setupMusic();
           DungeonLoader.addLevel(Tuple.of("spritetest", Level01.class));
           createSystems();
           try {
@@ -68,7 +65,7 @@ public class SpriteTestRoom {
         contrib.configuration.KeyboardConfig.class,
         core.configuration.KeyboardConfig.class);
     Game.disableAudio(true);
-    Game.frameRate(30);
+    Game.frameRate(60);
   }
 
   private static void createSystems() {
@@ -94,12 +91,5 @@ public class SpriteTestRoom {
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());
     if (DEBUG_MODE) Game.add(new Debugger());
-  }
-
-  private static void setupMusic() {
-    Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal(BACKGROUND_MUSIC));
-    backgroundMusic.setLooping(true);
-    backgroundMusic.play();
-    backgroundMusic.setVolume(.05f);
   }
 }
