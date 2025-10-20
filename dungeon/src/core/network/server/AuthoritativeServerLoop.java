@@ -12,22 +12,38 @@ import core.Entity;
 import core.Game;
 import core.components.PositionComponent;
 import core.game.ECSManagment;
-import core.game.GameLoop;
 import core.game.PreRunConfiguration;
 import core.level.Tile;
 import core.level.loader.DungeonLoader;
-import core.network.messages.c2s.InputMessage;
 import core.network.messages.s2c.EntitySpawnEvent;
 import core.network.messages.s2c.GameOverEvent;
-import core.network.messages.s2c.LevelChangeEvent;
 import core.systems.*;
 import core.utils.Point;
-import core.utils.Tuple;
-import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
-import java.util.Queue;
 import java.util.concurrent.*;
 
+/**
+ * The main server loop for the authoritative multiplayer server.
+ *
+ * <p>Handles ticking the game state, processing client inputs, and sending snapshots to clients at
+ * configured rates.
+ *
+ * <p>Spawns hero entities for connected clients and removes them on disconnection.
+ *
+ * <p>Usage:
+ *
+ * <pre>
+ *   ServerTransport serverTransport = new ServerTransport(port);
+ *   AuthoritativeServerLoop serverLoop = new AuthoritativeServerLoop(serverTransport);
+ *   serverLoop.start();
+ *   // ... later when stopping the server
+ *   serverLoop.stop();
+ * </pre>
+ *
+ * @see ServerTransport The network transport used for communication.
+ * @see HeroController The controller for hero entity actions.
+ * @see HeroFactory The factory for creating hero entities.
+ */
 public final class AuthoritativeServerLoop {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(AuthoritativeServerLoop.class);
@@ -37,6 +53,11 @@ public final class AuthoritativeServerLoop {
   private final ScheduledExecutorService executor;
   private volatile int serverTick = 0;
 
+  /**
+   * Creates a new AuthoritativeServerLoop with the given ServerTransport.
+   *
+   * @param netService The ServerTransport to use for network communication.
+   */
   public AuthoritativeServerLoop(ServerTransport netService) {
     this.net = netService;
     this.executor =
@@ -48,6 +69,10 @@ public final class AuthoritativeServerLoop {
             });
   }
 
+  /**
+   * Starts the server loop, initializing necessary components and scheduling tick and snapshot
+   * tasks.
+   */
   public void start() {
     Gdx.files = new HeadlessFiles();
 
@@ -55,7 +80,6 @@ public final class AuthoritativeServerLoop {
 
     PreRunConfiguration.userOnSetup().execute();
 
-    createSystems();
     try {
       DungeonLoader.afterAllLevels(
           () -> Game.network().broadcast(new GameOverEvent("All levels completed"), true));
@@ -90,95 +114,39 @@ public final class AuthoritativeServerLoop {
     LOGGER.info("ServerLoop started: tickHz={}, snapshotHz={}", SERVER_TICK_HZ, SERVER_SNAPSHOT_HZ);
   }
 
+  /** Stops the server loop, shutting down the executor service. */
   public void stop() {
     executor.shutdownNow();
     LOGGER.info("ServerLoop stopped");
   }
 
+  /**
+   * Checks if the server loop is currently running.
+   *
+   * @return true if running, false otherwise.
+   */
   public boolean isRunning() {
     return !executor.isShutdown();
-  }
-
-  private void createSystems() {
-    ECSManagment.add(new PositionSystem());
-    ECSManagment.add(
-        new LevelSystem(
-            () -> {
-              GameLoop.onLevelLoad.execute();
-              this.broadcastLevelChange();
-            }));
-    ECSManagment.add(new VelocitySystem());
-    ECSManagment.add(new FrictionSystem());
-    ECSManagment.add(new MoveSystem());
-    ECSManagment.add(new ProjectileSystem());
-    ECSManagment.add(new HealthSystem());
-    ECSManagment.add(new PathSystem());
-    ECSManagment.add(new AISystem());
-    ECSManagment.add(new CollisionSystem());
-    ECSManagment.add(new FallingSystem());
-    ECSManagment.add(new ManaRestoreSystem());
-    ECSManagment.add(new DrawSystem());
-    ECSManagment.add(new LeverSystem());
-    ECSManagment.add(new PressurePlateSystem());
-    ECSManagment.add(new EventScheduler());
   }
 
   private void tick() {
     try {
       //noinspection NonAtomicOperationOnVolatileField only place where serverTick is modified
       serverTick++;
+      // Drain any inbound network messages on the game thread before running systems
+      try {
+        Game.network().pollAndDispatch();
+      } catch (Exception e) {
+        LOGGER.warn("Error while polling network messages: " + e.getMessage());
+      }
       syncClientsToEntities();
-      drainAndApplyInputs(net.inputQueue());
+      PreRunConfiguration.userOnFrame().execute();
       ECSManagment.runOneFrame(core.System.AuthoritativeSide.SERVER);
     } catch (Exception e) {
       LOGGER.error("Tick error", e);
     } catch (Throwable t) {
       LOGGER.error("Unexpected error in server loop", t);
       stop();
-    }
-  }
-
-  /**
-   * Drains the input queue and applies valid inputs to the corresponding hero entities. Processes
-   * messages in arrival order (FIFO), but discards stale/duplicate inputs based on sequence
-   * numbers. Intended to be called per server tick in the AuthoritativeServerLoop for batched,
-   * deterministic application.
-   *
-   * @param queue The concurrent input queue (global or per-client).
-   */
-  private void drainAndApplyInputs(Queue<Tuple<ClientState, InputMessage>> queue) {
-    Tuple<ClientState, InputMessage> tuple;
-    while ((tuple = queue.poll()) != null) {
-      ClientState clientState = tuple.a();
-      InputMessage msg = tuple.b();
-
-      // TODO: Reconcile inputs based on clientTick vs serverTick and RTT
-
-      // Get hero entity
-      Entity entity = clientState.heroEntity().orElse(null);
-      if (entity == null) {
-        LOGGER.warn("No hero entity for client {}", clientState);
-        continue;
-      }
-
-      // Apply input
-      try {
-        switch (msg.action()) {
-          case MOVE -> HeroController.moveHero(entity, Vector2.of(msg.point()).direction());
-          case MOVE_PATH -> HeroController.moveHeroPath(entity, msg.point());
-          case CAST_SKILL -> HeroController.useSkill(entity, msg.point());
-          case NEXT_SKILL -> HeroController.changeSkill(entity, true);
-          case PREV_SKILL -> HeroController.changeSkill(entity, false);
-          case INTERACT -> HeroController.interact(entity, msg.point());
-          default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
-        }
-        // On success: Update processed seq and activity
-        clientState.updateProcessedSeq(msg.sequence());
-        clientState.updateLastActivity();
-        LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
-      } catch (Exception e) {
-        LOGGER.error("Failed to apply input for client {}: {}", clientState, e.getMessage());
-      }
     }
   }
 
@@ -190,10 +158,6 @@ public final class AuthoritativeServerLoop {
             snapshot -> {
               Game.network().broadcast(snapshot, true);
             });
-  }
-
-  private void broadcastLevelChange() {
-    Game.network().broadcast(LevelChangeEvent.currentLevel(), true);
   }
 
   private void syncClientsToEntities() {

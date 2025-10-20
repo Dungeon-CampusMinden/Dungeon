@@ -14,6 +14,19 @@ import core.utils.Direction;
 import core.utils.logging.DungeonLogger;
 import java.util.*;
 
+/**
+ * The default implementation of {@link SnapshotTranslator}.
+ *
+ * <p>Server-side: builds a {@link SnapshotMessage} from authoritative entities.
+ *
+ * <p>Client-side: applies a {@link SnapshotMessage} by dispatching granular updates via {@link
+ * MessageDispatcher}.
+ *
+ * <p>By default, it includes entities with {@link PositionComponent} and {@link DrawComponent}, as
+ * well as UI entities (with {@link UIComponent}).
+ *
+ * @see SnapshotTranslator
+ */
 public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(DefaultSnapshotTranslator.class);

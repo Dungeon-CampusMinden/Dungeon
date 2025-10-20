@@ -10,6 +10,10 @@ public interface ConnectionListener {
   /** Called when the handler successfully starts and becomes connected. */
   void onConnected();
 
-  /** Called when the handler disconnects. If orderly, {@code reason} is null. */
+  /**
+   * Called when the handler disconnects.
+   *
+   * @param reason the reason for disconnection, or null if orderly
+   */
   void onDisconnected(String reason);
 }

@@ -87,6 +87,9 @@ public class ClientState {
     if (username == null || username.isBlank()) {
       throw new IllegalArgumentException("username must be non-null, non-empty");
     }
+    if (sessionToken == null) {
+      throw new IllegalArgumentException("sessionToken must be non-null");
+    }
 
     this.clientId = clientId;
     this.username = username;

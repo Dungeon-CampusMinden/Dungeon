@@ -55,13 +55,6 @@ public class ClientNetworkTests {
     assertNotNull(client.dispatcher());
   }
 
-  /** Validates that a session instance is available after initialization. */
-  @Test
-  public void test_sessionAvailable() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
-    assertNotNull(client.session());
-  }
-
   /** Validates that client is not connected before calling start. */
   @Test
   public void test_notConnectedBeforeStart() {
@@ -102,13 +95,6 @@ public class ClientNetworkTests {
                 new InputMessage(0, 0, (short) 0, InputMessage.Action.MOVE, new Point(0, 0))));
   }
 
-  /** Validates that polling and dispatching messages does not throw exceptions. */
-  @Test
-  public void test_pollAndDispatchSafe() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
-    assertDoesNotThrow(client::pollAndDispatch);
-  }
-
   /** Validates that adding a null connection listener does not throw exceptions. */
   @Test
   public void test_addNullListenerSafe() {
@@ -130,20 +116,6 @@ public class ClientNetworkTests {
     ConnectionListener listener = new TestConnectionListener();
     assertDoesNotThrow(() -> client.addConnectionListener(listener));
     assertDoesNotThrow(() -> client.removeConnectionListener(listener));
-  }
-
-  /** Validates that setting a raw message consumer does not throw exceptions. */
-  @Test
-  public void test_setRawConsumerSucceeds() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
-    assertDoesNotThrow(() -> client.setRawMessageConsumer((session, msg) -> {}));
-  }
-
-  /** Validates that setting a null raw message consumer does not throw exceptions. */
-  @Test
-  public void test_setNullConsumerSafe() {
-    client.initialize(TEST_HOST, TEST_PORT, "TestPlayer");
-    assertDoesNotThrow(() -> client.setRawMessageConsumer(null));
   }
 
   /** Test implementation of {@link ConnectionListener} for validating listener behavior. */

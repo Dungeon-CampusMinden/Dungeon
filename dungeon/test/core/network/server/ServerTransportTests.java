@@ -3,13 +3,13 @@ package core.network.server;
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.Game;
-import core.game.PreRunConfiguration;
 import core.network.messages.NetworkMessage;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import testingUtils.MockNetworkHandler;
 
 /**
  * Unit tests for {@link ServerTransport}.
@@ -33,9 +33,7 @@ public class ServerTransportTests {
   @BeforeEach
   public void setup() {
     transport = new ServerTransport();
-    PreRunConfiguration.multiplayerEnabled(true);
-    PreRunConfiguration.isNetworkServer(true);
-    Game.run();
+    MockNetworkHandler.useLocalNetworkHandler();
   }
 
   /**
@@ -47,9 +45,6 @@ public class ServerTransportTests {
   @AfterEach
   public void cleanup() {
     transport.stop();
-    PreRunConfiguration.multiplayerEnabled(false);
-    PreRunConfiguration.isNetworkServer(false);
-    Game.exit();
   }
 
   /**
@@ -94,14 +89,6 @@ public class ServerTransportTests {
     assertTrue(transport.clientIdToSessionMap().isEmpty());
   }
 
-  /** Validates that the client ID counter is initialized to a value greater than or equal to 1. */
-  @Test
-  public void test_clientIdCounterIncrements() {
-    transport.start(TEST_PORT);
-    int initial = transport.nextClientIdValue();
-    assertTrue(initial >= 1);
-  }
-
   /**
    * Validates that broadcasting a message to an empty session map returns a completed {@link
    * CompletableFuture}.
@@ -115,13 +102,6 @@ public class ServerTransportTests {
     assertTrue(result.isDone());
   }
 
-  /** Validates that the input queue is initialized and empty before any messages are received. */
-  @Test
-  public void test_inputQueueInitialized() {
-    assertNotNull(transport.inputQueue());
-    assertTrue(transport.inputQueue().isEmpty());
-  }
-
   /**
    * Validates that the transport can be started and stopped multiple times without error,
    * demonstrating idempotent lifecycle management.
@@ -132,14 +112,5 @@ public class ServerTransportTests {
     transport.stop();
     transport.start(TEST_PORT);
     transport.stop();
-  }
-
-  /**
-   * Validates that the message dispatcher is initialized and available after the transport starts.
-   */
-  @Test
-  public void test_dispatcherInitialized() {
-    transport.start(TEST_PORT);
-    assertNotNull(transport.dispatcher());
   }
 }

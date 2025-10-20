@@ -3,7 +3,6 @@ package core.network;
 import static org.junit.jupiter.api.Assertions.*;
 
 import core.Game;
-import core.game.PreRunConfiguration;
 import core.network.handler.NettyNetworkHandler;
 import core.network.messages.NetworkMessage;
 import java.util.concurrent.CompletableFuture;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import testingUtils.MockNetworkHandler;
 
 /**
  * Unit tests for {@link NettyNetworkHandler}.
@@ -30,6 +30,7 @@ public class NettyNetworkHandlerTests {
   @BeforeEach
   public void setup() {
     handler = new NettyNetworkHandler();
+    MockNetworkHandler.useLocalNetworkHandler();
   }
 
   /** Shuts down the network handler after each test to ensure clean state. */
@@ -60,17 +61,10 @@ public class NettyNetworkHandlerTests {
   @Test
   public void test_broadcastInServerMode() throws Exception {
     handler.initialize(true, null, TEST_PORT, null);
-    PreRunConfiguration.multiplayerEnabled(true);
-    PreRunConfiguration.isNetworkServer(true);
-    Game.run();
 
     handler.start();
     NetworkMessage msg = Mockito.mock(NetworkMessage.class);
     assertDoesNotThrow(() -> handler.broadcast(msg, true));
-
-    PreRunConfiguration.multiplayerEnabled(false);
-    PreRunConfiguration.isNetworkServer(false);
-    Game.exit();
   }
 
   /**
@@ -86,9 +80,9 @@ public class NettyNetworkHandlerTests {
 
   /** Validates that the assigned client ID is 0 before connection is established. */
   @Test
-  public void test_getAssignedClientId() throws Exception {
+  public void test_assignedClientId() throws Exception {
     handler.initialize(false, TEST_HOST, TEST_PORT, "TestPlayer");
-    assertEquals(0, (short) handler.getAssignedClientId());
+    assertEquals(0, (short) handler.assignedClientId());
   }
 
   /** Validates that calling shutdown multiple times is safe and idempotent. */

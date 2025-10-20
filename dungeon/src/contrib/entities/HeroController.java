@@ -12,14 +12,34 @@ import core.components.PositionComponent;
 import core.components.VelocityComponent;
 import core.level.Tile;
 import core.level.utils.LevelUtils;
+import core.network.messages.c2s.InputMessage;
+import core.network.server.ClientState;
 import core.utils.Direction;
 import core.utils.Point;
+import core.utils.Tuple;
 import core.utils.Vector2;
 import core.utils.components.MissingComponentException;
+import core.utils.logging.DungeonLogger;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Stream;
 
+/**
+ * Controller class for handling hero entity actions such as movement, skill usage, and
+ * interactions.
+ *
+ * <p>Provides static methods to manipulate the hero entity based on input commands, including
+ * moving in a direction, following a path, using skills, and interacting with entities.
+ *
+ * <p>Also manages an input queue for processing client inputs in a server-authoritative manner.
+ *
+ * @see HeroFactory HeroFactory for creating hero entities
+ */
 public class HeroController {
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(HeroController.class);
+  private static final Queue<Tuple<ClientState, InputMessage>> inputQueue =
+      new ConcurrentLinkedQueue<>();
 
   /** If true, the hero can be moved with the mouse. */
   public static final boolean ENABLE_MOUSE_MOVEMENT = true;
@@ -29,7 +49,14 @@ public class HeroController {
 
   private HeroController() {}
 
+  /**
+   * Moves the hero entity in the specified direction by applying a force to its VelocityComponent.
+   *
+   * @param hero the hero entity to move
+   * @param direction the direction to move the hero
+   */
   public static void moveHero(Entity hero, Direction direction) {
+    LOGGER.debug("Moving hero {} in direction {}", hero.id(), direction);
     // TODO: get correct class
     CharacterClass heroClass = HeroFactory.DEFAULT_HERO_CLASS;
 
@@ -53,7 +80,17 @@ public class HeroController {
     }
   }
 
+  /**
+   * Moves the hero entity along a path to the specified target point. Calculates a path from the
+   * hero's current position to the target using LevelUtils. If a valid path is found, it is stored
+   * in the hero's {@link PathComponent} for path-following behavior.
+   *
+   * @param hero the hero entity to move
+   * @param target the target point to move towards
+   * @see contrib.systems.PathSystem PathSystem
+   */
   public static void moveHeroPath(Entity hero, Point target) {
+    LOGGER.debug("Moving hero {} to point {}", hero.id(), target);
     Point heroPos =
         hero.fetch(PositionComponent.class).map(PositionComponent::position).orElse(null);
     if (heroPos == null) return;
@@ -80,7 +117,16 @@ public class HeroController {
             () -> hero.add(new PathComponent(finalPath)));
   }
 
+  /**
+   * Uses the hero's active skill targeting the specified point. If the active skill is a
+   * CursorSkill or ProjectileSkill, sets the target position accordingly before executing the
+   * skill.
+   *
+   * @param hero the hero entity using the skill
+   * @param target the target point for the skill
+   */
   public static void useSkill(Entity hero, Point target) {
+    LOGGER.debug("Hero {} using skill at point {}", hero.id(), target);
     hero.fetch(SkillComponent.class)
         .flatMap(SkillComponent::activeSkill)
         .ifPresent(
@@ -105,6 +151,7 @@ public class HeroController {
    * @param point the target point where the interaction is attempted (e.g., cursor position)
    */
   public static void interact(Entity hero, Point point) {
+    LOGGER.debug("Hero {} interacting at point {}", hero.id(), point);
     PositionComponent heroPc =
         hero.fetch(PositionComponent.class)
             .orElseThrow(() -> MissingComponentException.build(hero, PositionComponent.class));
@@ -122,6 +169,10 @@ public class HeroController {
 
     // If nothing found at point OR found but out of range, search in 1-tile radius around hero
     if (target.isEmpty() || !targetInRange) {
+      LOGGER.trace(
+          "No interactable found at point {}, searching in radius around hero {}",
+          point,
+          hero.id());
       target =
           LevelUtils.tilesInRange(heroPc.position(), 1f).stream()
               .flatMap(Game::entityAtTile)
@@ -130,7 +181,7 @@ public class HeroController {
     }
 
     // Trigger interaction if entity found and within interaction radius
-    target.ifPresent(
+    target.ifPresentOrElse(
         entity -> {
           InteractionComponent ic = entity.fetch(InteractionComponent.class).orElseThrow();
           PositionComponent targetPc =
@@ -140,9 +191,13 @@ public class HeroController {
                       () -> MissingComponentException.build(entity, PositionComponent.class));
 
           if (heroPc.position().distance(targetPc.position()) <= ic.radius()) {
+            LOGGER.trace("Hero {} interacting with entity {}", hero.id(), entity.id());
             ic.triggerInteraction(entity, hero);
+          } else {
+            LOGGER.trace("Entity {} out of interaction range for hero {}", entity.id(), hero.id());
           }
-        });
+        },
+        () -> LOGGER.trace("No interactable entity found for hero {} to interact with", hero.id()));
   }
 
   /**
@@ -161,12 +216,71 @@ public class HeroController {
         && heroPc.position().distance(targetPc.position()) <= ic.radius();
   }
 
+  /**
+   * Changes the active skill of the hero entity. If nextSkill is true, switches to the next skill;
+   * otherwise, switches to the previous skill.
+   *
+   * @param hero the hero entity whose skill is to be changed
+   * @param nextSkill if true, switch to the next skill; if false, switch to the previous skill
+   */
   public static void changeSkill(Entity hero, boolean nextSkill) {
+    LOGGER.debug("Hero {} changing skill, nextSkill={}", hero.id(), nextSkill);
     hero.fetch(SkillComponent.class)
         .ifPresent(
             skillComponent -> {
               if (nextSkill) skillComponent.nextSkill();
               else skillComponent.prevSkill();
             });
+  }
+
+  /**
+   * Adds an input message from a client to the input queue for processing.
+   *
+   * @param clientState The state of the client sending the input.
+   * @param msg The input message to enqueue.
+   */
+  public static void enqueueInput(ClientState clientState, InputMessage msg) {
+    inputQueue.add(Tuple.of(clientState, msg));
+  }
+
+  /**
+   * Drains the input queue and applies valid inputs to the corresponding hero entities. Processes
+   * messages in arrival order (FIFO), but discards stale/duplicate inputs based on sequence
+   * numbers. Intended to be called per server tick in the AuthoritativeServerLoop or equivalent.
+   */
+  public static void drainAndApplyInputs() {
+    Tuple<ClientState, InputMessage> tuple;
+    while ((tuple = inputQueue.poll()) != null) {
+      ClientState clientState = tuple.a();
+      InputMessage msg = tuple.b();
+
+      // TODO: Reconcile inputs based on clientTick vs serverTick and RTT
+
+      // Get hero entity
+      Entity entity = clientState.heroEntity().orElse(null);
+      if (entity == null) {
+        LOGGER.warn("No hero entity for client {}", clientState);
+        continue;
+      }
+
+      // Apply input
+      try {
+        switch (msg.action()) {
+          case MOVE -> HeroController.moveHero(entity, Vector2.of(msg.point()).direction());
+          case MOVE_PATH -> HeroController.moveHeroPath(entity, msg.point());
+          case CAST_SKILL -> HeroController.useSkill(entity, msg.point());
+          case NEXT_SKILL -> HeroController.changeSkill(entity, true);
+          case PREV_SKILL -> HeroController.changeSkill(entity, false);
+          case INTERACT -> HeroController.interact(entity, msg.point());
+          default -> LOGGER.warn("Unknown action {} for client {}", msg.action(), clientState);
+        }
+        // On success: Update processed seq and activity
+        clientState.updateProcessedSeq(msg.sequence());
+        clientState.updateLastActivity();
+        LOGGER.trace("Applied input for client {} (action: {})", clientState, msg.action());
+      } catch (Exception e) {
+        LOGGER.error("Failed to apply input for client {}: {}", clientState, e.getMessage());
+      }
+    }
   }
 }

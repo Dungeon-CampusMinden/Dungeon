@@ -478,6 +478,13 @@ public class StateMachine implements Serializable {
     resetFrame = value;
   }
 
+  /**
+   * Changes the current state by its name, passing optional data to the new state.
+   *
+   * @param stateName the name of the target state
+   * @param data optional data to pass to the new state
+   * @throws IllegalArgumentException if the state with the given name doesn't exist
+   */
   public void setState(String stateName, Object data) {
     State state = getState(stateName);
     if (state != null) {

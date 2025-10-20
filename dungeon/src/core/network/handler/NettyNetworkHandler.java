@@ -100,7 +100,7 @@ public class NettyNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public int getAssignedClientId() {
+  public int assignedClientId() {
     return serverMode ? 0 : clientIdSafe();
   }
 
@@ -120,6 +120,9 @@ public class NettyNetworkHandler implements INetworkHandler {
 
   @Override
   public SnapshotTranslator snapshotTranslator() {
+    if (translator == null) {
+      throw new IllegalStateException("SnapshotTranslator has not been set.");
+    }
     return translator;
   }
 
@@ -154,5 +157,6 @@ public class NettyNetworkHandler implements INetworkHandler {
   @Override
   public void pollAndDispatch() {
     if (!serverMode) client.pollAndDispatch();
+    else server.pollAndDispatch();
   }
 }

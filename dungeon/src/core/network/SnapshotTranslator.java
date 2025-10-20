@@ -23,6 +23,9 @@ public interface SnapshotTranslator {
    * Client-side application: convert the snapshot into granular updates and dispatch them.
    *
    * <p>Must not manipulate game-thread state directly; only dispatch to the provided dispatcher.
+   *
+   * @param snapshot the received snapshot message
+   * @param dispatcher the message dispatcher to handle granular updates
    */
   void applySnapshot(SnapshotMessage snapshot, MessageDispatcher dispatcher);
 }

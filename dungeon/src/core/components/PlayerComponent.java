@@ -26,18 +26,33 @@ public final class PlayerComponent implements Component, Serializable {
   private final boolean isLocalHero;
   private final String playerName;
 
-  /** Create a new PlayerComponent. */
+  /**
+   * Create a new PlayerComponent.
+   *
+   * <p>The player name defaults to "Player".
+   *
+   * @param isLocalHero whether this player is the local hero
+   */
   public PlayerComponent(boolean isLocalHero) {
     this(isLocalHero, "Player");
   }
 
-  /** Create a new PlayerComponent. */
+  /**
+   * Create a new PlayerComponent.
+   *
+   * @param isLocalHero whether this player is the local hero
+   * @param playerName the name of the player
+   */
   public PlayerComponent(boolean isLocalHero, String playerName) {
     this.isLocalHero = isLocalHero;
     this.playerName = playerName;
   }
 
-  /** Gets whether this player is the local hero. */
+  /**
+   * Gets whether this player is the local hero.
+   *
+   * @return true if this player is the local hero, otherwise false
+   */
   public boolean isLocalHero() {
     return isLocalHero;
   }
@@ -61,7 +76,11 @@ public final class PlayerComponent implements Component, Serializable {
     return openDialogs > 0;
   }
 
-  /** Gets the name of the player. */
+  /**
+   * Gets the name of the player.
+   *
+   * @return the name of the player
+   */
   public String playerName() {
     return playerName;
   }

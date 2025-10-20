@@ -2,19 +2,19 @@ package core.network.handler;
 
 import contrib.entities.HeroController;
 import core.Game;
+import core.game.PreRunConfiguration;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.NetworkException;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
+import core.network.server.ClientState;
 import core.network.server.Session;
-import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 /**
  * A mock network handler for single-player/local or test mode that simulates network behavior
@@ -26,23 +26,36 @@ import java.util.function.BiConsumer;
 public class LocalNetworkHandler implements INetworkHandler {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(LocalNetworkHandler.class);
 
+  // Message / translation utilities
   private final MessageDispatcher dispatcher = new MessageDispatcher();
-  private final Session dummySession = new Session(null);
-  private BiConsumer<Session, NetworkMessage> rawMessageConsumer;
+  private volatile SnapshotTranslator translator;
+
+  // Dummy session and client state
+  private final byte[] dummySessionToken = new byte[] {0, 1, 2, 3, 4, 5, 6, 7};
+  private final ClientState dummyState =
+      new ClientState((short) 0, PreRunConfiguration.username(), 0, dummySessionToken);
+  private final Session dummySession =
+      new Session(
+          null,
+          (addr, msg) -> send((short) 0, null, true),
+          (ctx, msg) -> send((short) 0, null, true));
+
+  // Connection listeners
+  private final List<ConnectionListener> connectionListeners = new ArrayList<>();
+
+  // Lifecycle flags
   private boolean isRunning = false;
   private boolean isInitialized = false;
-  private final List<ConnectionListener> connectionListeners = new ArrayList<>();
-  private volatile SnapshotTranslator translator;
 
   @Override
   public void initialize(boolean isServer, String serverAddress, int port, String username)
       throws NetworkException {
     this.isInitialized = true;
+    dummySession.attachClientState(dummyState);
   }
 
   @Override
   public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {
-    // No op
     return CompletableFuture.completedFuture(true);
   }
 
@@ -56,14 +69,8 @@ public class LocalNetworkHandler implements INetworkHandler {
     Game.hero()
         .ifPresent(
             hero -> {
-              switch (input.action()) {
-                case MOVE -> HeroController.moveHero(hero, Vector2.of(input.point()).direction());
-                case MOVE_PATH -> HeroController.moveHeroPath(hero, input.point());
-                case CAST_SKILL -> HeroController.useSkill(hero, input.point());
-                case NEXT_SKILL -> HeroController.changeSkill(hero, true);
-                case PREV_SKILL -> HeroController.changeSkill(hero, false);
-                case INTERACT -> HeroController.interact(hero, input.point());
-              }
+              HeroController.enqueueInput(dummyState, input);
+              HeroController.drainAndApplyInputs(); // Apply immediately in local mode
             });
   }
 
@@ -74,6 +81,7 @@ public class LocalNetworkHandler implements INetworkHandler {
       return;
     }
     this.isRunning = true;
+    Game.hero().ifPresent(dummyState::heroEntity);
     LOGGER.info("LocalNetworkHandler started.");
     notifyConnected();
   }
@@ -103,14 +111,13 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public SnapshotTranslator snapshotTranslator() {
-    SnapshotTranslator t = translator;
-    if (t == null) {
+    if (translator == null) {
       throw new IllegalStateException(
           "SnapshotTranslator not set on INetworkHandler. Set via "
               + "snapshotTranslator(...) before starting network or provide translator in "
               + "starter.");
     }
-    return t;
+    return translator;
   }
 
   @Override
@@ -120,7 +127,7 @@ public class LocalNetworkHandler implements INetworkHandler {
 
   @Override
   public void pollAndDispatch() {
-    // Local handler processes immediately; nothing to drain.
+    // No op
   }
 
   @Override

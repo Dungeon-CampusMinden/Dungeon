@@ -99,8 +99,7 @@ public final class Game {
           PreRunConfiguration.networkServerAddress(),
           PreRunConfiguration.networkPort(),
           PreRunConfiguration.username());
-      networkHandler.start();
-      LOGGER.info("Network handler initialized and started.");
+      LOGGER.info("Network handler initialized.");
     } catch (NetworkException e) {
       LOGGER.error("Failed to initialize network handler.", e);
     }
