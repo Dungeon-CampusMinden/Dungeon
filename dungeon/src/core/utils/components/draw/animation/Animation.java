@@ -102,7 +102,7 @@ public class Animation implements Serializable, Cloneable {
       this.framePaths = new ArrayList<>();
       this.framePaths.add(exactPath);
       // Try to read actual texture size if available; else fallback
-      if (canUseTextures() && TextureMap.instance().containsKey(exactPath.pathString())) {
+      if (canUseTextures() || TextureMap.instance().containsKey(exactPath.pathString())) {
         Texture t = TextureMap.instance().textureAt(exactPath);
         calculateWorldSize(t.getWidth(), t.getHeight());
       } else {
@@ -138,7 +138,7 @@ public class Animation implements Serializable, Cloneable {
     this.framePaths = new ArrayList<>(paths);
 
     // Size from first frame if possible
-    if (canUseTextures() && TextureMap.instance().containsKey(paths.get(0).pathString())) {
+    if (canUseTextures() || TextureMap.instance().containsKey(paths.get(0).pathString())) {
       Texture t = TextureMap.instance().textureAt(paths.get(0));
       calculateWorldSize(t.getWidth(), t.getHeight());
     } else {

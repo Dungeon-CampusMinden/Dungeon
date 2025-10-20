@@ -12,12 +12,14 @@ import core.level.DungeonLevel;
 import core.level.Tile;
 import core.level.elements.ILevel;
 import core.level.elements.tile.ExitTile;
+import core.level.loader.DungeonLoader;
 import core.utils.IVoidFunction;
 import core.utils.Point;
 import core.utils.components.draw.TextureMap;
 import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
@@ -37,6 +39,12 @@ public class LevelSystemTest {
   private ILevel level;
 
   private MockedConstruction<Texture> textureMockedConstruction;
+
+  /** Clears all levels from the DungeonLoader before all tests. */
+  @BeforeAll
+  public static void beforeAll() {
+    DungeonLoader.clearLevels();
+  }
 
   /**
    * Sets up mocks and initializes the LevelSystem before each test.
