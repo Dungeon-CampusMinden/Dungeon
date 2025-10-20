@@ -164,6 +164,10 @@ public class TileTextureFactory {
       return new SimpleIPath("wall/corner_upper_right_inner_empty");
     }
 
+    if (isAtBorder(p, layout) && !hasAdjacentFloor(p, layout)) {
+      return new SimpleIPath("wall/empty");
+    }
+
     IPath inner = selectInnerVerticalWallTexture(p, layout);
     if (inner != null) return inner;
 
@@ -1370,6 +1374,22 @@ public class TileTextureFactory {
 
   private static boolean forceDoubleBottomRight(Coordinate p, LevelElement[][] layout) {
     return forceDoubleCorner(p, layout, 0, -1, 1, 0, 0, 1, -1, 0);
+  }
+
+  private static boolean isAtBorder(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    return n.getUpE() == null
+        || n.getDownE() == null
+        || n.getLeftE() == null
+        || n.getRightE() == null;
+  }
+
+  private static boolean hasAdjacentFloor(Coordinate p, LevelElement[][] layout) {
+    Neighbors n = Neighbors.of(p, layout);
+    return n.getUpE() == LevelElement.FLOOR
+        || n.getDownE() == LevelElement.FLOOR
+        || n.getLeftE() == LevelElement.FLOOR
+        || n.getRightE() == LevelElement.FLOOR;
   }
 
   /**
