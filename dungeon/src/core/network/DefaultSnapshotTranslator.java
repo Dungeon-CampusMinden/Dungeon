@@ -156,7 +156,7 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                     .fetch(PositionComponent.class)
                     .ifPresent(
                         pc -> {
-                          pc.position(snap.position());
+                          snap.position().ifPresent(pc::position);
                           snap.viewDirection()
                               .ifPresent(
                                   viewDir -> {

@@ -71,20 +71,46 @@ public record InputMessage(
     currentSequence = 0;
   }
 
+  /**
+   * The action types for player input.
+   *
+   * <p>Defines the various actions a player can perform, such as moving, casting skills, and
+   * interacting with objects.
+   */
   public enum Action {
+    /** Move to a specific {@link core.utils.Direction direction}. */
     MOVE(0),
+    /**
+     * Move along a path to a specific {@link core.utils.Point point}.
+     *
+     * @see contrib.systems.PathSystem PathSystem
+     */
     MOVE_PATH(1),
+    /** Cast a skill towards or at a specific {@link core.utils.Point point}. */
     CAST_SKILL(2),
+    /** Interact with an object at a specific {@link core.utils.Point point}. */
     INTERACT(3),
+    /** Switch to the next skill in the player's skill set. */
     NEXT_SKILL(4),
+    /** Switch to the previous skill in the player's skill set. */
     PREV_SKILL(5);
 
     private final byte value;
 
+    /**
+     * Constructor for Action enum.
+     *
+     * @param value the byte value representing the action
+     */
     Action(int value) {
       this.value = (byte) value;
     }
 
+    /**
+     * Get the byte value of the action.
+     *
+     * @return the byte value representing the action
+     */
     public byte value() {
       return value;
     }

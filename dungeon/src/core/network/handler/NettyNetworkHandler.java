@@ -9,7 +9,6 @@ import core.network.server.Session;
 import core.utils.logging.DungeonLogger;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 /**
  * Unified network handler implementing dual-mode (server/client) networking capabilities via
@@ -150,11 +149,6 @@ public class NettyNetworkHandler implements INetworkHandler {
     if (serverMode)
       throw new UnsupportedOperationException("Session not available in server mode.");
     return client.session();
-  }
-
-  @Override
-  public void setMessageConsumer(BiConsumer<Session, NetworkMessage> rawMessageConsumer) {
-    if (!serverMode) client.setRawMessageConsumer(rawMessageConsumer);
   }
 
   @Override

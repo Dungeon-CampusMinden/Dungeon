@@ -1,30 +1,24 @@
 package core.network.handler;
 
-import contrib.components.HealthComponent;
-import contrib.components.ManaComponent;
 import contrib.entities.HeroController;
 import core.Game;
-import core.components.DrawComponent;
-import core.components.PositionComponent;
 import core.network.ConnectionListener;
 import core.network.MessageDispatcher;
 import core.network.NetworkException;
 import core.network.SnapshotTranslator;
 import core.network.messages.NetworkMessage;
 import core.network.messages.c2s.InputMessage;
-import core.network.messages.s2c.EntityState;
-import core.network.messages.s2c.SnapshotMessage;
 import core.network.server.Session;
 import core.utils.Vector2;
 import core.utils.logging.DungeonLogger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 /**
- * A mock network handler for single-player games.
+ * A mock network handler for single-player/local or test mode that simulates network behavior
+ * without actual network communication.
  *
  * <p>This handler processes game logic locally without real network communication, acting as both
  * client and server to keep architecture consistent between modes.
@@ -108,11 +102,6 @@ public class LocalNetworkHandler implements INetworkHandler {
   }
 
   @Override
-  public void setMessageConsumer(BiConsumer<Session, NetworkMessage> rawMessageConsumer) {
-    this.rawMessageConsumer = rawMessageConsumer;
-  }
-
-  @Override
   public SnapshotTranslator snapshotTranslator() {
     SnapshotTranslator t = translator;
     if (t == null) {
@@ -177,58 +166,5 @@ public class LocalNetworkHandler implements INetworkHandler {
         LOGGER.warn("ConnectionListener.onDisconnected threw", e);
       }
     }
-  }
-
-  public void triggerStateUpdate() {
-    if (!isRunning || !isInitialized || rawMessageConsumer == null) {
-      LOGGER.debug(
-          "LocalNetworkHandler not ready to send updates. Running: {}, Init: {}, Consumer: {}",
-          isRunning,
-          isInitialized,
-          (rawMessageConsumer != null));
-      return;
-    }
-
-    List<EntityState> snapshotEntities = new ArrayList<>();
-    Game.levelEntities()
-        .forEach(
-            entity -> {
-              EntityState.Builder builder = EntityState.builder();
-              builder.entityId(entity.id());
-
-              Optional<PositionComponent> pcOpt = entity.fetch(PositionComponent.class);
-              if (pcOpt.isEmpty()) return;
-              builder.position(pcOpt.get().position());
-              builder.viewDirection(pcOpt.get().viewDirection());
-              builder.rotation(pcOpt.get().rotation());
-
-              entity
-                  .fetch(HealthComponent.class)
-                  .ifPresent(
-                      hc -> {
-                        builder.currentHealth(hc.currentHealthpoints());
-                        builder.maxHealth(hc.maximalHealthpoints());
-                      });
-
-              entity
-                  .fetch(ManaComponent.class)
-                  .ifPresent(
-                      mc -> {
-                        builder.currentMana(mc.currentAmount());
-                        builder.maxMana(mc.maxAmount());
-                      });
-
-              entity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(
-                      dc -> {
-                        builder.stateName(dc.stateMachine().getCurrentStateName());
-                        builder.tintColor(dc.tintColor());
-                      });
-
-              snapshotEntities.add(builder.build());
-            });
-
-    rawMessageConsumer.accept(null, new SnapshotMessage(Game.currentTick(), snapshotEntities));
   }
 }

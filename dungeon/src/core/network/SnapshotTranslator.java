@@ -14,6 +14,8 @@ public interface SnapshotTranslator {
    * Server-side translation: build a snapshot for the given tick from authoritative entities.
    *
    * @param serverTick the current server tick
+   * @return an Optional containing the SnapshotMessage if there are updates, or empty if no new
+   *     updates are available
    */
   Optional<SnapshotMessage> translateToSnapshot(int serverTick);
 
