@@ -62,9 +62,10 @@ public class DebugDrawSystem extends System {
 
   @Override
   public void execute() {
+    UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
     if (!render) return;
 
-    UI_CAM.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
   }
